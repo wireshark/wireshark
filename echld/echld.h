@@ -69,10 +69,10 @@ typedef int echld_msgh_id_t;
 typedef struct _GByteArray enc_msg_t;
 
 /* sets the codec set by name */
-typedef enum _echld_encoding { 
+typedef enum _echld_encoding {
 	ECHLD_ENCODING_TEXT = 'T',
 	ECHLD_ENCODING_XML  = 'X',
-	ECHLD_ENCODING_JSON = 'J' 
+	ECHLD_ENCODING_JSON = 'J'
 } echld_encoding_t;
 
 typedef int echld_bool_t;
@@ -93,7 +93,7 @@ typedef struct _echld_init {
 	void* after_fork_cb_data;
 
 	cleanup_cb_t at_term_cb; /* to be called after echld_terminate() is done */
-	void* at_term_cb_data; 
+	void* at_term_cb_data;
 } echld_init_t;
 
 /* will initialize echld forking the dispatcher and registering protocols and taps */
@@ -122,7 +122,7 @@ WS_DLL_PUBLIC echld_error_t echld_get_error(const char** errstr_ptr);
  *        in msgh it's always the message for which it was set
  * msg_buff: the encoded message
  * cb_data: arbitrary data passed by the user in echld_reqh() or echld_msgh()
- * 
+ *
  * returns TRUE if other potential handlers are to be run, false otherwise
  */
 typedef echld_bool_t (*echld_msg_cb_t)(echld_msg_type_t type, enc_msg_t* msg_buff, void* cb_data);
@@ -136,7 +136,7 @@ typedef echld_bool_t (*echld_msg_cb_t)(echld_msg_type_t type, enc_msg_t* msg_buf
  * the enc_msg_t will be destroyed internally by the req handler
  * the resulting enc_msg_t can be used in a reqh just once.
  */
- 
+
 typedef struct _parent_out {
 	enc_msg_t* (*error)(int err, const char* text);
 	enc_msg_t* (*get_param)(const char* param);
@@ -169,7 +169,7 @@ WS_DLL_PUBLIC char* echld_decode(echld_msg_type_t, enc_msg_t*);
 
 WS_DLL_PUBLIC enc_msg_t* echld_new_child_params(void);
 
-/* takes the em, and param=value pairs of strings, NULL to end. 
+/* takes the em, and param=value pairs of strings, NULL to end.
     echld_new_child_params_add_params(em,param1_str,val1_str,param2_str,val2_str,NULL);  */
 WS_DLL_PUBLIC void echld_new_child_params_add_params(enc_msg_t*, ...);
 
@@ -193,11 +193,11 @@ WS_DLL_PUBLIC void echld_foreach_child(echld_iter_cb_t cb, void* cb_data);
  *
  */
 
-/* send a request with an optional response handler 
+/* send a request with an optional response handler
  *
  * ba is a enc_msg_t that contains the encoded message
  * resp_cb is the callback and cb_data the data it is going to be passed if executed
- * 
+ *
  * returns the reqh id */
 WS_DLL_PUBLIC echld_reqh_id_t echld_reqh(echld_chld_id_t, echld_msg_type_t, int usecs_timeout, enc_msg_t*, echld_msg_cb_t, void*);
 
@@ -232,7 +232,7 @@ WS_DLL_PUBLIC echld_state_t echld_reqh_detach(echld_chld_id_t, echld_reqh_id_t);
 WS_DLL_PUBLIC echld_msgh_id_t echld_msgh(echld_chld_id_t, echld_msg_type_t, echld_msg_cb_t resp_cb, void* msg_data);
 
 /* stop it */
-WS_DLL_PUBLIC echld_state_t echld_msgh_detach(echld_chld_id_t, echld_msgh_id_t); 
+WS_DLL_PUBLIC echld_state_t echld_msgh_detach(echld_chld_id_t, echld_msgh_id_t);
 
 /* get a msgh's data */
 WS_DLL_PUBLIC void* echld_msgh_get_data(echld_chld_id_t, echld_msgh_id_t);
@@ -309,7 +309,7 @@ enum _echld_msg_type_t {
 
 	ECHLD_NEW_CHILD = '*', /* out: creates a new working child  (handled internally)  */
 	ECHLD_HELLO = '@', /* in: the working child has being created (handled internally, then passed to msgh) */
-	
+
 	ECHLD_CHILD_DEAD = '#', /* in: a child has dead (handled internally, then passed to msgh) */
 
 	ECHLD_CLOSE_CHILD = 'Q', /* out: close the child  */
@@ -327,7 +327,7 @@ enum _echld_msg_type_t {
 						/* auto_sum RW: get summaries automatically (without a reqh, as msgh) */
 						/* auto_tree RW: get trees automatically (without a reqh, as msgh)   */
 						/* auto_buffer RW: get buffers automatically (without a reqh, as msgh) */
-						/* cwd RW: the current working directory */ 
+						/* cwd RW: the current working directory */
 						/* list_files WO: a file listing of the current dir */
 						/* interfaces RO: the interface listing */
 						/* dfilter RW:  initial display filter*/
@@ -336,7 +336,7 @@ enum _echld_msg_type_t {
 
 	ECHLD_PING = '}', /* out: ping the child  */
 	ECHLD_PONG = '{', /* out: ping's response, error or TO otherwise */
-	
+
 	ECHLD_OPEN_FILE = 'O', /* out: open a file  */
 	ECHLD_FILE_OPENED = 'o', /* in: the file has being open, error otherwise */
 
@@ -375,11 +375,11 @@ enum _echld_msg_type_t {
 
 	ECHLD_ADD_NOTE = 'N', /* out: add a note to the capture  */
 	ECHLD_NOTE_ADDED = 'n', /* in: a note has being added */
-	
+
 	ECHLD_APPLY_FILTER = 'A', /* in: apply a filter on the open file/capture */
 	ECHLD_PACKET_LIST = 'l', /* out: a packet list, or error or timeout */
 							/*(or what we have of it... or the next part... same reqh_id) */
-	
+
 	ECHLD_SAVE_FILE = 'W', /* out: save the open file/capture  */
 	ECHLD_FILE_SAVED = 'w', /* in: the file was saved */
 
