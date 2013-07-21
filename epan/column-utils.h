@@ -58,7 +58,7 @@ WS_DLL_PUBLIC void	col_cleanup(column_info *cinfo);
  *
  * Internal, don't use this in dissectors!
  */
-extern void	col_init(column_info *cinfo);
+extern void	col_init(column_info *cinfo, const struct epan_session *epan);
 
 /** Fill in all columns of the given packet which are based on values from frame_data.
  *
@@ -262,7 +262,7 @@ WS_DLL_PUBLIC void	col_append_sep_fstr(column_info *cinfo, const gint col, const
 WS_DLL_PUBLIC void 	col_set_time(column_info *cinfo, const int col,
 			const nstime_t *ts, const char *fieldname);
 
-WS_DLL_PUBLIC void set_fd_time(frame_data *fd, gchar *buf);
+WS_DLL_PUBLIC void set_fd_time(const struct epan_session *epan, frame_data *fd, gchar *buf);
 
 #ifdef __cplusplus
 }

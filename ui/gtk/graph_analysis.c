@@ -450,7 +450,7 @@ dialog_graph_dump_to_file(char *pathname, graph_analysis_data_t *user_data)
 		g_string_printf(label_string, "|%.3f", nstime_to_sec(&gai->fd->rel_ts));
 #endif
 		/* Write the time, using the same format as in the time col */
-		set_fd_time(gai->fd, time_str);
+		set_fd_time(cfile.epan, gai->fd, time_str);
 		g_string_printf(label_string, "|%s", time_str);
 		enlarge_string(label_string, 10, ' ');
 		fprintf(of, "%s", label_string->str);
@@ -775,7 +775,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	g_snprintf(label_string, MAX_LABEL, "%.3f", nstime_to_sec(&user_data->dlg.items[display_items-1].fd->rel_ts));
 #endif
 	/* Write the time, using the same format as in th etime col */
-	set_fd_time(user_data->dlg.items[display_items-1].fd, time_str);
+	set_fd_time(cfile.epan, user_data->dlg.items[display_items-1].fd, time_str);
 	g_snprintf(label_string, MAX_LABEL, "%s", time_str);
 	layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 	middle_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
@@ -968,7 +968,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		g_snprintf(label_string, MAX_LABEL, "%.3f", nstime_to_sec(&user_data->dlg.items[current_item].fd->rel_ts));
 #endif
 		/* Draw the time */
-		set_fd_time(user_data->dlg.items[current_item].fd, time_str);
+		set_fd_time(cfile.epan, user_data->dlg.items[current_item].fd, time_str);
 		g_snprintf(label_string, MAX_LABEL, "%s", time_str);
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);

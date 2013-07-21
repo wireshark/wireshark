@@ -129,6 +129,8 @@ typedef struct epan_session epan_t;
 
 WS_DLL_PUBLIC epan_t *epan_new(void);
 
+const nstime_t *epan_get_frame_ts(const epan_t *session, guint32 frame_num);
+
 WS_DLL_PUBLIC void epan_free(epan_t *session);
 
 WS_DLL_PUBLIC const gchar*

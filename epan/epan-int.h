@@ -24,8 +24,12 @@
 #ifndef __EPAN_INT_H__
 #define __EPAN_INT_H__
 
+#include <wsutil/nstime.h>
+
 struct epan_session {
-	void *reserved;
+	void *data;
+
+	const nstime_t *(*get_frame_ts)(void *data, guint32 frame_num);
 };
 
 #endif

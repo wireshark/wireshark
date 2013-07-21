@@ -178,6 +178,7 @@ LIBWIRESHARK_INCLUDES =		\
 	dtd_parse.h		\
 	eap.h			\
 	emem.h			\
+	epan-int.h		\
 	epan.h			\
 	epan_dissect.h		\
 	etypes.h		\

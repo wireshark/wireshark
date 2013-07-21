@@ -46,6 +46,7 @@ typedef struct {
 
 /** Column info */
 typedef struct _column_info {
+  const struct epan_session *epan;
   gint                num_cols;             /**< Number of columns */
   gint               *col_fmt;              /**< Format of column */
   gboolean          **fmt_matx;             /**< Specifies which formats apply to a column */

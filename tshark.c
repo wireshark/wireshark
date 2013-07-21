@@ -54,6 +54,7 @@
 #endif
 
 #include <glib.h>
+#include <epan/epan-int.h>
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <wsutil/crash_info.h>
@@ -2157,6 +2158,36 @@ pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe
 #endif
 }
 
+const nstime_t *
+tshark_get_frame_ts(void *data, guint32 frame_num)
+{
+  capture_file *cf = (capture_file *) data;
+
+  if (prev_dis && prev_dis->num == frame_num)
+    return &prev_dis->abs_ts;
+
+  if (prev_cap && prev_cap->num == frame_num)
+    return &prev_cap->abs_ts;
+
+  if (cf->frames) {
+     frame_data *fd = frame_data_sequence_find(cf->frames, frame_num);
+
+     return (fd) ? &fd->abs_ts : NULL;
+  }
+
+  return NULL;
+}
+
+epan_t *
+tshark_epan_new(capture_file *cf)
+{
+  epan_t *epan = epan_new();
+
+  epan->data = cf;
+  epan->get_frame_ts = tshark_get_frame_ts;
+
+  return epan;
+}
 
 #ifdef HAVE_LIBPCAP
 static gboolean
@@ -2198,7 +2229,7 @@ capture(void)
 
   /* Create new dissection section. */
   epan_free(cfile.epan);
-  cfile.epan = epan_new();
+  cfile.epan = tshark_epan_new(&cfile);
 
 #ifdef _WIN32
   /* Catch a CTRL+C event and, if we get it, clean up and exit. */
@@ -2694,7 +2725,7 @@ process_packet_first_pass(capture_file *cf,
       epan_dissect_prime_dfilter(&edt, cf->rfcode);
 
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
-                                  &first_ts, prev_dis, prev_cap);
+                                  &first_ts, prev_dis);
 
     epan_dissect_run(&edt, whdr, frame_tvbuff_new(&fdlocal, pd), &fdlocal, NULL);
 
@@ -2783,7 +2814,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
       cinfo = NULL;
 
     frame_data_set_before_dissect(fdata, &cf->elapsed_time,
-                                  &first_ts, prev_dis, prev_cap);
+                                  &first_ts, prev_dis);
 
     epan_dissect_run_with_taps(&edt, phdr, frame_tvbuff_new_buffer(fdata, buf), fdata, cinfo);
 
@@ -3245,7 +3276,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
       cinfo = NULL;
 
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
-                                  &first_ts, prev_dis, prev_cap);
+                                  &first_ts, prev_dis);
 
     epan_dissect_run_with_taps(&edt, whdr, frame_tvbuff_new(&fdata, pd), &fdata, cinfo);
 
@@ -3707,7 +3738,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   /* Create new epan session for dissection. */
   epan_free(cf->epan);
-  cf->epan = epan_new();
+  cf->epan = tshark_epan_new(cf);
 
   cf->wth = wth;
   cf->f_datalen = 0; /* not used, but set it anyway */

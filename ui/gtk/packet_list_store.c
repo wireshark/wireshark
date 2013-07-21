@@ -935,7 +935,7 @@ packet_list_compare_custom(gint sort_id, gint text_sort_id, PacketListRecord *a,
 	hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[sort_id]);
 
 	if (hfi == NULL) {
-		return frame_data_compare(a->fdata, b->fdata, COL_NUMBER);
+		return frame_data_compare(cfile.epan, a->fdata, b->fdata, COL_NUMBER);
 	} else if ((hfi->strings == NULL) &&
 		   (((IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)) &&
 		     ((hfi->display == BASE_DEC) || (hfi->display == BASE_DEC_HEX) ||
@@ -982,11 +982,11 @@ packet_list_compare_records(gint sort_id, gint text_sort_id, PacketListRecord *a
 	gint ret;
 
 	if (text_sort_id == -1)	/* based on frame_data ? */
-		return frame_data_compare(a->fdata, b->fdata, cfile.cinfo.col_fmt[sort_id]);
+		return frame_data_compare(cfile.epan, a->fdata, b->fdata, cfile.cinfo.col_fmt[sort_id]);
 
 	ret = _packet_list_compare_records(sort_id, text_sort_id, a, b);
 	if (ret == 0)
-		ret = frame_data_compare(a->fdata, b->fdata, COL_NUMBER);
+		ret = frame_data_compare(cfile.epan, a->fdata, b->fdata, COL_NUMBER);
 	return ret;
 }
 

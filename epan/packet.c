@@ -326,8 +326,9 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	wmem_allocator_t *tmp = edt->pi.pool;
 
 	if (cinfo != NULL)
-		col_init(cinfo);
+		col_init(cinfo, edt->session);
 	memset(&edt->pi, 0, sizeof(edt->pi));
+	edt->pi.epan = edt->session;
 	edt->pi.pool = tmp;
 	edt->pi.current_proto = "<Missing Protocol Name>";
 	edt->pi.cinfo = cinfo;

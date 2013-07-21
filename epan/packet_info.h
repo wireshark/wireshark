@@ -225,6 +225,7 @@ typedef struct _packet_info {
   GSList *frame_end_routines;
 
   struct _wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */
+  struct epan_session *epan;
 } packet_info;
 
 /**< For old code that hasn't yet been changed. */

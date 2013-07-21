@@ -84,8 +84,7 @@ typedef struct _frame_data {
   nstime_t     abs_ts;       /**< Absolute timestamp */
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
   nstime_t     rel_ts;       /**< Relative timestamp (yes, it can be negative) */
-  const struct _frame_data *prev_dis;   /**< Previous displayed frame */
-  const struct _frame_data *prev_cap;   /**< Previous captured frame */
+  guint32      prev_dis_num; /**< Previous displayed frame (0 if first one) */
   gchar        *opt_comment; /**< NULL if not available */
 } frame_data;
 
@@ -104,8 +103,11 @@ WS_DLL_PUBLIC void *p_get_proto_data(frame_data *fd, int proto, guint8 key);
 void p_remove_proto_data(frame_data *fd, int proto, guint8 key);
 gchar *p_get_proto_name_and_key(frame_data *fd, guint pfd_index);
 
+/* no sense to include epan.h + dependencies for opaque epan session type */
+struct epan_session;
+
 /** compare two frame_datas */
-WS_DLL_PUBLIC gint frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field);
+WS_DLL_PUBLIC gint frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2, int field);
 
 WS_DLL_PUBLIC void frame_data_reset(frame_data *fdata);
 
@@ -115,16 +117,15 @@ WS_DLL_PUBLIC void frame_data_init(frame_data *fdata, guint32 num,
                 const struct wtap_pkthdr *phdr, gint64 offset,
                 guint32 cum_bytes);
 
-extern void frame_delta_abs_time(const frame_data *fdata,
-                const frame_data *prev, nstime_t *delta);
+extern void frame_delta_abs_time(const struct epan_session *epan, const frame_data *fdata,
+                guint32 prev_num, nstime_t *delta);
 /**
  * Sets the frame data struct values before dissection.
  */
 WS_DLL_PUBLIC void frame_data_set_before_dissect(frame_data *fdata,
                 nstime_t *elapsed_time,
                 nstime_t *first_ts,
-                const frame_data *prev_dis,
-                const frame_data *prev_cap);
+                const frame_data *prev_dis);
 
 WS_DLL_PUBLIC void frame_data_set_after_dissect(frame_data *fdata,
                 guint32 *cum_bytes);

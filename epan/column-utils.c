@@ -104,7 +104,7 @@ col_cleanup(column_info *cinfo)
 
 /* Initialize the data structures for constructing column data. */
 void
-col_init(column_info *cinfo)
+col_init(column_info *cinfo, const struct epan_session *epan)
 {
   int i;
 
@@ -119,6 +119,7 @@ col_init(column_info *cinfo)
     cinfo->col_expr.col_expr_val[i][0] = '\0';
   }
   cinfo->writable = TRUE;
+  cinfo->epan = epan;
 }
 
 #define COL_GET_WRITABLE(cinfo) (cinfo ? cinfo->writable : FALSE)
@@ -996,7 +997,7 @@ col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   nstime_t del_cap_ts;
 
-  frame_delta_abs_time(fd, fd->prev_cap, &del_cap_ts);
+  frame_delta_abs_time(cinfo->epan, fd, fd->num - 1, &del_cap_ts);
 
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
@@ -1026,7 +1027,7 @@ col_set_delta_time_dis(const frame_data *fd, column_info *cinfo, const int col)
     return;
   }
 
-  frame_delta_abs_time(fd, fd->prev_dis, &del_dis_ts);
+  frame_delta_abs_time(cinfo->epan, fd, fd->prev_dis_num, &del_dis_ts);
 
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
@@ -1193,7 +1194,7 @@ col_set_epoch_time(const frame_data *fd, column_info *cinfo, const int col)
 }
 
 void
-set_fd_time(frame_data *fd, gchar *buf)
+set_fd_time(const epan_t *epan, frame_data *fd, gchar *buf)
 {
 
   switch (timestamp_get_type()) {
@@ -1226,7 +1227,7 @@ set_fd_time(frame_data *fd, gchar *buf)
     if (fd->flags.has_ts) {
       nstime_t del_cap_ts;
 
-      frame_delta_abs_time(fd, fd->prev_cap, &del_cap_ts);
+      frame_delta_abs_time(epan, fd, fd->num - 1, &del_cap_ts);
 
       switch (timestamp_get_seconds_type()) {
       case TS_SECONDS_DEFAULT:
@@ -1247,7 +1248,7 @@ set_fd_time(frame_data *fd, gchar *buf)
     if (fd->flags.has_ts) {
       nstime_t del_dis_ts;
 
-      frame_delta_abs_time(fd, fd->prev_dis, &del_dis_ts);
+      frame_delta_abs_time(epan, fd, fd->prev_dis_num, &del_dis_ts);
 
       switch (timestamp_get_seconds_type()) {
       case TS_SECONDS_DEFAULT:

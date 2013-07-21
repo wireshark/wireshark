@@ -64,6 +64,7 @@
 #endif
 
 #include <glib.h>
+#include <epan/epan-int.h>
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <wsutil/crash_info.h>
@@ -1073,7 +1074,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     printf("%lu", (unsigned long int) cf->count);
 
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
-                                  &first_ts, prev_dis, prev_cap);
+                                  &first_ts, prev_dis);
 
     /* We only need the columns if we're printing packet info but we're
      *not* verbose; in verbose mode, we print the protocol tree, not
@@ -1565,6 +1566,29 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
     fprintf(stderr, "\n");
 }
 
+const nstime_t *
+raw_get_frame_ts(void *data _U_, guint32 frame_num)
+{
+    if (prev_dis && prev_dis->num == frame_num)
+        return &prev_dis->abs_ts;
+
+    if (prev_cap && prev_cap->num == frame_num)
+        return &prev_cap->abs_ts;
+
+    return NULL;
+}
+
+epan_t *
+raw_epan_new(capture_file *cf)
+{
+    epan_t *epan = epan_new();
+
+    epan->data = cf;
+    epan->get_frame_ts = raw_get_frame_ts;
+
+    return epan;
+}
+
 cf_status_t
 raw_cf_open(capture_file *cf, const char *fname)
 {
@@ -1575,7 +1599,7 @@ raw_cf_open(capture_file *cf, const char *fname)
 
     /* Create new epan session for dissection. */
     epan_free(cf->epan);
-    cf->epan = epan_new();
+    cf->epan = raw_epan_new(cf);
 
     cf->wth = NULL;
     cf->f_datalen = 0; /* not used, but set it anyway */
