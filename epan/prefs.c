@@ -2257,7 +2257,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
   gchar    *filter_expr = NULL;
   module_t *module;
   pref_t   *pref;
-  gboolean had_a_dot;
 
   if (strcmp(pref_name, PRS_PRINT_FMT) == 0) {
     if (strcmp(value, pr_formats[PR_FMT_TEXT]) == 0) {
@@ -2673,21 +2672,12 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     /* To which module does this preference belong? */
     module = NULL;
     last_dotp = pref_name;
-    had_a_dot = FALSE;
     while (!module) {
         dotp = strchr(last_dotp, '.');
         if (dotp == NULL) {
-            if (had_a_dot) {
-              /* no such module */
-              return PREFS_SET_NO_SUCH_PREF;
-            }
-            else {
-              /* no ".", so no module/name separator */
-              return PREFS_SET_SYNTAX_ERR;
-            }
-        }
-        else {
-            had_a_dot = TRUE;
+            /* Either there's no such module, or no module was specified.
+               In either case, that means there's no such preference. */
+            return PREFS_SET_NO_SUCH_PREF;
         }
         *dotp = '\0';		/* separate module and preference name */
         module = prefs_find_module(pref_name);
