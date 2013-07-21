@@ -601,6 +601,37 @@ wmem_test_list(void)
 }
 
 static void
+wmem_test_queue(void)
+{
+    wmem_allocator_t   *allocator;
+    wmem_queue_t       *queue;
+    unsigned int        i;
+
+    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+
+    queue = wmem_queue_new(allocator);
+    g_assert(queue);
+    g_assert(wmem_queue_count(queue) == 0);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        wmem_queue_push(queue, GINT_TO_POINTER(i));
+
+        g_assert(wmem_queue_count(queue) == i+1);
+        g_assert(wmem_queue_peek(queue) == GINT_TO_POINTER(0));
+    }
+    wmem_strict_check_canaries(allocator);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        g_assert(wmem_queue_peek(queue) == GINT_TO_POINTER(i));
+        g_assert(wmem_queue_pop(queue) == GINT_TO_POINTER(i));
+        g_assert(wmem_queue_count(queue) == CONTAINER_ITERS-i-1);
+    }
+    g_assert(wmem_queue_count(queue) == 0);
+
+    wmem_destroy_allocator(allocator);
+}
+
+static void
 wmem_test_stack(void)
 {
     wmem_allocator_t   *allocator;
@@ -882,6 +913,7 @@ main(int argc, char **argv)
 
     g_test_add_func("/wmem/datastruct/array",  wmem_test_array);
     g_test_add_func("/wmem/datastruct/list",   wmem_test_list);
+    g_test_add_func("/wmem/datastruct/queue",  wmem_test_queue);
     g_test_add_func("/wmem/datastruct/stack",  wmem_test_stack);
     g_test_add_func("/wmem/datastruct/strbuf", wmem_test_strbuf);
     g_test_add_func("/wmem/datastruct/tree",   wmem_test_tree);

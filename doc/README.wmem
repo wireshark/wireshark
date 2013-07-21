@@ -92,14 +92,20 @@ wmem_strbuf.h
 
 2.2.3 Container Data Structures
 
+wmem_array.h
+ - A growable array (AKA vector) implementation.
+
 wmem_list.h
  - A doubly-linked list implementation.
 
+wmem_queue.h
+ - A queue implementation (first-in, first-out).
+
 wmem_stack.h
- - A stack implementation (push, pop, etc).
+ - A stack implementation (last-in, first-out).
 
 wmem_tree.h
- - A red-black tree implementation.
+ - A balanced binary tree (red-black tree) implementation.
 
 2.2.4 Miscellanious Utilities
 

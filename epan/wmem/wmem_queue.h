@@ -1,6 +1,6 @@
-/* wmem_stack.c
- * Wireshark Memory Manager Stack
- * Copyright 2012, Evan Huus <eapache@gmail.com>
+/* wmem_queue.h
+ * Definitions for the Wireshark Memory Manager Queue
+ * Copyright 2013, Evan Huus <eapache@gmail.com>
  *
  * $Id$
  *
@@ -23,38 +23,49 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef __WMEM_QUEUE_H__
+#define __WMEM_QUEUE_H__
+
 #include <string.h>
 #include <glib.h>
 
 #include "wmem_core.h"
-#include "wmem_stack.h"
 #include "wmem_list.h"
 
-/* Wmem stack is implemented as a simple wrapper over Wmem list */
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
-void *
-wmem_stack_peek(const wmem_stack_t *stack)
-{
-    wmem_list_frame_t *frame;
+/** @addtogroup wmem
+ *  @{
+ *    @defgroup wmem-stack Queue
+ *
+ *    A queue implementation on top of wmem.
+ *
+ *    @{
+ */
 
-    frame = wmem_list_head(stack);
+/* Wmem queue is implemented as a dumb wrapper over Wmem list and stack */
+typedef wmem_list_t wmem_queue_t;
 
-    g_assert(frame);
+#define wmem_queue_count(X) wmem_list_count(X)
 
-    return wmem_list_frame_data(frame);
+#define wmem_queue_peek(QUEUE) wmem_stack_peek(QUEUE)
+
+#define wmem_queue_pop(QUEUE) wmem_stack_pop(QUEUE)
+
+#define wmem_queue_push(QUEUE, DATA) wmem_list_append((QUEUE), (DATA))
+
+#define wmem_queue_new(ALLOCATOR) wmem_list_new(ALLOCATOR)
+
+/**   @}
+ *  @} */
+
+#ifdef __cplusplus
 }
+#endif /* __cplusplus */
 
-void *
-wmem_stack_pop(wmem_stack_t *stack)
-{
-    void *data;
-
-    data = wmem_stack_peek(stack);
-
-    wmem_list_remove(stack, data);
-
-    return data;
-}
+#endif /* __WMEM_QUEUE_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

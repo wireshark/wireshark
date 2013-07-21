@@ -30,6 +30,7 @@
 #include "wmem_core.h"
 #include "wmem_list.h"
 #include "wmem_miscutl.h"
+#include "wmem_queue.h"
 #include "wmem_scopes.h"
 #include "wmem_stack.h"
 #include "wmem_strbuf.h"

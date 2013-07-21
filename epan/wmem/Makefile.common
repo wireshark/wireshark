@@ -48,6 +48,7 @@ LIBWMEM_INCLUDES =			\
 	wmem_allocator_strict.h		\
 	wmem_list.h			\
 	wmem_miscutl.h			\
+	wmem_queue.h			\
 	wmem_scopes.h			\
 	wmem_stack.h			\
 	wmem_strbuf.h			\

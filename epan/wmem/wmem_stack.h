@@ -58,9 +58,7 @@ WS_DLL_PUBLIC
 void *
 wmem_stack_pop(wmem_stack_t *stack);
 
-WS_DLL_PUBLIC
-void
-wmem_stack_push(wmem_stack_t *stack, void *data);
+#define wmem_stack_push(STACK, DATA) wmem_list_prepend((STACK), (DATA))
 
 #define wmem_stack_new(ALLOCATOR) wmem_list_new(ALLOCATOR)
 
