@@ -22,26 +22,39 @@
 #
 
 set(ECHLD_FILES
-  echld_common.c
-  echld_child.c
-  echld_dispatcher.c
-  echld_parent.c
-  echld_util.c
+	child.c
+	common.c
+	dispatcher.c
+	echld-util.c
+	parent.c
 )
 
-set(wsutil_LIBS
-  ${GLIB2_LIBRARIES}
+set(echld_LIBS
+	${GLIB2_LIBRARIES}
 )
+
+set(CLEAN_FILES
+	${ECHLD_FILES}
+)
+
+if (WERROR)
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
+
 
 add_library(echld ${LINK_MODE_LIB}
-  ${ECHLD_FILES}
+	${ECHLD_FILES}
 )
 
 set(FULL_SO_VERSION "0.0.0")
 
-set_target_properties(wsutil PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
-set_target_properties(wsutil PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-set_target_properties(wsutil PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
+set_target_properties(echld PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
+set_target_properties(echld PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(echld PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
 
 # discover and substitute list of include directories for ABI compatibility
 # checks
