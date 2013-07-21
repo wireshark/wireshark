@@ -78,9 +78,11 @@ missing
 randpkt
 rawshark
 reordercap
+reassemble_test
 stamp-h1
 text2pcap
 tshark
+tvbtest
 wireshark
 wmem_test
 ylwrap
