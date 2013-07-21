@@ -522,6 +522,10 @@ add_subdirectory( wsutil )
 
 add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libwiretap dumpabi-libwsutil color.h)
 
+if(ENABLE_ECHLD)
+	add_subdirectory( echld )
+endif()
+
 if((BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND))
 	add_subdirectory( ui )
 endif()
