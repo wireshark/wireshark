@@ -149,7 +149,7 @@ epan_new(void)
 const nstime_t *
 epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 {
-	nstime_t *abs_ts = NULL;
+	const nstime_t *abs_ts = NULL;
 
 	if (session->get_frame_ts)
 		abs_ts = session->get_frame_ts(session->data, frame_num);
