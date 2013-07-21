@@ -92,6 +92,7 @@ struct PacketWinData {
 
 #ifdef WANT_PACKET_EDITOR
 struct FieldinfoWinData {
+	epan_t *epan;
 	frame_data *frame;	   /* The frame being displayed */
 	struct wtap_pkthdr phdr;   /* Packet header */
 	guint8     *pd;		   /* Packet data */
@@ -715,6 +716,7 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 	{
 		struct FieldinfoWinData data;
 
+		data.epan = DataPtr->epan;
 		data.frame = DataPtr->frame;
 		data.phdr  = DataPtr->phdr;
 		data.pd = (guint8 *) g_memdup(DataPtr->pd, DataPtr->frame->cap_len);
