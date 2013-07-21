@@ -191,6 +191,19 @@ add_definitions(
 
 # Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES
 include(CheckCCompilerFlag)
+
+if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_GCC_CHECKS)
+	check_c_compiler_flag(-Werror=unknown-warning-option WERR_UNKNOWN)
+	check_c_compiler_flag(-Werror WERROR)
+else()
+	unset(WERR_UNKNOWN)
+	unset(WERROR)
+endif()
+# string of additional compile command line flags for check_c_compiler_flag
+if(WERR_UNKNOWN)
+	set(CMAKE_REQUIRED_FLAGS -Werror=unknown-warning-option )
+endif()
+
 set(C 0)
 # Sigh: Have to use THIS_FLAG instead of ${F} for some reason
 foreach(THIS_FLAG ${WIRESHARK_C_FLAGS})
@@ -223,12 +236,6 @@ if((FVHIDDEN))
 else() # TODO add alternate compiler flags for hiding symbols
 	message(WARNING "Hiding shared library symbols is not supported by the compiler."
 		" All shared library symbols will be exported.")
-endif()
-
-if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_GCC_CHECKS)
-	check_c_compiler_flag(-Werror WERROR)
-else()
-	unset(WERROR)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER MATCHES ".*clang" OR
