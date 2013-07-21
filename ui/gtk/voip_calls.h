@@ -150,7 +150,9 @@ typedef struct _voip_calls_info {
 	guint16 call_num;
 	/**> The frame_data struct holds the frame number and timing information needed. */
 	frame_data *start_fd; 
+	nstime_t start_rel_ts;
 	frame_data *stop_fd;
+	nstime_t stop_rel_ts;
 	gboolean selected;
 
 } voip_calls_info_t;

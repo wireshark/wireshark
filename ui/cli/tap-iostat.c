@@ -105,10 +105,10 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 
     mit = (io_stat_item_t *) arg;
     parent = mit->parent;
-    relative_time = ((guint64)pinfo->fd->rel_ts.secs * 1000000ULL) + 
-                    ((guint64)((pinfo->fd->rel_ts.nsecs+500)/1000));
+    relative_time = ((guint64)pinfo->rel_ts.secs * 1000000ULL) + 
+                    ((guint64)((pinfo->rel_ts.nsecs+500)/1000));
     if (mit->parent->start_time == 0) {
-        mit->parent->start_time = pinfo->fd->abs_ts.secs - pinfo->fd->rel_ts.secs;
+        mit->parent->start_time = pinfo->fd->abs_ts.secs - pinfo->rel_ts.secs;
     }
 
     /* The prev item before the main one is always the last interval we saw packets for */

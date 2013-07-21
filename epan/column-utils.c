@@ -971,20 +971,25 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 static void
 col_set_rel_time(const frame_data *fd, column_info *cinfo, const int col)
 {
+  nstime_t del_rel_ts;
+
   if (!fd->flags.has_ts) {
     cinfo->col_buf[col][0] = '\0';
     return;
   }
+
+  frame_delta_abs_time(cinfo->epan, fd, fd->frame_ref_num, &del_rel_ts);
+
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
-    set_time_seconds(&fd->rel_ts, cinfo->col_buf[col]);
+    set_time_seconds(&del_rel_ts, cinfo->col_buf[col]);
     cinfo->col_expr.col_expr[col] = "frame.time_relative";
     g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
     break;
   case TS_SECONDS_HOUR_MIN_SEC:
-    set_time_hour_min_sec(&fd->rel_ts, cinfo->col_buf[col]);
+    set_time_hour_min_sec(&del_rel_ts, cinfo->col_buf[col]);
     cinfo->col_expr.col_expr[col] = "frame.time_relative";
-    set_time_seconds(&fd->rel_ts, cinfo->col_expr.col_expr_val[col]);
+    set_time_seconds(&del_rel_ts, cinfo->col_expr.col_expr_val[col]);
     break;
   default:
     g_assert_not_reached();
@@ -1208,12 +1213,16 @@ set_fd_time(const epan_t *epan, frame_data *fd, gchar *buf)
 
   case TS_RELATIVE:
     if (fd->flags.has_ts) {
+      nstime_t del_rel_ts;
+
+      frame_delta_abs_time(epan, fd, fd->frame_ref_num, &del_rel_ts);
+
       switch (timestamp_get_seconds_type()) {
       case TS_SECONDS_DEFAULT:
-        set_time_seconds(&fd->rel_ts, buf);
+        set_time_seconds(&del_rel_ts, buf);
         break;
       case TS_SECONDS_HOUR_MIN_SEC:
-        set_time_seconds(&fd->rel_ts, buf);
+        set_time_seconds(&del_rel_ts, buf);
         break;
       default:
         g_assert_not_reached();

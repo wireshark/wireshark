@@ -114,15 +114,6 @@ modify_time_perform(frame_data *fd, int neg, nstime_t *offset, int settozero)
   } else {
     fprintf(stderr, "Modify_time_perform: neg = %d?\n", neg);
   }
-
-  /*
-   * rel_ts     - Relative timestamp to first packet
-   */
-  if (first_packet != NULL) {
-    nstime_copy(&(fd->rel_ts), &(fd->abs_ts));
-    nstime_subtract(&(fd->rel_ts), &(first_packet->abs_ts));
-  } else
-    nstime_copy(&(fd->rel_ts), &nulltime);
 }
 
 /*

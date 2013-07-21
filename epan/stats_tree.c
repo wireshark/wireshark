@@ -359,7 +359,7 @@ extern int
 stats_tree_packet(void *p, packet_info *pinfo, epan_dissect_t *edt, const void *pri)
 {
 	stats_tree *st = (stats_tree *)p;
-	double now = nstime_to_msec(&pinfo->fd->rel_ts);
+	double now = nstime_to_msec(&pinfo->rel_ts);
 
 	if (st->start < 0.0) st->start = now;
 

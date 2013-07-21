@@ -50,7 +50,7 @@ sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 		sctphdr->dport,
 		1,
 		pinfo->fd->pkt_len,
-		&pinfo->fd->rel_ts,
+		&pinfo->rel_ts,
                 SAT_NONE,
 		PT_SCTP);
 

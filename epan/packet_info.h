@@ -226,6 +226,7 @@ typedef struct _packet_info {
 
   struct _wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */
   struct epan_session *epan;
+  nstime_t     rel_ts;       /**< Relative timestamp (yes, it can be negative) */
 } packet_info;
 
 /**< For old code that hasn't yet been changed. */

@@ -109,7 +109,7 @@ gboolean auto_scroll_live;
 #endif
 
 static guint32 cum_bytes;
-static nstime_t first_ts;
+const static frame_data *ref;
 static frame_data *prev_dis;
 static frame_data *prev_cap;
 
@@ -397,7 +397,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf->frames = new_frame_data_sequence();
 
   nstime_set_zero(&cf->elapsed_time);
-  nstime_set_unset(&first_ts);
+  ref = NULL;
   prev_dis = NULL;
   prev_cap = NULL;
   cum_bytes = 0;
@@ -1155,7 +1155,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   gint            row               = -1;
 
   frame_data_set_before_dissect(fdata, &cf->elapsed_time,
-                                &first_ts, prev_dis);
+                                &ref, prev_dis);
   prev_cap = fdata;
 
   /* Dissect the frame. */
@@ -1871,7 +1871,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   /* Iterate through the list of frames.  Call a routine for each frame
      to check whether it should be displayed and, if so, add it to
      the display list. */
-  nstime_set_unset(&first_ts);
+  ref = NULL;
   prev_dis = NULL;
   prev_cap = NULL;
   cum_bytes = 0;
@@ -2108,8 +2108,9 @@ ref_time_packets(capture_file *cf)
 {
   guint32     framenum;
   frame_data *fdata;
+  nstime_t rel_ts;
 
-  nstime_set_unset(&first_ts);
+  ref = NULL;
   prev_dis = NULL;
   cum_bytes = 0;
 
@@ -2126,14 +2127,12 @@ ref_time_packets(capture_file *cf)
     /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the first packet. */
-    if (nstime_is_unset(&first_ts)) {
-        first_ts  = fdata->abs_ts;
-    }
+    if (ref == NULL)
+        ref = fdata;
       /* if this frames is marked as a reference time frame, reset
         firstsec and firstusec to this frame */
-    if (fdata->flags.ref_time) {
-        first_ts = fdata->abs_ts;
-    }
+    if (fdata->flags.ref_time)
+        ref = fdata;
 
     /* If we don't have the time stamp of the previous displayed packet,
      it's because this is the first displayed packet.  Save the time
@@ -2144,14 +2143,15 @@ ref_time_packets(capture_file *cf)
     }
 
     /* Get the time elapsed between the first packet and this packet. */
-    nstime_delta(&fdata->rel_ts, &fdata->abs_ts, &first_ts);
+    fdata->frame_ref_num = (fdata != ref) ? ref->num : 0;
+    nstime_delta(&rel_ts, &fdata->abs_ts, &ref->abs_ts);
 
     /* If it's greater than the current elapsed time, set the elapsed time
      to it (we check for "greater than" so as not to be confused by
      time moving backwards). */
-    if ((gint32)cf->elapsed_time.secs < fdata->rel_ts.secs
-        || ((gint32)cf->elapsed_time.secs == fdata->rel_ts.secs && (gint32)cf->elapsed_time.nsecs < fdata->rel_ts.nsecs)) {
-        cf->elapsed_time = fdata->rel_ts;
+    if ((gint32)cf->elapsed_time.secs < rel_ts.secs
+        || ((gint32)cf->elapsed_time.secs == rel_ts.secs && (gint32)cf->elapsed_time.nsecs < rel_ts.nsecs)) {
+        cf->elapsed_time = rel_ts;
     }
 
     /* If this frame is displayed, get the time elapsed between the

@@ -45,7 +45,7 @@ rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 	add_conversation_table_data((conversations_table *)pct,
 				    &rsvph->source, &rsvph->destination, 0, 0, 1,
-				    pinfo->fd->pkt_len, &pinfo->fd->rel_ts, SAT_NONE, PT_NONE);
+				    pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_NONE);
 
 	return 1;
 }

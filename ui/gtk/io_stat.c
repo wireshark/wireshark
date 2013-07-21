@@ -290,7 +290,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
     /*
      * Find in which interval this is supposed to go and store the interval index as idx
      */
-    time_delta = pinfo->fd->rel_ts;
+    time_delta = pinfo->rel_ts;
     if (time_delta.nsecs<0) {
         time_delta.secs--;
         time_delta.nsecs += 1000000000;
@@ -313,7 +313,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 
     /* set start time */
     if ((io->start_time.secs == 0) && (io->start_time.nsecs == 0)) {
-        nstime_delta(&io->start_time, &pinfo->fd->abs_ts, &pinfo->fd->rel_ts);
+        nstime_delta(&io->start_time, &pinfo->fd->abs_ts, &pinfo->rel_ts);
     }
 
     /* Point to the appropriate io_item_t struct */
@@ -425,7 +425,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
                     j = idx;
                     /*
                      * Handle current interval */
-                    pt = pinfo->fd->rel_ts.secs * 1000000 + pinfo->fd->rel_ts.nsecs / 1000;
+                    pt = pinfo->rel_ts.secs * 1000000 + pinfo->rel_ts.nsecs / 1000;
                     pt = pt % (io->interval * 1000);
                     if (pt > t) {
                         pt = t;

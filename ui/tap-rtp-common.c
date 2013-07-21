@@ -223,8 +223,8 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			tmp_strinfo.first_frame_num = pinfo->fd->num;
 			tmp_strinfo.start_sec = (guint32) pinfo->fd->abs_ts.secs;
 			tmp_strinfo.start_usec = pinfo->fd->abs_ts.nsecs/1000;
-			tmp_strinfo.start_rel_sec = (guint32) pinfo->fd->rel_ts.secs;
-			tmp_strinfo.start_rel_usec = pinfo->fd->rel_ts.nsecs/1000;
+			tmp_strinfo.start_rel_sec = (guint32) pinfo->rel_ts.secs;
+			tmp_strinfo.start_rel_usec = pinfo->rel_ts.nsecs/1000;
 			tmp_strinfo.tag_vlan_error = 0;
 			tmp_strinfo.tag_diffserv_error = 0;
 			tmp_strinfo.vlan_id = 0;
@@ -275,8 +275,8 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 		/* increment the packets counter for this stream */
 		++(strinfo->npackets);
-		strinfo->stop_rel_sec = (guint32) pinfo->fd->rel_ts.secs;
-		strinfo->stop_rel_usec = pinfo->fd->rel_ts.nsecs/1000;
+		strinfo->stop_rel_sec = (guint32) pinfo->rel_ts.secs;
+		strinfo->stop_rel_usec = pinfo->rel_ts.nsecs/1000;
 
 		/* increment the packets counter of all streams */
 		++(tapinfo->npackets);
@@ -446,7 +446,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	guint32 clock_rate;
 
 	/* Store the current time */
-	current_time = nstime_to_msec(&pinfo->fd->rel_ts);
+	current_time = nstime_to_msec(&pinfo->rel_ts);
 
 	/*  Is this the first packet we got in this direction? */
 	if (statinfo->first_packet) {

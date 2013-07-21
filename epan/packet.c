@@ -351,6 +351,8 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
 	edt->tvb = tvb;
 
+	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
+
 	/* to enable decode as for ethertype=0x0000 (fix for bug 4721) */
 	edt->pi.ethertype = G_MAXINT;
 

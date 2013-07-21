@@ -385,7 +385,7 @@ iax2_packet_add_graph(dialog_graph_graph_t *dgg, tap_iax2_stat_t *statinfo, pack
 	if (dgg->ud->dlg.dialog_graph.start_time == -1) { /* it is the first */
 		dgg->ud->dlg.dialog_graph.start_time = statinfo->start_time;
 	}
-	rtp_time = nstime_to_msec(&pinfo->fd->rel_ts) - dgg->ud->dlg.dialog_graph.start_time;
+	rtp_time = nstime_to_msec(&pinfo->rel_ts) - dgg->ud->dlg.dialog_graph.start_time;
 	if (rtp_time < 0) {
 		return FALSE;
 	}
@@ -521,7 +521,7 @@ int iax2_packet_analyse(tap_iax2_stat_t *statinfo,
 	}
 
 	/* store the current time and calculate the current jitter */
-	current_time = nstime_to_sec(&pinfo->fd->rel_ts);
+	current_time = nstime_to_sec(&pinfo->rel_ts);
 	current_diff = fabs (current_time - statinfo->time - (((double)iax2info->timestamp - (double)statinfo->timestamp)/1000));
 	current_jitter = statinfo->jitter + ( current_diff - statinfo->jitter)/16;
 	statinfo->delta = current_time - (statinfo->time);

@@ -352,7 +352,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 
 			item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
-						   0, 0, &(pinfo->fd->rel_ts));
+						   0, 0, &(pinfo->rel_ts));
 			PROTO_ITEM_SET_GENERATED(item);
 
 			if(pinfo->fd->flags.ref_time){

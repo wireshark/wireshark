@@ -206,7 +206,7 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	}
 
-	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
+	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts);
 	
 	return 1;
 }
@@ -237,7 +237,7 @@ iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&sctph->ip_dst),s_dport);
 	}
 
-	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
+	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -269,7 +269,7 @@ iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	}
 
-	iousers_process_name_packet_with_conv_id(iu, name1, name2, tcph->th_stream, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
+	iousers_process_name_packet_with_conv_id(iu, name1, name2, tcph->th_stream, direction, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -281,7 +281,7 @@ iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	io_users_t *iu=(io_users_t *)arg;
 	const ws_ip *iph=(const ws_ip *)vip;
 
-	iousers_process_address_packet(iu, &iph->ip_src, &iph->ip_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &iph->ip_src, &iph->ip_dst, pinfo->fd->pkt_len, &pinfo->rel_ts);
 
 	return 1;
 }
@@ -299,7 +299,7 @@ iousers_ipv6_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	src.data = &ip6h->ip6_src;
 	dst.data = &ip6h->ip6_dst;
 
-	iousers_process_address_packet(iu, &src, &dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &src, &dst, pinfo->fd->pkt_len, &pinfo->rel_ts);
 
 	return 1;
 }
@@ -310,7 +310,7 @@ iousers_ipx_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	io_users_t *iu=(io_users_t *)arg;
 	const ipxhdr_t *ipxh=(const ipxhdr_t *)vipx;
 
-	iousers_process_address_packet(iu, &ipxh->ipx_src, &ipxh->ipx_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &ipxh->ipx_src, &ipxh->ipx_dst, pinfo->fd->pkt_len, &pinfo->rel_ts);
 
 	return 1;
 }
@@ -321,7 +321,7 @@ iousers_fc_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	io_users_t *iu=(io_users_t *)arg;
 	const fc_hdr *fchdr=(const fc_hdr *)vfc;
 
-	iousers_process_address_packet(iu, &fchdr->s_id, &fchdr->d_id, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &fchdr->s_id, &fchdr->d_id, pinfo->fd->pkt_len, &pinfo->rel_ts);
 
 	return 1;
 }
@@ -332,7 +332,7 @@ iousers_eth_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	io_users_t *iu=(io_users_t *)arg;
 	const eth_hdr *ehdr=(const eth_hdr *)veth;
 
-	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->rel_ts);
 
 	return 1;
 }
@@ -343,7 +343,7 @@ iousers_fddi_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	io_users_t *iu=(io_users_t *)arg;
 	const fddi_hdr *ehdr=(const fddi_hdr *)veth;
 
-	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->rel_ts);
 
 	return 1;
 }
@@ -354,7 +354,7 @@ iousers_tr_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	io_users_t *iu=(io_users_t *)arg;
 	const tr_hdr *trhdr=(const tr_hdr *)vtr;
 
-	iousers_process_address_packet(iu, &trhdr->src, &trhdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &trhdr->src, &trhdr->dst, pinfo->fd->pkt_len, &pinfo->rel_ts);
 
 	return 1;
 }

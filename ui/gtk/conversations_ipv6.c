@@ -51,7 +51,7 @@ ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
     src.data = &ip6h->ip6_src;
     dst.data = &ip6h->ip6_dst;
 
-    add_conversation_table_data((conversations_table *)pct, &src, &dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, SAT_NONE, PT_NONE);
+    add_conversation_table_data((conversations_table *)pct, &src, &dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_NONE);
 
     return 1;
 }

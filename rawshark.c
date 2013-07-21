@@ -121,7 +121,8 @@
 static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_as_protocol>";
 
 static guint32 cum_bytes;
-static nstime_t first_ts;
+static const frame_data *ref;
+static frame_data ref_frame;
 static frame_data *prev_dis;
 static frame_data prev_dis_frame;
 static frame_data *prev_cap;
@@ -1074,7 +1075,12 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     printf("%lu", (unsigned long int) cf->count);
 
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
-                                  &first_ts, prev_dis);
+                                  &ref, prev_dis);
+
+    if (ref == &fdata) {
+       ref_frame = fdata;
+       ref = &ref_frame;
+    }
 
     /* We only need the columns if we're printing packet info but we're
      *not* verbose; in verbose mode, we print the protocol tree, not
@@ -1569,6 +1575,9 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 const nstime_t *
 raw_get_frame_ts(void *data _U_, guint32 frame_num)
 {
+    if (ref && ref->num == frame_num)
+        return &ref->abs_ts;
+
     if (prev_dis && prev_dis->num == frame_num)
         return &prev_dis->abs_ts;
 
@@ -1622,7 +1631,7 @@ raw_cf_open(capture_file *cf, const char *fname)
     cf->has_snap = FALSE;
     cf->snap = WTAP_MAX_PACKET_SIZE;
     nstime_set_zero(&cf->elapsed_time);
-    nstime_set_unset(&first_ts);
+    ref = NULL;
     prev_dis = NULL;
     prev_cap = NULL;
 

@@ -1832,8 +1832,8 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         struct segment *segment = (struct segment *)g_malloc(sizeof(struct segment));
         segment->next      = NULL;
         segment->num       = pinfo->fd->num;
-        segment->rel_secs  = (guint32)pinfo->fd->rel_ts.secs;
-        segment->rel_usecs = pinfo->fd->rel_ts.nsecs/1000;
+        segment->rel_secs  = (guint32)pinfo->rel_ts.secs;
+        segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
         segment->abs_secs  = (guint32)pinfo->fd->abs_ts.secs;
         segment->abs_usecs = pinfo->fd->abs_ts.nsecs/1000;
         segment->th_seq    = tcphdr->th_seq;
@@ -1964,6 +1964,7 @@ static struct tcpheader *select_tcpip_session(capture_file *cf, struct segment *
     epan_dissect_t  edt;
     dfilter_t      *sfcode;
     GString        *error_string;
+    nstime_t        rel_ts;
     th_t th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
 
     fdata = cf->current_frame;
@@ -1990,6 +1991,7 @@ static struct tcpheader *select_tcpip_session(capture_file *cf, struct segment *
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
     epan_dissect_prime_dfilter(&edt, sfcode);
     epan_dissect_run_with_taps(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
+    rel_ts = edt.pi.rel_ts;
     epan_dissect_cleanup(&edt);
     remove_tap_listener(&th);
 
@@ -2015,8 +2017,8 @@ static struct tcpheader *select_tcpip_session(capture_file *cf, struct segment *
 
     /* For now, still always choose the first/only one */
     hdrs->num   = fdata->num;
-    hdrs->rel_secs  = (guint32) fdata->rel_ts.secs;
-    hdrs->rel_usecs = fdata->rel_ts.nsecs/1000;
+    hdrs->rel_secs  = (guint32) rel_ts.secs;
+    hdrs->rel_usecs = rel_ts.nsecs/1000;
     hdrs->abs_secs  = (guint32) fdata->abs_ts.secs;
     hdrs->abs_usecs = fdata->abs_ts.nsecs/1000;
     hdrs->th_seq    = th.tcphdrs[0]->th_seq;

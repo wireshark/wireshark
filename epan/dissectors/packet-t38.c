@@ -715,7 +715,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                 /* we use the first fragment's frame_number as fragment ID because the protocol doesn't provide it */
                     p_t38_conv_info->reass_ID = actx->pinfo->fd->num;
                     p_t38_conv_info->reass_start_seqnum = seq_number;
-                    p_t38_conv_info->time_first_t4_data = nstime_to_sec(&actx->pinfo->fd->rel_ts);
+                    p_t38_conv_info->time_first_t4_data = nstime_to_sec(&actx->pinfo->rel_ts);
                     p_t38_conv_info->additional_hdlc_data_field_counter = 0;
                     p_t38_packet_conv_info->reass_ID = p_t38_conv_info->reass_ID;
                     p_t38_packet_conv_info->reass_start_seqnum = p_t38_conv_info->reass_start_seqnum;

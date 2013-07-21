@@ -180,6 +180,17 @@ frame_data_time_delta_compare(const struct epan_session *epan, const frame_data 
 }
 
 static gint
+frame_data_time_delta_rel_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2)
+{
+  nstime_t del_rel_ts1, del_rel_ts2;
+
+  frame_delta_abs_time(epan, fdata1, fdata1->frame_ref_num, &del_rel_ts1);
+  frame_delta_abs_time(epan, fdata2, fdata2->frame_ref_num, &del_rel_ts2);
+
+  return COMPARE_TS_REAL(del_rel_ts1, del_rel_ts2);
+}
+
+static gint
 frame_data_time_delta_dis_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2)
 {
   nstime_t del_dis_ts1, del_dis_ts2;
@@ -207,7 +218,7 @@ frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, co
       return COMPARE_TS(abs_ts);
 
     case TS_RELATIVE:
-      return COMPARE_TS(rel_ts);
+      return frame_data_time_delta_rel_compare(epan, fdata1, fdata2);
 
     case TS_DELTA:
       return frame_data_time_delta_compare(epan, fdata1, fdata2);
@@ -227,7 +238,7 @@ frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, co
     return COMPARE_TS(abs_ts);
 
   case COL_REL_TIME:
-    return COMPARE_TS(rel_ts);
+    return frame_data_time_delta_rel_compare(epan, fdata1, fdata2);
 
   case COL_DELTA_TIME:
     return frame_data_time_delta_compare(epan, fdata1, fdata2);
@@ -277,8 +288,7 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->abs_ts.nsecs = phdr->ts.nsecs;
   fdata->shift_offset.secs = 0;
   fdata->shift_offset.nsecs = 0;
-  fdata->rel_ts.secs = 0;
-  fdata->rel_ts.nsecs = 0;
+  fdata->frame_ref_num = 0;
   fdata->prev_dis_num = 0;
   fdata->opt_comment = phdr->opt_comment;
 }
@@ -286,31 +296,32 @@ frame_data_init(frame_data *fdata, guint32 num,
 void
 frame_data_set_before_dissect(frame_data *fdata,
                 nstime_t *elapsed_time,
-                nstime_t *first_ts,
+                const frame_data **frame_ref,
                 const frame_data *prev_dis)
 {
-  /* If we don't have the time stamp of the first packet in the
-     capture, it's because this is the first packet.  Save the time
-     stamp of this packet as the time stamp of the first packet. */
-  if (nstime_is_unset(first_ts))
-    *first_ts = fdata->abs_ts;
+  nstime_t rel_ts;
 
-  /* if this frames is marked as a reference time frame, reset
-     firstsec and firstusec to this frame */
+  /* Don't have the reference frame, set to current */
+  if (*frame_ref == NULL)
+    *frame_ref = fdata;
+
+  /* if this frames is marked as a reference time frame, 
+     set reference frame this frame */
   if(fdata->flags.ref_time)
-    *first_ts = fdata->abs_ts;
+    *frame_ref = fdata;
 
   /* Get the time elapsed between the first packet and this packet. */
-  nstime_delta(&fdata->rel_ts, &fdata->abs_ts, first_ts);
+  nstime_delta(&rel_ts, &fdata->abs_ts, &(*frame_ref)->abs_ts);
 
   /* If it's greater than the current elapsed time, set the elapsed time
      to it (we check for "greater than" so as not to be confused by
      time moving backwards). */
-  if ((gint32)elapsed_time->secs < fdata->rel_ts.secs
-    || ((gint32)elapsed_time->secs == fdata->rel_ts.secs && (gint32)elapsed_time->nsecs < fdata->rel_ts.nsecs)) {
-    *elapsed_time = fdata->rel_ts;
+  if ((gint32)elapsed_time->secs < rel_ts.secs
+    || ((gint32)elapsed_time->secs == rel_ts.secs && (gint32)elapsed_time->nsecs < rel_ts.nsecs)) {
+    *elapsed_time = rel_ts;
   }
 
+  fdata->frame_ref_num = (*frame_ref != fdata) ? (*frame_ref)->num : 0;
   fdata->prev_dis_num = (prev_dis) ? prev_dis->num : 0;
 }
 

@@ -83,7 +83,7 @@ typedef struct _frame_data {
 
   nstime_t     abs_ts;       /**< Absolute timestamp */
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
-  nstime_t     rel_ts;       /**< Relative timestamp (yes, it can be negative) */
+  guint32      frame_ref_num; /**< Previous reference frame (0 if this is one) */
   guint32      prev_dis_num; /**< Previous displayed frame (0 if first one) */
   gchar        *opt_comment; /**< NULL if not available */
 } frame_data;
@@ -124,7 +124,7 @@ extern void frame_delta_abs_time(const struct epan_session *epan, const frame_da
  */
 WS_DLL_PUBLIC void frame_data_set_before_dissect(frame_data *fdata,
                 nstime_t *elapsed_time,
-                nstime_t *first_ts,
+                const frame_data **frame_ref,
                 const frame_data *prev_dis);
 
 WS_DLL_PUBLIC void frame_data_set_after_dissect(frame_data *fdata,
