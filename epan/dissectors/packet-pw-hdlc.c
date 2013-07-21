@@ -56,6 +56,26 @@ static int hf_pw_hdlc_address = -1;
 static int hf_pw_hdlc_cr_bit = -1;
 static int hf_pw_hdlc_control_field = -1;
 static int hf_pw_hdlc_pf_bit = -1;
+static int hf_pw_hdlc_modifier = -1;
+
+static const value_string pw_hdlc_modifier_vals[] = {
+	{0x00, "UI - Unnumbered information" },
+	{0x08, "UP - Unnumbered poll" },
+	{0x10, "DISC/RD - Disconnect/Request disconnect" },
+	{0x18, "UA - Unnumbered acknowledgment" },
+	{0x20, "SNRM - Set normal response mode" },
+	{0x38, "TEST - Test" },
+	{0x01, "SIM/RIM - Set initialization mode/Request initialization mode" },
+	{0x21, "FRMR - Frame reject" },
+	{0x03, "SARM/DM - Set asynchronous response mode/Disconnect mode" },
+	{0x0B, "SABM - Set asynchronous balanced mode" },
+	{0x13, "SARME - Set asynchronous response extended mode" },
+	{0x1B, "SABME - Set asynchronous balanced extended mode" },
+	{0x23, "RSET - Reset" },
+	{0x2B, "XID - Exchange identification" },
+	{0x33, "SNRME - Set normal response extended mode" },
+	{0, NULL }
+};
 
 static void dissect_pw_hdlc_nocw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 {
@@ -67,10 +87,7 @@ static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, 
 {
 	if (tvb_reported_length_remaining(tvb, 0) < 2)
 	{
-		if (tree)
-		{
-			proto_tree_add_text(tree, tvb, 0, -1, "Error processing message");
-		}
+		proto_tree_add_text(tree, tvb, 0, -1, "Error processing message");
 		return;
 	}
 
@@ -108,63 +125,10 @@ static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, 
 		{
 			if ( control & 2 )
 			{
-				guint8 modifier2;
-				guint8 modifier3;
-
 				proto_tree_add_text( tr, tvb, 1, 1, "U frame" );
 
 				proto_tree_add_uint( tr, hf_pw_hdlc_pf_bit, tvb, 1, 1, ( control & 0x10 ) >> 4 );
-
-				modifier2 = (( control & 0xC ) >> 2 );
-				modifier3 = (( control & 0xE0 ) >> 5 );
-
-				/**/ if ( modifier2 == 0 && modifier3 == 0 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: UI - Unnumbered information" );
-				else if ( modifier2 == 0 && modifier3 == 1 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: UP - Unnumbered poll" );
-				else if ( modifier2 == 0 && modifier3 == 2 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: DISC/RD - Disconnect/Request disconnect" );
-				else if ( modifier2 == 0 && modifier3 == 3 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: UA - Unnumbered acknowledgment" );
-				else if ( modifier2 == 0 && modifier3 == 4 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: SNRM - Set normal response mode" );
-				else if ( modifier2 == 0 && modifier3 == 7 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: TEST - Test" );
-				else if ( modifier2 == 1 && modifier3 == 0 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: SIM/RIM"
-						" - Set initialization mode/Request initialization mode" );
-				else if ( modifier2 == 1 && modifier3 == 4 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: FRMR - Frame reject" );
-				else if ( modifier2 == 3 && modifier3 == 0 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: SARM/DM"
-						" - Set asynchronous response mode/Disconnect mode" );
-				else if ( modifier2 == 3 && modifier3 == 1 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: SABM - Set asynchronous balanced mode" );
-				else if ( modifier2 == 3 && modifier3 == 2 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: SARME - Set asynchronous response extended mode" );
-				else if ( modifier2 == 3 && modifier3 == 3 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: SABME - Set asynchronous balanced extended mode" );
-				else if ( modifier2 == 3 && modifier3 == 4 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: RSET - Reset" );
-				else if ( modifier2 == 3 && modifier3 == 5 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: XID - Exchange identification" );
-				else if ( modifier2 == 3 && modifier3 == 6 )
-					proto_tree_add_text( tr, tvb, 1, 1,
-						"Modifier: SNRME - Set normal response extended mode" );
+				proto_tree_add_uint( tr, hf_pw_hdlc_modifier, tvb, 1, 1, (control & 0xEC) >> 2);
 			}
 			else
 			{
@@ -223,6 +187,13 @@ void proto_register_pw_hdlc(void)
 			{
 				"Poll/Final bit", "pw_hdlc.pf_bit",
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_pw_hdlc_modifier,
+			{
+				"Modifier", "pw_hdlc.modifier",
+				FT_UINT8, BASE_HEX, VALS(pw_hdlc_modifier_vals), 0x0, NULL, HFILL
 			}
 		}
 	};
