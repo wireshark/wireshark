@@ -188,6 +188,7 @@ dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     return length;
 }
 /* AVP Code: 630 Feature-List
+ * Interpretation depends on Application Id
  * imscxdx.xml
  * IMS Cx Dx AVPS 3GPP TS 29.229
  */
@@ -195,26 +196,32 @@ dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 static int
 dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
-    proto_item* item;
+    proto_item* item, *ti;
     proto_tree *sub_tree;
     int offset = 0;
-    guint32 bit_offset;
+    guint32 bit_offset, application_id = 0;
 
     item       = proto_tree_add_item(tree, hf_diameter_3gpp_feature_list_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree   = proto_item_add_subtree(item, diameter_3gpp_feature_list_ett);
 
+    if(pinfo->private_data){
+        application_id = *(guint32*)pinfo->private_data;
+    }
     bit_offset = 0;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 29, ENC_BIG_ENDIAN);
-    bit_offset+=29;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit2, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset++;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset++;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset++;
+    if(application_id = 16777216){
+        /* ApplicationId: 3GPP Cx (16777216) */
+        proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 29, ENC_BIG_ENDIAN);
+        bit_offset+=29;
+        proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit2, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset++;
+        proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset++;
+        proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset++;
 
-    offset = bit_offset>>3;
-    return offset;
+        offset = bit_offset>>3;
+    }
+    return 4;
 
 }
 
