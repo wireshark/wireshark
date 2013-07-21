@@ -109,7 +109,7 @@ gboolean auto_scroll_live;
 #endif
 
 static guint32 cum_bytes;
-const static frame_data *ref;
+static const frame_data *ref;
 static frame_data *prev_dis;
 static frame_data *prev_cap;
 
