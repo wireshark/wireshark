@@ -385,7 +385,7 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 		stream_info->ssrc = rtp_info->info_sync_src;
 		stream_info->rtp_packets_list = NULL;
 		stream_info->first_frame_number = pinfo->fd->num;
-		stream_info->start_time = nstime_to_msec(&pinfo->fd->rel_ts);
+		stream_info->start_time = nstime_to_msec(&pinfo->rel_ts);
 		stream_info->start_time_abs = pinfo->fd->abs_ts;
 		stream_info->call_num = 0;
 		stream_info->play = FALSE;
@@ -405,7 +405,7 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 	new_rtp_packet->info = (struct _rtp_info *)g_malloc(sizeof(struct _rtp_info));
 
 	memcpy(new_rtp_packet->info, rtp_info, sizeof(struct _rtp_info));
-	new_rtp_packet->arrive_offset = nstime_to_msec(&pinfo->fd->rel_ts) - stream_info->start_time;
+	new_rtp_packet->arrive_offset = nstime_to_msec(&pinfo->rel_ts) - stream_info->start_time;
 	/* copy the RTP payload to the rtp_packet to be decoded later */
 	if (rtp_info->info_all_data_present && (rtp_info->info_payload_len != 0)) {
 		new_rtp_packet->payload_data = (guint8 *)g_malloc(rtp_info->info_payload_len);
