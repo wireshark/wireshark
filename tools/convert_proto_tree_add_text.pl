@@ -6,9 +6,10 @@
 # use proto_tree_add_item.  The program requires 2 passes.  "Pass 1" (generate) collects 
 # the eligible proto_tree_add_text calls and outputs the necessary data into a delimited
 # file.  "Pass 2" (fix-all) takes the data from the delimited file and replaces the
-# proto_tree_add_text calls with proto_tree_add_item as well as generating separate files
-# for the hf variable declarations and hf array data.  The hf "files" can be copy/pasted
-# into the dissector where appropriate (until such time as its done automatically)
+# proto_tree_add_text calls with proto_tree_add_item or "expert info" calls as well as 
+# generating separate files for the hf and/or ei variable declarations and hf and/or ei array data.
+# The hf "files" can be copy/pasted into the dissector where appropriate (until such time as 
+# its done automatically)
 #
 # Note that the output from "Pass 1" won't always be a perfect conversion for "Pass 2", so
 # "human interaction" is needed as an intermediary to verify and update the delimited file
@@ -16,8 +17,16 @@
 # It is also recommended to run checkhf.pl and checkAPIs.pl after "Pass 2" is completed.
 #
 # Delimited file field format:
-# <convert proto_tree_add_text_call><add hf variable><proto_tree var><hf var><tvb var><offset><length><encoding>
+# <convert proto_tree_add_text_call[0|1|10-13]><add hf or ei variable[0|1|2]><proto_tree var><hf var><tvb var><offset><length><encoding>
 # <[FIELDNAME]><[FIELDTYPE]><[FIELDABBREV]><[FIELDDISPLAY]><[FIELDCONVERT]><[BITMASK]>
+#
+# convert proto_tree_add_text_call enumerations:
+# 0  - no conversions
+# 1  - proto_tree_add_item
+# 10 - expert_add_info
+# 11 - expert_add_info_format_text
+# 12 - proto_tree_add_expert
+# 13 - proto_tree_add_expert_format
 #
 # Usage: convert_proto_tree_add_text.pl action=<generate|fix-all> <file or files>
 #
@@ -49,9 +58,55 @@ use warnings;
 
 use Getopt::Long;
 
-my $ENCODING_DEFAULT = "encoding";
-my $FIELDTYPE_DEFAULT = "fieldtype";
+my %DISPLAY_BASE = ('BASE_NONE' => "BASE_NONE",
+					   'BASE_DEC' => "BASE_DEC",
+					   'BASE_HEX' => "BASE_HEX",
+					   'BASE_OCT' => "BASE_OCT",
+					   'BASE_DEC_HEX' => "BASE_DEC_HEX",
+					   'BASE_HEX_DEC' => "BASE_HEX_DEC",
+					   'BASE_CUSTOM' => "BASE_CUSTOM");
+
+my %ENCODINGS = ('ENC_BIG_ENDIAN' => "ENC_BIG_ENDIAN",
+					   'ENC_LITTLE_ENDIAN' => "ENC_LITTLE_ENDIAN",
+					   'ENC_TIME_TIMESPEC' => "ENC_TIME_TIMESPEC",
+					   'ENC_TIME_NTP' => "ENC_TIME_NTP",
+					   'ENC_ASCII' => "ENC_ASCII",
+					   'ENC_UTF_8' => "ENC_UTF_8",
+					   'ENC_UTF_16' => "ENC_UTF_16",
+					   'ENC_UCS_2' => "ENC_UCS_2",
+					   'ENC_EBCDIC' => "ENC_EBCDIC",
+					   'ENC_NA' => "ENC_NA");
+
+my %FIELD_TYPE = ('FT_NONE' => "FT_NONE", 'FT_PROTOCOL' => "FT_PROTOCOL", 'FT_BOOLEAN' => "FT_BOOLEAN",
+				   'FT_UINT8' => "FT_UINT8", 'FT_UINT16' => "FT_UINT16", 'FT_UINT24' => "FT_UINT24", 'FT_UINT32' => "FT_UINT32", 'FT_UINT64' => "FT_UINT64",
+				   'FT_INT8' => "FT_INT8", 'FT_INT16' => "FT_INT16", 'FT_INT24' => "FT_INT24", 'FT_INT32' => "FT_INT32", 'FT_INT64' => "FT_INT64",
+				   'FT_FLOAT' => "FT_FLOAT", 'FT_DOUBLE' => "FT_DOUBLE",
+				   'FT_ABSOLUTE_TIME' => "FT_ABSOLUTE_TIME", 'FT_RELATIVE_TIME' => "FT_RELATIVE_TIME",
+				   'FT_STRING' => "FT_STRING", 'FT_STRINGZ' => "FT_STRINGZ", 'FT_UINT_STRING' => "FT_UINT_STRING",
+				   'FT_ETHER' => "FT_ETHER", 'FT_BYTES' => "FT_BYTES", 'FT_UINT_BYTES' => "FT_UINT_BYTES",
+				   'FT_IPv4' => "FT_IPv4", 'FT_IPv6' => "FT_IPv6", 'FT_IPXNET' => "FT_IPXNET", 'FT_AX25' => "FT_AX25",
+				   'FT_FRAMENUM' => "FT_FRAMENUM", 'FT_PCRE' => "FT_PCRE", 'FT_GUID' => "FT_GUID", 'FT_OID' => "FT_OID", 'FT_EUI64' => "FT_EUI64");
+
+my %EXPERT_SEVERITY = ('PI_COMMENT' => "PI_COMMENT",
+					   'PI_CHAT' => "PI_CHAT",
+					   'PI_NOTE' => "PI_NOTE",
+					   'PI_WARN' => "PI_WARN",
+					   'PI_ERROR' => "PI_ERROR");
+
+my %EXPERT_GROUPS = ('PI_CHECKSUM' => "PI_CHECKSUM",
+					   'PI_SEQUENCE' => "PI_SEQUENCE",
+					   'PI_RESPONSE_CODE' => "PI_RESPONSE_CODE",
+					   'PI_REQUEST_CODE' => "PI_REQUEST_CODE",
+					   'PI_UNDECODED' => "PI_UNDECODED",
+					   'PI_REASSEMBLE' => "PI_REASSEMBLE",
+					   'PI_MALFORMED' => "PI_MALFORMED",
+					   'PI_DEBUG' => "PI_DEBUG",
+					   'PI_PROTOCOL' => "PI_PROTOCOL",
+					   'PI_SECURITY' => "PI_SECURITY",
+					   'PI_COMMENTS_GROUP' => "PI_COMMENTS_GROUP");
+
 my @proto_tree_list;
+my @expert_list;
 my $protabbrev = "";
 
 # Perl trim function to remove whitespace from the start and end of the string
@@ -70,10 +125,12 @@ sub trim($)
 my $helpFlag  = '';
 my $action    = 'generate';
 my $encoding  = '';
+my $expert  = '';
 
 my $result = GetOptions(
 						'action=s' => \$action,
 						'encoding=s' => \$encoding,
+						'expert'   => \$expert,
 						'help|?'   => \$helpFlag
 						);
 
@@ -105,6 +162,7 @@ sub usage {
 #
 my $found_total = 0;
 my $protabbrev_index;
+my $line_number = 0;
 
 while (my $fileName = $ARGV[0]) {
 	shift;
@@ -143,25 +201,26 @@ while (my $fileName = $ARGV[0]) {
 
 	if ($action eq "fix-all") {
 		# Read in the hf "input" file
+		$line_number = 0;
+		my $errors = 0;
 		open(FCI, "<", $fileName . ".proto_tree_input") || die("Couldn't open $fileName.proto_tree_input");
 		while(my $line=<FCI>){
 			my @proto_tree_item = split(/;|\n/, $line);
 
-			#do some basic error checking of the file
-			if (($proto_tree_item[0] ne "0") &&
-				($proto_tree_item[7] eq $ENCODING_DEFAULT)) {
-				print "encoding field not populated!  Aborting conversion.\n";
-				exit(-1);
-			}
-			if (($proto_tree_item[1] ne "0") &&
-				($proto_tree_item[9] eq $FIELDTYPE_DEFAULT)) {
-				print "fieldtype not populated!  Aborting conversion.\n";
-				exit(-1);
-			}
+			$line_number++;
+			$errors += verify_line(@proto_tree_item);
 
 			push(@proto_tree_list, \@proto_tree_item);
+			if ($proto_tree_item[1] eq "2") {
+				push(@expert_list, \@proto_tree_item);
+			}
 		}
 		close(FCI);
+
+		if ($errors > 0) {
+			print "Aborting conversion.\n";
+			exit(-1);
+		}
 
 		fix_proto_tree_add_text(\$fileContents, $fileName);
 
@@ -185,6 +244,75 @@ while (my $fileName = $ARGV[0]) {
 
 exit $found_total;
 
+# ---------------------------------------------------------------------
+# Sanity check the data in the .proto_tree_input file
+sub verify_line {
+	my( @proto_tree_item) = @_;
+	my $errors = 0;
+
+	#do some basic error checking of the file
+	if ($proto_tree_item[0] eq "1") {
+		if (!($proto_tree_item[3] =~ /^hf_/)) {
+			print "$line_number: Poorly formed hf_ variable ($proto_tree_item[3])!\n";
+			$errors++;
+		}
+
+		foreach (split(/\|/, $proto_tree_item[7])) {
+			if (!exists($ENCODINGS{$_})) {
+				print "$line_number: Encoding value '$_' unknown!\n";
+				$errors++;
+			}
+		}
+	} elsif (($proto_tree_item[0] eq "10") ||
+			 ($proto_tree_item[0] eq "11") ||
+			 ($proto_tree_item[0] eq "12") ||
+			 ($proto_tree_item[0] eq "13") {
+		#expert info conversions
+		if (!($proto_tree_item[3] =~ /^ei_/)) {
+			print "$line_number: Poorly formed ei_ variable ($proto_tree_item[3])!\n";
+			$errors++;
+		}
+	}
+	} elsif ($proto_tree_item[0] ne "0") {
+		print "Bad conversion value!  Aborting conversion.\n";
+		$errors++;
+	}
+
+	if ($proto_tree_item[1] eq "1") {
+		if (!($proto_tree_item[3] =~ /^hf_/)) {
+			print "$line_number: Poorly formed hf_ variable ($proto_tree_item[3])!\n";
+			$errors++;
+		}
+		if (!exists($FIELD_TYPE{$proto_tree_item[9]})) {
+			print "$line_number: Field type '$proto_tree_item[9]' unknown!\n";
+			$errors++;
+		}
+		if (!exists($DISPLAY_BASE{$proto_tree_item[11]})) {
+			print "$line_number: Display base '$proto_tree_item[11]' unknown!\n";
+			$errors++;
+		}
+
+	} elsif ($proto_tree_item[1] eq "2") {
+		if (!($proto_tree_item[3] =~ /^ei_/)) {
+			print "$line_number: Poorly formed ei_ variable ($proto_tree_item[3])!\n";
+			$errors++;
+		}
+		if (!exists($EXPERT_SEVERITY{$proto_tree_item[9]})) {
+			print "$line_number: Expert severity value '$proto_tree_item[9]' unknown!\n";
+			$errors++;
+		}
+		if (!exists($EXPERT_GROUPS{$proto_tree_item[7]})) {
+			print "$line_number: Expert group value '$proto_tree_item[7]' unknown!\n";
+			$errors++;
+		}
+
+	} elsif ($proto_tree_item[1] ne "0") {
+			print "$line_number: Bad hf/ei variable generation value!\n";
+			$errors++;
+	}
+
+	return $errors;
+}
 
 sub generate_hfs {
 	my( $fileContentsRef, $fileName) = @_;
@@ -192,63 +320,83 @@ sub generate_hfs {
 	my $num_items = 0;
 	my @temp;
 	my $str_temp;
+	my $pat;
 
-	my $pat = qr /
+	if ($expert ne "") {
+		$pat = qr /
 					(
 						 (?:proto_tree_add_text)\s* \(
-						 (([^[\,;])*\,){5}
+						 (([^[\,;])*\,){4,}
 						 [^;]*
 						 \s* \) \s* ;
 					)
 				/xs;
+	} else {
+		$pat = qr /
+					(
+						 (?:proto_tree_add_text)\s* \(
+						 (([^[\,;])*\,){5,}
+						 [^;]*
+						 \s* \) \s* ;
+					)
+				/xs;
+	}
 
 	while ($$fileContentsRef =~ / $pat /xgso) {
-		my @proto_tree_item = (1, 1, "tree", "hf_name", "tvb", "offset", "length", $ENCODING_DEFAULT,
-							   "fieldname", $FIELDTYPE_DEFAULT, "filtername", "BASE_NONE", "NULL", "0x0");
+		my @proto_tree_item = (1, 1, "tree", "hf_name", "tvb", "offset", "length", "encoding",
+							   "fieldname", "fieldtype", "filtername", "BASE_NONE", "NULL", "0x0");
 		my $str = "${1}\n";
 		$str =~ tr/\t\n\r/ /d;
 		$str =~ s/ \s+ / /xg;
 		#print "$fileName: $str\n";
 
 		@args = split(/,/, $str);
-		#printf "ARGS: %s\n", join("# ", @args);
+		#printf "ARGS(%d): %s\n", scalar @args, join("# ", @args);
 		$args[0] =~ s/proto_tree_add_text\s*\(\s*//;
 		$proto_tree_item[2] = $args[0];			#tree
 		$proto_tree_item[4] = trim($args[1]);	#tvb
 		$proto_tree_item[5] = trim($args[2]);	#offset
 		$proto_tree_item[6] = trim($args[3]);	#length
+		if (scalar @args == 5) {
+			#remove the "); at the end
+			$args[4] =~ s/\"\s*\)\s*;$//;
+		}
 
 		#encoding
-		if (($proto_tree_item[6] eq "1") ||
-			($args[5] =~ /tvb_get_guint8/) ||
-			($args[5] =~ /tvb_bytes_to_str/))  {
-			$proto_tree_item[7] = "ENC_NA";
-		} elsif ($args[5] =~ /tvb_get_ntoh/) {
-			$proto_tree_item[7] = "ENC_BIG_ENDIAN";
-		} elsif ($args[5] =~ /tvb_get_letoh/) {
-			$proto_tree_item[7] = "ENC_LITTLE_ENDIAN";
-		} elsif (($args[5] =~ /tvb_get_ephemeral_string/) || 
-				 ($args[5] =~ /tvb_format_text/)){
-			$proto_tree_item[7] = "ENC_NA|ENC_ASCII";
-		} elsif ($encoding ne "") {
-			$proto_tree_item[7] = $encoding;
+		if (scalar @args > 5) {
+			if (($proto_tree_item[6] eq "1") ||
+				($args[5] =~ /tvb_get_guint8/) ||
+				($args[5] =~ /tvb_bytes_to_str/))  {
+				$proto_tree_item[7] = "ENC_NA";
+			} elsif ($args[5] =~ /tvb_get_ntoh/) {
+				$proto_tree_item[7] = "ENC_BIG_ENDIAN";
+			} elsif ($args[5] =~ /tvb_get_letoh/) {
+				$proto_tree_item[7] = "ENC_LITTLE_ENDIAN";
+			} elsif (($args[5] =~ /tvb_get_ephemeral_string/) || 
+					 ($args[5] =~ /tvb_format_text/)){
+				$proto_tree_item[7] = "ENC_NA|ENC_ASCII";
+			} elsif ($encoding ne "") {
+				$proto_tree_item[7] = $encoding;
+			}
 		}
 
 		#Field name
-		my @arg_temp = split(/=|:/, $args[4]);
-		$proto_tree_item[8] = $arg_temp[0];
+		if (($expert ne "") && (scalar @args > 5)) {
+			my @arg_temp = split(/=|:/, $args[4]);
+			$proto_tree_item[8] = $arg_temp[0];
+		} else {
+			$proto_tree_item[8] = $args[4];
+		}
 		$proto_tree_item[8] =~ s/\"//;
 		$proto_tree_item[8] = trim($proto_tree_item[8]);
 
 		#hf name
 		$proto_tree_item[3] = sprintf("hf_%s_%s", $protabbrev, lc($proto_tree_item[8]));
-		$proto_tree_item[3] =~ s/\s+/_/g;
-		$proto_tree_item[3] =~ s/\-/_/g;
+		$proto_tree_item[3] =~ s/\s+|-|:/_/g;
 
 		#filter name
 		$proto_tree_item[10] = sprintf("%s.%s", $protabbrev, lc($proto_tree_item[8]));
-		$proto_tree_item[10] =~ s/\s+/_/g;
-		$proto_tree_item[10] =~ s/\-/_/g;
+		$proto_tree_item[10] =~ s/\s+|-|:/_/g;
 
 		#VALS
 		if ($str =~ /val_to_str(_const)?\([^\,]*\,([^\,]*)\,/) {
@@ -256,56 +404,57 @@ sub generate_hfs {
 		}
 
 		#field type
-		if ($args[5] =~ /tvb_get_guint8/) {
-			if ($args[4] =~ /%[0-9]*[di]/) {
-				$proto_tree_item[9] = "FT_INT8";
-			} else {
-				$proto_tree_item[9] = "FT_UINT8";
+		if (scalar @args > 5) {
+			if ($args[5] =~ /tvb_get_guint8/) {
+				if ($args[4] =~ /%[0-9]*[di]/) {
+					$proto_tree_item[9] = "FT_INT8";
+				} else {
+					$proto_tree_item[9] = "FT_UINT8";
+				}
+			} elsif ($args[5] =~ /tvb_get_(n|"le")tohs/) {
+				if ($args[4] =~ /%[0-9]*[di]/) {
+					$proto_tree_item[9] = "FT_INT16";
+				} else {
+					$proto_tree_item[9] = "FT_UINT16";
+				}
+			} elsif ($args[5] =~ /tvb_get_(n|"le")toh24/) {
+				if ($args[4] =~ /%[0-9]*[di]/) {
+					$proto_tree_item[9] = "FT_INT24";
+				} else {
+					$proto_tree_item[9] = "FT_UINT24";
+				}
+			} elsif ($args[5] =~ /tvb_get_(n|"le")tohl/) {
+				if ($args[4] =~ /%[0-9]*[di]/) {
+					$proto_tree_item[9] = "FT_INT32";
+				} else {
+					$proto_tree_item[9] = "FT_UINT32";
+				}
+			} elsif ($args[5] =~ /tvb_get_(n|"le")toh("40"|"48"|"56"|"64")/) {
+				if ($args[4] =~ /%[0-9]*[di]/) {
+					$proto_tree_item[9] = "FT_INT64";
+				} else {
+					$proto_tree_item[9] = "FT_UINT64";
+				}
+			} elsif (($args[5] =~ /tvb_get_(n|"le")tohieee_float/) ||
+					 ($args[4] =~ /%[0-9\.]*[fFeEgG]/)) {
+				$proto_tree_item[9] = "FT_FLOAT";
+			} elsif ($args[5] =~ /tvb_get_(n|"le")tohieee_double/) {
+				$proto_tree_item[9] = "FT_DOUBLE";
+			} elsif ($args[5] =~ /tvb_get_ipv4/) {
+				$proto_tree_item[9] = "FT_IPv4";
+			} elsif ($args[5] =~ /tvb_get_ipv6/) {
+				$proto_tree_item[9] = "FT_IPv6";
+			} elsif ($args[5] =~ /tvb_get_(n|"le")tohguid/) {
+				$proto_tree_item[9] = "FT_GUID";
+			} elsif ($args[5] =~ /tvb_get_ephemeral_stringz/) {
+				$proto_tree_item[9] = "FT_STRINGZ";
+			} elsif (($args[5] =~ /tvb_get_ephemeral_string/) || 
+					 ($args[5] =~ /tvb_format_text/)){
+				$proto_tree_item[9] = "FT_STRING";
+			} elsif ($args[5] =~ /tvb_bytes_to_str/) {
+				$proto_tree_item[9] = "FT_BYTES";
 			}
-		} elsif ($args[5] =~ /tvb_get_(n|"le")tohs/) {
-			if ($args[4] =~ /%[0-9]*[di]/) {
-				$proto_tree_item[9] = "FT_INT16";
-			} else {
-				$proto_tree_item[9] = "FT_UINT16";
-			}
-		} elsif ($args[5] =~ /tvb_get_(n|"le")toh24/) {
-			if ($args[4] =~ /%[0-9]*[di]/) {
-				$proto_tree_item[9] = "FT_INT24";
-			} else {
-				$proto_tree_item[9] = "FT_UINT24";
-			}
-		} elsif ($args[5] =~ /tvb_get_(n|"le")tohl/) {
-			if ($args[4] =~ /%[0-9]*[di]/) {
-				$proto_tree_item[9] = "FT_INT32";
-			} else {
-				$proto_tree_item[9] = "FT_UINT32";
-			}
-		} elsif ($args[5] =~ /tvb_get_(n|"le")toh("40"|"48"|"56"|"64")/) {
-			if ($args[4] =~ /%[0-9]*[di]/) {
-				$proto_tree_item[9] = "FT_INT64";
-			} else {
-				$proto_tree_item[9] = "FT_UINT64";
-			}
-		} elsif (($args[5] =~ /tvb_get_(n|"le")tohieee_float/) ||
-				 ($args[4] =~ /%[0-9\.]*[fFeEgG]/)) {
-			$proto_tree_item[9] = "FT_FLOAT";
-		} elsif ($args[5] =~ /tvb_get_(n|"le")tohieee_double/) {
-			$proto_tree_item[9] = "FT_DOUBLE";
-		} elsif ($args[5] =~ /tvb_get_ipv4/) {
-			$proto_tree_item[9] = "FT_IPv4";
-		} elsif ($args[5] =~ /tvb_get_ipv6/) {
-			$proto_tree_item[9] = "FT_IPv6";
-		} elsif ($args[5] =~ /tvb_get_(n|"le")tohguid/) {
-			$proto_tree_item[9] = "FT_GUID";
-		} elsif ($args[5] =~ /tvb_get_ephemeral_stringz/) {
-			$proto_tree_item[9] = "FT_STRINGZ";
-		} elsif (($args[5] =~ /tvb_get_ephemeral_string/) || 
-				 ($args[5] =~ /tvb_format_text/)){
-			$proto_tree_item[9] = "FT_STRING";
-		} elsif ($args[5] =~ /tvb_bytes_to_str/) {
-			$proto_tree_item[9] = "FT_BYTES";
 		}
-
 
 		#display base
 		if ($args[4] =~ /%[0-9]*[xX]/) {
@@ -336,27 +485,65 @@ sub generate_hfs {
 sub fix_proto_tree_add_text {
 	my( $fileContentsRef, $fileName) = @_;
 	my $found = 0;
-	my $pat = qr /
+	my $pat;
+
+	if ($expert ne "") {
+		$pat = qr /
 					(
 						 (?:proto_tree_add_text)\s* \(
-						 (([^[\,;])*\,){5}
+						 (([^[\,;])*\,){4,}
 						 [^;]*
 						 \s* \) \s* ;
 					)
 				/xs;
+	} else {
+		$pat = qr /
+					(
+						 (?:proto_tree_add_text)\s* \(
+						 (([^[\,;])*\,){5,}
+						 [^;]*
+						 \s* \) \s* ;
+					)
+				/xs;
+	}
 
 	$$fileContentsRef =~ s/ $pat /patsub($found, $1)/xges;
 }
 
 # ---------------------------------------------------------------------
-# Format proto_tree_add_item function with proto_tree_list data
+# Format proto_tree_add_item or expert info functions with proto_tree_list data
 sub patsub {
 	my $item_str;
-	if ($proto_tree_list[$_[0]][0] ne "0") {
+	if ($proto_tree_list[$_[0]][0] eq "1") {
 		$item_str = sprintf("proto_tree_add_item(%s, %s, %s, %s, %s, %s);",
 						 $proto_tree_list[$_[0]][2], $proto_tree_list[$_[0]][3],
 						 $proto_tree_list[$_[0]][4], $proto_tree_list[$_[0]][5],
 						 $proto_tree_list[$_[0]][6], $proto_tree_list[$_[0]][7]);
+	} elsif ($proto_tree_list[$_[0]][0] eq "10") {
+		$item_str = sprintf("expert_add_info(pinfo, %s, &%s);",
+						 $proto_tree_list[$_[0]][2], $proto_tree_list[$_[0]][3]);
+	} elsif ($proto_tree_list[$_[0]][0] eq "11") {
+		$item_str = sprintf("expert_add_info_format_text(pinfo, %s, &%s, \"%s\"",
+						 $proto_tree_list[$_[0]][2], $proto_tree_list[$_[0]][3],
+						 $proto_tree_list[$_[0]][8]);
+		if ($proto_tree_list[$_[0]][11] ne "") {
+			$item_str .= ", $proto_tree_list[$_[0]][11]";
+		}
+		$item_str .= ");";
+	} elsif ($proto_tree_list[$_[0]][0] eq "12") {
+		$item_str = sprintf("proto_tree_add_expert(%s, pinfo, &%s, %s, %s, %s);",
+						 $proto_tree_list[$_[0]][2], $proto_tree_list[$_[0]][3],
+						 $proto_tree_list[$_[0]][4], $proto_tree_list[$_[0]][5],
+						 $proto_tree_list[$_[0]][6]);
+	} elsif ($proto_tree_list[$_[0]][0] eq "13") {
+		$item_str = sprintf("proto_tree_add_expert_format(%s, pinfo, &%s, %s, %s, %s, \"%s\"",
+						 $proto_tree_list[$_[0]][2], $proto_tree_list[$_[0]][3],
+						 $proto_tree_list[$_[0]][4], $proto_tree_list[$_[0]][5],
+						 $proto_tree_list[$_[0]][6], $proto_tree_list[$_[0]][8]);
+		if ($proto_tree_list[$_[0]][11] ne "") {
+			$item_str .= ", $proto_tree_list[$_[0]][11]";
+		}
+		$item_str .= ");";
 	} else {
 		$item_str = $1;
 	}
@@ -372,13 +559,16 @@ sub patsub {
 sub output_hf {
 	my( $fileName) = @_;
 	my %hfs = ();
+	my %eis = ();
 	my $index;
 	my $key;
 
 	#add hfs to hash table to prevent against (accidental) duplicates
 	for ($index=0;$index<@proto_tree_list;$index++) {
-		if ($proto_tree_list[$index][1] ne "0") {
+		if ($proto_tree_list[$index][1] eq "1") {
 			$hfs{$proto_tree_list[$index][3]} = $proto_tree_list[$index][3];
+		} elsif ($proto_tree_list[$index][1] eq "2") {
+			$eis{$proto_tree_list[$index][3]} = $proto_tree_list[$index][3];
 		}
 	}
 
@@ -388,6 +578,16 @@ sub output_hf {
 
 	foreach $key (keys %hfs) {
 		print FCO "static int $key = -1;\n";
+	}
+
+	if (scalar keys %hfs > 0) {
+		print FCO "\n\n";
+	}
+
+	print FCO "/* Generated from convert_proto_tree_add_text.pl */\n";
+
+	foreach $key (keys %eis) {
+		print FCO "static expert_field $key = EI_INIT;\n";
 	}
 	close(FCO);
 
@@ -401,21 +601,38 @@ sub output_hf_array {
 	my( $fileName) = @_;
 	my $index;
 	my %hfs = ();
+	my %eis = ();
 
 	open(FCO, ">", $fileName . ".hf_array");
 
 	print FCO "      /* Generated from convert_proto_tree_add_text.pl */\n";
 
 	for ($index=0;$index<@proto_tree_list;$index++) {
-		if ($proto_tree_list[$index][1] ne "0") {
+		if ($proto_tree_list[$index][1] eq "1") {
 			if (exists($hfs{$proto_tree_list[$index][3]})) {
 				print "duplicate hf entry '$proto_tree_list[$index][3]' found!  Aborting conversion.\n";
 				exit(-1);
 			}
 			$hfs{$proto_tree_list[$index][3]} = $proto_tree_list[$index][3];
 			print FCO "      { &$proto_tree_list[$index][3], { \"$proto_tree_list[$index][8]\", \"$proto_tree_list[$index][10]\", ";
-			print FCO "$proto_tree_list[$index][9], $proto_tree_list[$index][11], $proto_tree_list[$index][12], $proto_tree_list[$index][13], NULL, HFILL }},\n";
+			print FCO "$proto_tree_list[$index][9], $proto_tree_list[$index][11], $proto_tree_list[$index][12], $proto_tree_list[$index][13], NULL, HFILL }},\r\n";
 		}
+	}
+
+	if ($index > 0) {
+		print FCO "\n\n";
+	}
+
+	print FCO "      /* Generated from convert_proto_tree_add_text.pl */\n";
+	for ($index=0;$index<@expert_list;$index++) {
+		if (exists($eis{$expert_list[$index][3]})) {
+			print "duplicate ei entry '$expert_list[$index][3]' found!  Aborting conversion.\n";
+			exit(-1);
+		}
+		$eis{$expert_list[$index][3]} = $expert_list[$index][3];
+
+		print FCO "      { &$expert_list[$index][3], { \"$expert_list[$index][10]\", $expert_list[$index][7], ";
+		print FCO "$expert_list[$index][9], \"$expert_list[$index][8]\", EXPFILL }},\r\n";
 	}
 
 	close(FCO);
@@ -429,15 +646,27 @@ sub find_all {
 	my( $fileContentsRef, $fileName) = @_;
 
 	my $found = 0;
+	my $pat;
 
-	my $pat = qr /
+	if ($expert ne "") {
+		$pat = qr /
 					(
 						 (?:proto_tree_add_text)\s* \(
-						 (([^[\,;])*\,){5}
+						 (([^[\,;])*\,){4,}
 						 [^;]*
 						 \s* \) \s* ;
 					)
 				/xs;
+	} else {
+		$pat = qr /
+					(
+						 (?:proto_tree_add_text)\s* \(
+						 (([^[\,;])*\,){5,}
+						 [^;]*
+						 \s* \) \s* ;
+					)
+				/xs;
+	}
 
 	while ($$fileContentsRef =~ / $pat /xgso) {
 		my $str = "${1}\n";
