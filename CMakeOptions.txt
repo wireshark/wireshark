@@ -31,6 +31,7 @@ option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
 option(ENABLE_AIRPCAP    "Enable AirPcap support" OFF)
 # todo
 option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)" OFF)
+option(ENABLE_ECHLD      "Enable echld support" OFF)
 option(ENABLE_PLUGINS    "Build with plugins" ON)
 option(ENABLE_GUIDES     "Build Guides" OFF)
 option(ENABLE_PCAP_NG_DEFAULT	"Enable pcap-ng as default file format" ON)
