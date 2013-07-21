@@ -846,7 +846,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 	mate_pdu* pdu = NULL;
 	mate_pdu* last = NULL;
 
-	rd->now = (float) nstime_to_sec(&pinfo->fd->rel_ts);
+	rd->now = (float) nstime_to_sec(&pinfo->rel_ts);
 
 	if ( proto_tracking_interesting_fields(tree)
 		 && rd->highest_analyzed_frame < pinfo->fd->num ) {
