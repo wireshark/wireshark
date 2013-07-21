@@ -196,7 +196,7 @@ dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 static int
 dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
-    proto_item* item, *ti;
+    proto_item* item;
     proto_tree *sub_tree;
     int offset = 0;
     guint32 bit_offset, application_id = 0;
@@ -208,7 +208,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         application_id = *(guint32*)pinfo->private_data;
     }
     bit_offset = 0;
-    if(application_id = 16777216){
+    if(application_id == 16777216){
         /* ApplicationId: 3GPP Cx (16777216) */
         proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 29, ENC_BIG_ENDIAN);
         bit_offset+=29;
