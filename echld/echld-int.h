@@ -26,7 +26,7 @@
 #ifndef __ECHLD_HDR_INT_
 #define __ECHLD_HDR_INT_
 
-#include "../config.h"
+#include "config.h"
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
