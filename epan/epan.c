@@ -146,6 +146,15 @@ epan_new(void)
 	return session;
 }
 
+const char *
+epan_get_interface_name(const epan_t *session, guint32 interface_id)
+{
+	if (session->get_interface_name)
+		return session->get_interface_name(session->data, interface_id);
+
+	return NULL;
+}
+
 const nstime_t *
 epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 {

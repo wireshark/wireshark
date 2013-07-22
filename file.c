@@ -303,7 +303,7 @@ static void compute_elapsed(GTimeVal *start_time)
   computed_elapsed = (gulong) (delta_time / 1000); /* ms */
 }
 
-const nstime_t *
+static const nstime_t *
 ws_get_frame_ts(void *data, guint32 frame_num)
 {
   capture_file *cf = (capture_file *) data;
@@ -330,6 +330,7 @@ ws_epan_new(capture_file *cf)
 
   epan->data = cf;
   epan->get_frame_ts = ws_get_frame_ts;
+  epan->get_interface_name = cap_file_get_interface_name;
 
   return epan;
 }

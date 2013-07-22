@@ -288,8 +288,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
 
-		if (pinfo->fd->flags.has_if_id)
-			proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id);
+		if (pinfo->fd->flags.has_if_id && proto_field_is_referenced(tree, hf_frame_interface_id)) {
+			const char *interface_name = epan_get_interface_name(pinfo->epan, pinfo->fd->interface_id);
+
+			if (interface_name)
+				proto_tree_add_uint_format_value(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id, "%u (%s)", pinfo->fd->interface_id, interface_name);
+			else
+				proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id);
+		}
 
 		if (pinfo->fd->flags.has_pack_flags) {
 			proto_tree *flags_tree;
