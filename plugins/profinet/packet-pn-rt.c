@@ -170,7 +170,13 @@ IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* the sub tvb will NOT contain the frame_id here! */
     u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
-    /* try to bild a temporaray buffer for generating this CRC */
+    /* try to build a temporaray buffer for generating this CRC */
+    if (!pinfo->src.data || !pinfo->dst.data ||
+            pinfo->dst.type != AT_ETHER || pinfo->src.type != AT_ETHER) {
+        /* if we don't have src/dst mac addresses then we assume it's not
+         * to avoid various crashes */
+        return FALSE;
+    }
     memcpy(&virtualFramebuffer[0], pinfo->dst.data, 6);
     memcpy(&virtualFramebuffer[6], pinfo->src.data, 6);
     virtualFramebuffer[12] = 0x88;
