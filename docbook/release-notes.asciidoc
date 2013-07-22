@@ -162,7 +162,7 @@ Versions affected: 1.10.0, 1.8.0 to 1.8.7
 +
 The PROFINET Real-Time dissector could crash.
 // Fixed in trunk: r50651
-// Fixed in trunk-1.10: r?????
+// Fixed in trunk-1.10: r50801
 (ws-buglink:8904[])
 +
 Versions affected: 1.10.0
@@ -244,6 +244,10 @@ The following bugs have been fixed:
 
 * Issue with Capture Options Adapter List. (ws-buglink:8932)
 
+* RFC 5844 - IPv4 Support for Proxy Mobile IPv6 - Mobility option IPv4 DHCP Support Mode Option malformed packet. (ws-buglink:8957)
+
+* RFC 3775 - Mobility Support in IPv6 - Mobility option PadN incorrectly highlights + 2 bytes. (ws-buglink:8958)
+
 === New and Updated Features
 
 There are no new features in this release.
@@ -278,6 +282,7 @@ IP
 KDSP
 LISP
 LLRP
+Mobile IPv6
 MPLS Echo
 Netflow
 NFS

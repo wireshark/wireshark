@@ -1849,16 +1849,21 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 /* 1 PadN [RFC3775] */
 static void
 dissect_mip6_opt_padn(const mip6_opt *optp, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_,
+              guint optlen _U_, packet_info *pinfo _U_,
               proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
+    guint8 len;
+
     /* offset points to tag(opt) */
     offset++;
+    len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_text(opt_tree, tvb, offset, optlen,
-            "%s: %u bytes", optp->name, optlen);
+    if (len > 0) {
+        proto_tree_add_text(opt_tree, tvb, offset, len,
+                "%s: %u bytes", optp->name, len);
+    }
 }
 
 /* 2 Binding Refresh Advice */
@@ -2794,13 +2799,8 @@ dissect_pmip6_opt_ipv4dsm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     proto_tree_add_item(opt_tree, hf_mip6_ipv4dsm_reserved, tvb,
             offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(opt_tree, hf_mip6_ipv4dsm_s_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-    offset += 2;
-
-
-    proto_item_append_text(hdr_item, ": %s", tvb_ip_to_str(tvb,offset));
-
 }
+
 /* 40 Context Request Option [RFC5949] */
 /*
      0                   1                   2                   3
