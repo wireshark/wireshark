@@ -6003,12 +6003,12 @@ proto_register_netflow(void)
         },
         {&hf_cflow_srcas,
          {"SrcAS", "cflow.srcas",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           "Source AS", HFILL}
         },
         {&hf_cflow_dstas,
          {"DstAS", "cflow.dstas",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           "Destination AS", HFILL}
         },
         {&hf_cflow_srcmask,
@@ -6198,12 +6198,12 @@ proto_register_netflow(void)
         },
         {&hf_cflow_peer_srcas,
          {"PeerSrcAS", "cflow.peer_srcas",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           "Peer Source AS", HFILL}
         },
         {&hf_cflow_peer_dstas,
          {"PeerDstAS", "cflow.peer_dstas",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           "Peer Destination AS", HFILL}
         },
         {&hf_cflow_flow_exporter,
