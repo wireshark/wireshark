@@ -1066,12 +1066,6 @@ report_type_length_mismatch(proto_tree *tree, const gchar *descr, int length, gb
 	}
 }
 
-/*
- * NOTE: to support code written when proto_tree_add_item() took a
- * gboolean as its last argument, with FALSE meaning "big-endian"
- * and TRUE meaning "little-endian", we treat any non-zero value of
- * "encoding" as meaning "little-endian".
- */
 static guint32
 get_uint_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const guint encoding)
 {
@@ -1085,18 +1079,18 @@ get_uint_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const 
 		break;
 
 	case 2:
-		value = encoding ? tvb_get_letohs(tvb, offset)
-				 : tvb_get_ntohs(tvb, offset);
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letohs(tvb, offset)
+						       : tvb_get_ntohs(tvb, offset);
 		break;
 
 	case 3:
-		value = encoding ? tvb_get_letoh24(tvb, offset)
-				 : tvb_get_ntoh24(tvb, offset);
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letoh24(tvb, offset)
+						       : tvb_get_ntoh24(tvb, offset);
 		break;
 
 	case 4:
-		value = encoding ? tvb_get_letohl(tvb, offset)
-				 : tvb_get_ntohl(tvb, offset);
+		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letohl(tvb, offset)
+						       : tvb_get_ntohl(tvb, offset);
 		break;
 
 	default:
@@ -1105,8 +1099,8 @@ get_uint_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const 
 			value = 0;
 		} else {
 			length_error = FALSE;
-			value = encoding ? tvb_get_letohl(tvb, offset)
-					 : tvb_get_ntohl(tvb, offset);
+			value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letohl(tvb, offset)
+							       : tvb_get_ntohl(tvb, offset);
 		}
 		report_type_length_mismatch(tree, "an unsigned integer", length, length_error);
 		break;
@@ -1340,7 +1334,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				report_type_length_mismatch(tree, "an IPXNET address", length, length_error);
 			}
 			proto_tree_set_ipxnet(new_fi,
-				get_uint_value(tree, tvb, start, FT_IPXNET_LEN, FALSE));
+				get_uint_value(tree, tvb, start, FT_IPXNET_LEN, ENC_BIG_ENDIAN));
 			break;
 
 		case FT_IPv6:
@@ -1777,7 +1771,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
  */
 static void
 test_length(header_field_info *hfinfo, proto_tree *tree, tvbuff_t *tvb,
-	    gint start, gint length, gboolean little_endian)
+	    gint start, gint length, const guint encoding)
 {
 	gint size = length;
 
@@ -1787,7 +1781,7 @@ test_length(header_field_info *hfinfo, proto_tree *tree, tvbuff_t *tvb,
 	if (hfinfo->type == FT_UINT_BYTES || hfinfo->type == FT_UINT_STRING) {
 		guint32 n;
 
-		n = get_uint_value(tree, tvb, start, length, little_endian);
+		n = get_uint_value(tree, tvb, start, length, encoding);
 		if (n > size + n) {
 			/* If n > size + n then we have an integer overflow, so
 			 * set size to -1, which will force the
