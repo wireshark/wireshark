@@ -3854,6 +3854,13 @@ static int hf_ieee80211_aironet_ie_qos_reserved = -1;
 static int hf_ieee80211_aironet_ie_qos_paramset = -1;
 static int hf_ieee80211_aironet_ie_qos_val = -1;
 
+static int hf_ieee80211_vs_nintendo_type = -1;
+static int hf_ieee80211_vs_nintendo_length = -1;
+static int hf_ieee80211_vs_nintendo_servicelist = -1;
+static int hf_ieee80211_vs_nintendo_service = -1;
+static int hf_ieee80211_vs_nintendo_consoleid = -1;
+static int hf_ieee80211_vs_nintendo_unknown = -1;
+
 static int hf_ieee80211_vs_aruba_subtype = -1;
 static int hf_ieee80211_vs_aruba_apname = -1;
 static int hf_ieee80211_vs_aruba_data = -1;
@@ -4211,6 +4218,8 @@ static gint ett_anqp_vendor_capab = -1;
 static gint ett_hs20_cc_proto_port_tuple = -1;
 
 static gint ett_ssid_list = -1;
+
+static gint ett_nintendo = -1;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -8358,6 +8367,88 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
   }
 }
 
+enum vs_nintendo_type {
+  NINTENDO_SERVICES = 0x11,
+  NINTENDO_CONSOLEID = 0xF0
+};
+
+static const value_string ieee80211_vs_nintendo_type_vals[] = {
+  { NINTENDO_SERVICES,		"Services"},
+  { NINTENDO_CONSOLEID,		"ConsoleID"},
+  { 0,				NULL }
+};
+
+static proto_tree*
+dissect_vendor_ie_nintendo_tlv(const int hfindex, proto_tree *ietree,
+                          tvbuff_t *tvb, int offset, guint32 sublen)
+{
+  proto_item	*nintendo_item;
+  proto_tree	*nintendo_tree;
+
+  nintendo_item = proto_tree_add_item(ietree, hfindex, tvb, offset, sublen, ENC_NA);
+  nintendo_tree = proto_item_add_subtree(nintendo_item, ett_nintendo);
+
+  proto_tree_add_item(nintendo_tree, hf_ieee80211_vs_nintendo_type, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(nintendo_tree, hf_ieee80211_vs_nintendo_length, tvb, offset + 1,  1, ENC_NA);
+
+  return nintendo_tree;
+}
+
+static void
+dissect_vendor_ie_nintendo(proto_item *item _U_, proto_tree *ietree,
+                          tvbuff_t *tvb, int offset, guint32 tag_len)
+{
+  proto_tree	*nintendo_tree;
+
+  guint8	subtype;
+  guint8	sublength;
+  guint32	length = tag_len;
+
+  /* Skip OUI type for now - the code is for type 1 (StreetPass) only */
+  /* http://3dbrew.org/wiki/StreetPass */
+  offset += 1;
+  length -= 1;
+
+  while(length > 0 && length < 256) { /* otherwise we are < 0 but on unsigned */
+    subtype = tvb_get_guint8(tvb, offset);
+    sublength = tvb_get_guint8(tvb, offset + 1);
+
+    switch(subtype) {
+    case NINTENDO_SERVICES:
+      nintendo_tree = dissect_vendor_ie_nintendo_tlv(hf_ieee80211_vs_nintendo_servicelist, ietree, tvb, offset, sublength + 2);
+      offset += 2;
+      length -= 2;
+
+      while (sublength > 4) {
+
+        proto_tree_add_item(nintendo_tree, hf_ieee80211_vs_nintendo_service, tvb, offset, 5, ENC_NA);
+        offset += 5;
+        length -= 5;
+        sublength -= 5;
+      }
+      break;
+    case NINTENDO_CONSOLEID:
+      nintendo_tree = dissect_vendor_ie_nintendo_tlv(hf_ieee80211_vs_nintendo_consoleid, ietree, tvb, offset, sublength + 2);
+      offset += + 2;
+      length -= + 2;
+
+      proto_tree_add_item(nintendo_tree, hf_ieee80211_vs_nintendo_consoleid, tvb, offset, sublength, ENC_NA);
+      offset += sublength;
+      length -= sublength;
+      break;
+    default:
+      nintendo_tree = dissect_vendor_ie_nintendo_tlv(hf_ieee80211_vs_nintendo_unknown, ietree, tvb, offset, sublength + 2);
+      offset += + 2;
+      length -= + 2;
+
+      proto_tree_add_item(nintendo_tree, hf_ieee80211_vs_nintendo_unknown, tvb, offset, sublength, ENC_NA);
+      offset += sublength;
+      length -= sublength;
+      break;
+    }
+  }
+}
+
 /* 802.11e 7.3.2.33 QoS Capability element */
 static int
 dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int ftype)
@@ -12204,6 +12295,9 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           break;
         case OUI_ARUBA:
           dissect_vendor_ie_aruba(ti, tree, tvb, offset, tag_vs_len);
+          break;
+        case OUI_NINTENDO:
+          dissect_vendor_ie_nintendo(ti, tree, tvb, offset, tag_vs_len);
           break;
         default:
           proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
@@ -19705,6 +19799,37 @@ proto_register_ieee80211 (void)
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
+    /* Vendor Specific : Nintendo */
+    {&hf_ieee80211_vs_nintendo_type,
+     {"Type", "wlan_mgt.vs.nintendo.type",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_vs_nintendo_type_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_nintendo_length,
+     {"Length", "wlan_mgt.vs.nintendo.length",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_nintendo_servicelist,
+     {"Servicelist", "wlan_mgt.vs.nintendo.servicelist",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_nintendo_service,
+     {"Service", "wlan_mgt.vs.nintendo.service",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_nintendo_consoleid,
+     {"Console ID", "wlan_mgt.vs.nintendo.consoleid",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_nintendo_unknown,
+     {"Unknown", "wlan_mgt.vs.nintendo.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
     /* Vendor Specific : Aruba Networks */
     {&hf_ieee80211_vs_aruba_subtype,
      {"Subtype", "wlan_mgt.vs.aruba.subtype",
@@ -20760,7 +20885,8 @@ proto_register_ieee80211 (void)
     &ett_tag_ric_data_desc_ie,
     &ett_anqp_vendor_capab,
     &ett_hs20_cc_proto_port_tuple,
-    &ett_ssid_list
+    &ett_ssid_list,
+    &ett_nintendo
   };
   module_t *wlan_module;
 

@@ -80,6 +80,7 @@
 #define OUI_WFA             0x506F9A    /* Wi-Fi Alliance */
 #define OUI_3GPP2           0xCF0002    /* 3GPP2 */
 #define OUI_ARUBA           0x000b86    /* Aruba Networks */
+#define OUI_NINTENDO        0x001F32
 
 #define OUI_WPAWME          0x0050F2    /* Wi-Fi : WPA / WME */
 #define OUI_RSN             0x000FAC    /* Wi-Fi : RSN */
