@@ -1855,13 +1855,18 @@ dissect_mip6_opt_padn(const mip6_opt *optp, tvbuff_t *tvb, int offset,
               guint optlen, packet_info *pinfo _U_,
               proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
+    guint8 len;
+
     /* offset points to tag(opt) */
     offset++;
+    len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_text(opt_tree, tvb, offset, optlen,
-            "%s: %u bytes", optp->name, optlen);
+    if (len > 0) {
+        proto_tree_add_text(opt_tree, tvb, offset, len,
+                "%s: %u bytes", optp->name, len);
+    }
 }
 
 /* 2 Binding Refresh Advice */
