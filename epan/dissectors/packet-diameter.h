@@ -38,3 +38,8 @@ typedef struct _diameter_req_ans_pair_t
 	gboolean	processing_request; /* TRUE if processing request, FALSE if processing answer. */
 } diameter_req_ans_pair_t;
 
+/* Info needed by AVP sub dissectors */
+typedef struct _diam_sub_dis_t {
+	guint32 application_id;
+	guint32 feature_list_id;
+} diam_sub_dis_t;

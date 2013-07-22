@@ -910,7 +910,6 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	value_string *cmd_vs;
 	const char *cmd_str;
 	guint32 cmd = tvb_get_ntoh24(tvb,5);
-	guint32 fourth = tvb_get_ntohl(tvb,8);
 	guint32 hop_by_hop_id, end_to_end_id;
 	conversation_t *conversation;
 	diameter_conv_info_t *diameter_conv_info;
@@ -919,6 +918,10 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *it;
 	nstime_t ns;
 	void *pd_save;
+	diam_sub_dis_t *diam_sub_dis_inf = ep_new0(diam_sub_dis_t);
+
+
+	diam_sub_dis_inf->application_id = tvb_get_ntohl(tvb,8);
 
 	pd_save = pinfo->private_data;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
@@ -967,18 +970,19 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 		case DIAMETER_RFC: {
-			/* Store the application id to be used by subdissectors */
-			pinfo->private_data = &fourth;
 
 			cmd_vs = (value_string *)(void *)all_cmds->data;
 
 			app_item = proto_tree_add_item(diam_tree, hf_diameter_application_id, tvb, 8, 4, ENC_BIG_ENDIAN);
-			if (try_val_to_str(fourth, dictionary.applications) == NULL) {
+			/* Store the application id to be used by subdissectors */
+			pinfo->private_data = diam_sub_dis_inf;
+
+			if (try_val_to_str(diam_sub_dis_inf->application_id, dictionary.applications) == NULL) {
 				proto_tree *tu = proto_item_add_subtree(app_item,ett_unknown);
 				proto_item *iu = proto_tree_add_text(tu, tvb, 8, 4, "Unknown Application Id, "
 				                                     "if you know what this is you can add it to dictionary.xml");
 				expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN,
-				                       "Unknown Application Id (%u)", fourth);
+				                       "Unknown Application Id (%u)", diam_sub_dis_inf->application_id);
 				PROTO_ITEM_SET_GENERATED(iu);
 			}
 
@@ -1005,8 +1009,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 cmd,
 			 msgflags_str[((flags_bits>>4)&0x0f)],
 			 c->version_rfc ? "appl" : "vend",
-			 val_to_str_const(fourth, c->version_rfc ? dictionary.applications : vnd_short_vs, "Unknown"),
-			 fourth,
+			 val_to_str_const(diam_sub_dis_inf->application_id, c->version_rfc ? dictionary.applications : vnd_short_vs, "Unknown"),
+			 diam_sub_dis_inf->application_id,
 			 tvb_get_ntohl(tvb,12),
 			 tvb_get_ntohl(tvb,16));
 
