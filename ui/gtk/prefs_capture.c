@@ -119,7 +119,7 @@ static GtkWidget *col_monitor_cb;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 static GtkWidget *col_buf_cb;
 #endif
-static GtkWidget *col_interface_cb, *col_snap_cb;
+static GtkWidget *col_snap_cb;
 static GtkWidget *col_link_cb, *col_filter_cb, *col_pmode_cb;
 static void colopts_edit_destroy_cb(GtkWidget *win, gpointer data);
 static void colopts_edit_cb(GtkWidget *w, gpointer data);
@@ -963,9 +963,7 @@ colopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 {
 	g_list_free(prefs.capture_columns);
 	prefs.capture_columns = NULL;
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(col_interface_cb))) {
-		prefs.capture_columns = g_list_append(prefs.capture_columns, g_strdup("INTERFACE"));
-	}
+	prefs.capture_columns = g_list_append(prefs.capture_columns, g_strdup("INTERFACE"));
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(col_link_cb))) {
 		prefs.capture_columns = g_list_append(prefs.capture_columns, g_strdup("LINK"));
 	}

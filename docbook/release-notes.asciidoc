@@ -158,6 +158,17 @@ Versions affected: 1.10.0, 1.8.0 to 1.8.7
 //+
 //cve-idlink:GENERIC-MAP-NOMATCH[]
 
+* ws-salink:2013-53[]
++
+The PROFINET Real-Time dissector could crash.
+// Fixed in trunk: r50651
+// Fixed in trunk-1.10: r?????
+(ws-buglink:8904[])
++
+Versions affected: 1.10.0
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
 
 The following bugs have been fixed:
 
@@ -170,6 +181,8 @@ The following bugs have been fixed:
 * IEEE 802.15.4 frame check sequence in "Chipcon mode" not displayed correctly. (ws-buglink:4507)
 
 * Colors used by colorize_filter_te_as_* should be configurable. (ws-buglink:5413)
+
+* Mask in Lua ProtoField.uint32() does not work as expected. (ws-buglink:5734)
 
 * Crash when applying filter with Voip calls. (ws-buglink:6090)
 
@@ -221,6 +234,16 @@ The following bugs have been fixed:
 
 * Graph Filter field limited to 256 characters. (ws-buglink:8909)
 
+* Filter doesn't support cflow ASN larger than 65535. (ws-buglink:8959)
+
+* Wireshark crashes when switching from a v1.11.0 profile to a v1.4.6 prof and then to a v1.5.1 prof. (ws-buglink:8884)
+
+* SIP stats shows incorrect values for Max/Ave setup times. (ws-buglink:8897)
+
+* NFSv4 delegation not reported correctly. (ws-buglink:8920)
+
+* Issue with Capture Options Adapter List. (ws-buglink:8932)
+
 === New and Updated Features
 
 There are no new features in this release.
@@ -256,12 +279,18 @@ KDSP
 LISP
 LLRP
 MPLS Echo
+Netflow
 NFS
+NFSv4
 P1
 PN-IO
+PN-RT
 PPP
 Radiotap
 SCSI
+SIP
+SMTP
+SoulSeek
 TCP
 TETRA
 VNC

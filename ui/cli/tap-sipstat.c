@@ -398,7 +398,7 @@ sipstat_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	sp = g_new(sipstat_t,1);
+	sp = g_new0(sipstat_t,1);
 	if(filter){
 		sp->filter=g_strdup(filter);
 	} else {

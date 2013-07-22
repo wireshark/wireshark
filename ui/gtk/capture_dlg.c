@@ -418,7 +418,8 @@ update_visible_tree_view_columns(void)
   GtkTreeViewColumn *col;
 
   view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-  for (col_id = 2; col_id < NUM_COLUMNS; col_id++) {
+  gtk_tree_view_column_set_visible(gtk_tree_view_get_column(GTK_TREE_VIEW(view), INTERFACE), TRUE);
+  for (col_id = 3; col_id < NUM_COLUMNS; col_id++) {
     col = gtk_tree_view_get_column(GTK_TREE_VIEW(view), col_id);
     gtk_tree_view_column_set_visible(col, prefs_capture_options_dialog_column_is_visible(col_index_to_name(col_id))?TRUE:FALSE);
   }
@@ -5575,7 +5576,7 @@ create_and_fill_model(GtkTreeView *view)
         temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
       }
       linkname = NULL;
-      if(global_capture_session.session_started == FALSE && capture_dev_user_linktype_find(device.name) != -1) {
+      if(capture_dev_user_linktype_find(device.name) != -1) {
         device.active_dlt = capture_dev_user_linktype_find(device.name);
       }
       for (list = device.links; list != NULL; list = g_list_next(list)) {
@@ -5588,22 +5589,21 @@ create_and_fill_model(GtkTreeView *view)
       if (!linkname)
           linkname = g_strdup("unknown");
       pmode = capture_dev_user_pmode_find(device.name);
-      if (global_capture_session.session_started == FALSE && pmode != -1) {
+      if (pmode != -1) {
         device.pmode = pmode;
       }
-      if(global_capture_session.session_started == FALSE) {
-        hassnap = capture_dev_user_hassnap_find(device.name);
-        snaplen = capture_dev_user_snaplen_find(device.name);
-        if(snaplen != -1 && hassnap != -1) {
-          /* Default snap lenght set in preferences */
-          device.snaplen = snaplen;
-          device.has_snaplen = hassnap;
-        } else {
-          /* No preferences set yet, use default values */
-          device.snaplen = WTAP_MAX_PACKET_SIZE;
-          device.has_snaplen = FALSE;
-        }
+      hassnap = capture_dev_user_hassnap_find(device.name);
+      snaplen = capture_dev_user_snaplen_find(device.name);
+      if(snaplen != -1 && hassnap != -1) {
+        /* Default snap lenght set in preferences */
+        device.snaplen = snaplen;
+        device.has_snaplen = hassnap;
+      } else {
+        /* No preferences set yet, use default values */
+        device.snaplen = WTAP_MAX_PACKET_SIZE;
+        device.has_snaplen = FALSE;
       }
+      
       if (device.has_snaplen) {
         snaplen_string = g_strdup_printf("%d", device.snaplen);
       } else {
@@ -5611,10 +5611,10 @@ create_and_fill_model(GtkTreeView *view)
       }
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-      if (global_capture_session.session_started == FALSE && capture_dev_user_buffersize_find(device.name) != -1) {
+      if (capture_dev_user_buffersize_find(device.name) != -1) {
         buffer = capture_dev_user_buffersize_find(device.name);
         device.buffer = buffer;
-      } else if (global_capture_session.session_started == FALSE) {
+      } else {
         device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
       } 
 #endif
