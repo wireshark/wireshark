@@ -135,12 +135,8 @@ set(WIRESHARK_C_FLAGS
 	-Wno-overlength-strings
 	-Wwrite-strings
 	-Wno-long-long
+	-Wpragmas
 )
-if (NOT APPLE)
-	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
-	    -fexcess-precision=fast
-	    -Wpragmas)
-endif()
 
 set(WIRESHARK_C_ONLY_FLAGS
 	# The following are C only, not C++
@@ -149,14 +145,10 @@ set(WIRESHARK_C_ONLY_FLAGS
 	-Wshadow
 	-Wno-pointer-sign
 	-Wold-style-definition
-	-Wshadow
 	-Wstrict-prototypes
+	-Wlogical-op
+	-Wjump-misses-init
 )
-if (NOT APPLE)
-	set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS}
-	    -Wlogical-op
-	    -Wjump-misses-init)
-endif()
 
 set(WIRESHARK_EXTRA_C_FLAGS
 	-pedantic
@@ -178,6 +170,19 @@ set(WIRESHARK_EXTRA_C_ONLY_FLAGS
 	# All the registration functions block these for now.
 	-Wmissing-prototypes
 )
+
+# With clang some tests don't fail properly during testing but only
+# during real compiles
+
+if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+
+	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
+	    -fexcess-precision=fast
+	)
+
+	set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS}
+	)
+endif()
 
 if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
 	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_C_FLAGS})
