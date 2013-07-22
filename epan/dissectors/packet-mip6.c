@@ -1852,7 +1852,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 /* 1 PadN [RFC3775] */
 static void
 dissect_mip6_opt_padn(const mip6_opt *optp, tvbuff_t *tvb, int offset,
-              guint optlen, packet_info *pinfo _U_,
+              guint optlen _U_, packet_info *pinfo _U_,
               proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     guint8 len;
