@@ -2056,7 +2056,8 @@ padd_normal(ptvcursor_t *ptvc, const ptvc_record *rec)
 {
     return
         ptvcursor_add(ptvc, *rec->hf_ptr,
-                      rec->length, rec->endianness);
+                      rec->length,
+                      rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 }
 
 static proto_item*
@@ -2066,7 +2067,8 @@ padd_date(ptvcursor_t *ptvc, const ptvc_record *rec)
     nw_date_t   nw_date;
 
     item = ptvcursor_add(ptvc, *rec->hf_ptr,
-                         rec->length, rec->endianness);
+                         rec->length,
+                         rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
     if (item) {
         uint_to_nwdate(get_item_value(item), &nw_date);
@@ -2085,7 +2087,8 @@ padd_time(ptvcursor_t *ptvc, const ptvc_record *rec)
     nw_time_t   nw_time;
 
     item = ptvcursor_add(ptvc, *rec->hf_ptr,
-                         rec->length, rec->endianness);
+                         rec->length,
+                         rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
     if (item) {
         uint_to_nwtime(get_item_value(item), &nw_time);
@@ -2111,7 +2114,8 @@ padd_uni(ptvcursor_t *ptvc, const ptvc_record *rec)
     /* nw_uni.buffer[0] = '\0'; */
 
     item = ptvcursor_add(ptvc, *rec->hf_ptr,
-                         rec->length, rec->endianness);
+                         rec->length,
+                         rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
     if (item) {
         proto_item_set_text(item, "%s", get_item_name(item));
@@ -2141,7 +2145,7 @@ process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 
         /* Add the item */
         item = ptvcursor_add(ptvc, *rec->hf_ptr, rec->length,
-                             rec->endianness);
+                             rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
         ett = *rec->sub_ptvc_rec->ett;
 
@@ -2157,7 +2161,8 @@ process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
         while(sub_rec->hf_ptr != NULL) {
             DISSECTOR_ASSERT(!sub_rec->sub_ptvc_rec);
             ptvcursor_add_no_advance(sub_ptvc, *sub_rec->hf_ptr,
-                                     sub_rec->length, sub_rec->endianness);
+                                     sub_rec->length,
+                                     sub_rec->endianness ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
             sub_rec++;
         }
 
