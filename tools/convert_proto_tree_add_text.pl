@@ -266,13 +266,12 @@ sub verify_line {
 	} elsif (($proto_tree_item[0] eq "10") ||
 			 ($proto_tree_item[0] eq "11") ||
 			 ($proto_tree_item[0] eq "12") ||
-			 ($proto_tree_item[0] eq "13") {
+			 ($proto_tree_item[0] eq "13")) {
 		#expert info conversions
 		if (!($proto_tree_item[3] =~ /^ei_/)) {
 			print "$line_number: Poorly formed ei_ variable ($proto_tree_item[3])!\n";
 			$errors++;
 		}
-	}
 	} elsif ($proto_tree_item[0] ne "0") {
 		print "Bad conversion value!  Aborting conversion.\n";
 		$errors++;
@@ -440,9 +439,11 @@ sub generate_hfs {
 				$proto_tree_item[9] = "FT_FLOAT";
 			} elsif ($args[5] =~ /tvb_get_(n|"le")tohieee_double/) {
 				$proto_tree_item[9] = "FT_DOUBLE";
-			} elsif ($args[5] =~ /tvb_get_ipv4/) {
+			} elsif (($args[5] =~ /tvb_get_ipv4/) ||
+					 ($args[5] =~ /tvb_ip_to_str/)) {
 				$proto_tree_item[9] = "FT_IPv4";
-			} elsif ($args[5] =~ /tvb_get_ipv6/) {
+			} elsif (($args[5] =~ /tvb_get_ipv6/) ||
+					 ($args[5] =~ /tvb_ip6_to_str/)) {
 				$proto_tree_item[9] = "FT_IPv6";
 			} elsif ($args[5] =~ /tvb_get_(n|"le")tohguid/) {
 				$proto_tree_item[9] = "FT_GUID";
