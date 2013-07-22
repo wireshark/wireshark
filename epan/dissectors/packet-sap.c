@@ -125,7 +125,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *next_tvb;
 
     proto_item *si, *sif;
-    proto_tree *sap_tree, *sap_flags_tree;
+    proto_tree *sap_tree = NULL, *sap_flags_tree;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAP");
     col_clear(pinfo->cinfo, COL_INFO);
