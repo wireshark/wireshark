@@ -817,6 +817,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-jxta.c
 	dissectors/packet-k12.c
 	dissectors/packet-kadm5.c
+	dissectors/packet-kafka.c
 	dissectors/packet-kdp.c
 	dissectors/packet-kdsp.c
 	dissectors/packet-kerberos.c
