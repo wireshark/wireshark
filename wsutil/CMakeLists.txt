@@ -63,6 +63,18 @@ set(wsutil_LIBS
   ${GLIB2_LIBRARIES}
 )
 
+set(CLEAN_FILES
+  ${WSUTIL_FILES}
+)
+
+if (WERROR)
+  set_source_files_properties(
+    ${CLEAN_FILES}
+    PROPERTIES
+    COMPILE_FLAGS -Werror
+  )
+endif()
+
 add_library(wsutil ${LINK_MODE_LIB}
   ${WSUTIL_FILES}
 )
