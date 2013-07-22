@@ -25,8 +25,6 @@
 #ifndef __WS80211_UTILS_H__
 #define __WS80211_UTILS_H__
 
-#include <config.h>
-
 enum ws80211_channel_type {
 	WS80211_CHAN_NO_HT,
 	WS80211_CHAN_HT20,
