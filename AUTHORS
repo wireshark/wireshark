@@ -3519,6 +3519,10 @@ Uli Heilmeier		<uh[AT]heilmeier.eu> {
 	Improved SMTP Authentication dissection
 }
 
+Rupesh Patro		<rbpatro[AT]ncsu.edu> {
+	Support for Upstream-Assigned Label TLVs and Sub-TLVs as per RFC 6389
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
