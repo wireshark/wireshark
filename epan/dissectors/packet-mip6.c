@@ -2797,13 +2797,8 @@ dissect_pmip6_opt_ipv4dsm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     proto_tree_add_item(opt_tree, hf_mip6_ipv4dsm_reserved, tvb,
             offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(opt_tree, hf_mip6_ipv4dsm_s_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-    offset += 2;
-
-
-    proto_item_append_text(hdr_item, ": %s", tvb_ip_to_str(tvb,offset));
-
 }
+
 /* 40 Context Request Option [RFC5949] */
 /*
      0                   1                   2                   3
