@@ -238,8 +238,7 @@ else() # TODO add alternate compiler flags for hiding symbols
 		" All shared library symbols will be exported.")
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER MATCHES ".*clang" OR
-   CMAKE_CXX_COMPILER MATCHES ".*clang")
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 	set (C_UNUSED "__attribute__((unused))" )
 else()
 	set (C_UNUSED "" )
