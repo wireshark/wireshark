@@ -22,7 +22,7 @@
 #
 
 
-set(WIRETAP_FILES
+set(CLEAN_FILES
 	5views.c
 	aethra.c
 	ascendtext.c
@@ -41,7 +41,6 @@ set(WIRETAP_FILES
 	erf.c
 	eyesdn.c
 	file_access.c
-	file_wrappers.c
 	hcidump.c
 	i4btrace.c
 	ipfix.c
@@ -77,8 +76,13 @@ set(WIRETAP_FILES
 	wtap.c
 )
 
-set(CLEAN_FILES
-	${WIRETAP_FILES}
+set(DIRTY_FILES
+	file_wrappers.c
+)
+
+set(WIRETAP_FILES
+	${CLEAN_FILES}
+	${DIRTY_FILES}
 )
 
 if (WERROR)
