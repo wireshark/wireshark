@@ -30,9 +30,9 @@ set(QTSHARK_H_SRC
 	capture_file_dialog.h
 	capture_info_dialog.h
 	capture_interface_dialog.h
+	capture_preferences_frame.h
 	color_dialog.h
 	color_utils.h
-	capture_preferences_frame.h
 	column_preferences_frame.h
 	display_filter_combo.h
 	display_filter_edit.h
@@ -61,10 +61,10 @@ set(QTSHARK_H_SRC
 	progress_bar.h
 	proto_tree.h
 	recent_file_status.h
-	simple_dialog_qt.h
 	search_frame.h
-	summary_dialog.h
+	simple_dialog_qt.h
 	splash_overlay.h
+	summary_dialog.h
 	syntax_line_edit.h
 	time_shift_dialog.h
 	wireshark_application.h
