@@ -1584,33 +1584,41 @@ void MainWindow::on_actionHelpMPWireshark_triggered() {
 
     wsApp->helpTopicAction(LOCALPAGE_MAN_WIRESHARK);
 }
-void MainWindow::on_actionHelpMPWireshark_Filter_triggered() {
 
+void MainWindow::on_actionHelpMPWireshark_Filter_triggered() {
     wsApp->helpTopicAction(LOCALPAGE_MAN_WIRESHARK_FILTER);
 }
-void MainWindow::on_actionHelpMPTShark_triggered() {
 
-    wsApp->helpTopicAction(LOCALPAGE_MAN_TSHARK);
+void MainWindow::on_actionHelpMPCapinfos_triggered() {
+    wsApp->helpTopicAction(LOCALPAGE_MAN_CAPINFOS);
 }
-void MainWindow::on_actionHelpMPRawShark_triggered() {
 
-    wsApp->helpTopicAction(LOCALPAGE_MAN_RAWSHARK);
-}
 void MainWindow::on_actionHelpMPDumpcap_triggered() {
-
     wsApp->helpTopicAction(LOCALPAGE_MAN_DUMPCAP);
 }
-void MainWindow::on_actionHelpMPMergecap_triggered() {
 
-    wsApp->helpTopicAction(LOCALPAGE_MAN_MERGECAP);
-}
 void MainWindow::on_actionHelpMPEditcap_triggered() {
-
     wsApp->helpTopicAction(LOCALPAGE_MAN_EDITCAP);
 }
-void MainWindow::on_actionHelpMPText2cap_triggered() {
 
+void MainWindow::on_actionHelpMPMergecap_triggered() {
+    wsApp->helpTopicAction(LOCALPAGE_MAN_MERGECAP);
+}
+
+void MainWindow::on_actionHelpMPRawShark_triggered() {
+    wsApp->helpTopicAction(LOCALPAGE_MAN_RAWSHARK);
+}
+
+void MainWindow::on_actionHelpMPReordercap_triggered() {
+    wsApp->helpTopicAction(LOCALPAGE_MAN_REORDERCAP);
+}
+
+ void MainWindow::on_actionHelpMPText2cap_triggered() {
     wsApp->helpTopicAction(LOCALPAGE_MAN_TEXT2PCAP);
+}
+
+void MainWindow::on_actionHelpMPTShark_triggered() {
+    wsApp->helpTopicAction(LOCALPAGE_MAN_TSHARK);
 }
 
 void MainWindow::on_actionHelpWebsite_triggered() {

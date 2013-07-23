@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -222,12 +222,14 @@
      <addaction name="actionHelpMPWireshark"/>
      <addaction name="actionHelpMPWireshark_Filter"/>
      <addaction name="separator"/>
-     <addaction name="actionHelpMPTShark"/>
-     <addaction name="actionHelpMPRawShark"/>
+     <addaction name="actionHelpMPCapinfos"/>
      <addaction name="actionHelpMPDumpcap"/>
-     <addaction name="actionHelpMPMergecap"/>
      <addaction name="actionHelpMPEditcap"/>
+     <addaction name="actionHelpMPMergecap"/>
+     <addaction name="actionHelpMPRawShark"/>
+     <addaction name="actionHelpMPReordercap"/>
      <addaction name="actionHelpMPText2cap"/>
+     <addaction name="actionHelpMPTShark"/>
     </widget>
     <addaction name="actionHelpContents"/>
     <addaction name="menuHelpManualPages"/>
@@ -1218,6 +1220,16 @@
    </property>
    <property name="text">
     <string>Protocol Hierarchy</string>
+   </property>
+  </action>
+  <action name="actionHelpMPCapinfos">
+   <property name="text">
+    <string>Capinfos</string>
+   </property>
+  </action>
+  <action name="actionHelpMPReordercap">
+   <property name="text">
+    <string>Reordercap</string>
    </property>
   </action>
  </widget>
