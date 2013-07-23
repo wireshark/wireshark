@@ -657,22 +657,22 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 #.FN_BODY CN-DomainIdentity VAL_PTR = &nas_sys_info_gsm_map
   guint32 nas_sys_info_gsm_map;
 %(DEFAULT_BODY)s
-  actx->private_data = GUINT_TO_POINTER(nas_sys_info_gsm_map);
+  actx->private_data = GUINT_TO_POINTER(nas_sys_info_gsm_map+1);
 
 #.FN_BODY CN-InformationInfo/cn-CommonGSM-MAP-NAS-SysInfo
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON);
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON+1);
 %(DEFAULT_BODY)s
 
 #.FN_BODY CN-InformationInfo-r6/cn-CommonGSM-MAP-NAS-SysInfo
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON);
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON+1);
 %(DEFAULT_BODY)s
 
 #.FN_BODY CN-InformationInfoFull/cn-CommonGSM-MAP-NAS-SysInfo
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON);
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON+1);
 %(DEFAULT_BODY)s
 
 #.FN_BODY SysInfoType1/cn-CommonGSM-MAP-NAS-SysInfo
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON);
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON+1);
 %(DEFAULT_BODY)s
 
 #.FN_BODY NAS-SystemInformationGSM-MAP VAL_PTR = &nas_sys_info_gsm_map_tvb
@@ -685,7 +685,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   length = tvb_length(nas_sys_info_gsm_map_tvb);
   if (length) {
     if (actx->private_data) {
-      switch (GPOINTER_TO_UINT(actx->private_data)) {
+      switch (GPOINTER_TO_UINT(actx->private_data)-1) {
         case RRC_NAS_SYS_INFO_CN_COMMON:
           item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CN Common GSM-MAP NAS system information");
           subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
@@ -814,7 +814,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   }
   /*Retrieve the start value for the two ciphering domains*/
   if (actx->private_data) {
-    switch(GPOINTER_TO_UINT(actx->private_data)){
+    switch(GPOINTER_TO_UINT(actx->private_data)-1){
       case RRC_NAS_SYS_INFO_CS:
         /*
         g_warning("Not implemented");
@@ -895,11 +895,11 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
 
 #.FN_BODY UE-SecurityInformation
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CS);
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CS+1);
 %(DEFAULT_BODY)s
 
 #.FN_BODY UE-SecurityInformation2
-  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_PS);
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_PS+1);
 %(DEFAULT_BODY)s
 
 #.END

@@ -88,7 +88,7 @@ SI-OrPSI-GERAN TYPE_PREFIX
 #.FN_BODY RAT-Type VAL_PTR = &rat_type
   guint32 rat_type;
 %(DEFAULT_BODY)s
-  actx->private_data = GUINT_TO_POINTER(rat_type);
+  actx->private_data = GUINT_TO_POINTER(rat_type+1);
 
 #RAT-Type ::=						ENUMERATED {
 #										eutra, utra, geran-cs, geran-ps, cdma2000-1XRTT,
@@ -127,7 +127,7 @@ if(ue_cap_tvb){
   guint8 byte;
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_UE_CapabilityRAT_Container);
   if (actx->private_data) {
-    switch(GPOINTER_TO_UINT(actx->private_data)){
+    switch(GPOINTER_TO_UINT(actx->private_data)-1){
     case RAT_Type_eutra:
       /* eutra */
       dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
@@ -232,7 +232,7 @@ if(ue_cap_tvb){
 #.FN_BODY Handover/targetRAT-Type VAL_PTR = &target_rat_type
   guint32 target_rat_type;
 %(DEFAULT_BODY)s
-  actx->private_data = GUINT_TO_POINTER(target_rat_type);
+  actx->private_data = GUINT_TO_POINTER(target_rat_type+1);
 
 #.FN_BODY Handover/targetRAT-MessageContainer VAL_PTR = &target_rat_msg_cont_tvb
   tvbuff_t *target_rat_msg_cont_tvb = NULL;
@@ -242,7 +242,7 @@ if(ue_cap_tvb){
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_targetRAT_MessageContainer);
     if (actx->private_data) {
-      switch(GPOINTER_TO_UINT(actx->private_data)){
+      switch(GPOINTER_TO_UINT(actx->private_data)-1){
       case T_targetRAT_Type_utra:
         /* utra */
         if (rrc_irat_ho_to_utran_cmd_handle)
@@ -301,10 +301,10 @@ if(ue_cap_tvb){
 #.FN_BODY SI-OrPSI-GERAN VAL_PTR = &si_or_psi_geran
   guint32 si_or_psi_geran;
 %(DEFAULT_BODY)s
-  actx->private_data = GUINT_TO_POINTER(si_or_psi_geran);
+  actx->private_data = GUINT_TO_POINTER(si_or_psi_geran+1);
 
 #.FN_BODY CellInfoGERAN-r9
-  actx->private_data = GUINT_TO_POINTER(SI_OrPSI_GERAN_si); /* SI message */
+  actx->private_data = GUINT_TO_POINTER(SI_OrPSI_GERAN_si+1); /* SI message */
 %(DEFAULT_BODY)s
 
 #.FN_BODY SystemInfoListGERAN/_item VAL_PTR = &sys_info_list_tvb
@@ -314,7 +314,7 @@ if(ue_cap_tvb){
   if (sys_info_list_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
     if (actx->private_data) {
-      switch (GPOINTER_TO_UINT(actx->private_data)) {
+      switch (GPOINTER_TO_UINT(actx->private_data)-1) {
       case SI_OrPSI_GERAN_si:
         /* SI message */
         if (gsm_a_dtap_handle) {
@@ -553,7 +553,7 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
 #.FN_FTR SystemInformationBlockType11/serialNumber
   if (serial_nb_tvb) {
     proto_tree *subtree;
-    actx->private_data = GUINT_TO_POINTER((actx->private_data ? GPOINTER_TO_UINT(actx->private_data) : 0) | tvb_get_ntohs(serial_nb_tvb, 0));
+    actx->private_data = GUINT_TO_POINTER(GPOINTER_TO_UINT(actx->private_data) | tvb_get_ntohs(serial_nb_tvb, 0));
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -570,10 +570,8 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
     guint32 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
-    if (actx->private_data) {
-      g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, actx->private_data,
-                          GUINT_TO_POINTER(dataCodingScheme));
-    }
+    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, actx->private_data,
+                        GUINT_TO_POINTER(dataCodingScheme));
   }
 
 #.FN_BODY SystemInformationBlockType11/warningMessageSegment VAL_PTR=&warning_msg_seg_tvb
@@ -582,13 +580,11 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
 %(DEFAULT_BODY)s
 
 #.FN_FTR SystemInformationBlockType11/warningMessageSegment
-  if (actx->private_data) {
-    p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, actx->private_data);
-    if (warning_msg_seg_tvb && p_dcs) {
-      proto_tree *subtree;
-      subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-      dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
-    }
+  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, actx->private_data);
+  if (warning_msg_seg_tvb && p_dcs) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
+    dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
   }
 
 #.TYPE_ATTR
@@ -611,7 +607,7 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
 #.FN_FTR SystemInformationBlockType12-r9/serialNumber-r9
   if (serial_nb_tvb) {
     proto_tree *subtree;
-    actx->private_data = GUINT_TO_POINTER((actx->private_data ? GPOINTER_TO_UINT(actx->private_data) : 0) | tvb_get_ntohs(serial_nb_tvb, 0));
+    actx->private_data = GUINT_TO_POINTER(GPOINTER_TO_UINT(actx->private_data) | tvb_get_ntohs(serial_nb_tvb, 0));
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -628,10 +624,8 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
     guint32 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
-    if (actx->private_data) {
-      g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, actx->private_data,
-                          GUINT_TO_POINTER(dataCodingScheme));
-    }
+    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, actx->private_data,
+                        GUINT_TO_POINTER(dataCodingScheme));
   }
 
 #.FN_BODY SystemInformationBlockType12-r9/warningMessageSegment-r9 VAL_PTR=&warning_msg_seg_tvb
@@ -640,13 +634,11 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
 %(DEFAULT_BODY)s
 
 #.FN_FTR SystemInformationBlockType12-r9/warningMessageSegment-r9
-  if (actx->private_data) {
-    p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, actx->private_data);
-    if (warning_msg_seg_tvb && p_dcs) {
-      proto_tree *subtree;
-      subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-      dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
-    }
+  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, actx->private_data);
+  if (warning_msg_seg_tvb && p_dcs) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
+    dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
   }
 
 #.TYPE_ATTR

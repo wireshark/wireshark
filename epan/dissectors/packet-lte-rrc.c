@@ -9216,7 +9216,7 @@ dissect_lte_rrc_T_serialNumber_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   if (serial_nb_tvb) {
     proto_tree *subtree;
-    actx->private_data = GUINT_TO_POINTER((actx->private_data ? GPOINTER_TO_UINT(actx->private_data) : 0) | tvb_get_ntohs(serial_nb_tvb, 0));
+    actx->private_data = GUINT_TO_POINTER(GPOINTER_TO_UINT(actx->private_data) | tvb_get_ntohs(serial_nb_tvb, 0));
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -9253,13 +9253,11 @@ dissect_lte_rrc_T_warningMessageSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 
-  if (actx->private_data) {
-    p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, actx->private_data);
-    if (warning_msg_seg_tvb && p_dcs) {
-      proto_tree *subtree;
-      subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-      dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
-    }
+  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, actx->private_data);
+  if (warning_msg_seg_tvb && p_dcs) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
+    dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
   }
 
   return offset;
@@ -9280,10 +9278,8 @@ dissect_lte_rrc_T_dataCodingScheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
     guint32 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
-    if (actx->private_data) {
-      g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, actx->private_data,
-                          GUINT_TO_POINTER(dataCodingScheme));
-    }
+    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, actx->private_data,
+                        GUINT_TO_POINTER(dataCodingScheme));
   }
 
   return offset;
@@ -9342,7 +9338,7 @@ dissect_lte_rrc_T_serialNumber_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   if (serial_nb_tvb) {
     proto_tree *subtree;
-    actx->private_data = GUINT_TO_POINTER((actx->private_data ? GPOINTER_TO_UINT(actx->private_data) : 0) | tvb_get_ntohs(serial_nb_tvb, 0));
+    actx->private_data = GUINT_TO_POINTER(GPOINTER_TO_UINT(actx->private_data) | tvb_get_ntohs(serial_nb_tvb, 0));
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -9379,13 +9375,11 @@ dissect_lte_rrc_T_warningMessageSegment_r9(tvbuff_t *tvb _U_, int offset _U_, as
 
 
 
-  if (actx->private_data) {
-    p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, actx->private_data);
-    if (warning_msg_seg_tvb && p_dcs) {
-      proto_tree *subtree;
-      subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-      dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
-    }
+  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, actx->private_data);
+  if (warning_msg_seg_tvb && p_dcs) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
+    dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
   }
 
   return offset;
@@ -9406,10 +9400,8 @@ dissect_lte_rrc_T_dataCodingScheme_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
     guint32 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
-    if (actx->private_data) {
-      g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, actx->private_data,
-                          GUINT_TO_POINTER(dataCodingScheme));
-    }
+    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, actx->private_data,
+                        GUINT_TO_POINTER(dataCodingScheme));
   }
 
   return offset;
@@ -18866,7 +18858,7 @@ dissect_lte_rrc_T_targetRAT_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      8, &target_rat_type, TRUE, 0, NULL);
 
-  actx->private_data = GUINT_TO_POINTER(target_rat_type);
+  actx->private_data = GUINT_TO_POINTER(target_rat_type+1);
 
 
   return offset;
@@ -18885,7 +18877,7 @@ dissect_lte_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, 
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_targetRAT_MessageContainer);
     if (actx->private_data) {
-      switch(GPOINTER_TO_UINT(actx->private_data)){
+      switch(GPOINTER_TO_UINT(actx->private_data)-1){
       case T_targetRAT_Type_utra:
         /* utra */
         if (rrc_irat_ho_to_utran_cmd_handle)
@@ -18954,7 +18946,7 @@ dissect_lte_rrc_SystemInfoListGERAN_item(tvbuff_t *tvb _U_, int offset _U_, asn1
   if (sys_info_list_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
     if (actx->private_data) {
-      switch (GPOINTER_TO_UINT(actx->private_data)) {
+      switch (GPOINTER_TO_UINT(actx->private_data)-1) {
       case SI_OrPSI_GERAN_si:
         /* SI message */
         if (gsm_a_dtap_handle) {
@@ -19012,7 +19004,7 @@ dissect_lte_rrc_SI_OrPSI_GERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  ett_lte_rrc_SI_OrPSI_GERAN, SI_OrPSI_GERAN_choice,
                                  &si_or_psi_geran);
 
-  actx->private_data = GUINT_TO_POINTER(si_or_psi_geran);
+  actx->private_data = GUINT_TO_POINTER(si_or_psi_geran+1);
 
 
   return offset;
@@ -23227,7 +23219,7 @@ static const per_sequence_t CellInfoGERAN_r9_sequence[] = {
 
 static int
 dissect_lte_rrc_CellInfoGERAN_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  actx->private_data = GUINT_TO_POINTER(SI_OrPSI_GERAN_si); /* SI message */
+  actx->private_data = GUINT_TO_POINTER(SI_OrPSI_GERAN_si+1); /* SI message */
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_CellInfoGERAN_r9, CellInfoGERAN_r9_sequence);
 
@@ -23741,7 +23733,7 @@ dissect_lte_rrc_RAT_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      8, &rat_type, TRUE, 0, NULL);
 
-  actx->private_data = GUINT_TO_POINTER(rat_type);
+  actx->private_data = GUINT_TO_POINTER(rat_type+1);
 
 
 
@@ -27359,7 +27351,7 @@ if(ue_cap_tvb){
   guint8 byte;
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_UE_CapabilityRAT_Container);
   if (actx->private_data) {
-    switch(GPOINTER_TO_UINT(actx->private_data)){
+    switch(GPOINTER_TO_UINT(actx->private_data)-1){
     case RAT_Type_eutra:
       /* eutra */
       dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
