@@ -359,7 +359,6 @@ static param_t child_params[] = {
 	{NULL,NULL,NULL,NULL}
 };
 
-
 static char* param_get_params(char** err _U_) {
 	return paramset_get_params_list(child_params,PARAM_LIST_FMT);
 }

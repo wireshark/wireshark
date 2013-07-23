@@ -83,17 +83,28 @@ typedef struct timeval tv_t;
 typedef void (*cleanup_cb_t)(void*);
 typedef int (*main_t)(int, char**); /* a pointer to main() */
 
+/* these are called after a new child is created.
+ * chld_id = -1 on error/timeout
+ */
+typedef void (*echld_new_cb_t)(void* child_data, const char* err);
+
 /* I will be passed to echld_initialize() */
 typedef struct _echld_init {
 	echld_encoding_t encoding; /* only JSON for now */
+
 	char* argv0; /* the value of argv[0] */
 	main_t main;
-	cleanup_cb_t after_fork_cb; /* to be called after fork to free the
-									child processes from entities of the parent */
+
+	echld_new_cb_t dispatcher_hello_cb; /* child_data will be a pointer to this echld_init_t */
+
+	cleanup_cb_t after_fork_cb; /* to be called by dispatcher just after fork to free
+								   the child processes from entities of the parent */
 	void* after_fork_cb_data;
 
 	cleanup_cb_t at_term_cb; /* to be called after echld_terminate() is done */
 	void* at_term_cb_data;
+
+	void* user_data; /* free for you to use */
 } echld_init_t;
 
 /* will initialize echld forking the dispatcher and registering protocols and taps */
@@ -169,15 +180,21 @@ WS_DLL_PUBLIC char* echld_decode(echld_msg_type_t, enc_msg_t*);
 
 WS_DLL_PUBLIC enc_msg_t* echld_new_child_params(void);
 
-/* takes the em, and param=value pairs of strings, NULL to end.
+
+
+/* takes the em, and param=value pairs of strings, NULL to end. 
     echld_new_child_params_add_params(em,param1_str,val1_str,param2_str,val2_str,NULL);  */
 WS_DLL_PUBLIC void echld_new_child_params_add_params(enc_msg_t*, ...);
 
 WS_DLL_PUBLIC enc_msg_t* echld_new_child_params_merge(enc_msg_t*, enc_msg_t*);
 
+#define ECHLD_NC_PARAMS_FMT "  %s='%s',\n" /* param='value' */
+/* truncate takes off last N chars from the last item's fmt or prefix on empty */
+WS_DLL_PUBLIC char* echld_new_child_params_str(enc_msg_t* em, const char* prefix, const char* postfix, int truncate, const char* fmt);
+
 
 /* create a new worker process */
-WS_DLL_PUBLIC echld_chld_id_t echld_new(enc_msg_t* new_child_parameters, void* child_data);
+WS_DLL_PUBLIC echld_chld_id_t echld_new(enc_msg_t* new_child_parameters, echld_new_cb_t cb, void* child_data);
 
 /* will return NULL on error, if NULL is also ok for you use echld_get_error() */
 WS_DLL_PUBLIC void* echld_get_data(echld_chld_id_t);

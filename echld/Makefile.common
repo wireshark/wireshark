@@ -48,6 +48,7 @@ LIBECHLD_MORE_SRC = \
 	../capture-pcap-util-unix.c \
 	../capture_stop_conditions.c	\
 	../capture_sync.c \
+	../cfile.c	\
 	../cfutils.c	\
 	../clopts_common.c	\
 	../conditions.c	\

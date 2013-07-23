@@ -1,6 +1,6 @@
-/* echld_dispatcher.c
+/* parent.c
  *  epan working child API internals
- *  Parent process routines and definitions ()
+ *  Parent process routines and definitions
  *
  * $Id$
  *
@@ -52,6 +52,7 @@ typedef struct _hdlr {
 typedef struct _echld_child {
 	int chld_id;
 	void* data;
+	echld_new_cb_t cb;
 	child_state_t state;
 	GArray* handlers;
 	GArray* reqs;
@@ -161,7 +162,7 @@ void parent_reaper(int sig) {
 	int pid;
 	int status;
 
-	if (sig != SIGCHLD) {
+	if (sig == SIGCHLD) {
 		PARENT_FATAL((3333,"Must be SIGCHLD!"));
 	}
 
@@ -172,6 +173,7 @@ void parent_reaper(int sig) {
 
 		if (! parent.closing) {
 			/* crashed */
+			sleep(120);
 			PARENT_FATAL((DISPATCHER_DEAD,"Dispatcher process dead"));
 		}
 
@@ -183,6 +185,35 @@ void parent_reaper(int sig) {
 
 	return;
 }
+
+static echld_bool_t hello_cb(echld_msg_type_t type, enc_msg_t* msg_buff, void* ud) {
+	echld_init_t* init = (echld_init_t*)ud;
+	char* err = NULL;
+	int errnum = 0;
+
+	if (init && init->dispatcher_hello_cb) {
+		switch(type) {
+			case ECHLD_ERROR:
+				parent.dec->error(msg_buff, &errnum ,&err);
+				break;
+			case ECHLD_TIMEOUT:
+				err = g_strdup("timedout");
+				break;
+			default:
+				err = g_strdup_printf("Wrong MSG 'HELLO' expected, got '%s",TY(type));
+				break;
+			case ECHLD_HELLO:
+				break;
+		}
+
+		init->dispatcher_hello_cb(ud,err);
+		if (err) g_free(err);
+	}
+
+	return TRUE;
+}
+
+
 
 /* will initialize epan registering protocols and taps */
 void echld_initialize(echld_init_t* init) {
@@ -258,6 +289,8 @@ void echld_initialize(echld_init_t* init) {
 			signal(SIGCHLD,parent_reaper);
 			//close(to_disp[0]);
 			//close(from_disp[1]);
+			if (init->dispatcher_hello_cb) echld_msgh(0, ECHLD_HELLO, hello_cb, init);
+
 			PARENT_DBG((3,"Ready"));
 		}
 	}
@@ -450,19 +483,33 @@ static echld_bool_t parent_dead_child(echld_msg_type_t type, enc_msg_t* ba, void
 	return 0;
 }
 
-static echld_bool_t parent_get_hello(echld_msg_type_t type, enc_msg_t* ba _U_, void* data) {
+static echld_bool_t parent_get_hello(echld_msg_type_t type, enc_msg_t* ba, void* data) {
 	echld_t* c = (echld_t*)data;
+	int err_id;
+	char* err = NULL;
 
 	switch (type) {
 		case  ECHLD_HELLO:
 			PARENT_DBG((1,"Child[%d]: =>IDLE",c->chld_id));
 			c->state = IDLE;
-			return TRUE;
+			break;
 		case ECHLD_ERROR:
-		case ECHLD_TIMED_OUT:
+			parent.dec->error(ba,&err_id,&err);
+			break;
+		case ECHLD_TIMEOUT:
+			err = g_strdup("timedout");
+			break;
 		default:
-			return FALSE;
+			err = g_strdup_printf("Wrong MSG 'HELLO' expected, got '%s",TY(type));
+			break;
 	}
+
+	if (c->cb)
+		c->cb(c->data,err);
+
+	if (err) g_free(err);
+
+	return TRUE;
 }
 
 
@@ -477,7 +524,7 @@ static int msgh_attach(echld_t* c, echld_msg_type_t t, echld_msg_cb_t resp_cb, v
 
 static int next_chld_id = 1;
 
-extern int echld_new(enc_msg_t* new_child_em, void* child_data) {
+extern int echld_new(enc_msg_t* new_child_em, echld_new_cb_t cb, void* child_data) {
 	echld_t* c = get_child(-1);
 
 	if (!c) return -1;
@@ -485,6 +532,7 @@ extern int echld_new(enc_msg_t* new_child_em, void* child_data) {
 	c->chld_id = (next_chld_id++);
 	c->data = child_data;
 	c->state = CREATING;
+	c->cb = cb;
 
 	PARENT_DBG((1,"Child[%d]: =>CREATING",c->chld_id));
 
@@ -714,13 +762,17 @@ static reqh_t* get_req(echld_t* c, int reqh_id) {
 
 static hdlr_t* get_next_hdlr_for_type(echld_t* c, echld_msg_type_t t, int* cookie) {
 	int imax = c->handlers->len;
+	hdlr_t* r = NULL;
 
-	for (;*cookie<imax;(*cookie)++) {
-		if (((hdlr_t*)(c->handlers->data))[*cookie].type == t)
-			return &( ((hdlr_t*)(c->handlers->data))[*cookie] ) ;
+	for (;(*cookie)<imax;(*cookie)++) {
+		if (((hdlr_t*)(c->handlers->data))[*cookie].type == t) {
+			r =  &( ((hdlr_t*)(c->handlers->data))[*cookie] );
+			(*cookie)++;
+			break;
+		}
 	}
 
-	return NULL;
+	return r;
 }
 
 static long parent_read_frame(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t t, echld_reqh_id_t reqh_id, void* data _U_) {
@@ -732,7 +784,7 @@ static long parent_read_frame(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 
 	if (c) {
 		reqh_t* r = get_req(c, reqh_id);
-		int i = 0;
+		int i;
 		hdlr_t* h;
 		gboolean go_ahead = TRUE;
 
@@ -747,14 +799,15 @@ static long parent_read_frame(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 			r->tv.tv_sec = 0;
 			r->tv.tv_usec = 0;
 
-			PARENT_DBG((2,"hanlded by reqh_id=%d msg='%s'",reqh_id,go_ahead?"retrying":"done"));
+			PARENT_DBG((2,"handled by reqh_id=%d msg='%s'",reqh_id,go_ahead?"retrying":"done"));
 		}
 
+		i=0;
 		while(go_ahead && ( h = get_next_hdlr_for_type(c,t,&i))) {
 				if (h->cb)
 					go_ahead = h->cb(t,ba,h->cb_data);
 
-				PARENT_DBG((2,"hanlded by t='%c' msgh_id=%d msg='%s'",h->type, h->id,go_ahead?"retrying":"done"));
+				PARENT_DBG((2,"handled by t='%s' msgh_id=%d msg='%s'",TY(h->type), h->id,go_ahead?"retrying":"done"));
 		}
 	} else {
 		PARENT_DBG((1,"parent_read_frame: No such child"));
@@ -780,7 +833,7 @@ extern int echld_fd_read(fd_set* rfds, fd_set* efds) {
 	}
 
 	if (FD_ISSET(parent.reader.fd,rfds)) {
-		PARENT_DBG((1,"reading from dispatcher"));
+		PARENT_DBG((3,"reading from dispatcher"));
 		echld_read_frame(&(parent.reader),parent_read_frame,&(parent));
 	}
 
@@ -798,7 +851,7 @@ extern int echld_select(int nfds _U_, fd_set* rfds, fd_set* wfds, fd_set* efds, 
 
 	echld_fdset(rfds,efds);
 
-	PARENT_DBG((2,"Select()"));
+	PARENT_DBG((5,"Select()"));
 	r_nfds = select(FD_SETSIZE, rfds, wfds, efds, timeout);
 
 	echld_fd_read(rfds,efds);
@@ -829,7 +882,47 @@ enc_msg_t* echld_new_child_params_merge(enc_msg_t* em1, enc_msg_t* em2) {
 	return (enc_msg_t*)ba;
 }
 
-WS_DLL_PUBLIC void echld_new_child_params_add_params(enc_msg_t* em, ...) {
+char* echld_new_child_params_str(enc_msg_t* em, const char* prefix, const char* postfix, int trunc_n, const char* fmt) {
+	GByteArray* ba = (GByteArray*)em;
+	GString* str = g_string_new(prefix);
+	char* p = (char*) ba->data;
+	int tot_len = ba->len;
+	long rem = tot_len;
+	p[rem-1] = '\0'; /* make sure last char is null */
+
+	while(rem > 2) {
+		char* param = p;
+		long param_len = strlen(param)+1;
+		char* value = p + param_len;
+		long value_len;
+
+		rem -= param_len;
+
+		if (rem < 0) {
+			g_string_free(str,TRUE);
+			return NULL;
+		}
+
+		value_len = strlen(value)+1;
+
+		rem -= value_len;
+		p = value + value_len;
+
+		if (rem < 0) {
+			g_string_free(str,TRUE);
+			return NULL;
+		}
+
+		g_string_append_printf(str,fmt,param,value);
+	}
+	g_string_truncate(str, str->len - trunc_n);
+	g_string_append(str,postfix);
+	p = str->str;
+	g_string_free(str,FALSE);
+	return p;
+}
+
+void echld_new_child_params_add_params(enc_msg_t* em, ...) {
 	GByteArray* ba = (GByteArray*) em;
 	va_list ap;
 
@@ -850,3 +943,5 @@ WS_DLL_PUBLIC void echld_new_child_params_add_params(enc_msg_t* em, ...) {
 	va_end(ap);
 
 }
+
+

@@ -358,7 +358,7 @@ static char* param_get_loop_timeout(char** err _U_) {
 
 static echld_bool_t param_set_loop_timeout(char* val , char** err ) {
 	char* p;
-	int usec = (int)strtol(val, &p, 10); /*XXX: "10ms" or "500us" or "1s" */
+	int usec = (int)strtol(val, &p, 10); /* now usecs  2DO: "10ms" or "500us" or "1s" */
 
 	if (p<=val) {
 		*err = g_strdup("not an integer");
@@ -469,14 +469,15 @@ static void dispatcher_clear_child(struct dispatcher_child* c) {
 }
 
 static void set_dumpcap_pid(int pid) {
+
 	dispatcher->dumpcap_pid = pid;
 }
 
 static void preinit_epan(char* argv0, int (*main)(int, char **)) {
-	char *gpf_path, *pf_path;
+	// char *gpf_path, *pf_path;
 	char *gdp_path, *dp_path;
-	int gpf_open_errno, gpf_read_errno;
-	int pf_open_errno, pf_read_errno;
+	// int gpf_open_errno, gpf_read_errno;
+	// int pf_open_errno, pf_read_errno;
 	int gdp_open_errno, gdp_read_errno;
 	int dp_open_errno, dp_read_errno;
 	char* error;
@@ -518,19 +519,26 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 	/* disabled protocols as per configuration file */
 	set_disabled_protos_list();
 
-	initialize_funnel_ops();
 
 	setlocale(LC_ALL, "");
-
-	stuff.prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path, &pf_open_errno, &pf_read_errno, &pf_path);
-	// check 4 errors
+	DISP_DBG((1,"---5"));
 
 	read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno, &dp_path, &dp_open_errno, &dp_read_errno);
-	// check 4 errors
+
+	DISP_DBG((1,"---6"));
 
 	cap_file_init(&stuff.cfile);
+	DISP_DBG((1,"---7"));
 
+	DISP_DBG((1,"---8"));
     timestamp_set_precision(TS_PREC_AUTO_USEC);
+
+	// sleep(10);
+
+	// initialize_funnel_ops();
+	// stuff.prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path, &pf_open_errno, &pf_read_errno, &pf_path);
+	// check 4 errors
+
 
 	DISP_DBG((2,"epan preinit done"));
 }
@@ -1060,6 +1068,7 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, in
 
 	preinit_epan(argv0,main);
 
+	DISP_WRITE(dispatcher->parent_out, NULL, 0, ECHLD_HELLO, 0);
 	exit(dispatcher_loop());
 }
 
