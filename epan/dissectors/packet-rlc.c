@@ -1905,7 +1905,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   - conditional header bytes
 	   - tag for data
 	   - at least one byte of RLC PDU payload */
-	if ((size_t)tvb_length_remaining(tvb, offset) < (strlen(RLC_START_STRING)+2+2)) {
+    if (tvb_length_remaining(tvb, offset) < (gint)(strlen(RLC_START_STRING)+2+2)) {
 		return FALSE;
 	}
 

@@ -94,6 +94,24 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Wireshark hides under Taskbar.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3034">Bug
+          3034</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark doesn't translate IEEE802a OUI.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3123">Bug
+          3123</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Lines of text are truncated if they are either longer than the paper width or past the paper height.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7543">Bug
+          7543</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           [PATCH] Add MAC-DATA support to TETRA dissector and other minor improvements.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8708">Bug
           8708</ulink>)
@@ -115,6 +133,12 @@ Wireshark Info
           SCSI (SPC) sense key specific information field must not include SKSV.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8782">Bug
           8782</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes when closing Flow Graph with Graph Analysis opened.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8793">Bug
+          8793</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -144,6 +168,12 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 ASN.1 PER,
+H.235,
+IEEE 802a,
+MAC-LTE,
+PDCP-LTE,
+RLC,
+RLC-LTE,
 SCSI,
 TETRA,
 
