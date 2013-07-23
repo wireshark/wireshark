@@ -1,3 +1,8 @@
+=begin man
+
+=encoding utf8
+
+=end man
 
 =head1 NAME
 
@@ -474,11 +479,7 @@ must be the name of a UAT file, e.g. I<user_dlts>.  I<uat_record> must be in
 the form of a valid record for that file, including quotes.  For instance, to
 specify a user DLT from the command line, you would use
 
-=over
-
 -o "uat:user_dlts:\"User 0 (DLT=147)\",\"cops\",\"0\",\"\",\"0\",\"\""
-
-=back
 
 =item -p
 
@@ -997,7 +998,7 @@ selected packet, if no packet is selected).
 Mark (or unmark if currently marked) the selected packet.  The field
 "frame.marked" is set for packets that are marked, so that, for example,
 a display filters can be used to display only marked packets, and so that
-the L<Edit:Find Packet|/item_edit_3afind_packet> dialog can be used to find the next or previous
+the L</"Edit:Find Packet"> dialog can be used to find the next or previous
 marked packet.
 
 =item Edit:Find Next Mark
@@ -1042,7 +1043,7 @@ preferences and configurations.
 =item Edit:Preferences
 
 Set the GUI, capture, printing and protocol options
-(see L<Preferences|/item_preferences> dialog below).
+(see L</Preferences> dialog below).
 
 =item View:Main Toolbar
 
@@ -1136,9 +1137,13 @@ When Wireshark starts, the color filters are loaded from:
 
 =over
 
-1. The user's personal color filters file or, if that does not exist,
+=item 1.
 
-2. The global color filters file.
+The user's personal color filters file or, if that does not exist,
+
+=item 2.
+
+The global color filters file.
 
 =back
 
@@ -1204,8 +1209,8 @@ Beware: keeping this box open results in high system load!
 
 =item Capture:Options
 
-Initiate a live packet capture (see L<Capture Options|/item_capture_options>
-dialog below).  If no filename is specified, a temporary file will be created
+Initiate a live packet capture (see L</"Capture Options Dialog">
+below).  If no filename is specified, a temporary file will be created
 to hold the capture.  The location of the file can be chosen by setting your
 TMPDIR environment variable before starting B<Wireshark>.  Otherwise, the
 default TMPDIR location is system-dependent, but is likely either F</var/tmp>
@@ -1785,7 +1790,7 @@ L<http://www.wireshark.org>.
 
 =item Help:About Wireshark
 
-See various information about Wireshark (see L<About|/item_about> dialog below), like the
+See various information about Wireshark (see L</About> dialog below), like the
 version, the folders used, the available plugins, ...
 
 =back
@@ -2304,9 +2309,9 @@ undone.
 
 =back
 
-=item Capture Options
+=item Capture Options Dialog
 
-The I<Capture Options> dialog lets you specify various parameters for
+The I<Capture Options Dialog> lets you specify various parameters for
 capturing live packet data.
 
 The I<Interface:> field lets you specify the interface from which to

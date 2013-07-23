@@ -182,6 +182,7 @@ static int hf_scsi_ascascq                      = -1;
 static int hf_scsi_ascq                         = -1;
 static int hf_scsi_fru                          = -1;
 static int hf_scsi_sksv                         = -1;
+static int hf_scsi_sks_info                     = -1;
 static int hf_scsi_inq_reladrflags              = -1;
 static int hf_scsi_inq_sync                     = -1;
 static int hf_scsi_inq_reladr                   = -1;
@@ -4205,9 +4206,7 @@ dissect_scsi_fix_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_item(sns_tree, hf_scsi_fru, tvb, offset+14, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sns_tree, hf_scsi_sksv, tvb, offset+15, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_text(sns_tree, tvb, offset+15, 3,
-                        "Sense Key Specific: %s",
-                        tvb_bytes_to_str(tvb, offset+15, 3));
+    proto_tree_add_item(sns_tree, hf_scsi_sks_info, tvb, offset+15, 3, ENC_BIG_ENDIAN);
 }
 
 void
@@ -5393,6 +5392,8 @@ proto_register_scsi(void)
         { &hf_scsi_sksv,
           {"SKSV", "scsi.sns.sksv", FT_BOOLEAN, 8, NULL, 0x80, NULL,
            HFILL}},
+		{ &hf_scsi_sks_info,
+		  {"Sense Key Specific", "scsi.sns.sks_info", FT_UINT24, BASE_HEX, NULL, 0x7FFFFF, NULL, HFILL}},   
         { &hf_scsi_persresv_key,
           {"Reservation Key", "scsi.spc.resv.key", FT_BYTES, BASE_NONE, NULL,
            0x0, NULL, HFILL}},

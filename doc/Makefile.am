@@ -125,6 +125,7 @@ tshark.1: tshark.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
+	--utf8                                          \
 	$(srcdir)/tshark.pod > tshark.1
 
 tshark.html: tshark.pod ../config.h $(top_srcdir)/docbook/ws.css
@@ -152,6 +153,7 @@ capinfos.1: capinfos.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
+	--utf8                                          \
 	$(srcdir)/capinfos.pod > capinfos.1
 
 capinfos.html: capinfos.pod ../config.h $(top_srcdir)/docbook/ws.css
@@ -165,6 +167,7 @@ editcap.1: editcap.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
+	--utf8                                          \
 	$(srcdir)/editcap.pod > editcap.1
 
 editcap.html: editcap.pod ../config.h $(top_srcdir)/docbook/ws.css
@@ -178,6 +181,7 @@ idl2wrs.1: idl2wrs.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
+	--utf8                                          \
 	$(srcdir)/idl2wrs.pod > idl2wrs.1
 
 idl2wrs.html: idl2wrs.pod ../config.h $(top_srcdir)/docbook/ws.css
@@ -191,6 +195,7 @@ mergecap.1: mergecap.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
+	--utf8                                          \
 	$(srcdir)/mergecap.pod > mergecap.1
 
 mergecap.html: mergecap.pod ../config.h $(top_srcdir)/docbook/ws.css
@@ -204,6 +209,7 @@ text2pcap.1: text2pcap.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
+	--utf8                                          \
 	$(srcdir)/text2pcap.pod > text2pcap.1
 
 text2pcap.html: text2pcap.pod ../config.h $(top_srcdir)/docbook/ws.css
@@ -217,6 +223,7 @@ dumpcap.1: dumpcap.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
+	--utf8                                          \
 	$(srcdir)/dumpcap.pod > dumpcap.1
 
 dumpcap.html: dumpcap.pod ../config.h $(top_srcdir)/docbook/ws.css
@@ -230,6 +237,7 @@ rawshark.1: rawshark.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
+	--utf8                                          \
 	$(srcdir)/rawshark.pod > rawshark.1
 
 rawshark.html: rawshark.pod ../config.h $(top_srcdir)/docbook/ws.css
@@ -243,6 +251,7 @@ dftest.1: dftest.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
+	--utf8                                          \
 	$(srcdir)/dftest.pod > dftest.1
 
 dftest.html: dftest.pod ../config.h $(top_srcdir)/docbook/ws.css
@@ -256,6 +265,7 @@ randpkt.1: randpkt.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
+	--utf8                                          \
 	$(srcdir)/randpkt.pod > randpkt.1
 
 randpkt.html: randpkt.pod ../config.h $(top_srcdir)/docbook/ws.css

@@ -203,15 +203,11 @@ byte pcap file header.
 Use the specified format string to print each field. The following formats
 are supported:
 
-=over 4
-
 B<%D> Field name or description, e.g. "Type" for dns.qry.type
 
 B<%N> Base 10 numeric value of the field.
 
 B<%S> String value of the field.
-
-=back
 
 For something similar to Wireshark's standard display ("Type: A (1)") you
 could use B<%D: %S (%N)>.

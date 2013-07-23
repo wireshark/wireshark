@@ -394,19 +394,19 @@ can find references and examples at the following locations:
 
 =over 4
 
-=item
+=item *
 
 The online Display Filter Reference: L<http://www.wireshark.org/docs/dfref/>
 
-=item
+=item *
 
 I<Help:Supported Protocols> in Wireshark
 
-=item
+=item *
 
 C<tshark -G fields> on the command line
 
-=item
+=item *
 
 The Wireshark wiki: L<http://wiki.wireshark.org/DisplayFilters>
 

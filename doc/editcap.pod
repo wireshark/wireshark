@@ -360,11 +360,7 @@ To insure all timestamps are in strict chronological order:
 
 To introduce 5% random errors in a capture file use:
 
-=over 4
-
   editcap -E 0.05 capture.pcap capture_error.pcap
-
-=back
 
 =head1 SEE ALSO
 
