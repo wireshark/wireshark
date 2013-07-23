@@ -54,7 +54,7 @@
      <property name="title">
       <string>File</string>
      </property>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget_1">
       <property name="geometry">
        <rect>
         <x>21</x>
@@ -135,7 +135,7 @@
      <property name="title">
       <string>Time</string>
      </property>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget_2">
       <property name="geometry">
        <rect>
         <x>22</x>
@@ -234,7 +234,7 @@
        <string>Capture file comments</string>
       </property>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget_3">
       <property name="geometry">
        <rect>
         <x>21</x>
@@ -274,7 +274,7 @@
        </item>
       </layout>
      </widget>
-     <zorder>layoutWidget</zorder>
+     <zorder>layoutWidget_1</zorder>
      <zorder>teCFComments</zorder>
      <zorder>label_17</zorder>
     </widget>
@@ -384,7 +384,7 @@
       </property>
      </column>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="layoutWidget_4">
      <property name="geometry">
       <rect>
        <x>30</x>
