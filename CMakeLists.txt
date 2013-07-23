@@ -1087,7 +1087,7 @@ pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/rawshark 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/reordercap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/text2pcap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/tshark 1 )
-pod2manhtml( wireshark 1 )
+pod2manhtml( ${CMAKE_BINARY_DIR}/wireshark 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/wireshark-filter 4 )
 
 add_custom_target(
