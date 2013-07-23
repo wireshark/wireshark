@@ -381,6 +381,12 @@
    first (like Motorola and SPARC, unlike Intel and VAX). */
 #cmakedefine WORDS_BIGENDIAN 1
 
+/* Large file support */
+#cmakedefine _LARGEFILE_SOURCE
+#cmakedefine _LARGEFILE64_SOURCE
+#cmakedefine _LARGE_FILES
+#cmakedefine _FILE_OFFSET_BITS @_FILE_OFFSET_BITS@
+
 /* Define WS_MSVC_NORETURN appropriately for declarations of routines that
    never return (just like Charlie on the MTA).
 

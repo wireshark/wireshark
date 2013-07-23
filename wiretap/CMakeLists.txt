@@ -41,6 +41,7 @@ set(CLEAN_FILES
 	erf.c
 	eyesdn.c
 	file_access.c
+	file_wrappers.c
 	hcidump.c
 	i4btrace.c
 	ipfix.c
@@ -77,7 +78,6 @@ set(CLEAN_FILES
 )
 
 set(DIRTY_FILES
-	file_wrappers.c
 )
 
 set(WIRETAP_FILES

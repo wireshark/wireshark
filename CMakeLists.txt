@@ -562,6 +562,10 @@ if(ENABLE_PCAP_NG_DEFAULT)
 	set(PCAP_NG_DEFAULT 1)
 endif()
 
+# Large file support (e.g. make off_t 64 bit if supported)
+include(gmxTestLargeFiles)
+gmx_test_large_files(GMX_LARGEFILES)
+
 #Platform specific
 #if(UNIX)
 #endif()
