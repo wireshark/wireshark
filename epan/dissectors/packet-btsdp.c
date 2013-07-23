@@ -348,9 +348,13 @@ typedef struct _continuation_state_data_t {
 #define PDU_TYPE_SERVICE_ATTRIBUTE         0x01
 #define PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE  0x02
 
+#define DID_VENDOR_ID_SOURCE_BLUETOOTH_SIG  1
+#define DID_VENDOR_ID_SOURCE_USB_FORUM      2
+
 #define MAX_SDP_LEN 1024
 
 extern value_string_ext ext_usb_vendors_vals;
+extern value_string_ext ext_usb_products_vals;
 
 static const value_string vs_pduid[] = {
     { 0x01,   "Error Response" },
@@ -1772,7 +1776,8 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
 static gint
 dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-        gint offset, gint attribute, guint16 service_uuid, gint service_data,
+        gint offset, gint attribute, guint16 service_uuid,
+        gint service_did_vendor_id, gint service_did_vendor_id_source,
         service_info_t  *service_info, gchar **attr_val)
 {
     proto_tree    *feature_tree;
@@ -1837,10 +1842,10 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x201:
                     vendor_id = tvb_get_ntohs(tvb, offset);
-                    if (service_data == 1) {
+                    if (service_did_vendor_id_source == DID_VENDOR_ID_SOURCE_BLUETOOTH_SIG) {
                         proto_tree_add_item(next_tree, hf_did_vendor_id_bluetooth_sig, tvb, offset, 2, ENC_BIG_ENDIAN);
                         str_val = val_to_str_ext_const(vendor_id, &bthci_evt_comp_id_ext, "Unknown");
-                    } else if (service_data == 2) {
+                    } else if (service_did_vendor_id_source == DID_VENDOR_ID_SOURCE_USB_FORUM) {
                         proto_tree_add_item(next_tree, hf_did_vendor_id_usb_forum, tvb, offset, 2, ENC_BIG_ENDIAN);
                         str_val = val_to_str_ext_const(vendor_id, &ext_usb_vendors_vals, "Unknown");
                     } else {
@@ -1852,7 +1857,13 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 case 0x202:
                     proto_tree_add_item(next_tree, hf_did_product_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                     product_id = tvb_get_ntohs(tvb, offset);
-                    g_snprintf(str, MAX_SDP_LEN, "0x%04x", product_id);
+
+                    if (service_did_vendor_id_source == DID_VENDOR_ID_SOURCE_USB_FORUM) {
+                        str_val = val_to_str_ext_const(service_did_vendor_id << 16 | product_id, &ext_usb_products_vals, "Unknown");
+                        g_snprintf(str, MAX_SDP_LEN, "%s (0x%04x)", str_val, product_id);
+                    } else {
+                        g_snprintf(str, MAX_SDP_LEN, "0x%04x", product_id);
+                    }
                     break;
                 case 0x203:
                     proto_tree_add_item(next_tree, hf_did_version, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3144,7 +3155,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 first = 0;
             }
 
-            size = dissect_sdp_type(st, pinfo, tvb, offset, attribute, service_uuid, service_data, service_info, &substr);
+            size = dissect_sdp_type(st, pinfo, tvb, offset, attribute, service_uuid, service_did_vendor_id, service_did_vendor_id_source, service_info, &substr);
             if (size < 1) {
                 break;
             }
@@ -3200,6 +3211,37 @@ findDidVendorIdSource(tvbuff_t *tvb, gint service_offset,
     return result;
 }
 
+static gint
+findDidVendorId(tvbuff_t *tvb, gint service_offset,
+        gint number_of_attributes)
+{
+    gint result = 0;
+    gint search_length;
+    gint search_offset;
+    gint i_number_of_attributes;
+    guint16 attribute;
+
+    search_offset = service_offset;
+    i_number_of_attributes = 0;
+
+    while (i_number_of_attributes < number_of_attributes) {
+        search_offset = get_type_length(tvb, search_offset, &search_length);
+        attribute = tvb_get_ntohs(tvb, search_offset);
+
+        search_offset += search_length;
+        search_offset = get_type_length(tvb, search_offset, &search_length);
+
+        if (attribute == 0x201) {
+            result = get_uint_by_size(tvb, search_offset, 1);
+        }
+
+        search_offset += search_length;
+        i_number_of_attributes += 1;
+    }
+
+    return result;
+}
+
 
 static gint
 dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
@@ -3217,7 +3259,8 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
     const gchar         *attribute_name;
     gchar               *attribute_value;
     guint16              id;
-    gint                 service_data = 0;
+    gint                 service_did_vendor_id = 0;
+    gint                 service_did_vendor_id_source = 0;
     gint                 hfx_attribute_id = hf_service_attribute_id_generic;
     const value_string  *name_vals = NULL;
     const guint8        *profile_speficic = "";
@@ -3232,7 +3275,8 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
             hfx_attribute_id = hf_service_attribute_id_did;
             profile_speficic = "(DID) ";
 
-            service_data = findDidVendorIdSource(tvb, service_offset, number_of_attributes);
+            service_did_vendor_id_source = findDidVendorIdSource(tvb, service_offset, number_of_attributes);
+            service_did_vendor_id = findDidVendorId(tvb, service_offset, number_of_attributes);
             break;
         case BTSDP_HID_SERVICE_UUID:
             name_vals = vs_hid_attribute_id;
@@ -3407,7 +3451,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
     attribute_value_tree = proto_item_add_subtree(attribute_value_item, ett_btsdp_attribute_value);
 
     dissect_sdp_type(attribute_value_tree, pinfo, tvb, offset, id, service_uuid,
-            service_data, service_info, &attribute_value);
+            service_did_vendor_id, service_did_vendor_id_source, service_info, &attribute_value);
     old_offset = offset;
     offset = get_type_length(tvb, offset, &size);
     proto_item_append_text(attribute_item, ", value = %s", attribute_value);
@@ -3669,7 +3713,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     proto_item_set_len(pitem, bytes_to_go + (offset - start_offset));
 
     while (bytes_to_go > 0) {
-        size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, 0, 0, NULL, &str);
+        size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, 0, 0, 0, NULL, &str);
         proto_item_append_text(ptree, "%s", str);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", str);
 
@@ -3790,7 +3834,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
     while (bytes_to_go > 0) {
         gchar *str;
 
-        size = dissect_sdp_type(st, pinfo, tvb, offset, -1, 0, 0, NULL, &str);
+        size = dissect_sdp_type(st, pinfo, tvb, offset, -1, 0, 0, 0, NULL, &str);
 
         proto_item_append_text(st, " %s", str);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", str);
@@ -4178,12 +4222,12 @@ proto_register_btsdp(void)
         },
         { &hf_did_vendor_id_bluetooth_sig,
             { "Vendor ID",                       "btsdp.service.did.vendor_id",
-            FT_UINT16, BASE_HEX, &bthci_evt_comp_id_ext, 0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0,
             NULL, HFILL }
         },
         { &hf_did_vendor_id_usb_forum,
             { "Vendor ID",                       "btsdp.service.did.vendor_id",
-            FT_UINT16, BASE_HEX, &ext_usb_vendors_vals, 0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ext_usb_vendors_vals, 0,
             NULL, HFILL }
         },
         { &hf_did_product_id,
@@ -4739,12 +4783,12 @@ proto_register_btsdp(void)
         },
         { &hf_sdp_lang_id,
             { "Language ID",                     "btsdp.lang.id",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &usb_langid_vals_ext, 0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &usb_langid_vals_ext, 0,
             NULL, HFILL }
         },
         { &hf_sdp_lang_encoding,
             { "Language Encoding",               "btsdp.lang.encoding",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0,
             NULL, HFILL }
         },
         { &hf_sdp_lang_attribute_base,
