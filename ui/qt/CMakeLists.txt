@@ -76,7 +76,7 @@ set(QTSHARK_H_SRC
 	# sparkline_delegate.h
 )
 
-set(QTSHARK_CPP_SRC
+set(CLEAN_FILES
 	accordion_frame.cpp
 	byte_view_tab.cpp
 	byte_view_text.cpp
@@ -109,7 +109,6 @@ set(QTSHARK_CPP_SRC
 	packet_format_group_box.cpp
 	packet_list.cpp
 	packet_list_model.cpp
-	packet_list_record.cpp
 	packet_range_group_box.cpp
 	preferences_dialog.cpp
 	print_dialog.cpp
@@ -129,8 +128,8 @@ set(QTSHARK_CPP_SRC
 	wireshark_application.cpp
 )
 
-set(QTSHARK_SRC
-	${QTSHARK_CPP_SRC}
+set(DIRTY_FILES
+	packet_list_record.cpp
 )
 
 set(QTSHARK_UI
@@ -199,8 +198,9 @@ else()
 	# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
 endif()
 
-set(CLEAN_FILES
-	${QTSHARK_SRC}
+set(QTSHARK_SRC
+	${CLEAN_FILES}
+	${DIRTY_FILES}
 )
 
 if (WERROR)
