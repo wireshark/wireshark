@@ -511,6 +511,8 @@ void PacketList::updateAll() {
     if (cap_file_->edt && cap_file_->edt->tree) {
         proto_tree_->fillProtocolTree(cap_file_->edt->tree);
     }
+
+    packet_list_model_->resetColumns();
 }
 
 void PacketList::clear() {

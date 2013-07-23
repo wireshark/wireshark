@@ -970,6 +970,7 @@ void MainWindow::recreatePacketList()
     col_cleanup(&cfile.cinfo);
     build_column_format_array(&cfile.cinfo, prefs.num_cols, FALSE);
 
+    packet_list_->updateAll();
     packet_list_->hide();
     packet_list_->show();
 

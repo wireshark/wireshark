@@ -101,6 +101,12 @@ void PacketListModel::clear() {
     endResetModel();
 }
 
+void PacketListModel::resetColumns()
+{
+    beginResetModel();
+    endResetModel();
+}
+
 int PacketListModel::rowCount(const QModelIndex &parent) const
 {
     if (!cap_file_) return 0;

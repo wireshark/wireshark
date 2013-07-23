@@ -62,6 +62,7 @@ public:
     gint appendPacket(frame_data *fdata);
     frame_data *getRowFdata(int row);
     int visibleIndexOf(frame_data *fdata) const;
+    void resetColumns();
 
 signals:
 
