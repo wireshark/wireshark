@@ -219,7 +219,11 @@ static int hf_dns_sshfp_fingerprint = -1;
 static int hf_dns_hip_hit = -1;
 static int hf_dns_hip_pk = -1;
 static int hf_dns_dhcid_rdata = -1;
+static int hf_dns_ds_key_id = -1;
+static int hf_dns_ds_algorithm = -1;
 static int hf_dns_apl_coded_prefix = -1;
+static int hf_dns_ds_digest_type = -1;
+static int hf_dns_ds_digest = -1;
 static int hf_dns_apl_negation = -1;
 static int hf_dns_apl_afdlength = -1;
 static int hf_dns_nsap_rdata = -1;
@@ -345,7 +349,7 @@ typedef struct _dns_conv_info_t {
 #define T_SINK          40              /* SINK */
 #define T_OPT           41              /* OPT pseudo-RR (RFC 2671) */
 #define T_APL           42              /* Lists of Address Prefixes (APL RR) (RFC 3123) */
-#define T_DS            43              /* Delegation Signature(RFC 3658) */
+#define T_DS            43              /* Delegation Signature (RFC 4034) */
 #define T_SSHFP         44              /* Using DNS to Securely Publish SSH Key Fingerprints (RFC 4255) */
 #define T_IPSECKEY      45              /* RFC 4025 */
 #define T_RRSIG         46              /* RFC 4034 */
@@ -543,11 +547,6 @@ static const value_string tsigerror_vals[] = {
 #define TKEYMODE_RESOLVERASSIGNED           (4)
 #define TKEYMODE_DELETE                     (5)
 
-#define TDSDIGEST_RESERVED (0)
-#define TDSDIGEST_SHA1     (1)
-#define TDSDIGEST_SHA256   (2)
-#define TDSDIGEST_GOST     (3)
-#define TDSDIGEST_SHA384   (4)
 /*
  * SSHFP (RFC 4255) algorithm number and fingerprint types
  */
@@ -639,7 +638,7 @@ static const value_string dns_types[] = {
   { T_SINK,       "SINK"       },
   { T_OPT,        "OPT"        }, /* RFC 2671 */
   { T_APL,        "APL"        }, /* RFC 3123 */
-  { T_DS,         "DS"         }, /* RFC 3658 */
+  { T_DS,         "DS"         }, /* RFC 4034 */
   { T_SSHFP,      "SSHFP"      }, /* RFC 4255 */
   { T_IPSECKEY,   "IPSECKEY"   }, /* RFC 4025 */
   { T_RRSIG,      "RRSIG"      }, /* RFC 4034 */
@@ -730,7 +729,7 @@ dns_type_description (guint type)
     "SINK",
     "EDNS0 option",                         /* RFC 2671 */
     "Lists of Address Prefixes",            /* RFC 3123 */
-    "Delegation Signer",                    /* RFC 3658 */
+    "Delegation Signer",                    /* RFC 4034 */
     "SSH public host key fingerprint",      /* RFC 4255 */
     "Key to use with IPSEC",                /* draft-ietf-ipseckey-rr */
     "RR signature",                         /* future RFC 2535bis */
@@ -1406,6 +1405,24 @@ static const value_string dnssec_algo_vals[] = {
   { 0,                          NULL }
 };
 
+/*
+Delegation Signer (DS) Resource Record (RR) Type Digest Algorithms
+https://www.iana.org/assignments/ds-rr-types/ds-rr-types.txt (last-updated 2012-04-13)
+*/
+#define DS_DIGEST_RESERVED  0
+#define DS_DIGEST_SHA1      1 /* MANDATORY [RFC3658] */
+#define DS_DIGEST_SHA256    2 /* MANDATORY [RFC4509] */
+#define DS_DIGEST_GOST      3 /* OPTIONAL  [RFC5933] */
+#define DS_DIGEST_SHA384    4 /*OPTIONAL  [RFC6605] */
+
+static const value_string dns_ds_digest_vals[] = {
+  { DS_DIGEST_RESERVED, "Reserved digest" },
+  { DS_DIGEST_SHA1,     "SHA-1" },
+  { DS_DIGEST_SHA256,   "SHA-256" },
+  { DS_DIGEST_GOST,     "GOST R 34.11-94" },
+  { DS_DIGEST_SHA384,   "SHA-384" },
+  { 0, NULL }
+};
 /* DNSKEY : RFC4034 */
 #define DNSKEY_FLAGS_ZK 0x0100
 #define DNSKEY_FLAGS_KR 0x0080
@@ -2460,80 +2477,25 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_DS:
+    case T_DS: /* Delegation Signature (43) */
     case T_DLV:
     {
-      guint16 keytag, digest_data_size;
-      guint8  ds_algorithm, ds_digest;
       int     rr_len = data_len;
 
-      static const value_string tds_digests[] = {
-        { TDSDIGEST_RESERVED, "Reserved digest" },
-        { TDSDIGEST_SHA1,     "SHA-1" },
-        { TDSDIGEST_SHA256,   "SHA-256" },
-        { TDSDIGEST_GOST,     "GOST R 34.11-94" },
-        { TDSDIGEST_SHA384,   "SHA-384" },
-        { 0, NULL }
-      };
-
-
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
-      keytag = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key id: %04u", keytag);
+      proto_tree_add_item(rr_tree, hf_dns_ds_key_id, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      ds_algorithm = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-                          "Algorithm: %s", val_to_str(ds_algorithm, dnssec_algo_vals,"Unknown (0x%02X)") );
+      proto_tree_add_item(rr_tree,  hf_dns_ds_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      ds_digest = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-                          "Digest type: %s", val_to_str(ds_digest, tds_digests, "Unknown (0x%02X)"));
+      proto_tree_add_item(rr_tree,  hf_dns_ds_digest_type, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (ds_digest == TDSDIGEST_SHA1) {
-        digest_data_size = 20; /* SHA1 key is always 20 bytes long */
-        if (rr_len < digest_data_size) {
-          goto bad_rr;
-        }
-        proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key");
-      }
+      proto_tree_add_item(rr_tree,  hf_dns_ds_digest, tvb, cur_offset, rr_len, ENC_NA);
 
-      if (ds_digest == TDSDIGEST_SHA256) {
-        digest_data_size = 32; /* SHA256 key is always 32 bytes long */
-        if (rr_len < digest_data_size) {
-          goto bad_rr;
-        }
-        proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key");
-      }
-
-      if (ds_digest == TDSDIGEST_GOST) {
-        digest_data_size = 64; /* GOST key is always 64 bytes long */
-        if (rr_len < digest_data_size) {
-          goto bad_rr;
-        }
-        proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key");
-      }
-
-      if (ds_digest == TDSDIGEST_SHA384) {
-        digest_data_size = 48; /* SHA384 key is always 48 bytes long */
-        if (rr_len < digest_data_size) {
-          goto bad_rr;
-        }
-        proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key");
-      }
     }
     break;
 
@@ -4747,6 +4709,26 @@ proto_register_dns(void)
 
     { &hf_dns_dhcid_rdata,
       { "DHCID Data", "dns.dhcid.rdata",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_ds_key_id,
+      { "Key id", "dns.ds.key_id",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_ds_algorithm,
+      { "Algorithm", "dns.ds.algorithm",
+        FT_UINT8, BASE_DEC, VALS(dnssec_algo_vals), 0,
+        NULL, HFILL }},
+
+    { &hf_dns_ds_digest_type,
+      { "Digest Type", "dns.ds.digest_type",
+        FT_UINT8, BASE_DEC, VALS(dns_ds_digest_vals), 0,
+        NULL, HFILL }},
+
+    { &hf_dns_ds_digest,
+      { "Digest", "dns.ds.digest",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
