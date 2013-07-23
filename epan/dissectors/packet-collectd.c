@@ -343,7 +343,7 @@ collectd_proto_tree_add_assembled_notification (tvbuff_t *tvb,
 	proto_tree_add_time (subtree, hf_collectd_data_time, tvb,
 			ndispatch->time_off, /* length = */ 8, &nstime);
 
-	proto_tree_add_int64 (subtree, hf_collectd_data_severity, tvb,
+	proto_tree_add_uint64 (subtree, hf_collectd_data_severity, tvb,
 			ndispatch->severity_off, /* length = */ 8,
 			ndispatch->severity);
 
