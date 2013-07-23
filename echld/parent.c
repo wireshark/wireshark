@@ -25,6 +25,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
+
 #include "echld-int.h"
 
 /**
@@ -92,8 +94,8 @@ static void parent_dbg(int level, const char* fmt, ...) {
 #define PARENT_DBG(attrs) parent_dbg attrs
 #define PARENT_SEND(BYTEARR,CHILDNUM,TYPE,R_ID) do {  long st = echld_write_frame(parent.dispatcher_fd, BYTEARR, CHILDNUM, TYPE, R_ID, NULL); PARENT_DBG((1,"SEND type='%s' chld_id=%d reqh_id=%d err_msg='%s'",TY(TYPE),CHILDNUM,R_ID, ( st >= 8 ? "ok" : ((st<0)?strerror(errno):"?") )  )); } while(0)
 
-#else 
-#define PARENT_DBG(attrs) 
+#else
+#define PARENT_DBG(attrs)
 #define PARENT_SEND(BYTEARR,CHILDNUM,TYPE,R_ID) echld_write_frame(parent.dispatcher_fd, BYTEARR, CHILDNUM, TYPE, R_ID, NULL)
 #endif
 
@@ -216,7 +218,7 @@ void echld_initialize(echld_init_t* init) {
 #endif
 			/* child code */
 			echld_cleanup();
-			
+
 			if (init->after_fork_cb)
 				init->after_fork_cb(init->after_fork_cb_data);
 
@@ -266,9 +268,9 @@ extern echld_state_t echld_terminate(void) {
 
 	parent.closing = TRUE;
 	PARENT_SEND(NULL,0,ECHLD_CLOSE_CHILD,++reqh_ids);
-	
+
 	do ; while(sleep(1)); /* wait a full sec without signals */
-	
+
 	echld_cleanup();
 	close(parent.dispatcher_fd);
 	kill(parent.dispatcher_pid,SIGTERM);
@@ -320,7 +322,7 @@ static echld_state_t reqh_snd(echld_t* c, echld_msg_type_t t, GByteArray* ba, ec
 		idx = c->reqs->len;
 		g_array_append_val(c->reqs,req);
 	}
-	
+
 	r = &(((reqh_t*)c->reqs->data)[idx]);
 
 	r->reqh_id = reqh_id;
@@ -344,11 +346,10 @@ static echld_state_t reqh_snd(echld_t* c, echld_msg_type_t t, GByteArray* ba, ec
 extern echld_reqh_id_t echld_reqh(
 		echld_chld_id_t child_id,
 		echld_msg_type_t t,
-		int usecs_timeout,
+		int usecs_timeout _U_,
 		enc_msg_t* ba,
 		echld_msg_cb_t resp_cb,
 		void* cb_data) {
-	usecs_timeout=usecs_timeout;
 	return reqh_snd(get_child(child_id),t,ba,resp_cb,cb_data);
 }
 
@@ -412,7 +413,7 @@ extern gboolean echld_reqh_set_cb(int child_id, int reqh_id, echld_msg_cb_t cb){
 	g_array_index(c->reqs, reqh_t, idx).cb = cb;
 	return TRUE;
 }
- 
+
 
 /* stop receiving a live request */
 extern gboolean echld_reqh_detach(int child_id, int reqh_id) {
@@ -453,12 +454,12 @@ static echld_bool_t parent_get_hello(echld_msg_type_t type, enc_msg_t* ba _U_, v
 	echld_t* c = (echld_t*)data;
 
 	switch (type) {
-		case  ECHLD_HELLO: 
+		case  ECHLD_HELLO:
 			PARENT_DBG((1,"Child[%d]: =>IDLE",c->chld_id));
 			c->state = IDLE;
 			return TRUE;
 		case ECHLD_ERROR:
-		case ECHLD_TIMEOUT:
+		case ECHLD_TIMED_OUT:
 		default:
 			return FALSE;
 	}
@@ -486,7 +487,7 @@ extern int echld_new(enc_msg_t* new_child_em, void* child_data) {
 	c->state = CREATING;
 
 	PARENT_DBG((1,"Child[%d]: =>CREATING",c->chld_id));
-    
+
 	msgh_attach(c,ECHLD_CHILD_DEAD, parent_dead_child , c);
     reqh_snd(c, ECHLD_NEW_CHILD, (GByteArray*)new_child_em, parent_get_hello, c);
 
@@ -547,7 +548,7 @@ extern int echld_msgh(int child_id, echld_msg_type_t t, echld_msg_cb_t resp_cb, 
 /* stop it */
 static echld_state_t msgh_detach(echld_t* c, int msgh_id) {
 	int idx = msgh_idx(c,msgh_id);
-	
+
 	if (idx < 0) return -1;
 
 	g_array_remove_index(c->handlers,idx);
@@ -558,13 +559,13 @@ static echld_state_t msgh_detach(echld_t* c, int msgh_id) {
 extern echld_state_t echld_msgh_detach(int child_id, int msgh_id) {
 	echld_t* c = get_child(child_id);
 	return msgh_detach(c,msgh_id);
-} 
+}
 
 /* get a msgh's data */
 
 static void* msgh_get_data(echld_t* c, int msgh_id) {
 	int idx = msgh_idx(c,msgh_id);
-	
+
 	if (idx < 0) return NULL;
 
 	return ((hdlr_t*)(c->handlers->data))[idx].cb_data;
@@ -573,12 +574,12 @@ static void* msgh_get_data(echld_t* c, int msgh_id) {
 extern void* echld_msgh_get_data(int child_id, int msgh_id) {
 	echld_t* c = get_child(child_id);
 	return msgh_get_data(c,msgh_id);
-} 
+}
 
 /* get a msgh's cb */
 static echld_msg_cb_t msgh_get_cb(echld_t* c, int msgh_id) {
 	int idx = msgh_idx(c,msgh_id);
-	
+
 	if (idx < 0) return NULL;
 
 	return ((hdlr_t*)(c->handlers->data))[idx].cb;
@@ -586,13 +587,13 @@ static echld_msg_cb_t msgh_get_cb(echld_t* c, int msgh_id) {
 
 extern echld_msg_cb_t echld_msgh_get_cb(int child_id, int msgh_id) {
 	echld_t* c = get_child(child_id);
-	return msgh_get_cb(c,msgh_id);	
+	return msgh_get_cb(c,msgh_id);
 }
 
 /* get a msgh's type */
 static echld_msg_type_t msgh_get_type(echld_t* c, int msgh_id) {
 	int idx = msgh_idx(c,msgh_id);
-	
+
 	if (idx < 0) return EC_ACTUAL_ERROR;
 
 	return ((hdlr_t*)(c->handlers->data))[idx].type;
@@ -600,13 +601,13 @@ static echld_msg_type_t msgh_get_type(echld_t* c, int msgh_id) {
 
 extern echld_msg_type_t echld_msgh_get_type(int child_id, int msgh_id) {
 	echld_t* c = get_child(child_id);
-	return c ? msgh_get_type(c,msgh_id) : EC_ACTUAL_ERROR;	
+	return c ? msgh_get_type(c,msgh_id) : EC_ACTUAL_ERROR;
 }
 
 /* get it all from a msgh */
 static echld_state_t msgh_get_all(echld_t* c, int msgh_id, echld_msg_type_t* t, echld_msg_cb_t* cb, void** data) {
 	int idx = msgh_idx(c,msgh_id);
-	hdlr_t* h;	
+	hdlr_t* h;
 
 	if (idx < 0) return -1;
 
@@ -626,7 +627,7 @@ extern gboolean echld_msgh_get_all(int child_id, int msgh_id, echld_msg_type_t* 
 
 static echld_state_t msgh_set_all(echld_t* c, int msgh_id, echld_msg_type_t t, echld_msg_cb_t cb, void* data) {
 	int idx = msgh_idx(c,msgh_id);
-	hdlr_t* h;	
+	hdlr_t* h;
 
 	if (idx < 0) return -1;
 
@@ -754,7 +755,7 @@ static long parent_read_frame(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 					go_ahead = h->cb(t,ba,h->cb_data);
 
 				PARENT_DBG((2,"hanlded by t='%c' msgh_id=%d msg='%s'",h->type, h->id,go_ahead?"retrying":"done"));
-		}		
+		}
 	} else {
 		PARENT_DBG((1,"parent_read_frame: No such child"));
 	}
