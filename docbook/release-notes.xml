@@ -106,6 +106,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          IEEE 802.15.4 frame check sequence in &quot;Chipcon mode&quot; not displayed correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4507">Bug
+          4507</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Lines of text are truncated if they are either longer than the paper width or past the paper height.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7543">Bug
           7543</ulink>)
@@ -141,6 +147,24 @@ Wireshark Info
           8793</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Detection of IPv6 works only on Solaris 8.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8813">Bug
+          8813</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ansi_637_tele dissector displays MSB as MBS for Call-Back Number.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8851">Bug
+          8851</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Dropped bytes in IMAP dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8857">Bug
+          8857</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -167,9 +191,13 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+ANSI IS-637-A,
 ASN.1 PER,
+Ethernet,
 H.235,
 IEEE 802a,
+IEEE 802.15.4,
+IMAP,
 MAC-LTE,
 PDCP-LTE,
 RLC,

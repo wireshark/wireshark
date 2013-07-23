@@ -615,11 +615,11 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
                                             padding_length+trailer_length, 4, sent_fcs,
                                             "Frame check sequence: 0x%08x [correct]", sent_fcs);
           checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
-          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, tvb,
-                                        trailer_length, 2, TRUE);
+          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, trailer_tvb,
+                                        padding_length+trailer_length, 4, TRUE);
           PROTO_ITEM_SET_GENERATED(item);
-          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, tvb,
-                                        trailer_length, 2, FALSE);
+          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, trailer_tvb,
+                                        padding_length+trailer_length, 4, FALSE);
           PROTO_ITEM_SET_GENERATED(item);
         } else {
           item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
@@ -627,11 +627,11 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
                                             "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
                                             sent_fcs, fcs);
           checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
-          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, tvb,
-                                        trailer_length, 2, FALSE);
+          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, trailer_tvb,
+                                        padding_length+trailer_length, 4, FALSE);
           PROTO_ITEM_SET_GENERATED(item);
-          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, tvb,
-                                        trailer_length, 2, TRUE);
+          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, trailer_tvb,
+                                        padding_length+trailer_length, 4, TRUE);
           PROTO_ITEM_SET_GENERATED(item);
           expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
           col_append_str(pinfo->cinfo, COL_INFO, " [ETHERNET FRAME CHECK SEQUENCE INCORRECT]");
@@ -641,11 +641,11 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
                                           padding_length+trailer_length, 4, sent_fcs,
                                           "Frame check sequence: 0x%08x [validiation disabled]", sent_fcs);
         checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
-        item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, tvb,
-                                      trailer_length, 2, FALSE);
+        item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, trailer_tvb,
+                                      padding_length+trailer_length, 4, FALSE);
         PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, tvb,
-                                      trailer_length, 2, FALSE);
+        item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, trailer_tvb,
+                                      padding_length+trailer_length, 4, FALSE);
         PROTO_ITEM_SET_GENERATED(item);
       }
       trailer_length += 4;
@@ -718,7 +718,7 @@ proto_register_eth(void)
             "Ethernet Trailer or Checksum", HFILL }},
 
         { &hf_eth_fcs,
-        { "Frame check sequence", "eth.fcs", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Frame check sequence", "eth.fcs", FT_UINT32, BASE_HEX, NULL, 0x0,
             "Ethernet checksum", HFILL }},
 
         { &hf_eth_fcs_good,
