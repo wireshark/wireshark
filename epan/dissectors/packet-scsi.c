@@ -2031,6 +2031,7 @@ static const value_string scsi_asc_val[] = {
     {0x2A05,  "Registrations Preempted"},
     {0x2B00,  "Copy Cannot Execute Since Host Cannot Disconnect"},
     {0x2C00,  "Command Sequence Error"},
+    {0x2C0A,  "Partition or Collection Contains User Objects"},
     {0x2F00,  "Commands Cleared By Another Initiator"},
     {0x3000,  "Incompatible Medium Installed"},
     {0x3001,  "Cannot Read Medium - Unknown Format"},
