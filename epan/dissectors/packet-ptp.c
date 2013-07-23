@@ -20,6 +20,9 @@
  * - Markus Renz added Management for PTPv2, update to Draft 2.2
  * - Torrey Atcitty & Dave Olsen 05.14.2010
  *   - Added support for 802.1AS D7.0
+ * - Andreas Bachmann 08.07.2013 <bacr@zhaw.ch>
+ *   - allow multiple TLVs
+ *   - bugfix in logInterMessagePeriod guint8 -> gint8
  *
  * $Id$
  *
@@ -797,13 +800,23 @@ static gint ett_ptp_time2 = -1;
 /*Offsets for PTP_Signalling (=SIG) messages*/
 #define PTP_V2_SIG_TARGETPORTIDENTITY_OFFSET                        34
 #define PTP_V2_SIG_TARGETPORTID_OFFSET                              42
-#define PTP_V2_SIG_TLV_TYPE                                         44
-#define PTP_V2_SIG_TLV_LENGTH                                       46
-#define PTP_V2_SIG_TLV_VALUE                                        48
-#define PTP_V2_SIG_TLV_MESSAGE_TYPE                                 48
-#define PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD                     49
-#define PTP_V2_SIG_TLV_DURATION_FIELD                               50
-#define PTP_V2_SIG_TLV_RENEWAL_INVITED                              55
+#define PTP_V2_SIG_TLV_START                                        44
+
+/*Offset for PTP Signaling messages (relative to tlvOffset!) */
+#define PTP_V2_SIG_TLV_TYPE_OFFSET                                  0
+#define PTP_V2_SIG_TLV_LENGTH_OFFSET                                2
+#define PTP_V2_SIG_TLV_VALUE_OFFSET                                 4
+#define PTP_V2_SIG_TLV_MESSAGE_TYPE_OFFSET                          4
+#define PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET              5
+#define PTP_V2_SIG_TLV_DURATION_FIELD_OFFSET                        6
+#define PTP_V2_SIG_TLV_RENEWAL_INVITED_OFFSET                       11
+
+#define PTP_V2_SIG_TLV_TYPE_LEN                                     2
+#define PTP_V2_SIG_TLV_LENGTH_LEN                                   2
+#define PTP_V2_SIG_TLV_MESSAGE_TYPE_LEN                             1
+#define PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN                 1
+#define PTP_V2_SIG_TLV_DURATION_FIELD_LEN                           4
+#define PTP_V2_SIG_TLV_RENEWAL_INVITED_LEN                          1
 
 /* 802.1AS Signalling Message Interval Request TLV */
 #define PTP_AS_SIG_TLV_MESSAGEINTERVALREQUEST_OFFSET                44
@@ -1356,6 +1369,8 @@ static int hf_ptp_v2_sig_tlv_lengthField            = -1;
 static int hf_ptp_v2_sig_tlv_data                   = -1;
 static int hf_ptp_v2_sig_tlv_messageType            = -1;
 static int hf_ptp_v2_sig_tlv_logInterMessagePeriod  = -1;
+static int hf_ptp_v2_sig_tlv_logInterMessagePeriod_period   = -1;
+static int hf_ptp_v2_sig_tlv_logInterMessagePeriod_rate     = -1;
 static int hf_ptp_v2_sig_tlv_durationField          = -1;
 static int hf_ptp_v2_sig_tlv_renewalInvited         = -1;
 
@@ -1507,6 +1522,7 @@ static gint ett_ptp_v2_faultRecord = -1;
 static gint ett_ptp_v2_ptptext = -1;
 static gint ett_ptp_v2_timeInterval = -1;
 static gint ett_ptp_v2_tlv = -1;
+static gint ett_ptp_v2_tlv_log_period = -1;
 static gint ett_ptp_as_sig_tlv_flags = -1;
 
 /* static gint ett_ptp_v2_timesource = -1;
@@ -2871,12 +2887,9 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             case PTP_V2_SIGNALLING_MESSAGE:{
-                guint16 tlv_type;
                 guint16 tlv_length;
                 proto_item *tlv_ti, *sig_tlv_flags_ti;
                 proto_tree *ptp_tlv_tree, *sig_tlv_flags_tree;
-                guint8  log_inter_message_period;
-                guint32 duration_field;
                 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_targetportidentity, tvb,
                     PTP_V2_SIG_TARGETPORTIDENTITY_OFFSET, 8, ENC_BIG_ENDIAN);
@@ -2973,69 +2986,129 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         ENC_BIG_ENDIAN);
 
                 } else {
-                    tlv_type     = tvb_get_ntohs(tvb, PTP_V2_SIG_TLV_TYPE);
-                    tlv_ti       = proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_tlv_tlvType, tvb,
-                                                       PTP_V2_SIG_TLV_TYPE, 2, ENC_BIG_ENDIAN);
-
+                    guint   proto_len;
+                    guint32 tlv_offset;
+                    guint16 tlv_type;
+                    gint8   log_inter_message_period;
+                    gdouble period = 0.0f;
+                    gdouble rate   = 0.0f;
+                    guint32 duration_field;
                     
-                    ptp_tlv_tree = proto_item_add_subtree(tlv_ti, ett_ptp_v2_tlv);
+                    proto_item *ptp_tlv_period;
+                    proto_tree *ptp_tlv_period_tree;
                     
-                    tlv_length   = tvb_get_ntohs(tvb, PTP_V2_SIG_TLV_LENGTH);
-                    proto_tree_add_uint(ptp_tlv_tree, hf_ptp_v2_sig_tlv_lengthField, tvb,
-                                        PTP_V2_SIG_TLV_LENGTH, 2, tlv_length);
+                    proto_len  = tvb_length(tvb);
+                    tlv_offset = PTP_V2_SIG_TLV_START;
                     
-                    switch (tlv_type) {
-                        case PTP_V2_TLV_TYPE_REQUEST_UNICAST_TRANSMISSION:
-                            proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_messageType, tvb,
-                                                PTP_V2_SIG_TLV_MESSAGE_TYPE, 1, ENC_BIG_ENDIAN);
+                    while (tlv_offset < proto_len) {
+                        
+                        /* 14.1.1 tlvType */
+                        tlv_type     = tvb_get_ntohs(tvb, tlv_offset + PTP_V2_SIG_TLV_TYPE_OFFSET);
+                        tlv_ti       = proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_tlv_tlvType, tvb,
+                                                           tlv_offset + PTP_V2_SIG_TLV_TYPE_OFFSET, PTP_V2_SIG_TLV_TYPE_LEN, ENC_BIG_ENDIAN);
+                        
+                        ptp_tlv_tree = proto_item_add_subtree(tlv_ti, ett_ptp_v2_tlv);
+                        
+                        /* 14.1.2 lengthField */
+                        tlv_length   = tvb_get_ntohs(tvb, tlv_offset + PTP_V2_SIG_TLV_LENGTH_OFFSET);
+                        proto_tree_add_uint(ptp_tlv_tree, hf_ptp_v2_sig_tlv_lengthField, tvb,
+                                            tlv_offset + PTP_V2_SIG_TLV_LENGTH_OFFSET, PTP_V2_SIG_TLV_LENGTH_LEN, tlv_length);
+                        
+                        switch (tlv_type) {
                             
-                            log_inter_message_period = tvb_get_guint8(tvb, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD);
-                            
-                            proto_tree_add_uint_format_value(ptp_tlv_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod, tvb,
-                                                             PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD, 1, log_inter_message_period, "%u seconds", log_inter_message_period);
-                            
-                            duration_field = tvb_get_ntohl(tvb, PTP_V2_SIG_TLV_DURATION_FIELD);
-                            
-                            proto_tree_add_uint_format_value(ptp_tlv_tree, hf_ptp_v2_sig_tlv_durationField, tvb,
-                                                             PTP_V2_SIG_TLV_DURATION_FIELD, 4, duration_field, "%u seconds", duration_field);
-                            
-                            break;
-                            
-                        case PTP_V2_TLV_TYPE_GRANT_UNICAST_TRANSMISSION:
-                            proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_messageType, tvb,
-                                                PTP_V2_SIG_TLV_MESSAGE_TYPE, 1, ENC_BIG_ENDIAN);
-                            
-                            log_inter_message_period = tvb_get_guint8(tvb, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD);
-                            
-                            proto_tree_add_uint_format_value(ptp_tlv_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod, tvb,
-                                                             PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD, 1, log_inter_message_period, "%u seconds", log_inter_message_period);
-                            
-                            duration_field = tvb_get_ntohl(tvb, PTP_V2_SIG_TLV_DURATION_FIELD);
-                            
-                            proto_tree_add_uint_format_value(ptp_tlv_tree, hf_ptp_v2_sig_tlv_durationField, tvb,
-                                                             PTP_V2_SIG_TLV_DURATION_FIELD, 4, duration_field, "%u seconds", duration_field);
-                            
-                            proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_renewalInvited, tvb,
-                                                PTP_V2_SIG_TLV_RENEWAL_INVITED, 1, ENC_BIG_ENDIAN);
-                            
-                            break;
-                            
-                        case PTP_V2_TLV_TYPE_CANCEL_UNICAST_TRANSMISSION:
-                            proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_messageType, tvb,
-                                                PTP_V2_SIG_TLV_MESSAGE_TYPE, 1, ENC_BIG_ENDIAN);
-                            
-                            break;
-                            
-                        case PTP_V2_TLV_TYPE_ACKNOWLEDGE_CANCEL_UNICAST_TRANSMISSION:
-                            proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_messageType, tvb,
-                                                PTP_V2_SIG_TLV_MESSAGE_TYPE, 1, ENC_BIG_ENDIAN);
-                            
-                            break;
-                            
-                        default:
-                            /* ToDO: Add dissector for other TLVs and allow multiple TLVs */
-                            proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_data, tvb,
-                                                PTP_V2_SIG_TLV_VALUE, tlv_length, ENC_NA);
+                            /* Request Unicast Transmission */
+                            case PTP_V2_TLV_TYPE_REQUEST_UNICAST_TRANSMISSION:
+                                
+                                /* 16.1.4.1.3 messageType */
+                                proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_messageType, tvb,
+                                                    tlv_offset + PTP_V2_SIG_TLV_MESSAGE_TYPE_OFFSET, PTP_V2_SIG_TLV_MESSAGE_TYPE_LEN, ENC_BIG_ENDIAN);
+                                
+                                /* 16.1.4.1.4 logInterMessagePeriod */
+                                log_inter_message_period = tvb_get_guint8(tvb, tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET);
+                                period = pow(2, log_inter_message_period);
+                                rate   = 1/period;
+                                
+                                ptp_tlv_period = proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod, tvb,
+                                                                     tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, ENC_BIG_ENDIAN);
+                                
+                                ptp_tlv_period_tree = proto_item_add_subtree(ptp_tlv_period, ett_ptp_v2_tlv_log_period);
+                                
+                                proto_tree_add_int_format_value(ptp_tlv_period_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod_period, tvb,
+                                                                tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, log_inter_message_period, "every %lg seconds", period);
+                                
+                                proto_tree_add_int_format_value(ptp_tlv_period_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod_rate, tvb,
+                                                                tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, log_inter_message_period, "%lg packets/sec", rate);
+                                
+                                /* 16.1.4.1.5 durationField */
+                                duration_field = tvb_get_ntohl(tvb, tlv_offset + PTP_V2_SIG_TLV_DURATION_FIELD_OFFSET);
+                                
+                                proto_tree_add_uint_format_value(ptp_tlv_tree, hf_ptp_v2_sig_tlv_durationField, tvb,
+                                                                 tlv_offset + PTP_V2_SIG_TLV_DURATION_FIELD_OFFSET, PTP_V2_SIG_TLV_DURATION_FIELD_LEN, duration_field, "%u seconds", duration_field);
+                                
+                                break;
+                                
+                            /* Grant Unicast Transmission */
+                            case PTP_V2_TLV_TYPE_GRANT_UNICAST_TRANSMISSION:
+                                
+                                /* 16.1.4.2.3 messageType */
+                                proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_messageType, tvb,
+                                                    tlv_offset + PTP_V2_SIG_TLV_MESSAGE_TYPE_OFFSET, PTP_V2_SIG_TLV_MESSAGE_TYPE_LEN, ENC_BIG_ENDIAN);
+                                
+                                /* 16.1.4.2.4 logInterMessagePeriod */
+                                log_inter_message_period = tvb_get_guint8(tvb, tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET);
+                                period = pow(2, log_inter_message_period);
+                                rate   = 1/period;
+                                
+                                ptp_tlv_period = proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod, tvb,
+                                                                     tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, ENC_BIG_ENDIAN);
+                                
+                                ptp_tlv_period_tree = proto_item_add_subtree(ptp_tlv_period, ett_ptp_v2_tlv_log_period);
+                                
+                                proto_tree_add_int_format_value(ptp_tlv_period_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod_period, tvb,
+                                                                tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, log_inter_message_period, "every %lg seconds", period);
+                                
+                                proto_tree_add_int_format_value(ptp_tlv_period_tree, hf_ptp_v2_sig_tlv_logInterMessagePeriod_rate, tvb,
+                                                                tlv_offset + PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_OFFSET, PTP_V2_SIG_TLV_LOG_INTER_MESSAGE_PERIOD_LEN, log_inter_message_period, "%lg packets/sec", rate);
+                                
+                                /* 16.1.4.2.5 durationField */
+                                duration_field = tvb_get_ntohl(tvb, tlv_offset + PTP_V2_SIG_TLV_DURATION_FIELD_OFFSET);
+                                
+                                proto_tree_add_uint_format_value(ptp_tlv_tree, hf_ptp_v2_sig_tlv_durationField, tvb,
+                                                                 tlv_offset + PTP_V2_SIG_TLV_DURATION_FIELD_OFFSET, PTP_V2_SIG_TLV_DURATION_FIELD_LEN, duration_field, "%u seconds", duration_field);
+                                
+                                /* 16.1.4.2.6 renewalInvited */
+                                proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_renewalInvited, tvb,
+                                                    tlv_offset + PTP_V2_SIG_TLV_RENEWAL_INVITED_OFFSET, PTP_V2_SIG_TLV_RENEWAL_INVITED_LEN, ENC_BIG_ENDIAN);
+                                
+                                break;
+                                
+                            /* Cancel Unicast Transmission */
+                            case PTP_V2_TLV_TYPE_CANCEL_UNICAST_TRANSMISSION:
+                                
+                                /* 16.1.4.3.3 messageType */
+                                proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_messageType, tvb,
+                                                    tlv_offset + PTP_V2_SIG_TLV_MESSAGE_TYPE_OFFSET, PTP_V2_SIG_TLV_MESSAGE_TYPE_LEN, ENC_BIG_ENDIAN);
+                                
+                                break;
+                                
+                            /* Acknowledge Cancel Unicast Transmission */
+                            case PTP_V2_TLV_TYPE_ACKNOWLEDGE_CANCEL_UNICAST_TRANSMISSION:
+                                
+                                /* 16.1.4.4.3 messageType */
+                                proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_messageType, tvb,
+                                                    tlv_offset + PTP_V2_SIG_TLV_MESSAGE_TYPE_OFFSET, PTP_V2_SIG_TLV_MESSAGE_TYPE_LEN, ENC_BIG_ENDIAN);
+                                
+                                break;
+                                
+                            default:
+                                /* TODO: Add dissector for other TLVs */
+                                proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_sig_tlv_data, tvb,
+                                                    tlv_offset + PTP_V2_SIG_TLV_VALUE_OFFSET, tlv_length, ENC_NA);
+                        }
+                        
+                        tlv_offset += PTP_V2_SIG_TLV_TYPE_LEN +
+                                      PTP_V2_SIG_TLV_LENGTH_LEN +
+                                      tlv_length;
                     }
                 }
                 break;
@@ -5156,7 +5229,17 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_sig_tlv_logInterMessagePeriod,
           { "logInterMessagePeriod",        "ptp.v2.sig.tlv.logInterMessagePeriod",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_INT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_logInterMessagePeriod_period,
+          { "period",                       "ptp.v2.sig.tlv.logInterMessagePeriod.period",
+            FT_INT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_sig_tlv_logInterMessagePeriod_rate,
+          { "rate",                         "ptp.v2.sig.tlv.logInterMessagePeriod.rate",
+            FT_INT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_sig_tlv_durationField,
@@ -5820,6 +5903,7 @@ proto_register_ptp(void)
         &ett_ptp_v2_faultRecord,
         &ett_ptp_v2_timeInterval,
         &ett_ptp_v2_tlv,
+        &ett_ptp_v2_tlv_log_period,
         &ett_ptp_as_sig_tlv_flags,
     };
 
