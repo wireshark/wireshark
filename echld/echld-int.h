@@ -36,6 +36,10 @@
 # include <sys/types.h>
 #endif
 
+#ifdef HAVE_SYS_WAIT_H
+# include <sys/wait.h>
+#endif
+
 #include <sys/time.h>
 #include <sys/uio.h>
 
