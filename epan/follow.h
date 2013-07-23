@@ -27,6 +27,10 @@
 #ifndef __FOLLOW_H__
 #define __FOLLOW_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <epan/packet.h>
 #include "ws_symbol_export.h"
 
@@ -62,5 +66,9 @@ typedef struct {
 
 WS_DLL_PUBLIC
 void follow_stats(follow_stats_t* stats);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif

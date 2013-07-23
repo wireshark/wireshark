@@ -24,6 +24,10 @@
 #ifndef __PACKET_TCP_H__
 #define __PACKET_TCP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include "ws_symbol_export.h"
 
 #ifndef __CONVERSATION_H__
@@ -286,5 +290,9 @@ extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *, proto_tree *, i
  * @param command Ephemeral string containing the full or partial process name
  */
 extern void add_tcp_process_info(guint32 frame_num, address *local_addr, address *remote_addr, guint16 local_port, guint16 remote_port, guint32 uid, guint32 pid, gchar *username, gchar *command);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
