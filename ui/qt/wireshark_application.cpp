@@ -486,11 +486,11 @@ void WiresharkApplication::setLastOpenDir(const char *dir_name)
     if (dir_name) {
         len = strlen(dir_name);
         if (dir_name[len-1] == G_DIR_SEPARATOR) {
-            new_last_open_dir = g_strconcat(dir_name, NULL);
+            new_last_open_dir = g_strconcat(dir_name, (char *)NULL);
         }
         else {
             new_last_open_dir = g_strconcat(dir_name,
-                                            G_DIR_SEPARATOR_S, NULL);
+                                            G_DIR_SEPARATOR_S, (char *)NULL);
         }
 
         if (last_open_dir == NULL ||
