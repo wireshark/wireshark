@@ -2150,8 +2150,11 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
             if (truncated) { *dp++ = '.'; *dp++ = '.'; *dp++ = '.'; }
 
             *dp++ = '\0';
-            proto_tree_add_string_format(t, hf, tvb, offset, length, (gchar *)tvb_get_ptr(tvb, offset, length), "%s: %s",
-                                        proto_registrar_get_nth(hf) -> name, *s);
+            proto_tree_add_string_format(t, hf, tvb, offset, length,
+                                         (const gchar *)tvb_get_ptr(tvb, offset, length),
+                                         "%s: %s",
+                                         proto_registrar_get_nth(hf) -> name,
+                                         *s);
       } else
             proto_tree_add_item(t, hf_bytes, tvb, offset, length, byte_order);
 
