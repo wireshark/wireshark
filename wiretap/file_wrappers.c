@@ -1582,7 +1582,7 @@ gzwfile_write(GZWFILE_T state, const void *buf, guint len)
             memcpy(strm->next_in + strm->avail_in, buf, n);
             strm->avail_in += n;
             state->pos += n;
-            buf = (char *)buf + n;
+            buf = (const char *)buf + n;
             len -= n;
             if (len && gz_comp(state, Z_NO_FLUSH) == -1)
                 return 0;
