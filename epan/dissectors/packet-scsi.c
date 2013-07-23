@@ -4836,7 +4836,7 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
                      NULL
                  };
                  proto_tree_add_bitmask(desc_tree, tvb, offset+8, hf_scsi_sns_osd_object_not_initiated, ett_sense_osd_not_initiated, command_functions, ENC_BIG_ENDIAN);
-                 proto_tree_add_bitmask(desc_tree, tvb, offset+12, hf_scsi_sns_osd_object_completed, ett_sense_osd_not_initiated, command_functions, ENC_BIG_ENDIAN);
+                 proto_tree_add_bitmask(desc_tree, tvb, offset+12, hf_scsi_sns_osd_object_completed, ett_sense_osd_completed, command_functions, ENC_BIG_ENDIAN);
                  proto_tree_add_item(desc_tree, hf_scsi_sns_osd_partition_id, tvb, offset+16, 8, ENC_BIG_ENDIAN);
                  proto_tree_add_item(desc_tree, hf_scsi_sns_osd_object_id, tvb, offset+24, 8, ENC_BIG_ENDIAN);
              }
