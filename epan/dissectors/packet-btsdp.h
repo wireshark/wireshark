@@ -130,11 +130,15 @@
 #define BTSDP_GNSS_UUID                                 0x1135
 #define BTSDP_GNSS_SERVER_UUID                          0x1136
 
+#define BTSDP_3D_DISPLAY_UUID                           0x1137
+#define BTSDP_3D_GLASSES_UUID                           0x1138
+#define BTSDP_3D_SYNCHRONIZATION_UUID                   0x1139
+
 #define BTSDP_DID_SERVICE_UUID                          0x1200
 
 #define BTSDP_GENERIC_NETWORKING_SERVICE_UUID           0x1201
 #define BTSDP_GENERIC_FILE_TRANSFER_SERVICE_UUID        0x1202
-#define BTSDP_GENERIC_AUDIO_SERVICE_UUID      e          0x1203
+#define BTSDP_GENERIC_AUDIO_SERVICE_UUID                0x1203
 #define BTSDP_GENERIC_TELEPHONY_SERVICE_UUID            0x1204
 
 #define BTSDP_ESDP_UPNP_SERVICE_SERVICE_UUID            0x1205

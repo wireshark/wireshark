@@ -24,15 +24,20 @@
 #ifndef __PACKET_BTL2CAP_H__
 #define __PACKET_BTL2CAP_H__
 
-#define BTL2CAP_PSM_SDP             0x0001
-#define BTL2CAP_PSM_RFCOMM          0x0003
-#define BTL2CAP_PSM_BNEP            0x000f
-#define BTL2CAP_PSM_HID_CTRL        0x0011
-#define BTL2CAP_PSM_HID_INTR        0x0013
-#define BTL2CAP_PSM_AVCTP_CTRL      0x0017
-#define BTL2CAP_PSM_AVDTP           0x0019
-#define BTL2CAP_PSM_AVCTP_BRWS      0x001b
-#define BTL2CAP_PSM_ATT             0x001f
+#define BTL2CAP_PSM_SDP               0x0001
+#define BTL2CAP_PSM_RFCOMM            0x0003
+#define BTL2CAP_PSM_TCS_BIN           0x0005
+#define BTL2CAP_PSM_TCS_BIN_CORDLESS  0x0007
+#define BTL2CAP_PSM_BNEP              0x000f
+#define BTL2CAP_PSM_HID_CTRL          0x0011
+#define BTL2CAP_PSM_HID_INTR          0x0013
+#define BTL2CAP_PSM_UPNP              0x0015
+#define BTL2CAP_PSM_AVCTP_CTRL        0x0017
+#define BTL2CAP_PSM_AVDTP             0x0019
+#define BTL2CAP_PSM_AVCTP_BRWS        0x001b
+#define BTL2CAP_PSM_UDI_C_PLANE       0x001d
+#define BTL2CAP_PSM_ATT               0x001f
+#define BTL2CAP_PSM_3DS               0x0021
 
 #define BTL2CAP_DYNAMIC_PSM_START   0x1000
 
