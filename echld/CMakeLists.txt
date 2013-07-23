@@ -21,20 +21,24 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-set(ECHLD_FILES
-	child.c
+set(CLEAN_FILES
 	common.c
-	dispatcher.c
 	echld-util.c
 	parent.c
+)
+
+set(DIRTY_FILES
+	child.c
+	dispatcher.c
 )
 
 set(echld_LIBS
 	${GLIB2_LIBRARIES}
 )
 
-set(CLEAN_FILES
-	${ECHLD_FILES}
+set(ECHLD_FILES
+	${CLEAN_FILES}
+	${DIRTY_FILES}
 )
 
 if (WERROR)
