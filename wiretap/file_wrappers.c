@@ -815,7 +815,15 @@ file_fdopen(int fd)
 
 #ifdef _STATBUF_ST_BLKSIZE
 	if (fstat(fd, &st) >= 0) {
-		want = st.st_blksize;
+		/*
+		 * Yes, st_blksize can be bigger than an int; apparently,
+		 * it's a long on LP64 Linux, for example.
+		 *
+		 * If the value is too big to fit into an int, just
+		 * use the default.
+		 */
+		if (st.st_blksize <= G_MAXINT)
+			want = (int)st.st_blksize;
 		/* XXX, verify result? */
 	}
 #endif
