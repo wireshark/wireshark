@@ -36,6 +36,8 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 
 #include "packet-bluetooth-hci.h"
 
@@ -44,8 +46,15 @@ static int proto_bthci_cmd = -1;
 static int hf_bthci_cmd_opcode = -1;
 static int hf_bthci_cmd_ogf = -1;
 static int hf_bthci_cmd_ocf = -1;
+static int hf_bthci_cmd_ocf_link_control = -1;
+static int hf_bthci_cmd_ocf_link_policy = -1;
+static int hf_bthci_cmd_ocf_host_controller_and_baseband = -1;
+static int hf_bthci_cmd_ocf_informational = -1;
+static int hf_bthci_cmd_ocf_status = -1;
+static int hf_bthci_cmd_ocf_testing = -1;
+static int hf_bthci_cmd_ocf_logo_testing = -1;
+static int hf_bthci_cmd_ocf_low_energy = -1;
 static int hf_bthci_cmd_param_length = -1;
-static int hf_bthci_cmd_params = -1;
 static int hf_bthci_cmd_lap = -1;
 static int hf_bthci_cmd_inq_length = -1;
 static int hf_bthci_cmd_num_responses = -1;
@@ -318,6 +327,12 @@ static int hf_bthci_cmd_flags_le_oob_le_supported_host = -1;
 static int hf_bthci_cmd_flags_le_oob_le_bredr_support = -1;
 static int hf_bthci_cmd_flags_le_oob_address_type = -1;
 
+static expert_field ei_eir_undecoded                                  = EI_INIT;
+static expert_field ei_eir_unknown                                    = EI_INIT;
+static expert_field ei_command_undecoded                              = EI_INIT;
+static expert_field ei_command_unknown                                = EI_INIT;
+static expert_field ei_command_parameter_unexpected                   = EI_INIT;
+
 /* Initialize the subtree pointers */
 static gint ett_bthci_cmd = -1;
 static gint ett_opcode = -1;
@@ -325,225 +340,300 @@ static gint ett_eir_subtree = -1;
 static gint ett_eir_struct_subtree = -1;
 static gint ett_flow_spec_subtree = -1;
 
-static const value_string bthci_cmd_opcode_vals[] = {
-    {0x0000, "No Operation"},
-    {0x0401, "Inquiry"},
-    {0x0402, "Inquiry Cancel"},
-    {0x0403, "Periodic Inquiry Mode"},
-    {0x0404, "Exit Periodic Inquiry Mode"},
-    {0x0405, "Create Connection"},
-    {0x0406, "Disconnect"},
-    {0x0407, "Add SCO Connection"},
-    {0x0408, "Create Connection Cancel"},
-    {0x0409, "Accept Connection Request"},
-    {0x040a, "Reject Connection Request"},
-    {0x040b, "Link Key Request Reply"},
-    {0x040c, "Link Key Request Negative Reply"},
-    {0x040d, "PIN Code Request Reply"},
-    {0x040e, "PIN Code Request Negative Reply"},
-    {0x040f, "Change Connection Packet Type"},
-    {0x0411, "Authentication Requested"},
-    {0x0413, "Set Connection Encryption"},
-    {0x0415, "Change Connection Link Key"},
-    {0x0417, "Master Link Key"},
-    {0x0419, "Remote Name Request"},
-    {0x041a, "Remote Name Request Cancel"},
-    {0x041b, "Read Remote Supported Features"},
-    {0x041c, "Read Remote Extended Features"},
-    {0x041d, "Read Remote Version Information"},
-    {0x041f, "Read Clock offset"},
-    {0x0420, "Read LMP Handle"},
-    {0x0428, "Setup Synchronous Connection"},
-    {0x0429, "Accept Synchronous Connection Request"},
-    {0x042a, "Reject Synchronous Connection Request"},
-    {0x042b, "IO Capability Request Reply"},
-    {0x042c, "User Confirmation Request Reply"},
-    {0x042d, "User Confirmation Request Negative Reply"},
-    {0x042e, "User Passkey Request Reply"},
-    {0x042f, "User Passkey Request Negative Reply"},
-    {0x0430, "Remote OOB Data Request Reply"},
-    {0x0433, "Remote OOB Data Request Negative Reply"},
-    {0x0434, "IO Capability Request Negative Reply"},
-    {0x0435, "Create Physical Link"},
-    {0x0436, "Accept Physical Link"},
-    {0x0437, "Disconnect Physical Link"},
-    {0x0438, "Create Logical Link"},
-    {0x0439, "Accept Logical Link"},
-    {0x043a, "Disconnect Logical Link"},
-    {0x043b, "Logical Link Cancel"},
-    {0x043c, "Flow Spec Modify"},
-    {0x0801, "Hold Mode"},
-    {0x0803, "Sniff Mode"},
-    {0x0804, "Exit Sniff Mode"},
-    {0x0805, "Park Mode"},
-    {0x0806, "Exit Park Mode"},
-    {0x0807, "QoS Setup"},
-    {0x0809, "Role Discovery"},
-    {0x080b, "Switch Role"},
-    {0x080c, "Read Link Policy Settings"},
-    {0x080d, "Write Link Policy Settings"},
-    {0x080e, "Read Default Link Policy Settings"},
-    {0x080f, "Write Default Link Policy Settings"},
-    {0x0810, "Flow Specification"},
-    {0x0811, "Sniff Subrating"},
-    {0x0c01, "Set Event Mask"},
-    {0x0c03, "Reset"},
-    {0x0c05, "Set Event Filter"},
-    {0x0c08, "Flush"},
-    {0x0c09, "Read PIN Type "},
-    {0x0c0a, "Write PIN Type"},
-    {0x0c0b, "Create New Unit Key"},
-    {0x0c0d, "Read Stored Link Key"},
-    {0x0c11, "Write Stored Link Key"},
-    {0x0c12, "Delete Stored Link Key"},
-    {0x0c13, "Change Local Name"},
-    {0x0c14, "Read Local Name"},
-    {0x0c15, "Read Connection Accept Timeout"},
-    {0x0c16, "Write Connection Accept Timeout"},
-    {0x0c17, "Read Page Timeout"},
-    {0x0c18, "Write Page Timeout"},
-    {0x0c19, "Read Scan Enable"},
-    {0x0c1a, "Write Scan Enable"},
-    {0x0c1b, "Read Page Scan Activity"},
-    {0x0c1c, "Write Page Scan Activity"},
-    {0x0c1d, "Read Inquiry Scan Activity"},
-    {0x0c1e, "Write Inquiry Scan Activity"},
-    {0x0c1f, "Read Authentication Enable"},
-    {0x0c20, "Write Authentication Enable"},
-    {0x0c21, "Read Encryption Mode"},
-    {0x0c22, "Write Encryption Mode"},
-    {0x0c23, "Read Class of Device"},
-    {0x0c24, "Write Class of Device"},
-    {0x0c25, "Read Voice Setting"},
-    {0x0c26, "Write Voice Setting"},
-    {0x0c27, "Read Automatic Flush Timeout"},
-    {0x0c28, "Write Automatic Flush Timeout"},
-    {0x0c29, "Read Num Broadcast Retransmissions"},
-    {0x0c2a, "Write Num Broadcast Retransmissions"},
-    {0x0c2b, "Read Hold Mode Activity "},
-    {0x0c2c, "Write Hold Mode Activity"},
-    {0x0c2d, "Read Tx Power Level"},
-    {0x0c2e, "Read SCO Flow Control Enable"},
-    {0x0c2f, "Write SCO Flow Control Enable"},
-    {0x0c31, "Set Host Controller To Host Flow Control"},
-    {0x0c33, "Host Buffer Size"},
-    {0x0c35, "Host Number of Completed Packets"},
-    {0x0c36, "Read Link Supervision Timeout"},
-    {0x0c37, "Write Link Supervision Timeout"},
-    {0x0c38, "Read Number of Supported IAC"},
-    {0x0c39, "Read Current IAC LAP"},
-    {0x0c3a, "Write Current IAC LAP"},
-    {0x0c3b, "Read Page Scan Period Mode"},
-    {0x0c3c, "Write Page Scan Period Mode"},
-    {0x0c3d, "Read Page Scan Mode"},
-    {0x0c3e, "Write Page Scan Mode"},
-    {0x0c3f, "Set AFH Host Channel Classification"},
-    {0x0c42, "Read Inquiry Scan Type"},
-    {0x0c43, "Write Inquiry Scan Type"},
-    {0x0c44, "Read Inquiry Mode"},
-    {0x0c45, "Write Inquiry Mode"},
-    {0x0c46, "Read Page Scan Type"},
-    {0x0c47, "Write Page Scan Type"},
-    {0x0c48, "Read AFH Channel Assessment Mode"},
-    {0x0c49, "Write AFH Channel Assessment Mode"},
-    {0x0c51, "Read Extended Inquiry Response"},
-    {0x0c52, "Write Extended Inquiry Response"},
-    {0x0c53, "Refresh Encryption Key"},
-    {0x0c55, "Read Simple Pairing Mode"},
-    {0x0c56, "Write Simple Pairing Mode"},
-    {0x0c57, "Read Local OOB Data"},
-    {0x0c58, "Read Inquiry Response Tx Power Level"},
-    {0x0c59, "Write Inquiry Tx Power Level"},
-    {0x0c5a, "Read Default Erroneous Data Reporting"},
-    {0x0c5b, "Write Default Erroneous Data Reporting"},
-    {0x0c5f, "Enhanced Flush"},
-    {0x0c60, "Send Keypress Notification"},
-    {0x0c61, "Read Logical Link Accept Timeout"},
-    {0x0c62, "Write Logical Link Accept Timeout"},
-    {0x0c63, "Set Event Mask Page 2"},
-    {0x0c64, "Read Location Data"},
-    {0x0c65, "Write Location Data"},
-    {0x0c66, "Read Flow Control Mode"},
-    {0x0c67, "Write Flow Control Mode"},
-    {0x0c68, "Read Enhanced Transmit Power Level"},
-    {0x0c69, "Read Best Effort Flush Timeout"},
-    {0x0c6a, "Write Best Effort Flush Timeout"},
-    {0x0c6b, "Short Range Mode"},
-    {0x0c6c, "Read LE Host Supported"},
-    {0x0c6d, "Write LE Host Supported"},
-    {0x1001, "Read Local Version Information"},
-    {0x1002, "Read Local Supported Commands"},
-    {0x1003, "Read Local Supported Features"},
-    {0x1004, "Read Local Extended Features"},
-    {0x1005, "Read Buffer Size"},
-    {0x1007, "Read Country Code"},
-    {0x1009, "Read BD ADDR"},
-    {0x100a, "Read Data Block Size"},
-    {0x1401, "Read Failed Contact Counter"},
-    {0x1402, "Reset Failed Contact Counter"},
-    {0x1403, "Read Link Quality"},
-    {0x1405, "Read RSSI"},
-    {0x1406, "Read AFH Channel Map"},
-    {0x1407, "Read Clock"},
-    {0x1408, "Read Encryption Key Size"},
-    {0x1409, "Read Local AMP Info"},
-    {0x140a, "Read Local AMP Assoc"},
-    {0x140b, "Write Remote AMP Assoc"},
-    {0x1801, "Read Loopback Mode"},
-    {0x1802, "Write Loopback Mode"},
-    {0x1803, "Enable Device Under Test Mode"},
-    {0x1804, "Write Simple Pairing Debug Mode"},
-    {0x1807, "Enable AMP Receiver Reports"},
-    {0x1808, "AMP Test End"},
-    {0x1809, "AMP Test"},
-    {0x2001, "LE Set Event Mask"},
-    {0x2002, "LE Read Buffer Size"},
-    {0x2003, "LE Read Local Supported Features"},
-    {0x2005, "LE Set Random Address"},
-    {0x2006, "LE Set Advertising Parameters"},
-    {0x2007, "LE Read Advertising Channel Tx Power"},
-    {0x2008, "LE Set Advertising Data"},
-    {0x2009, "LE Set Scan Response Data"},
-    {0x200a, "LE Set Advertise Enable"},
-    {0x200b, "LE Set Scan Parameters"},
-    {0x200c, "LE Set Scan Enable"},
-    {0x200d, "LE Create Connection"},
-    {0x200e, "LE Create Connection Cancel"},
-    {0x200f, "LE Read White List Size"},
-    {0x2010, "LE Clear White List"},
-    {0x2011, "LE Add Device To White List"},
-    {0x2012, "LE Remove Device From White List"},
-    {0x2013, "LE Connection Update"},
-    {0x2014, "LE Set Host Channel Classification"},
-    {0x2015, "LE Read Channel Map"},
-    {0x2016, "LE Read Remote Used Features"},
-    {0x2017, "LE Encrypt"},
-    {0x2018, "LE Rand"},
-    {0x2019, "LE Start Encryption"},
-    {0x201a, "LE Long Term Key Request Reply"},
-    {0x201b, "LE Long Term Key Request Negative Reply"},
-    {0x201c, "LE Read Supported States"},
-    {0x201d, "LE Receiver Test"},
-    {0x201e, "LE Transmitter Test"},
-    {0x201f, "LE Test End"},
-    {0xfc00, "Vendor-Specific"},
-    {0, NULL}
-};
-value_string_ext bthci_cmd_opcode_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_opcode_vals);
-
 static const value_string bthci_ogf_vals[] = {
-    { HCI_OGF_LINK_CONTROL,	"Link Control Commands" },
-    { HCI_OGF_LINK_POLICY,	"Link Policy Commands" },
-    { HCI_OGF_HOST_CONTROLLER,"Host Controller & Baseband Commands" },
-    { HCI_OGF_INFORMATIONAL,"Informational Parameters" },
-    { HCI_OGF_STATUS,	"Status Parameters" },
-    { HCI_OGF_TESTING,	"Testing Commands" },
-    { HCI_OGF_LOW_ENERGY,	"LE Controller Commands" },
-    { HCI_OGF_LOGO_TESTING,	"Bluetooth Logo Testing Commands" },
-    { HCI_OGF_VENDOR_SPECIFIC,	"Vendor-Specific Commands" },
+    { 0x01,  "Link Control Commands" },
+    { 0x02,  "Link Policy Commands" },
+    { 0x03,  "Host Controller & Baseband Commands" },
+    { 0x04,  "Informational Parameters" },
+    { 0x05,  "Status Parameters" },
+    { 0x06,  "Testing Commands" },
+    { 0x08,  "LE Controller Commands" },
+    { 0x3E,  "Bluetooth Logo Testing Commands" },
+    { 0x3F,  "Vendor-Specific Commands" },
     { 0, NULL }
 };
 value_string_ext bthci_ogf_vals_ext = VALUE_STRING_EXT_INIT(bthci_ogf_vals);
+
+static const value_string bthci_cmd_ocf_link_control_vals[] = {
+/* Bluetooth Core 4.0 */
+    { 0x001,  "Inquiry" },
+    { 0x002,  "Inquiry Cancel" },
+    { 0x003,  "Periodic Inquiry Mode" },
+    { 0x004,  "Exit Periodic Inquiry Mode" },
+    { 0x005,  "Create Connection" },
+    { 0x006,  "Disconnect" },
+    { 0x007,  "Add SCO Connection" },
+    { 0x008,  "Create Connection Cancel" },
+    { 0x009,  "Accept Connection Request" },
+    { 0x00A,  "Reject Connection Request" },
+    { 0x00B,  "Link Key Request Reply" },
+    { 0x00C,  "Link Key Request Negative Reply" },
+    { 0x00D,  "PIN Code Request Reply" },
+    { 0x00E,  "PIN Code Request Negative Reply" },
+    { 0x00F,  "Change Connection Packet Type" },
+    { 0x011,  "Authentication Requested" },
+    { 0x013,  "Set Connection Encryption" },
+    { 0x015,  "Change Connection Link Key" },
+    { 0x017,  "Master Link Key" },
+    { 0x019,  "Remote Name Request" },
+    { 0x01A,  "Remote Name Request Cancel" },
+    { 0x01B,  "Read Remote Supported Features" },
+    { 0x01C,  "Read Remote Extended Features" },
+    { 0x01D,  "Read Remote Version Information" },
+    { 0x01F,  "Read Clock offset" },
+    { 0x020,  "Read LMP Handle" },
+    { 0x028,  "Setup Synchronous Connection" },
+    { 0x029,  "Accept Synchronous Connection Request" },
+    { 0x02A,  "Reject Synchronous Connection Request" },
+    { 0x02B,  "IO Capability Request Reply" },
+    { 0x02C,  "User Confirmation Request Reply" },
+    { 0x02D,  "User Confirmation Request Negative Reply" },
+    { 0x02E,  "User Passkey Request Reply" },
+    { 0x02F,  "User Passkey Request Negative Reply" },
+    { 0x030,  "Remote OOB Data Request Reply" },
+    { 0x033,  "Remote OOB Data Request Negative Reply" },
+    { 0x034,  "IO Capability Request Negative Reply" },
+    { 0x035,  "Create Physical Link" },
+    { 0x036,  "Accept Physical Link" },
+    { 0x037,  "Disconnect Physical Link" },
+    { 0x038,  "Create Logical Link" },
+    { 0x039,  "Accept Logical Link" },
+    { 0x03A,  "Disconnect Logical Link" },
+    { 0x03B,  "Logical Link Cancel" },
+    { 0x03C,  "Flow Spec Modify" },
+/* Bluetooth Core Specification Addendum 2 */
+    { 0x03D,  "Enhanced Setup Synchronous Connection" },
+    { 0x03E,  "Enhanced Accept Synchronous Connection Request" },
+/* Bluetooth Core Specification Addendum 4 */
+    { 0x03F,  "Truncated Page" },
+    { 0x040,  "Truncated Page Cancel" },
+    { 0x041,  "Set Connectionless Slave Broadcast" },
+    { 0x042,  "Set Connectionless Slave Broadcast Receive" },
+    { 0x043,  "Start Synchronization Train" },
+    { 0x044,  "Receive Synchronization Train" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_ocf_link_control_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_link_control_vals);
+
+static const value_string bthci_cmd_ocf_link_policy_vals[] = {
+/* Bluetooth Core 4.0 */
+    { 0x001,  "Hold Mode" },
+    { 0x003,  "Sniff Mode" },
+    { 0x004,  "Exit Sniff Mode" },
+    { 0x005,  "Park Mode" },
+    { 0x006,  "Exit Park Mode" },
+    { 0x007,  "QoS Setup" },
+    { 0x009,  "Role Discovery" },
+    { 0x00b,  "Switch Role" },
+    { 0x00c,  "Read Link Policy Settings" },
+    { 0x00d,  "Write Link Policy Settings" },
+    { 0x00e,  "Read Default Link Policy Settings" },
+    { 0x00f,  "Write Default Link Policy Settings" },
+    { 0x010,  "Flow Specification" },
+    { 0x011,  "Sniff Subrating" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_ocf_link_policy_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_link_policy_vals);
+
+static const value_string bthci_cmd_ocf_host_controller_and_baseband_vals[] = {
+/* Bluetooth Core 4.0 */
+    { 0x001,  "Set Event Mask" },
+    { 0x003,  "Reset" },
+    { 0x005,  "Set Event Filter" },
+    { 0x008,  "Flush" },
+    { 0x009,  "Read PIN Type" },
+    { 0x00A,  "Write PIN Type" },
+    { 0x00B,  "Create New Unit Key" },
+    { 0x00D,  "Read Stored Link Key" },
+    { 0x011,  "Write Stored Link Key" },
+    { 0x012,  "Delete Stored Link Key" },
+    { 0x013,  "Change Local Name" },
+    { 0x014,  "Read Local Name" },
+    { 0x015,  "Read Connection Accept Timeout" },
+    { 0x016,  "Write Connection Accept Timeout" },
+    { 0x017,  "Read Page Timeout" },
+    { 0x018,  "Write Page Timeout" },
+    { 0x019,  "Read Scan Enable" },
+    { 0x01A,  "Write Scan Enable" },
+    { 0x01B,  "Read Page Scan Activity" },
+    { 0x01C,  "Write Page Scan Activity" },
+    { 0x01D,  "Read Inquiry Scan Activity" },
+    { 0x01E,  "Write Inquiry Scan Activity" },
+    { 0x01F,  "Read Authentication Enable" },
+    { 0x020,  "Write Authentication Enable" },
+    { 0x021,  "Read Encryption Mode" },
+    { 0x022,  "Write Encryption Mode" },
+    { 0x023,  "Read Class of Device" },
+    { 0x024,  "Write Class of Device" },
+    { 0x025,  "Read Voice Setting" },
+    { 0x026,  "Write Voice Setting" },
+    { 0x027,  "Read Automatic Flush Timeout" },
+    { 0x028,  "Write Automatic Flush Timeout" },
+    { 0x029,  "Read Num Broadcast Retransmissions" },
+    { 0x02A,  "Write Num Broadcast Retransmissions" },
+    { 0x02B,  "Read Hold Mode Activity" },
+    { 0x02C,  "Write Hold Mode Activity" },
+    { 0x02D,  "Read Tx Power Level" },
+    { 0x02E,  "Read SCO Flow Control Enable" },
+    { 0x02F,  "Write SCO Flow Control Enable" },
+    { 0x031,  "Set Host Controller To Host Flow Control" },
+    { 0x033,  "Host Buffer Size" },
+    { 0x035,  "Host Number of Completed Packets" },
+    { 0x036,  "Read Link Supervision Timeout" },
+    { 0x037,  "Write Link Supervision Timeout" },
+    { 0x038,  "Read Number of Supported IAC" },
+    { 0x039,  "Read Current IAC LAP" },
+    { 0x03A,  "Write Current IAC LAP" },
+    { 0x03B,  "Read Page Scan Period Mode" },
+    { 0x03C,  "Write Page Scan Period Mode" },
+    { 0x03D,  "Read Page Scan Mode" },
+    { 0x03E,  "Write Page Scan Mode" },
+    { 0x03F,  "Set AFH Host Channel Classification" },
+    { 0x042,  "Read Inquiry Scan Type" },
+    { 0x043,  "Write Inquiry Scan Type" },
+    { 0x044,  "Read Inquiry Mode" },
+    { 0x045,  "Write Inquiry Mode" },
+    { 0x046,  "Read Page Scan Type" },
+    { 0x047,  "Write Page Scan Type" },
+    { 0x048,  "Read AFH Channel Assessment Mode" },
+    { 0x049,  "Write AFH Channel Assessment Mode" },
+    { 0x051,  "Read Extended Inquiry Response" },
+    { 0x052,  "Write Extended Inquiry Response" },
+    { 0x053,  "Refresh Encryption Key" },
+    { 0x055,  "Read Simple Pairing Mode" },
+    { 0x056,  "Write Simple Pairing Mode" },
+    { 0x057,  "Read Local OOB Data" },
+    { 0x058,  "Read Inquiry Response Tx Power Level" },
+    { 0x059,  "Write Inquiry Tx Power Level" },
+    { 0x05A,  "Read Default Erroneous Data Reporting" },
+    { 0x05B,  "Write Default Erroneous Data Reporting" },
+    { 0x05F,  "Enhanced Flush" },
+    { 0x060,  "Send Keypress Notification" },
+    { 0x061,  "Read Logical Link Accept Timeout" },
+    { 0x062,  "Write Logical Link Accept Timeout" },
+    { 0x063,  "Set Event Mask Page 2" },
+    { 0x064,  "Read Location Data" },
+    { 0x065,  "Write Location Data" },
+    { 0x066,  "Read Flow Control Mode" },
+    { 0x067,  "Write Flow Control Mode" },
+    { 0x068,  "Read Enhanced Transmit Power Level" },
+    { 0x069,  "Read Best Effort Flush Timeout" },
+    { 0x06A,  "Write Best Effort Flush Timeout" },
+    { 0x06B,  "Short Range Mode" },
+    { 0x06C,  "Read LE Host Supported" },
+    { 0x06D,  "Write LE Host Supported" },
+/* Bluetooth Core Specification Addendum 3 */
+    { 0x06E,  "Set MWS Channel Parameters"},
+    { 0x06F,  "Set External Frame Configuration"},
+    { 0x070,  "Set MWS Signaling"},
+    { 0x071,  "Set MWS Transport Layer"},
+    { 0x072,  "Set MWS Scan Frequency Table"},
+    { 0x073,  "Set MWS Pattern Configuration"},
+/* Bluetooth Core Specification Addendum 4 */
+    { 0x074,  "Set Reserved LT_ADDR" },
+    { 0x075,  "Delete Reserved LT_ADDR" },
+    { 0x076,  "Set Connectionless Slave Broadcast Data" },
+    { 0x077,  "Read Synchronization Train Parameters" },
+    { 0x078,  "Write Synchronization Train Parameters" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_ocf_host_controller_and_baseband_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_host_controller_and_baseband_vals);
+
+static const value_string bthci_cmd_ocf_informational_vals[] = {
+/* Bluetooth Core 4.0 */
+    { 0x001,  "Read Local Version Information" },
+    { 0x002,  "Read Local Supported Commands" },
+    { 0x003,  "Read Local Supported Features" },
+    { 0x004,  "Read Local Extended Features" },
+    { 0x005,  "Read Buffer Size" },
+    { 0x007,  "Read Country Code" },
+    { 0x009,  "Read BD ADDR" },
+    { 0x00A,  "Read Data Block Size" },
+/* Bluetooth Core Specification Addendum 2 */
+    { 0x00B,  "Read Local Supported Codecs" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_ocf_informational_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_informational_vals);
+
+
+static const value_string bthci_cmd_ocf_status_vals[] = {
+/* Bluetooth Core 4.0 */
+    { 0x001, "Read Failed Contact Counter" },
+    { 0x002, "Reset Failed Contact Counter" },
+    { 0x003, "Read Link Quality" },
+    { 0x005, "Read RSSI" },
+    { 0x006, "Read AFH Channel Map" },
+    { 0x007, "Read Clock" },
+    { 0x008, "Read Encryption Key Size" },
+    { 0x009, "Read Local AMP Info" },
+    { 0x00A, "Read Local AMP Assoc" },
+    { 0x00B, "Write Remote AMP Assoc" },
+/* Bluetooth Core Specification Addendum 3 */
+    { 0x00C,  "Get MWS Transport Layer Configuration" },
+/* Bluetooth Core Specification Addendum 4 */
+    { 0x00D,  "Set Triggered Clock Capture" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_ocf_status_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_status_vals);
+
+static const value_string bthci_cmd_ocf_testing_vals[] = {
+/* Bluetooth Core 4.0 */
+    { 0x001,  "Read Loopback Mode" },
+    { 0x002,  "Write Loopback Mode" },
+    { 0x003,  "Enable Device Under Test Mode" },
+    { 0x004,  "Write Simple Pairing Debug Mode" },
+    { 0x007,  "Enable AMP Receiver Reports" },
+    { 0x008,  "AMP Test End" },
+    { 0x009,  "AMP Test" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_ocf_testing_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_testing_vals);
+
+static const value_string bthci_cmd_ocf_low_energy_vals[] = {
+/* Bluetooth Core 4.0 */
+    { 0x001,  "LE Set Event Mask" },
+    { 0x002,  "LE Read Buffer Size" },
+    { 0x003,  "LE Read Local Supported Features" },
+    { 0x005,  "LE Set Random Address" },
+    { 0x006,  "LE Set Advertising Parameters" },
+    { 0x007,  "LE Read Advertising Channel Tx Power" },
+    { 0x008,  "LE Set Advertising Data" },
+    { 0x009,  "LE Set Scan Response Data" },
+    { 0x00A,  "LE Set Advertise Enable" },
+    { 0x00B,  "LE Set Scan Parameters" },
+    { 0x00C,  "LE Set Scan Enable" },
+    { 0x00D,  "LE Create Connection" },
+    { 0x00E,  "LE Create Connection Cancel" },
+    { 0x00F,  "LE Read White List Size" },
+    { 0x010,  "LE Clear White List" },
+    { 0x011,  "LE Add Device To White List" },
+    { 0x012,  "LE Remove Device From White List" },
+    { 0x013,  "LE Connection Update" },
+    { 0x014,  "LE Set Host Channel Classification" },
+    { 0x015,  "LE Read Channel Map" },
+    { 0x016,  "LE Read Remote Used Features" },
+    { 0x017,  "LE Encrypt" },
+    { 0x018,  "LE Rand" },
+    { 0x019,  "LE Start Encryption" },
+    { 0x01A,  "LE Long Term Key Request Reply" },
+    { 0x01B,  "LE Long Term Key Request Negative Reply" },
+    { 0x01C,  "LE Read Supported States" },
+    { 0x01D,  "LE Receiver Test" },
+    { 0x01E,  "LE Transmitter Test" },
+    { 0x01F,  "LE Test End" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_ocf_low_energy_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_low_energy_vals);
+
+
+static value_string bthci_cmd_opcode_vals[array_length(bthci_cmd_ocf_link_control_vals) - 1 +
+        array_length(bthci_cmd_ocf_link_policy_vals) - 1 +
+        array_length(bthci_cmd_ocf_host_controller_and_baseband_vals) - 1 +
+        array_length(bthci_cmd_ocf_informational_vals) - 1 +
+        array_length(bthci_cmd_ocf_status_vals) - 1 +
+        array_length(bthci_cmd_ocf_testing_vals) - 1 +
+        array_length(bthci_cmd_ocf_low_energy_vals) - 1 + 2];
+value_string_ext bthci_cmd_opcode_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_opcode_vals);
 
 static const value_string bthci_cmd_status_vals[] = {
     {0x00, "Success"},
@@ -598,8 +688,8 @@ static const value_string bthci_cmd_status_vals[] = {
     {0x32, "Role Switch Pending"},
     {0x33, "Unknown"},
     {0x34, "Reserved Slot Violation"},
-    {0x35, "Role Switch Failed"}, 
-    {0x36, "Extended Inquiry Response Too Large"}, 
+    {0x35, "Role Switch Failed"},
+    {0x36, "Extended Inquiry Response Too Large"},
     {0x37, "Secure Simple Pairing Not Supported By Host"},
     {0x38, "Host Busy - Pairing"},
     {0x39, "Connection Rejected - No Suitable Channel Found"},
@@ -744,6 +834,8 @@ static const value_string bthci_cmd_eir_data_type_vals[] = {
     {0x17, "Public Target Address" },
     {0x18, "Random Target Address" },
     {0x19, "Appearance" },
+    {0x1A, "Advertising Interval" },
+    {0x3D, "3D Information Data" },
     {0xFF, "Manufacturer Specific" },
     {   0, NULL }
 };
@@ -1116,7 +1208,7 @@ static const value_string cmd_le_test_pkt_payload[] = {
 void proto_register_bthci_cmd(void);
 void proto_reg_handoff_bthci_cmd(void);
 
-static int 
+static int
 dissect_bthci_cmd_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     guint8      i, bd_addr[6];
@@ -1176,13 +1268,14 @@ dissect_bthci_cmd_cod(int type, tvbuff_t *tvb, int offset, packet_info *pinfo _U
     return offset+3;
 }
 
-static int 
+static int
 dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 size)
 {
     guint8 length, type, data_size = size;
     guint16 i, j;
     proto_item *item, *ti_data = NULL;
     proto_tree *ti_data_subtree = NULL;
+    proto_item  *sub_item;
 
     if (tree) {
         ti_data=proto_tree_add_text(tree, tvb, offset, data_size, (size==240)?"Extended Inquiry Response Data":"Advertising Data");
@@ -1255,6 +1348,16 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
                 case 0x0A: /* Tx Power Level */
                     proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_tx_power, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
                     break;
+                case 0x0B: /* OOB Optional Data Length */
+/* TODO */
+                    sub_item = proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
+                    break;
+                case 0x0C: /* BD_ADDR */
+/* TODO */
+                    sub_item = proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
+                    break;
                 case 0x0D: /* Class of Device */
                     dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device, tvb, offset+i+2, pinfo, ti_data_struct_subtree);
                     break;
@@ -1263,6 +1366,11 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
                     break;
                 case 0x0F: /* Simple Pairing Randomizer R */
                     proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_randomizer_r, tvb, offset + i + 2, 16, ENC_NA);
+                    break;
+                case 0x10: /* Device ID/Security Manager TK Value */
+/* TODO */
+                    sub_item = proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
                     break;
                 case 0x11: /* Security Manager OOB Flags */
                     proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_flags_le_oob_data_present, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
@@ -1298,8 +1406,24 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
                     proto_item_append_text(ti_data_struct,": %s", val_to_str(appearance, bthci_cmd_appearance_vals, "Unknown"));
                     break;
                 }
+                case 0x1A: /* Advertising Interval */
+/* TODO */
+                    sub_item = proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
+                    break;
+                case 0x3D: /* 3D Information Data */
+/* TODO */
+                    sub_item = proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
+                    break;
+                case 0xFF: /* Manufacturer Specific */
+/* TODO: decode 3DS profile for Legacy Devices */
+                    sub_item = proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
+                    break;
                 default:
-                    proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    sub_item = proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_unknown);
                     break;
             }
             i += length+1;
@@ -1354,10 +1478,6 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             offset++;
             break;
 
-        case 0x0002: /* Inquiry Cancel */
-            /* no parameters */
-            break;
-
         case 0x0003: /* Periodic Inquiry Mode */
             item = proto_tree_add_item(tree, hf_bthci_cmd_max_period_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%g sec)", 1.28*tvb_get_letohs(tvb, offset));
@@ -1372,10 +1492,6 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_num_responses, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            break;
-
-        case 0x0004: /* Exit Periodic Inquiry Mode */
-            /* no parameters */
             break;
 
         case 0x0005: /* Create Connection */
@@ -1667,11 +1783,25 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             offset = dissect_bthci_cmd_flow_spec(tvb, offset, pinfo, tree, FALSE);
             break;
 
-        default:
-            proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
-            offset+=tvb_length_remaining(tvb, offset);
+        case 0x0002: /* Inquiry Cancel */
+        case 0x0004: /* Exit Periodic Inquiry Mode */
+            /* NOTE: No parameters */
+            break;
+
+        case 0x003D: /* Enhanced Setup Synchronous Connection */
+        case 0x003E: /* Enhanced Accept Synchronous Connection Request */
+        case 0x003F: /* Truncated Page */
+        case 0x0040: /* Truncated Page Cancel */
+        case 0x0041: /* Set Connectionless Slave Broadcast */
+        case 0x0042: /* Set Connectionless Slave Broadcast Receive */
+        case 0x0043: /* Start Synchronization Train */
+        case 0x0044: /* Receive Synchronization Train */
+/* TODO: Implement above cases */
+            proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
             break;
     }
+
     return offset;
 }
 
@@ -1682,7 +1812,6 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
     guint16     timeout;
 
     switch (cmd_ocf) {
-
         case 0x0001: /* Hold Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
@@ -1809,13 +1938,12 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
             offset+=2;
             break;
 
-        default:
-            proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
-            offset+=tvb_length_remaining(tvb, offset);
+        case 0x00e: /* Read Default Link Policy Setting */
+            /* NOTE: No parameters */
             break;
-
     }
-return offset;
+
+    return offset;
 }
 
 static int
@@ -1828,7 +1956,6 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
     int         i;
 
     switch (cmd_ocf) {
-
         case 0x0001: /* Set Event Mask */
             proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_01, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2147,6 +2274,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             for (i=0; i<num8; i++) {
                 proto_tree_add_item(tree, hf_bthci_cmd_iac_lap, tvb, offset+(i*3), 3, ENC_LITTLE_ENDIAN);
             }
+            offset += num8 * 3;
             break;
 
         case 0x003c: /* Write Page Scan Period Mode */
@@ -2318,13 +2446,60 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             offset++;
             break;
 
-        default:
-            proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
-            offset+=tvb_length_remaining(tvb, offset);
+        case 0x003: /* Reset */
+        case 0x009: /* Read PIN Type */
+        case 0x00B: /* Create New Unit Key */
+        case 0x014: /* Read Local Name */
+        case 0x015: /* Read Connection Accept Timeout */
+        case 0x017: /* Read Page Timeout */
+        case 0x019: /* Read Scan Enable */
+        case 0x01B: /* Read Page Scan Activity */
+        case 0x01D: /* Read Inquiry Scan Activity */
+        case 0x01F: /* Read Authentication Enable */
+        case 0x021: /* Read Encryption Mode */
+        case 0x023: /* Read Class of Device */
+        case 0x025: /* Read Voice Setting */
+        case 0x029: /* Read Num Broadcast Retransmissions */
+        case 0x02B: /* Read Hold Mode Activity */
+        case 0x02E: /* Read SCO Flow Control Enable */
+        case 0x038: /* Read Number of Supported IAC */
+        case 0x039: /* Read Current IAC LAP */
+        case 0x03B: /* Read Page Scan Period Mode */
+        case 0x03D: /* Read Page Scan Mode */
+        case 0x042: /* Read Inquiry Scan Type */
+        case 0x044: /* Read Inquiry Mode */
+        case 0x046: /* Read Page Scan Type */
+        case 0x048: /* Read AFH Channel Assessment Mode */
+        case 0x051: /* Read Extended Inquiry Response */
+        case 0x055: /* Read Simple Pairing Mode */
+        case 0x057: /* Read Local OOB Data */
+        case 0x058: /* Read Inquiry Response Tx Power Level */
+        case 0x05A: /* Read Default Erroneous Data Reporting */
+        case 0x061: /* Read Logical Link Accept Timeout */
+        case 0x064: /* Read Location Data */
+        case 0x066: /* Read Flow Control Mode */
+        case 0x06C: /* Read LE Host Supported */
+            /* NOTE: No parameters */
             break;
 
+        case 0x06E: /* Set MWS Channel Parameters */
+        case 0x06F: /* Set External Frame Configuration */
+        case 0x070: /* Set MWS Signaling */
+        case 0x071: /* Set MWS Transport Layer */
+        case 0x072: /* Set MWS Scan Frequency Table */
+        case 0x073: /* Set MWS Pattern Configuration */
+        case 0x074: /* Set Reserved LT_ADDR */
+        case 0x075: /* Delete Reserved LT_ADDR */
+        case 0x076: /* Set Connectionless Slave Broadcast Data */
+        case 0x077: /* Read Synchronization Train Parameters */
+        case 0x078: /* Write Synchronization Train Parameters */
+/* TODO: Implement above cases */
+            proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
+            break;
     }
-return offset;
+
+    return offset;
 }
 
 static int
@@ -2338,12 +2513,18 @@ dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             offset++;
             break;
 
-        default:
-            proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
-            offset+=tvb_length_remaining(tvb, offset);
+        case 0x001: /* Read Local Version Information */
+        case 0x002: /* Read Local Supported Commands */
+        case 0x003: /* Read Local Supported Features */
+        case 0x005: /* Read Buffer Size */
+        case 0x007: /* Read Country Code */
+        case 0x009: /* Read BD ADDR */
+        case 0x00A: /* Read Data Block Size */
+        case 0x00B: /* Read Local Supported Codecs */
+            /* NOTE: No parameters */
             break;
-
     }
+
     return offset;
 }
 
@@ -2393,13 +2574,18 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
             offset+=tvb_length_remaining(tvb, offset);
             break;
 
-        default:
-            proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
-            offset+=tvb_length_remaining(tvb, offset);
+        case 0x00D: /* Set Triggered Clock Capture */
+            /* NOTE: No parameters */
             break;
 
+        case 0x00C: /* Get MWS Transport Layer Configuration */
+/* TODO: Implement above cases */
+            proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
+            break;
     }
-return offset;
+
+    return offset;
 }
 
 static int
@@ -2424,13 +2610,20 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
             offset++;
             break;
 
-        default:
-            proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
-            offset+=tvb_length_remaining(tvb, offset);
+        case 0x001: /* Read Loopback Mode */
+        case 0x003: /* Enable Device Under Test Mode */
+        case 0x008: /* AMP Test End */
+            /* NOTE: No parameters */
             break;
 
+        case 0x009: /* AMP Test */
+/* TODO: Implement above case */
+            proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
+            break;
     }
-return offset;
+
+    return offset;
 }
 
 static gint
@@ -2625,10 +2818,16 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_item(tree, hf_bthci_cmd_test_packet_payload, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             break;
-
-        default:
-            proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
-            offset+=tvb_length_remaining(tvb, offset);
+        case 0x002: /* LE Read Buffer Size */
+        case 0x003: /* LE Read Local Supported Features */
+        case 0x007: /* LE Read Advertising Channel Tx Power */
+        case 0x00E: /* LE Create Connection Cancel */
+        case 0x00F: /* LE Read White List Size */
+        case 0x010: /* LE Clear White List */
+        case 0x018: /* LE Rand */
+        case 0x01C: /* LE Read Supported States */
+        case 0x01F: /* LE Test End */
+            /* NOTE: No parameters */
             break;
     }
 
@@ -2639,13 +2838,16 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
 static void
 dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti_cmd         = NULL;
-    proto_tree *bthci_cmd_tree = NULL;
-    guint16     opcode, ocf;
-    guint8      param_length, ogf;
-    int         offset         = 0;
-    proto_item *ti_opcode;
-    proto_tree *opcode_tree;
+    proto_item  *ti_cmd         = NULL;
+    proto_tree  *bthci_cmd_tree = NULL;
+    guint16      opcode;
+    guint16      ocf;
+    guint8       param_length;
+    guint8       ogf;
+    int          offset = 0;
+    proto_item  *ti_opcode;
+    proto_tree  *opcode_tree;
+    gint         hfx;
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
@@ -2678,7 +2880,26 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti_opcode = proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     opcode_tree = proto_item_add_subtree(ti_opcode, ett_opcode);
     proto_tree_add_item(opcode_tree, hf_bthci_cmd_ogf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(opcode_tree, hf_bthci_cmd_ocf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    if (ogf == HCI_OGF_LINK_CONTROL)
+        hfx = hf_bthci_cmd_ocf_link_control;
+    else if (ogf == HCI_OGF_LINK_POLICY)
+        hfx = hf_bthci_cmd_ocf_link_policy;
+    else if (ogf == HCI_OGF_HOST_CONTROLLER)
+        hfx = hf_bthci_cmd_ocf_host_controller_and_baseband;
+    else if (ogf == HCI_OGF_INFORMATIONAL)
+        hfx = hf_bthci_cmd_ocf_informational;
+    else if (ogf == HCI_OGF_STATUS)
+        hfx = hf_bthci_cmd_ocf_status;
+    else if (ogf == HCI_OGF_TESTING)
+        hfx = hf_bthci_cmd_ocf_testing;
+    else if (ogf == HCI_OGF_LOW_ENERGY)
+        hfx = hf_bthci_cmd_ocf_low_energy;
+    else if (ogf == HCI_OGF_LOGO_TESTING)
+        hfx = hf_bthci_cmd_ocf_logo_testing;
+    else
+        hfx = hf_bthci_cmd_ocf;
+    proto_tree_add_item(opcode_tree, hfx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
 
@@ -2688,38 +2909,44 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (param_length > 0) {
         switch (ogf) {
-            case 0x01: /* Link Control Command */
-                dissect_link_control_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+            case HCI_OGF_LINK_CONTROL:
+                offset = dissect_link_control_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
                 break;
 
-            case 0x02: /* Link Policy Command */
-                dissect_link_policy_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+            case HCI_OGF_LINK_POLICY:
+                offset = dissect_link_policy_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
                 break;
 
-            case 0x03: /* Host Controller & Baseband Command */
-                dissect_host_controller_baseband_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+            case HCI_OGF_HOST_CONTROLLER:
+                offset = dissect_host_controller_baseband_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
                 break;
 
-            case 0x04: /* Informational Parameter Command */
-                dissect_informational_parameters_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+            case HCI_OGF_INFORMATIONAL:
+                offset = dissect_informational_parameters_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
                 break;
 
-            case 0x05: /* Status Parameter Command */
-                dissect_status_parameters_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+            case HCI_OGF_STATUS:
+                offset = dissect_status_parameters_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
                 break;
 
-            case 0x06: /* Testing Command */
-                dissect_testing_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+            case HCI_OGF_TESTING:
+                offset = dissect_testing_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
                 break;
 
-            case 0x08: /* Low Energy Command */
-                dissect_le_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+            case HCI_OGF_LOW_ENERGY:
+                offset = dissect_le_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
                 break;
 
             default:
-                proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_params, tvb, 3, -1, ENC_NA);
+                proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_unknown, tvb, 3, -1);
+                offset += tvb_length_remaining(tvb, offset);
                 break;
         }
+    }
+
+    if (tvb_length_remaining(tvb, offset) > 0) {
+        proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_parameter_unexpected, tvb, offset, -1);
+        offset += tvb_length_remaining(tvb, offset);
     }
 }
 
@@ -2732,31 +2959,72 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_bthci_cmd(void)
 {
+    module_t         *module;
+    expert_module_t  *expert_bthci_cmd;
+    guint             i_opcode = 0;
+    guint             i_array;
+    guint             i_string_array;
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_bthci_cmd_opcode,
-          { "Command Opcode","bthci_cmd.opcode", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
-            &bthci_cmd_opcode_vals_ext, 0x0, "HCI Command Opcode", HFILL }
+          { "Command Opcode",               "bthci_cmd.opcode",
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_opcode_vals_ext, 0x0,
+            "HCI Command Opcode", HFILL }
         },
         { &hf_bthci_cmd_ogf,
-          { "ogf",           "bthci_cmd.ogf",
+          { "Opcode Group Field",           "bthci_cmd.opcode.ogf",
             FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_ogf_vals_ext, 0xfc00,
-            "Opcode Group Field", HFILL }
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_ocf_link_control,
+          { "Opcode Command Field",           "bthci_cmd.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_link_control_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_ocf_link_policy,
+          { "Opcode Command Field",           "bthci_cmd.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_link_policy_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_ocf_host_controller_and_baseband,
+          { "Opcode Command Field",           "bthci_cmd.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_host_controller_and_baseband_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_ocf_informational,
+          { "Opcode Command Field",           "bthci_cmd.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_informational_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_ocf_status,
+          { "Opcode Command Field",           "bthci_cmd.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_status_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_ocf_testing,
+          { "Opcode Command Field",           "bthci_cmd.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_testing_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_ocf_low_energy,
+          { "Opcode Command Field",           "bthci_cmd.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_low_energy_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_ocf_logo_testing,
+          { "Opcode Command Field",           "bthci_cmd.opcode.ocf",
+            FT_UINT16, BASE_HEX, NULL, 0x03ff,
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_ocf,
-          { "ocf",           "bthci_cmd.ocf",
+          { "Opcode Command Field",           "bthci_cmd.opcode.ocf",
             FT_UINT16, BASE_HEX, NULL, 0x03ff,
-            "Opcode Command Field", HFILL }
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_param_length,
           { "Parameter Total Length",           "bthci_cmd.param_length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_bthci_cmd_params,
-          { "Command Parameters",           "bthci_cmd.params",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_lap,
@@ -3677,7 +3945,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_flow_spec,
           { "Flow Spec", "bthci_cmd.flow_spec",
-            FT_NONE, BASE_NONE, NULL, 0x0,          
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_flow_spec_sdu_size,
@@ -3702,7 +3970,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_flow_spec_service_type,
           { "Service Type", "bthci_cmd.servicetype",
-            FT_UINT8, BASE_HEX, VALS(cmd_flow_spec_servicetype), 0x0,     
+            FT_UINT8, BASE_HEX, VALS(cmd_flow_spec_servicetype), 0x0,
             "Level of service required", HFILL }
         },
         { &hf_bthci_cmd_flush_to_us,
@@ -4119,6 +4387,14 @@ proto_register_bthci_cmd(void)
 
     };
 
+    static ei_register_info ei[] = {
+        { &ei_eir_undecoded,                { "bthci_cmd.expert.eir.undecoded", PI_PROTOCOL, PI_UNDECODED, "Undecoded", EXPFILL }},
+        { &ei_eir_unknown,                  { "bthci_cmd.expert.eir.unknown", PI_PROTOCOL, PI_WARN, "Unknown data", EXPFILL }},
+        { &ei_command_unknown,              { "bthci_cmd.expert.command.unknown.", PI_PROTOCOL, PI_WARN, "Unknown command", EXPFILL }},
+        { &ei_command_parameter_unexpected, { "bthci_cmd.expert.parameter.unexpected", PI_PROTOCOL, PI_WARN, "Unexpected command parameter", EXPFILL }},
+        { &ei_command_undecoded,            { "bthci_cmd.expert.command.undecoded", PI_PROTOCOL, PI_UNDECODED, "Command undecoded", EXPFILL }}
+    };
+
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_bthci_cmd,
@@ -4128,6 +4404,32 @@ proto_register_bthci_cmd(void)
         &ett_flow_spec_subtree
     };
 
+    /* Dynamically fill "bthci_cmd_opcode_vals" */
+    static const struct _opcode_value_string_arrays {
+        guint                ogf;
+        const value_string  *string_array;
+        guint                length;
+    } opcode_value_string_arrays[] = {
+        { 0x01, bthci_cmd_ocf_link_control_vals, array_length(bthci_cmd_ocf_link_control_vals) },
+        { 0x02, bthci_cmd_ocf_link_policy_vals, array_length(bthci_cmd_ocf_link_policy_vals) },
+        { 0x03, bthci_cmd_ocf_host_controller_and_baseband_vals, array_length(bthci_cmd_ocf_host_controller_and_baseband_vals) },
+        { 0x04, bthci_cmd_ocf_informational_vals, array_length(bthci_cmd_ocf_informational_vals) },
+        { 0x05, bthci_cmd_ocf_status_vals, array_length(bthci_cmd_ocf_status_vals) },
+        { 0x06, bthci_cmd_ocf_testing_vals, array_length(bthci_cmd_ocf_testing_vals) },
+        { 0x08, bthci_cmd_ocf_low_energy_vals, array_length(bthci_cmd_ocf_low_energy_vals) },
+    };
+
+    bthci_cmd_opcode_vals[i_opcode].value = 0;
+    bthci_cmd_opcode_vals[i_opcode].strptr = "No Operation";
+    i_opcode += 1;
+    for (i_array = 0; i_array < array_length(opcode_value_string_arrays); i_array += 1) {
+        for (i_string_array = 0; i_string_array < opcode_value_string_arrays[i_array].length - 1; i_string_array += 1) {
+            bthci_cmd_opcode_vals[i_opcode].value = opcode_value_string_arrays[i_array].string_array[i_string_array].value | (opcode_value_string_arrays[i_array].ogf << 10);
+            bthci_cmd_opcode_vals[i_opcode].strptr = opcode_value_string_arrays[i_array].string_array[i_string_array].strptr;
+            i_opcode += 1;
+        }
+    }
+
     /* Register the protocol name and description */
     proto_bthci_cmd = proto_register_protocol("Bluetooth HCI Command", "HCI_CMD", "bthci_cmd");
 
@@ -4136,6 +4438,14 @@ proto_register_bthci_cmd(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_cmd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_bthci_cmd = expert_register_protocol(proto_bthci_cmd);
+    expert_register_field_array(expert_bthci_cmd, ei, array_length(ei));
+
+    module = prefs_register_protocol(proto_bthci_cmd, NULL);
+    prefs_register_static_text_preference(module, "hci_cmd.version",
+            "Bluetooth HCI version: 4.0 (Core)",
+            "Version of protocol supported by this dissector.");
 }
 
 

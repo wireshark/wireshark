@@ -26,23 +26,31 @@
 
 #include <epan/wmem/wmem.h>
 
-#define HCI_H4_TYPE_CMD		0x01
-#define HCI_H4_TYPE_ACL		0x02
-#define HCI_H4_TYPE_SCO		0x03
-#define HCI_H4_TYPE_EVT		0x04
+#define HCI_H4_TYPE_CMD   0x01
+#define HCI_H4_TYPE_ACL   0x02
+#define HCI_H4_TYPE_SCO   0x03
+#define HCI_H4_TYPE_EVT   0x04
+
+#define HCI_OGF_LINK_CONTROL           0x01
+#define HCI_OGF_LINK_POLICY            0x02
+#define HCI_OGF_HOST_CONTROLLER        0x03
+#define HCI_OGF_INFORMATIONAL          0x04
+#define HCI_OGF_STATUS                 0x05
+#define HCI_OGF_TESTING                0x06
+#define HCI_OGF_LOW_ENERGY             0x08
+#define HCI_OGF_LOGO_TESTING           0x3e
+#define HCI_OGF_VENDOR_SPECIFIC        0x3f
+
 
 extern value_string_ext bthci_cmd_opcode_vals_ext;
-
-#define HCI_OGF_LINK_CONTROL		0x01
-#define HCI_OGF_LINK_POLICY		0x02
-#define HCI_OGF_HOST_CONTROLLER		0x03
-#define HCI_OGF_INFORMATIONAL		0x04
-#define HCI_OGF_STATUS		        0x05
-#define HCI_OGF_TESTING		        0x06
-#define HCI_OGF_LOW_ENERGY	    0x08
-#define HCI_OGF_LOGO_TESTING		0x3e
-#define HCI_OGF_VENDOR_SPECIFIC		0x3f
 extern value_string_ext bthci_ogf_vals_ext;
+extern value_string_ext bthci_cmd_ocf_link_control_vals_ext;
+extern value_string_ext bthci_cmd_ocf_link_policy_vals_ext;
+extern value_string_ext bthci_cmd_ocf_host_controller_and_baseband_vals_ext;
+extern value_string_ext bthci_cmd_ocf_informational_vals_ext;
+extern value_string_ext bthci_cmd_ocf_status_vals_ext;
+extern value_string_ext bthci_cmd_ocf_testing_vals_ext;
+extern value_string_ext bthci_cmd_ocf_low_energy_vals_ext;
 
 extern value_string_ext bthci_cmd_status_vals_ext;
 extern value_string_ext bthci_cmd_service_class_type_vals_ext;

@@ -37,6 +37,8 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/wmem/wmem.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 
 #include "packet-bluetooth-hci.h"
 
@@ -46,17 +48,24 @@ static dissector_handle_t bthci_com_handle;
 static int proto_bthci_evt = -1;
 static int hf_bthci_evt_code = -1;
 static int hf_bthci_evt_param_length = -1;
-static int hf_bthci_evt_params = -1;
 static int hf_bthci_evt_num_command_packets = -1;
 static int hf_bthci_evt_num_handles = -1;
 static int hf_bthci_evt_connection_handle = -1;
 static int hf_bthci_evt_num_compl_packets = -1;
-static int hf_bthci_evt_com_opcode = -1;
 static int hf_bthci_evt_ret_params = -1;
 static int hf_bthci_evt_status = -1;
 static int hf_bthci_evt_status_pending = -1;
-static int hf_bthci_evt_ocf = -1;
+static int hf_bthci_evt_opcode = -1;
 static int hf_bthci_evt_ogf = -1;
+static int hf_bthci_evt_ocf = -1;
+static int hf_bthci_evt_ocf_link_control = -1;
+static int hf_bthci_evt_ocf_link_policy = -1;
+static int hf_bthci_evt_ocf_host_controller_and_baseband = -1;
+static int hf_bthci_evt_ocf_informational = -1;
+static int hf_bthci_evt_ocf_status = -1;
+static int hf_bthci_evt_ocf_testing = -1;
+static int hf_bthci_evt_ocf_logo_testing = -1;
+static int hf_bthci_evt_ocf_low_energy = -1;
 static int hf_bthci_evt_bd_addr = -1;
 static int hf_bthci_evt_class_of_device = -1;
 static int hf_bthci_evt_link_type = -1;
@@ -332,6 +341,11 @@ static int hf_bthci_evt_le_states_32 = -1;
 static int hf_bthci_evt_le_states_33 = -1;
 static int hf_bthci_evt_le_states_34 = -1;
 
+static expert_field ei_eir_undecoded                                  = EI_INIT;
+static expert_field ei_eir_unknown                                    = EI_INIT;
+static expert_field ei_event_undecoded                                = EI_INIT;
+static expert_field ei_event_unknown                                  = EI_INIT;
+
 /* Initialize the subtree pointers */
 static gint ett_bthci_evt = -1;
 static gint ett_opcode = -1;
@@ -408,6 +422,17 @@ static const value_string evt_code_vals[] = {
     {0x4b, "AMP Receiver Report"},
     {0x4c, "Short Range Mode Change Complete"},
     {0x4d, "AMP Status Change"},
+    /* From "Bluetooth Core Specification Addendum 4 */
+    {0x4e, "Triggered Clock Capture"},
+    {0x4f, "Synchronization Train Complete"},
+    {0x50, "Synchronization Train Received"},
+    {0x51, "Connectionless Slave Broadcast Receive"},
+    {0x52, "Connectionless Slave Broadcast Timeout"},
+    {0x53, "Truncated Page Complete"},
+    {0x54, "Slave Page Response Timeout"},
+    {0x55, "Connectionless Slave Broadcast Channel Map Change"},
+    {0x56, "Inquiry Response Notification"},
+    /* Other */
     {0xfe, "Bluetooth Logo Testing"},
     {0xff, "Vendor-Specific"},
     {0, NULL}
@@ -1477,8 +1502,12 @@ dissect_bthci_evt_conn_packet_type_changed(tvbuff_t *tvb, int offset, packet_inf
 static int
 dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint8  status_code;
-    guint16 opcode;
+    proto_item  *ti_opcode;
+    proto_tree  *opcode_tree;
+    guint8       status_code;
+    guint16      opcode;
+    guint8       ogf;
+    gint         hfx;
 
     status_code = tvb_get_guint8(tvb, offset);
 
@@ -1494,7 +1523,31 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     offset++;
 
     opcode = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_bthci_evt_com_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    ogf = opcode >> 10;
+
+    ti_opcode = proto_tree_add_item(tree, hf_bthci_evt_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    opcode_tree = proto_item_add_subtree(ti_opcode, ett_opcode);
+    proto_tree_add_item(opcode_tree, hf_bthci_evt_ogf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    if (ogf == HCI_OGF_LINK_CONTROL)
+        hfx = hf_bthci_evt_ocf_link_control;
+    else if (ogf == HCI_OGF_LINK_POLICY)
+        hfx = hf_bthci_evt_ocf_link_policy;
+    else if (ogf == HCI_OGF_HOST_CONTROLLER)
+        hfx = hf_bthci_evt_ocf_host_controller_and_baseband;
+    else if (ogf == HCI_OGF_INFORMATIONAL)
+        hfx = hf_bthci_evt_ocf_informational;
+    else if (ogf == HCI_OGF_STATUS)
+        hfx = hf_bthci_evt_ocf_status;
+    else if (ogf == HCI_OGF_TESTING)
+        hfx = hf_bthci_evt_ocf_testing;
+    else if (ogf == HCI_OGF_LOW_ENERGY)
+        hfx = hf_bthci_evt_ocf_low_energy;
+    else if (ogf == HCI_OGF_LOGO_TESTING)
+        hfx = hf_bthci_evt_ocf_logo_testing;
+    else
+        hfx = hf_bthci_evt_ocf;
+    proto_tree_add_item(opcode_tree, hfx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
@@ -1565,6 +1618,7 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint8      length, type;
     proto_item *ti_eir = NULL;
     proto_item *ti_eir_subtree = NULL;
+    proto_item  *sub_item;
     hci_data_t *hci_data = (hci_data_t *) pinfo->private_data;
 
     if(tree){
@@ -1627,6 +1681,7 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
                 case 0x06: /* 128-bit Service Class UUIDs, incomplete list */
                 case 0x07: /* 128-bit Service Class UUIDs, complete list */
+                case 0x15: /* 128-bit Service Solicitation UUIDs */
                     j=0;
                     while(j<(guint8)(length-1))
                     {
@@ -1672,6 +1727,16 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 case 0x0A: /* Tx Power Level */
                     proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_transmit_power_level, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
                     break;
+                case 0x0B: /* OOB Optional Data Length */
+/* TODO */
+                    sub_item = proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
+                    break;
+                case 0x0C: /* BD_ADDR */
+/* TODO */
+                    sub_item = proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
+                    break;
                 case 0x0D: /* Class of Device */
                     dissect_bthci_evt_cod(tvb, offset+i+2, pinfo, ti_eir_struct_subtree);
                     break;
@@ -1680,6 +1745,11 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
                 case 0x0F: /* Simple Pairing Randomizer R */
                     proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_randomizer_r, tvb, offset+i+2, 16, ENC_NA);
+                    break;
+                case 0x10: /* Device ID/Security Manager TK Value */
+/* TODO */
+                    sub_item = proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
                     break;
                 case 0x11: /* Security Manager OOB Flags */
                     proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_le_oob_data_present, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
@@ -1720,9 +1790,24 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_item_append_text(ti_eir_struct,": %s", val_to_str_ext(appearance, &bthci_cmd_appearance_vals_ext, "Unknown"));
                     break;
                 }
-                default:
-                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                case 0x1A: /* Advertising Interval */
+/* TODO */
+                    sub_item = proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
                     break;
+                case 0x3D: /* 3D Information Data */
+/* TODO */
+                    sub_item = proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
+                    break;
+                case 0xFF: /* Manufacturer Specific */
+/* TODO: decode 3DS profile for Legacy Devices */
+                    sub_item = proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
+                    break;
+                default:
+                    sub_item = proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset + i + 2, length - 1, ENC_NA);
+                    expert_add_info(pinfo, sub_item, &ei_eir_unknown);
             }
             i += length+1;
         }
@@ -2026,8 +2111,7 @@ dissect_bthci_evt_num_completed_data_blocks(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dissect_bthci_evt_amp_start_stop_test
-(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_amp_start_stop_test(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -2087,26 +2171,49 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
     gint16       timeout;
     guint8       num8;
     guint        i;
-    guint16      com_opcode;
+    guint16      opcode;
+    guint8       ogf;
     guint32      accuracy;
     guint8       bd_addr[6];
     gboolean     local_addr = FALSE;
+    gint         hfx;
     hci_data_t  *hci_data = (hci_data_t *) pinfo->private_data;
 
     proto_tree_add_item(tree, hf_bthci_evt_num_command_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
-    com_opcode = tvb_get_letohs(tvb, offset);
-    ti_opcode = proto_tree_add_item(tree, hf_bthci_evt_com_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    opcode = tvb_get_letohs(tvb, offset);
+    ogf = opcode >> 10;
+
+    ti_opcode = proto_tree_add_item(tree, hf_bthci_evt_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     opcode_tree = proto_item_add_subtree(ti_opcode, ett_opcode);
     proto_tree_add_item(opcode_tree, hf_bthci_evt_ogf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(opcode_tree, hf_bthci_evt_ocf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    if (ogf == HCI_OGF_LINK_CONTROL)
+        hfx = hf_bthci_evt_ocf_link_control;
+    else if (ogf == HCI_OGF_LINK_POLICY)
+        hfx = hf_bthci_evt_ocf_link_policy;
+    else if (ogf == HCI_OGF_HOST_CONTROLLER)
+        hfx = hf_bthci_evt_ocf_host_controller_and_baseband;
+    else if (ogf == HCI_OGF_INFORMATIONAL)
+        hfx = hf_bthci_evt_ocf_informational;
+    else if (ogf == HCI_OGF_STATUS)
+        hfx = hf_bthci_evt_ocf_status;
+    else if (ogf == HCI_OGF_TESTING)
+        hfx = hf_bthci_evt_ocf_testing;
+    else if (ogf == HCI_OGF_LOW_ENERGY)
+        hfx = hf_bthci_evt_ocf_low_energy;
+    else if (ogf == HCI_OGF_LOGO_TESTING)
+        hfx = hf_bthci_evt_ocf_logo_testing;
+    else
+        hfx = hf_bthci_evt_ocf;
+    proto_tree_add_item(opcode_tree, hfx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                        val_to_str_ext(com_opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%08x"));
+                        val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%08x"));
 
-    switch(com_opcode) {
+    switch(opcode) {
         /* This is a list of Commands that all return just the status */
         case 0x0402: /* Inquiry Cancel */
         case 0x0403: /* Periodic Inquiry Mode */
@@ -2854,7 +2961,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
         case 0x1408: /* Read Encryption Key Size */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset++; 
+            offset++;
             proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             proto_tree_add_item(tree, hf_bthci_evt_enc_key_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -3649,9 +3756,25 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             offset=dissect_bthci_evt_amp_status_change(tvb, offset, pinfo, bthci_evt_tree);
             break;
 
+        case 0x4e: /* Triggered Clock Capture */
+        case 0x4f: /* Synchronization Train Complete */
+        case 0x50: /* Synchronization Train Received */
+        case 0x51: /* Connectionless Slave Broadcast Receive */
+        case 0x52: /* Connectionless Slave Broadcast Timeout */
+        case 0x53: /* Truncated Page Complete */
+        case 0x54: /* Slave Page Response Timeout */
+        case 0x55: /* Connectionless Slave Broadcast Channel Map Change */
+        case 0x56: /* Inquiry Response Notification */
+        case 0xfe: /* Bluetooth Logo Testing */
+        case 0xff: /* Vendor-Specific */
+/* TODO: Implement above cases */
+            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_undecoded, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
+            break;
+
         default:
-            proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_params, tvb, 2, -1, ENC_NA);
-            offset+=tvb_length_remaining(tvb, offset);
+            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_unknown, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
             break;
         }
 
@@ -3669,6 +3792,8 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 void
 proto_register_bthci_evt(void)
 {
+    module_t         *module;
+    expert_module_t  *expert_bthci_evt;
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
@@ -3680,11 +3805,6 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_param_length,
           { "Parameter Total Length", "bthci_evt.param_length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_params,
-          { "Event Parameter",       "bthci_evt.params",
-            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_num_command_packets,
@@ -3709,20 +3829,60 @@ proto_register_bthci_evt(void)
             "The number of HCI Data Packets that have been completed", HFILL }
         },
 
-        { &hf_bthci_evt_com_opcode,
-          { "Command Opcode",           "bthci_evt.com_opcode",
+        { &hf_bthci_evt_opcode,
+          { "Command Opcode",               "bthci_evt.opcode",
             FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_opcode_vals_ext, 0x0,
-            NULL, HFILL }
+            "HCI Command Opcode", HFILL }
         },
         { &hf_bthci_evt_ogf,
-          { "ogf",           "bthci_evt.ogf",
+          { "Opcode Group Field",           "bthci_evt.opcode.ogf",
             FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_ogf_vals_ext, 0xfc00,
-            "Opcode Group Field", HFILL }
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ocf_link_control,
+          { "Opcode Command Field",           "bthci_evt.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_link_control_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ocf_link_policy,
+          { "Opcode Command Field",           "bthci_evt.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_link_policy_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ocf_host_controller_and_baseband,
+          { "Opcode Command Field",           "bthci_evt.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_host_controller_and_baseband_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ocf_informational,
+          { "Opcode Command Field",           "bthci_evt.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_informational_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ocf_status,
+          { "Opcode Command Field",           "bthci_evt.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_status_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ocf_testing,
+          { "Opcode Command Field",           "bthci_evt.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_testing_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ocf_low_energy,
+          { "Opcode Command Field",           "bthci_evt.opcode.ocf",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_ocf_low_energy_vals_ext, 0x03ff,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_ocf_logo_testing,
+          { "Opcode Command Field",           "bthci_evt.opcode.ocf",
+            FT_UINT16, BASE_HEX, NULL, 0x03ff,
+            NULL, HFILL }
         },
         { &hf_bthci_evt_ocf,
-          { "ocf",           "bthci_evt.ocf",
+          { "Opcode Command Field",           "bthci_evt.opcode.ocf",
             FT_UINT16, BASE_HEX, NULL, 0x03ff,
-            "Opcode Command Field", HFILL }
+            NULL, HFILL }
         },
         { &hf_bthci_evt_ret_params,
           { "Return Parameter",       "bthci_evt.ret_params",
@@ -5106,6 +5266,13 @@ proto_register_bthci_evt(void)
         },
     };
 
+    static ei_register_info ei[] = {
+        { &ei_eir_undecoded,            { "bthci_evt.expert.eir.undecoded", PI_PROTOCOL, PI_UNDECODED, "Undecoded", EXPFILL }},
+        { &ei_eir_unknown,              { "bthci_evt.expert.eir.unknown", PI_PROTOCOL, PI_WARN, "Undown data", EXPFILL }},
+        { &ei_event_undecoded,          { "bthci_evt.expert.event.undecoded", PI_PROTOCOL, PI_UNDECODED, "Event undecoded", EXPFILL }},
+        { &ei_event_unknown,            { "bthci_evt.expert.event.unknown", PI_PROTOCOL, PI_WARN, "Unknown event", EXPFILL }}
+    };
+
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_bthci_evt,
@@ -5123,11 +5290,17 @@ proto_register_bthci_evt(void)
 
     new_register_dissector("bthci_evt", dissect_bthci_evt, proto_bthci_evt);
 
-
-
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_evt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_bthci_evt = expert_register_protocol(proto_bthci_evt);
+    expert_register_field_array(expert_bthci_evt, ei, array_length(ei));
+
+    module = prefs_register_protocol(proto_bthci_evt, NULL);
+    prefs_register_static_text_preference(module, "hci_evt.version",
+            "Bluetooth HCI version: 4.0 (Core)",
+            "Version of protocol supported by this dissector.");
 }
 
 
