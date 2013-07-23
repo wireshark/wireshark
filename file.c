@@ -323,7 +323,7 @@ ws_get_frame_ts(void *data, guint32 frame_num)
   return NULL;
 }
 
-epan_t *
+static epan_t *
 ws_epan_new(capture_file *cf)
 {
   epan_t *epan = epan_new();
