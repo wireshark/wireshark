@@ -163,17 +163,6 @@ tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 	parent->next    = child;
 }
 
-tvbuff_t *
-tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, const guint length, const gint reported_length)
-{
-	tvbuff_t *tvb = tvb_new_real_data(data, length, reported_length);
-	if (tvb) {
-		tvb_set_child_real_data_tvbuff (parent, tvb);
-	}
-
-	return tvb;
-}
-
 /*
  * Check whether that offset goes more than one byte past the
  * end of the buffer.

@@ -118,3 +118,13 @@ tvb_set_child_real_data_tvbuff(tvbuff_t *parent, tvbuff_t *child)
 	DISSECTOR_ASSERT(child->ops == &tvb_real_ops);
 	tvb_add_to_chain(parent, child);
 }
+
+tvbuff_t *
+tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, const guint length, const gint reported_length)
+{
+	tvbuff_t *tvb = tvb_new_real_data(data, length, reported_length);
+
+	tvb_set_child_real_data_tvbuff(parent, tvb);
+
+	return tvb;
+}
