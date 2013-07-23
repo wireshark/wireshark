@@ -74,15 +74,18 @@ signals:
 
 
 protected slots:
-    void on_bRefresh_clicked();
-    void on_bSaveComments_clicked();
-    void on_bHelpButton_clicked();
-    void on_bCopyComment_clicked();
+    void RefreshData();
+    void SaveComment();
+    void HelpButton();
+    void CopyComment();
     void on_tabWidget_currentChanged(int index);
 
     
 private:
     Ui::SummaryDialog   *ui;
+
+    QPushButton     *bRefresh;
+    QPushButton     *bCopyComment;
 
     summary_tally       summary_;
 };

@@ -59,18 +59,27 @@ SummaryDialog::SummaryDialog(QWidget *parent) :
     ui->tbDisplay->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
 #endif
     this->setFixedSize(this->size());
+
+    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(SaveComment()));
+    connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(HelpButton()));
+
+    bRefresh = ui->buttonBox->addButton(tr("Refresh"), QDialogButtonBox::ActionRole);
+    connect(bRefresh, SIGNAL(clicked()), this, SLOT(RefreshData()));
+
+    bCopyComment = ui->buttonBox->addButton(tr("Copy To Clipboard"), QDialogButtonBox::ActionRole);
+    connect(bCopyComment, SIGNAL(clicked()), this, SLOT(CopyComment()));
 }
 
 /*
  *            Slots
  **/
 
-void SummaryDialog::on_bRefresh_clicked()
+void SummaryDialog::RefreshData()
 {
     UpdateValues();
 }
 
-void SummaryDialog::on_bSaveComments_clicked()
+void SummaryDialog::SaveComment()
 {
     if (cfile.filename != NULL)
     {
@@ -83,12 +92,12 @@ void SummaryDialog::on_bSaveComments_clicked()
     }
 }
 
-void SummaryDialog::on_bHelpButton_clicked()
+void SummaryDialog::HelpButton()
 {
     wsApp->helpTopicAction(HELP_STATS_SUMMARY_DIALOG);
 }
 
-void SummaryDialog::on_bCopyComment_clicked()
+void SummaryDialog::CopyComment()
 {
     QClipboard *clipboard = QApplication::clipboard();
 

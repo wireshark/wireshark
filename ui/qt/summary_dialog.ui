@@ -60,7 +60,7 @@
         <x>21</x>
         <y>21</y>
         <width>731</width>
-        <height>80</height>
+        <height>88</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout">
@@ -240,7 +240,7 @@
         <x>21</x>
         <y>18</y>
         <width>731</width>
-        <height>38</height>
+        <height>42</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_4">
@@ -390,7 +390,7 @@
        <x>30</x>
        <y>170</y>
        <width>731</width>
-       <height>38</height>
+       <height>42</height>
       </rect>
      </property>
      <layout class="QFormLayout" name="formLayout_3">
@@ -444,38 +444,18 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QSplitter" name="splitter">
+  <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>550</y>
-     <width>771</width>
+     <width>781</width>
      <height>23</height>
     </rect>
    </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Help|QDialogButtonBox::Save</set>
    </property>
-   <widget class="QPushButton" name="bRefresh">
-    <property name="text">
-     <string>Refresh</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="bSaveComments">
-    <property name="text">
-     <string>Save </string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="bHelpButton">
-    <property name="text">
-     <string>Help</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="bCopyComment">
-    <property name="text">
-     <string>Copy to clipboard</string>
-    </property>
-   </widget>
   </widget>
  </widget>
  <resources>
