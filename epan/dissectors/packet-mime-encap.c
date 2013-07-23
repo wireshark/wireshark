@@ -33,18 +33,16 @@ static int proto_mime_encap = -1;
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
 
+static tvbuff_t *file_tvbs;
 static tvbuff_t *whole_tvb;
-static tvbuff_t *first_tvb;
 
 static void
 mime_encap_init(void)
 {
-	if (whole_tvb) {
-		/* hacky, tvb_free_chain() requires that we'll pass first tvb in chain, 
-		 * and tvb composite chains up with first tvb appended */
-		tvb_free_chain(first_tvb);
+	if (file_tvbs) {
+		tvb_free_chain(file_tvbs);
+		file_tvbs = NULL;
 		whole_tvb = NULL;
-		first_tvb = NULL;
 	}
 }
 
@@ -70,10 +68,11 @@ dissect_mime_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (len) {
 			tvbuff_t *cloned_tvb = tvb_clone(tvb);
 
-			if (!whole_tvb) {
+			if (!file_tvbs) {
+				file_tvbs = cloned_tvb;
 				whole_tvb = tvb_new_composite();
-				first_tvb = cloned_tvb;
-			}
+			} else
+				tvb_add_to_chain(file_tvbs, cloned_tvb);
 
 			tvb_composite_append(whole_tvb, cloned_tvb);
 		} else
