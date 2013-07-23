@@ -715,7 +715,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /* Protocol name */
     if (is_comment) {
-        is_sprint = strcmp((char *)pd+n, "sprint") == 0;
+        is_sprint = strcmp((const char *)pd+n, "sprint") == 0;
     }
     for (; pd[n] != '\0'; n++);
     n++;
