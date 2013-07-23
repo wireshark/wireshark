@@ -485,7 +485,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  *      Par3: type of member
  *****************************************************************************/
 #define M_TYPE(_STRUCT, _MEMBER, _MEMBER_TYPE)\
-        {CSN_TYPE, 0, {(void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), FALSE, #_MEMBER, {NULL}, NULL}
+        {CSN_TYPE, 0, {(const void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), FALSE, #_MEMBER, {NULL}, NULL}
 
 /******************************************************************************
  * M_TYPE_LABEL(Par1, Par2, Par3, Par4)
