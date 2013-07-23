@@ -68,6 +68,34 @@ static int hf_bthci_evt_ocf_logo_testing = -1;
 static int hf_bthci_evt_ocf_low_energy = -1;
 static int hf_bthci_evt_bd_addr = -1;
 static int hf_bthci_evt_class_of_device = -1;
+static int hf_bthci_evt_cod_format_type = -1;
+static int hf_bthci_evt_cod_major_service_class_information = -1;
+static int hf_bthci_evt_cod_major_service_class_telephony = -1;
+static int hf_bthci_evt_cod_major_service_class_audio = -1;
+static int hf_bthci_evt_cod_major_service_class_object_transfer = -1;
+static int hf_bthci_evt_cod_major_service_class_capturing = -1;
+static int hf_bthci_evt_cod_major_service_class_rendering = -1;
+static int hf_bthci_evt_cod_major_service_class_networking = -1;
+static int hf_bthci_evt_cod_major_service_class_positioning = -1;
+static int hf_bthci_evt_cod_major_service_class_reserved = -1;
+static int hf_bthci_evt_cod_major_service_class_limited_discoverable_mode = -1;
+static int hf_bthci_evt_cod_major_device_class = -1;
+static int hf_bthci_evt_cod_minor_device_class_computer = -1;
+static int hf_bthci_evt_cod_minor_device_class_phone = -1;
+static int hf_bthci_evt_cod_minor_device_class_lan_net_load_factor = -1;
+static int hf_bthci_evt_cod_minor_device_class_lan_net_type = -1;
+static int hf_bthci_evt_cod_minor_device_class_audio_video = -1;
+static int hf_bthci_evt_cod_minor_device_class_peripheral_class = -1;
+static int hf_bthci_evt_cod_minor_device_class_peripheral_type = -1;
+static int hf_bthci_evt_cod_minor_device_class_imaging_class_printer = -1;
+static int hf_bthci_evt_cod_minor_device_class_imaging_class_scanner = -1;
+static int hf_bthci_evt_cod_minor_device_class_imaging_class_camera = -1;
+static int hf_bthci_evt_cod_minor_device_class_imaging_class_display = -1;
+static int hf_bthci_evt_cod_minor_device_class_imaging_type = -1;
+static int hf_bthci_evt_cod_minor_device_class_wearable = -1;
+static int hf_bthci_evt_cod_minor_device_class_toy = -1;
+static int hf_bthci_evt_cod_minor_device_class_health = -1;
+static int hf_bthci_evt_cod_minor_device_class_unknown = -1;
 static int hf_bthci_evt_link_type = -1;
 static int hf_bthci_evt_encryption_mode = -1;
 static int hf_bthci_evt_reason = -1;
@@ -349,6 +377,7 @@ static expert_field ei_event_unknown                                  = EI_INIT;
 /* Initialize the subtree pointers */
 static gint ett_bthci_evt = -1;
 static gint ett_opcode = -1;
+static gint ett_cod = -1;
 static gint ett_lmp_subtree = -1;
 static gint ett_ptype_subtree = -1;
 static gint ett_eir_subtree = -1;
@@ -927,42 +956,104 @@ dissect_bthci_evt_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static int
 dissect_bthci_evt_cod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint8      cod1, cod2;
-    proto_item *item;
+    guint16      major_service_classes;
+    guint8       major_device_class;
+    guint8       minor_device_class;
+    const gchar *minor_device_class_name;
+    proto_item  *cod_item;
+    proto_item  *cod_tree;
 
-    item = proto_tree_add_item(tree, hf_bthci_evt_class_of_device, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    cod_item = proto_tree_add_item(tree, hf_bthci_evt_class_of_device, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    cod_tree = proto_item_add_subtree(cod_item, ett_cod);
 
-    cod1 = tvb_get_guint8(tvb, offset+1);
-    cod2 = tvb_get_guint8(tvb, offset+2);
+    major_device_class = tvb_get_guint8(tvb, offset + 1) & 0x1F;
+    minor_device_class = tvb_get_guint8(tvb, offset) >> 2;
 
-    if ((cod2 != 0) || (cod1 & 0x20))
-    {
-        char buf[128];
+    switch(major_device_class) {
+    case 0x01: /* Computer */
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_computer, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_computer_vals_ext, "Unknown");
+        break;
+    case 0x02: /* Phone */
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_phone, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_phone_vals_ext, "Unknown");
+        break;
+    case 0x03: /* LAN/Network Access Point */
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_lan_net_load_factor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_lan_net_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals_ext, "Unknown");
+        break;
+    case 0x04: /* Audio/Video */
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_audio_video, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_audio_video_vals_ext, "Unknown");
+        break;
+    case 0x05: /* Peripheral */
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_peripheral_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_peripheral_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_peripheral_class_vals_ext, "Unknown");
+        break;
+    case 0x06: /* Imaging */
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_imaging_class_printer, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_imaging_class_scanner, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_imaging_class_camera, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_imaging_class_display, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-        buf[0] = 0;
-
-        proto_item_append_text(item, " (%s - services:", val_to_str_ext_const(cod1 & 0x1f, &bthci_cmd_major_dev_class_vals_ext, "???"));
-        if (cod2 & 0x80) g_strlcat(buf, " Information,", sizeof(buf));
-        if (cod2 & 0x40) g_strlcat(buf, " Telephony,", sizeof(buf));
-        if (cod2 & 0x20) g_strlcat(buf, " Audio,", sizeof(buf));
-        if (cod2 & 0x10) g_strlcat(buf, " Object transfer,", sizeof(buf));
-        if (cod2 & 0x08) g_strlcat(buf, " Capturing,", sizeof(buf));
-        if (cod2 & 0x04) g_strlcat(buf, " Rendering,", sizeof(buf));
-        if (cod2 & 0x02) g_strlcat(buf, " Networking,", sizeof(buf));
-        if (cod2 & 0x01) g_strlcat(buf, " Positioning,", sizeof(buf));
-        if (cod1 & 0x20) g_strlcat(buf, " Limited discoverable mode,", sizeof(buf));
-
-        buf[strlen(buf)-1] = 0; /* skip last comma */
-
-        g_strlcat(buf, ")", sizeof(buf));
-        proto_item_append_text(item, "%s", buf);
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_imaging_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, "Unknown");
+        break;
+    case 0x07: /* Wearable */
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_wearable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_wearable_vals_ext, "Unknown");
+        break;
+    case 0x08: /* Toy */
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_toy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_toy_vals_ext, "Unknown");
+        break;
+    case 0x09: /* Health */
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_health, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_health_vals_ext, "Unknown");
+        break;
+    default:
+        minor_device_class_name = "Unknown";
+        proto_tree_add_item(cod_tree, hf_bthci_evt_cod_minor_device_class_unknown, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
-    else
-    {
-        proto_item_append_text(item, " (%s - no major services)", val_to_str_ext_const(cod1 & 0x1f, &bthci_cmd_major_dev_class_vals_ext, "???"));
-    }
 
-    return offset+3;
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_format_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_service_class_information, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_service_class_telephony, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_service_class_audio, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_service_class_object_transfer, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_service_class_capturing, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_service_class_rendering, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_service_class_networking, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_service_class_positioning, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_service_class_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_service_class_limited_discoverable_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    major_service_classes = tvb_get_letohs(tvb, offset) >> 5;
+
+    proto_tree_add_item(cod_tree, hf_bthci_evt_cod_major_device_class, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_item_append_text(cod_item, " (%s:%s - services:",
+            val_to_str_ext_const(major_device_class, &bthci_cmd_cod_major_device_class_vals_ext, "Unknown"),
+            minor_device_class_name);
+
+    if (major_service_classes & 0x001) proto_item_append_text(cod_item, " LimitedDiscoverableMode");
+    if (major_service_classes & 0x008) proto_item_append_text(cod_item, " Positioning");
+    if (major_service_classes & 0x010) proto_item_append_text(cod_item, " Networking");
+
+    if (major_service_classes & 0x020) proto_item_append_text(cod_item, " Rendering");
+    if (major_service_classes & 0x040) proto_item_append_text(cod_item, " Capturing");
+    if (major_service_classes & 0x080) proto_item_append_text(cod_item, " ObjectTransfer");
+    if (major_service_classes & 0x100) proto_item_append_text(cod_item, " Audio");
+    if (major_service_classes & 0x200) proto_item_append_text(cod_item, " Telephony");
+    if (major_service_classes & 0x400) proto_item_append_text(cod_item, " Information");
+
+    proto_item_append_text(cod_item, ")");
+
+    return offset;
 }
 
 static int
@@ -3909,6 +4000,146 @@ proto_register_bthci_evt(void)
             FT_UINT24, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_evt_cod_major_service_class_information,
+          { "Major Service Classes: Information", "bthci_evt.class_of_device.major_service_classes.information",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_major_service_class_telephony,
+          { "Major Service Classes: Telephony", "bthci_evt.class_of_device.major_service_classes.telephony",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_major_service_class_audio,
+          { "Major Service Classes: Audio", "bthci_evt.class_of_device.major_service_classes.audio",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_major_service_class_object_transfer,
+          { "Major Service Classes: Object Transfer", "bthci_evt.class_of_device.major_service_classes.object_transfer",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_major_service_class_capturing,
+          { "Major Service Classes: Capturing", "bthci_evt.class_of_device.major_service_classes.capturing",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_major_service_class_rendering,
+          { "Major Service Classes: Rendering", "bthci_evt.class_of_device.major_service_classes.rendering",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_major_service_class_networking,
+          { "Major Service Classes: Networking", "bthci_evt.class_of_device.major_service_classes.networking",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_major_service_class_positioning,
+          { "Major Service Classes: Positioning", "bthci_evt.class_of_device.major_service_classes.positioning",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_major_service_class_reserved,
+          { "Major Service Classes: Reserved", "bthci_evt.class_of_device.major_service_classes.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x00C0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_major_service_class_limited_discoverable_mode,
+          { "Major Service Classes: Limited Discoverable Mode", "bthci_evt.class_of_device.major_service_classes.limited_discoverable_mode",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_major_device_class,
+          { "Major Device Class", "bthci_evt.class_of_device.major_device_class",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_major_device_class_vals_ext, 0x1F,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_computer,
+          { "Minor Device Class", "bthci_evt.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_computer_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_phone,
+          { "Minor Device Class", "bthci_evt.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_phone_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_lan_net_load_factor,
+          { "Minor Device Class: Load Factor", "bthci_evt.class_of_device.minor_device_class.load_factor",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals_ext, 0xE0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_lan_net_type,
+          { "Minor Device Class: Type", "bthci_evt.class_of_device.minor_device_class.type",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_lan_net_type_vals_ext, 0x1C,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_audio_video,
+          { "Minor Device Class", "bthci_evt.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_audio_video_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_peripheral_class,
+          { "Minor Device Class", "bthci_evt.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_peripheral_class_vals_ext, 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_peripheral_type,
+          { "Minor Device Class", "bthci_evt.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_peripheral_type_vals_ext, 0x3C,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_imaging_class_printer,
+          { "Minor Device Class: Class: Printer", "bthci_evt.class_of_device.minor_device_class.class.printer",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_imaging_class_scanner,
+          { "Minor Device Class: Class: Scanner", "bthci_evt.class_of_device.minor_device_class.class.scanner",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_imaging_class_camera,
+          { "Minor Device Class: Class: Camera", "bthci_evt.class_of_device.minor_device_class.class.camera",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_imaging_class_display,
+          { "Minor Device Class: Class: Display", "bthci_evt.class_of_device.minor_device_class.class.display",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_imaging_type,
+          { "Minor Device Class: Type", "bthci_evt.class_of_device.minor_device_class.type",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, 0x0C,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_wearable,
+          { "Minor Device Class", "bthci_evt.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_wearable_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_toy,
+          { "Minor Device Class", "bthci_evt.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_toy_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_health,
+          { "Minor Device Class", "bthci_evt.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_health_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_minor_device_class_unknown,
+          { "Minor Device Class", "bthci_evt.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_cod_format_type,
+          { "Format Type", "bthci_evt.class_of_device.format_type",
+            FT_UINT8, BASE_HEX, NULL, 0x03,
+            NULL, HFILL }
+        },
         { &hf_bthci_evt_link_type,
           { "Link Type", "bthci_evt.link_type",
             FT_UINT8, BASE_HEX, VALS(evt_link_types), 0x0,
@@ -5277,6 +5508,7 @@ proto_register_bthci_evt(void)
     static gint *ett[] = {
         &ett_bthci_evt,
         &ett_opcode,
+        &ett_cod,
         &ett_lmp_subtree,
         &ett_ptype_subtree,
         &ett_eir_subtree,

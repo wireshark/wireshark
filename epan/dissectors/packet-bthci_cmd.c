@@ -116,7 +116,48 @@ static int hf_bthci_cmd_filter_type = -1;
 static int hf_bthci_cmd_inquiry_result_filter_condition_type = -1;
 static int hf_bthci_cmd_connection_setup_filter_condition_type = -1;
 static int hf_bthci_cmd_class_of_device = -1;
+static int hf_bthci_cmd_cod_format_type = -1;
+static int hf_bthci_cmd_cod_major_service_class_information = -1;
+static int hf_bthci_cmd_cod_major_service_class_telephony = -1;
+static int hf_bthci_cmd_cod_major_service_class_audio = -1;
+static int hf_bthci_cmd_cod_major_service_class_object_transfer = -1;
+static int hf_bthci_cmd_cod_major_service_class_capturing = -1;
+static int hf_bthci_cmd_cod_major_service_class_rendering = -1;
+static int hf_bthci_cmd_cod_major_service_class_networking = -1;
+static int hf_bthci_cmd_cod_major_service_class_positioning = -1;
+static int hf_bthci_cmd_cod_major_service_class_reserved = -1;
+static int hf_bthci_cmd_cod_major_service_class_limited_discoverable_mode = -1;
+static int hf_bthci_cmd_cod_major_device_class = -1;
+static int hf_bthci_cmd_cod_minor_device_class_computer = -1;
+static int hf_bthci_cmd_cod_minor_device_class_phone = -1;
+static int hf_bthci_cmd_cod_minor_device_class_lan_net_load_factor = -1;
+static int hf_bthci_cmd_cod_minor_device_class_lan_net_type = -1;
+static int hf_bthci_cmd_cod_minor_device_class_audio_video = -1;
+static int hf_bthci_cmd_cod_minor_device_class_peripheral_class = -1;
+static int hf_bthci_cmd_cod_minor_device_class_peripheral_type = -1;
+static int hf_bthci_cmd_cod_minor_device_class_imaging_class_printer = -1;
+static int hf_bthci_cmd_cod_minor_device_class_imaging_class_scanner = -1;
+static int hf_bthci_cmd_cod_minor_device_class_imaging_class_camera = -1;
+static int hf_bthci_cmd_cod_minor_device_class_imaging_class_display = -1;
+static int hf_bthci_cmd_cod_minor_device_class_imaging_type = -1;
+static int hf_bthci_cmd_cod_minor_device_class_wearable = -1;
+static int hf_bthci_cmd_cod_minor_device_class_toy = -1;
+static int hf_bthci_cmd_cod_minor_device_class_health = -1;
+static int hf_bthci_cmd_cod_minor_device_class_unknown = -1;
 static int hf_bthci_cmd_class_of_device_mask = -1;
+static int hf_bthci_cmd_cod_minor_device_class_mask= -1;
+static int hf_bthci_cmd_cod_format_type_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_information_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_telephony_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_audio_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_object_transfer_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_capturing_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_rendering_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_networking_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_positioning_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_reserved_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_limited_discoverable_mode_mask = -1;
+static int hf_bthci_cmd_cod_major_device_class_mask = -1;
 static int hf_bthci_cmd_auto_acc_flag = -1;
 static int hf_bthci_cmd_read_all_flag = -1;
 static int hf_bthci_cmd_delete_all_flag = -1;
@@ -336,6 +377,8 @@ static expert_field ei_command_parameter_unexpected                   = EI_INIT;
 /* Initialize the subtree pointers */
 static gint ett_bthci_cmd = -1;
 static gint ett_opcode = -1;
+static gint ett_cod = -1;
+static gint ett_cod_mask = -1;
 static gint ett_eir_subtree = -1;
 static gint ett_eir_struct_subtree = -1;
 static gint ett_flow_spec_subtree = -1;
@@ -703,7 +746,7 @@ static const value_string bthci_cmd_status_vals[] = {
 };
 value_string_ext bthci_cmd_status_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_status_vals);
 
-static const value_string bthci_cmd_major_dev_class_vals[] = {
+static const value_string bthci_cmd_cod_major_device_class_vals[] = {
     {0x00, "Miscellaneous"},
     {0x01, "Computer"},
     {0x02, "Phone"},
@@ -713,9 +756,148 @@ static const value_string bthci_cmd_major_dev_class_vals[] = {
     {0x06, "Imaging"},
     {0x07, "Wearable"},
     {0x08, "Toy"},
+    {0x09, "Health"},
+    {0x1F, "Uncategorized: device code not specified"},
     {0, NULL }
 };
-value_string_ext bthci_cmd_major_dev_class_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_major_dev_class_vals);
+value_string_ext bthci_cmd_cod_major_device_class_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_major_device_class_vals);
+
+static const value_string bthci_cmd_cod_minor_device_class_computer_vals[] = {
+    { 0x00,  "Uncategorized, code for device not assigned" },
+    { 0x01,  "Desktop workstation" },
+    { 0x02,  "Server-class computer" },
+    { 0x03,  "Laptop" },
+    { 0x04,  "Handheld PC/PDA (clamshell)" },
+    { 0x05,  "Palm-size PC/PDA" },
+    { 0x06,  "Wearable computer (watch size)" },
+    { 0x07,  "Tablet" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_computer_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_computer_vals);
+
+static const value_string bthci_cmd_cod_minor_device_class_phone_vals[] = {
+    { 0x00,  "Uncategorized, code for device not assigned" },
+    { 0x01,  "Cellular" },
+    { 0x02,  "Cordless" },
+    { 0x03,  "Smartphone" },
+    { 0x04,  "Wired modem or voice gateway" },
+    { 0x05,  "Common ISDN access" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_phone_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_phone_vals);
+
+static const value_string bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals[] = {
+    { 0x00,  "Fully available" },
+    { 0x01,  "1% to 17% utilized" },
+    { 0x02,  "17% to 33% utilized" },
+    { 0x03,  "33% to 50% utilized" },
+    { 0x04,  "50% to 67% utilized" },
+    { 0x05,  "67% to 83% utilized" },
+    { 0x06,  "83% to 99% utilized" },
+    { 0x07,  "No service available" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals);
+
+static const value_string bthci_cmd_cod_minor_device_class_lan_net_type_vals[] = {
+    { 0x00,  "Uncategorized (used if no others apply)" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_lan_net_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_lan_net_type_vals);
+
+static const value_string bthci_cmd_cod_minor_device_class_audio_video_vals[] = {
+    { 0x00,  "Uncategorized, code not assigned" },
+    { 0x01,  "Wearable Headset Device" },
+    { 0x02,  "Hands-free Device" },
+    { 0x04,  "Microphone" },
+    { 0x05,  "Loudspeaker" },
+    { 0x06,  "Headphones" },
+    { 0x07,  "Portable Audio" },
+    { 0x08,  "Car audio" },
+    { 0x09,  "Set-top box" },
+    { 0x0A,  "HiFi Audio Device" },
+    { 0x0B,  "VCR" },
+    { 0x0C,  "Video Camera" },
+    { 0x0D,  "Camcorder" },
+    { 0x0E,  "Video Monitor" },
+    { 0x0F,  "Video Display and Loudspeaker" },
+    { 0x10,  "Video Conferencing" },
+    { 0x12,  "Gaming/Toy" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_audio_video_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_audio_video_vals);
+
+static const value_string bthci_cmd_cod_minor_device_class_peripheral_class_vals[] = {
+    { 0x00,  "Not Keyboard / Not Pointing Device" },
+    { 0x01,  "Keyboard" },
+    { 0x02,  "Pointing device" },
+    { 0x03,  "Combo keyboard/pointing device" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_peripheral_class_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_peripheral_class_vals);
+
+static const value_string bthci_cmd_cod_minor_device_class_peripheral_type_vals[] = {
+    { 0x00,  "Uncategorized device" },
+    { 0x01,  "Joystick" },
+    { 0x02,  "Gamepad" },
+    { 0x03,  "Remote control" },
+    { 0x04,  "Sensing device" },
+    { 0x05,  "Digitizer tablet" },
+    { 0x06,  "Card Reader" },
+    { 0x07,  "Digital Pen" },
+    { 0x08,  "Handheld scanner for bar-codes" },
+    { 0x09,  "Handheld gestural input device" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_peripheral_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_peripheral_type_vals);
+
+
+static const value_string bthci_cmd_cod_minor_device_class_imaging_type_vals[] = {
+    { 0x00,  "Uncategorized, default" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_imaging_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_imaging_type_vals);
+
+static const value_string bthci_cmd_cod_minor_device_class_wearable_vals[] = {
+    { 0x01,  "Wristwatch" },
+    { 0x02,  "Pager" },
+    { 0x03,  "Jacket" },
+    { 0x04,  "Helmet" },
+    { 0x05,  "Glasses" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_wearable_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_wearable_vals);
+
+static const value_string bthci_cmd_cod_minor_device_class_toy_vals[] = {
+    { 0x01,  "Robot" },
+    { 0x02,  "Vehicle" },
+    { 0x03,  "Doll / Action figure" },
+    { 0x04,  "Controller" },
+    { 0x05,  "Game" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_toy_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_toy_vals);
+
+static const value_string bthci_cmd_cod_minor_device_class_health_vals[] = {
+    { 0x00,  "Undefined" },
+    { 0x01,  "Blood Pressure Monitor" },
+    { 0x02,  "Thermometer" },
+    { 0x03,  "Weighing Scale" },
+    { 0x04,  "Glucose Meter" },
+    { 0x05,  "Pulse Oximeter" },
+    { 0x06,  "Heart/Pulse Rate Monitor" },
+    { 0x07,  "Health Data Display" },
+    { 0x08,  "Step Counter" },
+    { 0x09,  "Body Composition Analyzer" },
+    { 0x0A,  "Peak Flow Monitor" },
+    { 0x0B,  "Medication Monitor" },
+    { 0x0C,  "Knee Prosthesis" },
+    { 0x0D,  "Ankle Prosthesis" },
+    { 0x0E,  "Generic Health Manager" },
+    { 0x0F,  "Personal Mobility Device" },
+    { 0, NULL }
+};
+value_string_ext bthci_cmd_cod_minor_device_class_health_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_health_vals);
 
 static const value_string bthci_cmd_service_class_type_vals[] = {
     {0x1000, "Service Discovery Server Service"},
@@ -1228,44 +1410,136 @@ dissect_bthci_cmd_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 }
 
 static int
-dissect_bthci_cmd_cod(int type, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_cmd_cod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint8      cod1, cod2;
-    proto_item *item;
+    guint16      major_service_classes;
+    guint8       major_device_class;
+    guint8       minor_device_class;
+    const gchar *minor_device_class_name;
+    proto_item  *cod_item;
+    proto_item  *cod_tree;
 
-    item = proto_tree_add_item(tree, type, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    cod_item = proto_tree_add_item(tree, hf_bthci_cmd_class_of_device, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    cod_tree = proto_item_add_subtree(cod_item, ett_cod);
 
-    cod1 = tvb_get_guint8(tvb, offset+1);
-    cod2 = tvb_get_guint8(tvb, offset+2);
+    major_device_class = tvb_get_guint8(tvb, offset + 1) & 0x1F;
+    minor_device_class = tvb_get_guint8(tvb, offset) >> 2;
 
-    if ((cod2 != 0) || (cod1 & 0x20))
-    {
-        char buf[128];
+    switch(major_device_class) {
+    case 0x01: /* Computer */
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_computer, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_computer_vals_ext, "Unknown");
+        break;
+    case 0x02: /* Phone */
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_phone, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_phone_vals_ext, "Unknown");
+        break;
+    case 0x03: /* LAN/Network Access Point */
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_lan_net_load_factor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_lan_net_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals_ext, "Unknown");
+        break;
+    case 0x04: /* Audio/Video */
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_audio_video, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_audio_video_vals_ext, "Unknown");
+        break;
+    case 0x05: /* Peripheral */
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_peripheral_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_peripheral_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_peripheral_class_vals_ext, "Unknown");
+        break;
+    case 0x06: /* Imaging */
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_imaging_class_printer, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_imaging_class_scanner, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_imaging_class_camera, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_imaging_class_display, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-        buf[0] = '\0';
-
-        proto_item_append_text(item, " (%s - services:", val_to_str_ext_const(cod1 & 0x1f, &bthci_cmd_major_dev_class_vals_ext, "???"));
-        if (cod2 & 0x80) g_strlcat(buf, " Information,", sizeof(buf));
-        if (cod2 & 0x40) g_strlcat(buf, " Telephony,", sizeof(buf));
-        if (cod2 & 0x20) g_strlcat(buf, " Audio,", sizeof(buf));
-        if (cod2 & 0x10) g_strlcat(buf, " Object transfer,", sizeof(buf));
-        if (cod2 & 0x08) g_strlcat(buf, " Capturing,", sizeof(buf));
-        if (cod2 & 0x04) g_strlcat(buf, " Rendering,", sizeof(buf));
-        if (cod2 & 0x02) g_strlcat(buf, " Networking,", sizeof(buf));
-        if (cod2 & 0x01) g_strlcat(buf, " Positioning,", sizeof(buf));
-        if (cod1 & 0x20) g_strlcat(buf, " Limited discoverable mode,", sizeof(buf));
-
-        buf[strlen(buf)-1] = '\0'; /* skip last comma */
-
-        g_strlcat(buf, ")", sizeof(buf));
-        proto_item_append_text(item, "%s", buf);
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_imaging_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, "Unknown");
+        break;
+    case 0x07: /* Wearable */
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_wearable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_wearable_vals_ext, "Unknown");
+        break;
+    case 0x08: /* Toy */
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_toy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_toy_vals_ext, "Unknown");
+        break;
+    case 0x09: /* Health */
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_health, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        minor_device_class_name = val_to_str_ext_const(minor_device_class, &bthci_cmd_cod_minor_device_class_health_vals_ext, "Unknown");
+        break;
+    default:
+        minor_device_class_name = "Unknown";
+        proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_minor_device_class_unknown, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
-    else
-    {
-        proto_item_append_text(item, " (%s - no major services)", val_to_str_ext_const(cod1 & 0x1f, &bthci_cmd_major_dev_class_vals_ext, "???"));
-    }
 
-    return offset+3;
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_format_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_service_class_information, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_service_class_telephony, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_service_class_audio, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_service_class_object_transfer, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_service_class_capturing, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_service_class_rendering, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_service_class_networking, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_service_class_positioning, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_service_class_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_service_class_limited_discoverable_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    major_service_classes = tvb_get_letohs(tvb, offset) >> 5;
+
+    proto_tree_add_item(cod_tree, hf_bthci_cmd_cod_major_device_class, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_item_append_text(cod_item, " (%s:%s - services:",
+            val_to_str_ext_const(major_device_class, &bthci_cmd_cod_major_device_class_vals_ext, "Unknown"),
+            minor_device_class_name);
+
+    if (major_service_classes & 0x001) proto_item_append_text(cod_item, " LimitedDiscoverableMode");
+    if (major_service_classes & 0x008) proto_item_append_text(cod_item, " Positioning");
+    if (major_service_classes & 0x010) proto_item_append_text(cod_item, " Networking");
+
+    if (major_service_classes & 0x020) proto_item_append_text(cod_item, " Rendering");
+    if (major_service_classes & 0x040) proto_item_append_text(cod_item, " Capturing");
+    if (major_service_classes & 0x080) proto_item_append_text(cod_item, " ObjectTransfer");
+    if (major_service_classes & 0x100) proto_item_append_text(cod_item, " Audio");
+    if (major_service_classes & 0x200) proto_item_append_text(cod_item, " Telephony");
+    if (major_service_classes & 0x400) proto_item_append_text(cod_item, " Information");
+
+    proto_item_append_text(cod_item, ")");
+
+    return offset;
+}
+
+static int
+dissect_bthci_cmd_cod_mask(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_item  *cod_mask_item;
+    proto_item  *cod_mask_tree;
+
+    cod_mask_item = proto_tree_add_item(tree, hf_bthci_cmd_class_of_device_mask, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    cod_mask_tree = proto_item_add_subtree(cod_mask_item, ett_cod_mask);
+
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_minor_device_class_mask, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_format_type_mask, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_information_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_telephony_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_audio_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_object_transfer_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_capturing_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_rendering_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_networking_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_positioning_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_reserved_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_limited_discoverable_mode_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_device_class_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
 }
 
 static int
@@ -1359,7 +1633,7 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
                     expert_add_info(pinfo, sub_item, &ei_eir_undecoded);
                     break;
                 case 0x0D: /* Class of Device */
-                    dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device, tvb, offset+i+2, pinfo, ti_data_struct_subtree);
+                    dissect_bthci_cmd_cod(tvb, offset+i+2, pinfo, ti_data_struct_subtree);
                     break;
                 case 0x0E: /* Simple Pairing Hash C */
                     proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_hash_c, tvb, offset+i+2, 16, ENC_NA);
@@ -2034,8 +2308,8 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                     offset++;
                     switch (filter_condition_type) {
                         case 0x01:
-                            offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device, tvb, offset, pinfo, tree);
-                            offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device_mask, tvb, offset, pinfo, tree);
+                            offset=dissect_bthci_cmd_cod(tvb, offset, pinfo, tree);
+                            offset=dissect_bthci_cmd_cod_mask(tvb, offset, pinfo, tree);
                             break;
 
                         case 0x02:
@@ -2060,8 +2334,8 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                             break;
 
                         case 0x01:
-                            offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device, tvb, offset, pinfo, tree);
-                            offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device_mask, tvb, offset, pinfo, tree);
+                            offset=dissect_bthci_cmd_cod(tvb, offset, pinfo, tree);
+                            offset=dissect_bthci_cmd_cod_mask(tvb, offset, pinfo, tree);
 
                             proto_tree_add_item(tree, hf_bthci_cmd_auto_acc_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                             offset++;
@@ -2157,7 +2431,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             break;
 
         case 0x0024: /* Write Class of Device */
-            offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device, tvb, offset, pinfo, tree);
+            offset=dissect_bthci_cmd_cod(tvb, offset, pinfo, tree);
             break;
 
         case 0x0026: /* Write Voice Setting */
@@ -3332,10 +3606,215 @@ proto_register_bthci_cmd(void)
             FT_UINT24, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_cmd_cod_major_service_class_information,
+          { "Major Service Classes: Information", "bthci_cmd.class_of_device.major_service_classes.information",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_telephony,
+          { "Major Service Classes: Telephony", "bthci_cmd.class_of_device.major_service_classes.telephony",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_audio,
+          { "Major Service Classes: Audio", "bthci_cmd.class_of_device.major_service_classes.audio",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_object_transfer,
+          { "Major Service Classes: Object Transfer", "bthci_cmd.class_of_device.major_service_classes.object_transfer",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_capturing,
+          { "Major Service Classes: Capturing", "bthci_cmd.class_of_device.major_service_classes.capturing",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_rendering,
+          { "Major Service Classes: Rendering", "bthci_cmd.class_of_device.major_service_classes.rendering",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_networking,
+          { "Major Service Classes: Networking", "bthci_cmd.class_of_device.major_service_classes.networking",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_positioning,
+          { "Major Service Classes: Positioning", "bthci_cmd.class_of_device.major_service_classes.positioning",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_reserved,
+          { "Major Service Classes: Reserved", "bthci_cmd.class_of_device.major_service_classes.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x00C0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_limited_discoverable_mode,
+          { "Major Service Classes: Limited Discoverable Mode", "bthci_cmd.class_of_device.major_service_classes.limited_discoverable_mode",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_device_class,
+          { "Major Device Class", "bthci_cmd.class_of_device.major_device_class",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_major_device_class_vals_ext, 0x1F,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_computer,
+          { "Minor Device Class", "bthci_cmd.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_computer_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_phone,
+          { "Minor Device Class", "bthci_cmd.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_phone_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_lan_net_load_factor,
+          { "Minor Device Class: Load Factor", "bthci_cmd.class_of_device.minor_device_class.load_factor",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals_ext, 0xE0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_lan_net_type,
+          { "Minor Device Class: Type", "bthci_cmd.class_of_device.minor_device_class.type",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_lan_net_type_vals_ext, 0x1C,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_audio_video,
+          { "Minor Device Class", "bthci_cmd.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_audio_video_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_peripheral_class,
+          { "Minor Device Class", "bthci_cmd.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_peripheral_class_vals_ext, 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_peripheral_type,
+          { "Minor Device Class", "bthci_cmd.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_peripheral_type_vals_ext, 0x3C,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_imaging_class_printer,
+          { "Minor Device Class: Class: Printer", "bthci_cmd.class_of_device.minor_device_class.class.printer",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_imaging_class_scanner,
+          { "Minor Device Class: Class: Scanner", "bthci_cmd.class_of_device.minor_device_class.class.scanner",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_imaging_class_camera,
+          { "Minor Device Class: Class: Camera", "bthci_cmd.class_of_device.minor_device_class.class.camera",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_imaging_class_display,
+          { "Minor Device Class: Class: Display", "bthci_cmd.class_of_device.minor_device_class.class.display",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_imaging_type,
+          { "Minor Device Class: Type", "bthci_cmd.class_of_device.minor_device_class.type",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_imaging_type_vals_ext, 0x0C,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_wearable,
+          { "Minor Device Class", "bthci_cmd.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_wearable_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_toy,
+          { "Minor Device Class", "bthci_cmd.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_toy_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_health,
+          { "Minor Device Class", "bthci_cmd.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_minor_device_class_health_vals_ext, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_unknown,
+          { "Minor Device Class", "bthci_cmd.class_of_device.minor_device_class",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_format_type,
+          { "Format Type", "bthci_cmd.class_of_device.format_type",
+            FT_UINT8, BASE_HEX, NULL, 0x03,
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_class_of_device_mask,
           { "Class of Device Mask", "bthci_cmd.class_of_device_mask",
             FT_UINT24, BASE_HEX, NULL, 0x0,
             "Bit Mask used to determine which bits of the Class of Device parameter are of interest.", HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_device_class_mask,
+          { "Major Device Class Mask", "bthci_cmd.class_of_device_mask.major_device_class",
+            FT_UINT16, BASE_HEX, NULL, 0x1F,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_information_mask,
+          { "Major Service Classes Mask: Information", "bthci_cmd.class_of_device_mask.major_service_classes.information",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_telephony_mask,
+          { "Major Service Classes Mask: Telephony", "bthci_cmd.class_of_device_mask.major_service_classes.telephony",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_audio_mask,
+          { "Major Service Classes Mask: Audio", "bthci_cmd.class_of_device_mask.major_service_classes.audio",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_object_transfer_mask,
+          { "Major Service Classes Mask: Object Transfer", "bthci_cmd.class_of_device_mask.major_service_classes.object_transfer",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_capturing_mask,
+          { "Major Service Classes Mask: Capturing", "bthci_cmd.class_of_device_mask.major_service_classes.capturing",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_rendering_mask,
+          { "Major Service Classes Mask: Rendering", "bthci_cmd.class_of_device_mask.major_service_classes.rendering",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_networking_mask,
+          { "Major Service Classes Mask: Networking", "bthci_cmd.class_of_device_mask.major_service_classes.networking",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_positioning_mask,
+          { "Major Service Classes Mask: Positioning", "bthci_cmd.class_of_device_mask.major_service_classes.positioning",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_reserved_mask,
+          { "Major Service Classes Mask: Reserved", "bthci_cmd.class_of_device_mask.major_service_classes.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x00C0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_limited_discoverable_mode_mask,
+          { "Major Service Classes Mask: Limited Discoverable Mode", "bthci_cmd.class_of_device_mask.major_service_classes.limited_discoverable_mode",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_minor_device_class_mask,
+          { "Minor Device Class Mask", "bthci_cmd.class_of_device_mask.minor_device_class",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_format_type_mask,
+          { "Format Type Mask", "bthci_cmd.class_of_device_mask.format_type",
+            FT_UINT8, BASE_HEX, NULL, 0x03,
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_auto_acc_flag,
           { "Auto Accept Flag", "bthci_cmd.auto_accept_flag",
@@ -4399,6 +4878,8 @@ proto_register_bthci_cmd(void)
     static gint *ett[] = {
         &ett_bthci_cmd,
         &ett_opcode,
+        &ett_cod,
+        &ett_cod_mask,
         &ett_eir_subtree,
         &ett_eir_struct_subtree,
         &ett_flow_spec_subtree
