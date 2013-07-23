@@ -186,6 +186,9 @@ static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
 static int hf_dns_rr_opt_len = -1;
 static int hf_dns_rr_opt_data = -1;
+static int hf_dns_rr_opt_dau = -1;
+static int hf_dns_rr_opt_dhu = -1;
+static int hf_dns_rr_opt_n3u = -1;
 static int hf_dns_rr_opt_client_family = -1;
 static int hf_dns_rr_opt_client_netmask = -1;
 static int hf_dns_rr_opt_client_scope = -1;
@@ -408,6 +411,9 @@ typedef struct _dns_conv_info_t {
 #define O_UL             2              /* Update lease (on-hold, draft-sekar-dns-ul) */
 #define O_NSID           3              /* Name Server Identifier (RFC 5001) */
 #define O_OWNER          4              /* Owner, reserved (draft-cheshire-edns0-owner-option) */
+#define O_DAU            5              /* DNSSEC Algorithm Understood (RFC6975) */
+#define O_DHU            6              /* DS Hash Understood (RFC6975) */
+#define O_N3U            7              /* NSEC3 Hash Understood  (RFC6975) */
 #define O_CLIENT_SUBNET  8              /* Client subnet as assigned by IANA */
 #define O_CLIENT_SUBNET_EXP 0x50fa      /* Client subnet (placeholder value, draft-vandergaast-edns-client-subnet) */
 
@@ -805,6 +811,9 @@ static const value_string edns0_opt_code_vals[] = {
   {O_UL,         "UL - Update lease"},
   {O_NSID,       "NSID - Name Server Identifier"},
   {O_OWNER,      "Owner (reserved)"},
+  {O_DAU,        "DAU - DNSSEC Algorithm Understood (RFC6975)"},
+  {O_DHU,        "DHU - DS Hash Understood (RFC6975)"},
+  {O_N3U,        "N3U - NSEC3 Hash Understood  (RFC6975)"},
   {O_CLIENT_SUBNET_EXP, "Experimental - CSUBNET - Client subnet" },
   {O_CLIENT_SUBNET, "CSUBNET - Client subnet" },
   {0,            NULL}
@@ -2422,6 +2431,30 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
         proto_tree_add_item(rropt_tree, hf_dns_rr_opt_data, tvb, cur_offset, optlen, ENC_NA);
         switch(optcode) {
+          case O_DAU: /* DNSSEC Algorithm Understood (RFC6975) */
+          while(optlen != 0 ) {
+            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_dau, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+            cur_offset += 1;
+            rropt_len  -= 1;
+            optlen -= 1;
+          }
+          break;
+          case O_DHU: /* DS Hash Understood (RFC6975) */
+          while(optlen != 0 ) {
+            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_dhu, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+            cur_offset += 1;
+            rropt_len  -= 1;
+            optlen -= 1;
+          }
+          break;
+          case O_N3U: /* N3SEC Hash Understood (RFC6975) */
+          while(optlen != 0 ) {
+            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_n3u, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+            cur_offset += 1;
+            rropt_len  -= 1;
+            optlen -= 1;
+          }
+          break;
           case O_CLIENT_SUBNET_EXP:
              expert_add_info_format_text(pinfo, rropt, &ei_dns_depr_opc,
                 "Deprecated opcode. Client subnet OPT assigned as %d.", O_CLIENT_SUBNET);
@@ -4510,6 +4543,21 @@ proto_register_dns(void)
       { "Option Data", "dns.rr.opt.data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_dns_rr_opt_dau,
+      { "DAU", "dns.rr.opt.dau",
+        FT_UINT8, BASE_DEC, VALS(dnssec_algo_vals), 0x0,
+        "DNSSEC Algorithm Understood", HFILL }},
+
+    { &hf_dns_rr_opt_dhu,
+      { "DHU", "dns.rr.opt.dhu",
+        FT_UINT8, BASE_DEC, VALS(dns_ds_digest_vals), 0x0,
+        "DS Hash Understood", HFILL }},
+
+    { &hf_dns_rr_opt_n3u,
+      { "N3U", "dns.rr.opt.n3u",
+        FT_UINT8, BASE_DEC, VALS(hash_algorithms), 0x0,
+        "NSEC3 Hash Understood", HFILL }},
 
     { &hf_dns_rr_opt_client_family,
       { "Family", "dns.rr.opt.client.family",
