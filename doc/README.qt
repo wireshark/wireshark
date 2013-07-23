@@ -55,7 +55,7 @@ Download the latest Qt Library + Qt Creator (currently 5.0.2) from
 http://qt-project.org/downloads/ and install it. For a more native
 look and feel you should also install Qt Mac Extras:
 
-    git clone http://qt.gitorious.org/qt/qtmacextras
+    git clone http://qt.gitorious.org/qt/qtmacextras.git
     cd qtmacextras
     /path/to/qt5/qmake qtmacextras.pro
     make
