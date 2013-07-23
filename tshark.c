@@ -2159,7 +2159,7 @@ pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe
 #endif
 }
 
-const nstime_t *
+static const nstime_t *
 tshark_get_frame_ts(void *data, guint32 frame_num)
 {
   capture_file *cf = (capture_file *) data;
@@ -2182,7 +2182,7 @@ tshark_get_frame_ts(void *data, guint32 frame_num)
   return NULL;
 }
 
-epan_t *
+static epan_t *
 tshark_epan_new(capture_file *cf)
 {
   epan_t *epan = epan_new();
