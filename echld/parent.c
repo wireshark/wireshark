@@ -196,7 +196,7 @@ static echld_bool_t hello_cb(echld_msg_type_t type, enc_msg_t* msg_buff, void* u
 			case ECHLD_ERROR:
 				parent.dec->error(msg_buff, &errnum ,&err);
 				break;
-			case ECHLD_TIMEOUT:
+			case ECHLD_TIMED_OUT:
 				err = g_strdup("timedout");
 				break;
 			default:
@@ -496,7 +496,7 @@ static echld_bool_t parent_get_hello(echld_msg_type_t type, enc_msg_t* ba, void*
 		case ECHLD_ERROR:
 			parent.dec->error(ba,&err_id,&err);
 			break;
-		case ECHLD_TIMEOUT:
+		case ECHLD_TIMED_OUT:
 			err = g_strdup("timedout");
 			break;
 		default:
