@@ -28,6 +28,7 @@
 #include "wireshark_application.h"
 
 #include <QtGui>
+#include <qpushbutton.h>
 
 SummaryDialog::SummaryDialog(QWidget *parent) :
     QDialog(parent),
