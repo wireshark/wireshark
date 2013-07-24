@@ -1251,6 +1251,10 @@ if test "x$enable_wireshark" = "xyes"; then
 			AC_MSG_ERROR(Need a working C++ compiler to build Wireshark with Qt)
 		fi
 
+		#
+		# Now make sure we have Qt and, if so, add the flags
+		# for it to CFLAGS and CXXFLAGS.
+		#
 		AM_PATH_QT($QT_MIN_VERSION,
 		[
 			CFLAGS="$CFLAGS $Qt_CFLAGS"
