@@ -18,10 +18,9 @@
     these sources.</para>
   </section>
   <section id="ChSetupWin32">
-    <title>Win32: Step-by-Step Guide</title>
-    <para>A quick setup guide for Win32 with recommended
-    configuration. This guide also describes how to build 64-bit
-    versions.</para>
+    <title>Win32/64: Step-by-Step Guide</title>
+    <para>A quick setup guide for Win32 and Win64 with recommended
+    configuration.</para>
     <warning>
       <title>Warning!</title>
       <para>
@@ -45,6 +44,12 @@
           <ulink url="http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx">
           Download</ulink> and install "Microsoft Windows SDK for
 		  Windows 7."</para>
+          <para>In case the install of the SDK fails go to software management and
+                remove the vc++2010 runtime and redist packages (don't worry, they
+                will be added back via the service pack later). If installation of
+                the SDK still fails, there may be a permission problem. See
+                <ulink url="http://ctrlf5.net/?p=184">here</ulink> how to resolve
+                that.</para>
         </listitem>
         <listitem>
           <para>C compiler service pack:
