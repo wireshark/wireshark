@@ -261,7 +261,8 @@ static gboolean check_slsk_format(tvbuff_t *tvb, int offset, const char format[]
   }
 
   if (format[1] == '\0' ) {
-    if (tvb_length_remaining(tvb, offset) != 0) return FALSE;  /* Checks for additional bytes at the end */
+    if (tvb_length_remaining(tvb, offset) > 0) /* Checks for additional bytes at the end */
+      return FALSE;
       return TRUE;
   }
   return check_slsk_format(tvb, offset, &format[1]);

@@ -1329,11 +1329,11 @@ tap_iostat_draw(void *g)
 static GString *
 enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 {
-	char real_filter[262];
+    GString *real_filter = NULL;
+    GString *err_msg;
 
 	gio->display=TRUE;
 
-	real_filter[0]=0;
 	if(filter){
 		/* skip all whitespaces */
 		while(*filter){
@@ -1348,8 +1348,8 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 			break;
 		}
 		if(*filter){
-			g_snprintf(real_filter, 257, "(%s)", filter);
-			real_filter[257]=0;
+			real_filter = g_string_new("");
+			g_string_printf(real_filter, "(%s)", filter);
 		}
 	}
 	if(field){
@@ -1366,15 +1366,19 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 			break;
 		}
 		if(*field){
-			if(real_filter[0]!=0){
-				g_strlcat(real_filter, " && ", 262);
+			if (real_filter) {
+				g_string_append_printf(real_filter, " && (%s)", field);
+			} else {
+				real_filter = g_string_new(field);
 			}
-			g_strlcat(real_filter, field, 262);
 		}
 	}
-	return register_tap_listener("frame", gio, real_filter[0]?real_filter:NULL,
-				     TL_REQUIRES_PROTO_TREE,
-				     tap_iostat_reset, tap_iostat_packet, tap_iostat_draw);
+	err_msg = register_tap_listener("frame", gio, real_filter ? real_filter->str : NULL,
+		TL_REQUIRES_PROTO_TREE, tap_iostat_reset, tap_iostat_packet,
+		tap_iostat_draw);
+	if (real_filter)
+		g_string_free(real_filter, TRUE);
+	return err_msg;
 }
 
 static void
@@ -2216,9 +2220,7 @@ create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, const char *name,  Gt
 static void
 create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 {
-
 	gio->calc_field=gtk_entry_new();
-	gtk_entry_set_max_length(GTK_ENTRY(gio->calc_field),100);
 	gtk_box_pack_start(GTK_BOX(box), gio->calc_field, TRUE, TRUE, 0);
 	gtk_widget_show(gio->calc_field);
 	g_signal_connect(gio->calc_field, "activate", G_CALLBACK(filter_callback), gio);
@@ -2311,7 +2313,6 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_show(gio->filter_bt);
 
 	gio->filter_field=gtk_entry_new();
-	gtk_entry_set_max_length(GTK_ENTRY(gio->filter_field),256);
 	/* filter prefs dialog */
 	g_object_set_data(G_OBJECT(gio->filter_bt), E_FILT_TE_PTR_KEY, gio->filter_field);
 	/* filter prefs dialog */

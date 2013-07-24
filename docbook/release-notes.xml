@@ -112,6 +112,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Mask in Lua ProtoField.uint32() does not work as expected.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5734">Bug
+          5734</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Lines of text are truncated if they are either longer than the paper width or past the paper height.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7543">Bug
           7543</ulink>)
@@ -171,6 +177,24 @@ Wireshark Info
           8864</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          iostat_draw sizeof mismatch.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8888">Bug
+          8888</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SIP stats shows incorrect values for Max/Ave setup times.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8897">Bug
+          8897</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Graph Filter field limited to 256 characters.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8909">Bug
+          8909</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -212,7 +236,8 @@ PDCP-LTE,
 RLC,
 RLC-LTE,
 SCSI,
-TETRA,
+SoulSeek,
+TETRA
 
     </para>
     </section>

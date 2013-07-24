@@ -400,7 +400,7 @@ sipstat_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	sp = g_malloc( sizeof(sipstat_t) );
+	sp = g_malloc0( sizeof(sipstat_t) );
 	if(filter){
 		sp->filter=g_strdup(filter);
 	} else {
