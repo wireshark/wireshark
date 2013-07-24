@@ -391,7 +391,7 @@ if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
 fi
 
 # To set up a GTK3 environment
-# GTK3=1
+GTK3=1
 # To build cmake
 # CMAKE=1
 #

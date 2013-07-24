@@ -404,8 +404,8 @@ AC_ARG_WITH([gtk2],
 
 AC_ARG_WITH([gtk3],
   AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
-                  [use GTK+ 3.0 instead of 2.0 @<:@default=no@:>@]),
-  with_gtk3="$withval", with_gtk3="no")
+                  [use GTK+ 3.0 instead of 2.0 @<:@default=yes@:>@]),
+  with_gtk3="$withval", with_gtk3="yes")
 
 # GnuTLS
 # Version 3.0 switched from LGPLv2.1+ to LGPLv3+, then switched back to

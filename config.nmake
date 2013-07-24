@@ -251,7 +251,7 @@ GLIB_VERSION=2.0
 # directory in which the "include" and "lib" directories reside.
 #
 # Set the name to gtk3 if you want to use gtk3
-GTK_NAME=gtk2
+GTK_NAME=gtk3
 GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
 
 
