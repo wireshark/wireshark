@@ -55,14 +55,14 @@ EXTRA_PROGRAMS = wireshark wireshark-qt tshark capinfos editcap mergecap \
 #
 # Wireshark configuration files are put in $(pkgdatadir).
 #
-pkgdata_DATA = COPYING manuf services cfilters colorfilters dfilters \
+dist_pkgdata_DATA = COPYING manuf services cfilters colorfilters dfilters \
 	smi_modules ipmap.html pdml2html.xsl
 
 #
 # Install global profiles in the "profiles" subdirectory
 #
 profilesdir = $(pkgdatadir)
-nobase_profiles_DATA = \
+nobase_dist_profiles_DATA = \
 	profiles/Bluetooth/colorfilters \
 	profiles/Classic/colorfilters
 
@@ -71,7 +71,7 @@ nobase_profiles_DATA = \
 # of that directory.
 #
 diameterdir = $(pkgdatadir)/diameter
-diameter_DATA = \
+dist_diameter_DATA = \
 	diameter/chargecontrol.xml \
 	diameter/ChinaTelecom.xml \
 	diameter/Cisco.xml \
@@ -103,7 +103,7 @@ diameter_DATA = \
 # of that directory
 #
 dtdsdir = $(pkgdatadir)/dtds
-dtds_DATA = \
+dist_dtds_DATA = \
 	dtds/dc.dtd \
 	dtds/itunes.dtd \
 	dtds/mscml.dtd \
@@ -123,7 +123,7 @@ dtds_DATA = \
 #
 radiusdir = $(pkgdatadir)/radius
 -include radius/Custom.make
-radius_DATA = $(_CUSTOM_radius_dict_) \
+dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/README.radius_dictionary  \
 	radius/custom.includes  \
 	radius/Custom.make  \
@@ -276,7 +276,7 @@ radius_DATA = $(_CUSTOM_radius_dict_) \
 # of that directory
 #
 tpncpdir = $(pkgdatadir)/tpncp
-tpncp_DATA = \
+dist_tpncp_DATA = \
 	tpncp/tpncp.dat
 
 #
@@ -284,7 +284,7 @@ tpncp_DATA = \
 # of that directory
 #
 wimaxasncpdir = $(pkgdatadir)/wimaxasncp
-wimaxasncp_DATA = \
+dist_wimaxasncp_DATA = \
 	wimaxasncp/dictionary.xml \
 	wimaxasncp/dictionary.dtd
 
@@ -939,13 +939,6 @@ EXTRA_DIST = \
 	manuf.tmpl		\
 	mergecap.c		\
 	pdml2html.xsl		\
-	$(diameter_DATA)	\
-	$(dtds_DATA)		\
-	$(nobase_profiles_DATA)	\
-	$(radius_DATA)		\
-	$(tpncp_DATA)		\
-	$(ui_DATA)		\
-	$(wimaxasncp_DATA)	\
 	reordercap.c		\
 	smi_modules		\
 	text2pcap-scanner.l	\
