@@ -191,6 +191,7 @@ set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-rfr.c
 	dissectors/packet-dcerpc-srvsvc.c
 	dissectors/packet-dcerpc-winreg.c
+	dissectors/packet-dcerpc-witness.c
 	dissectors/packet-dcerpc-wkssvc.c
 	dissectors/packet-dcerpc-wzcsvc.c
 )

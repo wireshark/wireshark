@@ -64,6 +64,7 @@ PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-rfr.c	\
 	packet-dcerpc-srvsvc.c	\
 	packet-dcerpc-winreg.c	\
+	packet-dcerpc-witness.c	\
 	packet-dcerpc-wkssvc.c	\
 	packet-dcerpc-wzcsvc.c
 
