@@ -25,7 +25,7 @@ include(CheckCSourceCompiles)
 
 macro (CHECK_C_COMPILER_FLAG _FLAG _RESULT)
    set(SAFE_CMAKE_REQUIRED_DEFINITIONS "${CMAKE_REQUIRED_DEFINITIONS}")
-   set(CMAKE_REQUIRED_DEFINITIONS "${_FLAG}")
+   set(CMAKE_REQUIRED_DEFINITIONS "${_FLAG}" ${CMAKE_REQUIRED_DEFINITIONS})
    # Normalize locale during test compilation.
    set(_CheckCCompilerFlag_LOCALE_VARS LC_ALL LC_MESSAGES LANG)
    foreach(v ${_CheckCCompilerFlag_LOCALE_VARS})
