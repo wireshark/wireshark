@@ -7606,6 +7606,8 @@ dissect_block(tvbuff_t *tvb, int offset,
     /* as it's already dissected, remove it */
     u16BodyLength = u16BlockLength - 2;
     remainingBytes = tvb_reported_length_remaining(tvb, offset);
+    if (remainingBytes < 0)
+        remainingBytes = 0;
     if (remainingBytes +2 < u16BodyLength)
     {
         proto_item_append_text(sub_item, " Block_Length: %d greater than remaining Bytes, trying with Blocklen = remaining (%d)", u16BodyLength, remainingBytes);

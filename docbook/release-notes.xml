@@ -165,6 +165,12 @@ Wireshark Info
           8857</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Kismet drone/server dissector improvements.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8864">Bug
+          8864</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -191,13 +197,16 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+ASN.1,
 ANSI IS-637-A,
 ASN.1 PER,
+DCERPC NDR,
 Ethernet,
 H.235,
 IEEE 802a,
 IEEE 802.15.4,
 IMAP,
+KDSP,
 MAC-LTE,
 PDCP-LTE,
 RLC,

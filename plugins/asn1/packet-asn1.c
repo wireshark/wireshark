@@ -2717,7 +2717,7 @@ define_module(GNode *p, GNode *q)
 	module->type = TBLTYPE_Module;
 
 	p = g_node_first_child(p);
-	
+
 	if (!p) {
 		return;
 	}
@@ -5052,7 +5052,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				pos.type = gettype(pos.node); /* the resulting type */
 				info = getinfo(pos.node);
 				tmp = "unknown tag";
-				if ((info->tclass == BER_CLASS_UNI) && (info->tag < 31)) {
+				if (info && (info->tclass == BER_CLASS_UNI) && (info->tag < 31)) {
 					tmp = asn1_tag[info->tag];
 					pos.type = asn1_uni_type[info->tag]; /* get univsrsal type */
 				}
