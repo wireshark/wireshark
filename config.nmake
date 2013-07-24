@@ -289,7 +289,7 @@ GTK_PKG=3.4.4-2.1
 # (MAJOR + MINOR Version number but without MICRO version number)
 # These macros are used by the nsis installer script and by the setup target.
 #
-!IF "$(GTK_NAME)" == "gtk3"
+!IF "$(GTK_NAME)" == "gtk2"
 GTK_INST_VERSION=2.24
 !ELSE
 GTK_INST_VERSION=3.4
