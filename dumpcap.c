@@ -54,6 +54,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
@@ -4466,7 +4470,7 @@ main(int argc, char *argv[])
 	global_capture_opts.capture_child = capture_child;
 
     /* Now get our args */
-    while ((opt = getopt(argc, argv, OPTSTRING)) != -1) {
+    while ((opt = getopt_long(argc, argv, OPTSTRING, NULL, NULL)) != -1) {
         switch (opt) {
         case 'h':        /* Print help and exit */
             print_usage(TRUE);
