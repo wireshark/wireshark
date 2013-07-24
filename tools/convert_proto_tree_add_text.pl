@@ -150,7 +150,7 @@ sub usage {
 		print "    find-all - Output the number of eligible proto_tree_add_text calls\n";
 		print "               for conversion\n\n";
 		print "  --expert     (Optional) Includes proto_tree_add_text calls with no printf arguments in\n";
-		print "               the .proto_tree_input file as they could be converted to expert info\n"
+		print "               the .proto_tree_input file as they could be converted to expert info\n";
 		print "               (otherwise they are ignored)\n";
 		print "               Must be called for 'fix-all' if called on 'generate'\n";
 		print "  --encoding   (Optional) Default encoding if one can't be determined\n";
