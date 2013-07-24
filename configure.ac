@@ -395,17 +395,17 @@ AC_SYS_LARGEFILE
 AC_ARG_WITH([qt],
   AC_HELP_STRING( [--with-qt=@<:@yes/no@:>@],
                   [use Qt @<:@default=no@:>@]),
-  with_qt="$withval", with_qt="no")
+  with_qt="$withval", with_qt="unspecified")
 
 AC_ARG_WITH([gtk2],
   AC_HELP_STRING( [--with-gtk2=@<:@yes/no@:>@],
-                  [use GTK+ 2.0 @<:@default=yes@:>@]),
-  with_gtk2="$withval", with_gtk2="yes")
+                  [use GTK+ 2.0 @<:@default=no@:>@]),
+  with_gtk2="$withval", with_gtk2="unspecified")
 
 AC_ARG_WITH([gtk3],
   AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
                   [use GTK+ 3.0 instead of 2.0 @<:@default=yes@:>@]),
-  with_gtk3="$withval", with_gtk3="yes")
+  with_gtk3="$withval", with_gtk3="unspecified")
 
 # GnuTLS
 # Version 3.0 switched from LGPLv2.1+ to LGPLv3+, then switched back to
@@ -1235,9 +1235,17 @@ AC_SUBST(QT_MIN_VERSION)
 have_qt=no
 have_gtk=no
 if test "x$enable_wireshark" = "xyes"; then
+	if test "x$with_gtk2" = "xunspecified" -a \
+		"x$with_gtk3" = "xunspecified" -a \
+		"x$with_qt" = "xunspecified"; then
+		#
+		# No GUI toolkit was explicitly specified; pick GTK+ 3.
+		#
+		with_gtk3=yes
+	fi
 	if test "x$with_qt" = "xyes"; then
 		#
-		# Make sure we have a C++ compiler.
+		# Qt was specified; Make sure we have a C++ compiler.
 		#
 		if test -z "$CXX"; then
 			AC_MSG_ERROR(Need a working C++ compiler to build Wireshark with Qt)
@@ -1258,21 +1266,30 @@ if test "x$enable_wireshark" = "xyes"; then
 		CPPFLAGS="-DQT_GUI_LIB"
 	fi
 
-	if test "x$with_gtk3" = "xyes" -a "x$with_gtk2" = "xyes" ; then
-		# If the user gave us --with-gtk3, use gtk3 rather than gtk2
-		with_gtk2="no"
-	fi
-
 	if test "x$with_gtk3" = "xyes"; then
+		#
+		# GTK+ 3 was specified; make sure they didn't also
+		# specify GTK+ 2, as we don't support building both
+		# GTK+ 2 and GTK+ 3 versions at the same time.
+		#
+		if test "x$with_gtk2" = "xyes"; then
+			AC_MSG_ERROR([Both GTK+ 2 and GTK+ 3 were specified; choose one but not both])
+		fi
+
+		#
+		# Make sure we have GTK+ 3.
+		#
 		AM_PATH_GTK_3_0(3.0.0,
 		[
 			CFLAGS="$CFLAGS $GTK_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
 		], have_gtk=no)
-	fi
-
-	if test "x$with_gtk2" = "xyes"; then
+	elif test "x$with_gtk2" = "xyes"; then
+		#
+		# GTK+ 3 wasn't specified, and GTK+ 2 was specified;
+		# make sure we have GTK+ 2.
+		#
 		AM_PATH_GTK_2_0($GTK2_MIN_VERSION,
 		[
 			CFLAGS="$CFLAGS $GTK_CFLAGS"
