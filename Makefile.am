@@ -126,6 +126,7 @@ radiusdir = $(pkgdatadir)/radius
 radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/README.radius_dictionary  \
 	radius/custom.includes  \
+	radius/Custom.make  \
 	radius/dictionary  \
 	radius/dictionary.3com  \
 	radius/dictionary.3gpp  \
