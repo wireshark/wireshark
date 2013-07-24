@@ -76,6 +76,10 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     op.translate(en_w + 0.5, 0.5);
     op.setRenderHint(QPainter::Antialiasing, true);
 
+    // The current decorations are based on what looked good and were easy
+    // to code. W might want to improve them by drawing small dots or tick
+    // marks for frames in the same conversation XOR draw a gap for unrelated
+    // frames.
     if (first_frame_ > 0 && last_frame_ > 0 && first_frame_ != last_frame_) {
         int height = optv4.rect.height();
         if ((int) fd->num == first_frame_) {
