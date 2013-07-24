@@ -1255,7 +1255,7 @@ if test "x$enable_wireshark" = "xyes"; then
 		# Now make sure we have Qt and, if so, add the flags
 		# for it to CFLAGS and CXXFLAGS.
 		#
-		AM_PATH_QT($QT_MIN_VERSION,
+		AC_WIRESHARK_QT_CHECK($QT_MIN_VERSION,
 		[
 			CFLAGS="$CFLAGS $Qt_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
