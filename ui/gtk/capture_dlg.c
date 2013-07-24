@@ -327,7 +327,7 @@ gchar *col_index_to_name(gint indx)
 }
 
 static
-gint col_title_to_index(gchar *name)
+gint col_title_to_index(const gchar *name)
 {
   if (strcmp(name, "Capture") == 0) return CAPTURE;
   if (strcmp(name, "Interface") == 0) return INTERFACE;
@@ -524,7 +524,7 @@ init_columns_menu(void)
   columns_action_group = gtk_action_group_new ("ColumnsPopUpMenuActionGroup");
 
   gtk_action_group_add_actions (columns_action_group,            /* the action group */
-      (GtkActionEntry *)columns_menu_popup_action_entries,       /* an array of action descriptions */
+      (const GtkActionEntry *)columns_menu_popup_action_entries, /* an array of action descriptions */
       G_N_ELEMENTS(columns_menu_popup_action_entries),           /* the number of entries */
       columns_menu_object);                                      /* data to pass to the action callbacks */
 
@@ -5661,7 +5661,7 @@ query_tooltip_tree_view_cb (GtkWidget  *widget,
   gtk_tree_model_get (model, &iter, 0, &tmp, -1);
 
   if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view), (gint) x, (gint) y, NULL, &column, NULL, NULL)) {
-    idx = col_title_to_index((gchar *)gtk_tree_view_column_get_title(column));
+    idx = col_title_to_index((const gchar *)gtk_tree_view_column_get_title(column));
 
     switch (idx)
     {
