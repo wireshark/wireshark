@@ -289,7 +289,7 @@ GTK_PKG=3.4.4-2.1
 # (MAJOR + MINOR Version number but without MICRO version number)
 # These macros are used by the nsis installer script and by the setup target.
 #
-!IF "$(GTK_NAME)" == "gtk2"
+!IF "$(GTK_NAME)" == "gtk3"
 GTK_INST_VERSION=2.24
 !ELSE
 GTK_INST_VERSION=3.4
@@ -845,6 +845,11 @@ APPVER=5.02
 # /DWIN32_LEAN_AND_MEAN             Don't include unnecessary Windows include files (see windows.h).
 # /MANIFEST:no                      Don't create a SxS manifest. Makes sure our plugins don't load
 #                                     a second copy of the CRT.
+# -DPSAPI_VERSION=1                 Programs that must run on earlier versions of Windows as well as Windows 7 and later 
+#                                   versions should always call this function as GetProcessMemoryInfo. To ensure correct resolution of symbols, 
+#                                   add Psapi.lib to the TARGETLIBS macro and compile the program with -DPSAPI_VERSION=1. 
+#                                   To use run-time dynamic linking, load Psapi.dll.
+#                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms683219(v=vs.85).aspx
 #
 ##Note: LOCAL_CFLAGS are flags used for *all* compilations
 ##      STANDARD_CFLAGS (see below) are flags used just for *Wireshark* compilations
@@ -858,7 +863,7 @@ APPVER=5.02
         "$(MSVC_VARIANT)" == "MSVC2012"   || \
         "$(MSVC_VARIANT)" == "MSVC2012EE"
 LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
-	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
+	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE -DPSAPI_VERSION=1
 
 !IF "$(WIRESHARK_TARGET_PLATFORM)" != "win64"
 LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_BIND_TO_CURRENT_CRT_VERSION=1
