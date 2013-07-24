@@ -90,6 +90,28 @@ AC_DEFUN([AM_PATH_QT],
 			AC_MSG_NOTICE([QtPrintSupport not found. Assuming Qt4])
 		fi
 
+		#
+		# While we're at it, look for QtMacExtras.  (Presumably
+		# if we're not building for OS X, it won't be present.)
+		#
+		# XXX - is there anything in QtX11Extras or QtWinExtras
+		# that we should be using?
+		#
+		AC_MSG_CHECKING(for QtMacExtras)
+		if QtMacExtras_CFLAGS=`$PKG_CONFIG --cflags Qt5MacExtras 2>/dev/null`; then
+			Qt_CFLAGS="$Qt_CFLAGS $QtMacExtras_CFLAGS"
+			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs Qt5MacExtras 2>/dev/null`"
+			AC_DEFINE(QT_MACEXTRAS_LIB, 1, [Define if we have QtMacExtras])
+			AC_MSG_RESULT(yes)
+		elif QtMacExtras_CFLAGS=`$PKG_CONFIG --cflags QtMacExtras 2>/dev/null`; then
+			Qt_CFLAGS="$Qt_CFLAGS $QtMacExtras_CFLAGS -DQT_MACEXTRAS_LIB"
+			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs QtMacExtras 2>/dev/null`"
+			AC_DEFINE(QT_MACEXTRAS_LIB, 1, [Define if we have QtMacExtras])
+			AC_MSG_RESULT(yes)
+		else
+			AC_MSG_RESULT(no)
+		fi
+
 		AC_SUBST(Qt_LIBS)
 
 		# Run Action-If-Found
