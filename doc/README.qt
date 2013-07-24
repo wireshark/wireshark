@@ -51,7 +51,7 @@ Before compiling you need the Qt SDK and Qt Creator.
 
 1.1.1 OS X
 
-Download the latest Qt Library + Qt Creator (currently 5.0.2) from
+Download the latest Qt Library + Qt Creator (currently 5.1) from
 http://qt-project.org/downloads/ and install it. For a more native
 look and feel you should also install Qt Mac Extras:
 
@@ -62,6 +62,10 @@ look and feel you should also install Qt Mac Extras:
     make -n install
     # Make sure install output looks sensible
     make install
+
+This may or may not work for you; see
+
+    https://bugreports.qt-project.org/browse/QTBUG-32594
 
 1.1.2 Windows
 
