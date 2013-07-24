@@ -1291,19 +1291,22 @@ colorize_filter_te_as_empty(GtkWidget *w)
 void
 colorize_filter_te_as_invalid(GtkWidget *w)
 {
-    color_filter_te(w, prefs.gui_text_invalid.red, prefs.gui_text_invalid.green, prefs.gui_text_invalid.blue);
+    /* light red */
+    color_filter_te(w, 0xFFFF, 0xAFFF, 0xAFFF);
 }
 
 static void
 colorize_filter_te_as_deprecated(GtkWidget *w)
 {
-    color_filter_te(w, prefs.gui_text_deprecated.red, prefs.gui_text_deprecated.green, prefs.gui_text_deprecated.blue);
+    /* light yellow */
+    color_filter_te(w, 0xFFFF, 0xFFFF, 0xAFFF);
 }
 
 void
 colorize_filter_te_as_valid(GtkWidget *w)
 {
-    color_filter_te(w, prefs.gui_text_valid.red, prefs.gui_text_valid.green, prefs.gui_text_valid.blue);
+    /* light green */
+    color_filter_te(w, 0xAFFF, 0xFFFF, 0xAFFF);
 }
 
 /*

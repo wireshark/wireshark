@@ -180,8 +180,6 @@ The following bugs have been fixed:
 
 * IEEE 802.15.4 frame check sequence in "Chipcon mode" not displayed correctly. (ws-buglink:4507)
 
-* Colors used by colorize_filter_te_as_* should be configurable. (ws-buglink:5413)
-
 * Mask in Lua ProtoField.uint32() does not work as expected. (ws-buglink:5734)
 
 * Crash when applying filter with Voip calls. (ws-buglink:6090)
@@ -276,22 +274,27 @@ GSM Common
 GSM SMS
 H.235
 IEC104
+IEEE 802a
 IEEE 802.15.4
 IMAP
 IP
 KDSP
 LISP
 LLRP
+MAC-LTE,
 Mobile IPv6
 MPLS Echo
 Netflow
 NFS
 NFSv4
 P1
+PDCP-LTE
 PN-IO
 PN-RT
 PPP
 Radiotap
+RLC,
+RLC-LTE,
 SCSI
 SIP
 SMTP

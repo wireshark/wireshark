@@ -2061,15 +2061,6 @@ prefs_register_modules(void)
     prefs_register_string_custom_preference(gui_column_module, "colorized_frame.bg", "Colorized Background",
         "Filter Colorized Background", &custom_cbs, (const char **)&prefs.gui_colorized_bg);
 
-    prefs_register_color_preference(gui_color_module, "color_filter_bg.valid", "Valid color filter background",
-        "Valid color filter background", &prefs.gui_text_valid);
-
-    prefs_register_color_preference(gui_color_module, "color_filter_bg.invalid", "Invalid color filter background",
-        "Invalid color filter background", &prefs.gui_text_invalid);
-
-    prefs_register_color_preference(gui_color_module, "color_filter_bg.deprecated", "Deprecated color filter background",
-        "Deprecated color filter background", &prefs.gui_text_deprecated);
-
     prefs_register_enum_preference(gui_module, "console_open",
                        "Open a console window",
                        "Open a console window (WIN32 only)",
@@ -2720,18 +2711,6 @@ pre_init_prefs(void)
   prefs.st_server_bg.red           = 60909;
   prefs.st_server_bg.green         = 60909;
   prefs.st_server_bg.blue          = 64507;
-  prefs.gui_text_valid.pixel         =     0; /* light green */
-  prefs.gui_text_valid.red           = 0xAFFF;
-  prefs.gui_text_valid.green         = 0xFFFF;
-  prefs.gui_text_valid.blue          = 0xAFFF;
-  prefs.gui_text_invalid.pixel     =     0;  /* light red */
-  prefs.gui_text_invalid.red       = 0xFFFF;
-  prefs.gui_text_invalid.green     = 0xAFFF;
-  prefs.gui_text_invalid.blue      = 0xAFFF;
-  prefs.gui_text_deprecated.pixel  =     0; /* light yellow */
-  prefs.gui_text_deprecated.red    = 0xFFFF;
-  prefs.gui_text_deprecated.green  = 0xFFFF;
-  prefs.gui_text_deprecated.blue   = 0xAFFF;
   prefs.gui_geometry_save_position = TRUE;
   prefs.gui_geometry_save_size     = TRUE;
   prefs.gui_geometry_save_maximized= TRUE;
