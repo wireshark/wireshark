@@ -1915,14 +1915,57 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 
 # Based on AM_PATH_GTK in gtk-2.0.m4.
 
+dnl AC_WIRESHARK_QT_MODULE_CHECK([MODULE, MINIMUM-VERSION, [ACTION-IF-FOUND,
+dnl     [ACTION-IF-NOT-FOUND]]])
+dnl Test for a particular Qt module and add the flags and libraries
+dnl for it to Qt_CFLAGS and Qt_LIBS.
+dnl
+AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
+[
+	#
+	# Version of the module we're checking for.
+	# Default to 4.0.0.
+	#
+	min_qt_version=ifelse([$2], ,4.0.0,$2)
+
+	#
+	# Prior to Qt 5, modules were named QtXXX.
+	# In Qt 5, they're named Qt5XXX.
+	#
+	# Try the Qt 5 version first.
+	# (And be prepared to add Qt6 at some point....)
+	#
+	for modprefix in Qt5 Qt
+	do
+		pkg_config_module="${modprefix}$1"
+		AC_MSG_CHECKING(for $pkg_config_module - version >= $min_qt_version)
+		if $PKG_CONFIG --atleast-version $min_qt_version $pkg_config_module; then
+			mod_version=`$PKG_CONFIG --modversion $pkg_config_module`
+			AC_MSG_RESULT(yes (version $mod_version))
+			Qt_CFLAGS="$Qt_CFLAGS `$PKG_CONFIG --cflags $pkg_config_module`"
+			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs $pkg_config_module`"
+			found_$1=yes
+			break
+		else
+			AC_MSG_RESULT(no)
+		fi
+	done
+
+	if test "x$found_$1" = "xyes"; then
+		# Run Action-If-Found
+		ifelse([$3], , :, [$3])
+	else
+		# Run Action-If-Not-Found
+		ifelse([$4], , :, [$4])
+	fi
+])
+
 dnl AC_WIRESHARK_QT_CHECK([MINIMUM-VERSION, [ACTION-IF-FOUND,
 dnl     [ACTION-IF-NOT-FOUND]]])
 dnl Test for Qt and define Qt_CFLAGS and Qt_LIBS.
 dnl
 AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 [
-	pkg_config_module="QtCore QtGui"
-
 	no_qt=""
 
 	AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
@@ -1941,69 +1984,34 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 
 	if test x"$no_qt" = x ; then
 		#
-		# Qt 5.1 appears not to have QtXxx modules; instead, it
-		# has Qt5Xxx modules.
+		# OK, we have an adequate version of pkg-config.
 		#
-		if $PKG_CONFIG Qt5Core
-		then
-			pkg_config_module="Qt5Core Qt5Gui"
-		else
-			pkg_config_module="QtCore QtGui"
-		fi
-		min_qt_version=ifelse([$1], ,4.0.0,$1)
-		AC_MSG_CHECKING(for Qt - version >= $min_qt_version)
-
-		qt_config_major_version=`$PKG_CONFIG --modversion $pkg_config_module | \
-			head -1 | sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
-		qt_config_minor_version=`$PKG_CONFIG --modversion $pkg_config_module | \
-			head -1 | sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
-		qt_config_micro_version=`$PKG_CONFIG --modversion $pkg_config_module | \
-			head -1 | sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
-
-		if $PKG_CONFIG --atleast-version $min_qt_version $pkg_config_module; then
-			AC_MSG_RESULT(yes (version $qt_config_major_version.$qt_config_minor_version.$qt_config_micro_version))
-		else
-			no_qt=yes
-			AC_MSG_RESULT(no)
-		fi
+		# Check for the Core module; if we don't have that,
+		# we don't have Qt.
+		#
+		AC_WIRESHARK_QT_MODULE_CHECK(Core, $1, , [no_qt=yes])
 	fi
 
 	if test x"$no_qt" = x ; then
-		Qt_CFLAGS=`$PKG_CONFIG --cflags $pkg_config_module`
-		Qt_LIBS=`$PKG_CONFIG --libs $pkg_config_module`
+		#
+		# We need the Gui module as well.
+		#
+		AC_WIRESHARK_QT_MODULE_CHECK(Gui, $1, , [no_qt=yes])
+	fi
 
+	if test x"$no_qt" = x ; then
 		#
 		# Qt 5.0 appears to move the widgets out of Qt GUI
-		# to Qt Widgets; look for Qt5Widgets and, if we find
-		# it, add its flags to CFLAGS and CXXFLAGS, so that
-		# we find the include files for the widgets.  If
-		# we don't find Qt5Widgets, look for QtWidgets instead.
-		# If we don't find QtWidgets, we assume it's Qt 4.
+		# to Qt Widgets; look for the Widgets module, but
+		# don't fail if we don't have it.
 		#
-		if QtWidgets_CFLAGS=`$PKG_CONFIG --cflags Qt5Widgets 2>/dev/null`; then
-			Qt_CFLAGS="$Qt_CFLAGS $QtWidgets_CFLAGS"
-			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs Qt5Widgets 2>/dev/null`"
-		elif QtWidgets_CFLAGS=`$PKG_CONFIG --cflags QtWidgets 2>/dev/null`; then
-			Qt_CFLAGS="$Qt_CFLAGS $QtWidgets_CFLAGS"
-			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs QtWidgets 2>/dev/null`"
-		else
-			AC_MSG_NOTICE([QtWidgets not found. Assuming Qt4])
-		fi
+		AC_WIRESHARK_QT_MODULE_CHECK(Widgets, $1)
 
 		#
 		# Qt 5.0 also appears to move the printing support into
-		# the QtPrintSupport module, and Qt 5.1 renamed it
-		# Qt5PrintSupport.
+		# the Qt PrintSupport module.
 		#
-		if QtPrintSupport_CFLAGS=`$PKG_CONFIG --cflags Qt5PrintSupport 2>/dev/null`; then
-			Qt_CFLAGS="$Qt_CFLAGS $QtPrintSupport_CFLAGS"
-			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs Qt5PrintSupport 2>/dev/null`"
-		elif QtPrintSupport_CFLAGS=`$PKG_CONFIG --cflags QtPrintSupport 2>/dev/null`; then
-			Qt_CFLAGS="$Qt_CFLAGS $QtPrintSupport_CFLAGS"
-			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs QtPrintSupport 2>/dev/null`"
-		else
-			AC_MSG_NOTICE([QtPrintSupport not found. Assuming Qt4])
-		fi
+		AC_WIRESHARK_QT_MODULE_CHECK(PrintSupport, $1)
 
 		#
 		# While we're at it, look for QtMacExtras.  (Presumably
@@ -2012,20 +2020,8 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 		# XXX - is there anything in QtX11Extras or QtWinExtras
 		# that we should be using?
 		#
-		AC_MSG_CHECKING(for QtMacExtras)
-		if QtMacExtras_CFLAGS=`$PKG_CONFIG --cflags Qt5MacExtras 2>/dev/null`; then
-			Qt_CFLAGS="$Qt_CFLAGS $QtMacExtras_CFLAGS"
-			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs Qt5MacExtras 2>/dev/null`"
-			AC_DEFINE(QT_MACEXTRAS_LIB, 1, [Define if we have QtMacExtras])
-			AC_MSG_RESULT(yes)
-		elif QtMacExtras_CFLAGS=`$PKG_CONFIG --cflags QtMacExtras 2>/dev/null`; then
-			Qt_CFLAGS="$Qt_CFLAGS $QtMacExtras_CFLAGS -DQT_MACEXTRAS_LIB"
-			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs QtMacExtras 2>/dev/null`"
-			AC_DEFINE(QT_MACEXTRAS_LIB, 1, [Define if we have QtMacExtras])
-			AC_MSG_RESULT(yes)
-		else
-			AC_MSG_RESULT(no)
-		fi
+		AC_WIRESHARK_QT_MODULE_CHECK(MacExtras, $1,
+			AC_DEFINE(QT_MACEXTRAS_LIB, 1, [Define if we have QtMacExtras]))
 
 		AC_SUBST(Qt_LIBS)
 
