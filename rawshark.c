@@ -1572,7 +1572,7 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
     fprintf(stderr, "\n");
 }
 
-const nstime_t *
+static const nstime_t *
 raw_get_frame_ts(void *data _U_, guint32 frame_num)
 {
     if (ref && ref->num == frame_num)
@@ -1587,7 +1587,7 @@ raw_get_frame_ts(void *data _U_, guint32 frame_num)
     return NULL;
 }
 
-epan_t *
+static epan_t *
 raw_epan_new(capture_file *cf)
 {
     epan_t *epan = epan_new();
