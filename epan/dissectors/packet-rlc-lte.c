@@ -1397,6 +1397,13 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                 expectedSequenceNumber = sequenceNumber;
             }
 
+            if ((sequenceNumber == 0) &&
+                ((p_rlc_lte_info->channelType == CHANNEL_TYPE_MCCH) || (p_rlc_lte_info->channelType == CHANNEL_TYPE_MTCH))) {
+                /* With eMBMS, SN restarts to 0 at each MCH Scheduling Period so we cannot deduce easily whether
+                   there was a PDU loss or not without analysing the Frame Indicator; assume no loss when seeing 0 */
+                expectedSequenceNumber = 0;
+            }
+
             /* Set report for this frame */
             /* For UM, sequence number is always expectedSequence number */
             p_report_in_frame->sequenceExpectedCorrect = (sequenceNumber == expectedSequenceNumber);
@@ -1415,7 +1422,8 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
 
                 /* Frames are not missing if we get an earlier sequence number again */
                 /* TODO: taking time into account would give better idea of whether missing or repeated... */
-                else if (((snLimit + sequenceNumber - expectedSequenceNumber) % snLimit) < 10) {
+                else if ((p_rlc_lte_info->channelType == CHANNEL_TYPE_MCCH) || (p_rlc_lte_info->channelType == CHANNEL_TYPE_MTCH) ||
+                         (((snLimit + sequenceNumber - expectedSequenceNumber) % snLimit) < 10)) {
                     reassembly_destroy(p_channel_status);
 
                     p_report_in_frame->state = SN_Missing;
