@@ -132,6 +132,10 @@ static int hf_rtsp_session  = -1;
 static int hf_rtsp_transport    = -1;
 static int hf_rtsp_rdtfeaturelevel  = -1;
 static int hf_rtsp_X_Vig_Msisdn = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_rtsp_channel = -1;
+static int hf_rtsp_length = -1;
+static int hf_rtsp_magic = -1;
 
 static int voip_tap = -1;
 
@@ -277,7 +281,6 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_item     *ti;
     proto_tree     *rtspframe_tree = NULL;
     int             orig_offset;
-    guint8          rf_start;   /* always RTSP_FRAMEHDR */
     guint8          rf_chan;    /* interleaved channel id */
     guint16         rf_len;     /* packet length */
     tvbuff_t       *next_tvb;
@@ -319,7 +322,6 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * Get the "$", channel, and length from the header.
      */
     orig_offset = offset;
-    rf_start = tvb_get_guint8(tvb, offset);
     rf_chan = tvb_get_guint8(tvb, offset+1);
     rf_len = tvb_get_ntohs(tvb, offset+2);
 
@@ -347,31 +349,21 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
             "Interleaved channel 0x%02x, %u bytes",
             rf_chan, rf_len);
 
-    if (tree != NULL) {
-        ti = proto_tree_add_protocol_format(tree, proto_rtsp, tvb,
-            offset, 4,
-            "RTSP Interleaved Frame, Channel: 0x%02x, %u bytes",
-            rf_chan, rf_len);
-        rtspframe_tree = proto_item_add_subtree(ti, ett_rtspframe);
+    ti = proto_tree_add_protocol_format(tree, proto_rtsp, tvb,
+        offset, 4,
+        "RTSP Interleaved Frame, Channel: 0x%02x, %u bytes",
+        rf_chan, rf_len);
+    rtspframe_tree = proto_item_add_subtree(ti, ett_rtspframe);
 
-        proto_tree_add_text(rtspframe_tree, tvb, offset, 1,
-            "Magic: 0x%02x",
-            rf_start);
-    }
+    proto_tree_add_item(rtspframe_tree, hf_rtsp_magic, tvb, offset, 1, ENC_NA);
+
     offset += 1;
 
-    if (tree != NULL) {
-        proto_tree_add_text(rtspframe_tree, tvb, offset, 1,
-            "Channel: 0x%02x",
-            rf_chan);
-    }
+    proto_tree_add_item(rtspframe_tree, hf_rtsp_channel, tvb, offset, 1, ENC_NA);
+
     offset += 1;
 
-    if (tree != NULL) {
-        proto_tree_add_text(rtspframe_tree, tvb, offset, 2,
-            "Length: %u bytes",
-            rf_len);
-    }
+    proto_tree_add_item(rtspframe_tree, hf_rtsp_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /*
@@ -1431,6 +1423,10 @@ proto_register_rtsp(void)
         { &hf_rtsp_X_Vig_Msisdn,
             { "X-Vig-Msisdn", "rtsp.X_Vig_Msisdn", FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_rtsp_magic, { "Magic", "rtsp.magic", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_rtsp_channel, { "Channel", "rtsp.channel", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_rtsp_length, { "Length", "rtsp.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 
     };
