@@ -267,7 +267,16 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             matcher->response_found = FALSE;
 
             p_add_proto_data(pinfo->fd, proto_kafka, 0, matcher);
-            wmem_queue_push(match_queue, matcher);
+
+            /* The kafka server always responds, except in the case of a produce
+             * request whose RequiredAcks field is 0. This field is at a dynamic
+             * offset into the request, so to avoid too much prefetch logic we
+             * simply don't queue produce requests here. If it is a produce
+             * request with a non-zero RequiredAcks field it gets queued later.
+             */
+            if (matcher->api_key != KAFKA_PRODUCE) {
+                wmem_queue_push(match_queue, matcher);
+            }
         }
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Kafka %s Request",
@@ -293,6 +302,11 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         switch (matcher->api_key) {
             /* TODO: decode other request types */
             case KAFKA_PRODUCE:
+                /* Produce requests may need delayed queueing, see the more
+                 * detailed comment above. */
+                if (tvb_get_ntohs(tvb, offset) != 0 && !PINFO_FD_VISITED(pinfo)) {
+                    wmem_queue_push(match_queue, matcher);
+                }
                 offset = dissect_kafka_produce_request(tvb, pinfo, kafka_tree, offset);
                 break;
         }
