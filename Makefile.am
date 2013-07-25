@@ -75,6 +75,7 @@ dist_diameter_DATA = \
 	diameter/chargecontrol.xml \
 	diameter/ChinaTelecom.xml \
 	diameter/Cisco.xml \
+	diameter/Custom.xml \
 	diameter/dictionary.dtd \
 	diameter/dictionary.xml \
 	diameter/eap.xml \
