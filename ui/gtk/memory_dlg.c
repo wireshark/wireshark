@@ -46,12 +46,12 @@
 #include "wsutil/str_util.h"
 
 enum {
-	MEMORY_TOTAL = 0,
-	MEMORY_RSS,
-	MEMORY_EP,
-	MEMORY_SE,
+    MEMORY_TOTAL = 0,
+    MEMORY_RSS,
+    MEMORY_EP,
+    MEMORY_SE,
 
-	MAX_GRAPHS
+    MAX_GRAPHS
 };
 
 static const char *graph_labels[MAX_GRAPHS] = { "Total", "RSS", "EP", "SE" };
@@ -230,15 +230,15 @@ io_stat_draw(io_stat_t *io)
     /*
     * Calculate the y scale we should use
     */
-        max_y = yscale_max[MAX_YSCALE-1];
-        for (i=MAX_YSCALE-1; i>1; i--) {
-            if (max_value < yscale_max[i]) {
-                max_y = yscale_max[i];
-            }
+    max_y = yscale_max[MAX_YSCALE-1];
+    for (i=MAX_YSCALE-1; i>1; i--) {
+        if (max_value < yscale_max[i]) {
+            max_y = yscale_max[i];
         }
+    }
 
-	layout = gtk_widget_create_pango_layout(io->draw_area, "99999 T bytes");
-	pango_layout_get_pixel_size(layout, &label_width, &label_height);
+    layout = gtk_widget_create_pango_layout(io->draw_area, "99999 T bytes");
+    pango_layout_get_pixel_size(layout, &label_width, &label_height);
 
     io->left_x_border = 10;
     io->right_x_border = label_width + 20;
@@ -280,9 +280,9 @@ io_stat_draw(io_stat_t *io)
         /* draw the labels */
         if (xwidth == 10) {
             guint32 value = (max_y/10)*i;
-	    char *label_tmp;
+            char *label_tmp;
 
-	    label_tmp = format_size(value, format_size_unit_bytes);
+            label_tmp = format_size(value, format_size_unit_bytes);
 
             pango_layout_set_text(layout, label_tmp, -1);
             pango_layout_get_pixel_size(layout, &lwidth, NULL);
@@ -290,7 +290,7 @@ io_stat_draw(io_stat_t *io)
             cairo_move_to (cr, io->surface_width-io->right_x_border+15+label_width-lwidth, ypos-label_height/2);
             pango_cairo_show_layout (cr, layout);
 
-	    g_free(label_tmp);
+            g_free(label_tmp);
         }
     }
 
@@ -333,7 +333,7 @@ io_stat_draw(io_stat_t *io)
         cairo_line_to(cr, x-1-io->pixels_per_tick/2+0.5, io->surface_height-bottom_y_border+xlen+1.5);
         cairo_stroke(cr);
         if (xlen == 10) {
-	    char label_string[64];
+            char label_string[64];
             int lwidth, x_pos;
             print_interval_string (label_string, sizeof(label_string), current_interval, io);
             pango_layout_set_text(layout, label_string, -1);
@@ -404,7 +404,7 @@ io_stat_draw(io_stat_t *io)
                     /* Dont draw anything if the segment entirely above the top of the graph
                     */
                     if ( (prev_y_pos != 0) || (y_pos != 0) ) {
-			static GdkRGBA red_color = {1.0, 0.0, 0.1, 1.0};
+                        static GdkRGBA red_color = {1.0, 0.0, 0.1, 1.0};
 
                         cairo_move_to(cr, prev_x_pos+0.5, prev_y_pos+0.5);
                         cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
@@ -601,14 +601,14 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
     gtk_widget_show(hbox);
 
     for (i=0; i<MAX_GRAPHS; i++) {
-	    GtkWidget *display_button;
+        GtkWidget *display_button;
 
-	    display_button = gtk_toggle_button_new_with_label(graph_labels[i]);
-	    gtk_box_pack_start(GTK_BOX(hbox), display_button, FALSE, FALSE, 0);
-	    g_signal_connect(display_button, "toggled", G_CALLBACK(filter_callback), &io->graphs[i]);
-	    gtk_widget_show(display_button);
+        display_button = gtk_toggle_button_new_with_label(graph_labels[i]);
+        gtk_box_pack_start(GTK_BOX(hbox), display_button, FALSE, FALSE, 0);
+        g_signal_connect(display_button, "toggled", G_CALLBACK(filter_callback), &io->graphs[i]);
+        gtk_widget_show(display_button);
 
-	    io->graphs[i].display_button = display_button;
+        io->graphs[i].display_button = display_button;
     }
 }
 
@@ -654,90 +654,93 @@ static gsize
 get_total(void)
 {
 #if defined(_WIN32)
-   HANDLE pHandle;
-   PROCESS_MEMORY_COUNTERS pmc;
-   SIZE_T workingSize = 0;
+    HANDLE pHandle;
+    PROCESS_MEMORY_COUNTERS pmc;
+    SIZE_T workingSize = 0;
 
-   pHandle = GetCurrentProcess();
+    pHandle = GetCurrentProcess();
 
-   if (GetProcessMemoryInfo(pHandle, &pmc, sizeof(pmc))){
-      workingSize = pmc.WorkingSetSize;
+    if (GetProcessMemoryInfo(pHandle, &pmc, sizeof(pmc))){
+        workingSize = pmc.WorkingSetSize;
 
-	  workingSize = workingSize / 1024;
+        workingSize = workingSize / 1024;
     }
 
     CloseHandle(pHandle);
 
-	if(workingSize == 0){
-		return -1;
-	}else{
-		return (int)workingSize;
-	}
+    if (workingSize == 0){
+        return -1;
+    } else {
+        return (int)workingSize;
+    }
 #else
-	char *temp, *p = NULL;
-	FILE *file = NULL;
-	size_t rd = 0;
-	int rozmiar = 0, unmres;
-	struct utsname sys;
+    char *temp;
+    FILE *file = NULL;
+    int rozmiar = 0, unmres;
+    struct utsname sys;
 
-	unmres = uname(&sys);
+    unmres = uname(&sys);
 
-	temp = g_strdup_printf("/proc/%d/status", getpid());
+    temp = g_strdup_printf("/proc/%d/status", getpid());
 
-	if ( (unmres != -1 && !strcmp(sys.sysname, "FreeBSD")) || (file = fopen(temp,"rb")) ) {
-		g_free(temp);
-		{
+    if ( (unmres != -1 && !strcmp(sys.sysname, "FreeBSD")) || (file = fopen(temp,"rb")) ) {
+        g_free(temp);
+        {
 #ifdef __linux__
-			char buf[1024];
+            size_t rd;
+            char buf[1024];
+            char *p;
 
-			rd = fread(buf, 1, 1024, file);
-			fclose(file);
-			if (rd == 0)
-			{
-				return -1;
-			} 
-			p = strstr(buf, "VmSize");
-			if (p) {
-				sscanf(p, "VmSize:     %d kB", &rozmiar);
-			} else {
-				return -1;
-			}
+            rd = fread(buf, 1, 1024, file);
+            fclose(file);
+            if (rd == 0)
+            {
+                return -1;
+            } 
+            p = strstr(buf, "VmSize");
+            if (p) {
+                sscanf(p, "VmSize:     %d kB", &rozmiar);
+            } else {
+                return -1;
+            }
 #elif __sun
-			pstatus_t proc_stat;
-			rd = fread(&proc_stat, sizeof(proc_stat), 1, file);
-			fclose(file);
-			if (rd == 0)
-			{
-				return -1;
-			}
-			rozmiar = proc_stat.pr_brksize + proc_stat.pr_stksize;
-#elif __FreeBSD__ /* link with -lkvm */
-			char errbuf[_POSIX2_LINE_MAX];
-			int nentries = -1;
-			struct kinfo_proc *kp;
-			static kvm_t	  *kd;
+            size_t rd;
+            pstatus_t proc_stat;
 
-			if (!(kd = kvm_openfiles(NULL /* "/dev/null" */, "/dev/null", NULL, /* O_RDONLY */0, errbuf))) {
-				return -1;
-			}
-			kp = kvm_getprocs(kd, KERN_PROC_PID, getpid(), &nentries);
-			if (!kp || nentries != 1) {
-				return -1; 
-			}
+            rd = fread(&proc_stat, sizeof(proc_stat), 1, file);
+            fclose(file);
+            if (rd == 0)
+            {
+                return -1;
+            }
+            rozmiar = proc_stat.pr_brksize + proc_stat.pr_stksize;
+#elif __FreeBSD__ /* link with -lkvm */
+            char errbuf[_POSIX2_LINE_MAX];
+            int nentries = -1;
+            struct kinfo_proc *kp;
+            static kvm_t      *kd;
+
+            if (!(kd = kvm_openfiles(NULL /* "/dev/null" */, "/dev/null", NULL, /* O_RDONLY */0, errbuf))) {
+                return -1;
+            }
+            kp = kvm_getprocs(kd, KERN_PROC_PID, getpid(), &nentries);
+            if (!kp || nentries != 1) {
+                return -1; 
+            }
 #ifdef HAVE_STRUCT_KINFO_PROC_KI_SIZE
-			rozmiar = (u_long) kp->ki_size/1024; /* freebsd5 */
+            rozmiar = (u_long) kp->ki_size/1024; /* freebsd5 */
 #else
-			rozmiar = kp->kp_eproc.e_vm.vm_map.size/1024; /* freebsd4 */
+            rozmiar = kp->kp_eproc.e_vm.vm_map.size/1024; /* freebsd4 */
 #endif /* HAVE_STRUCT_KINFO_PROC_KI_SIZE */
 #else
-			/* no /proc mounted */
-			return -1;
+            /* no /proc mounted */
+            return -1;
 #endif
-		}
-	} else {
-		return -1;
-	}
-	return rozmiar;
+        }
+    } else {
+        return -1;
+    }
+    return rozmiar;
 #endif /* (_WIN32) */
 }
 
@@ -746,44 +749,44 @@ call_it(gpointer user_data)
 {
 gsize ep_memory_usage(void);
 gsize se_memory_usage(void);
-	io_stat_t *io = (io_stat_t *) user_data;
-	char buf[64];
-	char *tmp;
+    io_stat_t *io = (io_stat_t *) user_data;
+    char buf[64];
+    char *tmp;
 
-	int              idx;
+    int              idx;
 
-	io->needs_redraw = TRUE;
+    io->needs_redraw = TRUE;
 
-	idx = io->num_items++;
+    idx = io->num_items++;
 
-	/* some sanity checks */
-	if ((idx < 0) || (idx >= NUM_IO_ITEMS)) {
-		io->num_items = NUM_IO_ITEMS-1;
-		return FALSE;
-	}
+    /* some sanity checks */
+    if ((idx < 0) || (idx >= NUM_IO_ITEMS)) {
+        io->num_items = NUM_IO_ITEMS-1;
+        return FALSE;
+    }
 
-	/* Point to the appropriate io_item_t struct */
-	io->graphs[MEMORY_TOTAL].items[idx]->bytes = get_total() * 1000;
-	tmp = format_size(io->graphs[MEMORY_TOTAL].items[idx]->bytes, format_size_unit_bytes);
-	g_snprintf(buf, sizeof(buf), "Total [%s]", tmp);
-	gtk_button_set_label(GTK_BUTTON(io->graphs[MEMORY_TOTAL].display_button), buf);
-	g_free(tmp);
+    /* Point to the appropriate io_item_t struct */
+    io->graphs[MEMORY_TOTAL].items[idx]->bytes = get_total() * 1000;
+    tmp = format_size(io->graphs[MEMORY_TOTAL].items[idx]->bytes, format_size_unit_bytes);
+    g_snprintf(buf, sizeof(buf), "Total [%s]", tmp);
+    gtk_button_set_label(GTK_BUTTON(io->graphs[MEMORY_TOTAL].display_button), buf);
+    g_free(tmp);
 
-	io->graphs[MEMORY_EP].items[idx]->bytes = ep_memory_usage();
-	tmp = format_size(io->graphs[MEMORY_EP].items[idx]->bytes, format_size_unit_bytes);
-	g_snprintf(buf, sizeof(buf), "EP [%s]", tmp);
-	gtk_button_set_label(GTK_BUTTON(io->graphs[MEMORY_EP].display_button), buf);
-	g_free(tmp);
+    io->graphs[MEMORY_EP].items[idx]->bytes = ep_memory_usage();
+    tmp = format_size(io->graphs[MEMORY_EP].items[idx]->bytes, format_size_unit_bytes);
+    g_snprintf(buf, sizeof(buf), "EP [%s]", tmp);
+    gtk_button_set_label(GTK_BUTTON(io->graphs[MEMORY_EP].display_button), buf);
+    g_free(tmp);
 
-	io->graphs[MEMORY_SE].items[idx]->bytes = se_memory_usage();
-	tmp = format_size(io->graphs[MEMORY_SE].items[idx]->bytes, format_size_unit_bytes);
-	g_snprintf(buf, sizeof(buf), "SE [%s]", tmp);
-	gtk_button_set_label(GTK_BUTTON(io->graphs[MEMORY_SE].display_button), buf);
-	g_free(tmp);
+    io->graphs[MEMORY_SE].items[idx]->bytes = se_memory_usage();
+    tmp = format_size(io->graphs[MEMORY_SE].items[idx]->bytes, format_size_unit_bytes);
+    g_snprintf(buf, sizeof(buf), "SE [%s]", tmp);
+    gtk_button_set_label(GTK_BUTTON(io->graphs[MEMORY_SE].display_button), buf);
+    g_free(tmp);
 
-	io_stat_draw(io);
+    io_stat_draw(io);
 
-	return TRUE;
+    return TRUE;
 }
 
 void
@@ -823,8 +826,8 @@ memory_stat_init(void)
 
     /* build the GUI */
     init_io_stat_window(io);
-	io->graphs[0].display = TRUE;
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(io->graphs[0].display_button), TRUE);
+    io->graphs[0].display = TRUE;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(io->graphs[0].display_button), TRUE);
 
     gdk_window_raise(gtk_widget_get_window(io->window));
     io_stat_redraw(io);
