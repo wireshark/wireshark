@@ -3709,7 +3709,7 @@ dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = wmem_new(wmem_packet_scope(), guint8);
+    buf = wmem_new(actx->pinfo->pool, guint8);
     buf[0] = value;
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint8), sizeof(guint8));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
@@ -3736,7 +3736,7 @@ dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(wmem_packet_scope(), guint16);
+    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint16);
     phtons(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
@@ -3763,7 +3763,7 @@ dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(wmem_packet_scope(), guint16);
+    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint16);
     phtons(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
@@ -3790,7 +3790,7 @@ dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(wmem_packet_scope(), guint32);
+    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint32);
     phtonl(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
@@ -3817,7 +3817,7 @@ dissect_h245_T_unsigned32Max(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)wmem_new(wmem_packet_scope(), guint32);
+    buf = (guint8 *)wmem_new(actx->pinfo->pool, guint32);
     phtonl(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
