@@ -28,11 +28,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#ifndef _UAT_INT_H_
-#define _UAT_INT_H_
+#ifndef __UAT_INT_H__
+#define __UAT_INT_H__
 
 #include "uat.h"
 #include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 typedef struct _uat_fld_rep_t uat_fld_rep_t;
 typedef struct _uat_rep_t uat_rep_t;
@@ -72,6 +76,7 @@ struct _uat_t {
     gboolean from_global;
 };
 
+WS_DLL_PUBLIC
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing);
 
 void uat_init(void);
@@ -100,7 +105,12 @@ void uat_load_all(void);
 #define UAT_UPDATE(uat) do { *((uat)->user_ptr) = (void*)((uat)->user_data->data); *((uat)->nrows_p) = (uat)->user_data->len; } while(0)
 #define UAT_INDEX_PTR(uat,idx) (uat->raw_data->data + (uat->record_size * (idx)))
 #define UAT_USER_INDEX_PTR(uat,idx) (uat->user_data->data + (uat->record_size * (idx)))
-#endif
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __UAT_INT_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

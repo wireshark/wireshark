@@ -1,42 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ProfileDialog</class>
- <widget class="QDialog" name="ProfileDialog">
+ <class>UatDialog</class>
+ <widget class="QDialog" name="UatDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
-    <height>300</height>
+    <width>566</width>
+    <height>403</height>
    </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Wireshark: Configuration Profiles</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="profileTreeWidget">
-     <property name="rootIsDecorated">
-      <bool>false</bool>
-     </property>
-     <property name="uniformRowHeights">
-      <bool>true</bool>
-     </property>
-     <property name="itemsExpandable">
-      <bool>false</bool>
-     </property>
-     <property name="headerHidden">
-      <bool>true</bool>
-     </property>
-     <property name="expandsOnDoubleClick">
-      <bool>false</bool>
-     </property>
-     <property name="columnCount">
-      <number>1</number>
-     </property>
+    <widget class="QTreeWidget" name="uatTreeWidget">
      <column>
       <property name="text">
-       <string notr="true">Name</string>
+       <string notr="true">1</string>
       </property>
      </column>
     </widget>
@@ -142,7 +121,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ProfileDialog</receiver>
+   <receiver>UatDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -158,7 +137,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>ProfileDialog</receiver>
+   <receiver>UatDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

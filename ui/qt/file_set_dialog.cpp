@@ -129,10 +129,8 @@ void FileSetDialog::addFile(fileset_entry *entry) {
                    .arg(plurality(fs_ui_->fileSetTree->topLevelItemCount(), "", "s")));
 
     dir_name = fileset_get_dirname();
-    elided_dir_name = fs_ui_->directoryLabel->fontMetrics().elidedText(dir_name, Qt::ElideLeft, fs_ui_->directoryLabel->maximumWidth());
-    fs_ui_->directoryLabel->setText(QString("<a href=\"%1\">%2</a>")
-                                    .arg(QUrl::fromLocalFile(dir_name).toString())
-                                    .arg(elided_dir_name));
+    fs_ui_->directoryLabel->setText(dir_name);
+    fs_ui_->directoryLabel->setUrl(QUrl::fromLocalFile(dir_name).toString());
     fs_ui_->directoryLabel->setEnabled(true);
 
     if(entry->current) {

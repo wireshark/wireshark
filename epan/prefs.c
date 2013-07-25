@@ -1077,7 +1077,7 @@ prefs_register_static_text_preference(module_t *module, const char *name,
 extern void
 prefs_register_uat_preference(module_t *module, const char *name,
                               const char *title, const char *description,
-                              void* uat)
+                              uat_t* uat)
 {
 
     pref_t* preference = register_preference(module, name, title, description, PREF_UAT);
@@ -4407,7 +4407,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
 
     case PREF_UAT:
     {
-        uat_t *uat = (uat_t *) pref->varp.uat;
+        uat_t *uat = pref->varp.uat;
         if (uat && uat->filename)
             return g_strdup_printf("[Managed in the file \"%s\"]", uat->filename);
         else

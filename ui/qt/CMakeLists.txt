@@ -36,6 +36,7 @@ set(QTSHARK_H_SRC
 	column_preferences_frame.h
 	display_filter_combo.h
 	display_filter_edit.h
+	elided_label.h
 	export_dissection_dialog.h
 	export_object_dialog.h
 	file_set_dialog.h
@@ -67,6 +68,7 @@ set(QTSHARK_H_SRC
 	summary_dialog.h
 	syntax_line_edit.h
 	time_shift_dialog.h
+	uat_dialog.h
 	wireshark_application.h
 
 	# No Q_OBJECT:
@@ -89,6 +91,7 @@ set(CLEAN_FILES
 	column_preferences_frame.cpp
 	display_filter_combo.cpp
 	display_filter_edit.cpp
+	elided_label.cpp
 	export_dissection_dialog.cpp
 	export_object_dialog.cpp
 	file_set_dialog.cpp
@@ -125,6 +128,7 @@ set(CLEAN_FILES
 	splash_overlay.cpp
 	syntax_line_edit.cpp
 	time_shift_dialog.cpp
+	uat_dialog.cpp
 	wireshark_application.cpp
 )
 
@@ -155,6 +159,7 @@ set(QTSHARK_UI
 	search_frame.ui
 	splash_overlay.ui
 	time_shift_dialog.ui
+	uat_dialog.ui
 )
 
 set(QTSHARK_QRC

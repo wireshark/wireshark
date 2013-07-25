@@ -25,6 +25,7 @@
 #include "ui_module_preferences_scroll_area.h"
 #include "syntax_line_edit.h"
 #include "qt_ui_utils.h"
+#include "uat_dialog.h"
 
 #include <epan/prefs-int.h>
 
@@ -433,7 +434,8 @@ void ModulePreferencesScrollArea::uatPushButtonPressed()
     pref_t *pref = uat_pb->property(pref_prop_).value<pref_t *>();
     if (!pref) return;
 
-    qDebug() << "FIX Implement UATs:" << pref->title;
+    UatDialog uat_dlg(this, pref->varp.uat);
+    uat_dlg.exec();
 }
 
 void ModulePreferencesScrollArea::filenamePushButtonPressed()

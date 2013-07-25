@@ -52,7 +52,8 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_search_frame.h \
 	ui_summary_dialog.h \
 	ui_splash_overlay.h \
-	ui_time_shift_dialog.h
+	ui_time_shift_dialog.h \
+	ui_uat_dialog.h
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =
@@ -99,6 +100,7 @@ MOC_HDRS = \
 	column_preferences_frame.h \
 	display_filter_combo.h \
 	display_filter_edit.h \
+	elided_label.h \
 	export_dissection_dialog.h \
 	export_object_dialog.h \
 	file_set_dialog.h \
@@ -132,6 +134,7 @@ MOC_HDRS = \
 	splash_overlay.h \
 	syntax_line_edit.h \
 	time_shift_dialog.h \
+	uat_dialog.h \
 	wireshark_application.h
 
 
@@ -160,7 +163,8 @@ UI_FILES = \
 	search_frame.ui			\
 	summary_dialog.ui 		\
 	splash_overlay.ui		\
-	time_shift_dialog.ui
+	time_shift_dialog.ui		\
+	uat_dialog.ui
 
 #
 # The .moc.cpp files generated from them.
@@ -218,6 +222,7 @@ WIRESHARK_QT_SRC = \
 	column_preferences_frame.cpp \
 	display_filter_combo.cpp \
 	display_filter_edit.cpp \
+	elided_label.cpp \
 	export_dissection_dialog.cpp \
 	export_object_dialog.cpp \
 	file_set_dialog.cpp \
@@ -255,6 +260,7 @@ WIRESHARK_QT_SRC = \
 	splash_overlay.cpp \
 	syntax_line_edit.cpp \
 	time_shift_dialog.cpp \
+	uat_dialog.cpp \
 	wireshark_application.cpp
 
 noinst_HEADERS = \

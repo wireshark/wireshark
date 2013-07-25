@@ -34,10 +34,11 @@
 #include "wireshark_application.h"
 #include "color_utils.h"
 
-#include <QFont>
-#include <QUrl>
 #include <QBrush>
+#include <QDir>
+#include <QFont>
 #include <QMessageBox>
+#include <QUrl>
 
 Q_DECLARE_METATYPE(GList *)
 
@@ -149,17 +150,17 @@ void ProfileDialog::updateWidgets()
         }
     }
 
-    if (current_profile && current_profile->status != PROF_STAT_DEFAULT) {
+    if (current_profile) {
         QString profile_path = current_profile->is_global ? get_global_profiles_dir() : get_profiles_dir();
-        QString elided_path = pd_ui_->pathLabel->fontMetrics().elidedText(profile_path, Qt::ElideMiddle, pd_ui_->pathLabel->width());
-        pd_ui_->pathLabel->setText(QString("<i><a href=\"%1\">%2</a></i>")
-                                        .arg(QUrl::fromLocalFile(profile_path).toString())
-                                        .arg(elided_path));
+        if (current_profile->status != PROF_STAT_DEFAULT) {
+            profile_path.append(QDir::separator()).append(current_profile->name);
+        }
+        pd_ui_->pathLabel->setText(profile_path);
+        pd_ui_->pathLabel->setUrl(QUrl::fromLocalFile(profile_path).toString());
         pd_ui_->pathLabel->setToolTip(tr("Go to") + profile_path);
         pd_ui_->pathLabel->setEnabled(true);
-        pd_ui_->pathLabel->show();
     } else {
-        pd_ui_->pathLabel->hide();
+        pd_ui_->pathLabel->clear();
     }
 
     if (pd_ui_->profileTreeWidget->topLevelItemCount() > 0) {

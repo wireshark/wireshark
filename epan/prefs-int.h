@@ -50,8 +50,8 @@ struct pref_module {
                                   * GUI interface/APIs with the preference value or if its own
                                   * independent GUI will be provided.  This allows all preferences
                                   * to have a common API for reading/writing, but not require them to
-                                  * use simple GUI controls to change the options.  In general, the "general" 
-                                  * Wireshark preferences should have this set to FALSE, while the protocol 
+                                  * use simple GUI controls to change the options.  In general, the "general"
+                                  * Wireshark preferences should have this set to FALSE, while the protocol
                                   * modules will have this set to TRUE */
 };
 
@@ -120,7 +120,7 @@ struct preference {
         gint *enump;
         const char **string;
         range_t **range;
-        void* uat;
+        uat_t* uat;
         color_t *colorp;
         GList** list;
     } varp;                          /**< pointer to variable storing the value */

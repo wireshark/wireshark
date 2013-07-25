@@ -1,4 +1,4 @@
-/* wireshark_application.c
+/* wireshark_application.h
  *
  * $Id$
  *
@@ -108,7 +108,7 @@ signals:
     void splashUpdate(register_action_e action, const char *message);
     void configurationProfileChanged(const gchar *profile_name);
 
-    void columnsChanged();
+    void columnsChanged(); // XXX This recreates the packet list. We might want to rename it accordingly.
     void filterExpressionsChanged();
     void packetDissectionChanged();
     void preferencesChanged();

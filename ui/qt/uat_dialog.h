@@ -1,4 +1,4 @@
-/* preferences_dialog.h
+/* uat_dialog.h
  *
  * $Id$
  *
@@ -21,66 +21,73 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef PREFERENCES_DIALOG_H
-#define PREFERENCES_DIALOG_H
+#ifndef UAT_DIALOG_H
+#define UAT_DIALOG_H
 
 #include "config.h"
 
 #include <glib.h>
 
-#include "color.h"
+#include "epan/uat-int.h"
 
-#include <epan/prefs.h>
+#include "syntax_line_edit.h"
 
-#include <QDialog>
-#include <QTreeWidgetItem>
 #include <QComboBox>
-
-extern pref_t *prefFromPrefPtr(void *pref_ptr);
+#include <QDialog>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QTreeWidgetItem>
 
 namespace Ui {
-class PreferencesDialog;
+class UatDialog;
 }
 
-class PreferencesDialog : public QDialog
+class UatDialog : public QDialog
 {
     Q_OBJECT
     
 public:
-    explicit PreferencesDialog(QWidget *parent = 0);
-    ~PreferencesDialog();
+    explicit UatDialog(QWidget *parent = 0, uat_t *uat = NULL);
+    ~UatDialog();
 
+    void setUat(uat_t *uat = NULL);
+    
 protected:
-    void showEvent(QShowEvent *evt);
     void keyPressEvent(QKeyEvent *evt);
 
-private:
-    bool stashedPrefIsDefault(pref_t *pref);
-    void updateItem(QTreeWidgetItem &item);
+private slots:
+    void on_uatTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column);
+    void on_uatTreeWidget_itemSelectionChanged();
+    void lineEditPrefDestroyed();
+    void enumPrefDestroyed();
+    void enumPrefCurrentIndexChanged(int index);
+    void stringPrefTextChanged(const QString & text);
+    void stringPrefEditingFinished();
+    void on_newToolButton_clicked();
+    void on_deleteToolButton_clicked();
+    void on_copyToolButton_clicked();
+    void on_buttonBox_accepted();
+    void on_buttonBox_rejected();
+    void on_buttonBox_helpRequested();
 
-    Ui::PreferencesDialog *pd_ui_;
-    int cur_pref_type_;
-    QLineEdit *cur_line_edit_;
+private:
+    Ui::UatDialog *ui;
+    QPushButton *ok_button_;
+    QPushButton *help_button_;
+    uat_t *uat_;
+    int cur_column_;
+    SyntaxLineEdit *cur_line_edit_;
     QString saved_string_pref_;
     QComboBox *cur_combo_box_;
     int saved_combo_idx_;
 
-private slots:
-    void on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void on_advancedSearchLineEdit_textEdited(const QString &search_str);
-    void lineEditPrefDestroyed();
-    void enumPrefDestroyed();
-    void uintPrefEditingFinished();
-    void enumPrefCurrentIndexChanged(int index);
-    void stringPrefEditingFinished();
-    void rangePrefTextChanged(const QString & text);
-    void rangePrefEditingFinished();
-
-    void on_advancedTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void on_advancedTree_itemActivated(QTreeWidgetItem *item, int column);
-
-    void on_buttonBox_accepted();
-    void on_buttonBox_helpRequested();
+    QString fieldString(guint row, guint column);
+    void updateItem(QTreeWidgetItem &item);
+    void updateItems();
+    void activateLastItem();
+    void applyChanges();
+    void addRecord(bool copy_from_current = false);
 };
 
-#endif // PREFERENCES_DIALOG_H
+#endif // UAT_DIALOG_H

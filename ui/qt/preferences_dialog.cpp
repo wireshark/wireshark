@@ -40,6 +40,7 @@
 #include "module_preferences_scroll_area.h"
 #include "syntax_line_edit.h"
 #include "qt_ui_utils.h"
+#include "uat_dialog.h"
 
 #include <QColorDialog>
 #include <QFileDialog>
@@ -278,7 +279,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
         updateItem(*(*pref_it));
         ++pref_it;
     }
-    qDebug() << "FIX: Open UAT dialogs from prefs dialog.";
     qDebug() << "FIX: Auto-size each preference pane.";
 
     pd_ui_->splitter->setStretchFactor(0, 1);
@@ -647,8 +647,11 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
             break;
         }
         case PREF_UAT:
-            qDebug() << "FIX open uat dialog" << item->text(column);
+        {
+            UatDialog uat_dlg(this, pref->varp.uat);
+            uat_dlg.exec();
             break;
+        }
         default:
             break;
         }

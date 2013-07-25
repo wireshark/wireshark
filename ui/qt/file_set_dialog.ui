@@ -32,7 +32,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="directoryLabel">
+        <widget class="ElidedLabel" name="directoryLabel">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
            <horstretch>1</horstretch>
@@ -114,6 +114,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ElidedLabel</class>
+   <extends>QLabel</extends>
+   <header>elided_label.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

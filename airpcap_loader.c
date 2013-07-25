@@ -163,7 +163,7 @@ get_wep_key(pref_t *pref, gpointer ud)
 
     if (g_ascii_strcasecmp(pref->name, "wep_key_table") == 0 && pref->type == PREF_UAT)
     {
-        uat = (uat_t *)pref->varp.uat;
+        uat = pref->varp.uat;
         /* This is just a sanity check.  UAT should be loaded */
         if (!uat->loaded)
         {
@@ -259,7 +259,7 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
 
     if (g_ascii_strcasecmp(pref->name, "wep_key_table") == 0 && pref->type == PREF_UAT)
     {
-        uat = (uat_t *)pref->varp.uat;
+        uat = pref->varp.uat;
         if (!uat->loaded)
         {
             /* UAT will only be loaded if previous keys exist, so it may need

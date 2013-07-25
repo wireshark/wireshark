@@ -215,6 +215,7 @@ FORMS += \
     splash_overlay.ui \
     summary_dialog.ui \
     time_shift_dialog.ui \
+    uat_dialog.ui
 
 
 win32 { ## These should be in config.pri ??
@@ -242,6 +243,7 @@ HEADERS += $$HEADERS_WS_C \
     accordion_frame.h \
     capture_preferences_frame.h \
     column_preferences_frame.h \
+    elided_label.h \
     export_dissection_dialog.h \
     export_object_dialog.h \
     filter_expressions_preferences_frame.h \
@@ -258,6 +260,8 @@ HEADERS += $$HEADERS_WS_C \
     splash_overlay.h \
     summary_dialog.h \
     tango_colors.h \
+    uat_dialog.h \
+    elided_label.h
 
 
 win32 {
@@ -483,6 +487,7 @@ SOURCES += \
     column_preferences_frame.cpp \
     display_filter_combo.cpp \
     display_filter_edit.cpp \
+    elided_label.cpp \
     export_dissection_dialog.cpp \
     export_object_dialog.cpp \
     file_set_dialog.cpp \
@@ -520,4 +525,5 @@ SOURCES += \
     summary_dialog.cpp \
     syntax_line_edit.cpp \
     time_shift_dialog.cpp \
-    wireshark_application.cpp \
+    uat_dialog.cpp \
+    wireshark_application.cpp

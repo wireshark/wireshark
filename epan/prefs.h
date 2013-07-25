@@ -33,9 +33,11 @@ extern "C" {
 
 #include "color.h"
 
+#include <epan/addr_resolv.h>
 #include <epan/params.h>
 #include <epan/range.h>
-#include <epan/addr_resolv.h>
+#include <epan/uat.h>
+
 #include "ws_symbol_export.h"
 
 #define PR_DEST_CMD  0
@@ -437,7 +439,7 @@ WS_DLL_PUBLIC void prefs_register_uat_preference(module_t *module,
 										  const char *name,
 										  const char* title,
 										  const char *description,
-										  void* uat);
+										  uat_t* uat);
 
 /*
  * Register a color preference.  Currently does not have any "GUI Dialog" support
