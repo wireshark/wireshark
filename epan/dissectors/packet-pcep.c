@@ -989,7 +989,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, 
 		break;
 
 	default:
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object", BASE_NONE);
+		expert_add_info_format_text(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
 		break;
 	}
 }
@@ -1054,7 +1054,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
 		break;
 
 	default:
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object", BASE_NONE);
+		expert_add_info_format_text(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
 		break;
 	}
 
@@ -1600,7 +1600,7 @@ dissect_pcep_iro_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 
 	while(body_obj_len){
 		if (body_obj_len < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad IRO object: subobject goes past end of object", BASE_NONE);
+			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad IRO object: subobject goes past end of object");
 			break;
 		}
 
@@ -1689,7 +1689,6 @@ dissect_pcep_svec_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 static void
 dissect_pcep_notification_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length)
 {
-	guint8 flags;
 	guint8 nt;
 
 	if (obj_length < OBJ_HDR_LEN+NOTIFICATION_OBJ_MIN_LEN) {
@@ -1699,7 +1698,6 @@ dissect_pcep_notification_obj(proto_tree *pcep_object_tree, packet_info *pinfo, 
 
 	proto_tree_add_item(pcep_object_tree, hf_pcep_notification_obj_reserved, tvb, offset2, 1, ENC_NA);
 
-	flags = tvb_get_guint8(tvb, offset2+1);
 	proto_tree_add_item(pcep_object_tree, hf_pcep_notification_obj_flags, tvb, offset2+1, 1, ENC_NA);
 
 	nt = tvb_get_guint8(tvb, offset2+2);
