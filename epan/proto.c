@@ -2558,7 +2558,7 @@ proto_item_append_string(proto_item *pi, const char *str)
 {
 	field_info        *fi;
 	header_field_info *hfinfo;
-	gchar             *old_str, *new_str;
+	const gchar       *old_str, *new_str;
 
 	if (!pi)
 		return;
@@ -2575,8 +2575,11 @@ proto_item_append_string(proto_item *pi, const char *str)
 	}
 	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 	old_str = (guint8 *)fvalue_get(&fi->value);
-	new_str = ep_strdup_printf("%s%s", old_str, str);
-	fvalue_set(&fi->value, new_str, FALSE);
+	if (old_str && old_str[0])
+		new_str = ep_strconcat(old_str, str, NULL);
+	else
+		new_str = str;
+	fvalue_set(&fi->value, (gpointer) new_str, FALSE);
 }
 
 /* Set the FT_STRING value */
