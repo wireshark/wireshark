@@ -2,4 +2,4 @@
 # $Id$
 #
 
-_CUSTOM_radius_dict_ = \
+_CUSTOM_radius_dict_ =
