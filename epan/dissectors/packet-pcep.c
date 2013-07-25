@@ -278,6 +278,7 @@ static gint hf_PCEPF_OBJ_LSPA = -1;
 static gint hf_PCEPF_OBJ_IRO = -1;
 static gint hf_PCEPF_OBJ_SVEC = -1;
 static gint hf_PCEPF_OBJ_NOTIFICATION = -1;
+static gint hf_PCEPF_OBJ_UNKNOWN_TYPE = -1;
 static gint hf_PCEPF_NOTI_TYPE = -1;
 static gint hf_PCEPF_NOTI_VAL1 = -1;
 static gint hf_PCEPF_NOTI_VAL2 = -1;
@@ -797,10 +798,11 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 			break;
 
 			case 4:   /* OF TLV */
-			for (i=0; i<tlv_length/2; i++)
+			for (i=0; i<tlv_length/2; i++) {
 				of_code = tvb_get_ntohs(tvb, offset+4+j+i*2);
 				proto_tree_add_uint_format(tlv, hf_pcep_of_code, tvb, offset+4+j+i*2, 2, of_code, "OF-Code #%d: %s (%u)",
 						i+1, val_to_str_const(of_code, pcep_of_vals, "Unknown"), of_code);
+			}
 			break;
 
 			default:
@@ -2283,8 +2285,9 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
 		break;
 
 	default:
-		pcep_object_item = proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_non_defined_object, tvb, offset, -1, "Unknown object (%u)", obj_class);
+		pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_UNKNOWN_TYPE, tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_unknown);
+		proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_non_defined_object, tvb, offset, -1, "Unknown object (%u)", obj_class);
 		break;
 	}
 
@@ -2728,6 +2731,10 @@ proto_register_pcep(void){
 		{ &hf_pcep_obj_overload_duration,
 		 { "Overload Duration", "pcep.obj.overload.duration", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+
+		{&hf_PCEPF_OBJ_UNKNOWN_TYPE,
+		 { "Unknown object", "pcep.obj.unknown", FT_NONE, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 
 		/*Subobjects*/
 		{&hf_PCEPF_SUBOBJ,
