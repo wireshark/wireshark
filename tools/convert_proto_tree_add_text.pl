@@ -347,7 +347,7 @@ sub generate_hfs {
 
 	while ($$fileContentsRef =~ / $pat /xgso) {
 		my @proto_tree_item = (1, 1, "tree", "hf_name", "tvb", "offset", "length", "encoding",
-							   "fieldname", "fieldtype", "filtername", "BASE_NONE", "NULL", "0x0");
+							   "fieldfullname", "fieldtype", "fieldabbrevname", "BASE_NONE", "NULL", "0x0");
 		my $str = "${1}\n";
 		$str =~ tr/\t\n\r/ /d;
 		$str =~ s/ \s+ / /xg;
@@ -384,7 +384,7 @@ sub generate_hfs {
 			}
 		}
 
-		#Field name
+		#field full name
 		if (($expert ne "") || (scalar @args > 5)) {
 			my @arg_temp = split(/=|:/, $args[4]);
 			$proto_tree_item[8] = $arg_temp[0];
@@ -394,11 +394,11 @@ sub generate_hfs {
 		$proto_tree_item[8] =~ s/\"//;
 		$proto_tree_item[8] = trim($proto_tree_item[8]);
 
-		#hf name
+		#hf variable name
 		$proto_tree_item[3] = sprintf("hf_%s_%s", $protabbrev, lc($proto_tree_item[8]));
 		$proto_tree_item[3] =~ s/\s+|-|:/_/g;
 
-		#filter name
+		#field abbreviated name
 		$proto_tree_item[10] = sprintf("%s.%s", $protabbrev, lc($proto_tree_item[8]));
 		$proto_tree_item[10] =~ s/\s+|-|:/_/g;
 
