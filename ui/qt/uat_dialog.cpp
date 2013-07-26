@@ -65,6 +65,12 @@ UatDialog::UatDialog(QWidget *parent, uat_t *uat) :
 
     setUat(uat);
 
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+    ui->uatTreeWidget->header()->setResizeMode(QHeaderView::ResizeToContents);
+#else
+    ui->uatTreeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#endif
+
     // Need to add uat_move or uat_insert to the UAT API.
     ui->uatTreeWidget->setDragEnabled(false);
     qDebug() << "FIX Add drag reordering to UAT dialog";
