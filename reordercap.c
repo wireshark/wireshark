@@ -162,6 +162,8 @@ int main(int argc, char *argv[])
     guint wrong_order_count = 0;
     gboolean write_output_regardless = TRUE;
     guint i;
+    wtapng_section_t            *shb_hdr;
+    wtapng_iface_descriptions_t *idb_inf;
 
     GPtrArray *frames;
     FrameRecord_t *prevFrame = NULL;
@@ -202,10 +204,16 @@ int main(int argc, char *argv[])
     }
     DEBUG_PRINT("file_type is %u\n", wtap_file_type(wth));
 
+    shb_hdr = wtap_file_get_shb_info(wth);
+    idb_inf = wtap_file_get_idb_info(wth);
+
     /* Open outfile (same filetype/encap as input file) */
-    pdh = wtap_dump_open(outfile, wtap_file_type(wth), wtap_file_encap(wth), 65535, FALSE, &err);
+    pdh = wtap_dump_open_ng(outfile, wtap_file_type(wth), wtap_file_encap(wth),
+                            65535, FALSE, shb_hdr, idb_inf, &err);
+    g_free(idb_inf);
     if (pdh == NULL) {
         printf("Failed to open output file: (%s) - error %s\n", outfile, wtap_strerror(err));
+        g_free(shb_hdr);
         exit(1);
     }
 
@@ -259,8 +267,10 @@ int main(int argc, char *argv[])
     /* Close outfile */
     if (!wtap_dump_close(pdh, &err)) {
         printf("Error closing %s: %s\n", outfile, wtap_strerror(err));
+        g_free(shb_hdr);
         exit(1);
     }
+    g_free(shb_hdr);
 
     /* Finally, close infile */
     wtap_fdclose(wth);
