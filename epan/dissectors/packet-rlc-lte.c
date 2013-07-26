@@ -956,8 +956,50 @@ static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
     return p_key;
 }
 
+static void checkFIconsistency(sequence_analysis_report *p,
+                               rlc_lte_info *p_rlc_lte_info,
+                               gboolean  newSegmentStarted,
+                               proto_tree *seqnum_tree,
+                               packet_info *pinfo, tvbuff_t *tvb)
+{
+    proto_item *ti;
 
-
+    if (p->previousSegmentIncomplete) {
+        /* Previous segment was incomplete, so this PDU should continue it */
+        if (newSegmentStarted) {
+            ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
+                                         tvb, 0, 0, FALSE);
+            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                   "Last segment of previous PDU was not continued for UE %u (%s-%u)",
+                                   p_rlc_lte_info->ueid,
+                                   val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                   p_rlc_lte_info->channelId);
+        }
+        else {
+           ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
+                                       tvb, 0, 0, TRUE);
+           PROTO_ITEM_SET_HIDDEN(ti);
+        }
+    }
+    else {
+        /* Previous segment was complete, so this PDU should start a new one */
+        if (!newSegmentStarted) {
+            ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
+                                        tvb, 0, 0, FALSE);
+            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                   "Last segment of previous PDU was complete, but new segment was not started on UE %u (%s-%u)",
+                                   p_rlc_lte_info->ueid,
+                                   val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                                   p_rlc_lte_info->channelId);
+        }
+        else {
+           ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
+                                       tvb, 0, 0, TRUE);
+           PROTO_ITEM_SET_HIDDEN(ti);
+        }
+    }
+    PROTO_ITEM_SET_GENERATED(ti);
+}
 
 /* Add to the tree values associated with sequence analysis for this frame */
 static void addChannelSequenceInfo(sequence_analysis_report *p,
@@ -1010,6 +1052,9 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                         proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_next_frame,
                                             tvb, 0, 0, p->nextFrameNum);
                     }
+                    /* Correct sequence number, so check frame indication bits consistent */
+                    /* Deactivated for now as it gets confused by resegmentation */
+                    /* checkFIconsistency(p, p_rlc_lte_info, newSegmentStarted, seqnum_tree, pinfo, tvb); */
                     break;
 
                 case SN_MAC_Retx:
@@ -1251,46 +1296,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
             }
             else {
                 /* Correct sequence number, so check frame indication bits consistent */
-                if (p->previousSegmentIncomplete) {
-                    /* Previous segment was incomplete, so this PDU should continue it */
-                    if (newSegmentStarted) {
-                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
-                                                     tvb, 0, 0, FALSE);
-                        if (!p->sequenceExpectedCorrect) {
-                            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                                   "Last segment of previous PDU was not continued for UE %u (%s-%u)",
-                                                   p_rlc_lte_info->ueid,
-                                                   val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
-                                                   p_rlc_lte_info->channelId);
-                        }
-                    }
-                    else {
-                       ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
-                                                   tvb, 0, 0, TRUE);
-                       PROTO_ITEM_SET_HIDDEN(ti);
-                    }
-                }
-                else {
-                    /* Previous segment was complete, so this PDU should start a new one */
-                    if (!newSegmentStarted) {
-                        ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
-                                                    tvb, 0, 0, FALSE);
-                        if (!p->sequenceExpectedCorrect) {
-                            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                                   "Last segment of previous PDU was complete, but new segment was not started on UE %u (%s-%u)",
-                                                   p_rlc_lte_info->ueid,
-                                                   val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
-                                                   p_rlc_lte_info->channelId);
-                        }
-                    }
-                    else {
-                       ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
-                                                   tvb, 0, 0, TRUE);
-                       PROTO_ITEM_SET_HIDDEN(ti);
-                    }
-
-                }
-                PROTO_ITEM_SET_GENERATED(ti);
+                checkFIconsistency(p, p_rlc_lte_info, newSegmentStarted, seqnum_tree, pinfo, tvb);
 
                 /* Set OK here! */
                 ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
