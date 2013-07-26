@@ -139,6 +139,8 @@ summary_dialog.cpp summary_dialog.h: ui_summary_dialog.h
 
 time_shift_dialog.cpp time_shift_dialog.h: ui_time_shift_dialog.h
 
+uat_dialog.cpp uat_dialog.h: ui_uat_dialog.h
+
 doxygen:
 if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg
