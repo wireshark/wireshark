@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.8.9">
+<!ENTITY WiresharkCurrentVersion "1.8.10">
 
 ]>
 
@@ -36,131 +36,22 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-45.html">wnpa-sec-2013-45</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-54.html">wnpa-sec-2013-54</ulink>
           </para>
           <para>
-	    The Bluetooth SDP dissector could go into a large loop. Discovered by Laurent Butti.
-            <!-- Fixed in trunk: r50134 -->
-            <!-- Fixed in trunk-1.10: r50250 -->
-            <!-- Fixed in trunk-1.8: r50251 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8831">Bug
-            8831</ulink>)
+	    Some dissector somewhere could do something horrible.
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.10: r????? -->
+            <!-- Fixed in trunk-1.8: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
+          <para>Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.</para>
+	  <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4927">CVE-2013-4927</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-????">CVE-2013-????</ulink>
           </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-47.html">wnpa-sec-2013-47</ulink>
-          </para>
-          <para>
-	    The DIS dissector could go into a large loop.
-            <!-- Fixed in trunk: r50450 -->
-            <!-- Fixed in trunk-1.10: r50451 -->
-            <!-- Fixed in trunk-1.8: r50452 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8911">Bug
-            8911</ulink>)
-          </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4929">CVE-2013-4929</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-48.html">wnpa-sec-2013-48</ulink>
-          </para>
-          <para>
-	    The DVB-CI dissector could crash. Discovered by Laurent Butti.
-            <!-- Fixed in trunk: r50474 -->
-            <!-- Fixed in trunk-1.10: r50475 -->
-            <!-- Fixed in trunk-1.8: r50476 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8916">Bug
-            8916</ulink>)
-          </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4930">CVE-2013-4930</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-49.html">wnpa-sec-2013-49</ulink>
-          </para>
-          <para>
-	    The GSM RR dissector (and possibly others) could go into a large loop.
-            <!-- Fixed in trunk: r50504 -->
-            <!-- Fixed in trunk-1.10: r50505 -->
-            <!-- Fixed in trunk-1.8: r50506 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8923">Bug
-            8923</ulink>)
-          </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4931">CVE-2013-4931</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-50.html">wnpa-sec-2013-50</ulink>
-          </para>
-          <para>
-	    The GSM A Common dissector could crash.
-            <!-- Fixed in trunk: r50672 -->
-            <!-- Fixed in trunk-1.10: r50673 -->
-            <!-- Fixed in trunk-1.8: r50675 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8940">Bug
-            8940</ulink>)
-          </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4932">CVE-2013-4932</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-51.html">wnpa-sec-2013-51</ulink>
-          </para>
-          <para>
-	    The Netmon file parser could crash. Discovered by G. Geshev.
-            <!-- Fixed in trunk: r49697 -->
-            <!-- Fixed in trunk-1.10: r50683 -->
-            <!-- Fixed in trunk-1.8: r50684 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8742">Bug
-            8742</ulink>)
-          </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4933">CVE-2013-4933</ulink>
-          </para>
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4934">CVE-2013-4934</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-52.html">wnpa-sec-2013-52</ulink>
-          </para>
-          <para>
-	    The ASN.1 PER dissector could crash. Discovered by Oliver-Tobias Ripka.
-            <!-- Fixed in trunk: r49985 -->
-            <!-- Fixed in trunk-1.10: r50702 -->
-            <!-- Fixed in trunk-1.8: r50703 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8722">Bug
-            8722</ulink>)
-          </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4935">CVE-2013-4935</ulink>
-          </para>
+	  -->
         </listitem>
 
       </itemizedlist>
@@ -181,114 +72,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-          Wireshark hides under Taskbar.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3034">Bug
-          3034</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark doesn't translate IEEE802a OUI.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3123">Bug
-          3123</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          IEEE 802.15.4 frame check sequence in &quot;Chipcon mode&quot; not displayed correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4507">Bug
-          4507</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Mask in Lua ProtoField.uint32() does not work as expected.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5734">Bug
-          5734</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Lines of text are truncated if they are either longer than the paper width or past the paper height.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7543">Bug
-          7543</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          [PATCH] Add MAC-DATA support to TETRA dissector and other minor improvements.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8708">Bug
-          8708</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark writes empty NRB FQDN which makes trace unloadable.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8763">Bug
-          8763</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong encoding for 2 pod files, UTF-8 characters in another.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8774">Bug
-          8774</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SCSI (SPC) sense key specific information field must not include SKSV.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8782">Bug
-          8782</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes when closing Flow Graph with Graph Analysis opened.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8793">Bug
-          8793</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Detection of IPv6 works only on Solaris 8.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8813">Bug
-          8813</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          ansi_637_tele dissector displays MSB as MBS for Call-Back Number.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8851">Bug
-          8851</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Dropped bytes in IMAP dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8857">Bug
-          8857</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Kismet drone/server dissector improvements.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8864">Bug
-          8864</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          iostat_draw sizeof mismatch.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8888">Bug
-          8888</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SIP stats shows incorrect values for Max/Ave setup times.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8897">Bug
-          8897</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Graph Filter field limited to 256 characters.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8909">Bug
-          8909</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          All mongodb query show as [Malformed Packet: MONGO].
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8960">Bug
-          8960</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -316,24 +99,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-ANSI IS-637-A,
-ASN.1 PER,
-ASN.1,
-DCERPC NDR,
-Ethernet,
-H.235,
-IEEE 802.15.4,
-IEEE 802a,
-IMAP,
-KDSP,
-MAC-LTE,
-MONGO,
-PDCP-LTE,
-RLC,
-RLC-LTE,
-SCSI,
-SoulSeek,
-TETRA
+.
 
     </para>
     </section>
@@ -341,7 +107,7 @@ TETRA
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Microsoft Network Monitor, pcap-ng.
+.
 
     </para>
     </section>
