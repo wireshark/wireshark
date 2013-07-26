@@ -368,6 +368,7 @@ void UatDialog::stringPrefTextChanged(const QString &text)
     uat_field_t *field = &uat_->fields[cur_column_];
     const char *txt = text.toUtf8().constData();
     const char *err = NULL;
+    bool enable_ok = true;
     SyntaxLineEdit::SyntaxState ss = SyntaxLineEdit::Empty;
 
     if (field->cb.chk) {
@@ -376,6 +377,7 @@ void UatDialog::stringPrefTextChanged(const QString &text)
             saved_string_pref_ = text;
             ss = SyntaxLineEdit::Valid;
         } else {
+            enable_ok = false;
             ss = SyntaxLineEdit::Invalid;
         }
     }
