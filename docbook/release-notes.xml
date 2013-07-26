@@ -47,11 +47,9 @@ Wireshark Info
             8831</ulink>)
           </para>
           <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4927">CVE-2013-4927</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -67,11 +65,9 @@ Wireshark Info
             8911</ulink>)
           </para>
           <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4929">CVE-2013-4929</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -87,11 +83,9 @@ Wireshark Info
             8916</ulink>)
           </para>
           <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4930">CVE-2013-4930</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -107,11 +101,9 @@ Wireshark Info
             8923</ulink>)
           </para>
           <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4931">CVE-2013-4931</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -127,11 +119,9 @@ Wireshark Info
             8940</ulink>)
           </para>
           <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4932">CVE-2013-4932</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -147,11 +137,12 @@ Wireshark Info
             8742</ulink>)
           </para>
           <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4933">CVE-2013-4933</ulink>
           </para>
-	  -->
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4934">CVE-2013-4934</ulink>
+          </para>
         </listitem>
 
         <listitem>
@@ -167,11 +158,9 @@ Wireshark Info
             8722</ulink>)
           </para>
           <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
-	  <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4935">CVE-2013-4935</ulink>
           </para>
-	  -->
         </listitem>
 
       </itemizedlist>
@@ -295,6 +284,12 @@ Wireshark Info
           8909</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          All mongodb query show as [Malformed Packet: MONGO].
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8960">Bug
+          8960</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -321,17 +316,18 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-ASN.1,
 ANSI IS-637-A,
 ASN.1 PER,
+ASN.1,
 DCERPC NDR,
 Ethernet,
 H.235,
-IEEE 802a,
 IEEE 802.15.4,
+IEEE 802a,
 IMAP,
 KDSP,
 MAC-LTE,
+MONGO,
 PDCP-LTE,
 RLC,
 RLC-LTE,

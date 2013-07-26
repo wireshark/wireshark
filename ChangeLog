@@ -1,16 +1,1185 @@
 ------------------------------------------------------------------------
-r49842 | gerald | 2013-06-07 11:37:02 -0700 (Fri, 07 Jun 2013) | 2 lines
+r49843 | gerald | 2013-06-07 11:37:25 -0700 (Fri, 07 Jun 2013) | 2 lines
 Changed paths:
-   M /trunk-1.8/config.nmake
-   M /trunk-1.8/configure.in
-   M /trunk-1.8/debian/changelog
-   M /trunk-1.8/debian/wireshark-common.files
-   M /trunk-1.8/docbook/release-notes.xml
-   M /trunk-1.8/epan/Makefile.am
-   M /trunk-1.8/make-version.pl
-   M /trunk-1.8/version.conf
-   M /trunk-1.8/wiretap/Makefile.am
+   M /trunk-1.8/ChangeLog
 
-1.8.8 → 1.8.9.
+Update the ChangeLog.
+
+------------------------------------------------------------------------
+r49861 | gerald | 2013-06-09 07:34:44 -0700 (Sun, 09 Jun 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-06-09]
+------------------------------------------------------------------------
+r49869 | morriss | 2013-06-10 06:11:45 -0700 (Mon, 10 Jun 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/proto.c
+
+Mark a parameter as unused (in trunk-1.8; it is used in trunk and we may as well keep the prototypes the same).
+------------------------------------------------------------------------
+r49875 | gerald | 2013-06-10 17:08:01 -0700 (Mon, 10 Jun 2013) | 11 lines
+Changed paths:
+   M /trunk-1.8/configure.in
+
+Manually backport r48758:
+
+  ------------------------------------------------------------------------
+  r48758 | gerald | 2013-04-06 08:39:39 -0700 (Sat, 06 Apr 2013) | 3 lines
+  Changed paths:
+     M /trunk/configure.ac
+  
+  GnuTLS recently switched back to a compatible license (LGPLv2.1+).
+  Update our checks accordingly.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r49960 | gerald | 2013-06-16 07:34:34 -0700 (Sun, 16 Jun 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-06-16]
+------------------------------------------------------------------------
+r50119 | gerald | 2013-06-23 07:34:32 -0700 (Sun, 23 Jun 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-06-23]
+------------------------------------------------------------------------
+r50201 | eapache | 2013-06-27 18:39:41 -0700 (Thu, 27 Jun 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-xmpp-utils.h
+
+Include packet-xml.h in packet-xmpp-utils.h. Should fix check-abi.
+
+------------------------------------------------------------------------
+r50251 | morriss | 2013-06-30 05:24:29 -0700 (Sun, 30 Jun 2013) | 15 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/epan/dissectors/packet-btsdp.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r50134 | eapache | 2013-06-24 19:26:56 -0400 (Mon, 24 Jun 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-btsdp.c
+
+  Based on initial patch by Michal Labedzki
+
+  Don't return a negative value from get_type_length, it can get us into bad
+  loops. Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8831
+
+  ------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r50256 | gerald | 2013-06-30 07:34:50 -0700 (Sun, 30 Jun 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-06-30]
+------------------------------------------------------------------------
+r50260 | morriss | 2013-06-30 09:57:57 -0700 (Sun, 30 Jun 2013) | 7 lines
+Changed paths:
+   M /trunk-1.8/plugins/profinet/packet-pn-rt.c
+
+Fix the fuzz failure reported in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8874 :
+
+hf_pn_rt_frag_data is added as a string, declare it as FT_STRING, not FT_NONE.
+(What it is has bounced around a bit in trunk; the current state is from r46140.)
+
+I don't know this protocol but I'd think this should really be FT_BYTES...
+
+------------------------------------------------------------------------
+r50431 | gerald | 2013-07-07 07:34:32 -0700 (Sun, 07 Jul 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2013-07-07]
+------------------------------------------------------------------------
+r50437 | guy | 2013-07-07 14:22:06 -0700 (Sun, 07 Jul 2013) | 230 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/Makefile.am
+   M /trunk-1.8/README.macos
+   M /trunk-1.8/autogen.sh
+   M /trunk-1.8/macosx-setup.sh
+   A /trunk-1.8/macosx-support-lib-patches/portaudio-pa_mac_core.c.patch (from /trunk/macosx-support-lib-patches/portaudio-pa_mac_core.c.patch:50186)
+   A /trunk-1.8/macosx-support-lib-patches/portaudio-pa_mac_core.h.patch (from /trunk/macosx-support-lib-patches/portaudio-pa_mac_core.h.patch:44446)
+
+Copy over revisions from trunk:
+
+  ------------------------------------------------------------------------
+  r50425 | guy | 2013-07-06 16:00:56 -0700 (Sat, 06 Jul 2013) | 6 lines
+  
+  We need Cairo if we're building on 10.5 *or* if we're building *for*
+  10.5 on a later OS.
+  
+  Fix the download path for libpng, and update the version to the
+  currently-available version.
+  
+  ------------------------------------------------------------------------
+  r50421 | guy | 2013-07-06 14:21:54 -0700 (Sat, 06 Jul 2013) | 2 lines
+  
+  Use consistent 4-space no-tab indentation.
+  
+  ------------------------------------------------------------------------
+  r50418 | guy | 2013-07-06 12:32:07 -0700 (Sat, 06 Jul 2013) | 6 lines
+  
+  Don't install the GNU autotools on Snow Leopard and earlier; they were
+  shipped with those versions of OS X, and I had some problems with the
+  newer versions on Snow Leopard (the Makefile was doing weird stuff that
+  caused build failures in wsutil, moving .Tlo files to .Plo files; I
+  didn't investigate futher).
+  
+  ------------------------------------------------------------------------
+  r50402 | guy | 2013-07-05 23:16:06 -0700 (Fri, 05 Jul 2013) | 7 lines
+  
+  Add a "-t <target>" flag to set the deployment target OS version; that
+  causes a -mmacosx-version-min flag to be used, to keep the compiler and
+  linker from using features not supported by that OS version, and causes
+  the support libraries to be built against the SDK for that OS version,
+  so they don't request library versions later than the one shipped with
+  that version.
+  
+  ------------------------------------------------------------------------
+  r50391 | guy | 2013-07-05 16:27:10 -0700 (Fri, 05 Jul 2013) | 2 lines
+  
+  Get rid of extra blank line.
+  
+  ------------------------------------------------------------------------
+  r50390 | guy | 2013-07-05 16:26:15 -0700 (Fri, 05 Jul 2013) | 2 lines
+  
+  Add a -u flag to uninstall the support tools and libraries.
+  
+  ------------------------------------------------------------------------
+  r50389 | guy | 2013-07-05 16:19:58 -0700 (Fri, 05 Jul 2013) | 7 lines
+  
+  LIBFFI_CFLAGS and LIBFFI_LIBS are defined only to suppress the attempt
+  to run pkg-config to get their values; they should be set equal to the
+  values that would be returned by pkg-config for libffi with the --cflags
+  and --libs arguments, respectively.  They should *NOT* include the
+  values of CFLAGS and LDFLAGS supplied in the environment; those should
+  be handled separately.
+  
+  ------------------------------------------------------------------------
+  r50383 | guy | 2013-07-04 16:16:23 -0700 (Thu, 04 Jul 2013) | 3 lines
+  
+  Use xcrun --show-sdk-path to find out where the system include files are
+  hidden, rather than a "compile a program" hack.
+  
+  ------------------------------------------------------------------------
+  r50196 | guy | 2013-06-27 12:14:41 -0700 (Thu, 27 Jun 2013) | 4 lines
+  
+  Actually, that's not a clang bug; my test case had a typo.  It's still a
+  case where clang is complaining about code that's OK, it's just not OK
+  in a way that lets clang determine that it is.
+  
+  ------------------------------------------------------------------------
+  r50186 | guy | 2013-06-27 03:30:33 -0700 (Thu, 27 Jun 2013) | 5 lines
+  
+  Don't assume the system include files are under /usr/include; trick the
+  compiler into saying where they are, and use that.
+  
+  Patch a bug in PortAudio pa_stable_v19_20111121 that clang found.
+  
+  ------------------------------------------------------------------------
+  r50175 | guy | 2013-06-26 14:29:38 -0700 (Wed, 26 Jun 2013) | 5 lines
+  
+  Another clang issue to work around:
+  
+  libgcrypt expects gnu89-style semantics for "inline"; GCC defaults to
+  gnu89, but clang defaults to gnu99.
+  
+  ------------------------------------------------------------------------
+  r50174 | guy | 2013-06-26 12:38:47 -0700 (Wed, 26 Jun 2013) | 3 lines
+  
+  Suppress -Wformat-nonliteral when building GLib, to avoid a clang bug
+  where it issues bogus warnings.
+  
+  ------------------------------------------------------------------------
+  r50072 | guy | 2013-06-19 17:27:52 -0700 (Wed, 19 Jun 2013) | 5 lines
+
+  Don't assume $(uname) works; it's not a standard Bourne shell feature,
+  and we only assume a Bourne-compatible shell.
+
+  It's "OS X", not "OsX".
+
+  ------------------------------------------------------------------------
+  r50070 | eapache | 2013-06-19 16:52:54 -0700 (Wed, 19 Jun 2013) | 8 lines
+  
+  From Dirk J via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8821
+  
+  if no make options are given to the macosx-setup.sh script by the user, the
+  script sets the number of parallel make jobs to 1.5x CPU cores.
+  
+  Bonus enhancement: print the "export PKG_CONFIG_PATH" information in autogen.sh
+  on OsX, so people don't have to remember it.
+  
+  ------------------------------------------------------------------------
+  r49995 | gerald | 2013-06-17 16:30:56 -0700 (Mon, 17 Jun 2013) | 2 lines
+  
+  From Dirk Jagdmann via bug 7525: macosx-setup.sh improvements.
+  
+  ------------------------------------------------------------------------
+  r49263 | tuexen | 2013-05-13 04:46:16 -0700 (Mon, 13 May 2013) | 4 lines
+  
+  Allow for building 32-bit versions of the libraries used by wireshark.
+  This allows to build a 32-bit version of wireshark.
+  
+  
+  ------------------------------------------------------------------------
+  r48573 | tuexen | 2013-03-26 15:47:41 -0700 (Tue, 26 Mar 2013) | 2 lines
+  
+  Use more recent versions of various libs.
+  
+  ------------------------------------------------------------------------
+  r47435 | guy | 2013-02-01 19:43:44 -0800 (Fri, 01 Feb 2013) | 4 lines
+  
+  Current version of pkg-config is 0.27.
+  
+  Update some comments.
+  
+  ------------------------------------------------------------------------
+  r47207 | guy | 2013-01-21 22:10:05 -0800 (Mon, 21 Jan 2013) | 2 lines
+  
+  2.24.5 is not 2.24.25.  HTH.
+  
+  ------------------------------------------------------------------------
+  r47206 | guy | 2013-01-21 21:07:23 -0800 (Mon, 21 Jan 2013) | 23 lines
+  
+  Rename MACOSX_VERSION to DARWIN_MAJOR_VERSION to reflect what it
+  actually is (it's not an OS X version number, e.g. 10.7 for Leopard,
+  it's a Darwin version number, e.g. 9 for Leopard).  Add comments before
+  checks to indicate what we're checking for.
+  
+  Put in a big long comment giving details about the issues I ran into
+  when trying to make this work on Leopard.
+  
+  Fail if you try to run this on anything before Snow Leopard - note that
+  I said "trying" in the previous comment, and, yes, it was a very trying
+  experience....
+  
+  Bump the libpng version - 1.5.12 isn't available any more.
+  
+  Add some comments explaining why the code for Leopard was downloading
+  and installing libpng and libpixman.
+  
+  Add some code to handle packages where older versions weren't compressed
+  with xz and newer versions were.
+  
+  Add a hack to avoid finding the version of libpng that comes with X11
+  when trying to build Cairo on Leopard.
+  
+  ------------------------------------------------------------------------
+  r44810 | guy | 2012-09-07 20:10:03 -0700 (Fri, 07 Sep 2012) | 3 lines
+  
+  Fix some issues that showed up when building on Mountain Lion, and
+  update the README.macos file.
+  
+  ------------------------------------------------------------------------
+  r44693 | guy | 2012-08-29 03:31:29 -0700 (Wed, 29 Aug 2012) | 5 lines
+  
+  At least with the version of Xcode that comes with Leopard,
+  /usr/include/ffi/fficonfig.h doesn't define MACOSX, which causes the
+  build of GLib to fail.  If we don't find "#define.*MACOSX" in
+  /usr/include/ffi/fficonfig.h, explictly define it.
+  
+  ------------------------------------------------------------------------
+  r44471 | guy | 2012-08-13 09:38:25 -0700 (Mon, 13 Aug 2012) | 3 lines
+  
+  Expand the "why we need to build Cairo in some cases" comment, and put
+  it before the checks for whether to build Cairo.
+  
+  ------------------------------------------------------------------------
+  r44468 | tuexen | 2012-08-13 04:54:37 -0700 (Mon, 13 Aug 2012) | 2 lines
+  
+  Build cairo on Leopard too.
+  
+  ------------------------------------------------------------------------
+  r44467 | tuexen | 2012-08-13 04:51:32 -0700 (Mon, 13 Aug 2012) | 2 lines
+  
+  Update libpng version.
+  
+  ------------------------------------------------------------------------
+  r44458 | guy | 2012-08-12 12:51:04 -0700 (Sun, 12 Aug 2012) | 2 lines
+  
+  Fix an apparently out-of-date comment.
+  
+  ------------------------------------------------------------------------
+  r44457 | guy | 2012-08-12 12:32:46 -0700 (Sun, 12 Aug 2012) | 5 lines
+  
+  Patching configure.in files and regenerating them is a bag of hurt, as
+  it can depend on, among other things, having the the relevant .pc files
+  in one of the directories in PKG_CONFIG_PATH.  Instead, just don't
+  request a fat build of PortAudio.
+  
+  ------------------------------------------------------------------------
+  r44446 | guy | 2012-08-11 16:03:06 -0700 (Sat, 11 Aug 2012) | 3 lines
+  
+  Add some patches to make PortAudio build with the macosx-setup.sh
+  script.
+  
+  ------------------------------------------------------------------------
+  r43366 | jmayer | 2012-06-19 07:48:36 -0700 (Tue, 19 Jun 2012) | 2 lines
+  
+  Add a comment to prevent acidentally bumping lua version to 5.2 again.
+  
+  ------------------------------------------------------------------------
+  r43358 | jmayer | 2012-06-19 06:31:49 -0700 (Tue, 19 Jun 2012) | 4 lines
+  
+  Downgrade Lua from 5.2.1 to 5.1.5: Lua 5.2 is API incompatible
+  with Lua 5.1.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7373
+  
+  ------------------------------------------------------------------------
+  r43306 | jmayer | 2012-06-17 05:07:46 -0700 (Sun, 17 Jun 2012) | 2 lines
+  
+  update lua 5.2.0 -> 5.2.1
+
+------------------------------------------------------------------------
+r50442 | guy | 2013-07-07 17:03:10 -0700 (Sun, 07 Jul 2013) | 68 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/Makefile.am
+   M /trunk-1.8/configure.in
+   M /trunk-1.8/packaging/macosx/Makefile.am
+   M /trunk-1.8/packaging/macosx/osx-app.sh
+   D /trunk-1.8/packaging/macosx/osx-dmg.sh
+   A /trunk-1.8/packaging/macosx/osx-dmg.sh.in (from /trunk/packaging/macosx/osx-dmg.sh.in:44572)
+
+Copy over revisions from trunk:
+
+  ------------------------------------------------------------------------
+  r50440 | guy | 2013-07-07 14:38:04 -0700 (Sun, 07 Jul 2013) | 2 lines
+  
+  Clean up comments.
+  
+  ------------------------------------------------------------------------
+  r50426 | guy | 2013-07-06 16:29:50 -0700 (Sat, 06 Jul 2013) | 8 lines
+  
+  Check for an OS X deployment target early, so that as many
+  tests using the compiler are done using the flags that
+  we'll be using when building.
+  
+  Add a -mmacosx-version-min flag to CFLAGS/CPPFLAGS/LDFLAGS so that the
+  compiler tests use them.  This may, or may not, obviate the need to set
+  MACOSX_DEPLOYMENT_TARGET in OSX_DEPLOY_TARGET.
+  
+  ------------------------------------------------------------------------
+  r50410 | guy | 2013-07-06 09:42:30 -0700 (Sat, 06 Jul 2013) | 9 lines
+  
+  Add a --enable-osx-deploy-target option to set the deployment target
+  when building for OS X; that causes the MACOSX_DEPLOYMENT_TARGET
+  environment variable to be set when building (so that, for example, we
+  don't use linker features available on the version on which we're
+  building but not on the minimum OS version for which we're building),
+  and causes the SDK for that version to be used (so that, for example, we
+  don't link with libraries with later version numbers than the ones
+  provided with the OS version for which we're building).
+  
+  ------------------------------------------------------------------------
+  r46957 | guy | 2013-01-05 15:31:08 -0800 (Sat, 05 Jan 2013) | 10 lines
+  
+  Don't assume developer tools are under /Developer - look for
+  /Applications/Xcode.app/Developer first (for Xcode 4 and later) and, if
+  we don't find that, look for /Developer.
+  
+  Don't assume packagemaker is under $developer_path/usr/bin - with Xcode
+  4, you need to install Auxiliary Tools for Xcode to get PackageMaker,
+  and even that doesn't directly install the packagemaker command, so we
+  currently advise people to copy the PackageMaker binary to
+  /usr/bin/packagemaker.
+  
+  ------------------------------------------------------------------------
+  r46955 | guy | 2013-01-05 15:11:38 -0800 (Sat, 05 Jan 2013) | 6 lines
+  
+  Default to LIBPREFIX being /usr/local, as that's where macosx-setup.sh
+  puts them.  If you choose to use MacPorts versions of the library, edit
+  the script or run it with -l.
+  
+  Update the usage message and fix a typo.
+  
+  ------------------------------------------------------------------------
+  r46954 | guy | 2013-01-05 15:07:05 -0800 (Sat, 05 Jan 2013) | 7 lines
+  
+  Don't assume that, in the output of the file command, the architecture
+  appears at the end - if the user's installed an up-to-date version of
+  file to, for example, get pcap-ng files identified (Apple hasn't updated
+  file in *ages* - they're still in file 5.04!), it will report, for
+  example, "Mach-O 64-bit x86_64 executable" rather than "Mach-O 64-bit
+  executable x86_64" for an x86-64 binary.
+  
+  ------------------------------------------------------------------------
+  r44572 | gerald | 2012-08-18 17:49:55 -0700 (Sat, 18 Aug 2012) | 3 lines
+  
+  Get the package version using configure.in, not grep+sed. Make sure we
+  exit with an error in a few places where it would be useful.
+
+------------------------------------------------------------------------
+r50443 | guy | 2013-07-07 17:42:53 -0700 (Sun, 07 Jul 2013) | 7 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/Makefile.am
+
+Copy over r44573 from trunk:
+
+  ------------------------------------------------------------------------
+  r44573 | gerald | 2012-08-18 18:16:42 -0700 (Sat, 18 Aug 2012) | 2 lines
+
+  Make sure osx-dmg.sh is executable.
+
+------------------------------------------------------------------------
+r50452 | morriss | 2013-07-08 14:21:45 -0700 (Mon, 08 Jul 2013) | 21 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-dis-pdus.c
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r50450 | morriss | 2013-07-08 17:12:06 -0400 (Mon, 08 Jul 2013) | 12 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dis-pdus.c
+
+  Fix the very long loop reported in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8911 :
+
+  In parseFields() ensure that we have at least one byte so that callers
+  don't have to protect against it returning an offset which hasn't incremented.
+
+  Remove a couple of now-unnecessary length-remaining (aka "will the offset
+  move?") checks.
+
+  In some other checks, use tvb_ensure_length_remaining() rather than calling
+  tvb_length_remaining() and (potentially) THROWing an exception.  I'm not sure
+  if these are really necessary now or not...
+
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r50468 | guy | 2013-07-09 10:57:13 -0700 (Tue, 09 Jul 2013) | 58 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/Makefile.am
+   M /trunk-1.8/configure.in
+   M /trunk-1.8/macosx-setup.sh
+   A /trunk-1.8/macosx-support-lib-patches/glib-gconvert.c.patch (from /trunk/macosx-support-lib-patches/glib-gconvert.c.patch:50456)
+
+Copy over revisions from trunk:
+
+  ------------------------------------------------------------------------
+  r50461 | guy | 2013-07-09 02:54:19 -0700 (Tue, 09 Jul 2013) | 2 lines
+  
+  Fix uninstallation of Cairo - uninstall, don't install!
+  
+  ------------------------------------------------------------------------
+  r50460 | guy | 2013-07-09 02:31:45 -0700 (Tue, 09 Jul 2013) | 5 lines
+  
+  Fix missing $ before variable name.
+  
+  Look at the lua-*-done file to get the version number of the version of
+  Lua we installed.
+  
+  ------------------------------------------------------------------------
+  r50459 | guy | 2013-07-09 01:48:07 -0700 (Tue, 09 Jul 2013) | 5 lines
+  
+  CPPFLAGS contains the flags for the C preprocessor; CXXFLAGS contains
+  the flags for the C++ compiler.
+  
+  If we're building for 10.5, force a 32-bit build.
+  
+  ------------------------------------------------------------------------
+  r50458 | guy | 2013-07-09 01:47:05 -0700 (Tue, 09 Jul 2013) | 3 lines
+  
+  Fix the uninstall procedure for Lua - the man pages are installed into
+  /usr/local/man/man1, not /usr/local/man.
+  
+  ------------------------------------------------------------------------
+  r50456 | guy | 2013-07-08 21:41:34 -0700 (Mon, 08 Jul 2013) | 17 lines
+  
+  Use older versions of some libraries, and build 32-bit, when building
+  for Leopard.  Fix some issues that came up with the older versions.
+  
+  We don't support building *on* Leopard - we check for that up front - so
+  eliminate some code to handle that.
+  
+  When uninstalling, check for the installed version by looking at the
+  name of the -done file, so we don't have to trust the _VERSION settings.
+  
+  We don't appear to need to build our own versions of libpng or pixman
+  when building *on* Snow Leopard *for* Leopard.
+  
+  The libffi configure patch for GLib appears not to be necessary -
+  perhaps building and installing pkg-config *before* building GLib makes
+  it no longer necessary - and it doesn't work with older versions of
+  GLib, so don't apply it.
+  
+  ------------------------------------------------------------------------
+  r50453 | guy | 2013-07-08 15:56:55 -0700 (Mon, 08 Jul 2013) | 6 lines
+  
+  Download, build, and install pkg-config before GLib, courtesy of the
+  "use your internal version of GLib" flag for pkg-config's configure
+  script.  This simplifies things a little bit.
+  
+  Fix an indentation error while we're at it.
+
+------------------------------------------------------------------------
+r50476 | martink | 2013-07-09 14:07:16 -0700 (Tue, 09 Jul 2013) | 13 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-dvbci.c
+
+copy over from the trunk
+
+------------------------------------------------------------------------
+r50474 | martink | 2013-07-09 22:51:48 +0200 (Tue, 09 Jul 2013) | 7 lines
+
+fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8916
+reported by Laurent Butti
+
+a TPDU's length field must never be 0
+this length field was decremented without prior checking,
+allocating length-1 bytes of memory caused a dissector assert
+
+
+------------------------------------------------------------------------
+r50506 | morriss | 2013-07-11 07:52:24 -0700 (Thu, 11 Jul 2013) | 16 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/epan/proto.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r50504 | morriss | 2013-07-11 10:46:30 -0400 (Thu, 11 Jul 2013) | 6 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  Fix the very long loop fuzz failure reported in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8923 :
+
+  Apply the fix for https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3290
+  to proto_tree_add_bits_item().  That is, test that we have offset+length bytes
+  left in the TVB before trying to fake the item.
+
+  ------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r50540 | guy | 2013-07-12 13:27:09 -0700 (Fri, 12 Jul 2013) | 7 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/macosx-setup.sh
+
+Copy over r50538 from trunk:
+
+  ------------------------------------------------------------------------
+  r50538 | guy | 2013-07-12 12:19:09 -0700 (Fri, 12 Jul 2013) | 2 lines
+
+  When building for 10.6, force the build to use libpng12.
+
+------------------------------------------------------------------------
+r50579 | gerald | 2013-07-14 07:34:34 -0700 (Sun, 14 Jul 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2013-07-14]
+------------------------------------------------------------------------
+r50675 | morriss | 2013-07-16 11:37:11 -0700 (Tue, 16 Jul 2013) | 16 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-gsm_a_common.c
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r50672 | morriss | 2013-07-16 13:59:26 -0400 (Tue, 16 Jul 2013) | 8 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gsm_a_common.c
+
+  Fix the fuzz failure reported in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8940 :
+
+  Test whether idx is in range or not (by seeing if it was found in the
+  value_string) before using it as an index into any of the elem_var arrays.
+
+  This fuzz failure was in elem_telv() but apply the fix to all the elem_*()
+  functions.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r50684 | gerald | 2013-07-16 16:19:54 -0700 (Tue, 16 Jul 2013) | 16 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/wiretap/netmon.c
+
+Copy over r49697 with manual intervention:
+
+  ------------------------------------------------------------------------
+  r49697 | guy | 2013-06-02 11:09:13 -0700 (Sun, 02 Jun 2013) | 6 lines
+  Changed paths:
+     M /trunk/wiretap/netmon.c
+
+  Initialize the frame_table_size field of the private data to 0 and the
+  frame_table field to NULL before trying to allocate the frame table, so
+  that if we fail before we allocate the frame table, the attempt to free
+  the private data doesn't crash due to the frame_table field containing a
+  bogus pointer.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r50703 | gerald | 2013-07-17 12:02:20 -0700 (Wed, 17 Jul 2013) | 17 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-per.c
+
+Copy over r49985 from the trunk:
+
+  ------------------------------------------------------------------------
+  r49985 | eapache | 2013-06-17 12:25:45 -0700 (Mon, 17 Jun 2013) | 7 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-per.c
+
+  Ensure that the length parameter to dissect_per_length_determinant is
+  initialized even in cases where we error or otherwise fail to dissect.
+
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8722
+
+  Thanks to Pascal for his help digging through this one.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r50747 | guy | 2013-07-20 18:01:10 -0700 (Sat, 20 Jul 2013) | 13 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/epan/prefs.c
+
+Copy over r50745 from trunk with manual intervention:
+
+  ------------------------------------------------------------------------
+  r50745 | guy | 2013-07-20 17:56:42 -0700 (Sat, 20 Jul 2013) | 10 lines
+
+  Don't report a syntax error if a preference name without a "." is
+  specified, report it as "no such preference" instead.  That should be
+  less confusing; see
+
+     http://stackoverflow.com/questions/17757659/how-to-apply-and-override-preferences-with-tshark
+
+  for an example of confusion.
+
+------------------------------------------------------------------------
+r50757 | gerald | 2013-07-21 07:34:28 -0700 (Sun, 21 Jul 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2013-07-21]
+------------------------------------------------------------------------
+r50793 | guy | 2013-07-22 10:03:23 -0700 (Mon, 22 Jul 2013) | 10 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/epan/dissectors/packet-netflow.c
+
+Copy over r50791 from trunk:
+
+  ------------------------------------------------------------------------
+  r50791 | guy | 2013-07-22 09:56:56 -0700 (Mon, 22 Jul 2013) | 7 lines
+
+  ASes can now be 32-bits; make the fields for them 32-bit so that you can
+  filter on all possible values of them.
+
+  Fixes bug 8959.
+
+------------------------------------------------------------------------
+r50805 | guy | 2013-07-22 16:07:04 -0700 (Mon, 22 Jul 2013) | 8 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/epan/dissectors/packet-ncp2222.inc
+
+Copy over r50803 from trunk:
+
+  ------------------------------------------------------------------------
+  r50803 | guy | 2013-07-22 16:01:30 -0700 (Mon, 22 Jul 2013) | 3 lines
+
+  The last argument to ptvcursor_add() is an encoding value; pass it one,
+  not a Boolean endianness value.
+
+------------------------------------------------------------------------
+r50808 | guy | 2013-07-22 16:15:33 -0700 (Mon, 22 Jul 2013) | 13 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/epan/proto.c
+
+Copy over r50806 from trunk with manual intervention.
+
+  ------------------------------------------------------------------------
+  r50806 | guy | 2013-07-22 16:11:07 -0700 (Mon, 22 Jul 2013) | 8 lines
+
+  Have get_uint_value() assume it's being passed an encoding value, which
+  isn't necessarily going to be zero if the item is big-endian.
+
+  The last argument to test_length() is an encoding, not a big-endian vs.
+  little-endian Boolean; name it appropriately.
+
+  This fixes bug 8953.
+
+------------------------------------------------------------------------
+r50841 | gerald | 2013-07-23 09:31:48 -0700 (Tue, 23 Jul 2013) | 86 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/asn1/tetra/packet-tetra-template.c
+   M /trunk-1.8/asn1/tetra/tetra.asn
+   M /trunk-1.8/asn1/tetra/tetra.cnf
+   M /trunk-1.8/doc/Makefile.am
+   M /trunk-1.8/doc/editcap.pod
+   M /trunk-1.8/doc/idl2wrs.pod
+   M /trunk-1.8/doc/rawshark.pod
+   M /trunk-1.8/doc/wireshark-filter.pod
+   M /trunk-1.8/doc/wireshark.pod.template
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/addr_resolv.c
+   M /trunk-1.8/epan/dissectors/packet-scsi.c
+   M /trunk-1.8/epan/dissectors/packet-tetra.c
+   M /trunk-1.8/wiretap/pcapng.c
+
+Copy over r49985 from the trunk:
+
+  ------------------------------------------------------------------------
+  r49863 | etxrab | 2013-06-09 09:51:42 -0700 (Sun, 09 Jun 2013) | 6 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-scsi.c
+
+  From Javier Godoy:
+  SCSI (SPC) sense key specific information field must not include SKSV.
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8782
+
+  #Backport 1.10 1.8
+  ------------------------------------------------------------------------
+  r49837 | cmaynard | 2013-06-07 10:06:27 -0700 (Fri, 07 Jun 2013) | 2 lines
+  Changed paths:
+     M /trunk/doc/editcap.pod
+     M /trunk/doc/idl2wrs.pod
+     M /trunk/doc/rawshark.pod
+     M /trunk/doc/wireshark-filter.pod
+     M /trunk/doc/wireshark.pod.template
+
+  Fix all errors and warnings found by podchecker.
+  ------------------------------------------------------------------------
+  r49851 | guy | 2013-06-08 19:32:30 -0700 (Sat, 08 Jun 2013) | 5 lines
+  Changed paths:
+     M /trunk/wiretap/pcapng.c
+
+  Don't treat zero-length names in the NRB as errors, just silently ignore
+  them.
+
+  Works around the problem reported in bug 8763.
+  ------------------------------------------------------------------------
+  r49852 | guy | 2013-06-08 19:56:16 -0700 (Sat, 08 Jun 2013) | 6 lines
+  Changed paths:
+     M /trunk/epan/addr_resolv.c
+
+  Don't put zero-length names into our tables of resolved IPv4 and IPv6
+  addresses; they look weird, and can cause problems with existing
+  versions of Wireshark when written in a Name Resolution Block.
+
+  Should fix bug 8763.
+  ------------------------------------------------------------------------
+  r49854 | guy | 2013-06-08 23:44:47 -0700 (Sat, 08 Jun 2013) | 4 lines
+  Changed paths:
+     M /trunk/wiretap/pcapng.c
+
+  libwireshark's add_new_ipv4() and add_new_ipv6() now silently ignore
+  requests to add an entry with a zero-length name; we don't have to
+  ignore them ourselves.
+  ------------------------------------------------------------------------
+  r49866 | cmaynard | 2013-06-09 14:17:13 -0700 (Sun, 09 Jun 2013) | 2 lines
+  Changed paths:
+     M /trunk/doc/Makefile.am
+     M /trunk/doc/Makefile.nmake
+
+  Back out the Makefile changes from r49865.  The OSX buildbots don't like --utf8.  Is the change to wireshark.pod.template sufficient?
+  ------------------------------------------------------------------------
+
+
+Copy over by hand:
+
+  ------------------------------------------------------------------------
+  r49567 | pascal | 2013-05-24 13:55:42 -0700 (Fri, 24 May 2013) | 3 lines
+  Changed paths:
+     M /trunk/asn1/tetra/packet-tetra-template.c
+     M /trunk/asn1/tetra/tetra.asn
+     M /trunk/asn1/tetra/tetra.cnf
+     M /trunk/epan/dissectors/packet-tetra.c
+
+  From LI Hai via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8708 :
+  Add MAC-DATA support to TETRA dissector and other minor improvements
+  ------------------------------------------------------------------------
+  r49865 | cmaynard | 2013-06-09 13:52:15 -0700 (Sun, 09 Jun 2013) | 3 lines
+  Changed paths:
+     M /trunk/doc/Makefile.am
+     M /trunk/doc/Makefile.nmake
+     M /trunk/doc/wireshark.pod.template
+
+  Due to utf8 characters in the AUTHORS file, pass --utf8 to pod2man.
+  Fixes the 2nd problem reported in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8774
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r50842 | cmaynard | 2013-07-23 10:02:48 -0700 (Tue, 23 Jul 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/doc/Makefile.am
+
+Back out the change from r50841.  r49866 backed out the r49865 change for this file from the trunk, so this part of r49865 should not have been backported.  Sorry if there was some confusion here.
+
+------------------------------------------------------------------------
+r50845 | gerald | 2013-07-23 11:09:22 -0700 (Tue, 23 Jul 2013) | 75 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/asn1/h235/h235.cnf
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-h235.c
+   M /trunk-1.8/epan/dissectors/packet-ieee802a.c
+   M /trunk-1.8/epan/dissectors/packet-mac-lte.c
+   M /trunk-1.8/epan/dissectors/packet-pdcp-lte.c
+   M /trunk-1.8/epan/dissectors/packet-rlc-lte.c
+   M /trunk-1.8/epan/dissectors/packet-rlc.c
+   M /trunk-1.8/ui/gtk/flow_graph.c
+   M /trunk-1.8/ui/gtk/gui_utils.c
+   M /trunk-1.8/ui/win32/print_win32.c
+   M /trunk-1.8/ui/win32/print_win32.h
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r49899 | kukosa | 2013-06-12 02:03:21 -0700 (Wed, 12 Jun 2013) | 1 line
+  Changed paths:
+     M /trunk/asn1/h235/h235.cnf
+     M /trunk/epan/dissectors/packet-h235.c
+
+  Fix wrong offset in H.235 tokens causing malformed packet exception
+  ------------------------------------------------------------------------
+  r49908 | morriss | 2013-06-12 08:50:37 -0700 (Wed, 12 Jun 2013) | 8 lines
+  Changed paths:
+     M /trunk/ui/gtk/flow_graph.c
+
+  From Peter Hatina via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8793 :
+
+  Fix crash if you cancel the Flow Graph window while the Graph Analysis window
+  is still open: close the Graph Analysis window when the user cancels the Flow
+  Graph window.
+
+  From me: do the same thing for the window-delete case.
+  ------------------------------------------------------------------------
+  r49937 | cmaynard | 2013-06-14 10:47:54 -0700 (Fri, 14 Jun 2013) | 3 lines
+  Changed paths:
+     M /trunk/ui/gtk/gui_utils.c
+
+  Ensure that Wireshark isn't obscured by the system taskbar or by any other desktop toolbars.  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3034
+  #BACKPORT(1.10,1.8)
+  ------------------------------------------------------------------------
+  r46771 | guy | 2012-12-26 03:27:21 -0800 (Wed, 26 Dec 2012) | 2 lines
+  Changed paths:
+     M /trunk/ui/win32/print_win32.c
+     M /trunk/ui/win32/print_win32.h
+
+  Squelch some more discarding-qualifiers warnings.
+  ------------------------------------------------------------------------
+  r49946 | cmaynard | 2013-06-15 05:57:32 -0700 (Sat, 15 Jun 2013) | 3 lines
+  Changed paths:
+     M /trunk/ui/win32/print_win32.c
+
+  Make use of text metrics and devmode data to properly format a page for printing.  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7543
+  #BACKPORT(1.10,1.8)
+  ------------------------------------------------------------------------
+  r49983 | cmaynard | 2013-06-17 08:39:56 -0700 (Mon, 17 Jun 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-pdcp-lte.c
+
+  tvb_length_remaining() can return -1 so don't cast its return value to an unsigned type when performing integer comparisons.  Instead, cast strlen()'s return value to a signed type and perform the comparison that way.
+  #BACKPORT(1.10,1.8)
+  ------------------------------------------------------------------------
+  r49984 | pascal | 2013-06-17 11:44:19 -0700 (Mon, 17 Jun 2013) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-mac-lte.c
+     M /trunk/epan/dissectors/packet-rlc-lte.c
+     M /trunk/epan/dissectors/packet-rlc.c
+
+  Apply r49983 to other dissectors
+  ------------------------------------------------------------------------
+
+
+Copy over by hand:
+
+  ------------------------------------------------------------------------
+  r49939 | cmaynard | 2013-06-14 10:57:08 -0700 (Fri, 14 Jun 2013) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee802a.c
+
+  Fix IEEE802a OUI lookups.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3123
+  #BACKPORT(1.10,1.8)
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r50848 | gerald | 2013-07-23 11:46:20 -0700 (Tue, 23 Jul 2013) | 57 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/acinclude.m4
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-ansi_637.c
+   M /trunk-1.8/epan/dissectors/packet-eth.c
+   M /trunk-1.8/epan/dissectors/packet-ieee802154.c
+   M /trunk-1.8/epan/dissectors/packet-imap.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r50125 | cmaynard | 2013-06-24 07:30:00 -0700 (Mon, 24 Jun 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee802154.c
+
+  Display RSSI in dB instead of dBm.  Fixes the last remaining issue reported in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4507
+  #BACKPORT(1.10,1.8)
+  ------------------------------------------------------------------------
+  r50127 | guy | 2013-06-24 12:00:55 -0700 (Mon, 24 Jun 2013) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-eth.c
+
+  The Ethernet FCS is 32 bits, not 16 bits.
+  ------------------------------------------------------------------------
+  r50128 | cmaynard | 2013-06-24 12:27:47 -0700 (Mon, 24 Jun 2013) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-eth.c
+
+  A follow-up to r50127 to highlight the correct 4 bytes of the Ethernet FCS for the hf_eth_fcs_good and hf_eth_fcs_bad fields.
+  ------------------------------------------------------------------------
+  r50151 | pascal | 2013-06-25 14:05:28 -0700 (Tue, 25 Jun 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ansi_637.c
+
+  From Reinhard Speyerer via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8851:
+  ansi_637_tele dissector displays MSB as MBS for Call-Back Number
+  ------------------------------------------------------------------------
+  r50185 | pascal | 2013-06-27 03:17:39 -0700 (Thu, 27 Jun 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-imap.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8857 :
+  Do not assume that we must have at least 1 character present before \r\n
+  ------------------------------------------------------------------------
+
+
+Copy over by hand:
+
+  ------------------------------------------------------------------------
+  r50173 | morriss | 2013-06-26 11:19:43 -0700 (Wed, 26 Jun 2013) | 8 lines
+  Changed paths:
+     M /trunk/acinclude.m4
+
+  (Attempt to) fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8813 :
+
+  Enable INET6 checking on Solaris versions other than 5.8.
+
+  (Yes, theoretically this should be checking for Solaris 5.7 or later.  I'm
+  going to go out on a limb and assume that no one is actually still using 5.7
+  or, if they are, they aren't trying to compile a modern Wireshark on it...)
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r50866 | gerald | 2013-07-24 09:54:32 -0700 (Wed, 24 Jul 2013) | 66 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-dcerpc-ndr.c
+   M /trunk-1.8/epan/dissectors/packet-kdsp.c
+   M /trunk-1.8/epan/tvbuff.c
+   M /trunk-1.8/plugins/asn1/packet-asn1.c
+   M /trunk-1.8/plugins/profinet/packet-dcerpc-pn-io.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43997 | wmeier | 2012-07-25 08:04:19 -0700 (Wed, 25 Jul 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-kdsp.c
+
+  Minor cleanup:
+  - Remove some unneeded initializers & casts;
+  - whitespace.
+  ------------------------------------------------------------------------
+  r50228 | mmann | 2013-06-28 19:54:58 -0700 (Fri, 28 Jun 2013) | 11 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-kdsp.c
+
+  Improvements for the KDSP dissector.  Bug 8864 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8864)
+
+  From Yuri Schaeffer
+
+  It addresses the following issues:
+
+  - Payload was included for all CAPPACKET messages. Even when not flagged by bitmap (bug).
+  - Frame Checksum (FCS) was not read from bitmap all following data is off by 4. (bug)
+  - Headers indicated in bitmap could use own subtree
+  - Payload is malformed because it is assumed the span 'the rest of the packet'. In reality more commands can follow. (bug)
+  ------------------------------------------------------------------------
+  r50282 | cmaynard | 2013-06-30 22:23:17 -0700 (Sun, 30 Jun 2013) | 4 lines
+  Changed paths:
+     M /trunk/epan/tvbuff.c
+
+  There are a few dissectors that pass the return value of tvb_length_remaining() as the size argument to the tvb_format_*() functions.  Try to do something sane if that value happens to be -1 (or negative in general).  One such example is packet-bthfp.c, as found and reported by Coverity in CID 1035325 (Improper use of negative value).
+
+  Note: There are other ways to handle this of course, but this fix is suitable for backporting to both 1.10 and 1.8, as it does not break binary compatibility.  Is there a better way to fix this though?  For now, schedule this for backport.
+  ------------------------------------------------------------------------
+  r50301 | cmaynard | 2013-07-01 09:29:17 -0700 (Mon, 01 Jul 2013) | 3 lines
+  Changed paths:
+     M /trunk/plugins/profinet/packet-dcerpc-pn-io.c
+
+  Fix Coverity CID 1035326 (Improper use of negative value) by guarding against tvb_reported_length_remaining() possibly returning -1.
+  #BACKPORT(1.10,1.8)
+  ------------------------------------------------------------------------
+  r50305 | cmaynard | 2013-07-01 13:25:49 -0700 (Mon, 01 Jul 2013) | 3 lines
+  Changed paths:
+     M /trunk/plugins/asn1/packet-asn1.c
+
+  Fix Coverity CID 280618 (Dereference before null check).
+  #BACKPORT(1.10,1.8)
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r50226 | eapache | 2013-06-28 16:54:53 -0700 (Fri, 28 Jun 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dcerpc-ndr.c
+
+  Callers to dissect_ndr_* functions expect pdata to be initialized on return from
+  the function, so make sure it is even in error conditions and other anomaly
+  cases. Fixes the valgrind errors with the capture from
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8828
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r50870 | gerald | 2013-07-24 10:47:39 -0700 (Wed, 24 Jul 2013) | 68 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-slsk.c
+   M /trunk-1.8/epan/expert.c
+   M /trunk-1.8/epan/wslua/wslua_proto.c
+   M /trunk-1.8/ui/cli/tap-iostat.c
+   M /trunk-1.8/ui/cli/tap-sipstat.c
+   M /trunk-1.8/ui/gtk/io_stat.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r50423 | eapache | 2013-07-06 14:55:10 -0700 (Sat, 06 Jul 2013) | 5 lines
+  Changed paths:
+     M /trunk/ui/cli/tap-iostat.c
+
+  From Peter Hatina via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8888
+
+  We're allocating an array of pointers, not an array of objects, so make the
+  sizeof() reflect that to avoid over-allocating.
+  ------------------------------------------------------------------------
+  r50510 | cmaynard | 2013-07-11 08:55:52 -0700 (Thu, 11 Jul 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-slsk.c
+
+  Fix an obvious case of incorrectly comparing the return value of tvb_length_remaining() against non-zero instead of greater than zero.  There are other questionable uses of tvb_length_remaining() as well ... and maybe these should all be replaced with tvb_reported_length_remaining() as well?
+  #BACKPORT(1.10,1.8)
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r50313 | mmann | 2013-07-02 09:02:31 -0700 (Tue, 02 Jul 2013) | 1 line
+  Changed paths:
+     M /trunk/epan/expert.c
+
+  Cache the malformed filter instead of looking it up each time a malformed packet comes in.  This drastically speeds up the load time of captures with lots of malformed packets (ie fuzztesting).
+  ------------------------------------------------------------------------
+  r50465 | cmaynard | 2013-07-09 09:44:47 -0700 (Tue, 09 Jul 2013) | 4 lines
+  Changed paths:
+     M /trunk/ui/gtk/io_stat.c
+
+  Remove the advanced filter field arbitrary text limit of 100 and remove the filter field arbitrary text limit of 256.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8909
+  #BACKPORT(1.10,1.8)
+  ------------------------------------------------------------------------
+  r50469 | cmaynard | 2013-07-09 11:01:44 -0700 (Tue, 09 Jul 2013) | 3 lines
+  Changed paths:
+     M /trunk/ui/gtk/io_stat.c
+
+  Another change that should have been part of r50465, which removed the limits to the number of characters in the display filter(s).  [Technically, there is still the inherent 65535 limit.]
+  #BACKPORT(1.10,1.8)
+  ------------------------------------------------------------------------
+  r50480 | etxrab | 2013-07-09 22:00:43 -0700 (Tue, 09 Jul 2013) | 6 lines
+  Changed paths:
+     M /trunk/ui/cli/tap-sipstat.c
+
+  From Joe McEachern:
+  SIP stats shows incorrect values for Max/Ave setup times.
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8897
+
+  BACKPORT 1.8 1.10
+  ------------------------------------------------------------------------
+  r50483 | stig | 2013-07-10 09:33:30 -0700 (Wed, 10 Jul 2013) | 4 lines
+  Changed paths:
+     M /trunk/epan/wslua/wslua_proto.c
+
+  Use luaL_optnumber for ProtoField mask, to avoid a signed cast.
+
+  This fixes bug 5734.
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r50914 | gerald | 2013-07-26 09:08:45 -0700 (Fri, 26 Jul 2013) | 19 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/proto.c
+
+Copy over r50892 from the trunk:
+
+  ------------------------------------------------------------------------
+  r50892 | morriss | 2013-07-25 11:37:18 -0700 (Thu, 25 Jul 2013) | 9 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  As pointed out in https://www.wireshark.org/lists/wireshark-dev/201307/msg00153.html :
+
+  The fix for https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3290 needs
+  to allow for giving a length of -1 for FT_STRINGZ's.
+
+  This is another fix for https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8960
+  (in addition to r50836).  There's no point in reverting that revision, though,
+  since there was no need to use a length of -1 in that case.
+  ------------------------------------------------------------------------
+
+Update the release notes.
 
 ------------------------------------------------------------------------

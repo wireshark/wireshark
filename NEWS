@@ -1,4 +1,4 @@
-Wireshark 1.8.8 Release Notes
+Wireshark 1.8.9 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,101 +14,117 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2013-32
+     o wnpa-sec-2013-45
 
-       The CAPWAP dissector could crash. Discovered by Laurent Butti.
-       (Bug 8725)
+       The Bluetooth SDP dissector could go into a large loop.
+       Discovered by Laurent Butti. (Bug 8831)
 
-       Versions affected: 1.8.0 to 1.8.7, 1.6.0 to 1.6.15.
+       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
 
-     o wnpa-sec-2013-33
+       CVE-2013-4927
 
-       The GMR-1 BCCH dissector could crash. Discovered by Sylvain
-       Munaut and Laurent Butti. (Bug 7664, Bug 8726 )
+     o wnpa-sec-2013-47
 
-       Versions affected: 1.8.0 to 1.8.7.
+       The DIS dissector could go into a large loop. (Bug 8911)
 
-     o wnpa-sec-2013-34
+       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
 
-       The PPP dissector could crash. Discovered by Laurent Butti.
-       (Bug 7880, Bug 8727 )
+       CVE-2013-4929
 
-       Versions affected: 1.8.0 to 1.8.7.
+     o wnpa-sec-2013-48
 
-     o wnpa-sec-2013-35
+       The DVB-CI dissector could crash. Discovered by Laurent Butti.
+       (Bug 8916)
 
-       The NBAP dissector could crash. (Bug 8697)
+       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
 
-       Versions affected: 1.8.0 to 1.8.7.
+       CVE-2013-4930
 
-     o wnpa-sec-2013-36
+     o wnpa-sec-2013-49
 
-       The RDP dissector could crash. Discovered by Laurent Butti
-       (Bug 8729)
+       The GSM RR dissector (and possibly others) could go into a
+       large loop. (Bug 8923)
 
-       Versions affected: 1.8.0 to 1.8.7.
+       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
 
-     o wnpa-sec-2013-37
+       CVE-2013-4931
 
-       The GSM CBCH dissector could crash. Discovered by Laurent
-       Butti (Bug 8730)
+     o wnpa-sec-2013-50
 
-       Versions affected: 1.8.0 to 1.8.7.
+       The GSM A Common dissector could crash. (Bug 8940)
 
-     o wnpa-sec-2013-38
+       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
 
-       The Assa Abloy R3 dissector could consume excessive memory and
-       CPU. (Bug 8764)
+       CVE-2013-4932
 
-       Versions affected: 1.8.0 to 1.8.7.
+     o wnpa-sec-2013-51
 
-     o wnpa-sec-2013-39
+       The Netmon file parser could crash. Discovered by G. Geshev.
+       (Bug 8742)
 
-       The HTTP dissector could overrun the stack. (Bug 8733)
+       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
 
-       Versions affected: 1.8.0 to 1.8.7, 1.6.0 to 1.6.15.
+       CVE-2013-4933
 
-     o wnpa-sec-2013-40
+       CVE-2013-4934
 
-       The Ixia IxVeriWave file parser could overflow the heap.
-       Discovered by Sachin Shinde. (Bug 8760)
+     o wnpa-sec-2013-52
 
-       Versions affected: 1.8.0 to 1.8.7.
+       The ASN.1 PER dissector could crash. Discovered by
+       Oliver-Tobias Ripka. (Bug 8722)
 
-     o wnpa-sec-2013-41
+       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
 
-       The DCP ETSI dissector could crash. (Bug 8717)
-
-       Versions affected: 1.10.0, 1.8.0 to 1.8.7, 1.6.0 to 1.6.15.
+       CVE-2013-4935
 
    The following bugs have been fixed:
 
-     o TRY_TO_FAKE_THIS_ITEM disables bounds errors. (Bug 3290)
+     o Wireshark hides under Taskbar. (Bug 3034)
 
-     o Multiple expert info in a packet does not cause the most
-       "severe" to be displayed in expert column. (Bug 7733)
+     o Wireshark doesn't translate IEEE802a OUI. (Bug 3123)
 
-     o tshark -z io,stat reports bad byte counts if filter doesn't
-       match anything. (Bug 8066)
+     o IEEE 802.15.4 frame check sequence in "Chipcon mode" not
+       displayed correctly. (Bug 4507)
 
-     o Add decryption for WPA eapol 4-way handshake. (Bug 8680)
+     o Mask in Lua ProtoField.uint32() does not work as expected.
+       (Bug 5734)
 
-     o wireshark is crashing while attempting to use 'SCTP' ->
-       'Prepare Filter for this Association'. (Bug 8731)
+     o Lines of text are truncated if they are either longer than the
+       paper width or past the paper height. (Bug 7543)
 
-     o Crash analyzing VoIP Calls (T38). (Bug 8736)
+     o [PATCH] Add MAC-DATA support to TETRA dissector and other
+       minor improvements. (Bug 8708)
 
-     o IMAP Dissector, Missing byte. (Bug 8739)
+     o Wireshark writes empty NRB FQDN which makes trace unloadable.
+       (Bug 8763)
 
-     o C12.22 Invocation Id shows negative sometimes. (Bug 8744)
+     o Wrong encoding for 2 pod files, UTF-8 characters in another.
+       (Bug 8774)
 
-     o gsm_a_dtap dissector (SMS): under certain conditions fillbits
-       may be displayed for an alphanumeric TP-Originating-Address.
-       (Bug 8756)
+     o SCSI (SPC) sense key specific information field must not
+       include SKSV. (Bug 8782)
 
-     o TETRA dissector assertion. (Bug 8768)
+     o Wireshark crashes when closing Flow Graph with Graph Analysis
+       opened. (Bug 8793)
 
-     o Mark retransmitted SYN and FIN packets as retransmissions.
+     o Detection of IPv6 works only on Solaris 8. (Bug 8813)
+
+     o ansi_637_tele dissector displays MSB as MBS for Call-Back
+       Number. (Bug 8851)
+
+     o Dropped bytes in IMAP dissector. (Bug 8857)
+
+     o Kismet drone/server dissector improvements. (Bug 8864)
+
+     o iostat_draw sizeof mismatch. (Bug 8888)
+
+     o SIP stats shows incorrect values for Max/Ave setup times. (Bug
+       8897)
+
+     o Graph Filter field limited to 256 characters. (Bug 8909)
+
+     o All mongodb query show as [Malformed Packet: MONGO]. (Bug
+       8960)
 
   New and Updated Features
 
@@ -120,12 +136,13 @@ What's New
 
   Updated Protocol Support
 
-   Bittorrent DHT, C12.22, CAPWAP, DCP ETSI, EAPOL, GMR-1 BCCH, GSM
-   CBCH, GSM SMS, HTTP, IMAP, NBAP, PPP, R3, RDP, SGsAP, T.38, TETRA
+   ANSI IS-637-A, ASN.1 PER, ASN.1, DCERPC NDR, Ethernet, H.235, IEEE
+   802.15.4, IEEE 802a, IMAP, KDSP, MAC-LTE, MONGO, PDCP-LTE, RLC,
+   RLC-LTE, SCSI, SoulSeek, TETRA
 
   New and Updated Capture File Support
 
-   Ixia IxVeriWave.
+   Microsoft Network Monitor, pcap-ng.
 
 Getting Wireshark
 
