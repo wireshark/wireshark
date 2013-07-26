@@ -1925,7 +1925,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
     raw_tm_ti = proto_tree_add_item(tree, hf_rlc_lte_tm_data, tvb, offset, -1, ENC_NA);
     if (!global_rlc_lte_call_rrc_for_ccch) {
         write_pdu_label_and_info(top_ti, NULL, pinfo,
-                                 "   [%u-bytes]", tvb_length_remaining(tvb, offset));
+                                 "                     [%u-bytes]", tvb_length_remaining(tvb, offset));
     }
 
     if (global_rlc_lte_call_rrc_for_ccch) {
@@ -2074,7 +2074,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     tap_info->sequenceNumber = (guint16)sn;
 
     /* Show SN in info column */
-    write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "           sn=%-4u", (guint16)sn);
+    write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "            sn=%-4u", (guint16)sn);
 
     proto_item_set_len(um_header_ti, offset-start_offset);
 
