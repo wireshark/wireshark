@@ -1805,7 +1805,14 @@ test_length(header_field_info *hfinfo, proto_tree *tree, tvbuff_t *tvb,
 		else {
 			size += n;
 		}
+	} else if (hfinfo->type == FT_STRINGZ) {
+		/* If we're fetching until the end of the TVB, only validate
+		 * that the offset is within range.
+		 */
+		if (length == -1)
+			size = 0;
 	}
+
 	tvb_ensure_bytes_exist(tvb, start, size);
 }
 
