@@ -2790,7 +2790,8 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     PROTO_ITEM_SET_GENERATED(ti);
 
     if ((p_rlc_lte_info->channelType == CHANNEL_TYPE_SRB) ||
-        (p_rlc_lte_info->channelType == CHANNEL_TYPE_DRB)) {
+        (p_rlc_lte_info->channelType == CHANNEL_TYPE_DRB) ||
+        (p_rlc_lte_info->channelType == CHANNEL_TYPE_MTCH)) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_channel_id,
                                  tvb, 0, 0, p_rlc_lte_info->channelId);
         PROTO_ITEM_SET_GENERATED(ti);
