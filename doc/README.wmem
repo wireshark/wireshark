@@ -59,13 +59,14 @@ NB: Using these pools outside of the appropriate scope (eg using the packet
 
 The epan pool is scoped to the library's lifetime - memory allocated in it is
 not freed until epan_cleanup() is called, which is typically at the end of the
-program. 
+program.
 
 2.1.2 Pinfo Pool
 
-Certain places (such as AT_STRINGZ address allocations) need their memory to
-stay around a little longer than the usual packet scope - basically until the
-next packet is dissected. This is effectively the scope of Wireshark's pinfo
+Certain allocations (such as AT_STRINGZ address allocations and anything that
+might end up being passed to add_new_data_source) need their memory to stick
+around a little longer than the usual packet scope - basically until the
+next packet is dissected. This is, in fact, the scope of Wireshark's pinfo
 structure, so the pinfo struct has a 'pool' member which is a wmem pool scoped
 to the lifetime of the pinfo struct.
 
