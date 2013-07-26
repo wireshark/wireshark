@@ -57,11 +57,11 @@
 #include <epan/expert.h>
 
 /* SSH Version 1 definition , from openssh ssh1.h */
-#define SSH1_MSG_NONE				0	/* no message */
-#define SSH1_MSG_DISCONNECT			1	/* cause (string) */
+#define SSH1_MSG_NONE			0	/* no message */
+#define SSH1_MSG_DISCONNECT		1	/* cause (string) */
 #define SSH1_SMSG_PUBLIC_KEY		2	/* ck,msk,srvk,hostk */
 #define SSH1_CMSG_SESSION_KEY		3	/* key (BIGNUM) */
-#define SSH1_CMSG_USER				4	/* user (string) */
+#define SSH1_CMSG_USER			4	/* user (string) */
 
 
 #define SSH_VERSION_UNKNOWN 	0
@@ -283,7 +283,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t *conversation;
 	int		last_offset, offset = 0;
 
-	gboolean	is_response = (pinfo->destport != pinfo->match_uint), 
+	gboolean	is_response = (pinfo->destport != pinfo->match_uint),
 				need_desegmentation;
 	guint		version;
 
@@ -412,7 +412,7 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	if ((global_data->frame_key_start == 0) ||
-		((global_data->frame_key_start <= pinfo->fd->num) && 
+		((global_data->frame_key_start <= pinfo->fd->num) &&
 		((global_data->frame_key_end == 0) || (pinfo->fd->num <= global_data->frame_key_end)))) {
 		offset = ssh_dissect_key_exchange(tvb,pinfo, global_data,
 			offset,ssh2_tree,is_response,
@@ -804,7 +804,11 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 		protolen = linelen;
 	} else {
 		linelen = linelen - offset + 1;
-		protolen = linelen - 1;
+
+		if (linelen > 1 && tvb_get_guint8(tvb, offset + linelen - 2) == '\r')
+			protolen = linelen - 2;
+		else
+			protolen = linelen - 1;
 	}
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s Protocol: %s",
