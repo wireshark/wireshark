@@ -230,7 +230,7 @@ wmem_block_verify(wmem_allocator_t *allocator)
      * on receiving the right type of allocator, but this is for testing only
      * and is not part of any real API. */
     g_assert(allocator->type == WMEM_ALLOCATOR_BLOCK);
-    
+
     private_allocator = (wmem_block_allocator_t*) allocator->private_data;
 
     if (private_allocator->block_list == NULL) {
@@ -742,7 +742,7 @@ wmem_block_realloc(void *private_data, void *ptr, const size_t size)
             /* the next chunk is free and has enough extra, so just grab
              * from that */
             size_t split_size;
-            
+
             /* we ask for the next chunk to be split, but we don't end up
              * using the split chunk header (it just gets merged into this one),
              * so we want the split to be of (size - curdatalen - header_size).
