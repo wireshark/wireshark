@@ -941,7 +941,17 @@ typedef enum
     BE_UDEF_130,                        /* Undefined */
     BE_KC128,                           /* Kc128 */
     BE_CSG_ID,                          /* CSG Identifier */
-    BE_NONE                             /* NONE */
+	BE_REDIR_ATT_FLG,                   /* Redirect Attempt Flag               3.2.2.111    */
+	BE_REROUTE_REJ_CAUSE,               /* Reroute Reject Cause                3.2.2.112    */
+	BE_SEND_SEQN,                       /* Send Sequence Number                3.2.2.113    */
+	BE_REROUTE_OUTCOME,                 /* Reroute complete outcome            3.2.2.114    */
+	BE_GLOBAL_CALL_REF,                 /* Global Call Reference               3.2.2.115    */
+	BE_LCLS_CONF,                       /* LCLS-Configuration                  3.2.2.116    */
+	BE_LCLS_CON_STATUS_CONTROL,         /* LCLS-Connection-Status-Control      3.2.2.117    */
+	BE_LCLS_CORR_NOT_NEEDED,            /* LCLS-Correlation-Not-Needed         3.2.2.118    */
+	BE_LCLS_BSS_STATUS,                 /* LCLS-BSS-Status                     3.2.2.119    */
+	BE_LCLS_BREAK_REQ,                  /* LCLS-Break-Request                  3.2.2.120    */
+	BE_CSFB_IND,                        /* CSFB Indication                     3.2.2.121    */
 }
 bssmap_elem_idx_t;
 

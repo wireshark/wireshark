@@ -333,18 +333,23 @@ static const value_string gsm_bssmap_elem_strings[] = {
     { BE_UDEF_130, "Undefined" },
     { BE_KC128, "Kc128" },
     { BE_CSG_ID, "CSG Identifier" },
+    { BE_REDIR_ATT_FLG, "Redirect Attempt Flag" },                                           /* 3.2.2.111    */
+    { BE_REROUTE_REJ_CAUSE, "Reroute Reject Cause" },                                        /* 3.2.2.112    */
+    { BE_SEND_SEQN, "Send Sequence Number" },                                                /* 3.2.2.113    */
+    { BE_REROUTE_OUTCOME, "Reroute complete outcome" },                                      /* 3.2.2.114    */
+    { BE_GLOBAL_CALL_REF, "Global Call Reference" },                                         /* 3.2.2.115    */
+    { BE_LCLS_CONF, "LCLS-Configuration" },                                                  /* 3.2.2.116    */
+    { BE_LCLS_CON_STATUS_CONTROL, "LCLS-Connection-Status-Control" },                        /* 3.2.2.117    */
+    { BE_LCLS_CORR_NOT_NEEDED, "LCLS-Correlation-Not-Needed" },                              /* 3.2.2.118    */
+    { BE_LCLS_BSS_STATUS, "LCLS-BSS-Status" },                                               /* 3.2.2.119    */
+    { BE_LCLS_BREAK_REQ, "LCLS-Break-Request" },                                             /* 3.2.2.120    */
+    { BE_CSFB_IND, "CSFB Indication" },                                                      /* 3.2.2.121    */
 #if 0
-    { 0x85, "Redirect Attempt FlagT" },            /* 3.2.2.111    */
-    { 0x86, "Reroute Reject Cause" },              /* 3.2.2.112    */
-    { 0x87, "Send Sequence Number" },              /* 3.2.2.113    */
-    { 0x88, "Reroute complete outcome" },          /* 3.2.2.114    */
-    { 0x89, "Global Call Reference" },             /* 3.2.2.115    */
-    { 0x8a, "LCLS-Configuration" },                /* 3.2.2.116    */
-    { 0x8b, "LCLS-Connection-Status-Control" },    /* 3.2.2.117    */
-    { 0x8c, "LCLS-Correlation-Not-Needed" },       /* 3.2.2.118    */
-    { 0x8d, "LCLS-BSS-Status" },                   /* 3.2.2.119    */
-    { 0x8e, "LCLS-Break-Request" },                /* 3.2.2.120    */
-    { 0x8f, "CSFB Indication" },                   /* 3.2.2.121    */
+    { 0x90, "CS to PS SRVCC" },                   /* 3.2.2.122 */
+    { 0x91, "Source eNB to target eNB transparent information (E-UTRAN)" },                   /*3.2.2.123    */
+    { 0x92, "CS to PS SRVCC Indication" },                   /* 3.2.2.124    */
+    { 0x93, "CN to MS transparent information" },                   /* 3.2.2.125    */
+    { 0x94, "Selected PLMN ID" },                   /* 3.2.2.126    */
 #endif
     { 0, NULL }
 };
@@ -632,6 +637,13 @@ static int hf_fe_dtm_ho_command_ind_spare = -1;
 static int hf_gsm_a_bssmap_speech_data_ind = -1;
 static int hf_gsm_a_bssmap_channel_rate_and_type = -1;
 static int hf_gsm_a_bssmap_perm_speech_v_ind = -1;
+static int hf_gsm_a_bssmap_reroute_rej_cause = -1;
+static int hf_gsm_a_bssmap_send_seqn = -1;
+static int hf_gsm_a_bssmap_reroute_outcome = -1;
+static int hf_gsm_a_bssmap_lcls_conf = -1;
+static int hf_gsm_a_bssmap_lcls_con_status_control = -1;
+static int hf_gsm_a_bssmap_lcls_bss_status = -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -797,6 +809,24 @@ typedef enum
     BE_UDEF_130,                        /* Undefined */
     BE_KC128,                           /* Kc128 */
     BE_CSG_ID,                          /* CSG Identifier */
+	BE_REDIR_ATT_FLG,                   /* Redirect Attempt Flag               3.2.2.111    */
+	BE_REROUTE_REJ_CAUSE,               /* Reroute Reject Cause                3.2.2.112    */
+	BE_SEND_SEQN,                       /* Send Sequence Number                3.2.2.113    */
+	BE_REROUTE_OUTCOME,                 /* Reroute complete outcome            3.2.2.114    */
+	BE_GLOBAL_CALL_REF,                 /* Global Call Reference               3.2.2.115    */
+	BE_LCLS_CONF,                       /* LCLS-Configuration                  3.2.2.116    */
+	BE_LCLS_CON_STATUS_CONTROL,         /* LCLS-Connection-Status-Control      3.2.2.117    */
+	BE_LCLS_CORR_NOT_NEEDED,            /* LCLS-Correlation-Not-Needed         3.2.2.118    */
+	BE_LCLS_BSS_STATUS,                 /* LCLS-BSS-Status                     3.2.2.119    */
+	BE_LCLS_BREAK_REQ,                  /* LCLS-Break-Request                  3.2.2.120    */
+	BE_CSFB_IND,                        /* CSFB Indication                     3.2.2.121    */
+#if 0
+    { 0x90, "CS to PS SRVCC" },                   /* 3.2.2.122 */
+    { 0x91, "Source eNB to target eNB transparent information (E-UTRAN)" },                   /*3.2.2.123    */
+    { 0x92, "CS to PS SRVCC Indication" },                   /* 3.2.2.124    */
+    { 0x93, "CN to MS transparent information" },                   /* 3.2.2.125    */
+    { 0x94, "Selected PLMN ID" },                   /* 3.2.2.126    */
+#endif
     BE_NONE                             /* NONE */
 }
 bssmap_elem_idx_t;
@@ -4299,6 +4329,199 @@ be_csg_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
     return(len);
 }
 
+/*
+ * 3.2.2.111 Redirect Attempt Flag
+ * No data
+ */
+
+/*
+ * 3.2.2.112 Reroute Reject Cause
+ */
+/*
+ * Reroute Reject cause value (octet 2)
+ */
+
+
+static const value_string gsm_a_bssap_reroute_rej_cause_vals[] = {
+    { 0x0,     "Reserved" },
+    { 0x1,     "Reserved" },
+    { 0x2,     "Reserved" },
+    { 0x3,     "Reserved" },
+    { 0x4,     "Reserved" },
+    { 0x5,     "Reserved" },
+    { 0x6,     "Reserved" },
+    { 0x7,     "Reserved" },
+    { 0x8,     "Reserved" },
+    { 0x9,     "Reserved" },
+    { 0xa,     "Reserved" },
+    { 0xb,     "PLMN not allowed" },
+    { 0xc,     "Location area not allowed" },
+    { 0xd,     "Roaming not allowed in this location area" },
+    { 0xe,     "GPRS services not allowed in this PLMN" },
+    { 0xf,     "No suitable cell in location area" },
+    { 0x10,    "CS/PS domain registration coordination required" },
+    { 0,        NULL }
+};
+
+static guint16
+be_reroute_rej_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_reroute_rej_cause, tvb, curr_offset, 1, ENC_NA);
+    curr_offset+=1;
+
+    return(curr_offset - offset);
+
+}
+
+/*
+ * 3.2.2.113 Send Sequence Number
+ */
+static guint16
+be_send_seqn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_send_seqn, tvb, curr_offset, 1, ENC_NA);
+    curr_offset+=1;
+
+    return(curr_offset - offset);
+
+}
+
+/*
+ * 3.2.2.114 Reroute complete outcome
+ */
+static const value_string gsm_a_bssap_reroute_outcome_vals[] = {
+    { 0x0,     "Reserved" },
+    { 0x1,     "MS is accepted" },
+    { 0x2,     "MS is not accepted" },
+    { 0x3,     "MS is already registered" },
+    { 0,        NULL }
+};
+
+static guint16
+be_reroute_outcome(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_reroute_outcome, tvb, curr_offset, 1, ENC_NA);
+    curr_offset+=1;
+
+    return(curr_offset - offset);
+
+}
+
+/*
+ * 3.2.2.115 Global Call Reference
+ */
+static guint16
+be_global_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+    curr_offset = offset;
+
+	/* Global Call Reference Identifier */
+    proto_tree_add_text(tree, tvb, curr_offset, len, "Field Element not decoded yet");
+
+    return len;
+
+}
+/*
+ * 3.2.2.116 LCLS-Configuration
+ */
+static const value_string gsm_a_bssap_lcls_conf_vals[] = {
+    { 0x0,     "Connect both-way" },
+    { 0x1,     "Connect both-way and bi-cast UL to the core network" },
+    { 0x2,     "Connect both-way and send access DL from the core network" },
+    { 0x3,     "Connect both-way and send access DL from the core network, block local DL user data" },
+    { 0x4,     "Connect both-way and bi-cast UL to the core network with send access DL from the core network" },
+    { 0x5,     "Connect both-way and bi-cast UL to the core network with send access DL from the core network, block local DL user data" },
+    { 0,        NULL }
+};
+
+static guint16
+be_lcls_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_lcls_conf, tvb, curr_offset, 1, ENC_NA);
+    curr_offset+=1;
+
+    return(curr_offset - offset);
+
+}
+
+/*
+ * 3.2.2.117 LCLS-Connection-Status-Control
+ */
+static const value_string gsm_a_bssap_lcls_con_status_control_vals[] = {
+    { 0x0,     "Connect" },
+    { 0x1,     "Do not connect" },
+    { 0x2,     "Release LCLS" },
+    { 0x3,     "Bi-cast UL at Handover" },
+    { 0x4,     "Bi-cast UL and receive DL data at Handover" },
+    { 0,        NULL }
+};
+
+static guint16
+be_lcls_con_status_control(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_lcls_con_status_control, tvb, curr_offset, 1, ENC_NA);
+    curr_offset+=1;
+
+    return(curr_offset - offset);
+
+}
+
+/*
+ * 3.2.2.118 LCLS-Correlation-Not-Needed
+ * No data
+ */
+
+/*
+ * 3.2.2.119 LCLS-BSS-Status
+ */
+static const value_string gsm_a_bssmap_lcls_bss_status_vals[] = {
+    { 0x0,     "Call not yet locally switched" },
+    { 0x1,     "Call not possible to be locally switched" },
+    { 0x2,     "Call is no longer locally switched" },
+    { 0x3,     "Requested LCLS configuration is not supported" },
+    { 0x4,     "Call is locally switched with requested LCLS configuration" },
+    { 0,        NULL }
+};
+
+static guint16
+be_lcls_bss_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_lcls_bss_status, tvb, curr_offset, 1, ENC_NA);
+    curr_offset+=1;
+
+    return(curr_offset - offset);
+
+}
+
+/*
+ * 3.2.2.120 LCLS-Break-Request
+ * No data
+ */
+
+/*
+ * 3.2.2.121 CSFB Indication
+ * No data
+ */
+
 guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
     NULL,               /* Undefined */
     be_cic,             /* Circuit Identity Code */
@@ -4432,7 +4655,25 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     be_a_itf_sel_for_reset, /* A-Interface Selector for RESET */
     NULL,               /* Undefined */
     be_kc128,           /* Kc128 */
-    be_csg_id,          /* CSG Identifier */
+    be_csg_id,                          /* CSG Identifier */
+	NULL,                               /* Redirect Attempt Flag                3.2.2.111    No data */
+	be_reroute_rej_cause,               /* Reroute Reject Cause                 3.2.2.112    */
+	be_send_seqn,                       /* Send Sequence Number                 3.2.2.113    */
+	be_reroute_outcome,                 /* Reroute complete outcome             3.2.2.114    */
+	be_global_call_ref,                 /* Global Call Reference                3.2.2.115    */
+	be_lcls_conf,                       /* LCLS-Configuration                   3.2.2.116    */
+	be_lcls_con_status_control,         /* LCLS-Connection-Status-Control       3.2.2.117    */
+	NULL,                               /* LCLS-Correlation-Not-Needed          3.2.2.118    No data */
+	be_lcls_bss_status,                 /* LCLS-BSS-Status                      3.2.2.119    */
+	NULL,                               /* LCLS-Break-Request                   3.2.2.120    No data */
+	NULL,                               /* CSFB Indication                      3.2.2.121    No data */
+#if 0
+    { 0x90, "CS to PS SRVCC" },                   /* 3.2.2.122 */
+    { 0x91, "Source eNB to target eNB transparent information (E-UTRAN)" },                   /*3.2.2.123    */
+    { 0x92, "CS to PS SRVCC Indication" },                   /* 3.2.2.124    */
+    { 0x93, "CN to MS transparent information" },                   /* 3.2.2.125    */
+    { 0x94, "Selected PLMN ID" },                   /* 3.2.2.126    */
+#endif
 
     NULL,   /* NONE */
 };
@@ -5362,6 +5603,8 @@ bssmap_clear_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     ELEM_OPT_TLV(BE_L3_HEADER_INFO, GSM_A_PDU_TYPE_BSSMAP, BE_L3_HEADER_INFO, NULL);
     /* Cause    3.2.2.5 MSC-BSS M   3-4 */
     ELEM_MAND_TLV(BE_CAUSE, GSM_A_PDU_TYPE_BSSMAP, BE_CAUSE, NULL);
+	/* CSFB Indication 3.2.2.121 MSC-BSS O 1 */
+    ELEM_OPT_T(BE_CSFB_IND, GSM_A_PDU_TYPE_BSSMAP, BE_CSFB_IND, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7723,6 +7966,36 @@ proto_register_gsm_a_bssmap(void)
     { &hf_gsm_a_bssmap_perm_speech_v_ind,
         { "Permitted speech version indication", "gsm_a.bssmap.perm_speech_v_ind",
             FT_UINT8, BASE_HEX, VALS(gsm_a_bssap_perm_speech_v_ind_vals), 0x7f,
+            NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_reroute_rej_cause,
+        { "Reroute Reject cause", "gsm_a.bssmap.reroute_rej_cause",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssap_reroute_rej_cause_vals), 0x0,
+            NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_send_seqn,
+        { "Send Sequence Number", "gsm_a.bssmap.reroute_rej_cause",
+            FT_UINT8, BASE_HEX, NULL, 0xc0,
+            NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_reroute_outcome,
+        { "Outcome", "gsm_a.bssmap.reroute_outcome",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssap_reroute_outcome_vals), 0x0,
+            NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_lcls_conf,
+        { "LCLS-Configuration", "gsm_a.bssmap.lcls_conf",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssap_lcls_conf_vals), 0x0f,
+            NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_lcls_con_status_control,
+        { "LCLS-Connection-Status-Control", "gsm_a.bssmap.lcls_con_status_control",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssap_lcls_con_status_control_vals), 0x0f,
+            NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_lcls_bss_status,
+        { "LCLS-BSS-Status", "gsm_a.bssmap.lcls_bss_status",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_lcls_bss_status_vals), 0x0f,
             NULL, HFILL }
     },
     };
