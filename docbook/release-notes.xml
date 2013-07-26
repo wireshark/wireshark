@@ -36,17 +36,117 @@ Wireshark Info
 
         <listitem>
           <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-45.html">wnpa-sec-2013-45</ulink>
+          </para>
+          <para>
+	    The Bluetooth SDP dissector could go into a large loop. Discovered by Laurent Butti.
+            <!-- Fixed in trunk: r50134 -->
+            <!-- Fixed in trunk-1.10: r50250 -->
+            <!-- Fixed in trunk-1.8: r50251 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8831">Bug
+            8831</ulink>)
+          </para>
+          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-47.html">wnpa-sec-2013-47</ulink>
+          </para>
+          <para>
+	    The DIS dissector could go into a large loop.
+            <!-- Fixed in trunk: r50450 -->
+            <!-- Fixed in trunk-1.10: r50451 -->
+            <!-- Fixed in trunk-1.8: r50452 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8911">Bug
+            8911</ulink>)
+          </para>
+          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-48.html">wnpa-sec-2013-48</ulink>
+          </para>
+          <para>
+	    The DVB-CI dissector could crash. Discovered by Laurent Butti.
+            <!-- Fixed in trunk: r50474 -->
+            <!-- Fixed in trunk-1.10: r50475 -->
+            <!-- Fixed in trunk-1.8: r50476 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8916">Bug
+            8916</ulink>)
+          </para>
+          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-49.html">wnpa-sec-2013-49</ulink>
+          </para>
+          <para>
+	    The GSM RR dissector (and possibly others) could go into a large loop.
+            <!-- Fixed in trunk: r50504 -->
+            <!-- Fixed in trunk-1.10: r50505 -->
+            <!-- Fixed in trunk-1.8: r50506 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8923">Bug
+            8923</ulink>)
+          </para>
+          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-50.html">wnpa-sec-2013-50</ulink>
+          </para>
+          <para>
+	    The GSM A Common dissector could crash.
+            <!-- Fixed in trunk: r50672 -->
+            <!-- Fixed in trunk-1.10: r50673 -->
+            <!-- Fixed in trunk-1.8: r50675 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8940">Bug
+            8940</ulink>)
+          </para>
+          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-51.html">wnpa-sec-2013-51</ulink>
           </para>
           <para>
-	    The Netmon file parser could crash.
+	    The Netmon file parser could crash. Discovered by G. Geshev.
             <!-- Fixed in trunk: r49697 -->
             <!-- Fixed in trunk-1.10: r50683 -->
             <!-- Fixed in trunk-1.8: r50684 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8742">Bug
             8742</ulink>)
           </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.7.</para>
+          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -66,7 +166,7 @@ Wireshark Info
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8722">Bug
             8722</ulink>)
           </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.7.</para>
+          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
