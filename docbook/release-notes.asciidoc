@@ -17,241 +17,25 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2013-41[]
+* ws-salink:2013-54[]
 +
-The DCP ETSI dissector could crash.
-// Fixed in trunk: r49802
-// Fixed in trunk-1.10: r49819
-// Fixed in trunk-1.8: r49818
-// Fixed in trunk-1.6: r49822
-(ws-buglink:8717[])
+Some dissector somewhere could do something horrible.
+// Fixed in trunk: r?????
+// Fixed in trunk-1.10: r?????
+// Fixed in trunk-1.8: r?????
+(ws-buglink:????[])
 +
-Versions affected: 1.10.0, 1.8.0 to 1.8.7
-+
-cve-idlink:2013-4083[]
+Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
+//+
+//cve-idlink:2013-????[]
 
-* ws-salink:2013-42[]
-+
-The P1 dissector could crash. Discovered by Laurent Butti.
-// Fixed in trunk: r50083
-// Fixed in trunk-1.10: r50253
-(ws-buglink:8826[])
-+
-Versions affected: 1.10.0
-+
-cve-idlink:2013-4920[]
-
-* ws-salink:2013-43[]
-+
-The Radiotap dissector could crash. Discovered by Laurent Butti.
-// Fixed in trunk: r50090
-// Fixed in trunk-1.10: r50214
-(ws-buglink:8830[])
-+
-Versions affected: 1.10.0
-+
-cve-idlink:2013-4921[]
-
-* ws-salink:2013-44[]
-+
-The DCOM ISystemActivator dissector could crash. Discovered by Laurent Butti.
-// Fixed in trunk: r50094
-// Fixed in trunk-1.10: r50250
-(ws-buglink:8828[])
-+
-Versions affected: 1.10.0
-+
-cve-idlink:2013-4922[]
-cve-idlink:2013-4923[]
-cve-idlink:2013-4924[]
-cve-idlink:2013-4925[]
-cve-idlink:2013-4926[]
-
-* ws-salink:2013-45[]
-+
-The Bluetooth SDP dissector could go into a large loop. Discovered by Laurent Butti.
-// Fixed in trunk: r50134
-// Fixed in trunk-1.10: r50250
-// Fixed in trunk-1.8: r50251
-(ws-buglink:8831[])
-+
-Versions affected: 1.10.0, 1.8.0 to 1.8.8
-+
-cve-idlink:2013-4927[]
-
-* ws-salink:2013-46[]
-+
-The Bluetooth OBEX dissector could go into an infinite loop.
-// Fixed in trunk: r50258
-// Fixed in trunk-1.10: r50259
-(ws-buglink:8875[])
-+
-Versions affected: 1.10.0
-+
-cve-idlink:2013-4928[]
-
-* ws-salink:2013-47[]
-+
-The DIS dissector could go into a large loop.
-// Fixed in trunk: r50450
-// Fixed in trunk-1.10: r50451
-// Fixed in trunk-1.8: r50452
-(ws-buglink:8911[])
-+
-Versions affected: 1.10.0, 1.8.0 to 1.8.8
-+
-cve-idlink:2013-4929[]
-
-* ws-salink:2013-48[]
-+
-The DVB-CI dissector could crash. Discovered by Laurent Butti.
-// Fixed in trunk: r50474
-// Fixed in trunk-1.10: r50475
-// Fixed in trunk-1.8: r50476
-(ws-buglink:8916[])
-+
-Versions affected: 1.10.0, 1.8.0 to 1.8.8
-+
-cve-idlink:2013-4930[]
-
-* ws-salink:2013-49[]
-+
-The GSM RR dissector (and possibly others) could go into a large loop.
-// Fixed in trunk: r50504
-// Fixed in trunk-1.10: r50505
-// Fixed in trunk-1.8: r50506
-(ws-buglink:8923[])
-+
-Versions affected: 1.10.0, 1.8.0 to 1.8.8
-+
-cve-idlink:2013-4931[]
-
-* ws-salink:2013-50[]
-+
-The GSM A Common dissector could crash.
-// Fixed in trunk: r50672
-// Fixed in trunk-1.10: r50673
-// Fixed in trunk-1.8: r50675
-(ws-buglink:8940[])
-+
-Versions affected: 1.10.0, 1.8.0 to 1.8.8
-+
-cve-idlink:2013-4932[]
-
-* ws-salink:2013-51[]
-+
-The Netmon file parser could crash. Discovered by G. Geshev.
-// Fixed in trunk: r49697
-// Fixed in trunk-1.10: r50683
-// Fixed in trunk-1.8: r50684
-(ws-buglink:8742[])
-+
-Versions affected: 1.10.0, 1.8.0 to 1.8.8
-+
-cve-idlink:2013-4933[]
-cve-idlink:2013-4934[]
-
-* ws-salink:2013-52[]
-+
-The ASN.1 PER dissector could crash. Discovered by Oliver-Tobias Ripka.
-// Fixed in trunk: r49985
-// Fixed in trunk-1.10: r50702
-// Fixed in trunk-1.8: r50703
-(ws-buglink:8722[])
-+
-Versions affected: 1.10.0, 1.8.0 to 1.8.8
-+
-cve-idlink:2013-4935[]
-
-* ws-salink:2013-53[]
-+
-The PROFINET Real-Time dissector could crash.
-// Fixed in trunk: r50651
-// Fixed in trunk-1.10: r50801
-(ws-buglink:8904[])
-+
-Versions affected: 1.10.0
-+
-cve-idlink:2013-4936[]
 
 
 The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. ws-buglink:0000[]
 
-* Mark retransmitted SYN and FIN packets as retransmissions.
 
-* Wireshark hides under Taskbar. (ws-buglink:3034[])
-
-* IEEE 802.15.4 frame check sequence in "Chipcon mode" not displayed correctly. (ws-buglink:4507[])
-
-* Mask in Lua ProtoField.uint32() does not work as expected. (ws-buglink:5734[])
-
-* Crash when applying filter with Voip calls. (ws-buglink:6090[])
-
-* Delta time regressions to tshark introduced with SVN 45071. (ws-buglink:8160[])
-
-* Add MAC-DATA support to TETRA dissector and other minor improvements. (ws-buglink:8708[])
-
-* Crash analyzing VoIP Calls (T38). (ws-buglink:8736[])
-
-* Wireshark writes empty NRB FQDN which makes trace unloadable. (ws-buglink:8763[])
-
-* Quick launch icon is absent, so it shows up as a generic icon. (ws-buglink:8773[])
-
-* Wrong encoding for 2 pod files, UTF-8 characters in another. (ws-buglink:8774[])
-
-* SCSI (SPC) sense key specific information field must not include SKSV. (ws-buglink:8782[])
-
-* Wireshark crashes when closing Flow Graph with Graph Analysis opened. (ws-buglink:8793[])
-
-* Wrong size of LLRP ProtocolID Parameter in Accessspec Parameter. (ws-buglink:8809[])
-
-* Detection of IPv6 works only on Solaris 8. (ws-buglink:8813[])
-
-* ip.opt.type triggers for TCP NOP option. (ws-buglink:8823[])
-
-* DCOM-SYSACT dissector crash. (ws-buglink:8828[])
-
-* Incorrect decoding of MPLS Echo Request with BGP FEC. (ws-buglink:8835[])
-
-* Buggy IEC104 dissector caused by commit r48958. (ws-buglink:8849[])
-
-* ansi_637_tele dissector displays MSB as MBS for Call-Back Number. (ws-buglink:8851[])
-
-* LISP Map-Notify flags I and R shown incorrectly. (ws-buglink:8852[])
-
-* ONTAP_V4 fhandle decoding leads to dissector bug. (ws-buglink:8853[])
-
-* Dropped bytes in imap dissector. (ws-buglink:8857[])
-
-* Kismet drone/server dissector improvements. (ws-buglink:8864[])
-
-* TShark iostat_draw sizeof mismatch. (ws-buglink:8888[])
-
-* SCTP bytes graph crash. (ws-buglink:8889[])
-
-* Patch to Wireshark/tshark usage info and man pages to document all timestamp (-t) options. (ws-buglink:8906[])
-
-* Strange behavior of tree expand/collapse in packet details. (ws-buglink:8908[])
-
-* Graph Filter field limited to 256 characters. (ws-buglink:8909[])
-
-* Filter doesn't support cflow ASN larger than 65535. (ws-buglink:8959[])
-
-* Wireshark crashes when switching from a v1.11.0 profile to a v1.4.6 prof and then to a v1.5.1 prof. (ws-buglink:8884[])
-
-* SIP stats shows incorrect values for Max/Ave setup times. (ws-buglink:8897[])
-
-* NFSv4 delegation not reported correctly. (ws-buglink:8920[])
-
-* Issue with Capture Options Adapter List. (ws-buglink:8932[])
-
-* RFC 5844 - IPv4 Support for Proxy Mobile IPv6 - Mobility option IPv4 DHCP Support Mode Option malformed packet. (ws-buglink:8957[])
-
-* RFC 3775 - Mobility Support in IPv6 - Mobility option PadN incorrectly highlights + 2 bytes. (ws-buglink:8958[])
-
-* All mongodb query show as [Malformed Packet: MONGO]. (ws-buglink:8960[])
 
 === New and Updated Features
 
@@ -265,51 +49,6 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-ASN.1
-ANSI IS-637-A
-ASN.1 PER
-Bluetooth OBEX
-Bluetooth SDB
-DCERPC NDR
-DCOM ISystemActivator
-DCP ETSI
-Diameter 3GPP
-DIS
-DVB-CI
-Ethernet
-GSM Common
-GSM SMS
-H.235
-IEC104
-IEEE 802a
-IEEE 802.15.4
-IMAP
-IP
-KDSP
-LISP
-LLRP
-MAC-LTE,
-Mobile IPv6
-MONGO
-MPLS Echo
-Netflow
-NFS
-NFSv4
-P1
-PDCP-LTE
-PN-IO
-PN-RT
-PPP
-Radiotap
-RLC,
-RLC-LTE,
-SCSI
-SIP
-SMTP
-SoulSeek
-TCP
-TETRA
-VNC
 
 --sort-and-group--
 
