@@ -211,7 +211,7 @@ void UatDialog::activateLastItem()
     QModelIndex idx = ui->uatTreeWidget->model()->index(last_item, 0);
     ui->uatTreeWidget->clearSelection();
     ui->uatTreeWidget->selectionModel()->select(idx, QItemSelectionModel::Select | QItemSelectionModel::Rows);
-    ui->uatTreeWidget->itemActivated(ui->uatTreeWidget->topLevelItem(last_item), 0);
+    on_uatTreeWidget_itemActivated(ui->uatTreeWidget->topLevelItem(last_item), 0);
 }
 
 void UatDialog::on_uatTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
