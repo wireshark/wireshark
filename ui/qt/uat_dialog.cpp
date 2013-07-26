@@ -382,7 +382,7 @@ void UatDialog::stringPrefTextChanged(const QString &text)
         }
     }
 
-    ok_button_->setEnabled(true);
+    ok_button_->setEnabled(enable_ok);
     cur_line_edit_->setSyntaxState(ss);
     uat_->changed = TRUE;
 }
