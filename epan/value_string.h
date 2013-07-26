@@ -31,8 +31,8 @@
 /* VALUE TO STRING MATCHING */
 
 typedef struct _value_string {
-  guint32  value;
-  const gchar   *strptr;
+  guint32      value;
+  const gchar *strptr;
 } value_string;
 
 WS_DLL_PUBLIC
@@ -50,6 +50,29 @@ try_val_to_str(const guint32 val, const value_string *vs);
 WS_DLL_PUBLIC
 const gchar*
 try_val_to_str_idx(const guint32 val, const value_string *vs, gint *idx);
+
+/* 64-BIT VALUE TO STRING MATCHING */
+
+typedef struct _val64_string {
+  guint64      value;
+  const gchar *strptr;
+} val64_string;
+
+WS_DLL_PUBLIC
+const gchar*
+val64_to_str(const guint64 val, const val64_string *vs, const char *fmt);
+
+WS_DLL_PUBLIC
+const gchar*
+val64_to_str_const(const guint64 val, const val64_string *vs, const char *unknown_str);
+
+WS_DLL_PUBLIC
+const gchar*
+try_val64_to_str(const guint64 val, const val64_string *vs);
+
+WS_DLL_PUBLIC
+const gchar*
+try_val64_to_str_idx(const guint64 val, const val64_string *vs, gint *idx);
 
 /* STRING TO VALUE MATCHING */
 

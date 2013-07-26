@@ -5376,13 +5376,35 @@ hf_try_val_to_str(guint32 value, const header_field_info *hfinfo)
 	if (hfinfo->display & BASE_EXT_STRING)
 		return try_val_to_str_ext(value, (const value_string_ext *) hfinfo->strings);
 
+	if (hfinfo->display & BASE_VAL64_STRING)
+		return try_val64_to_str(value, (const val64_string *) hfinfo->strings);
+
 	return try_val_to_str(value, (const value_string *) hfinfo->strings);
+}
+
+static const char *
+hf_try_val64_to_str(guint64 value, const header_field_info *hfinfo)
+{
+	if (hfinfo->display & BASE_VAL64_STRING)
+		return try_val64_to_str(value, (const val64_string *) hfinfo->strings);
+
+	/* If this is reached somebody registered a 64-bit field with a 32-bit
+	 * value-string, which isn't right. */
+	DISSECTOR_ASSERT_NOT_REACHED();
 }
 
 static const char *
 hf_try_val_to_str_const(guint32 value, const header_field_info *hfinfo, const char *unknown_str)
 {
 	const char *str = hf_try_val_to_str(value, hfinfo);
+
+	return (str) ? str : unknown_str;
+}
+
+static const char *
+hf_try_val64_to_str_const(guint64 value, const header_field_info *hfinfo, const char *unknown_str)
+{
+	const char *str = hf_try_val64_to_str(value, hfinfo);
 
 	return (str) ? str : unknown_str;
 }
@@ -5494,13 +5516,34 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 
 	value = fvalue_get_integer64(&fi->value);
 
-	/* Fill in the textual info */
-	if (IS_BASE_DUAL(hfinfo->display)) {
+	if (hfinfo->strings) {
+		const char *val_str = hf_try_val64_to_str_const(value, hfinfo, "Unknown");
+		char        tmp[ITEM_LABEL_LENGTH+1];
+
+		if (IS_BASE_DUAL(hfinfo->display)) {
+			g_snprintf(tmp, ITEM_LABEL_LENGTH,
+					format,  hfinfo->name, value, value);
+		}
+		else {
+			g_snprintf(tmp, ITEM_LABEL_LENGTH,
+					format,  hfinfo->name, value);
+		}
+
+
+		if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
+			label_fill(label_str, 0, hfinfo, val_str);
+		}
+		else {
+			label_fill_descr(label_str, 0, hfinfo, val_str, tmp);
+		}
+	}
+	else if (IS_BASE_DUAL(hfinfo->display)) {
 		g_snprintf(label_str, ITEM_LABEL_LENGTH,
-			   format,  hfinfo->name, value, value);
-	} else {
+				format,  hfinfo->name, value, value);
+	}
+	else {
 		g_snprintf(label_str, ITEM_LABEL_LENGTH,
-			   format,  hfinfo->name, value);
+				format,  hfinfo->name, value);
 	}
 }
 
@@ -5683,7 +5726,7 @@ hfinfo_uint64_format(const header_field_info *hfinfo)
 	const char *format = NULL;
 
 	/* Pick the proper format string */
-	switch (hfinfo->display) {
+	switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
 		case BASE_DEC:
 			format = "%s: %" G_GINT64_MODIFIER "u";
 			break;
@@ -5712,7 +5755,7 @@ hfinfo_int64_format(const header_field_info *hfinfo)
 	const char *format = NULL;
 
 	/* Pick the proper format string */
-	switch (hfinfo->display) {
+	switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
 		case BASE_DEC:
 			format = "%s: %" G_GINT64_MODIFIER "d";
 			break;
@@ -6032,6 +6075,7 @@ proto_registrar_dump_values(void)
 	header_field_info	*hfinfo;
 	int			i, len, vi;
 	const value_string	*vals;
+	const val64_string	*vals64;
 	const range_string	*range;
 	const true_false_string	*tfs;
 
@@ -6064,9 +6108,10 @@ proto_registrar_dump_values(void)
 			if (hfinfo->same_name_prev != NULL)
 				continue;
 
-			vals  = NULL;
-			range = NULL;
-			tfs   = NULL;
+			vals   = NULL;
+			vals64 = NULL;
+			range  = NULL;
+			tfs    = NULL;
 
 			if (hfinfo->strings != NULL) {
 				if ((hfinfo->display & BASE_DISPLAY_E_MASK) != BASE_CUSTOM &&
@@ -6085,6 +6130,8 @@ proto_registrar_dump_values(void)
 						vals = VALUE_STRING_EXT_VS_P((const value_string_ext *)hfinfo->strings);
 					} else if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
 						vals = (const value_string *)hfinfo->strings;
+					} else if ((hfinfo->display & BASE_VAL64_STRING) == 0) {
+						vals64 = (const val64_string *)hfinfo->strings;
 					} else {
 						range = (const range_string *)hfinfo->strings;
 					}
@@ -6124,6 +6171,16 @@ proto_registrar_dump_values(void)
 						       vals[vi].value,
 						       vals[vi].strptr);
 					}
+					vi++;
+				}
+			}
+			else if (vals64) {
+				vi = 0;
+				while (vals64[vi].strptr) {
+					printf("V64\t%s\t%" G_GINT64_MODIFIER "u\t%s\n",
+						hfinfo->abbrev,
+						vals64[vi].value,
+						vals64[vi].strptr);
 					vi++;
 				}
 			}

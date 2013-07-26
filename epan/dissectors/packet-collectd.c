@@ -138,7 +138,7 @@ static const value_string valuetypenames[] = {
 #define SEVERITY_FAILURE  0x01
 #define SEVERITY_WARNING  0x02
 #define SEVERITY_OKAY     0x04
-static const value_string severity_names[] = {
+static const val64_string severity_names[] = {
 	{ SEVERITY_FAILURE,  "FAILURE" },
 	{ SEVERITY_WARNING,  "WARNING" },
 	{ SEVERITY_OKAY,     "OKAY" },
@@ -1304,7 +1304,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_item_set_text (pi,
 						"collectd SEVERITY segment: "
 						"%s (%"G_GINT64_MODIFIER"u)",
-						val_to_str_const ((gint32)ndispatch.severity, severity_names, "UNKNOWN"),
+						val64_to_str_const (ndispatch.severity, severity_names, "UNKNOWN"),
 						ndispatch.severity);
 			}
 
@@ -1470,7 +1470,7 @@ void proto_register_collectd(void)
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_severity,
-			{ "Severity", "collectd.data.severity", FT_UINT64, BASE_HEX,
+			{ "Severity", "collectd.data.severity", FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
 				VALS(severity_names),
 				0x0, NULL, HFILL }
 		},

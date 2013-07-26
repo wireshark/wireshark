@@ -103,6 +103,65 @@ try_val_to_str(const guint32 val, const value_string *vs)
     return try_val_to_str_idx(val, vs, &ignore_me);
 }
 
+/* 64-BIT VALUE STRING */
+
+const gchar*
+val64_to_str(const guint64 val, const val64_string *vs, const char *fmt)
+{
+    const gchar *ret;
+
+    DISSECTOR_ASSERT(fmt != NULL);
+
+    ret = try_val64_to_str(val, vs);
+    if (ret != NULL)
+        return ret;
+
+    return ep_strdup_printf(fmt, val);
+}
+
+const gchar*
+val64_to_str_const(const guint64 val, const val64_string *vs,
+        const char *unknown_str)
+{
+    const gchar *ret;
+
+    DISSECTOR_ASSERT(unknown_str != NULL);
+
+    ret = try_val64_to_str(val, vs);
+    if (ret != NULL)
+        return ret;
+
+    return unknown_str;
+}
+
+const gchar*
+try_val64_to_str_idx(const guint64 val, const val64_string *vs, gint *idx)
+{
+    gint i = 0;
+
+    DISSECTOR_ASSERT(idx != NULL);
+
+    if(vs) {
+        while (vs[i].strptr) {
+            if (vs[i].value == val) {
+                *idx = i;
+                return(vs[i].strptr);
+            }
+            i++;
+        }
+    }
+
+    *idx = -1;
+    return NULL;
+}
+
+const gchar*
+try_val64_to_str(const guint64 val, const val64_string *vs)
+{
+    gint ignore_me;
+    return try_val64_to_str_idx(val, vs, &ignore_me);
+}
+
 /* REVERSE VALUE STRING */
 
 /* We use the same struct as for regular value strings, but we look up strings
