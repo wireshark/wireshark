@@ -108,7 +108,8 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh)
 
     /* Dump frame to outfile */
     if (!wtap_dump(pdh, &phdr, buf, &err)) {
-        printf("Error (%s) writing frame to outfile\n", wtap_strerror(err));
+        fprintf(stderr, "reordercap: Error (%s) writing frame to outfile\n",
+                wtap_strerror(err));
         exit(1);
     }
 }
@@ -199,7 +200,8 @@ int main(int argc, char *argv[])
     /* Open infile */
     wth = wtap_open_offline(infile, &err, &err_info, TRUE);
     if (wth == NULL) {
-        printf("reorder: Can't open %s: %s\n", infile, wtap_strerror(err));
+        fprintf(stderr, "reordercap: Can't open %s: %s\n", infile,
+                wtap_strerror(err));
         exit(1);
     }
     DEBUG_PRINT("file_type is %u\n", wtap_file_type(wth));
@@ -212,7 +214,8 @@ int main(int argc, char *argv[])
                             65535, FALSE, shb_hdr, idb_inf, &err);
     g_free(idb_inf);
     if (pdh == NULL) {
-        printf("Failed to open output file: (%s) - error %s\n", outfile, wtap_strerror(err));
+        fprintf(stderr, "reordercap: Failed to open output file: (%s) - error %s\n",
+                outfile, wtap_strerror(err));
         g_free(shb_hdr);
         exit(1);
     }
@@ -266,7 +269,8 @@ int main(int argc, char *argv[])
 
     /* Close outfile */
     if (!wtap_dump_close(pdh, &err)) {
-        printf("Error closing %s: %s\n", outfile, wtap_strerror(err));
+        fprintf(stderr, "reordercap: Error closing %s: %s\n", outfile,
+                wtap_strerror(err));
         g_free(shb_hdr);
         exit(1);
     }
