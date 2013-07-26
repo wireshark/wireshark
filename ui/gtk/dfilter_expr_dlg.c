@@ -189,6 +189,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
 	/* XXX: ToDo: Implement "range-string" filter ?   */
         if ((hfinfo->strings != NULL) &&
             ! (hfinfo->display & BASE_RANGE_STRING) &&
+            ! (hfinfo->display & BASE_VAL64_STRING) &&
             ! ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM)) {
             const value_string *vals = (const value_string *)hfinfo->strings;
             if (hfinfo->display & BASE_EXT_STRING)

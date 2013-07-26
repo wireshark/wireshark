@@ -144,6 +144,18 @@ mk_uint32_fvalue(guint32 val)
 	return fv;
 }
 
+/* Creates a FT_UINT64 fvalue with a given value. */
+static fvalue_t*
+mk_uint64_fvalue(guint64 val)
+{
+	fvalue_t *fv;
+
+	fv = fvalue_new(FT_UINT64);
+	fvalue_set_integer64(fv, val);
+
+	return fv;
+}
+
 /* Try to make an fvalue from a string using a value_string or true_false_string.
  * This works only for ftypes that are integers. Returns the created fvalue_t*
  * or NULL if impossible. */
@@ -171,8 +183,6 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
-		case FT_UINT64:
-		case FT_INT64:
 		case FT_EUI64:
 		case FT_PCRE:
 		case FT_GUID:
@@ -185,10 +195,12 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_UINT64:
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_INT64:
 			break;
 
 		case FT_NUM_TYPES:
@@ -230,6 +242,18 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 	if (hfinfo->display & BASE_RANGE_STRING) {
 		dfilter_fail("\"%s\" cannot accept [range] strings as values.",
 				hfinfo->abbrev);
+	}
+	else if (hfinfo->display & BASE_VAL64_STRING) {
+		const val64_string *vals = (const val64_string *)hfinfo->strings;
+
+		while (vals->strptr != NULL) {
+			if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
+				return mk_uint64_fvalue(vals->value);
+			}
+			vals++;
+		}
+		dfilter_fail("\"%s\" cannot be found among the possible values for %s.",
+				s, hfinfo->abbrev);
 	}
 	else if (hfinfo->display == BASE_CUSTOM) {
 		/*  If a user wants to match against a custom string, we would

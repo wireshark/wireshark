@@ -1276,6 +1276,8 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
     string_fmt_t       *sf;
     guint32            uvalue;
     gint32             svalue;
+    guint64            uvalue64;
+    gint64             svalue64;
     const true_false_string *tfstring = &tfs_true_false;
 
     hfinfo = finfo->hfinfo;
@@ -1347,6 +1349,13 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                                     g_string_append(label_s, val_to_str(svalue, cVALS(hfinfo->strings), "Unknown"));
                                 }
                                 break;
+                            case FT_INT64:
+                                DISSECTOR_ASSERT(!hfinfo->bitmask);
+                                svalue64 = (gint64)fvalue_get_integer64(&finfo->value);
+                                if (hfinfo->display & BASE_VAL64_STRING) {
+                                    g_string_append(label_s, val64_to_str(svalue64, (const val64_string *)(hfinfo->strings), "Unknown"));
+                                }
+                                break;
                             case FT_UINT8:
                             case FT_UINT16:
                             case FT_UINT24:
@@ -1358,6 +1367,13 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                                     g_string_append(label_s, val_to_str_ext(uvalue, (const value_string_ext *) hfinfo->strings, "Unknown"));
                                 } else {
                                     g_string_append(label_s, val_to_str(uvalue, cVALS(hfinfo->strings), "Unknown"));
+                                }
+                                break;
+                            case FT_UINT64:
+                                DISSECTOR_ASSERT(!hfinfo->bitmask);
+                                uvalue64 = fvalue_get_integer64(&finfo->value);
+                                if (hfinfo->display & BASE_VAL64_STRING) {
+                                    g_string_append(label_s, val64_to_str(uvalue64, (const val64_string *)(hfinfo->strings), "Unknown"));
                                 }
                                 break;
                             default:
