@@ -2161,7 +2161,11 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
 
   font = pango_font_description_from_string("Monospace");
   textview = gtk_text_view_new();
+#if GTK_CHECK_VERSION(3, 0, 0)
+  gtk_widget_override_font(textview, font);
+#else
   gtk_widget_modify_font(textview, font);
+#endif
   scrolled_win = gtk_scrolled_window_new(NULL, NULL);
   gtk_widget_set_size_request(GTK_WIDGET(scrolled_win), 350, -1);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
@@ -2280,7 +2284,11 @@ compile_results_win(gchar *text, gboolean error)
   gtk_widget_show(main_box);
   font = pango_font_description_from_string("Monospace");
   textview = gtk_text_view_new();
+#if GTK_CHECK_VERSION(3, 0, 0)
+  gtk_widget_override_font(textview, font);
+#else
   gtk_widget_modify_font(textview, font);
+#endif
   scrolled_win = gtk_scrolled_window_new(NULL, NULL);
   gtk_widget_set_size_request(GTK_WIDGET(scrolled_win), 350, -1);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
