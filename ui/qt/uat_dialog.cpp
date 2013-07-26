@@ -152,7 +152,7 @@ QString UatDialog::fieldString(guint row, guint column)
 
     void *rec = UAT_INDEX_PTR(uat_, row);
     uat_field_t *field = &uat_->fields[column];
-    guint	    length;
+    guint    length;
     const char *str;
 
     field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
@@ -368,7 +368,6 @@ void UatDialog::stringPrefTextChanged(const QString &text)
     uat_field_t *field = &uat_->fields[cur_column_];
     const char *txt = text.toUtf8().constData();
     const char *err = NULL;
-    bool enable_ok = true;
     SyntaxLineEdit::SyntaxState ss = SyntaxLineEdit::Empty;
 
     if (field->cb.chk) {
@@ -377,7 +376,6 @@ void UatDialog::stringPrefTextChanged(const QString &text)
             saved_string_pref_ = text;
             ss = SyntaxLineEdit::Valid;
         } else {
-            enable_ok = false;
             ss = SyntaxLineEdit::Invalid;
         }
     }
