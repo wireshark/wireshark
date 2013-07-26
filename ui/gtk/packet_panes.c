@@ -395,9 +395,6 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
         gtk_tree_path_free(path);
     }
 
-    /* Refresh the display so that the expanded trees are visible */
-    proto_tree_draw(tree, GTK_WIDGET(tree_view));
-
     /* select our field's row */
     gtk_tree_selection_select_path(gtk_tree_view_get_selection(tree_view),
                                    first_path);
