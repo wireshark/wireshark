@@ -864,10 +864,13 @@ static int hf_bgp_mdt_safi_ipv4_addr = -1;
 static int hf_bgp_mdt_safi_group_addr = -1;
 
 static int hf_bgp_update_path_attribute = -1;
-static int hf_bgp_flags_optional = -1;
-static int hf_bgp_flags_transitive = -1;
-static int hf_bgp_flags_partial = -1;
-static int hf_bgp_flags_extended_length = -1;
+static int hf_bgp_update_path_attribute_flags = -1;
+static int hf_bgp_update_path_attribute_flags_optional = -1;
+static int hf_bgp_update_path_attribute_flags_transitive = -1;
+static int hf_bgp_update_path_attribute_flags_partial = -1;
+static int hf_bgp_update_path_attribute_flags_extended_length = -1;
+static int hf_bgp_update_path_attribute_type_code = -1;
+static int hf_bgp_update_path_attribute_length = -1;
 static int hf_bgp_ext_com_qos_flags = -1;
 static int hf_bgp_ext_com_qos_flags_remarking = -1;
 static int hf_bgp_ext_com_qos_flags_ignore_remarking = -1;
@@ -3079,7 +3082,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
         i = 2;
         while (i < len) {
             proto_item *hidden_item;
-            proto_item *ti_pa;
+            proto_item *ti_pa, *ti_flags;
+            proto_tree *flags_tree;
             int     off;
             gint    k;
             guint16 alen, tlen, aoff, aoff_save;
@@ -3107,48 +3111,23 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
             subtree2 = proto_item_add_subtree(ti_pa, ett_bgp_attr);
 
-            /* figure out flags */
-            ep_strbuf_truncate(junk_emstr, 0);
-            if (bgpa_flags & BGP_ATTR_FLAG_OPTIONAL) {
-                 ep_strbuf_append(junk_emstr, "Optional, ");
-            }
-            else {
-                 ep_strbuf_append(junk_emstr, "Well-known, ");
-            }
-            if (bgpa_flags & BGP_ATTR_FLAG_TRANSITIVE) {
-                 ep_strbuf_append(junk_emstr, "Transitive, ");
-            }
-            else {
-                 ep_strbuf_append(junk_emstr, "Non-transitive, ");
-            }
-            if (bgpa_flags & BGP_ATTR_FLAG_PARTIAL) {
-                 ep_strbuf_append(junk_emstr, "Partial");
-            }
-            else {
-                 ep_strbuf_append(junk_emstr, "Complete");
-            }
-            if (bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) {
-                 ep_strbuf_append(junk_emstr, ", Extended Length");
-            }
-            ti = proto_tree_add_text(subtree2, tvb, o + i, 1,
-                    "Flags: 0x%02x (%s)", bgpa_flags, junk_emstr->str);
-            subtree3 = proto_item_add_subtree(ti, ett_bgp_attr_flags);
+            ti_flags = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_flags, tvb, o + i, 1, ENC_NA);
+            flags_tree = proto_item_add_subtree(ti_flags, ett_bgp_attr_flags);
 
             /* add flag bitfield subtrees */
-            proto_tree_add_item(subtree3, hf_bgp_flags_optional, tvb, o + i, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree3, hf_bgp_flags_transitive, tvb, o + i, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree3, hf_bgp_flags_partial, tvb, o + i, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree3, hf_bgp_flags_extended_length, tvb, o + i, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(flags_tree, hf_bgp_update_path_attribute_flags_optional, tvb, o + i, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(flags_tree, hf_bgp_update_path_attribute_flags_transitive, tvb, o + i, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(flags_tree, hf_bgp_update_path_attribute_flags_partial, tvb, o + i, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(flags_tree, hf_bgp_update_path_attribute_flags_extended_length, tvb, o + i, 1, ENC_BIG_ENDIAN);
+            proto_item_append_text(ti_flags,"%s%s%s%s",
+                 ((bgpa_flags & BGP_ATTR_FLAG_OPTIONAL) == 0) ? ": Well-known" : ": Optional",
+                 ((bgpa_flags & BGP_ATTR_FLAG_TRANSITIVE) == 0) ? ", Non-transitive" : ", Transitive",
+                 ((bgpa_flags & BGP_ATTR_FLAG_PARTIAL) == 0) ? ", Complete" : ", Partial",
+                 ((bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) == 0) ? "" : ", Extended Length");
 
-            proto_tree_add_text(subtree2, tvb,
-                    o + i + 1, 1,
-                    "Type code: %s (%u)",
-                    val_to_str_const(bgpa_type, bgpattr_type, "Unknown"),
-                    bgpa_type);
+            proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_type_code, tvb, o + i + 1, 1, ENC_BIG_ENDIAN);
 
-            proto_tree_add_text(subtree2, tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE,
-                    aoff - BGP_SIZE_OF_PATH_ATTRIBUTE, "Length: %d byte%s", tlen,
-                    plurality(tlen, "", "s"));
+            proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_length, tvb, o + i + BGP_SIZE_OF_PATH_ATTRIBUTE, aoff - BGP_SIZE_OF_PATH_ATTRIBUTE, ENC_BIG_ENDIAN);
 
             /* Path Attribute Type */
             switch (bgpa_type) {
@@ -3701,7 +3680,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     break;
                 case BGPTYPE_EXTENDED_COMMUNITY:
                     if (tlen %8 != 0) {
-                        proto_tree_add_text(subtree3, tvb, o + i + aoff, tlen, "Extended community (invalid) : %u byte%s", tlen,
+                        proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen, "Extended community (invalid) : %u byte%s", tlen,
                                             plurality(tlen, "", "s"));
                     } else {
                         q = o + i + aoff ;
@@ -5003,18 +4982,28 @@ proto_register_bgp(void)
       { &hf_bgp_update_path_attribute,
         { "Path Attribut", "bgp.update.path_attribute", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
-      { &hf_bgp_flags_optional,
-        { "Optional", "bgp.flags.optional", FT_BOOLEAN, 8,
+      { &hf_bgp_update_path_attribute_flags,
+        { "Flags", "bgp.update.path_attribute.flags", FT_UINT8, BASE_HEX,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_flags_optional,
+        { "Optional", "bgp.update.path_attribute.flags.optional", FT_BOOLEAN, 8,
           TFS(&tfs_optional_wellknown), BGP_ATTR_FLAG_OPTIONAL, NULL, HFILL}},
-      { &hf_bgp_flags_transitive,
-        { "Transitive", "bgp.flags.transitive", FT_BOOLEAN, 8,
+      { &hf_bgp_update_path_attribute_flags_transitive,
+        { "Transitive", "bgp.update.path_attribute.flags.transitive", FT_BOOLEAN, 8,
           TFS(&tfs_transitive_non_transitive), BGP_ATTR_FLAG_TRANSITIVE, NULL, HFILL}},
-      { &hf_bgp_flags_partial,
-        { "Partial", "bgp.flags.partial", FT_BOOLEAN, 8,
+      { &hf_bgp_update_path_attribute_flags_partial,
+        { "Partial", "bgp.update.path_attribute.flags.partial", FT_BOOLEAN, 8,
           TFS(&tfs_partial_complete), BGP_ATTR_FLAG_PARTIAL, NULL, HFILL}},
-      { &hf_bgp_flags_extended_length,
-        { "Length", "bgp.flags.extended_length", FT_BOOLEAN, 8,
+      { &hf_bgp_update_path_attribute_flags_extended_length,
+        { "Length", "bgp.update.path_attribute.flags.extended_length", FT_BOOLEAN, 8,
           TFS(&tfs_extended_regular_length), BGP_ATTR_FLAG_EXTENDED_LENGTH, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_type_code,
+        { "Type Code", "bgp.update.path_attribute.type_code", FT_UINT8, BASE_DEC,
+          VALS(bgpattr_type), 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_length,
+        { "Length", "bgp.update.path_attribute.length", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+
       { &hf_bgp_ext_com_qos_flags,
         { "Flags", "bgp.ext_com_qos.flags", FT_UINT8, BASE_HEX,
           NULL, 0, NULL, HFILL}},
