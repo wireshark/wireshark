@@ -82,10 +82,11 @@ typedef struct FrameRecord_t {
 
 
 static void
-frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh)
+frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
+            const char *infile)
 {
     int    err;
-    gchar  *errinfo;
+    gchar  *err_info;
     struct wtap_pkthdr phdr;
     guint8 buf[65535];
 
@@ -93,14 +94,25 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh)
                 frame->offset, frame->length);
 
     /* Re-read the first frame from the stored location */
-    wtap_seek_read(wth,
-                   frame->offset,
-                   &phdr,
-                   buf,
-                   frame->length,
-                   &err,
-                   &errinfo);
-    DEBUG_PRINT("re-read: err is %d, buf is (%s)\n", err, buf);
+    if (!wtap_seek_read(wth, frame->offset, &phdr, buf, frame->length,
+                        &err, &err_info)) {
+        if (err != 0) {
+            /* Print a message noting that the read failed somewhere along the line. */
+            fprintf(stderr,
+                    "reordercap: An error occurred while re-reading \"%s\": %s.\n",
+                    infile, wtap_strerror(err));
+            switch (err) {
+
+            case WTAP_ERR_UNSUPPORTED:
+            case WTAP_ERR_UNSUPPORTED_ENCAP:
+            case WTAP_ERR_BAD_FILE:
+                fprintf(stderr, "(%s)\n", err_info);
+                g_free(err_info);
+                break;
+            }
+            exit(1);
+        }
+    }
 
     /* Copy, and set length and timestamp from item. */
     /* TODO: remove when wtap_seek_read() will read phdr */
@@ -202,6 +214,15 @@ int main(int argc, char *argv[])
     if (wth == NULL) {
         fprintf(stderr, "reordercap: Can't open %s: %s\n", infile,
                 wtap_strerror(err));
+        switch (err) {
+
+        case WTAP_ERR_UNSUPPORTED:
+        case WTAP_ERR_UNSUPPORTED_ENCAP:
+        case WTAP_ERR_BAD_FILE:
+            fprintf(stderr, "(%s)\n", err_info);
+            g_free(err_info);
+            break;
+        }
         exit(1);
     }
     DEBUG_PRINT("file_type is %u\n", wtap_file_type(wth));
@@ -242,6 +263,22 @@ int main(int argc, char *argv[])
         g_ptr_array_add(frames, newFrameRecord);
         prevFrame = newFrameRecord;
     }
+    if (err != 0) {
+      /* Print a message noting that the read failed somewhere along the line. */
+      fprintf(stderr,
+              "reordercap: An error occurred while reading \"%s\": %s.\n",
+              infile, wtap_strerror(err));
+      switch (err) {
+
+      case WTAP_ERR_UNSUPPORTED:
+      case WTAP_ERR_UNSUPPORTED_ENCAP:
+      case WTAP_ERR_BAD_FILE:
+          fprintf(stderr, "(%s)\n", err_info);
+          g_free(err_info);
+          break;
+      }
+    }
+
     printf("%u frames, %u out of order\n", frames->len, wrong_order_count);
 
     /* Sort the frames */
@@ -255,7 +292,7 @@ int main(int argc, char *argv[])
 
         /* Avoid writing if already sorted and configured to */
         if (write_output_regardless || (wrong_order_count > 0)) {
-            frame_write(frame, wth, pdh);
+            frame_write(frame, wth, pdh, infile);
         }
         g_slice_free(FrameRecord_t, frame);
     }
