@@ -1177,6 +1177,7 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define SM_ACTION_ADDTS_RESPONSE    1
 #define SM_ACTION_DELTS             2
 #define SM_ACTION_QOS_SCHEDULE      3
+#define SM_ACTION_QOS_MAP_CONFIGURE 4
 
 #define SM_ACTION_DLS_REQUEST       0
 #define SM_ACTION_DLS_RESPONSE      1
@@ -1949,6 +1950,7 @@ static const value_string qos_action_codes[] = {
   {SM_ACTION_ADDTS_RESPONSE, "ADDTS Response"},
   {SM_ACTION_DELTS,          "DELTS"},
   {SM_ACTION_QOS_SCHEDULE,   "Schedule"},
+  {SM_ACTION_QOS_MAP_CONFIGURE, "QoS Map Configure"},
   {0, NULL}
 };
 
@@ -3710,6 +3712,14 @@ static int hf_ieee80211_tag_interworking_esr = -1;
 static int hf_ieee80211_tag_interworking_uesa = -1;
 static int hf_ieee80211_tag_interworking_hessid = -1;
 
+/* IEEE Std 802.11-2012, 8.4.2.97 */
+static int hf_ieee80211_tag_qos_map_set_dscp_exc = -1;
+static int hf_ieee80211_tag_qos_map_set_dscp_exc_val = -1;
+static int hf_ieee80211_tag_qos_map_set_dscp_exc_up = -1;
+static int hf_ieee80211_tag_qos_map_set_range = -1;
+static int hf_ieee80211_tag_qos_map_set_low = -1;
+static int hf_ieee80211_tag_qos_map_set_high = -1;
+
 /* IEEE Std 802.11u-2011 7.3.2.93 */
 static int hf_ieee80211_tag_adv_proto_resp_len_limit = -1;
 static int hf_ieee80211_tag_adv_proto_pame_bi = -1;
@@ -4220,6 +4230,12 @@ static gint ett_hs20_cc_proto_port_tuple = -1;
 static gint ett_ssid_list = -1;
 
 static gint ett_nintendo = -1;
+
+static gint ett_qos_map_set_exception = -1;
+static gint ett_qos_map_set_range = -1;
+
+static expert_field ei_ieee80211_bad_length = EI_INIT;
+static expert_field ei_ieee80211_inv_val = EI_INIT;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -6612,6 +6628,10 @@ add_ff_action_qos(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     add_fixed_field(tree, tvb, pinfo, offset + 5, FIELD_REASON_CODE);
     return 7;
   case SM_ACTION_QOS_SCHEDULE:
+    add_fixed_field(tree, tvb, pinfo, offset,     FIELD_CATEGORY_CODE);
+    add_fixed_field(tree, tvb, pinfo, offset + 1, FIELD_QOS_ACTION_CODE);
+    return 2;
+  case SM_ACTION_QOS_MAP_CONFIGURE:
     add_fixed_field(tree, tvb, pinfo, offset,     FIELD_CATEGORY_CODE);
     add_fixed_field(tree, tvb, pinfo, offset + 1, FIELD_QOS_ACTION_CODE);
     return 2;
@@ -10683,6 +10703,92 @@ dissect_interworking(packet_info *pinfo, proto_tree *tree, proto_item *item,
 }
 
 static guint
+dissect_qos_map_set(packet_info *pinfo, proto_tree *tree, proto_item *item,
+                    tvbuff_t *tvb, int offset)
+{
+  guint8 len, left;
+  guint8 val, val2;
+  int i;
+  proto_item *dscp_item;
+  proto_tree *dscp_tree;
+
+  offset++;
+  len = tvb_get_guint8(tvb, offset);
+  offset++;
+
+  if (tvb_reported_length_remaining(tvb, offset) < len || len < 16 || len & 1) {
+    expert_add_info_format_text(pinfo, item, &ei_ieee80211_bad_length,
+                                "Truncated QoS Map Set element");
+    return 2 + len;
+  }
+
+  left = len - 16;
+  while (left >= 2) {
+    dscp_item = proto_tree_add_item(tree, hf_ieee80211_tag_qos_map_set_dscp_exc,
+                                    tvb, offset, 2, ENC_NA);
+    dscp_tree = proto_item_add_subtree(dscp_item, ett_qos_map_set_exception);
+
+    item = proto_tree_add_item(dscp_tree,
+                               hf_ieee80211_tag_qos_map_set_dscp_exc_val,
+                               tvb, offset, 1, ENC_NA);
+    val = tvb_get_guint8(tvb, offset);
+    if (val > 63 && val != 255) {
+      expert_add_info_format_text(pinfo, item, &ei_ieee80211_inv_val,
+                                  "Invalid DSCP Value");
+    }
+    offset++;
+
+    item = proto_tree_add_item(dscp_tree,
+                               hf_ieee80211_tag_qos_map_set_dscp_exc_up,
+                               tvb, offset, 1, ENC_NA);
+    val2 = tvb_get_guint8(tvb, offset);
+    if (val2 > 7) {
+      expert_add_info_format_text(pinfo, item, &ei_ieee80211_inv_val,
+                                  "Invalid User Priority");
+    }
+    offset++;
+
+    proto_item_append_text(dscp_item, " (0x%02x: UP %u)", val, val2);
+
+    left -= 2;
+  }
+
+  for (i = 0; i < 8; i++) {
+    dscp_item = proto_tree_add_item(tree, hf_ieee80211_tag_qos_map_set_range,
+                                    tvb, offset, 2, ENC_NA);
+    dscp_tree = proto_item_add_subtree(dscp_item, ett_qos_map_set_exception);
+
+    item = proto_tree_add_item(dscp_tree, hf_ieee80211_tag_qos_map_set_low,
+                               tvb, offset, 1, ENC_NA);
+    val = tvb_get_guint8(tvb, offset);
+    if (val > 63 && val != 255) {
+      expert_add_info_format_text(pinfo, item, &ei_ieee80211_inv_val,
+                                  "Invalid DSCP Value");
+    }
+    offset++;
+
+    item = proto_tree_add_item(dscp_tree, hf_ieee80211_tag_qos_map_set_high,
+                               tvb, offset, 1, ENC_NA);
+    val2 = tvb_get_guint8(tvb, offset);
+    if ((val2 > 63 && val2 != 255) || val2 < val ||
+        (val == 255 && val2 != 255) || (val != 255 && val2 == 255)) {
+      expert_add_info_format_text(pinfo, item, &ei_ieee80211_inv_val,
+                                  "Invalid DSCP Value");
+    }
+    offset++;
+
+    if (val == 255 && val2 == 255) {
+      proto_item_append_text(dscp_item, " (UP %u not in use)", i + 1);
+    } else {
+      proto_item_append_text(dscp_item, " (0x%02x-0x%02x: UP %u)",
+                             val, val2, i + 1);
+    }
+  }
+
+  return 2 + len;
+}
+
+static guint
 dissect_roaming_consortium(packet_info *pinfo, proto_tree *tree,
                            proto_item *item, tvbuff_t *tvb, int offset)
 {
@@ -12622,6 +12728,9 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       dissect_advertisement_protocol(pinfo, tree, tvb, offset, NULL);
       break;
     }
+    case TAG_QOS_MAP_SET:
+      dissect_qos_map_set(pinfo, tree, ti, tvb, offset);
+      break;
     case TAG_ROAMING_CONSORTIUM:
       dissect_roaming_consortium(pinfo, tree, ti, tvb, offset);
       break;
@@ -20594,6 +20703,35 @@ proto_register_ieee80211 (void)
       FT_ETHER, BASE_NONE, NULL, 0,
       "Homogeneous ESS identifier", HFILL }},
 
+    /* QoS Map Set element */
+    {&hf_ieee80211_tag_qos_map_set_dscp_exc,
+     {"DSCP Exception", "wlan_mgt.qos_map_set.dscp_exception",
+      FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_qos_map_set_dscp_exc_val,
+     {"DSCP Value", "wlan_mgt.qos_map_set.dscp_value",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "DSCP Exception - DSCP Value", HFILL }},
+
+    {&hf_ieee80211_tag_qos_map_set_dscp_exc_up,
+     {"User Priority", "wlan_mgt.qos_map_set.up",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "DSCP Exception - User Priority", HFILL }},
+
+    {&hf_ieee80211_tag_qos_map_set_range,
+     {"DSCP Range description", "wlan_mgt.qos_map_set.range",
+      FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_qos_map_set_low,
+     {"DSCP Low Value", "wlan_mgt.qos_map_set.dscp_low_value",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "DSCP Range description - DSCP Low Value", HFILL }},
+
+    {&hf_ieee80211_tag_qos_map_set_high,
+     {"DSCP High Value", "wlan_mgt.qos_map_set.dscp_high_value",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "DSCP Range description - DSCP High Value", HFILL }},
+
     /* Advertisement Protocol */
     {&hf_ieee80211_tag_adv_proto_resp_len_limit,
      {"Query Response Length Limit", "wlan_mgt.adv_proto.resp_len_limit",
@@ -20886,8 +21024,22 @@ proto_register_ieee80211 (void)
     &ett_anqp_vendor_capab,
     &ett_hs20_cc_proto_port_tuple,
     &ett_ssid_list,
-    &ett_nintendo
+    &ett_nintendo,
+    &ett_qos_map_set_exception,
+    &ett_qos_map_set_range
   };
+
+  static ei_register_info ei[] = {
+    { &ei_ieee80211_bad_length,
+      { "ieee80211.bad_length", PI_MALFORMED, PI_ERROR,
+        "Wrong length indicated", EXPFILL }},
+    { &ei_ieee80211_inv_val,
+      { "ieee80211.invalid_value", PI_MALFORMED, PI_WARN,
+        "Invalid value", EXPFILL }},
+  };
+
+  expert_module_t *expert_ieee80211;
+
   module_t *wlan_module;
 
   memset (&wlan_stats, 0, sizeof wlan_stats);
@@ -20905,6 +21057,9 @@ proto_register_ieee80211 (void)
   proto_register_field_array (proto_wlan_mgt, ff, array_length (ff));
 
   proto_register_subtree_array (tree_array, array_length (tree_array));
+
+  expert_ieee80211 = expert_register_protocol(proto_wlan);
+  expert_register_field_array(expert_ieee80211, ei, array_length(ei));
 
   register_dissector("wlan",         dissect_ieee80211,         proto_wlan);
   register_dissector("wlan_fixed",   dissect_ieee80211_fixed,   proto_wlan);
