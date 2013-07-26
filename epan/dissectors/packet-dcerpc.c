@@ -60,8 +60,10 @@ static e_uuid_t uuid_ndr64                  = { 0x71710533, 0xbeba, 0x4937,
                                                 { 0x83, 0x19, 0xb5, 0xdb, 0xef, 0x9c, 0xcc, 0x36 } };
 
 /* Bind Time Feature Negotiation, see [MS-RPCE] 3.3.1.5.3 */
-static e_uuid_t uuid_bind_time_feature_nego = { 0x6cb71c2c, 0x9812, 0x4540,
-                                                { 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
+static e_uuid_t uuid_bind_time_feature_nego_00 = { 0x6cb71c2c, 0x9812, 0x4540, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
+static e_uuid_t uuid_bind_time_feature_nego_01 = { 0x6cb71c2c, 0x9812, 0x4540, { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
+static e_uuid_t uuid_bind_time_feature_nego_02 = { 0x6cb71c2c, 0x9812, 0x4540, { 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
+static e_uuid_t uuid_bind_time_feature_nego_03 = { 0x6cb71c2c, 0x9812, 0x4540, { 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
 
 /* see [MS-OXRPC] Appendix A: Full IDL, http://msdn.microsoft.com/en-us/library/ee217991%28v=exchg.80%29.aspx */
 static e_uuid_t uuid_asyncemsmdb            = { 0x5261574a, 0x4572, 0x206e,
@@ -241,8 +243,8 @@ static const value_string p_provider_reason_vals[] = {
 #define DEFAULT_CONTEXT_NOT_SUPPORTED   5 /* not used */
 #define USER_DATA_NOT_READABLE          6 /* not used */
 #define NO_PSAP_AVAILABLE               7 /* not used */
-#define AUTH_TYPE_NOT_RECOGNIZED        8
-#define INVALID_CHECKSUM                9
+#define AUTH_TYPE_NOT_RECOGNIZED        8 /* [MS-RPCE] 2.2.2.5 */
+#define INVALID_CHECKSUM                9 /* [MS-RPCE] 2.2.2.5 */
 
 static const value_string reject_reason_vals[] = {
     { REASON_NOT_SPECIFIED,           "Reason not specified" },
@@ -469,6 +471,8 @@ static int hf_dcerpc_cn_bind_if_ver_minor = -1;
 static int hf_dcerpc_cn_bind_trans_syntax = -1;
 static int hf_dcerpc_cn_bind_trans_id = -1;
 static int hf_dcerpc_cn_bind_trans_ver = -1;
+static int hf_dcerpc_cn_bind_trans_btfn_01 = -1;
+static int hf_dcerpc_cn_bind_trans_btfn_02 = -1;
 static int hf_dcerpc_cn_alloc_hint = -1;
 static int hf_dcerpc_cn_sec_addr_len = -1;
 static int hf_dcerpc_cn_sec_addr = -1;
@@ -477,6 +481,7 @@ static int hf_dcerpc_cn_ack_result = -1;
 static int hf_dcerpc_cn_ack_reason = -1;
 static int hf_dcerpc_cn_ack_trans_id = -1;
 static int hf_dcerpc_cn_ack_trans_ver = -1;
+static int hf_dcerpc_cn_ack_btfn = -1;
 static int hf_dcerpc_cn_reject_reason = -1;
 static int hf_dcerpc_cn_num_protocols = -1;
 static int hf_dcerpc_cn_protocol_ver_major = -1;
@@ -583,6 +588,7 @@ static gint ett_dcerpc_cn_flags = -1;
 static gint ett_dcerpc_cn_ctx = -1;
 static gint ett_dcerpc_cn_iface = -1;
 static gint ett_dcerpc_cn_trans_syntax = -1;
+static gint ett_dcerpc_cn_trans_btfn = -1;
 static gint ett_dcerpc_cn_rts_flags = -1;
 static gint ett_dcerpc_cn_rts_command = -1;
 static gint ett_dcerpc_cn_rts_pdu = -1;
@@ -3022,6 +3028,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         for (j = 0; j < num_trans_items; j++) {
             proto_tree *trans_tree = NULL;
             proto_item *trans_item = NULL;
+            proto_item *uuid_item = NULL;
 
             dcerpc_tvb_get_uuid(tvb, offset, hdr->drep, &trans_id);
             if (ctx_tree) {
@@ -3033,16 +3040,20 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 uuid_name = guids_get_uuid_name(&trans_id);
 
                 if (uuid_name) {
-                    proto_tree_add_guid_format(trans_tree, hf_dcerpc_cn_bind_trans_id, tvb,
-                                               offset, 16, (e_guid_t *) &trans_id,
-                                               "Transport Syntax: %s UUID:%s", uuid_name, uuid_str);
+                    uuid_item = proto_tree_add_guid_format(trans_tree, hf_dcerpc_cn_bind_trans_id, tvb, offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s UUID:%s", uuid_name, uuid_str);
                     proto_item_append_text(trans_item, "[%u]: %s", j+1, uuid_name);
                     proto_item_append_text(ctx_item, ", %s", uuid_name);
                 } else {
-                    proto_tree_add_guid_format(trans_tree, hf_dcerpc_cn_bind_trans_id, tvb,
-                                               offset, 16, (e_guid_t *) &trans_id, "Transport Syntax: %s", uuid_str);
+                    uuid_item = proto_tree_add_guid_format(trans_tree, hf_dcerpc_cn_bind_trans_id, tvb, offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s", uuid_str);
                     proto_item_append_text(trans_item, "[%u]: %s", j+1, uuid_str);
                     proto_item_append_text(ctx_item, ", %s", uuid_str);
+                }
+
+                /* check for [MS-RPCE] 3.3.1.5.3 Bind Time Feature Negotiation */
+                if (trans_id.Data1 == 0x6cb71c2c && trans_id.Data2 == 0x9812 && trans_id.Data3 == 0x4540) {
+                    proto_tree *uuid_tree = proto_item_add_subtree(uuid_item, ett_dcerpc_cn_trans_btfn);
+                    proto_tree_add_boolean(uuid_tree, hf_dcerpc_cn_bind_trans_btfn_01, tvb, offset+8, 1, trans_id.Data4[0]);
+                    proto_tree_add_boolean(uuid_tree, hf_dcerpc_cn_bind_trans_btfn_02, tvb, offset+8, 1, trans_id.Data4[0]);
                 }
             }
             offset += 16;
@@ -3156,7 +3167,14 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ctx_tree,
                                        hdr->drep, hf_dcerpc_cn_ack_result,
                                        &result);
-        if (result != 0) {
+
+        /* [MS-RPCE] 3.3.1.5.3 check if this Ctx Item is the response to a Bind Time Feature Negotiation request */
+        if (result == 3) {
+            const int old_offset = offset;
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ctx_tree, hdr->drep, hf_dcerpc_cn_ack_btfn, &reason);
+            proto_tree_add_boolean(ctx_tree, hf_dcerpc_cn_bind_trans_btfn_01, tvb, old_offset, 1, reason);
+            proto_tree_add_boolean(ctx_tree, hf_dcerpc_cn_bind_trans_btfn_02, tvb, old_offset, 1, reason);
+        } else if (result != 0) {
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ctx_tree,
                                            hdr->drep, hf_dcerpc_cn_ack_reason,
                                            &reason);
@@ -5734,6 +5752,10 @@ proto_register_dcerpc(void)
           { "ID", "dcerpc.cn_bind_trans_id", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_cn_bind_trans_ver,
           { "ver", "dcerpc.cn_bind_trans_ver", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_bind_trans_btfn_01, /* [MS-RPCE] 2.2.2.14 */
+          { "Security Context Multiplexing Supported", "dcerpc.cn_bind_trans_btfn.01", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
+        { &hf_dcerpc_cn_bind_trans_btfn_02,
+          { "Keep Connection On Orphan Supported", "dcerpc.cn_bind_trans_btfn.02", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
         { &hf_dcerpc_cn_alloc_hint,
           { "Alloc hint", "dcerpc.cn_alloc_hint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_cn_sec_addr_len,
@@ -5750,6 +5772,8 @@ proto_register_dcerpc(void)
           { "Transfer Syntax", "dcerpc.cn_ack_trans_id", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_cn_ack_trans_ver,
           { "Syntax ver", "dcerpc.cn_ack_trans_ver", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_ack_btfn,
+          { "Bind Time Feature Negotiation Bitmask", "dcerpc.cn_ack_btfn", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_cn_reject_reason,
           { "Reject reason", "dcerpc.cn_reject_reason", FT_UINT16, BASE_DEC, VALS(reject_reason_vals), 0x0, NULL, HFILL }},
         { &hf_dcerpc_cn_num_protocols,
@@ -5997,6 +6021,7 @@ proto_register_dcerpc(void)
         &ett_dcerpc_cn_ctx,
         &ett_dcerpc_cn_iface,
         &ett_dcerpc_cn_trans_syntax,
+        &ett_dcerpc_cn_trans_btfn,
         &ett_dcerpc_cn_rts_flags,
         &ett_dcerpc_cn_rts_command,
         &ett_dcerpc_cn_rts_pdu,
@@ -6049,7 +6074,10 @@ proto_reg_handoff_dcerpc(void)
 
     guids_add_uuid(&uuid_data_repr_proto, "32bit NDR");
     guids_add_uuid(&uuid_ndr64, "64bit NDR");
-    guids_add_uuid(&uuid_bind_time_feature_nego, "bind time feature negotiation");
+    guids_add_uuid(&uuid_bind_time_feature_nego_00, "bind time feature negotiation");
+    guids_add_uuid(&uuid_bind_time_feature_nego_01, "bind time feature negotiation");
+    guids_add_uuid(&uuid_bind_time_feature_nego_02, "bind time feature negotiation");
+    guids_add_uuid(&uuid_bind_time_feature_nego_03, "bind time feature negotiation");
     guids_add_uuid(&uuid_asyncemsmdb, "async MAPI");
 }
 
