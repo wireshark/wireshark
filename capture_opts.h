@@ -200,6 +200,9 @@ typedef struct capture_options_tag {
                                          is specified */
     gint32 autostop_duration;       /**< Maximum capture duration */
 
+    gchar *capture_comment;         /** capture comment to write to the
+                                        output file */
+ 
     /* internally used (don't touch from outside) */
     gboolean output_to_pipe;        /**< save_file is a pipe (named or stdout) */
 	gboolean capture_child;         /**< hidden option: Wireshark child mode */

@@ -112,6 +112,7 @@ capture_opts_init(capture_options *capture_opts)
   capture_opts->autostop_filesize               = 1024;             /* 1 MB */
   capture_opts->has_autostop_duration           = FALSE;
   capture_opts->autostop_duration               = 60;               /* 1 min */
+  capture_opts->capture_comment                 = NULL;
 
   capture_opts->output_to_pipe                  = FALSE;
   capture_opts->capture_child                   = FALSE;
