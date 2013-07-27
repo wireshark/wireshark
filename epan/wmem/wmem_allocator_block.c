@@ -145,7 +145,7 @@
  */
 #define WMEM_ALIGN_AMOUNT (2 * sizeof (gsize))
 #define WMEM_ALIGN_SIZE(SIZE) ((SIZE) + WMEM_ALIGN_AMOUNT - \
-        ((SIZE) & (WMEM_ALIGN_AMOUNT - 1)));
+        ((SIZE) & (WMEM_ALIGN_AMOUNT - 1)))
 
 /* When required, allocate more memory from the OS in chunks of this size.
  * 8MB is a pretty arbitrary value - it's big enough that it should last a while
@@ -536,10 +536,9 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     g_assert(!chunk->used);
     g_assert(WMEM_CHUNK_DATA_LEN(chunk) >= size);
 
-    aligned_size = WMEM_ALIGN_SIZE(size);
+    aligned_size = WMEM_ALIGN_SIZE(size) + sizeof(wmem_block_chunk_t);
 
-    if (aligned_size + sizeof(wmem_block_chunk_t) >
-            WMEM_CHUNK_DATA_LEN(chunk)) {
+    if (aligned_size > WMEM_CHUNK_DATA_LEN(chunk)) {
         /* In this case we don't have enough space to really split it, so we
          * don't. Just remove it from its free list and return. */
         wmem_block_unfree(allocator, chunk);
@@ -552,7 +551,7 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     last      = chunk->last;
     available = chunk->len;
 
-    if (available < (sizeof(wmem_block_chunk_t) + aligned_size) +
+    if (available < aligned_size +
                     (sizeof(wmem_block_chunk_t) + sizeof(wmem_block_free_t))) {
         /* If the available space is not enought to store the first part
          * (header + size) AND the second part (header + free_header) then
@@ -565,7 +564,7 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     }
 
     /* set new values for chunk */
-    chunk->len  = (guint32) (aligned_size + sizeof(wmem_block_chunk_t));
+    chunk->len  = (guint32) aligned_size;
     chunk->last = FALSE;
 
     /* with chunk's values set, we can use the standard macro to calculate
@@ -634,10 +633,9 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     g_assert(chunk->used);
     g_assert(WMEM_CHUNK_DATA_LEN(chunk) >= size);
 
-    aligned_size = WMEM_ALIGN_SIZE(size);
+    aligned_size = WMEM_ALIGN_SIZE(size) + sizeof(wmem_block_chunk_t);
 
-    if (aligned_size + sizeof(wmem_block_chunk_t) >
-            WMEM_CHUNK_DATA_LEN(chunk)) {
+    if (aligned_size > WMEM_CHUNK_DATA_LEN(chunk)) {
         /* in this case we don't have enough space to really split it, so
          * it's basically a no-op */
         return;
@@ -650,7 +648,7 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     available = chunk->len;
 
     /* set new values for chunk */
-    chunk->len  = (guint32) (aligned_size + sizeof(wmem_block_chunk_t));
+    chunk->len  = (guint32) aligned_size;
     chunk->last = FALSE;
 
     /* with chunk's values set, we can use the standard macro to calculate
