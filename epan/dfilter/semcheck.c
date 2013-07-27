@@ -382,14 +382,14 @@ struct check_drange_sanity_args {
 	gboolean		err;
 };
 
-/* Q: Where are sttype_range_drange() and sttype_range_hfinfo() defined?
+/* Q: Where are sttype_range_drange() and sttype_range_entity() defined?
  *
  * A: Those functions are defined by macros in epan/dfilter/sttype-range.h
  *
  *    The macro which creates them, STTYPE_ACCESSOR, is defined in
  *    epan/dfilter/syntax-tree.h.
  *
- * From http://www.ethereal.com/lists/ethereal-dev/200308/msg00070.html
+ * From http://www.wireshark.org/lists/ethereal-dev/200308/msg00070.html
  */
 
 static void
@@ -398,6 +398,7 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 	drange_node*		drnode = (drange_node*)data;
 	struct check_drange_sanity_args *args = (struct check_drange_sanity_args*)user_data;
 	gint			start_offset, end_offset, length;
+	stnode_t                *entity;
 	header_field_info	*hfinfo;
 
 	switch (drange_node_get_ending(drnode)) {
@@ -408,12 +409,20 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 			if (!args->err) {
 				args->err = TRUE;
 				start_offset = drange_node_get_start_offset(drnode);
-				hfinfo = sttype_range_hfinfo(args->st);
-				dfilter_fail("Range %d:%d specified for \"%s\" isn't valid, "
-					"as length %d isn't positive",
-					start_offset, length,
-					hfinfo->abbrev,
-					length);
+				entity = sttype_range_entity(args->st);
+				if (entity && stnode_type_id(entity) == STTYPE_FIELD) {
+					hfinfo = stnode_data(entity);
+
+					dfilter_fail("Range %d:%d specified for \"%s\" isn't valid, "
+						"as length %d isn't positive",
+						start_offset, length,
+						hfinfo->abbrev,
+						length);
+				} else
+					dfilter_fail("Range %d:%d isn't valid, "
+						"as length %d isn't positive",
+						start_offset, length,
+						length);
 			}
 		}
 		break;
@@ -434,12 +443,21 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 		if (start_offset > end_offset) {
 			if (!args->err) {
 				args->err = TRUE;
-				hfinfo = sttype_range_hfinfo(args->st);
-				dfilter_fail("Range %d-%d specified for \"%s\" isn't valid, "
-					"as %d is greater than %d",
-					start_offset, end_offset,
-					hfinfo->abbrev,
-					start_offset, end_offset);
+				entity = sttype_range_entity(args->st);
+				if (entity && stnode_type_id(entity) == STTYPE_FIELD) {
+					hfinfo = stnode_data(entity);
+
+					dfilter_fail("Range %d-%d specified for \"%s\" isn't valid, "
+						"as %d is greater than %d",
+						start_offset, end_offset,
+						hfinfo->abbrev,
+						start_offset, end_offset);
+
+				} else
+					dfilter_fail("Range %d-%d isn't valid, "
+						"as %d is greater than %d",
+						start_offset, end_offset,
+						start_offset, end_offset);
 			}
 		}
 		break;
@@ -830,6 +848,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 {
 	stnode_t		*new_st;
 	sttype_id_t		type2;
+	stnode_t		*entity1;
 	header_field_info	*hfinfo1, *hfinfo2;
 	df_func_def_t		*funcdef;
 	ftenum_t		ftype1, ftype2;
@@ -838,15 +857,22 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	drange_node		*rn;
         int                     len_range;
 
-	type2 = stnode_type_id(st_arg2);
-	hfinfo1 = sttype_range_hfinfo(st_arg1);
-	ftype1 = hfinfo1->type;
-
 	DebugLog(("    5 check_relation_LHS_RANGE(%s)\n", relation_string));
 
-	if (!ftype_can_slice(ftype1)) {
-		dfilter_fail("\"%s\" is a %s and cannot be sliced into a sequence of bytes.",
-				hfinfo1->abbrev, ftype_pretty_name(ftype1));
+	type2 = stnode_type_id(st_arg2);
+	entity1 = sttype_range_entity(st_arg1);
+	if (entity1 && stnode_type_id(entity1) == STTYPE_FIELD) {
+		hfinfo1 = stnode_data(entity1);
+		ftype1 = hfinfo1->type;
+
+		if (!ftype_can_slice(ftype1)) {
+			dfilter_fail("\"%s\" is a %s and cannot be sliced into a sequence of bytes.",
+					hfinfo1->abbrev, ftype_pretty_name(ftype1));
+			THROW(TypeError);
+		}
+	} else {
+		dfilter_fail("Range is not supported, details: " G_STRLOC " entity: %p of type %d",
+				entity1, entity1 ? stnode_type_id(entity1) : -1);
 		THROW(TypeError);
 	}
 

@@ -34,9 +34,9 @@
 #include "sttype-range.h"
 
 typedef struct {
-	guint32				magic;
-	header_field_info	*hfinfo;
-	drange_t			*drange;
+	guint32	   magic;
+	stnode_t  *entity;
+	drange_t  *drange;
 } range_t;
 
 #define RANGE_MAGIC	0xec0990ce
@@ -51,7 +51,7 @@ range_new(gpointer junk)
 	range = g_new(range_t, 1);
 
 	range->magic = RANGE_MAGIC;
-	range->hfinfo = NULL;
+	range->entity = NULL;
 	range->drange = NULL;
 
 	return (gpointer) range;
@@ -64,7 +64,7 @@ range_dup(gconstpointer data)
 	range_t       *range;
 
 	range = (range_t *)range_new(NULL);
-	range->hfinfo = org->hfinfo;
+	range->entity = stnode_dup(org->entity);
 	range->drange = drange_dup(org->drange);
 
 	return (gpointer) range;
@@ -78,6 +78,9 @@ range_free(gpointer value)
 
 	if (range->drange)
 		drange_free(range->drange);
+
+	if (range->entity)
+		stnode_free(range->entity);
 
 	g_free(range);
 }
@@ -96,26 +99,25 @@ sttype_range_remove_drange(stnode_t *node)
 
 /* Set a range */
 void
-sttype_range_set(stnode_t *node, stnode_t *field, GSList* drange_list)
+sttype_range_set(stnode_t *node, stnode_t *entity, GSList* drange_list)
 {
 	range_t		*range;
 
 	range = (range_t*)stnode_data(node);
 	assert_magic(range, RANGE_MAGIC);
 
-	range->hfinfo = (header_field_info *)stnode_data(field);
-	stnode_free(field);
+	range->entity = entity;
 
 	range->drange = drange_new_from_list(drange_list);
 }
 
 void
-sttype_range_set1(stnode_t *node, stnode_t *field, drange_node *rn)
+sttype_range_set1(stnode_t *node, stnode_t *entity, drange_node *rn)
 {
-	sttype_range_set(node, field, g_slist_append(NULL, rn));
+	sttype_range_set(node, entity, g_slist_append(NULL, rn));
 }
 
-STTYPE_ACCESSOR(header_field_info*, range, hfinfo, RANGE_MAGIC)
+STTYPE_ACCESSOR(stnode_t*, range, entity, RANGE_MAGIC)
 STTYPE_ACCESSOR(drange_t*, range, drange, RANGE_MAGIC)
 
 
