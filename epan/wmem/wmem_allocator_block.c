@@ -368,7 +368,9 @@ wmem_block_add_to_recycler(wmem_block_allocator_t *allocator,
         WMEM_GET_FREE(free_chunk->next)->prev = chunk;
         WMEM_GET_FREE(free_chunk->prev)->next = chunk;
 
-        allocator->recycler_head = chunk;
+        if (chunk->len > allocator->recycler_head->len) {
+            allocator->recycler_head = chunk;
+        }
     }
 }
 
