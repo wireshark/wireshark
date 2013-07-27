@@ -291,7 +291,8 @@ typedef struct _gpa_hfinfo_t {
 	guint32             allocated_len;
 	header_field_info **hfi;
 } gpa_hfinfo_t;
-gpa_hfinfo_t gpa_hfinfo;
+
+static gpa_hfinfo_t gpa_hfinfo;
 
 /* Balanced tree of abbreviations and IDs */
 static GTree *gpa_name_tree = NULL;

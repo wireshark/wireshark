@@ -44,10 +44,10 @@
 #include "color_filters.h"
 
 int proto_frame = -1;
-int proto_pkt_comment = -1;
+static int proto_pkt_comment = -1;
 int hf_frame_arrival_time = -1;
-int hf_frame_shift_offset = -1;
-int hf_frame_arrival_time_epoch = -1;
+static int hf_frame_shift_offset = -1;
+static int hf_frame_arrival_time_epoch = -1;
 static int hf_frame_time_delta = -1;
 static int hf_frame_time_delta_displayed = -1;
 static int hf_frame_time_relative = -1;
