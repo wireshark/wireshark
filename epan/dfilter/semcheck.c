@@ -411,7 +411,7 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 				start_offset = drange_node_get_start_offset(drnode);
 				entity = sttype_range_entity(args->st);
 				if (entity && stnode_type_id(entity) == STTYPE_FIELD) {
-					hfinfo = stnode_data(entity);
+					hfinfo = (header_field_info *)stnode_data(entity);
 
 					dfilter_fail("Range %d:%d specified for \"%s\" isn't valid, "
 						"as length %d isn't positive",
@@ -445,7 +445,7 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 				args->err = TRUE;
 				entity = sttype_range_entity(args->st);
 				if (entity && stnode_type_id(entity) == STTYPE_FIELD) {
-					hfinfo = stnode_data(entity);
+					hfinfo = (header_field_info *)stnode_data(entity);
 
 					dfilter_fail("Range %d-%d specified for \"%s\" isn't valid, "
 						"as %d is greater than %d",
@@ -632,7 +632,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 			rn = drange_node_new();
 			drange_node_set_start_offset(rn, 0);
 			drange_node_set_to_the_end(rn);
-			/* st_arg1 is freed in this step */
+			/* new_st is owner of st_arg1 in this step */
 			sttype_range_set1(new_st, st_arg1, rn);
 
 			sttype_test_set2_args(st_node, new_st, st_arg2);
@@ -862,7 +862,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	type2 = stnode_type_id(st_arg2);
 	entity1 = sttype_range_entity(st_arg1);
 	if (entity1 && stnode_type_id(entity1) == STTYPE_FIELD) {
-		hfinfo1 = stnode_data(entity1);
+		hfinfo1 = (header_field_info *)stnode_data(entity1);
 		ftype1 = hfinfo1->type;
 
 		if (!ftype_can_slice(ftype1)) {
@@ -897,7 +897,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 			rn = drange_node_new();
 			drange_node_set_start_offset(rn, 0);
 			drange_node_set_to_the_end(rn);
-			/* st_arg2 is freed in this step */
+			/* new_st is owner of st_arg2 in this step */
 			sttype_range_set1(new_st, st_arg2, rn);
 
 			sttype_test_set2_args(st_node, st_arg1, new_st);
@@ -974,7 +974,16 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 				THROW(TypeError);
 			}
 
-			/* XXX should I add a new drange node? */
+			/* Convert entire field to bytes */
+			new_st = stnode_new(STTYPE_RANGE, NULL);
+
+			rn = drange_node_new();
+			drange_node_set_start_offset(rn, 0);
+			drange_node_set_to_the_end(rn);
+			/* new_st is owner of st_arg2 in this step */
+			sttype_range_set1(new_st, st_arg2, rn);
+
+			sttype_test_set2_args(st_node, st_arg1, new_st);
 		}
 
 		check_function(st_arg2);
@@ -1109,7 +1118,7 @@ check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
 			rn = drange_node_new();
 			drange_node_set_start_offset(rn, 0);
 			drange_node_set_to_the_end(rn);
-			/* st_arg1 is freed in this step */
+			/* new_st is owner of st_arg1 in this step */
 			sttype_range_set1(new_st, st_arg1, rn);
 
 			sttype_test_set2_args(st_node, new_st, st_arg2);
