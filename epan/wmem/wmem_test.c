@@ -263,8 +263,8 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
         ptrs[i] = NULL;
     }
 
-    /* Run ~64,000 iterations */
-    for (i=0; i<1024*64; i++) {
+    /* Run enough iterations to fill the array 64 times */
+    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS*64; i++) {
         gint ptrs_index;
         gint new_size;
 
