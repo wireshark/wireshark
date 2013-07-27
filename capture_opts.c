@@ -628,6 +628,10 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 
     switch(opt) {
     case LONGOPT_NUM_CAP_COMMENT:  /* capture comment */
+        if (capture_opts->capture_comment) {
+            cmdarg_err("--capture-comment can be set only once per file");
+            return 1;
+        }
         capture_opts->capture_comment = g_strdup(optarg_str_p);
         break;
     case 'a':        /* autostop criteria */
