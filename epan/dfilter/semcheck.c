@@ -850,7 +850,6 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	sttype_id_t		type2;
 	stnode_t		*entity1;
 	header_field_info	*hfinfo1, *hfinfo2;
-	df_func_def_t		*funcdef;
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
@@ -870,9 +869,21 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 					hfinfo1->abbrev, ftype_pretty_name(ftype1));
 			THROW(TypeError);
 		}
+	} else if (entity1 && stnode_type_id(entity1) == STTYPE_FUNCTION) {
+		df_func_def_t *funcdef = sttype_function_funcdef(entity1);
+		ftype1 = funcdef->retval_ftype;
+
+		if (!ftype_can_slice(ftype1)) {
+			dfilter_fail("Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
+					funcdef->name, ftype_pretty_name(ftype1));
+			THROW(TypeError);
+		}
+
+		check_function(entity1);
+
 	} else {
 		dfilter_fail("Range is not supported, details: " G_STRLOC " entity: %p of type %d",
-				entity1, entity1 ? stnode_type_id(entity1) : -1);
+				entity1, entity1 ? (int) stnode_type_id(entity1) : -1);
 		THROW(TypeError);
 	}
 
@@ -963,7 +974,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 		check_drange_sanity(st_arg2);
 	}
 	else if (type2 == STTYPE_FUNCTION) {
-		funcdef = sttype_function_funcdef(st_arg2);
+		df_func_def_t *funcdef = sttype_function_funcdef(st_arg2);
 		ftype2  = funcdef->retval_ftype;
 
 		if (!is_bytes_type(ftype2)) {

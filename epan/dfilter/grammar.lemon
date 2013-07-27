@@ -165,10 +165,10 @@ entity(E) ::= range(R).		{ E = R; }
 
 
 /* Ranges */
-range(R) ::= FIELD(F) LBRACKET drnode_list(L) RBRACKET.
+range(R) ::= entity(E) LBRACKET drnode_list(L) RBRACKET.
 {
 	R = stnode_new(STTYPE_RANGE, NULL);
-	sttype_range_set(R, F, L);
+	sttype_range_set(R, E, L);
 
 	/* Delete the list, but not the drange_nodes that
 	 * the list contains. */
