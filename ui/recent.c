@@ -284,6 +284,127 @@ window_geom_recent_write_all(FILE *rf)
   g_hash_table_foreach(window_geom_hash, write_recent_geom, rf);
 }
 
+/* Global list of recent capture filters. */
+static GList *recent_cfilter_list;
+
+/*
+ * Per-interface lists of recent capture filters; stored in a hash
+ * table indexed by interface name.
+ */
+static GHashTable *per_interface_cfilter_lists_hash;
+
+/* XXX: use a preference for this setting! */
+static guint cfilter_combo_max_recent = 20;
+
+/**
+ * Returns a list of recent capture filters.
+ *
+ * @param ifname interface name; NULL refers to the global list.
+ */
+GList *
+recent_get_cfilter_list(const gchar *ifname)
+{
+  if (ifname == NULL)
+    return recent_cfilter_list;
+  if (per_interface_cfilter_lists_hash == NULL) {
+    /* No such lists exist. */
+    return NULL;
+  }
+  return (GList *)g_hash_table_lookup(per_interface_cfilter_lists_hash, ifname);
+}
+
+/**
+ * Add a capture filter to the global recent capture filter list or
+ * the recent capture filter list for an interface.
+ *
+ * @param ifname interface name; NULL refers to the global list.
+ * @param s text of capture filter
+ */
+void
+recent_add_cfilter(const gchar *ifname, const gchar *s)
+{
+  GList     *cfilter_list;
+  GList     *li;
+  gchar     *li_filter, *newfilter = NULL;
+
+  /* Don't add empty filters to the list. */
+  if (s[0] == '\0')
+    return;
+
+  if (ifname == NULL)
+    cfilter_list = recent_cfilter_list;
+  else {
+    if (per_interface_cfilter_lists_hash == NULL)
+      per_interface_cfilter_lists_hash = g_hash_table_new(g_str_hash, g_str_equal);
+    cfilter_list = (GList *)g_hash_table_lookup(per_interface_cfilter_lists_hash, ifname);
+  }
+
+  li = g_list_first(cfilter_list);
+  while (li) {
+    /* If the filter is already in the list, remove the old one and
+     * append the new one at the latest position (at g_list_append() below) */
+    li_filter = (char *)li->data;
+    if (strcmp(s, li_filter) == 0) {
+      /* No need to copy the string, we're just moving it. */
+      newfilter = li_filter;
+      recent_cfilter_list = g_list_remove(cfilter_list, li->data);
+      break;
+    }
+    li = li->next;
+  }
+  if (newfilter == NULL) {
+    /* The filter wasn't already in the list; make a copy to add. */
+    newfilter = g_strdup(s);
+  }
+  cfilter_list = g_list_append(cfilter_list, newfilter);
+
+  if (ifname == NULL)
+    recent_cfilter_list = cfilter_list;
+  else
+    g_hash_table_insert(per_interface_cfilter_lists_hash, g_strdup(ifname), cfilter_list);
+}
+
+static void
+cfilter_recent_write_all_list(FILE *rf, const gchar *ifname, GList *cfilter_list)
+{
+  guint      max_count = 0;
+  GList     *li;
+
+  /* write all non empty capture filter strings to the recent file (until max count) */
+  li = g_list_first(cfilter_list);
+  while (li && (max_count++ <= cfilter_combo_max_recent) ) {
+    if (li->data && strlen((const char *)li->data)) {
+      if (ifname == NULL)
+        fprintf (rf, RECENT_KEY_CAPTURE_FILTER ": %s\n", (char *)li->data);
+      else
+        fprintf (rf, RECENT_KEY_CAPTURE_FILTER ".%s: %s\n", ifname, (char *)li->data);
+    }
+    li = li->next;
+  }
+}
+
+static void
+cfilter_recent_write_all_hash_callback(gpointer key, gpointer value, gpointer user_data)
+{
+  cfilter_recent_write_all_list((FILE *)user_data, (const gchar *)key, (GList *)value);
+}
+
+/** Write all capture filter values to the recent file.
+ *
+ * @param rf recent file handle from caller
+ */
+static void
+cfilter_recent_write_all(FILE *rf)
+{
+  /* Write out the global list. */
+  cfilter_recent_write_all_list(rf, NULL, recent_cfilter_list);
+
+  /* Write out all the per-interface lists. */
+  if (per_interface_cfilter_lists_hash != NULL) {
+    g_hash_table_foreach(per_interface_cfilter_lists_hash, cfilter_recent_write_all_hash_callback, (gpointer)rf);
+  }
+}
+
 /* Attempt to Write out "recent common" to the user's recent common file.
    If we got an error report it with a dialog box and return FALSE,
    otherwise return TRUE. */
@@ -334,7 +455,7 @@ write_recent(void)
     "######## Recent capture filters (latest last), cannot be altered through command line ########\n"
     "\n", rf);
 
-  cfilter_combo_recent_write_all(rf);
+  cfilter_recent_write_all(rf);
 
   fputs("\n"
     "######## Recent display filters (latest last), cannot be altered through command line ########\n"
@@ -867,14 +988,17 @@ read_set_recent_pair_dynamic(gchar *key, const gchar *value,
     return PREFS_SET_SYNTAX_ERR;
   }
   if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
-    if(u3_active())
+    if (u3_active())
       add_menu_recent_capture_file(u3_expand_device_path(value));
     else
       add_menu_recent_capture_file(value);
   } else if (strcmp(key, RECENT_KEY_DISPLAY_FILTER) == 0) {
 	dfilter_combo_add_recent(value);
   } else if (strcmp(key, RECENT_KEY_CAPTURE_FILTER) == 0) {
-	cfilter_combo_add_recent(value);
+    recent_add_cfilter(NULL, value);
+  } else if (g_str_has_prefix(key, RECENT_KEY_CAPTURE_FILTER ".")) {
+    /* strrchr() can't fail - string has a prefix that ends with a "." */
+    recent_add_cfilter(strrchr(key, '.') + 1, value);
 #ifdef HAVE_PCAP_REMOTE
   } else if (strcmp(key, RECENT_KEY_REMOTE_HOST) == 0) {
 	capture_remote_combo_add_recent(value);

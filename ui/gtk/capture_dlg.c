@@ -2605,6 +2605,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gchar           *tok, *name;
   GtkCellRenderer *renderer;
   GtkListStore    *store;
+  const gchar     *new_cfilter;
 
   window = (GtkWidget *)userdata;
   caller = gtk_widget_get_toplevel(GTK_WIDGET(window));
@@ -2890,21 +2891,28 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 
   /* Create the capture filter combo box*/
   filter_cm = gtk_combo_box_text_new_with_entry();
-  cfilter_list = (GList *)g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_FL_KEY);
-  g_object_set_data(G_OBJECT(opt_edit_w), E_CFILTER_FL_KEY, cfilter_list);
   g_object_set_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY, filter_cm);
   filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
   colorize_filter_te_as_empty(filter_te);
   g_signal_connect(filter_te, "changed", G_CALLBACK(capture_filter_check_syntax_cb), NULL);
   g_signal_connect(filter_te, "destroy", G_CALLBACK(capture_filter_destroy_cb), NULL);
 
+  cfilter_list = recent_get_cfilter_list(name);
   for (cf_entry = cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {
-    if (cf_entry->data && (strlen((const char *)cf_entry->data) > 0)) {
-      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(filter_cm), (const gchar *)cf_entry->data);
+    new_cfilter = (const gchar *)cf_entry->data;
+    /* If this is the current dfilter or the default cfilter, don't put
+       it in the list, as it'll be added later. */
+    if ((device.cfilter == NULL || strcmp(device.cfilter, new_cfilter) != 0) &&
+        (global_capture_opts.default_options.cfilter == NULL || strcmp(global_capture_opts.default_options.cfilter, new_cfilter) != 0)) {
+      gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), new_cfilter);
     }
   }
   if (global_capture_opts.default_options.cfilter && (strlen(global_capture_opts.default_options.cfilter) > 0)) {
-    gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), global_capture_opts.default_options.cfilter);
+    /* If this is the current dfilter, don't put it in the list, as it'll be
+       added later. */
+    if (device.cfilter == NULL || strcmp(device.cfilter, global_capture_opts.default_options.cfilter) != 0) {
+      gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), global_capture_opts.default_options.cfilter);
+    }
   }
   if (device.cfilter && (strlen(device.cfilter) > 0)) {
     gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), device.cfilter);
@@ -4497,6 +4505,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gboolean           if_present = TRUE;
   GList             *all_cfilter_list, *cf_entry;
   window_geometry_t  tl_geom;
+  const gchar       *new_cfilter;
 
   if (interfaces_dialog_window_present()) {
     destroy_if_window();
@@ -4772,17 +4781,17 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Create the capture filter combo box*/
   all_filter_cm = gtk_combo_box_text_new_with_entry();
-  all_cfilter_list = (GList *)g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_FL_KEY);
-  g_object_set_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_FL_KEY, all_cfilter_list);
   g_object_set_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY, all_filter_cm);
   all_filter_te = gtk_bin_get_child(GTK_BIN(all_filter_cm));
   colorize_filter_te_as_empty(all_filter_te);
   g_signal_connect(all_filter_te, "changed", G_CALLBACK(capture_all_filter_check_syntax_cb), NULL);
   g_signal_connect(all_filter_te, "destroy", G_CALLBACK(capture_filter_destroy_cb), NULL);
 
+  all_cfilter_list = recent_get_cfilter_list(NULL);
   for (cf_entry = all_cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {
-    if (cf_entry->data && (strlen((const char *)cf_entry->data) > 0)) {
-      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(all_filter_cm), (const gchar *)cf_entry->data);
+    new_cfilter = (const gchar *)cf_entry->data;
+    if (global_capture_opts.default_options.cfilter == NULL || strcmp(global_capture_opts.default_options.cfilter, new_cfilter) != 0) {
+      gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(all_filter_cm), new_cfilter);
     }
   }
   if (global_capture_opts.default_options.cfilter && (strlen(global_capture_opts.default_options.cfilter) > 0)) {
@@ -5300,13 +5309,16 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
   collect_ifaces(&global_capture_opts);
 
   if (capture_start(&global_capture_opts, &global_capture_session)) {
-    /* The capture succeeded, which means the capture filter syntax is
-       valid; add this capture filter to the recent capture filter list. */
+    /* The capture succeeded, which means the capture filters specified are
+       valid; add them to the recent capture filter lists for the interfaces. */
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
       interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
       if (interface_opts.cfilter) {
-        cfilter_combo_add_recent(interface_opts.cfilter);
+        recent_add_cfilter(interface_opts.name, interface_opts.cfilter);
       }
+    }
+    if (global_capture_opts.default_options.cfilter) {
+      recent_add_cfilter(NULL, global_capture_opts.default_options.cfilter);
     }
   }
 }

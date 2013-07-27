@@ -120,22 +120,6 @@ extern "C" gboolean dfilter_combo_add_recent(const gchar *filter) {
 }
 
 
-// xxx - Move to an as-yet-to-be-written capture filter module along with ::addRecentCapture and ::writeRecentCapture
-QList<QString> cfilters;
-
-extern "C" gboolean cfilter_combo_add_recent(const gchar *filter) {
-    cfilters.append(filter);
-    return TRUE;
-}
-
-extern "C" void cfilter_combo_recent_write_all(FILE *rf) {
-    QString cfilter;
-
-    foreach (cfilter, cfilters) {
-        fprintf (rf, RECENT_KEY_CAPTURE_FILTER ": %s\n", cfilter.toUtf8().constData());
-    }
-}
-
 /*
  * Editor modelines
  *
