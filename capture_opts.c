@@ -627,6 +627,9 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     int status, snaplen;
 
     switch(opt) {
+    case LONGOPT_NUM_CAP_COMMENT:  /* capture comment */
+        capture_opts->capture_comment = g_strdup(optarg_str_p);
+        break;
     case 'a':        /* autostop criteria */
         if (set_autostop_criterion(capture_opts, optarg_str_p) == FALSE) {
             cmdarg_err("Invalid or unknown -a flag \"%s\"", optarg_str_p);

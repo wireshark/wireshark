@@ -42,6 +42,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#define LONGOPT_NUM_CAP_COMMENT 0
+
 #ifdef HAVE_PCAP_REMOTE
 /* Type of capture source */
 typedef enum {

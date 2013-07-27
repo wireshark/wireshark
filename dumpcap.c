@@ -505,6 +505,9 @@ print_usage(gboolean print_ver)
     fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
     fprintf(output, "  -n                       use pcapng format instead of pcap (default)\n");
     fprintf(output, "  -P                       use libpcap format instead of pcapng\n");
+    fprintf(output, "  --capture-comment <comment>\n");
+    fprintf(output, "                           add a capture comment to the output file\n");
+    fprintf(output, "                           (only for pcapng)\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -N <packet_limit>        maximum number of packets buffered within dumpcap\n");
@@ -4126,6 +4129,11 @@ main(int argc, char *argv[])
     GString          *comp_info_str;
     GString          *runtime_info_str;
     int               opt;
+    struct option     long_options[] = {
+        {"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
+        {0, 0, 0, 0 }
+    };
+
     gboolean          arg_error             = FALSE;
 
 #ifdef _WIN32
@@ -4470,7 +4478,7 @@ main(int argc, char *argv[])
 	global_capture_opts.capture_child = capture_child;
 
     /* Now get our args */
-    while ((opt = getopt_long(argc, argv, OPTSTRING, NULL, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, OPTSTRING, long_options, NULL)) != -1) {
         switch (opt) {
         case 'h':        /* Print help and exit */
             print_usage(TRUE);
@@ -4497,6 +4505,7 @@ main(int argc, char *argv[])
         case 's':        /* Set the snapshot (capture) length */
         case 'w':        /* Write to capture file x */
         case 'y':        /* Set the pcap data link type */
+        case  LONGOPT_NUM_CAP_COMMENT: /* add a capture comment */
 #ifdef HAVE_PCAP_REMOTE
         case 'u':        /* Use UDP for data transfer */
         case 'r':        /* Capture own RPCAP traffic too */
