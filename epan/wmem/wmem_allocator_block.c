@@ -596,11 +596,12 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
         if (prev) WMEM_GET_FREE(prev)->next = extra;
         if (next) WMEM_GET_FREE(next)->prev = extra;
 
-        if (allocator->master_head == chunk)
+        if (allocator->master_head == chunk) {
             allocator->master_head = extra;
-
-        if (allocator->recycler_head == chunk)
+        }
+        else if (allocator->recycler_head == chunk) {
             allocator->recycler_head = extra;
+        }
     }
 
     /* Now that we've copied over the free-list stuff (which may have overlapped
