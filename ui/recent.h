@@ -182,6 +182,22 @@ extern void window_geom_save(const gchar *name, window_geometry_t *geom);
 /* load the desired geometry for this window from the geometry hashtable */
 extern gboolean window_geom_load(const gchar *name, window_geometry_t *geom);
 
+/**
+ * Returns a list of recent capture filters.
+ *
+ * @param ifname interface name; NULL refers to the global list.
+ */
+extern GList *recent_get_cfilter_list(const gchar *ifname);
+
+/**
+ * Add a capture filter to the global recent capture filter list or
+ * the recent capture filter list for an interface.
+ *
+ * @param ifname interface name; NULL refers to the global list.
+ * @param s text of capture filter
+ */
+extern void recent_add_cfilter(const gchar *ifname, const gchar *s);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
