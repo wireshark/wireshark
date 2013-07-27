@@ -207,7 +207,7 @@ typedef struct capture_options_tag {
  
     /* internally used (don't touch from outside) */
     gboolean output_to_pipe;        /**< save_file is a pipe (named or stdout) */
-	gboolean capture_child;         /**< hidden option: Wireshark child mode */
+    gboolean capture_child;         /**< hidden option: Wireshark child mode */
 } capture_options;
 
 /* initialize the capture_options with some reasonable values */
