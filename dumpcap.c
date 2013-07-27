@@ -2838,7 +2838,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
 
             g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
             successful = libpcap_write_session_header_block(libpcap_write_to_file, ld->pdh,
-                                NULL,                        /* Comment*/
+                                (const char *)capture_opts->capture_comment,   /* Comment*/
                                 NULL,                        /* HW*/
                                 os_info_str->str,            /* OS*/
                                 appname,
@@ -4633,6 +4633,14 @@ main(int argc, char *argv[])
         }
     } else {
         /* We're supposed to capture traffic; */
+
+        if (global_capture_opts.capture_comment &&
+            (!global_capture_opts.use_pcapng || global_capture_opts.multi_files_on)) {
+            /* XXX - for ringbuffer, should we apply the comment to each file? */
+            cmdarg_err("A capture comment can only be set if we capture into a single pcapng file.");
+            exit_main(1);
+        }
+
         /* Are we capturing on multiple interface? If so, use threads and pcapng. */
         if (global_capture_opts.ifaces->len > 1) {
             use_threads = TRUE;
