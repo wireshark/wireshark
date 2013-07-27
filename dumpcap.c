@@ -4643,6 +4643,12 @@ main(int argc, char *argv[])
     } else {
         /* We're supposed to capture traffic; */
 
+        /* Are we capturing on multiple interface? If so, use threads and pcapng. */
+        if (global_capture_opts.ifaces->len > 1) {
+            use_threads = TRUE;
+            global_capture_opts.use_pcapng = TRUE;
+        }
+
         if (global_capture_opts.capture_comment &&
             (!global_capture_opts.use_pcapng || global_capture_opts.multi_files_on)) {
             /* XXX - for ringbuffer, should we apply the comment to each file? */
@@ -4650,11 +4656,6 @@ main(int argc, char *argv[])
             exit_main(1);
         }
 
-        /* Are we capturing on multiple interface? If so, use threads and pcapng. */
-        if (global_capture_opts.ifaces->len > 1) {
-            use_threads = TRUE;
-            global_capture_opts.use_pcapng = TRUE;
-        }
         /* Was the ring buffer option specified and, if so, does it make sense? */
         if (global_capture_opts.multi_files_on) {
             /* Ring buffer works only under certain conditions:
