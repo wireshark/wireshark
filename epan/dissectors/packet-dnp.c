@@ -2839,7 +2839,6 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Make sure source and dest are always in the info column */
   col_append_fstr(pinfo->cinfo, COL_INFO, "from %u to %u", dl_src, dl_dst);
-  col_set_fence(pinfo->cinfo, COL_INFO);
   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "len=%u, %s", dl_len, func_code_str);
 
   /* create display subtree for the protocol */
@@ -3079,14 +3078,15 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             "Reassembled DNP 3.0 Application Layer message", frag_msg, &dnp3_frag_items,
             NULL, tr_tree);
 
-        if (next_tvb) { /* Reassembled */
-          /* We have the complete payload */
-          col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Reassembled Application Layer");
+        if (next_tvb)  /* Reassembled */
+        {
+          /* We have the complete payload, zap the info column as the AL info takes precedence */
+          col_clear(pinfo->cinfo, COL_INFO);
         }
         else
         {
           /* We don't have the complete reassembled payload. */
-          col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Transport Layer fragment %u ", tr_seq);
+          col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "TL fragment %u ", tr_seq);
         }
 
       }
@@ -3107,8 +3107,20 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_text(dnp3_tree, tvb, 11, -1, "CRC failed, %u chunks", i);
     }
 
+    /* Dissect any completed AL message */
     if (next_tvb)
+    {
+      /* As a complete AL message will have cleared the info column, 
+         make sure source and dest are always in the info column */
+      col_append_fstr(pinfo->cinfo, COL_INFO, "from %u to %u", dl_src, dl_dst);
+      col_set_fence(pinfo->cinfo, COL_INFO);
       dissect_dnp3_al(next_tvb, pinfo, dnp3_tree);
+    }
+    else
+    {
+      /* Lock any column info set by the DL and TL */
+      col_set_fence(pinfo->cinfo, COL_INFO);
+    }
   }
 }
 
