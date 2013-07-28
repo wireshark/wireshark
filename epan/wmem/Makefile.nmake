@@ -20,7 +20,7 @@ wmem.lib: $(WMEM_OBJECTS)
 	link /lib /out:wmem.lib $(WMEM_OBJECTS)
 
 clean:
-	rm -f $(WMEM_OBJECTS) wmem.lib *.pdb *.sbr wmem_test.obj wmem_test.exe
+	rm -f $(WMEM_OBJECTS) wmem.lib *.pdb *.sbr wmem_test.obj wmem_test.exe wmem_test.exp
 
 distclean: clean
 

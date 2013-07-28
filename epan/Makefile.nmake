@@ -135,7 +135,7 @@ clean-local:
 	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) \
 		libwireshark.lib libwireshark.dll *.manifest libwireshark.exp \
 		*.pdb *.sbr doxygen.cfg html/*.* \
-		exntest.obj exntest.exe reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe
+		exntest.obj exntest.exe exntest.exp reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe tvbtest.exp
 	if exist html rm -rf html
 
 clean:  clean-local
