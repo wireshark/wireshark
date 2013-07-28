@@ -490,6 +490,23 @@ check_drange_sanity(stnode_t *st)
 	}
 }
 
+static stnode_t *
+convert_to_bytes(stnode_t *arg)
+{
+	stnode_t      *new_st;
+	drange_node   *rn;
+
+	new_st = stnode_new(STTYPE_RANGE, NULL);
+
+	rn = drange_node_new();
+	drange_node_set_start_offset(rn, 0);
+	drange_node_set_to_the_end(rn);
+	/* new_st is owner of arg in this step */
+	sttype_range_set1(new_st, arg, rn);
+
+	return new_st;
+}
+
 static void
 check_function(stnode_t *st_node)
 {
@@ -535,7 +552,6 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
-	drange_node		*rn;
 
 	type2 = stnode_type_id(st_arg2);
 
@@ -630,13 +646,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 			}
 
 			/* Convert entire field to bytes */
-			new_st = stnode_new(STTYPE_RANGE, NULL);
-
-			rn = drange_node_new();
-			drange_node_set_start_offset(rn, 0);
-			drange_node_set_to_the_end(rn);
-			/* new_st is owner of st_arg1 in this step */
-			sttype_range_set1(new_st, st_arg1, rn);
+			new_st = convert_to_bytes(st_arg1);
 
 			sttype_test_set2_args(st_node, new_st, st_arg2);
 		}
@@ -856,7 +866,6 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
-	drange_node		*rn;
         int                     len_range;
 
 	DebugLog(("    5 check_relation_LHS_RANGE(%s)\n", relation_string));
@@ -906,13 +915,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 			}
 
 			/* Convert entire field to bytes */
-			new_st = stnode_new(STTYPE_RANGE, NULL);
-
-			rn = drange_node_new();
-			drange_node_set_start_offset(rn, 0);
-			drange_node_set_to_the_end(rn);
-			/* new_st is owner of st_arg2 in this step */
-			sttype_range_set1(new_st, st_arg2, rn);
+			new_st = convert_to_bytes(st_arg2);
 
 			sttype_test_set2_args(st_node, st_arg1, new_st);
 		}
@@ -988,14 +991,8 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 				THROW(TypeError);
 			}
 
-			/* Convert entire field to bytes */
-			new_st = stnode_new(STTYPE_RANGE, NULL);
-
-			rn = drange_node_new();
-			drange_node_set_start_offset(rn, 0);
-			drange_node_set_to_the_end(rn);
-			/* new_st is owner of st_arg2 in this step */
-			sttype_range_set1(new_st, st_arg2, rn);
+			/* Convert function result to bytes */
+			new_st = convert_to_bytes(st_arg2);
 
 			sttype_test_set2_args(st_node, st_arg1, new_st);
 		}
@@ -1045,7 +1042,6 @@ check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
-	drange_node		*rn;
 	df_func_def_t   *funcdef;
 	df_func_def_t   *funcdef2;
 	/* GSList          *params; */
@@ -1126,14 +1122,8 @@ check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
 				THROW(TypeError);
 			}
 
-			/* Convert entire field to bytes */
-			new_st = stnode_new(STTYPE_RANGE, NULL);
-
-			rn = drange_node_new();
-			drange_node_set_start_offset(rn, 0);
-			drange_node_set_to_the_end(rn);
-			/* new_st is owner of st_arg1 in this step */
-			sttype_range_set1(new_st, st_arg1, rn);
+			/* Convert function result to bytes */
+			new_st = convert_to_bytes(st_arg1);
 
 			sttype_test_set2_args(st_node, new_st, st_arg2);
 		}
