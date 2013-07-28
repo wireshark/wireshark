@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include <arpa/inet.h>
+#include <glib.h>
 #include <errno.h>
 
 #ifdef HAVE_SYS_STAT_H
@@ -78,7 +78,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
   phdr->presence_flags = WTAP_HAS_TS;
 
   /* If no time specified, its the last baseline time */
-  phdr->ts.secs = base_secs;
+  phdr->ts.secs = (time_t)base_secs;
   phdr->ts.nsecs = 0;
   millisecs = 0;
 
@@ -103,14 +103,14 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
     tm.tm_sec = 0;
     tm.tm_isdst = -1;
     base_secs = mktime(&tm);
-    phdr->ts.secs = base_secs;
+    phdr->ts.secs = (time_t)base_secs;
   }
   else if (PLATFORM_LOCATION_SEGMENT == stanag_pkt_hdr[32]) {
     bytes_read = file_read(&millisecs, sizeof millisecs, fh);
     if (bytes_read != sizeof millisecs)
       goto fail;
     offset += bytes_read;
-    millisecs = ntohl(millisecs);
+    millisecs = g_ntohl(millisecs);
   }
   else if (DWELL_SEGMENT == stanag_pkt_hdr[32]) {
     guint8 dseg[19];
@@ -123,7 +123,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
   if (0 != millisecs) {
     secs = millisecs/1000;
     nsecs = (millisecs - 1000 * secs) * 1000000;
-    phdr->ts.secs = base_secs + secs;
+    phdr->ts.secs = (time_t)(base_secs + secs);
     phdr->ts.nsecs = nsecs;
   }
 
