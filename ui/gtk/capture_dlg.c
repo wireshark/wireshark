@@ -5322,7 +5322,6 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   interface_options interface_opts;
   guint             i;
-  gboolean          filter_all;
   gchar           * filter_str;
 
 #ifdef HAVE_AIRPCAP
@@ -5381,7 +5380,6 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 
        If the same capture filter is used for all the selected interfaces,
        add it to the global recent capture filter list as well. */
-    filter_all = TRUE;
     filter_str = NULL;
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
       interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
@@ -5401,7 +5399,6 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
               g_free(filter_str);
             }
             filter_str = NULL;
-            filter_all = FALSE;
           }
         }
       }
