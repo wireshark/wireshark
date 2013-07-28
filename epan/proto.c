@@ -250,8 +250,8 @@ struct _protocol {
 	const char *short_name;   /* short description */
 	const char *filter_name;  /* name of this protocol in filters */
 	int         proto_id;     /* field ID for this protocol */
-	GList      *fields;       /* fields for this protocol */
-	GList      *last_field;   /* pointer to end of list of fields */
+	GSList     *fields;       /* fields for this protocol */
+	GSList     *last_field;   /* pointer to end of list of fields */
 	gboolean    is_enabled;   /* TRUE if protocol is enabled */
 	gboolean    can_toggle;   /* TRUE if is_enabled can be changed */
 	gboolean    is_private;   /* TRUE is protocol is private */
@@ -424,7 +424,7 @@ proto_cleanup(void)
 		DISSECTOR_ASSERT(protocol->proto_id == hfinfo->id);
 
 		g_slice_free(header_field_info, hfinfo);
-		g_list_free(protocol->fields);
+		g_slist_free(protocol->fields);
 		protocols = g_list_remove(protocols, protocol);
 		g_free(protocol);
 	}
@@ -4502,10 +4502,10 @@ proto_get_first_protocol_field(const int proto_id, void **cookie)
 header_field_info *
 proto_get_next_protocol_field(void **cookie)
 {
-	GList            *list_item = (GList *)*cookie;
+	GSList           *list_item = (GSList *)*cookie;
 	hf_register_info *ptr;
 
-	list_item = g_list_next(list_item);
+	list_item = g_slist_next(list_item);
 	if (list_item == NULL)
 		return NULL;
 
@@ -4679,11 +4679,11 @@ proto_register_field_array(const int parent, hf_register_info *hf, const int num
 
 		if (proto != NULL) {
 			if (proto->fields == NULL) {
-				proto->fields = g_list_append(NULL, ptr);
+				proto->fields = g_slist_append(NULL, ptr);
 				proto->last_field = proto->fields;
 			} else {
 				proto->last_field =
-					g_list_append(proto->last_field, ptr)->next;
+					g_slist_append(proto->last_field, ptr)->next;
 			}
 		}
 		field_id = proto_register_field_init(&ptr->hfinfo, parent);
@@ -4697,7 +4697,7 @@ proto_unregister_field (const int parent, gint hf_id)
 {
 	hf_register_info *hf;
 	protocol_t       *proto;
-	GList            *field;
+	GSList           *field;
 
 	if (hf_id == -1 || hf_id == 0)
 		return;
@@ -4707,13 +4707,14 @@ proto_unregister_field (const int parent, gint hf_id)
 		return;
 	}
 
-	for (field = g_list_first (proto->fields); field; field = g_list_next (field)) {
+	for (field = proto->fields; field; field = field->next) {
 		hf = (hf_register_info *)field->data;
 		if (*hf->p_id == hf_id) {
 			/* Found the hf_id in this protocol */
 			g_tree_steal (gpa_name_tree, hf->hfinfo.abbrev);
-			proto->fields = g_list_remove_link (proto->fields, field);
-			proto->last_field = g_list_last (proto->fields);
+			/* XXX, memleak? g_slist_delete_link() */
+			proto->fields = g_slist_remove_link (proto->fields, field);
+			proto->last_field = g_slist_last (proto->fields);
 			break;
 		}
 	}
