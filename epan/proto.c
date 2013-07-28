@@ -5203,7 +5203,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	e_guid_t	  *guid;
 	guint32		   n_addr; /* network-order IPv4 address */
 	const gchar	  *name;
-	addres		   addr;
+	address		   addr;
 
 	if (!fi) {
 		if (label_str)
