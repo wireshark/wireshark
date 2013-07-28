@@ -149,7 +149,7 @@ wmem_test_allocator_callbacks(void)
     gboolean f = FALSE;
     guint    cb_id;
 
-    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
     expected_allocator = allocator;
 
@@ -385,7 +385,7 @@ wmem_test_miscutls(void)
     const char         *source = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     char               *ret;
 
-    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
     ret = (char*) wmem_memdup(allocator, source, 5);
     ret[4] = '\0';
@@ -410,7 +410,7 @@ wmem_test_strutls(void)
     char               *new_str;
     char              **split_str;
 
-    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
     orig_str = "TEST1";
     new_str  = wmem_strdup(allocator, orig_str);
@@ -467,7 +467,7 @@ wmem_test_array(void)
     guint32             val, *buf;
     guint32             vals[8];
 
-    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
     array = wmem_array_new(allocator, sizeof(guint32));
     g_assert(array);
@@ -537,7 +537,7 @@ wmem_test_list(void)
     wmem_list_frame_t *frame;
     unsigned int       i;
 
-    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
     list = wmem_list_new(allocator);
     g_assert(list);
@@ -617,7 +617,7 @@ wmem_test_queue(void)
     wmem_queue_t       *queue;
     unsigned int        i;
 
-    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
     queue = wmem_queue_new(allocator);
     g_assert(queue);
@@ -648,7 +648,7 @@ wmem_test_stack(void)
     wmem_stack_t       *stack;
     unsigned int        i;
 
-    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
     stack = wmem_stack_new(allocator);
     g_assert(stack);
@@ -679,7 +679,7 @@ wmem_test_strbuf(void)
     wmem_strbuf_t      *strbuf;
     int                 i;
 
-    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
     strbuf = wmem_strbuf_new(allocator, "TEST");
     g_assert(strbuf);
@@ -770,8 +770,8 @@ wmem_test_tree(void)
     int                 key_count;
     wmem_tree_key_t     keys[WMEM_TREE_MAX_KEY_COUNT];
 
-    allocator       = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
-    extra_allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+    allocator       = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
+    extra_allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
     tree = wmem_tree_new(allocator);
     g_assert(tree);
