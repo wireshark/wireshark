@@ -505,12 +505,12 @@ static const struct file_type_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_PCAP */
         /* Gianluca Varenni suggests that we add "deprecated" to the description. */
-	{ "Wireshark/tcpdump/... - libpcap", "libpcap", "pcap", "cap;dmp",
+	{ "Wireshark/tcpdump/... - pcap", "pcap", "pcap", "cap;dmp",
 	  FALSE, FALSE, 0,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAPNG */
-	{ "Wireshark - pcapng", "pcapng", "pcapng", "ntar",
+	{ "Wireshark/... - pcapng", "pcapng", "pcapng", "ntar",
 	  FALSE, TRUE, WTAP_COMMENT_PER_SECTION|WTAP_COMMENT_PER_INTERFACE|WTAP_COMMENT_PER_PACKET,
 	  pcapng_dump_can_write_encap, pcapng_dump_open },
 
@@ -1068,6 +1068,15 @@ int wtap_short_string_to_file_type(const char *short_name)
 		    strcmp(short_name, dump_open_table[filetype].short_name) == 0)
 			return filetype;
 	}
+
+	/*
+	 * We now call the "libpcap" file format just "pcap", but we
+	 * allow it to be specified as "libpcap" as well, for
+	 * backwards compatibility.
+	 */
+	if (strcmp(short_name, "libpcap") == 0)
+		return WTAP_FILE_PCAP;
+
 	return -1;	/* no such file type, or we can't write it */
 }
 

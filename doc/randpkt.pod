@@ -13,7 +13,7 @@ E<lt>filenameE<gt>
 
 =head1 DESCRIPTION
 
-B<randpkt> is a small utility that creates a B<libpcap> trace file
+B<randpkt> is a small utility that creates a B<pcap> trace file
 full of random packets.
 
 By creating many randomized packets of a certain type, you can

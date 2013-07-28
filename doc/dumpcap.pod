@@ -39,15 +39,15 @@ B<Dumpcap> is a network traffic dump tool.  It lets you capture packet
 data from a live network and write the packets to a file.  B<Dumpcap>'s
 default capture file format is B<pcap-ng> format.
 When the B<-P> option is specified, the output file is written in the
-B<libpcap> format.
+B<pcap> format.
 
-Without any options set it will
-use the pcap library to capture traffic from the first available network
-interface and writes the received raw packet data, along with the packets'
-time stamps into a libpcap file.
+Without any options set it will use the libpcap/WinPcap library to
+capture traffic from the first available network interface and writes
+the received raw packet data, along with the packets' time stamps into a
+pcap file.
 
 If the B<-w> option is not specified, B<Dumpcap> writes to a newly
-created libpcap file with a randomly chosen name.
+created pcap file with a randomly chosen name.
 If the B<-w> option is specified, B<Dumpcap> writes to the file
 specified by that option.
 
@@ -214,7 +214,7 @@ B<Dumpcap> reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input.  Data read from pipes must be in
-standard libpcap format.
+standard pcap format.
 
 This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcap-ng format.
