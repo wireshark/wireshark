@@ -39,7 +39,7 @@ I<infile>, optionally converts them in various ways and writes the
 resulting packets to the capture I<outfile> (or outfiles).
 
 By default, it reads all packets from the I<infile> and writes them to the
-I<outfile> in libpcap file format.
+I<outfile> in pcap file format.
 
 An optional list of packet numbers can be specified on the command tail;
 individual packet numbers separated by whitespace and/or ranges of packet
@@ -136,7 +136,7 @@ This option is meant to be used for fuzz-testing protocol dissectors.
 Sets the file format of the output capture file.
 B<Editcap> can write the file in several formats, B<editcap -F>
 provides a list of the available output formats. The default
-is the B<libpcap> format.
+is the B<pcap> format.
 
 =item -h
 

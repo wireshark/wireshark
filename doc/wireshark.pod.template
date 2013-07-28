@@ -54,7 +54,7 @@ S<[ E<lt>infileE<gt> ]>
 B<Wireshark> is a GUI network protocol analyzer.  It lets you
 interactively browse packet data from a live network or from a
 previously saved capture file.  B<Wireshark>'s native capture file format
-is B<libpcap> format, which is also the format used by B<tcpdump> and
+is B<pcap> format, which is also the format used by B<tcpdump> and
 various other tools.
 
 B<Wireshark> can read / import the following file formats:
@@ -62,11 +62,12 @@ B<Wireshark> can read / import the following file formats:
 =over 4
 
 =item *
-libpcap - captures from B<Wireshark>/B<TShark>/B<dumpcap>, B<tcpdump>,
-and various other tools using libpcap's/tcpdump's capture format
+pcap - captures from B<Wireshark>/B<TShark>/B<dumpcap>, B<tcpdump>,
+and various other tools using libpcap's/WinPcap's/tcpdump's/WinDump's
+capture format
 
 =item *
-pcap-ng - "next-generation" successor to libpcap format
+pcap-ng - "next-generation" successor to pcap format
 
 =item *
 B<snoop> and B<atmsnoop> captures
@@ -374,7 +375,7 @@ B<Wireshark> reports an error and doesn't start the capture.
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input.  On Windows systems, pipe names must be
 of the form ``\\pipe\.\B<pipename>''.  Data read from pipes must be in
-standard libpcap format.
+standard pcap format.
 
 This option can occur multiple times.  When capturing from multiple
 interfaces, the capture file will be saved in pcap-ng format.
@@ -2557,7 +2558,7 @@ file syntax; each line contains one IP address and name, separated by
 whitespace.  The same directory as for the personal preferences file is used.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPCAP on Windows.  As such the Wireshark personal F<hosts> file
+systems and WinPcap on Windows.  As such the Wireshark personal F<hosts> file
 will not be consulted for capture filter name resolution.
 
 =item Name Resolution (ethers)
@@ -2584,7 +2585,7 @@ The personal F<ethers> file is looked for in the same directory as the personal
 preferences file.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPCAP on Windows.  As such the Wireshark personal F<ethers> file
+systems and WinPcap on Windows.  As such the Wireshark personal F<ethers> file
 will not be consulted for capture filter name resolution.
 
 =item Name Resolution (manuf)
