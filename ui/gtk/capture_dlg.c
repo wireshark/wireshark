@@ -4401,52 +4401,106 @@ columns_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 }
 
 static void
-update_properties_all(void) {
+update_properties_all(void)
+{
   unsigned int i;
   interface_t device;
-  gchar * filter_str = NULL;
-  gboolean filter_all = TRUE;
-  gboolean capture_all = TRUE;
-  gboolean promisc_all = TRUE;
+  gboolean capture_all;
+  gboolean promisc_all;
+  gboolean filter_all;
+  gchar * filter_str;
   GtkWidget *promisc_b;
   GtkWidget *capture_b;
+  GtkWidget *all_filter_te;
 
   /* If we don't have a Capture Options dialog open, there's nothing
      for us to do. */
   if (cap_open_w == NULL)
     return;
 
+  /* Determine whether all interfaces:
+
+         are selected for capturing;
+
+         all selected interfaces are in promiscuous mode;
+
+         all selected interfaces have the same capture filter.
+
+     Start out by assuming that all three are the case, and change that
+     once we find an interface where it's not the case. */
+  capture_all = TRUE;
+  promisc_all = TRUE;
+  filter_all = TRUE;
+  filter_str = NULL;
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
     if (!device.hidden) {
       if (!device.selected) {
+        /* This interface isn't selected, so not all interfaces are selected. */
         capture_all = FALSE;
-      } else if (device.cfilter != NULL && filter_all) {
-        if (filter_str == NULL) {
-          filter_str = g_strdup(device.cfilter);
-        } else if (strcmp(device.cfilter, filter_str)) {
-          filter_str = NULL;
-          filter_all = FALSE;
+      } else {
+        /* This interface is selected; is it in promiscuous mode? */
+        if (!device.pmode) {
+          /* No, so not all selected interfaces are in promiscuous mode. */
+          promisc_all = FALSE;
         }
-      }
-      if (!device.pmode) {
-        promisc_all = FALSE;
+        /* Have we seen the same capture filter on all interfaces at
+           which we've looked so far? */
+        if (device.cfilter != NULL && filter_all) {
+          /* Yes. Is this the first interface for which we've seen a
+             filter? */
+          if (filter_str == NULL) {
+            /* First selected interface - save its capture filter;
+               there aren't any filters against which to compare. */
+            filter_str = g_strdup(device.cfilter);
+          } else {
+            /* Not the first selected interface; is its capture filter
+               the same as the one the other interfaces we've looked
+               at have? */
+            if (strcmp(device.cfilter, filter_str) != 0) {
+              /* No, so not all selected interfaces have the same capture
+                 filter. */
+              if (filter_str != NULL) {
+                g_free(filter_str);
+              }
+              filter_str = NULL;
+              filter_all = FALSE;
+            }
+          }
+        }
       }
     }
   }
-  promisc_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY_ALL);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_b), promisc_all);
 
+  /* If all interfaces are selected, check the "capture on all interfaces"
+     checkbox, otherwise un-check it. */
   if (capture_all) {
     capture_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_KEY_ALL);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(capture_b), TRUE);
   }
-  if (filter_all && filter_str != NULL) {
-    gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY)), 0, filter_str);
-    gtk_combo_box_set_active(GTK_COMBO_BOX(g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY)), 0);
+
+  /* If all selected interfaces are in promiscuous mode, check the global
+     "promiscuous mode" checkbox, otherwise un-check it. */
+  promisc_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY_ALL);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_b), promisc_all);
+
+  /* If all selected interfaces have the same filter string, set the
+     global filter string to it. */
+  all_filter_te = gtk_bin_get_child(GTK_BIN(g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY)));
+  if (filter_all) {
+    /* Either no interfaces were selected, or all selected interfaces
+       have the same filter.  In the former case, make the global capture
+       filter empty; in the latter case, make it that filter. */
+    if (filter_str != NULL) {
+      gtk_entry_set_text(GTK_ENTRY(all_filter_te), filter_str);
+      g_free(filter_str);
+    } else {
+      gtk_entry_set_text(GTK_ENTRY(all_filter_te), "");
+    }
   } else {
-    gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY)), 0, "");
-    gtk_combo_box_set_active(GTK_COMBO_BOX(g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY)), 0);
+    /* Not all selected interfaces have the same filter, so there is no
+       global capture filter; make it empty to reflect that. */
+    gtk_entry_set_text(GTK_ENTRY(all_filter_te), "");
   }
 }
 
@@ -4798,11 +4852,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   all_cfilter_list = recent_get_cfilter_list(NULL);
   for (cf_entry = all_cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {
     new_cfilter = (const gchar *)cf_entry->data;
+    /* If this is the default cfilter, don't put it in the list, as it'll
+        be added later. */
     if (global_capture_opts.default_options.cfilter == NULL || strcmp(global_capture_opts.default_options.cfilter, new_cfilter) != 0) {
       gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(all_filter_cm), new_cfilter);
     }
   }
   if (global_capture_opts.default_options.cfilter && (strlen(global_capture_opts.default_options.cfilter) > 0)) {
+fprintf(stderr, "Adding the default filter \"%s\"???\n", global_capture_opts.default_options.cfilter);
     gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(all_filter_cm), global_capture_opts.default_options.cfilter);
     gtk_combo_box_set_active(GTK_COMBO_BOX(all_filter_cm), 0);
   }
@@ -5265,6 +5322,8 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   interface_options interface_opts;
   guint             i;
+  gboolean          filter_all;
+  gchar           * filter_str;
 
 #ifdef HAVE_AIRPCAP
   airpcap_if_active = airpcap_if_selected;
@@ -5318,15 +5377,40 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 
   if (capture_start(&global_capture_opts, &global_capture_session, main_window_update)) {
     /* The capture succeeded, which means the capture filters specified are
-       valid; add them to the recent capture filter lists for the interfaces. */
+       valid; add them to the recent capture filter lists for the interfaces.
+
+       If the same capture filter is used for all the selected interfaces,
+       add it to the global recent capture filter list as well. */
+    filter_all = TRUE;
+    filter_str = NULL;
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
       interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
       if (interface_opts.cfilter) {
         recent_add_cfilter(interface_opts.name, interface_opts.cfilter);
+        if (filter_str == NULL) {
+          /* First selected interface - save its capture filter. */
+          filter_str = g_strdup(interface_opts.cfilter);
+        } else {
+          /* Not the first selected interface; is its capture filter
+             the same as the one the other interfaces we've looked
+             at have? */
+          if (strcmp(interface_opts.cfilter, filter_str) != 0) {
+            /* No, so not all selected interfaces have the same capture
+               filter. */
+            if (filter_str != NULL) {
+              g_free(filter_str);
+            }
+            filter_str = NULL;
+            filter_all = FALSE;
+          }
+        }
       }
     }
-    if (global_capture_opts.default_options.cfilter) {
-      recent_add_cfilter(NULL, global_capture_opts.default_options.cfilter);
+    if (filter_str != NULL) {
+      if (filter_str[0] != '\0') {
+        recent_add_cfilter(NULL, filter_str);
+      }
+      g_free(filter_str);
     }
   }
 }
