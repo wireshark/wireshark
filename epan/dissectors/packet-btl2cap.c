@@ -218,6 +218,8 @@ static const value_string psm_vals[] = {
     { 0x0019, "AVDTP" },
     { 0x001B, "AVCTP-Browsing" },
     { 0x001D, "UDI_C-Plane" },
+    { 0x001F, "ATT" },
+    { 0x0021, "3DSP" },
     { 0, NULL }
 };
 value_string_ext ext_psm_vals = VALUE_STRING_EXT_INIT(psm_vals);
