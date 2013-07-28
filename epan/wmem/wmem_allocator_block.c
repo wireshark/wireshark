@@ -885,6 +885,7 @@ wmem_block_gc(void *private_data)
     wmem_block_allocator_t *allocator = (wmem_block_allocator_t*) private_data;
     GSList *tmp, *new_block_list = NULL;
     wmem_block_chunk_t *chunk;
+    wmem_block_free_t  *free_chunk;
 
     /* Walk through the blocks, adding used blocks to a new list and
      * completely destroying unused blocks. The newly built list is the new
@@ -897,10 +898,24 @@ wmem_block_gc(void *private_data)
         if (!chunk->used && chunk->last) {
             /* If the first chunk is also the last, and is unused, then
              * the block as a whole is entirely unused, so return it to
-             * the OS. If it is also the head of the master list then set that
-             * to NULL since all of its blocks are about to be removed. */
-            if (chunk == allocator->master_head) {
-                allocator->master_head = NULL;
+             * the OS and remove it from whatever lists it is in. */
+            free_chunk = WMEM_GET_FREE(chunk);
+            if (free_chunk->next) {
+                WMEM_GET_FREE(free_chunk->next)->prev = free_chunk->prev;
+            }
+            if (free_chunk->prev) {
+                WMEM_GET_FREE(free_chunk->prev)->next = free_chunk->next;
+            }
+            if (allocator->recycler_head == chunk) {
+                if (free_chunk->next == chunk) {
+                    allocator->recycler_head = NULL;
+                }
+                else {
+                    allocator->recycler_head = free_chunk->next;
+                }
+            }
+            else if (allocator->master_head == chunk) {
+                allocator->master_head = free_chunk->next;
             }
             g_free(chunk);
         }
@@ -916,13 +931,6 @@ wmem_block_gc(void *private_data)
     g_slist_free(allocator->block_list);
     /* and store the new list */
     allocator->block_list = new_block_list;
-
-    /* If master_head is still non-NULL then only the head element remains valid
-     * (all the others have been removed by now) so truncate the list to just
-     * one element. */
-    if (allocator->master_head) {
-        WMEM_GET_FREE(allocator->master_head)->next = NULL;
-    }
 }
 
 static void
