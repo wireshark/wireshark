@@ -2080,7 +2080,12 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     tap_info->sequenceNumber = (guint16)sn;
 
     /* Show SN in info column */
-    write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "            sn=%-4u", (guint16)sn);
+    if ((p_rlc_lte_info->channelType == CHANNEL_TYPE_MCCH) || (p_rlc_lte_info->channelType == CHANNEL_TYPE_MTCH)) {
+        write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "           sn=%-4u", (guint16)sn);
+    }
+    else {
+        write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "            sn=%-4u", (guint16)sn);
+    }
 
     proto_item_set_len(um_header_ti, offset-start_offset);
 
