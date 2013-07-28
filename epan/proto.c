@@ -5556,6 +5556,9 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 	const char        *format = NULL;
 	header_field_info *hfinfo = fi->hfinfo;
 	guint64            value;
+	/* long enough to hold "%s: " + whatever is returned from
+	 * hfinfo_int64_format or hfinfo_uint64_format */
+	char               full_format[32];
 
 	/* Pick the proper format string */
 	if (is_signed)
@@ -5571,11 +5574,11 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 
 		if (IS_BASE_DUAL(hfinfo->display)) {
 			g_snprintf(tmp, ITEM_LABEL_LENGTH,
-					format,  hfinfo->name, value, value);
+					format, value, value);
 		}
 		else {
 			g_snprintf(tmp, ITEM_LABEL_LENGTH,
-					format,  hfinfo->name, value);
+					format, value);
 		}
 
 
@@ -5586,13 +5589,17 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 			label_fill_descr(label_str, 0, hfinfo, val_str, tmp);
 		}
 	}
-	else if (IS_BASE_DUAL(hfinfo->display)) {
-		g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				format,  hfinfo->name, value, value);
-	}
 	else {
-		g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				format,  hfinfo->name, value);
+		g_strlcpy(full_format, "%s: ", sizeof(full_format));
+		g_strlcat(full_format, format, sizeof(full_format));
+		if (IS_BASE_DUAL(hfinfo->display)) {
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				   full_format, hfinfo->name, value, value);
+		}
+		else {
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				   full_format, hfinfo->name, value);
+		}
 	}
 }
 
@@ -5777,19 +5784,19 @@ hfinfo_uint64_format(const header_field_info *hfinfo)
 	/* Pick the proper format string */
 	switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
 		case BASE_DEC:
-			format = "%s: %" G_GINT64_MODIFIER "u";
+			format = "%" G_GINT64_MODIFIER "u";
 			break;
 		case BASE_DEC_HEX:
-			format = "%s: %" G_GINT64_MODIFIER "u (0x%016" G_GINT64_MODIFIER "x)";
+			format = "%" G_GINT64_MODIFIER "u (0x%016" G_GINT64_MODIFIER "x)";
 			break;
 		case BASE_OCT: /* I'm lazy */
-			format = "%s: %#" G_GINT64_MODIFIER "o";
+			format = "%#" G_GINT64_MODIFIER "o";
 			break;
 		case BASE_HEX:
-			format = "%s: 0x%016" G_GINT64_MODIFIER "x";
+			format = "0x%016" G_GINT64_MODIFIER "x";
 			break;
 		case BASE_HEX_DEC:
-			format = "%s: 0x%016" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "u)";
+			format = "0x%016" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "u)";
 			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
@@ -5806,19 +5813,19 @@ hfinfo_int64_format(const header_field_info *hfinfo)
 	/* Pick the proper format string */
 	switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
 		case BASE_DEC:
-			format = "%s: %" G_GINT64_MODIFIER "d";
+			format = "%" G_GINT64_MODIFIER "d";
 			break;
 		case BASE_DEC_HEX:
-			format = "%s: %" G_GINT64_MODIFIER "d (0x%016" G_GINT64_MODIFIER "x)";
+			format = "%" G_GINT64_MODIFIER "d (0x%016" G_GINT64_MODIFIER "x)";
 			break;
 		case BASE_OCT: /* I'm lazy */
-			format = "%s: %#" G_GINT64_MODIFIER "o";
+			format = "%#" G_GINT64_MODIFIER "o";
 			break;
 		case BASE_HEX:
-			format = "%s: 0x%016" G_GINT64_MODIFIER "x";
+			format = "0x%016" G_GINT64_MODIFIER "x";
 			break;
 		case BASE_HEX_DEC:
-			format = "%s: 0x%016" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)";
+			format = "0x%016" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)";
 			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
