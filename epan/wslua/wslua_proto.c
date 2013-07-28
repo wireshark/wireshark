@@ -549,6 +549,50 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
     return ret;
 }
 
+static val64_string* val64_string_from_table(lua_State* L, int idx) {
+    GArray* vs = g_array_new(TRUE,TRUE,sizeof(val64_string));
+    val64_string* ret;
+
+    if(lua_isnil(L,idx)) {
+        return NULL;
+    } else if (!lua_istable(L,idx)) {
+        luaL_argerror(L,idx,"must be a table");
+        g_array_free(vs,TRUE);
+        return NULL;
+    }
+
+    lua_pushnil(L);
+
+    while (lua_next(L, idx) != 0) {
+        val64_string v = {0,NULL};
+
+        if (! lua_isnumber(L,-2)) {
+            luaL_argerror(L,idx,"All keys of a table used as value string must be integers");
+            g_array_free(vs,TRUE);
+            return NULL;
+        }
+
+        if (! lua_isstring(L,-1)) {
+            luaL_argerror(L,idx,"All values of a table used as value string must be strings");
+            g_array_free(vs,TRUE);
+            return NULL;
+        }
+
+        v.value = (guint64)lua_tonumber(L, -2);
+        v.strptr = g_strdup(lua_tostring(L,-1));
+
+        g_array_append_val(vs,v);
+
+        lua_pop(L, 1);
+    }
+
+    ret = (val64_string*)vs->data;
+
+    g_array_free(vs,FALSE);
+
+    return ret;
+}
+
 static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
     GArray* tfs = g_array_new(TRUE,TRUE,sizeof(true_false_string));
     true_false_string* ret;
@@ -612,8 +656,9 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 #define WSLUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field.  */
 
     ProtoField f = (wslua_field_t *)g_malloc(sizeof(wslua_field_t));
-    value_string* vs = NULL;
-    true_false_string* tfs = NULL;
+    value_string *vs32 = NULL;
+    val64_string *vs64 = NULL;
+    true_false_string *tfs = NULL;
     const gchar *blob;
 
     /* will be using -2 as far as the field has not been added to an array then it will turn -1 */
@@ -646,14 +691,19 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
         if (f->type == FT_BOOLEAN) {
             tfs = true_false_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING);
         }
+        else if (f->type == FT_UINT64 || f->type == FT_INT64) {
+            vs64 = val64_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING);
+	}
         else {
-            vs = value_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING);
+            vs32 = value_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING);
         }
 
-        if (vs) {
-            f->vs = VALS(vs);
+        if (vs32) {
+            f->vs = VALS(vs32);
         } else if (tfs) {
             f->vs = TFS(tfs);
+        } else if (vs64) {
+            f->vs = VALS(vs64);
         } else {
             g_free(f->name);
             g_free(f->abbr);
@@ -667,6 +717,10 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 
     /* XXX: need BASE_ERROR */
     f->base = string_to_base(luaL_optstring(L, WSLUA_OPTARG_ProtoField_new_BASE, "BASE_NONE"));
+    if (vs64) {
+        /* Indicate that we are using val64_string */
+        f->base |= BASE_VAL64_STRING;
+    }
     f->mask = (guint32)luaL_optnumber(L, WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
     blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,NULL);
     if (blob && strcmp(blob, f->name) != 0) {
@@ -685,9 +739,18 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     unsigned base = luaL_optint(L, 3, BASE_DEC);
-    value_string* vs = (lua_gettop(L) > 3) ? value_string_from_table(L,4) : NULL;
+    value_string* vs32 = NULL;
+    val64_string* vs64 = NULL;
     guint32 mask = (guint32)luaL_optnumber(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
+
+    if (lua_gettop(L) > 3) {
+        if (type == FT_UINT64 || type == FT_INT64) {
+            vs64 = val64_string_from_table(L,4);
+        } else {
+            vs32 = value_string_from_table(L,4);
+        }
+    }
 
     if (type == FT_FRAMENUM) {
 	if (base != BASE_NONE)
@@ -698,9 +761,6 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
         luaL_argerror(L, 3, "Base must be either base.DEC, base.HEX, base.OCT,"
                       " base.DEC_HEX, base.DEC_HEX or base.HEX_DEC");
         return 0;
-    } else if (vs && (type == FT_INT64 || type == FT_UINT64)) {
-      luaL_argerror(L, 4, "This type does not support value string");
-      return 0;
     } else if ((base == BASE_HEX || base == BASE_OCT) &&
 	       (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64)) {
       luaL_argerror(L, 3, "This type does not display as hexadecimal");
@@ -724,8 +784,14 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     f->name = g_strdup(name);
     f->abbr = g_strdup(abbr);
     f->type = type;
-    f->vs = VALS(vs);
     f->base = base;
+    if (vs64) {
+        /* Indicate that we are using val64_string */
+        f->base |= BASE_VAL64_STRING;
+        f->vs = VALS(vs64);
+    } else {
+        f->vs = VALS(vs32);
+    }
     f->mask = mask;
     if (blob && strcmp(blob, f->name) != 0) {
         f->blob = g_strdup(blob);
@@ -779,7 +845,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
 /* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values (currently unsupported) */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values */
 /* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
 /* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
 /* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
@@ -824,7 +890,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
 /* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values (currently unsupported) */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values */
 /* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
 /* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
 /* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
