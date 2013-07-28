@@ -7673,7 +7673,7 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
             if(format==1) {
                 if(rel_id == 6){
                     dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree, NULL);
-                }else if(rel_id == 8){
+                }else if((rel_id == 8)||(rel_id == 9)){
                     dissect_gprscdr_GPRSRecord_PDU(next_tvb, pinfo, cdr_dr_tree, NULL);
                 }
             } else {

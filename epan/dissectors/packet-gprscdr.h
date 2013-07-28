@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-gprscdr.h                                                           */
-/* ../../tools/asn2wrs.py -b -p gprscdr -c ./gprscdr.cnf -s ./packet-gprscdr-template -D . -O ../../epan/dissectors GenericChargingDataTypesV8e0.asn GPRSChargingDataTypesV641.asn GPRSChargingDataTypesV8e0.asn */
+/* ../../tools/asn2wrs.py -b -p gprscdr -c ./gprscdr.cnf -s ./packet-gprscdr-template -D . -O ../../epan/dissectors GenericChargingDataTypesV9f0.asn GPRSChargingDataTypesV641.asn GPRSChargingDataTypesV9f0.asn */
 
 /* Input file: packet-gprscdr-template.h */
 
