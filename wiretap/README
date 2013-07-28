@@ -176,3 +176,9 @@ usually found on board ports).
 
 Gilbert Ramirez <gram@alumni.rice.edu>
 Guy Harris <guy@alum.mit.edu>
+
+STANAG 4607
+-----------
+Initial support for the STANAG 4607 protocol.  Documentation at:
+http://www.nato.int/structur/AC/224/standard/4607/4607.htm
+

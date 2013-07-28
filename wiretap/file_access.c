@@ -86,6 +86,7 @@
 #include "ipfix.h"
 #include "vwr.h"
 #include "camins.h"
+#include "stanag4607.h"
 #include "pcap-encap.h"
 
 /* The open_file_* routines should return:
@@ -147,6 +148,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	dct3trace_open,
 	daintree_sna_open,
 	mime_file_open,
+	stanag4607_open,
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that
@@ -822,7 +824,13 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_CAMINS */
 	{ "CAM Inspector file", "camins", "camins", NULL,
 	  FALSE, FALSE, 0,
+	  NULL, NULL },
+
+	/* WTAP_FILE_STANAG_4607 */
+	{ "STANAG 4607 Format", "stanag4607", NULL, NULL,
+	  FALSE, FALSE, 0,
 	  NULL, NULL }
+
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);

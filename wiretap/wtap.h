@@ -248,6 +248,7 @@ extern "C" {
 #define WTAP_ENCAP_RTAC_SERIAL                  154
 #define WTAP_ENCAP_BLUETOOTH_LE_LL              155
 #define WTAP_ENCAP_WIRESHARK_UPPER_PDU          156
+#define WTAP_ENCAP_STANAG_4607                  157
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
@@ -319,6 +320,7 @@ extern "C" {
 #define WTAP_FILE_VWR_80211                     62
 #define WTAP_FILE_VWR_ETH                       63
 #define WTAP_FILE_CAMINS                        64
+#define WTAP_FILE_STANAG_4607                   65
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 

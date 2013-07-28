@@ -69,6 +69,7 @@ set(CLEAN_FILES
 	pppdump.c
 	radcom.c
 	snoop.c
+	stanag4607.c
 	tnef.c
 	toshiba.c
 	visual.c

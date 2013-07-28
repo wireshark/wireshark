@@ -75,6 +75,7 @@ NONGENERATED_C_FILES = \
 	pppdump.c		\
 	radcom.c		\
 	snoop.c			\
+	stanag4607.c		\
 	tnef.c			\
 	toshiba.c		\
 	visual.c		\
@@ -133,6 +134,7 @@ NONGENERATED_HEADER_FILES = \
 	pppdump.h		\
 	radcom.h		\
 	snoop.h			\
+	stanag4607.h		\
 	tnef.h			\
 	toshiba.h		\
 	visual.h		\
