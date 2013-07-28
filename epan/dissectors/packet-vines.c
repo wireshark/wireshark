@@ -364,23 +364,23 @@ proto_register_vines_frp(void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_vines_frp_flags,
-	    { "Control Flags",		"vines_frp.flags",
-	      FT_UINT8,		BASE_HEX,	NULL,	0x0,
+	    { "Control Flags", "vines_frp.flags",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
 	      NULL, HFILL }},
 
 	  { &hf_vines_frp_flags_first_fragment,
-	    { "First fragment",		"vines_frp.flags.first_fragment",
-	      FT_BOOLEAN,	8,	NULL,	VINES_FRP_FIRST_FRAGMENT,
+	    { "First fragment", "vines_frp.flags.first_fragment",
+	      FT_BOOLEAN, 8, NULL, VINES_FRP_FIRST_FRAGMENT,
 	      NULL, HFILL }},
 
 	  { &hf_vines_frp_flags_last_fragment,
-	    { "Last fragment",		"vines_frp.flags.last_fragment",
-	      FT_BOOLEAN,	8,	NULL,	VINES_FRP_LAST_FRAGMENT,
+	    { "Last fragment", "vines_frp.flags.last_fragment",
+	      FT_BOOLEAN, 8, NULL, VINES_FRP_LAST_FRAGMENT,
 	      NULL, HFILL }},
 
 	  { &hf_vines_frp_sequence_number,
-	    { "Sequence Number",	"vines_frp.sequence_number",
-	      FT_UINT8,		BASE_HEX,	NULL,	0x0,
+	    { "Sequence Number", "vines_frp.sequence_number",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
 	      NULL, HFILL }},
 	};
 	static gint *ett[] = {
@@ -451,7 +451,10 @@ void
 proto_register_vines_llc(void)
 {
 	static hf_register_info hf[] = {
-      { &hf_vines_llc_packet_type, { "Packet Type", "vines_llc.packet_type", FT_UINT8, BASE_HEX, VALS(vines_llc_ptype_vals), 0x0, NULL, HFILL }},
+	  { &hf_vines_llc_packet_type,
+	    { "Packet Type", "vines_llc.packet_type",
+	      FT_UINT8, BASE_HEX, VALS(vines_llc_ptype_vals), 0x0,
+	      NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -603,56 +606,64 @@ proto_register_vines_ip(void)
 
 	static hf_register_info hf[] = {
 	  { &hf_vines_ip_protocol,
-	    { "Protocol",			"vines_ip.protocol",
-	      FT_UINT8,		BASE_HEX,	VALS(proto_vals),	0x0,
+	    { "Protocol", "vines_ip.protocol",
+	      FT_UINT8, BASE_HEX, VALS(proto_vals), 0x0,
 	      "Vines protocol", HFILL }},
 
 	  { &hf_vines_ip_checksum,
-	    { "Packet checksum",		"vines_ip.checksum",
-	      FT_UINT16,	BASE_HEX,	NULL,		0x0,
-	      NULL,		HFILL }},
+	    { "Packet checksum", "vines_ip.checksum",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
 
 	  { &hf_vines_ip_length,
-	    { "Packet length",			"vines_ip.length",
-	      FT_UINT16,	BASE_DEC,	NULL,		0x0,
-	      NULL,		HFILL }},
+	    { "Packet length", "vines_ip.length",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
 
 	  { &hf_vines_tctl,
-	    { "Transport control",		"vines_ip.tctl",
-	      FT_UINT8,	BASE_HEX,	NULL,		0x0,
-	      NULL,		HFILL }},
+	    { "Transport control", "vines_ip.tctl",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
 
 	  { &hf_vines_tctl_node,
-	    { "Nodes",		"vines_ip.tctl.node",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_tctl_router_all),		0x40,
-	      NULL,		HFILL }},
+	    { "Nodes", "vines_ip.tctl.node",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_tctl_router_all), 0x40,
+	      NULL, HFILL }},
 
 	  { &hf_vines_tctl_class,
-	    { "Reachable",		"vines_ip.tctl.class",
-	      FT_UINT8,	BASE_DEC,	VALS(class_vals),		0x30,
-	      NULL,		HFILL }},
+	    { "Reachable", "vines_ip.tctl.class",
+	      FT_UINT8, BASE_DEC, VALS(class_vals), 0x30,
+	      NULL, HFILL }},
 
 	  { &hf_vines_tctl_forward_router,
-	    { "Forwarding Router",		"vines_ip.tctl.forward_router",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_tctl_forward_router),		0x40,
-	      NULL,		HFILL }},
+	    { "Forwarding Router", "vines_ip.tctl.forward_router",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_tctl_forward_router), 0x40,
+	      NULL, HFILL }},
 
 	  { &hf_vines_tctl_metric,
-	    { "Metric notification packet",		"vines_ip.tctl.metric",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_tctl_return_not_return),		0x20,
-	      NULL,		HFILL }},
+	    { "Metric notification packet", "vines_ip.tctl.metric",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_tctl_return_not_return), 0x20,
+	      NULL, HFILL }},
 
 	  { &hf_vines_tctl_notif_packet,
-	    { "Exception notification packet",		"vines_ip.tctl.notif_packet",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_tctl_return_not_return),		0x10,
-	      NULL,		HFILL }},
+	    { "Exception notification packet", "vines_ip.tctl.notif_packet",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_tctl_return_not_return), 0x10,
+	      NULL, HFILL }},
 
 	  { &hf_vines_tctl_hop_count,
-	    { "Hop count remaining",		"vines_ip.tctl.hop_count",
-	      FT_UINT8,	BASE_DEC,	NULL,		0x0F,
-	      NULL,		HFILL }},
-      { &hf_vines_ip_destination, { "Destination", "vines_ip.destination", FT_VINES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_ip_source, { "Source", "vines_ip.source", FT_VINES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	    { "Hop count remaining", "vines_ip.tctl.hop_count",
+	      FT_UINT8, BASE_DEC, NULL, 0x0F,
+	      NULL, HFILL }},
+
+	  { &hf_vines_ip_destination,
+	     { "Destination", "vines_ip.destination",
+	       FT_VINES, BASE_NONE, NULL, 0x0,
+	       NULL, HFILL }},
+
+	  { &hf_vines_ip_source,
+	     { "Source", "vines_ip.source",
+	       FT_VINES, BASE_NONE, NULL, 0x0,
+	       NULL, HFILL }},
 	};
 
 	proto_vines_ip = proto_register_protocol("Banyan Vines IP", "Vines IP",
@@ -870,51 +881,74 @@ proto_register_vines_ipc(void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_vines_ipc_src_port,
-	    { "Source port",			"vines_ipc.src_port",
-	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	    { "Source port", "vines_ipc.src_port",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
 	      NULL, HFILL }},
 
 	  { &hf_vines_ipc_dest_port,
-	    { "Destination port",			"vines_ipc.dest_port",
-	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	    { "Destination port", "vines_ipc.dest_port",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
 	      NULL, HFILL }},
 
 	  { &hf_vines_ipc_packet_type,
-	    { "Packet type",		"vines_ipc.packet_type",
-	      FT_UINT8,	BASE_HEX,	VALS(pkttype_vals),		0x0,
-	      NULL,		HFILL }},
+	    { "Packet type", "vines_ipc.packet_type",
+	      FT_UINT8, BASE_HEX, VALS(pkttype_vals), 0x0,
+	      NULL, HFILL }},
 
 	  { &hf_vines_ipc_control,
-	    { "Control",		"vines_ipc.control",
-	      FT_UINT8,	BASE_HEX,	VALS(pkttype_vals),		0x0,
-	      NULL,		HFILL }},
+	    { "Control", "vines_ipc.control",
+	      FT_UINT8, BASE_HEX, VALS(pkttype_vals), 0x0,
+	      NULL, HFILL }},
 
 	  { &hf_vines_ipc_control_ack,
-	    { "Immediate acknowledgment",	"vines_ipc.control.ack",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_ipc_send_not_send),	0x80,
-	      NULL,		HFILL }},
+	    { "Immediate acknowledgment", "vines_ipc.control.ack",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_ipc_send_not_send), 0x80,
+	      NULL, HFILL }},
 
 	  { &hf_vines_ipc_control_end_msg,
-	    { "End of message",		"vines_ipc.control.end_msg",
-	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x40,
-	      NULL,		HFILL }},
+	    { "End of message", "vines_ipc.control.end_msg",
+	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+	      NULL, HFILL }},
 
 	  { &hf_vines_ipc_control_beg_msg,
-	    { "Beginning of message",	"vines_ipc.control.beg_msg",
-	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x20,
-	      NULL,		HFILL }},
+	    { "Beginning of message", "vines_ipc.control.beg_msg",
+	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+	      NULL, HFILL }},
 
 	  { &hf_vines_ipc_control_abort_msg,
-	    { "Current message",		"vines_ipc.control.abort_msg",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_ipc_abort_not_abort),		0x10,
-	      NULL,		HFILL }},
+	    { "Current message", "vines_ipc.control.abort_msg",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_ipc_abort_not_abort), 0x10,
+	      NULL, HFILL }},
 
-      { &hf_vines_ipc_local_connection_id, { "Local Connection ID", "vines_ipc.local_connection_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_ipc_remote_connection_id, { "Remote Connection ID", "vines_ipc.remote_connection_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_ipc_sequence_number, { "Sequence number", "vines_ipc.sequence_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_ipc_ack_number, { "Ack number", "vines_ipc.ack_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_ipc_error, { "Error", "vines_ipc.error", FT_UINT16, BASE_DEC, VALS(vipc_err_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_ipc_length, { "Length", "vines_ipc.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	  { &hf_vines_ipc_local_connection_id,
+	    { "Local Connection ID", "vines_ipc.local_connection_id",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_ipc_remote_connection_id,
+	    { "Remote Connection ID", "vines_ipc.remote_connection_id",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_ipc_sequence_number,
+	    { "Sequence number", "vines_ipc.sequence_number",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_ipc_ack_number,
+	    { "Ack number", "vines_ipc.ack_number",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_ipc_error,
+	    { "Error", "vines_ipc.error",
+	      FT_UINT16, BASE_DEC, VALS(vipc_err_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_ipc_length,
+	    { "Length", "vines_ipc.length",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -1018,68 +1052,68 @@ proto_register_vines_spp(void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_vines_spp_src_port,
-	    { "Source port",			"vines_spp.src_port",
-	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	    { "Source port", "vines_spp.src_port",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
 	      NULL, HFILL }},
 
 	  { &hf_vines_spp_dest_port,
-	    { "Destination port",			"vines_spp.dest_port",
-	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	    { "Destination port", "vines_spp.dest_port",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
 	      NULL, HFILL }},
 
 	  { &hf_vines_spp_packet_type,
-	    { "Packet type",		"vines_spp.packet_type",
-	      FT_UINT8,	BASE_HEX,	VALS(pkttype_vals),		0x0,
-	      NULL,		HFILL }},
+	    { "Packet type", "vines_spp.packet_type",
+	      FT_UINT8, BASE_HEX, VALS(pkttype_vals), 0x0,
+	      NULL, HFILL }},
 
 	  { &hf_vines_spp_control,
-	    { "Control",		"vines_spp.control",
-	      FT_UINT8,	BASE_HEX,	NULL,		0x0,
-	      NULL,		HFILL }},
+	    { "Control", "vines_spp.control",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
 
 	  { &hf_vines_spp_control_ack,
-	    { "Immediate acknowledgment",	"vines_spp.control.ack",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_ipc_send_not_send),	0x80,
-	      NULL,		HFILL }},
+	    { "Immediate acknowledgment", "vines_spp.control.ack",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_ipc_send_not_send), 0x80,
+	      NULL, HFILL }},
 
 	  { &hf_vines_spp_control_end_msg,
-	    { "End of message",		"vines_spp.control.end_msg",
-	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x40,
-	      NULL,		HFILL }},
+	    { "End of message", "vines_spp.control.end_msg",
+	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+	      NULL, HFILL }},
 
 	  { &hf_vines_spp_control_beg_msg,
-	    { "Beginning of message",	"vines_spp.control.beg_msg",
-	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x20,
-	      NULL,		HFILL }},
+	    { "Beginning of message", "vines_spp.control.beg_msg",
+	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
+	      NULL, HFILL }},
 
 	  { &hf_vines_spp_control_abort_msg,
-	    { "Current message",		"vines_spp.control.abort_msg",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_ipc_abort_not_abort),		0x10,
-	      NULL,		HFILL }},
+	    { "Current message", "vines_spp.control.abort_msg",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_ipc_abort_not_abort), 0x10,
+	      NULL, HFILL }},
 
 	  { &hf_vines_spp_local_id,
-	    { "Local Connection ID",			"vines_spp.local_id",
-	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	    { "Local Connection ID", "vines_spp.local_id",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
 	      NULL, HFILL }},
 
 	  { &hf_vines_spp_remote_id,
-	    { "Remote Connection ID",			"vines_spp.remote_id",
-	      FT_UINT16,		BASE_HEX,	NULL,	0x0,
+	    { "Remote Connection ID", "vines_spp.remote_id",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
 	      NULL, HFILL }},
 
 	  { &hf_vines_spp_seq_num,
-	    { "Sequence number",			"vines_spp.seq_num",
-	      FT_UINT16,		BASE_DEC,	NULL,	0x0,
+	    { "Sequence number", "vines_spp.seq_num",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      NULL, HFILL }},
 
 	  { &hf_vines_spp_ack_num,
-	    { "Ack number",			"vines_spp.ack_num",
-	      FT_UINT16,		BASE_DEC,	NULL,	0x0,
+	    { "Ack number", "vines_spp.ack_num",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      NULL, HFILL }},
 
 	  { &hf_vines_spp_window,
-	    { "Window",			"vines_spp.window",
-	      FT_UINT16,		BASE_DEC,	NULL,	0x0,
+	    { "Window", "vines_spp.window",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      NULL, HFILL }}
 	};
 
@@ -1195,11 +1229,30 @@ void
 proto_register_vines_arp(void)
 {
 	static hf_register_info hf[] = {
-      { &hf_vines_arp_version, { "Version", "vines_arp.version", FT_UINT8, BASE_HEX, VALS(vines_version_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_arp_packet_type, { "Packet Type", "vines_arp.packet_type", FT_UINT8, BASE_HEX, VALS(vines_arp_packet_type_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_arp_address, { "Address", "vines_arp.address", FT_VINES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_arp_sequence_number, { "Sequence Number", "vines_arp.sequence_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_arp_interface_metric, { "Interface Metric", "vines_arp.interface_metric", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	  { &hf_vines_arp_version,
+	    { "Version", "vines_arp.version",
+	      FT_UINT8, BASE_HEX, VALS(vines_version_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_arp_packet_type,
+	    { "Packet Type", "vines_arp.packet_type",
+	      FT_UINT8, BASE_HEX, VALS(vines_arp_packet_type_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_arp_address,
+	    { "Address", "vines_arp.address",
+	      FT_VINES, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_arp_sequence_number,
+	    { "Sequence Number", "vines_arp.sequence_number",
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_arp_interface_metric,
+	    { "Interface Metric", "vines_arp.interface_metric",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -1344,14 +1397,9 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *vines_rtp_tree = NULL;
 	proto_item *ti;
 	proto_tree *subtree;
-	guint16  version;
 	guint8   operation_type;
-	guint8   node_type;
-	guint8   controller_type;
 	guint8   link_addr_length;
 	guint8   source_route_length;
-	guint8   requested_info;
-	guint8   info_type;
 	guint16  metric;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines RTP");
@@ -1372,10 +1420,8 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) {
 			proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_operation_type, tvb, offset, 1, ENC_NA);
 			offset += 1;
-			node_type = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_node_type, tvb, offset, 1, ENC_NA);
 			offset += 1;
-			controller_type = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_controller_type, tvb, offset, 1, ENC_NA);
 			offset += 1;
 			rtp_show_machine_type(vines_rtp_tree, tvb, offset, hf_vines_rtp_machine_type);
@@ -1420,7 +1466,6 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	} else {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SRTP");
-		version = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		operation_type = tvb_get_guint8(tvb, offset);
@@ -1431,7 +1476,6 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) {
 			proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_operation_type, tvb, offset, 1, ENC_NA);
 			offset += 1;
-			node_type = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_node_type, tvb, offset, 1, ENC_NA);
 			offset += 1;
 			ti = proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_comp_flag,
@@ -1446,12 +1490,10 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			switch (operation_type) {
 
 			case VRTP_OP_REQUEST:
-				requested_info = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_requested_info, tvb, offset, 1, ENC_NA);
 				break;
 
 			case VRTP_OP_UPDATE_RESPONSE:
-				info_type = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_information_type, tvb, offset, 1, ENC_NA);
 				offset += 1;
 				ti = proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_control, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1513,7 +1555,6 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    "%u ticks (%g seconds)",
 						    metric, metric*.2);
 				offset += 2;
-				node_type = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_destination_node_type, tvb, offset, 1, ENC_NA);
 				offset += 1;
 				rtp_show_flags(vines_rtp_tree, tvb, offset, hf_vines_rtp_destination_flags);
@@ -1528,7 +1569,6 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    "%u ticks (%g seconds)",
 						    metric, metric*.2);
 				offset += 2;
-				node_type = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_preferred_gateway_node_type, tvb, offset, 1, ENC_NA);
 				offset += 1;
 				rtp_show_flags(vines_rtp_tree, tvb, offset, hf_vines_rtp_preferred_gateway_flags);
@@ -1551,123 +1591,259 @@ proto_register_vines_rtp(void)
 {
 	static hf_register_info hf[] = {
 	  { &hf_vines_rtp_comp_flag,
-	    { "Compatibility Flags",		"vines_rtp.comp_flag",
-	      FT_UINT8,	BASE_HEX,	NULL,		0x0,
-	      NULL,		HFILL }},
+	    { "Compatibility Flags", "vines_rtp.comp_flag",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_comp_flag_neighbor_router,
-	    { "non-Vines-reachable neighbor router",	"vines_rtp.comp_flag.neighbor_router",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_auto_config_not_auto_config),	0x04,
-	      NULL,		HFILL }},
+	    { "non-Vines-reachable neighbor router", "vines_rtp.comp_flag.neighbor_router",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_auto_config_not_auto_config), 0x04,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_comp_flag_sequence_rtp,
-	    { "Sequenced RTP",		"vines_rtp.comp_flag.sequence_rtp",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_rtp_not_all_neighbor_all_neighbor),		0x02,
-	      NULL,		HFILL }},
+	    { "Sequenced RTP", "vines_rtp.comp_flag.sequence_rtp",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_rtp_not_all_neighbor_all_neighbor), 0x02,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_comp_flag_sequence_rtp_version,
-	    { "RTP version mismatch",	"vines_rtp.comp_flag.rtp_version",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_rtp_sequenced_not_sequenced),		0x01,
-	      NULL,		HFILL }},
+	    { "RTP version mismatch", "vines_rtp.comp_flag.rtp_version",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_rtp_sequenced_not_sequenced), 0x01,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_control,
-	    { "Control Flags",		"vines_rtp.control",
-	      FT_UINT8,	BASE_HEX,	NULL,		0x0,
-	      NULL,		HFILL }},
+	    { "Control Flags", "vines_rtp.control",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_control_sync_broadcast,
-	    { "Routing table synchronization broadcast",	"vines_rtp.control.sync_broadcast",
-	      FT_BOOLEAN,	8,	TFS(&tfs_part_not_part),	0x10,
-	      NULL,		HFILL }},
+	    { "Routing table synchronization broadcast", "vines_rtp.control.sync_broadcast",
+	      FT_BOOLEAN, 8, TFS(&tfs_part_not_part), 0x10,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_control_topology_update,
-	    { "Full topology update",		"vines_rtp.control.topology_update",
-	      FT_BOOLEAN,	8,	TFS(&tfs_part_not_part),		0x08,
-	      NULL,		HFILL }},
+	    { "Full topology update", "vines_rtp.control.topology_update",
+	      FT_BOOLEAN, 8, TFS(&tfs_part_not_part), 0x08,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_control_specific_request,
-	    { "Contains info specifically requested",	"vines_rtp.control.specific_request",
-	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x04,
-	      NULL,		HFILL }},
+	    { "Contains info specifically requested", "vines_rtp.control.specific_request",
+	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_control_end_msg,
-	    { "End of message",		"vines_rtp.control.end_msg",
-	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x02,
-	      NULL,		HFILL }},
+	    { "End of message", "vines_rtp.control.end_msg",
+	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_control_beg_msg,
-	    { "Beginning of message",	"vines_rtp.control.beg_msg",
-	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x01,
-	      NULL,		HFILL }},
+	    { "Beginning of message", "vines_rtp.control.beg_msg",
+	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_machine_rtp,
-	    { "Sequenced RTP",	"vines_rtp.machine.rtp",
-	      FT_BOOLEAN,	8,	TFS(&tfs_supported_not_supported),		0x04,
-	      NULL,		HFILL }},
+	    { "Sequenced RTP", "vines_rtp.machine.rtp",
+	      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_machine_tcpip,
-	    { "TCP/IP",		"vines_rtp.machine.tcpip",
-	      FT_BOOLEAN,	8,	TFS(&tfs_supported_not_supported),		0x02,
-	      NULL,		HFILL }},
+	    { "TCP/IP", "vines_rtp.machine.tcpip",
+	      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_machine_bus,
-	    { "Bus",	"vines_rtp.machine.bus",
-	      FT_BOOLEAN,	8,	TFS(&tfs_fast_bus_slow_bus),		0x01,
-	      NULL,		HFILL }},
+	    { "Bus", "vines_rtp.machine.bus",
+	      FT_BOOLEAN, 8, TFS(&tfs_fast_bus_slow_bus), 0x01,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_flag_sequence_rtp,
-	    { "Network supports Sequenced RTP",	"vines_rtp.flag.sequence_rtp",
-	      FT_BOOLEAN,	8,	TFS(&tfs_vine_rtp_no_yes),		0x08,
-	      NULL,		HFILL }},
+	    { "Network supports Sequenced RTP", "vines_rtp.flag.sequence_rtp",
+	      FT_BOOLEAN, 8, TFS(&tfs_vine_rtp_no_yes), 0x08,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_flag_network_p2p,
-	    { "Network accessed point-to-point on non-Vines network",	"vines_rtp.flag.network_p2p",
-	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x04,
-	      NULL,		HFILL }},
+	    { "Network accessed point-to-point on non-Vines network", "vines_rtp.flag.network_p2p",
+	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_flag_data_link_p2p,
-	    { "Data link to network uses point-to-point connection",		"vines_rtp.flag.data_link_p2p",
-	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x02,
-	      NULL,		HFILL }},
+	    { "Data link to network uses point-to-point connection", "vines_rtp.flag.data_link_p2p",
+	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+	      NULL, HFILL }},
 
 	  { &hf_vines_rtp_flag_broadcast_medium,
-	    { "Network accessed across broadcast medium",	"vines_rtp.flag.broadcast_medium",
-	      FT_BOOLEAN,	8,	TFS(&tfs_yes_no),		0x01,
-	      NULL,		HFILL }},
-      { &hf_vines_rtp_operation_type, { "Operation Type", "vines_rtp.operation_type", FT_UINT8, BASE_HEX, VALS(vines_rtp_operation_type_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_node_type, { "Node Type", "vines_rtp.node_type", FT_UINT8, BASE_HEX, VALS(vines_rtp_node_type_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_controller_type, { "Controller Type", "vines_rtp.controller_type", FT_UINT8, BASE_HEX, VALS(vines_rtp_controller_type_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_version, { "Version", "vines_rtp.version", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_link_address_length, { "Link Address Length", "vines_rtp.link_address_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_source_route_length, { "Source Route Length", "vines_rtp.source_route_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_network_number, { "Network Number", "vines_rtp.network_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_neighbor_metric, { "Neighbor Metric", "vines_rtp.neighbor_metric", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_requested_info, { "Requested Info", "vines_rtp.requested_info", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_information_type, { "Information Type", "vines_rtp.information_type", FT_UINT8, BASE_HEX, VALS(vines_rtp_info_type_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_packet_id, { "Packet ID", "vines_rtp.packet_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_data_offset, { "Data Offset", "vines_rtp.data_offset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_router_sequence_number, { "Router Sequence Number", "vines_rtp.router_sequence_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_metric, { "Metric", "vines_rtp.metric", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_sequence_number, { "Sequence Number", "vines_rtp.sequence_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_destination, { "Destination", "vines_rtp.destination", FT_VINES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_metric_to_destination, { "Metric to Destination", "vines_rtp.metric_to_destination", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_destination_node_type, { "Destination Node Type", "vines_rtp.destination_node_type", FT_UINT8, BASE_HEX, VALS(vines_rtp_node_type_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_destination_sequence_number, { "Destination Sequence Number", "vines_rtp.destination_sequence_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_preferred_gateway, { "Preferred Gateway", "vines_rtp.preferred_gateway", FT_VINES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_metric_to_preferred_gateway, { "Metric to Preferred Gateway", "vines_rtp.metric_to_preferred_gateway", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_preferred_gateway_node_type, { "Preferred Gateway Node Type", "vines_rtp.preferred_gateway_node_type", FT_UINT8, BASE_HEX, VALS(vines_rtp_node_type_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_preferred_gateway_sequence_number, { "Preferred Gateway Sequence Number", "vines_rtp.preferred_gateway_sequence_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_machine_type, { "Machine Type", "vines_rtp.machine_type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_destination_machine, { "Destination Machine Type", "vines_rtp.destination_machine_type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_pref_gateway_machine, { "Preferred Gateway Machine Type", "vines_rtp.preferred_gateway_machine_type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_destination_controller_type, { "Destination Controller Type", "vines_rtp.destination_controller_type", FT_UINT8, BASE_HEX, VALS(vines_rtp_controller_type_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_pref_gateway_controller_type, { "Preferred Gateway Controller Type", "vines_rtp.preferred_gateway_controller_type", FT_UINT8, BASE_HEX, VALS(vines_rtp_controller_type_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_network_flags, { "Network Flags", "vines_rtp.network_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_destination_flags, { "Destination Flags", "vines_rtp.destination_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_preferred_gateway_flags, { "Preferred Gateway Flags", "vines_rtp.preferred_gateway_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_preferred_gateway_data_link_address_ether, { "Preferred Gateway Data Link Address", "vines_rtp.preferred_gateway_data_link_address", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_preferred_gateway_data_link_address_bytes, { "Preferred Gateway Data Link Address", "vines_rtp.preferred_gateway_data_link_address", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_vines_rtp_preferred_gateway_source_route, { "Preferred Gateway Source Route", "vines_rtp.preferred_gateway_source_route", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	    { "Network accessed across broadcast medium", "vines_rtp.flag.broadcast_medium",
+	      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_operation_type,
+	    { "Operation Type", "vines_rtp.operation_type",
+	      FT_UINT8, BASE_HEX, VALS(vines_rtp_operation_type_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_node_type,
+	    { "Node Type", "vines_rtp.node_type",
+	      FT_UINT8, BASE_HEX, VALS(vines_rtp_node_type_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_controller_type,
+	    { "Controller Type", "vines_rtp.controller_type",
+	      FT_UINT8, BASE_HEX, VALS(vines_rtp_controller_type_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_version,
+	    { "Version", "vines_rtp.version",
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_link_address_length,
+	    { "Link Address Length", "vines_rtp.link_address_length",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_source_route_length,
+	    { "Source Route Length", "vines_rtp.source_route_length",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_network_number,
+	    { "Network Number", "vines_rtp.network_number",
+	      FT_UINT32, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_neighbor_metric,
+	    { "Neighbor Metric", "vines_rtp.neighbor_metric",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_requested_info,
+	    { "Requested Info", "vines_rtp.requested_info",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_information_type,
+	    { "Information Type", "vines_rtp.information_type",
+	      FT_UINT8, BASE_HEX, VALS(vines_rtp_info_type_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_packet_id,
+	    { "Packet ID", "vines_rtp.packet_id",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_data_offset,
+	    { "Data Offset", "vines_rtp.data_offset",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_router_sequence_number,
+	    { "Router Sequence Number", "vines_rtp.router_sequence_number",
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_metric,
+	    { "Metric", "vines_rtp.metric",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_sequence_number,
+	    { "Sequence Number", "vines_rtp.sequence_number",
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_destination,
+	    { "Destination", "vines_rtp.destination",
+	      FT_VINES, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_metric_to_destination,
+	    { "Metric to Destination", "vines_rtp.metric_to_destination",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_destination_node_type,
+	    { "Destination Node Type", "vines_rtp.destination_node_type",
+	      FT_UINT8, BASE_HEX, VALS(vines_rtp_node_type_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_destination_sequence_number,
+	    { "Destination Sequence Number", "vines_rtp.destination_sequence_number",
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_preferred_gateway,
+	    { "Preferred Gateway", "vines_rtp.preferred_gateway",
+	      FT_VINES, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_metric_to_preferred_gateway,
+	    { "Metric to Preferred Gateway", "vines_rtp.metric_to_preferred_gateway",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_preferred_gateway_node_type,
+	    { "Preferred Gateway Node Type", "vines_rtp.preferred_gateway_node_type",
+	      FT_UINT8, BASE_HEX, VALS(vines_rtp_node_type_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_preferred_gateway_sequence_number,
+	    { "Preferred Gateway Sequence Number", "vines_rtp.preferred_gateway_sequence_number",
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_machine_type,
+	    { "Machine Type", "vines_rtp.machine_type",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_destination_machine,
+	    { "Destination Machine Type", "vines_rtp.destination_machine_type",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_pref_gateway_machine,
+	    { "Preferred Gateway Machine Type", "vines_rtp.preferred_gateway_machine_type",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_destination_controller_type,
+	    { "Destination Controller Type", "vines_rtp.destination_controller_type",
+	      FT_UINT8, BASE_HEX, VALS(vines_rtp_controller_type_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_pref_gateway_controller_type,
+	    { "Preferred Gateway Controller Type", "vines_rtp.preferred_gateway_controller_type",
+	      FT_UINT8, BASE_HEX, VALS(vines_rtp_controller_type_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_network_flags,
+	    { "Network Flags", "vines_rtp.network_flags",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_destination_flags,
+	    { "Destination Flags", "vines_rtp.destination_flags",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_preferred_gateway_flags,
+	    { "Preferred Gateway Flags", "vines_rtp.preferred_gateway_flags",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_preferred_gateway_data_link_address_ether,
+	    { "Preferred Gateway Data Link Address", "vines_rtp.preferred_gateway_data_link_address",
+	      FT_ETHER, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_preferred_gateway_data_link_address_bytes,
+	    { "Preferred Gateway Data Link Address", "vines_rtp.preferred_gateway_data_link_address",
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_rtp_preferred_gateway_source_route,
+	    { "Preferred Gateway Source Route", "vines_rtp.preferred_gateway_source_route",
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -1769,9 +1945,20 @@ void
 proto_register_vines_icp(void)
 {
 	static hf_register_info hf[] = {
-      { &hf_vines_icp_packet_type, { "Packet Type", "vines_icp.packet_type", FT_UINT16, BASE_HEX, VALS(vines_icp_packet_type_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_icp_exception_code, { "Exception Code", "vines_icp.exception_code", FT_UINT16, BASE_DEC, VALS(vipc_err_vals), 0x0, NULL, HFILL }},
-      { &hf_vines_icp_metric, { "Metric", "vines_icp.metric", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	  { &hf_vines_icp_packet_type,
+	    { "Packet Type", "vines_icp.packet_type",
+	      FT_UINT16, BASE_HEX, VALS(vines_icp_packet_type_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_icp_exception_code,
+	    { "Exception Code", "vines_icp.exception_code",
+	      FT_UINT16, BASE_DEC, VALS(vipc_err_vals), 0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_icp_metric,
+	    { "Metric", "vines_icp.metric",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -1780,6 +1967,7 @@ proto_register_vines_icp(void)
 
 	proto_vines_icp = proto_register_protocol(
 	    "Banyan Vines ICP", "Vines ICP", "vines_icp");
+	proto_register_field_array(proto_vines_icp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
