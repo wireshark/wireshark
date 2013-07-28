@@ -154,9 +154,14 @@ wsutil/abi-descriptor.xml
 *.manifest
 *.pdb
 *.rc
+!adns_dll.rc
+!image/file_dlg_win32.rc
 *.res
 *.manifest
+_libs_check_
 /wireshark-gtk*
+doc/ws.css
+ui/qt/config.pri
 
 # Misc #
 ########
