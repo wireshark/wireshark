@@ -523,7 +523,7 @@ text2pcap.obj mergecap.obj capinfos.obj editcap.obj reordercap.obj version_info.
 clean-local:
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
 		$(EXECUTABLES) *.pdb *.sbr *.exe.manifest \
-		capinfos.obj capinfos.exp editcap.obj editcap.exp \
+		capinfos.obj capinfos.exp capinfos.lib editcap.obj editcap.exp editcap.lib \
 		mergecap.obj text2pcap.obj \
 		reordercap.obj nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c \
