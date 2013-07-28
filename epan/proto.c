@@ -5556,9 +5556,7 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 	const char        *format = NULL;
 	header_field_info *hfinfo = fi->hfinfo;
 	guint64            value;
-	/* long enough to hold "%s: " + whatever is returned from
-	 * hfinfo_int64_format or hfinfo_uint64_format */
-	char               full_format[32];
+	char               tmp[ITEM_LABEL_LENGTH+1];
 
 	/* Pick the proper format string */
 	if (is_signed)
@@ -5568,19 +5566,14 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 
 	value = fvalue_get_integer64(&fi->value);
 
+	/* Format the temporary string */
+	if (IS_BASE_DUAL(hfinfo->display))
+		g_snprintf(tmp, ITEM_LABEL_LENGTH, format, value, value);
+	else
+		g_snprintf(tmp, ITEM_LABEL_LENGTH, format, value);
+
 	if (hfinfo->strings) {
 		const char *val_str = hf_try_val64_to_str_const(value, hfinfo, "Unknown");
-		char        tmp[ITEM_LABEL_LENGTH+1];
-
-		if (IS_BASE_DUAL(hfinfo->display)) {
-			g_snprintf(tmp, ITEM_LABEL_LENGTH,
-					format, value, value);
-		}
-		else {
-			g_snprintf(tmp, ITEM_LABEL_LENGTH,
-					format, value);
-		}
-
 
 		if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
 			label_fill(label_str, 0, hfinfo, val_str);
@@ -5590,16 +5583,7 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 		}
 	}
 	else {
-		g_strlcpy(full_format, "%s: ", sizeof(full_format));
-		g_strlcat(full_format, format, sizeof(full_format));
-		if (IS_BASE_DUAL(hfinfo->display)) {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   full_format, hfinfo->name, value, value);
-		}
-		else {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   full_format, hfinfo->name, value);
-		}
+		label_fill(label_str, 0, hfinfo, tmp);
 	}
 }
 
