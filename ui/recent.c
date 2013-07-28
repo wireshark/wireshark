@@ -334,9 +334,10 @@ recent_add_cfilter(const gchar *ifname, const gchar *s)
     cfilter_list = recent_cfilter_list;
   else {
     /* If we don't yet have a hash table for per-interface recent
-       capture filter lists, create one. */
+       capture filter lists, create one.  Have it free the new key
+       if we're updating an entry rather than creating it below. */
     if (per_interface_cfilter_lists_hash == NULL)
-      per_interface_cfilter_lists_hash = g_hash_table_new(g_str_hash, g_str_equal);
+      per_interface_cfilter_lists_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
     cfilter_list = (GList *)g_hash_table_lookup(per_interface_cfilter_lists_hash, ifname);
   }
 
