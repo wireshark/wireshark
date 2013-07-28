@@ -40,10 +40,12 @@ the same way B<reordercap> handles this.
 When the B<-n> option is used, B<reordercap> will not write out the output
 file if it finds that the input file is already in order.
 
+=back
+
 =head1 SEE ALSO
 
 pcap(3), wireshark(1), tshark(1), dumpcap(1), editcap(1), mergecap(1),
-text2pcap(1), pcap-filter(7) or tcpdump(8) if it doesn't exist.
+text2pcap(1), pcap-filter(7) or tcpdump(8)
 
 =head1 NOTES
 

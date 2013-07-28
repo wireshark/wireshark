@@ -223,7 +223,7 @@ Example: I<-u1000,69> to make the packets look like TFTP/UDP packets.
 =head1 SEE ALSO
 
 od(1), pcap(3), wireshark(1), tshark(1), dumpcap(1), mergecap(1),
-editcap(1), strptime(3), pcap-filter(7) or tcpdump(8) if it doesn't exist.
+editcap(1), strptime(3), pcap-filter(7) or tcpdump(8)
 
 =head1 NOTES
 
