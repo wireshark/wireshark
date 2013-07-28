@@ -149,6 +149,13 @@ ax25_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 }
 
 static void
+vines_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+{
+	g_assert(!already_copied);
+	common_fvalue_set(fv, (guint8 *)value, FT_VINES_ADDR_LEN);
+}
+
+static void
 ether_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(!already_copied);
@@ -269,6 +276,35 @@ ax25_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc 
 	 *	http://www.itu.int/ITU-R/terrestrial/docs/fixedmobile/fxm-art19-sec3.pdf
 	 */
 	logfunc("\"%s\" is not a valid AX.25 address.", s);
+	return FALSE;
+}
+
+static gboolean
+vines_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+{
+	/*
+	 * Don't log a message if this fails; we'll try looking it
+	 * up as another way if it does, and if that fails,
+	 * we'll log a message.
+	 */
+	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+		if (fv->value.bytes->len > FT_VINES_ADDR_LEN) {
+			logfunc("\"%s\" contains too many bytes to be a valid Vines address.",
+			    s);
+			return FALSE;
+		}
+		else if (fv->value.bytes->len < FT_VINES_ADDR_LEN && !allow_partial_value) {
+			logfunc("\"%s\" contains too few bytes to be a valid Vines address.",
+			    s);
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+
+	/* XXX - need better validation of Vines address */
+
+	logfunc("\"%s\" is not a valid Vines address.", s);
 	return FALSE;
 }
 
@@ -661,6 +697,44 @@ ftype_register_bytes(void)
 		slice,
 	};
 
+	static ftype_t vines_type = {
+		FT_VINES,			/* ftype */
+		"FT_VINES",			/* name */
+		"VINES address",		/* pretty_name */
+		FT_VINES_ADDR_LEN,		/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		vines_from_unparsed,	/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		bytes_to_repr,			/* val_to_string_repr */
+		bytes_repr_len,			/* len_string_repr */
+
+		vines_fvalue_set,		/* set_value */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
+
+		value_get,			/* get_value */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
+		cmp_bitwise_and,
+		cmp_contains,
+		CMP_MATCHES,
+
+		len,
+		slice,
+	};
+
 	static ftype_t ether_type = {
 		FT_ETHER,			/* ftype */
 		"FT_ETHER",			/* name */
@@ -740,6 +814,7 @@ ftype_register_bytes(void)
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_AX25, &ax25_type);
+	ftype_register(FT_VINES, &vines_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_OID, &oid_type);
 }

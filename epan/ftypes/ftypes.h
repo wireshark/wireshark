@@ -69,6 +69,7 @@ enum ftenum {
 	FT_OID,		/* OBJECT IDENTIFIER */
 	FT_EUI64,
 	FT_AX25,
+	FT_VINES,
 	FT_NUM_TYPES /* last item number plus one */
 };
 
@@ -85,6 +86,7 @@ enum ftenum {
 #define FT_IPXNET_LEN       4
 #define FT_EUI64_LEN        8
 #define FT_AX25_ADDR_LEN    7
+#define FT_VINES_ADDR_LEN	6
 
 typedef enum ftenum ftenum_t;
 typedef struct _ftype_t ftype_t;

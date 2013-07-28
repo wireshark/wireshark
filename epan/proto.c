@@ -190,6 +190,10 @@ proto_tree_set_ax25(field_info *fi, const guint8* value);
 static void
 proto_tree_set_ax25_tvb(field_info *fi, tvbuff_t *tvb, gint start);
 static void
+proto_tree_set_vines(field_info *fi, const guint8* value);
+static void
+proto_tree_set_vines_tvb(field_info *fi, tvbuff_t *tvb, gint start);
+static void
 proto_tree_set_ether(field_info *fi, const guint8* value);
 static void
 proto_tree_set_ether_tvb(field_info *fi, tvbuff_t *tvb, gint start);
@@ -1352,6 +1356,14 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				report_type_length_mismatch(tree, "an AX.25 address", length, length_error);
 			}
 			proto_tree_set_ax25_tvb(new_fi, tvb, start);
+			break;
+
+		case FT_VINES:
+			if (length != VINES_ADDR_LEN) {
+				length_error = length < VINES_ADDR_LEN ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "a Vines address", length, length_error);
+			}
+			proto_tree_set_vines_tvb(new_fi, tvb, start);
 			break;
 
 		case FT_ETHER:
@@ -2647,6 +2659,18 @@ proto_tree_set_ax25_tvb(field_info *fi, tvbuff_t *tvb, gint start)
 	proto_tree_set_ax25(fi, tvb_get_ptr(tvb, start, 7));
 }
 
+/* Set the FT_VINES value */
+static void
+proto_tree_set_vines(field_info *fi, const guint8* value)
+{
+	fvalue_set(&fi->value, (gpointer) value, FALSE);
+}
+
+static void
+proto_tree_set_vines_tvb(field_info *fi, tvbuff_t *tvb, gint start)
+{
+	proto_tree_set_vines(fi, tvb_get_ptr(tvb, start, FT_VINES_ADDR_LEN));
+}
 
 /* Add a FT_ETHER to a proto_tree */
 proto_item *
@@ -5179,6 +5203,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	e_guid_t	  *guid;
 	guint32		   n_addr; /* network-order IPv4 address */
 	const gchar	  *name;
+	addres		   addr;
 
 	if (!fi) {
 		if (label_str)
@@ -5279,6 +5304,16 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			label_fill_descr(label_str, 0, hfinfo,
 				   get_ax25_name(bytes),
 				   ax25_to_str(bytes));
+			break;
+
+		case FT_VINES:
+			addr.type = AT_VINES;
+			addr.len  = VINES_ADDR_LEN;
+			addr.data = (guint8 *)fvalue_get(&fi->value);
+
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				   "%s: %s", hfinfo->name,
+				   address_to_str( &addr ));
 			break;
 
 		case FT_ETHER:

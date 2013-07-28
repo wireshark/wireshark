@@ -84,7 +84,7 @@ my %FIELD_TYPE = ('FT_NONE' => "FT_NONE", 'FT_PROTOCOL' => "FT_PROTOCOL", 'FT_BO
 				   'FT_ABSOLUTE_TIME' => "FT_ABSOLUTE_TIME", 'FT_RELATIVE_TIME' => "FT_RELATIVE_TIME",
 				   'FT_STRING' => "FT_STRING", 'FT_STRINGZ' => "FT_STRINGZ", 'FT_UINT_STRING' => "FT_UINT_STRING",
 				   'FT_ETHER' => "FT_ETHER", 'FT_BYTES' => "FT_BYTES", 'FT_UINT_BYTES' => "FT_UINT_BYTES",
-				   'FT_IPv4' => "FT_IPv4", 'FT_IPv6' => "FT_IPv6", 'FT_IPXNET' => "FT_IPXNET", 'FT_AX25' => "FT_AX25",
+				   'FT_IPv4' => "FT_IPv4", 'FT_IPv6' => "FT_IPv6", 'FT_IPXNET' => "FT_IPXNET", 'FT_AX25' => "FT_AX25", 'FT_VINES' => "FT_VINES",
 				   'FT_FRAMENUM' => "FT_FRAMENUM", 'FT_PCRE' => "FT_PCRE", 'FT_GUID' => "FT_GUID", 'FT_OID' => "FT_OID", 'FT_EUI64' => "FT_EUI64");
 
 my %EXPERT_SEVERITY = ('PI_COMMENT' => "PI_COMMENT",
@@ -370,7 +370,8 @@ sub generate_hfs {
 			if (($proto_tree_item[6] eq "1") ||
 				($args[5] =~ /tvb_get_guint8/) ||
 				($args[5] =~ /tvb_bytes_to_str/) ||
-				($args[5] =~ /tvb_ether_to_str/))  {
+				($args[5] =~ /tvb_ether_to_str/) ||
+				($args[5] =~ /tvb_vines_addr_to_str/))  {
 				$proto_tree_item[7] = "ENC_NA";
 			} elsif ($args[5] =~ /tvb_get_ntoh/) {
 				$proto_tree_item[7] = "ENC_BIG_ENDIAN";
@@ -461,7 +462,9 @@ sub generate_hfs {
 				$proto_tree_item[9] = "FT_BYTES";
 			} elsif ($args[5] =~ /tvb_ether_to_str/) {
 				$proto_tree_item[9] = "FT_ETHER";
-			}
+			} elsif ($args[5] =~ /tvb_vines_addr_to_str/) {
+				$proto_tree_item[9] = "FT_VINES";
+			}			
 		}
 
 		#display base
