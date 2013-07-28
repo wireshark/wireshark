@@ -334,6 +334,8 @@ recent_add_cfilter(const gchar *ifname, const gchar *s)
   if (ifname == NULL)
     cfilter_list = recent_cfilter_list;
   else {
+    /* If we don't yet have a hash table for per-interface recent
+       capture filter lists, create one. */
     if (per_interface_cfilter_lists_hash == NULL)
       per_interface_cfilter_lists_hash = g_hash_table_new(g_str_hash, g_str_equal);
     cfilter_list = (GList *)g_hash_table_lookup(per_interface_cfilter_lists_hash, ifname);
@@ -347,7 +349,7 @@ recent_add_cfilter(const gchar *ifname, const gchar *s)
     if (strcmp(s, li_filter) == 0) {
       /* No need to copy the string, we're just moving it. */
       newfilter = li_filter;
-      recent_cfilter_list = g_list_remove(cfilter_list, li->data);
+      cfilter_list = g_list_remove(cfilter_list, li->data);
       break;
     }
     li = li->next;
