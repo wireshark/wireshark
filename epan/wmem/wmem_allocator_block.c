@@ -549,11 +549,7 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     /* otherwise, we have room to split it, though the remaining free chunk
      * may still not be usefully large */
 
-    /* preserve a few values from chunk that we'll need to manipulate */
-    last      = chunk->last;
-    available = chunk->len;
-
-    if (available < aligned_size +
+    if (chunk->len < aligned_size +
                     (sizeof(wmem_block_chunk_t) + sizeof(wmem_block_free_t))) {
         /* If the available space is not enought to store the first part
          * (header + size) AND the second part (header + free_header) then
@@ -565,6 +561,10 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
         wmem_block_unfree(allocator, chunk);
     }
 
+    /* preserve a few values from chunk that we'll need to manipulate */
+    last      = chunk->last;
+    available = chunk->len - aligned_size;
+
     /* set new values for chunk */
     chunk->len  = (guint32) aligned_size;
     chunk->last = FALSE;
@@ -572,7 +572,6 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     /* with chunk's values set, we can use the standard macro to calculate
      * the location and size of the new free chunk */
     extra = WMEM_CHUNK_NEXT(chunk);
-    available -= chunk->len;
 
     if (available >= sizeof(wmem_block_chunk_t) + sizeof(wmem_block_free_t)) {
         /* If the new block has room for the free header (in which case the old
