@@ -1,6 +1,5 @@
-#$Id$
 #!/usr/bin/perl
-# 2011 Vincent Helfre and Erwan Yvin
+#
 # This script extracts the ASN1 definition from and TS 36.331/36.355/25.331
 # and generates asn files that can be processed by asn2wrs
 # First download the specification from 3gpp.org as a word document and open it
@@ -8,6 +7,29 @@
 # Finally save the document as a text file
 # Example with TS 36.331: "perl extract_asn1_from_spec.pl 36331-xxx.txt"
 # It should generate: EUTRA-RRC-Definitions.asn, EUTRA-UE-Variables.asn and EUTRA-InterNodeDefinitions
+#
+# Copyright 2011 Vincent Helfre and Erwan Yvin
+#
+# $Id$
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 use warnings;
 $input_file = $ARGV[0];
 $version = 0;
