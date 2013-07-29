@@ -1521,7 +1521,7 @@ static guint8 hex_byte_from_chars(gchar *c)
 static gchar
 char_from_hex(guint8 hex)
 {
-    static char hex_lookup[16] =
+    static const char hex_lookup[16] =
     { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
     if (hex > 15) {
