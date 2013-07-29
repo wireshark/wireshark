@@ -72,7 +72,7 @@ bug_title=`
 
 case "$output_fmt" in
     asciidoc)
-        echo -n "* $bug_title (ws-buglink:$bug_id)" | $clipboard_cmd
+        echo -n "* $bug_title (ws-buglink:$bug_id[])" | $clipboard_cmd
     ;;
     docbook)
 $clipboard_cmd <<Fin
