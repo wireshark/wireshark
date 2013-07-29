@@ -2,6 +2,8 @@
  *
  * STANAG 4607 file reading
  *
+ * http://www.nato.int/structur/AC/224/standard/4607/4607e_JAS_ED3.pdf
+ *
  * $Id$
  *
  * This program is free software; you can redistribute it and/or
@@ -74,10 +76,10 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
   phdr->len = packet_size;
 
   /* Sadly, the header doesn't contain times; but some segments do */
-  /* So, get the segment header, which is just past tthe 32-byte header. */
+  /* So, get the segment header, which is just past the 32-byte header. */
   phdr->presence_flags = WTAP_HAS_TS;
 
-  /* If no time specified, its the last baseline time */
+  /* If no time specified, it's the last baseline time */
   phdr->ts.secs = (time_t)base_secs;
   phdr->ts.nsecs = 0;
   millisecs = 0;
