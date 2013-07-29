@@ -35,6 +35,10 @@
 #include "buffer.h"
 #include "stanag4607.h"
 
+typedef struct {
+  time_t base_secs;
+} stanag4607_t;
+
 static gboolean is_valid_id(guint16 version_id)
 {
 #define VERSION_21 0x3231
@@ -49,7 +53,7 @@ static gboolean is_valid_id(guint16 version_id)
 static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                                Buffer *buf, int *err, gchar **err_info)
 {
-  static gint64 base_secs = 0;
+  stanag4607_t *stanag4607 = (stanag4607_t *)wth->priv;
   guint32 millisecs, secs, nsecs;
   gint64 offset = 0;
   guint8 stanag_pkt_hdr[37];
@@ -80,7 +84,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
   phdr->presence_flags = WTAP_HAS_TS;
 
   /* If no time specified, it's the last baseline time */
-  phdr->ts.secs = (time_t)base_secs;
+  phdr->ts.secs = stanag4607->base_secs;
   phdr->ts.nsecs = 0;
   millisecs = 0;
 
@@ -104,8 +108,8 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
     tm.tm_min = 0;
     tm.tm_sec = 0;
     tm.tm_isdst = -1;
-    base_secs = mktime(&tm);
-    phdr->ts.secs = (time_t)base_secs;
+    stanag4607->base_secs = mktime(&tm);
+    phdr->ts.secs = stanag4607->base_secs;
   }
   else if (PLATFORM_LOCATION_SEGMENT == stanag_pkt_hdr[32]) {
     bytes_read = file_read(&millisecs, sizeof millisecs, fh);
@@ -125,7 +129,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
   if (0 != millisecs) {
     secs = millisecs/1000;
     nsecs = (millisecs - 1000 * secs) * 1000000;
-    phdr->ts.secs = (time_t)(base_secs + secs);
+    phdr->ts.secs = stanag4607->base_secs + secs;
     phdr->ts.nsecs = nsecs;
   }
 
@@ -167,6 +171,7 @@ int stanag4607_open(wtap *wth, int *err, gchar **err_info)
 {
   int bytes_read;
   guint16 version_id;
+  stanag4607_t *stanag4607;
 
   bytes_read = file_read(&version_id, sizeof version_id, wth->fh);
   if (bytes_read != sizeof version_id) {
@@ -185,6 +190,10 @@ int stanag4607_open(wtap *wth, int *err, gchar **err_info)
   wth->file_type = WTAP_FILE_STANAG_4607;
   wth->file_encap = WTAP_ENCAP_STANAG_4607;
   wth->snapshot_length = 0; /* not known */
+
+  stanag4607 = (stanag4607_t *)g_malloc(sizeof(stanag4607_t));
+  wth->priv = (void *)stanag4607;
+  stanag4607->base_secs = 0; /* unknown as of yet */
 
   wth->subtype_read = stanag4607_read;
   wth->subtype_seek_read = stanag4607_seek_read;
