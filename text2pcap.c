@@ -371,8 +371,8 @@ struct pcaprec_hdr {
     guint32 orig_len;       /* actual length of packet */
 };
 
-/* Link-layer type; see net/bpf.h for details */
-static guint32 pcap_link_type = 1;   /* Default is DLT-EN10MB */
+/* Link-layer type; see http://www.tcpdump.org/linktypes.html for details */
+static guint32 pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
 
 /*----------------------------------------------------------------------
  * Parse a single hex number
