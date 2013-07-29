@@ -158,32 +158,44 @@ static const enum_val_t gui_update_channel[] = {
 };
 
 #if defined(HAVE_PCAP_CREATE)
-  static gint num_capture_cols = 7;
-  static const gchar *capture_cols[7] = {
-                                "INTERFACE",
-                                "LINK",
-                                "PMODE",
-                                "SNAPLEN",
-                                "MONITOR",
-                                "BUFFER",
-                                "FILTER"};
+/* Can set monitor mode and buffer size. */
+static gint num_capture_cols = 7;
+static const gchar *capture_cols[7] = {
+    "INTERFACE",
+    "LINK",
+    "PMODE",
+    "SNAPLEN",
+    "MONITOR",
+    "BUFFER",
+    "FILTER"
+};
+#define CAPTURE_COL_TYPE_DESCRIPTION \
+    "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, MONITOR, BUFFER, FILTER\n"
 #elif defined(_WIN32) && !defined (HAVE_PCAP_CREATE)
-  static gint num_capture_cols = 6;
-  static const gchar *capture_cols[6] = {
-                                "INTERFACE",
-                                "LINK",
-                                "PMODE",
-                                "SNAPLEN",
-                                "BUFFER",
-                                "FILTER"};
+/* Can set buffer size but not monitor mode. */
+static gint num_capture_cols = 6;
+static const gchar *capture_cols[6] = {
+    "INTERFACE",
+    "LINK",
+    "PMODE",
+    "SNAPLEN",
+    "BUFFER",
+    "FILTER"
+};
+#define CAPTURE_COL_TYPE_DESCRIPTION \
+    "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, BUFFER, FILTER\n"
 #else
-  static gint num_capture_cols = 5;
-  static const gchar *capture_cols[5] = {
-                                "INTERFACE",
-                                "LINK",
-                                "PMODE",
-                                "SNAPLEN",
-                                "FILTER"};
+/* Can neither set buffer size nor monitor mode. */
+static gint num_capture_cols = 5;
+static const gchar *capture_cols[5] = {
+    "INTERFACE",
+    "LINK",
+    "PMODE",
+    "SNAPLEN",
+    "FILTER"
+};
+#define CAPTURE_COL_TYPE_DESCRIPTION \
+    "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, FILTER\n"
 #endif
 
 /*
@@ -309,7 +321,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
     guchar c;
 
     /* this module may have been created as a subtree item previously */
-    if((module = find_subtree(parent, title))) {
+    if ((module = find_subtree(parent, title))) {
         /* the module is currently a subtree */
         module->name = name;
         module->apply_cb = apply_cb;
@@ -455,17 +467,17 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 
     subtree_module = protocols_module;
 
-    if(subtree) {
+    if (subtree) {
         /* take a copy of the buffer, orig keeps a base pointer while ptr
          * walks through the string */
         orig = ptr = g_strdup(subtree);
 
-        while(ptr && *ptr) {
+        while (ptr && *ptr) {
 
-            if((sep = strchr(ptr, '/')))
+            if ((sep = strchr(ptr, '/')))
                 *sep++ = '\0';
 
-            if(!(new_module = find_subtree(subtree_module, ptr))) {
+            if (!(new_module = find_subtree(subtree_module, ptr))) {
                 /*
                  * There's no such module; create it, with the description
                  * being the name (if it's later registered explicitly
@@ -588,9 +600,9 @@ call_foreach_cb(void *value, void *data)
     module_t *module = (module_t*)value;
     call_foreach_t *call_data = (call_foreach_t*)data;
 
-    if (!module->obsolete) {
+    if (!module->obsolete)
         call_data->ret = (*call_data->callback)(module, call_data->user_data);
-    }
+
     return (call_data->ret != 0);
 }
 
@@ -753,7 +765,7 @@ register_preference(module_t *module, const char *name, const char *title,
          * Make sure the preference name doesn't begin with the
          * module name, as that's redundant and Just Silly.
          */
-        if(!((strncmp(name, module->name, strlen(module->name)) != 0) ||
+        if (!((strncmp(name, module->name, strlen(module->name)) != 0) ||
             (((name[strlen(module->name)]) != '.') && ((name[strlen(module->name)]) != '_'))))
             g_error("Preference %s begins with the module name", name);
     }
@@ -831,9 +843,7 @@ prefs_find_preference(module_t *module, const char *name)
     }
 
     if (list_entry == NULL)
-    {
         return NULL;    /* no such preference */
-    }
 
     return (struct preference *) list_entry->data;
 }
@@ -1145,9 +1155,9 @@ prefs_register_obsolete_preference(module_t *module, const char *name)
 extern gboolean
 prefs_get_preference_obsolete(pref_t *pref)
 {
-    if (pref) {
+    if (pref)
         return pref->type == PREF_OBSOLETE ? TRUE : FALSE;
-    }
+
     return TRUE;
 }
 
@@ -1226,14 +1236,13 @@ static const enum_val_t print_dest_vals[] = {
 static void stats_callback(void)
 {
     /* Test for a sane tap update interval */
-    if (prefs.tap_update_interval < 100 || prefs.tap_update_interval > 10000) {
-            prefs.tap_update_interval = TAP_UPDATE_DEFAULT_INTERVAL;
-    }
+    if (prefs.tap_update_interval < 100 || prefs.tap_update_interval > 10000)
+        prefs.tap_update_interval = TAP_UPDATE_DEFAULT_INTERVAL;
 
 #ifdef HAVE_LIBPORTAUDIO
     /* Test for a sane max channels entry */
     if (prefs.rtp_player_max_visible < 1 || prefs.rtp_player_max_visible > 10)
-            prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
+        prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 #endif
 
 }
@@ -1404,9 +1413,8 @@ static char * column_hidden_to_str_cb(pref_t* pref, gboolean default_val) {
             prefs_fmt = g_strdup(col_format_to_string(cfmt->fmt));
         }
         if (!cfmt->visible) {
-            if (cols_hidden->len) {
+            if (cols_hidden->len)
                 g_string_append (cols_hidden, ",");
-            }
             g_string_append (cols_hidden, prefs_fmt);
         }
         clp = clp->next;
@@ -1536,7 +1544,7 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, const gchar* value, g
     }
     /* Check to make sure all column formats are valid.  */
     col_l_elt = g_list_first(col_l);
-    while(col_l_elt) {
+    while (col_l_elt) {
       fmt_data cfmt_check;
 
       /* Go past the title.  */
@@ -1569,7 +1577,7 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, const gchar* value, g
     llen             = g_list_length(col_l);
     *col_num_pref->varp.uint = llen / 2;
     col_l_elt = g_list_first(col_l);
-    while(col_l_elt) {
+    while (col_l_elt) {
       cfmt           = g_new(fmt_data,1);
       cfmt->title    = g_strdup((gchar *)col_l_elt->data);
       col_l_elt      = col_l_elt->next;
@@ -1761,7 +1769,7 @@ static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, 
 
     /* Verify that all the column names are valid. If not, use the entire list of valid columns.
      */
-    while(col_l_elt) {
+    while (col_l_elt) {
       gboolean found_match = FALSE;
       col_name = (gchar *)col_l_elt->data;
 
@@ -1784,7 +1792,7 @@ static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, 
     }
 
     col_l_elt = g_list_first(col_l);
-    while(col_l_elt) {
+    while (col_l_elt) {
       col_name = (gchar *)col_l_elt->data;
       prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
       col_l_elt = col_l_elt->next;
@@ -1799,9 +1807,9 @@ static const char * capture_column_type_name_cb(void) {
 }
 
 static char * capture_column_type_description_cb(void) {
-    return g_strdup_printf(
+    return g_strdup(
         "List of columns to be displayed in the capture options dialog.\n"
-        "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, MONITOR, BUFFER, FILTER\n");
+        CAPTURE_COL_TYPE_DESCRIPTION);
 }
 
 static gboolean capture_column_is_default_cb(pref_t* pref) {
@@ -1821,7 +1829,7 @@ static gboolean capture_column_is_default_cb(pref_t* pref) {
 
     /* Ensure the same column count */
     if (((pref_col == NULL) && (def_col != NULL)) ||
-            ((pref_col != NULL) && (def_col == NULL)))
+        ((pref_col != NULL) && (def_col == NULL)))
         is_default = FALSE;
 
     return is_default;
@@ -1833,7 +1841,6 @@ static char * capture_column_to_str_cb(pref_t* pref, gboolean default_val) {
     GList       *clp = g_list_first(pref_l);
     GList       *col_l = NULL;
     gchar       *col, *capture_column_str;
-
 
     while (clp) {
         col = (gchar *) clp->data;
@@ -2488,16 +2495,14 @@ join_string_list(GList *sl)
         item_count++;
         str = (gchar *)cur->data;
 
-        if (cur != first) {
+        if (cur != first)
             g_string_append_c(joined_str, ',');
-        }
 
         if (item_count % 2) {
             /* Wrap the line.  */
             g_string_append(joined_str, "\n\t");
-        } else {
+        } else
             g_string_append_c(joined_str, ' ');
-        }
 
         quoted_str = g_strescape(str, "");
         g_string_append_printf(joined_str, "\"%s\"", quoted_str);
@@ -3068,7 +3073,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
 
   /* Try to read in the profile name in the first line of the preferences file. */
   got_c = getc(pf);
-  if(got_c) {
+  if (got_c) {
     char firstl[100]; 
     
 	if (fgets(firstl, 100, pf) != NULL) { 
@@ -3864,7 +3869,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
       } else if (strcmp(module->name, "smpp") == 0) {
         /* Handle preferences that moved from SMPP. */
         module_t *new_module = prefs_find_module("gsm-sms-ud");
-        if(new_module){
+        if (new_module){
           if (strcmp(dotp, "port_number_udh_means_wsp") == 0)
             pref = prefs_find_preference(new_module, "port_number_udh_means_wsp");
           else if (strcmp(dotp, "try_dissect_1st_fragment") == 0)
@@ -3926,7 +3931,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         /* "eth.qinq_ethertype" has been changed(restored) to "vlan.qinq.ethertype" */
         if (strcmp(dotp, "qinq_ethertype") == 0) {
           module_t *new_module = prefs_find_module("vlan");
-          if(new_module) {
+          if (new_module) {
             pref = prefs_find_preference(new_module, "qinq_ethertype");
             module = new_module;
           }
@@ -4527,7 +4532,7 @@ write_module_prefs(module_t *module, gpointer user_data)
     arg.pf = gui_pref_arg->pf;
     g_list_foreach(arg.module->prefs, write_pref, &arg);
 
-    if(prefs_module_has_submodules(module))
+    if (prefs_module_has_submodules(module))
         return prefs_modules_foreach_submodules(module, write_module_prefs, user_data);
 
     return 0;
