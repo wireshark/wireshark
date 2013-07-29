@@ -511,7 +511,8 @@ print_usage(gboolean print_ver)
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -N <packet_limit>        maximum number of packets buffered within dumpcap\n");
-    fprintf(output, "  -C <byte_limit>          maximum number of bytes used for buffering packets within dumpcap\n");
+    fprintf(output, "  -C <byte_limit>          maximum number of bytes used for buffering packets\n");
+    fprintf(output, "                           within dumpcap\n");
     fprintf(output, "  -t                       use a separate thread per interface\n");
     fprintf(output, "  -q                       don't report packet capture counts\n");
     fprintf(output, "  -v                       print version information and exit\n");
