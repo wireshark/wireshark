@@ -540,25 +540,18 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
 
     aligned_size = WMEM_ALIGN_SIZE(size) + sizeof(wmem_block_chunk_t);
 
-    if (aligned_size > WMEM_CHUNK_DATA_LEN(chunk)) {
-        /* In this case we don't have enough space to really split it, so we
-         * don't. Just remove it from its free list and return. */
+    if (WMEM_CHUNK_DATA_LEN(chunk) < aligned_size + sizeof(wmem_block_free_t)) {
+        /* If the available space is not enought to store all of
+         * (hdr + requested size + alignment padding + hdr + free-header) then
+         * remove the current chunk from the free list. If the chunk does have
+         * space we reuse its free-header later, so we don't have to do a full
+         * remove/insert. */
         wmem_block_unfree(allocator, chunk);
-        return;
-    }
-    /* otherwise, we have room to split it, though the remaining free chunk
-     * may still not be usefully large */
-
-    if (chunk->len < aligned_size +
-                    (sizeof(wmem_block_chunk_t) + sizeof(wmem_block_free_t))) {
-        /* If the available space is not enought to store the first part
-         * (header + size) AND the second part (header + free_header) then
-         * simply remove the current chunk from the free list. Do it now before
-         * we start messing with header values and confuse things.
-         *
-         * If we do have room, we reuse the free_header from our current chunk
-         * later on, so we don't have to do a full remove/insert. */
-        wmem_block_unfree(allocator, chunk);
+        if (WMEM_CHUNK_DATA_LEN(chunk) < aligned_size) {
+            /* If it doesn't even have room for just the chunk header then we
+             * can't split it at all, so just return. */
+            return;
+        }
     }
 
     /* preserve a few values from chunk that we'll need to manipulate */
