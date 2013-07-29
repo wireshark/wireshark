@@ -33,6 +33,7 @@
 #include <epan/wmem/wmem.h>
 
 #include "packet-mtp3.h"
+#include "packet-dvbci.h"
 
 void proto_reg_handoff_exported_pdu(void);
 
@@ -51,6 +52,7 @@ static int hf_exported_pdu_sctp_ppid = -1;
 static int hf_exported_pdu_ss7_opc = -1;
 static int hf_exported_pdu_ss7_dpc = -1;
 static int hf_exported_pdu_orig_fno = -1;
+static int hf_exported_pdu_dvbci_evt = -1;
 
 
 /* Initialize the subtree pointers */
@@ -82,6 +84,8 @@ static const value_string exported_pdu_tag_vals[] = {
 
    { EXP_PDU_TAG_ORIG_FNO,         "Original Frame number" },
 
+   { EXP_PDU_TAG_DVBCI_EVT,        "DVB-CI event" },
+
    { 0,        NULL   }
 };
 
@@ -101,6 +105,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const guchar *src_addr, *dst_addr;
     dissector_handle_t proto_handle;
     mtp3_addr_pc_t *mtp3_addr;
+    guint8 dvb_ci_dir;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Exported PDU");
 
@@ -184,6 +189,12 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case EXP_PDU_TAG_ORIG_FNO:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_orig_fno, tvb, offset, 4, ENC_BIG_ENDIAN);
+                break;
+            case EXP_PDU_TAG_DVBCI_EVT:
+                dvb_ci_dir = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(tag_tree, hf_exported_pdu_dvbci_evt,
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
+                dvbci_set_addrs(dvb_ci_dir, pinfo);
                 break;
             default:
                 break;
@@ -293,6 +304,11 @@ proto_register_exported_pdu(void)
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_exported_pdu_dvbci_evt,
+            { "DVB-CI event", "exported_pdu.dvb-ci.event",
+               FT_UINT8, BASE_HEX, VALS(dvbci_event), 0,
+              NULL, HFILL }
+        }
     };
 
     /* Setup protocol subtree array */
@@ -331,7 +347,7 @@ proto_register_exported_pdu(void)
      */
     register_tap(EXPORT_PDU_TAP_NAME_LAYER_3);
     register_tap(EXPORT_PDU_TAP_NAME_LAYER_7);
-
+    register_tap(EXPORT_PDU_TAP_NAME_DVB_CI);
 }
 
 void

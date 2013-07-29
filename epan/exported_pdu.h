@@ -36,6 +36,7 @@
  */
 #define EXPORT_PDU_TAP_NAME_LAYER_3 "OSI layer 3"
 #define EXPORT_PDU_TAP_NAME_LAYER_7 "OSI layer 7"
+#define EXPORT_PDU_TAP_NAME_DVB_CI  "DVB-CI"
 
 /**
  * This struct is used as the data part of tap_queue_packet() and contains a
@@ -92,6 +93,8 @@
 
 #define EXP_PDU_TAG_ORIG_FNO        30
 
+#define EXP_PDU_TAG_DVBCI_EVT       31
+
 
 typedef struct _exp_pdu_data_t {
     int          tlv_buffer_len;
@@ -113,6 +116,8 @@ typedef struct _exp_pdu_data_t {
 
 #define EXP_PDU_TAG_ORIG_FNO_BIT        0x00000080
 
+#define EXP_PDU_TAG_DVBCI_EVT_BIT       0x00000100
+
 #define EXP_PDU_TAG_IPV4_SRC_LEN        4
 #define EXP_PDU_TAG_IPV4_DST_LEN        4
 #define EXP_PDU_TAG_IPV6_SRC_LEN        16
@@ -128,6 +133,8 @@ typedef struct _exp_pdu_data_t {
 #define EXP_PDU_TAG_SS7_DPC_LEN         8 /* 4 bytes PC, 2 bytes standard type, 1 byte NI, 1 byte padding */
 
 #define EXP_PDU_TAG_ORIG_FNO_LEN        4
+
+#define EXP_PDU_TAG_DVBCI_EVT_LEN       1
 
 /**
  * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags

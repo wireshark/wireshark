@@ -30,6 +30,7 @@
 #include <epan/packet.h>
 #include <epan/exported_pdu.h>
 #include <epan/dissectors/packet-mtp3.h>
+#include <epan/dissectors/packet-dvbci.h>
 
 /**
  * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
@@ -112,6 +113,10 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 
 	if((tags_bit_field & EXP_PDU_TAG_ORIG_FNO_BIT) == EXP_PDU_TAG_ORIG_FNO_BIT){
 		tag_buf_size= tag_buf_size + EXP_PDU_TAG_ORIG_FNO_LEN + 4;
+	}
+
+	if((tags_bit_field & EXP_PDU_TAG_DVBCI_EVT_BIT) == EXP_PDU_TAG_DVBCI_EVT_BIT){
+		tag_buf_size= tag_buf_size + EXP_PDU_TAG_DVBCI_EVT_LEN + 4;
 	}
 
 	/* Add end of options length */
@@ -332,6 +337,17 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 		/*i = i +EXP_PDU_TAG_ORIG_FNO_LEN;*/
 	}
 
-	return exp_pdu_data;
+	if((tags_bit_field & EXP_PDU_TAG_DVBCI_EVT_BIT) == EXP_PDU_TAG_DVBCI_EVT_BIT){
+		exp_pdu_data->tlv_buffer[i] = 0;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_DVBCI_EVT;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = 0;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_DVBCI_EVT_LEN;
+		i++;
+        exp_pdu_data->tlv_buffer[i] = dvbci_get_evt_from_addrs(pinfo);
+	}
 
+	return exp_pdu_data;
 }

@@ -1330,6 +1330,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dop.h	\
 	packet-dsp.h	\
 	packet-dtn.h	\
+	packet-dvbci.h	\
 	packet-enip.h	\
 	packet-erf.h	\
 	packet-dvmrp.h	\
