@@ -1056,15 +1056,17 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 /* We could probably get away with changing is_error to a minimum length value. */
 static void
 report_type_length_mismatch(proto_tree *tree, const gchar *descr, int length, gboolean is_error) {
-	tree_data_t *tree_data = PTREE_DATA(tree);
-	field_info *fi_save = tree_data->fi_tmp;
+	if (tree) {
+		tree_data_t *tree_data = PTREE_DATA(tree);
+		field_info *fi_save = tree_data->fi_tmp;
 
-	/* Keep the current item from getting freed by proto_tree_new_item. */
-	tree_data->fi_tmp = NULL;
+		/* Keep the current item from getting freed by proto_tree_new_item. */
+		tree_data->fi_tmp = NULL;
 
-	expert_add_info_format(NULL, tree, PI_MALFORMED, is_error ? PI_ERROR : PI_WARN, "Trying to fetch %s with length %d", descr, length);
+		expert_add_info_format(NULL, tree, PI_MALFORMED, is_error ? PI_ERROR : PI_WARN, "Trying to fetch %s with length %d", descr, length);
 
-	tree_data->fi_tmp = fi_save;
+		tree_data->fi_tmp = fi_save;
+	}
 
 	if (is_error) {
 		THROW(ReportedBoundsError);
