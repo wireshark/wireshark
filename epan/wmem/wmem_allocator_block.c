@@ -606,9 +606,8 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     extra->used = FALSE;
 
     /* Correctly update the following chunk's back-pointer */
-    chunk = WMEM_CHUNK_NEXT(extra);
-    if (chunk) {
-        chunk->prev = extra->len;
+    if (!last) {
+        WMEM_CHUNK_NEXT(extra)->prev = extra->len;
     }
 }
 
@@ -640,7 +639,7 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
 
     /* preserve a few values from chunk that we'll need to manipulate */
     last      = chunk->last;
-    available = chunk->len;
+    available = chunk->len - aligned_size;
 
     /* set new values for chunk */
     chunk->len  = (guint32) aligned_size;
@@ -649,7 +648,6 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     /* with chunk's values set, we can use the standard macro to calculate
      * the location and size of the new free chunk */
     extra = WMEM_CHUNK_NEXT(chunk);
-    available -= chunk->len;
 
     /* set the new values for the chunk */
     extra->len  = (guint32) available;
