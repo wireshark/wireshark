@@ -96,9 +96,9 @@ else
 endif
 
 # create html single page file
-user-guide.html: wsug_html/user-guide.html
+user-guide.html: wsug_html/index.html
 
-wsug_html/user-guide.html: $(WSUG_SOURCE) wsluarm
+wsug_html/index.html: $(WSUG_SOURCE) wsluarm
 	@ echo --- WSUG - HTML SINGLE PAGE ---
 	mkdir -p wsug_html/wsug_graphics/toolbar
 	cp $(srcdir)/wsug_graphics/*.* wsug_html/wsug_graphics
@@ -147,9 +147,9 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 
 # Wireshark Developer Guide
 if HAVE_FOP
-WSDG_TARGETS=wsdg.validated wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf
+WSDG_TARGETS=wsdg.validated wsdg_html_chunked wsdg_html developer-guide-a4.pdf developer-guide-us.pdf
 else
-WSDG_TARGETS=wsdg.validated wsdg_html_chunked developer-guide.html
+WSDG_TARGETS=wsdg.validated wsdg_html_chunked wsdg_html
 endif
 
 wsdg: $(WSDG_TARGETS)
@@ -165,9 +165,9 @@ else
 endif
 
 # create html single page file
-developer-guide.html: wsdg_html/developer-guide.html
+wsdg_html: wsdg_html/index.html
 
-wsdg_html/developer-guide.html: $(WSDG_SOURCE)
+wsdg_html/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML SINGLE PAGE ---
 	mkdir -p wsdg_html/wsdg_graphics/toolbar
 	cp $(srcdir)/wsdg_graphics/*.* wsdg_html/wsdg_graphics
