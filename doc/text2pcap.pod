@@ -108,8 +108,8 @@ for the Ethernet header in hex. Use this option if your dump has Layer
 encapsulation. Example: I<-e 0x806> to specify an ARP packet.
 
 For IP packets, instead of generating a fake Ethernet header you can
-also use I<-l 12> to indicate a raw IP packet to Wireshark. Note that
-I<-l 12> does not work for any non-IP Layer 3 packet (e.g. ARP),
+also use I<-l 101> to indicate a raw IP packet to Wireshark. Note that
+I<-l 101> does not work for any non-IP Layer 3 packet (e.g. ARP),
 whereas generating a dummy Ethernet header with I<-e> works for any
 sort of L3 packet.
 
@@ -133,7 +133,7 @@ Specify the link-layer header type of this packet.  Default is Ethernet
 of possible encapsulations.  Note that this option should be used if
 your dump is a complete hex dump of an encapsulated packet and you wish
 to specify the exact type of encapsulation.  Example: I<-l 7> for ARCNet
-packets.
+packets encapsulated BSD-style.
 
 =item -m E<lt>max-packetE<gt>
 
