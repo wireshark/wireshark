@@ -368,7 +368,7 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	const guint8 *pd, int *err)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
-	static t_5VW_TimeStamped_Header HeaderFrame;
+	t_5VW_TimeStamped_Header HeaderFrame;
 
 	/* Frame Header */
 	/* constant fields */
@@ -379,7 +379,7 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	HeaderFrame.RecSubType = htolel(CST_5VW_FRAME_RECORD);
 	HeaderFrame.RecNb = htolel(1);
 
-	/* record-dependant fields */
+	/* record-dependent fields */
 	HeaderFrame.Utc = htolel(phdr->ts.secs);
 	HeaderFrame.NanoSecondes = htolel(phdr->ts.nsecs);
 	HeaderFrame.RecSize = htolel(phdr->len);
