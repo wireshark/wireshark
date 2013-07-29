@@ -1076,7 +1076,7 @@ usage(gboolean is_error)
   fprintf(output, "  -C cancel processing if file open fails (default is to continue)\n");
   fprintf(output, "  -A generate all infos (default)\n");
   fprintf(output, "\n");
-  fprintf(output, "Options are processed from left to right order with later options superceeding\n");
+  fprintf(output, "Options are processed from left to right order with later options superceding\n");
   fprintf(output, "or adding to earlier options.\n");
   fprintf(output, "\n");
   fprintf(output, "If no options are given the default is to display all infos in long report\n");
