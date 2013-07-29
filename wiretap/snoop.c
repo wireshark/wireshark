@@ -877,7 +877,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	struct snooprec_hdr rec_hdr;
 	int reclen;
 	guint padlen;
-	static const char zeroes[4];
+	static const char zeroes[4] = {0};
 	struct snoop_atm_hdr atm_hdr;
 	int atm_hdrsize;
 
