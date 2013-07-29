@@ -7,12 +7,9 @@
 /usr/bin/rawshark
 /usr/bin/reordercap
 /usr/bin/text2pcap
-/usr/lib/wireshark/libwireshark.so.0
-/usr/lib/wireshark/libwireshark.so.0.0.0
-/usr/lib/wireshark/libwiretap.so.0
-/usr/lib/wireshark/libwiretap.so.0.0.0
-/usr/lib/wireshark/libwsutil.so.0
-/usr/lib/wireshark/libwsutil.so.0.0.0
+/usr/lib/wireshark/libwireshark.so.*
+/usr/lib/wireshark/libwiretap.so.*
+/usr/lib/wireshark/libwsutil.so.*
 /usr/lib/wireshark/plugins/*
 /usr/share/wireshark/*
 /etc/wireshark/init.lua
