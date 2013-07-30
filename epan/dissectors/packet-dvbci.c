@@ -1869,11 +1869,29 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
 }
 
 
-/* dissect an item from cc_data_req/cc_data_cnf,
-   returns its length or -1 for error */
+/* check if the given CC resource item may appear in the clear
+   as part of an exported PDU */
+static inline gboolean
+is_cc_item_exportable(guint8 dat_id)
+{
+    /* the CCK precursor value does not contain sensitive information as such
+       nevertheless, it is safer to prevent people from exporting this value
+       accidentially */
+    if (dat_id == CC_ID_KP)
+        return FALSE;
+    /* we could add some more items here which do not appear in SAC messages
+       normally: CC_ID_DHPH, CC_ID_DHPM */ 
+
+    return TRUE;
+}
+
+
+/* dissect an item from cc_(sac_)data_req/cc_(sac_)data_cnf,
+   returns its length or -1 for error
+   if dat_id_ptr is not NULL, fill in the datatype id */
 static gint
 dissect_cc_item(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree)
+        packet_info *pinfo, proto_tree *tree, guint8 *dat_id_ptr)
 {
     proto_item *ti           = NULL;
     proto_tree *cc_item_tree = NULL;
@@ -1889,6 +1907,8 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
 
     offset_start = offset;
     dat_id = tvb_get_guint8(tvb, offset);
+    if (dat_id_ptr)
+        *dat_id_ptr = dat_id;
 
     ti = proto_tree_add_text(tree, tvb, offset_start, -1, "CC data item: %s",
             val_to_str_const(dat_id, dvbci_cc_dat_id, "unknown"));
@@ -1972,13 +1992,26 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
 }
 
 
+/* dissect the payload of a cc message that contains data items
+   if not NULL, set exportable_flag to TRUE if the message contains no
+    sensitive data and can be passed to the export PDU mechanism */
 static gint
-dissect_cc_data_payload(guint32 tag,  tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree)
+dissect_cc_data_payload(guint32 tag, tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree, gboolean *exportable_flag)
 {
     gint   offset_start;
     guint8 i, snd_dat_nbr, req_dat_nbr;
+    guint8 dat_id;
     gint   item_len;
+
+    /* we only export cc_sac_data_req and cc_sac_data_cnf
+       the only meta info in the exported PDU is the data transfer
+        direction, if we only ever export  cc_sac_data_req and
+        cc_sac_data_cnf, this info is enough to recover the apdu tag from the
+        direction
+       cc_sac_sync req and cc_sac_sync_cnf contain no interesting data */
+    if (exportable_flag)
+        *exportable_flag = (tag==T_CC_SAC_DATA_REQ || tag==T_CC_SAC_DATA_CNF);
 
     offset_start = offset;
 
@@ -1991,10 +2024,14 @@ dissect_cc_data_payload(guint32 tag,  tvbuff_t *tvb, gint offset,
     offset++;
     for(i=0; i<snd_dat_nbr &&
             tvb_reported_length_remaining(tvb, offset)>0; i++) {
-        item_len = dissect_cc_item(tvb, offset, pinfo, tree);
+        item_len = dissect_cc_item(tvb, offset, pinfo, tree, &dat_id);
         if (item_len < 0)
             return -1;
         offset += item_len;
+        if (!exportable_flag || *exportable_flag==FALSE)
+            continue;
+        if (!is_cc_item_exportable(dat_id))
+            *exportable_flag = FALSE;
     }
     if (tag==T_CC_DATA_REQ || tag==T_CC_SAC_DATA_REQ) {
         req_dat_nbr = tvb_get_guint8(tvb, offset);
@@ -3027,6 +3064,7 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
     gint        sac_payload_data_len = 0; /* just payload data */
     tvbuff_t   *clear_sac_body_tvb;
     proto_tree *sac_tree             = NULL;
+    gboolean    is_exportable        = FALSE;
 
     offset_start = offset;
 
@@ -3082,7 +3120,7 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
         sac_tree = proto_item_add_subtree(ti, ett_dvbci_sac_msg_body);
         if (tag==T_CC_SAC_DATA_REQ || tag==T_CC_SAC_DATA_CNF) {
             sac_payload_data_len = dissect_cc_data_payload(tag,
-                    clear_sac_body_tvb, 0, pinfo, sac_tree);
+                    clear_sac_body_tvb, 0, pinfo, sac_tree, &is_exportable);
         }
         else if (tag==T_CC_SAC_SYNC_REQ) {
             sac_payload_data_len = 0;
@@ -3108,12 +3146,8 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
                 sac_payload_len), ENC_NA);
 
     /* we call this function also to dissect exported SAC messages,
-        dont' try to export them a second time
-       we only export cc_sac_data_req and cc_sac_data_cnf,
-        sync req and cnf contain no encrypted data */
-    if (!exported &&
-        (tag==T_CC_SAC_DATA_REQ || tag==T_CC_SAC_DATA_CNF) &&
-        have_tap_listener(exported_pdu_tap)) {
+        dont' try to export them a second time */
+    if (!exported && is_exportable && have_tap_listener(exported_pdu_tap)) {
 
         tvbuff_t       *clear_sac_msg_tvb;
         exp_pdu_data_t *exp_pdu_data;
@@ -3181,7 +3215,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             break;
         case T_CC_DATA_REQ:
         case T_CC_DATA_CNF:
-            dissect_cc_data_payload(tag, tvb, offset, pinfo, tree);
+            dissect_cc_data_payload(tag, tvb, offset, pinfo, tree, NULL);
             break;
         case T_CC_SYNC_CNF:
             status = tvb_get_guint8(tvb, offset);
