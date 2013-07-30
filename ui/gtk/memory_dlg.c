@@ -1,4 +1,6 @@
-/* io_stat.c
+/* memory_dlg.c
+ *
+ * Based on
  * io_stat   2002 Ronnie Sahlberg
  *
  * $Id$
@@ -28,15 +30,6 @@
 #include <math.h>
 #include <gtk/gtk.h>
 
-#ifdef HAVE_SYS_UTSNAME_H
-#include <sys/utsname.h>
-#endif
-
-#ifdef _WIN32
-#include <windows.h>
-#include <psapi.h>
-#endif /*  _WIN32 */
-
 #include "ui/gtk/dlg_utils.h"
 #include "ui/simple_dialog.h"
 #include "ui/gtk/gui_utils.h"
@@ -44,6 +37,7 @@
 #include "ui/gtk/gui_utils.h"
 
 #include "wsutil/str_util.h"
+#include "epan/app_mem_usage.h"
 
 enum {
     MEMORY_TOTAL = 0,
@@ -649,100 +643,6 @@ init_io_stat_window(io_stat_t *io)
     window_present(io->window);
 }
 
-/* code copied from ekg2, GPL-2 */
-static gsize
-get_total(void)
-{
-#if defined(_WIN32)
-    HANDLE pHandle;
-    PROCESS_MEMORY_COUNTERS pmc;
-    SIZE_T workingSize = 0;
-
-    pHandle = GetCurrentProcess();
-
-    if (GetProcessMemoryInfo(pHandle, &pmc, sizeof(pmc))){
-        workingSize = pmc.WorkingSetSize;
-
-        workingSize = workingSize / 1024;
-    }
-
-    CloseHandle(pHandle);
-
-    if (workingSize == 0){
-        return -1;
-    } else {
-        return (int)workingSize;
-    }
-#else
-    char *temp;
-    FILE *file = NULL;
-    int rozmiar = 0, unmres;
-    struct utsname sys;
-
-    unmres = uname(&sys);
-
-    temp = g_strdup_printf("/proc/%d/status", getpid());
-
-    if ( (unmres != -1 && !strcmp(sys.sysname, "FreeBSD")) || (file = fopen(temp,"rb")) ) {
-        g_free(temp);
-        {
-#ifdef __linux__
-            size_t rd;
-            char buf[1024];
-            char *p;
-
-            rd = fread(buf, 1, 1024, file);
-            fclose(file);
-            if (rd == 0)
-            {
-                return -1;
-            } 
-            p = strstr(buf, "VmSize");
-            if (p) {
-                sscanf(p, "VmSize:     %d kB", &rozmiar);
-            } else {
-                return -1;
-            }
-#elif __sun
-            size_t rd;
-            pstatus_t proc_stat;
-
-            rd = fread(&proc_stat, sizeof(proc_stat), 1, file);
-            fclose(file);
-            if (rd == 0)
-            {
-                return -1;
-            }
-            rozmiar = proc_stat.pr_brksize + proc_stat.pr_stksize;
-#elif __FreeBSD__ /* link with -lkvm */
-            char errbuf[_POSIX2_LINE_MAX];
-            int nentries = -1;
-            struct kinfo_proc *kp;
-            static kvm_t      *kd;
-
-            if (!(kd = kvm_openfiles(NULL /* "/dev/null" */, "/dev/null", NULL, /* O_RDONLY */0, errbuf))) {
-                return -1;
-            }
-            kp = kvm_getprocs(kd, KERN_PROC_PID, getpid(), &nentries);
-            if (!kp || nentries != 1) {
-                return -1; 
-            }
-#ifdef HAVE_STRUCT_KINFO_PROC_KI_SIZE
-            rozmiar = (u_long) kp->ki_size/1024; /* freebsd5 */
-#else
-            rozmiar = kp->kp_eproc.e_vm.vm_map.size/1024; /* freebsd4 */
-#endif /* HAVE_STRUCT_KINFO_PROC_KI_SIZE */
-#else
-            /* no /proc mounted */
-            return -1;
-#endif
-        }
-    } else {
-        return -1;
-    }
-    return rozmiar;
-#endif /* (_WIN32) */
-}
 
 static gboolean
 call_it(gpointer user_data)
@@ -766,7 +666,7 @@ gsize se_memory_usage(void);
     }
 
     /* Point to the appropriate io_item_t struct */
-    io->graphs[MEMORY_TOTAL].items[idx]->bytes = get_total() * 1000;
+    io->graphs[MEMORY_TOTAL].items[idx]->bytes = get_total_mem_used_by_app() * 1000;
     tmp = format_size(io->graphs[MEMORY_TOTAL].items[idx]->bytes, format_size_unit_bytes);
     g_snprintf(buf, sizeof(buf), "Total [%s]", tmp);
     gtk_button_set_label(GTK_BUTTON(io->graphs[MEMORY_TOTAL].display_button), buf);

@@ -96,7 +96,7 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !ENDIF
 
 tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsock32.lib user32.lib \
+	wsock32.lib user32.lib psapi.lib \
 	$(GLIB_LIBS) \
 	$(GTHREAD_LIBS) \
 	wsutil\libwsutil.lib \
@@ -116,7 +116,7 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !ENDIF
 
 rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsock32.lib user32.lib \
+	wsock32.lib user32.lib psapi.lib \
 	$(GLIB_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
@@ -167,7 +167,7 @@ dumpcap_LIBS= \
 	$(GTHREAD_LIBS)
 
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsock32.lib user32.lib \
+	wsock32.lib user32.lib psapi.lib \
 	$(GLIB_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
