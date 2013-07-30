@@ -258,7 +258,7 @@ add_custom_target(
 	DEPENDS
 		wsluarm
 		wsug_html_chunked/index.html
-		wsug_html/user-guide.html
+		wsug_html/index.html
 		user-guide-a4.pdf
 		user-guide-us.pdf
 )
@@ -270,7 +270,7 @@ VALIDATE_XML(
 
 XML2HTML(
 	wsug.validated
-	wsug_html/user-guide.html
+	wsug_html/index.html
 	single-page
 	WSUG_SOURCE
 	WSUG_GRAPHICS
@@ -307,7 +307,7 @@ add_custom_target(
 	DEPENDS
 		wsluarm
 		wsdg_html_chunked/index.html
-		wsdg_html/developer-guide.html
+		wsdg_html/index.html
 		developer-guide-a4.pdf
 		developer-guide-us.pdf
 )
@@ -319,7 +319,7 @@ VALIDATE_XML(
 
 XML2HTML(
 	wsdg.validated
-	wsdg_html/developer-guide.html
+	wsdg_html/index.html
 	single-page
 	WSDG_SOURCE
 	WSDG_GRAPHICS
