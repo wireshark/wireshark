@@ -67,21 +67,23 @@ typedef enum {
 	VNC_SECURITY_TYPE_GTK_VNC_SASL  = 20,
 	VNC_SECURITY_TYPE_MD5_HASH_AUTH = 21,
 	VNC_SECURITY_TYPE_XVP           = 22,
+	VNC_SECURITY_TYPE_ARD           = 30,
 	VNC_TIGHT_AUTH_TGHT_ULGNAUTH	= 119,
 	VNC_TIGHT_AUTH_TGHT_XTRNAUTH	= 130
 } vnc_security_types_e;
 
 static const value_string vnc_security_types_vs[] = {
-	{ VNC_SECURITY_TYPE_INVALID,      "Invalid"      },
-	{ VNC_SECURITY_TYPE_NONE,         "None"         },
-	{ VNC_SECURITY_TYPE_VNC,          "VNC"          },
-	{ VNC_SECURITY_TYPE_RA2,          "RA2"          },
-	{ VNC_SECURITY_TYPE_RA2ne,        "RA2ne"        },
-	{ VNC_SECURITY_TYPE_TIGHT,        "Tight"        },
-	{ VNC_SECURITY_TYPE_ULTRA,        "Ultra"        },
-	{ VNC_SECURITY_TYPE_TLS,          "TLS"          },
-	{ VNC_SECURITY_TYPE_VENCRYPT,     "VeNCrypt"     },
-	{ VNC_SECURITY_TYPE_GTK_VNC_SASL, "GTK-VNC SASL" },
+	{ VNC_SECURITY_TYPE_INVALID,      "Invalid"              },
+	{ VNC_SECURITY_TYPE_NONE,         "None"                 },
+	{ VNC_SECURITY_TYPE_VNC,          "VNC"                  },
+	{ VNC_SECURITY_TYPE_RA2,          "RA2"                  },
+	{ VNC_SECURITY_TYPE_RA2ne,        "RA2ne"                },
+	{ VNC_SECURITY_TYPE_TIGHT,        "Tight"                },
+	{ VNC_SECURITY_TYPE_ULTRA,        "Ultra"                },
+	{ VNC_SECURITY_TYPE_TLS,          "TLS"                  },
+	{ VNC_SECURITY_TYPE_VENCRYPT,     "VeNCrypt"             },
+	{ VNC_SECURITY_TYPE_GTK_VNC_SASL, "GTK-VNC SASL"         },
+	{ VNC_SECURITY_TYPE_ARD,          "Apple Remote Desktop" },
 	{ 0,  NULL                     }
 };
 
@@ -377,6 +379,9 @@ typedef enum {
 	VNC_SESSION_STATE_VNC_AUTHENTICATION_CHALLENGE,
 	VNC_SESSION_STATE_VNC_AUTHENTICATION_RESPONSE,
 
+	VNC_SESSION_STATE_ARD_AUTHENTICATION_CHALLENGE,
+	VNC_SESSION_STATE_ARD_AUTHENTICATION_RESPONSE,
+
 	VNC_SESSION_STATE_SECURITY_RESULT,
 
 	VNC_SESSION_STATE_CLIENT_INIT,
@@ -398,6 +403,8 @@ typedef struct {
 	gint num_encoding_types;
 	guint8 security_type_selected;
 	gboolean tight_enabled;
+	/* This is specific to Apple Remote Desktop */
+	guint16 ard_key_length;
 } vnc_conversation_t;
 
 /* This structure will be tied to each packet */
@@ -508,6 +515,13 @@ static int hf_vnc_auth_response = -1;
 static int hf_vnc_auth_result = -1;
 static int hf_vnc_auth_error = -1;
 static int hf_vnc_auth_error_length = -1;
+
+static int hf_vnc_ard_auth_generator = -1;
+static int hf_vnc_ard_auth_key_len = -1;
+static int hf_vnc_ard_auth_modulus = -1;
+static int hf_vnc_ard_auth_server_key = -1;
+static int hf_vnc_ard_auth_credentials = -1;
+static int hf_vnc_ard_auth_client_key = -1;
 
 static int hf_vnc_share_desktop_flag = -1;
 static int hf_vnc_width = -1;
@@ -1085,6 +1099,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				per_conversation_info->vnc_next_state = VNC_SESSION_STATE_VNC_AUTHENTICATION_CHALLENGE;
 				break;
 
+			case VNC_SECURITY_TYPE_ARD:
+				per_conversation_info->vnc_next_state = VNC_SESSION_STATE_ARD_AUTHENTICATION_CHALLENGE;
+				break;
+
 			default:
 				/* Security type not supported by this dissector */
 				break;
@@ -1120,6 +1138,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			per_conversation_info->vnc_next_state =
 				VNC_SESSION_STATE_TIGHT_TUNNELING_CAPABILITIES;
 			per_conversation_info->tight_enabled = TRUE;
+			break;
+
+		case VNC_SECURITY_TYPE_ARD:
+			per_conversation_info->vnc_next_state = VNC_SESSION_STATE_ARD_AUTHENTICATION_CHALLENGE;
 			break;
 
 		default :
@@ -1290,6 +1312,43 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		proto_tree_add_item(tree, hf_vnc_auth_response, tvb,
 				    offset, 16, ENC_NA);
+
+		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SECURITY_RESULT;
+		break;
+
+	case VNC_SESSION_STATE_ARD_AUTHENTICATION_CHALLENGE :
+		{
+			gint key_len;
+
+			col_set_str(pinfo->cinfo, COL_INFO, "ARD authentication challenge");
+
+			proto_tree_add_item(tree, hf_vnc_ard_auth_generator, tvb,
+						offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_vnc_ard_auth_key_len, tvb,
+						offset + 2, 2, ENC_BIG_ENDIAN);
+
+			key_len = tvb_get_ntohs(tvb, offset + 2);
+
+			offset += 4;
+
+			proto_tree_add_item(tree, hf_vnc_ard_auth_modulus, tvb,
+						offset, key_len, ENC_NA);
+			proto_tree_add_item(tree, hf_vnc_ard_auth_server_key, tvb,
+						offset + key_len, key_len, ENC_NA);
+
+			per_conversation_info->ard_key_length = key_len;
+			per_conversation_info->vnc_next_state =
+				VNC_SESSION_STATE_ARD_AUTHENTICATION_RESPONSE;
+		}
+		break;
+
+	case VNC_SESSION_STATE_ARD_AUTHENTICATION_RESPONSE :
+		col_set_str(pinfo->cinfo, COL_INFO, "ARD authentication response");
+
+		proto_tree_add_item(tree, hf_vnc_ard_auth_credentials, tvb,
+					offset, 128, ENC_NA);
+		proto_tree_add_item(tree, hf_vnc_ard_auth_client_key, tvb,
+					offset + 128, per_conversation_info->ard_key_length, ENC_NA);
 
 		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SECURITY_RESULT;
 		break;
@@ -3459,6 +3518,36 @@ proto_register_vnc(void)
 		  { "Authentication error", "vnc.auth_error",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Authentication error (present only if the authentication result is fail", HFILL }
+		},
+		{ &hf_vnc_ard_auth_generator,
+		  { "Generator", "vnc.ard_auth_generator",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+			"Generator for Diffie-Hellman key exchange", HFILL }
+		},
+		{ &hf_vnc_ard_auth_key_len,
+		  { "Key length", "vnc.ard_auth_key_len",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+			"Diffie-Hellman key length", HFILL }
+		},
+		{ &hf_vnc_ard_auth_modulus,
+		  { "Prime modulus", "vnc.ard_auth_modulus",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+			"Prime modulus for Diffie-Hellman key exchange", HFILL }
+		},
+		{ &hf_vnc_ard_auth_server_key,
+		  { "Server public key", "vnc.ard_auth_server_key",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+			"Server's public Diffie-Hellman key", HFILL }
+		},
+		{ &hf_vnc_ard_auth_credentials,
+		  { "Encrypted credentials", "vnc.ard_auth_credentials",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+			"Encrypted client username and password", HFILL }
+		},
+		{ &hf_vnc_ard_auth_client_key,
+		  { "Client public key", "vnc.ard_auth_client_key",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+			"Client's public Diffie-Hellman key", HFILL }
 		},
 		{ &hf_vnc_share_desktop_flag,
 		  { "Share desktop flag", "vnc.share_desktop_flag",
