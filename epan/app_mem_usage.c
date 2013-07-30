@@ -22,21 +22,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* code copied from ekg2, GPL-2 */
 #include "config.h"
 
 #include <glib.h>
-
-#include <stdio.h>
-#include <string.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#ifdef HAVE_SYS_UTSNAME_H
-#include <sys/utsname.h>
-#endif
 
 #ifdef _WIN32
 #include <windows.h>
@@ -69,71 +57,6 @@ get_total_mem_used_by_app(void)
 		return (int)workingSize;
 	}
 #else
-	char *temp;
-	FILE *file = NULL;
-	int rozmiar = 0, unmres;
-	struct utsname sys;
-
-	unmres = uname(&sys);
-
-	temp = g_strdup_printf("/proc/%d/status", getpid());
-
-	if ( (unmres != -1 && !strcmp(sys.sysname, "FreeBSD")) || (file = fopen(temp,"rb")) ) {
-		g_free(temp);
-		{
-#ifdef __linux__
-			char buf[1024];
-			char *p = NULL;
-			size_t rd = 0;
-
-			rd = fread(buf, 1, 1024, file);
-			fclose(file);
-			if (rd == 0)
-			{
-				return -1;
-			}
-			p = strstr(buf, "VmSize");
-			if (p) {
-				sscanf(p, "VmSize:     %d kB", &rozmiar);
-			} else {
-				return -1;
-			}
-#elif __sun
-			size_t rd = 0;
-			pstatus_t proc_stat;
-			rd = fread(&proc_stat, sizeof(proc_stat), 1, file);
-			fclose(file);
-			if (rd == 0)
-			{
-				return -1;
-			}
-			rozmiar = proc_stat.pr_brksize + proc_stat.pr_stksize;
-#elif __FreeBSD__ /* link with -lkvm */
-			char errbuf[_POSIX2_LINE_MAX];
-			int nentries = -1;
-			struct kinfo_proc *kp;
-			static kvm_t	  *kd;
-
-			if (!(kd = kvm_openfiles(NULL /* "/dev/null" */, "/dev/null", NULL, /* O_RDONLY */0, errbuf))) {
-				return -1;
-			}
-			kp = kvm_getprocs(kd, KERN_PROC_PID, getpid(), &nentries);
-			if (!kp || nentries != 1) {
-				return -1; 
-			}
-#ifdef HAVE_STRUCT_KINFO_PROC_KI_SIZE
-			rozmiar = (u_long) kp->ki_size/1024; /* freebsd5 */
-#else
-			rozmiar = kp->kp_eproc.e_vm.vm_map.size/1024; /* freebsd4 */
-#endif /* HAVE_STRUCT_KINFO_PROC_KI_SIZE */
-#else
-			/* no /proc mounted */
-			return -1;
-#endif
-		}
-	} else {
-		return -1;
-	}
-	return rozmiar;
+	return 0;
 #endif /* (_WIN32) */
 }
