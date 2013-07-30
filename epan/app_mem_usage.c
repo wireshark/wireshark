@@ -69,9 +69,8 @@ get_total_mem_used_by_app(void)
 		return (int)workingSize;
 	}
 #else
-	char *temp, *p = NULL;
+	char *temp;
 	FILE *file = NULL;
-	size_t rd = 0;
 	int rozmiar = 0, unmres;
 	struct utsname sys;
 
@@ -84,13 +83,15 @@ get_total_mem_used_by_app(void)
 		{
 #ifdef __linux__
 			char buf[1024];
+			char *p = NULL;
+			size_t rd = 0;
 
 			rd = fread(buf, 1, 1024, file);
 			fclose(file);
 			if (rd == 0)
 			{
 				return -1;
-			} 
+			}
 			p = strstr(buf, "VmSize");
 			if (p) {
 				sscanf(p, "VmSize:     %d kB", &rozmiar);
@@ -98,6 +99,7 @@ get_total_mem_used_by_app(void)
 				return -1;
 			}
 #elif __sun
+			size_t rd = 0;
 			pstatus_t proc_stat;
 			rd = fread(&proc_stat, sizeof(proc_stat), 1, file);
 			fclose(file);
