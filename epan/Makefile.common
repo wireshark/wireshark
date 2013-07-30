@@ -29,7 +29,6 @@ LIBWIRESHARK_SRC =		\
 	address_to_str.c	\
 	adler32.c		\
 	afn.c			\
-	app_mem_usage.c	\
 	asn1.c			\
 	atalk-utils.c		\
 	base64.c		\
@@ -151,7 +150,6 @@ LIBWIRESHARK_INCLUDES =		\
 	adler32.h		\
 	afn.h			\
 	aftypes.h		\
-	app_mem_usage.h	\
 	arcnet_pids.h		\
 	arptypes.h		\
 	ax25_pids.h		\
