@@ -408,8 +408,8 @@ typedef struct field_info {
 	gint			 appendix_start;  /**< start of appendix data */
 	gint			 appendix_length; /**< length of appendix data */
 	gint			 tree_type;       /**< one of ETT_ or -1 */
-	item_label_t		*rep;             /**< string for GUI tree */
 	guint32			 flags;           /**< bitfield like FI_GENERATED, ... */
+	item_label_t		*rep;             /**< string for GUI tree */
 	tvbuff_t		*ds_tvb;          /**< data source tvbuff */
 	fvalue_t		 value;
 } field_info;
