@@ -58,8 +58,6 @@ typedef enum {
 typedef struct _frame_data {
   GSList      *pfd;          /**< Per frame proto data */
   guint32      num;          /**< Frame number */
-  guint32      interface_id; /**< identifier of the interface. */
-  guint32      pack_flags;   /**< Packet Flags */
   guint32      pkt_len;      /**< Packet length */
   guint32      cap_len;      /**< Amount actually captured */
   guint32      cum_bytes;    /**< Cumulative bytes into the capture */
@@ -75,8 +73,6 @@ typedef struct _frame_data {
     unsigned int ref_time       : 1; /**< 1 = marked as a reference time frame, 0 = normal */
     unsigned int ignored        : 1; /**< 1 = ignore this frame, 0 = normal */
     unsigned int has_ts         : 1; /**< 1 = has time stamp, 0 = no time stamp */
-    unsigned int has_if_id      : 1; /**< 1 = has interface ID, 0 = no interface ID */
-    unsigned int has_pack_flags : 1; /**< 1 = has packet flags, 0 = no packet flags */
   } flags;
 
   const void *color_filter;  /**< Per-packet matching color_filter_t object */

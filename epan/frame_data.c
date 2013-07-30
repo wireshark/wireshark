@@ -263,7 +263,6 @@ frame_data_init(frame_data *fdata, guint32 num,
 {
   fdata->pfd = NULL;
   fdata->num = num;
-  fdata->interface_id = phdr->interface_id;
   fdata->pkt_len = phdr->len;
   fdata->cum_bytes = cum_bytes + phdr->len;
   fdata->cap_len = phdr->caplen;
@@ -272,7 +271,6 @@ frame_data_init(frame_data *fdata, guint32 num,
   /* To save some memory, we coerce it into a gint16 */
   g_assert(phdr->pkt_encap <= G_MAXINT16);
   fdata->lnk_t = (gint16) phdr->pkt_encap;
-  fdata->pack_flags = phdr->pack_flags;
   fdata->flags.passed_dfilter = 0;
   fdata->flags.dependent_of_displayed = 0;
   fdata->flags.encoding = PACKET_CHAR_ENC_CHAR_ASCII;
@@ -281,8 +279,6 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->flags.ref_time = 0;
   fdata->flags.ignored = 0;
   fdata->flags.has_ts = (phdr->presence_flags & WTAP_HAS_TS) ? 1 : 0;
-  fdata->flags.has_if_id = (phdr->presence_flags & WTAP_HAS_INTERFACE_ID) ? 1 : 0;
-  fdata->flags.has_pack_flags = (phdr->presence_flags & WTAP_HAS_PACK_FLAGS) ? 1 : 0;
   fdata->color_filter = NULL;
   fdata->abs_ts.secs = phdr->ts.secs;
   fdata->abs_ts.nsecs = phdr->ts.nsecs;

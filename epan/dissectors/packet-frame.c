@@ -271,16 +271,16 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			proto_item_append_text(ti, " (%u bits)",
 			    cap_len * 8);
 		}
-		if (pinfo->fd->flags.has_if_id) {
+		if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
 			proto_item_append_text(ti, " on interface %u",
-			    pinfo->fd->interface_id);
+			    pinfo->phdr->interface_id);
 		}
-		if (pinfo->fd->flags.has_pack_flags) {
-			if (pinfo->fd->pack_flags & 0x00000001) {
+		if (pinfo->phdr->presence_flags & WTAP_HAS_PACK_FLAGS) {
+			if (pinfo->phdr->pack_flags & 0x00000001) {
 				proto_item_append_text(ti, " (inbound)");
 				pinfo->p2p_dir = P2P_DIR_RECV;
 			}
-			if (pinfo->fd->pack_flags & 0x00000002) {
+			if (pinfo->phdr->pack_flags & 0x00000002) {
 				proto_item_append_text(ti, " (outbound)");
 				pinfo->p2p_dir = P2P_DIR_SENT;
 			}
@@ -288,33 +288,33 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
 
-		if (pinfo->fd->flags.has_if_id && proto_field_is_referenced(tree, hf_frame_interface_id)) {
-			const char *interface_name = epan_get_interface_name(pinfo->epan, pinfo->fd->interface_id);
+		if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID && proto_field_is_referenced(tree, hf_frame_interface_id)) {
+			const char *interface_name = epan_get_interface_name(pinfo->epan, pinfo->phdr->interface_id);
 
 			if (interface_name)
-				proto_tree_add_uint_format_value(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id, "%u (%s)", pinfo->fd->interface_id, interface_name);
+				proto_tree_add_uint_format_value(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->phdr->interface_id, "%u (%s)", pinfo->phdr->interface_id, interface_name);
 			else
-				proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id);
+				proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->phdr->interface_id);
 		}
 
-		if (pinfo->fd->flags.has_pack_flags) {
+		if (pinfo->phdr->presence_flags & WTAP_HAS_PACK_FLAGS) {
 			proto_tree *flags_tree;
 			proto_item *flags_item;
 
-			flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pinfo->fd->pack_flags);
+			flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pinfo->phdr->pack_flags);
 			flags_tree = proto_item_add_subtree(flags_item, ett_flags);
-			proto_tree_add_uint(flags_tree, hf_frame_pack_direction, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_uint(flags_tree, hf_frame_pack_reception_type, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_uint(flags_tree, hf_frame_pack_fcs_length, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_uint(flags_tree, hf_frame_pack_reserved, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_crc_error, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_packet_too_long_error, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_packet_too_short_error, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_inter_frame_gap_error, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_unaligned_frame_error, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_start_frame_delimiter_error, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_preamble_error, tvb, 0, 0, pinfo->fd->pack_flags);
-			proto_tree_add_boolean(flags_tree, hf_frame_pack_symbol_error, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_uint(flags_tree, hf_frame_pack_direction, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_uint(flags_tree, hf_frame_pack_reception_type, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_uint(flags_tree, hf_frame_pack_fcs_length, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_uint(flags_tree, hf_frame_pack_reserved, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_crc_error, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_packet_too_long_error, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_packet_too_short_error, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_inter_frame_gap_error, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_unaligned_frame_error, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_start_frame_delimiter_error, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_preamble_error, tvb, 0, 0, pinfo->phdr->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_symbol_error, tvb, 0, 0, pinfo->phdr->pack_flags);
 		}
 
 		proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->fd->lnk_t);
