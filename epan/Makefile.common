@@ -151,11 +151,12 @@ LIBWIRESHARK_INCLUDES =		\
 	adler32.h		\
 	afn.h			\
 	aftypes.h		\
+	app_mem_usage.h		\
 	arcnet_pids.h		\
 	arptypes.h		\
-	ax25_pids.h		\
 	asn1.h			\
 	atalk-utils.h		\
+	ax25_pids.h		\
 	base64.h		\
 	bitswap.h		\
 	bridged_pids.h		\
