@@ -7,6 +7,8 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
+ * Added request/response tracking in July 2013 by Simon Zhong <szhong@juniper.net>
+ *
  * Added PacketCable D-QoS specifications by Dick Gooris <gooris@lucent.com>
  *
  * Taken from PacketCable specifications :
@@ -59,6 +61,8 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
+#include <epan/wmem/wmem.h>
 #include <epan/emem.h>
 #include "packet-tcp.h"
 
@@ -331,6 +335,9 @@ static const value_string cops_client_type_vals[] = {
     {COPS_CLIENT_PC_DQOS, "PacketCable Dynamic Quality-of-Service"},
     {0x8009,              "3GPP"},
     {COPS_CLIENT_PC_MM,   "PacketCable Multimedia"},
+    {0x800b,              "Juniper"},
+    {0x800c,              "Q.3303.1 (Rw interface) COPS alternative"},
+    {0x800d,              "Q.3304.1 (Rc interface) COPS alternative"},
     {0, NULL},
 };
 
@@ -548,6 +555,10 @@ static gint hf_cops_ver_flags = -1;
 static gint hf_cops_version = -1;
 static gint hf_cops_flags = -1;
 
+static gint hf_cops_response_in = -1;
+static gint hf_cops_response_to = -1;
+static gint hf_cops_response_time = -1;
+
 static gint hf_cops_op_code = -1;
 static gint hf_cops_client_type = -1;
 static gint hf_cops_msg_len = -1;
@@ -558,6 +569,8 @@ static gint hf_cops_obj_c_type = -1;
 
 static gint hf_cops_obj_s_num = -1;
 /* static gint hf_cops_obj_s_type = -1; */
+
+static gint hf_cops_handle = -1;
 
 static gint hf_cops_r_type_flags = -1;
 static gint hf_cops_m_type_flags = -1;
@@ -773,15 +786,28 @@ static gint ett_cops_subtree = -1;
 
 static gint ett_docsis_request_transmission_policy = -1;
 
+/* For request/response matching */
+typedef struct _cops_conv_info_t {
+    wmem_tree_t *pdus_tree;
+} cops_conv_info_t;
+
+typedef struct _cops_call_t
+{
+    guint8 op_code;
+    gboolean solicited;
+    guint32 req_num;
+    guint32 rsp_num;
+    nstime_t req_time;
+} cops_call_t;
 
 void proto_reg_handoff_cops(void);
 
 static guint get_cops_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type);
+static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type, guint32* handle_value);
 static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
-                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len);
+                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len, guint32* handle_value);
 
 static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree, int pr_len,
                                                                         oid_info_t** oid_info_p, guint32** pprid_subids_p, guint* pprid_subids_len_p);
@@ -913,6 +939,16 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 offset = 0;
     guint8 ver_flags;
     gint garbage;
+    guint32 handle_value = 0;
+
+    /* variables for Request/Response tracking */
+    guint i;
+    gboolean is_solicited, is_request, is_response;
+    conversation_t *conversation;
+    cops_conv_info_t *cops_conv_info;
+    cops_call_t *cops_call;
+    GPtrArray* pdus_array;
+    nstime_t delta;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "COPS");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -929,6 +965,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Version and flags share the same byte, put them in a subtree */
     ver_flags = tvb_get_guint8(tvb, offset);
+    is_solicited = (lo_nibble(ver_flags) == 0x01);
     tv = proto_tree_add_uint_format(cops_tree, hf_cops_ver_flags, tvb, offset, 1,
                                     ver_flags, "Version: %u, Flags: %s",
                                     hi_nibble(ver_flags),
@@ -948,7 +985,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 4;
 
     while (tvb_reported_length_remaining(tvb, offset) >= COPS_OBJECT_HDR_SIZE) {
-        object_len = dissect_cops_object(tvb, pinfo, op_code, offset, cops_tree, client_type);
+        object_len = dissect_cops_object(tvb, pinfo, op_code, offset, cops_tree, client_type, &handle_value);
         if (object_len < 0)
             return;
         offset += object_len;
@@ -959,6 +996,136 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text(cops_tree, tvb, offset, garbage,
                             "Trailing garbage: %d byte%s", garbage,
                             plurality(garbage, "", "s"));
+
+    /* Start request/response matching */
+
+    /* handle is 0(or not present), and op_code doesn't allow null handle, return */
+    /* TODO, add expert info for this abnormal */
+    if (handle_value == 0 &&
+        ( op_code != COPS_MSG_SSQ &&
+          op_code != COPS_MSG_OPN &&
+          op_code != COPS_MSG_CAT &&
+          op_code != COPS_MSG_CC &&
+          op_code != COPS_MSG_KA &&
+          op_code != COPS_MSG_SSC) ) {
+        return ;
+    }
+
+
+    is_request  =
+         op_code == COPS_MSG_REQ ||                   /* expects DEC */
+        (op_code == COPS_MSG_DEC && !is_solicited) || /* expects RPT|DRQ */
+/*                  COPS_MSG_RPT                         doesn't expect response */
+/*                  COPS_MSG_DRQ                         doesn't expect response */
+         op_code == COPS_MSG_SSQ ||                   /* expects RPT|DRQ|SSC */
+         op_code == COPS_MSG_OPN ||                   /* expects CAT|CC */
+/*                  COPS_MSG_CAT                         doesn't expect response */
+/*                  COPS_MSG_CC                          doesn't expect response */
+        (op_code == COPS_MSG_KA && !is_solicited);    /* expects KA from PDP, always initialized by PEP */
+/*                  COPS_MSG_SSC                         doesn't expect response */
+
+    is_response =
+/*                  COPS_MSG_REQ                         request only */
+        (op_code == COPS_MSG_DEC && is_solicited) ||  /* response only if reply REQ */
+        (op_code == COPS_MSG_RPT && is_solicited) ||  /* response only if reply DEC/SSQ */
+        (op_code == COPS_MSG_DRQ && is_solicited) ||  /* response only if reply DEC/SSQ */
+/*                  COPS_MSG_SSQ                         request only */
+/*                  COPS_MSG_OPN                         request only */
+         op_code == COPS_MSG_CAT ||                   /* response for OPN */
+        (op_code == COPS_MSG_CC  && is_solicited) ||  /* response for OPN */
+        (op_code == COPS_MSG_KA  && is_solicited) ||  /* response for KA from PEP */
+         op_code == COPS_MSG_SSC;                     /* response for SSQ */
+
+    conversation = find_or_create_conversation(pinfo);
+    cops_conv_info = (cops_conv_info_t *)conversation_get_proto_data(conversation, proto_cops);
+    if (!cops_conv_info) {
+        cops_conv_info = (cops_conv_info_t *)wmem_alloc(wmem_file_scope(), sizeof(cops_conv_info_t));
+
+        cops_conv_info->pdus_tree = wmem_tree_new(wmem_file_scope());
+        conversation_add_proto_data(conversation, proto_cops, cops_conv_info);
+    }
+
+    if ( is_request ||
+        (op_code == COPS_MSG_DEC && is_solicited) ) { /* DEC as response for REQ is considered as request, because it expects RPT|DRQ */
+
+        pdus_array = (GPtrArray *)wmem_tree_lookup32(cops_conv_info->pdus_tree, handle_value);
+        if (pdus_array == NULL) { /* This is the first request we've seen with this handle_value */
+            pdus_array = g_ptr_array_new();
+            wmem_tree_insert32(cops_conv_info->pdus_tree, handle_value, pdus_array);
+        }
+
+        if (!pinfo->fd->flags.visited) {
+            cops_call = se_new(cops_call_t);
+            cops_call->op_code = op_code;
+            cops_call->solicited = is_solicited;
+            cops_call->req_num = PINFO_FD_NUM(pinfo);
+            cops_call->rsp_num = 0;
+            cops_call->req_time = pinfo->fd->abs_ts;
+            g_ptr_array_add(pdus_array, cops_call);
+        }
+        else {
+            for (i=0; i < pdus_array->len; i++) {
+                cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
+                if ( cops_call->req_num == PINFO_FD_NUM(pinfo)
+                  && cops_call->rsp_num != 0)  {
+                    ti = proto_tree_add_uint_format(cops_tree, hf_cops_response_in, tvb, 0, 0, cops_call->rsp_num,
+                                                      "Response to this request is in frame %u", cops_call->rsp_num);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                }
+            }
+        }
+    }
+
+    if (is_response) {
+        pdus_array = (GPtrArray *)wmem_tree_lookup32(cops_conv_info->pdus_tree, handle_value);
+        
+        if (pdus_array == NULL) /* There's no request with this handle value */
+            return;
+
+        if (!pinfo->fd->flags.visited) {
+            for (i=0; i < pdus_array->len; i++) {
+                cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
+
+                if (nstime_cmp(&pinfo->fd->abs_ts, &cops_call->req_time) <= 0 || cops_call->rsp_num != 0)
+                    continue;
+
+                if (
+                    ( (cops_call->op_code == COPS_MSG_REQ) &&
+                        (op_code == COPS_MSG_DEC && is_solicited) ) ||
+                    ( (cops_call->op_code == COPS_MSG_DEC) &&
+                        ( (op_code == COPS_MSG_RPT && is_solicited) ||
+                          (op_code == COPS_MSG_DRQ && is_solicited) ) ) ||
+                    ( (cops_call->op_code == COPS_MSG_SSQ) &&
+                        ( (op_code == COPS_MSG_RPT && is_solicited) ||
+                          (op_code == COPS_MSG_DRQ && is_solicited) ||
+                          (op_code == COPS_MSG_SSC) ) ) ||
+                    ( (cops_call->op_code == COPS_MSG_OPN) &&
+                        (op_code == COPS_MSG_CAT ||
+                         op_code == COPS_MSG_CC) ) ||
+                    ( (cops_call->op_code == COPS_MSG_KA && !(cops_call->solicited)) &&
+                        (op_code == COPS_MSG_KA && is_solicited) ) ) {
+                    cops_call->rsp_num = PINFO_FD_NUM(pinfo);
+                    break;
+                }
+            }
+        }
+        else {
+            for (i=0; i < pdus_array->len; i++) {
+                cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
+                if ( cops_call->rsp_num == PINFO_FD_NUM(pinfo) ) {
+                    ti = proto_tree_add_uint_format(cops_tree, hf_cops_response_to, tvb, 0, 0, cops_call->req_num,
+                                                      "Response to a request in frame %u", cops_call->req_num);
+                    PROTO_ITEM_SET_GENERATED(ti);
+
+                    nstime_delta(&delta, &pinfo->fd->abs_ts, &cops_call->req_time);
+                    ti = proto_tree_add_time(cops_tree, hf_cops_response_time, tvb, 0, 0, &delta);
+                    PROTO_ITEM_SET_GENERATED(ti);
+
+                    break;
+                }
+            }
+        }
+    }
 }
 
 static const char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
@@ -1018,7 +1185,7 @@ static const char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
     return "";
 }
 
-static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type)
+static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code, guint32 offset, proto_tree *tree, guint16 client_type, guint32* handle_value)
 {
     int object_len, contents_len;
     guint8 c_num, c_type;
@@ -1058,7 +1225,7 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code
     offset++;
 
     contents_len = object_len - COPS_OBJECT_HDR_SIZE;
-    dissect_cops_object_data(tvb, pinfo, offset, obj_tree, op_code, client_type, c_num, c_type, contents_len);
+    dissect_cops_object_data(tvb, pinfo, offset, obj_tree, op_code, client_type, c_num, c_type, contents_len, handle_value);
 
     /* Pad to 32bit boundary */
     if (object_len % sizeof (guint32))
@@ -1128,7 +1295,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 o
 }
 
 static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
-                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len)
+                                     guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len, guint32* handle_value)
 {
     proto_item *ti;
     proto_tree *r_type_tree, *itf_tree, *reason_tree, *dec_tree, *error_tree, *clientsi_tree, *pdp_tree;
@@ -1140,6 +1307,13 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
     guint pprid_subids_len = 0;
 
     switch (c_num) {
+    case COPS_OBJ_HANDLE:       /* handle is a variable-length field, however 32bit seems enough for most of the applications */
+        if (len >= 4) {
+            offset += (len-4);  /* for handle longer than 32bit, only take lowest 32 bits as handle */
+            *handle_value = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_item(tree, hf_cops_handle, tvb, offset, 4, ENC_BIG_ENDIAN);
+        }
+        break;
     case COPS_OBJ_CONTEXT:
         r_type = tvb_get_ntohs(tvb, offset);
         m_type = tvb_get_ntohs(tvb, offset + 2);
@@ -1633,6 +1807,21 @@ void proto_register_cops(void)
             FT_UINT8, BASE_HEX, VALS(cops_flags_vals), 0x0F,
             "Flags in COPS Common Header", HFILL }
         },
+        { &hf_cops_response_in,
+          { "Response In",     "cops.response_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "The response to this COPS request is in this frame", HFILL }
+        },
+        { &hf_cops_response_to,
+          { "Request In",      "cops.response_to",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "This is a response to the COPS request in this frame", HFILL }
+        },
+        { &hf_cops_response_time,
+          { "Response Time",   "cops.response_time",
+            FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+            "The time between the Call and the Reply", HFILL }
+        },
         { &hf_cops_op_code,
           { "Op Code",           "cops.op_code",
             FT_UINT8, BASE_DEC, VALS(cops_op_code_vals), 0x0,
@@ -1677,6 +1866,11 @@ void proto_register_cops(void)
         },
 #endif
 
+        { &hf_cops_handle,
+          { "Handle",           "cops.handle",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Handle in COPS Handle Object", HFILL }
+        },
         { &hf_cops_r_type_flags,
           { "R-Type",           "cops.context.r_type",
             FT_UINT16, BASE_HEX, VALS(cops_r_type_vals), 0xFFFF,
