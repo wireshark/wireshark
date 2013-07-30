@@ -27,7 +27,12 @@
 
 #include <glib.h>
 
-#include "app_mem_usage.h"
+#include <stdio.h>
+#include <string.h>
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #ifdef HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
@@ -37,6 +42,8 @@
 #include <windows.h>
 #include <psapi.h>
 #endif /*  _WIN32 */
+
+#include "app_mem_usage.h"
 
 gsize
 get_total_mem_used_by_app(void)

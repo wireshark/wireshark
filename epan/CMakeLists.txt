@@ -1429,6 +1429,7 @@ set(LIBWIRESHARK_FILES
 	address_to_str.c
 	adler32.c
 	afn.c
+	app_mem_usage.c
 	asn1.c
 	atalk-utils.c
 	base64.c
