@@ -41,7 +41,6 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
-#include <epan/base64.h>
 #include <epan/emem.h>
 #include <epan/stats_tree.h>
 #include <epan/req_resp_hdrs.h>
