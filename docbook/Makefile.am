@@ -78,9 +78,9 @@ svn_version.xml: svn_version_check
 
 # Wireshark User Guide
 if HAVE_FOP
-WSUG_TARGETS=wsug.validated wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf
+WSUG_TARGETS=wsug.validated wsug_html_chunked wsug_html user-guide-a4.pdf user-guide-us.pdf
 else
-WSUG_TARGETS=wsug.validated wsug_html_chunked user-guide.html
+WSUG_TARGETS=wsug.validated wsug_html_chunked wsug_html
 endif
 
 wsug: $(WSUG_TARGETS)
@@ -96,7 +96,7 @@ else
 endif
 
 # create html single page file
-user-guide.html: wsug_html/index.html
+wsug_html: wsug_html/index.html
 
 wsug_html/index.html: $(WSUG_SOURCE) wsluarm
 	@ echo --- WSUG - HTML SINGLE PAGE ---

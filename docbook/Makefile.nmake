@@ -68,7 +68,7 @@ all_x: wsug.validated wsdg.validated wsug_x wsdg_x release_notes_x
 
 # -- User Guide ------------------------------------------------------------------------
 
-wsug_x: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm user-guide.zip
+wsug_x: wsug_html_chunked wsug_html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
 
 # validate the content
 wsug.validated: $(WSUG_SOURCE) wsluarm
@@ -77,9 +77,9 @@ wsug.validated: $(WSUG_SOURCE) wsluarm
 	touch $@
 
 # create html single page file
-user-guide.html: wsug_html/user-guide.html
+wsug_html: wsug_html\index.html
 
-wsug_html/user-guide.html: $(WSUG_SOURCE) wsluarm
+wsug_html\index.html: $(WSUG_SOURCE) wsluarm
 	@ echo --- WSUG - HTML SINGLE PAGE ---
 	if not exist wsug_html\wsug_graphics\toolbar md wsug_html\wsug_graphics\toolbar
 	cp wsug_graphics/*.* wsug_html/wsug_graphics
@@ -128,12 +128,6 @@ user-guide.chm: $(WSUG_SOURCE) wsluarm
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
-
-user-guide.zip: user-guide.chm
-	rm -f user-guide.zip
-	zip user-guide.zip user-guide.chm
-!else
-user-guide.zip:
 !endif
 
 wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
@@ -143,7 +137,7 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 
 # -- Developer's Guide ------------------------------------------------------------------------
 
-wsdg_x: wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
+wsdg_x: wsdg_html_chunked wsdg_html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
 
 # validate the content
 wsdg.validated: $(WSDG_SOURCE)
@@ -152,9 +146,9 @@ wsdg.validated: $(WSDG_SOURCE)
 	touch $@
 
 # create html single page file
-developer-guide.html: wsdg_html/developer-guide.html
+wsdg_html: wsdg_html\index.html
 
-wsdg_html/developer-guide.html: $(WSDG_SOURCE)
+wsdg_html\index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML SINGLE PAGE ---
 	if not exist wsdg_html\wsdg_graphics md wsdg_html\wsdg_graphics
 	if not exist wsdg_html\wsdg_graphics\toolbar md wsdg_html\wsdg_graphics\toolbar
@@ -165,9 +159,9 @@ wsdg_html/developer-guide.html: $(WSDG_SOURCE)
 	-chmod -R og+rX wsdg_html
 
 # create html chunked page files
-wsdg_html_chunked: wsdg_html_chunked/index.html
+wsdg_html_chunked: wsdg_html_chunked\index.html
 
-wsdg_html_chunked/index.html: $(WSDG_SOURCE)
+wsdg_html_chunked\index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML CHUNKED ---
 	if not exist wsdg_html_chunked\wsdg_graphics md wsdg_html_chunked\wsdg_graphics
 	if not exist wsdg_html_chunked\wsdg_graphics\toolbar md wsdg_html_chunked\wsdg_graphics\toolbar
