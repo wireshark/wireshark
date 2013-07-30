@@ -3530,6 +3530,17 @@ alloc_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, con
 	return new_field_info(tree, hfinfo, tvb, start, item_length);
 }
 
+static void
+label_mark_truncated_start(char *label_str)
+{
+	static const char trunc_str[] = "[truncated] ";
+	const size_t trunc_len = sizeof(trunc_str)-1;
+
+	memmove(label_str + trunc_len, label_str, ITEM_LABEL_LENGTH - trunc_len);
+	memcpy(label_str, trunc_str, trunc_len);
+	label_str[ITEM_LABEL_LENGTH-1] = '\0';
+}
+
 /* If the protocol tree is to be visible, set the representation of a
    proto_tree entry with the name of the field for the item and with
    the value formatted with the supplied printf-style format and
@@ -3575,18 +3586,8 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
 			 */
-			char *oldrep;
-
-			/*	Argh, we cannot reuse 'ap' here.  So make a copy
-			 *	of what we formatted for (re)use below.
-			 */
-			oldrep = g_strdup(fi->rep->representation);
-
-			g_snprintf(fi->rep->representation,
-				   ITEM_LABEL_LENGTH,
-				   "[truncated] %s",
-				   oldrep);
-			g_free(oldrep);
+			/* XXX, label_mark_truncated() ? */
+			label_mark_truncated_start(fi->rep->representation);
 		}
 	}
 }
@@ -3610,16 +3611,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
 			 */
-			char *oldrep;
-
-			/*	Argh, we cannot reuse 'ap' here.  So make a copy
-			 *	of what we formatted for (re)use below.
-			 */
-			oldrep = g_strdup(fi->rep->representation);
-
-			g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
-				   "[truncated] %s", oldrep);
-			g_free(oldrep);
+			label_mark_truncated_start(fi->rep->representation);
 		}
 	}
 }
