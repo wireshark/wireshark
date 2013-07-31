@@ -87,7 +87,7 @@ EXTRA_DIST = \
 	Wireshark_package.pmdoc/02chmodbpf.xml			\
 	Wireshark_package.pmdoc/03utility-contents.xml		\
 	Wireshark_package.pmdoc/03utility.xml			\
-	Wireshark_package.pmdoc/index.xml.in
+	Wireshark_package.pmdoc/index.xml
 
 
 COPYING.txt: ../../COPYING
