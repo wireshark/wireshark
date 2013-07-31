@@ -7510,9 +7510,8 @@ oui_base_custom(gchar *result, guint32 oui)
 static void
 rsn_gcs_base_custom(gchar *result, guint32 gcs)
 {
-  gchar *oui_result;
+  gchar oui_result[SHORT_STR];
 
-  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, gcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7522,9 +7521,8 @@ rsn_gcs_base_custom(gchar *result, guint32 gcs)
 static void
 rsn_pcs_base_custom(gchar *result, guint32 pcs)
 {
-  gchar *oui_result;
+  gchar oui_result[SHORT_STR];
 
-  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, pcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7534,9 +7532,8 @@ rsn_pcs_base_custom(gchar *result, guint32 pcs)
 static void
 rsn_akms_base_custom(gchar *result, guint32 akms)
 {
-  gchar *oui_result;
+  gchar oui_result[SHORT_STR];
 
-  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7570,9 +7567,8 @@ rsn_akms_return(guint32 akms)
 static void
 rsn_gmcs_base_custom(gchar *result, guint32 gmcs)
 {
-  gchar *oui_result;
+  gchar oui_result[SHORT_STR];
 
-  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, gmcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7669,9 +7665,8 @@ static const true_false_string ieee802111_wfa_ie_wme_qos_info_sta_ac_tfs = {
 static void
 wpa_mcs_base_custom(gchar *result, guint32 mcs)
 {
-  gchar *oui_result;
+  gchar oui_result[SHORT_STR];
 
-  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, mcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7681,9 +7676,8 @@ wpa_mcs_base_custom(gchar *result, guint32 mcs)
 static void
 wpa_ucs_base_custom(gchar *result, guint32 ucs)
 {
-  gchar *oui_result;
+  gchar oui_result[SHORT_STR];
 
-  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, ucs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7693,9 +7687,8 @@ wpa_ucs_base_custom(gchar *result, guint32 ucs)
 static void
 wpa_akms_base_custom(gchar *result, guint32 akms)
 {
-  gchar *oui_result;
+  gchar oui_result[SHORT_STR];
 
-  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
