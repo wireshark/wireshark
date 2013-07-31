@@ -415,6 +415,12 @@ then
 	#
 	OSX_DEPLOY_TARGET="MACOSX_DEPLOYMENT_TARGET=$deploy_target"
 
+	#
+	# In the installer package XML file, give the deployment target
+	# as the minimum version.
+	#
+	OSX_MIN_VERSION="$deploy_target"
+
 	case $deploy_target in
 
 	10.4|10.5)
@@ -429,7 +435,17 @@ then
 		LDFLAGS="-arch i386 $LDFLAGS"
 		;;
 	esac
+else
+	#
+	# In the installer package XML file, give the current OS
+	# version, minor version and all, as the minimum version.
+	# We can't guarantee that the resulting binary will work
+	# on older OS versions, not even older minor versions
+	# (original release or earlier software updates).
+	#
+	OSX_MIN_VERSION=`sw_vers -productVersion`
 fi
+AC_SUBST(OSX_MIN_VERSION)
 
 #
 # Try to arrange for large file support.
@@ -2747,6 +2763,7 @@ AC_OUTPUT(
   packaging/macosx/Info.plist
   packaging/macosx/Makefile
   packaging/macosx/osx-dmg.sh
+  packaging/macosx/Wireshark_package.pmdoc/index.xml
   packaging/nsis/Makefile
   packaging/rpm/Makefile
   packaging/rpm/SPECS/Makefile
