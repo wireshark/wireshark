@@ -444,7 +444,6 @@ else
 		#
 		# Yes.
 		#
-		#
 		# In the installer package XML file, give the current OS
 		# version, minor version and all, as the minimum version.
 		# We can't guarantee that the resulting binary will work
