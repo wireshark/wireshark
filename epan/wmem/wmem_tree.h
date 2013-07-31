@@ -64,6 +64,11 @@ wmem_tree_t *
 wmem_tree_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave)
 G_GNUC_MALLOC;
 
+/** Returns true if the tree is empty (has no nodes). */
+WS_DLL_PUBLIC
+gboolean
+wmem_tree_is_empty(wmem_tree_t *tree);
+
 /** Insert a node indexed by a guint32 key value. */
 WS_DLL_PUBLIC
 void

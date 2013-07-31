@@ -279,6 +279,12 @@ wmem_tree_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave)
     return tree;
 }
 
+gboolean
+wmem_tree_is_empty(wmem_tree_t *tree)
+{
+    return tree->root == NULL;
+}
+
 static wmem_tree_node_t *
 create_node(wmem_allocator_t *allocator, wmem_tree_node_t *parent, guint32 key,
         void *data, wmem_node_color_t color, gboolean is_subtree)
@@ -579,7 +585,9 @@ wmem_tree_lookup32_array_helper(wmem_tree_t *tree, wmem_tree_key_t *key,
     wmem_tree_key_t *cur_key;
     guint32 i, lookup_key32 = 0;
 
-    g_assert(tree);
+    if (!tree || !key) {
+        return NULL;
+    }
 
     for (cur_key = key; cur_key->length > 0; cur_key++) {
         g_assert(cur_key->length < 100);

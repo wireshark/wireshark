@@ -775,6 +775,7 @@ wmem_test_tree(void)
 
     tree = wmem_tree_new(allocator);
     g_assert(tree);
+    g_assert(wmem_tree_is_empty(tree));
 
     /* test basic 32-bit key operations */
     for (i=0; i<CONTAINER_ITERS; i++) {
@@ -784,6 +785,7 @@ wmem_test_tree(void)
         }
         wmem_tree_insert32(tree, i, GINT_TO_POINTER(i));
         g_assert(wmem_tree_lookup32(tree, i) == GINT_TO_POINTER(i));
+        g_assert(!wmem_tree_is_empty(tree));
     }
     wmem_free_all(allocator);
 
