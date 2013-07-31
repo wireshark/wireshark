@@ -103,7 +103,7 @@ if test ! -z "$PYTHON"; then
 	# were apparently introduced in Python 2.7.
 	#
 	AC_MSG_CHECKING([whether $PYTHON is Python 2])
-	python_major_version=`$PYTHON -c 'import sys; print sys.version_info[[0]]'`
+	python_major_version=`$PYTHON -c 'import sys; print (sys.version_info[[0]])'`
 	if test "$python_major_version" = 2; then
 		AC_MSG_RESULT([yes])
 	else
