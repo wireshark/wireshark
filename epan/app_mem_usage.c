@@ -24,12 +24,21 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #include <glib.h>
 
 #ifdef _WIN32
 #include <windows.h>
 #include <psapi.h>
 #endif /*  _WIN32 */
+
+#if defined(__linux__)
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <unistd.h>
+# include <fcntl.h>
+#endif
 
 #include "app_mem_usage.h"
 
@@ -62,6 +71,83 @@ win32_get_total_mem_used_by_app(void)
 
 #endif /* (_WIN32) */
 
+#if defined(__linux__)
+
+static gboolean
+linux_get_memory(gsize *ptotal, gsize *prss)
+{
+	static int fd = -1;
+	static intptr_t pagesize = 0;
+
+	char buf[128];
+	unsigned long total, rss;
+	ssize_t ret;
+
+	if (!pagesize)
+		pagesize = sysconf(_SC_PAGESIZE);
+
+	if (pagesize == -1)
+		return FALSE;
+
+	if (fd < 0) {
+		char path[64];
+
+		g_snprintf(path, sizeof(path), "/proc/%d/statm", getpid());
+
+		fd = open(path, O_RDONLY);
+
+		/* XXX, fallback to some other /proc file ? */
+	}
+
+	if (fd < 0)
+		return FALSE;
+
+	ret = pread(fd, buf, sizeof(buf)-1, 0);
+	if (ret <= 0)
+		return FALSE;
+
+	buf[ret] = '\0';
+
+	if (sscanf(buf, "%lu %lu", &total, &rss) != 2)
+		return FALSE;
+
+	if (ptotal)
+		*ptotal = pagesize * (gsize) total;
+	if (prss)
+		*prss = pagesize * (gsize) rss;
+
+	return TRUE;
+}
+
+static gsize
+linux_get_total_mem_used_by_app(void)
+{
+	gsize total;
+
+	if (!linux_get_memory(&total, NULL))
+		total = 0;
+
+	return total;
+}
+
+static gsize
+linux_get_rss_mem_used_by_app(void)
+{
+	gsize rss;
+
+	if (!linux_get_memory(NULL, &rss))
+		rss = 0;
+
+	return rss;
+}
+
+#define get_total_mem_used_by_app linux_get_total_mem_used_by_app
+
+#define get_rss_mem_used_by_app linux_get_rss_mem_used_by_app
+
+#endif
+
+/* XXX, BSD 4.3: getrusage() -> ru_ixrss ? */
 
 #ifdef get_total_mem_used_by_app
 static const ws_mem_usage_t total_usage = { "Total", get_total_mem_used_by_app, NULL };
