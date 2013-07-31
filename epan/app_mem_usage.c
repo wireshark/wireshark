@@ -33,10 +33,12 @@
 
 #include "app_mem_usage.h"
 
-gsize
-get_total_mem_used_by_app(void)
-{
+#define MAX_COMPONENTS 16
+
 #if defined(_WIN32)
+static gsize
+win32_get_total_mem_used_by_app(void)
+{
    HANDLE pHandle;
    PROCESS_MEMORY_COUNTERS pmc;
    SIZE_T workingSize = 0;
@@ -45,8 +47,6 @@ get_total_mem_used_by_app(void)
 
    if (GetProcessMemoryInfo(pHandle, &pmc, sizeof(pmc))){
       workingSize = pmc.WorkingSetSize;
-
-	  workingSize = workingSize / 1024;
     }
 
     CloseHandle(pHandle);
@@ -56,7 +56,70 @@ get_total_mem_used_by_app(void)
 	}else{
 		return (int)workingSize;
 	}
-#else
-	return 0;
-#endif /* (_WIN32) */
 }
+
+#define get_total_mem_used_by_app win32_get_total_mem_used_by_app
+
+#endif /* (_WIN32) */
+
+
+#ifdef get_total_mem_used_by_app
+static const ws_mem_usage_t total_usage = { "Total", get_total_mem_used_by_app, NULL };
+#endif
+
+#ifdef get_rss_mem_used_by_app
+static const ws_mem_usage_t rss_usage = { "RSS", get_rss_mem_used_by_app, NULL };
+#endif
+
+static const ws_mem_usage_t *memory_components[MAX_COMPONENTS] = { 
+#ifdef get_total_mem_used_by_app
+	&total_usage,
+#endif
+#ifdef get_rss_mem_used_by_app
+	&rss_usage,
+#endif
+};
+
+static guint memory_register_num = 0
+#ifdef get_total_mem_used_by_app
+	+ 1
+#endif
+#ifdef get_rss_mem_used_by_app
+	+ 1
+#endif
+	;
+
+/* public API */
+
+void
+memory_usage_component_register(const ws_mem_usage_t *component)
+{
+	if (memory_register_num >= MAX_COMPONENTS)
+		return;
+
+	memory_components[memory_register_num++] = component;
+}
+
+const char *
+memory_usage_get(guint index, gsize *value)
+{
+	if (index >= memory_register_num)
+		return NULL;
+
+	if (value)
+		*value = memory_components[index]->fetch();
+
+	return memory_components[index]->name;
+}
+
+void
+memory_usage_gc(void)
+{
+	guint i;
+
+	for (i = 0; i < memory_register_num; i++) {
+		if (memory_components[i]->gc)
+			memory_components[i]->gc();
+	}
+}
+

@@ -24,6 +24,19 @@
 #ifndef __APP_MEM_USAGE_H__
 #define __APP_MEM_USAGE_H__
 
-gsize get_total_mem_used_by_app(void);
+#include "ws_symbol_export.h"
+
+typedef struct {
+	const char *name;
+	gsize (*fetch)(void);
+	void (*gc)(void);
+
+} ws_mem_usage_t;
+
+WS_DLL_PUBLIC void memory_usage_component_register(const ws_mem_usage_t *component);
+
+WS_DLL_PUBLIC void memory_usage_gc(void);
+
+WS_DLL_PUBLIC const char *memory_usage_get(guint index, gsize *value);
 
 #endif /* APP_MEM_USAGE_H */

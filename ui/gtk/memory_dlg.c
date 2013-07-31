@@ -40,15 +40,8 @@
 #include "epan/app_mem_usage.h"
 
 enum {
-    MEMORY_TOTAL = 0,
-    MEMORY_RSS,
-    MEMORY_EP,
-    MEMORY_SE,
-
-    MAX_GRAPHS
+    MAX_GRAPHS = 10
 };
-
-static const char *graph_labels[MAX_GRAPHS] = { "Total", "RSS", "EP", "SE" };
 
 #define MAX_YSCALE          28
 static guint32 yscale_max[MAX_YSCALE] = {0, 1, 10, 20,
@@ -595,9 +588,13 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
     gtk_widget_show(hbox);
 
     for (i=0; i<MAX_GRAPHS; i++) {
+        const char *label = memory_usage_get(i, NULL);
         GtkWidget *display_button;
 
-        display_button = gtk_toggle_button_new_with_label(graph_labels[i]);
+	if (!label)
+	    break;
+
+        display_button = gtk_toggle_button_new_with_label(label);
         gtk_box_pack_start(GTK_BOX(hbox), display_button, FALSE, FALSE, 0);
         g_signal_connect(display_button, "toggled", G_CALLBACK(filter_callback), &io->graphs[i]);
         gtk_widget_show(display_button);
@@ -647,13 +644,10 @@ init_io_stat_window(io_stat_t *io)
 static gboolean
 call_it(gpointer user_data)
 {
-gsize ep_memory_usage(void);
-gsize se_memory_usage(void);
     io_stat_t *io = (io_stat_t *) user_data;
     char buf[64];
     char *tmp;
-
-    int              idx;
+    int idx, i;
 
     io->needs_redraw = TRUE;
 
@@ -665,24 +659,20 @@ gsize se_memory_usage(void);
         return FALSE;
     }
 
-    /* Point to the appropriate io_item_t struct */
-    io->graphs[MEMORY_TOTAL].items[idx]->bytes = get_total_mem_used_by_app() * 1000;
-    tmp = format_size(io->graphs[MEMORY_TOTAL].items[idx]->bytes, format_size_unit_bytes);
-    g_snprintf(buf, sizeof(buf), "Total [%s]", tmp);
-    gtk_button_set_label(GTK_BUTTON(io->graphs[MEMORY_TOTAL].display_button), buf);
-    g_free(tmp);
 
-    io->graphs[MEMORY_EP].items[idx]->bytes = ep_memory_usage();
-    tmp = format_size(io->graphs[MEMORY_EP].items[idx]->bytes, format_size_unit_bytes);
-    g_snprintf(buf, sizeof(buf), "EP [%s]", tmp);
-    gtk_button_set_label(GTK_BUTTON(io->graphs[MEMORY_EP].display_button), buf);
-    g_free(tmp);
+    for (i = 0; i < MAX_GRAPHS; i++) {
+        const char *label;
 
-    io->graphs[MEMORY_SE].items[idx]->bytes = se_memory_usage();
-    tmp = format_size(io->graphs[MEMORY_SE].items[idx]->bytes, format_size_unit_bytes);
-    g_snprintf(buf, sizeof(buf), "SE [%s]", tmp);
-    gtk_button_set_label(GTK_BUTTON(io->graphs[MEMORY_SE].display_button), buf);
-    g_free(tmp);
+	label = memory_usage_get(i, &io->graphs[i].items[idx]->bytes);
+
+	if (!label)
+	   break;
+
+        tmp = format_size(io->graphs[i].items[idx]->bytes, format_size_unit_bytes);
+        g_snprintf(buf, sizeof(buf), "%s [%s]", label, tmp);
+        gtk_button_set_label(GTK_BUTTON(io->graphs[i].display_button), buf);
+        g_free(tmp);
+    }
 
     io_stat_draw(io);
 
