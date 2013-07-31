@@ -201,20 +201,20 @@ static const gchar *capture_cols[5] = {
 /*
  * List of all modules with preference settings.
  */
-static emem_tree_t *prefs_modules = NULL;
+static wmem_tree_t *prefs_modules = NULL;
 
 /*
  * List of all modules that should show up at the top level of the
  * tree in the preference dialog box.
  */
-static emem_tree_t *prefs_top_level_modules = NULL;
+static wmem_tree_t *prefs_top_level_modules = NULL;
 
 /** Sets up memory used by proto routines. Called at program startup */
 void
 prefs_init(void)
 {
-    prefs_modules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_modules");
-    prefs_top_level_modules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_top_level_modules");
+    prefs_modules = wmem_tree_new(wmem_epan_scope());
+    prefs_top_level_modules = wmem_tree_new(wmem_epan_scope());
 }
 
 static void
@@ -263,7 +263,7 @@ free_module_prefs(module_t *module, gpointer data _U_)
     module->prefs = NULL;
     module->numprefs = 0;
     /*  We don't free the actual module: its submodules pointer points to
-        a pe_tree and the module itself is stored in a pe_tree
+        a wmem_tree and the module itself is stored in a wmem_tree
      */
 
     return 0;
@@ -328,8 +328,8 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
         module->description = description;
 
         if (prefs_find_module(name) == NULL) {
-            pe_tree_insert_string(prefs_modules, name, module,
-                                  EMEM_TREE_STRING_NOCASE);
+            wmem_tree_insert_string(prefs_modules, name, module,
+                                  WMEM_TREE_STRING_NOCASE);
         }
 
         return module;
@@ -385,7 +385,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
         /*
          * Insert this module in the list of all modules.
          */
-        pe_tree_insert_string(prefs_modules, name, module, EMEM_TREE_STRING_NOCASE);
+        wmem_tree_insert_string(prefs_modules, name, module, WMEM_TREE_STRING_NOCASE);
     } else {
         /*
          * This has no name, just a title; check to make sure it's a
@@ -402,16 +402,16 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
         /*
          * It goes at the top.
          */
-        pe_tree_insert_string(prefs_top_level_modules, title, module, EMEM_TREE_STRING_NOCASE);
+        wmem_tree_insert_string(prefs_top_level_modules, title, module, WMEM_TREE_STRING_NOCASE);
     } else {
         /*
          * It goes into the list for this module.
          */
 
         if (parent->submodules == NULL)
-            parent->submodules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_submodules");
+            parent->submodules = wmem_tree_new(wmem_epan_scope());
 
-        pe_tree_insert_string(parent->submodules, title, module, EMEM_TREE_STRING_NOCASE);
+        wmem_tree_insert_string(parent->submodules, title, module, WMEM_TREE_STRING_NOCASE);
     }
 
     return module;
@@ -566,13 +566,13 @@ prefs_register_stat(const char *name, const char *title,
 module_t *
 prefs_find_module(const char *name)
 {
-    return (module_t *)pe_tree_lookup_string(prefs_modules, name, EMEM_TREE_STRING_NOCASE);
+    return (module_t *)wmem_tree_lookup_string(prefs_modules, name, WMEM_TREE_STRING_NOCASE);
 }
 
 static module_t *
 find_subtree(module_t *parent, const char *name)
 {
-    return (module_t *)pe_tree_lookup_string(parent ? parent->submodules : prefs_top_level_modules, name, EMEM_TREE_STRING_NOCASE);
+    return (module_t *)wmem_tree_lookup_string(parent ? parent->submodules : prefs_top_level_modules, name, WMEM_TREE_STRING_NOCASE);
 }
 
 /*
@@ -607,7 +607,7 @@ call_foreach_cb(void *value, void *data)
 }
 
 static guint
-prefs_module_list_foreach(emem_tree_t *module_list, module_cb callback,
+prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
                           gpointer user_data)
 {
     call_foreach_t call_data;
@@ -618,7 +618,7 @@ prefs_module_list_foreach(emem_tree_t *module_list, module_cb callback,
     call_data.callback = callback;
     call_data.user_data = user_data;
     call_data.ret = 0;
-    pe_tree_foreach(module_list, call_foreach_cb, &call_data);
+    wmem_tree_foreach(module_list, call_foreach_cb, &call_data);
     return call_data.ret;
 }
 
@@ -632,7 +632,7 @@ prefs_module_has_submodules(module_t *module)
         return FALSE;
     }
 
-    if (module->submodules->tree == NULL) {
+    if (wmem_tree_is_empty(module->submodules)) {
         return FALSE;
     }
 
@@ -694,7 +694,7 @@ call_apply_cb(void *value, void *data _U_)
 void
 prefs_apply_all(void)
 {
-    pe_tree_foreach(prefs_modules, call_apply_cb, NULL);
+    wmem_tree_foreach(prefs_modules, call_apply_cb, NULL);
 }
 
 /*
@@ -836,7 +836,7 @@ prefs_find_preference(module_t *module, const char *name)
         if (module->submodules != NULL)
         {
             arg.name = name;
-            pe_tree_foreach(module->submodules, module_find_pref_cb, &arg);
+            wmem_tree_foreach(module->submodules, module_find_pref_cb, &arg);
         }
 
         list_entry = arg.list_entry;
@@ -2924,7 +2924,7 @@ prefs_reset(void)
   /*
    * Reset the non-UAT dissector preferences.
    */
-  pe_tree_foreach(prefs_modules, reset_module_prefs, NULL);
+  wmem_tree_foreach(prefs_modules, reset_module_prefs, NULL);
 }
 
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
