@@ -346,6 +346,12 @@ else
 fi
 
 #
+# The default target OS is the major version of the one we're running;
+# get that and strip off the third component.
+#
+min_osx_target=`sw_vers -productVersion | sed 's/\([[0-9]]*\).\([[0-9]]*\).[[0-9]]*/\1.\2/'`
+
+#
 # Parse command-line flags:
 #
 # -h - print help.
@@ -408,173 +414,167 @@ if [ -z "$MAKE_BUILD_OPTS" ] ; then
 fi
 
 #
-# Was a minimum target release specified?
+# Look for the SDK for the target release, and build libraries against
+# it rather than against the headers and, more importantly,
+# libraries that come with the OS, so that we don't end up with
+# support libraries that only work on the OS version on which
+# we built them, not earlier versions of the same release, or
+# earlier releases if the minimum is earlier.
 #
-if [ ! -z "$min_osx_target" ]
+for i in /Developer/SDKs \
+    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
+    /Library/Developer/CommandLineTools/SDKs
+do
+    if [ -d "$i"/"MacOSX$min_osx_target.sdk" ]
+    then
+        SDKPATH="$i"/"MacOSX$min_osx_target.sdk"
+        break
+    fi
+done
+
+if [ -z "$SDKPATH" ]
+then
+    echo "macosx-setup.sh: Couldn't find the SDK for OS X $min_osx_target" 1>&2
+    exit 1
+fi
+
+#
+# Make sure there are links to /usr/local/include and /usr/local/lib
+# in the SDK's usr/local.
+#
+if [ ! -e $SDKPATH/usr/local/include ]
+then
+    if [ ! -d $SDKPATH/usr/local ]
+    then
+        sudo mkdir $SDKPATH/usr/local
+    fi
+    sudo ln -s /usr/local/include $SDKPATH/usr/local/include
+fi
+if [ ! -e $SDKPATH/usr/local/lib ]
+then
+    if [ ! -d $SDKPATH/usr/local ]
+    then
+        sudo mkdir $SDKPATH/usr/local
+    fi
+    sudo ln -s /usr/local/lib $SDKPATH/usr/local/lib
+fi
+
+#
+# Set the minimum OS version for which to build to the specified
+# minimum target OS version, so we don't, for example, end up using
+# linker features supported by the OS verson on which we're building
+# but not by the target version.
+#
+VERSION_MIN_FLAGS="-mmacosx-version-min=$min_osx_target"
+
+#
+# Compile and link against the SDK.
+#
+SDKFLAGS="-isysroot $SDKPATH"
+
+if [[ "$min_osx_target" == "10.5" ]]
 then
     #
-    # Look for the SDK for that release, and build libraries against
-    # it rather than against the headers and, more importantly,
-    # libraries that come with the OS, so that we don't end up with
-    # support libraries that only work on the OS version on which
-    # we built them, not earlier versions of the same release, or
-    # earlier releases if the minimum is earlier.
+    # Cairo is part of Mac OS X 10.6 and later.
+    # The *headers* are supplied by 10.5, but the *libraries*
+    # aren't, so we have to build it if we're building for 10.5.
     #
-    for i in /Developer/SDKs \
-        /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
-        /Library/Developer/CommandLineTools/SDKs
-    do
-        if [ -d "$i"/"MacOSX$min_osx_target.sdk" ]
-        then
-            SDKPATH="$i"/"MacOSX$min_osx_target.sdk"
-            break
-        fi
-    done
-
-    if [ -z "$SDKPATH" ]
-    then
-        echo "macosx-setup.sh: Couldn't find the SDK for OS X $min_osx_target" 1>&2
-        exit 1
-    fi
+    cairo_not_in_the_os=yes
 
     #
-    # Make sure there are links to /usr/local/include and /usr/local/lib
-    # in the SDK's usr/local.
+    # Build with older versions of the support libraries, as
+    # were used on the Wireshark Leopard buildbot at one
+    # point.  (Most of these versions come from the About page
+    # from Wireshark 1.8.6, the last build done on that buildbot;
+    # the ATK version isn't reported, so this is a guess.)
     #
-    if [ ! -e $SDKPATH/usr/local/include ]
-    then
-        if [ ! -d $SDKPATH/usr/local ]
-        then
-            sudo mkdir $SDKPATH/usr/local
-        fi
-        sudo ln -s /usr/local/include $SDKPATH/usr/local/include
-    fi
-    if [ ! -e $SDKPATH/usr/local/lib ]
-    then
-        if [ ! -d $SDKPATH/usr/local ]
-        then
-            sudo mkdir $SDKPATH/usr/local
-        fi
-        sudo ln -s /usr/local/lib $SDKPATH/usr/local/lib
-    fi
+    # If you want to try building with newer versions of
+    # the libraries, note that:
+    #
+    # The version of fontconfig that comes with Leopard doesn't
+    # support FC_WEIGHT_EXTRABLACK, so we can't use any version
+    # of Pango newer than 1.22.4.
+    #
+    # However, Pango 1.22.4 doesn't work with versions of GLib
+    # after 2.29.6, because Pango 1.22.4 uses G_CONST_RETURN and
+    # GLib 2.29.8 and later deprecate it (there doesn't appear to
+    # be a GLib 2.29.7).  That means we'd either have to patch
+    # Pango not to use it (just use "const"; G_CONST_RETURN was
+    # there to allow code to choose whether to use "const" or not),
+    # or use GLib 2.29.6 or earlier.
+    #
+    # GLib 2.29.6 includes an implementation of g_bit_lock() that,
+    # on x86 (32-bit and 64-bit), uses asms in a fashion
+    # ("asm volatile goto") that requires GCC 4.5 or later, which
+    # is later than the compilers that come with Leopard and Snow
+    # Leopard.  Recent versions of GLib check for that, but 2.29.6
+    # doesn't, so, if you want to build GLib 2.29.6 on Leopard or
+    # Snow Leopard, you would have to patch glib/gbitlock.c to do
+    # what the newer versions of GLib do:
+    #
+    #  define a USE_ASM_GOTO macro that indicates whether "asm goto"
+    #  can be used:
+    #    #if (defined (i386) || defined (__amd64__))
+    #      #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
+    #        #define USE_ASM_GOTO 1
+    #      #endif
+    #    #endif
+    #
+    #  replace all occurrences of
+    #
+    #    #if defined (__GNUC__) && (defined (i386) || defined (__amd64__))
+    #
+    #  with
+    #
+    #    #ifdef USE_ASM_GOTO
+    #
+    # Using GLib 2.29.6 or earlier, however, means that we can't
+    # use a version of ATK later than 2.3.93, as those versions
+    # don't work with GLib 2.29.6.  The same applies to gdk-pixbuf;
+    # versions of gdk-pixbuf after 2.24.1 won't work with GLib
+    # 2.29.6.
+    #
+    # Then you have to make sure that what you've build doesn't
+    # cause the X server that comes with Leopard to crash; at
+    # least one attempt at building for Leopard did.
+    #
+    # At least if building on Leopard, you might also find
+    # that, with various older versions of Cairo, including
+    # 1.6.4 and at least some 1.8.x versions, when you try to
+    #  build it, the build fails because it can't find
+    # png_set_longjmp_fn().  I vaguely remember dealing with that,
+    # ages ago, but don't remember what I did.
+    #
+    GLIB_VERSION=2.16.3
+    CAIRO_VERSION=1.6.4
+    ATK_VERSION=1.24.0
+    PANGO_VERSION=1.20.2
+    GTK_VERSION=2.12.9
 
     #
-    # Set the minimum OS version for which to build to the specified
-    # minimum target OS version, so we don't, for example, end up using
-    # linker features supported by the OS verson on which we're building
-    # but not by the target version.
+    # That version of GTK+ includes gdk-pixbuf.
+    # XXX - base this on the version of GTK+ requested.
     #
-    VERSION_MIN_FLAGS="-mmacosx-version-min=$min_osx_target"
+    GDK_PIXBUF_VERSION=
 
     #
-    # Compile and link against the SDK.
+    # Libgcrypt 1.5.0 fails to compile due to some problem with an
+    # asm in rijndael.c, at least with i686-apple-darwin10-gcc-4.2.1
+    # (GCC) 4.2.1 (Apple Inc. build 5666) (dot 3) when building
+    # 32-bit.
     #
-    SDKFLAGS="-isysroot $SDKPATH"
+    # We try libgcrypt 1.4.3 instead, as that's what shows up in
+    # the version from the Leopard buildbot.
+    LIBGCRYPT_VERSION=1.4.3
 
-    if [[ "$min_osx_target" == "10.5" ]]
-    then
-        #
-        # Cairo is part of Mac OS X 10.6 and later.
-        # The *headers* are supplied by 10.5, but the *libraries*
-        # aren't, so we have to build it if we're building for 10.5.
-        #
-        cairo_not_in_the_os=yes
-
-        #
-        # Build with older versions of the support libraries, as
-        # were used on the Wireshark Leopard buildbot at one
-        # point.  (Most of these versions come from the About page
-        # from Wireshark 1.8.6, the last build done on that buildbot;
-        # the ATK version isn't reported, so this is a guess.)
-        #
-        # If you want to try building with newer versions of
-        # the libraries, note that:
-        #
-        # The version of fontconfig that comes with Leopard doesn't
-        # support FC_WEIGHT_EXTRABLACK, so we can't use any version
-        # of Pango newer than 1.22.4.
-        #
-        # However, Pango 1.22.4 doesn't work with versions of GLib
-        # after 2.29.6, because Pango 1.22.4 uses G_CONST_RETURN and
-        # GLib 2.29.8 and later deprecate it (there doesn't appear to
-        # be a GLib 2.29.7).  That means we'd either have to patch
-        # Pango not to use it (just use "const"; G_CONST_RETURN was
-        # there to allow code to choose whether to use "const" or not),
-        # or use GLib 2.29.6 or earlier.
-        #
-        # GLib 2.29.6 includes an implementation of g_bit_lock() that,
-        # on x86 (32-bit and 64-bit), uses asms in a fashion
-        # ("asm volatile goto") that requires GCC 4.5 or later, which
-        # is later than the compilers that come with Leopard and Snow
-        # Leopard.  Recent versions of GLib check for that, but 2.29.6
-        # doesn't, so, if you want to build GLib 2.29.6 on Leopard or
-        # Snow Leopard, you would have to patch glib/gbitlock.c to do
-        # what the newer versions of GLib do:
-        #
-        #  define a USE_ASM_GOTO macro that indicates whether "asm goto"
-        #  can be used:
-        #    #if (defined (i386) || defined (__amd64__))
-        #      #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
-        #        #define USE_ASM_GOTO 1
-        #      #endif
-        #    #endif
-        #
-        #  replace all occurrences of
-        #
-        #    #if defined (__GNUC__) && (defined (i386) || defined (__amd64__))
-        #
-        #  with
-        #
-        #    #ifdef USE_ASM_GOTO
-        #
-        # Using GLib 2.29.6 or earlier, however, means that we can't
-        # use a version of ATK later than 2.3.93, as those versions
-        # don't work with GLib 2.29.6.  The same applies to gdk-pixbuf;
-        # versions of gdk-pixbuf after 2.24.1 won't work with GLib
-        # 2.29.6.
-        #
-        # Then you have to make sure that what you've build doesn't
-        # cause the X server that comes with Leopard to crash; at
-        # least one attempt at building for Leopard did.
-        #
-        # At least if building on Leopard, you might also find
-        # that, with various older versions of Cairo, including
-        # 1.6.4 and at least some 1.8.x versions, when you try to
-        #  build it, the build fails because it can't find
-        # png_set_longjmp_fn().  I vaguely remember dealing with that,
-        # ages ago, but don't remember what I did.
-        #
-        GLIB_VERSION=2.16.3
-        CAIRO_VERSION=1.6.4
-        ATK_VERSION=1.24.0
-        PANGO_VERSION=1.20.2
-        GTK_VERSION=2.12.9
-
-        #
-        # That version of GTK+ includes gdk-pixbuf.
-        # XXX - base this on the version of GTK+ requested.
-        #
-        GDK_PIXBUF_VERSION=
-
-        #
-        # Libgcrypt 1.5.0 fails to compile due to some problem with an
-        # asm in rijndael.c, at least with i686-apple-darwin10-gcc-4.2.1
-        # (GCC) 4.2.1 (Apple Inc. build 5666) (dot 3) when building
-        # 32-bit.
-        #
-        # We try libgcrypt 1.4.3 instead, as that's what shows up in
-        # the version from the Leopard buildbot.
-        LIBGCRYPT_VERSION=1.4.3
-
-        #
-        # Build 32-bit while we're at it; Leopard has a bug that
-        # causes some BPF functions not to work with 64-bit userland
-        # code, so capturing won't work.
-        #
-        export CFLAGS="$CFLAGS -arch i386"
-        export CXXFLAGS="$CXXFLAGS -arch i386"
-        export LDFLAGS="$LDFLAGS -arch i386"
-    fi
+    #
+    # Build 32-bit while we're at it; Leopard has a bug that
+    # causes some BPF functions not to work with 64-bit userland
+    # code, so capturing won't work.
+    #
+    export CFLAGS="$CFLAGS -arch i386"
+    export CXXFLAGS="$CXXFLAGS -arch i386"
+     export LDFLAGS="$LDFLAGS -arch i386"
 fi
 
 #
