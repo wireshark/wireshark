@@ -86,6 +86,13 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    * with a length that includes one or more of a time stamp and
    * a 1-byte or 2-byte port stamp.
    *
+   * See
+   *
+   *    http://www.vssmonitoring.com/portals/application_note/Port%20and%20Time%20Stamping.pdf
+   *
+   * (although that speaks of 2-byte port stamps as being for a "future
+   * release").
+   *
    * This means a trailer length must not be more than 14 bytes,
    * and:
    *
