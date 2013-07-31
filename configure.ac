@@ -437,13 +437,23 @@ then
 	esac
 else
 	#
-	# In the installer package XML file, give the current OS
-	# version, minor version and all, as the minimum version.
-	# We can't guarantee that the resulting binary will work
-	# on older OS versions, not even older minor versions
-	# (original release or earlier software updates).
+	# Is this OS X?
 	#
-	OSX_MIN_VERSION=`sw_vers -productVersion`
+	case "$host_os" in
+	darwin*)
+		#
+		# Yes.
+		#
+		#
+		# In the installer package XML file, give the current OS
+		# version, minor version and all, as the minimum version.
+		# We can't guarantee that the resulting binary will work
+		# on older OS versions, not even older minor versions
+		# (original release or earlier software updates).
+		#
+		OSX_MIN_VERSION=`sw_vers -productVersion`
+		;;
+	esac
 fi
 AC_SUBST(OSX_MIN_VERSION)
 
