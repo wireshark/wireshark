@@ -24,6 +24,8 @@
 #ifndef __PACKET_USB_H__
 #define __PACKET_USB_H__
 
+#include <epan/wmem/wmem.h>
+
 typedef struct _usb_address_t {
     guint32 device;
     guint32 endpoint;
@@ -82,7 +84,7 @@ struct _usb_conv_info_t {
     guint8  interfaceNum;       /* Most recent interface number          */
     guint16 deviceVendor;       /* Device    Descriptor - USB Vendor  ID */
     guint32 deviceProduct;      /* Device    Descriptor - USB Product ID - MSBs only for encoding unknown */
-    emem_tree_t *transactions;
+    wmem_tree_t *transactions;
     usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
     void *class_data;	/* private class/id decode data */
 };

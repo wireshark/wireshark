@@ -24,7 +24,6 @@
 
 #include <glib.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>

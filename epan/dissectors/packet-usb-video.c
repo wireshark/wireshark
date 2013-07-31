@@ -28,7 +28,7 @@
 #include <glib.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include "packet-usb.h"
 
@@ -648,7 +648,7 @@ typedef struct
 /* video_entity_t's (units/terminals) associated with each video interface */
 /* There is one such structure for each video conversation (interface) */
 typedef struct _video_conv_info_t {
-    emem_tree_t* entities;      /* indexed by entity ID */
+    wmem_tree_t* entities;      /* indexed by entity ID */
 } video_conv_info_t;
 
 /*****************************************************************************/
@@ -1025,21 +1025,20 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
 
         if (!video_conv_info)
         {
-            video_conv_info = se_new(video_conv_info_t);
-            video_conv_info->entities = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-                                                                      "USBVIDEO Entities");
+            video_conv_info = wmem_new(wmem_file_scope(), video_conv_info_t);
+            video_conv_info->entities = wmem_tree_new(wmem_file_scope());
             usb_conv_info->class_data = video_conv_info;
         }
 
-        entity = (video_entity_t*) se_tree_lookup32(video_conv_info->entities, entity_id);
+        entity = (video_entity_t*) wmem_tree_lookup32(video_conv_info->entities, entity_id);
         if (!entity)
         {
-            entity = se_new(video_entity_t);
+            entity = wmem_new(wmem_file_scope(), video_entity_t);
             entity->entityID     = entity_id;
             entity->subtype      = subtype;
             entity->terminalType = terminal_type;
 
-            se_tree_insert32(video_conv_info->entities, entity_id, entity);
+            wmem_tree_insert32(video_conv_info->entities, entity_id, entity);
         }
     }
 
@@ -1606,7 +1605,7 @@ get_control_selector_values(guint8 entity_id, usb_conv_info_t *usb_conv_info)
 
     video_conv_info = (video_conv_info_t *)usb_conv_info->class_data;
     if (video_conv_info)
-        entity = (video_entity_t*) se_tree_lookup32(video_conv_info->entities, entity_id);
+        entity = (video_entity_t*) wmem_tree_lookup32(video_conv_info->entities, entity_id);
 
     if (entity_id == 0)
     {

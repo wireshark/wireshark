@@ -33,7 +33,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
@@ -207,8 +207,8 @@ static heur_dissector_list_t heur_bulk_subdissector_list;
 static heur_dissector_list_t heur_control_subdissector_list;
 static heur_dissector_list_t heur_interrupt_subdissector_list;
 
-static emem_tree_t *device_to_protocol_table     = NULL;
-static emem_tree_t *device_to_product_table     = NULL;
+static wmem_tree_t *device_to_protocol_table = NULL;
+static wmem_tree_t *device_to_product_table  = NULL;
 
 static dissector_table_t device_to_dissector;
 static dissector_table_t protocol_to_dissector;
@@ -1002,13 +1002,13 @@ get_usb_conv_info(conversation_t *conversation)
     usb_conv_info = (usb_conv_info_t *)conversation_get_proto_data(conversation, proto_usb);
     if (!usb_conv_info) {
         /* no not yet so create some */
-        usb_conv_info = se_new0(usb_conv_info_t);
+        usb_conv_info = wmem_new0(wmem_file_scope(), usb_conv_info_t);
         usb_conv_info->interfaceClass    = IF_CLASS_UNKNOWN;
         usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
         usb_conv_info->interfaceProtocol = IF_PROTOCOL_UNKNOWN;
         usb_conv_info->deviceVendor      = DEV_VENDOR_UNKNOWN;
         usb_conv_info->deviceProduct     = DEV_PRODUCT_UNKNOWN;
-        usb_conv_info->transactions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
+        usb_conv_info->transactions      = wmem_tree_new(wmem_file_scope());
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
     }
@@ -1191,7 +1191,7 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
         guint                   k_bus_id;
         guint                   k_device_address;
         guint                   k_frame_number;
-        emem_tree_key_t         key[4];
+        wmem_tree_key_t         key[4];
         device_protocol_data_t  *device_protocol_data;
 
         k_frame_number = pinfo->fd->num;
@@ -1207,11 +1207,11 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
         key[3].length = 0;
         key[3].key    = NULL;
 
-        device_protocol_data = se_new(device_protocol_data_t);
+        device_protocol_data = wmem_new(wmem_file_scope(), device_protocol_data_t);
         device_protocol_data->protocol = protocol;
         device_protocol_data->bus_id = bus_id;
         device_protocol_data->device_address = device_address;
-        se_tree_insert32_array(device_to_protocol_table, key, device_protocol_data);
+        wmem_tree_insert32_array(device_to_protocol_table, key, device_protocol_data);
     }
 
     /* bMaxPacketSize0 */
@@ -1302,7 +1302,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
     hfi = proto_registrar_get_nth(hf_usb_idProduct);
     field_description_length = (gint)strlen(hfi->name) + 14;
-    field_description = (guint8 *)ep_alloc(field_description_length);
+    field_description = (guint8 *)wmem_alloc(wmem_packet_scope(), field_description_length);
     g_strlcpy(field_description, hfi->name, field_description_length);
     g_strlcat(field_description, ": %s (0x%04x)", field_description_length);
 
@@ -1315,7 +1315,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         guint                   k_bus_id;
         guint                   k_device_address;
         guint                   k_frame_number;
-        emem_tree_key_t         key[4];
+        wmem_tree_key_t         key[4];
         device_product_data_t   *device_product_data;
         device_protocol_data_t  *device_protocol_data;
 
@@ -1332,19 +1332,19 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         key[3].length = 0;
         key[3].key    = NULL;
 
-        device_product_data = se_new(device_product_data_t);
+        device_product_data = wmem_new(wmem_file_scope(), device_product_data_t);
         device_product_data->vendor = vendor_id;
         device_product_data->product = product_id;
         device_product_data->bus_id = bus_id;
         device_product_data->device_address = device_address;
-        se_tree_insert32_array(device_to_product_table, key, device_product_data);
+        wmem_tree_insert32_array(device_to_product_table, key, device_product_data);
 
-        device_protocol_data = se_new(device_protocol_data_t);
+        device_protocol_data = wmem_new(wmem_file_scope(), device_protocol_data_t);
         device_protocol_data->protocol = protocol;
         device_protocol_data->bus_id = bus_id;
         device_protocol_data->device_address = device_address;
 
-        se_tree_insert32_array(device_to_protocol_table, key, device_protocol_data);
+        wmem_tree_insert32_array(device_to_protocol_table, key, device_protocol_data);
     }
 
     /* bcdDevice */
@@ -2613,7 +2613,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         return;
     }
 
-    usb_data = se_new(usb_data_t);
+    usb_data = wmem_new(wmem_file_scope(), usb_data_t);
     usb_data->bus_id = bus_id;
     usb_data->device_address = device_address;
     usb_data->endpoint = endpoint;
@@ -2659,14 +2659,14 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
      */
     if (is_request) {
         /* this is a request */
-        usb_trans_info = (usb_trans_info_t *)se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
+        usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
         if (!usb_trans_info) {
-            usb_trans_info                = se_new0(usb_trans_info_t);
+            usb_trans_info                = wmem_new0(wmem_file_scope(), usb_trans_info_t);
             usb_trans_info->request_in    = pinfo->fd->num;
             usb_trans_info->req_time      = pinfo->fd->abs_ts;
             usb_trans_info->header_len_64 = (header_info & USB_HEADER_IS_64_BYTES) ? TRUE : FALSE;
 
-            se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
+            wmem_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
         }
         usb_conv_info->usb_trans_info = usb_trans_info;
 
@@ -2679,12 +2679,12 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     } else {
         /* this is a response */
         if (pinfo->fd->flags.visited) {
-            usb_trans_info = (usb_trans_info_t *)se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
+            usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
         } else {
-            usb_trans_info = (usb_trans_info_t *)se_tree_lookup32_le(usb_conv_info->transactions, pinfo->fd->num);
+            usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32_le(usb_conv_info->transactions, pinfo->fd->num);
             if (usb_trans_info) {
                 usb_trans_info->response_in = pinfo->fd->num;
-                se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
+                wmem_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
             }
         }
         usb_conv_info->usb_trans_info = usb_trans_info;
@@ -2703,7 +2703,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
     }
 
-    tap_data                = ep_new(usb_tap_data_t);
+    tap_data                = wmem_new(wmem_packet_scope(), usb_tap_data_t);
     tap_data->urb_type      = urb_type;
     tap_data->transfer_type = (guint8)type;
     tap_data->conv_info     = usb_conv_info;
@@ -3295,7 +3295,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     if (!dissector_try_uint(device_to_dissector, (guint32) (bus_id << 8 | device_address), next_tvb, pinfo, parent)) {
-        emem_tree_key_t         key[4];
+        wmem_tree_key_t         key[4];
         guint32                 k_frame_number;
         guint32                 k_device_address;
         guint32                 k_bus_id;
@@ -3314,7 +3314,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         key[3].length = 0;
         key[3].key    = NULL;
 
-        device_protocol_data = (device_protocol_data_t *)se_tree_lookup32_array_le(device_to_protocol_table, key);
+        device_protocol_data = (device_protocol_data_t *)wmem_tree_lookup32_array_le(device_to_protocol_table, key);
         if (device_protocol_data && device_protocol_data->bus_id == bus_id &&
                 device_protocol_data->device_address == device_address &&
                 dissector_try_uint(protocol_to_dissector, (guint32) device_protocol_data->protocol, next_tvb, pinfo, parent)) {
@@ -3322,7 +3322,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         } else {
             device_product_data_t   *device_product_data;
 
-            device_product_data = (device_product_data_t *)se_tree_lookup32_array_le(device_to_product_table, key);
+            device_product_data = (device_product_data_t *)wmem_tree_lookup32_array_le(device_to_product_table, key);
             if (device_product_data && device_product_data->bus_id == bus_id &&
                     device_product_data->device_address == device_address &&
                     dissector_try_uint(product_to_dissector, (guint32) (device_product_data->vendor << 16 | device_product_data->product), next_tvb, pinfo, parent)) {
@@ -3932,8 +3932,8 @@ proto_register_usb(void)
     expert_usb = expert_register_protocol(proto_usb);
     expert_register_field_array(expert_usb, ei, array_length(ei));
 
-    device_to_product_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "usb device_address, bus_id and frame number to vendor_product");
-    device_to_protocol_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "usb device_address, bus_id and frame number to class_subclass_protocol");
+    device_to_product_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    device_to_protocol_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     device_to_dissector = register_dissector_table("usb.device",     "USB device",   FT_UINT32, BASE_HEX);
     protocol_to_dissector = register_dissector_table("usb.protocol", "USB protocol", FT_UINT32, BASE_HEX);
     product_to_dissector = register_dissector_table("usb.product",   "USB product",  FT_UINT32, BASE_HEX);

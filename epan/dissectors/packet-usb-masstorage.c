@@ -25,7 +25,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include "packet-usb.h"
 #include "packet-scsi.h"
@@ -52,8 +52,8 @@ static gint ett_usb_ms = -1;
 
 /* there is one such structure for each masstorage conversation */
 typedef struct _usb_ms_conv_info_t {
-    emem_tree_t *itl;		/* indexed by LUN */
-    emem_tree_t *itlq;		/* pinfo->fd->num */
+    wmem_tree_t *itl;		/* indexed by LUN */
+    wmem_tree_t *itlq;		/* pinfo->fd->num */
 } usb_ms_conv_info_t;
 
 
@@ -192,9 +192,9 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     /* verify that we do have a usb_ms_conv_info */
     usb_ms_conv_info=(usb_ms_conv_info_t *)usb_conv_info->class_data;
     if(!usb_ms_conv_info){
-        usb_ms_conv_info=se_new(usb_ms_conv_info_t);
-        usb_ms_conv_info->itl=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "USB ITL");
-        usb_ms_conv_info->itlq=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "USB ITLQ");
+        usb_ms_conv_info=wmem_new(wmem_file_scope(), usb_ms_conv_info_t);
+        usb_ms_conv_info->itl=wmem_tree_new(wmem_file_scope());
+        usb_ms_conv_info->itlq=wmem_tree_new(wmem_file_scope());
         usb_conv_info->class_data=usb_ms_conv_info;
     }
 
@@ -249,18 +249,18 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         offset+=1;
 
         /* make sure we have a ITL structure for this LUN */
-        itl=(itl_nexus_t *)se_tree_lookup32(usb_ms_conv_info->itl, lun);
+        itl=(itl_nexus_t *)wmem_tree_lookup32(usb_ms_conv_info->itl, lun);
         if(!itl){
-            itl=se_new(itl_nexus_t);
+            itl=wmem_new(wmem_file_scope(), itl_nexus_t);
             itl->cmdset=0xff;
             itl->conversation=NULL;
-            se_tree_insert32(usb_ms_conv_info->itl, lun, itl);
+            wmem_tree_insert32(usb_ms_conv_info->itl, lun, itl);
         }
 
         /* make sure we have an ITLQ structure for this LUN/transaction */
-        itlq=(itlq_nexus_t *)se_tree_lookup32(usb_ms_conv_info->itlq, pinfo->fd->num);
+        itlq=(itlq_nexus_t *)wmem_tree_lookup32(usb_ms_conv_info->itlq, pinfo->fd->num);
         if(!itlq){
-            itlq=se_new(itlq_nexus_t);
+            itlq=wmem_new(wmem_file_scope(), itlq_nexus_t);
             itlq->lun=lun;
             itlq->scsi_opcode=0xffff;
             itlq->task_flags=0;
@@ -279,7 +279,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
             itlq->flags=0;
             itlq->alloc_len=0;
             itlq->extra_data=NULL;
-            se_tree_insert32(usb_ms_conv_info->itlq, pinfo->fd->num, itlq);
+            wmem_tree_insert32(usb_ms_conv_info->itlq, pinfo->fd->num, itlq);
         }
 
         /* dCBWCBLength */
@@ -322,13 +322,13 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         status=tvb_get_guint8(tvb, offset);
         /*offset+=1;*/
 
-        itlq=(itlq_nexus_t *)se_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
+        itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
         if(!itlq){
             return;
         }
         itlq->last_exchange_frame=pinfo->fd->num;
 
-        itl=(itl_nexus_t *)se_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
+        itl=(itl_nexus_t *)wmem_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
         if(!itl){
             return;
         }
@@ -345,12 +345,12 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     /*
      * Ok it was neither CDB not STATUS so just assume it is either data in/out
      */
-    itlq=(itlq_nexus_t *)se_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
+    itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
     if(!itlq){
         return;
     }
 
-    itl=(itl_nexus_t *)se_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
+    itl=(itl_nexus_t *)wmem_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
     if(!itl){
         return;
     }
