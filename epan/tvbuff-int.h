@@ -41,17 +41,6 @@ struct tvb_ops {
 	tvbuff_t *(*tvb_clone)(tvbuff_t *tvb, guint abs_offset, guint abs_length);
 };
 
-typedef struct {
-	GSList		*tvbs;
-
-	/* Used for quick testing to see if this
-	 * is the tvbuff that a COMPOSITE is
-	 * interested in. */
-	guint		*start_offsets;
-	guint		*end_offsets;
-
-} tvb_comp_t;
-
 /*
  * Tvbuff flags.
  */
@@ -84,12 +73,6 @@ struct tvbuff {
 
 	/* Offset from beginning of first TVBUFF_REAL. */
 	gint			raw_offset;
-};
-
-struct tvb_composite {
-	struct tvbuff tvb;
-
-	tvb_comp_t	composite;
 };
 
 WS_DLL_PUBLIC tvbuff_t *tvb_new(const struct tvb_ops *ops);

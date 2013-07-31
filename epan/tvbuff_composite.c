@@ -29,6 +29,23 @@
 #include "tvbuff-int.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
+typedef struct {
+	GSList		*tvbs;
+
+	/* Used for quick testing to see if this
+	 * is the tvbuff that a COMPOSITE is
+	 * interested in. */
+	guint		*start_offsets;
+	guint		*end_offsets;
+
+} tvb_comp_t;
+
+struct tvb_composite {
+	struct tvbuff tvb;
+
+	tvb_comp_t	composite;
+};
+
 static gsize
 composite_sizeof(void)
 {
