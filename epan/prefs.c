@@ -335,7 +335,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
         return module;
     }
 
-    module = g_new(module_t,1);
+    module = wmem_new(wmem_epan_scope(), module_t);
     module->name = name;
     module->title = title;
     module->description = description;
