@@ -14835,7 +14835,7 @@ set_airpdcap_keys(void)
   GByteArray                *bytes = NULL;
   guint                      i;
 
-  keys = (PAIRPDCAP_KEYS_COLLECTION)wmem_alloc(wmem_file_scope(), sizeof(AIRPDCAP_KEYS_COLLECTION));
+  keys = (PAIRPDCAP_KEYS_COLLECTION)se_alloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
   keys->nKeys = 0;
 
   for (i = 0; (uat_wep_key_records != NULL) && (i < num_wepkeys_uat) && (i < MAX_ENCRYPTION_KEYS); i++)
