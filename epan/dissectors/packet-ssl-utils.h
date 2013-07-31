@@ -39,6 +39,8 @@
 #include <epan/conversation.h>
 #include "ws_symbol_export.h"
 
+#include <epan/wmem/wmem.h>
+
 /* #define SSL_FAST 1 */
 #define SSL_DECRYPT_DEBUG
 
@@ -241,7 +243,7 @@ typedef struct _SslCipherSuite {
 typedef struct _SslFlow {
     guint32 byte_seq;
     guint16 flags;
-    emem_tree_t *multisegment_pdus;
+    wmem_tree_t *multisegment_pdus;
 } SslFlow;
 
 typedef struct _SslDecompress SslDecompress;

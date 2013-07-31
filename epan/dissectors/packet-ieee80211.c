@@ -96,7 +96,7 @@
 #include <wsutil/crc32.h>
 #include <epan/crc32-tvb.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/crypt/wep-wpadefs.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
@@ -7512,7 +7512,7 @@ rsn_gcs_base_custom(gchar *result, guint32 gcs)
 {
   gchar *oui_result;
 
-  oui_result = (gchar *)ep_alloc(SHORT_STR);
+  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, gcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7524,7 +7524,7 @@ rsn_pcs_base_custom(gchar *result, guint32 pcs)
 {
   gchar *oui_result;
 
-  oui_result = (gchar *)ep_alloc(SHORT_STR);
+  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, pcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7536,7 +7536,7 @@ rsn_akms_base_custom(gchar *result, guint32 akms)
 {
   gchar *oui_result;
 
-  oui_result = (gchar *)ep_alloc(SHORT_STR);
+  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7548,7 +7548,7 @@ rsn_pcs_return(guint32 pcs)
 {
   gchar *result;
 
-  result = (gchar *)ep_alloc(SHORT_STR);
+  result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   result[0] = '\0';
   rsn_pcs_base_custom(result, pcs);
 
@@ -7560,7 +7560,7 @@ rsn_akms_return(guint32 akms)
 {
   gchar *result;
 
-  result = (gchar *)ep_alloc(SHORT_STR);
+  result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   result[0] = '\0';
   rsn_akms_base_custom(result, akms);
 
@@ -7572,7 +7572,7 @@ rsn_gmcs_base_custom(gchar *result, guint32 gmcs)
 {
   gchar *oui_result;
 
-  oui_result = (gchar *)ep_alloc(SHORT_STR);
+  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, gmcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7671,7 +7671,7 @@ wpa_mcs_base_custom(gchar *result, guint32 mcs)
 {
   gchar *oui_result;
 
-  oui_result = (gchar *)ep_alloc(SHORT_STR);
+  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, mcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7683,7 +7683,7 @@ wpa_ucs_base_custom(gchar *result, guint32 ucs)
 {
   gchar *oui_result;
 
-  oui_result = (gchar *)ep_alloc(SHORT_STR);
+  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, ucs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7695,7 +7695,7 @@ wpa_akms_base_custom(gchar *result, guint32 akms)
 {
   gchar *oui_result;
 
-  oui_result = (gchar *)ep_alloc(SHORT_STR);
+  oui_result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7707,7 +7707,7 @@ wpa_ucs_return(guint32 ucs)
 {
   gchar *result;
 
-  result = (gchar *)ep_alloc(SHORT_STR);
+  result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   result[0] = '\0';
   wpa_ucs_base_custom(result, ucs);
 
@@ -7719,7 +7719,7 @@ wpa_akms_return(guint32 akms)
 {
   gchar *result;
 
-  result = (gchar *)ep_alloc(SHORT_STR);
+  result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   result[0] = '\0';
   wpa_akms_base_custom(result, akms);
 
@@ -10887,11 +10887,11 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
                         ENC_ASCII|ENC_NA);
   } else {
-    emem_strbuf_t *ssid_sb = ep_strbuf_new(ssid);
-    ep_strbuf_append(ssid_sb, " [truncated]");
+    wmem_strbuf_t *ssid_sb = wmem_strbuf_new(wmem_packet_scope(), ssid);
+    wmem_strbuf_append(ssid_sb, " [truncated]");
     proto_tree_add_string_format_value(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
-                        ssid, "%s", ssid_sb->str);
-    ssid = ssid_sb->str;
+                        ssid, "%s", wmem_strbuf_get_str(ssid_sb));
+    ssid = (gchar*)wmem_strbuf_get_str(ssid_sb);
   }
 
   if (tag_len > 0) {
@@ -14153,7 +14153,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           } else {
             /* first time or new seq*/
             if (!result) {
-              result = se_new(retransmit_key);
+              result = wmem_new(wmem_file_scope(), retransmit_key);
               *result = key;
               g_hash_table_insert(fc_analyse_retransmit_table, result, result);
             }
@@ -14835,7 +14835,7 @@ set_airpdcap_keys(void)
   GByteArray                *bytes = NULL;
   guint                      i;
 
-  keys = (PAIRPDCAP_KEYS_COLLECTION)se_alloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
+  keys = (PAIRPDCAP_KEYS_COLLECTION)wmem_alloc(wmem_file_scope(), sizeof(AIRPDCAP_KEYS_COLLECTION));
   keys->nKeys = 0;
 
   for (i = 0; (uat_wep_key_records != NULL) && (i < num_wepkeys_uat) && (i < MAX_ENCRYPTION_KEYS); i++)

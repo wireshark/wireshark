@@ -36,7 +36,6 @@
 #include <epan/ip_opts.h>
 #include <epan/follow.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/show_exception.h>
 #include <epan/conversation.h>
@@ -490,22 +489,22 @@ init_tcp_conversation_data(packet_info *pinfo)
     struct tcp_analysis *tcpd;
 
     /* Initialize the tcp protocol data structure to add to the tcp conversation */
-    tcpd=se_new0(struct tcp_analysis);
+    tcpd=wmem_new0(wmem_file_scope(), struct tcp_analysis);
     tcpd->flow1.win_scale=-1;
     tcpd->flow1.window = G_MAXUINT32;
-    tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
+    tcpd->flow1.multisegment_pdus=wmem_tree_new(wmem_file_scope());
     /*
     tcpd->flow1.username = NULL;
     tcpd->flow1.command = NULL;
     */
     tcpd->flow2.window = G_MAXUINT32;
     tcpd->flow2.win_scale=-1;
-    tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
+    tcpd->flow2.multisegment_pdus=wmem_tree_new(wmem_file_scope());
     /*
     tcpd->flow2.username = NULL;
     tcpd->flow2.command = NULL;
     */
-    tcpd->acked_table=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
+    tcpd->acked_table=wmem_tree_new(wmem_file_scope());
     tcpd->ts_first.secs=pinfo->fd->abs_ts.secs;
     tcpd->ts_first.nsecs=pinfo->fd->abs_ts.nsecs;
     tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
@@ -592,8 +591,8 @@ add_tcp_process_info(guint32 frame_num, address *local_addr, address *remote_add
 
     flow->process_uid = uid;
     flow->process_pid = pid;
-    flow->username = se_strdup(username);
-    flow->command = se_strdup(command);
+    flow->username = wmem_strdup(wmem_file_scope(), username);
+    flow->command = wmem_strdup(wmem_file_scope(), command);
 }
 
 
@@ -603,7 +602,7 @@ tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
             struct tcp_per_packet_data_t *tcppd)
 {
     if( !tcppd ) {
-        tcppd = se_new(struct tcp_per_packet_data_t);
+        tcppd = wmem_new(wmem_file_scope(), struct tcp_per_packet_data_t);
         p_add_proto_data(pinfo->fd, proto_tcp, 0, tcppd);
     }
 
@@ -661,12 +660,12 @@ print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree,
    and let TCP try to find out what it can about this segment
 */
 static int
-scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq, emem_tree_t *multisegment_pdus)
+scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq, wmem_tree_t *multisegment_pdus)
 {
     struct tcp_multisegment_pdu *msp=NULL;
 
     if(!pinfo->fd->flags.visited) {
-        msp=(struct tcp_multisegment_pdu *)se_tree_lookup32_le(multisegment_pdus, seq-1);
+        msp=(struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(multisegment_pdus, seq-1);
         if(msp) {
             /* If this is a continuation of a PDU started in a
              * previous segment we need to update the last_frame
@@ -701,7 +700,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
          * this segment we also verify that the found PDU does span
          * beyond the end of this segment.
          */
-        msp=(struct tcp_multisegment_pdu *)se_tree_lookup32_le(multisegment_pdus, nxtseq-1);
+        msp=(struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(multisegment_pdus, nxtseq-1);
         if(msp) {
             if(pinfo->fd->num==msp->first_frame) {
                 proto_item *item;
@@ -720,7 +719,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
         /* Second we check if this segment is part of a PDU started
          * prior to the segment (seq-1)
          */
-        msp=(struct tcp_multisegment_pdu *)se_tree_lookup32_le(multisegment_pdus, seq-1);
+        msp=(struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(multisegment_pdus, seq-1);
         if(msp) {
             /* If this segment is completely within a previous PDU
              * then we just skip this packet
@@ -744,18 +743,18 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
    use this function to remember where the next pdu starts
 */
 struct tcp_multisegment_pdu *
-pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu, emem_tree_t *multisegment_pdus)
+pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu, wmem_tree_t *multisegment_pdus)
 {
     struct tcp_multisegment_pdu *msp;
 
-    msp=se_new(struct tcp_multisegment_pdu);
+    msp=wmem_new(wmem_file_scope(), struct tcp_multisegment_pdu);
     msp->nxtpdu=nxtpdu;
     msp->seq=seq;
     msp->first_frame=pinfo->fd->num;
     msp->last_frame=pinfo->fd->num;
     msp->last_frame_time=pinfo->fd->abs_ts;
     msp->flags=0;
-    se_tree_insert32(multisegment_pdus, seq, (void *)msp);
+    wmem_tree_insert32(multisegment_pdus, seq, (void *)msp);
     return msp;
 }
 
@@ -807,16 +806,16 @@ pdu_store_window_scale_option(guint8 ws, struct tcp_analysis *tcpd)
 static void
 tcp_analyze_get_acked_struct(guint32 frame, guint32 seq, guint32 ack, gboolean createflag, struct tcp_analysis *tcpd)
 {
-    emem_tree_key_t key[] = {{1, &frame}, {1, &seq}, {1, &ack}, {0, NULL}};
+    wmem_tree_key_t key[] = {{1, &frame}, {1, &seq}, {1, &ack}, {0, NULL}};
 
     if (!tcpd) {
         return;
     }
 
-    tcpd->ta = (struct tcp_acked *)se_tree_lookup32_array(tcpd->acked_table, key);
+    tcpd->ta = (struct tcp_acked *)wmem_tree_lookup32_array(tcpd->acked_table, key);
     if((!tcpd->ta) && createflag) {
-        tcpd->ta = se_new0(struct tcp_acked);
-        se_tree_insert32_array(tcpd->acked_table, key, (void *)tcpd->ta);
+        tcpd->ta = wmem_new0(wmem_file_scope(), struct tcp_acked);
+        wmem_tree_insert32_array(tcpd->acked_table, key, (void *)tcpd->ta);
     }
 }
 
@@ -1655,7 +1654,7 @@ again:
         /* Have we seen this PDU before (and is it the start of a multi-
          * segment PDU)?
          */
-        if ((msp = (struct tcp_multisegment_pdu *)se_tree_lookup32(tcpd->fwd->multisegment_pdus, seq))) {
+        if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(tcpd->fwd->multisegment_pdus, seq))) {
             const char* str;
 
             /* Yes.  This could be because we've dissected this frame before
@@ -1684,7 +1683,7 @@ again:
         }
 
         /* Else, find the most previous PDU starting before this sequence number */
-        msp = (struct tcp_multisegment_pdu *)se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
+        msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
     }
 
     if (msp && msp->seq <= seq && msp->nxtpdu > seq) {
@@ -4010,7 +4009,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *tcp_tree = NULL, *field_tree = NULL;
     proto_item *ti = NULL, *tf, *hidden_item;
     int        offset = 0;
-    emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("<None>");
+    wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
     static const gchar *flags[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR", "NS"};
     gint       i;
     guint      bpos;
@@ -4032,7 +4031,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *item;
     proto_tree *checksum_tree;
 
-    tcph=ep_new(struct tcpheader);
+    wmem_strbuf_append(flags_strbuf, "<None>");
+
+    tcph=wmem_new(wmem_packet_scope(), struct tcpheader);
     SET_ADDRESS(&tcph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
     SET_ADDRESS(&tcph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
@@ -4224,21 +4225,21 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             bpos = 1 << i;
             if (tcph->th_flags & bpos) {
                 if (first_flag) {
-                    ep_strbuf_truncate(flags_strbuf, 0);
+                    wmem_strbuf_truncate(flags_strbuf, 0);
                 }
-                ep_strbuf_append_printf(flags_strbuf, "%s%s", first_flag ? "" : ", ", flags[i]);
+                wmem_strbuf_append_printf(flags_strbuf, "%s%s", first_flag ? "" : ", ", flags[i]);
                 first_flag = FALSE;
             }
         }
         if (tcph->th_flags & 0x0E00) {
             if (first_flag) {
-                ep_strbuf_truncate(flags_strbuf, 0);
+                wmem_strbuf_truncate(flags_strbuf, 0);
             }
-            ep_strbuf_append_printf(flags_strbuf, "%sReserved", first_flag ? "" : ", ");
+            wmem_strbuf_append_printf(flags_strbuf, "%sReserved", first_flag ? "" : ", ");
         }
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u", flags_strbuf->str, tcph->th_seq);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u", wmem_strbuf_get_str(flags_strbuf), tcph->th_seq);
     if (tcph->th_flags&TH_ACK) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " Ack=%u", tcph->th_ack);
     }
@@ -4309,7 +4310,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
                                    "Header length: %u bytes", tcph->th_hlen);
         tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
-                                        tcph->th_flags, "Flags: 0x%03x (%s)", tcph->th_flags, flags_strbuf->str);
+                                        tcph->th_flags, "Flags: 0x%03x (%s)", tcph->th_flags, wmem_strbuf_get_str(flags_strbuf));
         field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_res, tvb, offset + 12, 1, tcph->th_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_ns, tvb, offset + 12, 1, tcph->th_flags);
@@ -4657,7 +4658,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * for this flow, terminate reassembly and dissect the
              * results. */
             tcpd->fwd->fin = pinfo->fd->num;
-            msp=(struct tcp_multisegment_pdu *)se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, tcph->th_seq-1);
+            msp=(struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(tcpd->fwd->multisegment_pdus, tcph->th_seq-1);
             if(msp) {
                 fragment_head *ipfd_head;
 

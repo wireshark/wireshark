@@ -2084,10 +2084,10 @@ ssl_create_flow(void)
 {
   SslFlow *flow;
 
-  flow = (SslFlow *)se_alloc(sizeof(SslFlow));
+  flow = (SslFlow *)wmem_alloc(wmem_file_scope(), sizeof(SslFlow));
   flow->byte_seq = 0;
   flow->flags = 0;
-  flow->multisegment_pdus = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "ssl_multisegment_pdus");
+  flow->multisegment_pdus = wmem_tree_new(wmem_file_scope());
   return flow;
 }
 
@@ -2113,7 +2113,7 @@ ssl_create_decompressor(gint compression)
 
     if (compression == 0) return NULL;
     ssl_debug_printf("ssl_create_decompressor: compression method %d\n", compression);
-    decomp = (SslDecompress *)se_alloc(sizeof(SslDecompress));
+    decomp = (SslDecompress *)wmem_alloc(wmem_file_scope(), sizeof(SslDecompress));
     decomp->compression = compression;
     switch (decomp->compression) {
 #ifdef HAVE_LIBZ
@@ -2146,7 +2146,7 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
     SslDecoder *dec;
     gint        ciph;
 
-    dec = (SslDecoder *)se_alloc0(sizeof(SslDecoder));
+    dec = (SslDecoder *)wmem_alloc0(wmem_file_scope(), sizeof(SslDecoder));
     /* Find the SSLeay cipher */
     if(cipher_suite->enc!=ENC_NULL) {
         ssl_debug_printf("ssl_create_decoder CIPHER: %s\n", ciphers[cipher_suite->enc-0x30]);
@@ -3025,7 +3025,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
 
     ret = gnutls_pkcs12_init(&ssl_p12);
     if (ret < 0) {
-        *err = se_strdup_printf("gnutls_pkcs12_init(&st_p12) - %s", gnutls_strerror(ret));
+        *err = wmem_strdup_printf(wmem_file_scope(), "gnutls_pkcs12_init(&st_p12) - %s", gnutls_strerror(ret));
         ssl_debug_printf("%s\n", *err);
         g_free(private_key);
         g_free(data.data);
@@ -3035,12 +3035,12 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
     /* load PKCS#12 in DER or PEM format */
     ret = gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_DER, 0);
     if (ret < 0) {
-        *err = se_strdup_printf("could not load PKCS#12 in DER format: %s", gnutls_strerror(ret));
+        *err = wmem_strdup_printf(wmem_file_scope(), "could not load PKCS#12 in DER format: %s", gnutls_strerror(ret));
         ssl_debug_printf("%s\n", *err);
 
         ret = gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_PEM, 0);
         if (ret < 0) {
-            *err = se_strdup_printf("could not load PKCS#12 in PEM format: %s", gnutls_strerror(ret));
+            *err = wmem_strdup_printf(wmem_file_scope(), "could not load PKCS#12 in PEM format: %s", gnutls_strerror(ret));
             ssl_debug_printf("%s\n", *err);
         } else {
             *err = NULL;
@@ -3087,7 +3087,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
 
                     ret = gnutls_x509_crt_init(&ssl_cert);
                     if (ret < 0) {
-                        *err = se_strdup_printf("gnutls_x509_crt_init(&ssl_cert) - %s", gnutls_strerror(ret));
+                        *err = wmem_strdup_printf(wmem_file_scope(), "gnutls_x509_crt_init(&ssl_cert) - %s", gnutls_strerror(ret));
                         ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
@@ -3095,7 +3095,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
 
                     ret = gnutls_x509_crt_import(ssl_cert, &data, GNUTLS_X509_FMT_DER);
                     if (ret < 0) {
-                        *err = se_strdup_printf("gnutls_x509_crt_import(ssl_cert, &data, GNUTLS_X509_FMT_DER) - %s", gnutls_strerror(ret));
+                        *err = wmem_strdup_printf(wmem_file_scope(), "gnutls_x509_crt_import(ssl_cert, &data, GNUTLS_X509_FMT_DER) - %s", gnutls_strerror(ret));
                         ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
@@ -3121,7 +3121,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
 
                     ret = gnutls_x509_privkey_init(&ssl_pkey);
                     if (ret < 0) {
-                        *err = se_strdup_printf("gnutls_x509_privkey_init(&ssl_pkey) - %s", gnutls_strerror(ret));
+                        *err = wmem_strdup_printf(wmem_file_scope(), "gnutls_x509_privkey_init(&ssl_pkey) - %s", gnutls_strerror(ret));
                         ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
@@ -3129,7 +3129,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
                     ret = gnutls_x509_privkey_import_pkcs8(ssl_pkey, &data, GNUTLS_X509_FMT_DER, cert_passwd,
                                                            (bag_type==GNUTLS_BAG_PKCS8_KEY) ? GNUTLS_PKCS_PLAIN : 0);
                     if (ret < 0) {
-                        *err = se_strdup_printf("Can not decrypt private key - %s", gnutls_strerror(ret));
+                        *err = wmem_strdup_printf(wmem_file_scope(), "Can not decrypt private key - %s", gnutls_strerror(ret));
                         ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
@@ -3547,14 +3547,14 @@ ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len,
     pi = (SslPacketInfo *)p_get_proto_data(pinfo->fd, proto, 0);
     if (!pi)
     {
-        pi = (SslPacketInfo *)se_alloc0(sizeof(SslPacketInfo));
+        pi = (SslPacketInfo *)wmem_alloc0(wmem_file_scope(), sizeof(SslPacketInfo));
         p_add_proto_data(pinfo->fd, proto, 0, pi);
     }
 
-    real_data = (guchar *)se_alloc(data_len);
+    real_data = (guchar *)wmem_alloc(wmem_file_scope(), data_len);
     memcpy(real_data, data, data_len);
 
-    rec = (SslRecordInfo *)se_alloc(sizeof(SslRecordInfo));
+    rec = (SslRecordInfo *)wmem_alloc(wmem_file_scope(), sizeof(SslRecordInfo));
     rec->id = record_id;
     rec->real_data = real_data;
     rec->data_len = data_len;
@@ -3592,11 +3592,11 @@ ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, g
     pi = (SslPacketInfo *)p_get_proto_data(pinfo->fd, proto, 0);
     if (!pi)
     {
-        pi = (SslPacketInfo *)se_alloc0(sizeof(SslPacketInfo));
+        pi = (SslPacketInfo *)wmem_alloc0(wmem_file_scope(), sizeof(SslPacketInfo));
         p_add_proto_data(pinfo->fd, proto, 0, pi);
     }
 
-    rec = (SslDataInfo *)se_alloc(sizeof(SslDataInfo)+data_len);
+    rec = (SslDataInfo *)wmem_alloc(wmem_file_scope(), sizeof(SslDataInfo)+data_len);
     rec->key = key;
     rec->plain_data.data = (guchar*)(rec + 1);
     memcpy(rec->plain_data.data, data, data_len);
@@ -3750,8 +3750,8 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash)
     /* allocate stringinfo chunks for session id and master secret data*/
     StringInfo* session_id;
     StringInfo* master_secret;
-    session_id = (StringInfo *)se_alloc0(sizeof(StringInfo) + ssl->session_id.data_len);
-    master_secret = (StringInfo *)se_alloc0(48 + sizeof(StringInfo));
+    session_id = (StringInfo *)wmem_alloc0(wmem_file_scope(), sizeof(StringInfo) + ssl->session_id.data_len);
+    master_secret = (StringInfo *)wmem_alloc0(wmem_file_scope(), 48 + sizeof(StringInfo));
 
     master_secret->data = ((guchar*)master_secret+sizeof(StringInfo));
 
@@ -3815,7 +3815,7 @@ static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
         return FALSE;
 
     out->data_len = (guint)hex_len/2;
-    out->data = (guchar *)se_alloc(out->data_len);
+    out->data = (guchar *)wmem_alloc(wmem_file_scope(), out->data_len);
     for (i = 0; i < out->data_len; i++) {
         guint8 a = from_hex_char(in[i*2]);
         guint8 b = from_hex_char(in[i*2 + 1]);

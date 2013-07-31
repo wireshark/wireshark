@@ -96,7 +96,7 @@
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
@@ -748,7 +748,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (conv_data != NULL)
         ssl_session = (SslDecryptSession *)conv_data;
     else {
-        ssl_session = (SslDecryptSession *)se_alloc0(sizeof(SslDecryptSession));
+        ssl_session = (SslDecryptSession *)wmem_alloc0(wmem_file_scope(), sizeof(SslDecryptSession));
         ssl_session_init(ssl_session);
         ssl_session->version = SSL_VER_UNKNOWN;
         conversation_add_proto_data(conversation, proto_ssl, ssl_session);
@@ -1016,7 +1016,7 @@ again:
      * dissection of the desegmented pdu if we'd already seen the end of
      * the pdu).
      */
-    if ((msp = (struct tcp_multisegment_pdu *)se_tree_lookup32(flow->multisegment_pdus, seq))) {
+    if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(flow->multisegment_pdus, seq))) {
         const char *prefix;
 
         if (msp->first_frame == PINFO_FD_NUM(pinfo)) {
@@ -1032,7 +1032,7 @@ again:
     }
 
     /* Else, find the most previous PDU starting before this sequence number */
-    msp = (struct tcp_multisegment_pdu *)se_tree_lookup32_le(flow->multisegment_pdus, seq-1);
+    msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(flow->multisegment_pdus, seq-1);
     if (msp && msp->seq <= seq && msp->nxtpdu > seq) {
         int len;
 
@@ -2173,7 +2173,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         psk_len = size > 0 ? size / 2 : 0;
                         pre_master_len = psk_len * 2 + 4;
 
-                        pre_master_secret.data = (guchar *)se_alloc(pre_master_len);
+                        pre_master_secret.data = (guchar *)wmem_alloc(wmem_file_scope(), pre_master_len);
                         pre_master_secret.data_len = pre_master_len;
                         /* 2 bytes psk_len*/
                         pre_master_secret.data[0] = psk_len >> 8;
@@ -2219,7 +2219,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                 break;
                             }
                         }
-                        encrypted_pre_master.data = (guchar *)se_alloc(encrlen);
+                        encrypted_pre_master.data = (guchar *)wmem_alloc(wmem_file_scope(), encrlen);
                         encrypted_pre_master.data_len = encrlen;
                         tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
 
@@ -4683,7 +4683,7 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     if (conv_data) {
         ssl = (SslDecryptSession *)conv_data;
     } else {
-        ssl = (SslDecryptSession *)se_alloc0(sizeof(SslDecryptSession));
+        ssl = (SslDecryptSession *)wmem_alloc0(wmem_file_scope(), sizeof(SslDecryptSession));
         ssl_session_init(ssl);
         ssl->version = SSL_VER_UNKNOWN;
         conversation_add_proto_data(conversation, proto_ssl, ssl);
