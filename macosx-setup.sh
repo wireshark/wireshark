@@ -8,7 +8,17 @@
 # http://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html
 #
 
-DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
+#
+# To set up a GTK3 environment
+# GTK3=1
+# To build cmake
+# CMAKE=1
+#
+# To build all libraries as 32-bit libraries uncomment the following three lines.
+# export CFLAGS="$CFLAGS -arch i386"
+# export CXXFLAGS="$CXXFLAGS -arch i386"
+# export LDFLAGS="$LDFLAGS -arch i386"
+#
 
 #
 # Versions to download and install.
@@ -68,6 +78,8 @@ PORTAUDIO_VERSION=pa_stable_v19_20111121
 # way of specifying whether to download the GeoIP API?
 #
 GEOIP_VERSION=1.4.8
+
+DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
 # GNU autotools; they're provided with releases up to Snow Leopard, but
@@ -396,17 +408,6 @@ if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
     exit 1
 fi
 
-# To set up a GTK3 environment
-# GTK3=1
-# To build cmake
-# CMAKE=1
-#
-# To build all libraries as 32-bit libraries uncomment the following three lines.
-# export CFLAGS="$CFLAGS -arch i386"
-# export CXXFLAGS="$CXXFLAGS -arch i386"
-# export LDFLAGS="$LDFLAGS -arch i386"
-#
-
 # if no make options are present, set default options
 if [ -z "$MAKE_BUILD_OPTS" ] ; then
     # by default use 1.5x number of cores for parallel build
@@ -574,7 +575,7 @@ then
     #
     export CFLAGS="$CFLAGS -arch i386"
     export CXXFLAGS="$CXXFLAGS -arch i386"
-     export LDFLAGS="$LDFLAGS -arch i386"
+    export LDFLAGS="$LDFLAGS -arch i386"
 fi
 
 #
