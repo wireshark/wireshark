@@ -75,6 +75,8 @@
 static const struct {
 	int	dlt_value;
 	int	wtap_encap_value;
+	const char *dlt_name;
+	const char *linktype_name;
 } pcap_to_wtap_map[] = {
 	/*
 	 * These are the values that are almost certainly the same
@@ -83,20 +85,22 @@ static const struct {
 	 * one below, but...), and that Wiretap and Wireshark
 	 * currently support.
 	 */
-	{ 0,		WTAP_ENCAP_NULL },	/* null encapsulation */
-	{ 1,		WTAP_ENCAP_ETHERNET },
-	{ 3,		WTAP_ENCAP_AX25 },
-	{ 6,		WTAP_ENCAP_TOKEN_RING },	/* IEEE 802 Networks - assume token ring */
-	{ 7,		WTAP_ENCAP_ARCNET },
-	{ 8,		WTAP_ENCAP_SLIP },
-	{ 9,		WTAP_ENCAP_PPP },
+	/* BSD loopback encapsulation */
+	{ 0,	WTAP_ENCAP_NULL, "NULL", "NULL" },
+	{ 1,	WTAP_ENCAP_ETHERNET, "EN10MB", "ETHERNET" },
+	{ 3,	WTAP_ENCAP_AX25, "AX25", "AX25" },
+	/* IEEE 802 Networks - assume token ring */
+	{ 6,	WTAP_ENCAP_TOKEN_RING, "IEEE802", "IEEE802_5" },
+	{ 7,	WTAP_ENCAP_ARCNET, "ARCNET", "ARCNET_BSD" },
+	{ 8,	WTAP_ENCAP_SLIP, "SLIP", "SLIP", },
+	{ 9,	WTAP_ENCAP_PPP, "PPP", "PPP" },
 #ifdef BIT_SWAPPED_MAC_ADDRS
-	{ 10,		WTAP_ENCAP_FDDI_BITSWAPPED },
+	{ 10,	WTAP_ENCAP_FDDI_BITSWAPPED, "FDDI", "FDDI" },
 #else
-	{ 10,		WTAP_ENCAP_FDDI },
+	{ 10,	WTAP_ENCAP_FDDI, "FDDI", "FDDI" },
 #endif
 
-	{ 32,		WTAP_ENCAP_REDBACK },
+	{ 32,	WTAP_ENCAP_REDBACK, NULL, NULL },
 
 	/*
 	 * 50 is DLT_PPP_SERIAL in NetBSD; it appears that DLT_PPP
@@ -155,12 +159,12 @@ static const struct {
 	 * only for real live HDLC-encapsulated PPP, not for Cisco
 	 * HDLC.
 	 */
-	{ 50,		WTAP_ENCAP_PPP },
+	{ 50,	WTAP_ENCAP_PPP, NULL, NULL },
 
 	/*
 	 * Used by NetBSD and OpenBSD pppoe(4).
 	 */
-	{ 51,		WTAP_ENCAP_PPP_ETHER },
+	{ 51,	WTAP_ENCAP_PPP_ETHER, NULL, NULL },
 
 	/*
 	 * Apparently used by the Axent Raptor firewall (now Symantec
@@ -168,7 +172,7 @@ static const struct {
 	 * Thanks, Axent, for not reserving that type with tcpdump.org
 	 * and not telling anybody about it.
 	 */
-	{ 99,		WTAP_ENCAP_SYMANTEC },
+	{ 99,	WTAP_ENCAP_SYMANTEC, NULL, NULL },
 
 	/*
 	 * These are the values that libpcap 0.5 and later use in
@@ -176,8 +180,8 @@ static const struct {
 	 * confusion decried above, and that Wiretap and Wireshark
 	 * currently support.
 	 */
-	{ 100,		WTAP_ENCAP_ATM_RFC1483 },
-	{ 101,		WTAP_ENCAP_RAW_IP },
+	{ 100,	WTAP_ENCAP_ATM_RFC1483, "ATM_RFC1483", "ATM_RFC1483" },
+	{ 101,	WTAP_ENCAP_RAW_IP, "RAW", "RAW" },
 #if 0
 	/*
 	 * More values used by libpcap 0.5 as DLT_ values and used by the
@@ -185,24 +189,24 @@ static const struct {
 	 * They are not yet handled in Wireshark.
 	 * If we get a capture that contains them, we'll implement them.
 	 */
-	{ 102,		WTAP_ENCAP_SLIP_BSDOS },
-	{ 103,		WTAP_ENCAP_PPP_BSDOS },
+	{ 102,	WTAP_ENCAP_SLIP_BSDOS, NULL, "SLIP_BSDOS" },
+	{ 103,	WTAP_ENCAP_PPP_BSDOS, NULL, "PPP_BSDOS" },
 #endif
 
 	/*
 	 * These ones are handled in Wireshark, though.
 	 */
-	{ 104,		WTAP_ENCAP_CHDLC },	/* Cisco HDLC */
-	{ 105,		WTAP_ENCAP_IEEE_802_11 }, /* IEEE 802.11 */
-	{ 106,		WTAP_ENCAP_LINUX_ATM_CLIP },
-	{ 107,		WTAP_ENCAP_FRELAY },	/* Frame Relay */
-	{ 108,		WTAP_ENCAP_NULL },	/* OpenBSD loopback */
-	{ 109,		WTAP_ENCAP_ENC },	/* OpenBSD IPSEC enc */
+	{ 104,	WTAP_ENCAP_CHDLC, "CHDLC", "C_HDLC" },	/* Cisco HDLC */
+	{ 105,	WTAP_ENCAP_IEEE_802_11, "IEEE802_11", "IEEE802_11" }, /* IEEE 802.11 */
+	{ 106,	WTAP_ENCAP_LINUX_ATM_CLIP, "ATM_CLIP", "ATM_CLIP" },
+	{ 107,	WTAP_ENCAP_FRELAY, "FRELAY", "FRELAY", },	/* Frame Relay */
+	{ 108,	WTAP_ENCAP_NULL, "LOOP", "LOOP" },	/* OpenBSD loopback */
+	{ 109,	WTAP_ENCAP_ENC, "ENC", "ENC" },	/* OpenBSD IPSEC enc */
 #if 0
-	{ 110,		WTAP_ENCAP_LANE_802_3 },/* ATM LANE 802.3 */
-	{ 111,		WTAP_ENCAP_HIPPI },	/* NetBSD HIPPI */
+	{ 110,	WTAP_ENCAP_LANE_802_3, "LANE8023", "LANE8023" },/* ATM LANE 802.3 */
+	{ 111,	WTAP_ENCAP_HIPPI, "HIPPI", "HIPPI" },	/* NetBSD HIPPI */
 #endif
-	{ 112,		WTAP_ENCAP_CHDLC },	/* NetBSD HDLC framing */
+	{ 112,	WTAP_ENCAP_CHDLC, "HDLC", "HDLC" },	/* NetBSD HDLC framing */
 
 	/*
 	 * Linux "cooked mode" captures, used by the current CVS version
@@ -212,72 +216,78 @@ static const struct {
          * this number as well (why can't people stick to protocols when it
          * comes to allocating/using DLT types).
 	 */
-	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture */
+	{ 113,	WTAP_ENCAP_SLL, "LINUX_SLL", "LINUX_SLL" },	/* Linux cooked capture */
 
-	{ 114,		WTAP_ENCAP_LOCALTALK },	/* Localtalk */
+	{ 114,	WTAP_ENCAP_LOCALTALK, "LTALK", "LTALK" },	/* Localtalk */
 
 	/*
 	 * The tcpdump.org version of libpcap uses 117, rather than 17,
 	 * for OpenBSD packet filter logging, so as to avoid conflicting
 	 * with DLT_LANE8023 in SuSE 6.3 libpcap.
 	 */
-	{ 117,		WTAP_ENCAP_PFLOG },
+	{ 117,	WTAP_ENCAP_PFLOG, "PFLOG", "PFLOG" },
 
-	{ 118,		WTAP_ENCAP_CISCO_IOS },
-	{ 119,		WTAP_ENCAP_IEEE_802_11_PRISM }, /* 802.11 plus Prism monitor mode radio header */
-	{ 121,		WTAP_ENCAP_HHDLC },	/* HiPath HDLC */
-	{ 122,		WTAP_ENCAP_IP_OVER_FC },   /* RFC 2625 IP-over-FC */
-	{ 123,		WTAP_ENCAP_ATM_PDUS },  /* SunATM */
-	{ 127,		WTAP_ENCAP_IEEE_802_11_RADIOTAP },  /* 802.11 plus radiotap radio header */
-	{ 128,		WTAP_ENCAP_TZSP },	/* Tazmen Sniffer Protocol */
-	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
-	{ 130,		WTAP_ENCAP_JUNIPER_MLPPP }, /* Juniper MLPPP on ML-, LS-, AS- PICs */
-	{ 131,		WTAP_ENCAP_JUNIPER_MLFR }, /* Juniper MLFR (FRF.15) on ML-, LS-, AS- PICs */
-	{ 133,		WTAP_ENCAP_JUNIPER_GGSN},
+	{ 118,	WTAP_ENCAP_CISCO_IOS, "CISCO_IOS", "CISCO_IOS" },
+	{ 119,	WTAP_ENCAP_IEEE_802_11_PRISM, "PRISM", "IEEE802_11_PRISM" }, /* 802.11 plus Prism monitor mode radio header */
+	{ 121,	WTAP_ENCAP_HHDLC, "HHDLC", "HHDLC" },	/* HiPath HDLC */
+	{ 122,	WTAP_ENCAP_IP_OVER_FC, "IP_OVER_FC", "IP_OVER_FC" },   /* RFC 2625 IP-over-FC */
+	{ 123,	WTAP_ENCAP_ATM_PDUS, "SUNATM", "SUNATM" },  /* SunATM */
+	{ 127,	WTAP_ENCAP_IEEE_802_11_RADIOTAP, "IEEE802_11_RADIO", "IEEE802_11_RADIOTAP" },  /* 802.11 plus radiotap radio header */
+	{ 128,	WTAP_ENCAP_TZSP, "TZSP", "TZSP" },	/* Tazmen Sniffer Protocol */
+	{ 129,	WTAP_ENCAP_ARCNET_LINUX, "ARCNET_LINUX", "ARCNET_LINUX" },
+	{ 130,	WTAP_ENCAP_JUNIPER_MLPPP, "JUNIPER_MLPPP", "JUNIPER_MLPPP" }, /* Juniper MLPPP on ML-, LS-, AS- PICs */
+	{ 131,	WTAP_ENCAP_JUNIPER_MLFR, "JUNIPER_MLFR", "JUNIPER_MLFR" }, /* Juniper MLFR (FRF.15) on ML-, LS-, AS- PICs */
+	{ 133,	WTAP_ENCAP_JUNIPER_GGSN, "JUNIPER_GGSN", "JUNIPER_GGSN" },
 	/*
 	 * Values 132 and 134 not listed here are reserved for use
 	 * in Juniper hardware.
 	 */
-	{ 135,		WTAP_ENCAP_JUNIPER_ATM2 }, /* various encapsulations captured on the ATM2 PIC */
-	{ 136,		WTAP_ENCAP_JUNIPER_SVCS }, /* various encapsulations captured on the services PIC */
-	{ 137,		WTAP_ENCAP_JUNIPER_ATM1 }, /* various encapsulations captured on the ATM1 PIC */
+	/* various encapsulations captured on the ATM2 PIC */
+	{ 135,	WTAP_ENCAP_JUNIPER_ATM2, "JUNIPER_ATM2", "JUNIPER_ATM2" },
+	/* various encapsulations captured on the services PIC */
+	{ 136,	WTAP_ENCAP_JUNIPER_SVCS, "JUNIPER_SERVICES", "JUNIPER_SERVICES" },
+	/* various encapsulations captured on the ATM1 PIC */
+	{ 137,	WTAP_ENCAP_JUNIPER_ATM1, "JUNIPER_ATM1", "JUNIPER_ATM1" },
 
-	{ 138,		WTAP_ENCAP_APPLE_IP_OVER_IEEE1394 },
-						/* Apple IP-over-IEEE 1394 */
+	/* Apple IP-over-IEEE 1394 */
+	{ 138,	WTAP_ENCAP_APPLE_IP_OVER_IEEE1394, "APPLE_IP_OVER_IEEE1394", "APPLE_IP_OVER_IEEE1394" },
 
-	{ 139,		WTAP_ENCAP_MTP2_WITH_PHDR },
-	{ 140,		WTAP_ENCAP_MTP2 },
-	{ 141,		WTAP_ENCAP_MTP3 },
-	{ 142,		WTAP_ENCAP_SCCP },
-	{ 143,		WTAP_ENCAP_DOCSIS },
-	{ 144,		WTAP_ENCAP_IRDA },	/* IrDA capture */
+	{ 139,	WTAP_ENCAP_MTP2_WITH_PHDR, "MTP2_WITH_PHDR", "MTP2_WITH_PHDR" },
+	{ 140,	WTAP_ENCAP_MTP2, "MTP2", "MTP2" },
+	{ 141,	WTAP_ENCAP_MTP3, "MTP3", "MTP3" },
+	{ 142,	WTAP_ENCAP_SCCP, "SCCP", "SCCP" },
+	{ 143,	WTAP_ENCAP_DOCSIS, "DOCSIS", "DOCSIS" },
+
+	/* IrDA capture */
+	{ 144,	WTAP_ENCAP_IRDA, "LINUX_IRDA, "LINUX_IRDA" },
 
 	/* Reserved for private use. */
-	{ 147,		WTAP_ENCAP_USER0 },
-	{ 148,		WTAP_ENCAP_USER1 },
-	{ 149,		WTAP_ENCAP_USER2 },
-	{ 150,		WTAP_ENCAP_USER3 },
-	{ 151,		WTAP_ENCAP_USER4 },
-	{ 152,		WTAP_ENCAP_USER5 },
-	{ 153,		WTAP_ENCAP_USER6 },
-	{ 154,		WTAP_ENCAP_USER7 },
-	{ 155,		WTAP_ENCAP_USER8 },
-	{ 156,		WTAP_ENCAP_USER9 },
-	{ 157,		WTAP_ENCAP_USER10 },
-	{ 158,		WTAP_ENCAP_USER11 },
-	{ 159,		WTAP_ENCAP_USER12 },
-	{ 160,		WTAP_ENCAP_USER13 },
-	{ 161,		WTAP_ENCAP_USER14 },
-	{ 162,		WTAP_ENCAP_USER15 },
+	{ 147,	WTAP_ENCAP_USER0 },
+	{ 148,	WTAP_ENCAP_USER1 },
+	{ 149,	WTAP_ENCAP_USER2 },
+	{ 150,	WTAP_ENCAP_USER3 },
+	{ 151,	WTAP_ENCAP_USER4 },
+	{ 152,	WTAP_ENCAP_USER5 },
+	{ 153,	WTAP_ENCAP_USER6 },
+	{ 154,	WTAP_ENCAP_USER7 },
+	{ 155,	WTAP_ENCAP_USER8 },
+	{ 156,	WTAP_ENCAP_USER9 },
+	{ 157,	WTAP_ENCAP_USER10 },
+	{ 158,	WTAP_ENCAP_USER11 },
+	{ 159,	WTAP_ENCAP_USER12 },
+	{ 160,	WTAP_ENCAP_USER13 },
+	{ 161,	WTAP_ENCAP_USER14 },
+	{ 162,	WTAP_ENCAP_USER15 },
 
-	{ 163,		WTAP_ENCAP_IEEE_802_11_AVS },  /* 802.11 plus AVS radio header */
+	/* 802.11 plus AVS radio header */
+	{ 163,	WTAP_ENCAP_IEEE_802_11_AVS, "IEEE802_11_AVS", "IEEE802_11_AVS" },
 
 	/*
 	 * 164 is reserved for Juniper-private chassis-internal
 	 * meta-information such as QoS profiles, etc..
 	 */
 
-	{ 165,		WTAP_ENCAP_BACNET_MS_TP },
+	{ 165,	WTAP_ENCAP_BACNET_MS_TP, "BACNET_MS_TP", "BACNET_MS_TP" },
 
 	/*
 	 * 166 is reserved for a PPP variant in which the first byte
@@ -287,14 +297,14 @@ static const struct {
 	 */
 
 	/* Ethernet PPPoE frames captured on a service PIC */
-	{ 167,		WTAP_ENCAP_JUNIPER_PPPOE },
+	{ 167,	WTAP_ENCAP_JUNIPER_PPPOE, "JUNIPER_PPPOE", "JUNIPER_PPPOE" },
 
         /*
 	 * 168 is reserved for more Juniper private-chassis-
 	 * internal meta-information.
 	 */
 
-	{ 169,		WTAP_ENCAP_GPRS_LLC },
+	{ 169,	WTAP_ENCAP_GPRS_LLC, "GPRS_LLC", "GPRS_LLC" },
 
 	/*
 	 * 170 and 171 are reserved for ITU-T G.7041/Y.1303 Generic
@@ -302,107 +312,107 @@ static const struct {
 	 */
 
 	/* Registered by Gcom, Inc. */
-	{ 172,		WTAP_ENCAP_GCOM_TIE1 },
-	{ 173,		WTAP_ENCAP_GCOM_SERIAL },
+	{ 172,	WTAP_ENCAP_GCOM_TIE1, "GCOM_T1E1", "GCOM_T1E1" },
+	{ 173,	WTAP_ENCAP_GCOM_SERIAL, "GCOM_SERIAL", "GCOM_SERIAL" },
 
-	{ 177,		WTAP_ENCAP_LINUX_LAPD },
+	{ 177,	WTAP_ENCAP_LINUX_LAPD, "LINUX_LAPD", "LINUX_LAPD" },
 
-    /* Ethernet frames prepended with meta-information */
-	{ 178,		WTAP_ENCAP_JUNIPER_ETHER },
+	/* Ethernet frames prepended with meta-information */
+	{ 178,	WTAP_ENCAP_JUNIPER_ETHER, "JUNIPER_ETHER", "JUNIPER_ETHER" },
 	/* PPP frames prepended with meta-information */
-	{ 179,		WTAP_ENCAP_JUNIPER_PPP },
+	{ 179,	WTAP_ENCAP_JUNIPER_PPP, "JUNIPER_PPP", "JUNIPER_PPP" },
 	/* Frame-Relay frames prepended with meta-information */
-	{ 180,		WTAP_ENCAP_JUNIPER_FRELAY },
+	{ 180,	WTAP_ENCAP_JUNIPER_FRELAY, "JUNIPER_FRELAY", "JUNIPER_FRELAY" },
 	/* C-HDLC frames prepended with meta-information */
-	{ 181,		WTAP_ENCAP_JUNIPER_CHDLC },
+	{ 181,	WTAP_ENCAP_JUNIPER_CHDLC, "JUNIPER_CHDLC", "JUNIPER_CHDLC" },
 	/* VOIP Frames prepended with meta-information */
-	{ 183,		WTAP_ENCAP_JUNIPER_VP },
+	{ 183,	WTAP_ENCAP_JUNIPER_VP, "JUNIPER_VP", "JUNIPER_VP" },
 	/* raw USB packets */
-	{ 186, 		WTAP_ENCAP_USB },
+	{ 186, 	WTAP_ENCAP_USB, "USB", "USB" },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
-	{ 187, 		WTAP_ENCAP_BLUETOOTH_H4 },
+	{ 187, 	WTAP_ENCAP_BLUETOOTH_H4 , "BLUETOOTH_HCI_H4", "BLUETOOTH_HCI_H4" },
 	/* IEEE 802.16 MAC Common Part Sublayer */
-	{ 188,		WTAP_ENCAP_IEEE802_16_MAC_CPS },
+	{ 188,	WTAP_ENCAP_IEEE802_16_MAC_CPS, "EEE802_16_MAC_CPS", "EEE802_16_MAC_CPS" },
 	/* USB packets with Linux-specified header */
-	{ 189, 		WTAP_ENCAP_USB_LINUX },
+	{ 189, 	WTAP_ENCAP_USB_LINUX, "USB_LINUX", "USB_LINUX" },
 	/* CAN 2.0b frame */
-	{ 190, 		WTAP_ENCAP_CAN20B },
+	{ 190, 	WTAP_ENCAP_CAN20B, "CAN20B", "CAN20B" },
 	/* Per-Packet Information header */
-	{ 192,		WTAP_ENCAP_PPI },
+	{ 192,	WTAP_ENCAP_PPI, "PPI", "PPI" },
 	/* IEEE 802.15.4 Wireless PAN */
-	{ 195,		WTAP_ENCAP_IEEE802_15_4 },
+	{ 195,	WTAP_ENCAP_IEEE802_15_4, "IEEE802_15_4", "IEEE802_15_4" },
 	/* SITA File Encapsulation */
-	{ 196,		WTAP_ENCAP_SITA },
+	{ 196,	WTAP_ENCAP_SITA, "SITA", "SITA" },
 	/* Endace Record File Encapsulation */
-	{ 197,		WTAP_ENCAP_ERF },
+	{ 197,	WTAP_ENCAP_ERF, "ERF", "ERF" },
 	/* IPMB */
-	{ 199,		WTAP_ENCAP_IPMB },
+	{ 199,	WTAP_ENCAP_IPMB, "IPMB", "IPMB" },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
-	{ 201, 		WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR },
+	{ 201, 	WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR, "BLUETOOTH_HCI_H4_WITH_PHDR", "BLUETOOTH_HCI_H4_WITH_PHDR" },
 	/* AX.25 packet with a 1-byte KISS header */
-	{ 202,		WTAP_ENCAP_AX25_KISS },
+	{ 202,	WTAP_ENCAP_AX25_KISS, "AX25_KISS", "AX25_KISS" },
 	/* LAPD frame */
-	{ 203, 		WTAP_ENCAP_LAPD },
+	{ 203, 	WTAP_ENCAP_LAPD, "LAPD", "LAPD" },
 	/* PPP with pseudoheader */
-	{ 204,		WTAP_ENCAP_PPP_WITH_PHDR },
+	{ 204,	WTAP_ENCAP_PPP_WITH_PHDR, "PPP_WITH_DIR", "PPP_WITH_DIR" },
 	/* IPMB/I2C */
-	{ 209,		WTAP_ENCAP_I2C },
+	{ 209,	WTAP_ENCAP_I2C, "IPMB_LINUX", "IPMB_LINUX" },
 	/* FlexRay frame */
-	{ 210, 		WTAP_ENCAP_FLEXRAY },
+	{ 210, 	WTAP_ENCAP_FLEXRAY, "FLEXRAY", "FLEXRAY" },
 	/* MOST frame */
-	{ 211, 		WTAP_ENCAP_MOST },
+	{ 211, 	WTAP_ENCAP_MOST, "MOST", "MOST" },
 	/* LIN frame */
-	{ 212, 		WTAP_ENCAP_LIN },
+	{ 212, 	WTAP_ENCAP_LIN, "LIN", "LIN" },
 	/* X2E Xoraya serial frame */
-	{ 213, 		WTAP_ENCAP_X2E_SERIAL },
+	{ 213, 	WTAP_ENCAP_X2E_SERIAL, "X2E_SERIAL", "X2E_SERIAL" },
 	/* X2E Xoraya frame */
-	{ 214, 		WTAP_ENCAP_X2E_XORAYA },
+	{ 214, 	WTAP_ENCAP_X2E_XORAYA, "X2E_XORAYA", "X2E_XORAYA" },
 	/* IEEE 802.15.4 Wireless PAN non-ASK PHY */
-	{ 215,		WTAP_ENCAP_IEEE802_15_4_NONASK_PHY },
+	{ 215,	WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, "IEEE802_15_4_NONASK_PHY", "IEEE802_15_4_NONASK_PHY" },
 	/* USB packets with padded Linux-specified header */
-	{ 220, 		WTAP_ENCAP_USB_LINUX_MMAPPED },
+	{ 220, 	WTAP_ENCAP_USB_LINUX_MMAPPED, "USB_LINUX_MMAPPED, "USB_LINUX_MMAPPED" },
 	/* Fibre Channel FC-2 frame */
-	{ 224,		WTAP_ENCAP_FIBRE_CHANNEL_FC2 },
+	{ 224,	WTAP_ENCAP_FIBRE_CHANNEL_FC2, "FC_2", "FC_2"},
 	/* Fibre Channel FC-2 frame with Delimiter */
-	{ 225,		WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS },
+	{ 225,	WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS, "FC_2_WITH_FRAME_DELIMS", "FC_2_WITH_FRAME_DELIMS" },
 	/* Solaris IPNET */
-	{ 226,		WTAP_ENCAP_IPNET },
+	{ 226,	WTAP_ENCAP_IPNET, "IPNET", "IPNET" },
 	/* SocketCAN frame */
-	{ 227,		WTAP_ENCAP_SOCKETCAN },
+	{ 227,	WTAP_ENCAP_SOCKETCAN, "CAN_SOCKETCAN", "CAN_SOCKETCAN" },
 	/* Raw IPv4 */
-	{ 228,		WTAP_ENCAP_RAW_IP4 },
+	{ 228,	WTAP_ENCAP_RAW_IP4, "IPV4", "IPV4" },
 	/* Raw IPv6 */
-	{ 229,		WTAP_ENCAP_RAW_IP6 },
+	{ 229,	WTAP_ENCAP_RAW_IP6, "IPV6", "IPV6" },
 	/* IEEE 802.15.4 Wireless PAN no fcs */
-	{ 230,		WTAP_ENCAP_IEEE802_15_4_NOFCS },
+	{ 230,	WTAP_ENCAP_IEEE802_15_4_NOFCS, "IEEE802_15_4_NOFCS", "IEEE802_15_4_NOFCS" },
 	/* D-BUS */
-	{ 231,		WTAP_ENCAP_DBUS },
+	{ 231,	WTAP_ENCAP_DBUS, "DBUS", "DBUS" },
 	/* DVB-CI (Common Interface) */
-	{ 235,		WTAP_ENCAP_DVBCI },
+	{ 235,	WTAP_ENCAP_DVBCI, "DVB_CI", "DVB_CI" },
 	/* MUX27010 */
-	{ 236,		WTAP_ENCAP_MUX27010 },
+	{ 236,	WTAP_ENCAP_MUX27010, "MUX27010", "MUX27010" },
 	/* NFLOG */
-	{ 239,		WTAP_ENCAP_NFLOG },
+	{ 239,	WTAP_ENCAP_NFLOG, "NFLOG", "NFLOG" },
 	/* netANALYZER pseudo-header followed by Ethernet with CRC */
-	{ 240,		WTAP_ENCAP_NETANALYZER },
+	{ 240,	WTAP_ENCAP_NETANALYZER, "NETANALYZER", "NETANALYZER" },
 	/* netANALYZER pseudo-header in transparent mode */
-	{ 241,		WTAP_ENCAP_NETANALYZER_TRANSPARENT },
+	{ 241,	WTAP_ENCAP_NETANALYZER_TRANSPARENT, "NETANALYZER_TRANSPARENT", "NETANALYZER_TRANSPARENT" },
 	/* IP-over-Infiniband, as specified by RFC 4391 section 6 */
-	{ 242,		WTAP_ENCAP_IP_OVER_IB },
+	{ 242,	WTAP_ENCAP_IP_OVER_IB, "IPOIB", "IPOIB" },
 	/* ISO/IEC 13818-1 MPEG2-TS packets */
-	{ 243,		WTAP_ENCAP_MPEG_2_TS },
+	{ 243,	WTAP_ENCAP_MPEG_2_TS, "MPEG_2_TS", "MPEG_2_TS" },
 	/* NFC LLCP */
-	{ 245,		WTAP_ENCAP_NFC_LLCP },
+	{ 245,	WTAP_ENCAP_NFC_LLCP, "NFC_LLCP", "NFC_LLCP" },
 	/* SCTP */
-	{ 248,		WTAP_ENCAP_SCTP},
+	{ 248,	WTAP_ENCAP_SCTP, "SCTP", "SCTP" },
 	/* USBPcap */
-	{ 249,		WTAP_ENCAP_USBPCAP},
+	{ 249,	WTAP_ENCAP_USBPCAP, "USBPCAP", "USBPCAP" },
 	/* RTAC SERIAL */
-	{ 250,		WTAP_ENCAP_RTAC_SERIAL},
+	{ 250,	WTAP_ENCAP_RTAC_SERIAL, "RTAC_SERIAL", "RTAC_SERIAL" },
 	/* Bluetooth Low Energy Link Layer */
-	{ 251,		WTAP_ENCAP_BLUETOOTH_LE_LL},
+	{ 251,	WTAP_ENCAP_BLUETOOTH_LE_LL, "BLUETOOTH_LE_LL", "BLUETOOTH_LE_LL" },
 	/* Wireshark Upper PDU export */
-	{ 252,		WTAP_ENCAP_WIRESHARK_UPPER_PDU},
+	{ 252,	WTAP_ENCAP_WIRESHARK_UPPER_PDU, "WIRESHARK_UPPER_PDU", "WIRESHARK_UPPER_PDU" },
 
 	/*
 	 * To repeat:
@@ -451,9 +461,9 @@ static const struct {
 	 *	   them correctly).
 	 */
 #if defined(DLT_FR) && (DLT_FR == 11)
-	{ 11,		WTAP_ENCAP_FRELAY },
+	{ 11,	WTAP_ENCAP_FRELAY, NULL, NULL },
 #else
-	{ 11,		WTAP_ENCAP_ATM_RFC1483 },
+	{ 11,	WTAP_ENCAP_ATM_RFC1483, NULL, NULL },
 #endif
 
 	/*
@@ -469,7 +479,7 @@ static const struct {
 	 * as 12, interpret it as WTAP_ENCAP_RAW_IP.
 	 */
 #if defined(DLT_LOOP) && (DLT_LOOP == 12)
-	{ 12,		WTAP_ENCAP_NULL },
+	{ 12,	WTAP_ENCAP_NULL, NULL, NULL },
 #elif defined(DLT_C_HDLC) && (DLT_C_HDLC == 12)
 	/*
 	 * Put entry for Cisco HDLC here.
@@ -477,7 +487,7 @@ static const struct {
 	 * start with a 4-byte Cisco HDLC header?
 	 */
 #else
-	{ 12,		WTAP_ENCAP_RAW_IP },
+	{ 12,	WTAP_ENCAP_RAW_IP, NULL, NULL },
 #endif
 
 	/*
@@ -502,9 +512,9 @@ static const struct {
 	 * systems, we can read OpenBSD DLT_ENC captures.
 	 */
 #if defined(DLT_ATM_RFC1483) && (DLT_ATM_RFC1483 == 13)
-	{ 13,		WTAP_ENCAP_ATM_RFC1483 },
+	{ 13,	WTAP_ENCAP_ATM_RFC1483, NULL, NULL },
 #else
-	{ 13,		WTAP_ENCAP_ENC },
+	{ 13,	WTAP_ENCAP_ENC, NULL, NULL },
 #endif
 
 	/*
@@ -519,7 +529,7 @@ static const struct {
 	 *
 	 * 14 is DLT_RAW on BSD/OS and OpenBSD.
 	 */
-	{ 14,		WTAP_ENCAP_RAW_IP },
+	{ 14,	WTAP_ENCAP_RAW_IP, NULL, NULL },
 
 	/*
 	 * 15 is:
@@ -551,10 +561,10 @@ static const struct {
 	 *	(and on SuSE 6.3).
 	 */
 #if defined(DLT_CIP) && (DLT_CIP == 16)
-	{ 16,		WTAP_ENCAP_LINUX_ATM_CLIP },
+	{ 16,	WTAP_ENCAP_LINUX_ATM_CLIP, NULL, NULL },
 #endif
 #if defined(DLT_HDLC) && (DLT_HDLC == 16)
-	{ 16,		WTAP_ENCAP_CHDLC },
+	{ 16,	WTAP_ENCAP_CHDLC, NULL, NULL },
 #endif
 
 	/*
@@ -565,7 +575,7 @@ static const struct {
 	 * defined with the value 17.
 	 */
 #if !defined(DLT_LANE8023) || (DLT_LANE8023 != 17)
-	{ 17,		WTAP_ENCAP_OLD_PFLOG },
+	{ 17,	WTAP_ENCAP_OLD_PFLOG, NULL, NULL },
 #endif
 
 	/*
@@ -575,7 +585,7 @@ static const struct {
 	 * I've not found any libpcap that uses it for any other purpose -
 	 * hopefully nobody will do so in the future.
 	 */
-	{ 18,		WTAP_ENCAP_LINUX_ATM_CLIP },
+	{ 18,	WTAP_ENCAP_LINUX_ATM_CLIP, NULL, NULL },
 
 	/*
 	 * 19 is DLT_ATM_CLIP in the libpcap/tcpdump patches in the
@@ -583,7 +593,7 @@ static const struct {
 	 * I've not yet found any libpcap that uses it for any other
 	 * purpose - hopefully nobody will do so in the future.
 	 */
-	{ 19,		WTAP_ENCAP_LINUX_ATM_CLIP },
+	{ 19,	WTAP_ENCAP_LINUX_ATM_CLIP, NULL, NULL },
 
 	/*
 	 * To repeat:
