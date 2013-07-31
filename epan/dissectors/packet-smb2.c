@@ -1941,8 +1941,8 @@ dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 				FALSE, &length, TRUE, TRUE, &bc);
 			/*
 			 * We put the data here ...
-			 */ 
-			proto_tree_add_item(ea_tree, hf_smb2_ea_data, tvb, 
+			 */
+			proto_tree_add_item(ea_tree, hf_smb2_ea_data, tvb,
 					offset, length, ENC_NA);
 		}
 		offset += ea_data_len;
@@ -7100,8 +7100,8 @@ proto_register_smb2(void)
 		{ "NT Status", "smb2.nt_status", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0, "NT Status code", HFILL }},
 	{ &hf_smb2_seqnum,
-		{ "Command Sequence Number", "smb2.seq_num", FT_INT64, BASE_DEC,
-		NULL, 0, "SMB2 Command Sequence Number", HFILL }},
+		{ "Message ID", "smb2.msg_id", FT_INT64, BASE_DEC,
+		NULL, 0, "SMB2 Messsage ID", HFILL }},
 	{ &hf_smb2_tid,
 		{ "Tree Id", "smb2.tid", FT_UINT32, BASE_HEX,
 		NULL, 0, "SMB2 Tree Id", HFILL }},
