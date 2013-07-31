@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 #ifdef HAVE_LIBGNUTLS
 #include <wsutil/wsgcrypt.h>
@@ -38,8 +39,6 @@
 
 #include <epan/conversation.h>
 #include "ws_symbol_export.h"
-
-#include <epan/wmem/wmem.h>
 
 /* #define SSL_FAST 1 */
 #define SSL_DECRYPT_DEBUG
