@@ -48,10 +48,35 @@ static gint ett_ua3g            = -1;
 static gint ett_ua3g_body       = -1;
 static gint ett_ua3g_param      = -1;
 static gint ett_ua3g_option     = -1;
-static int  hf_ua3g_length      = -1;
-static int  hf_ua3g_opcode      = -1;
-static int  hf_ua3g_ip          = -1;
-static int  hf_ua3g_command     = -1;
+
+static int  hf_ua3g_length                  = -1;
+static int  hf_ua3g_opcode_sys              = -1;
+static int  hf_ua3g_opcode_term             = -1;
+static int  hf_ua3g_opcode_production_test  = -1;
+static int  hf_ua3g_opcode_subservice_reset = -1;
+static int  hf_ua3g_opcode_are_you_there    = -1;
+static int  hf_ua3g_opcode_set_speaker_vol  = -1;
+static int  hf_ua3g_opcode_trace_on         = -1;
+static int  hf_ua3g_ip                      = -1;
+static int  hf_ua3g_ip_cs                   = -1;
+static int  hf_ua3g_command_led             = -1;
+static int  hf_ua3g_command_lcd_line        = -1;
+static int  hf_ua3g_main_voice_mode         = -1;
+static int  hf_ua3g_command_set_clck        = -1;
+static int  hf_ua3g_external_ringing_command= -1;
+static int  hf_ua3g_lcd_cursor              = -1;
+static int  hf_ua3g_command_beep            = -1;
+static int  hf_ua3g_command_sidetone        = -1;
+static int  hf_ua3g_command_mute            = -1;
+static int  hf_ua3g_command_feedback        = -1;
+static int  hf_ua3g_command_audio_config    = -1;
+static int  hf_ua3g_command_key_release     = -1;
+static int  hf_ua3g_command_amplified_handset = -1;
+static int  hf_ua3g_command_loudspeaker     = -1;
+static int  hf_ua3g_command_announce        = -1;
+static int  hf_ua3g_command_ring            = -1;
+static int  hf_ua3g_command_ua_dwl_protocol = -1;
+static int  hf_ua3g_command_unsolicited_msg = -1;
 
 extern e_ua_direction message_direction;
 
@@ -341,24 +366,15 @@ version_number_computer(int hexa_version)
 static void
 decode_with_one_parameter(proto_tree *tree _U_, tvbuff_t *tvb,
               packet_info *pinfo _U_, guint offset, guint length,
-              guint8 opcode, proto_item *ua3g_body_item)
+              int hf_opcode, proto_item *ua3g_body_item)
 {
     proto_tree *ua3g_body_tree;
-    static const value_string str_first_parameter[] = {
-        {0x01, "Production Test Command"},
-        {0x06, "Reserved For Compatibility"},
-        {0x2B, "Temporization"},
-        {0x3B, "Volume"},
-        {0x42, "Subdevice Address"},
-        {0, NULL}
-    };
 
     if (!ua3g_body_item || (length == 0))
         return;
 
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
-    proto_tree_add_text(ua3g_body_tree, tvb, offset, length, "%s: %d",
-        val_to_str_const(opcode, str_first_parameter, "Unknown"), tvb_get_guint8(tvb, offset));
+    proto_tree_add_item(ua3g_body_tree, hf_opcode, tvb, offset, 1, ENC_NA);
 }
 
 
@@ -401,24 +417,25 @@ decode_subdevice_escape(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo 
 /*-----------------------------------------------------------------------------
     SOFTWARE RESET - 03h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string software_reset_verswitch_vals[] = {
+    {0x00, "Reset Without Version Switch"},
+    {0x01, "Reset With Version Switch"},
+    {0, NULL}
+};
+
 static void
 decode_software_reset(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
                       guint offset, guint length, guint8 opcode _U_,
                       proto_item *ua3g_body_item)
 {
     proto_tree *ua3g_body_tree;
-    static const value_string str_verswitch[] = {
-        {0x00, "Reset Without Version Switch"},
-        {0x01, "Reset With Version Switch"},
-        {0, NULL}
-    };
 
     if (!ua3g_body_item || (length == 0))
         return;
 
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
     proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "%s",
-        val_to_str_const(tvb_get_guint8(tvb, offset), str_verswitch, "Unknown"));
+        val_to_str_const(tvb_get_guint8(tvb, offset), software_reset_verswitch_vals, "Unknown"));
     /* offset++;  */
     /* length--;  */
 }
@@ -427,17 +444,18 @@ decode_software_reset(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U
 /*-----------------------------------------------------------------------------
     IP-PHONE WARMSTART - 04h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_command_ip_phone_warmstart[] = {
+    {0x00, "Run In UA2G Emulation Mode"},
+    {0x01, "Run In Full UA3G Mode"},
+    {0, NULL}
+};
+
 static void
 decode_ip_phone_warmstart(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
               guint offset, guint length, guint8 opcode _U_,
               proto_item *ua3g_body_item)
 {
     proto_tree *ua3g_body_tree;
-    static const value_string str_command[] = {
-        {0x00, "Run In UA2G Emulation Mode"},
-        {0x01, "Run In Full UA3G Mode"},
-        {0, NULL}
-    };
 
     if (!ua3g_body_item || (length == 0))
         return;
@@ -448,7 +466,7 @@ decode_ip_phone_warmstart(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinf
         offset,
         1,
         "Command: %s",
-        val_to_str_const(tvb_get_guint8(tvb, offset), str_command, "Unknown"));
+        val_to_str_const(tvb_get_guint8(tvb, offset), str_command_ip_phone_warmstart, "Unknown"));
     /* offset++;  */
     /* length--;  */
 }
@@ -547,56 +565,233 @@ decode_segment_msg(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
 /*-----------------------------------------------------------------------------
     IP DEVICE ROUTING - 13h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_command_ip_device_routing[] = {
+    {0x00, "Reset"},
+    {0x01, "Start RTP"},
+    {0x02, "Stop RTP"},
+    {0x03, "Redirect"},
+    {0x04, "Tone Definition"},
+    {0x05, "Start Tone"},
+    {0x06, "Stop Tone"},
+    {0x07, "Start Listen RTP"},
+    {0x08, "Stop Listen RTP"},
+    {0x09, "Get Parameters Value"},
+    {0x0A, "Set Parameters Value"},
+    {0x0B, "Send Digit"},
+    {0x0C, "Pause RTP"},
+    {0x0D, "Restart RTP"},
+    {0x0E, "Start Record RTP"},
+    {0x0F, "Stop Record RTP"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_cmd_reset_vals[] = {
+    {0x00, "Update Mode"},
+    {0x01, "Bad Sec Mode"},
+    {0x02, "Customization Name"},
+    {0x03, "Localization Name"},
+    {0, NULL}
+};
+
+static const value_string reset_param_bad_sec_mode[] = {
+    {0x01, "Binary is full, CS is secured, but terminal running in clear mode"},
+    {0, NULL}
+};
+
+static const value_string start_rtp_str_direction[] = {
+    {0x00, "Terminal Input"},
+    {0x01, "Terminal Output"},
+    {0x02, "Terminal Input/Output (Both Directions)"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_cmd_start_rtp_vals[] = {
+    {0x00, "Local UDP Port"},
+    {0x01, "Remote IP Address"},
+    {0x02, "Remote UDP Port"},
+    {0x03, "Type Of Service"},
+    {0x04, "Compressor"},
+    {0x05, "Payload Concatenation (ms)"},
+    {0x06, "Echo Cancellation Enabler"},
+    {0x07, "Silence Suppression Enabler"},
+    {0x08, "802.1 Q User Priority"},
+    {0x09, "Reserved"},
+    {0x0a, "Post Filtering Enabler"},
+    {0x0b, "High Pass Filtering Enabler"},
+    {0x0c, "Remote SSRC"},
+    {0x0d, "Must Send QOS Tickets"},
+    {0x0e, "Local Identifier"},
+    {0x0f, "Distant Identifier"},
+    {0x10, "Destination For RTCP Sender Reports - Port Number"},
+    {0x11, "Destination For RTCP Sender Reports - IP Address"},
+    {0x12, "Destination For RTCP Receiver Reports - Port Number"},
+    {0x13, "Destination For RTCP Receiver Reports - IP Address"},
+    {0x14, "Channel Number"},
+    {0x15, "DTMF Sending"},
+    {0x16, "Payload Type Of Redundancy"},
+    {0x17, "Payload Type Of DTMF Events"},
+    {0x18, "Enable / Disable RFC 2198"},
+    {0x31, "SRTP Encryption Enable For This Communication"},
+    {0x32, "Master Key For SRTP Session"},
+    {0x33, "Master Salt Key For SRTP Session"},
+    {0x34, "Master key for output stream of SRTP session"},
+    {0x35, "Master salt key for output stream of SRTP session"},
+    {0x36, "Integrity checking enabled for this communication"},
+    {0x37, "MKI value for SRTP packets in input stream"},
+    {0x38, "MKI value for SRTP packets in output stream"},
+    {0x50, "MD5 Authentication"},
+    {0, NULL}
+};
+static value_string_ext ip_device_routing_cmd_start_rtp_vals_ext = VALUE_STRING_EXT_INIT(ip_device_routing_cmd_start_rtp_vals);
+
+static const value_string str_start_rtp_compressor[] = {
+    {0x00, "G.711 A-law"},
+    {0x01, "G.711 mu-law"},
+    {0x0F, "G.723.1 5.3kbps"},
+    {0x10, "G.723.1 6.3kbps"},
+    {0x11, "G.729A 8 kbps"},
+    {0, NULL}
+};
+
+static const value_string str_set_param_req_compressor[] = {
+    {0x00, "G.711 A-law"},
+    {0x01, "G.711 mu-law"},
+    {0x0F, "G.723.1 5.3kbps"},
+    {0x10, "G.723.1 6.3kbps"},
+    {0x11, "G.729A 8 kbps"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_cmd_stop_rtp_vals[] = {
+    {0x0E, "Local Identifier"},
+    {0x0F, "Distant Identifier"},
+    {0x14, "Canal Identifier"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_cmd_redirect_vals[] = {
+    {0x00, "Remote MainCPU Server IP Address"},
+    {0x01, "Remote MainCPU Server Port"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_cmd_listen_rtp_vals[] = {
+    {0x00, "Remote IP Address    "},
+    {0x01, "Remote UDP Port In   "},
+    {0x02, "Remote UDP Port Out  "},
+    {0x03, "Remote IP Address Out"},
+    {0x04, "Canal Number"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_cmd_set_param_req_vals[] = {
+    {0x00   , "QOS IP TOS"},
+    {0x01   , "QOS 8021 VLID"},
+    {0x02   , "QOS 8021 PRI"},
+    {0x03   , "SNMP MIB2 SysContact"},
+    {0x04   , "SNMP MIB2 SysName"},
+    {0x05   , "SNMP MIB2 SysLocation"},
+    {0x06   , "Default Compressor"},
+    {0x07   , "Error String Net Down"},
+    {0x08   , "Error String Cable PB"},
+    {0x09   , "Error String Try Connect"},
+    {0x0A   , "Error String Connected"},
+    {0x0B   , "Error String Reset"},
+    {0x0C   , "Error String Duplicate IP Address"},
+    {0x0D   , "SNMP MIB Community"},
+    {0x0E   , "TFTP Backup Sec Mode"},
+    {0x0F   , "TFTP Backup IP Address"},
+    {0x10   , "Set MMI Password"},
+    {0x11   , "Set PC Port Status"},
+    {0x12   , "Record RTP Authorization"},
+    {0x13   , "Security Flags"},
+    {0x14   , "ARP Spoofing"},
+    {0x15   , "Session Param"},
+    {0x30   , "MD5 Authentication"},
+    {0, NULL}
+};
+static value_string_ext ip_device_routing_cmd_set_param_req_vals_ext = VALUE_STRING_EXT_INIT(ip_device_routing_cmd_set_param_req_vals);
+
+static const value_string ip_device_routing_cmd_pause_restart_vals[] = {
+    {0x14, "Canal Identifier"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_cmd_record_rtp_vals[] = {
+    {0x00   , "Recorder Index"},
+    {0x01   , "Remote IP Address"},
+    {0x02   , "Remote UDP Port In"},
+    {0x03   , "Remote UDP Port Out"},
+    {0x04   , "Remote IP Address Out"},
+    {0x05   , "Local UDP Port In"},
+    {0x06   , "Local UDP Port Out"},
+    {0x07   , "Type Of Service"},
+    {0x08   , "Master Key For SRTP Session"},
+    {0x09   , "Master Salt Key For SRTP Session"},
+    {0x30   , "MD5 Authentication"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_tone_direction_vals[] = {
+    {0x00, "On The Phone"},
+    {0x40, "To The Network"},
+    {0x80, "On The Phone and To The Network"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_cmd_get_param_req_vals[] = {
+    {0x00   , "Firmware Version"},
+    {0x01   , "Firmware Version"},
+    {0x02   , "DHCP IP Address"},
+    {0x03   , "Local IP Address"},
+    {0x04   , "Subnetwork Mask"},
+    {0x05   , "Router IP Address"},
+    {0x06   , "TFTP IP Address"},
+    {0x07   , "MainCPU IP Address"},
+    {0x08   , "Default Codec"},
+    {0x09   , "Ethernet Drivers Config"},
+    {0x0A   , "MAC Address"},
+    {0, NULL}
+};
+
+static const value_string str_set_pc_port_status[] = {
+    {0x00, "No PC Port Security"},
+    {0x01, "Block PC Port"},
+    {0x02, "Filter VLAN"},
+    {0, NULL}
+};
+
+static const value_string str_enable_feature[] = {
+    {0x00, "Disable Feature"},
+    {0x01, "Enable Feature"},
+    {0, NULL}
+};
+
 static void
 decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
              guint offset, guint length, guint8 opcode _U_,
              proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8         command;
-    proto_tree    *ua3g_body_tree;
+    const gchar*   command_str;
+    proto_tree    *ua3g_body_tree, *ua3g_param_tree;
     proto_item    *ua3g_param_item;
-    proto_tree    *ua3g_param_tree;
-
-    static const value_string str_command[] = {
-        {0x00, "Reset"},
-        {0x01, "Start RTP"},
-        {0x02, "Stop RTP"},
-        {0x03, "Redirect"},
-        {0x04, "Tone Definition"},
-        {0x05, "Start Tone"},
-        {0x06, "Stop Tone"},
-        {0x07, "Start Listen RTP"},
-        {0x08, "Stop Listen RTP"},
-        {0x09, "Get Parameters Value"},
-        {0x0A, "Set Parameters Value"},
-        {0x0B, "Send Digit"},
-        {0x0C, "Pause RTP"},
-        {0x0D, "Restart RTP"},
-        {0x0E, "Start Record RTP"},
-        {0x0F, "Stop Record RTP"},
-        {0, NULL}
-    };
-    static value_string_ext str_command_ext = VALUE_STRING_EXT_INIT(str_command);
 
     command = tvb_get_guint8(tvb, offset);
+    command_str = val_to_str_const(command, str_command_ip_device_routing, "Unknown");
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_ip, tvb, offset, 1,
-        command, "Command: %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip, tvb, offset, 1, ENC_NA);
     offset++;
     length--;
 
@@ -604,13 +799,6 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
     case 0x00: /* RESET */
         {
             int i, parameter_id, parameter_length;
-            static const value_string str_parameter_id[] = {
-                {0x00, "Update Mode"},
-                {0x01, "Bad Sec Mode"},
-                {0x02, "Customization Name"},
-                {0x03, "Localization Name"},
-                {0, NULL}
-            };
 
             if (length > 0) {
                 emem_strbuf_t *strbuf;
@@ -649,13 +837,8 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                         }
                     case 0x01: /* Bad_Sec_Mode */
                         {
-                            static const value_string str_bad_sec_mode[] = {
-                                {0x01, "Binary is full, CS is secured, but terminal running in clear mode"},
-                                {0, NULL}
-                            };
-
                             ep_strbuf_append(strbuf,
-                                val_to_str_const(tvb_get_guint8(tvb, offset + 2), str_bad_sec_mode, "Unknown"));
+                                val_to_str_const(tvb_get_guint8(tvb, offset + 2), reset_param_bad_sec_mode, "Unknown"));
                             break;
                         }
                     case 0x02: /* Cust_Name */
@@ -692,16 +875,16 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s: %s",
-                        val_to_str_const(parameter_id, str_parameter_id, "Unknown"), strbuf->str);
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_reset_vals, "Unknown"), strbuf->str);
                 } else {
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s",
-                        val_to_str_const(parameter_id, str_parameter_id, "Unknown"));
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_reset_vals, "Unknown"));
                 }
 
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
                 proto_tree_add_text(ua3g_param_tree, tvb, offset, 1,
-                    "Parameter: %s", val_to_str_const(parameter_id, str_parameter_id, "Unknown"));
+                    "Parameter: %s", val_to_str_const(parameter_id, ip_device_routing_cmd_reset_vals, "Unknown"));
                 offset++;
                 length--;
 
@@ -723,53 +906,8 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
             emem_strbuf_t *strbuf;
             int i, parameter_length, parameter_id;
 
-            static const value_string str_direction[] = {
-                {0x00, "Terminal Input"},
-                {0x01, "Terminal Output"},
-                {0x02, "Terminal Input/Output (Both Directions)"},
-                {0, NULL}
-            };
-            static const value_string str_parameter_id[] = {
-                {0x00, "Local UDP Port"},
-                {0x01, "Remote IP Address"},
-                {0x02, "Remote UDP Port"},
-                {0x03, "Type Of Service"},
-                {0x04, "Compressor"},
-                {0x05, "Payload Concatenation (ms)"},
-                {0x06, "Echo Cancellation Enabler"},
-                {0x07, "Silence Suppression Enabler"},
-                {0x08, "802.1 Q User Priority"},
-                {0x09, "Reserved"},
-                {0x0a, "Post Filtering Enabler"},
-                {0x0b, "High Pass Filtering Enabler"},
-                {0x0c, "Remote SSRC"},
-                {0x0d, "Must Send QOS Tickets"},
-                {0x0e, "Local Identifier"},
-                {0x0f, "Distant Identifier"},
-                {0x10, "Destination For RTCP Sender Reports - Port Number"},
-                {0x11, "Destination For RTCP Sender Reports - IP Address"},
-                {0x12, "Destination For RTCP Receiver Reports - Port Number"},
-                {0x13, "Destination For RTCP Receiver Reports - IP Address"},
-                {0x14, "Channel Number"},
-                {0x15, "DTMF Sending"},
-                {0x16, "Payload Type Of Redundancy"},
-                {0x17, "Payload Type Of DTMF Events"},
-                {0x18, "Enable / Disable RFC 2198"},
-                {0x31, "SRTP Encryption Enable For This Communication"},
-                {0x32, "Master Key For SRTP Session"},
-                {0x33, "Master Salt Key For SRTP Session"},
-                {0x34, "Master key for output stream of SRTP session"},
-                {0x35, "Master salt key for output stream of SRTP session"},
-                {0x36, "Integrity checking enabled for this communication"},
-                {0x37, "MKI value for SRTP packets in input stream"},
-                {0x38, "MKI value for SRTP packets in output stream"},
-                {0x50, "MD5 Authentication"},
-                {0, NULL}
-            };
-            static value_string_ext str_parameter_id_ext = VALUE_STRING_EXT_INIT(str_parameter_id);
-
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Direction: %s",
-                val_to_str_const(tvb_get_guint8(tvb, offset), str_direction, "Unknown"));
+                val_to_str_const(tvb_get_guint8(tvb, offset), start_rtp_str_direction, "Unknown"));
             offset++;
             length--;
 
@@ -796,22 +934,13 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                         }
                     case 0x04: /* Compressor */
                         {
-                            static const value_string str_compressor[] = {
-                                {0x00, "G.711 A-law"},
-                                {0x01, "G.711 mu-law"},
-                                {0x0F, "G.723.1 5.3kbps"},
-                                {0x10, "G.723.1 6.3kbps"},
-                                {0x11, "G.729A 8 kbps"},
-                                {0, NULL}
-                            };
-
                             if (parameter_length <= 8) {
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {  /* XXX: Not needed since only LO byte used ? */
                                     param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
-                                ep_strbuf_append(strbuf, val_to_str_const((guint8)(param_value), str_compressor, "Default Codec"));
+                                ep_strbuf_append(strbuf, val_to_str_const((guint8)(param_value), str_start_rtp_compressor, "Default Codec"));
                             } else {
                                 ep_strbuf_append_printf(strbuf, "0x%02x 0x%02x ... 0x%02x 0x%02x",
                                     tvb_get_guint8(tvb, offset + 2),
@@ -962,16 +1091,16 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s: %s",
-                        val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), strbuf->str);
+                        val_to_str_ext_const(parameter_id, &ip_device_routing_cmd_start_rtp_vals_ext, "Unknown"), strbuf->str);
                 } else {
                     /* (parameter_length == 0) */
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s",
-                        val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"));
+                        val_to_str_ext_const(parameter_id, &ip_device_routing_cmd_start_rtp_vals_ext, "Unknown"));
                 }
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
                 proto_tree_add_text(ua3g_param_tree, tvb, offset, 1, "Parameter: %s (0x%02x)",
-                    val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), parameter_id);
+                    val_to_str_ext_const(parameter_id, &ip_device_routing_cmd_start_rtp_vals_ext, "Unknown"), parameter_id);
                 offset++;
                 length--;
 
@@ -992,13 +1121,6 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
         {
             emem_strbuf_t *strbuf;
             int i, parameter_id, parameter_length;
-
-            static const value_string str_parameter_id[] = {
-                {0x0E, "Local Identifier"},
-                {0x0F, "Distant Identifier"},
-                {0x14, "Canal Identifier"},
-                {0, NULL}
-            };
 
             strbuf = ep_strbuf_new_label(NULL);
 
@@ -1038,16 +1160,16 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s: %s",
-                        val_to_str_const(parameter_id, str_parameter_id, "Unknown"), strbuf->str);
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_stop_rtp_vals, "Unknown"), strbuf->str);
                 } else {
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s",
-                        val_to_str_const(parameter_id, str_parameter_id, "Unknown"));
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_stop_rtp_vals, "Unknown"));
                 }
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
                 proto_tree_add_text(ua3g_param_tree, tvb, offset, 1,
                     "Parameter: %s (0x%02x)",
-                    val_to_str_const(parameter_id, str_parameter_id, "Unknown"), parameter_id);
+                    val_to_str_const(parameter_id, ip_device_routing_cmd_stop_rtp_vals, "Unknown"), parameter_id);
                 offset++;
                 length--;
 
@@ -1068,12 +1190,6 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
         {
             emem_strbuf_t *strbuf;
             int i, parameter_length, parameter_id;
-
-            static const value_string str_parameter_id[] = {
-                {0x00, "Remote MainCPU Server IP Address"},
-                {0x01, "Remote MainCPU Server Port"},
-                {0, NULL}
-            };
 
             strbuf = ep_strbuf_new_label(NULL);
 
@@ -1116,16 +1232,16 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                     }
 
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, parameter_length + 2,
-                        "%s: %s", val_to_str_const(parameter_id, str_parameter_id, "Unknown"), strbuf->str);
+                        "%s: %s", val_to_str_const(parameter_id, ip_device_routing_cmd_redirect_vals, "Unknown"), strbuf->str);
                 } else {
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset, parameter_length + 2,
-                        "%s", val_to_str_const(parameter_id, str_parameter_id, "Unknown"));
+                        "%s", val_to_str_const(parameter_id, ip_device_routing_cmd_redirect_vals, "Unknown"));
                 }
 
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
                 proto_tree_add_text(ua3g_param_tree, tvb, offset, 1,
                     "Parameter: %s (0x%02x)",
-                    val_to_str_const(parameter_id, str_parameter_id, "Unknown"), parameter_id);
+                    val_to_str_const(parameter_id, ip_device_routing_cmd_redirect_vals, "Unknown"), parameter_id);
                 offset++;
                 length--;
 
@@ -1194,19 +1310,13 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
             guint8 tone_direction, tone_id, tone_duration tone_silence; */
 #endif
             int tone_duration;
-            static const value_string str_tone_direction[] = {
-                {0x00, "On The Phone"},
-                {0x40, "To The Network"},
-                {0x80, "On The Phone and To The Network"},
-                {0, NULL}
-            };
 
             tone_direction  = tvb_get_guint8(tvb, offset) & 0xC0;
             tone_nb_entries = tvb_get_guint8(tvb, offset);
 
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                 "Direction: %s - Number Of Entries: %d",
-                val_to_str_const(tone_direction, str_tone_direction, "Unknown"), tone_nb_entries);
+                val_to_str_const(tone_direction, ip_device_routing_tone_direction_vals, "Unknown"), tone_nb_entries);
             offset++;
             length--;
 
@@ -1259,15 +1369,6 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
             emem_strbuf_t *strbuf;
             int i, parameter_length, parameter_id;
 
-            static const value_string str_parameter_id[] = {
-                {0x00, "Remote IP Address    "},
-                {0x01, "Remote UDP Port In   "},
-                {0x02, "Remote UDP Port Out  "},
-                {0x03, "Remote IP Address Out"},
-                {0x04, "Canal Number"},
-                {0, NULL}
-            };
-
             strbuf = ep_strbuf_new_label(NULL);
 
             while (length > 0) {
@@ -1314,17 +1415,17 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s: %s",
-                        val_to_str_const(parameter_id, str_parameter_id, "Unknown"), strbuf->str);
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_listen_rtp_vals, "Unknown"), strbuf->str);
                 } else {
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s",
-                        val_to_str_const(parameter_id, str_parameter_id, "Unknown"));
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_listen_rtp_vals, "Unknown"));
                 }
 
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
                 proto_tree_add_text(ua3g_param_tree, tvb, offset, 1,
                     "Parameter: %s (0x%02x)",
-                    val_to_str_const(parameter_id, str_parameter_id, "Unknown"), parameter_id);
+                    val_to_str_const(parameter_id, ip_device_routing_cmd_listen_rtp_vals, "Unknown"), parameter_id);
                 offset++;
                 length--;
 
@@ -1344,26 +1445,11 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
     case 0x09: /* GET_PARAM_REQ */
         {
             guint8 parameter;
-            static const value_string str_parameter[] = {
-                {0x00   , "Firmware Version"},
-                {0x01   , "Firmware Version"},
-                {0x02   , "DHCP IP Address"},
-                {0x03   , "Local IP Address"},
-                {0x04   , "Subnetwork Mask"},
-                {0x05   , "Router IP Address"},
-                {0x06   , "TFTP IP Address"},
-                {0x07   , "MainCPU IP Address"},
-                {0x08   , "Default Codec"},
-                {0x09   , "Ethernet Drivers Config"},
-                {0x0A   , "MAC Address"},
-                {0, NULL}
-            };
-            static value_string_ext str_parameter_ext = VALUE_STRING_EXT_INIT(str_parameter);
 
             while (length > 0) {
                 parameter = tvb_get_guint8(tvb, offset);
                 proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "%s",
-                    val_to_str_ext_const(parameter, &str_parameter_ext, "Unknown"));
+                    val_to_str_const(parameter, ip_device_routing_cmd_get_param_req_vals, "Unknown"));
                 offset++;
                 length--;
             }
@@ -1373,34 +1459,6 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
         {
             emem_strbuf_t *strbuf;
             int i, parameter_id, parameter_length;
-
-            static const value_string str_parameter_id[] = {
-                {0x00   , "QOS IP TOS"},
-                {0x01   , "QOS 8021 VLID"},
-                {0x02   , "QOS 8021 PRI"},
-                {0x03   , "SNMP MIB2 SysContact"},
-                {0x04   , "SNMP MIB2 SysName"},
-                {0x05   , "SNMP MIB2 SysLocation"},
-                {0x06   , "Default Compressor"},
-                {0x07   , "Error String Net Down"},
-                {0x08   , "Error String Cable PB"},
-                {0x09   , "Error String Try Connect"},
-                {0x0A   , "Error String Connected"},
-                {0x0B   , "Error String Reset"},
-                {0x0C   , "Error String Duplicate IP Address"},
-                {0x0D   , "SNMP MIB Community"},
-                {0x0E   , "TFTP Backup Sec Mode"},
-                {0x0F   , "TFTP Backup IP Address"},
-                {0x10   , "Set MMI Password"},
-                {0x11   , "Set PC Port Status"},
-                {0x12   , "Record RTP Authorization"},
-                {0x13   , "Security Flags"},
-                {0x14   , "ARP Spoofing"},
-                {0x15   , "Session Param"},
-                {0x30   , "MD5 Authentication"},
-                {0, NULL}
-            };
-            static value_string_ext str_parameter_id_ext = VALUE_STRING_EXT_INIT(str_parameter_id);
 
             strbuf = ep_strbuf_new_label(NULL);
 
@@ -1416,17 +1474,8 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                     switch (parameter_id) {
                     case 0x06: /* Compressor */
                         {
-                            static const value_string str_compressor[] = {
-                                {0x00, "G.711 A-law"},
-                                {0x01, "G.711 mu-law"},
-                                {0x0F, "G.723.1 5.3kbps"},
-                                {0x10, "G.723.1 6.3kbps"},
-                                {0x11, "G.729A 8 kbps"},
-                                {0, NULL}
-                            };
-
                             ep_strbuf_append(strbuf, val_to_str_const(tvb_get_guint8(tvb, offset + 2),
-                                str_compressor, "Default Codec"));
+                                str_set_param_req_compressor, "Default Codec"));
                             break;
                         }
                     case 0x07: /* ERR STRING NET DOWN */
@@ -1460,24 +1509,12 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                         }
                     case 0x11: /* Set PC Port status */
                         {
-                            static const value_string str_set_pc_port_status[] = {
-                                {0x00, "No PC Port Security"},
-                                {0x01, "Block PC Port"},
-                                {0x02, "Filter VLAN"},
-                                {0, NULL}
-                            };
                             ep_strbuf_append(strbuf, val_to_str_const(tvb_get_guint8(tvb, offset + 2),
                                 str_set_pc_port_status, "Unknown"));
                             break;
                         }
                     case 0x12: /* Record RTP Authorization */
                         {
-                            static const value_string str_enable_feature[] = {
-                                {0x00, "Disable Feature"},
-                                {0x01, "Enable Feature"},
-                                {0, NULL}
-                            };
-
                             ep_strbuf_append(strbuf, val_to_str_const(tvb_get_guint8(tvb, offset + 2),
                                 str_enable_feature, "Unknown"));
                             break;
@@ -1521,16 +1558,16 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s: %s",
-                        val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), strbuf->str);
+                        val_to_str_ext_const(parameter_id, &ip_device_routing_cmd_set_param_req_vals_ext, "Unknown"), strbuf->str);
                 } else {
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s",
-                        val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"));
+                        val_to_str_ext_const(parameter_id, &ip_device_routing_cmd_set_param_req_vals_ext, "Unknown"));
                 }
 
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
                 proto_tree_add_text(ua3g_param_tree, tvb, offset, 1, "Parameter: %s (0x%02x)",
-                    val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), parameter_id);
+                    val_to_str_ext_const(parameter_id, &ip_device_routing_cmd_set_param_req_vals_ext, "Unknown"), parameter_id);
                 offset++;
                 length--;
 
@@ -1559,11 +1596,6 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
             emem_strbuf_t *strbuf;
             int i, parameter_length, parameter_id;
 
-            static const value_string str_parameter_id[] = {
-                {0x14, "Canal Identifier"},
-                {0, NULL}
-            };
-
             strbuf = ep_strbuf_new_label(NULL);
 
             while (length > 0) {
@@ -1590,18 +1622,18 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s: %s",
-                        val_to_str_const(parameter_id, str_parameter_id, "Unknown"), strbuf->str);
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_pause_restart_vals, "Unknown"), strbuf->str);
                 } else {
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s",
-                        val_to_str_const(parameter_id, str_parameter_id, "Unknown"));
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_pause_restart_vals, "Unknown"));
                 }
 
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
                 proto_tree_add_text(ua3g_param_tree, tvb, offset, 1,
                     "Parameter: %s (0x%02x)",
-                    val_to_str_const(parameter_id, str_parameter_id, "Unknown"), parameter_id);
+                    val_to_str_const(parameter_id, ip_device_routing_cmd_pause_restart_vals, "Unknown"), parameter_id);
                 offset++;
                 length--;
 
@@ -1623,22 +1655,6 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
         {
             emem_strbuf_t *strbuf;
             int i, parameter_length, parameter_id;
-
-            static const value_string str_parameter_id[] = {
-                {0x00   , "Recorder Index"},
-                {0x01   , "Remote IP Address"},
-                {0x02   , "Remote UDP Port In"},
-                {0x03   , "Remote UDP Port Out"},
-                {0x04   , "Remote IP Address Out"},
-                {0x05   , "Local UDP Port In"},
-                {0x06   , "Local UDP Port Out"},
-                {0x07   , "Type Of Service"},
-                {0x08   , "Master Key For SRTP Session"},
-                {0x09   , "Master Salt Key For SRTP Session"},
-                {0x30   , "MD5 Authentication"},
-                {0, NULL}
-            };
-            static value_string_ext str_parameter_id_ext = VALUE_STRING_EXT_INIT(str_parameter_id);
 
             strbuf = ep_strbuf_new_label(NULL);
 
@@ -1692,17 +1708,17 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s: %s",
-                        val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), strbuf->str);
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_record_rtp_vals, "Unknown"), strbuf->str);
                 } else {
                     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                         parameter_length + 2, "%s",
-                        val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"));
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_record_rtp_vals, "Unknown"));
                 }
 
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
                 proto_tree_add_text(ua3g_param_tree, tvb, offset, 1,
                     "Parameter: %s (0x%02x)",
-                    val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), parameter_id);
+                    val_to_str_const(parameter_id, ip_device_routing_cmd_record_rtp_vals, "Unknown"), parameter_id);
                 offset++;
                 length--;
 
@@ -1768,6 +1784,18 @@ decode_debug_in_line(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_
 /*-----------------------------------------------------------------------------
     LED COMMAND - 21h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_command_led[] = {
+    {0x00, "Led Off"},
+    {0x01, "Led On"},
+    {0x02, "Red Led Fast Flash"},
+    {0x03, "Red Led Slow Flash"},
+    {0x04, "Green Led On"},
+    {0x05, "Green Led Fast Flash"},
+    {0x06, "Green Led Slow Flash"},
+    {0x07, "All Led Off"},
+    {0, NULL}
+};
+
 static void
 decode_led_command(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
            guint offset, guint length, guint8 opcode _U_,
@@ -1775,39 +1803,23 @@ decode_led_command(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_tree *ua3g_body_tree;
     int         command;
-
-    static const value_string str_command[] = {
-        {0x00, "Led Off"},
-        {0x01, "Led On"},
-        {0x02, "Red Led Fast Flash"},
-        {0x03, "Red Led Slow Flash"},
-        {0x04, "Green Led On"},
-        {0x05, "Green Led Fast Flash"},
-        {0x06, "Green Led Slow Flash"},
-        {0x07, "All Led Off"},
-        {0, NULL}
-    };
-    static value_string_ext str_command_ext = VALUE_STRING_EXT_INIT(str_command);
+    const gchar* command_str;
 
     command = tvb_get_guint8(tvb, offset);
+    command_str = val_to_str_const(command, str_command_led, "Unknown");
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
-    proto_item_append_text(ua3g_body_item, "s - %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, "s - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset,
-        1, command, "Command: %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_led, tvb, offset, 1, ENC_NA);
     offset++;
     length--;
 
@@ -1822,6 +1834,30 @@ decode_led_command(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     LCD LINE 1 COMMANDS - 27h (MESSAGE FROM THE SYSTEM)
     LCD LINE 2 COMMANDS - 28h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_command_lcd_line[] = {
+    {0, "Clear Line & Write From Column"},
+    {1, "Write From Column"},
+    {2, "Append To Current Line"},
+    {0, NULL}
+};
+
+static const value_string str_lcd_option[] = {
+    {7, "Suspend Display Refresh"},
+    {6, "Time Of Day Display    "},
+    {5, "Call Timer Display     "},
+    {4, "Call Timer Control     "},
+    {2, "Blink                  "},
+    {0, NULL}
+};
+
+static const value_string str_call_timer_ctrl[] = {
+    {0x00, "Call Timer Status Not Changed"},
+    {0x01, "Stop Call Timer"},
+    {0x02, "Start Call Timer From Current Value"},
+    {0x03, "Initialize And Call Timer"},
+    {0, NULL}
+};
+
 static void
 decode_lcd_line_cmd(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
             guint offset, guint length, guint8 opcode _U_,
@@ -1829,61 +1865,32 @@ decode_lcd_line_cmd(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 {
     guint8         lcd_options, command, column_n;
     guint          i;
-    proto_tree    *ua3g_body_tree;
-    proto_item    *ua3g_param_item;
-    proto_tree    *ua3g_param_tree;
-    proto_item    *ua3g_option_item;
-    proto_tree    *ua3g_option_tree;
+    const gchar*  command_str;
+    proto_tree    *ua3g_body_tree, *ua3g_param_tree, *ua3g_option_tree;
+    proto_item    *ua3g_param_item, *ua3g_option_item;
     emem_strbuf_t *strbuf;
 /*    static char    str_ascii[40];   */      /* XXX: value never created ? */
 /*  static char    lcd_options_tab[6];*/
 
-    static const value_string str_command[] = {
-        {0, "Clear Line & Write From Column"},
-        {1, "Write From Column"},
-        {2, "Append To Current Line"},
-        {0, NULL}
-    };
-    static const value_string str_lcd_option[] = {
-        {7, "Suspend Display Refresh"},
-        {6, "Time Of Day Display    "},
-        {5, "Call Timer Display     "},
-        {4, "Call Timer Control     "},
-        {2, "Blink                  "},
-        {0, NULL}
-    };
-    static const value_string str_call_timer_ctrl[] = {
-        {0x00, "Call Timer Status Not Changed"},
-        {0x01, "Stop Call Timer"},
-        {0x02, "Start Call Timer From Current Value"},
-        {0x03, "Initialize And Call Timer"},
-        {0, NULL}
-    };
-
     lcd_options = tvb_get_guint8(tvb, offset) & 0xFC;
     command     = tvb_get_guint8(tvb, offset) & 0x03;
     column_n    = tvb_get_guint8(tvb, offset + 1);
+    command_str = val_to_str_const(command, str_command_lcd_line, "Unknown");
 
     /* add text to the frame "INFO" column */
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s %d",
-            val_to_str_const(command, str_command, "Unknown"),
-            column_n);
+            command_str, column_n);
 
     if (!ua3g_body_item)
         return;
 
-    strbuf  = ep_strbuf_new_label(NULL);
+    strbuf  = ep_strbuf_new_label("\"");
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s %d",
-        val_to_str_const(command, str_command, "Unknown"),
-        column_n);
-    proto_item_append_text(ua3g_body_item, " %s %d",
-        val_to_str_const(command, str_command, "Unknown"),
-        column_n);
+    proto_item_append_text(ua3g_item, ", %s %d", command_str, column_n);
+    proto_item_append_text(ua3g_body_item, " %s %d", command_str, column_n);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    ep_strbuf_append(strbuf, "\"");
     for (i = 0; i < length - 2; i++) {
         if (isprint(tvb_get_guint8(tvb, offset + 2 + i)))
             ep_strbuf_append_printf(strbuf, "%c", tvb_get_guint8(tvb, offset + 2 + i));
@@ -1894,12 +1901,10 @@ decode_lcd_line_cmd(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 
     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
         length, "%s %d: %s",
-        val_to_str_const(command, str_command, "Unknown"), column_n, /*str_ascii*/ strbuf->str);
+        command_str, column_n, /*str_ascii*/ strbuf->str);
     ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset,
-        1, command, "Command: %s",
-        val_to_str_const(command, str_command, "Unknown"));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_lcd_line, tvb, offset, 1, ENC_NA);
     ua3g_option_item = proto_tree_add_text(ua3g_param_tree, tvb, offset,
         1, "LCD Options: 0x%x", lcd_options);
     ua3g_option_tree = proto_item_add_subtree(ua3g_option_item, ett_ua3g_option);
@@ -1933,68 +1938,70 @@ decode_lcd_line_cmd(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 /*-----------------------------------------------------------------------------
     MAIN VOICE MODE - 29h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_main_voice_mode[] = {
+    {0x00, "Idle"},
+    {0x01, "Handset"},
+    {0x02, "Group Listening"},
+    {0x03, "On Hook Dial"},
+    {0x04, "Handsfree"},
+    {0x05, "Announce Loudspeaker"},
+    {0x06, "Ringing"},
+    {0x10, "Idle"},
+    {0x11, "Handset"},
+    {0x12, "Headset"},
+    {0x13, "Handsfree"},
+    {0, NULL}
+};
+
+static const value_string str_cadence[] = {
+    {0x00, "Standard Ringing"},
+    {0x01, "Double Burst"},
+    {0x02, "Triple Burst"},
+    {0x03, "Continuous Ringing"},
+    {0x04, "Priority Attendant Ringing"},
+    {0x05, "Regular Attendant Ringing"},
+    {0x06, "Programmable Cadence"},
+    {0x07, "Programmable Cadence"},
+    {0, NULL}
+};
+
+static const value_string str_receiving_level[] = {
+    {0x11, "Receiving Level "},
+    {0x12, "Receiving Level "},
+    {0x13, "Speaker Level   "},
+    {0, NULL}
+};
+
 static void
 decode_main_voice_mode(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
                guint offset, guint length, guint8 opcode _U_,
                proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8      mode;
+    const gchar*  mode_str;
     proto_tree *ua3g_body_tree;
 
-    static const value_string str_voice_mode[] = {
-        {0x00, "Idle"},
-        {0x01, "Handset"},
-        {0x02, "Group Listening"},
-        {0x03, "On Hook Dial"},
-        {0x04, "Handsfree"},
-        {0x05, "Announce Loudspeaker"},
-        {0x06, "Ringing"},
-        {0x10, "Idle"},
-        {0x11, "Handset"},
-        {0x12, "Headset"},
-        {0x13, "Handsfree"},
-        {0, NULL}
-    };
-    static value_string_ext str_voice_mode_ext = VALUE_STRING_EXT_INIT(str_voice_mode);
-
     mode  = tvb_get_guint8(tvb, offset);
+    mode_str = val_to_str_const(mode, str_main_voice_mode, "Unknown");
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_ext_const(mode, &str_voice_mode_ext, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", mode_str);
 
     if (!ua3g_body_item)
         return;
 
    /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        val_to_str_ext_const(mode, &str_voice_mode_ext, "Unknown"));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        val_to_str_ext_const(mode, &str_voice_mode_ext, "Unknown"));
+    proto_item_append_text(ua3g_item, ", %s", mode_str);
+    proto_item_append_text(ua3g_body_item, " - %s", mode_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset,
-        1, mode, "Voice Mode: %s",
-        val_to_str_ext_const(mode, &str_voice_mode_ext, "Unknown"));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_main_voice_mode, tvb, offset, 1, ENC_NA);
     offset++;
     length--;
 
     switch (mode) {
     case 0x06: /* Ringing */
         {
-            static const value_string str_cadence[] = {
-                {0x00, "Standard Ringing"},
-                {0x01, "Double Burst"},
-                {0x02, "Triple Burst"},
-                {0x03, "Continuous Ringing"},
-                {0x04, "Priority Attendant Ringing"},
-                {0x05, "Regular Attendant Ringing"},
-                {0x06, "Programmable Cadence"},
-                {0x07, "Programmable Cadence"},
-                {0, NULL}
-            };
-            static value_string_ext str_cadence_ext = VALUE_STRING_EXT_INIT(str_cadence);
-
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                 "Tune: %d", tvb_get_guint8(tvb, offset));
             offset++;
@@ -2002,7 +2009,7 @@ decode_main_voice_mode(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                 "Cadence: %s (%d)",
-                val_to_str_ext_const(tvb_get_guint8(tvb, offset), &str_cadence_ext, "Unknown"),
+                val_to_str_const(tvb_get_guint8(tvb, offset), str_cadence, "Unknown"),
                 tvb_get_guint8(tvb, offset));
             offset++;
             length--;
@@ -2031,12 +2038,6 @@ decode_main_voice_mode(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     case 0x13: /* Handsfree */
         {
             signed char level;
-            static const value_string str_receiving_level[] = {
-                {0x11, "Receiving Level "},
-                {0x12, "Receiving Level "},
-                {0x13, "Speaker Level   "},
-                {0, NULL}
-            };
 
             level = (signed char)(tvb_get_guint8(tvb, offset)) / 2;
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
@@ -2064,18 +2065,19 @@ decode_main_voice_mode(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 /*-----------------------------------------------------------------------------
     SUBDEVICE METASTATE - 2Ch (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_new_metastate[] = {
+    {0x00, "Disable"},
+    {0x01, "Active"},
+    {0x02, "Wake Up"},
+    {0, NULL}
+};
+
 static void
 decode_subdevice_metastate(proto_tree *tree _U_, tvbuff_t *tvb,
                packet_info *pinfo _U_, guint offset, guint length,
                guint8 opcode _U_, proto_item *ua3g_body_item)
 {
     proto_tree *ua3g_body_tree;
-    static const value_string str_new_metastate[] = {
-        {0x00, "Disable"},
-        {0x01, "Active"},
-        {0x02, "Wake Up"},
-        {0, NULL}
-    };
 
     if (!ua3g_body_item)
         return;
@@ -2093,18 +2095,18 @@ decode_subdevice_metastate(proto_tree *tree _U_, tvbuff_t *tvb,
 /*-----------------------------------------------------------------------------
     Download DTMF & CLOCK FORMAT - 30h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_clock_format[] = {
+    {0, "Europe"},
+    {1, "US"},
+    {0, NULL}
+};
+
 static void
 decode_dwl_dtmf_clck_format(proto_tree *tree _U_, tvbuff_t *tvb,
                 packet_info *pinfo _U_, guint offset, guint length,
                 guint8 opcode _U_, proto_item *ua3g_body_item)
 {
     proto_tree *ua3g_body_tree;
-
-    static const value_string str_clock_format[] = {
-        {0, "Europe"},
-        {1, "US"},
-        {0, NULL}
-    };
 
     if (!ua3g_body_item)
         return;
@@ -2134,43 +2136,44 @@ decode_dwl_dtmf_clck_format(proto_tree *tree _U_, tvbuff_t *tvb,
 /*-----------------------------------------------------------------------------
     SET CLOCK - 31h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_command_set_clck[] = {
+    {0x00, "Set Current Time/Call Timer"},
+    {0x01, "Set Current Time"},
+    {0x02, "Set Call Timer"},
+    {0, NULL}
+};
+
+static const value_string str_call_timer[] = {
+    {1, "Call Timer "},
+    {0, NULL}
+};
+
 static void
 decode_set_clck(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         guint offset, guint length, guint8 opcode _U_,
         proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8      command;
-    proto_tree *ua3g_body_tree;
+    const gchar* command_str;
+    proto_tree *ua3g_body_tree, *ua3g_param_tree;
     proto_item *ua3g_param_item;
-    proto_tree *ua3g_param_tree;
     int         hour, minute, second, call_timer;
 
-    static const value_string str_command[] = {
-        {0x00, "Set Current Time/Call Timer"},
-        {0x01, "Set Current Time"},
-        {0x02, "Set Call Timer"},
-        {0, NULL}
-    };
-
     command  = tvb_get_guint8(tvb, offset);
+    command_str = val_to_str_const(command, str_command_set_clck, "Unknown");
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_const(command, str_command, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        val_to_str_const(command, str_command, "Unknown"));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        val_to_str_const(command, str_command, "Unknown"));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset,
-        1, command, "Command: %s",
-        val_to_str_const(command, str_command, "Unknown"));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_set_clck, tvb, offset, 1, ENC_NA);
     offset++;
     length--;
     call_timer = 0;
@@ -2184,11 +2187,6 @@ decode_set_clck(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     case 0x00: /* Set Current Time/Call Timer */
     case 0x01: /* Set Current Time */
         {
-            static const value_string str_call_timer[] = {
-                {1, "Call Timer "},
-                {0, NULL}
-            };
-
             while (length > 0) {
                 hour   = tvb_get_guint8(tvb, offset);
                 minute = tvb_get_guint8(tvb, offset + 1);
@@ -2226,20 +2224,20 @@ decode_set_clck(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 /*-----------------------------------------------------------------------------
     VOICE CHANNEL - 32h - (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_voice_channel[] = {
+    {0x00, "No"},
+    {0x01, "B1"},
+    {0x02, "B2"},
+    {0x03, "B3"},
+    {0, NULL}
+};
+
 static void
 decode_voice_channel(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
              guint offset, guint length, guint8 opcode _U_,
              proto_item *ua3g_body_item)
 {
     proto_tree *ua3g_body_tree;
-
-    static const value_string str_voice_channel[] = {
-        {0x00, "No"},
-        {0x01, "B1"},
-        {0x02, "B2"},
-        {0x03, "B3"},
-        {0, NULL}
-    };
 
     if (!ua3g_body_item)
         return;
@@ -2289,6 +2287,13 @@ decode_voice_channel(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_
 /*-----------------------------------------------------------------------------
     EXTERNAL RINGING - 33h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_ext_ring_cmd[] = {
+    {0x00, "Turn Off"},
+    {0x01, "Turn On"},
+    {0x02, "Follow The Normal Ringing"},
+    {0, NULL}
+};
+
 static void
 decode_external_ringing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
             guint offset, guint length _U_, guint8 opcode _U_,
@@ -2296,33 +2301,23 @@ decode_external_ringing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_tree *ua3g_body_tree;
     guint8      command;
-
-    static const value_string str_ext_ring_cmd[] = {
-        {0x00, "Turn Off"},
-        {0x01, "Turn On"},
-        {0x02, "Follow The Normal Ringing"},
-        {0, NULL}
-    };
+    const gchar* command_str;
 
     command = tvb_get_guint8(tvb, offset);
+    command_str = val_to_str_const(command, str_ext_ring_cmd, "Unknown");
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_const(command, str_ext_ring_cmd, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        val_to_str_const(command, str_ext_ring_cmd, "Unknown"));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        val_to_str_const(command, str_ext_ring_cmd, "Unknown"));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset, 1,
-        tvb_get_guint8(tvb, offset), "External Ringing Command: %s",
-        val_to_str_const(command, str_ext_ring_cmd, "Unknown"));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_external_ringing_command, tvb, offset, 1, ENC_NA);
 }
 
 
@@ -2335,22 +2330,17 @@ decode_lcd_cursor(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
           proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     proto_tree *ua3g_body_tree;
-    guint8      str_on_off_val;
-
-    str_on_off_val = tvb_get_guint8(tvb, offset + 1) & 0x02;
+    const gchar* str_on_off_val = STR_ON_OFF(tvb_get_guint8(tvb, offset + 1) & 0x02);
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                    STR_ON_OFF(str_on_off_val));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", str_on_off_val);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        STR_ON_OFF(str_on_off_val));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        STR_ON_OFF(str_on_off_val));
+    proto_item_append_text(ua3g_item, ", %s", str_on_off_val);
+    proto_item_append_text(ua3g_body_item, " - %s", str_on_off_val);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
     proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
@@ -2358,9 +2348,7 @@ decode_lcd_cursor(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     offset++;
     length--;
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset, 1,
-        tvb_get_guint8(tvb, offset), "Cursor %s",
-        STR_ON_OFF(tvb_get_guint8(tvb, offset) & 0x02));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_lcd_cursor, tvb, offset, 1, ENC_NA);
 }
 
 
@@ -2443,17 +2431,18 @@ decode_set_clck_timer_pos(proto_tree *tree _U_, tvbuff_t *tvb,
 /*-----------------------------------------------------------------------------
     SET LCD CONTRAST - 39h - (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_driver_number[] = {
+    {0x00, "Display"},
+    {0x01, "Icon"},
+    {0, NULL}
+};
+
 static void
 decode_set_lcd_contrast(proto_tree *tree _U_, tvbuff_t *tvb,
             packet_info *pinfo _U_, guint offset, guint length,
             guint8 opcode _U_, proto_item *ua3g_body_item)
 {
     proto_tree *ua3g_body_tree;
-    static const value_string str_driver_number[] = {
-        {0x00, "Display"},
-        {0x01, "Icon"},
-        {0, NULL}
-    };
 
     if (!ua3g_body_item)
         return;
@@ -2472,6 +2461,48 @@ decode_set_lcd_contrast(proto_tree *tree _U_, tvbuff_t *tvb,
 /*-----------------------------------------------------------------------------
     BEEP - 3Ch (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_command_beep[] = {
+    {0x01, "Beep Once"},
+    {0x02, "Beep Start"},
+    {0x03, "Stop Beep"},
+    {0x04, "Start Beep"},
+    {0x05, "Define Beep"},
+    {0, NULL}
+};
+
+static const value_string str_beep_start_destination[] = {
+    {0x01, "Ear-Piece"},
+    {0x02, "Loudspeaker"},
+    {0x03, "Ear-Piece and Loudspeaker"},
+    {0, NULL}
+};
+
+static const value_string str_start_beep_destination[] = {
+    {0x01, "Handset"},
+    {0x02, "Headset"},
+    {0x04, "Loudspeaker"},
+    {0x08, "Announce Loudspeaker"},
+    {0x10, "Handsfree"},
+    {0, NULL}
+};
+
+static const value_string str_beep_freq_sample_nb[] = {
+    {0x00, "Frequency"},
+    {0xFF, "Audio Sample Number"},
+    {0, NULL}
+};
+static const value_string str_beep_duration[] = {
+    {0x00, "Duration "},
+    {0xFF, "Duration (Ignored)"},
+    {0, NULL}
+};
+static const value_string str_beep_terminator[] = {
+    {0xFD, "Stop"},
+    {0xFE, "Loop"},
+    {0xFF, "Infinite"},
+    {0, NULL}
+};
+
 static void
 decode_beep(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         guint offset, guint length, guint8 opcode _U_,
@@ -2479,36 +2510,24 @@ decode_beep(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 {
     if (length > 0) { /* All cases except classical beep */
         guint8      command;
+        const gchar* command_str;
         proto_tree *ua3g_body_tree;
 
-        static const value_string str_command[] = {
-            {0x01, "Beep Once"},
-            {0x02, "Beep Start"},
-            {0x03, "Stop Beep"},
-            {0x04, "Start Beep"},
-            {0x05, "Define Beep"},
-            {0, NULL}
-        };
-
         command = tvb_get_guint8(tvb, offset);
+        command_str = val_to_str_const(command, str_command_beep, "Unknown");
 
         /* add text to the frame "INFO" column */
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_const(command, str_command, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
         if (!ua3g_body_item)
             return;
 
         /* add text to the frame tree */
-        proto_item_append_text(ua3g_item, ", %s",
-            val_to_str_const(command, str_command, "Unknown"));
-        proto_item_append_text(ua3g_body_item, " - %s",
-            val_to_str_const(command, str_command, "Unknown"));
+        proto_item_append_text(ua3g_item, ", %s", command_str);
+        proto_item_append_text(ua3g_body_item, " - %s", command_str);
         ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-        proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb,
-            offset, 1, command, "Beep: %s",
-            val_to_str_const(command, str_command, "Unknown"));
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_beep, tvb, offset, 1, ENC_NA);
         offset++;
         length--;
 
@@ -2517,15 +2536,10 @@ decode_beep(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         case 0x02: /* Beep Start */
             {
                 int i =  0;
-                static const value_string str_destination[] = {
-                    {0x01, "Ear-Piece"},
-                    {0x02, "Loudspeaker"},
-                    {0x03, "Ear-Piece and Loudspeaker"},
-                    {0, NULL}
-                };
+
                 proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                     "Destination: %s",
-                    val_to_str_const(tvb_get_guint8(tvb, offset), str_destination, "Unknown"));
+                    val_to_str_const(tvb_get_guint8(tvb, offset), str_beep_start_destination, "Unknown"));
                 offset++;
                 length--;
 
@@ -2549,22 +2563,13 @@ decode_beep(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
                 emem_strbuf_t *strbuf;
                 int            i;
 
-                static const value_string str_destination[] = {
-                    {0x01, "Handset"},
-                    {0x02, "Headset"},
-                    {0x04, "Loudspeaker"},
-                    {0x08, "Announce Loudspeaker"},
-                    {0x10, "Handsfree"},
-                    {0, NULL}
-                };
-
                 beep_dest = tvb_get_guint8(tvb, offset);
 
                 strbuf = ep_strbuf_new_label(NULL);
 
                 for (i = 0; i < 5; i++) {
                     ep_strbuf_append(strbuf,
-                        val_to_str_const(beep_dest & (0x01 << i), str_destination, ""));
+                        val_to_str_const(beep_dest & (0x01 << i), str_start_beep_destination, ""));
                 }
 
                 proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
@@ -2578,23 +2583,6 @@ decode_beep(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         case 0x05:
             {
                 int i, nb_of_notes, beep_number;
-
-                static const value_string str_freq_sample_nb[] = {
-                    {0x00, "Frequency"},
-                    {0xFF, "Audio Sample Number"},
-                    {0, NULL}
-                };
-                static const value_string str_duration[] = {
-                    {0x00, "Duration "},
-                    {0xFF, "Duration (Ignored)"},
-                    {0, NULL}
-                };
-                static const value_string str_terminator[] = {
-                    {0xFD, "Stop"},
-                    {0xFE, "Loop"},
-                    {0xFF, "Infinite"},
-                    {0, NULL}
-                };
 
                 proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                     "Beep Number: %x", beep_number = tvb_get_guint8(tvb, offset));
@@ -2614,7 +2602,7 @@ decode_beep(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
                 while (length > 0) {
                     for (i = 1; i <= nb_of_notes; i++) {
                         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "%s %d: %d",
-                            val_to_str_const(beep_number, str_freq_sample_nb, "Unknown"),
+                            val_to_str_const(beep_number, str_beep_freq_sample_nb, "Unknown"),
                             i, tvb_get_guint8(tvb, offset));
                         offset++;
                         length--;
@@ -2623,14 +2611,14 @@ decode_beep(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
                         offset++;
                         length--;
                         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "%s %d: %x",
-                            val_to_str_const(beep_number, str_duration, "Unknown"),
+                            val_to_str_const(beep_number, str_beep_duration, "Unknown"),
                             i, tvb_get_guint8(tvb, offset));
                         offset++;
                         length--;
                     }
                     proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Terminator: %d (%s)",
                         tvb_get_guint8(tvb, offset),
-                        val_to_str_const(tvb_get_guint8(tvb, offset), str_terminator, "Unknown"));
+                        val_to_str_const(tvb_get_guint8(tvb, offset), str_beep_terminator, "Unknown"));
                     offset++;
                     length--;
                 }
@@ -2666,27 +2654,24 @@ decode_sidetone(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8      command;
+    const gchar* command_str;
     proto_tree *ua3g_body_tree;
 
     command = tvb_get_guint8(tvb, offset);
+    command_str = STR_ON_OFF(command);
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-        STR_ON_OFF(command));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        STR_ON_OFF(command));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        STR_ON_OFF(command));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset,
-        1, command, "Command: %s",
-        STR_ON_OFF(command));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_sidetone, tvb, offset, 1, ENC_NA);
     offset++;
 
     if (command == 0x01) {
@@ -2732,39 +2717,36 @@ decode_ringing_cadence(proto_tree *tree _U_, tvbuff_t *tvb,
 /*-----------------------------------------------------------------------------
     MUTE ON / OFF - 3Fh (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_mute[] = {
+    {0x00, "Microphone Disable"},
+    {0x01, "Microphone Enable"},
+    {0, NULL}
+};
+
 static void
 decode_mute(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         guint offset, guint length _U_, guint8 opcode _U_,
         proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8      command;
+    const gchar* command_str;
     proto_tree *ua3g_body_tree;
 
-    static const value_string str_mute[] = {
-        {0x00, "Microphone Disable"},
-        {0x01, "Microphone Enable"},
-        {0, NULL}
-    };
-
     command = tvb_get_guint8(tvb, offset);
+    command_str = val_to_str_const(command, str_mute, "Unknown");
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-        val_to_str_const(command, str_mute, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        val_to_str_const(command, str_mute, "Unknown"));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        val_to_str_const(command, str_mute, "Unknown"));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset,
-        1, command, "%s",
-        val_to_str_const(command, str_mute, "Unknown"));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_mute, tvb, offset, 1, ENC_NA);
 }
 
 
@@ -2777,27 +2759,24 @@ decode_feedback(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8      command;
+    const gchar* command_str;
     proto_tree *ua3g_body_tree;
 
     command = tvb_get_guint8(tvb, offset);
+    command_str = STR_ON_OFF(command);
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-        STR_ON_OFF(command));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        STR_ON_OFF(command));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        STR_ON_OFF(command));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset,
-        1, command, "Command: %s",
-        STR_ON_OFF(command));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_feedback, tvb, offset, 1, ENC_NA);
     offset++;
     length--;
 
@@ -2848,6 +2827,14 @@ decode_r_w_peripheral(proto_tree *tree _U_, tvbuff_t *tvb,
 /*-----------------------------------------------------------------------------
     ICON COMMAND - 47h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_icon_cmd_state[] = {
+    {0x00, "Off"},
+    {0x01, "Slow Flash"},
+    {0x02, "Not Used"},
+    {0x03, "Steady On"},
+    {0, NULL}
+};
+
 static void
 decode_icon_cmd(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
         guint offset, guint length, guint8 opcode _U_,
@@ -2856,14 +2843,6 @@ decode_icon_cmd(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *ua3g_body_tree;
     guint8 byte0, byte1, bytex;
     int i;
-
-    static const value_string str_state[] = {
-        {0x00, "Off"},
-        {0x01, "Slow Flash"},
-        {0x02, "Not Used"},
-        {0x03, "Steady On"},
-        {0, NULL}
-    };
 
     if (!ua3g_body_item)
         return;
@@ -2883,7 +2862,7 @@ decode_icon_cmd(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
             ((byte1 >> i) & 0x01);
         proto_tree_add_text(ua3g_body_tree, tvb, offset, 2,
                             "Segment %d: %s (%d)", i,
-                            val_to_str_const(bytex, str_state, "Unknown"),
+                            val_to_str_const(bytex, str_icon_cmd_state, "Unknown"),
                             bytex
             );
     }
@@ -2893,56 +2872,62 @@ decode_icon_cmd(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
 /*-----------------------------------------------------------------------------
     AUDIO CONFIGURATION - 49h (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_command_audio_config[] = {
+    {0x00, "Audio Coding"},
+    {0x01, "DPI Channel Allocations"},
+    {0x02, "Loudspeaker Volume Adjust"},
+    {0x03, "Audio Circuit Configuration"},
+    {0x04, "Handsfree Parameters"},
+    {0x05, "Loudspeaker Acoustic Parameters"},
+    {0x06, "Device Configuration"},
+    {0, NULL}
+};
+
+static const value_string str_audio_coding_law[] = {
+    {0x00, "A Law"},
+    {0x01, "m Law"},
+    {0, NULL}
+};
+
+static const value_string str_device_configuration[] = {
+    { 0, "Handset Device             "},
+    { 1, "Headset Device             "},
+    { 2, "Loudspeaker Device         "},
+    { 3, "Announce Loudspeaker Device"},
+    { 4, "Handsfree Device           "},
+    { 0, NULL }
+};
+
 static void
 decode_audio_config(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
             guint offset, guint length, guint8 opcode _U_,
             proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8      command;
+    const gchar* command_str;
     proto_tree *ua3g_body_tree;
 
-    static const value_string str_command[] = {
-        {0x00, "Audio Coding"},
-        {0x01, "DPI Channel Allocations"},
-        {0x02, "Loudspeaker Volume Adjust"},
-        {0x03, "Audio Circuit Configuration"},
-        {0x04, "Handsfree Parameters"},
-        {0x05, "Loudspeaker Acoustic Parameters"},
-        {0x06, "Device Configuration"},
-        {0, NULL}
-    };
-    static value_string_ext str_command_ext = VALUE_STRING_EXT_INIT(str_command);
-
     command = tvb_get_guint8(tvb, offset);
+    command_str = val_to_str_const(command, str_command_audio_config, "Unknown");
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb,
-        offset, 1, command, "Command: %s (%d)",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"), command);
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_audio_config, tvb, offset, 1, ENC_NA);
     offset++;
     length--;
 
     switch (command) {
     case 0x00: /* Audio Coding */
         {
-            static const value_string str_law[] = {
-                {0x00, "A Law"},
-                {0x01, "m Law"},
-                {0, NULL}
-            };
             proto_tree_add_text(ua3g_body_tree, tvb, offset,
                 1, "Ignored: %d",
                 tvb_get_guint8(tvb, offset));
@@ -2951,7 +2936,7 @@ decode_audio_config(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 
             proto_tree_add_text(ua3g_body_tree, tvb, offset,
                 1, "Law: %s",
-                val_to_str_const(tvb_get_guint8(tvb, offset), str_law, "Unknown"));
+                val_to_str_const(tvb_get_guint8(tvb, offset), str_audio_coding_law, "Unknown"));
             break;
         }
     case 0x01: /* DPI Channel Allocations */
@@ -3048,16 +3033,6 @@ decode_audio_config(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x06: /* Device Configuration */
         {
-            static const value_string str_device[] = {
-                { 0, "Handset Device             "},
-                { 1, "Headset Device             "},
-                { 2, "Loudspeaker Device         "},
-                { 3, "Announce Loudspeaker Device"},
-                { 4, "Handsfree Device           "},
-                { 0, NULL }
-            };
-            static value_string_ext str_device_ext = VALUE_STRING_EXT_INIT(str_device);
-
             static const gchar *str_device_values[] = {
                 " Internal",
                 " Rj9 Plug",
@@ -3090,7 +3065,7 @@ decode_audio_config(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 
                 proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                                     "%s:%s",
-                                    val_to_str_ext_const(device_index, &str_device_ext, "Unknown"),
+                                    val_to_str_const(device_index, str_device_configuration, "Unknown"),
                                     strbuf->str);
                 offset++;
                 length--;
@@ -3137,31 +3112,28 @@ decode_audio_padded_path(proto_tree *tree _U_, tvbuff_t *tvb,
     ---------------------------------------------------------------------------*/
 static void
 decode_on_off_level(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
-            guint offset, guint length, guint8 opcode _U_,
+            guint offset, guint length, int hf_opcode,
             proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8      command;
+    const gchar* command_str;
     proto_tree *ua3g_body_tree;
 
     command = tvb_get_guint8(tvb, offset);
+    command_str = STR_ON_OFF(command);
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-        STR_ON_OFF(command));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        STR_ON_OFF(command));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        STR_ON_OFF(command));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset,
-        1, command, "Command: %s",
-        STR_ON_OFF(command));
+    proto_tree_add_item(ua3g_body_tree, hf_opcode, tvb, offset, 1, ENC_NA);
     offset++;
     length--;
 
@@ -3184,39 +3156,24 @@ decode_ring(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8      command;
+    const gchar* command_str;
     proto_tree *ua3g_body_tree;
 
-    static const value_string str_cadence[] = {
-        {0x00, "Standard Ringing"},
-        {0x01, "Double Burst"},
-        {0x02, "Triple Burst"},
-        {0x03, "Continuous"},
-        {0x04, "Priority Attendant Ringing"},
-        {0x05, "Regular Attendant Ringing"},
-        {0x06, "Programmable Cadence"},
-        {0, NULL}
-    };
-    static value_string_ext str_cadence_ext = VALUE_STRING_EXT_INIT(str_cadence);
-
     command = tvb_get_guint8(tvb, offset);
+    command_str = STR_ON_OFF(command);
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-        STR_ON_OFF(command));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        STR_ON_OFF(command));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        STR_ON_OFF(command));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb, offset,
-        1, command, "Command: %s",
-        STR_ON_OFF(command));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_ring, tvb, offset, 1, ENC_NA);
     offset++;
     length--;
 
@@ -3226,7 +3183,7 @@ decode_ring(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         offset++;
         length--;
         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Cadence: %s",
-            val_to_str_ext_const(tvb_get_guint8(tvb, offset), &str_cadence_ext, "Unknown"));
+            val_to_str_const(tvb_get_guint8(tvb, offset), str_cadence, "Unknown"));
         offset++;
         length--;
         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
@@ -3249,46 +3206,100 @@ decode_ring(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 /*-----------------------------------------------------------------------------
     UA DOWNLOAD PROTOCOL - 50h - Only for UA NOE (MESSAGE FROM THE TERMINAL AND FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
+static const value_string str_command_ua_dwl_protocol[] = {
+    {0x00, "Downloading Suggest"},
+    {0x01, "Downloading Request"},
+    {0x02, "Downloading Acknowledge"},
+    {0x03, "Downloading Data"},
+    {0x04, "Downloading End"},
+    {0x05, "Downloading End Acknowledge"},
+    {0x06, "Downloading ISO Checksum"},
+    {0x07, "Downloading ISO Checksum Acknowledge"},
+    {0, NULL}
+};
+
+static const value_string str_download_req_force_mode[] = {
+    {0x00, "System Accept All Refusals"},
+    {0x01, "Force Software Lock"},
+    {0, NULL}
+};
+static const value_string str_download_req_item_id[] = {
+    {0x00, "Patches File"},
+    {0x01, "Application Binary"},
+    {0x02, "Datas Binary"},
+    {0, NULL}
+};
+static const value_string str_download_req_mode_selection_country[] = {
+    {0x00, "No Check"},
+    {0x01, "For All Countries Except Chinese"},
+    {0x02, "For Chinese"},
+    {0, NULL}
+};
+
+static const value_string str_download_ack_status[] = {
+    {0x00, "Ok (Binary Item Downloading In \"Normal\" Progress)"},
+    {0x01, "Hardware Failure: Flash Failure"},
+    {0x02, "Not Enough Place To Store The Downloaded Binary"},
+    {0x03, "Wrong Seq Number On Latest Received Download_Data Message"},
+    {0x04, "Wrong Packet Number On Latest Received Download_Data Message"},
+    {0x05, "Download Refusal Terminal (Validation Purpose)"},
+    {0x06, "Download Refusal Terminal (Development Purpose)"},
+    {0x10, "Download Refusal: Hardware Cause (Unknown Flash Device, Incompatible Hardware)"},
+    {0x11, "Download Refusal: No Loader Available Into The Terminal"},
+    {0x12, "Download Refusal: Software Lock"},
+    {0x13, "Download Refusal: Wrong Parameter Into Download Request"},
+    {0x20, "Wrong Packet Number On Latest Received Downloading_Data Message"},
+    {0x21, "Compress Header Invalid"},
+    {0x22, "Decompress Error"},
+    {0x23, "Binary Header Invalid"},
+    {0x24, "Binary Check Error: Flash Write Error Or Binary Is Invalid"},
+    {0x25, "Error Already Signaled - No More Data Accepted"},
+    {0x26, "No Downloading In Progress"},
+    {0x27, "Too Many Bytes Received (More Than Size Given Into The Download_Req Message)"},
+    {0xFF, "Undefined Error"},
+    {0, NULL}
+};
+static value_string_ext str_download_ack_status_ext = VALUE_STRING_EXT_INIT(str_download_ack_status);
+
+static const value_string str_download_end_ack_ok[] = {
+    {0x00, "Ok"},
+    {0x01, "Hardware Failure: Flash Problems"},
+    {0x02, "Not Enough Place To Store The Downloaded Binary"},
+    {0, NULL}
+};
+
+static const value_string str_iso_checksum_ack_status[] = {
+    {0x00, "The Checksum Matches"},
+    {0x25, "Error Detected And Already Signaled"},
+    {0x30, "Checksum Error (All Bytes Received)"},
+    {0x31, "Checksum Error (Bytes Missing)"},
+    {0, NULL}
+};
+
 static void
 decode_ua_dwl_protocol(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
                guint offset, guint length, guint8 opcode _U_,
                proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8      command;
+    const gchar* command_str;
     proto_tree *ua3g_body_tree;
 
-    static const value_string str_command[] = {
-        {0x00, "Downloading Suggest"},
-        {0x01, "Downloading Request"},
-        {0x02, "Downloading Acknowledge"},
-        {0x03, "Downloading Data"},
-        {0x04, "Downloading End"},
-        {0x05, "Downloading End Acknowledge"},
-        {0x06, "Downloading ISO Checksum"},
-        {0x07, "Downloading ISO Checksum Acknowledge"},
-        {0, NULL}
-    };
-    static value_string_ext str_command_ext = VALUE_STRING_EXT_INIT(str_command);
-
     command = tvb_get_guint8(tvb, offset);
+    command_str = val_to_str_const(command, str_command_ua_dwl_protocol, "Unknown");
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb,
-        offset, 1, command, "Command: %s",
-        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_ua_dwl_protocol, tvb, offset, 1, ENC_NA);
     offset++;
     length--;
 
@@ -3308,23 +3319,6 @@ decode_ua_dwl_protocol(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x01:  /* Downloading Request (MESSAGE FROM THE SYSTEM) */
         {
-            static const value_string str_force_mode[] = {
-                {0x00, "System Accept All Refusals"},
-                {0x01, "Force Software Lock"},
-                {0, NULL}
-            };
-            static const value_string str_item_id[] = {
-                {0x00, "Patches File"},
-                {0x01, "Application Binary"},
-                {0x02, "Datas Binary"},
-                {0, NULL}
-            };
-            static const value_string str_mode_selection_country[] = {
-                {0x00, "No Check"},
-                {0x01, "For All Countries Except Chinese"},
-                {0x02, "For Chinese"},
-                {0, NULL}
-            };
             static const gchar *str_mem_size[] = {
                 "No Check",
                 "128 Kbytes",
@@ -3343,13 +3337,13 @@ decode_ua_dwl_protocol(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 
             if (length > 7) { /* Not R1 */
                 proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Force Mode: %s",
-                    val_to_str_const(tvb_get_guint8(tvb, offset), str_force_mode, "Unknown"));
+                    val_to_str_const(tvb_get_guint8(tvb, offset), str_download_req_force_mode, "Unknown"));
                 offset++;
                 length--;
             }
 
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Item Identifier: %s",
-                val_to_str_const(tvb_get_guint8(tvb, offset), str_item_id, "Unknown"));
+                val_to_str_const(tvb_get_guint8(tvb, offset), str_download_req_item_id, "Unknown"));
             offset++;
             length--;
 
@@ -3377,7 +3371,7 @@ decode_ua_dwl_protocol(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
                     STR_YES_NO(val & 0x01),
                     STR_YES_NO(val & 0x02),
                     STR_YES_NO(val & 0x04),
-                    val_to_str_const(((tvb_get_guint8(tvb, offset) & 0xE0) >> 5), str_mode_selection_country, "Unknown"));
+                    val_to_str_const(((tvb_get_guint8(tvb, offset) & 0xE0) >> 5), str_download_req_mode_selection_country, "Unknown"));
                 offset++;
                 length--;
 
@@ -3410,37 +3404,12 @@ decode_ua_dwl_protocol(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x02:  /* Downloading Acknowledge (MESSAGE FROM THE TERMINAL) */
         {
-            static const value_string str_status[] = {
-                {0x00, "Ok (Binary Item Downloading In \"Normal\" Progress)"},
-                {0x01, "Hardware Failure: Flash Failure"},
-                {0x02, "Not Enough Place To Store The Downloaded Binary"},
-                {0x03, "Wrong Seq Number On Latest Received Download_Data Message"},
-                {0x04, "Wrong Packet Number On Latest Received Download_Data Message"},
-                {0x05, "Download Refusal Terminal (Validation Purpose)"},
-                {0x06, "Download Refusal Terminal (Development Purpose)"},
-                {0x10, "Download Refusal: Hardware Cause (Unknown Flash Device, Incompatible Hardware)"},
-                {0x11, "Download Refusal: No Loader Available Into The Terminal"},
-                {0x12, "Download Refusal: Software Lock"},
-                {0x13, "Download Refusal: Wrong Parameter Into Download Request"},
-                {0x20, "Wrong Packet Number On Latest Received Downloading_Data Message"},
-                {0x21, "Compress Header Invalid"},
-                {0x22, "Decompress Error"},
-                {0x23, "Binary Header Invalid"},
-                {0x24, "Binary Check Error: Flash Write Error Or Binary Is Invalid"},
-                {0x25, "Error Already Signaled - No More Data Accepted"},
-                {0x26, "No Downloading In Progress"},
-                {0x27, "Too Many Bytes Received (More Than Size Given Into The Download_Req Message)"},
-                {0xFF, "Undefined Error"},
-                {0, NULL}
-            };
-            static value_string_ext str_status_ext = VALUE_STRING_EXT_INIT(str_status);
-
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 2,
                 "Packet Number: %d", tvb_get_ntohs(tvb, offset));
             offset += 2;
 
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Status: %s",
-                val_to_str_ext_const(tvb_get_guint8(tvb, offset), &str_status_ext, "Unknown"));
+                val_to_str_ext_const(tvb_get_guint8(tvb, offset), &str_download_ack_status_ext, "Unknown"));
             break;
         }
     case 0x03:  /* Downloading Data (MESSAGE FROM THE SYSTEM) */
@@ -3463,15 +3432,8 @@ decode_ua_dwl_protocol(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x05:  /* Downloading End Acknowledge (MESSAGE FROM THE TERMINAL) */
         {
-            static const value_string str_ok[] = {
-                {0x00, "Ok"},
-                {0x01, "Hardware Failure: Flash Problems"},
-                {0x02, "Not Enough Place To Store The Downloaded Binary"},
-                {0, NULL}
-            };
-
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Status: %s",
-                val_to_str_const(tvb_get_guint8(tvb, offset), str_ok, "Not Ok"));
+                val_to_str_const(tvb_get_guint8(tvb, offset), str_download_end_ack_ok, "Not Ok"));
             break;
         }
     case 0x06:  /* Downloading Iso Checksum (MESSAGE FROM THE SYSTEM) */
@@ -3484,16 +3446,8 @@ decode_ua_dwl_protocol(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x07:  /* Downloading ISO Checksum Acknowledge (MESSAGE FROM THE TERMINAL) */
         {
-            static const value_string str_ack_status[] = {
-                {0x00, "The Checksum Matches"},
-                {0x25, "Error Detected And Already Signaled"},
-                {0x30, "Checksum Error (All Bytes Received)"},
-                {0x31, "Checksum Error (Bytes Missing)"},
-                {0, NULL}
-            };
-
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Acknowledge: %s",
-                val_to_str_const(tvb_get_guint8(tvb, offset), str_ack_status, "Unknown"));
+                val_to_str_const(tvb_get_guint8(tvb, offset), str_iso_checksum_ack_status, "Unknown"));
             break;
         }
     case 0x04:  /* Downloading End (MESSAGE FROM THE SYSTEM) */
@@ -3564,6 +3518,173 @@ decode_subdevice_msg(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_
 /*-----------------------------------------------------------------------------
     IP DEVICE ROUTING - 13h (MESSAGE FROM THE TERMINAL)
     ---------------------------------------------------------------------------*/
+static const value_string str_command_cs_ip_device_routing[] = {
+    {0x00, "Init"},
+    {0x01, "Incident"},
+    {0x02, "Get Parameters Value Response"},
+    {0x03, "QOS Ticket RSP"},
+    {0, NULL}
+};
+
+static const value_string str_cs_ip_device_routing_vta_type[] = {
+    {0x20, "NOE A"},
+    {0x21, "NOE B"},
+    {0x22, "NOE C"},
+    {0x23, "NOE D"},
+    {0, NULL}
+};
+
+static const value_string str_cs_ip_device_routing_08_compressor[] = {
+    {0x00, "G.711 A-law"},
+    {0x01, "G.711 mu-law"},
+    {0x0F, "G.723.1 5.3kbps"},
+    {0x10, "G.723.1 6.3kbps"},
+    {0x11, "G.729A 8 kbps"},
+    {0, NULL}
+};
+
+static const value_string str_cs_ip_device_routing_0F_compressor[] = {
+    {0x00, "G.711 A-law"},
+    {0x01, "G.711 mu-law"},
+    {0x02, "G.723.1 6.3kbps"},
+    {0x03, "G.729"},
+    {0x04, "G.723.1 5.3kbps"},
+    {0, NULL}
+};
+
+static const value_string cs_ip_device_routing_03_parameter_id_vals[] = {
+    {0x01, "Date Of End Of Communication"},
+    {0x02, "Node Number"},
+    {0x03, "Ticket Protocol Version"},
+    {0x06, "Equipment Type"},
+    {0x08, "Local IP Address"},
+    {0x09, "Distant IP Address"},
+    {0x0A, "Local ID"},
+    {0x0B, "Distant ID"},
+    {0x0C, "Call Duration (second)"},
+    {0x0D, "Local SSRC"},
+    {0x0E, "Distant SSRC"},
+    {0x0F, "Codec"},
+    {0x10, "VAD"},
+    {0x11, "ECE"},
+    {0x12, "Voice Mode"},
+    {0x13, "Transmitted Framing (ms)"},
+    {0x14, "Received Framing (ms)"},
+    {0x15, "Framing Changes"},
+    {0x16, "Number Of RTP Packets Received"},
+    {0x17, "Number Of RTP Packets Sent"},
+    {0x18, "Number Of RTP Packets Lost"},
+    {0x19, "Total Silence Detected (second)"},
+    {0x1A, "Number Of SID Received"},
+    {0x1B, "Delay Distribution"},
+    {0x1C, "Maximum Delay (ms)"},
+    {0x1D, "Number Of DTMF Received"},
+    {0x1E, "Consecutive BFI"},
+    {0x1F, "BFI Distribution"},
+    {0x20, "Jitter Depth Distribution"},
+    {0x21, "Number Of ICMP Host Unreachable"},
+    {0x26, "Firmware Version"},
+    {0x29, "DSP Framing (ms)"},
+    {0x2A, "Transmitter SID"},
+    {0x2D, "Minimum Delay (ms)"},
+    {0x2E, "802.1 Q Used"},
+    {0x2F, "802.1p Priority"},
+    {0x30, "VLAN Id"},
+    {0x31, "DiffServ"},
+    {0x3D, "200 ms BFI Distribution"},
+    {0x3E, "Consecutive RTP Lost"},
+    {0, NULL}
+};
+static value_string_ext cs_ip_device_routing_03_parameter_id_vals_ext = VALUE_STRING_EXT_INIT(cs_ip_device_routing_03_parameter_id_vals);
+
+static const value_string cs_ip_device_routing_03_parameter_id_tab_vals[] = {
+    {0x1B, "Range: Value"},
+    {0x1F, "Range: Value"},
+    {0x20, "Jitter: Value"},
+    {0x3D, "Contents: Value"},
+    {0x3E, "Contents: Value"},
+    {0, NULL}
+};
+
+static const value_string cs_ip_device_routing_cmd03_first_byte_vals[] = {
+    {0x01, "IP-Phone"},
+    {0x02, "Appli-PC"},
+    {0x03, "Coupler OmniPCX Enterprise"},
+    {0x04, "Coupler OmniPCX Office"},
+    {0, NULL}
+};
+
+static const value_string cs_ip_device_routing_cmd03_second_byte_vals[] = {
+    {0x0101, "IP-Phone V2"},
+    {0x0102, "NOE-IP"},
+    {0x0200, "4980 Softphone (PCMM2)"},
+    {0x0201, "WebSoftphoneIP"},
+    {0x0300, "INTIP"},
+    {0x0301, "GD"},
+    {0x0302, "eVA"},
+    {0, NULL}
+};
+
+static const value_string cs_ip_device_routing_cmd03_voice_mode_vals[] = {
+    {0x50, "Idle"},
+    {0x51, "Handset"},
+    {0x52, "Group Listening"},
+    {0x53, "On Hook Dial"},
+    {0x54, "Handsfree"},
+    {0x55, "Headset"},
+    {0, NULL}
+};
+
+static const value_string cs_ip_device_routing_delay_distribution_range_vals[] = {
+    {0, "0-40     "},
+    {1, "40-80    "},
+    {2, "80-150   "},
+    {3, "150-250  "},
+    {4, "250 and +"},
+    {0, NULL}
+};
+
+static const value_string cs_ip_device_routing_consecutive_bfi_range_vals[] = {
+    {0, "0"},
+    {1, "1"},
+    {2, "2"},
+    {3, "3"},
+    {4, "4"},
+    {5, "5"},
+    {6, "5"},
+    {7, "7"},
+    {8, "8"},
+    {9, "9"},
+    {0, NULL}
+};
+
+static const value_string cs_ip_device_routing_bfi_distribution_range_vals[] = {
+    {0, "0      "},
+    {1, "0-1    "},
+    {2, "1-2    "},
+    {3, "2-3    "},
+    {4, "3 and +"},
+    {0, NULL}
+};
+
+static const value_string cs_ip_device_routing_200ms_bfi_distribution_range_vals[] = {
+    {0, "< 10 %  "},
+    {1, "< 20 %  "},
+    {2, "< 40 %  "},
+    {3, "< 60 %  "},
+    {4, ">= 60 % "},
+    {0, NULL}
+};
+
+static const value_string cs_ip_device_routing_consecutive_rtp_lost_range_vals[] = {
+    {0, "1         "},
+    {1, "2         "},
+    {2, "3         "},
+    {3, "4         "},
+    {4, "5 and more"},
+    {0, NULL}
+};
+
 static void
 decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                 packet_info *pinfo, guint offset, guint length,
@@ -3571,52 +3692,33 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                 proto_item *ua3g_body_item)
 {
     guint8 command;
-    proto_tree *ua3g_body_tree;
+    const gchar* command_str;
+    proto_tree *ua3g_body_tree, *ua3g_param_tree;
     proto_item *ua3g_param_item;
-    proto_tree *ua3g_param_tree;
-
-    static const value_string str_command[] = {
-        {0x00, "Init"},
-        {0x01, "Incident"},
-        {0x02, "Get Parameters Value Response"},
-        {0x03, "QOS Ticket RSP"},
-        {0, NULL}
-    };
 
     command = tvb_get_guint8(tvb, offset);
+    command_str = val_to_str_const(command, str_command_cs_ip_device_routing, "Unknown"); 
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-        val_to_str_const(command, str_command, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
     if (!ua3g_body_item)
         return;
 
     /* add text to the frame tree */
-    proto_item_append_text(ua3g_item, ", %s",
-        val_to_str_const(command, str_command, "Unknown"));
-    proto_item_append_text(ua3g_body_item, " - %s",
-        val_to_str_const(command, str_command, "Unknown"));
+    proto_item_append_text(ua3g_item, ", %s", command_str);
+    proto_item_append_text(ua3g_body_item, " - %s", command_str);
     ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_ip, tvb, offset,
-        1, command, "Command: %s",
-        val_to_str_const(command, str_command, "Unknown"));
+    proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_cs, tvb, offset, 1, ENC_NA);
     offset++;
     length--;
 
     switch (command) {
         case 0x00:
             {
-                static const value_string str_vta_type[] = {
-                    {0x20, "NOE A"},
-                    {0x21, "NOE B"},
-                    {0x22, "NOE C"},
-                    {0x23, "NOE D"},
-                    {0, NULL}
-                };
                 proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "VTA Type: %s",
-                    val_to_str_const(tvb_get_guint8(tvb, offset), str_vta_type, "Unknown"));
+                    val_to_str_const(tvb_get_guint8(tvb, offset), str_cs_ip_device_routing_vta_type, "Unknown"));
                 offset++;
                 length--;
 
@@ -3646,22 +3748,6 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
             {
                 emem_strbuf_t *strbuf;
                 int i, parameter_id, parameter_length;
-
-                static const value_string str_parameter_id[] = {
-                    {0x00, "Firmware Version"},
-                    {0x01, "Firmware Version"},
-                    {0x02, "DHCP IP Address"},
-                    {0x03, "Local IP Address"},
-                    {0x04, "Subnetwork Mask"},
-                    {0x05, "Router IP Address"},
-                    {0x06, "TFTP IP Address"},
-                    {0x07, "Main CPU Address"},
-                    {0x08, "Default Codec"},
-                    {0x09, "Ethernet Drivers Config"},
-                    {0x0A, "MAC Address"},
-                    {0, NULL}
-                };
-                static value_string_ext str_parameter_id_ext = VALUE_STRING_EXT_INIT(str_parameter_id);
 
                 strbuf = ep_strbuf_new_label(NULL);
 
@@ -3697,15 +3783,6 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             }
                         case 0x08: /* Default Codec */
                             {
-                                static const value_string str_compressor[] = {
-                                    {0x00, "G.711 A-law"},
-                                    {0x01, "G.711 mu-law"},
-                                    {0x0F, "G.723.1 5.3kbps"},
-                                    {0x10, "G.723.1 6.3kbps"},
-                                    {0x11, "G.729A 8 kbps"},
-                                    {0, NULL}
-                                };
-
                                 if (parameter_length <= 8) {
                                     guint64 param_value = 0;
 
@@ -3713,7 +3790,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                                         param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                     }
                                     ep_strbuf_append(strbuf,
-                                        val_to_str_const((guint8)(param_value), str_compressor, "Default Codec"));
+                                        val_to_str_const((guint8)(param_value), str_cs_ip_device_routing_08_compressor, "Default Codec"));
                                 } else {
                                     ep_strbuf_append_printf(strbuf, "0x%02x 0x%02x ... 0x%02x 0x%02x",
                                         tvb_get_guint8(tvb, offset + 2),
@@ -3780,16 +3857,16 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
 
                         ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                             parameter_length + 2, "%s: %s",
-                            val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), strbuf->str);
+                            val_to_str_const(parameter_id, ip_device_routing_cmd_get_param_req_vals, "Unknown"), strbuf->str);
                     } else {
                         ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                             parameter_length + 2, "%s",
-                            val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"));
+                            val_to_str_const(parameter_id, ip_device_routing_cmd_get_param_req_vals, "Unknown"));
                     }
 
                     ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
                     proto_tree_add_text(ua3g_param_tree, tvb, offset, 1, "Parameter: %s (0x%02x)",
-                        val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), parameter_id);
+                        val_to_str_const(parameter_id, ip_device_routing_cmd_get_param_req_vals, "Unknown"), parameter_id);
                     offset++;
                     length--;
 
@@ -3817,60 +3894,6 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
 #define PVT_COLS 50
                 char parameter_value_tab[PVT_ROWS][PVT_COLS];   /* XXX: Use ep_alloc'd memory */
 
-                static const value_string str_parameter_id[] = {
-                    {0x01, "Date Of End Of Communication"},
-                    {0x02, "Node Number"},
-                    {0x03, "Ticket Protocol Version"},
-                    {0x06, "Equipment Type"},
-                    {0x08, "Local IP Address"},
-                    {0x09, "Distant IP Address"},
-                    {0x0A, "Local ID"},
-                    {0x0B, "Distant ID"},
-                    {0x0C, "Call Duration (second)"},
-                    {0x0D, "Local SSRC"},
-                    {0x0E, "Distant SSRC"},
-                    {0x0F, "Codec"},
-                    {0x10, "VAD"},
-                    {0x11, "ECE"},
-                    {0x12, "Voice Mode"},
-                    {0x13, "Transmitted Framing (ms)"},
-                    {0x14, "Received Framing (ms)"},
-                    {0x15, "Framing Changes"},
-                    {0x16, "Number Of RTP Packets Received"},
-                    {0x17, "Number Of RTP Packets Sent"},
-                    {0x18, "Number Of RTP Packets Lost"},
-                    {0x19, "Total Silence Detected (second)"},
-                    {0x1A, "Number Of SID Received"},
-                    {0x1B, "Delay Distribution"},
-                    {0x1C, "Maximum Delay (ms)"},
-                    {0x1D, "Number Of DTMF Received"},
-                    {0x1E, "Consecutive BFI"},
-                    {0x1F, "BFI Distribution"},
-                    {0x20, "Jitter Depth Distribution"},
-                    {0x21, "Number Of ICMP Host Unreachable"},
-                    {0x26, "Firmware Version"},
-                    {0x29, "DSP Framing (ms)"},
-                    {0x2A, "Transmitter SID"},
-                    {0x2D, "Minimum Delay (ms)"},
-                    {0x2E, "802.1 Q Used"},
-                    {0x2F, "802.1p Priority"},
-                    {0x30, "VLAN Id"},
-                    {0x31, "DiffServ"},
-                    {0x3D, "200 ms BFI Distribution"},
-                    {0x3E, "Consecutive RTP Lost"},
-                    {0, NULL}
-                };
-                static value_string_ext str_parameter_id_ext = VALUE_STRING_EXT_INIT(str_parameter_id);
-
-                static const value_string str_parameter_id_tab[] = {
-                    {0x1B, "Range: Value"},
-                    {0x1F, "Range: Value"},
-                    {0x20, "Jitter: Value"},
-                    {0x3D, "Contents: Value"},
-                    {0x3E, "Contents: Value"},
-                    {0, NULL}
-                };
-
                 strbuf = ep_strbuf_new_label(NULL);
 
                 while (length > 0) {
@@ -3883,26 +3906,9 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                         switch (parameter_id) {
                         case 0x06: /* Type Of Equipment */
                             {
-                                static const value_string str_first_byte[] = {
-                                    {0x01, "IP-Phone"},
-                                    {0x02, "Appli-PC"},
-                                    {0x03, "Coupler OmniPCX Enterprise"},
-                                    {0x04, "Coupler OmniPCX Office"},
-                                    {0, NULL}
-                                };
-                                static const value_string str_second_byte[] = {
-                                    {0x0101, "IP-Phone V2"},
-                                    {0x0102, "NOE-IP"},
-                                    {0x0200, "4980 Softphone (PCMM2)"},
-                                    {0x0201, "WebSoftphoneIP"},
-                                    {0x0300, "INTIP"},
-                                    {0x0301, "GD"},
-                                    {0x0302, "eVA"},
-                                    {0, NULL}
-                                };
                                 ep_strbuf_append_printf(strbuf, "%s, %s",
-                                    val_to_str_const(tvb_get_guint8(tvb, offset + 3), str_first_byte, "Unknown"),
-                                    val_to_str_const(tvb_get_ntohs(tvb, offset + 3), str_second_byte, "Unknown"));
+                                    val_to_str_const(tvb_get_guint8(tvb, offset + 3), cs_ip_device_routing_cmd03_first_byte_vals, "Unknown"),
+                                    val_to_str_const(tvb_get_ntohs(tvb, offset + 3), cs_ip_device_routing_cmd03_second_byte_vals, "Unknown"));
                                 break;
                             }
                         case 0x08: /* Local IP Address */
@@ -3933,15 +3939,6 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             }
                         case 0x0F: /* Default Codec */
                             {
-                                static const value_string str_compressor[] = {
-                                    {0x00, "G.711 A-law"},
-                                    {0x01, "G.711 mu-law"},
-                                    {0x02, "G.723.1 6.3kbps"},
-                                    {0x03, "G.729"},
-                                    {0x04, "G.723.1 5.3kbps"},
-                                    {0, NULL}
-                                };
-
                                 if (parameter_length <= 8) {
                                     guint64 param_value = 0;
 
@@ -3949,7 +3946,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                                         param_value += ((guint64)tvb_get_guint8(tvb, offset + 2 + i) << (8 * (parameter_length - i)));
                                     }
                                     ep_strbuf_append(strbuf,
-                                        val_to_str_const((guint8)(param_value), str_compressor, "Default Codec"));
+                                        val_to_str_const((guint8)(param_value), str_cs_ip_device_routing_0F_compressor, "Default Codec"));
                                 } else {
                                     ep_strbuf_append(strbuf, "Parameter Value Too Long (more than 64 bits)");
                                 }
@@ -3965,16 +3962,6 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             }
                         case 0x12: /* Voice Mode */
                             {
-                                static const value_string str_voice_mode[] = {
-                                    {0x50, "Idle"},
-                                    {0x51, "Handset"},
-                                    {0x52, "Group Listening"},
-                                    {0x53, "On Hook Dial"},
-                                    {0x54, "Handsfree"},
-                                    {0x55, "Headset"},
-                                    {0, NULL}
-                                };
-
                                 if (parameter_length <= 8) {
                                     guint64 param_value = 0;
 
@@ -3982,7 +3969,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                                         param_value += ((guint64)tvb_get_guint8(tvb, offset + 2 + i) << (8 * (parameter_length - i)));
                                     }
                                     ep_strbuf_append(strbuf,
-                                        val_to_str_const((guint8)(param_value), str_voice_mode, "Unknown"));
+                                        val_to_str_const((guint8)(param_value), cs_ip_device_routing_cmd03_voice_mode_vals, "Unknown"));
                                 } else {
                                     ep_strbuf_append(strbuf, "Parameter Value Too Long (more than 64 bits)");
                                 }
@@ -3991,63 +3978,30 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             }
                         case 0x1B: /* Delay Distribution */
                             {
-                                static const value_string str_range[] = {
-                                    {0, "0-40     "},
-                                    {1, "40-80    "},
-                                    {2, "80-150   "},
-                                    {3, "150-250  "},
-                                    {4, "250 and +"},
-                                    {0, NULL}
-                                };
                                 element_length = 2;
                                 for (i = 0; (i < (parameter_length / element_length)) && (i < PVT_ROWS); i++) {
                                     g_snprintf(parameter_value_tab[i], PVT_COLS, "%s: %d",
-                                        val_to_str_const(i, str_range, "Unknown"),
+                                        val_to_str_const(i, cs_ip_device_routing_delay_distribution_range_vals, "Unknown"),
                                         tvb_get_ntohs(tvb, offset + 3 + element_length * i));
                                 }
                                 break;
                             }
                         case 0x1E: /* Consecutive BFI */
                             {
-                                static const value_string str_range[] = {
-                                    {0, "0"},
-                                    {1, "1"},
-                                    {2, "2"},
-                                    {3, "3"},
-                                    {4, "4"},
-                                    {5, "5"},
-                                    {6, "5"},
-                                    {7, "7"},
-                                    {8, "8"},
-                                    {9, "9"},
-                                    {0, NULL}
-                                };
-                                static value_string_ext str_range_ext = VALUE_STRING_EXT_INIT(str_range);
-
                                 element_length = 2;
                                 for (i = 0; (i < (parameter_length / element_length)) && (i < PVT_ROWS); i++) {
                                     g_snprintf(parameter_value_tab[i], PVT_COLS, "%s: %d",
-                                        val_to_str_ext_const(i, &str_range_ext, "Unknown"),
+                                        val_to_str_const(i, cs_ip_device_routing_consecutive_bfi_range_vals, "Unknown"),
                                         tvb_get_ntohs(tvb, offset + 3 + element_length * i));
                                 }
                                 break;
                             }
                         case 0x1F: /* BFI Distribution */
                             {
-                                static const value_string str_range[] = {
-                                    {0, "0      "},
-                                    {1, "0-1    "},
-                                    {2, "1-2    "},
-                                    {3, "2-3    "},
-                                    {4, "3 and +"},
-                                    {0, NULL}
-                                };
-                                static value_string_ext str_range_ext = VALUE_STRING_EXT_INIT(str_range);
-
                                 element_length = 2;
                                 for (i = 0; (i < (parameter_length / element_length)) && (i < PVT_ROWS); i++) {
                                     g_snprintf(parameter_value_tab[i], PVT_COLS, "%s: %d",
-                                        val_to_str_ext_const(i, &str_range_ext, "Unknown"),
+                                        val_to_str_const(i, cs_ip_device_routing_bfi_distribution_range_vals, "Unknown"),
                                         tvb_get_ntohs(tvb, offset + 3 + element_length * i));
                                 }
                                 break;
@@ -4086,40 +4040,20 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             }
                         case 0x3D: /* 200 ms BFI Distribution */
                             {
-                                static const value_string str_range[] = {
-                                    {0, "< 10 %  "},
-                                    {1, "< 20 %  "},
-                                    {2, "< 40 %  "},
-                                    {3, "< 60 %  "},
-                                    {4, ">= 60 % "},
-                                    {0, NULL}
-                                };
-                                static value_string_ext str_range_ext = VALUE_STRING_EXT_INIT(str_range);
-
                                 element_length = 2;
                                 for (i = 0; (i < (parameter_length / element_length)) && (i < PVT_ROWS); i++) {
                                     g_snprintf(parameter_value_tab[i], PVT_COLS, "%s: %d",
-                                        val_to_str_ext_const(i, &str_range_ext, "Unknown"),
+                                        val_to_str_const(i, cs_ip_device_routing_200ms_bfi_distribution_range_vals, "Unknown"),
                                         tvb_get_ntohs(tvb, offset + 3 + element_length * i));
                                 }
                                 break;
                             }
                         case 0x3E: /* Consecutive RTP Lost */
                             {
-                                static const value_string str_range[] = {
-                                    {0, "1         "},
-                                    {1, "2         "},
-                                    {2, "3         "},
-                                    {3, "4         "},
-                                    {4, "5 and more"},
-                                    {0, NULL}
-                                };
-                                static value_string_ext str_range_ext = VALUE_STRING_EXT_INIT(str_range);
-
                                 element_length = 2;
                                 for (i = 0; (i < (parameter_length / element_length)) && (i < PVT_ROWS); i++) {
                                     g_snprintf(parameter_value_tab[i], PVT_COLS, "%s: %d",
-                                        val_to_str_ext_const(i, &str_range_ext, "Unknown"),
+                                        val_to_str_const(i, cs_ip_device_routing_consecutive_rtp_lost_range_vals, "Unknown"),
                                         tvb_get_ntohs(tvb, offset + 3 + element_length * i));
                                 }
                                 break;
@@ -4174,15 +4108,15 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                         {
                             ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                                 parameter_length + 3, "%s:",
-                                val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"));
+                                val_to_str_ext_const(parameter_id, &cs_ip_device_routing_03_parameter_id_vals_ext, "Unknown"));
                             proto_tree_add_text(ua3g_body_tree, tvb, offset + 3,
                                 parameter_length, "          %s",
-                                val_to_str_const(parameter_id, str_parameter_id_tab, "Unknown"));
+                                val_to_str_const(parameter_id, cs_ip_device_routing_03_parameter_id_tab_vals, "Unknown"));
                             ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
                             proto_tree_add_text(ua3g_param_tree, tvb, offset, 1,
                                 "Parameter: %s (0x%02x)",
-                                val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), parameter_id);
+                                val_to_str_ext_const(parameter_id, &cs_ip_device_routing_03_parameter_id_vals_ext, "Unknown"), parameter_id);
                             offset++;
                             length--;
 
@@ -4212,17 +4146,17 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             if (parameter_length > 0) {
                                 ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                                     parameter_length + 3, "%s: %s",
-                                    val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), strbuf->str);
+                                    val_to_str_ext_const(parameter_id, &cs_ip_device_routing_03_parameter_id_vals_ext, "Unknown"), strbuf->str);
                             } else {
                                 ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
                                     parameter_length + 3, "%s",
-                                    val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"));
+                                    val_to_str_ext_const(parameter_id, &cs_ip_device_routing_03_parameter_id_vals_ext, "Unknown"));
                             }
 
                             ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
                             proto_tree_add_text(ua3g_param_tree, tvb, offset, 1, "Parameter: %s (0x%02x)",
-                                val_to_str_ext_const(parameter_id, &str_parameter_id_ext, "Unknown"), parameter_id);
+                                val_to_str_ext_const(parameter_id, &cs_ip_device_routing_03_parameter_id_vals_ext, "Unknown"), parameter_id);
                             offset++;
                             length--;
 
@@ -4255,45 +4189,127 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
     UNSOLICITED MESSAGE - 9Fh/1Fh (MESSAGE FROM THE TERMINAL)
     VERSION RESPONSE - 21h (MESSAGE FROM THE TERMINAL)
     ---------------------------------------------------------------------------*/
+static const value_string str_command_unsolicited_msg[] = {
+    {0x00, "Hardware Reset Acknowledge"},
+    {0x01, "Software Reset Acknowledge"},
+    {0x02, "Illegal Command Received"},
+    {0x05, "Subdevice Down"},
+    {0x06, "Segment Failure"},
+    {0x07, "UA Device Event"},
+    {0, NULL}
+};
+
+static const value_string str_unsolicited_msg_vta_type[] = {
+    {0x03, "4035"},
+    {0x04, "4020"},
+    {0x05, "4010"},
+    {0x20, "NOE A"},
+    {0x21, "NOE B"},
+    {0x22, "NOE C"},
+    {0x23, "NOE D"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_other_info_1[] = {
+    {0x00, "Link Is TDM"},
+    {0x01, "Link Is IP"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_other_info_2[] = {
+    {0x00, "Download Allowed"},
+    {0x01, "Download Refused"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_hard_config_ip[] = {
+    {0x00, "Export Binary (No Thales)"},
+    {0x01, "Full Binary (Thales)"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_hard_config_chip[] = {
+    {0x00, "Chip Id: Unknown"},
+    {0x01, "Chip Id: Ivanoe 1"},
+    {0x02, "Chip Id: Ivanoe 2"},
+    {0x03, "Chip Id: Reserved"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_hard_config_flash[] = {
+    {0x00, "Flash Size: No Flash"},
+    {0x01, "Flash Size: 128 Kbytes"},
+    {0x02, "Flash Size: 256 Kbytes"},
+    {0x03, "Flash Size: 512 Kbytes"},
+    {0x04, "Flash Size: 1 Mbytes"},
+    {0x05, "Flash Size: 2 Mbytes"},
+    {0x06, "Flash Size: 4 Mbytes"},
+    {0x07, "Flash Size: 8 Mbytes"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_hard_config_ram[] = {
+    {0x00, "External RAM Size: No External RAM"},
+    {0x01, "External RAM Size: 128 Kbytes"},
+    {0x02, "External RAM Size: 256 Kbytes"},
+    {0x03, "External RAM Size: 512 Kbytes"},
+    {0x04, "External RAM Size: 1 Mbytes"},
+    {0x05, "External RAM Size: 2 Mbytes"},
+    {0x06, "External RAM Size: 4 Mbytes"},
+    {0x07, "External RAM Size: 8 Mbytes"},
+    {0, NULL}
+};
+
+static const value_string str_unsolicited_msg_subtype[] = {
+    {0x03, "2x40"},
+    {0x04, "1x20"},
+    {0x05, "1x20"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_generation[] = {
+    {0x02, "3"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_design[] = {
+    {0x00, "Alpha"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_hard_vta_type[] = {
+    {0x03, "MR2 (4035)"},
+    {0x05, "VLE (4010)"},
+    {0x07, "LE (4020)"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_hard_design[] = {
+    {0x06, "Alpha"},
+    {0, NULL}
+};
+static const value_string str_unsolicited_msg_hard_subtype[] = {
+    {0x06, "2x40"},
+    {0x07, "1x20"},
+    {0x08, "1x20"},
+    {0, NULL}
+};
+
 static void
 decode_unsolicited_msg(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
                guint offset, guint length, guint8 opcode,
                proto_item *ua3g_item, proto_item *ua3g_body_item)
 {
     guint8      command;
+    const gchar* command_str;
     proto_tree *ua3g_body_tree;
 
-    static const value_string str_command[] = {
-        {0x00, "Hardware Reset Acknowledge"},
-        {0x01, "Software Reset Acknowledge"},
-        {0x02, "Illegal Command Received"},
-        {0x05, "Subdevice Down"},
-        {0x06, "Segment Failure"},
-        {0x07, "UA Device Event"},
-        {0, NULL}
-    };
-    static value_string_ext str_command_ext = VALUE_STRING_EXT_INIT(str_command);
-
     command = tvb_get_guint8(tvb, offset);
+    command_str = val_to_str_const(command, str_command_unsolicited_msg, "Unknown");
 
     if (opcode != 0x21) {
         /* add text to the frame "INFO" column */
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", command_str);
 
         if (!ua3g_body_item)
             return;
 
         /* add text to the frame tree */
-        proto_item_append_text(ua3g_item, ", %s",
-            val_to_str_ext_const(command, &str_command_ext, "Unknown"));
-        proto_item_append_text(ua3g_body_item, " - %s",
-            val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+        proto_item_append_text(ua3g_item, ", %s", command_str);
+        proto_item_append_text(ua3g_body_item, " - %s", command_str);
         ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
-        proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb,
-            offset, 1, command, "Command: %s",
-            val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+        proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_unsolicited_msg, tvb, offset, 1, ENC_NA);
         offset++;
         length--;
     } else {
@@ -4311,60 +4327,6 @@ decode_unsolicited_msg(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     case 0xFF: /* Opcode = 0x21 : Version Response */
         {
             int link, vta_type;
-            static const value_string str_vta_type[] = {
-                {0x03, "4035"},
-                {0x04, "4020"},
-                {0x05, "4010"},
-                {0x20, "NOE A"},
-                {0x21, "NOE B"},
-                {0x22, "NOE C"},
-                {0x23, "NOE D"},
-                {0, NULL}
-            };
-            static const value_string str_other_info_1[] = {
-                {0x00, "Link Is TDM"},
-                {0x01, "Link Is IP"},
-                {0, NULL}
-            };
-            static const value_string str_other_info_2[] = {
-                {0x00, "Download Allowed"},
-                {0x01, "Download Refused"},
-                {0, NULL}
-            };
-            static const value_string str_hard_config_ip[] = {
-                {0x00, "Export Binary (No Thales)"},
-                {0x01, "Full Binary (Thales)"},
-                {0, NULL}
-            };
-            static const value_string str_hard_config_chip[] = {
-                {0x00, "Chip Id: Unknown"},
-                {0x01, "Chip Id: Ivanoe 1"},
-                {0x02, "Chip Id: Ivanoe 2"},
-                {0x03, "Chip Id: Reserved"},
-                {0, NULL}
-            };
-            static const value_string str_hard_config_flash[] = {
-                {0x00, "Flash Size: No Flash"},
-                {0x01, "Flash Size: 128 Kbytes"},
-                {0x02, "Flash Size: 256 Kbytes"},
-                {0x03, "Flash Size: 512 Kbytes"},
-                {0x04, "Flash Size: 1 Mbytes"},
-                {0x05, "Flash Size: 2 Mbytes"},
-                {0x06, "Flash Size: 4 Mbytes"},
-                {0x07, "Flash Size: 8 Mbytes"},
-                {0, NULL}
-            };
-            static const value_string str_hard_config_ram[] = {
-                {0x00, "External RAM Size: No External RAM"},
-                {0x01, "External RAM Size: 128 Kbytes"},
-                {0x02, "External RAM Size: 256 Kbytes"},
-                {0x03, "External RAM Size: 512 Kbytes"},
-                {0x04, "External RAM Size: 1 Mbytes"},
-                {0x05, "External RAM Size: 2 Mbytes"},
-                {0x06, "External RAM Size: 4 Mbytes"},
-                {0x07, "External RAM Size: 8 Mbytes"},
-                {0, NULL}
-            };
 
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Device Type: %s",
                 val_to_str_const(tvb_get_guint8(tvb, offset), str_device_type, "Unknown"));
@@ -4386,7 +4348,7 @@ decode_unsolicited_msg(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
             vta_type = tvb_get_guint8(tvb, offset);
 
             proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "VTA Type: %s",
-                val_to_str_const(vta_type, str_vta_type, "Unknown"));
+                val_to_str_const(vta_type, str_unsolicited_msg_vta_type, "Unknown"));
             offset++;
             length--;
 
@@ -4396,55 +4358,24 @@ decode_unsolicited_msg(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
             case 0x04:
             case 0x05:
                 {
-                    static const value_string str_subtype[] = {
-                        {0x03, "2x40"},
-                        {0x04, "1x20"},
-                        {0x05, "1x20"},
-                        {0, NULL}
-                    };
-                    static const value_string str_generation[] = {
-                        {0x02, "3"},
-                        {0, NULL}
-                    };
-                    static const value_string str_design[] = {
-                        {0x00, "Alpha"},
-                        {0, NULL}
-                    };
-                    static const value_string str_hard_vta_type[] = {
-                        {0x03, "MR2 (4035)"},
-                        {0x05, "VLE (4010)"},
-                        {0x07, "LE (4020)"},
-                        {0, NULL}
-                    };
-                    static const value_string str_hard_design[] = {
-                        {0x06, "Alpha"},
-                        {0, NULL}
-                    };
-                    static const value_string str_hard_subtype[] = {
-                        {0x06, "2x40"},
-                        {0x07, "1x20"},
-                        {0x08, "1x20"},
-                        {0, NULL}
-                    };
-
                     proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                         "Characteristic Number: VTA SubType: %s, Generation: %s, Design: %s",
-                        val_to_str_const((((tvb_get_guint8(tvb, offset) & 0xC0) >> 6) + vta_type), str_subtype, "Unknown"),
-                        val_to_str_const(((tvb_get_guint8(tvb, offset) & 0x38) >> 3), str_generation, "Unknown"),
-                        val_to_str_const((tvb_get_guint8(tvb, offset) & 0x07), str_design, "Unknown"));
+                        val_to_str_const((((tvb_get_guint8(tvb, offset) & 0xC0) >> 6) + vta_type), str_unsolicited_msg_subtype, "Unknown"),
+                        val_to_str_const(((tvb_get_guint8(tvb, offset) & 0x38) >> 3), str_unsolicited_msg_generation, "Unknown"),
+                        val_to_str_const((tvb_get_guint8(tvb, offset) & 0x07), str_unsolicited_msg_design, "Unknown"));
                     offset++;
                     length--;
                     proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                         "Other Information: %s",
-                        val_to_str_const(tvb_get_guint8(tvb, offset), str_other_info_2, "Unknown"));
+                        val_to_str_const(tvb_get_guint8(tvb, offset), str_unsolicited_msg_other_info_2, "Unknown"));
                     offset++;
                     length--;
 
                     proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                         "Hardware Configuration: VTA Type: %s, Design: %s, VTA SubType: %s",
-                        val_to_str_const((((tvb_get_guint8(tvb, offset) & 0xE0) >> 5) + vta_type), str_hard_vta_type, "Unknown"),
-                        val_to_str_const(((tvb_get_guint8(tvb, offset) & 0x1C) >> 2), str_hard_design, "Unknown"),
-                        val_to_str_const((tvb_get_guint8(tvb, offset) & 0x03), str_hard_subtype, "Unknown"));
+                        val_to_str_const((((tvb_get_guint8(tvb, offset) & 0xE0) >> 5) + vta_type), str_unsolicited_msg_hard_vta_type, "Unknown"),
+                        val_to_str_const(((tvb_get_guint8(tvb, offset) & 0x1C) >> 2), str_unsolicited_msg_hard_design, "Unknown"),
+                        val_to_str_const((tvb_get_guint8(tvb, offset) & 0x03), str_unsolicited_msg_hard_subtype, "Unknown"));
                     offset++;
                     length--;
 
@@ -4467,7 +4398,7 @@ decode_unsolicited_msg(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
                     link = tvb_get_guint8(tvb, offset);
                     proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                         "Other Information 1: %s",
-                        val_to_str_const(link, str_other_info_1, "Unknown"));
+                        val_to_str_const(link, str_unsolicited_msg_other_info_1, "Unknown"));
                     offset++;
                     length--;
 
@@ -4479,19 +4410,19 @@ decode_unsolicited_msg(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 
                         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                             "Hardware Configuration: %s, %s, %s",
-                            val_to_str_const((tvb_get_guint8(tvb, offset) & 0x03), str_hard_config_chip, "Unknown"),
-                            val_to_str_const(((tvb_get_guint8(tvb, offset) & 0x1C) >> 2), str_hard_config_flash, "Unknown"),
-                            val_to_str_const(((tvb_get_guint8(tvb, offset) & 0xE0) >> 5), str_hard_config_ram, "Unknown"));
+                            val_to_str_const((tvb_get_guint8(tvb, offset) & 0x03), str_unsolicited_msg_hard_config_chip, "Unknown"),
+                            val_to_str_const(((tvb_get_guint8(tvb, offset) & 0x1C) >> 2), str_unsolicited_msg_hard_config_flash, "Unknown"),
+                            val_to_str_const(((tvb_get_guint8(tvb, offset) & 0xE0) >> 5), str_unsolicited_msg_hard_config_ram, "Unknown"));
                         offset++;
                         length--;
                     } else {
                         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Other Information 2: %s",
-                            val_to_str_const(tvb_get_guint8(tvb, offset), str_other_info_2, "Unknown"));
+                            val_to_str_const(tvb_get_guint8(tvb, offset), str_unsolicited_msg_other_info_2, "Unknown"));
                         offset++;
                         length--;
 
                         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Hardware Configuration: %s",
-                            val_to_str_const((tvb_get_guint8(tvb, offset) & 0x01), str_hard_config_ip, "Unknown"));
+                            val_to_str_const((tvb_get_guint8(tvb, offset) & 0x01), str_unsolicited_msg_hard_config_ip, "Unknown"));
                         offset++;
                         length--;
                     }
@@ -4650,6 +4581,26 @@ decode_i_m_here(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
     RESPONSE STATUS INQUIRY - 23h (MESSAGE FROM THE TERMINAL)
     SPECIAL KEY STATUS - 29h (MESSAGE FROM THE TERMINAL)
     ---------------------------------------------------------------------------*/
+static const value_string str_special_key_parameters[] = {
+    {0x00, "Not Received Default In Effect"},
+    {0x02, "Downloaded Values In Effect"},
+    {0, NULL}
+};
+static const value_string str_special_key_status[] = {
+    {0x00, "Released"},
+    {0, NULL}
+};
+static const char *const str_special_key_name[] = {
+    "Shift ",
+    "Ctrl  ",
+    "Alt   ",
+    "Cmd   ",
+    "Shift'",
+    "Ctrl' ",
+    "Alt'  ",
+    "Cmd'  "
+};
+
 static void
 decode_special_key(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
            guint offset, guint length, guint8 opcode,
@@ -4659,26 +4610,6 @@ decode_special_key(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *ua3g_body_tree;
     int         i;
 
-    static const value_string str_parameters[] = {
-        {0x00, "Not Received Default In Effect"},
-        {0x02, "Downloaded Values In Effect"},
-        {0, NULL}
-    };
-    static const value_string str_special_key_status[] = {
-        {0x00, "Released"},
-        {0, NULL}
-    };
-    static const char *const str_special_key_name[] = {
-        "Shift ",
-        "Ctrl  ",
-        "Alt   ",
-        "Cmd   ",
-        "Shift'",
-        "Ctrl' ",
-        "Alt'  ",
-        "Cmd'  "
-        };
-
     if (!ua3g_body_item)
         return;
 
@@ -4686,7 +4617,7 @@ decode_special_key(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
     if (opcode == 0x23) {
         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
             "Parameters Received for DTMF: %s",
-            val_to_str_const((tvb_get_guint8(tvb, offset) & 0x02), str_parameters, "Unknown"));
+            val_to_str_const((tvb_get_guint8(tvb, offset) & 0x02), str_special_key_parameters, "Unknown"));
         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
             "Hookswitch Status: %shook",
             STR_ON_OFF(tvb_get_guint8(tvb, offset) & 0x01));
@@ -4746,15 +4677,10 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item       *ua3g_body_item = NULL;
     gint              length;
     guint8            opcode;
-    value_string_ext *opcodes_vals_ext_p;
+    const gchar*      opcode_str;
 
     ua3g_item = proto_tree_add_item(tree, proto_ua3g, tvb, 0, -1, ENC_NA);
     ua3g_tree = proto_item_add_subtree(ua3g_item, ett_ua3g);
-
-    if (message_direction == SYS_TO_TERM) {
-        opcodes_vals_ext_p = &opcodes_vals_sys_ext;
-    } else
-        opcodes_vals_ext_p = &opcodes_vals_term_ext;
 
     /* Length of the UA Message */
     length = tvb_get_letohs(tvb, offset);
@@ -4771,32 +4697,51 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         opcode = (opcode & 0x7f);
 
     /* Useful for a research in wireshark */
-    proto_tree_add_uint_format(ua3g_tree, hf_ua3g_opcode, tvb, offset,
-        1, opcode, "Opcode: %s (0x%02x)",
-        val_to_str_ext_const(opcode, opcodes_vals_ext_p, "Unknown"), opcode);
+    if (message_direction == SYS_TO_TERM) {
+        proto_tree_add_uint(ua3g_tree, hf_ua3g_opcode_sys, tvb, offset, 1, opcode);
+        opcode_str = val_to_str_ext_const(opcode, &opcodes_vals_sys_ext, "Unknown");
+    } else {
+        proto_tree_add_uint(ua3g_tree, hf_ua3g_opcode_term, tvb, offset, 1, opcode);
+        opcode_str = val_to_str_ext_const(opcode, &opcodes_vals_term_ext, "Unknown");
+    }
+
     offset++;
     length--;
 
     /* add text to the frame "INFO" column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-        val_to_str_ext_const(opcode, opcodes_vals_ext_p, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", opcode_str);
 
-    proto_item_append_text(ua3g_item, ", %s", val_to_str_ext_const(opcode, opcodes_vals_ext_p, "Unknown"));
+    proto_item_append_text(ua3g_item, ", %s", opcode_str);
 
     if (length > 0)
         ua3g_body_item = proto_tree_add_text(ua3g_tree, tvb, offset,
-            length, "UA3G Body - %s",
-            val_to_str_ext_const(opcode, opcodes_vals_ext_p, "Unknown"));
+            length, "UA3G Body - %s", opcode_str);
 
     if (message_direction == SYS_TO_TERM) {
         switch (opcode) {
         case SC_PRODUCTION_TEST: /* 0x01 */
+            {
+                decode_with_one_parameter(ua3g_tree, tvb, pinfo, offset, length, hf_ua3g_opcode_production_test, ua3g_body_item);
+                break;
+            }
         case SC_SUBDEVICE_RESET: /* 0x06 */
+            {
+                decode_with_one_parameter(ua3g_tree, tvb, pinfo, offset, length, hf_ua3g_opcode_subservice_reset, ua3g_body_item);
+                break;
+            }
         case SC_ARE_YOU_THERE:   /* 0x2B */
+            {
+                decode_with_one_parameter(ua3g_tree, tvb, pinfo, offset, length, hf_ua3g_opcode_are_you_there, ua3g_body_item);
+                break;
+            }
         case SC_SET_SPEAKER_VOL: /* 0x3B */
+            {
+                decode_with_one_parameter(ua3g_tree, tvb, pinfo, offset, length, hf_ua3g_opcode_set_speaker_vol, ua3g_body_item);
+                break;
+            }
         case SC_TRACE_ON:        /* 0x42 */
             {
-                decode_with_one_parameter(ua3g_tree, tvb, pinfo, offset, length, opcode, ua3g_body_item);
+                decode_with_one_parameter(ua3g_tree, tvb, pinfo, offset, length, hf_ua3g_opcode_trace_on, ua3g_body_item);
                 break;
             }
         case SC_SUBDEVICE_ESCAPE: /* 0x02 */
@@ -4943,11 +4888,23 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             }
         case SC_KEY_RELEASE:       /* 0x41 */
+            {
+                decode_on_off_level(ua3g_tree, tvb, pinfo, offset, length, hf_ua3g_command_key_release, ua3g_item, ua3g_body_item);
+                break;
+            }
         case SC_AMPLIFIED_HANDSET: /* 0x48 */
+            {
+                decode_on_off_level(ua3g_tree, tvb, pinfo, offset, length, hf_ua3g_command_amplified_handset, ua3g_item, ua3g_body_item);
+                break;
+            }
         case SC_LOUDSPEAKER:       /* 0x4D */
+            {
+                decode_on_off_level(ua3g_tree, tvb, pinfo, offset, length, hf_ua3g_command_loudspeaker, ua3g_item, ua3g_body_item);
+                break;
+            }
         case SC_ANNOUNCE:          /* 0x4E */
             {
-                decode_on_off_level(ua3g_tree, tvb, pinfo, offset, length, opcode, ua3g_item, ua3g_body_item);
+                decode_on_off_level(ua3g_tree, tvb, pinfo, offset, length, hf_ua3g_command_announce, ua3g_item, ua3g_body_item);
                 break;
             }
         case SC_RING: /* 0x4F */
@@ -5095,29 +5052,149 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_ua3g(void)
 {
-    static hf_register_info hf_ua3g[] =
-        {
-            { &hf_ua3g_length,
-              { "Length", "ua3g.length",
-                FT_UINT16, BASE_DEC, NULL, 0x00,
-                "Decimal Value", HFILL }
-            },
-            { &hf_ua3g_opcode,
-              { "Opcode", "ua3g.opcode",
-                FT_UINT8, BASE_HEX, NULL, 0x00,
-                "Hexa Value", HFILL }
-            },
-            { &hf_ua3g_ip,
-              { "IP Device Routing", "ua3g.ip",
-                FT_UINT8, BASE_HEX, NULL, 0x00,
-                "Hexa Value - 2nd Command For IP Device Routing Opcode", HFILL }
-            },
-            { &hf_ua3g_command,
-              { "Command", "ua3g.command",
-                FT_UINT8, BASE_HEX, NULL, 0x00,
-                "Hexa Value - 2nd Command (Excepted IP Device Routing Opcode)", HFILL }
-            },
-        };
+    static hf_register_info hf[] =
+    {
+        { &hf_ua3g_length,
+            { "Length", "ua3g.length",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_opcode_sys,
+            { "Opcode", "ua3g.opcode",
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &opcodes_vals_sys_ext, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_opcode_term,
+            { "Opcode", "ua3g.opcode",
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &opcodes_vals_term_ext, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_opcode_production_test,
+            { "Production Test Command", "ua3g.production_test",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_opcode_subservice_reset,
+            { "Reserved For Compatibility", "ua3g.subservice_reset",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_opcode_are_you_there,
+            { "Temporization", "ua3g.are_you_there",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_opcode_set_speaker_vol,
+            { "Volume", "ua3g.set_speaker_vol",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_opcode_trace_on,
+            { "Subdevice Address", "ua3g.trace_on",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_ip,
+            { "IP Device Routing", "ua3g.ip",
+            FT_UINT8, BASE_HEX, VALS(str_command_ip_device_routing), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_ip_cs,
+            { "IP Device Routing", "ua3g.ip.cs",
+            FT_UINT8, BASE_HEX, VALS(str_command_cs_ip_device_routing), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_led,
+            { "Led Command", "ua3g.command.led",
+            FT_UINT8, BASE_HEX, VALS(str_command_led), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_lcd_line,
+            { "LCD Line Command", "ua3g.command.lcd_line",
+            FT_UINT8, BASE_HEX, VALS(str_command_lcd_line), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_main_voice_mode,
+            { "Voice Mode", "ua3g.command.main_voice_mode",
+            FT_UINT8, BASE_HEX, VALS(str_main_voice_mode), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_set_clck,
+            { "Set Clock", "ua3g.command.set_clck",
+            FT_UINT8, BASE_HEX, VALS(str_command_set_clck), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_external_ringing_command,
+            { "External Ringing Command", "ua3g.command.external_ringing",
+            FT_UINT8, BASE_HEX, VALS(str_ext_ring_cmd), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_lcd_cursor,
+            { "Cursor", "ua3g.lcd_cursor",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_beep,
+            { "Beep", "ua3g.command.beep",
+            FT_UINT8, BASE_HEX, VALS(str_command_beep), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_sidetone,
+            { "Sidetone", "ua3g.command.sidetone",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_mute,
+            { "Microphone", "ua3g.command.mute",
+            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_feedback,
+            { "Feedback", "ua3g.command.feedback",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_audio_config,
+            { "Audio Config", "ua3g.command.audio_config",
+            FT_UINT8, BASE_HEX, VALS(str_command_audio_config), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_key_release,
+            { "Key Release", "ua3g.command.key_release",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_amplified_handset,
+            { "Amplified Handset (Boost)", "ua3g.command.amplified_handset",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_loudspeaker,
+            { "Loudspeaker", "ua3g.command.loudspeaker",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_announce,
+            { "Announce", "ua3g.command.announce",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_ring,
+            { "Ring", "ua3g.command.ring",
+            FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_ua_dwl_protocol,
+            { "UA Download Protocol", "ua3g.command.ua_dwl_protocol",
+            FT_UINT8, BASE_HEX, VALS(str_command_ua_dwl_protocol), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ua3g_command_unsolicited_msg,
+            { "Unsolicited Message", "ua3g.command.unsolicited_msg",
+            FT_UINT8, BASE_HEX, VALS(str_command_unsolicited_msg), 0x00,
+            NULL, HFILL }
+        },
+    };
 
     static gint *ett[] =
     {
@@ -5130,7 +5207,7 @@ proto_register_ua3g(void)
     /* UA3G dissector registration */
     proto_ua3g = proto_register_protocol("UA3G Message", "UA3G", "ua3g");
 
-    proto_register_field_array(proto_ua3g, hf_ua3g, array_length(hf_ua3g));
+    proto_register_field_array(proto_ua3g, hf, array_length(hf));
 
     register_dissector("ua3g", dissect_ua3g, proto_ua3g);
 
