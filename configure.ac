@@ -259,130 +259,177 @@ AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 #
 PKG_PROG_PKG_CONFIG
 
-#
-# Let the user specify an OS X release to use as a deplayment target;
-# if they specify that we should have a deployment target but don't
-# specify the deployment target, pick the OS version on which the build
-# is being done.  This also causes the build to be done against an SDK
-# rather than against the headers and libraries in /usr/include and /usr/lib.
-#
-# Check for an OS X deployment target early, so that as many tests using
-# the compiler are done using the flags that we'll be using when building.
-#
-case "$host_os" in
-darwin*)
+AC_ARG_ENABLE(osx-deploy-target,
+  AC_HELP_STRING( [--enable-osx-deploy-target],
+    [choose an OS X deployment target @<:@default=major release on which you're building@:>@]),
+[
 	#
-	# Get the OS X major version number.
-	# (We quote the command so that we can use autoconf's M4
-	# quoting characters, [ and ], in the sed expression.)
+	# Is this OS X?
 	#
-	[os_version=`sw_vers -productVersion | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.[0-9]*/\1.\2/'`]
-
-	AC_ARG_ENABLE(osx-deploy-target,
-	  AC_HELP_STRING( [--enable-osx-deploy-target],
-	    [choose an OS X deployment target @<:@default=none@:>@]),
-	[
+	case "$host_os" in
+	darwin*)
+		#
+		# Yes.
+		#
+		# Let the user specify an OS X release to use as a
+		# deplayment target; if they specify that we should
+		# have a deployment target but don't specify the
+		# deployment target, pick the OS version on which the
+		# build is being done.  This also causes the build to
+		# be done against an SDK rather than against the headers
+		# and libraries in /usr/include and /usr/lib.
+		#
+		# Check for an OS X deployment target early, so that
+		# as many tests using the compiler are done using the
+		# flags that we'll be using when building.
+		#
 		if test $enableval = no
 		then
+			#
+			# The user explicitly said
+			# --disable-osx-deploy-target, so don't build
+			# against an SDK.
+			#
 			deploy_target=
 		elif test $enableval = yes
 		then
-			deploy_target=$os_version
+			#
+			# The user said --enable-osx-deploy-target, but
+			# didn't say what version to target; target the
+			# major version number of the version of OS X on
+			# which we're running.
+			#
+			# (We quote the command so that we can use
+			# autoconf's M4 quoting characters, [ and ], in
+			# the sed expression.)
+			#
+			[deploy_target=`sw_vers -productVersion | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.[0-9]*/\1.\2/'`]
 		else
 			deploy_target="$enableval"
 		fi
-	],[
-		deploy_target=
-	])
-	AC_MSG_CHECKING([what deployment target to use])
-	if test -z "$deploy_target"
-	then
-		AC_MSG_RESULT(none)
-		OSX_DEPLOY_TARGET=
-	else
-		AC_MSG_RESULT($deploy_target)
+		;;
 
-		case $deploy_target in
+	*)
+		#
+		# No.  Fail, because whatever the user intended for us to
+		# do, we can't do it.
+		#
+		AC_MSG_ERROR([--enable-osx-deploy-target specified on an OS other than OS X])
+		;;
+	esac
+],[
+	#
+	# Is this OS X?
+	#
+	case "$host_os" in
+	darwin*)
+		#
+		# Yes.
+		#
+		# Default to targeting the major version number of
+		# the version of OS X on which we're running.
+		#
+		# (We quote the command so that we can use autoconf's
+		# M4 quoting characters, [ and ], in the sed expression.)
+		#
+		[deploy_target=`sw_vers -productVersion | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.[0-9]*/\1.\2/'`]
+		;;
 
-		10.0|10.1|10.2)
-			#
-			# I'm not sure this would even work.
-			#
-			AC_ERROR([$deploy_target not supported as a deployment target])
-			;;
+	*)
+		#
+		# No.  There's nothing to do.
+		#
+		;;
+	esac
+])
 
-		10.3)
-			#
-			# XXX - never tested.
-			#
-			SDKPATH="/Developer/SDKs/MacOSX10.3.9.sdk"
-			;;
+if test ! -z "$deploy_target"
+then
+	AC_MSG_CHECKING([whether we can build for OS X $deploy_target])
+	case $deploy_target in
 
-		*)
-			#
-			# XXX - for 10.4, do we need 10.4u?  We're
-			# not currently doing fat builds (we'd need
-			# fat versions of the support libraries for
-			# that to be useful), but, if we do, we'd
-			# need to use 10.4u.
-			#
-			for i in /Developer/SDKs \
-			    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
-			    /Library/Developer/CommandLineTools/SDKs
-			do
-				if test -d "$i"/"MacOSX$deploy_target.sdk"
-				then
-					SDKPATH="$i"/"MacOSX$deploy_target.sdk"
-					break
-				fi
-			done
-			if test -z "$SDKPATH"
+	10.0|10.1|10.2)
+		#
+		# I'm not sure this would even work.
+		#
+		AC_MSG_RESULT(no)
+		AC_ERROR([We don't support building for OS X $deploy_target])
+		;;
+
+	10.3)
+		#
+		# XXX - never tested.
+		#
+		AC_MSG_RESULT(yes)
+		SDKPATH="/Developer/SDKs/MacOSX10.3.9.sdk"
+		;;
+
+	*)
+		#
+		# XXX - for 10.4, do we need 10.4u?  We're
+		# not currently doing fat builds (we'd need
+		# fat versions of the support libraries for
+		# that to be useful), but, if we do, we'd
+		# need to use 10.4u.
+		#
+		for i in /Developer/SDKs \
+		    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
+		    /Library/Developer/CommandLineTools/SDKs
+		do
+			if test -d "$i"/"MacOSX$deploy_target.sdk"
 			then
-				AC_MSG_ERROR([couldn't find the SDK for OS X $deploy_target])
+				SDKPATH="$i"/"MacOSX$deploy_target.sdk"
+				break
 			fi
-			;;
-		esac
+		done
+		if test -z "$SDKPATH"
+		then
+			AC_MSG_RESULT(no)
+			AC_MSG_ERROR([We couldn't find the SDK for OS X $deploy_target])
+		fi
+		AC_MSG_RESULT(yes)
+		;;
+	esac
 
-		#
-		# Add a -mmacosx-version-min flag to force tests that
-		# use the compiler, as well as the build itself, not to,
-		# for example, use compiler or linker features not supported
-		# by the minimum targeted version of the OS.
-		#
-		# Add an -isysroot flag to use the SDK.
-		#
-		CFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $CFLAGS"
-		CXXFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $CXXFLAGS"
-		LDFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $LDFLAGS"
+	#
+	# Add a -mmacosx-version-min flag to force tests that
+	# use the compiler, as well as the build itself, not to,
+	# for example, use compiler or linker features not supported
+	# by the minimum targeted version of the OS.
+	#
+	# Add an -isysroot flag to use the SDK.
+	#
+	CFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $CFLAGS"
+	CXXFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $CXXFLAGS"
+	LDFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $LDFLAGS"
 
-		#
-		# Add a -sdkroot flag to use with osx-app.sh.
-		#
-		OSX_APP_FLAGS="-sdkroot $SDKPATH"
+	#
+	# Add a -sdkroot flag to use with osx-app.sh.
+	#
+	OSX_APP_FLAGS="-sdkroot $SDKPATH"
 
-		#
-		# XXX - do we need this to build the Wireshark wrapper?
-		# XXX - is this still necessary with the -mmacosx-version-min
-		# flag being set?
-		#
-		OSX_DEPLOY_TARGET="MACOSX_DEPLOYMENT_TARGET=$deploy_target"
+	#
+	# XXX - do we need this to build the Wireshark wrapper?
+	# XXX - is this still necessary with the -mmacosx-version-min
+	# flag being set?
+	#
+	OSX_DEPLOY_TARGET="MACOSX_DEPLOYMENT_TARGET=$deploy_target"
 
-		case $deploy_target in
+	case $deploy_target in
 
-		10.4|10.5)
-			#
-			# Only 32-bit builds are supported.  10.5
-			# (and 10.4?) had a bug that causes some BPF
-			# functions not to work with 64-bit userland
-		        # code, so capturing won't work.
-			#
-			CFLAGS="-arch i386 $CFLAGS"
-			CXXFLAGS="-arch i386 $CXXFLAGS"
-			LDFLAGS="-arch i386 $LDFLAGS"
-			;;
-		esac
-	fi
-esac
+	10.4|10.5)
+		#
+		# Only 32-bit builds are supported.  10.5
+		# (and 10.4?) had a bug that causes some BPF
+		# functions not to work with 64-bit userland
+	        # code, so capturing won't work.
+		#
+		CFLAGS="-arch i386 $CFLAGS"
+		CXXFLAGS="-arch i386 $CXXFLAGS"
+		LDFLAGS="-arch i386 $LDFLAGS"
+		;;
+	esac
+fi
 
 #
 # Try to arrange for large file support.
