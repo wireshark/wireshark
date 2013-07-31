@@ -71,38 +71,13 @@
     return "Seconds must be between [0..59]";		    \
   }
 
-static void modify_time_init(frame_data *fd);
-static void modify_time_perform(frame_data *fd, int neg, nstime_t *offset,
-    int settozero);
-
-static void
-modify_time_init(frame_data *fd)
-{
-  modify_time_perform(fd, SHIFT_NEG, NULL, SHIFT_KEEPOFFSET);
-}
-
 static void
 modify_time_perform(frame_data *fd, int neg, nstime_t *offset, int settozero)
 {
-  static frame_data *first_packet = NULL;
-  static nstime_t nulltime;
-
-  /* Only for initializing */
-  if (offset == NULL) {
-    first_packet = fd;
-    nulltime.secs = nulltime.nsecs = 0;
-    return;
-  }
-  if (first_packet == NULL) {
-    fprintf(stderr, "Modify_time_perform: not initialized?\n");
-    return;
-  }
-
   /* The actual shift */
-
   if (settozero == SHIFT_SETTOZERO) {
     nstime_subtract(&(fd->abs_ts), &(fd->shift_offset));
-    nstime_copy(&(fd->shift_offset), &nulltime);
+    nstime_set_zero(&(fd->shift_offset));
   }
 
   if (neg == SHIFT_POS) {
@@ -324,9 +299,8 @@ time_shift_all(capture_file *cf, const gchar *offset_text)
     offset_float -= offset.secs;
     offset.nsecs = (int)(offset_float * 1000000000);
 
-    if ((fd = frame_data_sequence_find(cf->frames, 1)) == NULL)
+    if (!frame_data_sequence_find(cf->frames, 1))
         return "No frames found."; /* Shouldn't happen */
-    modify_time_init(fd);
 
     for (i = 1; i <= cf->count; i++) {
         if ((fd = frame_data_sequence_find(cf->frames, i)) == NULL)
@@ -368,9 +342,8 @@ time_shift_settime(capture_file *cf, guint packet_num, const gchar *time_text)
 
     /* Up to here nothing is changed */
 
-    if ((fd = frame_data_sequence_find(cf->frames, 1)) == NULL)
+    if (!frame_data_sequence_find(cf->frames, 1))
         return "No frames found."; /* Shouldn't happen */
-    modify_time_init(fd);
 
     /* Set everything back to the original time */
     for (i = 1; i <= cf->count; i++) {
@@ -442,9 +415,8 @@ time_shift_adjtime(capture_file *cf, guint packet1_num, const gchar *time1_text,
     nstime_subtract(&dnt, &nt1);
 
     /* Up to here nothing is changed */
-    if ((fd = frame_data_sequence_find(cf->frames, 1)) == NULL)
+    if (!frame_data_sequence_find(cf->frames, 1))
         return "No frames found."; /* Shouldn't happen */
-    modify_time_init(fd);
 
     for (i = 1; i <= cf->count; i++) {
         if ((fd = frame_data_sequence_find(cf->frames, i)) == NULL)
@@ -479,9 +451,8 @@ time_shift_undo(capture_file *cf)
 
     nulltime.secs = nulltime.nsecs = 0;
 
-    if ((fd = frame_data_sequence_find(cf->frames, 1)) == NULL)
+    if (!frame_data_sequence_find(cf->frames, 1))
         return "No frames found."; /* Shouldn't happen */
-    modify_time_init(fd);
 
     for (i = 1; i <= cf->count; i++) {
         if ((fd = frame_data_sequence_find(cf->frames, i)) == NULL)
