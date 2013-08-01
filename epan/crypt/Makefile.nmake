@@ -10,7 +10,7 @@ include Makefile.common
 
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	 /I../.. $(GLIB_CFLAGS) $(GNUTLS_CFLAGS) \
-	$(LIBGCRYPT_CFLAGS) -DWS_BUILD_DLL
+	-DWS_BUILD_DLL
 
 .c.obj::
 	$(CC) $(CFLAGS)  -Fd.\ -c $<

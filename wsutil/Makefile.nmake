@@ -12,7 +12,7 @@ include ..\Makefile.nmake.inc
 include Makefile.common
 
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
-	/I. /I.. $(GLIB_CFLAGS) \
+	/I. /I.. $(GLIB_CFLAGS) $(LIBGCRYPT_CFLAGS) \
 	/I$(PCAP_DIR)\include -DWS_BUILD_DLL
 
 .c.obj::
