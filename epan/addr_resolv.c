@@ -1246,45 +1246,6 @@ get_ethbyaddr(const guint8 *addr)
 
 } /* get_ethbyaddr */
 
-static int
-hash_eth_wka(const guint8 *addr, unsigned int mask)
-{
-  if (mask <= 8) {
-    /* All but the topmost byte is masked out */
-    return (addr[0] & (0xFF << (8 - mask))) & (HASHETHSIZE - 1);
-  }
-  mask -= 8;
-  if (mask <= 8) {
-    /* All but the topmost 2 bytes are masked out */
-    return ((addr[0] << 8) | (addr[1] & (0xFF << (8 - mask)))) &
-            (HASHETHSIZE - 1);
-  }
-  mask -= 8;
-  if (mask <= 8) {
-    /* All but the topmost 3 bytes are masked out */
-    return ((addr[0] << 16) | (addr[1] << 8) | (addr[2] & (0xFF << (8 - mask))))
-     & (HASHETHSIZE - 1);
-  }
-  mask -= 8;
-  if (mask <= 8) {
-    /* All but the topmost 4 bytes are masked out */
-    return ((((addr[0] << 8) | addr[1]) ^
-             ((addr[2] << 8) | (addr[3] & (0xFF << (8 - mask)))))) &
-            (HASHETHSIZE - 1);
-  }
-  mask -= 8;
-  if (mask <= 8) {
-    /* All but the topmost 5 bytes are masked out */
-    return ((((addr[1] << 8) | addr[2]) ^
-             ((addr[3] << 8) | (addr[4] & (0xFF << (8 - mask)))))) &
-            (HASHETHSIZE - 1);
-  }
-  mask -= 8;
-  /* No bytes are fully masked out */
-  return ((((addr[1] << 8) | addr[2]) ^
-           ((addr[3] << 8) | (addr[4] & (0xFF << (8 - mask)))))) &
-          (HASHETHSIZE - 1);
-}
 
 static void
 add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
