@@ -42,7 +42,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define LONGOPT_NUM_CAP_COMMENT 0
+/* Attention:
+   for tshark, we're using a leading - in the optstring to prevent getopt()
+   from permuting the argv[] entries, in this case, unknown argv[] entries
+   will be returned as parameters to a dummy-option 1
+   in short: we must not use 1 here */
+
+/* this does not clash with tshark's -2 option which returns '2' */
+#define LONGOPT_NUM_CAP_COMMENT 2
+
 
 #ifdef HAVE_PCAP_REMOTE
 /* Type of capture source */

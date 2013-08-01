@@ -871,6 +871,10 @@ main(int argc, char *argv[])
   GString             *runtime_info_str;
   char                *init_progfile_dir_error;
   int                  opt;
+  struct option     long_options[] = {
+    {"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
+    {0, 0, 0, 0 }
+  };
   gboolean             arg_error = FALSE;
 
 #ifdef _WIN32
@@ -936,7 +940,10 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "2a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:d:De:E:f:F:gG:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqQr:R:s:S:t:T:u:vVw:W:xX:y:Y:z:"
+/* the leading - ensures that getopt() does not permute the argv[] entries
+   we have to make sure that the first getopt() preserves the content of argv[]
+   for the subsequent getopt_long() call */
+#define OPTSTRING "-2a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:d:De:E:f:F:gG:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqQr:R:s:S:t:T:u:vVw:W:xX:y:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1204,7 +1211,7 @@ main(int argc, char *argv[])
   output_fields = output_fields_new();
 
   /* Now get our args */
-  while ((opt = getopt_long(argc, argv, optstring, NULL, NULL)) != -1) {
+  while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
     switch (opt) {
     case '2':        /* Perform two pass analysis */
       perform_two_pass_analysis = TRUE;
@@ -1225,6 +1232,7 @@ main(int argc, char *argv[])
     case 's':        /* Set the snapshot (capture) length */
     case 'w':        /* Write to capture file x */
     case 'y':        /* Set the pcap data link type */
+    case  LONGOPT_NUM_CAP_COMMENT: /* add a capture comment */
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     case 'B':        /* Buffer size */
 #endif /* _WIN32 or HAVE_PCAP_CREATE */
