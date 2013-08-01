@@ -1290,9 +1290,9 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
         manuf_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
     }
 
-  /* manuf needs only the 3 most significant octets of the ethernet address */
+    /* manuf needs only the 3 most significant octets of the ethernet address */
     manuf_key = (int *)g_new(int, 1);
-	eth_as_int =  (eth_as_int64>>24)&0xffffff;
+    eth_as_int =  (int)(eth_as_int64>>24)&0xffffff;
     *manuf_key = eth_as_int;
 
     g_hash_table_insert(manuf_hashtable, manuf_key, g_strdup(name));
