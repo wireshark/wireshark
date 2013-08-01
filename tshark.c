@@ -337,6 +337,9 @@ print_usage(gboolean print_ver)
   fprintf(output, "                           n = write network address resolution information\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
   fprintf(output, "  -z <statistics>          various statistics, see the man page for details\n");
+  fprintf(output, "  --capture-comment <comment>\n");
+  fprintf(output, "                           add a capture comment to the newly created\n");
+  fprintf(output, "                           output file (only for pcapng)\n");
 
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
