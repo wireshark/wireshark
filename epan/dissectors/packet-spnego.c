@@ -794,7 +794,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 #ifdef HAVE_KERBEROS
-#include <epan/crypt/md5.h>
+#include <wsutil/md5.h>
 
 #ifndef KEYTYPE_ARCFOUR_56
 # define KEYTYPE_ARCFOUR_56 24
