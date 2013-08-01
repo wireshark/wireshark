@@ -277,9 +277,6 @@ static gint ett_sctp_tsn_retransmitted_count = -1;
 static gint ett_sctp_tsn_retransmitted = -1;
 static dissector_handle_t data_handle;
 
-static gboolean enable_tsn_analysis = FALSE;
-static gboolean enable_ulp_dissection = TRUE;
-
 #define SCTP_DATA_CHUNK_ID               0
 #define SCTP_INIT_CHUNK_ID               1
 #define SCTP_INIT_ACK_CHUNK_ID           2
@@ -428,15 +425,16 @@ static const value_string sctp_payload_proto_id_values[] = {
 #define SCTP_CHECKSUM_CRC32C    2
 #define SCTP_CHECKSUM_AUTOMATIC 3
 
-/* default values for preferences */
+/* Default values for preferences */
 static gboolean show_port_numbers          = TRUE;
+static gint sctp_checksum                  = SCTP_CHECKSUM_NONE;
+static gboolean enable_tsn_analysis        = TRUE;
+static gboolean enable_ulp_dissection      = TRUE;
+static gboolean use_reassembly             = FALSE;
 /* FIXME
 static gboolean show_chunk_types           = TRUE;
 */
 static gboolean show_always_control_chunks = TRUE;
-static gint sctp_checksum                  = SCTP_CHECKSUM_NONE;
-
-static gboolean use_reassembly             = FALSE;
 
 static struct _sctp_info sctp_info;
 
