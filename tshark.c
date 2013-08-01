@@ -37,6 +37,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
 #include <errno.h>
 
 #ifdef HAVE_FCNTL_H
@@ -1200,7 +1204,7 @@ main(int argc, char *argv[])
   output_fields = output_fields_new();
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, optstring)) != -1) {
+  while ((opt = getopt_long(argc, argv, optstring, NULL, NULL)) != -1) {
     switch (opt) {
     case '2':        /* Perform two pass analysis */
       perform_two_pass_analysis = TRUE;
