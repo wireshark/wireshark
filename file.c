@@ -3940,7 +3940,7 @@ static const char *
 cf_get_user_packet_comment(capture_file *cf, const frame_data *fd)
 {
   if (cf->frames_user_comments)
-     return g_tree_lookup(cf->frames_user_comments, fd);
+     return (const char *)g_tree_lookup(cf->frames_user_comments, fd);
 
   /* g_warning? */
   return NULL;
