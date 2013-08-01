@@ -280,6 +280,7 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->flags.ignored = 0;
   fdata->flags.has_ts = (phdr->presence_flags & WTAP_HAS_TS) ? 1 : 0;
   fdata->flags.has_phdr_comment = (phdr->opt_comment != NULL);
+  fdata->flags.has_user_comment = 0;
   fdata->color_filter = NULL;
   fdata->abs_ts.secs = phdr->ts.secs;
   fdata->abs_ts.nsecs = phdr->ts.nsecs;
@@ -301,7 +302,7 @@ frame_data_set_before_dissect(frame_data *fdata,
   if (*frame_ref == NULL)
     *frame_ref = fdata;
 
-  /* if this frames is marked as a reference time frame, 
+  /* if this frames is marked as a reference time frame,
      set reference frame this frame */
   if(fdata->flags.ref_time)
     *frame_ref = fdata;
