@@ -1686,6 +1686,12 @@ main(int argc, char *argv[])
           "a capture isn't being done.");
         return 1;
       }
+      if (global_capture_opts.capture_comment) {
+        cmdarg_err("A capture comment was specified, but "
+          "a capture isn't being done.\nThere's no support for adding "
+          "a capture comment to an existing capture file.");
+        return 1;
+      }
 
       /* Note: TShark now allows the restriction of a _read_ file by packet count
        * and byte count as well as a write file. Other autostop options remain valid
@@ -1706,6 +1712,10 @@ main(int argc, char *argv[])
         /* When capturing, we only support writing pcap or pcap-ng format. */
         if (out_file_type != WTAP_FILE_PCAP && out_file_type != WTAP_FILE_PCAPNG) {
           cmdarg_err("Live captures can only be saved in libpcap format.");
+          return 1;
+        }
+        if (global_capture_opts.capture_comment && out_file_type != WTAP_FILE_PCAPNG) {
+          cmdarg_err("A capture comment can only be written to a pcapng file.");
           return 1;
         }
         if (global_capture_opts.multi_files_on) {
@@ -1751,6 +1761,11 @@ main(int argc, char *argv[])
         }
         if (global_capture_opts.multi_files_on) {
           cmdarg_err("Multiple capture files requested, but "
+            "the capture isn't being saved to a file.");
+          return 1;
+        }
+        if (global_capture_opts.capture_comment) {
+          cmdarg_err("A capture comment was specified, but "
             "the capture isn't being saved to a file.");
           return 1;
         }

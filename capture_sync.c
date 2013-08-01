@@ -403,6 +403,11 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
     else
         argv = sync_pipe_add_arg(argv, &argc, "-P");
 
+    if (capture_opts->capture_comment) {
+        argv = sync_pipe_add_arg(argv, &argc, "--capture-comment");
+        argv = sync_pipe_add_arg(argv, &argc, capture_opts->capture_comment);
+    }
+
     if (capture_opts->multi_files_on) {
         if (capture_opts->has_autostop_filesize) {
             argv = sync_pipe_add_arg(argv, &argc, "-b");
