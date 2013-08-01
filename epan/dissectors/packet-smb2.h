@@ -60,7 +60,7 @@ typedef enum {
 typedef struct _smb2_saved_info_t {
 	guint8 smb2_class;
 	guint8 infolevel;
-	guint64 seqnum;
+	guint64 msg_id;
 	guint32 frame_req, frame_res;
 	nstime_t req_time;
 	e_ctx_hnd policy_hnd; 		/* for eo_smb tracking */
@@ -165,14 +165,14 @@ typedef struct _smb2_info_t {
 	guint32 status;
 	guint32 tid;
 	guint64 sesid;
-	gint64  seqnum;
+	gint64  msg_id;
 	guint32 flags;
 	smb2_eo_file_info_t	*eo_file_info; /* eo_smb extra info */
 	smb2_conv_info_t	*conv;
 	smb2_saved_info_t	*saved;
 	smb2_tid_info_t		*tree;
 	smb2_sesid_info_t	*session;
-	proto_tree *top_tree;	
+	proto_tree *top_tree;
 } smb2_info_t;
 
 /* for transform content information */

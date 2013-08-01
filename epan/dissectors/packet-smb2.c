@@ -64,7 +64,7 @@ static int hf_smb2_response_to = -1;
 static int hf_smb2_response_in = -1;
 static int hf_smb2_time = -1;
 static int hf_smb2_header_len = -1;
-static int hf_smb2_seqnum = -1;
+static int hf_smb2_msg_id = -1;
 static int hf_smb2_pid = -1;
 static int hf_smb2_tid = -1;
 static int hf_smb2_aid = -1;
@@ -526,14 +526,14 @@ gboolean eosmb2_take_name_as_fid = FALSE ;
 
 /* unmatched smb_saved_info structures.
    For unmatched smb_saved_info structures we store the smb_saved_info
-   structure using the SEQNUM field.
+   structure using the msg_id field.
 */
 static gint
 smb2_saved_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
 	const smb2_saved_info_t *key1 = (const smb2_saved_info_t *)k1;
 	const smb2_saved_info_t *key2 = (const smb2_saved_info_t *)k2;
-	return key1->seqnum == key2->seqnum;
+	return key1->msg_id == key2->msg_id;
 }
 static guint
 smb2_saved_info_hash_unmatched(gconstpointer k)
@@ -541,20 +541,20 @@ smb2_saved_info_hash_unmatched(gconstpointer k)
 	const smb2_saved_info_t *key = (const smb2_saved_info_t *)k;
 	guint32 hash;
 
-	hash = (guint32) (key->seqnum&0xffffffff);
+	hash = (guint32) (key->msg_id&0xffffffff);
 	return hash;
 }
 
 /* matched smb_saved_info structures.
    For matched smb_saved_info structures we store the smb_saved_info
-   structure using the SEQNUM field.
+   structure using the msg_id field.
 */
 static gint
 smb2_saved_info_equal_matched(gconstpointer k1, gconstpointer k2)
 {
 	const smb2_saved_info_t *key1 = (const smb2_saved_info_t *)k1;
 	const smb2_saved_info_t *key2 = (const smb2_saved_info_t *)k2;
-	return key1->seqnum == key2->seqnum;
+	return key1->msg_id == key2->msg_id;
 }
 static guint
 smb2_saved_info_hash_matched(gconstpointer k)
@@ -562,7 +562,7 @@ smb2_saved_info_hash_matched(gconstpointer k)
 	const smb2_saved_info_t *key = (const smb2_saved_info_t *)k;
 	guint32 hash;
 
-	hash = (guint32) (key->seqnum&0xffffffff);
+	hash = (guint32) (key->msg_id&0xffffffff);
 	return hash;
 }
 
@@ -6751,7 +6751,7 @@ static int
 dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean first_in_chain)
 {
 	gboolean           smb2_transform_header = FALSE;
-	proto_item        *seqnum_item;
+	proto_item        *msg_id_item;
 	proto_item        *item         = NULL;
 	proto_tree        *tree         = NULL;
 	proto_item        *header_item  = NULL;
@@ -6891,12 +6891,12 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		proto_tree_add_item(header_tree, hf_smb2_chain_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		/* command sequence number*/
-		si->seqnum = tvb_get_letoh64(tvb, offset);
-		ssi_key.seqnum = si->seqnum;
-		seqnum_item = proto_tree_add_item(header_tree, hf_smb2_seqnum, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-		if (seqnum_item && (si->seqnum == -1)) {
-			proto_item_append_text(seqnum_item, " (unsolicited response)");
+		/* Message ID */
+		si->msg_id = tvb_get_letoh64(tvb, offset);
+		ssi_key.msg_id = si->msg_id;
+		msg_id_item = proto_tree_add_item(header_tree, hf_smb2_msg_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		if (msg_id_item && (si->msg_id == -1)) {
+			proto_item_append_text(msg_id_item, " (unsolicited response)");
 		}
 		offset += 8;
 
@@ -6922,7 +6922,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 
 		if (!pinfo->fd->flags.visited) {
-			/* see if we can find this seqnum in the unmatched table */
+			/* see if we can find this msg_id in the unmatched table */
 			ssi = (smb2_saved_info_t *)g_hash_table_lookup(si->conv->unmatched, &ssi_key);
 
 			if (!(si->flags & SMB2_FLAGS_RESPONSE)) {
@@ -6941,7 +6941,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 					* if was a request we are decoding
 					*/
 					ssi                  = se_new0(smb2_saved_info_t);
-					ssi->seqnum          = ssi_key.seqnum;
+					ssi->msg_id          = ssi_key.msg_id;
 					ssi->frame_req       = pinfo->fd->num;
 					ssi->req_time        = pinfo->fd->abs_ts;
 					ssi->extra_info_type = SMB2_EI_NONE;
@@ -6957,7 +6957,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 				}
 			}
 		} else {
-			/* see if we can find this seqnum in the matched table */
+			/* see if we can find this msg_id in the matched table */
 			ssi = (smb2_saved_info_t *)g_hash_table_lookup(si->conv->matched, &ssi_key);
 			/* if we couldnt find it in the matched table, it might still
 			* be in the unmatched table
@@ -7099,7 +7099,7 @@ proto_register_smb2(void)
 	{ &hf_smb2_nt_status,
 		{ "NT Status", "smb2.nt_status", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0, "NT Status code", HFILL }},
-	{ &hf_smb2_seqnum,
+	{ &hf_smb2_msg_id,
 		{ "Message ID", "smb2.msg_id", FT_INT64, BASE_DEC,
 		NULL, 0, "SMB2 Messsage ID", HFILL }},
 	{ &hf_smb2_tid,
