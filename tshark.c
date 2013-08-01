@@ -1596,19 +1596,6 @@ main(int argc, char *argv[])
     return 1;
   }
 
-  /* We don't support capture filters when reading from a capture file
-     (the BPF compiler doesn't support all link-layer types that we
-     support in capture files we read). */
-#ifdef HAVE_LIBPCAP
-  if (cf_name != NULL) {
-    if (global_capture_opts.default_options.cfilter) {
-      cmdarg_err("Only read filters, not capture filters, "
-          "can be specified when reading a capture file.");
-      return 1;
-    }
-  }
-#endif
-
   if (print_hex) {
     if (output_action != WRITE_TEXT) {
       cmdarg_err("Raw packet hex data can only be printed as text or PostScript");
@@ -1655,6 +1642,15 @@ main(int argc, char *argv[])
        * "-r" was specified, so we're reading a capture file.
        * Capture options don't apply here.
        */
+
+      /* We don't support capture filters when reading from a capture file
+         (the BPF compiler doesn't support all link-layer types that we
+         support in capture files we read). */
+      if (global_capture_opts.default_options.cfilter) {
+        cmdarg_err("Only read filters, not capture filters, "
+          "can be specified when reading a capture file.");
+        return 1;
+      }
       if (global_capture_opts.multi_files_on) {
         cmdarg_err("Multiple capture files requested, but "
                    "a capture isn't being done.");
