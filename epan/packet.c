@@ -74,8 +74,13 @@ void
 packet_init(void)
 {
 	frame_handle = find_dissector("frame");
+	g_assert(frame_handle != NULL);
+
 	data_handle = find_dissector("data");
+	g_assert(data_handle != NULL);
+
 	proto_malformed = proto_get_id_by_filter_name("malformed");
+	g_assert(proto_malformed != -1);
 }
 
 void
@@ -366,20 +371,15 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 		 * sub-dissector can throw, dissect_frame() itself may throw
 		 * a ReportedBoundsError in bizarre cases. Thus, we catch the exception
 		 * in this function. */
-		if(frame_handle != NULL)
-		  call_dissector(frame_handle, edt->tvb, &edt->pi, edt->tree);
+		call_dissector(frame_handle, edt->tvb, &edt->pi, edt->tree);
 
 	}
 	CATCH(BoundsError) {
 		g_assert_not_reached();
 	}
 	CATCH2(FragmentBoundsError, ReportedBoundsError) {
-		if(proto_malformed != -1){
-			proto_tree_add_protocol_format(edt->tree, proto_malformed, edt->tvb, 0, 0,
-						       "[Malformed Frame: Packet Length]" );
-		} else {
-			g_assert_not_reached();
-		}
+		proto_tree_add_protocol_format(edt->tree, proto_malformed, edt->tvb, 0, 0,
+					       "[Malformed Frame: Packet Length]" );
 	}
 	ENDTRY;
 
@@ -2067,7 +2067,6 @@ call_dissector_with_data(dissector_handle_t handle, tvbuff_t *tvb,
 		 * The protocol was disabled, or the dissector rejected
 		 * it.  Just dissect this packet as data.
 		 */
-		g_assert(data_handle != NULL);
 		g_assert(data_handle->protocol != NULL);
 		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
 		return tvb_length(tvb);
