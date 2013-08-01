@@ -95,6 +95,7 @@
 #include "capture-wpcap.h"
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
+#include "capture_opts.h"
 #include "capture_session.h"
 #include "capture_sync.h"
 #include "capture_opts.h"
