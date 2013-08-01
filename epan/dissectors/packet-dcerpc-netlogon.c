@@ -29,6 +29,12 @@
 
 #include <glib.h>
 #include <string.h>
+
+#include <wsutil/rc4.h>
+#include <wsutil/md4.h>
+#include <wsutil/md5.h>
+#include <wsutil/des.h>
+
 #include <epan/packet.h>
 /* for dissect_mscldap_string */
 #include "packet-ldap.h"
@@ -42,10 +48,6 @@
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
 /* for decoding */
-#include <epan/crypt/rc4.h>
-#include <epan/crypt/md4.h>
-#include <epan/crypt/md5.h>
-#include <epan/crypt/des.h>
 
 extern const char *gbl_nt_password;
 #ifdef DEBUG_NETLOGON

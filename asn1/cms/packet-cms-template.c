@@ -27,6 +27,10 @@
 #include "config.h"
 
 #include <glib.h>
+
+#include <wsutil/sha1.h>
+#include <wsutil/md5.h>
+
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
@@ -40,9 +44,6 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 #include "packet-pkcs12.h"
-
-#include <epan/crypt/sha1.h>
-#include <epan/crypt/md5.h>
 
 #define PNAME  "Cryptographic Message Syntax"
 #define PSNAME "CMS"

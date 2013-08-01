@@ -33,6 +33,8 @@
 #ifndef	_AES
 #define	_AES
 
+#include "ws_symbol_export.h"
+
 #define RIJNDAEL_MAXKC  (256/32)
 #define RIJNDAEL_MAXKB  (256/8)
 #define RIJNDAEL_MAXNR  14
@@ -44,16 +46,19 @@ typedef struct s_rijndael_ctx {
 } rijndael_ctx;
 
 
+WS_DLL_PUBLIC
 void rijndael_set_key(
 	rijndael_ctx *ctx,
 	const guchar *key,
 	gint bits);
 
+WS_DLL_PUBLIC
 void rijndael_encrypt(
 	const rijndael_ctx *ctx,
 	const guchar *src,
 	guchar *dst);
 
+WS_DLL_PUBLIC
 void rijndael_decrypt(
 	const rijndael_ctx *ctx,
 	const guchar *src,

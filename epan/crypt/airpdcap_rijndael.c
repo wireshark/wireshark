@@ -33,7 +33,7 @@
 
 #include	"airpdcap_debug.h"
 #include <glib.h>
-#include "aes.h"
+#include <wsutil/aes.h>
 
 /* Based on RFC 3394 and NIST AES Key Wrap Specification pseudo-code.
 

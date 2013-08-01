@@ -22,9 +22,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#include "config.h"
+
+#ifndef	_EAX_H
+#define	_EAX_H
 
 #include <glib.h>
+#include "ws_symbol_export.h"
+
 typedef struct tagMAC_T
 {
     guint8 Mac[4];
@@ -42,14 +46,16 @@ typedef struct tagMAC_T
  @param[in]	pK	pointer to secret key
  @param[in,out] pC	pointer to ciphertext
  @param[in]	SizeN	byte length of cleartext (pN) buffer
- @param[in]	SizeK	byte length of secret key (pK) 
+ @param[in]	SizeK	byte length of secret key (pK)
  @param[in]	SizeC	byte length of ciphertext (pC) buffer
  @param[in]	pMac	four-byte Message Authentication Code
  @param[in]	Mode	EAX_MODE_CLEARTEXT_AUTH or EAX_MODE_CIPHERTEXT_AUTH
- @return		TRUE if message has been authenticated; FALSE if not 
+ @return		TRUE if message has been authenticated; FALSE if not
 			authenticated, invalid Mode or error
  */
-gboolean Eax_Decrypt(guint8 *pN, guint8 *pK, guint8 *pC, 
-                 guint32 SizeN, guint32 SizeK, guint32 SizeC, MAC_T *pMac, 
+WS_DLL_PUBLIC
+gboolean Eax_Decrypt(guint8 *pN, guint8 *pK, guint8 *pC,
+                 guint32 SizeN, guint32 SizeK, guint32 SizeC, MAC_T *pMac,
 		 guint8 Mode);
 
+#endif

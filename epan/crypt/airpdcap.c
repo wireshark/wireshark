@@ -38,19 +38,21 @@
 
 #include "config.h"
 
-#include <epan/tvbuff.h>
+#include <glib.h>
+
 #include <wsutil/crc32.h>
+#include <wsutil/rc4.h>
+#include <wsutil/sha1.h>
+#include <wsutil/md5.h>
+#include <wsutil/pint.h>
+
+#include <epan/tvbuff.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
-#include <epan/pint.h>
-#include <epan/crypt/rc4.h>
 #include <epan/crypt/airpdcap_rijndael.h>
 
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
-
-#include "sha1.h"
-#include "md5.h"
 
 #include "airpdcap_debug.h"
 

@@ -54,10 +54,10 @@
 #include <wsutil/file_util.h>
 #include <wsutil/g711.h>
 #include <wsutil/tempfile.h>
+#include <wsutil/pint.h>
 
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
-#include <epan/pint.h>
 #include <epan/tap.h>
 #include <epan/tap-voip.h>
 #include <epan/dissectors/packet-iax2.h>

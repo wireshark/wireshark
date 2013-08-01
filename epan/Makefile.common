@@ -222,7 +222,6 @@ LIBWIRESHARK_INCLUDES =		\
 	packet.h		\
 	packet_info.h		\
 	params.h		\
-	pint.h			\
 	plugins.h		\
 	ppptypes.h		\
 	print.h			\

@@ -54,7 +54,7 @@
 #include "to_str.h"
 #include "value_string.h"
 #include "addr_resolv.h"
-#include "pint.h"
+#include "wsutil/pint.h"
 #include "atalk-utils.h"
 #include "sna-utils.h"
 #include "osi-utils.h"
@@ -195,19 +195,19 @@ ip6_to_str_buf_len(const guchar* src, char *buf, size_t buf_len)
 		best.base = -1;
 
 	/* Is this address an encapsulated IPv4? */
-	/* XXX, 
+	/* XXX,
 	 * Orginal code dated 1996 uses ::/96 as a valid IPv4-compatible addresses
 	 * but since Feb 2006 ::/96 is deprecated one.
 	 * Quoting wikipedia [0]:
-	 * > The 96-bit zero-value prefix ::/96, originally known as IPv4-compatible 
-	 * > addresses, was mentioned in 1995[35] but first described in 1998.[41] 
-	 * > This class of addresses was used to represent IPv4 addresses within 
-	 * > an IPv6 transition technology. Such an IPv6 address has its first 
-	 * > (most significant) 96 bits set to zero, while its last 32 bits are the 
-	 * > IPv4 address that is represented. 
-	 * > In February 2006 the Internet Engineering Task Force (IETF) has deprecated 
-	 * > the use of IPv4-compatible addresses.[1] The only remaining use of this address 
-	 * > format is to represent an IPv4 address in a table or database with fixed size 
+	 * > The 96-bit zero-value prefix ::/96, originally known as IPv4-compatible
+	 * > addresses, was mentioned in 1995[35] but first described in 1998.[41]
+	 * > This class of addresses was used to represent IPv4 addresses within
+	 * > an IPv6 transition technology. Such an IPv6 address has its first
+	 * > (most significant) 96 bits set to zero, while its last 32 bits are the
+	 * > IPv4 address that is represented.
+	 * > In February 2006 the Internet Engineering Task Force (IETF) has deprecated
+	 * > the use of IPv4-compatible addresses.[1] The only remaining use of this address
+	 * > format is to represent an IPv4 address in a table or database with fixed size
 	 * > members that must also be able to store an IPv6 address.
 	 *
 	 * If needed it can be fixed by changing next line:
@@ -334,7 +334,7 @@ eui64_to_str(const guint64 ad) {
   /* Copy and convert the address to network byte order. */
   *(guint64 *)(void *)(p_eui64) = pntoh64(&(ad));
 
-  g_snprintf(buf, EUI64_STR_LEN, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x", 
+  g_snprintf(buf, EUI64_STR_LEN, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
   p_eui64[0], p_eui64[1], p_eui64[2], p_eui64[3],
   p_eui64[4], p_eui64[5], p_eui64[6], p_eui64[7] );
   return buf;
@@ -389,12 +389,12 @@ ib_addr_to_str_buf( const address *addr, gchar *buf, int buf_len){
 		#define PREAMBLE_STR_LEN	((int)(sizeof("GID: ") - 1))
 		g_snprintf(buf,buf_len,"GID: ");
 		if (buf_len < PREAMBLE_STR_LEN ||
-				inet_ntop(AF_INET6, addr->data, buf + PREAMBLE_STR_LEN, 
+				inet_ntop(AF_INET6, addr->data, buf + PREAMBLE_STR_LEN,
 						  buf_len - PREAMBLE_STR_LEN) == NULL ) /* Returns NULL if no space and does not touch buf */
 			g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR ); /* Let the unexpected value alert user */
 	} else {	/* this is a LID (16 bits) */
 		guint16 lid_number;
-		
+
 		memcpy((void *)&lid_number, addr->data, sizeof lid_number);
 		g_snprintf(buf,buf_len,"LID: %u",lid_number);
 	}
@@ -622,7 +622,7 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
       g_snprintf(buf, buf_len, "Broadcast");
     else
       g_snprintf(buf, buf_len, "0x%04x", ieee_802_15_4_short_addr);
-    break;    
+    break;
   default:
     g_assert_not_reached();
   }

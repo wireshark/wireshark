@@ -998,7 +998,6 @@ if(BUILD_editcap)
 	)
 	set(editcap_FILES
 		editcap.c
-		epan/crypt/md5.c
 		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(editcap ${editcap_FILES})

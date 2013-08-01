@@ -35,6 +35,10 @@
 #include "config.h"
 
 #include <glib.h>
+
+#include <wsutil/sha1.h>
+#include <wsutil/md5.h>
+
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
@@ -48,9 +52,6 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 #include "packet-pkcs12.h"
-
-#include <epan/crypt/sha1.h>
-#include <epan/crypt/md5.h>
 
 #define PNAME  "Cryptographic Message Syntax"
 #define PSNAME "CMS"
@@ -187,7 +188,7 @@ static int hf_cms_issuerUniqueID = -1;            /* UniqueIdentifier */
 static int hf_cms_extensions = -1;                /* Extensions */
 
 /*--- End of included file: packet-cms-hf.c ---*/
-#line 55 "../../asn1/cms/packet-cms-template.c"
+#line 56 "../../asn1/cms/packet-cms-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -249,7 +250,7 @@ static gint ett_cms_T_subject = -1;
 static gint ett_cms_SEQUENCE_OF_Attribute = -1;
 
 /*--- End of included file: packet-cms-ett.c ---*/
-#line 58 "../../asn1/cms/packet-cms-template.c"
+#line 59 "../../asn1/cms/packet-cms-template.c"
 
 static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
@@ -1518,7 +1519,7 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
- 
+
   pi = actx->created_item;
 
   /* move past TLV */
@@ -1823,7 +1824,7 @@ static void dissect_RC2CBCParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-cms-fn.c ---*/
-#line 136 "../../asn1/cms/packet-cms-template.c"
+#line 137 "../../asn1/cms/packet-cms-template.c"
 
 /*--- proto_register_cms ----------------------------------------------*/
 void proto_register_cms(void) {
@@ -2331,7 +2332,7 @@ void proto_register_cms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cms-hfarr.c ---*/
-#line 147 "../../asn1/cms/packet-cms-template.c"
+#line 148 "../../asn1/cms/packet-cms-template.c"
   };
 
   /* List of subtrees */
@@ -2395,7 +2396,7 @@ void proto_register_cms(void) {
     &ett_cms_SEQUENCE_OF_Attribute,
 
 /*--- End of included file: packet-cms-ettarr.c ---*/
-#line 152 "../../asn1/cms/packet-cms-template.c"
+#line 153 "../../asn1/cms/packet-cms-template.c"
   };
 
   /* Register protocol */
@@ -2441,7 +2442,7 @@ void proto_reg_handoff_cms(void) {
 
 
 /*--- End of included file: packet-cms-dis-tab.c ---*/
-#line 174 "../../asn1/cms/packet-cms-template.c"
+#line 175 "../../asn1/cms/packet-cms-template.c"
 
   oid_add_from_string("id-data","1.2.840.113549.1.7.1");
   oid_add_from_string("id-alg-des-ede3-cbc","1.2.840.113549.3.7");

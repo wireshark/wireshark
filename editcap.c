@@ -78,6 +78,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/report_err.h>
 #include <wsutil/strnatcmp.h>
+#include <wsutil/md5.h>
 
 /*
  * The symbols declared in the below are exported from libwireshark,
@@ -87,7 +88,6 @@
  */
 #define WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT /* wsutil/wsgetopt.h set export behavior above. */
-#include "epan/crypt/md5.h"
 #include "epan/plugins.h"
 #include "epan/filesystem.h"
 #undef WS_BUILD_DLL

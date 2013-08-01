@@ -23,14 +23,14 @@
  *  Changed to use guint instead of uint 2004 by Anders Broman
  *	Original code found at http://www.cr0.net:8040/code/crypto/sha1/
  *  References: http://www.ietf.org/rfc/rfc3174.txt?number=3174
- *  
+ *
  *  2012-08-21 - C Elston - Split sha1_hmac function to allow incremental usage.
  */
 
 #include <string.h>
 #include <glib.h>
 
-#include <epan/crypt/sha1.h>
+#include "sha1.h"
 
 #define GET_UINT32(n,b,i)                       \
 {                                               \

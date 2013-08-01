@@ -34,12 +34,14 @@
 #include "config.h"
 
 #include <glib.h>
+
+#include <wsutil/rc4.h>
+
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
-#include <epan/crypt/rc4.h>
 #include <epan/conversation.h>
 #include <epan/wmem/wmem.h>
 #include <epan/asn1.h>

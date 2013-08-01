@@ -26,7 +26,7 @@
 #include "config.h"
 #include <glib.h>
 
-#include <epan/crypt/des.h>
+#include "des.h"
 
 /* NOTES:
 

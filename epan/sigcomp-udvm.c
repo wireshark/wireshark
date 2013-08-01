@@ -37,12 +37,13 @@
 #include <string.h>
 #include <glib.h>
 
+#include <wsutil/sha1.h>
+#include <wsutil/crc16.h>
+
 #include "packet.h"
 #include "strutil.h"
 #include "sigcomp-udvm.h"
 #include "sigcomp_state_hdlr.h"
-#include "crypt/sha1.h"
-#include "wsutil/crc16.h"
 #include "except.h"
 
 #define	SIGCOMP_INSTR_DECOMPRESSION_FAILURE     0
@@ -2905,7 +2906,7 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
 	guint8 temp_data;
 	guint16 temp_data16;
 	guint16 memmory_addr = 0;
-	
+
 *value = 0;
 
 	bytecode = buff[operand_address];

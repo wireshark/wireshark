@@ -41,7 +41,7 @@
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>
 #include <epan/geoip_db.h>
-#include <epan/pint.h>
+#include <wsutil/pint.h>
 #include <epan/filesystem.h>
 #endif
 

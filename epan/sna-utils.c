@@ -28,7 +28,7 @@
 #include <string.h>
 
 #include "packet_info.h"
-#include "pint.h"
+#include "wsutil/pint.h"
 #include "sna-utils.h"
 #include "emem.h"
 

@@ -58,14 +58,15 @@
 
 #include <glib.h>
 
+#include <wsutil/md5.h>
+#include <wsutil/sha1.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/sminmpec.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/crypt/md5.h>
-#include <epan/crypt/sha1.h>
 #include <epan/expert.h>
 #include <epan/proto.h>
 

@@ -33,7 +33,7 @@
 #include "atalk-utils.h"
 #include "to_str.h"
 #include "packet_info.h"
-#include "pint.h"
+#include "wsutil/pint.h"
 #include "addr_resolv.h"
 #include "ipv6-utils.h"
 #include "osi-utils.h"

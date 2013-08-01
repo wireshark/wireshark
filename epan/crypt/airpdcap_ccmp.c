@@ -48,7 +48,7 @@
 
 #include "airpdcap_debug.h"
 #include <glib.h>
-#include "aes.h"
+#include <wsutil/aes.h>
 
 /****************************************************************************/
 /*	Internal definitions							*/

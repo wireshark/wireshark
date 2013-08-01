@@ -29,7 +29,6 @@ endif
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)
-	$(LIBGCRYPT_CFLAGS)
 
 noinst_LTLIBRARIES = libairpdcap.la
 

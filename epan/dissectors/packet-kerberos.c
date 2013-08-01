@@ -75,7 +75,7 @@
 #include <nettle/des.h>
 #include <nettle/cbc.h>
 #endif
-#include <epan/crypt/md5.h>
+#include <wsutil/md5.h>
 #include <sys/stat.h>   /* For keyfile manipulation */
 #endif
 

@@ -21,7 +21,7 @@
 #include <stddef.h>
 #include <errno.h>
 #include <glib.h>
-#include "pint.h"
+#include <wsutil/pint.h>
 
 #define le16_to_cpu		GINT16_FROM_LE
 #define le32_to_cpu		GINT32_FROM_LE

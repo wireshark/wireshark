@@ -53,6 +53,9 @@
 
 #include <glib.h>
 
+#include <wsutil/sha1.h>
+#include <wsutil/md5.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
@@ -65,17 +68,12 @@
 #include <epan/asn1.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
-
+#include <epan/expert.h>
+#include <epan/oids.h>
 
 #include "packet-ber.h"
 
 #include "packet-snmp.h"
-
-#include <epan/crypt/sha1.h>
-#include <epan/crypt/md5.h>
-#include <epan/expert.h>
-#include <epan/oids.h>
-
 
 #ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>

@@ -26,6 +26,9 @@
 #include "config.h"
 
 #include <glib.h>
+
+#include <wsutil/eax.h>
+
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
@@ -34,7 +37,6 @@
 #include <epan/dissectors/packet-ber.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/uat.h>
-#include <epan/crypt/eax.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -485,7 +487,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		    *offset += 2;
 		    *length -= 2;
 		    tblsize -= 2;
-		} 
+		}
 		proto_tree_add_item(tree, hf_c1222_write_data, tvb, *offset, tblsize, ENC_NA);
 		*offset += tblsize;
 		*length -= tblsize;

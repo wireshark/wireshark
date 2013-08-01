@@ -34,6 +34,13 @@
 #include <ctype.h>
 
 #include <glib.h>
+
+#include <wsutil/rc4.h>
+#include <wsutil/md4.h>
+#include <wsutil/md5.h>
+#include <wsutil/des.h>
+#include <wsutil/crc32.h>
+
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
@@ -41,17 +48,12 @@
 #include <epan/tap.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
-#include <epan/crypt/rc4.h>
-#include <epan/crypt/md4.h>
-#include <epan/crypt/md5.h>
-#include <epan/crypt/des.h>
 
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
 #include "packet-kerberos.h"
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
-#include <wsutil/crc32.h>
 
 #include "packet-ntlmssp.h"
 

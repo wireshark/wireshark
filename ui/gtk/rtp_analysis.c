@@ -53,10 +53,10 @@
 #include <wsutil/file_util.h>
 #include <wsutil/tempfile.h>
 #include <wsutil/g711.h>
+#include <wsutil/pint.h>
 
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
-#include <epan/pint.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/rtp_pt.h>

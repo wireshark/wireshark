@@ -29,15 +29,15 @@ wsutil_optional_objects =
 if NEED_GETOPT_LO
 wsutil_optional_objects += @GETOPT_LO@
 endif
- 
+
 if NEED_INET_ATON_LO
 wsutil_optional_objects += @INET_ATON_LO@
 endif
- 
+
 if NEED_INET_NTOP_LO
 wsutil_optional_objects += @INET_NTOP_LO@
 endif
- 
+
 if NEED_INET_PTON_LO
 wsutil_optional_objects += @INET_PTON_LO@
 endif
@@ -65,6 +65,7 @@ lib_LTLIBRARIES = libwsutil.la
 libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
 AM_CPPFLAGS = -I$(srcdir)/..
+	$(LIBGCRYPT_CFLAGS)
 
 libwsutil_la_SOURCES =		\
 	$(LIBWSUTIL_SRC)	\
@@ -88,6 +89,7 @@ libwsutil_la_DEPENDENCIES=	\
 
 libwsutil_la_LIBADD =		\
 	@GLIB_LIBS@		\
+	@LIBGCRYPT_LIBS@	\
 	$(wsutil_optional_objects)
 
 EXTRA_DIST =		\

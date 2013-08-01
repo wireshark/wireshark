@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- * 
+ *
  *  2012-08-21 - C Elston - Split md5_hmac function to allow incremental usage.
  *
  */
@@ -31,8 +31,8 @@
 #include <glib.h>
 #include <string.h>
 
-#include <epan/pint.h>
-#include <epan/crypt/md5.h>
+#include "pint.h"
+#include "md5.h"
 /*
  * This code implements the MD5 message-digest algorithm.
  * The algorithm is due to Ron Rivest.  This code was

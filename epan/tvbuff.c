@@ -43,7 +43,7 @@
 #include <zlib.h>
 #endif
 
-#include "pint.h"
+#include "wsutil/pint.h"
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "strutil.h"
@@ -86,7 +86,7 @@ static void
 tvb_free_internal(tvbuff_t *tvb)
 {
 	gsize     size;
-	
+
 	DISSECTOR_ASSERT(tvb);
 
 	if (tvb->ops->tvb_free)
@@ -288,7 +288,7 @@ check_offset_length(const tvbuff_t *tvb,
 		    guint *offset_ptr, guint *length_ptr)
 {
 	int exception;
-	
+
 	exception = check_offset_length_no_exception(tvb, offset, length_val, offset_ptr, length_ptr);
 	if (exception)
 		THROW(exception);
@@ -397,7 +397,7 @@ tvb_clone_offset_len(tvbuff_t *tvb, guint offset, guint len)
 {
 	if (tvb->ops->tvb_clone) {
 		tvbuff_t *cloned_tvb;
-		
+
 		cloned_tvb = tvb->ops->tvb_clone(tvb, offset, len);
 		if (cloned_tvb)
 			return cloned_tvb;

@@ -1,5 +1,5 @@
 /* $Id$ */
-/* 
+/*
  * Copyright (C) 2003-2005 Benny Prijono <benny@prijono.org>
  * Copyright (C) 2012      C Elston, Katalix Systems Ltd <celston@katalix.com>
  *
@@ -17,8 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA 
- * 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ *
  *  2012-08-21 - C Elston - Split md5_hmac function to allow incremental usage.
  *
  */
@@ -48,22 +48,22 @@ typedef struct md5_state_s
 	guint32 in[16];
 } md5_state_t;
 
-/** Initialize the algorithm. 
+/** Initialize the algorithm.
  *  @param pms		MD5 context.
  */
 WS_DLL_PUBLIC
 void md5_init(md5_state_t *pms);
 
-/** Append a string to the message. 
+/** Append a string to the message.
  *  @param pms		MD5 context.
  *  @param data		Data.
  *  @param nbytes	Length of data.
  */
 WS_DLL_PUBLIC
-void md5_append( md5_state_t *pms, 
+void md5_append( md5_state_t *pms,
 			     const guint8 *data, size_t nbytes);
 
-/** Finish the message and return the digest. 
+/** Finish the message and return the digest.
  *  @param pms		MD5 context.
  *  @param digest	16 byte digest.
  */
@@ -76,12 +76,15 @@ typedef struct md5_hmac_state_s
     guint8 k_opad[65];
 } md5_hmac_state_t;
 
+WS_DLL_PUBLIC
 void md5_hmac_init(md5_hmac_state_t *hctx,
                    const guint8* key, size_t key_len);
 
+WS_DLL_PUBLIC
 void md5_hmac_append(md5_hmac_state_t *hctx,
                      const guint8* text, size_t text_len);
 
+WS_DLL_PUBLIC
 void md5_hmac_finish(md5_hmac_state_t *hctx, guint8 digest[16]);
 
 WS_DLL_PUBLIC

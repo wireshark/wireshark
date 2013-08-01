@@ -39,7 +39,7 @@ typedef struct {
 static eax_s instance;
 
 /* these are defined as macros so they'll be easy to redo in assembly if desired */
-#define BLK_CPY(dst, src) { memcpy(dst, src, EAX_SIZEOF_KEY); } 
+#define BLK_CPY(dst, src) { memcpy(dst, src, EAX_SIZEOF_KEY); }
 #define BLK_XOR(dst, src) { int z; for (z=0; z < EAX_SIZEOF_KEY; z++) dst[z] ^= src[z]; }
 static void Dbl(guint8 *out, const guint8 *in);
 static void CTR(const guint8 *ws, guint8 *pK, guint8 *pN, guint16 SizeN);
@@ -54,21 +54,21 @@ void AesEncrypt(unsigned char msg[EAX_SIZEOF_KEY], unsigned char key[EAX_SIZEOF_
  @param[in]	pK	pointer to secret key
  @param[in,out] pC	pointer to ciphertext
  @param[in]	SizeN	byte length of cleartext (pN) buffer
- @param[in]	SizeK	byte length of secret key (pK) 
+ @param[in]	SizeK	byte length of secret key (pK)
  @param[in]	SizeC	byte length of ciphertext (pC) buffer
  @param[in]	pMac	four-byte Message Authentication Code
  @param[in]	Mode	EAX_MODE_CLEARTEXT_AUTH or EAX_MODE_CIPHERTEXT_AUTH
- @return		TRUE if message has been authenticated; FALSE if not 
+ @return		TRUE if message has been authenticated; FALSE if not
 			authenticated, invalid Mode or error
  */
-gboolean Eax_Decrypt(guint8 *pN, guint8 *pK, guint8 *pC, 
-                 guint32 SizeN, guint32 SizeK, guint32 SizeC, MAC_T *pMac, 
+gboolean Eax_Decrypt(guint8 *pN, guint8 *pK, guint8 *pC,
+                 guint32 SizeN, guint32 SizeK, guint32 SizeC, MAC_T *pMac,
 		 guint8 Mode)
 {
     guint8 wsn[EAX_SIZEOF_KEY];
     guint8 wsc[EAX_SIZEOF_KEY];
     int i;
-    
+
     /* key size must match this implementation */
     if (SizeK != EAX_SIZEOF_KEY)
 	return FALSE;
@@ -87,18 +87,18 @@ gboolean Eax_Decrypt(guint8 *pN, guint8 *pK, guint8 *pC,
     } else {
 	CMAC(pK, wsn, pN, SizeN);
     }
-    /* 
-     *  In authentication mode the inputs are: pN, pK (and associated sizes), 
+    /*
+     *  In authentication mode the inputs are: pN, pK (and associated sizes),
      *	the result is the 4 byte MAC.
      */
     if (Mode == EAX_MODE_CLEARTEXT_AUTH)
     {
         return (memcmp(pMac, &wsn[EAX_SIZEOF_KEY-sizeof(*pMac)], sizeof(*pMac)) ? FALSE : TRUE);
-    
+
     }
 
-    /* 
-     * In cipher mode the inputs are: pN, pK, pP (and associated sizes), 
+    /*
+     * In cipher mode the inputs are: pN, pK, pP (and associated sizes),
      * the results are pC (and its size) along with the 4 byte MAC.
      */
     else if (Mode == EAX_MODE_CIPHERTEXT_AUTH)
@@ -161,9 +161,9 @@ static void dCMAC(guint8 *pK, guint8 *ws, const guint8 *pN, guint16 SizeN, const
     if (pC != NULL) {
         memcpy(&work[SizeN], pC, SizeC);
     }
-    /* 
+    /*
      * pad the data if necessary, and XOR Q or D, depending on
-     * whether data was padded or not 
+     * whether data was padded or not
      */
     if (worksize != SizeT) {
 	work[SizeT] = 0x80;
@@ -202,7 +202,7 @@ static void dCMAC(guint8 *pK, guint8 *ws, const guint8 *pN, guint16 SizeN, const
     return;
 }
 
-static void CTR(const guint8 *ws, guint8 *pK, guint8 *pN, guint16 SizeN) 
+static void CTR(const guint8 *ws, guint8 *pK, guint8 *pN, guint16 SizeN)
 {
     gcry_cipher_hd_t cipher_hd;
     guint8 ctr[EAX_SIZEOF_KEY];
@@ -230,7 +230,7 @@ static void CTR(const guint8 *ws, guint8 *pK, guint8 *pN, guint16 SizeN)
     return;
 }
 
-void AesEncrypt(unsigned char msg[EAX_SIZEOF_KEY], unsigned char key[EAX_SIZEOF_KEY]) 
+void AesEncrypt(unsigned char msg[EAX_SIZEOF_KEY], unsigned char key[EAX_SIZEOF_KEY])
 {
     gcry_cipher_hd_t cipher_hd;
 

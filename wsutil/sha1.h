@@ -23,12 +23,14 @@
  *  Changed to use guint instead of uint 2004 by Anders Broman
  *	Original code found at http://www.cr0.net:8040/code/crypto/sha1/
  *  References: http://www.ietf.org/rfc/rfc3174.txt?number=3174
- *  
+ *
  *  2012-08-21 - C Elston - Split sha1_hmac function to allow incremental usage.
  */
 
 #ifndef _SHA1_H
 #define _SHA1_H
+
+#include "ws_symbol_export.h"
 
 typedef struct
 {
@@ -38,8 +40,11 @@ typedef struct
 }
 sha1_context;
 
+WS_DLL_PUBLIC
 void sha1_starts( sha1_context *ctx );
+WS_DLL_PUBLIC
 void sha1_update( sha1_context *ctx, const guint8 *input, guint32 length );
+WS_DLL_PUBLIC
 void sha1_finish( sha1_context *ctx, guint8 digest[20] );
 
 typedef struct {
@@ -48,9 +53,13 @@ typedef struct {
 }
 sha1_hmac_context;
 
+WS_DLL_PUBLIC
 void sha1_hmac_starts( sha1_hmac_context *hctx, const guint8 *key, guint32 keylen );
+WS_DLL_PUBLIC
 void sha1_hmac_update( sha1_hmac_context *hctx, const guint8 *buf, guint32 buflen );
+WS_DLL_PUBLIC
 void sha1_hmac_finish( sha1_hmac_context *hctx, guint8 digest[20] );
+WS_DLL_PUBLIC
 void sha1_hmac( const guint8 *key, guint32 keylen, const guint8 *buf, guint32 buflen,
                 guint8 digest[20] );
 

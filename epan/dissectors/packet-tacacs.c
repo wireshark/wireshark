@@ -58,10 +58,11 @@
 #endif
 
 #include <glib.h>
-#include <epan/packet.h>
 
+#include <wsutil/md5.h>
+
+#include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/crypt/md5.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
 #include "packet-tacacs.h"

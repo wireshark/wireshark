@@ -29,7 +29,7 @@
 #include <string.h>
 
 #include "tvbuff.h"
-#include "pint.h"
+#include "wsutil/pint.h"
 
 gboolean failed = FALSE;
 

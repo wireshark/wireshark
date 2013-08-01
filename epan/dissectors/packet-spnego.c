@@ -42,12 +42,14 @@
 #include "config.h"
 
 #include <glib.h>
+
+#include <wsutil/rc4.h>
+
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
-#include <epan/crypt/rc4.h>
 #include <epan/conversation.h>
 #include <epan/wmem/wmem.h>
 #include <epan/asn1.h>
@@ -111,7 +113,7 @@ static int hf_spnego_ContextFlags_confFlag = -1;
 static int hf_spnego_ContextFlags_integFlag = -1;
 
 /*--- End of included file: packet-spnego-hf.c ---*/
-#line 80 "../../asn1/spnego/packet-spnego-template.c"
+#line 82 "../../asn1/spnego/packet-spnego-template.c"
 
 /* Global variables */
 static const char *MechType_oid;
@@ -137,7 +139,7 @@ static gint ett_spnego_NegTokenTarg = -1;
 static gint ett_spnego_InitialContextToken_U = -1;
 
 /*--- End of included file: packet-spnego-ett.c ---*/
-#line 94 "../../asn1/spnego/packet-spnego-template.c"
+#line 96 "../../asn1/spnego/packet-spnego-template.c"
 
 /*
  * Unfortunately, we have to have a forward declaration of this,
@@ -582,7 +584,7 @@ dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 /*--- End of included file: packet-spnego-fn.c ---*/
-#line 105 "../../asn1/spnego/packet-spnego-template.c"
+#line 107 "../../asn1/spnego/packet-spnego-template.c"
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
  * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also
@@ -1957,7 +1959,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1391 "../../asn1/spnego/packet-spnego-template.c"
+#line 1393 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1979,7 +1981,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1401 "../../asn1/spnego/packet-spnego-template.c"
+#line 1403 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* Register protocol */

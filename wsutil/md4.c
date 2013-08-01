@@ -25,7 +25,7 @@
 #include <glib.h>
 #include <string.h>
 
-#include <epan/crypt/md4.h>
+#include "md4.h"
 
 /* NOTE: This code makes no attempt to be fast!
 

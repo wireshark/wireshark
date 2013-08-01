@@ -30,13 +30,15 @@
 #endif
 
 #include <glib.h>
+
+#include <wsutil/md5.h>
+
 #include <epan/packet.h>
 #include <epan/show_exception.h>
 #include <epan/timestamp.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
-#include <epan/crypt/md5.h>
 
 #include "packet-frame.h"
 
@@ -80,7 +82,7 @@ static int hf_frame_pack_preamble_error = -1;
 static int hf_frame_pack_symbol_error = -1;
 static int hf_frame_wtap_encap = -1;
 static int hf_comments_text = -1;
-static int hf_frame_num_p_prot_data = -1; 
+static int hf_frame_num_p_prot_data = -1;
 
 static gint ett_frame = -1;
 static gint ett_flags = -1;
@@ -765,13 +767,13 @@ proto_register_frame(void)
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 	};
-	
+
 	static hf_register_info hf_encap =
 		{ &hf_frame_wtap_encap,
 		  { "Encapsulation type", "frame.encap_type",
 		    FT_INT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }};
-	
+
  	static gint *ett[] = {
 		&ett_frame,
 		&ett_flags,
@@ -790,9 +792,9 @@ proto_register_frame(void)
 		int encap_count = wtap_get_num_encap_types();
 		value_string *arr;
 		int i;
-		
-		hf_encap.hfinfo.strings = arr = g_new(value_string, encap_count+1); 
-		
+
+		hf_encap.hfinfo.strings = arr = g_new(value_string, encap_count+1);
+
 		for (i = 0; i < encap_count; i++) {
 			arr[i].value = i;
 			arr[i].strptr = wtap_encap_string(i);

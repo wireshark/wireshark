@@ -35,6 +35,7 @@ set(WSUTIL_FILES
 #		@INET_PTON_LO@	# inet_pton.c
 #		@STRNCASECMP_LO@ # strncasecmp.c
 #		@STRPTIME_LO@	# strptime.c
+  aes.c
   airpdcap_wep.c
   crash_info.c
   crc10.c
@@ -46,12 +47,18 @@ set(WSUTIL_FILES
   crc8.c
   crc11.c
   crcdrm.c
+  des.c
+  eax.c
   g711.c
+  md4.c
+  md5.c
   mpeg-audio.c
   nstime.c
   privileges.c
+  sha1.c
   strnatcmp.c
   str_util.c
+  rc4.c
   report_err.c
   tempfile.c
   type_util.c
@@ -61,6 +68,7 @@ set(WSUTIL_FILES
 
 set(wsutil_LIBS
   ${GLIB2_LIBRARIES}
+  ${GCRYPT_LIBRARIES}
 )
 
 set(CLEAN_FILES
