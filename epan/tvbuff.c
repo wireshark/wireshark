@@ -1510,16 +1510,15 @@ gint
 tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const guint8 needle)
 {
 	const guint8 *result;
-	guint	      abs_offset, junk_length;
+	guint	      abs_offset;
 	guint	      tvbufflen;
 	guint	      limit;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
+	check_offset_length(tvb, offset, -1, &abs_offset, &tvbufflen);
 
 	/* Only search to end of tvbuff, w/o throwing exception. */
-	tvbufflen = tvb_length_remaining(tvb, abs_offset);
 	if (maxlength == -1) {
 		/* No maximum length specified; search to end of tvbuff. */
 		limit = tvbufflen;
@@ -1566,16 +1565,15 @@ gint
 tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const guint8 *needles, guchar *found_needle)
 {
 	const guint8 *result;
-	guint	      abs_offset, junk_length;
+	guint	      abs_offset;
 	guint	      tvbufflen;
 	guint	      limit;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
+	check_offset_length(tvb, offset, -1, &abs_offset, &tvbufflen);
 
 	/* Only search to end of tvbuff, w/o throwing exception. */
-	tvbufflen = tvb_length_remaining(tvb, abs_offset);
 	if (maxlength == -1) {
 		/* No maximum length specified; search to end of tvbuff. */
 		limit = tvbufflen;
@@ -2396,11 +2394,12 @@ static gint
 _tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer, gint *bytes_copied)
 {
 	gint     stringlen;
-	guint    abs_offset, junk_length;
+	guint    abs_offset;
 	gint     limit, len;
 	gboolean decreased_max = FALSE;
 
-	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
+	/* Only read to end of tvbuff, w/o throwing exception. */
+	check_offset_length(tvb, offset, -1, &abs_offset, &len);
 
 	/* There must at least be room for the terminating NUL. */
 	DISSECTOR_ASSERT(bufsize != 0);
@@ -2411,9 +2410,6 @@ _tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
 		*bytes_copied = 1;
 		return 0;
 	}
-
-	/* Only read to end of tvbuff, w/o throwing exception. */
-	len = tvb_length_remaining(tvb, abs_offset);
 
 	/* check_offset_length() won't throw an exception if we're
 	 * looking at the byte immediately after the end of the tvbuff. */
