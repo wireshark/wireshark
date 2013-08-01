@@ -297,6 +297,18 @@ gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
 WS_DLL_PUBLIC
 const char* host_ip_af(const char *host);
 
+WS_DLL_PUBLIC
+GHashTable *get_manuf_hashtable(void);
+
+WS_DLL_PUBLIC
+GHashTable *get_wka_hashtable(void);
+
+WS_DLL_PUBLIC
+void initialize_ethers(void);
+
+WS_DLL_PUBLIC
+void eth_name_lookup_cleanup(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

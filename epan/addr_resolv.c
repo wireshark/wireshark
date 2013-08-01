@@ -212,14 +212,6 @@ typedef struct hashipxnet {
     (((((addr)[2] << 8) | (addr)[3]) ^ (((addr)[4] << 8) | (addr)[5])) & \
      (HASHETHSIZE - 1))
 
-#define HASH_ETH_MANUF(addr) (((int)(addr)[2]) & (HASHMANUFSIZE - 1))
-
-typedef struct hashmanuf {
-  struct hashmanuf *next;
-  guint8            addr[3];
-  char              *name;
-} hashmanuf_t;
-
 #define HASHETHER_STATUS_UNRESOLVED     1
 #define HASHETHER_STATUS_RESOLVED_DUMMY 2
 #define HASHETHER_STATUS_RESOLVED_NAME  3
@@ -231,12 +223,6 @@ typedef struct hashether {
   char              hexaddr[6*3];
   char              resolved_name[MAXNAMELEN];
 } hashether_t;
-
-typedef struct hashwka {
-  struct hashwka   *next;
-  guint8            addr[6];
-  char              name[MAXNAMELEN];
-} hashwka_t;
 
 /* internal ethernet type */
 
@@ -260,13 +246,14 @@ static hashipv6_t   *ipv6_table[HASHHOSTSIZE];
 static hashport_t   **cb_port_table;
 static gchar        *cb_service;
 
+static GHashTable *manuf_hashtable = NULL;
+static GHashTable *wka_hashtable = NULL;
+
 static hashport_t   *udp_port_table[HASHPORTSIZE];
 static hashport_t   *tcp_port_table[HASHPORTSIZE];
 static hashport_t   *sctp_port_table[HASHPORTSIZE];
 static hashport_t   *dccp_port_table[HASHPORTSIZE];
 static hashether_t  *eth_table[HASHETHSIZE];
-static hashmanuf_t  *manuf_table[HASHMANUFSIZE];
-static hashwka_t    *(*wka_table[48])[HASHETHSIZE];
 static hashipxnet_t *ipxnet_table[HASHIPXNETSIZE];
 
 static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
@@ -1299,40 +1286,12 @@ hash_eth_wka(const guint8 *addr, unsigned int mask)
           (HASHETHSIZE - 1);
 }
 
-static hashmanuf_t *
-manuf_hash_new_entry(const guint8 *addr, gchar *name)
-{
-  hashmanuf_t *mtp;
-
-  mtp = se_new(hashmanuf_t);
-  memcpy(mtp->addr, addr, sizeof(mtp->addr));
-  /*  The length of this name is limited (in the number of UTF-8 characters,
-   *  not bytes) in make-manuf.  That doesn't mean a user can't put a longer
-   *  name in their personal manuf file, though...
-   */
-  mtp->name = se_strdup(name);
-  mtp->next = NULL;
-  return mtp;
-} /* manuf_hash_new_entry */
-
-static hashwka_t *
-wka_hash_new_entry(const guint8 *addr, gchar *name)
-{
-  hashwka_t *wtp;
-
-  wtp = se_new(hashwka_t);
-  memcpy(wtp->addr, addr, sizeof(wtp->addr));
-  g_strlcpy(wtp->name, name, MAXNAMELEN);
-  wtp->next = NULL;
-  return wtp;
-} /* wka_hash_new_entry */
-
 static void
 add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 {
-  gint         hash_idx;
-  hashmanuf_t *mtp;
-  hashwka_t   *(*wka_tp)[HASHETHSIZE], *wtp;
+  guint8       oct;
+  gint64      eth_as_int64, *wka_key;
+  int         eth_as_int, *manuf_key;
 
   /*
    * XXX - can we use Standard Annotation Language annotations to
@@ -1347,70 +1306,72 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
     return;
   }
 
+  eth_as_int64 = addr[0];
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[1];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[2];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[3];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[4];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[5];
+  eth_as_int64 = eth_as_int64 | oct;
+
   if (mask == 0) {
     /* This is a manufacturer ID; add it to the manufacturer ID hash table */
-
-    hash_idx = HASH_ETH_MANUF(addr);
-    mtp = manuf_table[hash_idx];
-
-    if( mtp == NULL ) {
-      manuf_table[hash_idx] = manuf_hash_new_entry(addr, name);
-      return;
-    } else {
-      while(TRUE) {
-        if (mtp->next == NULL) {
-          mtp->next = manuf_hash_new_entry(addr, name);
-          return;
-        }
-        mtp = mtp->next;
-      }
+    if (manuf_hashtable == NULL){
+        manuf_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
     }
+
+  /* manuf needs only the 3 most significant octets of the ethernet address */
+    manuf_key = (int *)g_new(int, 1);
+	eth_as_int =  (eth_as_int64>>24)&0xffffff;
+    *manuf_key = eth_as_int;
+
+    g_hash_table_insert(manuf_hashtable, manuf_key, g_strdup(name));
+	return;
   } /* mask == 0 */
 
   /* This is a range of well-known addresses; add it to the appropriate
      well-known-address table, creating that table if necessary. */
-  wka_tp = wka_table[mask];
-  if (wka_tp == NULL)
-    wka_tp = wka_table[mask] = (hashwka_t *(*)[HASHETHSIZE])se_alloc0(sizeof *wka_table[mask]);
-
-  hash_idx = hash_eth_wka(addr, mask);
-
-  wtp = (*wka_tp)[hash_idx];
-
-  if( wtp == NULL ) {
-    (*wka_tp)[hash_idx] = wka_hash_new_entry(addr, name);
-    return;
-  } else {
-    while(TRUE) {
-      if (memcmp(wtp->addr, addr, sizeof(wtp->addr)) == 0) {
-        /* address already known */
-        return;
-      }
-      if (wtp->next == NULL) {
-        wtp->next = wka_hash_new_entry(addr, name);
-        return;
-      }
-      wtp = wtp->next;
-    }
+  if (wka_hashtable == NULL){
+      wka_hashtable = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
   }
+
+  wka_key = (gint64 *)g_new(gint64, 1);
+  *wka_key = eth_as_int64;
+
+  g_hash_table_insert(wka_hashtable, wka_key, g_strdup(name));
+
 } /* add_manuf_name */
 
-static hashmanuf_t *
+gchar *
 manuf_name_lookup(const guint8 *addr)
 {
-  gint         hash_idx;
-  hashmanuf_t *mtp;
-  guint8       stripped_addr[3];
+  gint32       manuf_key = 0;
+  guint8       oct;
+  gchar        *name;
 
-  hash_idx = HASH_ETH_MANUF(addr);
+  /* manuf needs only the 3 most significant octets of the ethernet address */
+  manuf_key = addr[0];
+  manuf_key = manuf_key<<8;
+  oct = addr[1];
+  manuf_key = manuf_key | oct;
+  manuf_key = manuf_key<<8;
+  oct = addr[2];
+  manuf_key = manuf_key | oct;
+
 
   /* first try to find a "perfect match" */
-  mtp = manuf_table[hash_idx];
-  while(mtp != NULL) {
-    if (memcmp(mtp->addr, addr, sizeof(mtp->addr)) == 0) {
-      return mtp;
-    }
-    mtp = mtp->next;
+  name = (gchar *)g_hash_table_lookup(manuf_hashtable, &manuf_key);
+  if(name != NULL){
+	  return name;
   }
 
   /* Mask out the broadcast/multicast flag but not the locally
@@ -1418,38 +1379,31 @@ manuf_name_lookup(const guint8 *addr)
    * by the IEEE but the local administrator instead.
    * 0x01 multicast / broadcast bit
    * 0x02 locally administered bit */
-  memcpy(stripped_addr, addr, 3);
-  stripped_addr[0] &= 0xFE;
-
-  mtp = manuf_table[hash_idx];
-  while(mtp != NULL) {
-    if (memcmp(mtp->addr, stripped_addr, sizeof(mtp->addr)) == 0) {
-      return mtp;
+  if((manuf_key & 0x00010000) != 0){
+    manuf_key &= 0x00FEFFFF;
+    name = (gchar *)g_hash_table_lookup(manuf_hashtable, &manuf_key);
+    if(name != NULL){
+	  return name;
     }
-    mtp = mtp->next;
   }
 
   return NULL;
 
 } /* manuf_name_lookup */
 
-static hashwka_t *
+static gchar *
 wka_name_lookup(const guint8 *addr, const unsigned int mask)
 {
-  gint       hash_idx;
-  hashwka_t *(*wka_tp)[HASHETHSIZE];
-  hashwka_t *wtp;
   guint8     masked_addr[6];
   guint      num;
   gint       i;
+  gint64     eth_as_int64;
+  guint8     oct;
+  gchar     *name;
 
-  wka_tp = wka_table[mask];
-  if (wka_tp == NULL) {
-    /* There are no entries in the table for that mask value, as there is
-       no table for that mask value. */
+  if(wka_hashtable == NULL){
     return NULL;
   }
-
   /* Get the part of the address covered by the mask. */
   for (i = 0, num = mask; num >= 8; i++, num -= 8)
     masked_addr[i] = addr[i];   /* copy octets entirely covered by the mask */
@@ -1460,22 +1414,30 @@ wka_name_lookup(const guint8 *addr, const unsigned int mask)
   for (; i < 6; i++)
     masked_addr[i] = 0;
 
-  hash_idx = hash_eth_wka(masked_addr, mask);
+  eth_as_int64 = masked_addr[0];
+  eth_as_int64 = eth_as_int64<<8;
+  oct = masked_addr[1];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = masked_addr[2];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = masked_addr[3];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = masked_addr[4];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = masked_addr[5];
+  eth_as_int64 = eth_as_int64 | oct;
 
-  wtp = (*wka_tp)[hash_idx];
+  name = (gchar *)g_hash_table_lookup(wka_hashtable, &eth_as_int64);
 
-  while(wtp != NULL) {
-    if (memcmp(wtp->addr, masked_addr, sizeof(wtp->addr)) == 0) {
-      return wtp;
-    }
-    wtp = wtp->next;
-  }
-
-  return NULL;
+  return name;
 
 } /* wka_name_lookup */
 
-static void
+void
 initialize_ethers(void)
 {
   ether_t *eth;
@@ -1524,18 +1486,17 @@ eth_addr_resolve(hashether_t *tp) {
     tp->status = HASHETHER_STATUS_RESOLVED_NAME;
     return tp;
   } else {
-    hashwka_t    *wtp;
-    hashmanuf_t  *mtp;
     guint         mask;
+	gchar        *name;
 
     /* Unknown name.  Try looking for it in the well-known-address
        tables for well-known address ranges smaller than 2^24. */
     mask = 7;
     for (;;) {
       /* Only the topmost 5 bytes participate fully */
-      if ((wtp = wka_name_lookup(addr, mask+40)) != NULL) {
+      if ((name = wka_name_lookup(addr, mask+40)) != NULL) {
         g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x",
-                   wtp->name, addr[5] & (0xFF >> mask));
+                   name, addr[5] & (0xFF >> mask));
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
       }
@@ -1547,9 +1508,9 @@ eth_addr_resolve(hashether_t *tp) {
     mask = 7;
     for (;;) {
       /* Only the topmost 4 bytes participate fully */
-      if ((wtp = wka_name_lookup(addr, mask+32)) != NULL) {
+      if ((name = wka_name_lookup(addr, mask+32)) != NULL) {
         g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x",
-                   wtp->name, addr[4] & (0xFF >> mask), addr[5]);
+                   name, addr[4] & (0xFF >> mask), addr[5]);
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
       }
@@ -1561,9 +1522,9 @@ eth_addr_resolve(hashether_t *tp) {
     mask = 7;
     for (;;) {
       /* Only the topmost 3 bytes participate fully */
-      if ((wtp = wka_name_lookup(addr, mask+24)) != NULL) {
+      if ((name = wka_name_lookup(addr, mask+24)) != NULL) {
         g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
-                   wtp->name, addr[3] & (0xFF >> mask), addr[4], addr[5]);
+                   name, addr[3] & (0xFF >> mask), addr[4], addr[5]);
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
       }
@@ -1573,9 +1534,9 @@ eth_addr_resolve(hashether_t *tp) {
     }
 
     /* Now try looking in the manufacturer table. */
-    if ((mtp = manuf_name_lookup(addr)) != NULL) {
+    if ((name = manuf_name_lookup(addr)) != NULL) {
       g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
-                 mtp->name, addr[3], addr[4], addr[5]);
+                 name, addr[3], addr[4], addr[5]);
       tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
       return tp;
     }
@@ -1585,9 +1546,9 @@ eth_addr_resolve(hashether_t *tp) {
     mask = 7;
     for (;;) {
       /* Only the topmost 2 bytes participate fully */
-      if ((wtp = wka_name_lookup(addr, mask+16)) != NULL) {
+      if ((name = wka_name_lookup(addr, mask+16)) != NULL) {
         g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x",
-                   wtp->name, addr[2] & (0xFF >> mask), addr[3], addr[4],
+                   name, addr[2] & (0xFF >> mask), addr[3], addr[4],
                    addr[5]);
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
@@ -1600,9 +1561,9 @@ eth_addr_resolve(hashether_t *tp) {
     mask = 7;
     for (;;) {
       /* Only the topmost byte participates fully */
-      if ((wtp = wka_name_lookup(addr, mask+8)) != NULL) {
+      if ((name = wka_name_lookup(addr, mask+8)) != NULL) {
         g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x",
-                   wtp->name, addr[1] & (0xFF >> mask), addr[2], addr[3],
+                   name, addr[1] & (0xFF >> mask), addr[2], addr[3],
                    addr[4], addr[5]);
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
@@ -1614,9 +1575,9 @@ eth_addr_resolve(hashether_t *tp) {
 
     for (mask = 7; mask > 0; mask--) {
       /* Not even the topmost byte participates fully */
-      if ((wtp = wka_name_lookup(addr, mask)) != NULL) {
+      if ((name = wka_name_lookup(addr, mask)) != NULL) {
         g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x:%02x",
-                   wtp->name, addr[0] & (0xFF >> mask), addr[1], addr[2],
+                   name, addr[0] & (0xFF >> mask), addr[1], addr[2],
                    addr[3], addr[4], addr[5]);
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
@@ -2681,20 +2642,38 @@ host_name_lookup_cleanup(void) {
   memset(sctp_port_table, 0, sizeof(sctp_port_table));
   memset(dccp_port_table, 0, sizeof(dccp_port_table));
   memset(eth_table, 0, sizeof(eth_table));
-  memset(manuf_table, 0, sizeof(manuf_table));
-  memset(wka_table, 0, sizeof(wka_table));
   memset(ipxnet_table, 0, sizeof(ipxnet_table));
   memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
 
   addrinfo_list = addrinfo_list_last = NULL;
 
+  /* XXX this is only needed when shuting down application (if at all) */
+ // if(manuf_hashtable){
+ //   g_hash_table_destroy(manuf_hashtable);
+	//manuf_hashtable = NULL;
+ // }
+
   have_subnet_entry = FALSE;
-  eth_resolution_initialized = FALSE;
   ipxnet_resolution_initialized = FALSE;
   service_resolution_initialized = FALSE;
   new_resolved_objects = FALSE;
 }
 
+void
+eth_name_lookup_cleanup(void) {
+
+  /* XXX this is only needed when shuting down application (if at all) */
+  if(manuf_hashtable){
+    g_hash_table_destroy(manuf_hashtable);
+	manuf_hashtable = NULL;
+  }
+  if(wka_hashtable){
+    g_hash_table_destroy(wka_hashtable);
+	wka_hashtable = NULL;
+  }
+  eth_resolution_initialized = FALSE;
+
+}
 const gchar *
 get_hostname(const guint addr)
 {
@@ -3091,18 +3070,28 @@ const gchar *
 get_manuf_name(const guint8 *addr)
 {
   gchar *cur;
-  hashmanuf_t  *mtp;
+  int manuf_key;
+  guint8 oct;
 
   if (gbl_resolv_flags.mac_name && !eth_resolution_initialized) {
     initialize_ethers();
   }
 
-  if (!gbl_resolv_flags.mac_name || ((mtp = manuf_name_lookup(addr)) == NULL)) {
+  /* manuf needs only the 3 most significant octets of the ethernet address */
+  manuf_key = addr[0];
+  manuf_key = manuf_key<<8;
+  oct = addr[1];
+  manuf_key = manuf_key | oct;
+  manuf_key = manuf_key<<8;
+  oct = addr[2];
+  manuf_key = manuf_key | oct;
+
+  if (!gbl_resolv_flags.mac_name || ((cur = (gchar *)g_hash_table_lookup(manuf_hashtable, &manuf_key)) == NULL)) {
     cur=ep_strdup_printf("%02x:%02x:%02x", addr[0], addr[1], addr[2]);
     return cur;
   }
 
-  return mtp->name;
+  return cur;
 
 } /* get_manuf_name */
 
@@ -3126,29 +3115,45 @@ tvb_get_manuf_name(tvbuff_t *tvb, gint offset)
 const gchar *
 get_manuf_name_if_known(const guint8 *addr)
 {
-  hashmanuf_t  *mtp;
+  gchar  *cur;
+  int manuf_key;
+  guint8 oct;
 
   if (!eth_resolution_initialized) {
     initialize_ethers();
   }
 
-  if ((mtp = manuf_name_lookup(addr)) == NULL) {
+  /* manuf needs only the 3 most significant octets of the ethernet address */
+  manuf_key = addr[0];
+  manuf_key = manuf_key<<8;
+  oct = addr[1];
+  manuf_key = manuf_key | oct;
+  manuf_key = manuf_key<<8;
+  oct = addr[2];
+  manuf_key = manuf_key | oct;
+
+  if ((cur = (gchar *)g_hash_table_lookup(manuf_hashtable, &manuf_key)) == NULL) {
     return NULL;
   }
 
-  return mtp->name;
+  return cur;
 
 } /* get_manuf_name_if_known */
 
 const gchar *
-uint_get_manuf_name_if_known(const guint oid)
+uint_get_manuf_name_if_known(const guint manuf_key)
 {
-  guint8 addr[3];
+  gchar  *cur;
 
-  addr[0] = (oid >> 16) & 0xFF;
-  addr[1] = (oid >> 8) & 0xFF;
-  addr[2] = (oid >> 0) & 0xFF;
-  return get_manuf_name_if_known(addr);
+  if (!eth_resolution_initialized) {
+    initialize_ethers();
+  }
+
+  if ((cur = (gchar *)g_hash_table_lookup(manuf_hashtable, &manuf_key)) == NULL) {
+    return NULL;
+  }
+
+  return cur;
 }
 
 const gchar *
@@ -3160,8 +3165,7 @@ tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset)
 const gchar *
 get_eui64_name(const guint64 addr_eui64)
 {
-  gchar *cur;
-  hashmanuf_t  *mtp;
+  gchar *cur, *name;
   guint8 *addr = (guint8 *)ep_alloc(8);
 
   /* Copy and convert the address to network byte order. */
@@ -3171,11 +3175,11 @@ get_eui64_name(const guint64 addr_eui64)
     initialize_ethers();
   }
 
-  if (!gbl_resolv_flags.mac_name || ((mtp = manuf_name_lookup(addr)) == NULL)) {
+  if (!gbl_resolv_flags.mac_name || ((name = manuf_name_lookup(addr)) == NULL)) {
     cur=ep_strdup_printf("%02x:%02x:%02x%02x:%02x:%02x%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
     return cur;
   }
-  cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", mtp->name, addr[3], addr[4], addr[5], addr[6], addr[7]);
+  cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", name, addr[3], addr[4], addr[5], addr[6], addr[7]);
   return cur;
 
 } /* get_eui64_name */
@@ -3184,8 +3188,7 @@ get_eui64_name(const guint64 addr_eui64)
 const gchar *
 get_eui64_name_if_known(const guint64 addr_eui64)
 {
-  gchar *cur;
-  hashmanuf_t  *mtp;
+  gchar *cur, *name;
   guint8 *addr = (guint8 *)ep_alloc(8);
 
   /* Copy and convert the address to network byte order. */
@@ -3195,11 +3198,11 @@ get_eui64_name_if_known(const guint64 addr_eui64)
     initialize_ethers();
   }
 
-  if ((mtp = manuf_name_lookup(addr)) == NULL) {
+  if ((name = manuf_name_lookup(addr)) == NULL) {
     return NULL;
   }
 
-  cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", mtp->name, addr[3], addr[4], addr[5], addr[6], addr[7]);
+  cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", name, addr[3], addr[4], addr[5], addr[6], addr[7]);
   return cur;
 
 } /* get_eui64_name_if_known */
@@ -3401,4 +3404,16 @@ _U_
 #else
   return "ip";
 #endif
+}
+
+GHashTable *
+get_manuf_hashtable(void)
+{
+	return manuf_hashtable;
+}
+
+GHashTable *
+get_wka_hashtable(void)
+{
+	return wka_hashtable;
 }

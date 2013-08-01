@@ -111,6 +111,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	dfilter_init();
 	final_registration_all_protocols();
 	/*host_name_lookup_init();*//* We load the hostname file in cf_open, no need to do it here? */
+	initialize_ethers();
 	expert_packet_init();
 #ifdef HAVE_LUA
 	wslua_init(cb, client_data);
@@ -132,6 +133,7 @@ epan_cleanup(void)
 #endif
 	except_deinit();
 	host_name_lookup_cleanup();
+	eth_name_lookup_cleanup();
 	wmem_cleanup();
 }
 
