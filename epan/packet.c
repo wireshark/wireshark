@@ -358,6 +358,12 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 
 	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
 
+	/* pkt comment use first user, later from phdr */
+	if (fd->flags.has_user_comment) 
+		edt->pi.pkt_comment = epan_get_user_comment(edt->session, fd);
+	else
+		edt->pi.pkt_comment = phdr->opt_comment;
+
 	/* to enable decode as for ethertype=0x0000 (fix for bug 4721) */
 	edt->pi.ethertype = G_MAXINT;
 

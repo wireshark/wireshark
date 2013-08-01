@@ -150,6 +150,8 @@ static gboolean find_packet(capture_file *cf,
     match_result (*match_function)(capture_file *, frame_data *, void *),
     void *criterion, search_direction dir);
 
+static const char *cf_get_user_packet_comment(capture_file *cf, const frame_data *fd);
+
 static void cf_open_failure_alert_box(const char *filename, int err,
                       gchar *err_info, gboolean for_writing,
                       int file_type);
@@ -323,6 +325,14 @@ ws_get_frame_ts(void *data, guint32 frame_num)
   return NULL;
 }
 
+static const char *
+ws_get_user_comment(void *data, const frame_data *fd)
+{
+  capture_file *cf = (capture_file *) data;
+
+  return cf_get_user_packet_comment(cf, fd);
+}
+
 static epan_t *
 ws_epan_new(capture_file *cf)
 {
@@ -331,6 +341,7 @@ ws_epan_new(capture_file *cf)
   epan->data = cf;
   epan->get_frame_ts = ws_get_frame_ts;
   epan->get_interface_name = cap_file_get_interface_name;
+  epan->get_user_comment = ws_get_user_comment;
 
   return epan;
 }
@@ -486,6 +497,10 @@ cf_reset_state(capture_file *cf)
     cf->edited_frames = NULL;
   }
 #endif
+  if (cf->frames_user_comments) {
+    g_tree_destroy(cf->frames_user_comments);
+    cf->frames_user_comments = NULL;
+  }
   cf_unselect_packet(cf);   /* nothing to select */
   cf->first_displayed = 0;
   cf->last_displayed = 0;
@@ -1262,7 +1277,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
     fdata = frame_data_sequence_add(cf->frames, &fdlocal);
 
     cf->count++;
-    if (fdlocal.opt_comment != NULL)
+    if (phdr->opt_comment != NULL)
       cf->packet_comment_count++;
     cf->f_datalen = offset + fdlocal.cap_len;
 
@@ -1719,7 +1734,7 @@ cf_redissect_packets(capture_file *cf)
 }
 
 gboolean
-cf_read_frame_r(capture_file *cf, frame_data *fdata,
+cf_read_frame_r(capture_file *cf, const frame_data *fdata,
                 struct wtap_pkthdr *phdr, Buffer *buf)
 {
   int    err;
@@ -3921,25 +3936,82 @@ cf_update_capture_comment(capture_file *cf, gchar *comment)
   cf->unsaved_changes = TRUE;
 }
 
-void
-cf_update_packet_comment(capture_file *cf, frame_data *fdata, gchar *comment)
+static const char *
+cf_get_user_packet_comment(capture_file *cf, const frame_data *fd)
 {
-  if (fdata->opt_comment != NULL) {
-    /* OK, remove the old comment. */
-    g_free(fdata->opt_comment);
-    fdata->opt_comment = NULL;
+  if (cf->frames_user_comments)
+     return g_tree_lookup(cf->frames_user_comments, fd);
+
+  /* g_warning? */
+  return NULL;
+}
+
+char *
+cf_get_comment(capture_file *cf, const frame_data *fd)
+{
+  /* fetch user comment */
+  if (fd->flags.has_user_comment)
+    return g_strdup(cf_get_user_packet_comment(cf, fd));
+
+  /* fetch phdr comment */
+  if (fd->flags.has_phdr_comment) {
+    struct wtap_pkthdr phdr; /* Packet header */
+    Buffer buf; /* Packet data */
+
+    phdr.opt_comment = NULL;
+
+    buffer_init(&buf, 1500);
+    if (!cf_read_frame_r(cf, fd, &phdr, &buf))
+      { /* XXX, what we can do here? */ }
+
+    buffer_free(&buf);
+    return phdr.opt_comment;
+  }
+  return NULL;
+}
+
+static int
+frame_cmp(gconstpointer a, gconstpointer b, gpointer user_data _U_)
+{
+  const frame_data *fdata1 = (const frame_data *) a;
+  const frame_data *fdata2 = (const frame_data *) b;
+
+  return (fdata1->num < fdata2->num) ? -1 :
+    (fdata1->num > fdata2->num) ? 1 :
+    0;
+}
+
+gboolean
+cf_set_user_packet_comment(capture_file *cf, frame_data *fd, const gchar *new_comment)
+{
+  char *pkt_comment = cf_get_comment(cf, fd);
+
+  /* Check if the comment has changed */
+  if (!g_strcmp0(pkt_comment, new_comment)) {
+    g_free(pkt_comment);
+    return FALSE;
+  }
+  g_free(pkt_comment);
+
+  if (pkt_comment)
     cf->packet_comment_count--;
-  }
-  if (comment != NULL) {
-    /* Add the new comment. */
-    fdata->opt_comment = comment;
+
+  if (new_comment)
     cf->packet_comment_count++;
-  }
+
+  fd->flags.has_user_comment = TRUE;
+
+  if (!cf->frames_user_comments)
+    cf->frames_user_comments = g_tree_new_full(frame_cmp, NULL, NULL, g_free);
+
+  /* insert new packet comment */
+  g_tree_replace(cf->frames_user_comments, fd, g_strdup(new_comment));
 
   expert_update_comment_count(cf->packet_comment_count);
 
   /* OK, we have unsaved changes. */
   cf->unsaved_changes = TRUE;
+  return TRUE;
 }
 
 /*
@@ -3979,6 +4051,12 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   struct wtap_pkthdr    hdr;
   int           err;
   gchar        *display_basename;
+  const char   *pkt_comment;
+
+  if (fdata->flags.has_user_comment)
+    pkt_comment = cf_get_user_packet_comment(cf, fdata);
+  else
+    pkt_comment = phdr->opt_comment;
 
   /* init the wtap header for saving */
   /* TODO: reuse phdr */
@@ -4009,7 +4087,8 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   hdr.interface_id = phdr->interface_id;   /* identifier of the interface. */
   /* options */
   hdr.pack_flags   = phdr->pack_flags;
-  hdr.opt_comment  = fdata->opt_comment; /* NULL if not available */
+  hdr.opt_comment  = g_strdup(pkt_comment);
+
   /* pseudo */
   hdr.pseudo_header = phdr->pseudo_header;
 #if 0
@@ -4046,6 +4125,8 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
     }
     return FALSE;
   }
+
+  g_free(hdr.opt_comment);
   return TRUE;
 }
 
@@ -4665,15 +4746,20 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
       /* Remove SHB comment, if any. */
       wtap_write_shb_comment(cf->wth, NULL);
 
-      /* Remove packet comments. */
+      /* remove all user comments */
       for (framenum = 1; framenum <= cf->count; framenum++) {
         fdata = frame_data_sequence_find(cf->frames, framenum);
-        if (fdata->opt_comment) {
-          g_free(fdata->opt_comment);
-          fdata->opt_comment = NULL;
-          cf->packet_comment_count--;
-        }
+
+        fdata->flags.has_phdr_comment = FALSE;
+        fdata->flags.has_user_comment = FALSE;
       }
+
+      if (cf->frames_user_comments) {
+        g_tree_destroy(cf->frames_user_comments);
+        cf->frames_user_comments = NULL;
+      }
+
+      cf->packet_comment_count = 0;
     }
   }
   return CF_WRITE_OK;

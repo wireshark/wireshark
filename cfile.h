@@ -124,6 +124,7 @@ typedef struct _capture_file {
   GTree       *edited_frames;   /* BST with modified frames */
 #endif
   gpointer     window;		/* Top-level window associated with file */
+  GTree       *frames_user_comments;   /* BST with user comments for frames (key = frame_data) */
 } capture_file;
 
 extern void cap_file_init(capture_file *cf);

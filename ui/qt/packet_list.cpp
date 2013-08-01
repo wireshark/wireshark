@@ -628,6 +628,7 @@ QString PacketList::packetComment()
 {
     int row = currentIndex().row();
     frame_data *fdata;
+    char *pkt_comment;
 
     if (!cap_file_ || !packet_list_model_) return NULL;
 
@@ -635,7 +636,11 @@ QString PacketList::packetComment()
 
     if (!fdata) return NULL;
 
-    return QString(fdata->opt_comment);
+    pkt_comment = cf_get_comment(cap_file_, fdata);
+
+    return QString(pkt_comment);
+
+    /* XXX, g_free(pkt_comment) */
 }
 
 void PacketList::setPacketComment(QString new_comment)
@@ -650,20 +655,12 @@ void PacketList::setPacketComment(QString new_comment)
 
     if (!fdata) return;
 
-    /* Check if the comment has changed */
-    if (fdata->opt_comment) {
-        if (strcmp(fdata->opt_comment, new_packet_comment) == 0) {
-            return;
-        }
-    }
-
     /* Check if we are clearing the comment */
     if(new_comment.isEmpty()) {
         new_packet_comment = NULL;
     }
 
-    /* The comment has changed, let's update it */
-    cf_update_packet_comment(cap_file_, fdata, g_strdup(new_packet_comment));
+    cf_set_user_packet_comment(cap_file_, fdata, new_packet_comment);
 
     updateAll();
 }
@@ -678,8 +675,12 @@ QString PacketList::allPacketComments()
 
     for (framenum = 1; framenum <= cap_file_->count ; framenum++) {
         fdata = frame_data_sequence_find(cap_file_->frames, framenum);
-        if (fdata->opt_comment) {
-            buf_str.append(QString(tr("Frame %1: %2 \n\n")).arg(framenum).arg(fdata->opt_comment));
+
+        char *pkt_comment = cf_get_comment(cap_file_, fdata);
+
+        if (pkt_comment) {
+            buf_str.append(QString(tr("Frame %1: %2 \n\n")).arg(framenum).arg(pkt_comment));
+            g_free(pkt_comment);
         }
         if (buf_str.length() > max_comments_to_fetch_) {
             buf_str.append(QString(tr("[ Comment text exceeds %1. Stopping. ]"))

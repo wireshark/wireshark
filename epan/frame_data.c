@@ -279,6 +279,7 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->flags.ref_time = 0;
   fdata->flags.ignored = 0;
   fdata->flags.has_ts = (phdr->presence_flags & WTAP_HAS_TS) ? 1 : 0;
+  fdata->flags.has_phdr_comment = (phdr->opt_comment != NULL);
   fdata->color_filter = NULL;
   fdata->abs_ts.secs = phdr->ts.secs;
   fdata->abs_ts.nsecs = phdr->ts.nsecs;
@@ -286,7 +287,6 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->shift_offset.nsecs = 0;
   fdata->frame_ref_num = 0;
   fdata->prev_dis_num = 0;
-  fdata->opt_comment = phdr->opt_comment;
 }
 
 void
@@ -356,11 +356,6 @@ frame_data_destroy(frame_data *fdata)
   if (fdata->pfd) {
     g_slist_free(fdata->pfd);
     fdata->pfd = NULL;
-  }
-
-  if (fdata->opt_comment) {
-    g_free(fdata->opt_comment);
-    fdata->opt_comment = NULL;
   }
 }
 

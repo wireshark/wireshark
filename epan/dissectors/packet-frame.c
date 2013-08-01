@@ -229,14 +229,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 
-	if(pinfo->fd->opt_comment){
+	if(pinfo->pkt_comment){
 		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, -1, ENC_NA);
 		comments_tree = proto_item_add_subtree(item, ett_comments);
 		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, -1,
-							                   pinfo->fd->opt_comment, "%s",
-							                   pinfo->fd->opt_comment);
+							                   pinfo->pkt_comment, "%s",
+							                   pinfo->pkt_comment);
 		expert_add_info_format_text(pinfo, comment_item, &ei_comments_text,
-					                       "%s",  pinfo->fd->opt_comment);
+					                       "%s",  pinfo->pkt_comment);
 
 
 	}

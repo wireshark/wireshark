@@ -88,11 +88,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     pkthdr.pkt_encap = exp_pdu_tap_data->pkt_encap;
     pkthdr.interface_id = 0;
     pkthdr.presence_flags = 0;
-    if(pinfo->fd->opt_comment == NULL){
-        pkthdr.opt_comment = NULL;
-    }else{
-        pkthdr.opt_comment = g_strdup(pinfo->fd->opt_comment);
-    }
+    pkthdr.opt_comment = g_strdup(pinfo->pkt_comment);
     pkthdr.drop_count = 0;
     pkthdr.pack_flags = 0;
     pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;

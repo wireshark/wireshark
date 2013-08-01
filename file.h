@@ -148,7 +148,7 @@ cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
  * @param buf a Buffer into which to read the packet's raw data
  * @return TRUE if the read succeeded, FALSE if there was an error
  */
-gboolean cf_read_frame_r(capture_file *cf, frame_data *fdata,
+gboolean cf_read_frame_r(capture_file *cf, const frame_data *fdata,
                          struct wtap_pkthdr *phdr, Buffer *buf);
 
 /**
@@ -667,6 +667,8 @@ const gchar* cf_read_shb_comment(capture_file *cf);
  */
 void cf_update_capture_comment(capture_file *cf, gchar *comment);
 
+char *cf_get_comment(capture_file *cf, const frame_data *fd);
+
 /**
  * Update(replace) the comment on a capture from a frame
  *
@@ -674,7 +676,7 @@ void cf_update_capture_comment(capture_file *cf, gchar *comment);
  * @param fdata the frame_data structure for the frame
  * @param comment the string replacing the old comment
  */
-void cf_update_packet_comment(capture_file *cf, frame_data *fdata, gchar *comment);
+gboolean cf_set_user_packet_comment(capture_file *cf, frame_data *fd, const gchar *new_comment);
 
 /**
  * What types of comments does this file have?

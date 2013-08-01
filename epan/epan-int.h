@@ -24,6 +24,7 @@
 #ifndef __EPAN_INT_H__
 #define __EPAN_INT_H__
 
+#include <epan/frame_data.h>
 #include <wsutil/nstime.h>
 
 struct epan_session {
@@ -31,6 +32,7 @@ struct epan_session {
 
 	const nstime_t *(*get_frame_ts)(void *data, guint32 frame_num);
 	const char *(*get_interface_name)(void *data, guint32 interface_id);
+	const char *(*get_user_comment)(void *data, const frame_data *fd);
 };
 
 #endif

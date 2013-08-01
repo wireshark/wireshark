@@ -73,6 +73,8 @@ typedef struct _frame_data {
     unsigned int ref_time       : 1; /**< 1 = marked as a reference time frame, 0 = normal */
     unsigned int ignored        : 1; /**< 1 = ignore this frame, 0 = normal */
     unsigned int has_ts         : 1; /**< 1 = has time stamp, 0 = no time stamp */
+    unsigned int has_phdr_comment : 1; /** 1 = there's comment for this packet */
+    unsigned int has_user_comment : 1; /** 1 = user set (also deleted) comment for this packet */
   } flags;
 
   const void *color_filter;  /**< Per-packet matching color_filter_t object */
@@ -81,7 +83,6 @@ typedef struct _frame_data {
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
   guint32      frame_ref_num; /**< Previous reference frame (0 if this is one) */
   guint32      prev_dis_num; /**< Previous displayed frame (0 if first one) */
-  gchar        *opt_comment; /**< NULL if not available */
 } frame_data;
 
 #ifdef WANT_PACKET_EDITOR

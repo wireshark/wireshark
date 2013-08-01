@@ -1559,7 +1559,7 @@ packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 	g_string_free(text,TRUE);
 }
 
-const gchar *
+gchar *
 packet_list_get_packet_comment(void)
 {
 	GtkTreeModel *model;
@@ -1574,7 +1574,7 @@ packet_list_get_packet_comment(void)
 
 	fdata = packet_list_get_record(model, &iter);
 
-	return fdata->opt_comment;
+	return cf_get_comment(&cfile, fdata);
 }
 
 void
@@ -1585,11 +1585,15 @@ packet_list_return_all_comments(GtkTextBuffer *buffer)
 	gchar *buf_str;
 
 	for (framenum = 1; framenum <= cfile.count ; framenum++) {
+		char *pkt_comment;
+
 		fdata = frame_data_sequence_find(cfile.frames, framenum);
-		if (fdata->opt_comment) {
-			buf_str = g_strdup_printf("Frame %u: %s \n\n",framenum, fdata->opt_comment);
+		pkt_comment = cf_get_comment(&cfile, fdata);
+		if (pkt_comment) {
+			buf_str = g_strdup_printf("Frame %u: %s \n\n",framenum, pkt_comment);
 			gtk_text_buffer_insert_at_cursor (buffer, buf_str, -1);
 			g_free(buf_str);
+			g_free(pkt_comment);
 		}
 		if (gtk_text_buffer_get_char_count(buffer) > MAX_COMMENTS_TO_FETCH) {
 			buf_str = g_strdup_printf("[ Comment text exceeds %s. Stopping. ]",
@@ -1616,22 +1620,15 @@ packet_list_update_packet_comment(gchar *new_packet_comment)
 
 	fdata = packet_list_get_record(model, &iter);
 
-	/* Check if the comment has changed */
-	if (fdata->opt_comment) {
-		if (strcmp(fdata->opt_comment, new_packet_comment) == 0) {
-			g_free(new_packet_comment);
-			return;
-		}
-	}
-
 	/* Check if we are clearing the comment */
 	if(strlen(new_packet_comment) == 0) {
 		g_free(new_packet_comment);
 		new_packet_comment = NULL;
 	}
 
-	/* The comment has changed, let's update it */
-	cf_update_packet_comment(&cfile, fdata, new_packet_comment);
+	cf_set_user_packet_comment(&cfile, fdata, new_packet_comment);
+
+	g_free(new_packet_comment);
 
 	/* Update the main window, as we now have unsaved changes. */
 	main_update_for_unsaved_changes(&cfile);
@@ -1707,6 +1704,8 @@ query_packet_list_tooltip_cb(GtkWidget *widget, gint x, gint y, gboolean keyboar
 		return result;
 
 	if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view), x, y, NULL, &column, NULL, NULL)) {
+		char *pkt_comment;
+
 		num_cols = g_list_length(prefs.col_list);
 
 		for (col = 0; col < num_cols; col++) {
@@ -1715,8 +1714,10 @@ query_packet_list_tooltip_cb(GtkWidget *widget, gint x, gint y, gboolean keyboar
 		}
 
 		fdata = packet_list_get_record(model, &iter);
-		if (fdata->opt_comment != NULL) {
-			gtk_tooltip_set_markup (tooltip, fdata->opt_comment);
+		pkt_comment = cf_get_comment(&cfile, fdata);
+
+		if (pkt_comment != NULL) {
+			gtk_tooltip_set_markup(tooltip, pkt_comment);
 			renderer_list = gtk_cell_layout_get_cells(GTK_CELL_LAYOUT(column));
 			/* get the first renderer */
 			if (g_list_first(renderer_list)) {
@@ -1724,6 +1725,7 @@ query_packet_list_tooltip_cb(GtkWidget *widget, gint x, gint y, gboolean keyboar
 				gtk_tree_view_set_tooltip_cell (tree_view, tooltip, path, column, renderer);
 			}
 			g_list_free(renderer_list);
+			g_free(pkt_comment);
 			result = TRUE;
 		}
 	}

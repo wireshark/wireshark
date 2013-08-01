@@ -109,8 +109,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   GtkWidget *bbox;
   GtkWidget *ok_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer;
-  const gchar *opt_comment;
-  gchar *buf_str;
+  gchar *opt_comment;
 
   edit_or_add_pkt_comment_dlg = dlg_window_new ("Edit or Add Packet Comments");
   gtk_widget_set_size_request (edit_or_add_pkt_comment_dlg, 500, 160);
@@ -138,9 +137,8 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   /*g_warning("Fetched comment '%s'",opt_comment);*/
 
   if(opt_comment){
-    buf_str = g_strdup_printf("%s", opt_comment);
-    gtk_text_buffer_set_text (buffer, buf_str, -1);
-    g_free(buf_str);
+    gtk_text_buffer_set_text(buffer, opt_comment, -1);
+    g_free(opt_comment);
   }
 
   /* Button row. */

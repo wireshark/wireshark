@@ -149,6 +149,15 @@ epan_new(void)
 }
 
 const char *
+epan_get_user_comment(const epan_t *session, const frame_data *fd)
+{
+	if (session->get_user_comment)
+		return session->get_user_comment(session->data, fd);
+
+	return NULL;
+}
+
+const char *
 epan_get_interface_name(const epan_t *session, guint32 interface_id)
 {
 	if (session->get_interface_name)

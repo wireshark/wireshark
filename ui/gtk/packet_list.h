@@ -132,7 +132,7 @@ typedef enum {
  */
 void packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type);
 
-const gchar *packet_list_get_packet_comment(void);
+gchar *packet_list_get_packet_comment(void);
 void packet_list_update_packet_comment(gchar *new_packet_comment);
 void packet_list_return_all_comments(GtkTextBuffer *buffer);
 

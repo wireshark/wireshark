@@ -317,7 +317,7 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
     pkthdr.pkt_encap = DUMPER_ENCAP(d);
     pkthdr.pseudo_header = *ph->wph;
 
-    /* TODO: Can we get access to pinfo->fd->opt_comment here somehow? We
+    /* TODO: Can we get access to pinfo->pkt_comment here somehow? We
      * should be copying it to pkthdr.opt_comment if we can. */
 
     if (! wtap_dump(d, &pkthdr, ba->data, &err)) {
@@ -409,8 +409,8 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     pkthdr.pkt_encap = lua_pinfo->fd->lnk_t;
     pkthdr.pseudo_header = *lua_pinfo->pseudo_header;
 
-    if (lua_pinfo->fd->opt_comment)
-        pkthdr.opt_comment = ep_strdup(lua_pinfo->fd->opt_comment);
+    if (lua_pinfo->pkt_comment)
+        pkthdr.opt_comment = ep_strdup(lua_pinfo->pkt_comment);
 
     data = (const guchar *)ep_tvb_memdup(tvb,0,pkthdr.caplen);
 
