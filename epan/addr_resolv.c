@@ -146,7 +146,7 @@
 #define SUBNETLENGTHSIZE   32  /*1-32 inc.*/
 
 /* g_int64_hash() and g_int64_equal() first appear in GLib 2.22, make a local copy here */
-#if GLIB_CHECK_VERSION(2,22,0)
+#if !GLIB_CHECK_VERSION(2,22,0)
 /**
  * g_int64_equal:
  * @v1: a pointer to a #gint64 key
