@@ -19,7 +19,8 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	$(CC) $(CFLAGS) -Fd.\ -c $<
 
 # For use when making libwsutil.dll
-libwsutil_LIBS = $(GLIB_LIBS)
+libwsutil_LIBS = $(GLIB_LIBS) \
+	$(GNUTLS_LIBS)
 
 OBJECTS = file_util.obj		\
 	inet_aton.obj		\
