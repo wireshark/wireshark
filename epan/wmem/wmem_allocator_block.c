@@ -657,9 +657,8 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     extra->used = FALSE;
 
     /* Correctly update the following chunk's back-pointer */
-    chunk = WMEM_CHUNK_NEXT(extra);
-    if (chunk) {
-        chunk->prev = extra->len;
+    if (!last) {
+        WMEM_CHUNK_NEXT(extra)->prev = extra->len;
     }
 
     /* Merge it to its right if possible (it can't be merged left, obviously).
