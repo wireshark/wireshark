@@ -55,6 +55,14 @@ typedef struct _e_addr_resolve {
   gboolean load_hosts_file_from_profile_only;
 } e_addr_resolve;
 
+
+typedef struct hashether {
+  guint             status;  /* (See above) */
+  guint8            addr[6];
+  char              hexaddr[6*3];
+  char              resolved_name[MAXNAMELEN];
+} hashether_t;
+
 /*
  * Flag controlling what names to resolve.
  */
@@ -302,6 +310,9 @@ GHashTable *get_manuf_hashtable(void);
 
 WS_DLL_PUBLIC
 GHashTable *get_wka_hashtable(void);
+
+WS_DLL_PUBLIC
+GHashTable *get_eth_hashtable(void);
 
 WS_DLL_PUBLIC
 void initialize_ethers(void);

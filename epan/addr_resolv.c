@@ -261,6 +261,7 @@ typedef struct hashipxnet {
 #define HASHETHER_STATUS_RESOLVED_DUMMY 2
 #define HASHETHER_STATUS_RESOLVED_NAME  3
 
+#if 0
 typedef struct hashether {
   struct hashether *next;
   guint             status;  /* (See above) */
@@ -268,7 +269,7 @@ typedef struct hashether {
   char              hexaddr[6*3];
   char              resolved_name[MAXNAMELEN];
 } hashether_t;
-
+#endif
 /* internal ethernet type */
 
 typedef struct _ether
@@ -293,12 +294,12 @@ static gchar        *cb_service;
 
 static GHashTable *manuf_hashtable = NULL;
 static GHashTable *wka_hashtable = NULL;
+static GHashTable *eth_hashtable = NULL;
 
 static hashport_t   *udp_port_table[HASHPORTSIZE];
 static hashport_t   *tcp_port_table[HASHPORTSIZE];
 static hashport_t   *sctp_port_table[HASHPORTSIZE];
 static hashport_t   *dccp_port_table[HASHPORTSIZE];
-static hashether_t  *eth_table[HASHETHSIZE];
 static hashipxnet_t *ipxnet_table[HASHIPXNETSIZE];
 
 static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
@@ -1601,16 +1602,43 @@ eth_addr_resolve(hashether_t *tp) {
 static hashether_t *
 eth_hash_new_entry(const guint8 *addr, const gboolean resolve) {
   hashether_t *tp;
+  gint64       eth_as_int64, *key;
+  guint8       oct;
 
-  tp = se_new(hashether_t);
+  eth_as_int64 = addr[0];
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[1];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[2];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[3];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[4];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[5];
+  eth_as_int64 = eth_as_int64 | oct;
+
+  key = (gint64 *)g_new(gint64, 1);
+  *key = eth_as_int64;
+
+  tp = g_new(hashether_t, 1);
   memcpy(tp->addr, addr, sizeof(tp->addr));
   tp->status = HASHETHER_STATUS_UNRESOLVED;
   g_strlcpy(tp->hexaddr, bytestring_to_str(addr, sizeof(tp->addr), ':'), sizeof(tp->hexaddr));
   tp->resolved_name[0] = '\0';
-  tp->next = NULL;
 
   if (resolve)
     eth_addr_resolve(tp);
+
+  if(eth_hashtable == NULL){
+    eth_hashtable = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
+  }
+
+  g_hash_table_insert(eth_hashtable, key, tp);
 
   return tp;
 } /* eth_hash_new_entry */
@@ -1618,28 +1646,34 @@ eth_hash_new_entry(const guint8 *addr, const gboolean resolve) {
 static hashether_t *
 add_eth_name(const guint8 *addr, const gchar *name)
 {
-  gint         hash_idx;
   hashether_t *tp;
+  gint64       eth_as_int64, *key;
+  guint8       oct;
 
-  hash_idx = HASH_ETH_ADDRESS(addr);
+  eth_as_int64 = addr[0];
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[1];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[2];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[3];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[4];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[5];
+  eth_as_int64 = eth_as_int64 | oct;
 
-  tp = eth_table[hash_idx];
-  if( tp == NULL ) {
-    tp = eth_table[hash_idx] = eth_hash_new_entry(addr, FALSE);
-  } else {
-    while(TRUE) {
-      if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-        /* address already known */
-        if (tp->status == HASHETHER_STATUS_RESOLVED_NAME)
-          return tp; /* Entry with a name already in table; ignore attempted replacement */
-        break;       /* Update name of existing entry */
-        }
-      if (tp->next == NULL) {
-        tp = tp->next = eth_hash_new_entry(addr, FALSE);
-        break;
-      }
-      tp = tp->next;
-    }
+  key = (gint64 *)g_new(gint64, 1);
+  *key = eth_as_int64;
+
+  tp = g_hash_table_lookup(eth_hashtable, key);
+
+  if( tp == NULL ){
+    tp = eth_hash_new_entry(addr, FALSE);
   }
 
   g_strlcpy(tp->resolved_name, name, MAXNAMELEN);
@@ -1651,34 +1685,45 @@ add_eth_name(const guint8 *addr, const gchar *name)
 
 static hashether_t *
 eth_name_lookup(const guint8 *addr, const gboolean resolve) {
-  gint          hash_idx;
   hashether_t  *tp;
+  gint64       eth_as_int64, *key;
+  guint8       oct;
 
-  hash_idx = HASH_ETH_ADDRESS(addr);
+  eth_as_int64 = addr[0];
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[1];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[2];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[3];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[4];
+  eth_as_int64 = eth_as_int64 | oct;
+  eth_as_int64 = eth_as_int64<<8;
+  oct = addr[5];
+  eth_as_int64 = eth_as_int64 | oct;
 
-  tp = eth_table[hash_idx];
+  key = (gint64 *)g_new(gint64, 1);
+  *key = eth_as_int64;
+
+  tp = g_hash_table_lookup(eth_hashtable, key);
   if( tp == NULL ) {
-    tp = eth_table[hash_idx] = eth_hash_new_entry(addr, resolve);
-    return tp;
+    tp = eth_hash_new_entry(addr, resolve);
   } else {
-    while(TRUE) {
-      if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-        if (resolve && (tp->status == HASHETHER_STATUS_UNRESOLVED))
-          eth_addr_resolve(tp); /* Found but needs to be resolved */
-        return tp;
-      }
-      if (tp->next == NULL) {
-        tp->next = eth_hash_new_entry(addr, resolve);
-        return tp->next;
-      }
-      tp = tp->next;
-    }
+    eth_addr_resolve(tp); /* Found but needs to be resolved */
   }
+
+  return tp;
+
 } /* eth_name_lookup */
 
 static guint8 *
 eth_addr_lookup(const gchar *name)
 {
+#if 0
   ether_t      *eth;
   hashether_t  *tp;
   hashether_t **table = eth_table;
@@ -1704,6 +1749,8 @@ eth_addr_lookup(const gchar *name)
   tp = add_eth_name(eth->addr, name);
 
   return tp->addr;
+#endif
+  return NULL;
 
 } /* eth_addr_lookup */
 
@@ -2647,17 +2694,10 @@ host_name_lookup_cleanup(void) {
   memset(tcp_port_table, 0, sizeof(tcp_port_table));
   memset(sctp_port_table, 0, sizeof(sctp_port_table));
   memset(dccp_port_table, 0, sizeof(dccp_port_table));
-  memset(eth_table, 0, sizeof(eth_table));
   memset(ipxnet_table, 0, sizeof(ipxnet_table));
   memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
 
   addrinfo_list = addrinfo_list_last = NULL;
-
-  /* XXX this is only needed when shuting down application (if at all) */
- // if(manuf_hashtable){
- //   g_hash_table_destroy(manuf_hashtable);
-	//manuf_hashtable = NULL;
- // }
 
   have_subnet_entry = FALSE;
   ipxnet_resolution_initialized = FALSE;
@@ -2677,6 +2717,12 @@ eth_name_lookup_cleanup(void) {
     g_hash_table_destroy(wka_hashtable);
 	wka_hashtable = NULL;
   }
+
+  if(eth_hashtable){
+    g_hash_table_destroy(eth_hashtable);
+	wka_hashtable = NULL;
+  }
+
   eth_resolution_initialized = FALSE;
 
 }
@@ -3423,3 +3469,10 @@ get_wka_hashtable(void)
 {
 	return wka_hashtable;
 }
+
+GHashTable *
+get_eth_hashtable(void)
+{
+	return eth_hashtable;
+}
+

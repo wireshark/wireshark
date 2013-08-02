@@ -163,6 +163,60 @@ comment_summary_copy_to_clipboard_cb(GtkWidget *w _U_, GtkWidget *view)
 #define ADDRESS_STR_MAX     1024
 
 static void
+eth_hash_to_texbuff(gpointer key, gpointer value, gpointer user_data)
+{
+	gchar string_buff[ADDRESS_STR_MAX];
+	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
+	gint64 eth_as_gint64 = *(gint64*)key;
+	hashether_t* tp = (hashether_t*)value;
+
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X Status: %u %s %s\n", 
+		eth_as_gint64>>40&0xff,
+		eth_as_gint64>>32&0xff,
+		(eth_as_gint64>>24)&0xff,
+		(eth_as_gint64>>16)&0xff, 
+		(eth_as_gint64>>8)&0xff, 
+		eth_as_gint64&0xff,
+		tp->status,
+		tp->hexaddr,
+		tp->resolved_name);
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+}
+static void
+manuf_hash_to_texbuff(gpointer key, gpointer value, gpointer user_data)
+{
+	gchar string_buff[ADDRESS_STR_MAX];
+	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
+	gchar *name = (gchar *)value;
+	int eth_as_gint = *(int*)key;
+
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "%.2X:%.2X:%.2X  %s\n",eth_as_gint>>16, (eth_as_gint>>8)&0xff, eth_as_gint&0xff,name);
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+}
+
+static void
+wka_hash_to_texbuff(gpointer key, gpointer value, gpointer user_data)
+{
+	gchar string_buff[ADDRESS_STR_MAX];
+	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
+	gchar *name = (gchar *)value;
+	gint64 eth_as_gint64 = *(gint64*)key;
+
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X  %s\n", 
+		eth_as_gint64>>40&0xff,
+		eth_as_gint64>>32&0xff,
+		(eth_as_gint64>>24)&0xff,
+		(eth_as_gint64>>16)&0xff, 
+		(eth_as_gint64>>8)&0xff, 
+		eth_as_gint64&0xff,
+		name);
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+}
+
+static void
 addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 {
     struct addrinfo *ai;
@@ -171,6 +225,9 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
     char   addr_str[ADDRSTRLEN];
     int i, tab_count;
     gchar string_buff[ADDRESS_STR_MAX];
+	GHashTable *manuf_hashtable;
+	GHashTable *wka_hashtable;
+	GHashTable *eth_hashtable;
 
     g_snprintf(string_buff, ADDRESS_STR_MAX, "# Hosts information in Wireshark \n#\n");
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
@@ -216,6 +273,37 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
             gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
         }
     }
+
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Eth names information in Wireshark \n#\n");
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+	eth_hashtable = get_eth_hashtable();
+	if(eth_hashtable){
+		g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(eth_hashtable));
+		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+		g_hash_table_foreach( eth_hashtable, eth_hash_to_texbuff, buffer);
+	}
+
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Manuf information in Wireshark \n#\n");
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+	manuf_hashtable = get_manuf_hashtable();
+	if(manuf_hashtable){
+		g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(manuf_hashtable));
+		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+		g_hash_table_foreach( manuf_hashtable, manuf_hash_to_texbuff, buffer);
+	}
+
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# wka information in Wireshark \n#\n");
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+	wka_hashtable = get_wka_hashtable();
+	if(wka_hashtable){
+		g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(wka_hashtable));
+		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+		g_hash_table_foreach( wka_hashtable, wka_hash_to_texbuff, buffer);
+	}
+
 
 }
 
