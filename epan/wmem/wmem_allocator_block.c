@@ -585,8 +585,14 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
         prev = old_blk->prev;
         next = old_blk->next;
 
-        new_blk->prev = prev == chunk ? extra : prev;
-        new_blk->next = next == chunk ? extra : next;
+        if (prev == chunk) {
+            new_blk->prev = extra;
+            new_blk->next = extra;
+        }
+        else {
+            new_blk->prev = prev;
+            new_blk->next = next;
+        }
 
         if (prev) WMEM_GET_FREE(prev)->next = extra;
         if (next) WMEM_GET_FREE(next)->prev = extra;
