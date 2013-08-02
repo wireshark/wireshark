@@ -374,6 +374,36 @@ wmem_block_add_to_recycler(wmem_block_allocator_t *allocator,
     }
 }
 
+/* Removes a chunk from the recycler. */
+static void
+wmem_block_remove_from_recycler(wmem_block_allocator_t *allocator,
+                                wmem_block_chunk_t *chunk)
+{
+    wmem_block_free_t *free_chunk;
+
+    g_assert (! chunk->used);
+
+    free_chunk = WMEM_GET_FREE(chunk);
+
+    g_assert(free_chunk->prev && free_chunk->next);
+
+    if (free_chunk->prev == chunk && free_chunk->next == chunk) {
+        /* Only one item in recycler, just empty it. */
+        g_assert(allocator->recycler_head == chunk);
+        allocator->recycler_head = NULL;
+    }
+    else {
+        /* Two or more items, usual doubly-linked-list removal. It's circular
+         * so we don't need to worry about null-checking anything, which is
+         * nice. */
+        WMEM_GET_FREE(free_chunk->prev)->next = free_chunk->next;
+        WMEM_GET_FREE(free_chunk->next)->prev = free_chunk->prev;
+        if (allocator->recycler_head == chunk) {
+            allocator->recycler_head = free_chunk->next;
+        }
+    }
+}
+
 /* Pushes a chunk onto the master stack. */
 static void
 wmem_block_push_master(wmem_block_allocator_t *allocator,
@@ -411,111 +441,81 @@ wmem_block_pop_master(wmem_block_allocator_t *allocator)
     }
 }
 
-/* Helper removes the chunk from whichever free list its in. */
-static void
-wmem_block_unfree(wmem_block_allocator_t *allocator,
-                  wmem_block_chunk_t *chunk)
-{
-    wmem_block_free_t *free_chunk;
-
-    g_assert (! chunk->used);
-
-    if (chunk == allocator->master_head) {
-        wmem_block_pop_master(allocator);
-        return;
-    }
-
-    /* Otherwise remove it from the recycler. */
-    free_chunk = WMEM_GET_FREE(chunk);
-
-    g_assert(free_chunk->prev && free_chunk->next);
-
-    if (free_chunk->prev == chunk && free_chunk->next == chunk) {
-        /* Only one item in recycler, just empty it. */
-        g_assert(allocator->recycler_head == chunk);
-        allocator->recycler_head = NULL;
-    }
-    else {
-        /* Two or more items, usual doubly-linked-list removal. It's circular
-         * so we don't need to worry about null-checking anything, which is
-         * nice. */
-        WMEM_GET_FREE(free_chunk->prev)->next = free_chunk->next;
-        WMEM_GET_FREE(free_chunk->next)->prev = free_chunk->prev;
-        if (allocator->recycler_head == chunk) {
-            allocator->recycler_head = free_chunk->next;
-        }
-    }
-}
-
 /* BLOCK/CHUNK HELPERS */
 
-/* Takes a free chunk and checks the chunks to its immediate left and right in
+/* Takes a free chunk and checks the chunks to its immediate right and left in
  * the block. If they are also free, the contigous free chunks are merged into
- * a single free chunk. The merged-in chunks are removed from the recycler if
- * they were in it, and the final merged chunk is added.
+ * a single free chunk. The resulting chunk ends up in either the master list or
+ * the recycler, depending on where the merged chunks were originally.
  */
 static void
 wmem_block_merge_free(wmem_block_allocator_t *allocator,
                       wmem_block_chunk_t *chunk)
 {
     wmem_block_chunk_t *tmp;
-    gboolean            add_to_recycler = TRUE;
+    wmem_block_chunk_t *left_free  = NULL;
+    wmem_block_chunk_t *right_free = NULL;
 
     g_assert(!chunk->used);
 
-    /* check the chunk to our right */
+    /* Check the chunk to our right. If it is free, merge it into our current
+     * chunk. If it is big enough to hold a free-header, save it for later (we
+     * need to know about the left chunk before we decide what goes where). */
     tmp = WMEM_CHUNK_NEXT(chunk);
-
     if (tmp && !tmp->used) {
-        /* Remove it from the recycler since we're merging it, then add its
-         * length to our length since the two free chunks are now one. Also
-         * update our last flag, since we may now be last if tmp was.
-         * Our 'chunk' pointer is still the master header. */
         if (WMEM_CHUNK_DATA_LEN(tmp) >= sizeof(wmem_block_free_t)) {
-            wmem_block_unfree(allocator, tmp);
+            right_free = tmp;
         }
         chunk->len += tmp->len;
         chunk->last = tmp->last;
     }
 
-    /* check the chunk to our left */
+    /* Check the chunk to our left. If it is free, merge our current chunk into
+     * it (thus chunk = tmp). As before, save it if it has enough space to
+     * hold a free-header. */
     tmp = WMEM_CHUNK_PREV(chunk);
-
     if (tmp && !tmp->used) {
-        /* If we're merging left, then the chunk to our left will already be in
-         * a free list, so we no longer need to add the merge result to the
-         * recycler. */
         if (WMEM_CHUNK_DATA_LEN(tmp) >= sizeof(wmem_block_free_t)) {
-            add_to_recycler = FALSE;
+            left_free = tmp;
         }
-
-        /* Add our length to its length since the two free chunks
-         * are now one. Also update its last flag, since it may now be the
-         * last chunk in the block. */
         tmp->len += chunk->len;
         tmp->last = chunk->last;
-
-        if (chunk == allocator->master_head) {
-            /* If our current chunk is the head of the master list then we need
-             * to update that. */
-            wmem_block_pop_master(allocator);
-            wmem_block_push_master(allocator, tmp);
-            add_to_recycler = FALSE;
-        }
-
-        /* The chunk pointer passed in is no longer valid, it's been merged to
-         * its left, so use the chunk to our left */
         chunk = tmp;
     }
 
-    /* Now update the following chunk to have the correct 'prev' count */
-    tmp = WMEM_CHUNK_NEXT(chunk);
-    if (tmp) {
-        tmp->prev = chunk->len;
+    /* The length of our chunk may have changed. If we have a chunk following,
+     * update its 'prev' count. */
+    if (!chunk->last) {
+        WMEM_CHUNK_NEXT(chunk)->prev = chunk->len;
     }
 
-    if (add_to_recycler) {
-        wmem_block_add_to_recycler(allocator, chunk);
+    /* Now that the chunk headers are merged and consistent, we need to figure
+     * out what goes where in which free list. */
+    if (right_free && right_free == allocator->master_head) {
+        /* If we merged right, and that chunk was the head of the master list,
+         * then we leave the resulting chunk at the head of the master list. */
+        wmem_block_free_t *moved;
+        if (left_free) {
+            wmem_block_remove_from_recycler(allocator, left_free);
+        }
+        moved = WMEM_GET_FREE(chunk);
+        moved->prev = NULL;
+        moved->next = WMEM_GET_FREE(right_free)->next;
+        allocator->master_head = chunk;
+        if (moved->next) {
+            WMEM_GET_FREE(moved->next)->prev = chunk;
+        }
+    }
+    else {
+        /* Otherwise, we remove the right-merged chunk (if there was one) from
+         * the recycler. Then, if we merged left we have nothing to do, since
+         * that recycler entry is still valid. If not, we add the chunk. */
+        if (right_free) {
+            wmem_block_remove_from_recycler(allocator, right_free);
+        }
+        if (!left_free) {
+            wmem_block_add_to_recycler(allocator, chunk);
+        }
     }
 }
 
@@ -546,7 +546,12 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
          * remove the current chunk from the free list. If the chunk does have
          * space we reuse its free-header later, so we don't have to do a full
          * remove/insert. */
-        wmem_block_unfree(allocator, chunk);
+        if (chunk == allocator->master_head) {
+            wmem_block_pop_master(allocator);
+        }
+        else {
+            wmem_block_remove_from_recycler(allocator, chunk);
+        }
         if (WMEM_CHUNK_DATA_LEN(chunk) < aligned_size) {
             /* If it doesn't even have room for just the chunk header then we
              * can't split it at all, so just return. */
