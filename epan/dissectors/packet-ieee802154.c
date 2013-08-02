@@ -2236,7 +2236,7 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *au_ieee802154_m
     }
 
     /* create a new mapping record */
-    p_map_rec = wmem_new(wmem_file_scope(), ieee802154_map_rec);
+    p_map_rec = wmem_new(wmem_epan_scope(), ieee802154_map_rec);
     p_map_rec->proto = proto;
     p_map_rec->start_fnum = fnum;
     p_map_rec->end_fnum = 0;
@@ -2248,7 +2248,7 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *au_ieee802154_m
         g_hash_table_insert(au_ieee802154_map->short_table, &old_key, p_map_rec);
     } else {
         /* create new hash entry */
-        g_hash_table_insert(au_ieee802154_map->short_table, wmem_memdup(wmem_file_scope(), &addr16, sizeof(addr16)), p_map_rec);
+        g_hash_table_insert(au_ieee802154_map->short_table, wmem_memdup(wmem_epan_scope(), &addr16, sizeof(addr16)), p_map_rec);
     }
 
     if ( g_hash_table_lookup_extended(au_ieee802154_map->long_table, &long_addr, &old_key, NULL) ) {
@@ -2256,7 +2256,7 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *au_ieee802154_m
         g_hash_table_insert(au_ieee802154_map->long_table, &old_key, p_map_rec);
     } else {
         /* create new hash entry */
-        g_hash_table_insert(au_ieee802154_map->long_table, wmem_memdup(wmem_file_scope(), &long_addr, sizeof(long_addr)), p_map_rec);
+        g_hash_table_insert(au_ieee802154_map->long_table, wmem_memdup(wmem_epan_scope(), &long_addr, sizeof(long_addr)), p_map_rec);
     }
 
     return p_map_rec;
