@@ -1246,7 +1246,8 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
     <para>Python is an interpreter based programming language. The
     homepage of the python project is:
     <ulink url="http://python.org/" />. Python is used to generate
-    some source files. Python 2.4 to 2.7 should work fine.
+    some source files. Python 2.5 or later (including Python 3) should
+    work fine but Python 2.7 is recommended.
     </para>
     <section id="ChToolsUnixPython">
       <title>UNIX or Win32 Cygwin: python</title>
@@ -1259,17 +1260,17 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       <para>After correct installation, typing at the
       bash command line prompt:</para>
       <para>
-        <userinput>$ python -V</userinput>
+        <userinput>$ python --version</userinput>
       </para>
       <para>should result in something like:</para>
       <para>
-        <computeroutput>Python 2.4.3</computeroutput>
+        <computeroutput>Python 2.7.3</computeroutput>
       </para>
       <para>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Python">
       <title>Win32 native: python</title>
-      <para>Get Python 2.7, 2.6, 2.5, or 2.4 from
+      <para>Get Python (2.7 is recommended) from
       <ulink url="http://python.org/download/" />.
       You can download an installation package there, which
       will install the Python system in the top level of your
@@ -1282,12 +1283,11 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       </para>
       <para>
         <prompt>C:\Python27&gt;</prompt>
-        <userinput>python -V</userinput>
+        <userinput>python --version</userinput>
       </para>
       <para>The output should look something like:
-      <programlisting>
-<![CDATA[Python 2.7]]>
-      </programlisting>However, the version string may vary.</para>
+        <computeroutput>Python 2.7.5</computeroutput>
+      However, the version string may vary.</para>
     </section>
   </section>
   <section id="ChToolsPerl">
