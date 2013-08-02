@@ -429,10 +429,6 @@ wmem_block_pop_master(wmem_block_allocator_t *allocator)
 
     chunk = allocator->master_head;
 
-    if (!chunk) {
-        return;
-    }
-
     free_chunk = WMEM_GET_FREE(chunk);
 
     allocator->master_head = free_chunk->next;
