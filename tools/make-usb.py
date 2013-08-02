@@ -10,7 +10,12 @@
 # It also uses the values culled out of libgphoto2 using usb-ptp-extract-models.pl
 
 import re
-import urllib
+import sys
+
+if sys.version_info[0] < 3:
+    import urllib
+else:
+    import urllib.request, urllib.error, urllib.parse
 
 MODE_IDLE           = 0
 MODE_VENDOR_PRODUCT = 1
@@ -19,7 +24,10 @@ MODE_VENDOR_PRODUCT = 1
 mode = MODE_IDLE
 
 # Grab from linux-usb.org
-response = urllib.urlopen('http://www.linux-usb.org/usb.ids')
+if sys.version_info[0] < 3:
+    response = urllib.urlopen('http://www.linux-usb.org/usb.ids')
+else:
+    response = urllib.request.urlopen('http://www.linux-usb.org/usb.ids')
 lines = response.read().splitlines()
 
 vendors  = dict()
