@@ -31,6 +31,7 @@
 #include <glib.h>
 
 #include "sha1.h"
+#include "file_util.h"
 
 #define GET_UINT32(n,b,i)                       \
 {                                               \
@@ -341,19 +342,20 @@ void sha1_hmac( const guint8 *key, guint32 keylen, const guint8 *buf, guint32 bu
 #include <stdlib.h>
 #include <stdio.h>
 #include <glib.h>
+#include <errno.h>
 
 /*
  * those are the standard FIPS-180-1 test vectors
  */
 
-static char *msg[] =
+static const char *msg[] =
 {
     "abc",
     "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
     NULL
 };
 
-static char *val[] =
+static const char *val[] =
 {
     "a9993e364706816aba3e25717850c26c9cd0d89d",
     "84983e441c3bd26ebaae4aa1f95129e5e54670f1",
@@ -381,7 +383,7 @@ int main( int argc, char *argv[] )
 
             if( i < 2 )
             {
-                sha1_update( &ctx, (uint8 *) msg[i],
+                sha1_update( &ctx, (guint8 *) msg[i],
                              strlen( msg[i] ) );
             }
             else
@@ -390,7 +392,7 @@ int main( int argc, char *argv[] )
 
                 for( j = 0; j < 1000; j++ )
                 {
-                    sha1_update( &ctx, (uint8 *) buf, 1000 );
+                    sha1_update( &ctx, (guint8 *) buf, 1000 );
                 }
             }
 
@@ -414,9 +416,9 @@ int main( int argc, char *argv[] )
     }
     else
     {
-        if( ! ( f = fopen( argv[1], "rb" ) ) )
+        if( ! ( f = ws_fopen( argv[1], "rb" ) ) )
         {
-            perror( "fopen" );
+            printf("fopen: %s", g_strerror(errno));
             return( 1 );
         }
 
