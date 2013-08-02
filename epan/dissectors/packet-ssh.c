@@ -47,14 +47,15 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
 #include <epan/sctpppids.h>
-
-#include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
+
+#include "packet-tcp.h"
 
 /* SSH Version 1 definition , from openssh ssh1.h */
 #define SSH1_MSG_NONE			0	/* no message */
@@ -238,37 +239,36 @@ static const value_string ssh2_msg_vals[] = {
 };
 
 static const value_string ssh1_msg_vals[] = {
-	{SSH1_MSG_NONE,"No Message"},
+	{SSH1_MSG_NONE, "No Message"},
 	{SSH1_MSG_DISCONNECT, "Disconnect"},
-	{SSH1_SMSG_PUBLIC_KEY,"Public Key"},
-	{SSH1_CMSG_SESSION_KEY,"Session Key"},
-	{SSH1_CMSG_USER,"User"},
+	{SSH1_SMSG_PUBLIC_KEY, "Public Key"},
+	{SSH1_CMSG_SESSION_KEY, "Session Key"},
+	{SSH1_CMSG_USER, "User"},
 	{0, NULL}
 };
 
 static int ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 		int is_response,
 		struct ssh_flow_data *global_data);
-
 static int ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-		int offset, proto_tree *tree,int is_response,
+		int offset, proto_tree *tree,
 		gboolean *need_desegmentation);
 static int ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-		int offset, proto_tree *tree,int is_response,
+		int offset, proto_tree *tree, int is_response,
 		gboolean *need_desegmentation );
 static int ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-		int offset, proto_tree *tree,int is_response,
+		int offset, proto_tree *tree, int is_response,
 		gboolean *need_desegmentation );
 static int ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-		int offset, proto_tree *tree,int is_response,guint *version,
+		int offset, proto_tree *tree, int is_response, guint *version,
 		gboolean *need_desegmentation);
 static int ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-		int offset, proto_tree *tree,int is_response);
+		int offset, proto_tree *tree);
 static proto_item * ssh_proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		gint start, gint length, guint encoding);
 
@@ -291,13 +291,13 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	conversation = find_or_create_conversation(pinfo);
 
-	global_data = (struct ssh_flow_data *)conversation_get_proto_data(conversation,proto_ssh);
+	global_data = (struct ssh_flow_data *)conversation_get_proto_data(conversation, proto_ssh);
 	if(!global_data ) {
 		global_data = (struct ssh_flow_data *)se_alloc0(sizeof(struct ssh_flow_data));
 		global_data->version=SSH_VERSION_UNKNOWN;
 		global_data->mac_length=-1;
 
-		conversation_add_proto_data(conversation,proto_ssh,global_data);
+		conversation_add_proto_data(conversation, proto_ssh, global_data);
 	}
 
 	if(tree) {
@@ -320,7 +320,9 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 
-	while(tvb_reported_length_remaining(tvb,offset)> 0 ) {
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	while(tvb_reported_length_remaining(tvb, offset)> 0 ) {
 		need_desegmentation = FALSE;
 		last_offset = offset;
 
@@ -334,10 +336,10 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (((global_data->frame_version_start == 0) ||
 			((pinfo->fd->num >= global_data->frame_version_start) &&
 			 ((global_data->frame_version_end == 0) || (pinfo->fd->num <= global_data->frame_version_end)))) &&
-			 (tvb_strncaseeql(tvb,offset,"SSH-",4) == 0)) {
+			 (tvb_strncaseeql(tvb, offset, "SSH-", 4) == 0)) {
 			offset = ssh_dissect_protocol(tvb, pinfo,
 					global_data,
-					offset,ssh_tree, is_response,
+					offset, ssh_tree, is_response,
 					&version, &need_desegmentation);
 			if(!pinfo->fd->flags.visited) {
 				if(!is_response) {
@@ -354,18 +356,17 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case SSH_VERSION_UNKNOWN:
 				offset = ssh_dissect_encrypted_packet(tvb, pinfo,
-						global_data, offset,ssh_tree,is_response);
+						global_data, offset, ssh_tree);
 				break;
 
 			case SSH_VERSION_1:
 				offset = ssh_dissect_ssh1(tvb, pinfo, global_data,
-						offset,ssh_tree,is_response,
-						&need_desegmentation);
+						offset, ssh_tree, &need_desegmentation);
 				break;
 
 			case SSH_VERSION_2:
 				offset = ssh_dissect_ssh2(tvb, pinfo, global_data,
-						offset,ssh_tree,is_response,
+						offset, ssh_tree, is_response,
 						&need_desegmentation);
 				break;
 			}
@@ -376,12 +377,14 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(offset <= last_offset)
 			THROW(ReportedBoundsError);
 	}
+
+	col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s: ", is_response ? "Server" : "Client");
 }
 
 static int
 ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-		int offset, proto_tree *tree,int is_response,
+		int offset, proto_tree *tree, int is_response,
 		gboolean *need_desegmentation)
 {
 	proto_item *ti;
@@ -391,36 +394,35 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 		emem_strbuf_t *title=ep_strbuf_new("SSH Version 2");
 
 		if (global_data->enc || global_data->mac || global_data->comp) {
-			ep_strbuf_append_printf(title," (");
+			ep_strbuf_append_printf(title, " (");
 			if (global_data->enc)
-				ep_strbuf_append_printf(title,"encryption:%s%s",
+				ep_strbuf_append_printf(title, "encryption:%s%s",
 					global_data->enc,
 					global_data->mac || global_data->comp
 						? " " : "");
 			if (global_data->mac)
-				ep_strbuf_append_printf(title,"mac:%s%s",
+				ep_strbuf_append_printf(title, "mac:%s%s",
 					global_data->mac,
 					global_data->comp ? " " : "");
 			if (global_data->comp)
-				ep_strbuf_append_printf(title,"compression:%s",
+				ep_strbuf_append_printf(title, "compression:%s",
 					global_data->comp);
-			ep_strbuf_append_printf(title,")");
+			ep_strbuf_append_printf(title, ")");
 		}
 
-		ti=proto_tree_add_text(tree,tvb,offset,-1, "%s", title->str);
-		ssh2_tree = proto_item_add_subtree(ti ,ett_ssh2);
+		ti=proto_tree_add_text(tree, tvb, offset, -1, "%s", title->str);
+		ssh2_tree = proto_item_add_subtree(ti, ett_ssh2);
 	}
 
 	if ((global_data->frame_key_start == 0) ||
 		((global_data->frame_key_start <= pinfo->fd->num) &&
 		((global_data->frame_key_end == 0) || (pinfo->fd->num <= global_data->frame_key_end)))) {
-		offset = ssh_dissect_key_exchange(tvb,pinfo, global_data,
-			offset,ssh2_tree,is_response,
+		offset = ssh_dissect_key_exchange(tvb, pinfo, global_data,
+			offset, ssh2_tree, is_response,
 			need_desegmentation);
 	} else {
 		offset = ssh_dissect_encrypted_packet(tvb, pinfo,
-				global_data,
-				offset,ssh2_tree,is_response);
+				global_data, offset, ssh2_tree);
 	}
 
 	return offset;
@@ -428,10 +430,10 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 static int
 ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-		int offset, proto_tree *tree, int is_response,
+		int offset, proto_tree *tree,
 		gboolean *need_desegmentation)
 {
-	guint 	plen, padding_length,len;
+	guint 	plen, padding_length, len;
 	guint8 	msg_code;
 	guint	remain_length;
 
@@ -439,8 +441,8 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item *ssh1_tree =NULL;
 
 	if(tree) {
-		ti=proto_tree_add_text(tree,tvb,offset,-1,"SSH Version 1");
-		ssh1_tree = proto_item_add_subtree(ti ,ett_ssh1);
+		ti=proto_tree_add_text(tree, tvb, offset, -1, "SSH Version 1");
+		ssh1_tree = proto_item_add_subtree(ti, ett_ssh1);
 	}
 
 	/*
@@ -449,7 +451,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 	 *
 	 * This means we're guaranteed that "remain_length" is positive.
 	 */
-	remain_length = tvb_ensure_length_remaining(tvb,offset);
+	remain_length = tvb_ensure_length_remaining(tvb, offset);
 	/*
 	 * Can we do reassembly?
 	 */
@@ -486,13 +488,10 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 		}
 	}
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: ",
-			is_response?"Server":"Client");
-
 	if(plen >= 0xffff) {
 		if (ssh1_tree && plen > 0) {
 			  proto_tree_add_uint_format(ssh1_tree, hf_ssh_packet_length, tvb,
-			    offset, 4, plen,"Overly large length %x",plen);
+			    offset, 4, plen, "Overly large length %x", plen);
 		}
 		plen = remain_length-4-padding_length;
 	} else {
@@ -516,7 +515,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 		msg_code = tvb_get_guint8(tvb, offset);
 
 		proto_tree_add_item(ssh1_tree, hf_ssh_msg_code, tvb, offset, 1, ENC_NA);
-		col_append_str(pinfo->cinfo, COL_INFO,
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
 			val_to_str(msg_code, ssh1_msg_vals, "Unknown (%u)"));
 		offset += 1;
 		len = plen -1;
@@ -527,7 +526,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 		}
 	} else {
 		len = plen;
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted packet len=%d", len);
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Encrypted packet (len=%d)", len);
 	}
 	/* payload */
 	if (ssh1_tree ) {
@@ -576,10 +575,10 @@ ssh_tree_add_string(tvbuff_t *tvb, int offset, proto_tree *tree,
 static int
 ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-		int offset, proto_tree *tree,int is_response,
+		int offset, proto_tree *tree, int is_response,
 		gboolean *need_desegmentation)
 {
-	guint 	plen,len;
+	guint 	plen, len;
 	guint8	padding_length;
 	guint	remain_length;
 	int 	last_offset=offset;
@@ -594,7 +593,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	 *
 	 * This means we're guaranteed that "remain_length" is positive.
 	 */
-	remain_length = tvb_ensure_length_remaining(tvb,offset);
+	remain_length = tvb_ensure_length_remaining(tvb, offset);
 	/*
 	 * Can we do reassembly?
 	 */
@@ -631,7 +630,6 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	/*
 	 * Need to check plen > 0x80000000 here
 	 */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: ", is_response?"Server":"Client");
 
 	ti = proto_tree_add_uint(tree, hf_ssh_packet_length, tvb,
 					offset, 4, plen);
@@ -646,14 +644,14 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_uint(tree, hf_ssh_padding_length, tvb, offset, 1, padding_length);
 	offset += 1;
 
-	tf=proto_tree_add_text(tree,tvb,offset,-1,"Key Exchange");
+	tf=proto_tree_add_text(tree, tvb, offset, -1, "Key Exchange");
 	key_ex_tree = proto_item_add_subtree(tf, ett_key_exchange);
 
 	/* msg_code */
 	msg_code = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(key_ex_tree, hf_ssh2_msg_code, tvb, offset, 1, ENC_NA);
 
-	col_append_str(pinfo->cinfo, COL_INFO,
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
 		val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
 	offset += 1;
 
@@ -684,19 +682,19 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	/* DH Key Exchange Reply (g/p) */
 	case SSH_MSG_KEXDH_REPLY:
-		offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_p);
-		offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_g);
+		offset+=ssh_tree_add_mpint(tvb, offset, key_ex_tree, hf_ssh_mpint_p);
+		offset+=ssh_tree_add_mpint(tvb, offset, key_ex_tree, hf_ssh_mpint_g);
 		break;
 
 	/* DH GEX Init (e) */
 	case SSH_MSG_KEX_DH_GEX_INIT:
-		offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_e);
+		offset+=ssh_tree_add_mpint(tvb, offset, key_ex_tree, hf_ssh_mpint_e);
 		break;
 	/* DH GEX Reply (f) */
 	case SSH_MSG_KEX_DH_GEX_REPLY:
-		offset+=ssh_tree_add_string(tvb,offset,key_ex_tree,hf_ssh_kexdh_host_key,hf_ssh_kexdh_host_key_length);
-		offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_f);
-		offset+=ssh_tree_add_string(tvb,offset,key_ex_tree,hf_ssh_kexdh_h_sig,hf_ssh_kexdh_h_sig_length);
+		offset+=ssh_tree_add_string(tvb, offset, key_ex_tree, hf_ssh_kexdh_host_key, hf_ssh_kexdh_host_key_length);
+		offset+=ssh_tree_add_mpint(tvb, offset, key_ex_tree, hf_ssh_mpint_f);
+		offset+=ssh_tree_add_string(tvb, offset, key_ex_tree, hf_ssh_kexdh_h_sig, hf_ssh_kexdh_h_sig_length);
 		break;
 	}
 
@@ -708,28 +706,17 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	ssh_proto_tree_add_item(key_ex_tree, hf_ssh_padding_string, tvb, offset, padding_length, ENC_NA);
 	offset+= padding_length;
 
-	/* MAC, if there is still bytes, treat it as 16bytes MAC */
-	if(msg_code == SSH_MSG_KEX_DH_GEX_REPLY) {
-		len = tvb_reported_length_remaining(tvb,offset);
-		if(len == 16) {
-			proto_tree_add_item(key_ex_tree, hf_ssh_mac_string,
-						tvb, offset, len , ENC_NA);
-			offset+=len;
-		}
-	}
-
 	return offset;
 }
 static int
 ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-		int offset, proto_tree *tree,int is_response)
+		int offset, proto_tree *tree)
 {
 	gint len;
 
-	len = tvb_reported_length_remaining(tvb,offset);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted %s packet len=%d",
-			is_response?"response":"request",len);
+	len = tvb_reported_length_remaining(tvb, offset);
+	col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Encrypted packet (len=%d)", len);
 
 	if (tree ) {
 		gint encrypted_len = len;
@@ -762,19 +749,18 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	 *  If the first packet do not contain the banner,
 	 *  it is dump in the middle of a flow or not a ssh at all
 	 */
-	if(tvb_strncaseeql(tvb,offset,"SSH-",4) != 0 ) {
+	if(tvb_strncaseeql(tvb, offset, "SSH-", 4) != 0 ) {
 		offset = ssh_dissect_encrypted_packet(tvb, pinfo,
-			global_data,
-			offset,tree,is_response);
+			global_data, offset, tree);
 		return offset;
 	}
 
 	if(!is_response) {
-		if(tvb_strncaseeql(tvb,offset,"SSH-2.",6) == 0 ) {
+		if(tvb_strncaseeql(tvb, offset, "SSH-2.", 6) == 0 ) {
 			*(version) = SSH_VERSION_2;
-		} else if(tvb_strncaseeql(tvb,offset,"SSH-1.99-",9) == 0 ) {
+		} else if(tvb_strncaseeql(tvb, offset, "SSH-1.99-", 9) == 0 ) {
 			*(version) = SSH_VERSION_2;
-		}else if(tvb_strncaseeql(tvb,offset,"SSH-1.",6) == 0 ) {
+		}else if(tvb_strncaseeql(tvb, offset, "SSH-1.", 6) == 0 ) {
 			*(version) = SSH_VERSION_1;
 		}
 	}
@@ -785,7 +771,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	 *
 	 * This means we're guaranteed that "remain_length" is positive.
 	 */
-	remain_length = tvb_ensure_length_remaining(tvb,offset);
+	remain_length = tvb_ensure_length_remaining(tvb, offset);
 	/*linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	 */
 	linelen = tvb_find_guint8(tvb, offset, -1, '\n');
@@ -811,9 +797,8 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 			protolen = linelen - 1;
 	}
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s Protocol: %s",
-			is_response?"Server":"Client",
-			tvb_format_text(tvb,offset,protolen));
+	col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Protocol (%s)",
+			tvb_format_text(tvb, offset, protolen));
 
 	ssh_proto_tree_add_item(tree, hf_ssh_protocol,
 					tvb, offset, linelen, ENC_ASCII|ENC_NA);
@@ -848,16 +833,16 @@ ssh_set_mac_length(struct ssh_flow_data *global_data, gchar *mac_name)
 
 	if (!global_data || !mac_name) return;
 
-	if ((size_str=g_strrstr(mac_name,"-")) && ((size=atoi(size_str+1)))) {
+	if ((size_str=g_strrstr(mac_name, "-")) && ((size=atoi(size_str+1)))) {
 		global_data->mac_length = size;
 	}
-	else if (strcmp(mac_name,"hmac-sha1") == 0) {
+	else if (strcmp(mac_name, "hmac-sha1") == 0) {
 		global_data->mac_length = 20;
 	}
-	else if (strcmp(mac_name,"hmac-md5") == 0) {
+	else if (strcmp(mac_name, "hmac-md5") == 0) {
 		global_data->mac_length = 12;
 	}
-	else if (strcmp(mac_name,"none") == 0) {
+	else if (strcmp(mac_name, "none") == 0) {
 		global_data->mac_length = 0;
 	}
 }
@@ -871,7 +856,7 @@ ssh_gslist_compare_strings(gconstpointer a, gconstpointer b)
 		return -1;
 	if (b == NULL)
 		return 1;
-	return strcmp((const char*)a,(const char*)b);
+	return strcmp((const char*)a, (const char*)b);
 }
 
 /* expects that *result is NULL */
@@ -886,12 +871,12 @@ ssh_choose_algo(gchar *client, gchar *server, gchar **result)
 	if (!client || !server || !result || *result)
 		return;
 
-	server_strings = g_strsplit(server,",",0);
+	server_strings = g_strsplit(server, ",", 0);
 	for (step = server_strings; *step; step++) {
 		server_list = g_slist_append(server_list, *step);
 	}
 
-	client_strings = g_strsplit(client,",",0);
+	client_strings = g_strsplit(client, ",", 0);
 	for (step = client_strings; *step; step++) {
 		GSList *agreed;
 		if ((agreed=g_slist_find_custom(server_list, *step, ssh_gslist_compare_strings))) {
@@ -938,7 +923,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 	proto_item *key_init_tree=NULL;
 
 	if (tree) {
-		tf=proto_tree_add_text(tree,tvb,offset,-1,"Algorithms");
+		tf=proto_tree_add_text(tree, tvb, offset, -1, "Algorithms");
 		key_init_tree = proto_item_add_subtree(tf, ett_key_init);
 		proto_tree_add_item(key_init_tree, hf_ssh_cookie,
 			tvb, offset, 16, ENC_NA);
