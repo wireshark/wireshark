@@ -82,6 +82,7 @@ LIBWSUTIL_INCLUDES = 	\
 	sha1.h		\
 	strnatcmp.h	\
 	str_util.h	\
+	pint.h		\
 	rc4.h		\
 	report_err.h	\
 	tempfile.h	\
