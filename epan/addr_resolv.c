@@ -1241,6 +1241,7 @@ get_ethent(unsigned int *mask, const gboolean manuf_file)
 
 } /* get_ethent */
 
+#if 0
 static ether_t *
 get_ethbyname(const gchar *name)
 {
@@ -1265,6 +1266,7 @@ get_ethbyname(const gchar *name)
   return eth;
 
 } /* get_ethbyname */
+#endif
 
 static ether_t *
 get_ethbyaddr(const guint8 *addr)
@@ -1670,7 +1672,7 @@ add_eth_name(const guint8 *addr, const gchar *name)
   key = (gint64 *)g_new(gint64, 1);
   *key = eth_as_int64;
 
-  tp = g_hash_table_lookup(eth_hashtable, key);
+  tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, key);
 
   if( tp == NULL ){
     tp = eth_hash_new_entry(addr, FALSE);
@@ -1709,7 +1711,7 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve) {
   key = (gint64 *)g_new(gint64, 1);
   *key = eth_as_int64;
 
-  tp = g_hash_table_lookup(eth_hashtable, key);
+  tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, key);
   if( tp == NULL ) {
     tp = eth_hash_new_entry(addr, resolve);
   } else {
@@ -1721,7 +1723,7 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve) {
 } /* eth_name_lookup */
 
 static guint8 *
-eth_addr_lookup(const gchar *name)
+eth_addr_lookup(const gchar *name _U_)
 {
 #if 0
   ether_t      *eth;
