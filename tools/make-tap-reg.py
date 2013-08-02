@@ -35,7 +35,7 @@ elif registertype == "tshark-taps":
 	final_filename = "tshark-tap-register.c"
 	cache_filename = "tshark-tap-register-cache.pkl"
 else:
-	print "Unknown output type '%s'" % registertype
+	print("Unknown output type '%s'" % registertype)
 	sys.exit(1)
 
 
@@ -53,7 +53,7 @@ for file in files:
 		filenames.append("%s/%s" % (srcdir, file))
 
 if len(filenames) < 1:
-	print "No files found"
+	print("No files found")
 	sys.exit(1)
 
 
@@ -89,7 +89,7 @@ if cache_filename:
 for filename in filenames:
 	file = open(filename)
 	cur_mtime = os.fstat(file.fileno())[ST_MTIME]
-	if cache and cache.has_key(filename):
+	if cache and filename in cache:
 		cdict = cache[filename]
 		if cur_mtime == cdict['mtime']:
 #			print "Pulling %s from cache" % (filename)
@@ -123,7 +123,7 @@ if cache is not None and cache_filename is not None:
 
 # Make sure we actually processed something
 if len(regs['tap_reg']) < 1:
-	print "No protocol registrations found"
+	print("No protocol registrations found")
 	sys.exit(1)
 
 # Sort the lists to make them pretty
