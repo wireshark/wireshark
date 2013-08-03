@@ -665,17 +665,13 @@ wmem_block_alloc(void *private_data, const size_t size)
     }
     else if (WMEM_CHUNK_DATA_LEN(allocator->free_list_head) < size) {
         /* First free chunk isn't big enough. Try the next one. */
-        chunk = allocator->free_list_head;
-        wmem_block_remove_from_free_list(allocator, chunk);
+        wmem_block_remove_from_free_list(allocator, allocator->free_list_head);
         if (allocator->free_list_head == NULL ||
                 WMEM_CHUNK_DATA_LEN(allocator->free_list_head) < size) {
             /* Next one isn't big enough (or there is no next one) so grab
              * a new block */
             wmem_block_new_block(allocator);
         }
-        /* Add the old block back (it may still deserve to be listed, just
-         * deprioritized). This is a no-op if it is not large enough. */
-        wmem_block_add_to_free_list(allocator, chunk);
     }
 
     chunk = allocator->free_list_head;
