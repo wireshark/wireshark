@@ -1087,6 +1087,7 @@ DISSECTOR_SRC = \
 	packet-ssh.c		\
 	packet-ssl-utils.c	\
 	packet-ssl.c		\
+	packet-stanag4607.c	\
 	packet-starteam.c	\
 	packet-stat-notify.c	\
 	packet-stat.c		\
