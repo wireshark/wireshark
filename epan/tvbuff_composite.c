@@ -46,12 +46,6 @@ struct tvb_composite {
 	tvb_comp_t	composite;
 };
 
-static gsize
-composite_sizeof(void)
-{
-	return sizeof(struct tvb_composite);
-}
-
 static void
 composite_free(tvbuff_t *tvb)
 {
@@ -183,7 +177,8 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_lengt
 }
 
 static const struct tvb_ops tvb_composite_ops = {
-	composite_sizeof,     /* size */
+	sizeof(struct tvb_composite), /* size */
+
 	composite_free,       /* free */
 	composite_offset,     /* offset */
 	composite_get_ptr,    /* get_ptr */

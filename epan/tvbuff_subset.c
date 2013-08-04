@@ -46,12 +46,6 @@ struct tvb_subset {
 	tvb_backing_t	subset;
 };
 
-static gsize 
-subset_sizeof(void)
-{
-	return sizeof(struct tvb_subset);
-}
-
 static guint
 subset_offset(const tvbuff_t *tvb, const guint counter)
 {
@@ -102,7 +96,8 @@ subset_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 }
 
 static const struct tvb_ops tvb_subset_ops = {
-	subset_sizeof,        /* size */
+	sizeof(struct tvb_subset), /* size */
+
 	NULL,                 /* free */
 	subset_offset,        /* offset */
 	subset_get_ptr,       /* get_ptr */

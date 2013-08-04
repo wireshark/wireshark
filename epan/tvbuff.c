@@ -51,10 +51,6 @@
 #include "charsets.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
-static const guint8*
-ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length,
-		int *pexception);
-
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
 
@@ -62,7 +58,7 @@ tvbuff_t *
 tvb_new(const struct tvb_ops *ops)
 {
 	tvbuff_t *tvb;
-	gsize     size = (ops->tvb_size) ? ops->tvb_size() : sizeof(*tvb);
+	gsize     size = ops->tvb_size ? ops->tvb_size : sizeof(*tvb);
 
 	g_assert(size >= sizeof(*tvb));
 
@@ -92,7 +88,7 @@ tvb_free_internal(tvbuff_t *tvb)
 	if (tvb->ops->tvb_free)
 		tvb->ops->tvb_free(tvb);
 
-	size = (tvb->ops->tvb_size) ? tvb->ops->tvb_size() : sizeof(*tvb);
+	size = (tvb->ops->tvb_size) ? tvb->ops->tvb_size : sizeof(*tvb);
 
 	g_slice_free1(size, tvb);
 }
@@ -632,7 +628,6 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 	 */
 	if (tvb->real_data)
 		return tvb->real_data + abs_offset;
-
 
 	if (tvb->ops->tvb_get_ptr)
 		return tvb->ops->tvb_get_ptr(tvb, abs_offset, abs_length);

@@ -36,12 +36,6 @@ struct tvb_real {
 	tvbuff_free_cb_t	free_cb;
 };
 
-static gsize 
-real_sizeof(void)
-{ 
-	return sizeof(struct tvb_real);
-}
-
 static void
 real_free(tvbuff_t *tvb)
 {
@@ -62,7 +56,8 @@ real_offset(const tvbuff_t *tvb _U_, const guint counter)
 }
 
 static const struct tvb_ops tvb_real_ops = {
-	real_sizeof,          /* size */
+	sizeof(struct tvb_real), /* size */
+
 	real_free,            /* free */
 	real_offset,          /* offset */
 	NULL,                 /* get_ptr */

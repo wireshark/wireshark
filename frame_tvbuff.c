@@ -143,12 +143,6 @@ frame_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *ne
 	return tvb_pbrk_guint8(tvb, abs_offset, limit, needles, found_needle);
 }
 
-static gsize
-frame_sizeof(void)
-{
-	return sizeof(struct tvb_frame);
-}
-
 static guint
 frame_offset(const tvbuff_t *tvb _U_, const guint counter)
 {
@@ -159,7 +153,8 @@ frame_offset(const tvbuff_t *tvb _U_, const guint counter)
 static tvbuff_t *frame_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length);
 
 static const struct tvb_ops tvb_frame_ops = {
-	frame_sizeof,         /* size */
+	sizeof(struct tvb_frame), /* size */
+
 	frame_free,           /* free */
 	frame_offset,         /* offset */
 	frame_get_ptr,        /* get_ptr */

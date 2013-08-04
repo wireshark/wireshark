@@ -29,7 +29,7 @@
 struct tvbuff;
 
 struct tvb_ops {
-	gsize (*tvb_size)(void);
+	gsize tvb_size;
 	void (*tvb_free)(struct tvbuff *tvb);
 	guint (*tvb_offset)(const struct tvbuff *tvb, guint counter);
 	const guint8 *(*tvb_get_ptr)(struct tvbuff *tvb, guint abs_offset, guint abs_length);
