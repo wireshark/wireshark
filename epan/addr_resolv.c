@@ -1672,6 +1672,10 @@ add_eth_name(const guint8 *addr, const gchar *name)
   key = (gint64 *)g_new(gint64, 1);
   *key = eth_as_int64;
 
+  if(eth_hashtable == NULL){
+    eth_hashtable = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
+  }
+
   tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, key);
 
   if( tp == NULL ){
@@ -1710,6 +1714,10 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve) {
 
   key = (gint64 *)g_new(gint64, 1);
   *key = eth_as_int64;
+
+  if(eth_hashtable == NULL){
+    eth_hashtable = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
+  }
 
   tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, key);
   if( tp == NULL ) {
@@ -2713,16 +2721,16 @@ eth_name_lookup_cleanup(void) {
   /* XXX this is only needed when shuting down application (if at all) */
   if(manuf_hashtable){
     g_hash_table_destroy(manuf_hashtable);
-	manuf_hashtable = NULL;
+    manuf_hashtable = NULL;
   }
   if(wka_hashtable){
     g_hash_table_destroy(wka_hashtable);
-	wka_hashtable = NULL;
+    wka_hashtable = NULL;
   }
 
   if(eth_hashtable){
     g_hash_table_destroy(eth_hashtable);
-	wka_hashtable = NULL;
+    eth_hashtable = NULL;
   }
 
   eth_resolution_initialized = FALSE;
