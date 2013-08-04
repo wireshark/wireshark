@@ -65,6 +65,8 @@ static int hf_h248_no_evt = -1;
 static int hf_h248_param = -1;
 
 static int hf_h248_serviceChangeReasonStr = -1;
+static int hf_h248_transactionId64 = -1;
+static int hf_h248_context_id64 = -1;
 
 /* h248v1 support */
 static int hf_h248_auditValueReplyV1 = -1;
@@ -89,6 +91,8 @@ static gcp_hf_ett_t h248_arrel = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
 #include "packet-h248-ett.c"
 
 static expert_field ei_h248_errored_command = EI_INIT;
+static expert_field ei_h248_transactionId64 = EI_INIT;
+static expert_field ei_h248_context_id64 = EI_INIT;
 
 static dissector_table_t subdissector_table;
 
@@ -813,8 +817,8 @@ static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_
             offset++;
         }
         if (trx_id > 0xffffffff) {
-            proto_item* pi = proto_tree_add_text(tree, tvb, offset-len, len,"transactionId %" G_GINT64_MODIFIER "u", trx_id);
-            proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
+            proto_item* pi = proto_tree_add_uint64(tree, hf_h248_transactionId64, tvb, offset-len, len, trx_id);
+            expert_add_info(pinfo, pi, &ei_h248_transactionId64);
 
             *trx_id_p = 0;
 
@@ -852,9 +856,8 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
         }
 
         if (ctx_id > 0xffffffff) {
-            proto_item* pi = proto_tree_add_text(tree, tvb, offset-len, len,
-                                                 "contextId: %" G_GINT64_MODIFIER "u", ctx_id);
-            proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
+            proto_item* pi = proto_tree_add_uint64(tree, hf_h248_context_id64, tvb, offset-len, len, ctx_id);
+            expert_add_info(pinfo, pi, &ei_h248_context_id64);
 
             *ctx_id_p = 0xfffffffd;
 
@@ -1561,6 +1564,14 @@ void proto_register_h248(void) {
           { "ServiceChangeReasonStr", "h248.serviceChangeReasonstr",
             FT_STRING, BASE_NONE, NULL, 0,
             "h248.IA5String", HFILL }},
+        { &hf_h248_context_id64,
+          { "contextId", "h248.contextId",
+            FT_UINT64, BASE_HEX, NULL, 0,
+            "Context ID", HFILL }},
+        { &hf_h248_transactionId64,
+          { "transactionId", "h248.transactionId",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            NULL, HFILL }},
 
 /* h248v1 support */
         { &hf_h248_auditValueReplyV1,
@@ -1591,6 +1602,8 @@ void proto_register_h248(void) {
 
     static ei_register_info ei[] = {
         { &ei_h248_errored_command, { "h248.errored_command", PI_RESPONSE_CODE, PI_WARN, "Errored Command", EXPFILL }},
+        { &ei_h248_transactionId64, { "h248.transactionId.error", PI_MALFORMED, PI_WARN, "Transaction ID invalid", EXPFILL }},
+        { &ei_h248_context_id64, { "h248.contextId.error", PI_MALFORMED, PI_WARN, "Context ID invalid", EXPFILL }},
     };
 
     expert_module_t* expert_h248;
