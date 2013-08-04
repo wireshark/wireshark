@@ -196,7 +196,7 @@ extern gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboo
 extern gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent);
 extern gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type, guint offset, gboolean persistent);
 extern gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term_t* t, gcp_wildcard_t wildcard, gboolean persistent);
-extern void gcp_analyze_msg(proto_tree* gcp_tree, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_hf_ett_t* ids);
+extern void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_hf_ett_t* ids, expert_field* command_err);
 
 extern const gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent);
 extern const gchar* gcp_msg_to_str(gcp_msg_t* m, gboolean persistent);

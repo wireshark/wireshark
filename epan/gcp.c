@@ -669,7 +669,7 @@ typedef struct _gcp_ctxs_t {
 
 /*static const gchar* trx_types[] = {"None","Req","Reply","Pending","Ack"};*/
 
-void gcp_analyze_msg(proto_tree* gcp_tree, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_hf_ett_t* ids) {
+void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_hf_ett_t* ids, expert_field* command_err) {
     gcp_trx_msg_t* t;
     gcp_ctxs_t contexts = {NULL,NULL};
     gcp_ctxs_t* ctx_node;
@@ -712,7 +712,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_
                 if (c->cmd->str) proto_item_append_text(cmd_item,"  %s ",c->cmd->str);
                 PROTO_ITEM_SET_GENERATED(cmd_item);
                 if (c->cmd->error) {
-                    proto_item_set_expert_flags(cmd_item, PI_RESPONSE_CODE, PI_WARN);
+                    expert_add_info(pinfo, cmd_item, command_err);
                 }
             }
         }
@@ -746,7 +746,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_
                     if (ctx_term->term->bir && ctx_term->term->nsap) {
                         gchar* tmp_key = ep_strdup_printf("%s:%s",ctx_term->term->nsap,ctx_term->term->bir);
                         gchar* key = g_ascii_strdown(tmp_key, -1);
-                        alcap_tree_from_bearer_key(term_tree, gcp_tvb, key);
+                        alcap_tree_from_bearer_key(term_tree, gcp_tvb, pinfo, key);
                         g_free(key);
                     }
                 }

@@ -5226,7 +5226,7 @@ dissect_h248_Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
     col_add_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
         
     if (keep_persistent_data)
-        gcp_analyze_msg(h248_tree, h248_tvb, curr_info.msg, &h248_arrel);
+        gcp_analyze_msg(h248_tree, actx->pinfo, h248_tvb, curr_info.msg, &h248_arrel, &ei_h248_errored_command);
 
   return offset;
 }

@@ -140,6 +140,8 @@ static int ett_megaco_h245                      = -1;
 
 static gcp_hf_ett_t megaco_ctx_ids = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
 
+static expert_field ei_megaco_errored_command = EI_INIT;
+
 static dissector_handle_t megaco_text_handle;
 
 static int megaco_tap = -1;
@@ -1353,7 +1355,7 @@ nextcontext:
 
         if (keep_persistent_data) {
             gcp_msg_to_str(msg,keep_persistent_data);
-            gcp_analyze_msg(megaco_tree, tvb, msg, &megaco_ctx_ids );
+            gcp_analyze_msg(megaco_tree, pinfo, tvb, msg, &megaco_ctx_ids, &ei_megaco_errored_command);
         }
 
         tvb_next_offset = tvb_transaction_end_offset;
@@ -3533,7 +3535,12 @@ proto_register_megaco(void)
         GCP_ETT_ARR_ELEMS(megaco_ctx_ids),
     };
 
+    static ei_register_info ei[] = {
+        { &ei_megaco_errored_command, { "megaco.errored_command", PI_RESPONSE_CODE, PI_WARN, "Errored Command", EXPFILL }},
+    };
+
     module_t *megaco_module;
+    expert_module_t* expert_megaco;
 
     proto_megaco = proto_register_protocol("MEGACO",
                                            "MEGACO", "megaco");
@@ -3542,6 +3549,8 @@ proto_register_megaco(void)
 
     proto_register_field_array(proto_megaco, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_megaco = expert_register_protocol(proto_megaco);
+    expert_register_field_array(expert_megaco, ei, array_length(ei));
 
     /* Register our configuration options, particularly our ports */
 
