@@ -346,13 +346,6 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
                       proto_item *item);
 
 static void
-dissect_amqp_0_10_array(tvbuff_t *tvb,
-                        int offset,
-                        int bound,
-                        int length,
-                        proto_item *item);
-
-static void
 dissect_amqp_0_10_xid (tvbuff_t *tvb,
                        int offset,
                        guint16 xid_length,
@@ -419,49 +412,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
                          int offset, guint16 length);
 
 static void
-dissect_amqp_0_10_struct_delivery_properties(tvbuff_t *tvb,
-                                             proto_tree *tree,
-                                             int offset,
-                                             guint32 struct_length);
-
-static void
-dissect_amqp_0_10_struct_fragment_properties(tvbuff_t *tvb,
-                                             proto_tree *tree,
-                                             int offset,
-                                             guint32 struct_length);
-
-static void
-dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
-                                            proto_tree *tree,
-                                            int offset,
-                                            guint32 struct_length);
-
-static void
-dissect_amqp_0_10_struct_exchange_query_result(tvbuff_t *tvb,
-                                               proto_tree *tree,
-                                               int offset,
-                                               guint32 struct_length);
-
-static void
-dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
-                                            proto_tree *tree,
-                                            int offset,
-                                            guint32 struct_length);
-
-static void
-dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
-                                         proto_tree *tree,
-                                         int offset,
-                                         guint32 struct_length);
-
-static void
-dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
-                                           proto_tree *tree,
-                                           int offset,
-                                           guint32 struct_length);
-
-static void
-dissect_amqp_0_10_struct32(tvbuff_t *tvb, proto_tree *tree,
+dissect_amqp_0_10_struct32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            int offset, guint32 struct_length);
 
 static void
@@ -1374,6 +1325,8 @@ static gint ett_amqp_init = -1;
 static gint ett_amqp_0_10_map = -1;
 static gint ett_amqp_0_10_array = -1;
 
+static expert_field ei_amqp_bad_flag_value = EI_INIT;
+
 /*  Various enumerations  */
 
 static const value_string amqp_0_10_frame_position [] = {
@@ -2209,6 +2162,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
 
 static void
 dissect_amqp_0_10_array(tvbuff_t *tvb,
+                        packet_info *pinfo,
                         int offset,          /* Start of array in tvb */
                         int bound,           /* How far into tvb we can go */
                         int length,          /* Length of array */
@@ -2266,7 +2220,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
                                              element_start,
                                              offset - element_start,
                                              "(%s): ", amqp_typename);
-            dissect_amqp_0_10_struct32(tvb, sub, offset, struct_length);
+            dissect_amqp_0_10_struct32(tvb, pinfo, sub, offset, struct_length);
             AMQP_INCREMENT(offset, struct_length, bound);
             length -= struct_length;
             break;
@@ -2394,7 +2348,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
     switch (method) {
     case AMQP_0_10_METHOD_CONNECTION_START:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  server-properties (map)  */
             arg_length = tvb_get_ntohl(tvb, offset);
@@ -2421,6 +2375,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
                                      offset,
                                      arg_length, ENC_NA);
             dissect_amqp_0_10_array (tvb,
+                                     pinfo,
                                      offset,
                                      offset + arg_length,
                                      arg_length,
@@ -2437,6 +2392,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
                                      offset,
                                      arg_length, ENC_NA);
             dissect_amqp_0_10_array (tvb,
+                                     pinfo,
                                      offset,
                                      offset + arg_length,
                                      arg_length,
@@ -2447,7 +2403,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_CONNECTION_START_OK:
         if ((flag1 & ~0x0f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  client-properties (map)  */
             arg_length = tvb_get_ntohl(tvb, offset);
@@ -2492,7 +2448,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_CONNECTION_SECURE:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  challenge (vbin32)  */
             proto_tree_add_item(args_tree,
@@ -2505,7 +2461,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_CONNECTION_SECURE_OK:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  response (vbin32)  */
             proto_tree_add_item(args_tree,
@@ -2518,7 +2474,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_CONNECTION_TUNE:
         if ((flag1 & ~0x0f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  channel-max (uint16)  */
             proto_tree_add_item(args_tree,
@@ -2551,7 +2507,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_CONNECTION_TUNE_OK:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  channel-max (uint16)  */
             proto_tree_add_item(args_tree,
@@ -2577,7 +2533,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_CONNECTION_OPEN:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  virtual-host (str8)  */
             proto_tree_add_item(args_tree,
@@ -2597,6 +2553,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
                                      offset,
                                      arg_length, ENC_NA);
             dissect_amqp_0_10_array (tvb,
+                                     pinfo,
                                      offset,
                                      offset + arg_length,
                                      arg_length,
@@ -2613,7 +2570,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_CONNECTION_OPEN_OK:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  known-hosts (amqp-host-array)  */
             arg_length = tvb_get_ntohl(tvb, offset);
@@ -2624,6 +2581,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
                                      offset,
                                      arg_length, ENC_NA);
             dissect_amqp_0_10_array (tvb,
+                                     pinfo,
                                      offset,
                                      offset + arg_length,
                                      arg_length,
@@ -2634,7 +2592,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_CONNECTION_REDIRECT:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  host (amqp-host-url [str16])  */
             proto_tree_add_item(args_tree,
@@ -2653,6 +2611,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
                                      offset,
                                      arg_length, ENC_NA);
             dissect_amqp_0_10_array (tvb,
+                                     pinfo,
                                      offset,
                                      offset + arg_length,
                                      arg_length,
@@ -2666,7 +2625,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_CONNECTION_CLOSE:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  reply-code (uint16)  */
             proto_tree_add_item(args_tree,
@@ -2734,7 +2693,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
     switch (method) {
     case AMQP_0_10_METHOD_SESSION_ATTACH:
         if ((flag1 & ~0x03) || ((flag2 != 0)))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  name (vbin16)  */
             size = tvb_get_ntohs(tvb, offset);
@@ -2755,7 +2714,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
     case AMQP_0_10_METHOD_SESSION_ATTACHED:
     case AMQP_0_10_METHOD_SESSION_DETACH:
         if ((flag1 != 0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  name (vbin16)  */
             size = tvb_get_ntohs(tvb, offset);
@@ -2769,7 +2728,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_SESSION_DETACHED:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  name (vbin16)  */
             size = tvb_get_ntohs(tvb, offset);
@@ -2791,7 +2750,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
     case AMQP_0_10_METHOD_SESSION_REQUEST_TIMEOUT:
     case AMQP_0_10_METHOD_SESSION_TIMEOUT:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  timeout (uint32)  */
             proto_tree_add_item(args_tree,
@@ -2803,7 +2762,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_SESSION_COMMAND_POINT:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  command-id (sequence-no [uint32])  */
             proto_tree_add_item(args_tree,
@@ -2822,7 +2781,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_SESSION_EXPECTED:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  commands (commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
@@ -2845,6 +2804,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
                                      tvb, offset, array_size + 4, ENC_NA);
             AMQP_INCREMENT(offset, 4, length);
             dissect_amqp_0_10_array(tvb,
+                                    pinfo,
                                     offset,
                                     offset + array_size,
                                     length,
@@ -2855,7 +2815,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_SESSION_CONFIRMED:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  commands (commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
@@ -2878,6 +2838,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
                                      tvb, offset, array_size + 4, ENC_NA);
             AMQP_INCREMENT(offset, 4, length);
             dissect_amqp_0_10_array(tvb,
+                                    pinfo,
                                     offset,
                                     offset + array_size,
                                     length,
@@ -2888,7 +2849,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_SESSION_COMPLETED:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  commands (commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
@@ -2911,7 +2872,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_SESSION_KNOWN_COMPLETED:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  commands (commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
@@ -2928,7 +2889,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_SESSION_FLUSH:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         proto_tree_add_item(args_tree,
                             hf_amqp_0_10_method_session_flush_expected,
                             tvb, flags_offset, 1, ENC_BIG_ENDIAN);
@@ -2942,7 +2903,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_SESSION_GAP:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  commands (commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
@@ -3016,12 +2977,12 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
     switch (method) {
     case AMQP_0_10_METHOD_EXECUTION_SYNC:
         if ((flag1 != 0) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         break;
 
     case AMQP_0_10_METHOD_EXECUTION_RESULT:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  command-id (sequence-no [uint32])  */
             proto_tree_add_item(args_tree,
@@ -3038,14 +2999,14 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
             ti = proto_tree_add_item(args_tree,
                                      hf_amqp_0_10_undissected_struct32,
                                      tvb, offset, struct_size, ENC_NA);
-            dissect_amqp_0_10_struct32(tvb, ti, offset, struct_size);
+            dissect_amqp_0_10_struct32(tvb, pinfo, ti, offset, struct_size);
             AMQP_INCREMENT(offset, struct_size, length);
         }
         break;
 
     case AMQP_0_10_METHOD_EXECUTION_EXCEPTION:
         if ((flag1 & ~0x7f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /* error-code (error-code [uint16]) */
             proto_tree_add_item(args_tree,
@@ -3204,7 +3165,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
     switch (method) {
     case AMQP_0_10_METHOD_MESSAGE_TRANSFER:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* destination (str8) */
             str_size = tvb_get_guint8(tvb, offset);
             if ((offset + 1 + str_size) > length)
@@ -3230,7 +3191,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_ACCEPT:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  transfers (session.commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
@@ -3247,7 +3208,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_REJECT:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  transfers (session.commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
@@ -3277,7 +3238,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_RELEASE:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  transfers (session.commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
@@ -3299,7 +3260,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_ACQUIRE:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  transfers (session.commands [sequence-set])  */
             size = tvb_get_ntohs(tvb, offset);
@@ -3315,7 +3276,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_RESUME:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
@@ -3338,7 +3299,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_SUBSCRIBE:
         if (flag2 != 0)
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
@@ -3411,7 +3372,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_CANCEL:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
@@ -3425,7 +3386,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_SET_FLOW_MODE:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
@@ -3446,7 +3407,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_FLOW:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
@@ -3474,7 +3435,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_FLUSH:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
@@ -3488,7 +3449,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_MESSAGE_STOP:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {
             /*  destination (destination [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
@@ -3600,7 +3561,7 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
     switch (method) {
     case AMQP_0_10_METHOD_DTX_START:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* xid (xid) */
             xid_length = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, length);
@@ -3630,7 +3591,7 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_DTX_END:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* xid (xid) */
             xid_length = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, length);
@@ -3659,7 +3620,7 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_DTX_COMMIT:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* xid (xid) */
             xid_length = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, length);
@@ -3688,7 +3649,7 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
     case AMQP_0_10_METHOD_DTX_PREPARE:
     case AMQP_0_10_METHOD_DTX_ROLLBACK:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* xid (xid) */
             xid_length = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, length);
@@ -3708,7 +3669,7 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_DTX_SET_TIMEOUT:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* xid (xid) */
             xid_length = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, length);
@@ -3793,7 +3754,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
     switch (method) {
     case AMQP_0_10_METHOD_EXCHANGE_DECLARE:
         if ((flag1 & ~0x7f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -3850,7 +3811,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_EXCHANGE_DELETE:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -3869,7 +3830,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_EXCHANGE_QUERY:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -3882,7 +3843,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_EXCHANGE_BIND:
         if ((flag1 & ~0x0f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -3927,7 +3888,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_EXCHANGE_UNBIND:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -3956,7 +3917,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_EXCHANGE_BOUND:
         if ((flag1 & ~0x0f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4059,7 +4020,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
     switch (method) {
     case AMQP_0_10_METHOD_QUEUE_DECLARE:
         if ((flag1 & ~0x7f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4111,7 +4072,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_QUEUE_DELETE:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4133,7 +4094,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_QUEUE_PURGE:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4146,7 +4107,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_QUEUE_QUERY:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4217,7 +4178,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
     switch (method) {
     case AMQP_0_10_METHOD_FILE_QOS:
         if ((flag1 & ~0x07) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* prefetch-size (uint32) */
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_qos_prefetch_size,
@@ -4245,7 +4206,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_FILE_CONSUME:
         if ((flag1 & ~0x7f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) <= length), ReportedBoundsError);
@@ -4298,7 +4259,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
     case AMQP_0_10_METHOD_FILE_CONSUME_OK:
     case AMQP_0_10_METHOD_FILE_CANCEL:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* consumer-tag (str8) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4311,7 +4272,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_FILE_OPEN:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* identifier (str8) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4330,7 +4291,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_FILE_OPEN_OK:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* staged-size (uint64) */
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_open_ok_staged_size,
@@ -4341,7 +4302,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_FILE_PUBLISH:
         if ((flag1 & ~0x1f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (exchange.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4379,7 +4340,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_FILE_RETURN:
         if ((flag1 & ~0x0f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* reply-code (return-code [uint16]) */
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_return_reply_code,
@@ -4414,7 +4375,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_FILE_DELIVER:
         if ((flag1 & ~0x3f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* consumer-tag (str8) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4463,7 +4424,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_FILE_ACK:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* delivery-tag (uint64) */
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_ack_delivery_tag,
@@ -4480,7 +4441,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_FILE_REJECT:
         if ((flag1 & ~0x03) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* delivery-tag (uint64) */
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_reject_delivery_tag,
@@ -4555,7 +4516,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
     switch (method) {
     case AMQP_0_10_METHOD_STREAM_QOS:
         if ((flag1 & ~0x0f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* prefetch-size (uint32) */
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_qos_prefetch_size,
@@ -4588,7 +4549,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_STREAM_CONSUME:
         if ((flag1 & ~0x3f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* queue (queue.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4638,7 +4599,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
     case AMQP_0_10_METHOD_STREAM_CONSUME_OK:
     case AMQP_0_10_METHOD_STREAM_CANCEL:
         if ((flag1 & ~0x01) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* consumer-tag (str8) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4651,7 +4612,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_STREAM_PUBLISH:
         if ((flag1 & ~0x0f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* exchange (exchange.name [str8]) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) <= length), ReportedBoundsError);
@@ -4681,7 +4642,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_STREAM_RETURN:
         if ((flag1 & ~0x0f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* reply-code (return-code [uint16]) */
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_return_reply_code,
@@ -4716,7 +4677,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
 
     case AMQP_0_10_METHOD_STREAM_DELIVER:
         if ((flag1 & ~0x0f) || (flag2 != 0))
-            proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
         if (flag1 & 0x01) {     /* consumer-tag (str8) */
             str_size = tvb_get_guint8(tvb, offset);
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
@@ -4753,6 +4714,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
 
 static void
 dissect_amqp_0_10_struct_delivery_properties(tvbuff_t *tvb,
+                                             packet_info *pinfo,
                                              proto_tree *tree,
                                              int offset,
                                              guint32 struct_length)
@@ -4777,7 +4739,7 @@ dissect_amqp_0_10_struct_delivery_properties(tvbuff_t *tvb,
                                      hf_amqp_0_10_argument_packing_flags,
                                      tvb, offset, 2, ENC_BIG_ENDIAN);
     if (flag2 & ~0x0f)
-        proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+        expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
     AMQP_INCREMENT(offset, 2, max_length);
 
     /* First 3 fields are bits */
@@ -4867,6 +4829,7 @@ dissect_amqp_0_10_struct_delivery_properties(tvbuff_t *tvb,
 
 static void
 dissect_amqp_0_10_struct_fragment_properties(tvbuff_t *tvb,
+                                             packet_info *pinfo,
                                              proto_tree *tree,
                                              int offset,
                                              guint32 struct_length)
@@ -4887,7 +4850,7 @@ dissect_amqp_0_10_struct_fragment_properties(tvbuff_t *tvb,
                                      hf_amqp_0_10_argument_packing_flags,
                                      tvb, offset, 2, ENC_BIG_ENDIAN);
     if ((flag1 & ~0x07) || (flag2 != 0))
-        proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+        expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
     AMQP_INCREMENT(offset, 2, max_length);
 
     /* First 2 fields are bits */
@@ -4908,6 +4871,7 @@ dissect_amqp_0_10_struct_fragment_properties(tvbuff_t *tvb,
 
 static void
 dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
+                                            packet_info *pinfo,
                                             proto_tree *tree,
                                             int offset,
                                             guint32 struct_length)
@@ -4933,7 +4897,7 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
                                      hf_amqp_0_10_argument_packing_flags,
                                      tvb, offset, 2, ENC_BIG_ENDIAN);
     if (flag2 & ~0x01)
-        proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+        expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
     AMQP_INCREMENT(offset, 2, max_length);
     if (flag1 & 0x01) {
         /*  content-length (uint64) */
@@ -4973,7 +4937,7 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
         subflag1 = tvb_get_guint8(tvb, offset);
         subflag2 = tvb_get_guint8(tvb, offset + 1);
         if ((subflag1 & ~0x03) || (subflag2 != 0))
-            proto_item_set_expert_flags(subflags_item, PI_PROTOCOL, PI_WARN);
+            expert_add_info(pinfo, subflags_item, &ei_amqp_bad_flag_value);
         AMQP_INCREMENT(offset, 2, max_length);
         if (subflag1 & 0x01) {
             /* exchange (str8) */
@@ -5044,6 +5008,7 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
 
 static void
 dissect_amqp_0_10_struct_exchange_query_result(tvbuff_t *tvb,
+                                               packet_info *pinfo,
                                                proto_item *tree,
                                                int offset,
                                                guint32 struct_length)
@@ -5067,7 +5032,7 @@ dissect_amqp_0_10_struct_exchange_query_result(tvbuff_t *tvb,
                                      hf_amqp_0_10_argument_packing_flags,
                                      tvb, offset, 2, ENC_BIG_ENDIAN);
     if (flag2 & ~0x0f)
-        proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+        expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
     AMQP_INCREMENT(offset, 2, max_length);
     if (flag1 & 0x01) {
         /*  type (str8) */
@@ -5105,6 +5070,7 @@ dissect_amqp_0_10_struct_exchange_query_result(tvbuff_t *tvb,
 
 static void
 dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
+                                            packet_info *pinfo,
                                             proto_item *tree,
                                             int offset,
                                             guint32 struct_length)
@@ -5129,7 +5095,7 @@ dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
                                      tvb, offset, 2, ENC_BIG_ENDIAN);
 
     if (flag2 != 0)
-        proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+        expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
     AMQP_INCREMENT(offset, 2, max_length);
     if (flag1 & 0x01) {
         /*  queue (name [str8]) */
@@ -5192,6 +5158,7 @@ dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
 
 static void
 dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
+                                         packet_info *pinfo,
                                          proto_tree *tree,
                                          int offset,
                                          guint32 struct_length)
@@ -5215,7 +5182,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
                                      hf_amqp_0_10_argument_packing_flags,
                                      tvb, offset, 2, ENC_BIG_ENDIAN);
     if (flag2 & ~0x01)
-        proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+        expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
     AMQP_INCREMENT(offset, 2, max_length);
     if (flag1 & 0x01) {
         /*  content-type (str8) */
@@ -5302,6 +5269,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
 
 static void
 dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
+                                           packet_info *pinfo,
                                            proto_tree *tree,
                                            int offset,
                                            guint32 struct_length)
@@ -5325,7 +5293,7 @@ dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
                                      hf_amqp_0_10_argument_packing_flags,
                                      tvb, offset, 2, ENC_BIG_ENDIAN);
     if ((flag1 & ~0x1f) || (flag2 != 0))
-        proto_item_set_expert_flags(flags_item, PI_PROTOCOL, PI_WARN);
+        expert_add_info(pinfo, flags_item, &ei_amqp_bad_flag_value);
     AMQP_INCREMENT(offset, 2, max_length);
     if (flag1 & 0x01) {
         /*  content-type (str8) */
@@ -5380,6 +5348,7 @@ dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
 
 static void
 dissect_amqp_0_10_struct32(tvbuff_t *tvb,
+                           packet_info *pinfo,
                            proto_tree *tree,
                            int offset,
                            guint32 struct_length)
@@ -5404,6 +5373,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
         case AMQP_0_10_STRUCT_MESSAGE_DELIVERY_PROPERTIES:
             proto_item_set_text(tree, "message.delivery-properties");
             dissect_amqp_0_10_struct_delivery_properties(tvb,
+                                                         pinfo,
                                                          tree,
                                                          offset,
                                                          struct_length);
@@ -5411,6 +5381,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
         case AMQP_0_10_STRUCT_MESSAGE_FRAGMENT_PROPERTIES:
             proto_item_set_text(tree, "message.fragment-properties");
             dissect_amqp_0_10_struct_fragment_properties(tvb,
+                                                         pinfo,
                                                          tree,
                                                          offset,
                                                          struct_length);
@@ -5418,6 +5389,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
         case AMQP_0_10_STRUCT_MESSAGE_MESSAGE_PROPERTIES:
             proto_item_set_text(tree, "message.message-properties");
             dissect_amqp_0_10_struct_message_properties(tvb,
+                                                        pinfo,
                                                         tree,
                                                         offset,
                                                         struct_length);
@@ -5490,6 +5462,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
             AMQP_INCREMENT(consumed, 4, struct_length);
             offset += 4;
             dissect_amqp_0_10_array(tvb,
+                                    pinfo,
                                     offset,
                                     offset + array_length,
                                     array_length,
@@ -5503,6 +5476,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
         case AMQP_0_10_STRUCT_EXCHANGE_QUERY_RESULT:
             proto_item_set_text(tree, "exchange.exchange-query-result");
             dissect_amqp_0_10_struct_exchange_query_result(tvb,
+                                                           pinfo,
                                                            tree,
                                                            offset,
                                                            struct_length);
@@ -5537,6 +5511,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
         case AMQP_0_10_STRUCT_QUEUE_QUERY_RESULT:
             proto_item_set_text(tree, "queue.queue-query-result");
             dissect_amqp_0_10_struct_queue_query_result(tvb,
+                                                        pinfo,
                                                         tree,
                                                         offset,
                                                         struct_length);
@@ -5549,6 +5524,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
         case AMQP_0_10_STRUCT_FILE_PROPERTIES:
             proto_item_set_text(tree, "file.file-properties");
             dissect_amqp_0_10_struct_file_properties(tvb,
+                                                     pinfo,
                                                      tree,
                                                      offset,
                                                      struct_length);
@@ -5561,6 +5537,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
         case AMQP_0_10_STRUCT_STREAM_PROPERTIES:
             proto_item_set_text(tree, "stream.stream-properties");
             dissect_amqp_0_10_struct_stream_properties(tvb,
+                                                       pinfo,
                                                        tree,
                                                        offset,
                                                        struct_length);
@@ -5702,7 +5679,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ti = proto_tree_add_item(amqp_tree,
                                      hf_amqp_0_10_undissected_struct32,
                                      tvb, offset, struct_length, ENC_NA);
-            dissect_amqp_0_10_struct32(tvb, ti, offset, struct_length);
+            dissect_amqp_0_10_struct32(tvb, pinfo, ti, offset, struct_length);
             AMQP_INCREMENT(offset, struct_length, length);
         } while (offset < length);
         break;
@@ -10598,10 +10575,18 @@ proto_register_amqp(void)
          &ett_amqp_0_10_array
     };
 
+    static ei_register_info ei[] = {
+        { &ei_amqp_bad_flag_value, { "amqp.bad_flag_value", PI_PROTOCOL, PI_WARN, "Bad flag value", EXPFILL }},
+    };
+
+    expert_module_t* expert_amqp;
+
     proto_amqp = proto_register_protocol(
         "Advanced Message Queueing Protocol", "AMQP", "amqp");
     proto_register_field_array(proto_amqp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_amqp = expert_register_protocol(proto_amqp);
+    expert_register_field_array(expert_amqp, ei, array_length(ei));
 }
 
 void
