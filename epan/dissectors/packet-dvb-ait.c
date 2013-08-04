@@ -64,6 +64,11 @@ static int hf_dvb_ait_descr_app_name_lang = -1;
 static int hf_dvb_ait_descr_app_name_name = -1;
 static int hf_dvb_ait_descr_trpt_proto_id = -1;
 static int hf_dvb_ait_descr_trpt_proto_label = -1;
+static int hf_dvb_ait_descr_trpt_sel_remote = -1;
+static int hf_dvb_ait_descr_trpt_sel_onid = -1;
+static int hf_dvb_ait_descr_trpt_sel_tsid = -1;
+static int hf_dvb_ait_descr_trpt_sel_svcid = -1;
+static int hf_dvb_ait_descr_trpt_sel_comp = -1;
 static int hf_dvb_ait_descr_trpt_sel_bytes = -1;
 static int hf_dvb_ait_descr_sal_init_path = -1;
 static int hf_dvb_ait_app_loop_len = -1;
@@ -116,9 +121,12 @@ static const value_string ait_descr_tag[] = {
     { 0, NULL }
 };
 
+#define TRPT_OBJ_CAROUSEL 0x0001
+#define TRPT_HTTP         0x0003
+
 static const value_string trpt_proto_id[] = {
-    { 0x0001, "Object Carousel" },
-    { 0x0003, "Transport via HTTP" },
+    { TRPT_OBJ_CAROUSEL, "Object Carousel" },
+    { TRPT_HTTP,         "Transport via HTTP" },
     { 0, NULL }
 };
 
@@ -204,10 +212,13 @@ static gint
 dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, guint offset,
         guint8 body_len, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint   offset_start;
+    guint     offset_start;
+    guint16   proto_id;
+    gboolean  remote_connection;
 
     offset_start = offset;
 
+    proto_id = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_proto_id,
             tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -215,9 +226,31 @@ dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, guint offset,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     if (offset-offset_start < body_len) {
-        proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_bytes,
-            tvb, offset, offset_start+body_len-offset, ENC_BIG_ENDIAN);
-        offset = offset_start+body_len;
+        if (proto_id == TRPT_OBJ_CAROUSEL) {
+            remote_connection = ((tvb_get_guint8(tvb, offset) & 0x80) == 0x80);
+            proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_remote,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            if (remote_connection) {
+                proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_onid,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_tsid,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_svcid,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+            }
+            proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_comp,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        }
+        else {
+            proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_bytes,
+                tvb, offset, offset_start+body_len-offset, ENC_BIG_ENDIAN);
+            offset = offset_start+body_len;
+        }
     }
 
     return (gint)(offset-offset_start);
@@ -468,6 +501,21 @@ proto_register_dvb_ait(void)
                 FT_UINT16, BASE_HEX, VALS(trpt_proto_id), 0, NULL, HFILL } },
         { &hf_dvb_ait_descr_trpt_proto_label,
             { "Transport protocol label", "dvb_ait.descr.trpt_proto.label",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_dvb_ait_descr_trpt_sel_remote,
+            { "Remote connection", "dvb_ait.descr.trpt_proto.remote",
+                FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL } },
+        { &hf_dvb_ait_descr_trpt_sel_onid,
+            { "Original network ID", "dvb_ait.descr.trpt_proto.onid",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_dvb_ait_descr_trpt_sel_tsid,
+            { "Transport stream ID", "dvb_ait.descr.trpt_proto.tsid",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_dvb_ait_descr_trpt_sel_svcid,
+            { "Service ID", "dvb_ait.descr.trpt_proto.svcid",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_dvb_ait_descr_trpt_sel_comp,
+            { "Component tag", "dvb_ait.descr.trpt_proto.comp_tag",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_dvb_ait_descr_trpt_sel_bytes,
             { "Selector bytes", "dvb_ait.descr.trpt_proto.selector_bytes",
