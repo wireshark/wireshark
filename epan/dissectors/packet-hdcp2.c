@@ -128,7 +128,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 {
     msg_info_t *mi;
     proto_item *pi;
-    proto_tree *hdcp_tree = NULL, *cert_tree = NULL;
+    proto_tree *hdcp_tree, *cert_tree;
     guint8 msg_id;
     gboolean repeater;
     guint16 reserved;
@@ -148,11 +148,9 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HDCP2");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        pi = proto_tree_add_protocol_format(tree, proto_hdcp2,
-                tvb, 0, tvb_reported_length(tvb), "HDCP2");
-        hdcp_tree = proto_item_add_subtree(pi, ett_hdcp2);
-    }
+    pi = proto_tree_add_protocol_format(tree, proto_hdcp2,
+            tvb, 0, tvb_reported_length(tvb), "HDCP2");
+    hdcp_tree = proto_item_add_subtree(pi, ett_hdcp2);
     cursor = ptvcursor_new(hdcp_tree, tvb, 0);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
@@ -169,10 +167,8 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
                     repeater ? "repeater" : "no repeater");
             ptvcursor_add(cursor, hf_hdcp2_repeater, 1, ENC_BIG_ENDIAN);
-            if (hdcp_tree) {
-                cert_tree = ptvcursor_add_text_with_subtree(cursor, CERT_RX_LEN,
-                        ett_hdcp2_cert, "%s", "HDCP2 Certificate");
-            }
+            cert_tree = ptvcursor_add_text_with_subtree(cursor, CERT_RX_LEN,
+                    ett_hdcp2_cert, "%s", "HDCP2 Certificate");
             ptvcursor_add(cursor, hf_hdcp2_cert_rcv_id, RCV_ID_LEN, ENC_NA);
             ptvcursor_add(cursor, hf_hdcp2_cert_n, N_LEN, ENC_NA);
             ptvcursor_add(cursor, hf_hdcp2_cert_e, E_LEN, ENC_BIG_ENDIAN);
@@ -184,8 +180,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             }
             ptvcursor_advance(cursor, 2);
             ptvcursor_add(cursor, hf_hdcp2_cert_rcv_sig, RCV_SIG_LEN, ENC_NA);
-            if (cert_tree)
-                ptvcursor_pop_subtree(cursor);
+            ptvcursor_pop_subtree(cursor);
             break;
         case ID_AKE_NO_STORED_KM:
             ptvcursor_add(cursor, hf_hdcp2_e_kpub_km, 128, ENC_NA);
