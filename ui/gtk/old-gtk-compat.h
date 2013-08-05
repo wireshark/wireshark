@@ -35,6 +35,7 @@
 #	define gtk_adjustment_get_upper(adj) (adj)->upper
 #	define gtk_adjustment_get_lower(adj) (adj)->lower
 #	define gtk_adjustment_set_step_increment(adj, val) (adj)->step_increment = val
+#	define gtk_adjustment_get_step_increment(adj) (adj)->step_increment
 #	define gtk_adjustment_set_page_increment(adj, val) (adj)->page_increment = val
 #	define gtk_adjustment_get_page_increment(adj) (adj)->page_increment
 #	define gtk_adjustment_set_page_size(adj, val) (adj)->page_size = val
