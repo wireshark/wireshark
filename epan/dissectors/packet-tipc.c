@@ -188,7 +188,7 @@ static gint     handle_v2_as = V2_AS_ALL;
 static guint tipc_alternate_tcp_port = 0;
 static gboolean tipc_tcp_desegment = TRUE;
 
-dissector_handle_t tipc_handle;
+static dissector_handle_t tipc_handle;
 #define DEFAULT_TIPC_PORT_RANGE   "0"
 static range_t *global_tipc_udp_port_range;
 

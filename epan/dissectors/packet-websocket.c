@@ -40,8 +40,8 @@
 
 void proto_reg_handoff_websocket(void);
 
-dissector_handle_t text_lines_handle;
-dissector_handle_t json_handle;
+static dissector_handle_t text_lines_handle;
+static dissector_handle_t json_handle;
 
 #define WEBSOCKET_NONE 0
 #define WEBSOCKET_TEXT 1

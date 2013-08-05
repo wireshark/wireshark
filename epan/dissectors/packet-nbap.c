@@ -81,7 +81,7 @@
 #endif
 
 /* Global variables */
-dissector_handle_t fp_handle;
+static dissector_handle_t fp_handle;
 static guint32	transportLayerAddress_ipv4;
 static guint16	BindingID_port;
 static guint32	com_context_id;
