@@ -97,26 +97,19 @@ AC_PATH_PROG(PERL, perl)
 AC_PATH_PROG(PYTHON, python)
 if test ! -z "$PYTHON"; then
 	#
-	# OK, we found Python; is it Python 2.x?
+	# OK, we found Python; is it Python 2.5 or later?
 	# Note: we don't use named components for sys.version_info to get
 	# the major version number, as named components for version_info
 	# were apparently introduced in Python 2.7.
 	#
-	AC_MSG_CHECKING([whether $PYTHON is Python 2])
+	AC_MSG_CHECKING([whether $PYTHON is Python 2.5 or later])
 	python_major_version=`$PYTHON -c 'import sys; print (sys.version_info[[0]])'`
-	if test "$python_major_version" = 2; then
-		AC_MSG_RESULT([yes])
+	python_minor_version=`$PYTHON -c 'import sys; print (sys.version_info[[1]])'`
+	if test "$python_major_version" -eq 2 -a "$python_minor_version" -ge 5 ; then
+		AC_MSG_RESULT(yes)
 	else
-		#
-		# It's not 2.x.
-		#
-		AC_MSG_RESULT([no])
-
-		#
-		# Try looking for python2; if we find it, we assume it's
-		# Python 2
-		#
-		AC_PATH_PROG(PYTHON, python2)
+		AC_MSG_RESULT(no)
+		AC_MSG_WARN([Building with Python $python_major_version.$python_minor_version may not work])
 	fi
 fi
 
