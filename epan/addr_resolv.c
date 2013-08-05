@@ -490,28 +490,28 @@ add_service_name(port_type proto, const guint port, const char *service_name)
     g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
   } else {
     serv_port_table = (serv_port_t *)g_hash_table_lookup(serv_port_hashtable, &port);
-	if(serv_port_table == NULL){
+    if(serv_port_table == NULL){
       serv_port_table = g_new0(serv_port_t,1);
       g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
-	}
+    }
   }
 
   switch(proto){
   case PT_TCP:
-	  serv_port_table->tcp_name = g_strdup(service_name);
-	  break;
+    serv_port_table->tcp_name = g_strdup(service_name);
+    break;
   case PT_UDP:
-	  serv_port_table->udp_name = g_strdup(service_name);
-	  break;
+    serv_port_table->udp_name = g_strdup(service_name);
+    break;
   case PT_SCTP:
-	  serv_port_table->sctp_name = g_strdup(service_name);
-	  break;
+    serv_port_table->sctp_name = g_strdup(service_name);
+    break;
   case PT_DCCP:
-	  serv_port_table->dccp_name = g_strdup(service_name);
-	  break;
+    serv_port_table->dccp_name = g_strdup(service_name);
+    break;
   default:
-	  return;
-	  /* Should not happen */
+    return;
+    /* Should not happen */
   }
 
   new_resolved_objects = TRUE;
@@ -654,7 +654,7 @@ ep_utoa(guint port)
 static gchar
 *serv_name_lookup(const guint port, const port_type proto)
 {
-  const char *serv_proto = NULL;
+  const char *serv_proto;
   struct servent *servp;
   serv_port_t *serv_port_table;
 
@@ -663,44 +663,55 @@ static gchar
     initialize_services();
   }
 
-  if((proto != PT_UDP)&&(proto != PT_TCP)&&(proto != PT_SCTP)&&(proto != PT_DCCP)){
-	  return NULL; /* not yet implemented */
-  }
+  switch(proto) {
+  case PT_UDP:
+    serv_proto = "udp";
+    break;
+  case PT_TCP:
+    serv_proto = "tcp";
+    break;
+  case PT_SCTP:
+    serv_proto = "sctp";
+    break;
+  case PT_DCCP:
+    serv_proto = "dcp";
+    break;
+ default:
+    /* not yet implemented */
+    return NULL;
+    /*NOTREACHED*/
+  } /* proto */
 
   serv_port_table = (serv_port_t *)g_hash_table_lookup(serv_port_hashtable, &port);
 
   if(serv_port_table){
-	  /* Set which table we should look up port in */
-	  switch(proto) {
-	  case PT_UDP:
-		if(serv_port_table->udp_name){
-			return serv_port_table->udp_name;
-		}
-		serv_proto = "udp";
-		break;
-	  case PT_TCP:
-		if(serv_port_table->tcp_name){
-			return serv_port_table->tcp_name;
-		}
-		serv_proto = "tcp";
-		break;
-	  case PT_SCTP:
-		if(serv_port_table->sctp_name){
-			return serv_port_table->sctp_name;
-		}
-		serv_proto = "sctp";
-		break;
-	  case PT_DCCP:
-		if(serv_port_table->dccp_name){
-			return serv_port_table->dccp_name;
-		}
-		serv_proto = "dcp";
-		break;
-	  default:
-		/* not yet implemented */
-		return NULL;
-		/*NOTREACHED*/
-	  } /* proto */
+    /* Set which table we should look up port in */
+    switch(proto) {
+    case PT_UDP:
+      if(serv_port_table->udp_name){
+        return serv_port_table->udp_name;
+      }
+      break;
+    case PT_TCP:
+      if(serv_port_table->tcp_name){
+        return serv_port_table->tcp_name;
+      }
+      break;
+    case PT_SCTP:
+      if(serv_port_table->sctp_name){
+        return serv_port_table->sctp_name;
+      }
+      break;
+    case PT_DCCP:
+      if(serv_port_table->dccp_name){
+        return serv_port_table->dccp_name;
+      }
+      break;
+    default:
+      /* not yet implemented */
+      return NULL;
+      /*NOTREACHED*/
+    } /* proto */
   }
 
   if ((!gbl_resolv_flags.transport_name) ||
@@ -711,28 +722,28 @@ static gchar
     if(serv_port_table == NULL){
       int *key;
 
-	  key = (int *)g_new(int, 1);
+      key = (int *)g_new(int, 1);
       *key = port;
       serv_port_table = g_new0(serv_port_t,1);
       g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
-	}
+    }
     switch(proto) {
     case PT_UDP:
-		serv_port_table->udp_name = servp->s_name;
-		break;
+      serv_port_table->udp_name = servp->s_name;
+      break;
     case PT_TCP:
-		serv_port_table->tcp_name = servp->s_name;
-		break;
+      serv_port_table->tcp_name = servp->s_name;
+      break;
     case PT_SCTP:
-		serv_port_table->sctp_name = servp->s_name;
-		break;
+      serv_port_table->sctp_name = servp->s_name;
+      break;
     case PT_DCCP:
-		serv_port_table->dccp_name = servp->s_name;
-		break;
-	default:
-		return NULL;
-		/*NOTREACHED*/
-	}
+      serv_port_table->dccp_name = servp->s_name;
+      break;
+    default:
+      return NULL;
+      /*NOTREACHED*/
+    }
     return servp->s_name;
   }
 
