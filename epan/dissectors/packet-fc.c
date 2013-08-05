@@ -140,8 +140,10 @@ static gint ett_fc_vft = -1;
 
 static expert_field ei_fccrc = EI_INIT;
 
+static dissector_handle_t fc_handle, fcsof_handle;
 static dissector_table_t fcftype_dissector_table;
-static dissector_handle_t data_handle, fc_handle;
+
+static dissector_handle_t data_handle;
 
 static int fc_tap = -1;
 
@@ -1528,7 +1530,7 @@ proto_register_fc(void)
 
     /* Register the protocol name and description */
     proto_fc = proto_register_protocol ("Fibre Channel", "FC", "fc");
-    register_dissector ("fc", dissect_fc, proto_fc);
+    fc_handle = register_dissector ("fc", dissect_fc, proto_fc);
     register_dissector ("fc_ifcp", dissect_fc_ifcp, proto_fc);
     fc_tap = register_tap("fc");
 
@@ -1568,7 +1570,7 @@ proto_register_fc(void)
     proto_register_field_array(proto_fcsof, sof_hf, array_length(sof_hf));
     proto_register_subtree_array(sof_ett, array_length(sof_ett));
 
-    register_dissector("fcsof", dissect_fcsof, proto_fcsof);
+    fcsof_handle = register_dissector("fcsof", dissect_fcsof, proto_fcsof);
 }
 
 
@@ -1579,12 +1581,8 @@ proto_register_fc(void)
 void
 proto_reg_handoff_fc (void)
 {
-    dissector_handle_t fcsof_handle;
-
-    fc_handle = find_dissector("fc");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2, fc_handle);
 
-    fcsof_handle = find_dissector("fcsof");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS, fcsof_handle);
 
     data_handle = find_dissector("data");

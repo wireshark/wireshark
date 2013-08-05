@@ -130,10 +130,11 @@ static gint ett_http_header_item = -1;
 static expert_field ei_http_chat = EI_INIT;
 static expert_field ei_http_subdissector_failed = EI_INIT;
 
+static dissector_handle_t http_handle;
+
 static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
 static dissector_handle_t websocket_handle;
-static dissector_handle_t http_handle;
 
 /* Stuff for generation/handling of fields for custom HTTP headers */
 typedef struct _header_field_t {
@@ -2955,7 +2956,9 @@ proto_register_http(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_http = expert_register_protocol(proto_http);
 	expert_register_field_array(expert_http, ei, array_length(ei));
-	register_dissector("http", dissect_http, proto_http);
+
+	http_handle = register_dissector("http", dissect_http, proto_http);
+
 	http_module = prefs_register_protocol(proto_http, reinit_http);
 	prefs_register_bool_preference(http_module, "desegment_headers",
 	    "Reassemble HTTP headers spanning multiple TCP segments",
@@ -3019,8 +3022,6 @@ proto_register_http(void)
 	prefs_register_uat_preference(http_module, "custom_http_header_fields", "Custom HTTP headers fields",
 	    "A table to define custom HTTP header for which fields can be setup and used for filtering/data extraction etc.",
 	   headers_uat);
-
-	http_handle = create_dissector_handle(dissect_http, proto_http);
 
 	/*
 	 * Dissectors shouldn't register themselves in this table;

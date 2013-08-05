@@ -159,6 +159,7 @@ static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
 
 static dissector_handle_t p_mul_handle = NULL;
+
 static dissector_handle_t data_handle = NULL;
 
 typedef struct _p_mul_id_key {
@@ -1577,7 +1578,8 @@ void proto_register_p_mul (void)
   module_t *p_mul_module;
 
   proto_p_mul = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  register_dissector(PFNAME, dissect_p_mul, proto_p_mul);
+
+  p_mul_handle = register_dissector(PFNAME, dissect_p_mul, proto_p_mul);
 
   proto_register_field_array (proto_p_mul, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
@@ -1635,7 +1637,6 @@ void proto_reg_handoff_p_mul (void)
   static range_t *p_mul_port_range;
 
   if (!p_mul_prefs_initialized) {
-    p_mul_handle = find_dissector(PFNAME);
     p_mul_prefs_initialized = TRUE;
     data_handle = find_dissector ("data");
   } else {

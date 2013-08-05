@@ -120,6 +120,8 @@ static gint ett_charset_subopt = -1;
 static gint ett_rsp_subopt = -1;
 static gint ett_comport_subopt = -1;
 
+static dissector_handle_t telnet_handle;
+
 static dissector_handle_t tn3270_handle;
 static dissector_handle_t tn5250_handle;
 
@@ -2018,15 +2020,12 @@ proto_register_telnet(void)
   proto_register_field_array(proto_telnet, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("telnet", dissect_telnet, proto_telnet);
+  telnet_handle = register_dissector("telnet", dissect_telnet, proto_telnet);
 }
 
 void
 proto_reg_handoff_telnet(void)
 {
-  dissector_handle_t telnet_handle;
-
-  telnet_handle = create_dissector_handle(dissect_telnet, proto_telnet);
   dissector_add_uint("tcp.port", TCP_PORT_TELNET, telnet_handle);
   tn3270_handle = find_dissector("tn3270");
   tn5250_handle = find_dissector("tn5250");

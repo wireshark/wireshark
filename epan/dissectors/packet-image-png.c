@@ -32,7 +32,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-
 static int proto_png = -1;
 static int hf_png_signature = -1;
 static int hf_png_chunk_data = -1;
@@ -69,6 +68,8 @@ static int hf_png_bkgd_blue = -1;
 static gint ett_png = -1;
 static gint ett_png_chunk = -1;
 static gint ett_png_chunk_item = -1;
+
+static dissector_handle_t png_handle;
 
 
 static const value_string colour_type_vals[] = {
@@ -412,7 +413,8 @@ proto_register_png(void)
 	proto_png = proto_register_protocol("Portable Network Graphics","PNG","png");
 	proto_register_field_array(proto_png, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("png", dissect_png, proto_png);
+
+	png_handle = new_register_dissector("png", dissect_png, proto_png);
 }
 
 static gboolean dissect_png_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -423,7 +425,6 @@ static gboolean dissect_png_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 void
 proto_reg_handoff_png(void)
 {
-	dissector_handle_t png_handle = new_create_dissector_handle(dissect_png, proto_png);
 	dissector_add_string("media_type", "image/png", png_handle);
 	heur_dissector_add("http", dissect_png_heur, proto_png);
 	heur_dissector_add("wtap_file", dissect_png_heur, proto_png);

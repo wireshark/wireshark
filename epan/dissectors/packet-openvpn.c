@@ -60,8 +60,6 @@
 #define P_CONTROL_HARD_RESET_CLIENT_V2  7
 #define P_CONTROL_HARD_RESET_SERVER_V2  8
 
-static dissector_handle_t ssl_handle;
-
 static gint ett_openvpn = -1;
 static gint ett_openvpn_data = -1;
 static gint ett_openvpn_packetarray = -1;
@@ -81,6 +79,10 @@ static gint hf_openvpn_plen = -1;
 static gint hf_openvpn_rsessionid = -1;
 static gint hf_openvpn_sessionid = -1;
 static gint proto_openvpn = -1;
+
+static dissector_handle_t openvpn_handle;
+
+static dissector_handle_t ssl_handle;
 
 /* Preferences */
 static gboolean pref_long_format       = TRUE;
@@ -595,7 +597,7 @@ proto_register_openvpn(void)
   proto_register_field_array(proto_openvpn, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector(PFNAME, dissect_openvpn, proto_openvpn);
+  openvpn_handle = register_dissector(PFNAME, dissect_openvpn, proto_openvpn);
 
   register_init_routine(&openvpn_reassemble_init);
 
@@ -644,13 +646,11 @@ proto_register_openvpn(void)
 void
 proto_reg_handoff_openvpn(void)
 {
-  static dissector_handle_t openvpn_handle;
   static guint    tcp_port;
   static guint    udp_port;
   static gboolean initialized = FALSE;
 
   if (! initialized) {
-    openvpn_handle = find_dissector(PFNAME);
     ssl_handle     = find_dissector("ssl");
     initialized    = TRUE;
   } else {

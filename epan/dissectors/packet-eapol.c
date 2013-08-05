@@ -73,6 +73,8 @@ static gint ett_eapol_keydes_data = -1;
 static gint ett_eapol_key_index = -1;
 static gint ett_keyinfo = -1;
 
+static dissector_handle_t eapol_handle;
+
 static dissector_handle_t eap_handle;
 static dissector_handle_t data_handle;
 
@@ -521,7 +523,7 @@ proto_register_eapol(void)
   };
 
   proto_eapol = proto_register_protocol("802.1X Authentication", "EAPOL", "eapol");
-  register_dissector("eapol", dissect_eapol, proto_eapol);
+  eapol_handle = register_dissector("eapol", dissect_eapol, proto_eapol);
 
   proto_register_field_array(proto_eapol, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -530,15 +532,12 @@ proto_register_eapol(void)
 void
 proto_reg_handoff_eapol(void)
 {
-  dissector_handle_t eapol_handle;
-
   /*
    * Get handles for the EAP and raw data dissectors.
    */
   eap_handle  = find_dissector("eap");
   data_handle = find_dissector("data");
 
-  eapol_handle = create_dissector_handle(dissect_eapol, proto_eapol);
   dissector_add_uint("ethertype", ETHERTYPE_EAPOL, eapol_handle);
   dissector_add_uint("ethertype", ETHERTYPE_RSN_PREAUTH, eapol_handle);
 }

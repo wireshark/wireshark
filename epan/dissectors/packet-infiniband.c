@@ -102,7 +102,10 @@ static gint ett_link = -1;
 /* Global ref to highest level tree should we find other protocols encapsulated in IB */
 static proto_tree *top_tree = NULL;
 
-/* Dissector Declarations */
+/* Dissector Declaration */
+static dissector_handle_t ib_handle;
+
+/* Subdissectors Declarations */
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t eth_handle;
@@ -7450,7 +7453,7 @@ void proto_register_infiniband(void)
     };
 
     proto_infiniband = proto_register_protocol("InfiniBand", "InfiniBand", "infiniband");
-    register_dissector("infiniband", dissect_infiniband, proto_infiniband);
+    ib_handle = register_dissector("infiniband", dissect_infiniband, proto_infiniband);
 
     proto_register_field_array(proto_infiniband, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -7490,7 +7493,6 @@ void proto_register_infiniband(void)
 void proto_reg_handoff_infiniband(void)
 {
     dissector_handle_t roce_handle;
-    dissector_handle_t ib_handle;
 
     ipv6_handle               = find_dissector("ipv6");
     data_handle               = find_dissector("data");
@@ -7501,6 +7503,5 @@ void proto_reg_handoff_infiniband(void)
     roce_handle = create_dissector_handle(dissect_roce, proto_infiniband);
     dissector_add_uint("ethertype", ETHERTYPE_ROCE, roce_handle);
 
-    ib_handle = create_dissector_handle(dissect_infiniband, proto_infiniband);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_INFINIBAND, ib_handle);
 }

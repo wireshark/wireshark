@@ -114,9 +114,9 @@ static int hf_hdfs_password = -1;
 static int hf_hdfs_kind = -1;
 static int hf_hdfs_service = -1;
 
-
-
 static gint ett_hdfs = -1;
+
+static dissector_handle_t hdfs_handle;
 
 void proto_reg_handoff_hdfs(void);
 
@@ -1059,7 +1059,7 @@ proto_register_hdfs(void)
                                    10,
                                    &tcp_port);
 
-    register_dissector("hdfs", dissect_hdfs, proto_hdfs);
+    hdfs_handle = register_dissector("hdfs", dissect_hdfs, proto_hdfs);
 }
 
 /* registers handoff */
@@ -1067,11 +1067,9 @@ void
 proto_reg_handoff_hdfs(void)
 {
     static gboolean initialized = FALSE;
-    static dissector_handle_t hdfs_handle;
     static guint saved_tcp_port;
 
     if (!initialized) {
-        hdfs_handle = create_dissector_handle(dissect_hdfs, proto_hdfs);
         dissector_add_handle("tcp.port", hdfs_handle);  /* for "decode as" */
         initialized = TRUE;
     } else if (saved_tcp_port != 0) {

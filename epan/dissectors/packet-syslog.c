@@ -166,6 +166,8 @@ static gint hf_syslog_msu_present = -1;
 
 static gint ett_syslog = -1;
 
+static dissector_handle_t syslog_handle;
+
 static dissector_handle_t mtp_handle;
 
 /*  The Cisco ITP's packet logging facility allows selected (SS7) MSUs to be
@@ -347,15 +349,12 @@ void proto_register_syslog(void)
   proto_register_field_array(proto_syslog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("syslog", dissect_syslog, proto_syslog);
+  syslog_handle = register_dissector("syslog", dissect_syslog, proto_syslog);
 }
 
 void
 proto_reg_handoff_syslog(void)
 {
-  dissector_handle_t syslog_handle;
-
-  syslog_handle = create_dissector_handle(dissect_syslog, proto_syslog);
   dissector_add_uint("udp.port", UDP_PORT_SYSLOG, syslog_handle);
   dissector_add_handle("tcp.port", syslog_handle);
 

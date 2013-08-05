@@ -45,9 +45,6 @@
 
 #define XMPP_PORT 5222
 
-static dissector_handle_t ssl_handle;
-static dissector_handle_t xml_handle;
-
 int proto_xmpp = -1;
 
 static gboolean xmpp_desegment = TRUE;
@@ -362,6 +359,11 @@ gint ett_unknown[ETT_UNKNOWN_LEN];
 
 static expert_field ei_xmpp_xml_disabled = EI_INIT;
 static expert_field ei_xmpp_packet_unknown = EI_INIT;
+
+static dissector_handle_t xmpp_handle;
+
+static dissector_handle_t ssl_handle;
+static dissector_handle_t xml_handle;
 
 static void
 dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -1435,18 +1437,15 @@ proto_register_xmpp(void) {
     expert_xmpp = expert_register_protocol(proto_xmpp);
     expert_register_field_array(expert_xmpp, ei, array_length(ei));
 
-    register_dissector("xmpp", dissect_xmpp, proto_xmpp);
+    xmpp_handle = register_dissector("xmpp", dissect_xmpp, proto_xmpp);
 
     xmpp_init_parsers();
 }
 
 void
 proto_reg_handoff_xmpp(void) {
-    dissector_handle_t xmpp_handle;
-
     ssl_handle = find_dissector("ssl");
     xml_handle  = find_dissector("xml");
-    xmpp_handle = find_dissector("xmpp");
 
     dissector_add_uint("tcp.port", XMPP_PORT, xmpp_handle);
 

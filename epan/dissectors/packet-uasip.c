@@ -77,6 +77,8 @@ static gboolean uasip_enabled = FALSE;
 static gboolean use_proxy_ipaddr = FALSE;
 static gboolean noesip_enabled   = FALSE;
 
+static dissector_handle_t uasip_handle;
+
 static dissector_handle_t ua_sys_to_term_handle;
 static dissector_handle_t ua_term_to_sys_handle;
 
@@ -456,7 +458,7 @@ void proto_register_uasip(void)
     };
 
     proto_uasip = proto_register_protocol("UA/SIP Protocol", "UASIP", "uasip");
-    register_dissector("uasip", dissect_uasip, proto_uasip);
+    uasip_handle = register_dissector("uasip", dissect_uasip, proto_uasip);
 
     proto_register_field_array(proto_uasip, hf_uasip, array_length(hf_uasip));
     proto_register_subtree_array(ett, array_length(ett));
@@ -474,12 +476,10 @@ void proto_register_uasip(void)
 
 void proto_reg_handoff_uasip(void)
 {
-    static dissector_handle_t uasip_handle;
     static gboolean    prefs_initialized = FALSE;
 
     if (!prefs_initialized)
     {
-        uasip_handle = create_dissector_handle(dissect_uasip, proto_uasip);
         ua_sys_to_term_handle = find_dissector("ua_sys_to_term");
         ua_term_to_sys_handle = find_dissector("ua_term_to_sys");
         prefs_initialized = TRUE;

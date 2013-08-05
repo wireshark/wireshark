@@ -268,6 +268,8 @@ static gint ett_vuze_dht_value = -1;
 static gint ett_vuze_dht_network_coordinates = -1;
 static gint ett_vuze_dht_network_coordinate = -1;
 
+static dissector_handle_t vuze_dht_handle;
+
 /* port use */
 static guint global_vuze_dht_udp_port = DEFAULT_UDP_PORT;
 
@@ -1424,7 +1426,8 @@ proto_register_vuze_dht(void)
 
   proto_register_field_array(proto_vuze_dht, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  new_register_dissector("vuze-dht", dissect_vuze_dht, proto_vuze_dht);
+
+  vuze_dht_handle = new_register_dissector("vuze-dht", dissect_vuze_dht, proto_vuze_dht);
 
   /* Register our configuration options */
   vuze_dht_module = prefs_register_protocol(proto_vuze_dht, proto_reg_handoff_vuze_dht);
@@ -1439,12 +1442,10 @@ void
 proto_reg_handoff_vuze_dht(void)
 {
   static gboolean vuze_dht_prefs_initialized = FALSE;
-  static dissector_handle_t vuze_dht_handle;
   static guint vuze_dht_udp_port;
 
   if (!vuze_dht_prefs_initialized)
   {
-    vuze_dht_handle = new_create_dissector_handle(dissect_vuze_dht, proto_vuze_dht);
     vuze_dht_prefs_initialized = TRUE;
   }
   else

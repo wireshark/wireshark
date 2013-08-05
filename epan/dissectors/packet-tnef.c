@@ -168,6 +168,8 @@ static int ett_tnef_attribute_address = -1;
 static expert_field ei_tnef_expect_single_item = EI_INIT;
 static expert_field ei_tnef_incorrect_signature = EI_INIT;
 
+static dissector_handle_t tnef_handle;
+
 static const value_string tnef_Lvl_vals[] = {
    {   1, "LVL-MESSAGE" },
    {   2, "LVL-ATTACHMENT" },
@@ -829,7 +831,7 @@ proto_register_tnef(void)
   expert_register_field_array(expert_tnef, ei, array_length(ei));
 
   /* Allow dissector to find be found by name. */
-  register_dissector(PFNAME, dissect_tnef, proto_tnef);
+  tnef_handle = register_dissector(PFNAME, dissect_tnef, proto_tnef);
 
 }
 
@@ -837,9 +839,8 @@ proto_register_tnef(void)
 void
 proto_reg_handoff_tnef(void)
 {
-  dissector_handle_t tnef_handle, tnef_file_handle;
+  dissector_handle_t tnef_file_handle;
 
-  tnef_handle = find_dissector(PFNAME);
   tnef_file_handle = create_dissector_handle(dissect_tnef_file, proto_tnef);
 
   dissector_add_string("media_type", "application/ms-tnef", tnef_handle);

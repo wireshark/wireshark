@@ -31,7 +31,6 @@
 #include <epan/prefs.h>
 #include <epan/uat.h>
 
-
 /* Initialize the protocol and registered fields */
 static int proto_vcdu = -1;
 
@@ -69,6 +68,8 @@ static int hf_vcdu_replay = -1;
  */
 static int hf_vcdu_fhp = -1;
 static int hf_vcdu_lbp = -1;
+
+static dissector_handle_t vcdu_handle;
 
 static dissector_handle_t ccsds_handle;
 
@@ -609,7 +610,7 @@ proto_register_vcdu(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* XX: Does this dissector need to be publicly registered ?? */
-    register_dissector ( "vcdu", dissect_vcdu, proto_vcdu );
+    vcdu_handle = register_dissector ( "vcdu", dissect_vcdu, proto_vcdu );
 
     vcdu_module = prefs_register_protocol(proto_vcdu, vcdu_prefs_apply_cb);
 

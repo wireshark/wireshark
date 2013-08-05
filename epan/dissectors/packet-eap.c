@@ -97,6 +97,8 @@ static expert_field ei_eap_mitm_attacks = EI_INIT;
 static expert_field ei_eap_md5_value_size_overflow = EI_INIT;
 static expert_field ei_eap_dictionary_attacks = EI_INIT;
 
+static dissector_handle_t eap_handle;
+
 static dissector_handle_t ssl_handle;
 
 const value_string eap_code_vals[] = {
@@ -1532,21 +1534,18 @@ proto_register_eap(void)
   expert_eap = expert_register_protocol(proto_eap);
   expert_register_field_array(expert_eap, ei, array_length(ei));
 
-  new_register_dissector("eap", dissect_eap, proto_eap);
+  eap_handle = new_register_dissector("eap", dissect_eap, proto_eap);
   register_init_routine(eap_tls_defragment_init);
 }
 
 void
 proto_reg_handoff_eap(void)
 {
-  dissector_handle_t eap_handle;
-
   /*
    * Get a handle for the SSL/TLS dissector.
    */
   ssl_handle = find_dissector("ssl");
 
-  eap_handle = find_dissector("eap");
   dissector_add_uint("ppp.protocol", PPP_EAP, eap_handle);
 }
 /*

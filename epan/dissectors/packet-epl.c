@@ -652,6 +652,8 @@ static gint ett_epl_el_entry        = -1;
 static gint ett_epl_el_entry_type   = -1;
 static gint ett_epl_sdo_entry_type  = -1;
 
+static dissector_handle_t epl_handle;
+
 /* preference whether or not display the SoC flags in info column */
 gboolean show_soc_flags = FALSE;
 
@@ -2349,7 +2351,7 @@ proto_register_epl(void)
    register_heur_dissector_list("epl", &heur_epl_subdissector_list);
 
    /* Registering protocol to be called by another dissector */
-    new_register_dissector("epl", dissect_epl, proto_epl);
+    epl_handle = new_register_dissector("epl", dissect_epl, proto_epl);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_epl, hf, array_length(hf));
@@ -2370,9 +2372,6 @@ proto_register_epl(void)
 void
 proto_reg_handoff_epl(void)
 {
-    dissector_handle_t epl_handle;
-
-    epl_handle = new_create_dissector_handle(dissect_epl, proto_epl);
     dissector_add_uint("ethertype", ETHERTYPE_EPL_V2, epl_handle);
     dissector_add_uint("udp.port", UDP_PORT_EPL, epl_handle);
 }

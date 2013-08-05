@@ -65,6 +65,8 @@ static gint ett_btatt_list = -1;
 static expert_field ei_btatt_uuid_format_unknown = EI_INIT;
 static expert_field ei_btatt_handle_too_few = EI_INIT;
 
+static dissector_handle_t btatt_handle;
+
 /* Opcodes */
 static const value_string opcode_vals[] = {
     {0x01, "Error Response"},
@@ -666,7 +668,7 @@ proto_register_btatt(void)
     /* Register the protocol name and description */
     proto_btatt = proto_register_protocol("Bluetooth Attribute Protocol", "BT ATT", "btatt");
 
-    new_register_dissector("btatt", dissect_btatt, proto_btatt);
+    btatt_handle = new_register_dissector("btatt", dissect_btatt, proto_btatt);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btatt, hf, array_length(hf));
@@ -683,9 +685,6 @@ proto_register_btatt(void)
 void
 proto_reg_handoff_btatt(void)
 {
-    dissector_handle_t btatt_handle;
-
-    btatt_handle = find_dissector("btatt");
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_ATT, btatt_handle);
     dissector_add_uint("btl2cap.cid", BTL2CAP_FIXED_CID_ATT, btatt_handle);
 }

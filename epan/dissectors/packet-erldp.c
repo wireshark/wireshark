@@ -174,7 +174,7 @@ static gboolean erldp_desegment = TRUE;
 static dissector_handle_t erldp_handle = NULL;
 
 /* Subdissectors */
-dissector_handle_t data_handle;
+static dissector_handle_t data_handle;
 
 /*--- External Term Format ---*/
 
@@ -679,8 +679,8 @@ void proto_register_erldp(void) {
 
   /* Register protocol and dissector */
   proto_erldp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector(PFNAME, dissect_erldp, proto_erldp);
-  erldp_handle = find_dissector(PFNAME);
+
+  erldp_handle = register_dissector(PFNAME, dissect_erldp, proto_erldp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_erldp, hf, array_length(hf));

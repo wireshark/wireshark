@@ -91,8 +91,9 @@ static gint ett_arp_duplicate_address = -1;
 static expert_field ei_seq_arp_dup_ip = EI_INIT;
 static expert_field ei_seq_arp_storm = EI_INIT;
 
-static dissector_handle_t atmarp_handle;
+static dissector_handle_t arp_handle;
 
+static dissector_handle_t atmarp_handle;
 static dissector_handle_t ax25arp_handle;
 
 /* Used for determining if frequency of ARP requests constitute a storm */
@@ -1993,7 +1994,7 @@ proto_register_arp(void)
   atmarp_handle = create_dissector_handle(dissect_atmarp, proto_arp);
   ax25arp_handle = create_dissector_handle(dissect_ax25arp, proto_arp);
 
-  register_dissector( "arp" , dissect_arp, proto_arp );
+  arp_handle = register_dissector( "arp" , dissect_arp, proto_arp );
 
   /* Preferences */
   arp_module = prefs_register_protocol(proto_arp, NULL);
@@ -2026,10 +2027,6 @@ proto_register_arp(void)
 void
 proto_reg_handoff_arp(void)
 {
-  dissector_handle_t arp_handle;
-
-  arp_handle = find_dissector("arp");
-
   dissector_add_uint("ethertype", ETHERTYPE_ARP, arp_handle);
   dissector_add_uint("ethertype", ETHERTYPE_REVARP, arp_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_ARP_1051, arp_handle);

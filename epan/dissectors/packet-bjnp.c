@@ -67,6 +67,8 @@ static int hf_payload = -1;
 
 static gint ett_bjnp = -1;
 
+static dissector_handle_t bjnp_handle;
+
 static const value_string dev_type_vals[] = {
   { PRINTER_COMMAND,    "Printer Command"       },
   { SCANNER_COMMAND,    "Scanner Command"       },
@@ -167,7 +169,8 @@ void proto_register_bjnp (void)
   };
 
   proto_bjnp = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  new_register_dissector (PFNAME, dissect_bjnp, proto_bjnp);
+
+  bjnp_handle = new_register_dissector (PFNAME, dissect_bjnp, proto_bjnp);
 
   proto_register_field_array (proto_bjnp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
@@ -175,9 +178,6 @@ void proto_register_bjnp (void)
 
 void proto_reg_handoff_bjnp (void)
 {
-  dissector_handle_t bjnp_handle;
-
-  bjnp_handle = find_dissector (PFNAME);
   dissector_add_uint ("udp.port", BJNP_PORT1, bjnp_handle);
   dissector_add_uint ("udp.port", BJNP_PORT2, bjnp_handle);
   dissector_add_uint ("udp.port", BJNP_PORT3, bjnp_handle);

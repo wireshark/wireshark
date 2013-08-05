@@ -73,8 +73,6 @@ static const value_string xot_pvc_status_vals[] = {
    { 0,   NULL}
 };
 
-static dissector_handle_t x25_handle;
-
 static gint proto_xot = -1;
 static gint ett_xot = -1;
 static gint hf_xot_version = -1;
@@ -96,6 +94,10 @@ static gint hf_xot_pvc_send_inc_pkt_size = -1;
 static gint hf_xot_pvc_send_out_pkt_size = -1;
 static gint hf_xot_pvc_init_itf_name = -1;
 static gint hf_xot_pvc_resp_itf_name = -1;
+
+static dissector_handle_t xot_handle;
+
+static dissector_handle_t x25_handle;
 
 /* desegmentation of X.25 over multiple TCP */
 static gboolean xot_desegment = TRUE;
@@ -422,7 +424,7 @@ proto_register_xot(void)
 	proto_xot = proto_register_protocol("X.25 over TCP", "XOT", "xot");
 	proto_register_field_array(proto_xot, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("xot", dissect_xot_tcp_heur, proto_xot);
+	xot_handle = new_register_dissector("xot", dissect_xot_tcp_heur, proto_xot);
 	xot_module = prefs_register_protocol(proto_xot, NULL);
 
 	prefs_register_bool_preference(xot_module, "desegment",
@@ -442,9 +444,6 @@ proto_register_xot(void)
 void
 proto_reg_handoff_xot(void)
 {
-  dissector_handle_t xot_handle;
-
-  xot_handle = find_dissector("xot");
   dissector_add_uint("tcp.port", TCP_PORT_XOT, xot_handle);
 
   x25_handle = find_dissector("x.25");

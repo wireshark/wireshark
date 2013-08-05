@@ -44,10 +44,6 @@
 #include "packet-rohc.h"
 
 
-static dissector_handle_t ip_handle;
-static dissector_handle_t ipv6_handle;
-static dissector_handle_t data_handle;
-
 static GHashTable *rohc_cid_hash = NULL;
 
 /* Initialize the protocol and registered fields */
@@ -161,6 +157,12 @@ static int ett_rohc_dynamic_udp = -1;
 static int ett_rohc_dynamic_rtp = -1;
 static int ett_rohc_compressed_list = -1;
 static int ett_rohc_packet = -1;
+
+static dissector_handle_t rohc_handle;
+
+static dissector_handle_t ip_handle;
+static dissector_handle_t ipv6_handle;
+static dissector_handle_t data_handle;
 
 typedef struct _rohc_cid_context_t
 {
@@ -2945,7 +2947,7 @@ proto_register_rohc(void)
     /* Register the protocol name and description */
     proto_rohc = proto_register_protocol("RObust Header Compression (ROHC)", "ROHC", "rohc");
 
-    register_dissector("rohc", dissect_rohc, proto_rohc);
+    rohc_handle = register_dissector("rohc", dissect_rohc, proto_rohc);
 
     register_init_routine(&rohc_init_protocol);
 
@@ -2957,9 +2959,6 @@ proto_register_rohc(void)
 void
 proto_reg_handoff_rohc(void)
 {
-    dissector_handle_t rohc_handle;
-
-    rohc_handle = create_dissector_handle(dissect_rohc, proto_rohc);
     dissector_add_uint("ethertype", ETHERTYPE_ROHC, rohc_handle);
 
     ip_handle   = find_dissector("ip");

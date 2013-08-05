@@ -224,6 +224,8 @@ static gint ett_lisp_record = -1;
 static gint ett_lisp_lcaf = -1;
 static gint ett_lisp_elp = -1;
 
+static dissector_handle_t lisp_handle;
+
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
@@ -1978,7 +1980,7 @@ proto_register_lisp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register dissector so that other dissectors can call it */
-    new_register_dissector("lisp", dissect_lisp, proto_lisp);
+    lisp_handle = new_register_dissector("lisp", dissect_lisp, proto_lisp);
 }
 
 
@@ -1990,9 +1992,6 @@ proto_register_lisp(void)
 void
 proto_reg_handoff_lisp(void)
 {
-    dissector_handle_t lisp_handle;
-
-    lisp_handle = new_create_dissector_handle(dissect_lisp, proto_lisp);
     dissector_add_uint("udp.port", LISP_CONTROL_PORT, lisp_handle);
     ipv4_handle = find_dissector("ip");
     ipv6_handle = find_dissector("ipv6");

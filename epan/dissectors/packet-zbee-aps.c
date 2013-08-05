@@ -139,9 +139,11 @@ static expert_field ei_zbee_aps_invalid_delivery_mode = EI_INIT;
 static expert_field ei_zbee_aps_missing_payload = EI_INIT;
 
 /* Dissector Handles. */
-static dissector_handle_t   data_handle;
 static dissector_handle_t   zbee_aps_handle;
 static dissector_handle_t   zbee_apf_handle;
+
+/* Subdissector Handles. */
+static dissector_handle_t   data_handle;
 
 /* Dissector List. */
 static dissector_table_t    zbee_aps_dissector_table;
@@ -1986,7 +1988,7 @@ void proto_register_zbee_aps(void)
 
     /* Register the APS dissector and subdissector list. */
     zbee_aps_dissector_table = register_dissector_table("zbee.profile", "ZigBee Profile ID", FT_UINT16, BASE_HEX);
-    register_dissector(ZBEE_PROTOABBREV_APS, dissect_zbee_aps, proto_zbee_aps);
+    zbee_aps_handle = register_dissector(ZBEE_PROTOABBREV_APS, dissect_zbee_aps, proto_zbee_aps);
 
     /* Register the init routine. */
     register_init_routine(proto_init_zbee_aps);
@@ -1997,7 +1999,7 @@ void proto_register_zbee_aps(void)
     proto_register_subtree_array(ett_apf, array_length(ett_apf));
 
     /* Register the App dissector. */
-    register_dissector(ZBEE_PROTOABBREV_APF, dissect_zbee_apf, proto_zbee_apf);
+    zbee_apf_handle = register_dissector(ZBEE_PROTOABBREV_APF, dissect_zbee_apf, proto_zbee_apf);
 } /* proto_register_zbee_aps */
 
 /*FUNCTION:------------------------------------------------------
@@ -2015,8 +2017,6 @@ void proto_reg_handoff_zbee_aps(void)
 {
     /* Find the other dissectors we need. */
     data_handle     = find_dissector("data");
-    zbee_aps_handle = find_dissector(ZBEE_PROTOABBREV_APS);
-    zbee_apf_handle = find_dissector(ZBEE_PROTOABBREV_APF);
 } /* proto_reg_handoff_zbee_aps */
 
 /*FUNCTION:------------------------------------------------------

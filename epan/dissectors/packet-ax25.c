@@ -70,8 +70,6 @@ void proto_reg_handoff_ax25(void);
 /* Dissector table */
 static dissector_table_t ax25_dissector_table;
 
-static dissector_handle_t data_handle;
-
 /* Initialize the protocol and registered fields */
 static int proto_ax25		= -1;
 static int hf_ax25_dst		= -1;
@@ -127,6 +125,10 @@ static const value_string pid_vals[] = {
 
 static gint ett_ax25 = -1;
 static gint ett_ax25_ctl = -1;
+
+static dissector_handle_t ax25_handle;
+
+static dissector_handle_t data_handle;
 
 static void
 dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
@@ -434,7 +436,7 @@ proto_register_ax25(void)
 	proto_ax25 = proto_register_protocol("Amateur Radio AX.25", "AX.25", "ax25");
 
 	/* Register the dissector */
-	register_dissector( "ax25", dissect_ax25, proto_ax25 );
+	ax25_handle = register_dissector( "ax25", dissect_ax25, proto_ax25 );
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25, hf, array_length(hf ) );
@@ -447,9 +449,6 @@ proto_register_ax25(void)
 void
 proto_reg_handoff_ax25(void)
 {
-	dissector_handle_t ax25_handle;
-
-	ax25_handle = create_dissector_handle( dissect_ax25, proto_ax25 );
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_AX25, ax25_handle);
 	dissector_add_uint("ip.proto", IP_PROTO_AX25, ax25_handle);
 

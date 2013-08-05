@@ -81,7 +81,10 @@ static gint ett_zep = -1;
 /* Initialize preferences. */
 static guint32  gPREF_zep_udp_port = ZEP_DEFAULT_PORT;
 
-/*  Dissector handles */
+/*  Dissector handle */
+static dissector_handle_t zep_handle;
+
+/*  Subdissector handles */
 static dissector_handle_t data_handle;
 static dissector_handle_t ieee802154_handle;
 static dissector_handle_t ieee802154_ccfcs_handle;
@@ -320,7 +323,7 @@ void proto_register_zep(void)
                  10, &gPREF_zep_udp_port);
 
     /*  Register dissector with Wireshark. */
-    register_dissector("zep", dissect_zep, proto_zep);
+    zep_handle = register_dissector("zep", dissect_zep, proto_zep);
 } /* proto_register_zep */
 
 /*FUNCTION:------------------------------------------------------
@@ -337,7 +340,6 @@ void proto_register_zep(void)
  */
 void proto_reg_handoff_zep(void)
 {
-    static dissector_handle_t  zep_handle;
     static int                 lastPort;
     static gboolean            inited = FALSE;
 
@@ -352,7 +354,6 @@ void proto_reg_handoff_zep(void)
             h = find_dissector("ieee802154_ccfcs");   /* otherwise use older 802.15.4 (Chipcon) plugin disector */
         }
         ieee802154_ccfcs_handle = h;
-        zep_handle = find_dissector("zep");
         data_handle = find_dissector("data");
         inited = TRUE;
     } else {

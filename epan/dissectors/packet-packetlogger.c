@@ -32,15 +32,17 @@
 #define PSNAME "PKTLOG"
 #define PFNAME "packetlogger"
 
-static dissector_table_t hci_h1_table;
-static dissector_handle_t data_handle;
-
 static int proto_packetlogger = -1;
 
 static int hf_type = -1;
 static int hf_info = -1;
 
 static gint ett_packetlogger = -1;
+
+static dissector_handle_t packetlogger_handle;
+static dissector_table_t hci_h1_table;
+
+static dissector_handle_t data_handle;
 
 #define PKT_HCI_COMMAND     0x00
 #define PKT_HCI_EVENT       0x01
@@ -148,7 +150,8 @@ void proto_register_packetlogger (void)
   };
 
   proto_packetlogger = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  register_dissector (PFNAME, dissect_packetlogger, proto_packetlogger);
+
+  packetlogger_handle = register_dissector (PFNAME, dissect_packetlogger, proto_packetlogger);
   
   proto_register_field_array (proto_packetlogger, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
@@ -156,9 +159,6 @@ void proto_register_packetlogger (void)
 
 void proto_reg_handoff_packetlogger (void)
 {
-  dissector_handle_t packetlogger_handle;
-
-  packetlogger_handle = find_dissector (PFNAME);
   hci_h1_table = find_dissector_table("hci_h1.type");
   data_handle = find_dissector("data");
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_PACKETLOGGER, packetlogger_handle);

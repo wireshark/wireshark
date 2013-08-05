@@ -316,10 +316,11 @@ static gint ett_8023_extension = -1;
 static gint ett_8023_extension_flags = -1;
 static gint ett_8023_extension_errors = -1;
 
+static dissector_handle_t ppi_handle;
+
 static dissector_handle_t data_handle;
 static dissector_handle_t ieee80211_ht_handle;
 static dissector_handle_t ppi_gps_handle, ppi_vector_handle, ppi_sensor_handle, ppi_antenna_handle;
-
 
 static const true_false_string tfs_ppi_head_flag_alignment = { "32-bit aligned", "Not aligned" };
 static const true_false_string tfs_tsft_ms = { "milliseconds", "microseconds" };
@@ -1335,7 +1336,8 @@ proto_register_ppi(void)
     proto_ppi = proto_register_protocol("PPI Packet Header", "PPI", "ppi");
     proto_register_field_array(proto_ppi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("ppi", dissect_ppi, proto_ppi);
+
+    ppi_handle = register_dissector("ppi", dissect_ppi, proto_ppi);
 
     register_init_routine(ampdu_reassemble_init);
 
@@ -1350,9 +1352,6 @@ proto_register_ppi(void)
 void
 proto_reg_handoff_ppi(void)
 {
-    dissector_handle_t ppi_handle;
-
-    ppi_handle = create_dissector_handle(dissect_ppi, proto_ppi);
     data_handle = find_dissector("data");
     ieee80211_ht_handle = find_dissector("wlan_ht");
     ppi_gps_handle = find_dissector("ppi_gps");

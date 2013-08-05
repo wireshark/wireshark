@@ -515,6 +515,7 @@ static expert_field ei_icmpv6_rr_pco_mp_matchlen = EI_INIT;
 static expert_field ei_icmpv6_rr_pco_mp_matchedlen = EI_INIT;
 static expert_field ei_icmpv6_checksum = EI_INIT;
 
+static dissector_handle_t icmpv6_handle;
 
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
@@ -4938,16 +4939,14 @@ proto_register_icmpv6(void)
     expert_icmpv6 = expert_register_protocol(proto_icmpv6);
     expert_register_field_array(expert_icmpv6, ei, array_length(ei));
 
-    new_register_dissector("icmpv6", dissect_icmpv6, proto_icmpv6);
+    icmpv6_handle = new_register_dissector("icmpv6", dissect_icmpv6, proto_icmpv6);
+
     icmpv6_tap = register_tap("icmpv6");
 }
 
 void
 proto_reg_handoff_icmpv6(void)
 {
-    dissector_handle_t icmpv6_handle;
-
-    icmpv6_handle = new_create_dissector_handle(dissect_icmpv6, proto_icmpv6);
     dissector_add_uint("ip.proto", IP_PROTO_ICMPV6, icmpv6_handle);
 
     /*

@@ -150,6 +150,8 @@ static int ett_imf_siolabel = -1;
 static int ett_imf_extension = -1;
 static int ett_imf_message_text = -1;
 
+static dissector_handle_t imf_handle;
+
 static expert_field ei_imf_unknown_param = EI_INIT;
 
 struct imf_field {
@@ -1244,7 +1246,7 @@ proto_register_imf(void)
   expert_register_field_array(expert_imf, ei, array_length(ei));
 
   /* Allow dissector to find be found by name. */
-  register_dissector(PFNAME, dissect_imf, proto_imf);
+  imf_handle = register_dissector(PFNAME, dissect_imf, proto_imf);
 
   imf_module = prefs_register_protocol(proto_imf, NULL);
   prefs_register_uat_preference(imf_module, "custom_header_fields", "Custom IMF headers",
@@ -1264,10 +1266,6 @@ proto_register_imf(void)
 void
 proto_reg_handoff_imf(void)
 {
-  dissector_handle_t imf_handle;
-
-  imf_handle = find_dissector(PFNAME);
-
   dissector_add_string("media_type",
                        "message/rfc822", imf_handle);
 

@@ -4980,7 +4980,8 @@ void proto_register_dmp (void)
   expert_module_t* expert_dmp;
 
   proto_dmp = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  register_dissector(PFNAME, dissect_dmp, proto_dmp);
+
+  dmp_handle = register_dissector(PFNAME, dissect_dmp, proto_dmp);
 
   proto_register_field_array (proto_dmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
@@ -5073,7 +5074,6 @@ void proto_reg_handoff_dmp (void)
   static gboolean dmp_prefs_initialized = FALSE;
 
   if (!dmp_prefs_initialized) {
-    dmp_handle = find_dissector (PFNAME);
     dmp_prefs_initialized = TRUE;
   } else {
     range_foreach (dmp_port_range, range_delete_callback);

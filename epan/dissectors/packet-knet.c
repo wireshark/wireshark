@@ -111,6 +111,10 @@ static gint ett_knet_datagram =      -1;
 static gint ett_knet_flags =         -1;
 /**@}*/
 
+static dissector_handle_t knet_handle_sctp;
+static dissector_handle_t knet_handle_tcp;
+static dissector_handle_t knet_handle_udp;
+
 /* Few Utility Variables */
 static int messageindex =         0; /*!< Index of the kNet message inside a datagram */
 static int current_protocol =     0; /*!< Protocol currently dissected */
@@ -821,9 +825,9 @@ proto_register_knet(void)
     /* Register protocols */
     proto_knet = proto_register_protocol ("kNet Protocol", "KNET", "knet");
 
-    register_dissector("knetsctp", dissect_knet_sctp, proto_knet);
-    register_dissector("knettcp",  dissect_knet_tcp, proto_knet);
-    register_dissector("knetudp",  dissect_knet_udp, proto_knet);
+    knet_handle_sctp = register_dissector("knetsctp", dissect_knet_sctp, proto_knet);
+    knet_handle_tcp = register_dissector("knettcp",  dissect_knet_tcp, proto_knet);
+    knet_handle_udp = register_dissector("knetudp",  dissect_knet_udp, proto_knet);
 
     knet_module = prefs_register_protocol(proto_knet, proto_reg_handoff_knet);
 
@@ -851,20 +855,12 @@ proto_reg_handoff_knet(void)
 {
     static gboolean initialized = FALSE;
 
-    static dissector_handle_t knet_handle_sctp = 0;
-    static dissector_handle_t knet_handle_tcp = 0;
-    static dissector_handle_t knet_handle_udp = 0;
-
     static guint current_sctp_port;
     static guint current_tcp_port;
     static guint current_udp_port;
 
     if(!initialized)
     {
-        knet_handle_sctp = create_dissector_handle(dissect_knet_sctp, proto_knet);
-        knet_handle_tcp  = create_dissector_handle(dissect_knet_tcp, proto_knet);
-        knet_handle_udp  = create_dissector_handle(dissect_knet_udp, proto_knet);
-
         initialized = TRUE;
     }
     else
