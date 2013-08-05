@@ -729,6 +729,9 @@ static gchar
     case PT_DCCP:
 		serv_port_table->dccp_name = servp->s_name;
 		break;
+	default:
+		return NULL;
+		/*NOTREACHED*/
 	}
     return servp->s_name;
   }
