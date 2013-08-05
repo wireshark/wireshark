@@ -5383,7 +5383,7 @@ proto_register_giop (void)
   proto_giop = proto_register_protocol("General Inter-ORB Protocol", "GIOP", "giop");
 
   /* Register by name */
-  register_dissector("giop", dissect_giop_tcp, proto_giop);
+  giop_tcp_handle = register_dissector("giop", dissect_giop_tcp, proto_giop);
 
   proto_register_field_array (proto_giop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
@@ -5419,7 +5419,6 @@ proto_register_giop (void)
 
 void proto_reg_handoff_giop (void) {
   data_handle = find_dissector("data");
-  giop_tcp_handle = create_dissector_handle(dissect_giop_tcp, proto_giop);
   heur_dissector_add("tcp", dissect_giop_heur, proto_giop);
   /* Support DIOP (GIOP/UDP) */
   heur_dissector_add("udp", dissect_giop_heur, proto_giop);

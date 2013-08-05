@@ -252,6 +252,8 @@ static gint ett_radiotap_info = -1;
 static gint ett_radiotap_errors = -1;
 static gint ett_radiotap_times = -1;
 
+static dissector_handle_t ixveriwave_handle;
+
 #define ALIGN_OFFSET(offset, width) \
     ( (((offset) + ((width) - 1)) & (~((width) - 1))) - offset )
 
@@ -1505,20 +1507,18 @@ void proto_register_ixveriwave(void)
     proto_ixveriwave = proto_register_protocol("ixveriwave", "ixveriwave", "ixveriwave");
     proto_register_field_array(proto_ixveriwave, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("ixveriwave", dissect_ixveriwave, proto_ixveriwave);
+
+    ixveriwave_handle = register_dissector("ixveriwave", dissect_ixveriwave, proto_ixveriwave);
 }
 
 void proto_reg_handoff_ixveriwave(void)
 {
-    dissector_handle_t ixveriwave_handle;
-
     /* handle for ethertype dissector */
     ethernet_handle          = find_dissector("eth_withoutfcs");
     /* handle for 802.11 dissector */
     ieee80211_handle         = find_dissector("wlan");
     ieee80211_datapad_handle = find_dissector("wlan_datapad");
 
-    ixveriwave_handle = create_dissector_handle(dissect_ixveriwave, proto_ixveriwave);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IXVERIWAVE, ixveriwave_handle);
 }
 

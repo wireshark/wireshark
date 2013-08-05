@@ -371,8 +371,6 @@ static void range_add_callback(guint32 port)
 static void initialize_handles_once(void) {
     static gboolean initialized = FALSE;
     if (!initialized) {
-		sscop_handle = create_dissector_handle(dissect_sscop, proto_sscop);
-
 		q2931_handle = find_dissector("q2931");
 		data_handle = find_dissector("data");
 		sscf_nni_handle = find_dissector("sscf-nni");
@@ -448,7 +446,8 @@ proto_register_sscop(void)
   proto_sscop = proto_register_protocol("SSCOP", "SSCOP", "sscop");
   proto_register_field_array(proto_sscop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_dissector("sscop", dissect_sscop, proto_sscop);
+
+  sscop_handle = register_dissector("sscop", dissect_sscop, proto_sscop);
 
   sscop_module = prefs_register_protocol(proto_sscop, proto_reg_handoff_sscop);
 

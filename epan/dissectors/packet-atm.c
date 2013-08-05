@@ -128,6 +128,9 @@ static gint ett_aal1 = -1;
 static gint ett_aal3_4 = -1;
 static gint ett_oamaal = -1;
 
+static dissector_handle_t atm_handle;
+static dissector_handle_t atm_untruncated_handle;
+
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t fr_handle;
@@ -2148,8 +2151,8 @@ proto_register_atm(void)
                                            "ATM LANE", "lane");
 
   register_dissector("lane", dissect_lane, proto_atm_lane);
-  register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
-  register_dissector("atm_truncated", dissect_atm, proto_atm);
+  atm_handle = register_dissector("atm_truncated", dissect_atm, proto_atm);
+  atm_untruncated_handle = register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
   register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
 
   atm_module = prefs_register_protocol ( proto_atm, NULL );
@@ -2166,8 +2169,6 @@ proto_register_atm(void)
 void
 proto_reg_handoff_atm(void)
 {
-  dissector_handle_t atm_handle, atm_untruncated_handle;
-
   /*
    * Get handles for the Ethernet, Token Ring, Frame Relay, LLC,
    * SSCOP, LANE, and ILMI dissectors.
@@ -2186,11 +2187,8 @@ proto_reg_handoff_atm(void)
   fp_handle             = find_dissector("fp");
   gprs_ns_handle        = find_dissector("gprs_ns");
 
-  atm_handle = create_dissector_handle(dissect_atm, proto_atm);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
 
-  atm_untruncated_handle = create_dissector_handle(dissect_atm_untruncated,
-                                                   proto_atm);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
                 atm_untruncated_handle);
 }

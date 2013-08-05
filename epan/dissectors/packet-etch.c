@@ -134,6 +134,8 @@ static int hf_etch_struct = -1;
 static int hf_etch_dim = -1;
 static int hf_etch_symbol = -1;
 
+static dissector_handle_t etch_handle;
+
 /*
  * internal fields/defines for dissector
  */
@@ -950,7 +952,7 @@ void proto_register_etch(void)
 
   proto_register_field_array(proto_etch, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  new_register_dissector("etch", dissect_etch, proto_etch);
+  etch_handle = new_register_dissector("etch", dissect_etch, proto_etch);
 
   register_init_routine(&etch_dissector_init);
 
@@ -973,12 +975,10 @@ void proto_register_etch(void)
 void proto_reg_handoff_etch(void)
 {
   static gboolean etch_prefs_initialized = FALSE;
-  static dissector_handle_t etch_handle;
   static guint old_etch_port = 0;
 
   /* create dissector handle only once */
   if(!etch_prefs_initialized) {
-    etch_handle = new_create_dissector_handle(dissect_etch, proto_etch);
     /* add heuristic dissector for tcp */
     heur_dissector_add("tcp", dissect_etch, proto_etch);
     etch_prefs_initialized = TRUE;

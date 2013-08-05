@@ -47,6 +47,8 @@
 #define MP2T_PID_DOCSIS	0x1FFE
 #define MP2T_PID_NULL	0x1FFF
 
+static dissector_handle_t mp2t_handle;
+
 static dissector_handle_t docsis_handle;
 static dissector_handle_t mpeg_pes_handle;
 static dissector_handle_t mpeg_sect_handle;
@@ -1549,7 +1551,9 @@ proto_register_mp2t(void)
 	expert_module_t* expert_mp2t;
 
 	proto_mp2t = proto_register_protocol("ISO/IEC 13818-1", "MP2T", "mp2t");
-	register_dissector("mp2t", dissect_mp2t, proto_mp2t);
+
+	mp2t_handle = register_dissector("mp2t", dissect_mp2t, proto_mp2t);
+
 	proto_register_field_array(proto_mp2t, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_mp2t = expert_register_protocol(proto_mp2t);
@@ -1565,11 +1569,8 @@ proto_register_mp2t(void)
 void
 proto_reg_handoff_mp2t(void)
 {
-	dissector_handle_t mp2t_handle;
-
 	heur_dissector_add("udp", heur_dissect_mp2t, proto_mp2t);
 
-	mp2t_handle = create_dissector_handle(dissect_mp2t, proto_mp2t);
 	dissector_add_uint("rtp.pt", PT_MP2T, mp2t_handle);
 	dissector_add_handle("udp.port", mp2t_handle);  /* for decode-as */
 	heur_dissector_add("usb.bulk", heur_dissect_mp2t, proto_mp2t);

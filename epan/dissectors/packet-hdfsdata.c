@@ -106,6 +106,8 @@ static int hf_hdfsdata_node = -1;
 
 static gint ett_hdfsdata = -1;
 
+static dissector_handle_t hdfsdata_handle;
+
 void proto_reg_handoff_hdfsdata(void);
 
 /* Taken from HDFS
@@ -787,7 +789,7 @@ proto_register_hdfsdata(void)
                                    10,
                                    &tcp_port);
 
-    register_dissector("hdfsdata", dissect_hdfsdata, proto_hdfsdata);
+    hdfsdata_handle = register_dissector("hdfsdata", dissect_hdfsdata, proto_hdfsdata);
 }
 
 /* registers handoff */
@@ -795,11 +797,9 @@ void
 proto_reg_handoff_hdfsdata(void)
 {
   static gboolean initialized = FALSE;
-    static dissector_handle_t hdfsdata_handle;
     static guint saved_tcp_port;
 
     if (!initialized) {
-        hdfsdata_handle = create_dissector_handle(dissect_hdfsdata, proto_hdfsdata);
         dissector_add_handle("tcp.port", hdfsdata_handle);  /* for "decode as" */
         initialized = TRUE;
     } else if (saved_tcp_port != 0) {

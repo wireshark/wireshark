@@ -51,6 +51,8 @@ static int ett_fcgi_begin_request = -1;
 static int ett_fcgi_end_request = -1;
 static int ett_fcgi_params = -1;
 
+static dissector_handle_t fcgi_handle;
+
 #define FCGI_BEGIN_REQUEST       1
 #define FCGI_ABORT_REQUEST       2
 #define FCGI_END_REQUEST         3
@@ -396,18 +398,16 @@ proto_register_fcgi(void)
                                   10,
                                   &tcp_port);
 
-   register_dissector("fcgi", dissect_fcgi, proto_fcgi);
+   fcgi_handle = register_dissector("fcgi", dissect_fcgi, proto_fcgi);
 }
 
 void
 proto_reg_handoff_fcgi(void)
 {
    static gboolean initialized = FALSE;
-   static dissector_handle_t fcgi_handle;
    static guint saved_tcp_port;
 
    if (!initialized) {
-      fcgi_handle = create_dissector_handle(dissect_fcgi, proto_fcgi);
       dissector_add_handle("tcp.port", fcgi_handle);  /* for "decode as" */
       initialized = TRUE;
    } else if (saved_tcp_port != 0) {

@@ -1466,9 +1466,9 @@ static gint ett_065_050 = -1;
 static gint ett_065_RE = -1;
 static gint ett_065_SP = -1;
 
+static dissector_handle_t asterix_handle;
 
 static dissector_handle_t data_handle = NULL;
-static dissector_handle_t asterix_handle;
 
 #define FIXED       0x01
 #define REPETITIVE  0x02
@@ -6152,13 +6152,13 @@ void proto_register_asterix (void)
 
     proto_register_field_array (proto_asterix, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
-    register_dissector ("asterix", dissect_asterix, proto_asterix);
+
+    asterix_handle = register_dissector ("asterix", dissect_asterix, proto_asterix);
 }
 
 void proto_reg_handoff_asterix (void)
 {
     data_handle = find_dissector ("data");
-    asterix_handle = create_dissector_handle (dissect_asterix, proto_asterix);
     dissector_add_uint ("udp.port", ASTERIX_PORT, asterix_handle);
 }
 

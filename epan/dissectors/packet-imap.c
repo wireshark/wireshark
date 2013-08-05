@@ -49,6 +49,8 @@ static int hf_imap_request_uid = -1;
 static gint ett_imap = -1;
 static gint ett_imap_reqresp = -1;
 
+static dissector_handle_t imap_handle;
+
 #define TCP_PORT_IMAP			143
 #define TCP_PORT_SSL_IMAP		993
 #define MAX_BUFFER                      1024
@@ -287,7 +289,9 @@ proto_register_imap(void)
 
 	proto_imap = proto_register_protocol("Internet Message Access Protocol",
 					   "IMAP", "imap");
-	register_dissector("imap", dissect_imap, proto_imap);
+
+	imap_handle = register_dissector("imap", dissect_imap, proto_imap);
+
 	proto_register_field_array(proto_imap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -295,9 +299,6 @@ proto_register_imap(void)
 void
 proto_reg_handoff_imap(void)
 {
-	dissector_handle_t imap_handle;
-
-	imap_handle = create_dissector_handle(dissect_imap, proto_imap);
 	dissector_add_uint("tcp.port", TCP_PORT_IMAP, imap_handle);
 	ssl_dissector_add(TCP_PORT_SSL_IMAP, "imap", TRUE);
 }

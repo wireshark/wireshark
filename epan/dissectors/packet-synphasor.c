@@ -106,6 +106,8 @@ static int hf_data_statb05to04	    = -1;
 static int hf_data_statb03to00	    = -1;
 static int hf_command		    = -1;
 
+static dissector_handle_t synphasor_udp_handle;
+
 /* the five different frame types for this protocol */
 enum FrameType {
 	DATA = 0,
@@ -1353,7 +1355,7 @@ void proto_register_synphasor(void)
 						  PROTOCOL_ABBREV);
 
 	/* Registering protocol to be called by another dissector */
-	new_register_dissector("synphasor", dissect_udp, proto_synphasor);
+	synphasor_udp_handle = new_register_dissector("synphasor", dissect_udp, proto_synphasor);
 
 	proto_register_field_array(proto_synphasor, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -1379,13 +1381,11 @@ void proto_register_synphasor(void)
 void proto_reg_handoff_synphasor(void)
 {
 	static gboolean		  initialized = FALSE;
-	static dissector_handle_t synphasor_udp_handle;
 	static dissector_handle_t synphasor_tcp_handle;
 	static guint		  current_udp_port;
 	static guint		  current_tcp_port;
 
 	if (!initialized) {
-		synphasor_udp_handle = new_create_dissector_handle(dissect_udp, proto_synphasor);
 		synphasor_tcp_handle = new_create_dissector_handle(dissect_tcp, proto_synphasor);
 
 		initialized = TRUE;

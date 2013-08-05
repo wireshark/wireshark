@@ -51,6 +51,8 @@ static int hf_isis_max_area_adr     = -1;
 
 static gint ett_isis                = -1;
 
+static dissector_handle_t isis_handle;
+
 static const value_string isis_vals[] = {
   { ISIS_TYPE_L1_HELLO,  "L1 HELLO"},
   { ISIS_TYPE_L2_HELLO,  "L2 HELLO"},
@@ -298,7 +300,7 @@ proto_register_isis(void) {
     proto_register_field_array(proto_isis, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("isis", dissect_isis, proto_isis);
+    isis_handle = register_dissector("isis", dissect_isis, proto_isis);
 
     /*
      * Call registration routines for other source files in the ISIS
@@ -313,9 +315,6 @@ proto_register_isis(void) {
 void
 proto_reg_handoff_isis(void)
 {
-    dissector_handle_t isis_handle;
-
-    isis_handle = create_dissector_handle(dissect_isis, proto_isis);
     dissector_add_uint("osinl", NLPID_ISO10589_ISIS, isis_handle);
     dissector_add_uint("ethertype", ETHERTYPE_L2ISIS, isis_handle);
 }

@@ -281,6 +281,8 @@ static int hf_msg_reassembled_length = -1;
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
 
+static dissector_handle_t mux27010_handle;
+
 static const fragment_items msg_frag_items = {
     /* Fragment subtrees */
     &ett_msg_fragment,
@@ -1405,7 +1407,9 @@ proto_register_mux27010 (void)
     /*Register arrays*/
     proto_register_field_array (proto_mux27010, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
-    register_dissector("mux27010", dissect_mux27010, proto_mux27010);
+
+    mux27010_handle = register_dissector("mux27010", dissect_mux27010, proto_mux27010);
+
     expert_mux27010 = expert_register_protocol(proto_mux27010);
     expert_register_field_array(expert_mux27010, ei, array_length(ei));
 
@@ -1416,10 +1420,7 @@ proto_register_mux27010 (void)
 void
 proto_reg_handoff_mux27010(void)
 {
-    dissector_handle_t mux27010_handle;
-
     /*Initialization of dissector*/
-    mux27010_handle = create_dissector_handle(dissect_mux27010, proto_mux27010);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_MUX27010, mux27010_handle);
 
     ppp_handle = find_dissector("ppp");

@@ -97,6 +97,8 @@ static int hf_ansi_801_num_fixes = -1;
 static int hf_ansi_801_t_betw_fixes = -1;
 static int hf_ansi_801_offset_req = -1;
 
+static dissector_handle_t ansi_801_handle;
+
 static char bigbuf[1024];
 static dissector_handle_t data_handle;
 
@@ -2385,17 +2387,13 @@ proto_register_ansi_801(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* subdissector code */
-	register_dissector("ansi_801", dissect_ansi_801, proto_ansi_801);
+	ansi_801_handle = register_dissector("ansi_801", dissect_ansi_801, proto_ansi_801);
 }
 
 
 void
 proto_reg_handoff_ansi_801(void)
 {
-	dissector_handle_t ansi_801_handle;
-
-	ansi_801_handle = create_dissector_handle(dissect_ansi_801, proto_ansi_801);
-
 	dissector_add_uint("ansi_map.pld", ANSI_801_FORWARD, ansi_801_handle);
 	dissector_add_uint("ansi_map.pld", ANSI_801_REVERSE, ansi_801_handle);
 	dissector_add_uint("ansi_a.pld",   ANSI_801_FORWARD, ansi_801_handle);

@@ -558,6 +558,7 @@ static reassembly_table tds_reassembly_table;
 static gboolean tds_defragment = TRUE;
 
 static dissector_handle_t tds_tcp_handle;
+
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t data_handle;
@@ -3172,7 +3173,7 @@ proto_register_tds(void)
     proto_register_subtree_array(ett, array_length(ett));
 
 /* Allow dissector to be found by name. */
-    register_dissector("tds", dissect_tds_tcp, proto_tds);
+    tds_tcp_handle = register_dissector("tds", dissect_tds_tcp, proto_tds);
 
     tds_module = prefs_register_protocol(proto_tds, NULL);
     prefs_register_bool_preference(tds_module, "desegment_buffers",
@@ -3207,8 +3208,6 @@ proto_register_tds(void)
 void
 proto_reg_handoff_tds(void)
 {
-    tds_tcp_handle = create_dissector_handle(dissect_tds_tcp, proto_tds);
-
     /* Initial TDS ports: MS SQL default ports */
     dissector_add_uint("tcp.port", 1433, tds_tcp_handle);
     dissector_add_uint("tcp.port", 2433, tds_tcp_handle);

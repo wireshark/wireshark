@@ -481,6 +481,8 @@ static expert_field ei_bootp_suboption_invalid = EI_INIT;
 static expert_field ei_bootp_secs_le = EI_INIT;
 static expert_field ei_bootp_end_option_missing = EI_INIT;
 
+static dissector_handle_t bootp_handle;
+
 /* RFC2937 The Name Service Search Option for DHCP */
 #define RFC2937_LOCAL_NAMING_INFORMATION                           0
 #define RFC2937_DOMAIN_NAME_SERVER_OPTION                          6
@@ -6895,7 +6897,7 @@ proto_register_bootp(void)
 	register_init_routine(&bootp_init_protocol);
 
 	/* Allow dissector to find be found by name. */
-	register_dissector("bootp", dissect_bootp, proto_bootp);
+	bootp_handle = register_dissector("bootp", dissect_bootp, proto_bootp);
 
 	bootp_module = prefs_register_protocol(proto_bootp, NULL);
 
@@ -6943,9 +6945,6 @@ proto_register_bootp(void)
 void
 proto_reg_handoff_bootp(void)
 {
-	dissector_handle_t bootp_handle;
-
-	bootp_handle = create_dissector_handle(dissect_bootp, proto_bootp);
 	dissector_add_uint("udp.port", UDP_PORT_BOOTPS, bootp_handle);
 	dissector_add_uint("udp.port", UDP_PORT_BOOTPC, bootp_handle);
 }

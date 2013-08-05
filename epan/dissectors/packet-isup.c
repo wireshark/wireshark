@@ -3036,6 +3036,7 @@ static gint ett_isup_apm_msg_fragment = -1;
 static gint ett_isup_apm_msg_fragments = -1;
 static gint ett_isup_range = -1;
 
+static dissector_handle_t bicc_handle;
 
 static dissector_handle_t sdp_handle = NULL;
 static dissector_handle_t q931_ie_handle = NULL;
@@ -12197,7 +12198,9 @@ proto_register_bicc(void)
   };
   proto_bicc = proto_register_protocol("Bearer Independent Call Control",
                                        "BICC", "bicc");
-  register_dissector("bicc", dissect_bicc, proto_bicc);
+
+  bicc_handle = register_dissector("bicc", dissect_bicc, proto_bicc);
+
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_bicc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -12209,11 +12212,9 @@ proto_register_bicc(void)
 void
 proto_reg_handoff_bicc(void)
 {
-  dissector_handle_t bicc_handle;
   sdp_handle     = find_dissector("sdp");
   q931_ie_handle = find_dissector("q931.ie");
 
-  bicc_handle = create_dissector_handle(dissect_bicc, proto_bicc);
   dissector_add_uint("mtp3.service_indicator", MTP_SI_BICC, bicc_handle);
   dissector_add_uint("sctp.ppi", BICC_PAYLOAD_PROTOCOL_ID, bicc_handle);
 }

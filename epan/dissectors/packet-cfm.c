@@ -429,6 +429,8 @@ static gint ett_cfm_all_tlvs = -1;
 static gint ett_cfm_tlv = -1;
 static gint ett_cfm_raps_flags = -1;
 
+static dissector_handle_t cfm_handle;
+
 /* CFM EOAM sub-protocol dissectors: CCM, LBM, LBR, LTM, LTR */
 static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
@@ -2110,7 +2112,7 @@ void proto_register_cfm(void)
 		"cfm" /* abbrev */
 		);
 
-	register_dissector("cfm", dissect_cfm, proto_cfm);
+	cfm_handle = register_dissector("cfm", dissect_cfm, proto_cfm);
 
 	proto_register_field_array(proto_cfm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -2120,8 +2122,6 @@ void proto_register_cfm(void)
 /* Register CFM OEAM protocol handler */
 void proto_reg_handoff_cfm(void)
 {
-	dissector_handle_t cfm_handle;
-	cfm_handle = create_dissector_handle(dissect_cfm, proto_cfm);
 	dissector_add_uint("ethertype", ETHERTYPE_CFM, cfm_handle);
 }
 

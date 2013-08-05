@@ -153,6 +153,8 @@ static expert_field ei_ged125_service_control_value_unknown = EI_INIT;
 static expert_field ei_ged125_trunk_group_id = EI_INIT;
 static expert_field ei_ged125_TrunkCount_invalid = EI_INIT;
 
+static dissector_handle_t ged125_handle;
+
 /* Preferences */
 static guint global_tcp_port_ged125 = 0;
 static gboolean ged125_desegment_body = TRUE;
@@ -1752,7 +1754,8 @@ proto_register_ged125 (void)
 	proto_register_subtree_array (ett, array_length (ett));
 	expert_ged125 = expert_register_protocol(proto_ged125);
 	expert_register_field_array(expert_ged125, ei, array_length(ei));
-	new_register_dissector("ged125", dissect_ged125, proto_ged125);
+
+	ged125_handle = new_register_dissector("ged125", dissect_ged125, proto_ged125);
 
 	ged125_module = prefs_register_protocol(proto_ged125, NULL);
 
@@ -1769,15 +1772,7 @@ proto_register_ged125 (void)
 void 
 proto_reg_handoff_ged125(void)
 {
-	static dissector_handle_t ged125_handle;
-	static int ged125_initialized = FALSE;
 	static guint old_ged125_tcp_port = 0;
-
-	if(!ged125_initialized)
-	{
-		ged125_handle = new_create_dissector_handle(dissect_ged125, proto_ged125);
-		ged125_initialized = TRUE;
-	} 
 
 	/* Register TCP port for dissection */
 	if(old_ged125_tcp_port != 0 && old_ged125_tcp_port != global_tcp_port_ged125)

@@ -179,6 +179,8 @@ static expert_field ei_ber_illegal_padding = EI_INIT;
 static expert_field ei_ber_invalid_format_generalized_time = EI_INIT;
 static expert_field ei_ber_invalid_format_utctime = EI_INIT;
 
+static dissector_handle_t ber_handle;
+
 static gboolean show_internal_ber_fields         = FALSE;
 static gboolean decode_octetstring_as_ber        = FALSE;
 static gboolean decode_primitive_as_ber          = FALSE;
@@ -5334,7 +5336,9 @@ proto_register_ber(void)
                                users_flds);
 
     proto_ber = proto_register_protocol("Basic Encoding Rules (ASN.1 X.690)", "BER", "ber");
-    register_dissector ("ber", dissect_ber, proto_ber);
+
+    ber_handle = register_dissector("ber", dissect_ber, proto_ber);
+
     proto_register_field_array(proto_ber, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_ber = expert_register_protocol(proto_ber);
@@ -5386,12 +5390,10 @@ void
 proto_reg_handoff_ber(void)
 {
     guint i = 1;
-    dissector_handle_t ber_handle;
 
     oid_add_from_string("asn1", "2.1");
     oid_add_from_string("basic-encoding", "2.1.1");
 
-    ber_handle = create_dissector_handle(dissect_ber, proto_ber);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BER, ber_handle);
 
     ber_decode_as_foreach(ber_add_syntax_name, &i);

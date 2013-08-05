@@ -287,13 +287,12 @@ proto_register_sync(void)
     proto_register_field_array(proto_sync, hf_sync, array_length(hf_sync));
     proto_register_subtree_array(ett_sync_array, array_length(ett_sync_array));
 
-    new_register_dissector("sync", dissect_sync, proto_sync);
+    sync_handle = new_register_dissector("sync", dissect_sync, proto_sync);
 }
 
 void
 proto_reg_handoff_sync(void)
 {
-    sync_handle = new_create_dissector_handle(dissect_sync, proto_sync);
     ip_handle   = find_dissector("ip");
 
     dissector_add_handle("udp.port", sync_handle);

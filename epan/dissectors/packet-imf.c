@@ -1269,7 +1269,7 @@ proto_reg_handoff_imf(void)
   dissector_add_string("media_type",
                        "message/rfc822", imf_handle);
 
-  register_ber_oid_dissector("1.2.840.113549.1.7.1", dissect_imf, proto_imf, "id-data");
+  register_ber_oid_dissector_handle("1.2.840.113549.1.7.1", imf_handle, proto_imf, "id-data");
 
   /*
    * Get the content type and Internet media type table

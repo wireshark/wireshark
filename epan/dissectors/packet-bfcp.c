@@ -77,6 +77,8 @@ static gint ett_bfcp_attr = -1;
 
 static expert_field ei_bfcp_attribute_length_too_small = EI_INIT;
 
+static dissector_handle_t bfcp_handle;
+
 /* Initialize BFCP primitives */
 static const value_string map_bfcp_primitive[] = {
 	{ 0,  "<Invalid Primitive>"},
@@ -667,7 +669,7 @@ void proto_register_bfcp(void)
 	proto_bfcp = proto_register_protocol("Binary Floor Control Protocol",
 				"BFCP", "bfcp");
 
-	register_dissector("bfcp", dissect_bfcp, proto_bfcp);
+	bfcp_handle = register_dissector("bfcp", dissect_bfcp, proto_bfcp);
 
 	bfcp_module = prefs_register_protocol(proto_bfcp,
 				proto_reg_handoff_bfcp);
@@ -695,11 +697,8 @@ void proto_reg_handoff_bfcp(void)
 	 */
 	if (!prefs_initialized)
 	{
-		dissector_handle_t bfcp_handle;
-
 		heur_dissector_add("tcp", dissect_bfcp_heur, proto_bfcp);
 		heur_dissector_add("udp", dissect_bfcp_heur, proto_bfcp);
-		bfcp_handle = create_dissector_handle(dissect_bfcp, proto_bfcp);
 		dissector_add_handle("tcp.port", bfcp_handle);
 		dissector_add_handle("udp.port", bfcp_handle);
 		prefs_initialized = TRUE;

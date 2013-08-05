@@ -111,6 +111,8 @@ static guint global_tpncp_trunkpack_udp_port = UDP_PORT_TPNCP_TRUNKPACK;
 static guint global_tpncp_host_tcp_port = TCP_PORT_TPNCP_HOST;
 static guint global_tpncp_host_udp_port = UDP_PORT_TPNCP_HOST;
 
+static dissector_handle_t tpncp_handle;
+
 static guint trunkpack_tcp_port = 0;
 static guint trunkpack_udp_port = 0;
 static guint host_tcp_port = 0;
@@ -720,7 +722,7 @@ static gint init_tpncp_db(void) {
 
 void proto_reg_handoff_tpncp(void) {
     static gint tpncp_prefs_initialized = FALSE;
-    static dissector_handle_t tpncp_udp_handle, tpncp_tcp_handle;
+    static dissector_handle_t tpncp_tcp_handle;
 
     /*  If we weren't able to load the database (and thus the hf_ entries)
      *  do not attach to any ports (if we did then we'd get a "dissector bug"
@@ -731,16 +733,15 @@ void proto_reg_handoff_tpncp(void) {
 	return;
 
     if (!tpncp_prefs_initialized) {
-        tpncp_udp_handle = create_dissector_handle(dissect_tpncp, proto_tpncp);
         tpncp_tcp_handle = create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
 
         tpncp_prefs_initialized = TRUE;
     }
     else {
         dissector_delete_uint("tcp.port", trunkpack_tcp_port, tpncp_tcp_handle);
-        dissector_delete_uint("udp.port", trunkpack_udp_port, tpncp_udp_handle);
+        dissector_delete_uint("udp.port", trunkpack_udp_port, tpncp_handle);
         dissector_delete_uint("tcp.port", host_tcp_port,      tpncp_tcp_handle);
-        dissector_delete_uint("udp.port", host_udp_port,      tpncp_udp_handle);
+        dissector_delete_uint("udp.port", host_udp_port,      tpncp_handle);
     }
 
     trunkpack_tcp_port = global_tpncp_trunkpack_tcp_port;
@@ -750,7 +751,7 @@ void proto_reg_handoff_tpncp(void) {
     host_udp_port = global_tpncp_host_udp_port;
 
     dissector_add_uint("tcp.port", global_tpncp_trunkpack_tcp_port, tpncp_tcp_handle);
-    dissector_add_uint("udp.port", global_tpncp_trunkpack_udp_port, tpncp_udp_handle);
+    dissector_add_uint("udp.port", global_tpncp_trunkpack_udp_port, tpncp_handle);
 }
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -792,7 +793,7 @@ void proto_register_tpncp(void) {
 
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("tpncp", dissect_tpncp, proto_tpncp);
+    tpncp_handle = register_dissector("tpncp", dissect_tpncp, proto_tpncp);
 
     tpncp_module = prefs_register_protocol(proto_tpncp, proto_reg_handoff_tpncp);
 

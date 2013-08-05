@@ -621,6 +621,7 @@ static gint ett_mikey_sp_param = -1;
 static gint ett_mikey_hdr_id = -1;
 static gint ett_mikey_enc_data = -1;
 
+static dissector_handle_t mikey_handle;
 
 static const struct mikey_dissector_entry *
 mikey_dissector_lookup(const struct mikey_dissector_entry *map, int type)
@@ -1903,7 +1904,8 @@ proto_register_mikey(void)
 	/* Register the protocol name and description */
 	proto_mikey = proto_register_protocol("Multimedia Internet KEYing",
 		"MIKEY", "mikey");
-	new_register_dissector("mikey", dissect_mikey, proto_mikey);
+
+	mikey_handle = new_register_dissector("mikey", dissect_mikey, proto_mikey);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mikey, hf, array_length(hf));
@@ -1926,13 +1928,11 @@ proto_register_mikey(void)
 void
 proto_reg_handoff_mikey(void)
 {
-	static dissector_handle_t mikey_handle;
 	static guint		  mikey_tcp_port;
 	static guint		  mikey_udp_port;
 	static gboolean inited = FALSE;
 
 	if (!inited) {
-		mikey_handle = new_create_dissector_handle(dissect_mikey, proto_mikey);
 		dissector_add_string("key_mgmt", "mikey", mikey_handle);
 		inited = TRUE;
 	} else {

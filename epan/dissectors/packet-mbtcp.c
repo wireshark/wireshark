@@ -163,9 +163,12 @@ static gint ett_device_id_object_items = -1;
 static expert_field ei_mbrtu_crc16_incorrect = EI_INIT;
 static expert_field ei_modbus_data_decode = EI_INIT;
 
+static dissector_handle_t modbus_handle;
+static dissector_handle_t mbtcp_handle;
+static dissector_handle_t mbrtu_handle;
+
 static dissector_table_t   modbus_data_dissector_table;
 static dissector_table_t   modbus_dissector_table;
-static dissector_handle_t  modbus_handle;
 
 
 /* Globals for Modbus/TCP Preferences */
@@ -1728,9 +1731,9 @@ proto_register_modbus(void)
     proto_modbus = proto_register_protocol("Modbus", "Modbus", "modbus");
 
     /* Registering protocol to be called by another dissector */
-    new_register_dissector("mbtcp", dissect_mbtcp, proto_mbtcp);
-    new_register_dissector("mbrtu", dissect_mbrtu, proto_mbrtu);
-    new_register_dissector("modbus", dissect_modbus, proto_modbus);
+    modbus_handle = new_register_dissector("modbus", dissect_modbus, proto_modbus);
+    mbtcp_handle = new_register_dissector("mbtcp", dissect_mbtcp, proto_mbtcp);
+    mbrtu_handle = new_register_dissector("mbrtu", dissect_mbrtu, proto_mbrtu);
 
     /* Registering subdissectors table */
     modbus_data_dissector_table = register_dissector_table("modbus.data", "Modbus Data", FT_STRING, BASE_NONE);
@@ -1822,15 +1825,9 @@ proto_register_modbus(void)
 void
 proto_reg_handoff_mbtcp(void)
 {
-    static int mbtcp_prefs_initialized = FALSE;
-    static dissector_handle_t mbtcp_handle;
     static unsigned int mbtcp_port;
 
     /* Make sure to use Modbus/TCP Preferences field to determine default TCP port */
-    if (! mbtcp_prefs_initialized) {
-        mbtcp_handle = new_create_dissector_handle(dissect_mbtcp, proto_mbtcp);
-        mbtcp_prefs_initialized = TRUE;
-    }
 
     if(mbtcp_port != 0 && mbtcp_port != global_mbus_tcp_port){
         dissector_delete_uint("tcp.port", mbtcp_port, mbtcp_handle);
@@ -1842,7 +1839,6 @@ proto_reg_handoff_mbtcp(void)
 
     mbtcp_port = global_mbus_tcp_port;
 
-    modbus_handle = new_create_dissector_handle(dissect_modbus, proto_modbus);
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
 
 }
@@ -1850,15 +1846,9 @@ proto_reg_handoff_mbtcp(void)
 void
 proto_reg_handoff_mbrtu(void)
 {
-    static int mbrtu_prefs_initialized = FALSE;
-    static dissector_handle_t mbrtu_handle;
     static unsigned int mbrtu_port = 0;
 
     /* Make sure to use Modbus RTU Preferences field to determine default TCP port */
-    if (! mbrtu_prefs_initialized) {
-        mbrtu_handle = new_create_dissector_handle(dissect_mbrtu, proto_mbrtu);
-        mbrtu_prefs_initialized = TRUE;
-    }
 
     if(mbrtu_port != 0 && mbrtu_port != global_mbus_rtu_port){
         dissector_delete_uint("tcp.port", mbrtu_port, mbrtu_handle);
@@ -1870,7 +1860,6 @@ proto_reg_handoff_mbrtu(void)
 
     mbrtu_port = global_mbus_rtu_port;
 
-    modbus_handle = new_create_dissector_handle(dissect_modbus, proto_modbus);
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
 
 }
