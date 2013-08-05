@@ -113,6 +113,7 @@ static gint ett_mpa_marker = -1;
 static expert_field ei_mpa_res_field_not_set0 = EI_INIT;
 static expert_field ei_mpa_rev_field_not_set1 = EI_INIT;
 static expert_field ei_mpa_reject_bit_responder = EI_INIT;
+static expert_field ei_mpa_bad_length = EI_INIT;
 
 /* handles of our subdissectors */
 static dissector_handle_t ddp_rdmap_handle = NULL;
@@ -517,10 +518,8 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* check whether the Private Data Length conforms to RFC 5044 */
 		pd_length = tvb_get_ntohs(tvb, offset);
 		if (pd_length > MPA_MAX_PD_LENGTH) {
-			bad_pd_length_pi = proto_tree_add_text(tree, tvb, offset, 2,
+			proto_tree_add_expert_format(tree, pinfo, &ei_mpa_bad_length, tvb, offset, 2,
 				"[PD length field indicates more 512 bytes of Private Data]");
-			proto_item_set_expert_flags(bad_pd_length_pi,
-				PI_MALFORMED, PI_ERROR);
 			return FALSE;
 		}
 
@@ -723,11 +722,9 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		exp_ulpdu_length = expected_ulpdu_length(state, tcpinfo, endpoint);
 		if (!exp_ulpdu_length || exp_ulpdu_length != ulpdu_length) {
-			bad_ulpdu_length_pi = proto_tree_add_text(tree, tvb, offset,
+			proto_tree_add_expert_format(tree, pinfo, &ei_mpa_bad_length, tvb, offset,
 				MPA_ULPDU_LENGTH_LEN,
 				"[ULPDU length field does not contain the expected length]");
-			proto_item_set_expert_flags(bad_ulpdu_length_pi,
-				PI_MALFORMED, PI_ERROR);
 			return 0;
 		}
 
@@ -963,6 +960,7 @@ void proto_register_mpa(void)
 		{ &ei_mpa_res_field_not_set0, { "iwarp_mpa.res.not_set0", PI_REQUEST_CODE, PI_WARN, "Res field is NOT set to zero as required by RFC 5044", EXPFILL }},
 		{ &ei_mpa_rev_field_not_set1, { "iwarp_mpa.rev.not_set1", PI_REQUEST_CODE, PI_WARN, "Rev field is NOT set to one as required by RFC 5044", EXPFILL }},
 		{ &ei_mpa_reject_bit_responder, { "iwarp_mpa.reject_bit_responder", PI_RESPONSE_CODE, PI_NOTE, "Reject bit set by Responder", EXPFILL }},
+		{ &ei_mpa_bad_length, { "iwarp_mpa.bad_length", PI_MALFORMED, PI_ERROR, "Bad length", EXPFILL }},
 	};
 
 	expert_module_t* expert_iwarp_mpa;
