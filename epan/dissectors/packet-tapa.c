@@ -195,9 +195,9 @@ dissect_tapa_discover_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_di
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s: %s",
 				item_type_text, item_text);
 
-       	item = proto_tree_add_text(tapa_discover_tree, tvb, offset, 4 + item_length,
-                	"Type %d = %s, length %d, value %s",
-                	item_type, item_type_text, item_length, item_text);
+		item = proto_tree_add_text(tapa_discover_tree, tvb, offset, 4 + item_length,
+			"Type %d = %s, length %d, value %s",
+			item_type, item_type_text, item_length, item_text);
 
 		tapa_discover_item_tree = proto_item_add_subtree(item, ett_tapa_discover_req);
 
@@ -249,8 +249,8 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				item_type, item_length);
 
         item = proto_tree_add_text(tapa_discover_tree, tvb, offset, 4 + item_length,
-                	"Type %d, length %d, value %s",
-                	item_type, item_length, item_text);
+			"Type %d, length %d, value %s",
+			item_type, item_length, item_text);
 
 		tapa_discover_item_tree = proto_item_add_subtree(item, ett_tapa_discover_req);
 
@@ -353,7 +353,7 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Tunnel - V=%d, T=%s", version >> 4,
-		 	val_to_str(type, tapa_tunnel_type_vals, "Unknown (%d)"));
+			val_to_str(type, tapa_tunnel_type_vals, "Unknown (%d)"));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_tapa, tvb, offset, -1,
@@ -451,7 +451,7 @@ test_tapa_tunnel(tvbuff_t *tvb)
 	    (tvb_get_guint8(tvb, 0) & 0xF0) >= 0x40 ||
 	    tvb_get_ntohs(tvb, 2) > 0 ||
 	    tvb_get_guint8(tvb, 1) > 1) {	/* Is tunnel type known? */
-        	return FALSE;
+		return FALSE;
 	}
 	return TRUE;
 }
