@@ -217,6 +217,25 @@ wka_hash_to_texbuff(gpointer key, gpointer value, gpointer user_data)
 }
 
 static void
+serv_port_hash_to_texbuff(gpointer key, gpointer value, gpointer user_data)
+{
+	gchar string_buff[ADDRESS_STR_MAX];
+	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
+	serv_port_t *serv_port_table = (serv_port_t *)value;
+	int port = *(int*)key;
+
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "Port %u \n""     TCP  %s\n""     UDP  %s\n""     SCTP %s\n""     DCCP %s\n",
+		   port,
+		   serv_port_table->tcp_name,
+		   serv_port_table->udp_name,
+		   serv_port_table->sctp_name,
+		   serv_port_table->dccp_name);
+
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+}
+
+static void
 addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 {
     struct addrinfo *ai;
@@ -228,6 +247,7 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 	GHashTable *manuf_hashtable;
 	GHashTable *wka_hashtable;
 	GHashTable *eth_hashtable;
+	GHashTable *serv_port_hashtable;
 
     g_snprintf(string_buff, ADDRESS_STR_MAX, "# Hosts information in Wireshark \n#\n");
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
@@ -273,6 +293,17 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
             gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
         }
     }
+
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Port names information in Wireshark \n#\n");
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+	serv_port_hashtable = get_serv_port_hashtable();
+	if(serv_port_hashtable){
+		g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(serv_port_hashtable));
+		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+		g_hash_table_foreach( serv_port_hashtable, serv_port_hash_to_texbuff, buffer);
+	}
+
 
 	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Eth names information in Wireshark \n#\n");
 	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);

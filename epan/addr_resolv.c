@@ -233,12 +233,15 @@ typedef struct {
 
 #define HASH_PORT(port) ((port) & (HASHPORTSIZE - 1))
 
-typedef struct hashport {
-  guint16          port;
-  struct hashport *next;
-  gchar            name[MAXNAMELEN];
-} hashport_t;
 
+#if 0
+typedef struct serv_port {
+  gchar            *udp_name;
+  gchar            *tcp_name;
+  gchar            *sctp_name;
+  gchar            *dccp_name;
+} serv_port_t;
+#endif
 /* hash table used for IPX network lookup */
 
 /* XXX - check goodness of hash function */
@@ -252,11 +255,6 @@ typedef struct hashipxnet {
 } hashipxnet_t;
 
 /* hash tables used for ethernet and manufacturer lookup */
-
-#define HASH_ETH_ADDRESS(addr) \
-    (((((addr)[2] << 8) | (addr)[3]) ^ (((addr)[4] << 8) | (addr)[5])) & \
-     (HASHETHSIZE - 1))
-
 #define HASHETHER_STATUS_UNRESOLVED     1
 #define HASHETHER_STATUS_RESOLVED_DUMMY 2
 #define HASHETHER_STATUS_RESOLVED_NAME  3
@@ -289,17 +287,15 @@ typedef struct _ipxnet
 static hashipv4_t   *ipv4_table[HASHHOSTSIZE];
 static hashipv6_t   *ipv6_table[HASHHOSTSIZE];
 
-static hashport_t   **cb_port_table;
 static gchar        *cb_service;
+static port_type    cb_proto = PT_NONE;
+
 
 static GHashTable *manuf_hashtable = NULL;
 static GHashTable *wka_hashtable = NULL;
 static GHashTable *eth_hashtable = NULL;
+static GHashTable *serv_port_hashtable = NULL;
 
-static hashport_t   *udp_port_table[HASHPORTSIZE];
-static hashport_t   *tcp_port_table[HASHPORTSIZE];
-static hashport_t   *sctp_port_table[HASHPORTSIZE];
-static hashport_t   *dccp_port_table[HASHPORTSIZE];
 static hashipxnet_t *ipxnet_table[HASHIPXNETSIZE];
 
 static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
@@ -480,36 +476,43 @@ static void subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, con
 
 
 static void
-add_service_name(hashport_t **proto_table, const guint port, const char *service_name)
+add_service_name(port_type proto, const guint port, const char *service_name)
 {
-  int hash_idx;
-  hashport_t *tp;
+  serv_port_t *serv_port_table;
+  int *key;
 
+  key = (int *)g_new(int, 1);
+  *key = port;
 
-  hash_idx = HASH_PORT(port);
-  tp = proto_table[hash_idx];
-
-  if( tp == NULL ) {
-    tp = proto_table[hash_idx] = se_new(hashport_t);
+  if (serv_port_hashtable == NULL){
+    serv_port_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+    serv_port_table = g_new0(serv_port_t,1);
+    g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
   } else {
-    while(1) {
-      if( tp->port == port ) {
-        return;
-      }
-      if (tp->next == NULL) {
-        tp->next = se_new(hashport_t);
-        tp = tp->next;
-        break;
-      }
-      tp = tp->next;
-    }
+    serv_port_table = (serv_port_t *)g_hash_table_lookup(serv_port_hashtable, &port);
+	if(serv_port_table == NULL){
+      serv_port_table = g_new0(serv_port_t,1);
+      g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
+	}
   }
 
-  /* fill in a new entry */
-  tp->port = port;
-  tp->next = NULL;
-
-  g_strlcpy(tp->name, service_name, MAXNAMELEN);
+  switch(proto){
+  case PT_TCP:
+	  serv_port_table->tcp_name = g_strdup(service_name);
+	  break;
+  case PT_UDP:
+	  serv_port_table->udp_name = g_strdup(service_name);
+	  break;
+  case PT_SCTP:
+	  serv_port_table->sctp_name = g_strdup(service_name);
+	  break;
+  case PT_DCCP:
+	  serv_port_table->dccp_name = g_strdup(service_name);
+	  break;
+  default:
+	  return;
+	  /* Should not happen */
+  }
 
   new_resolved_objects = TRUE;
 }
@@ -526,6 +529,7 @@ parse_service_line (char *line)
   gchar *cp;
   gchar *service;
   gchar *port;
+  port_type proto;
 
   range_t *port_rng = NULL;
   guint32 max_port = MAX_UDP_PORT;
@@ -552,19 +556,19 @@ parse_service_line (char *line)
   /* seems we got all interesting things from the file */
   if(strcmp(cp, "tcp") == 0) {
     max_port = MAX_TCP_PORT;
-    cb_port_table = tcp_port_table;
+    proto = PT_TCP;
   }
   else if(strcmp(cp, "udp") == 0) {
     max_port = MAX_UDP_PORT;
-    cb_port_table = udp_port_table;
+    proto = PT_UDP;
   }
   else if(strcmp(cp, "sctp") == 0) {
     max_port = MAX_SCTP_PORT;
-    cb_port_table = sctp_port_table;
+    proto = PT_SCTP;
   }
   else if(strcmp(cp, "dccp") == 0) {
     max_port = MAX_DCCP_PORT;
-    cb_port_table = dccp_port_table;
+    proto = PT_DCCP;
   } else {
     return;
   }
@@ -575,8 +579,10 @@ parse_service_line (char *line)
   }
 
   cb_service = service;
+  cb_proto = proto;
   range_foreach(port_rng, add_serv_port_cb);
   g_free (port_rng);
+  cb_proto = PT_NONE;
 } /* parse_service_line */
 
 
@@ -584,7 +590,7 @@ static void
 add_serv_port_cb(const guint32 port)
 {
   if ( port ) {
-    add_service_name(cb_port_table, port, cb_service);
+    add_service_name(cb_proto, port, cb_service);
   }
 }
 
@@ -631,84 +637,102 @@ initialize_services(void)
 
 } /* initialize_services */
 
+/* -----------------
+ * unsigned integer to ascii
+ */
+static gchar *
+ep_utoa(guint port)
+{
+  gchar *bp = (gchar *)ep_alloc(MAXNAMELEN);
+
+  /* XXX, guint32_to_str() ? */
+  guint32_to_str_buf(port, bp, MAXNAMELEN);
+  return bp;
+}
 
 
 static gchar
 *serv_name_lookup(const guint port, const port_type proto)
 {
-  int hash_idx;
-  hashport_t *tp;
-  hashport_t **table;
   const char *serv_proto = NULL;
   struct servent *servp;
+  serv_port_t *serv_port_table;
 
 
   if (!service_resolution_initialized) {
     initialize_services();
   }
 
-  /* Set which table we should look up port in */
-  switch(proto) {
-  case PT_UDP:
-    table = udp_port_table;
-    serv_proto = "udp";
-    break;
-  case PT_TCP:
-    table = tcp_port_table;
-    serv_proto = "tcp";
-    break;
-  case PT_SCTP:
-    table = sctp_port_table;
-    serv_proto = "sctp";
-    break;
-  case PT_DCCP:
-    table = dccp_port_table;
-    serv_proto = "dcp";
-    break;
-  default:
-    /* not yet implemented */
-    return NULL;
-    /*NOTREACHED*/
-  } /* proto */
-
-  /* Look for port in table */
-  hash_idx = HASH_PORT(port);
-  tp = table[hash_idx];
-
-  if( tp == NULL ) {
-    /* Not found so allocate new entry */
-    tp = table[hash_idx] = se_new(hashport_t);
-  } else {
-    /* Hash matched, but need to loop around entries looking for matching port */
-    while(1) {
-      if( tp->port == port ) {
-        /* Found matching entry, return name! */
-        return tp->name;
-      }
-      if (tp->next == NULL) {
-        /* Reached end of current list without match. Allocate and add to end of list */
-        tp->next = se_new(hashport_t);
-        tp = tp->next;
-        break;
-      }
-      /* Try next entry */
-      tp = tp->next;
-    }
+  if((proto != PT_UDP)||(proto != PT_TCP)||(proto != PT_SCTP)||(proto != PT_DCCP)){
+	  return NULL; /* not yet implemented */
   }
 
-  /* Fill in a new entry (which must be at the end of its list) */
-  tp->port = port;
-  tp->next = NULL;
+  serv_port_table = (serv_port_t *)g_hash_table_lookup(serv_port_hashtable, &port);
+
+  if(serv_port_table){
+	  /* Set which table we should look up port in */
+	  switch(proto) {
+	  case PT_UDP:
+		if(serv_port_table->udp_name){
+			return serv_port_table->udp_name;
+		}
+		serv_proto = "udp";
+		break;
+	  case PT_TCP:
+		if(serv_port_table->tcp_name){
+			return serv_port_table->tcp_name;
+		}
+		serv_proto = "tcp";
+		break;
+	  case PT_SCTP:
+		if(serv_port_table->sctp_name){
+			return serv_port_table->sctp_name;
+		}
+		serv_proto = "sctp";
+		break;
+	  case PT_DCCP:
+		if(serv_port_table->dccp_name){
+			return serv_port_table->dccp_name;
+		}
+		serv_proto = "dcp";
+		break;
+	  default:
+		/* not yet implemented */
+		return NULL;
+		/*NOTREACHED*/
+	  } /* proto */
+  }
 
   if ((!gbl_resolv_flags.transport_name) ||
       (servp = getservbyport(g_htons(port), serv_proto)) == NULL) {
     /* unknown port */
-    guint32_to_str_buf(port, tp->name, MAXNAMELEN);
+    return ep_utoa(port);
   } else {
-    g_strlcpy(tp->name, servp->s_name, MAXNAMELEN);
+    if(serv_port_table == NULL){
+      int *key;
+
+	  key = (int *)g_new(int, 1);
+      *key = port;
+      serv_port_table = g_new0(serv_port_t,1);
+      g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
+	}
+    switch(proto) {
+    case PT_UDP:
+		serv_port_table->udp_name = servp->s_name;
+		break;
+    case PT_TCP:
+		serv_port_table->tcp_name = servp->s_name;
+		break;
+    case PT_SCTP:
+		serv_port_table->sctp_name = servp->s_name;
+		break;
+    case PT_DCCP:
+		serv_port_table->dccp_name = servp->s_name;
+		break;
+	}
+    return servp->s_name;
   }
 
-  return (tp->name);
 
 } /* serv_name_lookup */
 
@@ -2700,10 +2724,6 @@ host_name_lookup_cleanup(void) {
   memset(ipv4_table, 0, sizeof(ipv4_table));
   memset(ipv6_table, 0, sizeof(ipv6_table));
 
-  memset(udp_port_table, 0, sizeof(udp_port_table));
-  memset(tcp_port_table, 0, sizeof(tcp_port_table));
-  memset(sctp_port_table, 0, sizeof(sctp_port_table));
-  memset(dccp_port_table, 0, sizeof(dccp_port_table));
   memset(ipxnet_table, 0, sizeof(ipxnet_table));
   memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
 
@@ -2711,7 +2731,6 @@ host_name_lookup_cleanup(void) {
 
   have_subnet_entry = FALSE;
   ipxnet_resolution_initialized = FALSE;
-  service_resolution_initialized = FALSE;
   new_resolved_objects = FALSE;
 }
 
@@ -2733,7 +2752,13 @@ eth_name_lookup_cleanup(void) {
     eth_hashtable = NULL;
   }
 
+  if(serv_port_hashtable){
+    g_hash_table_destroy(serv_port_hashtable);
+    eth_hashtable = NULL;
+  }
+
   eth_resolution_initialized = FALSE;
+  service_resolution_initialized = FALSE;
 
 }
 const gchar *
@@ -2899,20 +2924,6 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
   addrinfo_list_last = ai;
 
 } /* add_ipv6_name */
-
-/* -----------------
- * unsigned integer to ascii
-*/
-static gchar *
-ep_utoa(guint port)
-{
-  gchar *bp = (gchar *)ep_alloc(MAXNAMELEN);
-
-  /* XXX, guint32_to_str() ? */
-  guint32_to_str_buf(port, bp, MAXNAMELEN);
-  return bp;
-}
-
 
 gchar *
 get_udp_port(guint port)
@@ -3484,5 +3495,11 @@ GHashTable *
 get_eth_hashtable(void)
 {
 	return eth_hashtable;
+}
+
+GHashTable *
+get_serv_port_hashtable(void)
+{
+	return serv_port_hashtable;
 }
 

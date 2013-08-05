@@ -63,6 +63,13 @@ typedef struct hashether {
   char              resolved_name[MAXNAMELEN];
 } hashether_t;
 
+typedef struct serv_port {
+  gchar            *udp_name;
+  gchar            *tcp_name;
+  gchar            *sctp_name;
+  gchar            *dccp_name;
+} serv_port_t;
+
 /*
  * Flag controlling what names to resolve.
  */
@@ -313,6 +320,9 @@ GHashTable *get_wka_hashtable(void);
 
 WS_DLL_PUBLIC
 GHashTable *get_eth_hashtable(void);
+
+WS_DLL_PUBLIC
+GHashTable *get_serv_port_hashtable(void);
 
 WS_DLL_PUBLIC
 void initialize_ethers(void);
