@@ -1021,7 +1021,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 parameter_length = tvb_get_guint8(tvb, offset + 1);
 
                 ua3g_param_item = proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_ip_device_routing_stop_rtp_parameter, tvb, offset,
-                    parameter_length + 2, parameter_id, "%s", 
+                    parameter_length + 2, parameter_id, "%s",
                     val_to_str_const(parameter_id, ip_device_routing_cmd_reset_vals, "Unknown"));
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
@@ -1194,7 +1194,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             parameter_length = tvb_get_guint8(tvb, offset + 1);
 
             ua3g_param_item = proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_ip_device_routing_stop_rtp_parameter, tvb, offset,
-                parameter_length + 2, parameter_id, "%s", 
+                parameter_length + 2, parameter_id, "%s",
                 val_to_str_const(parameter_id, ip_device_routing_cmd_stop_rtp_vals, "Unknown"));
             ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
@@ -1223,7 +1223,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             parameter_id = tvb_get_guint8(tvb, offset);
             parameter_length = tvb_get_guint8(tvb, offset + 1);
 
-            ua3g_param_item = proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_ip_device_routing_redirect_parameter, 
+            ua3g_param_item = proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_ip_device_routing_redirect_parameter,
                     tvb, offset, parameter_length + 2, parameter_id,
                     "%s", val_to_str_const(parameter_id, ip_device_routing_cmd_redirect_vals, "Unknown"));
             ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
@@ -1409,8 +1409,6 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     case 0x0A: /* SET_PARAM_REQ */
         {
             while (length > 0) {
-                guint64 param_value = 0;
-
                 parameter_id     = tvb_get_guint8(tvb, offset);
                 parameter_length = tvb_get_guint8(tvb, offset + 1);
 
@@ -1600,7 +1598,7 @@ static const value_string str_command_led[] = {
 
 static void
 decode_led_command(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
-           guint offset, guint length)
+           guint offset)
 {
     int         command;
 
@@ -1643,13 +1641,12 @@ static void
 decode_lcd_line_cmd(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             guint offset, guint length)
 {
-    guint8         lcd_options, command, column_n;
+    guint8         command, column_n;
     const gchar*  command_str;
     proto_tree    *ua3g_body_tree = tree, *ua3g_param_tree, *ua3g_option_tree;
     proto_item    *ua3g_param_item, *ua3g_option_item;
     emem_strbuf_t *strbuf;
 
-    lcd_options = tvb_get_guint8(tvb, offset) & 0xFC;
     command     = tvb_get_guint8(tvb, offset) & 0x03;
     column_n    = tvb_get_guint8(tvb, offset + 1);
     command_str = val_to_str_const(command, str_command_lcd_line, "Unknown");
@@ -2129,7 +2126,7 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     i++;
                     val = (tvb_get_guint8(tvb, offset) & 0x7F) * 10;
                     proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_on_off, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_beep_cadence, tvb, offset, 1, val, 
+                    proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_beep_cadence, tvb, offset, 1, val,
                         "Cadence T%d: %d ms", i, val);
                     offset++;
                     length--;
@@ -2579,8 +2576,7 @@ decode_on_off_level(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     RING ON / OFF - 4Fh (MESSAGE FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
 static void
-decode_ring(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
-        guint offset, guint length)
+decode_ring(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint offset)
 {
     guint8      command;
     const gchar* command_str;
@@ -3057,15 +3053,15 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
             break;
         case 0x01:
             {
-                int i = 0;
+                int j = 0;
                 if (length == 1) {
                     proto_tree_add_item(ua3g_body_tree, hf_ua3g_cs_ip_device_routing_cmd01_incident_0, tvb, offset, 1, ENC_NA);
                 } else {
                     while (length >0) {
-                        i++;
+                        j++;
                         proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                             "Parameter %d Identifier: %d",
-                            i, tvb_get_guint8(tvb, offset));
+                            j, tvb_get_guint8(tvb, offset));
                         offset++;
                         length--;
                     }
@@ -3220,7 +3216,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             break;
                         case 0x20: /* Jitter Depth Distribution */
                             for (i = 0; i < parameter_length / 4; i+=4) {
-                                proto_tree_add_uint_format(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_jitter_depth_distribution, 
+                                proto_tree_add_uint_format(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_jitter_depth_distribution,
                                         tvb, offset+i, 4, tvb_get_ntohl(tvb, offset+i), "Jitter Depth Distribution: +/- %3d ms: %d",
                                         ((2 * i/4) + 1) * framing_rtp / 2, tvb_get_ntohl(tvb, offset+i));
                             }
@@ -3533,7 +3529,7 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_datas_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 
                                 if (length > 2) {
-                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_firmware_version_bootloader, 
+                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_firmware_version_bootloader,
                                         tvb, offset+2, 2, ENC_BIG_ENDIAN);
                                 }
                             }
@@ -3734,10 +3730,8 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_item_append_text(ua3g_item, ", %s", opcode_str);
 
-    if (length > 0) {
-        ua3g_body_item = proto_tree_add_text(ua3g_tree, tvb, offset, length, "UA3G Body");
-        ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
-    }
+    ua3g_body_item = proto_tree_add_text(ua3g_tree, tvb, offset, length, "UA3G Body");
+    ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);
 
     if (message_direction == SYS_TO_TERM) {
         switch (opcode) {
@@ -3804,7 +3798,7 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         case SC_LED_COMMAND: /* 0x21 */
             {
-                decode_led_command(ua3g_body_tree, tvb, pinfo, offset, length);
+                decode_led_command(ua3g_body_tree, tvb, pinfo, offset);
                 break;
             }
         case SC_LCD_LINE_1_CMD: /* 0x27 */
@@ -3931,7 +3925,7 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         case SC_RING: /* 0x4F */
             {
-                decode_ring(ua3g_body_tree, tvb, pinfo, offset, length);
+                decode_ring(ua3g_body_tree, tvb, pinfo, offset);
                 break;
             }
         case SC_UA_DWL_PROTOCOL: /* 0x50 */
@@ -4517,7 +4511,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_cs_ip_device_routing_cmd03_parameter_bfi_distribution_200ms, { "200 ms BFI Distribution", "ua3g.ip.cs.cmd03.parameter.bfi_distribution_200ms", FT_UINT16, BASE_DEC, VALS(cs_ip_device_routing_200ms_bfi_distribution_range_vals), 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd03_parameter_uint, { "Value", "ua3g.ip.cs.cmd03.parameter.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd03_parameter_consecutive_rtp_lost, { "Consecutive RTP Lost", "ua3g.ip.cs.cmd03.parameter.consecutive_rtp_lost", FT_UINT16, BASE_DEC, VALS(cs_ip_device_routing_consecutive_rtp_lost_range_vals), 0x0, NULL, HFILL }},
-        { &hf_ua3g_cs_ip_device_routing_cmd03_parameter_jitter_depth_distribution, { "Jitter Depth Distribution", "ua3g.ip.cs.cmd03.parameter.jitter_depth_distribution", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},        
+        { &hf_ua3g_cs_ip_device_routing_cmd03_parameter_jitter_depth_distribution, { "Jitter Depth Distribution", "ua3g.ip.cs.cmd03.parameter.jitter_depth_distribution", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] =
