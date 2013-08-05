@@ -4096,30 +4096,6 @@ proto_item_get_len(const proto_item *pi)
 	return fi ? fi->length : -1;
 }
 
-
-/** clear flags according to the mask and set new flag values */
-#define FI_REPLACE_FLAGS(fi, mask, flags_in) { \
-	(fi->flags = (fi)->flags & ~(mask)); \
-	(fi->flags = (fi)->flags | (flags_in)); \
-}
-
-gboolean
-proto_item_set_expert_flags(proto_item *pi, const int group, const guint severity)
-{
-	if (pi == NULL || PITEM_FINFO(pi) == NULL)
-		return FALSE;
-
-	/* only change things if severity is worse or at least equal than before */
-	if (severity >= FI_GET_FLAG(PITEM_FINFO(pi), PI_SEVERITY_MASK)) {
-		FI_REPLACE_FLAGS(PITEM_FINFO(pi), PI_GROUP_MASK, group);
-		FI_REPLACE_FLAGS(PITEM_FINFO(pi), PI_SEVERITY_MASK, severity);
-
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
 proto_tree *
 proto_tree_create_root(packet_info *pinfo)
 {

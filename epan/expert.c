@@ -229,17 +229,25 @@ expert_register_field_array(expert_module_t* module, ei_register_info *exp, cons
 	}
 }
 
+/** clear flags according to the mask and set new flag values */
+#define FI_REPLACE_FLAGS(fi, mask, flags_in) { \
+	(fi->flags = (fi)->flags & ~(mask)); \
+	(fi->flags = (fi)->flags | (flags_in)); \
+}
 
 /* set's the PI_ flags to a protocol item
  * (and its parent items till the toplevel) */
 static void
-expert_set_item_flags(proto_item *pi, int group, int severity)
+expert_set_item_flags(proto_item *pi, const int group, const guint severity)
 {
-	if (proto_item_set_expert_flags(pi, group, severity)) {
+	if (pi != NULL && PITEM_FINFO(pi) != NULL && (severity >= FI_GET_FLAG(PITEM_FINFO(pi), PI_SEVERITY_MASK))) {
+		FI_REPLACE_FLAGS(PITEM_FINFO(pi), PI_GROUP_MASK, group);
+		FI_REPLACE_FLAGS(PITEM_FINFO(pi), PI_SEVERITY_MASK, severity);
+
 		/* propagate till toplevel item */
 		pi = proto_item_get_parent(pi);
 		expert_set_item_flags(pi, group, severity);
-	}
+    }
 }
 
 static proto_tree*

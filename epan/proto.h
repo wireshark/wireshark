@@ -696,16 +696,6 @@ WS_DLL_PUBLIC void proto_item_set_end(proto_item *ti, tvbuff_t *tvb, gint end);
  @return the current length */
 WS_DLL_PUBLIC int proto_item_get_len(const proto_item *ti);
 
-/**
- * Sets an expert info to the proto_item.
- @param ti the item to set the expert info
- @param group the group of this info (e.g. PI_CHECKSUM)
- @param severity of this info (e.g. PI_ERROR)
- @return TRUE if value was written
- */
-WS_DLL_PUBLIC gboolean proto_item_set_expert_flags(proto_item *ti, const int group, const guint severity);
-
-
 
 
 /** Creates a new proto_tree root.

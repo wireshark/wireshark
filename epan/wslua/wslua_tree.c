@@ -321,25 +321,6 @@ WSLUA_METHOD TreeItem_append_text(lua_State *L) {
     return 0;
 }
 
-WSLUA_METHOD TreeItem_set_expert_flags(lua_State *L) {
-    /* Sets the expert flags of the item. */
-#define WSLUA_OPTARG_TreeItem_set_expert_flags_GROUP 2 /* One of PI_CHECKSUM, PI_SEQUENCE, PI_RESPONSE_CODE, PI_REQUEST_CODE, PI_UNDECODED, PI_REASSEMBLE, PI_MALFORMED or PI_DEBUG */
-#define WSLUA_OPTARG_TreeItem_set_expert_flags_SEVERITY 3 /* One of PI_CHAT, PI_NOTE, PI_WARN, PI_ERROR */
-    TreeItem ti = checkTreeItem(L,1);
-    int group = luaL_optint(L,WSLUA_OPTARG_TreeItem_set_expert_flags_GROUP,PI_DEBUG);
-    int severity = luaL_optint(L,WSLUA_OPTARG_TreeItem_set_expert_flags_SEVERITY,PI_CHAT);
-
-    if ( ti && ti->item ) {
-        if (ti->expired) {
-            luaL_error(L,"expired TreeItem");
-            return 0;
-        }
-        proto_item_set_expert_flags(ti->item,group,severity);
-    }
-
-    return 0;
-}
-
 WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
     /* Sets the expert flags of the item and adds expert info to the packet. */
 #define WSLUA_OPTARG_TreeItem_add_expert_info_GROUP 2 /* One of PI_CHECKSUM, PI_SEQUENCE, PI_RESPONSE_CODE, PI_REQUEST_CODE, PI_UNDECODED, PI_REASSEMBLE, PI_MALFORMED or PI_DEBUG */
@@ -424,7 +405,6 @@ static const luaL_Reg TreeItem_methods[] = {
     {"add_le",           TreeItem_add_le},
     {"set_text",         TreeItem_set_text},
     {"append_text",      TreeItem_append_text},
-    {"set_expert_flags", TreeItem_set_expert_flags},
     {"add_expert_info",  TreeItem_add_expert_info},
     {"set_generated",    TreeItem_set_generated},
     {"set_hidden",       TreeItem_set_hidden},
