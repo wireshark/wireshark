@@ -105,11 +105,11 @@ if test ! -z "$PYTHON"; then
 	AC_MSG_CHECKING([whether $PYTHON is Python 2.5 or later])
 	python_major_version=`$PYTHON -c 'import sys; print (sys.version_info[[0]])'`
 	python_minor_version=`$PYTHON -c 'import sys; print (sys.version_info[[1]])'`
-	if test "$python_major_version" -eq 2 -a "$python_minor_version" -ge 5 ; then
-		AC_MSG_RESULT(yes)
-	else
+	if test "$python_major_version" -eq 2 -a "$python_minor_version" -lt 5 ; then
 		AC_MSG_RESULT(no)
 		AC_MSG_WARN([Building with Python $python_major_version.$python_minor_version may not work])
+	else
+		AC_MSG_RESULT(yes)
 	fi
 fi
 
