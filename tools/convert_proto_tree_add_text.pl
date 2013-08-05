@@ -64,6 +64,7 @@ my %DISPLAY_BASE = ('BASE_NONE' => "BASE_NONE",
 					   'BASE_OCT' => "BASE_OCT",
 					   'BASE_DEC_HEX' => "BASE_DEC_HEX",
 					   'BASE_HEX_DEC' => "BASE_HEX_DEC",
+					   'BASE_EXT_STRING' => "BASE_EXT_STRING",
 					   'BASE_CUSTOM' => "BASE_CUSTOM");
 
 my %ENCODINGS = ('ENC_BIG_ENDIAN' => "ENC_BIG_ENDIAN",
@@ -286,11 +287,14 @@ sub verify_line {
 			print "$line_number: Poorly formed hf_ variable ($proto_tree_item[3])!\n";
 			$errors++;
 		}
-		if (!exists($FIELD_TYPE{$proto_tree_item[9]})) {
-			print "$line_number: Field type '$proto_tree_item[9]' unknown!\n";
-			$errors++;
+		foreach (split(/\|/, $proto_tree_item[9])) {
+			if (!exists($FIELD_TYPE{$_})) {
+				print "$line_number: Field type '$proto_tree_item[9]' unknown!\n";
+				$errors++;
+			}
 		}
-		if (!exists($DISPLAY_BASE{$proto_tree_item[11]})) {
+		if ((!exists($DISPLAY_BASE{$proto_tree_item[11]})) &&
+			(!($proto_tree_item[11] =~ /\d+/))) {
 			print "$line_number: Display base '$proto_tree_item[11]' unknown!\n";
 			$errors++;
 		}
@@ -404,8 +408,14 @@ sub generate_hfs {
 		$proto_tree_item[10] =~ s/\s+|-|:/_/g;
 
 		#VALS
-		if ($str =~ /val_to_str(_const)?\([^\,]*\,([^\,]*)\,/) {
+		if ($str =~ /val_to_str(_const)?\(\s*tvb_get_[^\(]*\([^\,]*,[^\)]*\)\s*\,\s*([^\,]*)\s*\,\s*([^\)]*)\)/) {
 			$proto_tree_item[12] = sprintf("VALS(%s)", trim($2));
+		} elsif ($str =~ /val_to_str(_const)?\([^\,]*\,([^\,]*)\,/) {
+			$proto_tree_item[12] = sprintf("VALS(%s)", trim($2));
+		} elsif ($str =~ /val_to_str_ext(_const)?\(\s*tvb_get_[^\(]*\([^\,]*,[^\)]*\)\s*\,\s*([^\,]*)\s*\,\s*([^\)]*)\)/) {
+			$proto_tree_item[12] = trim($2);
+		} elsif ($str =~ /val_to_str_ext(_const)?\([^\,]*\,([^\,]*)\,/) {
+			$proto_tree_item[12] = trim($2);
 		}
 
 		#field type
@@ -474,6 +484,9 @@ sub generate_hfs {
 			$proto_tree_item[11] = "BASE_DEC";
 		} elsif ($args[4] =~ /%[0-9]*o/) {
 			$proto_tree_item[11] = "BASE_OCT";
+		}
+		if ($str =~ /val_to_str_ext(_const)?\([^\,]*\,([^\,]*)\,/) {
+			$proto_tree_item[11] .= "|BASE_EXT_STRING";
 		}
 
 		push(@proto_tree_list, \@proto_tree_item);
