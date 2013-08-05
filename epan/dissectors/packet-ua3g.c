@@ -365,8 +365,6 @@ static int hf_ua3g_cs_ip_device_routing_cmd03_parameter_consecutive_rtp_lost = -
 static int hf_ua3g_cs_ip_device_routing_cmd03_parameter_uint = -1;
 static int hf_ua3g_cs_ip_device_routing_cmd03_parameter_jitter_depth_distribution = -1;
 
-extern e_ua_direction message_direction;
-
 /* Definition of opcodes */
 /* System To Terminal */
 #define SC_NOP                     0x00
@@ -3686,8 +3684,8 @@ decode_subdevice_state(proto_tree *tree, tvbuff_t *tvb,
 /*-----------------------------------------------------------------------------
     UA3G DISSECTOR
     ---------------------------------------------------------------------------*/
-static void
-dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gint              offset         = 0;
     proto_item       *ua3g_item, *ua3g_body_item;
@@ -3695,6 +3693,7 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint              length;
     guint8            opcode;
     const gchar*      opcode_str;
+    e_ua_direction message_direction = (e_ua_direction)data;
 
     ua3g_item = proto_tree_add_item(tree, proto_ua3g, tvb, 0, -1, ENC_NA);
     ua3g_tree = proto_item_add_subtree(ua3g_item, ett_ua3g);
@@ -4059,6 +4058,8 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+
+    return tvb_length(tvb);
 }
 
 
@@ -4528,7 +4529,7 @@ proto_register_ua3g(void)
 
     proto_register_field_array(proto_ua3g, hf, array_length(hf));
 
-    register_dissector("ua3g", dissect_ua3g, proto_ua3g);
+    new_register_dissector("ua3g", dissect_ua3g, proto_ua3g);
 
     /* Common subtree array registration */
     proto_register_subtree_array(ett, array_length(ett));
