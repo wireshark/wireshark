@@ -1996,7 +1996,7 @@ new_create_dissector_handle(new_dissector_t dissector, const int proto)
 }
 
 /* Register a dissector by name. */
-void
+dissector_handle_t
 register_dissector(const char *name, dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
@@ -2018,9 +2018,11 @@ register_dissector(const char *name, dissector_t dissector, const int proto)
 
 	g_hash_table_insert(registered_dissectors, (gpointer)name,
 			    (gpointer) handle);
+
+	return handle;
 }
 
-void
+dissector_handle_t
 new_register_dissector(const char *name, new_dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
@@ -2042,6 +2044,8 @@ new_register_dissector(const char *name, new_dissector_t dissector, const int pr
 
 	g_hash_table_insert(registered_dissectors, (gpointer)name,
 			    (gpointer) handle);
+
+	return handle;
 }
 
 /* Call a dissector through a handle but if the dissector rejected it

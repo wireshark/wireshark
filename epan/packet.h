@@ -304,9 +304,9 @@ WS_DLL_PUBLIC void heur_dissector_delete(const char *name, heur_dissector_t diss
 extern void heur_dissector_set_enabled(const char *name, heur_dissector_t dissector, const int proto, const gboolean enabled);
 
 /* Register a dissector. */
-WS_DLL_PUBLIC void register_dissector(const char *name, dissector_t dissector,
+WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, dissector_t dissector,
     const int proto);
-WS_DLL_PUBLIC void new_register_dissector(const char *name, new_dissector_t dissector,
+WS_DLL_PUBLIC dissector_handle_t new_register_dissector(const char *name, new_dissector_t dissector,
     const int proto);
 
 /* Get the long name of the protocol for a dissector handle. */
