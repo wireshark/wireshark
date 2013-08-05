@@ -663,7 +663,7 @@ static gchar
     initialize_services();
   }
 
-  if((proto != PT_UDP)||(proto != PT_TCP)||(proto != PT_SCTP)||(proto != PT_DCCP)){
+  if((proto != PT_UDP)&&(proto != PT_TCP)&&(proto != PT_SCTP)&&(proto != PT_DCCP)){
 	  return NULL; /* not yet implemented */
   }
 
