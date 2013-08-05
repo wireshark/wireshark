@@ -32,6 +32,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -761,6 +762,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* in case there are less items than possible displayed */
 	display_items = current_item;
 	last_item = first_item+display_items-1;
+	user_data->dlg.last_item = last_item;
 
 	/* if no items to display */
 	if (display_items == 0)	{
@@ -881,10 +883,18 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 #if GTK_CHECK_VERSION(2,22,0)
 	cr = cairo_create (user_data->dlg.surface_comments);
-	cairo_move_to (cr, MAX_COMMENT/2-label_width/2, top_y_border/2-((i&1)?0:label_height));
+	cairo_move_to (cr, MAX_COMMENT/2-label_width/2, top_y_border/2-label_height/2);
 	pango_cairo_show_layout (cr, layout);
 	cairo_destroy (cr);
 	cr = NULL;
+#else
+	if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments)) {
+		cr = gdk_cairo_create (user_data->dlg.pixmap_comments);
+		cairo_move_to (cr, MAX_COMMENT/2-label_width/2, top_y_border/2-label_height/2);
+		pango_cairo_show_layout (cr, layout);
+		cairo_destroy (cr);
+		cr = NULL;
+	}
 #endif
 	/* Paint the background items */
 	for (current_item=0; current_item<display_items; current_item++) {
@@ -1276,7 +1286,7 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
 
 	/* get the item clicked */
 	item = ((guint32)event->y - TOP_Y_BORDER) / ITEM_HEIGHT;
-	if (item >= user_data->num_items) return TRUE;
+	if (item > (user_data->dlg.last_item - user_data->dlg.first_item)) return TRUE;
 	user_data->dlg.selected_item = item + user_data->dlg.first_item;
 
 	user_data->dlg.needs_redraw = TRUE;
@@ -1379,6 +1389,81 @@ draw_area_scrolled(GtkAdjustment *adjustment _U_, gpointer data)
 
 	return TRUE;
 }
+
+/****************************************************************************/
+static gboolean
+mouse_scrolled(GtkWidget *widget _U_, GdkEventScroll *event, gpointer data)
+{
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
+	GtkWidget *scroll_window;
+	GtkAdjustment *adjustment;
+	gdouble v_scroll_items;
+	GtkAllocation draw_area_alloc, scroll_window_alloc;
+	
+	if (event->direction == GDK_SCROLL_UP) {
+		adjustment = user_data->dlg.v_scrollbar_adjustment;
+		v_scroll_items = pow(gtk_adjustment_get_page_size(adjustment), 2.0/3.0);
+		if ((gtk_adjustment_get_value(adjustment) - v_scroll_items) <= 0.0) {
+			gtk_adjustment_set_value(adjustment, 0.0);
+		}
+		else {
+			gtk_adjustment_set_value(adjustment, gtk_adjustment_get_value(adjustment) - v_scroll_items);
+		}
+	}
+	
+	else if (event->direction == GDK_SCROLL_DOWN) {
+		adjustment = user_data->dlg.v_scrollbar_adjustment;
+		v_scroll_items = pow (gtk_adjustment_get_page_size(adjustment), 2.0/3.0);
+		if ((gtk_adjustment_get_value(adjustment) + v_scroll_items) >= (user_data->num_items - gtk_adjustment_get_page_size(adjustment) - 1)) {
+			gtk_adjustment_set_value(adjustment, (user_data->num_items - gtk_adjustment_get_page_size(adjustment) - 1));
+		}
+		else {
+			gtk_adjustment_set_value(adjustment, gtk_adjustment_get_value(adjustment) + v_scroll_items);
+		}
+	}
+	
+	else if (event->direction == GDK_SCROLL_LEFT) {
+		if (widget == user_data->dlg.scroll_window) {
+			scroll_window = user_data->dlg.scroll_window;
+		}
+		else if (widget == user_data->dlg.scroll_window_comments) {
+			scroll_window = user_data->dlg.scroll_window_comments;
+		}
+		else return TRUE;
+		adjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scroll_window));
+		if ((gtk_adjustment_get_value(adjustment) - gtk_adjustment_get_step_increment(adjustment)) <= 0.0) {
+			gtk_adjustment_set_value(adjustment, 0.0);
+		}
+		else {
+			gtk_adjustment_set_value(adjustment, gtk_adjustment_get_value(adjustment) - gtk_adjustment_get_step_increment(adjustment));
+		}
+		gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(scroll_window), adjustment);
+	}
+	
+	else if (event->direction == GDK_SCROLL_RIGHT) {
+		if (widget == user_data->dlg.scroll_window) {
+			scroll_window = user_data->dlg.scroll_window;
+			gtk_widget_get_allocation(user_data->dlg.draw_area, &draw_area_alloc);
+			gtk_widget_get_allocation(user_data->dlg.scroll_window, &scroll_window_alloc);
+		}
+		else if (widget == user_data->dlg.scroll_window_comments) {
+			scroll_window = user_data->dlg.scroll_window_comments;
+			gtk_widget_get_allocation(user_data->dlg.draw_area_comments, &draw_area_alloc);
+			gtk_widget_get_allocation(user_data->dlg.scroll_window_comments, &scroll_window_alloc);
+		}
+		else return TRUE;
+		adjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scroll_window));
+		if ((gtk_adjustment_get_value(adjustment) + gtk_adjustment_get_step_increment(adjustment)) >= (draw_area_alloc.width - scroll_window_alloc.width)) {
+			gtk_adjustment_set_value(adjustment, (draw_area_alloc.width - scroll_window_alloc.width));
+		}
+		else {
+			gtk_adjustment_set_value(adjustment, gtk_adjustment_get_value(adjustment) + gtk_adjustment_get_step_increment(adjustment));
+		}
+		gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(scroll_window), adjustment);
+	}
+	return TRUE;
+}
+
 /****************************************************************************/
 static gboolean draw_comments(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
@@ -1706,9 +1791,8 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	GtkWidget      *hbox;
 	GtkWidget      *hpane_l;
 	GtkWidget      *viewport;
-	GtkWidget      *scroll_window_comments;
+	GtkWidget      *viewport_time;
 	GtkWidget      *viewport_comments;
-	GtkWidget      *frame_time;
 	GtkWidget      *scroll_vbox;
 	GtkWidget      *frame_box;
 	GtkRequisition  scroll_requisition;
@@ -1720,35 +1804,47 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	/* create "time" draw area */
 	user_data->dlg.draw_area_time = gtk_drawing_area_new();
 	gtk_widget_set_size_request(user_data->dlg.draw_area_time, TIME_WIDTH, user_data->dlg.surface_height);
-	frame_time = gtk_frame_new(NULL);
-	gtk_widget_show(frame_time);
-	gtk_container_add(GTK_CONTAINER(frame_time), user_data->dlg.draw_area_time);
-
+	/* creating time scroll window to enable mouse scroll */
+	user_data->dlg.scroll_window_time = gtk_scrolled_window_new(NULL, NULL);
+	gtk_widget_set_size_request(user_data->dlg.scroll_window_time, TIME_WIDTH, user_data->dlg.surface_height);
+	
 	/* create "comments" draw area */
 	user_data->dlg.draw_area_comments = gtk_drawing_area_new();
 	gtk_widget_set_size_request(user_data->dlg.draw_area_comments, COMMENT_WIDTH, user_data->dlg.surface_height);
-	scroll_window_comments = gtk_scrolled_window_new(NULL, NULL);
-	gtk_widget_set_size_request(scroll_window_comments, (gint)(COMMENT_WIDTH/1.5), user_data->dlg.surface_height);
+	user_data->dlg.scroll_window_comments = gtk_scrolled_window_new(NULL, NULL);
+	gtk_widget_set_size_request(user_data->dlg.scroll_window_comments, (gint)(COMMENT_WIDTH/1.5), user_data->dlg.surface_height);
 	/*
 	 * Set the scrollbar policy for the horizontal and vertical scrollbars
 	 * The policy determines when the scrollbar should appear
 	 */
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scroll_window_comments),
+	
+	/* we only want mouse scroll from this window */
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (user_data->dlg.scroll_window_time),
+		GTK_POLICY_NEVER, /* Policy for horizontal bar. */
+		GTK_POLICY_NEVER); /* Policy for vertical bar */
+	
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (user_data->dlg.scroll_window_comments),
 		GTK_POLICY_ALWAYS, /* Policy for horizontal bar. */
 		GTK_POLICY_NEVER); /* Policy for vertical bar */
 
 	/* Changes the type of shadow drawn around the contents of scrolled_window. */
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll_window_comments),
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window_time),
+		GTK_SHADOW_ETCHED_IN);
+	
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window_comments),
 		GTK_SHADOW_ETCHED_IN);
 
-	g_signal_connect(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)),
+	g_signal_connect(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window_comments)),
 		"value-changed", G_CALLBACK(comments_area_scrolled), user_data);
 
-
-	viewport_comments = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)),
-					     gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)));
+	viewport_time = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window_time)),
+						gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window_time)));
+	viewport_comments = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window_comments)),
+					     gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window_comments)));
+	gtk_container_add(GTK_CONTAINER(viewport_time), user_data->dlg.draw_area_time);
+	gtk_container_add(GTK_CONTAINER(user_data->dlg.scroll_window_time), viewport_time);
 	gtk_container_add(GTK_CONTAINER(viewport_comments), user_data->dlg.draw_area_comments);
-	gtk_container_add(GTK_CONTAINER(scroll_window_comments), viewport_comments);
+	gtk_container_add(GTK_CONTAINER(user_data->dlg.scroll_window_comments), viewport_comments);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport_comments), GTK_SHADOW_NONE);
 	gtk_widget_add_events (user_data->dlg.draw_area_comments, GDK_BUTTON_PRESS_MASK);
 
@@ -1773,11 +1869,15 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	g_signal_connect(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window)),
 		"value-changed", G_CALLBACK(draw_area_scrolled), user_data);
 
+	g_signal_connect(user_data->dlg.scroll_window, "scroll_event", G_CALLBACK(mouse_scrolled), user_data);
+	g_signal_connect(user_data->dlg.scroll_window_time, "scroll_event", G_CALLBACK(mouse_scrolled), user_data);
+	g_signal_connect(user_data->dlg.scroll_window_comments, "scroll_event", G_CALLBACK(mouse_scrolled), user_data);
 
 	viewport = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window)),
 				    gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window)));
 	gtk_container_add(GTK_CONTAINER(viewport), user_data->dlg.draw_area);
 	gtk_container_add(GTK_CONTAINER(user_data->dlg.scroll_window), viewport);
+	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport_time), GTK_SHADOW_NONE);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
 	gtk_widget_set_can_focus(user_data->dlg.draw_area, TRUE);
 	gtk_widget_grab_focus(user_data->dlg.draw_area);
@@ -1811,23 +1911,25 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	g_signal_connect(user_data->dlg.draw_area, "key_press_event",  G_CALLBACK(key_press_event), user_data);
 
 	gtk_widget_show(user_data->dlg.draw_area_time);
+	gtk_widget_show(viewport_time);
 	gtk_widget_show(user_data->dlg.draw_area);
 	gtk_widget_show(viewport);
 	gtk_widget_show(user_data->dlg.draw_area_comments);
 	gtk_widget_show(viewport_comments);
 
 	gtk_widget_show(user_data->dlg.scroll_window);
-	gtk_widget_show(scroll_window_comments);
+	gtk_widget_show(user_data->dlg.scroll_window_time);
+	gtk_widget_show(user_data->dlg.scroll_window_comments);
 
 	user_data->dlg.hpane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, FALSE, TRUE);
-	gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, TRUE, TRUE);
+	gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window_comments, TRUE, TRUE);
 	g_signal_connect(user_data->dlg.hpane, "notify::position",  G_CALLBACK(pane_callback), user_data);
 	gtk_widget_show(user_data->dlg.hpane);
 
 	/* Allow the hbox with time to expand (TRUE, TRUE) */
 	hpane_l = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
-	gtk_paned_pack1(GTK_PANED (hpane_l), frame_time, FALSE, TRUE);
+	gtk_paned_pack1(GTK_PANED (hpane_l), user_data->dlg.scroll_window_time, FALSE, TRUE);
 	gtk_paned_pack2(GTK_PANED (hpane_l), user_data->dlg.hpane, TRUE, TRUE);
 	g_signal_connect(hpane_l, "notify::position",  G_CALLBACK(pane_callback), user_data);
 	gtk_widget_show(hpane_l);

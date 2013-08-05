@@ -98,6 +98,8 @@ typedef struct _graph_analysis_dialog_data_t {
 	GdkPixmap *pixmap_tile_select;
 #endif
 	GtkWidget *scroll_window;
+	GtkWidget *scroll_window_time;			/**< to enable mouse scroll from this area */
+	GtkWidget *scroll_window_comments;		/**< to enable mouse scroll from this area */
 	GtkWidget *v_scrollbar;
 	GtkAdjustment *v_scrollbar_adjustment;
 	GtkWidget *hpane;
@@ -105,6 +107,7 @@ typedef struct _graph_analysis_dialog_data_t {
 	int surface_height;
 	guint16 first_node;			/**< the first node on the left to show in the screen */
 	guint32	first_item;			/**< the first item (row) to show from the top */
+	guint32 last_item;			/**< the last item displayed (for correct mouse scroll handling) */
 	guint32	selected_item;		/**< the selected item */
 	display_items_t items[NUM_DISPLAY_ITEMS];
 	guint32 left_x_border;
