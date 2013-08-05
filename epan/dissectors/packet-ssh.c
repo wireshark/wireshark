@@ -74,6 +74,9 @@
 struct ssh_peer_data {
 	guint	counter;
 
+	guint32	frame_version_start;
+	guint32	frame_version_end;
+
 	guint32	frame_key_start;
 	guint32	frame_key_end;
 
@@ -93,8 +96,6 @@ struct ssh_peer_data {
 };
 
 struct ssh_flow_data {
-	guint32	frame_version_start;
-	guint32	frame_version_end;
 	guint	version;
 
 	/* [0] is client's, [1] is server's */
@@ -300,6 +301,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint		version;
 
 	struct ssh_flow_data *global_data=NULL;
+	struct ssh_peer_data *peer_data;
 
 	conversation = find_or_create_conversation(pinfo);
 
@@ -312,6 +314,8 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		conversation_add_proto_data(conversation, proto_ssh, global_data);
 	}
+
+	peer_data = &global_data->peer_data[is_response];
 
 	if (tree) {
 		  ti = proto_tree_add_item(tree, proto_ssh, tvb, offset, -1, ENC_NA);
@@ -336,29 +340,29 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	while(tvb_reported_length_remaining(tvb, offset)> 0) {
+		gboolean after_version_start = (peer_data->frame_version_start == 0 ||
+			pinfo->fd->num >= peer_data->frame_version_start);
+		gboolean before_version_end = (peer_data->frame_version_end == 0 ||
+			pinfo->fd->num <= peer_data->frame_version_end);
+
 		need_desegmentation = FALSE;
 		last_offset = offset;
 
-		/* update the this_data and flow_data */
-		global_data->peer_data[is_response].counter++;
+		peer_data->counter++;
 
-		if (((global_data->frame_version_start == 0) ||
-			((pinfo->fd->num >= global_data->frame_version_start) &&
-			 ((global_data->frame_version_end == 0) || (pinfo->fd->num <= global_data->frame_version_end)))) &&
-			 (tvb_strncaseeql(tvb, offset, "SSH-", 4) == 0)) {
+		if (after_version_start && before_version_end &&
+			  (tvb_strncaseeql(tvb, offset, "SSH-", 4) == 0)) {
+			if (peer_data->frame_version_start == 0)
+				peer_data->frame_version_start = pinfo->fd->num;
+
 			offset = ssh_dissect_protocol(tvb, pinfo,
 					global_data,
 					offset, ssh_tree, is_response,
 					&version, &need_desegmentation);
-			if (!pinfo->fd->flags.visited) {
-				if (!is_response) {
-					global_data->frame_version_end = pinfo->fd->num;
-					global_data->version = version;
-				} else {
-					/* Server initiates the protocol string, so technically it's the request */
-					if (global_data->frame_version_start == 0)
-						global_data->frame_version_start = pinfo->fd->num;
-				}
+
+			if (!need_desegmentation) {
+				peer_data->frame_version_end = pinfo->fd->num;
+				global_data->version = version;
 			}
 		} else {
 			switch(version) {
