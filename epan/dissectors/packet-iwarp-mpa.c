@@ -470,8 +470,6 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *mpa_item = NULL;
 	proto_item *mpa_header_item = NULL;
 
-	proto_item* bad_pd_length_pi = NULL;
-
 	guint16 pd_length;
 	guint32 offset = 0;
 
@@ -679,8 +677,6 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	proto_tree *mpa_tree = NULL;
 	proto_tree *mpa_header_tree = NULL;
-
-	proto_item* bad_ulpdu_length_pi = NULL;
 
 	guint8 pad_length;
 	guint16 ulpdu_length, exp_ulpdu_length;
