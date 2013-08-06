@@ -661,7 +661,7 @@ build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *
            hfinfo != NULL;
            hfinfo = proto_get_next_protocol_field(&cookie2))
       {
-        if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
+        if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
           continue;
 
         if(!g_ascii_strncasecmp(protocol_name, hfinfo->abbrev, protocol_name_len)) {

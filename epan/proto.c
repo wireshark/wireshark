@@ -3610,6 +3610,14 @@ protoo_strlcpy(gchar *dest, const gchar *src, gsize dest_size)
 	return (int) res;
 }
 
+static header_field_info *
+hfinfo_same_name_get_prev(const header_field_info *hfinfo)
+{
+	if (hfinfo->same_name_prev_id == -1)
+		return NULL;
+	return proto_registrar_get_nth(hfinfo->same_name_prev_id);
+}
+
 /* -------------------------- */
 const gchar *
 proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
@@ -3644,8 +3652,8 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 	if (occurrence < 0) {
 		/* Search other direction */
-		while (hfinfo->same_name_prev) {
-			hfinfo = hfinfo->same_name_prev;
+		while (hfinfo->same_name_prev_id != -1) {
+			hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
 		}
 	}
 
@@ -3656,7 +3664,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			if (occurrence < 0) {
 				hfinfo = hfinfo->same_name_next;
 			} else {
-				hfinfo = hfinfo->same_name_prev;
+				hfinfo = hfinfo_same_name_get_prev(hfinfo);
 			}
 			continue;
 		}
@@ -3666,7 +3674,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			if (occurrence < 0) {
 				hfinfo = hfinfo->same_name_next;
 			} else {
-				hfinfo = hfinfo->same_name_prev;
+				hfinfo = hfinfo_same_name_get_prev(hfinfo);
 			}
 			prev_len += len;
 			continue;
@@ -3917,7 +3925,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 		if (occurrence == 0) {
 			/* Fetch next hfinfo with same name (abbrev) */
-			hfinfo = hfinfo->same_name_prev;
+			hfinfo = hfinfo_same_name_get_prev(hfinfo);
 		} else {
 			hfinfo = NULL;
 		}
@@ -4959,7 +4967,7 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 
 	hfinfo->parent         = parent;
 	hfinfo->same_name_next = NULL;
-	hfinfo->same_name_prev = NULL;
+	hfinfo->same_name_prev_id = -1;
 
 	/* if we always add and never delete, then id == len - 1 is correct */
 	if (gpa_hfinfo.len >= gpa_hfinfo.allocated_len) {
@@ -5018,10 +5026,10 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 
 			hfinfo->same_name_next = same_name_next_hfinfo;
 			if (same_name_next_hfinfo)
-				same_name_next_hfinfo->same_name_prev = hfinfo;
+				same_name_next_hfinfo->same_name_prev_id = hfinfo->id;
 
 			same_name_hfinfo->same_name_next = hfinfo;
-			hfinfo->same_name_prev = same_name_hfinfo;
+			hfinfo->same_name_prev_id = same_name_hfinfo->id;
 		}
 	}
 
@@ -6111,7 +6119,7 @@ proto_registrar_dump_values(void)
 			 * *maximum* length is 2 bytes, and be used
 			 * for all lengths.)
 			 */
-			if (hfinfo->same_name_prev != NULL)
+			if (hfinfo->same_name_prev_id != -1)
 				continue;
 
 			vals   = NULL;
@@ -6286,7 +6294,7 @@ proto_registrar_dump_fields(void)
 			 * *maximum* length is 2 bytes, and be used
 			 * for all lengths.)
 			 */
-			if (hfinfo->same_name_prev != NULL)
+			if (hfinfo->same_name_prev_id != -1)
 				continue;
 
 			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);

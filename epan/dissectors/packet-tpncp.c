@@ -584,7 +584,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     hf_entr.hfinfo.parent         = 0;
     hf_entr.hfinfo.ref_type       = HF_REF_TYPE_NONE;
     hf_entr.hfinfo.same_name_next = NULL;
-    hf_entr.hfinfo.same_name_prev = NULL;
+    hf_entr.hfinfo.same_name_prev_id = -1;
 
     if (!was_registered) {
         /* Register non-standard data should be done only once. */

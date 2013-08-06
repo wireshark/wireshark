@@ -156,7 +156,7 @@ extern gboolean add_hfid(header_field_info*  hfi, gchar* how, GHashTable* where)
 
 	while(hfi) {
 		first_hfi = hfi;
-		hfi = hfi->same_name_prev;
+		hfi = (hfi->same_name_prev_id != -1) ? proto_registrar_get_nth(hfi->same_name_prev_id) : NULL;
 	}
 
 	hfi = first_hfi;

@@ -502,7 +502,7 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
         WSLUA_ERROR(Field__call,"Fields cannot be used outside dissectors or taps");
     }
 
-    for (;in;in = in->same_name_prev) {
+    while (in) {
         GPtrArray* found = proto_get_finfo_ptr_array(lua_tree->tree, in->id);
         guint i;
         if (found) {
@@ -511,6 +511,7 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
                 items_found++;
             }
         }
+	in = (in->same_name_prev_id != -1) ? proto_registrar_get_nth(in->same_name_prev_id) : NULL;
     }
 
     WSLUA_RETURN(items_found); /* All the values of this field */

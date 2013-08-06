@@ -618,8 +618,8 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 				}
 				if (!fvalue) {
 					/* Try another field with the same name */
-					if (hfinfo1->same_name_prev) {
-						hfinfo1 = hfinfo1->same_name_prev;
+					if (hfinfo1->same_name_prev_id != -1) {
+						hfinfo1 = proto_registrar_get_nth(hfinfo1->same_name_prev_id);
 						ftype1 = hfinfo1->type;
 					} else {
 						break;

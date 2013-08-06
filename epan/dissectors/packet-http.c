@@ -2290,7 +2290,7 @@ header_fields_initialize_cb(void)
 			hf[i].hfinfo.display = BASE_NONE;
 			hf[i].hfinfo.strings = NULL;
 			hf[i].hfinfo.blurb = g_strdup(header_fields[i].header_desc);
-			hf[i].hfinfo.same_name_prev = NULL;
+			hf[i].hfinfo.same_name_prev_id = -1;
 			hf[i].hfinfo.same_name_next = NULL;
 
 			g_hash_table_insert(header_fields_hash, header_name, hf_id);

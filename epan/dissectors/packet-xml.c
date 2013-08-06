@@ -817,7 +817,7 @@ static void add_xml_field(wmem_array_t *hfs, int *p_id, const gchar *name, const
     hfri.hfinfo.parent         = 0;
     hfri.hfinfo.ref_type       = HF_REF_TYPE_NONE;
     hfri.hfinfo.same_name_next = NULL;
-    hfri.hfinfo.same_name_prev = NULL;
+    hfri.hfinfo.same_name_prev_id = -1;
 
     wmem_array_append_one(hfs, hfri);
 }

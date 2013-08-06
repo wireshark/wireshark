@@ -63,8 +63,8 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 	gboolean	added_new_hfinfo = FALSE;
 
 	/* Rewind to find the first field of this name. */
-	while (hfinfo->same_name_prev) {
-		hfinfo = hfinfo->same_name_prev;
+	while (hfinfo->same_name_prev_id != -1) {
+		hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
 	}
 
 	/* Keep track of which registers
@@ -341,8 +341,8 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			hfinfo = (header_field_info*)stnode_data(st_arg1);
 
 			/* Rewind to find the first field of this name. */
-			while (hfinfo->same_name_prev) {
-				hfinfo = hfinfo->same_name_prev;
+			while (hfinfo->same_name_prev_id != -1) {
+				hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
 			}
 			val1->value.hfinfo = hfinfo;
 			insn = dfvm_insn_new(CHECK_EXISTS);

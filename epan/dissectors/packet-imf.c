@@ -895,7 +895,7 @@ header_fields_initialize_cb (void)
       hf[i].hfinfo.display = BASE_NONE;
       hf[i].hfinfo.strings = NULL;
       hf[i].hfinfo.blurb = g_strdup (header_fields[i].description);
-      hf[i].hfinfo.same_name_prev = NULL;
+      hf[i].hfinfo.same_name_prev_id = -1;
       hf[i].hfinfo.same_name_next = NULL;
 
       imffield = (struct imf_field *)g_malloc (sizeof (struct imf_field));

@@ -373,9 +373,8 @@ struct _header_field_info {
 	int			 id;             /**< Field ID */
 	int			 parent;         /**< parent protocol tree */
 	hf_ref_type		 ref_type;       /**< is this field referenced by a filter */
-	/* 4B padding */
+	int                      same_name_prev_id; /**< ID of previous hfinfo with same abbrev */
 	header_field_info	*same_name_next; /**< Link to next hfinfo with same abbrev */
-	header_field_info	*same_name_prev; /**< Link to previous hfinfo with same abbrev */
 };
 
 /**
@@ -383,7 +382,7 @@ struct _header_field_info {
  * _header_field_info. If new fields are added or removed, it should
  * be changed as necessary.
  */
-#define HFILL 0, 0, HF_REF_TYPE_NONE, NULL, NULL
+#define HFILL 0, 0, HF_REF_TYPE_NONE, -1, NULL
 
 /** Used when registering many fields at once, using proto_register_field_array() */
 typedef struct hf_register_info {
