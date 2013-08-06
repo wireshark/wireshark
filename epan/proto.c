@@ -5546,9 +5546,9 @@ hfinfo_bitshift(const header_field_info *hfinfo)
 {
 	const guint32 bitmask = hfinfo->bitmask;
 
+#if defined(__GNUC__) && ((__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
 	g_assert(bitmask != 0);
 
-#if defined(__GNUC__) && ((__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
 	return __builtin_ctz(bitmask);
 #else
 	/* From http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup */
