@@ -657,6 +657,7 @@ static gchar
   const char *serv_proto;
   struct servent *servp;
   serv_port_t *serv_port_table;
+  gchar *name;
 
 
   if (!service_resolution_initialized) {
@@ -717,36 +718,37 @@ static gchar
   if ((!gbl_resolv_flags.transport_name) ||
       (servp = getservbyport(g_htons(port), serv_proto)) == NULL) {
     /* unknown port */
-    return ep_utoa(port);
-  } else {
-    if(serv_port_table == NULL){
-      int *key;
-
-      key = (int *)g_new(int, 1);
-      *key = port;
-      serv_port_table = g_new0(serv_port_t,1);
-      g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
-    }
-    switch(proto) {
-    case PT_UDP:
-      serv_port_table->udp_name = servp->s_name;
-      break;
-    case PT_TCP:
-      serv_port_table->tcp_name = servp->s_name;
-      break;
-    case PT_SCTP:
-      serv_port_table->sctp_name = servp->s_name;
-      break;
-    case PT_DCCP:
-      serv_port_table->dccp_name = servp->s_name;
-      break;
-    default:
-      return NULL;
-      /*NOTREACHED*/
-    }
-    return servp->s_name;
+    name = (gchar*)g_malloc(16);
+    guint32_to_str_buf(port, name, 16);
+  }else{
+    name = g_strdup(servp->s_name);
   }
+  if(serv_port_table == NULL){
+    int *key;
 
+    key = (int *)g_new(int, 1);
+    *key = port;
+    serv_port_table = g_new0(serv_port_t,1);
+    g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
+  }
+  switch(proto) {
+  case PT_UDP:
+    serv_port_table->udp_name = name;
+    break;
+  case PT_TCP:
+    serv_port_table->tcp_name = name;
+    break;
+  case PT_SCTP:
+    serv_port_table->sctp_name = name;
+    break;
+  case PT_DCCP:
+    serv_port_table->dccp_name = name;
+    break;
+  default:
+    return NULL;
+    /*NOTREACHED*/
+  }
+  return name;
 
 } /* serv_name_lookup */
 
