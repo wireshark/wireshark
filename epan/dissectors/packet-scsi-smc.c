@@ -57,6 +57,46 @@ static int hf_scsi_smc_num_elements		= -1;
 static int hf_scsi_smc_invert			= -1;
 static int hf_scsi_smc_ea			= -1;
 static int hf_scsi_smc_action_code		= -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_scsi_smc_allocation_length = -1;
+static int hf_scsi_smc_first_element_address_reported = -1;
+static int hf_scsi_smc_voltag = -1;
+static int hf_scsi_smc_element_descriptor_length = -1;
+static int hf_scsi_smc_byte_count_of_descriptor_data_available = -1;
+static int hf_scsi_smc_pvoltag = -1;
+static int hf_scsi_smc_code_set = -1;
+static int hf_scsi_smc_starting_element_address = -1;
+static int hf_scsi_smc_curdata = -1;
+static int hf_scsi_smc_element_type_code = -1;
+static int hf_scsi_smc_element_type_code_0F = -1;
+static int hf_scsi_smc_identifier = -1;
+static int hf_scsi_smc_vendor_specific_data = -1;
+static int hf_scsi_smc_source_storage_element_address = -1;
+static int hf_scsi_smc_number_of_elements_available = -1;
+static int hf_scsi_smc_identifier_type = -1;
+static int hf_scsi_smc_number_of_elements = -1;
+static int hf_scsi_smc_identifier_length = -1;
+static int hf_scsi_smc_scsi_bus_address = -1;
+static int hf_scsi_smc_byte_count_of_report_available = -1;
+static int hf_scsi_smc_cmc = -1;
+static int hf_scsi_smc_svalid = -1;
+static int hf_scsi_smc_avoltag = -1;
+static int hf_scsi_smc_access = -1;
+static int hf_scsi_smc_additional_sense_code_qualifier = -1;
+static int hf_scsi_smc_lu_valid = -1;
+static int hf_scsi_smc_dvcid = -1;
+static int hf_scsi_smc_except = -1;
+static int hf_scsi_smc_id_valid = -1;
+static int hf_scsi_smc_not_bus = -1;
+static int hf_scsi_smc_exenab = -1;
+static int hf_scsi_smc_lun = -1;
+static int hf_scsi_smc_inenab = -1;
+static int hf_scsi_smc_full = -1;
+static int hf_scsi_smc_impexp = -1;
+static int hf_scsi_smc_primary_vol_tag_id = -1;
+static int hf_scsi_smc_primary_vol_seq_num = -1;
+static int hf_scsi_smc_alternate_vol_tag_id = -1;
+static int hf_scsi_smc_alternate_vol_seq_num = -1;
 
 static gint ett_scsi_exchange_medium		= -1;
 static gint ett_scsi_range			= -1;
@@ -220,8 +260,7 @@ static const value_string action_code_vals[] = {
 
 static void
 dissect_scsi_smc_volume_tag (tvbuff_t *tvb, packet_info *pinfo _U_,
-                              proto_tree *tree, guint offset,
-                              const char *name)
+                              proto_tree *tree, guint offset, int hf_vol_id, int hf_vol_seq_num)
 {
     char volid[32+1];
     char *p;
@@ -236,9 +275,9 @@ dissect_scsi_smc_volume_tag (tvbuff_t *tvb, packet_info *pinfo _U_,
             break;
         p--;
     }
-    proto_tree_add_text (tree, tvb, offset, 36,
-                         "%s: Volume Identification = \"%s\", Volume Sequence Number = %u",
-	                 name, volid, tvb_get_ntohs (tvb, offset+34));
+
+    proto_tree_add_string(tree, hf_vol_id, tvb, offset, 32, volid);
+    proto_tree_add_item(tree, hf_vol_seq_num, tvb, offset+34, 2, ENC_BIG_ENDIAN);
 }
 
 
@@ -251,9 +290,7 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     guint8 flags;
     guint8 ident_len;
 
-    proto_tree_add_text (tree, tvb, offset, 2,
-                         "Element Address: %u",
-                         tvb_get_ntohs (tvb, offset));
+    proto_tree_add_item(tree, hf_scsi_smc_ea, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     elem_bytecnt -= 2;
 
@@ -263,29 +300,25 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     switch (elem_type) {
 
     case MT_ELEM:
-        proto_tree_add_text (tree, tvb, offset, 1,
-                            "EXCEPT: %u, FULL: %u",
-                             (flags & EXCEPT) >> 2, flags & 0x01);
+        proto_tree_add_item(tree, hf_scsi_smc_except, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_full, tvb, offset, 1, ENC_NA);
         break;
 
     case ST_ELEM:
     case DT_ELEM:
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "ACCESS: %u, EXCEPT: %u, FULL: %u",
-                             (flags & 0x08) >> 3,
-                             (flags & EXCEPT) >> 2, flags & 0x01);
+        proto_tree_add_item(tree, hf_scsi_smc_access, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_except, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_full, tvb, offset, 1, ENC_NA);
         break;
 
     case I_E_ELEM:
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "cmc: %u, INENAB: %u, EXENAB: %u, ACCESS: %u, EXCEPT: %u, IMPEXP: %u, FULL: %u",
-                             (flags & 0x40) >> 6,
-                             (flags & 0x20) >> 5,
-                             (flags & 0x10) >> 4,
-                             (flags & 0x08) >> 3,
-                             (flags & EXCEPT) >> 2,
-                             (flags & 0x02) >> 1,
-                             flags & 0x01);
+        proto_tree_add_item(tree, hf_scsi_smc_cmc, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_inenab, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_exenab, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_impexp, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_access, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_except, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_full, tvb, offset, 1, ENC_NA);
         break;
     }
     offset += 1;
@@ -299,10 +332,7 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (elem_bytecnt < 2)
         return;
     if (flags & EXCEPT) {
-        proto_tree_add_text (tree, tvb, offset, 2,
-                             "Additional Sense Code+Qualifier: %s",
-                             val_to_str_ext (tvb_get_ntohs (tvb, offset),
-                                         &scsi_asc_val_ext, "Unknown (0x%04x)"));
+        proto_tree_add_item(tree, hf_scsi_smc_additional_sense_code_qualifier, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
     offset += 2;
     elem_bytecnt -= 2;
@@ -314,23 +344,15 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     case DT_ELEM:
         flags = tvb_get_guint8 (tvb, offset);
         if (flags & LU_VALID) {
-            proto_tree_add_text (tree, tvb, offset, 1,
-                                 "NOT BUS: %u, ID VALID: %u, LU VALID: 1, LUN: %u",
-                                 (flags & 0x80) >> 7,
-                                 (flags & ID_VALID) >> 5,
-                                 flags & 0x07);
-        } else if (flags & ID_VALID) {
-            proto_tree_add_text (tree, tvb, offset, 1,
-                                 "ID VALID: 1, LU VALID: 0");
-        } else {
-            proto_tree_add_text (tree, tvb, offset, 1,
-                                 "ID VALID: 0, LU VALID: 0");
+            proto_tree_add_item(tree, hf_scsi_smc_lun, tvb, offset, 1, ENC_NA);
         }
+        proto_tree_add_item(tree, hf_scsi_smc_not_bus, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_id_valid, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_lu_valid, tvb, offset, 1, ENC_NA);
+
         offset += 1;
         if (flags & ID_VALID) {
-            proto_tree_add_text (tree, tvb, offset, 1,
-                                 "SCSI Bus Address: %u",
-                                 tvb_get_guint8 (tvb, offset));
+            proto_tree_add_item(tree, hf_scsi_smc_scsi_bus_address, tvb, offset, 1, ENC_NA);
         }
         offset += 1;
         offset += 1; /* reserved */
@@ -345,18 +367,13 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (elem_bytecnt < 3)
         return;
     flags = tvb_get_guint8 (tvb, offset);
+    proto_tree_add_item(tree, hf_scsi_smc_svalid, tvb, offset, 1, ENC_NA);
     if (flags & SVALID) {
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "SVALID: 1, INVERT: %u",
-                             (flags & 0x40) >> 6);
+        proto_tree_add_item(tree, hf_scsi_smc_invert, tvb, offset, 1, ENC_NA);
         offset += 1;
-        proto_tree_add_text (tree, tvb, offset, 2,
-                             "Source Storage Element Address: %u",
-                             tvb_get_ntohs (tvb, offset));
+        proto_tree_add_item(tree, hf_scsi_smc_source_storage_element_address, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     } else {
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "SVALID: 0");
         offset += 3;
     }
     elem_bytecnt -= 3;
@@ -364,8 +381,8 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (voltag_flags & PVOLTAG) {
         if (elem_bytecnt < 36)
             return;
-        dissect_scsi_smc_volume_tag (tvb, pinfo, tree, offset,
-                                      "Primary Volume Tag Information");
+        dissect_scsi_smc_volume_tag (tvb, pinfo, tree, offset, hf_scsi_smc_primary_vol_tag_id,
+                                      hf_scsi_smc_primary_vol_seq_num);
         offset += 36;
         elem_bytecnt -= 36;
     }
@@ -373,31 +390,21 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (voltag_flags & AVOLTAG) {
         if (elem_bytecnt < 36)
             return;
-        dissect_scsi_smc_volume_tag (tvb, pinfo, tree, offset,
-                                      "Alternate Volume Tag Information");
+        dissect_scsi_smc_volume_tag (tvb, pinfo, tree, offset, hf_scsi_smc_alternate_vol_tag_id,
+                                      hf_scsi_smc_alternate_vol_seq_num);
         offset += 36;
         elem_bytecnt -= 36;
     }
 
     if (elem_bytecnt < 1)
         return;
-    flags = tvb_get_guint8 (tvb, offset);
-    proto_tree_add_text (tree, tvb, offset, 1,
-                         "Code Set: %s",
-                         val_to_str (flags & 0x0F,
-                                     scsi_devid_codeset_val,
-                                     "Unknown (0x%02x)"));
+    proto_tree_add_item(tree, hf_scsi_smc_code_set, tvb, offset, 1, ENC_NA);
     offset += 1;
     elem_bytecnt -= 1;
 
     if (elem_bytecnt < 1)
         return;
-    flags = tvb_get_guint8 (tvb, offset);
-    proto_tree_add_text (tree, tvb, offset, 1,
-                         "Identifier Type: %s",
-                         val_to_str ((flags & 0x0F),
-                                     scsi_devid_idtype_val,
-                                     "Unknown (0x%02x)"));
+    proto_tree_add_item(tree, hf_scsi_smc_identifier_type, tvb, offset, 1, ENC_NA);
     offset += 1;
     elem_bytecnt -= 1;
 
@@ -409,25 +416,19 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (elem_bytecnt < 1)
         return;
     ident_len = tvb_get_guint8 (tvb, offset);
-    proto_tree_add_text (tree, tvb, offset, 1,
-                         "Identifier Length: %u",
-                         ident_len);
+    proto_tree_add_item(tree, hf_scsi_smc_identifier_length, tvb, offset, 1, ENC_NA);
     offset += 1;
     elem_bytecnt -= 1;
 
     if (ident_len != 0) {
         if (elem_bytecnt < ident_len)
             return;
-        proto_tree_add_text (tree, tvb, offset, ident_len,
-                             "Identifier: %s",
-                             tvb_bytes_to_str (tvb, offset, ident_len));
+        proto_tree_add_item(tree, hf_scsi_smc_identifier, tvb, offset, ident_len, ENC_NA);
         offset += ident_len;
         elem_bytecnt -= ident_len;
     }
     if (elem_bytecnt != 0) {
-        proto_tree_add_text (tree, tvb, offset, elem_bytecnt,
-                             "Vendor-specific Data: %s",
-                             tvb_bytes_to_str (tvb, offset, elem_bytecnt));
+        proto_tree_add_item(tree, hf_scsi_smc_vendor_specific_data, tvb, offset, elem_bytecnt, ENC_NA);
     }
 }
 
@@ -463,7 +464,6 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
                          gboolean iscdb,
                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     guint numelem, bytecnt, desc_bytecnt;
     guint8 elem_type;
     guint8 voltag_flags;
@@ -473,69 +473,46 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "VOLTAG: %u, Element Type Code: %s",
-                             (flags & 0x10) >> 4,
-                             val_to_str (flags & 0xF, element_type_code_vals,
-                                         "Unknown (0x%x)"));
-        proto_tree_add_text (tree, tvb, offset+1, 2,
-                             "Starting Element Address: %u",
-                             tvb_get_ntohs (tvb, offset+1));
-        proto_tree_add_text (tree, tvb, offset+3, 2,
-                             "Number of Elements: %u",
-                             tvb_get_ntohs (tvb, offset+3));
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_text (tree, tvb, offset+4, 1,
-                             "CURDATA: %u, DVCID: %u",
-                             (flags & 0x02) >> 1, flags & 0x01);
-        proto_tree_add_text (tree, tvb, offset+6, 3,
-                             "Allocation Length: %u",
-                             tvb_get_ntoh24 (tvb, offset+6));
+        proto_tree_add_item(tree, hf_scsi_smc_voltag, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_element_type_code_0F, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_starting_element_address, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_smc_number_of_elements, tvb, offset+3, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_smc_curdata, tvb, offset+4, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_dvcid, tvb, offset+4, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_scsi_smc_allocation_length, tvb, offset+6, 3, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     else if (!isreq) {
-        proto_tree_add_text (tree, tvb, offset, 2,
-                             "First Element Address Reported: %u",
-                             tvb_get_ntohs (tvb, offset));
+        proto_tree_add_item(tree, hf_scsi_smc_first_element_address_reported, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         numelem = tvb_get_ntohs (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 2,
-                             "Number of Elements Available: %u", numelem);
+        proto_tree_add_item(tree, hf_scsi_smc_number_of_elements_available, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         offset += 1; /* reserved */
         bytecnt = tvb_get_ntoh24 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 3,
-                             "Byte Count of Report Available: %u", bytecnt);
+        proto_tree_add_item(tree, hf_scsi_smc_byte_count_of_report_available, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
         while (bytecnt != 0) {
             if (bytecnt < 1)
                 break;
             elem_type = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_text (tree, tvb, offset, 1,
-                                 "Element Type Code: %s",
-                                 val_to_str (elem_type, element_type_code_vals,
-                                             "Unknown (0x%x)"));
+            proto_tree_add_item(tree, hf_scsi_smc_element_type_code, tvb, offset, 1, ENC_NA);
             offset += 1;
             bytecnt -= 1;
 
             if (bytecnt < 1)
                 break;
             voltag_flags = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_text (tree, tvb, offset, 1,
-                                 "PVOLTAG: %u, AVOLTAG: %u",
-                                 (voltag_flags & PVOLTAG) >> 7,
-                                 (voltag_flags & AVOLTAG) >> 6);
+            proto_tree_add_item(tree, hf_scsi_smc_pvoltag, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_scsi_smc_avoltag, tvb, offset, 1, ENC_NA);
             offset += 1;
             bytecnt -= 1;
 
             if (bytecnt < 2)
                 break;
             elem_desc_len = tvb_get_ntohs (tvb, offset);
-            proto_tree_add_text (tree, tvb, offset, 2,
-                                 "Element Descriptor Length: %u",
-                                 elem_desc_len);
+            proto_tree_add_item(tree, hf_scsi_smc_element_descriptor_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             bytecnt -= 2;
 
@@ -547,9 +524,7 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
             if (bytecnt < 3)
                 break;
             desc_bytecnt = tvb_get_ntoh24 (tvb, offset);
-            proto_tree_add_text (tree, tvb, offset, 3,
-                                 "Byte Count Of Descriptor Data Available: %u",
-                                 desc_bytecnt);
+            proto_tree_add_item(tree, hf_scsi_smc_byte_count_of_descriptor_data_available, tvb, offset, 3, ENC_BIG_ENDIAN);
             offset += 3;
             bytecnt -= 3;
 
@@ -926,6 +901,47 @@ proto_register_scsi_smc(void)
         { &hf_scsi_smc_action_code,
           {"Action Code", "scsi_smc.action_code", FT_UINT8, BASE_HEX,
            VALS(action_code_vals), 0x1f, NULL, HFILL}},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_scsi_smc_scsi_bus_address, { "SCSI Bus Address", "scsi_smc.scsi_bus_address", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_source_storage_element_address, { "Source Storage Element Address", "scsi_smc.source_storage_element_address", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_code_set, { "Code Set", "scsi_smc.code_set", FT_UINT8, BASE_DEC, VALS(scsi_devid_codeset_val), 0x0F, NULL, HFILL }},
+      { &hf_scsi_smc_identifier_type, { "Identifier Type", "scsi_smc.identifier_type", FT_UINT8, BASE_DEC, VALS(scsi_devid_idtype_val), 0x0F, NULL, HFILL }},
+      { &hf_scsi_smc_identifier_length, { "Identifier Length", "scsi_smc.identifier_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_identifier, { "Identifier", "scsi_smc.identifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_vendor_specific_data, { "Vendor-specific Data", "scsi_smc.vendor_specific_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_voltag, { "VOLTAG", "scsi_smc.voltag", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+      { &hf_scsi_smc_starting_element_address, { "Starting Element Address", "scsi_smc.starting_element_address", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_number_of_elements, { "Number of Elements", "scsi_smc.number_of_elements", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_curdata, { "CURDATA", "scsi_smc.curdata", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+      { &hf_scsi_smc_allocation_length, { "Allocation Length", "scsi_smc.allocation_length", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_first_element_address_reported, { "First Element Address Reported", "scsi_smc.first_element_address_reported", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_number_of_elements_available, { "Number of Elements Available", "scsi_smc.number_of_elements_available", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_byte_count_of_report_available, { "Byte Count of Report Available", "scsi_smc.byte_count_of_report_available", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_element_type_code, { "Element Type Code", "scsi_smc.element_type_code", FT_UINT8, BASE_DEC, VALS(element_type_code_vals), 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_element_type_code_0F, { "Element Type Code", "scsi_smc.element_type_code", FT_UINT8, BASE_DEC, VALS(element_type_code_vals), 0x0F, NULL, HFILL }},
+      { &hf_scsi_smc_pvoltag, { "PVOLTAG", "scsi_smc.pvoltag", FT_BOOLEAN, 8, NULL, PVOLTAG, NULL, HFILL }},
+      { &hf_scsi_smc_element_descriptor_length, { "Element Descriptor Length", "scsi_smc.element_descriptor_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_byte_count_of_descriptor_data_available, { "Byte Count Of Descriptor Data Available", "scsi_smc.byte_count_of_descriptor_data_available", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_except, { "EXCEPT", "scsi_smc.except", FT_BOOLEAN, 8, NULL, EXCEPT, NULL, HFILL }},
+      { &hf_scsi_smc_access, { "ACCESS", "scsi_smc.access", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+      { &hf_scsi_smc_cmc, { "cmc", "scsi_smc.cmc", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+      { &hf_scsi_smc_additional_sense_code_qualifier, { "Additional Sense Code+Qualifier", "scsi_smc.additional_sense_code_qualifier", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &scsi_asc_val_ext, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_not_bus, { "NOT BUS", "scsi_smc.not_bus", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+      { &hf_scsi_smc_id_valid, { "ID VALID", "scsi_smc.id_valid", FT_BOOLEAN, 8, NULL, ID_VALID, NULL, HFILL }},
+      { &hf_scsi_smc_lu_valid, { "LU VALID", "scsi_smc.lu_valid", FT_BOOLEAN, 8, NULL, LU_VALID, NULL, HFILL }},
+      { &hf_scsi_smc_svalid, { "SVALID", "scsi_smc.svalid", FT_BOOLEAN, 8, NULL, SVALID, NULL, HFILL }},
+      { &hf_scsi_smc_dvcid, { "DVCID", "scsi_smc.dvcid", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+      { &hf_scsi_smc_avoltag, { "AVOLTAG", "scsi_smc.pvoltag", FT_BOOLEAN, 8, NULL, AVOLTAG, NULL, HFILL }},
+      { &hf_scsi_smc_full, { "FULL", "scsi_smc.full", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+      { &hf_scsi_smc_exenab, { "EXENAB", "scsi_smc.exenab", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+      { &hf_scsi_smc_inenab, { "INENAB", "scsi_smc.inenab", FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+      { &hf_scsi_smc_impexp, { "IMPEXP", "scsi_smc.impexp", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+      { &hf_scsi_smc_lun, { "LUN", "scsi_smc.lun", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }},
+      { &hf_scsi_smc_primary_vol_tag_id, { "Primary Volume Identification", "scsi_smc.primary_vol_tag_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_alternate_vol_tag_id, { "Alternate Volume Identification", "scsi_smc.alternate_vol_tag_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_primary_vol_seq_num, { "Primary Volume Sequence Number", "scsi_smc.primary_vol_seq_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_smc_alternate_vol_seq_num, { "Alternate Volume Sequence Number", "scsi_smc.alternate_vol_seq_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
 
