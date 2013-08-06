@@ -1,7 +1,7 @@
 /* 
  * app_mem_usage.c
  *
- * $Id: get_app_mem_usage.c 50885 2013-07-25 04:40:37Z etxrab $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,6 +21,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
+#if defined(__linux__)
+ #define _XOPEN_SOURCE 500
+#endif
 
 #include "config.h"
 
