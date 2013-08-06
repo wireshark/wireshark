@@ -185,26 +185,25 @@ static const value_string sapi_values[] = {
 };
 
 static const value_string gsm_sapi_vals[] = {
-	{ LAPD_GSM_SAPI_RA_SIG_PROC,	"Radio signalling procedures" },
-	{ LAPD_GSM_SAPI_NOT_USED_1,	"(Not used in GSM PLMN)" },
-	{ LAPD_GSM_SAPI_NOT_USED_16,	"(Not used in GSM PLMN)" },
-	{ LAPD_GSM_SAPI_OM_PROC,	"Operation and maintenance procedure" },
-	{ LAPD_SAPI_L2,			"Layer 2 management procedures" },
-	{ 0,				NULL }
+  { LAPD_GSM_SAPI_RA_SIG_PROC,  "Radio signalling procedures" },
+  { LAPD_GSM_SAPI_NOT_USED_1,   "(Not used in GSM PLMN)" },
+  { LAPD_GSM_SAPI_NOT_USED_16,  "(Not used in GSM PLMN)" },
+  { LAPD_GSM_SAPI_OM_PROC,      "Operation and maintenance procedure" },
+  { LAPD_SAPI_L2,               "Layer 2 management procedures" },
+  { 0,                          NULL }
 };
 
 static void
 dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  proto_item *sapi_item;
   proto_tree_add_item(parameter_tree, hf_dlci_zero_bit,  parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_dlci_spare_bit, parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
   /* Add the SAPI + some explanatory text, store the SAPI value so that we can later how to
    * dissect the protocol data */
-  if(global_iua_gsm_sapis){
-    sapi_item = proto_tree_add_item(parameter_tree, hf_dlci_gsm_sapi, parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
-  }else{
-    sapi_item = proto_tree_add_item(parameter_tree, hf_dlci_sapi, parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
+  if(global_iua_gsm_sapis) {
+    proto_tree_add_item(parameter_tree, hf_dlci_gsm_sapi, parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
+  } else {
+    proto_tree_add_item(parameter_tree, hf_dlci_sapi, parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
   }
   sapi_val = (tvb_get_guint8(parameter_tvb, DLCI_SAPI_OFFSET) & SAPI_MASK) >> SAPI_SHIFT;
   sapi_val_assigned = TRUE;
@@ -428,9 +427,9 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_i
   {
     return;
   }
-  if(global_iua_gsm_sapis){
+  if(global_iua_gsm_sapis) {
     if (!dissector_try_uint(lapd_gsm_sapi_dissector_table, sapi_val, protocol_data_tvb, pinfo, tree))
-				call_dissector(data_handle, protocol_data_tvb, pinfo, tree);
+      call_dissector(data_handle, protocol_data_tvb, pinfo, tree);
     return;
   }
 
