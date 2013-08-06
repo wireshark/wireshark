@@ -114,7 +114,7 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                     f_len = fi->length;
                 }
 
-                /* bmask = finfo->hfinfo->bitmask << finfo->hfinfo->bitshift; */ /* (value & mask) >> shift */
+                /* bmask = finfo->hfinfo->bitmask << hfinfo_bitshift(finfo->hfinfo); */ /* (value & mask) >> shift */
                 if (fi->hfinfo) bmask = fi->hfinfo->bitmask;
                 fa_start = fi->appendix_start;
                 fa_len = fi->appendix_length;

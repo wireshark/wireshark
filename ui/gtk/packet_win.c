@@ -406,8 +406,8 @@ finfo_integer_changed(GtkSpinButton *spinbutton, gpointer user_data)
 		return;
 	}
 
-	if (hfinfo->bitmask && hfinfo->bitshift > 0)
-		u_val <<= hfinfo->bitshift;
+	if (hfinfo->bitmask)
+		u_val <<= hfinfo_bitshift(hfinfo);
 
 	finfo_integer_common(DataPtr, u_val);
 }
@@ -578,8 +578,8 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 		if (finfo->length * 8 < bitcount)
 			bitcount = finfo->length / 8;
 
-		if (hfinfo->bitmask && hfinfo->bitshift > 0)
-			bitcount -= hfinfo->bitshift;
+		if (hfinfo->bitmask)
+			bitcount -= hfinfo_bitshift(hfinfo);
 
 		/* XXX, hfinfo->bitmask: Can we configure GTK_ADJUSTMENT to do custom step? (value-changed signal?) */
 

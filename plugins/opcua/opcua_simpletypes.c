@@ -252,7 +252,7 @@ void registerSimpleTypes(int proto)
 {
     static hf_register_info hf[] =
     {
-        /* full name  ,           abbreviation  ,       type     , display  , strings, bitmask, blurb, id, parent, ref_count, bitshift */
+        /* full name  ,           abbreviation  ,       type     , display  , strings, bitmask, blurb, id, parent, ref_count */
         { &hf_opcua_diag_mask_symbolicflag,
         {  "has symbolic id",           "opcua.has_symbolic_id", FT_BOOLEAN, 8, NULL, DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG, NULL, HFILL }
         },

@@ -71,22 +71,6 @@ struct ptvcursor {
 	gint	     offset;
 };
 
-static int
-wrs_count_bitshift(const guint32 bitmask)
-{
-#if defined(__GNUC__) && ((__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
-	return __builtin_ctz(bitmask);
-#else
-	/* From http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup */
-	static const int table[32] = {
-		0,   1, 28,  2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17,  4, 8,
-		31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18,  6, 11,  5, 10, 9
-	};
-
-	return table[((guint32)((bitmask & -(gint32)bitmask) * 0x077CB531U)) >> 27];
-#endif
-}
-
 #define cVALS(x) (const value_string*)(x)
 
 /** See inlined comments.
@@ -3023,9 +3007,7 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 		integer &= hfinfo->bitmask;
 
 		/* Shift bits */
-		if (hfinfo->bitshift > 0) {
-			integer >>= hfinfo->bitshift;
-		}
+		integer >>= hfinfo_bitshift(hfinfo);
 	}
 
 	fvalue_set_uinteger(&fi->value, integer);
@@ -3169,9 +3151,7 @@ proto_tree_set_int(field_info *fi, gint32 value)
 		integer &= hfinfo->bitmask;
 
 		/* Shift bits */
-		if (hfinfo->bitshift > 0) {
-			integer >>= hfinfo->bitshift;
-		}
+		integer >>= hfinfo_bitshift(hfinfo);
 	}
 
 	fvalue_set_sinteger(&fi->value, integer);
@@ -3572,8 +3552,7 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 			char *p;
 
 			val = fvalue_get_uinteger(&fi->value);
-			if (hf->bitshift > 0)
-				val <<= hf->bitshift;
+			val <<= hfinfo_bitshift(hf);
 
 			p = decode_bitfield_value(fi->rep->representation, val, hf->bitmask, hfinfo_bitwidth(hf));
 			ret = (int) (p - fi->rep->representation);
@@ -4390,7 +4369,6 @@ proto_register_protocol(const char *name, const char *short_name,
 	hfinfo->display = BASE_NONE;
 	hfinfo->strings = protocol;
 	hfinfo->bitmask = 0;
-	hfinfo->bitshift = 0;
 	hfinfo->ref_type = HF_REF_TYPE_NONE;
 	hfinfo->blurb = NULL;
 	hfinfo->parent = -1; /* this field differentiates protos and fields */
@@ -4979,11 +4957,6 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 
 	tmp_fld_check_assert(hfinfo);
 
-	/* if this is a bitfield, compute bitshift */
-	if (hfinfo->bitmask) {
-		hfinfo->bitshift = wrs_count_bitshift(hfinfo->bitmask);
-	}
-
 	hfinfo->parent         = parent;
 	hfinfo->same_name_next = NULL;
 	hfinfo->same_name_prev = NULL;
@@ -5373,9 +5346,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 
 		/* Un-shift bits */
 		unshifted_value = value;
-		if (hfinfo->bitshift > 0) {
-			unshifted_value <<= hfinfo->bitshift;
-		}
+		unshifted_value <<= hfinfo_bitshift(hfinfo);
 
 		/* Create the bitfield first */
 		p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
@@ -5453,8 +5424,8 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 	/* Un-shift bits */
 	unshifted_value = fvalue_get_uinteger(&fi->value);
 	value = unshifted_value;
-	if (hfinfo->bitshift > 0) {
-		unshifted_value <<= hfinfo->bitshift;
+	if (hfinfo->bitmask) {
+		unshifted_value <<= hfinfo_bitshift(hfinfo);
 	}
 
 	/* Create the bitfield first */
@@ -5560,6 +5531,26 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 	else {
 		label_fill(label_str, 0, hfinfo, tmp);
 	}
+}
+
+int
+hfinfo_bitshift(const header_field_info *hfinfo)
+{
+	const guint32 bitmask = hfinfo->bitmask;
+
+	g_assert(bitmask != 0);
+
+#if defined(__GNUC__) && ((__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
+	return __builtin_ctz(bitmask);
+#else
+	/* From http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup */
+	static const int table[32] = {
+		0,   1, 28,  2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17,  4, 8,
+		31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18,  6, 11,  5, 10, 9
+	};
+
+	return table[((guint32)((bitmask & -(gint32)bitmask) * 0x077CB531U)) >> 27];
+#endif
 }
 
 int
@@ -6738,7 +6729,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			fields++;
 			continue;
 		}
-		tmpval = (value & hf->bitmask) >> hf->bitshift;
+		tmpval = (value & hf->bitmask) >> hfinfo_bitshift(hf);
 
 		switch (hf->type) {
 		case FT_INT8:

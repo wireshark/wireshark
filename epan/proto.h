@@ -373,7 +373,7 @@ struct _header_field_info {
 	int			 id;             /**< Field ID */
 	int			 parent;         /**< parent protocol tree */
 	hf_ref_type		 ref_type;       /**< is this field referenced by a filter */
-	int			 bitshift;       /**< bits to shift */
+	/* 4B padding */
 	header_field_info	*same_name_next; /**< Link to next hfinfo with same abbrev */
 	header_field_info	*same_name_prev; /**< Link to previous hfinfo with same abbrev */
 };
@@ -383,7 +383,7 @@ struct _header_field_info {
  * _header_field_info. If new fields are added or removed, it should
  * be changed as necessary.
  */
-#define HFILL 0, 0, HF_REF_TYPE_NONE, 0, NULL, NULL
+#define HFILL 0, 0, HF_REF_TYPE_NONE, NULL, NULL
 
 /** Used when registering many fields at once, using proto_register_field_array() */
 typedef struct hf_register_info {
@@ -1863,8 +1863,8 @@ WS_DLL_PUBLIC void tree_expanded_set(int tree_type, gboolean value);
 extern int
 hfinfo_bitwidth(const header_field_info *hfinfo);
 
-
-
+WS_DLL_PUBLIC int
+hfinfo_bitshift(const header_field_info *hfinfo);
 
 #include "epan.h"
 

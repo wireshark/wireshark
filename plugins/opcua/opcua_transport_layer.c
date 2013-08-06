@@ -60,7 +60,7 @@ void registerTransportLayerTypes(int proto)
     static hf_register_info hf[] =
     {
         { &hf_opcua_transport_type,
-        /* full name  ,           abbreviation  ,       type     , display  , strings, bitmask, blurb, id, parent, ref_count, bitshift */
+        /* full name  ,           abbreviation  ,       type     , display  , strings, bitmask, blurb, id, parent, ref_count */
         {  "Message Type",        "transport.type",     FT_STRING, BASE_NONE, NULL,    0x0,     NULL,    HFILL }
         },
         { &hf_opcua_transport_chunk,

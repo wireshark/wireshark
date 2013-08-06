@@ -933,7 +933,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
             bstart = finfo->start;
         }
 
-        /* bmask = finfo->hfinfo->bitmask << finfo->hfinfo->bitshift; */ /* (value & mask) >> shift */
+        /* bmask = finfo->hfinfo->bitmask << hfinfo_bitshift(finfo->hfinfo); */ /* (value & mask) >> shift */
         if (finfo->hfinfo) bmask = finfo->hfinfo->bitmask;
         astart = finfo->appendix_start;
         alen = finfo->appendix_length;
