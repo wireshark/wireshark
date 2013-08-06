@@ -146,6 +146,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item    *rtacser_item, *ts_item, *cl_item, *data_payload;
     proto_tree    *rtacser_tree, *cl_tree;
     int           offset=0, len=0;
+    guint         event_type;
     guint32       timestamp1, timestamp2;
     gboolean      cts, dcd, dsr, rts, dtr, ring, mbok;
     tvbuff_t      *payload_tvb;
@@ -169,11 +170,16 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item_set_text(ts_item, "Arrived At Time: %u.%u" , timestamp1, timestamp2);
         offset += 8;
 
+        /* Set INFO column with RTAC Serial Event Type */
+        event_type = tvb_get_guint8(tvb, offset);
+        col_clear(pinfo->cinfo, COL_INFO); /* clear out stuff in the info column */
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%-21s", val_to_str_const(event_type, rtacser_eventtype_vals, "Unknown Type"));
+
         /* Add event type to tree */
         proto_tree_add_item(rtacser_tree, hf_rtacser_event_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        /* Retrieve and add EIA-232 serial control lines to tree */
+        /* Retrieve EIA-232 serial control line states */
         cts = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_CTS;
         dcd = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_DCD;
         dsr = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_DSR;
@@ -185,6 +191,18 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         cl_item = proto_tree_add_text(rtacser_tree, tvb, offset, 1, "Control Lines");
         cl_tree = proto_item_add_subtree(cl_item, ett_rtacser_cl);
 
+        /* Add UART Control Line information to INFO column */
+        col_append_str(pinfo->cinfo, COL_INFO, " ( ");
+        (cts)  ? col_append_str(pinfo->cinfo, COL_INFO, "CTS") : col_append_str(pinfo->cinfo, COL_INFO, "/CTS");
+        (dcd)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DCD") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/DCD");
+        (dsr)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DSR") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/DSR");
+        (rts)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RTS") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/RTS");
+        (dtr)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DTR") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/DTR");
+        (ring) ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RING") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/RING");
+        (mbok) ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "MBOK") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/MBOK");
+        col_append_str(pinfo->cinfo, COL_INFO, " )");
+
+        /* Add UART Control Line information to tree */
         proto_item_append_text(cl_item, " (");
         (cts)  ? proto_item_append_text(cl_item, "CTS, ") : proto_item_append_text(cl_item, "/CTS, ");
         (dcd)  ? proto_item_append_text(cl_item, "DCD, ") : proto_item_append_text(cl_item, "/DCD, ");
@@ -204,7 +222,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(cl_tree, hf_rtacser_ctrl_mbok, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        /* 2-byte footer with unknown purpose */
+        /* 2-byte footer */
         proto_tree_add_item(rtacser_tree, hf_rtacser_footer, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
