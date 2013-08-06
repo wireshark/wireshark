@@ -232,7 +232,7 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	/*const gchar	*item_type_text;*/
 	gboolean	 is_ascii;
 
-	while (remaining > 0) {
+	while (remaining > 3) {  /* type(1) + flags(1) + length(2) */
 		item_type = tvb_get_guint8(tvb, offset);
 		/*item_type_text = val_to_str(item_type, tapa_discover_unknown_vals, "%d");*/
 		item_length = tvb_get_ntohs(tvb, offset + 2) - 4;
@@ -248,7 +248,7 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", T=%d L=%d",
 				item_type, item_length);
 
-        item = proto_tree_add_text(tapa_discover_tree, tvb, offset, 4 + item_length,
+		item = proto_tree_add_text(tapa_discover_tree, tvb, offset, 4 + item_length,
 			"Type %d, length %d, value %s",
 			item_type, item_length, item_text);
 
