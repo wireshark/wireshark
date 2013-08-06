@@ -464,7 +464,7 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
                          gboolean iscdb,
                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint numelem, bytecnt, desc_bytecnt;
+    guint bytecnt, desc_bytecnt;
     guint8 elem_type;
     guint8 voltag_flags;
     guint16 elem_desc_len;
@@ -486,7 +486,6 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
     else if (!isreq) {
         proto_tree_add_item(tree, hf_scsi_smc_first_element_address_reported, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        numelem = tvb_get_ntohs (tvb, offset);
         proto_tree_add_item(tree, hf_scsi_smc_number_of_elements_available, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         offset += 1; /* reserved */
