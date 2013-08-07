@@ -92,6 +92,9 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	/* initialize the GUID to name mapping table */
 	guids_init();
 
+        /* initialize name resolution (addr_resolv.c) */
+        addr_resolv_init();
+
 	except_init();
 #ifdef HAVE_LIBGCRYPT
 	/* initialize libgcrypt (beware, it won't be thread-safe) */
@@ -110,8 +113,6 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	packet_init();
 	dfilter_init();
 	final_registration_all_protocols();
-	/*host_name_lookup_init();*//* We load the hostname file in cf_open, no need to do it here? */
-	initialize_ethers();
 	expert_packet_init();
 #ifdef HAVE_LUA
 	wslua_init(cb, client_data);
@@ -132,8 +133,7 @@ epan_cleanup(void)
 	gnutls_global_deinit();
 #endif
 	except_deinit();
-	host_name_lookup_cleanup();
-	eth_name_lookup_cleanup();
+	addr_resolv_cleanup();
 	wmem_cleanup();
 }
 

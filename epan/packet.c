@@ -149,7 +149,6 @@ init_dissection(void)
 	 * Reinitialize resolution information. We do initialization here in
 	 * case we need to resolve between captures.
 	 */
-	host_name_lookup_cleanup();
 	host_name_lookup_init();
 
 	/* Initialize the table of conversations. */
@@ -199,7 +198,6 @@ cleanup_dissection(void)
 	 * case we need to resolve between captures.
 	 */
 	host_name_lookup_cleanup();
-	host_name_lookup_init();
 }
 
 /* Allow protocols to register a "cleanup" routine to be

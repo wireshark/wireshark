@@ -301,9 +301,6 @@ static hashipxnet_t *ipxnet_table[HASHIPXNETSIZE];
 static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
 static gboolean have_subnet_entry = FALSE;
 
-static gboolean eth_resolution_initialized = FALSE;
-static gboolean ipxnet_resolution_initialized = FALSE;
-static gboolean service_resolution_initialized = FALSE;
 static gboolean new_resolved_objects = FALSE;
 
 static struct addrinfo *addrinfo_list = NULL; /* IPv4 and IPv6 */
@@ -484,16 +481,10 @@ add_service_name(port_type proto, const guint port, const char *service_name)
   key = (int *)g_new(int, 1);
   *key = port;
 
-  if (serv_port_hashtable == NULL){
-    serv_port_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+  serv_port_table = (serv_port_t *)g_hash_table_lookup(serv_port_hashtable, &port);
+  if (serv_port_table == NULL) {
     serv_port_table = g_new0(serv_port_t,1);
     g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
-  } else {
-    serv_port_table = (serv_port_t *)g_hash_table_lookup(serv_port_hashtable, &port);
-    if(serv_port_table == NULL){
-      serv_port_table = g_new0(serv_port_t,1);
-      g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
-    }
   }
 
   switch(proto){
@@ -615,28 +606,6 @@ parse_services_file(const char * path)
   fclose(serv_p);
 }
 
-static void
-initialize_services(void)
-{
-
-  /* the hash table won't ignore duplicates, so use the personal path first */
-
-  /* set personal services path */
-  if (g_pservices_path == NULL)
-    g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
-
-  parse_services_file(g_pservices_path);
-
-  /* Compute the pathname of the services file. */
-  if (g_services_path == NULL) {
-    g_services_path = get_datafile_path(ENAME_SERVICES);
-  }
-
-  parse_services_file(g_services_path);
-  service_resolution_initialized = TRUE;
-
-} /* initialize_services */
-
 /* -----------------
  * unsigned integer to ascii
  */
@@ -658,11 +627,6 @@ static gchar
   struct servent *servp;
   serv_port_t *serv_port_table;
   gchar *name;
-
-
-  if (!service_resolution_initialized) {
-    initialize_services();
-  }
 
   switch(proto) {
   case PT_UDP:
@@ -752,6 +716,37 @@ static gchar
 
 } /* serv_name_lookup */
 
+static void
+initialize_services(void)
+{
+
+  /* the hash table won't ignore duplicates, so use the personal path first */
+  g_assert(serv_port_hashtable == NULL);
+  serv_port_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+
+  /* set personal services path */
+  if (g_pservices_path == NULL)
+    g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
+
+  parse_services_file(g_pservices_path);
+
+  /* Compute the pathname of the services file. */
+  if (g_services_path == NULL) {
+    g_services_path = get_datafile_path(ENAME_SERVICES);
+  }
+
+  parse_services_file(g_services_path);
+
+} /* initialize_services */
+
+static void
+service_name_lookup_cleanup(void)
+{
+  if(serv_port_hashtable){
+    g_hash_table_destroy(serv_port_hashtable);
+    serv_port_hashtable = NULL;
+  }
+}
 
 /* Fill in an IP4 structure with info from subnets file or just with the
  * string form of the address.
@@ -1374,9 +1369,6 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 
   if (mask == 0) {
     /* This is a manufacturer ID; add it to the manufacturer ID hash table */
-    if (manuf_hashtable == NULL){
-        manuf_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
-    }
 
     /* manuf needs only the 3 most significant octets of the ethernet address */
     manuf_key = (int *)g_new(int, 1);
@@ -1384,14 +1376,11 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
     *manuf_key = eth_as_int;
 
     g_hash_table_insert(manuf_hashtable, manuf_key, g_strdup(name));
-	return;
+    return;
   } /* mask == 0 */
 
   /* This is a range of well-known addresses; add it to the appropriate
      well-known-address table, creating that table if necessary. */
-  if (wka_hashtable == NULL){
-      wka_hashtable = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
-  }
 
   wka_key = (gint64 *)g_new(gint64, 1);
   *wka_key = eth_as_int64;
@@ -1420,7 +1409,7 @@ manuf_name_lookup(const guint8 *addr)
   /* first try to find a "perfect match" */
   name = (gchar *)g_hash_table_lookup(manuf_hashtable, &manuf_key);
   if(name != NULL){
-	  return name;
+    return name;
   }
 
   /* Mask out the broadcast/multicast flag but not the locally
@@ -1432,7 +1421,7 @@ manuf_name_lookup(const guint8 *addr)
     manuf_key &= 0x00FEFFFF;
     name = (gchar *)g_hash_table_lookup(manuf_hashtable, &manuf_key);
     if(name != NULL){
-	  return name;
+      return name;
     }
   }
 
@@ -1486,12 +1475,17 @@ wka_name_lookup(const guint8 *addr, const unsigned int mask)
 
 } /* wka_name_lookup */
 
-void
+static void
 initialize_ethers(void)
 {
   ether_t *eth;
   char    *manuf_path;
   guint    mask;
+
+  /* hash table initialization */
+  wka_hashtable   = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
+  manuf_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+  eth_hashtable   = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
 
   /* Compute the pathname of the ethers file. */
   if (g_ethers_path == NULL) {
@@ -1504,8 +1498,6 @@ initialize_ethers(void)
    */
   if (g_pethers_path == NULL)
     g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE);
-
-  /* manuf hash table initialization */
 
   /* Compute the pathname of the manuf file */
   manuf_path = get_datafile_path(ENAME_MANUF);
@@ -1520,9 +1512,29 @@ initialize_ethers(void)
   end_ethent();
 
   g_free(manuf_path);
-  eth_resolution_initialized = TRUE;
 
 } /* initialize_ethers */
+
+/* this is only needed when shuting down application (if at all) */
+static void
+eth_name_lookup_cleanup(void)
+{
+
+  if(manuf_hashtable) {
+    g_hash_table_destroy(manuf_hashtable);
+    manuf_hashtable = NULL;
+  }
+  if(wka_hashtable) {
+    g_hash_table_destroy(wka_hashtable);
+    wka_hashtable = NULL;
+  }
+
+  if(eth_hashtable) {
+    g_hash_table_destroy(eth_hashtable);
+    eth_hashtable = NULL;
+  }
+
+}
 
 /* Resolve ethernet address */
 static hashether_t *
@@ -1536,7 +1548,7 @@ eth_addr_resolve(hashether_t *tp) {
     return tp;
   } else {
     guint         mask;
-	gchar        *name;
+    gchar        *name;
 
     /* Unknown name.  Try looking for it in the well-known-address
        tables for well-known address ranges smaller than 2^24. */
@@ -1676,10 +1688,6 @@ eth_hash_new_entry(const guint8 *addr, const gboolean resolve) {
   if (resolve)
     eth_addr_resolve(tp);
 
-  if(eth_hashtable == NULL){
-    eth_hashtable = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
-  }
-
   g_hash_table_insert(eth_hashtable, key, tp);
 
   return tp;
@@ -1711,10 +1719,6 @@ add_eth_name(const guint8 *addr, const gchar *name)
 
   key = (gint64 *)g_new(gint64, 1);
   *key = eth_as_int64;
-
-  if(eth_hashtable == NULL){
-    eth_hashtable = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
-  }
 
   tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, key);
 
@@ -1754,10 +1758,6 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve) {
 
   key = (gint64 *)g_new(gint64, 1);
   *key = eth_as_int64;
-
-  if(eth_hashtable == NULL){
-    eth_hashtable = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
-  }
 
   tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, key);
   if( tp == NULL ) {
@@ -1968,8 +1968,16 @@ initialize_ipxnets(void)
   if (g_pipxnets_path == NULL)
     g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE);
 
-  ipxnet_resolution_initialized = TRUE;
 } /* initialize_ipxnets */
+
+static void
+ipx_name_lookup_cleanup(void)
+{
+  /* The memory pointed to by this table is se_ allocated so we don't have to
+   * free it here.
+   */
+  memset(ipxnet_table, 0, sizeof(ipxnet_table));
+}
 
 static hashipxnet_t *
 add_ipxnet_name(guint addr, const gchar *name)
@@ -2442,9 +2450,9 @@ addr_resolve_pref_init(module_t *nameres)
     prefs_register_uint_preference(nameres, "name_resolve_concurrency",
                                    "Maximum concurrent requests",
                                    "The maximum number of DNS requests that may"
-				   " be active at any time. A large value (many"
-				   " thousands) might overload the network or make"
-				   " your DNS server behave badly.",
+                                   " be active at any time. A large value (many"
+                                   " thousands) might overload the network or make"
+                                   " your DNS server behave badly.",
                                    10,
                                    &name_resolve_concurrency);
 #else
@@ -2460,115 +2468,6 @@ addr_resolve_pref_init(module_t *nameres)
                                    " Checking this box only loads the \"hosts\" in the current profile.",
                                    &gbl_resolv_flags.load_hosts_file_from_profile_only);
 
-}
-
-void
-host_name_lookup_init(void) {
-  char *hostspath;
-  struct addrinfo *ai;
-  guint i;
-
-#ifdef HAVE_GNU_ADNS
-#ifdef _WIN32
-  char *sysroot;
-  static char rootpath_nt[] = "\\system32\\drivers\\etc\\hosts";
-  static char rootpath_ot[] = "\\hosts";
-#endif /* _WIN32 */
-#endif /*GNU_ADNS */
-
-  if (!addrinfo_list) {
-    ai = se_new0(struct addrinfo);
-    addrinfo_list = addrinfo_list_last = ai;
-  }
-
-  /*
-   * Load the user's hosts file no matter what, if they have one.
-   */
-  hostspath = get_persconffile_path(ENAME_HOSTS, TRUE);
-  if (!read_hosts_file(hostspath) && errno != ENOENT) {
-    report_open_failure(hostspath, errno, FALSE);
-  }
-  g_free(hostspath);
-  /*
-   * Load the global hosts file, if we have one.
-   */
-  if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
-    hostspath = get_datafile_path(ENAME_HOSTS);
-    if (!read_hosts_file(hostspath) && errno != ENOENT) {
-      report_open_failure(hostspath, errno, FALSE);
-    }
-    g_free(hostspath);
-  }
-#ifdef HAVE_C_ARES
-#ifdef CARES_HAVE_ARES_LIBRARY_INIT
-  if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
-#endif
-  if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
-    async_dns_initialized = TRUE;
-  }
-#ifdef CARES_HAVE_ARES_LIBRARY_INIT
-  }
-#endif
-#else
-#ifdef HAVE_GNU_ADNS
-  /*
-   * We're using GNU ADNS, which doesn't check the system hosts file;
-   * we load that file ourselves.
-   */
-#ifdef _WIN32
-
-  sysroot = getenv_utf8("WINDIR");
-  if (sysroot != NULL) {
-    /*
-     * The file should be under WINDIR.
-     * If this is Windows NT (NT 4.0,2K,XP,Server2K3), it's in
-     * %WINDIR%\system32\drivers\etc\hosts.
-     * If this is Windows OT (95,98,Me), it's in %WINDIR%\hosts.
-     * Try both.
-     * XXX - should we base it on the dwPlatformId value from
-     * GetVersionEx()?
-     */
-    if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
-      hostspath = g_strconcat(sysroot, rootpath_nt, NULL);
-      if (!read_hosts_file(hostspath)) {
-        g_free(hostspath);
-        hostspath = g_strconcat(sysroot, rootpath_ot, NULL);
-        read_hosts_file(hostspath);
-      }
-      g_free(hostspath);
-    }
-  }
-#else /* _WIN32 */
-  if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
-    read_hosts_file("/etc/hosts");
-  }
-#endif /* _WIN32 */
-
-  /* XXX - Any flags we should be using? */
-  /* XXX - We could provide config settings for DNS servers, and
-           pass them to ADNS with adns_init_strcfg */
-  if (adns_init(&ads, adns_if_none, 0 /*0=>stderr*/) != 0) {
-    /*
-     * XXX - should we report the error?  I'm assuming that some crashes
-     * reported on a Windows machine with TCP/IP not configured are due
-     * to "adns_init()" failing (due to the lack of TCP/IP) and leaving
-     * ADNS in a state where it crashes due to that.  We'll still try
-     * doing name resolution anyway.
-     */
-    return;
-  }
-  async_dns_initialized = TRUE;
-  async_dns_in_flight = 0;
-#endif /* HAVE_GNU_ADNS */
-#endif /* HAVE_C_ARES */
-
-  if(extra_hosts_files && !gbl_resolv_flags.load_hosts_file_from_profile_only){
-    for (i = 0; i < extra_hosts_files->len; i++) {
-      read_hosts_file((const char *) g_ptr_array_index(extra_hosts_files, i));
-    }
-  }
-
-  subnet_name_lookup_init();
 }
 
 #ifdef HAVE_C_ARES
@@ -2607,8 +2506,8 @@ host_name_lookup_process(void) {
   nfds = ares_fds(ghba_chan, &rfds, &wfds);
   if (nfds > 0) {
     if (select(nfds, &rfds, &wfds, NULL, &tv) == -1) { /* call to select() failed */
-	fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
-	return nro;
+        fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
+        return nro;
     }
     ares_process(ghba_chan, &rfds, &wfds);
   }
@@ -2733,50 +2632,6 @@ _host_name_lookup_cleanup(void) {
 
 #endif /* HAVE_C_ARES */
 
-void
-host_name_lookup_cleanup(void) {
-  _host_name_lookup_cleanup();
-
-  memset(ipv4_table, 0, sizeof(ipv4_table));
-  memset(ipv6_table, 0, sizeof(ipv6_table));
-
-  memset(ipxnet_table, 0, sizeof(ipxnet_table));
-  memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
-
-  addrinfo_list = addrinfo_list_last = NULL;
-
-  have_subnet_entry = FALSE;
-  ipxnet_resolution_initialized = FALSE;
-  new_resolved_objects = FALSE;
-}
-
-void
-eth_name_lookup_cleanup(void) {
-
-  /* XXX this is only needed when shuting down application (if at all) */
-  if(manuf_hashtable){
-    g_hash_table_destroy(manuf_hashtable);
-    manuf_hashtable = NULL;
-  }
-  if(wka_hashtable){
-    g_hash_table_destroy(wka_hashtable);
-    wka_hashtable = NULL;
-  }
-
-  if(eth_hashtable){
-    g_hash_table_destroy(eth_hashtable);
-    eth_hashtable = NULL;
-  }
-
-  if(serv_port_hashtable){
-    g_hash_table_destroy(serv_port_hashtable);
-    eth_hashtable = NULL;
-  }
-
-  eth_resolution_initialized = FALSE;
-  service_resolution_initialized = FALSE;
-
-}
 const gchar *
 get_hostname(const guint addr)
 {
@@ -2941,6 +2796,132 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
 
 } /* add_ipv6_name */
 
+void
+host_name_lookup_init(void)
+{
+  char *hostspath;
+  struct addrinfo *ai;
+  guint i;
+
+#ifdef HAVE_GNU_ADNS
+#ifdef _WIN32
+  char *sysroot;
+  static char rootpath_nt[] = "\\system32\\drivers\\etc\\hosts";
+  static char rootpath_ot[] = "\\hosts";
+#endif /* _WIN32 */
+#endif /*GNU_ADNS */
+
+  if (!addrinfo_list) {
+    ai = se_new0(struct addrinfo);
+    addrinfo_list = addrinfo_list_last = ai;
+  }
+
+  /*
+   * Load the user's hosts file no matter what, if they have one.
+   */
+  hostspath = get_persconffile_path(ENAME_HOSTS, TRUE);
+  if (!read_hosts_file(hostspath) && errno != ENOENT) {
+    report_open_failure(hostspath, errno, FALSE);
+  }
+  g_free(hostspath);
+  /*
+   * Load the global hosts file, if we have one.
+   */
+  if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
+    hostspath = get_datafile_path(ENAME_HOSTS);
+    if (!read_hosts_file(hostspath) && errno != ENOENT) {
+      report_open_failure(hostspath, errno, FALSE);
+    }
+    g_free(hostspath);
+  }
+#ifdef HAVE_C_ARES
+#ifdef CARES_HAVE_ARES_LIBRARY_INIT
+  if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
+#endif
+  if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
+    async_dns_initialized = TRUE;
+  }
+#ifdef CARES_HAVE_ARES_LIBRARY_INIT
+  }
+#endif
+#else
+#ifdef HAVE_GNU_ADNS
+  /*
+   * We're using GNU ADNS, which doesn't check the system hosts file;
+   * we load that file ourselves.
+   */
+#ifdef _WIN32
+
+  sysroot = getenv_utf8("WINDIR");
+  if (sysroot != NULL) {
+    /*
+     * The file should be under WINDIR.
+     * If this is Windows NT (NT 4.0,2K,XP,Server2K3), it's in
+     * %WINDIR%\system32\drivers\etc\hosts.
+     * If this is Windows OT (95,98,Me), it's in %WINDIR%\hosts.
+     * Try both.
+     * XXX - should we base it on the dwPlatformId value from
+     * GetVersionEx()?
+     */
+    if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
+      hostspath = g_strconcat(sysroot, rootpath_nt, NULL);
+      if (!read_hosts_file(hostspath)) {
+        g_free(hostspath);
+        hostspath = g_strconcat(sysroot, rootpath_ot, NULL);
+        read_hosts_file(hostspath);
+      }
+      g_free(hostspath);
+    }
+  }
+#else /* _WIN32 */
+  if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
+    read_hosts_file("/etc/hosts");
+  }
+#endif /* _WIN32 */
+
+  /* XXX - Any flags we should be using? */
+  /* XXX - We could provide config settings for DNS servers, and
+           pass them to ADNS with adns_init_strcfg */
+  if (adns_init(&ads, adns_if_none, 0 /*0=>stderr*/) != 0) {
+    /*
+     * XXX - should we report the error?  I'm assuming that some crashes
+     * reported on a Windows machine with TCP/IP not configured are due
+     * to "adns_init()" failing (due to the lack of TCP/IP) and leaving
+     * ADNS in a state where it crashes due to that.  We'll still try
+     * doing name resolution anyway.
+     */
+    return;
+  }
+  async_dns_initialized = TRUE;
+  async_dns_in_flight = 0;
+#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES */
+
+  if(extra_hosts_files && !gbl_resolv_flags.load_hosts_file_from_profile_only){
+    for (i = 0; i < extra_hosts_files->len; i++) {
+      read_hosts_file((const char *) g_ptr_array_index(extra_hosts_files, i));
+    }
+  }
+
+  subnet_name_lookup_init();
+}
+
+void
+host_name_lookup_cleanup(void)
+{
+  _host_name_lookup_cleanup();
+
+  memset(ipv4_table, 0, sizeof(ipv4_table));
+  memset(ipv6_table, 0, sizeof(ipv6_table));
+
+  memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
+
+  addrinfo_list = addrinfo_list_last = NULL;
+
+  have_subnet_entry = FALSE;
+  new_resolved_objects = FALSE;
+}
+
 gchar *
 get_udp_port(guint port)
 {
@@ -3047,10 +3028,6 @@ get_ether_name(const guint8 *addr)
   hashether_t *tp;
   gboolean resolve = gbl_resolv_flags.mac_name;
 
-  if (resolve && !eth_resolution_initialized) {
-    initialize_ethers();
-  }
-
   tp = eth_name_lookup(addr, resolve);
 
   return resolve ? tp->resolved_name : tp->hexaddr;
@@ -3069,10 +3046,6 @@ get_ether_name_if_known(const guint8 *addr)
    * ether-related function called */
   if (!gbl_resolv_flags.mac_name)
     return NULL;
-
-  if (!eth_resolution_initialized) {
-    initialize_ethers();
-  }
 
   /* eth_name_lookup will create a (resolved) hash entry if it doesn't exist */
   tp = eth_name_lookup(addr, TRUE);
@@ -3093,11 +3066,6 @@ get_ether_addr(const gchar *name)
 {
 
   /* force resolution (do not check gbl_resolv_flags) */
-
-  if (!eth_resolution_initialized) {
-    initialize_ethers();
-  }
-
   return eth_addr_lookup(name);
 
 } /* get_ether_addr */
@@ -3128,10 +3096,6 @@ get_ipxnet_name(const guint32 addr)
     return ipxnet_to_str_punct(addr, '\0');
   }
 
-  if (!ipxnet_resolution_initialized) {
-    initialize_ipxnets();
-  }
-
   return ipxnet_name_lookup(addr);
 
 } /* get_ipxnet_name */
@@ -3143,11 +3107,6 @@ get_ipxnet_addr(const gchar *name, gboolean *known)
   gboolean success;
 
   /* force resolution (do not check gbl_resolv_flags) */
-
-  if (!ipxnet_resolution_initialized) {
-    initialize_ipxnets();
-  }
-
   addr =  ipxnet_addr_lookup(name, &success);
 
   *known = success;
@@ -3161,10 +3120,6 @@ get_manuf_name(const guint8 *addr)
   gchar *cur;
   int manuf_key;
   guint8 oct;
-
-  if (gbl_resolv_flags.mac_name && !eth_resolution_initialized) {
-    initialize_ethers();
-  }
 
   /* manuf needs only the 3 most significant octets of the ethernet address */
   manuf_key = addr[0];
@@ -3208,10 +3163,6 @@ get_manuf_name_if_known(const guint8 *addr)
   int manuf_key;
   guint8 oct;
 
-  if (!eth_resolution_initialized) {
-    initialize_ethers();
-  }
-
   /* manuf needs only the 3 most significant octets of the ethernet address */
   manuf_key = addr[0];
   manuf_key = manuf_key<<8;
@@ -3233,10 +3184,6 @@ const gchar *
 uint_get_manuf_name_if_known(const guint manuf_key)
 {
   gchar  *cur;
-
-  if (!eth_resolution_initialized) {
-    initialize_ethers();
-  }
 
   if ((cur = (gchar *)g_hash_table_lookup(manuf_hashtable, &manuf_key)) == NULL) {
     return NULL;
@@ -3260,10 +3207,6 @@ get_eui64_name(const guint64 addr_eui64)
   /* Copy and convert the address to network byte order. */
   *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
 
-  if (gbl_resolv_flags.mac_name && !eth_resolution_initialized) {
-    initialize_ethers();
-  }
-
   if (!gbl_resolv_flags.mac_name || ((name = manuf_name_lookup(addr)) == NULL)) {
     cur=ep_strdup_printf("%02x:%02x:%02x%02x:%02x:%02x%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
     return cur;
@@ -3282,10 +3225,6 @@ get_eui64_name_if_known(const guint64 addr_eui64)
 
   /* Copy and convert the address to network byte order. */
   *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
-
-  if (!eth_resolution_initialized) {
-    initialize_ethers();
-  }
 
   if ((name = manuf_name_lookup(addr)) == NULL) {
     return NULL;
@@ -3369,8 +3308,8 @@ get_host_ipaddr(const char *host, guint32 *addrp)
     if (nfds > 0) {
       tvp = ares_timeout(ghbn_chan, &tv, &tv);
       if (select(nfds, &rfds, &wfds, NULL, tvp) == -1) { /* call to select() failed */
-	fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
-	return FALSE;
+        fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
+        return FALSE;
       }
       ares_process(ghbn_chan, &rfds, &wfds);
     }
@@ -3456,8 +3395,8 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
   if (nfds > 0) {
     tvp = ares_timeout(ghbn_chan, &tv, &tv);
     if (select(nfds, &rfds, &wfds, NULL, tvp) == -1) { /* call to select() failed */
-	fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
-	return FALSE;
+        fprintf(stderr, "Warning: call to select() failed, error is %s\n", strerror(errno));
+        return FALSE;
     }
     ares_process(ghbn_chan, &rfds, &wfds);
   }
@@ -3498,24 +3437,45 @@ _U_
 GHashTable *
 get_manuf_hashtable(void)
 {
-	return manuf_hashtable;
+        return manuf_hashtable;
 }
 
 GHashTable *
 get_wka_hashtable(void)
 {
-	return wka_hashtable;
+        return wka_hashtable;
 }
 
 GHashTable *
 get_eth_hashtable(void)
 {
-	return eth_hashtable;
+        return eth_hashtable;
 }
 
 GHashTable *
 get_serv_port_hashtable(void)
 {
-	return serv_port_hashtable;
+        return serv_port_hashtable;
 }
 
+/* Initialize all the address resolution subsystems in this file */
+void
+addr_resolv_init(void)
+{
+    initialize_services();
+    initialize_ethers();
+    initialize_ipxnets();
+    /* host name initialization is done on a per-capture-file basis */
+    /*host_name_lookup_init();*/
+}
+
+/* Clean up all the address resolution subsystems in this file */
+void
+addr_resolv_cleanup(void)
+{
+    service_name_lookup_cleanup();
+    eth_name_lookup_cleanup();
+    ipx_name_lookup_cleanup();
+    /* host name initialization is done on a per-capture-file basis */
+    /*host_name_lookup_cleanup();*/
+}

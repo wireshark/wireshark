@@ -137,9 +137,6 @@ void get_addr_name_buf(const address *addr, gchar *buf, gsize size);
 struct pref_module;
 extern void addr_resolve_pref_init(struct pref_module *nameres);
 
-/* host_name_lookup_init fires up an ADNS socket if we're using ADNS */
-extern void host_name_lookup_init(void);
-
 /** If we're using c-ares or ADNS, process outstanding host name lookups.
  *  This is called from a GLIB timeout in Wireshark and before processing
  *  each packet in TShark.
@@ -148,9 +145,6 @@ extern void host_name_lookup_init(void);
  * call. This can be used to trigger a display update, e.g. in Wireshark.
  */
 WS_DLL_PUBLIC gboolean host_name_lookup_process(void);
-
-/* host_name_lookup_cleanup cleans up an ADNS socket if we're using ADNS */
-extern void host_name_lookup_cleanup(void);
 
 /* get_hostname returns the host name or "%d.%d.%d.%d" if not found */
 WS_DLL_PUBLIC const gchar *get_hostname(const guint addr);
@@ -324,11 +318,28 @@ GHashTable *get_eth_hashtable(void);
 WS_DLL_PUBLIC
 GHashTable *get_serv_port_hashtable(void);
 
-WS_DLL_PUBLIC
-void initialize_ethers(void);
+/*
+ * private functions (should only be called by epan directly)
+ */
 
-WS_DLL_PUBLIC
-void eth_name_lookup_cleanup(void);
+WS_DLL_LOCAL
+void name_resolver_init(void);
+
+/* (Re)Initialize hostname resolution subsystem */
+WS_DLL_LOCAL
+void host_name_lookup_init(void);
+
+/* Clean up only hostname resolutions (so they don't "leak" from one
+ * file to the next).
+ */
+WS_DLL_LOCAL
+void host_name_lookup_cleanup(void);
+
+WS_DLL_LOCAL
+void addr_resolv_init(void);
+
+WS_DLL_LOCAL
+void addr_resolv_cleanup(void);
 
 #ifdef __cplusplus
 }
