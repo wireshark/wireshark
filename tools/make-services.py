@@ -21,22 +21,22 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-iana_ns = 'http://www.iana.org/assignments'
-iana_port_url = iana_ns + '/service-names-port-numbers/service-names-port-numbers.csv'
+iana_svc_url = 'http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv'
 
 __doc__ = '''\
 Usage: make-services.py [url]
 
 url defaults to
     %s
-''' % (iana_port_url)
+''' % (iana_svc_url)
 
 import sys
 import getopt
 import csv
 import re
 
-if sys.version_info[0] < 3:
+python_version = sys.hexversion >> 16
+if python_version < 0x300:
     import urllib
 else:
     import urllib.request, urllib.error, urllib.parse
@@ -57,12 +57,12 @@ exclude_comments = [
 
 min_body_size = 900000 # Size was ~ 922000 on 2013-08-06
 
-def parse_rows(port_fd):
+def parse_rows(svc_fd):
     lines = []
-    port_reader = csv.reader(port_fd)
+    port_reader = csv.reader(svc_fd)
 
     # Header positions as of 2013-08-06
-    if sys.version_info[0] < 3:
+    if python_version < 0x206:
         headers = port_reader.next()
     else:
         headers = next(port_reader)
@@ -128,20 +128,20 @@ def main(argv):
             exit_msg(None, 0)
 
     if (len(argv) > 0):
-        port_url = argv[0]
+        svc_url = argv[0]
     else:
-        port_url = iana_port_url
+        svc_url = iana_svc_url
 
     try:
-        if sys.version_info[0] < 3:
-            port_fd = urllib.urlopen(port_url)
+        if python_version < 0x300:
+            svc_fd = urllib.urlopen(svc_url)
         else:
-            req = urllib.request.urlopen(port_url)
-            port_fd = codecs.getreader('utf8')(req)
+            req = urllib.request.urlopen(svc_url)
+            svc_fd = codecs.getreader('utf8')(req)
     except URLError:
         exit_err(URLError)
 
-    body = parse_rows(port_fd)
+    body = parse_rows(svc_fd)
     if len(body) < min_body_size:
         exit_err('Not enough parsed data')
 
@@ -162,7 +162,7 @@ def main(argv):
 #
 
 %s
-''' % (iana_port_url, body))
+''' % (iana_svc_url, body))
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

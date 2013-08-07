@@ -802,8 +802,8 @@ doxygen-run:
 
 doxygen: doxygen.cfg doxygen-run
 
-services: tools\make-services.pl
-	$(PERL) tools/make-services.pl
+services: tools\make-services.py
+	$(PYTHON) tools/make-services.py
 
 ################################################################################
 # Prepare build environment by downloading and installing required libraries

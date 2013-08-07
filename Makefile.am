@@ -605,7 +605,7 @@ SUFFIXES = .sh
 	$(editsh) $< > $@.tmp && chmod +x $@.tmp && mv $@.tmp $@
 
 services:
-	$(PERL) $(srcdir)/tools/make-services.pl
+	$(PYTHON) $(srcdir)/tools/make-services.py
 
 CLEANFILES =		\
 	*~		\
