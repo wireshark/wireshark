@@ -88,6 +88,9 @@
  * and HELLO messages).
  * (Roberto Morro) <roberto.morro[AT]telecomitalia.it>
  *
+ * Jul 20, 2013: add support for Exclude Routes (XRO) (see RFC 4874)
+ * (FF) <francesco.fondelli[AT]gmail.com>
+ *
  */
 
 
@@ -177,6 +180,17 @@ static int hf_rsvp_rro_flags_global_label = -1;
 static int hf_rsvp_lsp_attr_e2e = -1;
 static int hf_rsvp_lsp_attr_boundary = -1;
 static int hf_rsvp_lsp_attr_segment = -1;
+static int hf_rsvp_lsp_attr_integrity = -1;
+static int hf_rsvp_lsp_attr_contiguous = -1;
+static int hf_rsvp_lsp_attr_stitching = -1;
+static int hf_rsvp_lsp_attr_preplanned = -1;
+static int hf_rsvp_lsp_attr_nophp = -1;
+static int hf_rsvp_lsp_attr_oobmap = -1;
+static int hf_rsvp_lsp_attr_entropy = -1;
+static int hf_rsvp_lsp_attr_srlgcollect = -1;
+static int hf_rsvp_lsp_attr_costcollect = -1;
+static int hf_rsvp_lsp_attr_latcollect = -1;
+static int hf_rsvp_lsp_attr_latvarcollect = -1;
 static int hf_rsvp_gen_uni_direction = -1;
 static int hf_rsvp_protection_info_flags_secondary_lsp = -1;
 static int hf_rsvp_pi_link_flags_extra_traffic = -1;
@@ -257,6 +271,17 @@ static int hf_rsvp_3gpp_qos_attribute_delay_var_sensitive = -1;
 static int hf_rsvp_3gpp_qos_attribute_reserved = -1;
 static int hf_rsvp_3gpp_r_qos_blob = -1;
 static int hf_rsvp_3gpp_qos_result = -1;
+static int hf_rsvp_xro_sobj_lbit = -1;
+static int hf_rsvp_xro_sobj_type = -1;
+static int hf_rsvp_xro_sobj_len = -1;
+static int hf_rsvp_xro_sobj_ipv4_addr = -1;
+static int hf_rsvp_xro_sobj_ipv4_prefix = -1;
+static int hf_rsvp_xro_sobj_ipv4_attr = -1;
+static int hf_rsvp_xro_sobj_ipv6_addr = -1;
+static int hf_rsvp_xro_sobj_ipv6_prefix = -1;
+static int hf_rsvp_xro_sobj_ipv6_attr = -1;
+static int hf_rsvp_xro_sobj_srlg_id = -1;
+static int hf_rsvp_xro_sobj_srlg_res = -1;
 
 static dissector_table_t rsvp_dissector_table;
 
@@ -397,6 +422,8 @@ enum {
     TT_HELLO_OBJ,
     TT_EXPLICIT_ROUTE,
     TT_EXPLICIT_ROUTE_SUBOBJ,
+    TT_EXCLUDE_ROUTE,
+    TT_EXCLUDE_ROUTE_SUBOBJ,
     TT_RECORD_ROUTE,
     TT_RECORD_ROUTE_SUBOBJ,
     TT_RECORD_ROUTE_SUBOBJ_FLAGS,
@@ -610,8 +637,9 @@ enum rsvp_classes {
     RSVP_CLASS_GENERALIZED_UNI,
     RSVP_CLASS_CALL_ID,
     RSVP_CLASS_3GPP2_OBJECT,
+    RSVP_CLASS_EXCLUDE_ROUTE,
 
-    /* 232-251 Unassigned */
+    /* 233-251 Unassigned */
 
     RSVP_CLASS_VENDOR_PRIVATE_9  = 252,
     RSVP_CLASS_VENDOR_PRIVATE_10 = 253,
@@ -729,6 +757,7 @@ static const value_string rsvp_class_vals[] = {
     { RSVP_CLASS_GENERALIZED_UNI,       "GENERALIZED-UNI object"},
     { RSVP_CLASS_CALL_ID,               "CALL-ID object"},
     { RSVP_CLASS_3GPP2_OBJECT,          "3GPP2 object"},
+    { RSVP_CLASS_EXCLUDE_ROUTE,         "EXCLUDE ROUTE object"},
 
     { RSVP_CLASS_VENDOR_PRIVATE_9,      "VENDOR PRIVATE object (11bbbbbb: "
                                          "forward if unknown)"},
@@ -1283,6 +1312,31 @@ static const range_string gmpls_g709_signal_type_rvals[] = {
     { 0,   0, NULL}
 };
 
+/* XRO related */
+
+static const value_string rsvp_xro_sobj_lbit_vals[] = {
+    { 1, "Should be avoided" },
+    { 0, "Must be excluded" },
+    { 0, NULL }
+};
+
+static const value_string rsvp_xro_sobj_type_vals[] = {
+    {  1, "IPv4 prefix" },
+    {  2, "IPv6 prefix" },
+    {  4, "Unnumbered Interface ID" },
+    { 32, "Autonomous system number" },
+    { 33, "Explicit Exclusion Route subobject (EXRS)" },
+    { 34, "SRLG" },
+    {  0, NULL }
+};
+
+static const value_string rsvp_xro_sobj_ip_attr_vals[] = {
+    {  0, "Interface" },
+    {  1, "Node" },
+    {  2, "SRLG" },
+    {  0, NULL }
+};
+
 /* -------------------- Stuff for MPLS/TE objects -------------------- */
 
 static const value_string proto_vals[] = {
@@ -1414,6 +1468,9 @@ enum hf_rsvp_filter_keys {
     /* CALL ID object */
     RSVPF_CALL_ID_SRC_ADDR_IPV4,
     RSVPF_CALL_ID_SRC_ADDR_IPV6,
+
+    /* EXCLUDE ROUTE object */
+    RSVPF_EXCLUDE_ROUTE,
 
     /* Vendor Private objects */
     RSVPF_PRIVATE_OBJ,
@@ -1640,6 +1697,8 @@ rsvp_class_to_filter_num(int classnum)
         return RSVPF_DCLASS;
     case RSVP_CLASS_LSP_TUNNEL_IF_ID :
         return RSVPF_LSP_TUNNEL_IF_ID;
+    case RSVP_CLASS_EXCLUDE_ROUTE:
+        return RSVPF_EXCLUDE_ROUTE;
 
     case RSVP_CLASS_VENDOR_PRIVATE_1:
     case RSVP_CLASS_VENDOR_PRIVATE_2:
@@ -1744,6 +1803,8 @@ rsvp_class_to_tree_type(int classnum)
         return TT_DCLASS;
     case RSVP_CLASS_LSP_TUNNEL_IF_ID :
         return TT_LSP_TUNNEL_IF_ID;
+    case RSVP_CLASS_EXCLUDE_ROUTE :
+        return TT_EXCLUDE_ROUTE;
     case RSVP_CLASS_VENDOR_PRIVATE_1:
     case RSVP_CLASS_VENDOR_PRIVATE_2:
     case RSVP_CLASS_VENDOR_PRIVATE_3:
@@ -4676,6 +4737,150 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
 }
 
 /*------------------------------------------------------------------------------
+ * FF: EXCLUDE ROUTE SUBOBJECTS (they do not share ERO/RRO code points, they may
+ * share ERO/RRO subobjects layout).
+ * RFC 4874
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_xro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
+                            tvbuff_t *tvb, int offset, int obj_length,
+                            int rsvp_class)
+{
+    int i, lbit, type, l;
+    proto_tree *ti2, *rsvp_xro_subtree;
+    int tree_type;
+
+    switch (rsvp_class) {
+    case RSVP_CLASS_EXCLUDE_ROUTE:
+        tree_type = TREE(TT_EXCLUDE_ROUTE_SUBOBJ);
+        break;
+    default:
+        /* Bail out */
+        return;
+    }
+
+    /*  0                   1                   2                   3    */
+    /*  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1  */
+    /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+    /* |L|    Type     |     Length    |           Value...            | */
+    /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+
+    for (i = 1, l = 0; l < obj_length - 4; i++) {
+        lbit = tvb_get_guint8(tvb, offset + l) & 0x80;
+        type = tvb_get_guint8(tvb, offset + l) & 0x7f;
+        switch (type) {
+        case 1: /* IPv4 */
+            ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+                                      offset + l, 8,
+                                      "IPv4 Subobject - %s",
+                                      tvb_ip_to_str(tvb, offset + l + 2));
+            rsvp_xro_subtree =
+                proto_item_add_subtree(ti2, tree_type);
+
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_lbit,
+                                tvb, offset + l, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_type,
+                                tvb, offset + l, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_len,
+                                tvb, offset + l + 1, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv4_addr,
+                                tvb, offset + l + 2, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv4_prefix,
+                                tvb, offset + l + 6, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv4_attr,
+                                tvb, offset + l + 7, 1, ENC_NA);
+            if (i < 4) {
+                proto_item_append_text(ti, "IPv4 %s%s",
+                                       tvb_ip_to_str(tvb, offset + l + 2),
+                                       lbit ? " [L]" : "");
+            }
+            break;
+
+        case 2: /* IPv6 */
+            ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+                                      offset + l, 20,
+                                      "IPv6 Subobject - %s",
+                                      tvb_ip6_to_str(tvb, offset + l + 2));
+            rsvp_xro_subtree =
+                proto_item_add_subtree(ti2, tree_type);
+
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_lbit,
+                                tvb, offset + l, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_type,
+                                tvb, offset + l, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_len,
+                                tvb, offset + l + 1, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv6_addr,
+                                tvb, offset + l + 2, 16, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv6_prefix,
+                                tvb, offset + l + 18, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv6_attr,
+                                tvb, offset + l + 19, 1, ENC_NA);
+            if (i < 4) {
+                proto_item_append_text(ti, "IPv6 [...]%s", lbit ? " [L]" : "");
+            }
+            break;
+
+        case 34: /* SRLG */
+            ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+                                      offset + l, 8,
+                                      "SRLG Subobject - %u",
+                                      tvb_get_ntohl(tvb, offset + l + 2));
+            rsvp_xro_subtree =
+                proto_item_add_subtree(ti2, tree_type);
+
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_lbit,
+                                tvb, offset + l, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_type,
+                                tvb, offset + l, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_len,
+                                tvb, offset + l + 1, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_srlg_id,
+                                tvb, offset + l + 2, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_srlg_res,
+                                tvb, offset + l + 6, 2, ENC_NA);
+            if (i < 4) {
+                proto_item_append_text(ti, "SRLG %u%s",
+                                       tvb_get_ntohl(tvb, offset + l + 2),
+                                       lbit ? " [L]" : "");
+            }
+            break;
+        default: /* Unknown subobject */
+            ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+                                      offset + l,
+                                      tvb_get_guint8(tvb, offset + l + 1),
+                                      "Unknown subobject: %d", type);
+            rsvp_xro_subtree =
+                proto_item_add_subtree(ti2, tree_type);
+
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_lbit,
+                                tvb, offset + l, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_type,
+                                tvb, offset + l, 1, ENC_NA);
+            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_len,
+                                tvb, offset + l + 1, 1, ENC_NA);
+            break;
+        }
+
+        if (tvb_get_guint8(tvb, offset + l + 1) < 1) {
+            proto_tree_add_text(rsvp_xro_subtree, tvb, offset + l + 1, 1,
+                                "Invalid Length: %u",
+                                tvb_get_guint8(tvb, offset + l + 1));
+            return;
+        }
+
+        l += tvb_get_guint8(tvb, offset + l + 1);
+
+        if (l < obj_length - 4) {
+            if (i < 4)
+                proto_item_append_text(ti, ", ");
+            else if (i == 4)
+                proto_item_append_text(ti, "...");
+        }
+    }
+}
+
+/*------------------------------------------------------------------------------
  * EXPLICIT ROUTE OBJECT
  *------------------------------------------------------------------------------*/
 static void
@@ -4728,6 +4933,34 @@ dissect_rsvp_record_route(proto_item *ti, proto_tree *rsvp_object_tree,
                             "C-type: Unknown (%u)",
                             type);
         proto_tree_add_text(rsvp_object_tree, tvb, offset+4, obj_length - 4,
+                            "Data (%d bytes)", obj_length - 4);
+        break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * EXCLUDE ROUTE OBJECT
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_exclude_route(proto_item *ti, proto_tree *rsvp_object_tree,
+                           tvbuff_t *tvb, int offset, int obj_length,
+                           int rsvp_class, int ctype)
+{
+    proto_item_set_text(ti, "EXCLUDE ROUTE: ");
+    switch (ctype) {
+    case 1:
+        proto_tree_add_text(rsvp_object_tree, tvb, offset + 3, 1,
+                            "C-type: 1");
+        dissect_rsvp_xro_subobjects(ti, rsvp_object_tree, tvb,
+                                    offset + 4, obj_length,
+                                    rsvp_class);
+        break;
+
+    default:
+        proto_tree_add_text(rsvp_object_tree, tvb, offset + 3, 1,
+                            "C-type: Unknown (%u)",
+                            ctype);
+        proto_tree_add_text(rsvp_object_tree, tvb, offset + 4, obj_length - 4,
                             "Data (%d bytes)", obj_length - 4);
         break;
     }
@@ -5037,10 +5270,44 @@ dissect_rsvp_lsp_attributes(proto_tree *ti, proto_tree *rsvp_object_tree,
                              tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_segment,
                              tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti, "LSP Attribute:%s%s%s",
-                                       (attributes & 0x01) ? " End-to-end re-routing" : "",
-                                       (attributes & 0x02) ? " Boundary re-routing" : "",
-                                       (attributes & 0x04) ? " Segment-based re-routing" : "");
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_integrity,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_contiguous,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_stitching,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_preplanned,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_nophp,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_oobmap,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_entropy,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_srlgcollect,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_costcollect,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_latcollect,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_lsp_attr_subtree, hf_rsvp_lsp_attr_latvarcollect,
+                             tvb, offset+tlv_off+4, 4, ENC_BIG_ENDIAN);
+
+                proto_item_append_text(ti, "LSP Attribute:%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+                                       (attributes & 0x00000001) ? " End-to-end re-routing" : "",
+                                       (attributes & 0x00000002) ? " Boundary re-routing" : "",
+                                       (attributes & 0x00000004) ? " Segment-based re-routing" : "",
+                                       (attributes & 0x00000008) ? " LSP Integrity Required" : "",
+                                       (attributes & 0x00000010) ? " Contiguous LSP" : "",
+                                       (attributes & 0x00000020) ? " LSP stitching desired" : "",
+                                       (attributes & 0x00000040) ? " Pre-Planned LSP Flag" : "",
+                                       (attributes & 0x00000080) ? " Non-PHP behavior flag" : "",
+                                       (attributes & 0x00000100) ? " OOB mapping flag" : "",
+                                       (attributes & 0x00000200) ? " Entropy Label Capability" : "",
+                                       (attributes & 0x00000400) ? " SRLG Collection Flag" : "",
+                                       (attributes & 0x00000800) ? " Cost Collection Flag" : "",
+                                       (attributes & 0x00001000) ? " Latency Collection Flag" : "",
+                                       (attributes & 0x00002000) ? " Latency Variation Flag" : "");
                 break;
 
             default:
@@ -5886,7 +6153,6 @@ static const value_string rsvp_3gpp_obj_tft_opcode_vals[] = {
     { 0, NULL}
 };
 
-
 static const value_string rsvp_3gpp_obj_pf_comp_type_id_vals[] = {
     { 16,  "IPv4 Source Address with Subnet Mask"},
     { 17,  "IPv4 Destination Address with Subnet Mask"},
@@ -6161,7 +6427,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                 if((tft_opcode ==  0x01)||(tft_opcode ==  0x06)||(tft_opcode == 0x80)||(tft_opcode == 0x81)||(tft_opcode == 0x83)){
                     /* QoS List Length */
                     gint32 tft_qos_list_len;
-                    guint8 blob_len, item_len, padding_len; 
+                    guint8 blob_len, item_len, padding_len;
                     gboolean verbose;
                     proto_tree   *qos_tree, *qos_sub_blob_tree, *qos_att_tree;
                     int num = 0, j, num_qos_att_set;
@@ -6212,7 +6478,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                                 if(qos_attribute_set_len==0){
                                     break;
                                 }
-                                
+
                                 proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_set_id, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
                                 bit_offset+=7;
 
@@ -6220,7 +6486,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                                 proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_verbose, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
                                 bit_offset++;
 
-                                
+
                                 if(verbose == FALSE){
                                     proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_prof_id, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
                                     bit_offset+=16;
@@ -6260,7 +6526,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                             offset = offset + blob_len;
                             tft_qos_list_len = tft_qos_list_len - blob_len;
 
-                            /* Result Code This field is only included in the ResvConf message when 
+                            /* Result Code This field is only included in the ResvConf message when
                              * the TFT Operation Code field is set to QoS-Check Confirm.
                              */
                             item_len = blob_len + 2;
@@ -6950,6 +7216,11 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case RSVP_CLASS_RECORD_ROUTE:
             dissect_rsvp_record_route(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            break;
+
+        case RSVP_CLASS_EXCLUDE_ROUTE:
+            dissect_rsvp_exclude_route(ti, rsvp_object_tree, tvb, offset,
+                                       obj_length, rsvp_class, type);
             break;
 
         case RSVP_CLASS_MESSAGE_ID:
@@ -8081,20 +8352,85 @@ proto_register_rsvp(void)
         },
 
         {&hf_rsvp_lsp_attr_e2e,
-         { "E2E re-routing", "rsvp.lsp_attr.e2e",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x01,
+         { "End-to-end re-routing", "rsvp.lsp_attr.e2e",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000001, /* 0 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_boundary,
          { "Boundary re-routing", "rsvp.lsp_attr.boundary",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x02,
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000002, /* 1 */
            NULL, HFILL }
         },
 
         {&hf_rsvp_lsp_attr_segment,
          { "Segment-based re-routing", "rsvp.lsp_attr.segment",
-           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x04,
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000004, /* 2 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_integrity,
+         { "LSP Integrity Required", "rsvp.lsp_attr.integrity",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000008, /* 3 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_contiguous,
+         { "Contiguous LSP", "rsvp.lsp_attr.contiguous",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000010, /* 4 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_stitching,
+         { "LSP stitching desired", "rsvp.lsp_attr.stitching",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000020, /* 5 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_preplanned,
+         { "Pre-Planned LSP Flag", "rsvp.lsp_attr.preplanned",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000040, /* 6 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_nophp,
+         { "Non-PHP behavior flag", "rsvp.lsp_attr.nophp",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000080, /* 7 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_oobmap,
+         { "OOB mapping flag", "rsvp.lsp_attr.oobmap",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000100, /* 8 */
+           NULL, HFILL }
+        },
+        {&hf_rsvp_lsp_attr_entropy,
+         { "Entropy Label Capability", "rsvp.lsp_attr.entropy",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000200, /* 9 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_srlgcollect,
+         { "SRLG Collection Flag", "rsvp.lsp_attr.srlgcollect",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000400, /* 10 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_costcollect,
+         { "Cost Collection Flag", "rsvp.lsp_attr.costcollect",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00000800, /* 11 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_latcollect,
+         { "Latency Collection Flag", "rsvp.lsp_attr.latcollect",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00001000, /* 12 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_latvarcollect,
+         { "Latency Variation Flag", "rsvp.lsp_attr.latvarcollect",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00002000, /* 13 */
            NULL, HFILL }
         },
 
@@ -8526,6 +8862,83 @@ proto_register_rsvp(void)
            FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL }
         },
+
+        { &hf_rsvp_xro_sobj_lbit,
+          { "L(oose) bit", "rsvp.xro.sobj.lbit",
+            FT_UINT8, BASE_DEC, VALS(rsvp_xro_sobj_lbit_vals), 0x80,
+            NULL, HFILL
+          }
+        },
+
+        { &hf_rsvp_xro_sobj_type,
+          { "Type", "rsvp.xro.sobj.type",
+            FT_UINT8, BASE_DEC, VALS(rsvp_xro_sobj_type_vals), 0,
+            NULL, HFILL
+          }
+        },
+
+        { &hf_rsvp_xro_sobj_len,
+          { "Length", "rsvp.xro.sobj.len",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL
+          }
+        },
+
+        { &hf_rsvp_xro_sobj_ipv4_addr,
+         { "IPv4 prefix", "rsvp.xro.sobj.ipv4.addr",
+           FT_IPv4, BASE_NONE, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_xro_sobj_ipv4_prefix,
+         { "Prefix Length", "rsvp.xro.sobj.ipv4.prefix",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_xro_sobj_ipv4_attr,
+         { "Attribute", "rsvp.xro.sobj.ipv4.attr",
+           FT_UINT8, BASE_DEC, VALS(rsvp_xro_sobj_ip_attr_vals), 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_xro_sobj_ipv6_addr,
+         { "IPv6 prefix", "rsvp.xro.sobj.ipv6.addr",
+           FT_IPv6, BASE_NONE, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_xro_sobj_ipv6_prefix,
+         { "Prefix Length", "rsvp.xro.sobj.ipv6.prefix",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_xro_sobj_ipv6_attr,
+         { "Attribute", "rsvp.xro.sobj.ipv6.attr",
+           FT_UINT8, BASE_DEC, VALS(rsvp_xro_sobj_ip_attr_vals), 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_xro_sobj_srlg_id,
+         { "SRLG Id", "rsvp.xro.sobj.srlg.id",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_xro_sobj_srlg_res,
+         { "Reserved", "rsvp.xro.sobj.srlg.res",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL
+         }
+        }
     };
 
     gint *ett_tree[TT_MAX];
