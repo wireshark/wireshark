@@ -364,8 +364,9 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
      the packets, so we know how much we'll ultimately need. */
   buffer_init(&cf->buf, 1500);
 
-  /* Create new epan session for dissection. */
-  epan_free(cf->epan);
+  /* Create new epan session for dissection.
+   * (The old one was freed in cf_close().)
+   */
   cf->epan = ws_epan_new(cf);
 
   /* We're about to start reading the file. */
