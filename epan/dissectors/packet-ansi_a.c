@@ -9067,7 +9067,9 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
 
 #define ELEM_MAND_LV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_lv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
+    if ((consumed = (GPOINTER_TO_UINT(pinfo->private_data) ? \
+                         elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition) : \
+                         elem_lv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition))) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -9081,7 +9083,9 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
 
 #define ELEM_MAND_V(elem_idx) \
 {\
-    if ((consumed = elem_v(tvb, pinfo, tree, elem_idx, curr_offset)) > 0) \
+    if ((consumed = (GPOINTER_TO_UINT(pinfo->private_data) ? \
+                         elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, "") : \
+                         elem_v(tvb, pinfo, tree, elem_idx, curr_offset))) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -11629,7 +11633,7 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *
 /* GENERIC DISSECTOR FUNCTIONS */
 
 static void
-dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean from_sip)
 {
     static ansi_a_tap_rec_t     tap_rec[16];
     static ansi_a_tap_rec_t     *tap_p;
@@ -11641,6 +11645,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item                  *bsmap_item = NULL;
     proto_tree                  *bsmap_tree = NULL;
     const gchar                 *msg_str;
+    void                        *pd_save;
 
 
     col_append_str(pinfo->cinfo, COL_INFO, "(BSMAP) ");
@@ -11710,6 +11715,8 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((len - offset) <= 0) return;
 
     a_meid_configured = FALSE;
+    pd_save = pinfo->private_data;
+    pinfo->private_data = GUINT_TO_POINTER((guint)from_sip);
 
     /*
      * decode elements
@@ -11724,10 +11731,18 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         (*bsmap_msg_fcn[dec_idx])(tvb, pinfo, bsmap_tree, offset, len - offset);
     }
+
+    pinfo->private_data = pd_save;
 }
 
 static void
-dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean with_pd)
+dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_bsmap_common(tvb, pinfo, tree, FALSE);
+}
+
+static void
+dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean from_sip)
 {
     static ansi_a_tap_rec_t     tap_rec[16];
     static ansi_a_tap_rec_t     *tap_p;
@@ -11743,11 +11758,11 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     proto_tree                  *oct_1_tree = NULL;
     const gchar                 *msg_str;
     const gchar                 *str;
-
+    void                        *pd_save;
 
     len = tvb_length(tvb);
 
-    if ((len < 3) && with_pd)
+    if ((len < 3) && !from_sip)
     {
         /*
          * too short to be DTAP
@@ -11777,7 +11792,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     /*
      * get protocol discriminator
      */
-    if (with_pd) {
+    if (!from_sip) {
         oct_1 = tvb_get_guint8(tvb, offset++);
         oct_2 = tvb_get_guint8(tvb, offset++);
     }
@@ -11813,7 +11828,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
     }
 
-    if (with_pd) {
+    if (!from_sip) {
         /*
          * octet 1
          */
@@ -11903,6 +11918,8 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     if ((len - offset) <= 0) return;
 
     a_meid_configured = FALSE;
+    pd_save = pinfo->private_data;
+    pinfo->private_data = GUINT_TO_POINTER((guint)from_sip);
 
     /*
      * decode elements
@@ -11917,12 +11934,14 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     {
         (*dtap_msg_fcn[dec_idx])(tvb, pinfo, dtap_tree, offset, len - offset);
     }
+
+    pinfo->private_data = pd_save;
 }
 
 static void
 dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    dissect_dtap_common(tvb, pinfo, tree, TRUE);
+    dissect_dtap_common(tvb, pinfo, tree, FALSE);
 }
 
 static void
@@ -11960,10 +11979,10 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb_composite_finalize(ansi_a_tvb);
             if (is_dtap) {
                 add_new_data_source(pinfo, ansi_a_tvb, "ANSI DTAP");
-                dissect_dtap_common(ansi_a_tvb, pinfo, tree, FALSE);
+                dissect_dtap_common(ansi_a_tvb, pinfo, tree, TRUE);
             } else {
                 add_new_data_source(pinfo, ansi_a_tvb, "ANSI BSMAP");
-                dissect_bsmap(ansi_a_tvb, pinfo, tree);
+                dissect_bsmap_common(ansi_a_tvb, pinfo, tree, TRUE);
             }
        }
     }
