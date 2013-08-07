@@ -4699,6 +4699,7 @@ dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, g
   guint       items;
   guint       octets;
   gint        i;
+  guint8      step;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -4727,7 +4728,8 @@ dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, g
   cf_item = proto_tree_add_text (tree, tvb, 0, len, "Capabilities (%u items)", items);
   cf_tree = proto_item_add_subtree (cf_item, ett_r3capabilities);
 
-  for (i = 0; i < len; i += tvb_get_guint8 (tvb, i))
+  i = 0;
+  while (i<len && (step=tvb_get_guint8(tvb, i))>0)
   {
     proto_item  *tmp_item = proto_tree_add_item (cf_tree, hf_r3_capabilities, tvb, i, tvb_get_guint8 (tvb, i), ENC_NA);
     proto_tree  *tmp_tree = proto_item_add_subtree (tmp_item, ett_r3capabilities);
@@ -4739,6 +4741,8 @@ dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, g
     proto_tree_add_item (tmp_tree, hf_r3_capabilities_length, tvb, i + 0, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (tmp_tree, hf_r3_capabilities_type,   tvb, i + 1, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (tmp_tree, hf_r3_capabilities_value,  tvb, i + 2, 2, ENC_LITTLE_ENDIAN);
+
+    i += step;
   }
 }
 
@@ -4878,17 +4882,23 @@ dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 start_offset
     proto_tree *cksum_tree;
     guint32     error = FALSE;
     gint        i;
+    guint8      step;
 
     if (!tree)
       return;
 
-    for (i = 0; i < len; i += tvb_get_guint8 (tvb, i))
+    i = 0;
+    while (i<len && (step=tvb_get_guint8(tvb, i))>0)
+    {
       error |= tvb_get_guint8 (tvb, i + 2);
+      i += step;
+    }
 
     cksum_item = proto_tree_add_text (tree, tvb, 0, len, "Checksum Results (%s)", error ? "Error" : "No Errors");
     cksum_tree = proto_item_add_subtree (cksum_item, ett_r3checksumresults);
 
-    for (i = 0; i < len; i += tvb_get_guint8 (tvb, i))
+    i = 0;
+    while (i<len && (step=tvb_get_guint8(tvb, i))>0)
     {
       proto_item  *res_item = proto_tree_add_item (cksum_tree, hf_r3_checksumresults,
                                                   tvb,
@@ -4905,6 +4915,8 @@ dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 start_offset
       proto_tree_add_item (res_tree, hf_r3_checksumresults_length, tvb, i + 0, 1, ENC_LITTLE_ENDIAN);
       proto_tree_add_item (res_tree, hf_r3_checksumresults_field,  tvb, i + 1, 1, ENC_LITTLE_ENDIAN);
       proto_tree_add_item (res_tree, hf_r3_checksumresults_state,  tvb, i + 2, 1, ENC_LITTLE_ENDIAN);
+
+      i += step;
     }
   }
 }
@@ -6264,8 +6276,9 @@ dissect_r3_cmdmfg_readregisters (tvbuff_t *tvb, guint32 start_offset, guint32 le
 static void
 dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  gint i;
-  gint len;
+  gint    i;
+  gint    len;
+  guint8  step;
 
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -6273,7 +6286,8 @@ dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 len
   start_offset += 2;
   len = tvb_length_remaining (tvb, start_offset);
 
-  for (i = 0; i < len; i += tvb_get_guint8 (tvb, start_offset + i))
+  i = 0;
+  while (i<len && (step=tvb_get_guint8(tvb, start_offset + i))>0)
   {
     proto_item *force_item = proto_tree_add_text (tree, tvb, start_offset + i, tvb_get_guint8 (tvb, start_offset + i),
                                                   "Force Option %s (%u)",
@@ -6303,6 +6317,8 @@ dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 len
         return;  /* quit */
         break;
     }
+
+    i += step;
   }
 }
 
