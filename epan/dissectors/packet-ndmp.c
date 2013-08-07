@@ -4322,8 +4322,6 @@ void
 proto_reg_handoff_ndmp(void)
 {
   ndmp_handle = new_create_dissector_handle(dissect_ndmp, proto_ndmp);
-#if 0 /* tcpencap needs to own this TCP port; See packet-ipsec-tcp.c */
   dissector_add_uint("tcp.port",TCP_PORT_NDMP, ndmp_handle);
-#endif
   heur_dissector_add("tcp", dissect_ndmp_heur, proto_ndmp);
 }

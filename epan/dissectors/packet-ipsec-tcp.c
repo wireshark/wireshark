@@ -67,7 +67,11 @@ static const value_string tcpencap_proto_vals[] = {
 
 #define TRAILERLENGTH 16
 #define TCP_CISCO_IPSEC 10000
-static guint global_tcpencap_tcp_port = TCP_CISCO_IPSEC;
+/* Another case of several companies creating protocols and
+   choosing an easy-to-remember port. Playing tonight: Cisco vs NDMP.
+   Since NDMP has officially registered port 10000 with IANA, it should be the default
+*/
+static guint global_tcpencap_tcp_port = 0;
 
 static dissector_handle_t esp_handle;
 static dissector_handle_t udp_handle;
@@ -76,9 +80,6 @@ static dissector_handle_t udp_handle;
 #define TCP_ENCAP_P_UDP 2
 
 
-/* Another case of several companies creating protocols and
-   choosing an easy-to-remember port. Playing tonight: Cisco vs NDMP.
-*/
 static int
 packet_is_tcpencap(tvbuff_t *tvb, packet_info *pinfo, guint32 offset)
 {
@@ -116,12 +117,6 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	guint32 reported_length = tvb_reported_length(tvb);
 	guint32 offset;
 	guint8  protocol;
-
-	/* verify that this looks like a tcpencap packet */
-	if (reported_length <= TRAILERLENGTH + 8 ||
-	   !packet_is_tcpencap(tvb, pinfo, reported_length - TRAILERLENGTH) ) {
-		return 0;
-	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCPENCAP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -166,6 +161,20 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	}
 
 	return tvb_length(tvb);
+}
+
+static gboolean
+dissect_tcpencap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	guint32 reported_length = tvb_reported_length(tvb);
+
+	if (reported_length <= TRAILERLENGTH + 8 ||
+		!packet_is_tcpencap(tvb, pinfo, reported_length - TRAILERLENGTH) ) {
+		return FALSE;
+	}
+
+	dissect_tcpencap(tvb, pinfo, tree, data);
+	return TRUE;
 }
 
 void
@@ -222,8 +231,7 @@ proto_register_tcpencap(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	tcpencap_module = prefs_register_protocol(proto_tcpencap, proto_reg_handoff_tcpencap);
 	prefs_register_uint_preference(tcpencap_module, "tcp.port", "IPSEC TCP Port",
-		"Set the port for IPSEC/ISAKMP messages"
-		"If other than the default of 10000)",
+		"Set the port for IPSEC/ISAKMP messages (typically 10000)",
 		10, &global_tcpencap_tcp_port);
 }
 
@@ -232,18 +240,25 @@ proto_reg_handoff_tcpencap(void)
 {
 	static dissector_handle_t tcpencap_handle;
 	static gboolean initialized = FALSE;
-	static guint tcpencap_tcp_port;
+	static guint tcpencap_tcp_port = 0;
 
 	if (!initialized) {
 		tcpencap_handle = new_create_dissector_handle(dissect_tcpencap, proto_tcpencap);
 		esp_handle = find_dissector("esp");
 		udp_handle = find_dissector("udp");
+
+		heur_dissector_add("tcp", dissect_tcpencap_heur, proto_tcpencap);
+
 		initialized = TRUE;
-	} else {
+	}
+
+	/* Register TCP port for dissection */
+	if(tcpencap_tcp_port != 0 && tcpencap_tcp_port != global_tcpencap_tcp_port){
 		dissector_delete_uint("tcp.port", tcpencap_tcp_port, tcpencap_handle);
 	}
 
-	tcpencap_tcp_port = global_tcpencap_tcp_port;
-	dissector_add_uint("tcp.port", global_tcpencap_tcp_port, tcpencap_handle);
+	if(global_tcpencap_tcp_port != 0 && tcpencap_tcp_port != global_tcpencap_tcp_port) {
+		dissector_add_uint("tcp.port", global_tcpencap_tcp_port, tcpencap_handle);
+	}
 }
 
