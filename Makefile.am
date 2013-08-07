@@ -516,7 +516,7 @@ ps.c: print.ps $(srcdir)/tools/rdps.py
 	$(PYTHON) $(srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c
 
 services:
-	$(PERL) $(srcdir)/tools/make-services.pl
+	$(PYTHON) $(srcdir)/tools/make-services.py
 
 CLEANFILES =		\
 	*~		\
