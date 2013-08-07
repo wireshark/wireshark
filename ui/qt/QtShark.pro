@@ -312,8 +312,13 @@ EXTRA_BINFILES = \
 
 # http://stackoverflow.com/questions/3984104/qmake-how-to-copy-a-file-to-the-output
 unix: {
-    EXTRA_BINFILES += \
-        ../../dumpcap
+    exists(../../.libs/dumpcap) {
+        EXTRA_BINFILES += \
+            ../../.libs/dumpcap
+    } else:exists(../../dumpcap) {
+        EXTRA_BINFILES += \
+            ../../dumpcap
+    }
 
     exists(../../epan/.libs/libw*) {
         EXTRA_BINFILES += \
@@ -329,7 +334,7 @@ unix: {
 }
 unix:!macx {
     for(FILE,EXTRA_BINFILES){
-        QMAKE_POST_LINK += $$quote(cp $${FILE} .$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cp $${FILE} $${DESTDIR}$$escape_expand(\\n\\t))
     }
 }
 # qmake 2.01a / Qt 4.7.0 doesn't set DESTDIR on OS X.
