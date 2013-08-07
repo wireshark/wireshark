@@ -751,13 +751,48 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
 {
     gint         offset   = 0;
     guint16      addr_len = 0;
+    guint8       prio;
+    guint8       weight;
+    guint8       m_prio;
+    guint8       m_weight;
+    guint16      flags;
     guint16      loc_afi;
     const gchar *locator;
     proto_item  *tir, *ti_flags;
     proto_tree  *lisp_elp_tree, *lisp_loc_tree, *lisp_flags_tree;
 
+    tir = proto_tree_add_item(lisp_mapping_tree, hf_lisp_loc, tvb, offset, 8, ENC_NA);
 
-    loc_afi  = tvb_get_ntohs(tvb, offset);  offset += 2;
+    lisp_loc_tree = proto_item_add_subtree(tir, ett_lisp_loc);
+
+    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+    prio = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
+    weight = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_mpriority, tvb, offset, 1, ENC_BIG_ENDIAN);
+    m_prio = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_mweight, tvb, offset, 1, ENC_BIG_ENDIAN);
+    m_weight = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    ti_flags = proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+    lisp_flags_tree = proto_item_add_subtree(ti_flags, ett_lisp_loc_flags);
+    proto_tree_add_item(lisp_flags_tree, hf_lisp_loc_flags_reach, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lisp_flags_tree, hf_lisp_loc_flags_probe, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lisp_flags_tree, hf_lisp_loc_flags_local, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lisp_flags_tree, hf_lisp_loc_flags_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
+    flags = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    loc_afi  = tvb_get_ntohs(tvb, offset);
+    offset += 2;
 
     locator = get_addr_str(tvb, offset, loc_afi, &addr_len);
 
@@ -767,32 +802,7 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
         return offset;
     }
 
-    tir = proto_tree_add_item(lisp_mapping_tree, hf_lisp_loc, tvb, offset, 8 + addr_len, ENC_NA);
-    lisp_loc_tree = proto_item_add_subtree(tir, ett_lisp_loc);
-
-    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-
-    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-
-    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_mpriority, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(tir, " Multicast Priority: %d", tvb_get_guint8(tvb, 2));
-
-    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_mweight, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(tir, " Multicast Weight: %d", tvb_get_guint8(tvb, 3));
-
-    ti_flags = proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
-    lisp_flags_tree = proto_item_add_subtree(ti_flags, ett_lisp_loc_flags);
-    proto_tree_add_item(lisp_flags_tree, hf_lisp_loc_flags_reach, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lisp_flags_tree, hf_lisp_loc_flags_probe, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lisp_flags_tree, hf_lisp_loc_flags_local, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lisp_flags_tree, hf_lisp_loc_flags_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_afi, tvb, 6, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_string(lisp_loc_tree, hf_lisp_loc_locator, tvb, 8, addr_len, locator);
-    proto_item_append_text(tir, " %s", locator);
+    proto_tree_add_string(lisp_loc_tree, hf_lisp_loc_locator, tvb, offset, addr_len, locator);
 
     if (loc_afi == AFNUM_LCAF) {
         /* Create a sub-tree for the mapping */
@@ -801,6 +811,13 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
     } else {
         offset += addr_len;
     }
+
+    proto_item_append_text(tir, " %s%s, %s, Priority/Weight: %d/%d, Multicast Priority/Weight: %d/%d",
+            locator,
+            (flags&PROBE_BIT_MASK) ? " (probed)" : "",
+            (flags&REACH_BIT_MASK) ? "Reachable" : "Unreachable",
+            prio, weight, m_prio, m_weight);
+    proto_item_set_len(tir, 8 + addr_len);
 
     return offset;
 }
@@ -854,16 +871,6 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
     }
     tir = proto_tree_add_item(lisp_tree, hf_lisp_mapping, tvb, 0, 12 + addr_len, ENC_NA);
 
-/*
-    tir = proto_tree_add_text(lisp_tree, tvb, 0, 12 + addr_len,
-            "EID prefix: %s/%d, TTL: %s, %sAuthoritative, %s%s",
-            prefix, prefix_mask,
-            (ttl == 0xFFFFFFFF) ? "Unlimited" : ep_strdup_printf("%d", ttl),
-            (flags&LISP_MAP_AUTH) ? "" : "Not ",
-            val_to_str(act, (referral) ? referral_actions : mapping_actions, "Invalid action code (%d)"),
-            (referral&&(flags&REFERRAL_INCOMPLETE)) ? " (Incomplete)" : "");
-    offset += addr_len;
-*/
     /* Update the INFO column if there is only one record */
     if (rec_cnt == 1)
         col_append_fstr(pinfo->cinfo, COL_INFO, " for %s/%d",
@@ -927,7 +934,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
 
     /* EID */
     proto_tree_add_string(lisp_mapping_tree, hf_lisp_mapping_eid, tvb, offset, addr_len, prefix);
-    proto_item_append_text(tir, " EID Prefix: %s/%d", prefix, prefix_mask);
+    proto_item_append_text(tir, ", EID Prefix: %s/%d", prefix, prefix_mask);
     offset += addr_len;
 
     /* Locators */
@@ -1166,7 +1173,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
         proto_item *tim;
         proto_tree *lisp_mr_tree;
 
-        tim = proto_tree_add_text(lisp_tree, tvb, offset, -1, "Map-Reply record");
+        tim = proto_tree_add_item(lisp_tree, hf_lisp_mreq_record, tvb, offset, -1, ENC_NA);
         lisp_mr_tree = proto_item_add_subtree(tim, ett_lisp_mr);
 
         rep_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1900,7 +1907,7 @@ proto_register_lisp(void)
             { "Prefix (LCAF)", "lisp.mreq.record.prefix.lcaf",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_mreq_record,
-            { "Record", "lisp.mreq.record",
+            { "Map-Reply record", "lisp.mreq.record",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_mrep_flags_probe,
             { "P bit (Probe)", "lisp.mrep.flags.probe",
