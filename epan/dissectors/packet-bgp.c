@@ -796,11 +796,15 @@ static int hf_bgp_cap_orf_type = -1;
 static int hf_bgp_cap_orf_sendreceive = -1;
 
 /* BGP update global header field */
+static int hf_bgp_update_withdrawn_routes_length = -1;
+static int hf_bgp_update_withdrawn_routes = -1;
 
 static int hf_bgp_update_community_as = -1;
 
 
 /* BGP update path attribute header field */
+static int hf_bgp_update_total_path_attribute_length = -1;
+static int hf_bgp_update_path_attributes = -1;
 
 static int hf_bgp_update_path_attribute = -1;
 static int hf_bgp_update_path_attribute_flags = -1;
@@ -843,6 +847,7 @@ static int hf_bgp_ssa_l2tpv3_session_id = -1;
 static int hf_bgp_ssa_l2tpv3_cookie = -1;
 
 /* BGP NLRI head field */
+static int hf_bgp_update_nlri = -1;
 
 static int hf_bgp_mp_reach_nlri_ipv4_prefix = -1;
 static int hf_bgp_mp_unreach_nlri_ipv4_prefix = -1;
@@ -3092,16 +3097,16 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
     /* check for withdrawals */
     len = tvb_get_ntohs(tvb, o);
-    proto_tree_add_text(tree, tvb, o, 2,
-        "Unfeasible routes length: %u byte%s", len, plurality(len, "", "s"));
+    proto_tree_add_item(tree, hf_bgp_update_withdrawn_routes_length, tvb, o, 2, ENC_BIG_ENDIAN);
     o += 2;
 
     /* parse unfeasible prefixes */
     if (len > 0) {
-        ti = proto_tree_add_text(tree, tvb, o, len, "Withdrawn routes:");
+        ti = proto_tree_add_item(tree, hf_bgp_update_withdrawn_routes, tvb, o, len, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_bgp_unfeas);
         /* parse each prefix */
-                end = o + len;
+        end = o + len;
+
         /* Heuristic to detect if IPv4 prefix are using Path Identifiers */
         if( detect_add_path_prefix4(tvb, o, end) ) {
             /* IPv4 prefixes with Path Id */
@@ -3125,12 +3130,11 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
     /* check for advertisements */
     len = tvb_get_ntohs(tvb, o);
-    proto_tree_add_text(tree, tvb, o, 2, "Total path attribute length: %u byte%s",
-            len, plurality(len, "", "s"));
+    proto_tree_add_item(tree, hf_bgp_update_total_path_attribute_length, tvb, o, 2, ENC_BIG_ENDIAN);
 
     /* path attributes */
     if (len > 0) {
-        ti = proto_tree_add_text(tree, tvb, o + 2, len, "Path attributes");
+        ti =  proto_tree_add_item(tree, hf_bgp_update_path_attributes, tvb, o+2, len, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
         i = 2;
         while (i < len) {
@@ -4056,9 +4060,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
         /* parse prefixes */
         if (len > 0) {
-            ti = proto_tree_add_text(tree, tvb, o, len,
-                   "Network layer reachability information: %u byte%s", len,
-                   plurality(len, "", "s"));
+            ti = proto_tree_add_item(tree, hf_bgp_update_nlri, tvb, o, len, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_bgp_nlri);
             end = o + len;
             /* Heuristic to detect if IPv4 prefix are using Path Identifiers */
@@ -4757,10 +4759,24 @@ proto_register_bgp(void)
         { "Send Receive", "bgp.cap.orf.sendreceive", FT_UINT8, BASE_DEC,
           VALS(orf_send_recv_vals), 0x0, NULL, HFILL }},
       /* BGP update */
+
+      { &hf_bgp_update_withdrawn_routes_length,
+        { "Withdrawn Routes Length", "bgp.update.withdrawn_routes.length", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_withdrawn_routes,
+        { "Withdrawn Routes", "bgp.update.withdrawn_routes.length", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+
       { &hf_bgp_update_path_attribute_aggregator_as,
         { "Aggregator AS", "bgp.update.path_attribute.aggregator_as", FT_UINT16, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
       /* BGP update path attributes */
+      { &hf_bgp_update_path_attributes,
+        { "Path attributes", "bgp.update.path_attributes", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_total_path_attribute_length,
+        { "Total Path Attribute Length", "bgp.update.path_attributes.length", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_path_attribute_aggregator_origin,
         { "Aggregator origin", "bgp.update.path_attribute.aggregator_origin", FT_IPv4, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
@@ -4868,6 +4884,9 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL}},
 
       /* NLRI header description */
+      { &hf_bgp_update_nlri,
+        { "Network Layer Reachability Information (NLRI)", "bgp.update.nlri", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
       /* Global NLRI description */
       { &hf_bgp_mp_reach_nlri_ipv4_prefix,
         { "MP Reach NLRI IPv4 prefix", "bgp.mp_reach_nlri_ipv4_prefix", FT_IPv4, BASE_NONE,
