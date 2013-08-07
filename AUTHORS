@@ -3523,6 +3523,10 @@ Rupesh Patro		<rbpatro[AT]ncsu.edu> {
 	Support for Upstream-Assigned Label TLVs and Sub-TLVs as per RFC 6389
 }
 
+Vaibhav Katkade		<katkade_v[AT]yahoo.com> {
+	Support for Cisco MetaData (CMD) ethertype
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>

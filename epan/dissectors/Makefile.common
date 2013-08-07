@@ -374,6 +374,7 @@ DISSECTOR_SRC = \
 	packet-clique-rm.c	\
 	packet-clnp.c		\
 	packet-cmpp.c		\
+	packet-cmd.c		\
 	packet-cnip.c		\
 	packet-coap.c		\
 	packet-collectd.c	\

@@ -34,7 +34,7 @@
  */
 #define IEEE_802_3_MAX_LEN		1500
 
-/* 
+/*
  * Minimum length of an Ethernet II frame;  Ethernet type/length values
  * greater than or equal to it are types.
  */
@@ -485,6 +485,10 @@
 
 #ifndef ETHERTYPE_FCOE
 #define ETHERTYPE_FCOE			0x8906	/* Fibre Channel over Ethernet */
+#endif
+
+#ifndef ETHERTYPE_CMD
+#define ETHERTYPE_CMD			0x8909	/* Cisco Systems Inc - Cisco MetaData */
 #endif
 
 #ifndef ETHERTYPE_IEEE80211_DATA_ENCAP

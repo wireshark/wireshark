@@ -179,6 +179,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_WAI,                  "WAI Authentication Protocol" },
 	{ ETHERTYPE_HSR,                  "High-availability Seamless Redundancy (IEC62439 Part 3)" },
 	{ ETHERTYPE_BPQ,                  "AX.25"},
+	{ ETHERTYPE_CMD,                  "CiscoMetaData"},
 	{ 0, NULL }
 };
 
