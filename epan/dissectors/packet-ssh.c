@@ -40,6 +40,11 @@
  * RFC 4254: The Secure Shell (SSH) Connection Protocol
  *
  * SSH versions under 2 were never officially standardized.
+ *
+ * Diffie-Hellman Group Exchange is defined in:
+ *
+ * RFC 4419: Diffie-Hellman Group Exchange for
+ *   the Secure Shell (SSH) Transport Layer Protocol
  */
 
 /* "SSH" prefixes are for version 2, whereas "SSH1" is for version 1 */
@@ -80,7 +85,10 @@ struct ssh_peer_data {
 	guint32	frame_key_start;
 	guint32	frame_key_end;
 
-	/* For all proposals, [0] is client-to-server and [1] is server-to-client. */
+	gchar*  kex_proposal;
+
+	/* For all subsequent proposals,
+	   [0] is client-to-server and [1] is server-to-client. */
 #define CLIENT_TO_SERVER_PROPOSAL 0
 #define SERVER_TO_CLIENT_PROPOSAL 1
 
@@ -97,6 +105,9 @@ struct ssh_peer_data {
 
 struct ssh_flow_data {
 	guint	version;
+
+	gchar*  kex;
+	int   (*kex_specific_dissector)(guint8 msg_code, tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 
 	/* [0] is client's, [1] is server's */
 #define CLIENT_PEER_DATA 0
@@ -117,6 +128,8 @@ static int hf_ssh_padding_string= -1;
 static int hf_ssh_mac_string= -1;
 static int hf_ssh_msg_code = -1;
 static int hf_ssh2_msg_code = -1;
+static int hf_ssh2_kex_dh_msg_code = -1;
+static int hf_ssh2_kex_dh_gex_msg_code = -1;
 static int hf_ssh_cookie = -1;
 static int hf_ssh_mpint_g= -1;
 static int hf_ssh_mpint_p= -1;
@@ -180,9 +193,12 @@ static gboolean ssh_desegment = TRUE;
 /* Transport layer: Key exchange method specific (reusable) (30-49) */
 #define SSH_MSG_KEXDH_INIT			30
 #define SSH_MSG_KEXDH_REPLY			31
-#define SSH_MSG_KEX_DH_GEX_INIT		32
-#define SSH_MSG_KEX_DH_GEX_REPLY	33
-#define SSH_MSG_KEX_DH_GEX_REQUEST	34
+
+#define SSH_MSG_KEX_DH_GEX_REQUEST_OLD	30
+#define SSH_MSG_KEX_DH_GEX_GROUP		31
+#define SSH_MSG_KEX_DH_GEX_INIT			32
+#define SSH_MSG_KEX_DH_GEX_REPLY		33
+#define SSH_MSG_KEX_DH_GEX_REQUEST		34
 
 /* User authentication protocol: generic (50-59) */
 #define SSH_MSG_USERAUTH_REQUEST	50
@@ -222,11 +238,6 @@ static const value_string ssh2_msg_vals[] = {
 	{ SSH_MSG_SERVICE_ACCEPT, "Service Accept" },
 	{ SSH_MSG_KEXINIT, "Key Exchange Init" },
 	{ SSH_MSG_NEWKEYS, "New Keys" },
-	{ SSH_MSG_KEXDH_INIT, "Diffie-Hellman Key Exchange Init" },
-	{ SSH_MSG_KEXDH_REPLY, "Diffie-Hellman Key Exchange Reply" },
-	{ SSH_MSG_KEX_DH_GEX_INIT, "Diffie-Hellman GEX Init" },
-	{ SSH_MSG_KEX_DH_GEX_REPLY, "Diffie-Hellman GEX Reply" },
-	{ SSH_MSG_KEX_DH_GEX_REQUEST, "Diffie-Hellman GEX Request" },
 	{ SSH_MSG_USERAUTH_REQUEST, "User Authentication Request" },
 	{ SSH_MSG_USERAUTH_FAILURE, "User Authentication Failure" },
 	{ SSH_MSG_USERAUTH_SUCCESS, "User Authentication Success" },
@@ -245,6 +256,21 @@ static const value_string ssh2_msg_vals[] = {
 	{ SSH_MSG_CHANNEL_REQUEST, "Channel Request" },
 	{ SSH_MSG_CHANNEL_SUCCESS, "Channel Success" },
 	{ SSH_MSG_CHANNEL_FAILURE, "Channel Failure" },
+	{ 0, NULL }
+};
+
+static const value_string ssh2_kex_dh_msg_vals[] = {
+	{ SSH_MSG_KEXDH_INIT, "Diffie-Hellman Key Exchange Init" },
+	{ SSH_MSG_KEXDH_REPLY, "Diffie-Hellman Key Exchange Reply" },
+	{ 0, NULL }
+};
+
+static const value_string ssh2_kex_dh_gex_msg_vals[] = {
+	{ SSH_MSG_KEX_DH_GEX_REQUEST_OLD, "Diffie-Hellman Group Exchange Request (Old)" },
+	{ SSH_MSG_KEX_DH_GEX_GROUP, "Diffie-Hellman Group Exchange Group" },
+	{ SSH_MSG_KEX_DH_GEX_INIT, "Diffie-Hellman Group Exchange Init" },
+	{ SSH_MSG_KEX_DH_GEX_REPLY, "Diffie-Hellman Group Exchange Reply" },
+	{ SSH_MSG_KEX_DH_GEX_REQUEST, "Diffie-Hellman Group Exchange Request" },
 	{ 0, NULL }
 };
 
@@ -274,6 +300,10 @@ static int ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
 		int offset, proto_tree *tree, int is_response,
 		gboolean *need_desegmentation);
+static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
+		packet_info *pinfo, int offset, proto_tree *tree);
+static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
+		packet_info *pinfo, int offset, proto_tree *tree);
 static int ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
 		int offset, proto_tree *tree, int is_response, guint *version,
@@ -285,6 +315,7 @@ static proto_item *ssh_proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff
 		gint start, gint length, guint encoding);
 static void ssh_choose_algo(gchar *client, gchar *server, gchar **result);
 static void ssh_set_mac_length(struct ssh_peer_data *peer_data);
+static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data);
 
 
 static void
@@ -309,6 +340,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!global_data) {
 		global_data = (struct ssh_flow_data *)se_alloc0(sizeof(struct ssh_flow_data));
 		global_data->version=SSH_VERSION_UNKNOWN;
+		global_data->kex_specific_dissector=ssh_dissect_kex_dh;
 		global_data->peer_data[CLIENT_PEER_DATA].mac_length=-1;
 		global_data->peer_data[SERVER_PEER_DATA].mac_length=-1;
 
@@ -669,64 +701,41 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* msg_code */
 	msg_code = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(key_ex_tree, hf_ssh2_msg_code, tvb, offset, 1, ENC_NA);
 
-	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-		val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
-	offset += 1;
+	if (msg_code >= 30 && msg_code < 40) {
+		offset = global_data->kex_specific_dissector(msg_code, tvb, pinfo, offset, key_ex_tree);
+	} else {
+		proto_tree_add_item(key_ex_tree, hf_ssh2_msg_code, tvb, offset, 1, ENC_NA);
+		offset += 1;
 
-	/* 16 bytes cookie  */
-	switch(msg_code)
-	{
-	case SSH_MSG_KEXINIT:
-		if ((peer_data->frame_key_start == 0) || (peer_data->frame_key_start == pinfo->fd->num)) {
-			offset = ssh_dissect_key_init(tvb, offset, key_ex_tree, is_response, global_data);
-			peer_data->frame_key_start = pinfo->fd->num;
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+			val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
+
+		/* 16 bytes cookie  */
+		switch(msg_code)
+		{
+		case SSH_MSG_KEXINIT:
+			if ((peer_data->frame_key_start == 0) || (peer_data->frame_key_start == pinfo->fd->num)) {
+				offset = ssh_dissect_key_init(tvb, offset, key_ex_tree, is_response, global_data);
+				peer_data->frame_key_start = pinfo->fd->num;
+			}
+			break;
+		case SSH_MSG_NEWKEYS:
+			if (peer_data->frame_key_end == 0) {
+				peer_data->frame_key_end = pinfo->fd->num;
+				ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].mac_proposals[is_response],
+								global_data->peer_data[SERVER_PEER_DATA].mac_proposals[is_response],
+								&peer_data->mac);
+				ssh_set_mac_length(peer_data);
+				ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].enc_proposals[is_response],
+								global_data->peer_data[SERVER_PEER_DATA].enc_proposals[is_response],
+								&peer_data->enc);
+				ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].comp_proposals[is_response],
+								global_data->peer_data[SERVER_PEER_DATA].comp_proposals[is_response],
+								&peer_data->comp);
+			}
+			break;
 		}
-		break;
-	case SSH_MSG_NEWKEYS:
-		if (peer_data->frame_key_end == 0) {
-			peer_data->frame_key_end = pinfo->fd->num;
-			ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].mac_proposals[is_response],
-				            global_data->peer_data[SERVER_PEER_DATA].mac_proposals[is_response],
-							&peer_data->mac);
-			ssh_set_mac_length(peer_data);
-			ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].enc_proposals[is_response],
-				            global_data->peer_data[SERVER_PEER_DATA].enc_proposals[is_response],
-							&peer_data->enc);
-			ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].comp_proposals[is_response],
-				            global_data->peer_data[SERVER_PEER_DATA].comp_proposals[is_response],
-							&peer_data->comp);
-		}
-		break;
-	/* DH GEX Request (min/nbits/max) */
-	case SSH_MSG_KEX_DH_GEX_REQUEST:
-		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_min,
-			tvb, offset, 4, ENC_NA);
-		offset+=4;
-		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_nbits,
-			tvb, offset, 4, ENC_NA);
-		offset+=4;
-		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_max,
-			tvb, offset, 4, ENC_NA);
-		offset+=4;
-		break;
-	/* DH Key Exchange Reply (g/p) */
-	case SSH_MSG_KEXDH_REPLY:
-		offset+=ssh_tree_add_mpint(tvb, offset, key_ex_tree, hf_ssh_mpint_p);
-		offset+=ssh_tree_add_mpint(tvb, offset, key_ex_tree, hf_ssh_mpint_g);
-		break;
-
-	/* DH GEX Init (e) */
-	case SSH_MSG_KEX_DH_GEX_INIT:
-		offset+=ssh_tree_add_mpint(tvb, offset, key_ex_tree, hf_ssh_mpint_e);
-		break;
-	/* DH GEX Reply (f) */
-	case SSH_MSG_KEX_DH_GEX_REPLY:
-		offset+=ssh_tree_add_string(tvb, offset, key_ex_tree, hf_ssh_kexdh_host_key, hf_ssh_kexdh_host_key_length);
-		offset+=ssh_tree_add_mpint(tvb, offset, key_ex_tree, hf_ssh_mpint_f);
-		offset+=ssh_tree_add_string(tvb, offset, key_ex_tree, hf_ssh_kexdh_h_sig, hf_ssh_kexdh_h_sig_length);
-		break;
 	}
 
 	len = plen+4-padding_length-(offset-last_offset);
@@ -739,6 +748,74 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 
 	return offset;
 }
+
+static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
+		packet_info *pinfo, int offset, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ssh2_kex_dh_msg_code, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+		val_to_str(msg_code, ssh2_kex_dh_msg_vals, "Unknown (%u)"));
+
+	switch (msg_code) {
+	case SSH_MSG_KEXDH_INIT:
+		offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_e);
+		break;
+
+	case SSH_MSG_KEXDH_REPLY:
+		offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_host_key, hf_ssh_kexdh_host_key_length);
+		offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_f);
+		offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_h_sig, hf_ssh_kexdh_h_sig_length);
+		break;
+	}
+
+	return offset;
+}
+
+static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
+		packet_info *pinfo, int offset, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ssh2_kex_dh_gex_msg_code, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+		val_to_str(msg_code, ssh2_kex_dh_gex_msg_vals, "Unknown (%u)"));
+
+	switch (msg_code) {
+	case SSH_MSG_KEX_DH_GEX_REQUEST_OLD:
+		ssh_proto_tree_add_item(tree, hf_ssh_dh_gex_nbits, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		break;
+
+	case SSH_MSG_KEX_DH_GEX_GROUP:
+		offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_p);
+		offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_g);
+		break;
+
+	case SSH_MSG_KEX_DH_GEX_INIT:
+		offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_e);
+		break;
+
+	case SSH_MSG_KEX_DH_GEX_REPLY:
+		offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_host_key, hf_ssh_kexdh_host_key_length);
+		offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_mpint_f);
+		offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kexdh_h_sig, hf_ssh_kexdh_h_sig_length);
+		break;
+
+	case SSH_MSG_KEX_DH_GEX_REQUEST:
+		ssh_proto_tree_add_item(tree, hf_ssh_dh_gex_min, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		ssh_proto_tree_add_item(tree, hf_ssh_dh_gex_nbits, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		ssh_proto_tree_add_item(tree, hf_ssh_dh_gex_max, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		break;
+	}
+
+	return offset;
+}
+
 static int
 ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_peer_data *peer_data,
@@ -861,6 +938,19 @@ ssh_set_mac_length(struct ssh_peer_data *peer_data)
 	}
 }
 
+static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data)
+{
+	const char *kex_name = global_data->kex;
+
+	if (!kex_name) return;
+
+	if (strcmp(kex_name, "diffie-hellman-group-exchange-sha1") == 0 ||
+		strcmp(kex_name, "diffie-hellman-group-exchange-sha256") == 0)
+	{
+		global_data->kex_specific_dissector = ssh_dissect_kex_dh_gex;
+	}
+}
+
 static gint
 ssh_gslist_compare_strings(gconstpointer a, gconstpointer b)
 {
@@ -924,7 +1014,8 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 	offset += 16;
 
 	offset = ssh_dissect_proposal(tvb, offset, key_init_tree,
-		hf_ssh_kex_algorithms_length, hf_ssh_kex_algorithms, NULL);
+		hf_ssh_kex_algorithms_length, hf_ssh_kex_algorithms,
+		&peer_data->kex_proposal);
 	offset = ssh_dissect_proposal(tvb, offset, key_init_tree,
 		hf_ssh_server_host_key_algorithms_length,
 		hf_ssh_server_host_key_algorithms, NULL);
@@ -966,6 +1057,18 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 	ssh_proto_tree_add_item(key_init_tree, hf_ssh_kex_reserved,
 		tvb, offset, 4, ENC_NA);
 	offset+=4;
+
+	if (global_data->peer_data[CLIENT_PEER_DATA].kex_proposal &&
+		global_data->peer_data[SERVER_PEER_DATA].kex_proposal &&
+		!global_data->kex)
+	{
+		/* Note: we're ignoring first_kex_packet_follows. */
+		ssh_choose_algo(
+			global_data->peer_data[CLIENT_PEER_DATA].kex_proposal,
+			global_data->peer_data[SERVER_PEER_DATA].kex_proposal,
+			&global_data->kex);
+		ssh_set_kex_specific_dissector(global_data);
+	}
 
 	if (tf != NULL) {
 		proto_item_set_len(tf, offset-start_offset);
@@ -1023,6 +1126,16 @@ proto_register_ssh(void)
 		{ &hf_ssh2_msg_code,
 		  { "Message Code",  "ssh.message_code",
 		    FT_UINT8, BASE_DEC, VALS(ssh2_msg_vals), 0x0,
+		    "SSH Message Code", HFILL }},
+
+		{ &hf_ssh2_kex_dh_msg_code,
+		  { "Message Code",  "ssh.message_code",
+		    FT_UINT8, BASE_DEC, VALS(ssh2_kex_dh_msg_vals), 0x0,
+		    "SSH Message Code", HFILL }},
+
+		{ &hf_ssh2_kex_dh_gex_msg_code,
+		  { "Message Code",  "ssh.message_code",
+		    FT_UINT8, BASE_DEC, VALS(ssh2_kex_dh_gex_msg_vals), 0x0,
 		    "SSH Message Code", HFILL }},
 
 		{ &hf_ssh_mpint_g,
@@ -1097,17 +1210,17 @@ proto_register_ssh(void)
 
 		{ &hf_ssh_dh_gex_min,
 		  { "DH GEX Min",  "ssh.dh_gex.min",
-		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "SSH DH GEX Minimum", HFILL }},
 
 		{ &hf_ssh_dh_gex_nbits,
 		  { "DH GEX Numbers of Bits",  "ssh.dh_gex.nbits",
-		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "SSH DH GEX Number of Bits", HFILL }},
 
 		{ &hf_ssh_dh_gex_max,
 		  { "DH GEX Max",  "ssh.dh_gex.max",
-		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "SSH DH GEX Maximum", HFILL }},
 
 		{ &hf_ssh_payload,
