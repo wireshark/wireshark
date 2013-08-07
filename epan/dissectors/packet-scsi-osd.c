@@ -179,9 +179,9 @@ typedef struct _scsi_osd_conv_info_t {
 /* there will be one such structure created for each lun for each conversation
  * that is handled by the OSD dissector
  */
-typedef struct _scsi_osd_lun_info_t {
+struct _scsi_osd_lun_info_t {
     emem_tree_t *partitions;
-} scsi_osd_lun_info_t;
+};
 
 typedef void (*scsi_osd_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, guint offset,
@@ -230,19 +230,6 @@ dissect_osd_user_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-typedef struct _attribute_page_numbers_t attribute_page_numbers_t;
-typedef void (*attribute_dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                    scsi_osd_lun_info_t *lun_info, const attribute_page_numbers_t *att);
-
-struct _attribute_page_numbers_t {
-    guint32    number;
-    const char    *name;
-    attribute_dissector dissector;
-    int* hf_index;
-    guint expected_length;
-};
-
-
 /*dissects an attribute that is defined as a pair of hf_index,length*/
 static void
 generic_attribute_dissector(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -287,7 +274,7 @@ static const attribute_pages_t attribute_pages[] = {
     {0,NULL}
 };
 
-static const value_string attributes_page_vals[] = {
+const value_string attributes_page_vals[] = {
     {PAGE_NUMBER_OBJECT+0, "User Object Directory"},
     {PAGE_NUMBER_OBJECT+1, "User Object Information"},
     {PAGE_NUMBER_OBJECT+2, "User Object Quotas"},
@@ -373,7 +360,8 @@ dissect_osd2_list_attr(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-/* used by dissect_osd_attributes_list and dissect_osd2_attribute_list_entry*/
+/* used by dissect_osd_attributes_list, dissect_osd2_attribute_list_entry
+and dissect_scsi_descriptor_snsinfo from packet-scsi.c*/
 const attribute_page_numbers_t *
 osd_lookup_attribute(guint32 page, guint32 number)
 {

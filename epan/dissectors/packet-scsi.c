@@ -210,6 +210,8 @@ static int hf_scsi_sns_osd_object_ga_cap_v      = -1;
 static int hf_scsi_sns_osd_object_get_att       = -1;
 static int hf_scsi_sns_osd_partition_id         = -1;
 static int hf_scsi_sns_osd_object_id            = -1;
+static int hf_scsi_sns_osd_attr_page            = -1;
+static int hf_scsi_sns_osd_attr_number          = -1;
 static int hf_scsi_inq_reladrflags              = -1;
 static int hf_scsi_inq_reladr                   = -1;
 static int hf_scsi_inq_linked                   = -1;
@@ -4819,12 +4821,13 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
     end = offset+7+additional_length;
     offset+=8;
     while (offset<end-2) {
-       guint8      desc_type, desc_length;
+       guint8      desc_type, desc_length, desc_end;
        proto_item *item;
        proto_tree *desc_tree;
 
        desc_type   = tvb_get_guint8(tvb, offset);
        desc_length = tvb_get_guint8(tvb, offset+1);
+       desc_end    = offset+desc_length+2;
        item = proto_tree_add_text(sns_tree, tvb, offset, desc_length+2, "%s",
                   val_to_str(desc_type, scsi_sense_desc_type_val, "Unknown (0x%02x)"));
        desc_tree = proto_item_add_subtree(item, ett_sense_descriptor);
@@ -4857,6 +4860,25 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
                  proto_tree_add_item(desc_tree, hf_scsi_sns_osd_object_id, tvb, offset+24, 8, ENC_BIG_ENDIAN);
              }
              break;
+          case 8:
+            /*OSD attribute identification*/
+            offset+=4;
+            while (offset+8<=desc_end) {
+                const attribute_page_numbers_t *apn;
+                guint32 page,number;
+                page=tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item(desc_tree, hf_scsi_sns_osd_attr_page,   tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset+=4;
+                number=tvb_get_ntohl(tvb, offset);
+                item=proto_tree_add_item(desc_tree, hf_scsi_sns_osd_attr_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+                apn=osd_lookup_attribute(page,number);
+                offset+=4;
+                if (apn) {
+                    proto_item_append_text(item, " (%s)", apn->name);
+                } else {
+                    proto_item_append_text(item, " (Unknown)");
+                }
+            }
           default:
              break;
        }
@@ -4864,7 +4886,7 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
     }
 }
 
-static void
+void
 dissect_scsi_sense(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 {
     guint8 sense_type;
@@ -6099,6 +6121,10 @@ proto_register_scsi(void)
             {"Partition ID", "scsi.sns.desc.osd_object.partition_id", FT_UINT64, BASE_HEX,  NULL, 0, NULL, HFILL}},
         { &hf_scsi_sns_osd_object_id,
             {"Object ID", "scsi.sns.desc.osd_object.object_id",  FT_UINT64, BASE_HEX,  NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sns_osd_attr_page,
+            {"Attribute page", "scsi.sns.desc.osd_attr.page",      FT_UINT32, BASE_HEX,  VALS(attributes_page_vals), 0, NULL, HFILL}},
+        { &hf_scsi_sns_osd_attr_number,
+            {"Attribute number", "scsi.sns.desc.osd_attr.number",  FT_UINT32, BASE_HEX,  NULL, 0, NULL, HFILL}},
         { &hf_scsi_persresv_key,
             {"Reservation Key", "scsi.spc.resv.key", FT_BYTES, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
