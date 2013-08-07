@@ -753,8 +753,6 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
     guint16      addr_len = 0;
     guint8       prio;
     guint8       weight;
-    guint8       m_prio;
-    guint8       m_weight;
     guint16      flags;
     guint16      loc_afi;
     const gchar *locator;
@@ -772,13 +770,6 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
                 "Unexpected locator AFI (%d), cannot decode", loc_afi);
         return offset;
     }
-
-    tir = proto_tree_add_text(lisp_mapping_tree, tvb, 0, 8 + addr_len,
-            "%s%s, %s, Priority/Weight: %d/%d, Multicast Priority/Weight: %d/%d",
-            locator,
-            (flags&PROBE_BIT_MASK) ? " (probed)" : "",
-            (flags&REACH_BIT_MASK) ? "Reachable" : "Unreachable",
-            prio, weight, m_prio, m_weight);
 
     tir = proto_tree_add_item(lisp_mapping_tree, hf_lisp_loc, tvb, offset, 8 + addr_len, ENC_NA);
     lisp_loc_tree = proto_item_add_subtree(tir, ett_lisp_loc);
