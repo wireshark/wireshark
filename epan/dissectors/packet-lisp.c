@@ -751,16 +751,12 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
 {
     gint         offset   = 0;
     guint16      addr_len = 0;
-    guint8       prio;
-    guint8       weight;
-    guint16      flags;
     guint16      loc_afi;
     const gchar *locator;
     proto_item  *tir, *ti_flags;
     proto_tree  *lisp_elp_tree, *lisp_loc_tree, *lisp_flags_tree;
 
 
-    flags    = tvb_get_ntohs(tvb, offset);  offset += 2;
     loc_afi  = tvb_get_ntohs(tvb, offset);  offset += 2;
 
     locator = get_addr_str(tvb, offset, loc_afi, &addr_len);
@@ -775,11 +771,9 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
     lisp_loc_tree = proto_item_add_subtree(tir, ett_lisp_loc);
 
     proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
-    prio = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
-    weight = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     proto_tree_add_item(lisp_loc_tree, hf_lisp_loc_mpriority, tvb, offset, 1, ENC_BIG_ENDIAN);
