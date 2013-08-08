@@ -269,10 +269,6 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\catalog.xml"
-			>
-		</File>
-		<File
 			RelativePath=".\check_svn_version.sh"
 			>
 		</File>
