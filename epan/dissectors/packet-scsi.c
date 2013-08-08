@@ -3953,7 +3953,7 @@ dissect_spc_modeselect6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8    flags;
     guint     plen;
-    gint      tot_len, desclen;
+    gint      desclen;
     tvbuff_t *blockdesc_tvb;
 
     if (!tree)
@@ -3980,7 +3980,6 @@ dissect_spc_modeselect6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         if (payload_len < 1)
             return;
-        tot_len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_scsi_modesel_mode_data_length8, tvb, offset, 1, ENC_NA);
         offset += 1;
         payload_len -= 1;
@@ -4038,7 +4037,7 @@ dissect_spc_modeselect10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8    flags;
     gboolean  longlba;
-    gint      tot_len, desclen;
+    gint      desclen;
     guint     plen;
     tvbuff_t *blockdesc_tvb;
 
@@ -4066,7 +4065,6 @@ dissect_spc_modeselect10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         if (payload_len < 1)
             return;
-        tot_len = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(tree, hf_scsi_modesel_mode_data_length16, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         payload_len -= 2;
