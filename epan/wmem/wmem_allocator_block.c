@@ -175,8 +175,8 @@ typedef struct _wmem_block_chunk_t {
 #define WMEM_CHUNK_HEADER_SIZE WMEM_ALIGN_SIZE(sizeof(wmem_block_chunk_t))
 
 /* other handy chunk macros */
-#define WMEM_CHUNK_TO_DATA(CHUNK) ((void*)((CHUNK) + 1))
-#define WMEM_DATA_TO_CHUNK(DATA) (((wmem_block_chunk_t*)(DATA)) - 1)
+#define WMEM_CHUNK_TO_DATA(CHUNK) ((void*)((guint8*)(CHUNK) + WMEM_CHUNK_HEADER_SIZE))
+#define WMEM_DATA_TO_CHUNK(DATA) ((wmem_block_chunk_t*)((guint8*)(DATA) - WMEM_CHUNK_HEADER_SIZE))
 #define WMEM_CHUNK_DATA_LEN(CHUNK) ((CHUNK)->len - WMEM_CHUNK_HEADER_SIZE)
 
 /* This is what the 'data' section of a chunk contains if it is free. */
