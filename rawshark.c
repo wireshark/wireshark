@@ -204,7 +204,7 @@ print_usage(gboolean print_ver)
 
     fprintf(output, "\n");
     fprintf(output, "Processing:\n");
-    fprintf(output, "  -d <encap:dlt>|<proto:protoname>\n");
+    fprintf(output, "  -d <encap:linktype>|<proto:protoname>\n");
     fprintf(output, "                           packet encapsulation or protocol\n");
     fprintf(output, "  -F <field>               field to display\n");
     fprintf(output, "  -n                       disable all name resolution (def: all enabled)\n");
@@ -356,9 +356,10 @@ raw_pipe_open(const char *pipe_name)
 }
 
 /**
- * Parse a link-type argument of the form "encap:<pcap dlt>" or
- * "proto:<proto name>".  "Pcap dlt" must be a name conforming to
- * pcap_datalink_name_to_val() or an integer.  "Proto name" must be
+ * Parse a link-type argument of the form "encap:<pcap linktype>" or
+ * "proto:<proto name>".  "Pcap linktype" must be a name conforming to
+ * pcap_datalink_name_to_val() or an integer; the integer should be
+ * a LINKTYPE_ value supported by Wiretap.  "Proto name" must be
  * a protocol name, e.g. "http".
  */
 static gboolean
@@ -385,6 +386,16 @@ set_link_type(const char *lt_arg) {
             }
             dlt_val = (int)val;
         }
+        /*
+         * In those cases where a given link-layer header type
+         * has different LINKTYPE_ and DLT_ values, linktype_name_to_val()
+         * will return the OS's DLT_ value for that link-layer header
+         * type, not its OS-independent LINKTYPE_ value.
+         *
+         * On a given OS, wtap_pcap_encap_to_wtap_encap() should
+         * be able to map either LINKTYPE_ values or DLT_ values
+         * for the OS to the appropriate Wiretap encapsulation.
+         */
         encap = wtap_pcap_encap_to_wtap_encap(dlt_val);
         if (encap == WTAP_ENCAP_UNKNOWN) {
             return FALSE;

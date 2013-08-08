@@ -6,7 +6,7 @@ rawshark - Dump and analyze raw pcap data
 =head1 SYNOPSIS
 
 B<rawshark>
-S<[ B<-d> E<lt>encap:dltE<gt>|E<lt>proto:protonameE<gt> ]>
+S<[ B<-d> E<lt>encap:linktypeE<gt>|E<lt>proto:protonameE<gt> ]>
 S<[ B<-F> E<lt>field to displayE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-l> ]>
@@ -111,7 +111,8 @@ A complete list of DLTs can be found at
 L<http://www.tcpdump.org/linktypes.html>.
 
 B<encap>:I<number> Packet data should be dissected using the
-libpcap/WinPcap DLT I<number>, e.g. B<encap:105> for raw IEEE 802.11. 
+libpcap/WinPcap LINKTYPE_ I<number>, e.g. B<encap:105> for raw IEEE
+802.11 or B<encap:101> for raw IP.
 
 B<proto>:I<protocol> Packet data should be passed to the specified Wireshark
 protocol dissector, e.g. B<proto:http> for HTTP data.
