@@ -49,7 +49,8 @@
  * they introduced a separate namespace of LINKTYPE_ values for the
  * values to be used in capture files, and have libpcap map between
  * those values in capture file headers and the DLT_ values that the
- * pcap_datalink() and pcap_open_dead() APIs use.
+ * pcap_datalink() and pcap_open_dead() APIs use.  See
+ * http://www.tcpdump.org/linktypes.html for a list of LINKTYPE_ values.
  *
  * In most cases, the corresponding LINKTYPE_ and DLT_ values are the
  * same.  In the cases where the same link-layer header type was given
