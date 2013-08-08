@@ -1763,7 +1763,9 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve) {
   if( tp == NULL ) {
     tp = eth_hash_new_entry(addr, resolve);
   } else {
-    eth_addr_resolve(tp); /* Found but needs to be resolved */
+    if (resolve && (tp->status == HASHETHER_STATUS_UNRESOLVED)){
+      eth_addr_resolve(tp); /* Found but needs to be resolved */
+    }
   }
 
   return tp;
