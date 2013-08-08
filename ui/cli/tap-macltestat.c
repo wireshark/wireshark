@@ -108,10 +108,12 @@ typedef struct mac_lte_ep {
 /* Common channel stats */
 typedef struct mac_lte_common_stats {
     guint32 all_frames;
-    guint32 bch_frames;
-    guint32 bch_bytes;
+    guint32 mib_frames;
+    guint32 sib_frames;
+    guint32 sib_bytes;
     guint32 pch_frames;
     guint32 pch_bytes;
+    guint32 pch_paging_ids;
     guint32 rar_frames;
     guint32 rar_entries;
 
@@ -239,11 +241,13 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         case P_RNTI:
             hs->common_stats.pch_frames++;
             hs->common_stats.pch_bytes += si->single_number_of_bytes;
+            hs->common_stats.pch_paging_ids += si->number_of_paging_ids;
             return 1;
         case SI_RNTI:
+            hs->common_stats.sib_frames++;
+            hs->common_stats.sib_bytes += si->single_number_of_bytes;        	
         case NO_RNTI:
-            hs->common_stats.bch_frames++;
-            hs->common_stats.bch_bytes += si->single_number_of_bytes;
+            hs->common_stats.mib_frames++;
             return 1;
         case RA_RNTI:
             hs->common_stats.rar_frames++;
@@ -443,10 +447,12 @@ mac_lte_stat_draw(void *phs)
     /* Common channel data */
     printf("Common channel data:\n");
     printf("====================\n");
-    printf("BCH Frames: %u    ", hs->common_stats.bch_frames);
-    printf("BCH Bytes: %u    ", hs->common_stats.bch_bytes);
+    printf("MIBs: %u    ", hs->common_stats.mib_frames);
+    printf("SIB Frames: %u    ", hs->common_stats.sib_frames);
+    printf("SIB Bytes: %u    ", hs->common_stats.sib_bytes);
     printf("PCH Frames: %u    ", hs->common_stats.pch_frames);
     printf("PCH Bytes: %u    ", hs->common_stats.pch_bytes);
+    printf("PCH Paging IDs: %u    ", hs->common_stats.pch_paging_ids);
     printf("RAR Frames: %u    ", hs->common_stats.rar_frames);
     printf("RAR Entries: %u\n\n", hs->common_stats.rar_entries);
 
