@@ -365,6 +365,7 @@ DISSECTOR_SRC = \
 	packet-cipmotion.c	\
 	packet-cipsafety.c	\
 	packet-cisco-erspan.c	\
+	packet-cisco-metadata.c	\
 	packet-cisco-oui.c	\
 	packet-cisco-sm.c	\
 	packet-cisco-wids.c	\
@@ -374,7 +375,6 @@ DISSECTOR_SRC = \
 	packet-clique-rm.c	\
 	packet-clnp.c		\
 	packet-cmpp.c		\
-	packet-cmd.c		\
 	packet-cnip.c		\
 	packet-coap.c		\
 	packet-collectd.c	\

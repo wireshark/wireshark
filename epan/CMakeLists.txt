@@ -432,6 +432,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-cipmotion.c
 	dissectors/packet-cipsafety.c
 	dissectors/packet-cisco-erspan.c
+	dissectors/packet-cisco-metadata.c
 	dissectors/packet-cisco-oui.c
 	dissectors/packet-cisco-sm.c
 	dissectors/packet-cisco-wids.c
