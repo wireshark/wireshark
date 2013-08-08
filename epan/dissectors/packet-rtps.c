@@ -2074,6 +2074,11 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
         dim_max = NEXT_guint32(tvb, offset, little_endian);
         offset += 4;
 
+        if (dim_max > MAX_ARRAY_DIMENSION) {
+            /* We don't have a tree item to add expert info to... */
+            dim_max = MAX_ARRAY_DIMENSION;
+        }
+
         for (i = 0; i < MAX_ARRAY_DIMENSION; ++i) size[i] = 0;
         for (i = 0; i < dim_max; ++i) {
           size[i] = NEXT_guint32(tvb, offset, little_endian);
