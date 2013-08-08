@@ -5253,7 +5253,7 @@ dissect_rsvp_lsp_attributes(proto_tree *ti, proto_tree *rsvp_object_tree,
             tlv_type = tvb_get_ntohs(tvb, offset+tlv_off);
             tlv_len = tvb_get_ntohs(tvb, offset+tlv_off+2);
 
-            if ((tlv_len == 0) || (tlv_off+tlv_len > (obj_length-4))) {
+            if ((tlv_len == 0) || (tlv_off+tlv_len > obj_length)) {
                 proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off+2, 2,
                                     "Invalid length");
                 return;
