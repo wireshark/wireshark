@@ -636,7 +636,6 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 
 	case WTAP_ENCAP_FDDI:
 	case WTAP_ENCAP_FDDI_BITSWAPPED:
-	case WTAP_ENCAP_NETTL_FDDI:
 		/*
 		 * Special-case WTAP_ENCAP_FDDI and
 		 * WTAP_ENCAP_FDDI_BITSWAPPED; both of them get mapped
@@ -644,12 +643,25 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 		 * order in the FDDI MAC addresses is wrong; so it goes
 		 * - libpcap format doesn't record the byte order,
 		 * so that's not fixable).
+		 *
+		 * The pcap_to_wtap_map[] table will only have an
+		 * entry for one of the above, which is why we have
+		 * to special-case them.
+		 */
+		return 10;	/* that's DLT_FDDI */
+
+	case WTAP_ENCAP_NETTL_FDDI:
+		/*
+		 * This will discard the nettl information, as that's
+		 * in the pseudo-header.
+		 *
+		 * XXX - what about Ethernet and Token Ring?
 		 */
 		return 10;	/* that's DLT_FDDI */
 
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:
 		/*
-		 * Do the same with Frame Relay.
+		 * This will discard the pseudo-header information.
 		 */
 		return 107;
 
@@ -657,21 +669,9 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 		/*
 		 * Map this to DLT_IEEE802_11, for now, even though
 		 * that means the radio information will be lost.
-		 * Once tcpdump support for the BSD radiotap header
-		 * is sufficiently widespread, we should probably
-		 * use that, instead - although we should probably
-		 * ultimately just have WTAP_ENCAP_IEEE_802_11
-		 * as the only Wiretap encapsulation for 802.11,
-		 * and have the pseudo-header include a radiotap-style
-		 * list of attributes.  If we do that, though, we
-		 * should probably bypass the regular Wiretap code
-		 * when writing out packets during a capture, and just
-		 * do the equivalent of a libpcap write (unfortunately,
-		 * libpcap doesn't have an "open dump by file descriptor"
-		 * function, so we can't just use "pcap_dump()"), so
-		 * that we don't spend cycles mapping from libpcap to
-		 * Wiretap and then back to libpcap.  (There are other
-		 * reasons to do that, e.g. to handle AIX libpcap better.)
+		 * We should try to map those values to radiotap
+		 * values and write this out as a radiotap file,
+		 * if possible.
 		 */
 		return 105;
 	}
