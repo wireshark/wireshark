@@ -6550,7 +6550,8 @@
 	<application id="16777251"	name="3GPP S6a/S6d"		uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516"></application>
 	<application id="16777252"	name="3GPP S13/S13'"		uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516"></application>
 	<application id="16777255"	name="3GPP SLg"			uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
-	<application id="16777265"	name="3GPP SWx"			uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
+  <application id="16777264"	name="3GPP SWm"			uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
+  <application id="16777265"	name="3GPP SWx"			uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
 	<application id="16777266"	name="3GPP Gxx"			uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
 	<application id="16777269"	name="Ericsson HSI"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="16777272"	name="3GPP S6b"			uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
