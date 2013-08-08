@@ -1,0 +1,512 @@
+-- c-basic-offset: 2; tab-width: 2; indent-tabs-mode: t
+-- vi: set shiftwidth=2 tabstop=2 noexpandtab:
+-- :indentSize=2:tabSize=2:noTabs=false:
+
+-- File: atn-ulcs.asn
+-- Sub-Volume IV ASN.1 reference definitions for ICAO Doc. 9705,
+-- Second Edition
+-- Version 1.1, 03 Oct 2001
+
+-- The majority of the ULCS protocol definitions are specified in the ULCS 
+-- Technical Provisions by reference to ISO/IEC Standards and/or ITU-T
+-- Recommendations.  The ASN.1 definitions are reproduced here for ease of 
+-- reference and to allow explanatory annotations to be added. In the case of 
+-- any discrepancy between the definitions here and the corresponding 
+-- definitions defined in or referenced by the ULCS Technical Provisions, 
+-- the latter are assumed to take precedence.
+
+-- The following ASN.1 modules are included here:
+
+-- * General ULCS types.  These are ASN.1 definitions used in the ULCS 
+-- Technical Provisions, though there is no equivalent ASN.1 module 
+-- defined there.  The definitions in this module would generally be 
+-- incorporated into a wider "user" protocol module if using ASN.1 automated 
+-- tools.  They are defined in a separate module here so that their syntax can 
+-- easily be verified by an ASN.1 syntax checker.
+
+-- * Connection-oriented ACSE definitions.  This is equivalent to the "ACSE-1" 
+-- module defined in the connection-oriented ACSE protocol standard.
+
+-- * Information Framework.  This is an extract of relevant definitions from the 
+-- InformationFramework module in the OSI standard "Directory : Models".  The 
+-- types defined in this module are not actively used in the ULCS protocol, but 
+-- they are needed to satisfy IMPORTS statements in the ACSE definitions, and 
+-- to allow certain CHOICE types in the ACSE definitions to be sorted correctly 
+-- into canonical order. 
+
+
+-- Note.- In the following definitions, the ASN.1 comment " X" indicates 
+-- choice elements and optional elements in sequence types that are defined as 
+-- "Excluded" in the ULCS profile.  That is, implementations of ULCS provisions 
+-- are never required to encode values for such elements (though they are 
+-- required to indicate the absence of these elements in all instances, by means 
+-- of bits in the appropriate PER preamble or choice index). 
+
+
+-- General ULCS types
+
+ULCS DEFINITIONS ::= BEGIN
+--  ***************************************************************************
+--  The following ASN.1 definitions are from Doc 9705 Sub-Volume IV,
+--  section 4.3.2.6.2
+--  ***************************************************************************
+
+--Presentation User Data is Fully-encoded-data from
+--ISO/IEC 8823-1:1994/Amd.1:1997 | ITU-T Rec. X.226/Amd. 1
+
+--Fully-encoded-data ::= SEQUENCE SIZE (1, ...) OF PDV-list
+Fully-encoded-data ::= SEQUENCE SIZE (1, ..., 2..MAX) OF PDV-list
+-- contains one or more presentation-data-value-list (PDV-list) values
+-- ATN commentary: The SIZE constraint above differs from the referenced 
+-- standard, which specifies (in 8.2): 
+-- Fully-encoded-data ::= SEQUENCE SIZE (1, ..., 2..MAX) OF PDV-list.
+-- The ULCS provisions specify a simplified, but compatible, efficiency 
+-- constraint as there will never be more than one element in the SEQUENCE OF 
+-- for the foreseeable future.  
+-- This simplifies matters for some compilers.
+
+PDV-list ::= SEQUENCE  {
+		transfer-syntax-name              Transfer-syntax-name OPTIONAL,       -- X
+		presentation-context-identifier   Presentation-context-identifier,
+		presentation-data-values          CHOICE
+		{ single-ASN1-type  [0] ABSTRACT-SYNTAX.&Type
+				(CONSTRAINED BY {
+				-- Type corresponding to presentation context identifier -- }) , -- X
+						octet-aligned  [1] IMPLICIT OCTET STRING,    -- X
+						arbitrary      [2] IMPLICIT BIT STRING }
+		-- contains one or more presentation data values from the same
+		-- presentation context.
+		-- ATN Commentary: only the arbitrary BIT STRING encoding choice is used.
+}
+
+Transfer-syntax-name ::= OBJECT IDENTIFIER -- ATN: not used for ATN Upper Layers
+
+Presentation-context-identifier::= INTEGER  -- ATN: the following values are 
+																						-- ATN-specific
+{		acse-apdu     (1),
+		reserved      (2),
+		user-ase-apdu (3) } (1..127, ... )
+-- ATN commentary: The SIZE constraint above differs from the referenced 
+-- standard, which specifies (in 8.2): 
+-- Presentation-context-identifier::= INTEGER (1..127, ..., 128..MAX ).
+-- The ULCS provisions specify a simplified, but compatible, efficiency 
+-- constraint as there will never be more than 127 presentation contexts in 
+-- ATN for the foreseeable future.  
+-- This simplifies matters for some compilers.  The list of defined values is
+-- shown here for guidance only, and has no effect on the PER encoding.
+
+
+END -- of ULCS definitions
+
+--  Connection-oriented ACSE definitions
+--*************************************************************************
+-- The ACSE abstract syntax from ISO/IEC 8650-1/Amd.1 | ITU-T Rec. X.227/
+-- Amd. 1 is reproduced here for ease of reference.  In case of any discrepancy,
+-- the ISO/IEC standard takes precedence.
+--*************************************************************************
+
+ACSE-1 {joint-iso-itu-t association-control(2) modules(0) apdus(0) version1(1)}
+--  ACSE-1 refers to ACSE version 1 
+DEFINITIONS ::= 
+BEGIN
+		EXPORTS
+			acse-as-id, ACSE-apdu, aCSE-id, Application-context-name, AP-title,
+			AE-qualifier, -- AE-title, (ATN: AE-title is not needed)
+			AP-invocation-identifier,
+			AE-invocation-identifier, Mechanism-name, Authentication-value,
+			ACSE-requirements;
+		IMPORTS    Name, RelativeDistinguishedName
+			FROM InformationFramework
+				{ joint-iso-ccitt ds(5) module(1) informationFramework(1)  2 };
+			-- The data types Name and RelativeDistinguishedName are imported
+			-- from ISO/IEC 9594-2 | ITU-T Rec. X.501.
+			-- ATN Commentary: The relevant InformationFramework extracts are given
+			-- below.
+
+-- *************************************************************************
+--  EXTERNAL
+-- *************************************************************************
+
+-- EXTERNAL is an ASN.1 UNIVERSAL type.  The definition in the PER standard
+-- ISO/IEC 8825-2 | ITU-T Rec. X.691 is assumed for ACSE.
+-- The type is used in ACSE user-information 
+-- fields.  ASN.1 compilers will not in general allow EXTERNAL to be
+-- redefined (therefore 'EXTERNALt'), 
+-- and it is invalid ASN.1 to define a type with tag [UNIVERSAL 8]
+--
+-- Workaround for bug in asn2wrs in the .cnf file
+-- to handle the lack of support for tagged assignments.
+-- remove that workaround once asn2wrs learns how to handle
+-- tagged assignments.
+--
+EXTERNALt ::= [8] IMPLICIT SEQUENCE {
+		direct-reference    OBJECT IDENTIFIER   OPTIONAL,       -- X
+		indirect-reference  INTEGER             OPTIONAL,
+		data-value-descriptor    ObjectDescriptor    OPTIONAL,  -- X
+		encoding       CHOICE {
+				single-ASN1-type    [0] ABSTRACT-SYNTAX.&Type,
+				octet-aligned  [1] IMPLICIT OCTET STRING,            -- X
+				arbitrary [2] IMPLICIT BIT STRING }}
+--   ATN: implementations are advised to use arbitrary (BIT STRING)
+--   encodings only (see Guidance Material section 2.6.5.21).
+--   BIT STRING values are not padded to octet boundaries.
+
+
+-- object identifier assignments
+acse-as-id OBJECT IDENTIFIER ::=
+{joint-iso-itu-t association-control(2) abstract-syntax(1) apdus(0) version1(1)}
+     -- may be used to reference the abstract syntax of the ACSE APDUs 
+aCSE-id OBJECT IDENTIFIER ::= 
+{ joint-iso-itu-t association-control(2) ase-id(3) acse-ase(1) version(1) }
+     --  may be used to identify the Association Control ASE.
+
+-- top level CHOICE
+ACSE-apdu  ::=  CHOICE
+{
+		aarq      AARQ-apdu,     -- ACSE associate request pdu
+		aare      AARE-apdu,     -- ACSE associate response pdu
+		rlrq      RLRQ-apdu,     -- ACSE release request pdu
+		rlre      RLRE-apdu,     -- ACSE release response pdu
+		abrt      ABRT-apdu,     -- ACSE abort pdu
+		...
+}
+
+AARQ-apdu  ::=  [ APPLICATION 0 ]  IMPLICIT SEQUENCE
+{ 	protocol-version									[0]	IMPLICIT BIT STRING { version1 (0) } DEFAULT { version1 }, -- X
+		application-context-name					[1]	Application-context-name,
+		called-AP-title										[2]	AP-title									OPTIONAL, -- X
+		called-AE-qualifier								[3]	AE-qualifier							OPTIONAL, -- X
+		called-AP-invocation-identifier		[4]	AP-invocation-identifier	OPTIONAL, -- X
+		called-AE-invocation-identifier		[5]	AE-invocation-identifier	OPTIONAL, -- X
+		calling-AP-title									[6]	AP-title									OPTIONAL,
+		calling-AE-qualifier							[7]	AE-qualifier							OPTIONAL,
+		calling-AP-invocation-identifier	[8]	AP-invocation-identifier	OPTIONAL, -- X
+		calling-AE-invocation-identifier	[9]	AE-invocation-identifier	OPTIONAL, -- X
+		-- The following field is not present if only the Kernel is used.
+		-- ATN: For Doc 9705 ed 1/ed 2, only the Kernel is required.
+		sender-acse-requirements					[10]	IMPLICIT ACSE-requirements	OPTIONAL,
+		-- The following field is only present if the Authentication functional
+		-- unit is selected.  ATN: not used in Doc 9705 ed 1/ed 2.
+		mechanism-name										[11]	IMPLICIT Mechanism-name   OPTIONAL,
+		-- The following field is only present if the Authentication functional
+		-- unit is selected.  ATN: use is deprecated in Doc 9705 ed 1/ed 2.
+		calling-authentication-value			[12]	EXPLICIT Authentication-value  OPTIONAL,
+		application-context-name-list			[13]	IMPLICIT Application-context-name-list  OPTIONAL, -- X
+		-- The above field is only present if the Application Context Negotiation
+		-- functional unit is selected - never for ATN
+		implementation-information				[29]	IMPLICIT Implementation-data  OPTIONAL, -- X
+		..., ...,            -- ATN: Note use of extension marker pair
+		user-information             [30] IMPLICIT Association-information   OPTIONAL
+}
+
+
+AARE-apdu  ::=  [ APPLICATION 1 ]  IMPLICIT SEQUENCE
+{		protocol-version										[0] 	IMPLICIT BIT STRING{ version1 (0) }
+																											DEFAULT { version1 }, -- X
+		application-context-name						[1] Application-context-name,
+		result															[2]	Associate-result,
+		result-source-diagnostic						[3]	Associate-source-diagnostic,
+		responding-AP-title									[4]	AP-title							OPTIONAL, -- X
+		responding-AE-qualifier							[5]	AE-qualifier					OPTIONAL, -- X
+		responding-AP-invocation-identifier	[6]	AP-invocation-identifier	OPTIONAL, -- X
+		responding-AE-invocation-identifier	[7]	AE-invocation-identifier	OPTIONAL, -- X
+		-- The following field is not present if only the Kernel is used.
+		-- ATN: For Doc 9705 ed 1/ed 2, only the Kernel is required.
+		responder-acse-requirements					[8]	IMPLICIT ACSE-requirements	OPTIONAL,
+		-- The following field is only present if the Authentication functional
+		-- unit is selected.  ATN: not used in Doc 9705 ed 1/ed 2.
+		mechanism-name											[9]	IMPLICIT Mechanism-name	OPTIONAL,
+		-- The following field is only present if the Authentication functional
+		-- unit is selected.  ATN: use is deprecated in Doc 9705 ed 1/ed 2.
+		responding-authentication-value	[10]	EXPLICIT	Authentication-value OPTIONAL,
+		application-context-name-list		[11]	IMPLICIT	Application-context-name-list
+																																			OPTIONAL, -- X
+		--  The above field is only present if the Application Context Negotiation
+		-- functional unit is selected - never for ATN
+		implementation-information		[29]	IMPLICIT	Implementation-data	OPTIONAL, --X
+		..., ...,		-- ATN: Note use of extension marker pair
+		user-information							[30]	IMPLICIT	Association-information	OPTIONAL
+}
+
+
+RLRQ-apdu  ::=  [ APPLICATION 2 ] IMPLICIT SEQUENCE
+{		reason											[0]	IMPLICIT	Release-request-reason	OPTIONAL,
+		..., ...,		-- ATN: Note use of extension marker pair
+		user-information						[30]	IMPLICIT Association-information	OPTIONAL
+}
+
+
+RLRE-apdu  ::=  [ APPLICATION 3 ] IMPLICIT SEQUENCE
+{		reason											[0]	IMPLICIT	Release-response-reason	OPTIONAL,
+		..., ...,	-- ATN: Note use of extension marker pair
+		user-information						[30]	IMPLICIT	Association-information	OPTIONAL
+}
+
+
+ABRT-apdu ::= [ APPLICATION 4 ] IMPLICIT SEQUENCE
+{		abort-source								[0] 	IMPLICIT ABRT-source,
+		abort-diagnostic						[1] 	IMPLICIT ABRT-diagnostic	OPTIONAL,
+		-- The above field is not present if only the Kernel is used.
+		-- ATN: For Doc 9705 ed 1/ed 2, only the Kernel is required.
+		..., ...,			-- ATN: Note use of extension marker pair
+		user-information						[30]	IMPLICIT	Association-information	OPTIONAL
+}
+
+
+ABRT-diagnostic ::= ENUMERATED
+{		no-reason-given	(1),
+		protocol-error	(2),
+		authentication-mechanism-name-not-recognized (3),
+		authentication-mechanism-name-required (4),
+		authentication-failure (5),
+		authentication-required (6),
+		... }
+
+ABRT-source 	::= 	INTEGER	{	acse-service-user (0),	acse-service-provider	(1)}	(0..1, ...)
+
+ACSE-requirements 	::= 	BIT STRING
+{ authentication (0),	application-context-negotiation(1) }
+-- ATN commentary: application-context-negotiation (bit 1) is 
+-- never set for ATN ULCS.  Use of authentication is deprecated
+-- for Doc 9705 ed 1/ed 2.
+
+Application-context-name-list ::= SEQUENCE OF Application-context-name 
+-- ATN Commentary: the above type is not used for ATN ULCS.
+
+Application-context-name ::= OBJECT IDENTIFIER
+
+--  ***************************************************************************
+--  Application-entity title productions follow (not in alphabetical order)
+--  ***************************************************************************
+-- MG: asn2wrs cannot handle untagged CHOICEs within either a SET or a SEQUENCE.
+-- http://wiki.wireshark.org/Asn2wrs_Handmassaging_the_ASN_file
+AP-title ::= CHOICE { -- ATN: See encoding guidance in 2.5.11
+													-- "form2" is encoded as 0 and "form1" as 1
+		ap-title-form2 [0]	IMPLICIT	AP-title-form2,   -- Object Identifier form
+		ap-title-form1 [1]	IMPLICIT 	AP-title-form1,   -- X (Directory name form)
+		... }
+
+AE-qualifier ::= CHOICE {-- ATN: See encoding guidance in 2.5.11
+													-- "form2" is encoded as 0 and "form1" as 1
+		ae-qualifier-form2	[0]  IMPLICIT   AE-qualifier-form2,   -- INTEGER form
+		ae-qualifier-form1  [1]  IMPLICIT   AE-qualifier-form1,   -- X (RDN form)
+		... }
+-- ATN commentary: AE-qualifier is set to "app-type" in Doc 9705 1st and 
+-- 2nd editions.  For forward compatibility, the value should not be 
+-- analysed.
+
+--  When both AP-title and AE-qualifier data values are present in an AARQ or 
+--  AARE APDU, both have the same form to allow the construction of an 
+--  AE-title as discussed in CCITT Rec. X.665 | ISO/IEC 9834-6.
+
+AP-title-form1 ::= Name  -- ATN: Not used for ATN ULCS
+--   The value assigned to AP-title-form1 is The Directory Name of an 
+--   application-process title.
+
+AE-qualifier-form1 ::= RelativeDistinguishedName  -- ATN: Not used for ULCS
+--   The value assigned to AE-qualifier-form1 is the relative distinguished name 
+--   of a particular application-entity of the application-process identified by 
+--   AP-title-form1.
+
+AP-title-form2 ::= OBJECT IDENTIFIER
+
+AE-qualifier-form2 ::= INTEGER
+
+-- ATN commentary: The AE-title productions below are commented out,
+-- as they are not required for ATN ULCS.
+-- AE-title ::= CHOICE {   
+--     ae-title-form1    AE-title-form1, 
+--     ae-title-form2    AE-title-form2,
+--     ... }
+--
+-- As defined in CCITT Rec. X.650 | ISO 7498-3, an application-entity title is 
+-- composed of an application-process title and an application-entity qualifier.  
+-- The ACSE protocol provides for the transfer of an application-entity title 
+-- value by the transfer of its component values.  However, the following data 
+-- type is provided for International Standards that reference a single 
+-- syntactic structure for AE titles.  (Not used for ATN ULCS)
+--
+-- AE-title-form1 ::= Name  
+--    For access to The Directory (ITU-T Rec. X.500-Series | ISO/IEC 9594), an 
+--    AE title has AE-title-form1.
+--    This value can be constructed from AP-title-form1 and AE-qualifier-form1 
+--    values contained in an AARQ or AARE APDU. A discussion of forming an 
+--    AE-title-form1 from AP-title-form1 and AE-qualifier-form1 may be found in 
+--    CCITT Rec. X.665 | ISO/IEC 9834-6.
+--
+-- AE-title-form2 ::= OBJECT IDENTIFIER
+--  A discussion of forming an AE-title-form2 from AP-title-form2 and 
+--  AE-qualifier-form2 may be found in CCITT Rec. X.665 | ISO/IEC 9834-6.
+
+AE-invocation-identifier ::= INTEGER  -- ATN: not used in ULCS
+AP-invocation-identifier ::= INTEGER  -- ATN: not used in ULCS
+--  End of Application-entity title productions
+--  ***************************************************************************
+
+Associate-result  ::= INTEGER
+{		accepted							(0),
+		rejected-permanent		(1),
+		rejected-transient		(2)  } (0..2, ...)
+
+Associate-source-diagnostic  ::=  CHOICE
+{ acse-service-user           [1]  INTEGER
+		{		null  (0),
+				no-reason-given  (1),
+				application-context-name-not-supported  (2),
+				calling-AP-title-not-recognized  (3),
+				calling-AP-invocation-identifier-not-recognized  (4),
+				calling-AE-qualifier-not-recognized  (5),
+				calling-AE-invocation-identifier-not-recognized  (6),
+				called-AP-title-not-recognized  (7),
+				called-AP-invocation-identifier-not-recognized  (8),
+				called-AE-qualifier-not-recognized  (9),
+				called-AE-invocation-identifier-not-recognized  (10),
+				authentication-mechanism-name-not-recognized  (11),
+				authentication-mechanism-name-required  (12),
+				authentication-failure  (13),
+				authentication-required  (14)      }     (0..14 ,  ...),
+				acse-service-provider    [2]    INTEGER
+			{		null  (0),
+					no-reason-given  (1),
+					no-common-acse-version  (2) }    (0..2 , ...)
+}
+
+Association-information ::=  SEQUENCE SIZE (1, ..., 0 | 2..MAX) OF EXTERNALt
+-- ATN: No SIZE extensions are defined, only one EXTERNAL element is present
+
+
+
+Implementation-data ::=  OCTET STRING      -- ATN: Not used for ULCS
+
+Mechanism-name ::= OBJECT IDENTIFIER         -- ATN: Not used for ULCS
+
+MECHANISM-NAME ::=TYPE-IDENTIFIER  -- ATN: Not used for ULCS
+
+ObjectSet MECHANISM-NAME ::= {...}      -- ATN: Not used for ULCS
+
+Release-request-reason  ::= INTEGER {normal (0), urgent (1), user-defined (30)} (0 | 1 | 30, ...)
+
+Release-response-reason  ::= INTEGER {normal (0), not-finished (1), user-defined (30)} (0 | 1 | 30, ...)
+-- ATN commentary: For the above two types, see the encoding guidance in 2.5.10
+-- Values are encoded in 5 bits, not 3 as might be expected.
+
+Authentication-value  ::=   CHOICE      -- ATN: use is deprecated in ed 1/ed 2
+{		charstring   [0]  IMPLICIT OCTET STRING,
+		bitstring    [1]  IMPLICIT BIT STRING,
+		external     [2]  IMPLICIT EXTERNAL,
+		other        [3]  IMPLICIT SEQUENCE {
+--        other-mechanism-name  MECHANISM-NAME.&id ({ObjectSet}),
+					other-mechanism-name  OBJECT IDENTIFIER,
+--        other-mechanism-value  MECHANISM-NAME.&Type ({ObjectSet}{@.other-mechanism-name}) 
+					other-mechanism-value  ANY
+					}     -- X
+}
+-- The abstract syntax of (calling/responding) authentication-value is 
+-- determined by the authentication mechanism used during association 
+-- establishment.  The authentication mechanism is either explicitly
+-- denoted by the &id field (of type OBJECT IDENTIFIER) for a mechanism 
+-- belonging to the class MECHANISM-NAME, or it is known implicitly by
+-- prior agreement between the communicating partners.  If the "other" 
+-- component is chosen, then the "mechanism-name" component is present 
+-- in accordance with ITU-T Rec. X.680|ISO/IEC 8824. If the value 
+-- "mechanism-name" occurs in the AARQ-apdu or the AARE-apdu, then that 
+-- value is the same as the value for "other-mechanism-name"
+END -- of Connection-Oriented ACSE definitions
+
+
+-- *************************************************************************
+-- The following definitions are adapted from the Directory standard 
+-- ISO/IEC 9594-2:1993 | ITU-T Rec. X.501 (1993 E).  In case of any discrepancy,
+-- the ISO/IEC standard takes precedence.
+-- *************************************************************************
+
+InformationFramework {joint-iso-ccitt ds(5) module(1) informationFramework(1) 2}
+DEFINITIONS ::=
+BEGIN
+EXPORTS Name, RelativeDistinguishedName;
+
+Name     ::= CHOICE {rdnSequence  RDNSequence}
+-- only one CHOICE defined
+
+RDNSequence  ::= SEQUENCE OF RelativeDistinguishedName
+
+RelativeDistinguishedName ::= SET SIZE (1 .. MAX) OF AttributeTypeAndValue
+
+AttributeTypeAndValue ::= SEQUENCE {
+-- ATN commentary: The following line has been inserted to allow the Name and 
+-- RelativeDistinguishedName types, as used by ACSE, to be resolved by an 
+-- ASN.1 compiler, without introducing the unnecessary complexity 
+-- Of the ATTRIBUTE information object class, which is used in the
+-- Directory standards.
+      null NULL}
+-- The "real" components of AttributeTypeAndValue follow.  They have been 
+-- commented out here, but could be restored if required, for example, for 
+-- sharing data types with a Directory implementation.  The syntax has been 
+-- verified by the OSS syntax checker.
+--   type      ATTRIBUTE.&id ({SupportedAttributes}),
+--   value     ATTRIBUTE.&Type ({SupportedAttributes} {@type})
+--}
+
+--SupportedAttributes    ATTRIBUTE ::=
+--   {objectClass | aliasedEntryName, ...}
+
+-- ATN Commentary: ATTRIBUTE is an information object class, specified in 
+-- ISO/IEC 9594-2 | ITU-T Rec. X.501, using the notation defined in 
+-- ISO/IEC 8824-2 | ITU-T Rec. X.681.  However, for ULCS implementation, it 
+-- is only necessary to note that the ACSE CHOICE types AP-title, 
+-- AE-qualifier and AE-title are all constrained to be the "form 2" variants,
+-- with types Object Identifier, Integer and Object Identifier, respectively.
+-- It is however necessary to know the syntax of the "form 1" variants (Name,
+-- RelativeDistinguishedName and Name, respectively) so that the CHOICE 
+-- elements can be sorted into canonical order, based on their ASN.1 types, 
+-- for PER encoding (see 2.5.11).
+--
+--ATTRIBUTE    ::= CLASS {
+--   &derivation    ATTRIBUTE OPTIONAL,
+--   &Type                         OPTIONAL,
+--   &equality-match     MATCHING-RULE  OPTIONAL,
+--   &ordering-match     MATCHING-RULE  OPTIONAL,
+--   &substrings-match   MATCHING-RULE  OPTIONAL,
+--   &single-valued BOOLEAN   DEFAULT FALSE,
+--   &collective    BOOLEAN   DEFAULT FALSE,
+--   &no-user-modification    BOOLEAN DEFAULT FALSE,
+--   &usage         AttributeUsage DEFAULT userApplications,
+--   &id            OBJECT IDENTIFIER UNIQUE }
+--
+--MATCHING-RULE     ::= CLASS {
+--   &AssertionType      OPTIONAL,
+--   &id            OBJECT IDENTIFIER UNIQUE }
+
+--objectClass ATTRIBUTE ::= {
+--   &Type          OBJECT IDENTIFIER,
+--   &id            id-at-objectClass
+--}
+--
+--aliasedEntryName ATTRIBUTE ::= {
+--   &Type          OBJECT IDENTIFIER,
+--   &id            id-at-aliasedEntryName
+--}
+--
+--AttributeUsage ::= ENUMERATED {
+--   userApplications (0),
+--   directoryOperation (1),
+--   distributedOperation (2),
+--   dSAOperation (3) }
+--
+--id-at-objectClass           OBJECT IDENTIFIER ::= {id-at 0}
+--id-at-aliasedEntryName OBJECT IDENTIFIER ::= {id-at 1}
+--id-at        OBJECT IDENTIFIER ::= {joint-iso-ccitt ds(5) attributeType(4)}
+
+END -- of Directory Information Framework extracts
+--
+-- Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+--
+-- Local variables:
+-- c-basic-offset: 2
+-- tab-width: 2
+-- indent-tabs-mode: t
+-- End:
+--
+-- vi: set shiftwidth=2 tabstop=2 noexpandtab:
+-- :indentSize=2:tabSize=2:noTabs=false:
+--

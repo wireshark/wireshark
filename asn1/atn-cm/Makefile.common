@@ -1,0 +1,28 @@
+# ASN.1-based plugin atn-cm
+# Contact Management (CM) version 1
+# ICAO doc doc9705 Ed. 2 
+# Aereonautical Telecommunications Network (ATN)
+# 
+# (c) 2013 Mathias Guettler guettler@web.de
+#
+PROTOCOL_NAME = atn-cm
+
+EXT_ASN_FILE_LIST =
+
+ASN_FILE_LIST = $(PROTOCOL_NAME).asn 
+
+EXTRA_DIST = \
+	Makefile.nmake \
+	$(ASN_FILE_LIST) \
+	packet-$(PROTOCOL_NAME)-template.c \
+	$(PROTOCOL_NAME).cnf
+
+SRC_FILES = \
+	$(EXTRA_DIST) \
+	$(EXT_ASN_FILE_LIST)
+
+# ASN1 PER unaligned encoding
+A2W_FLAGS=  -u -L 
+
+EXTRA_CNF=
+

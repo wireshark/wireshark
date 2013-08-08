@@ -1,0 +1,199 @@
+-- c-basic-offset: 2; tab-width: 2; indent-tabs-mode: t
+-- vi: set shiftwidth=2 tabstop=2 noexpandtab:
+-- :indentSize=2:tabSize=2:noTabs=false:
+
+
+-- ICAO doc 9705 Edition 2 Contact Management  (CM)
+CMMessageSetVersion1 DEFINITIONS AUTOMATIC TAGS ::= 
+BEGIN
+
+-- ----------------------------------------------------------------------------------
+-- CM Message Structure
+-- ----------------------------------------------------------------------------------
+--  Aircraft-generated messages
+
+CMAircraftMessage ::= CHOICE
+{
+		cmLogonRequest		[0]	CMLogonRequest,
+		cmContactResponse		[1]	CMContactResponse,
+		cmAbortReason		[2]	CMAbortReason,
+		...
+} 
+
+--  Ground-generated messages
+
+CMGroundMessage ::=  CHOICE
+{
+		cmLogonResponse		[0]	CMLogonResponse,
+		cmUpdate				[1]	CMUpdate,
+		cmContactRequest		[2]	CMContactRequest,
+		cmForwardRequest		[3]	CMForwardRequest,
+		cmAbortReason		[4]	CMAbortReason,
+		cmForwardResponse		[5]	CMForwardResponse,
+		...
+} 
+
+-- ----------------------------------------------------------------------------------
+-- CM Message Components
+-- ----------------------------------------------------------------------------------
+
+AircraftFlightIdentification ::= IA5String(SIZE(2..8))
+Airport ::=IA5String (SIZE(4))
+
+APAddress ::= CHOICE
+{
+		longTsap	[0]	LongTsap,
+		shortTsap	[1]	ShortTsap
+} 
+
+AEQualifier ::= INTEGER (0..255)
+-- ATN AE-Qualifier Numeric Values are described in 4 
+
+AEQualifierVersion ::= SEQUENCE
+{
+		aeQualifier		AEQualifier,
+		apVersion		VersionNumber
+} 
+
+AEQualifierVersionAddress ::= SEQUENCE
+{
+		aeQualifier		AEQualifier,
+		apVersion		VersionNumber,
+		apAddress		APAddress
+} 
+
+CMAbortReason ::= ENUMERATED
+{
+		timer-expired					(0),
+		undefined-error					(1),
+		invalid-PDU					(2),
+		protocol-error					(3),
+		dialogue-acceptance-not-permitted		(4),
+		dialogue-end-not-accepted			(5),
+		communication-service-error			(6),
+		communication-service-failure			(7),
+		invalid-QOS-parameter				(8),
+		expected-PDU-missing				(9),
+		...
+} 
+ 
+CMContactRequest ::= SEQUENCE
+{
+		facilityDesignation		FacilityDesignation,
+		address				LongTsap
+} 
+
+CMContactResponse ::= Response 
+
+
+CMForwardRequest ::= CMLogonRequest 
+
+CMForwardResponse ::= ENUMERATED
+{
+		success						(0),
+		incompatible-version		(1),
+		service-not-supported		(2)
+}
+
+CMLogonRequest ::= SEQUENCE
+{
+		aircraftFlightIdentification	[0]	AircraftFlightIdentification,
+		cMLongTSAP			[1]	LongTsap,
+
+		groundInitiatedApplications	[2]	SEQUENCE SIZE (1..256) OF  AEQualifierVersionAddress OPTIONAL,
+		airOnlyInitiatedApplications	[3]	SEQUENCE SIZE (1..256) OF  AEQualifierVersion OPTIONAL,
+		facilityDesignation		[4]	FacilityDesignation			OPTIONAL,
+		airportDeparture		[5]	Airport				OPTIONAL,
+		airportDestination		[6]	Airport				OPTIONAL,
+		dateTimeDepartureETD		[7]	DateTime				OPTIONAL
+} 
+
+CMLogonResponse ::= SEQUENCE
+{
+		airInitiatedApplications		[0]	SEQUENCE SIZE (1..256) OF  AEQualifierVersionAddress
+		OPTIONAL,
+		groundOnlyInitiatedApplications	[1]	SEQUENCE SIZE (1..256) OF  AEQualifierVersion
+		OPTIONAL
+} 
+
+CMUpdate ::= CMLogonResponse
+
+Date ::= SEQUENCE
+{
+		year		Year,
+		month		Month,
+		day		Day
+}
+
+	-- The Date field does not have to correspond to the flight if the field is not to be used;
+	-- the field's value can be assigned a meaningless, but compliant, value locally.  If operational
+	-- use of the Date field is intended, there must be bilateral agreements in place to ensure its proper
+	-- use.  This is a local implementation issue.	 
+
+DateTime ::= SEQUENCE
+{
+		date		Date,
+		time		Time
+} 
+
+Day ::= INTEGER (1..31)
+	--unit = Day, Range (1..31), resolution = 1
+
+FacilityDesignation ::= IA5String (SIZE(4..8))
+
+LongTsap ::= SEQUENCE
+{
+		rDP			OCTET STRING (SIZE(5)),
+		shortTsap		ShortTsap
+} 
+
+Month ::= INTEGER (1..12)
+	--unit = Month, Range (1..12), resolution = 1
+
+Response ::= ENUMERATED
+{
+		contactSuccess			(0),
+		contactNotSuccessful		(1)
+} 
+
+ShortTsap ::= SEQUENCE
+{
+		aRS		[0]	OCTET STRING (SIZE(3))		OPTIONAL,
+		-- the aRS contains the ICAO 24 bit aircraft address when the ShortTsap belongs to an aircraft;
+		-- or a ground address when the Short Tsap belongs to a ground system
+		locSysNselTsel	[1]	OCTET STRING  (SIZE(10..11))
+} 
+
+Time ::= SEQUENCE
+{
+		hours			Timehours,
+		minutes		Timeminutes
+} 
+
+Timehours ::= INTEGER (0..23) 
+-- units = hour, range (0..23), resolution = 1 hour
+
+Timeminutes ::= INTEGER (0..59) 
+-- units = minute, range (0..59), resolution = 1 minute
+
+VersionNumber ::= INTEGER (1..255) 
+	-- VersionNumber 0 is reserved for the Dialogue Service
+
+Year ::= INTEGER (1996..2095)
+	--unit = Year, Range (1996..2095), resolution = 1
+
+END
+
+--
+-- Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+--
+-- Local variables:
+-- c-basic-offset: 2
+-- tab-width: 2
+-- indent-tabs-mode: t
+-- End:
+--
+-- vi: set shiftwidth=2 tabstop=2 noexpandtab:
+-- :indentSize=2:tabSize=2:noTabs=false:
+--
+
