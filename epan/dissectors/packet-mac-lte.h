@@ -200,6 +200,7 @@ typedef struct mac_lte_tap_info {
     guint32  bytes_for_lcid[11];
     guint32  sdus_for_lcid[11];
     guint8   number_of_rars;
+    guint8   number_of_paging_ids;
 
     /* Number of padding bytes includes padding subheaders and trailing padding */
     guint16  padding_bytes;

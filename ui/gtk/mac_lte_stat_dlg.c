@@ -149,10 +149,12 @@ typedef struct mac_lte_ep {
 /* Common channel stats */
 typedef struct mac_lte_common_stats {
     guint32 all_frames;
-    guint32 bch_frames;
-    guint32 bch_bytes;
+    guint32 mib_frames;
+    guint32 sib_frames;
+    guint32 sib_bytes;
     guint32 pch_frames;
     guint32 pch_bytes;
+    guint32 pch_paging_ids;
     guint32 rar_frames;
     guint32 rar_entries;
 
@@ -188,10 +190,12 @@ typedef struct mac_lte_stat_t {
 
     /* Common stats */
     mac_lte_common_stats common_stats;
-    GtkWidget    *common_bch_frames;
-    GtkWidget    *common_bch_bytes;
+    GtkWidget    *common_mib_frames;
+    GtkWidget    *common_sib_frames;
+    GtkWidget    *common_sib_bytes;
     GtkWidget    *common_pch_frames;
     GtkWidget    *common_pch_bytes;
+    GtkWidget    *common_pch_paging_ids;
     GtkWidget    *common_rar_frames;
     GtkWidget    *common_rar_entries;
 
@@ -355,11 +359,14 @@ static int mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
         case P_RNTI:
             hs->common_stats.pch_frames++;
             hs->common_stats.pch_bytes += si->single_number_of_bytes;
+            hs->common_stats.pch_paging_ids += si->number_of_paging_ids;
             return 1;
         case SI_RNTI:
+            hs->common_stats.sib_frames++;
+            hs->common_stats.sib_bytes += si->single_number_of_bytes;
+            return 1;
         case NO_RNTI:
-            hs->common_stats.bch_frames++;
-            hs->common_stats.bch_bytes += si->single_number_of_bytes;
+            hs->common_stats.mib_frames++;
             return 1;
         case RA_RNTI:
             hs->common_stats.rar_frames++;
@@ -669,14 +676,18 @@ static void mac_lte_stat_draw(void *phs)
     gtk_label_set_text(GTK_LABEL(hs->dl_max_ues_per_tti), buff);
 
     /* Common channel data */
-    g_snprintf(buff, sizeof(buff), "BCH Frames: %u", hs->common_stats.bch_frames);
-    gtk_label_set_text(GTK_LABEL(hs->common_bch_frames), buff);
-    g_snprintf(buff, sizeof(buff), "BCH Bytes: %u", hs->common_stats.bch_bytes);
-    gtk_label_set_text(GTK_LABEL(hs->common_bch_bytes), buff);
+    g_snprintf(buff, sizeof(buff), "MIBs: %u", hs->common_stats.mib_frames);
+    gtk_label_set_text(GTK_LABEL(hs->common_mib_frames), buff);
+    g_snprintf(buff, sizeof(buff), "SIB Frames: %u", hs->common_stats.sib_frames);
+    gtk_label_set_text(GTK_LABEL(hs->common_sib_frames), buff);
+    g_snprintf(buff, sizeof(buff), "SIB Bytes: %u", hs->common_stats.sib_bytes);
+    gtk_label_set_text(GTK_LABEL(hs->common_sib_bytes), buff);
     g_snprintf(buff, sizeof(buff), "PCH Frames: %u", hs->common_stats.pch_frames);
     gtk_label_set_text(GTK_LABEL(hs->common_pch_frames), buff);
     g_snprintf(buff, sizeof(buff), "PCH Bytes: %u", hs->common_stats.pch_bytes);
     gtk_label_set_text(GTK_LABEL(hs->common_pch_bytes), buff);
+    g_snprintf(buff, sizeof(buff), "PCH Paging Ids: %u", hs->common_stats.pch_paging_ids);
+    gtk_label_set_text(GTK_LABEL(hs->common_pch_paging_ids), buff);
     g_snprintf(buff, sizeof(buff), "RAR Frames: %u", hs->common_stats.rar_frames);
     gtk_label_set_text(GTK_LABEL(hs->common_rar_frames), buff);
     g_snprintf(buff, sizeof(buff), "RAR Entries: %u", hs->common_stats.rar_entries);
@@ -1107,15 +1118,20 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_common_channel_lb, FALSE, FALSE, 0);
 
     /* Create labels (that will hold label and counter value) */
-    hs->common_bch_frames = gtk_label_new("BCH Frames:");
-    gtk_misc_set_alignment(GTK_MISC(hs->common_bch_frames), 0.0f, .5f);
-    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_bch_frames, TRUE, TRUE, 0);
-    gtk_widget_show(hs->common_bch_frames);
+    hs->common_mib_frames = gtk_label_new("MIBs:");
+    gtk_misc_set_alignment(GTK_MISC(hs->common_mib_frames), 0.0f, .5f);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_mib_frames, TRUE, TRUE, 0);
+    gtk_widget_show(hs->common_mib_frames);
 
-    hs->common_bch_bytes = gtk_label_new("BCH Bytes:");
-    gtk_misc_set_alignment(GTK_MISC(hs->common_bch_bytes), 0.0f, .5f);
-    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_bch_bytes, TRUE, TRUE, 0);
-    gtk_widget_show(hs->common_bch_bytes);
+    hs->common_sib_frames = gtk_label_new("SIB Frames:");
+    gtk_misc_set_alignment(GTK_MISC(hs->common_sib_frames), 0.0f, .5f);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_sib_frames, TRUE, TRUE, 0);
+    gtk_widget_show(hs->common_sib_frames);
+
+    hs->common_sib_bytes = gtk_label_new("SIB Bytes:");
+    gtk_misc_set_alignment(GTK_MISC(hs->common_sib_bytes), 0.0f, .5f);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_sib_bytes, TRUE, TRUE, 0);
+    gtk_widget_show(hs->common_sib_bytes);
 
     hs->common_pch_frames = gtk_label_new("PCH Frames:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_pch_frames), 0.0f, .5f);
@@ -1126,6 +1142,12 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     gtk_misc_set_alignment(GTK_MISC(hs->common_pch_bytes), 0.0f, .5f);
     gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_pch_bytes, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_pch_bytes);
+
+    hs->common_pch_paging_ids = gtk_label_new("PCH Paging IDs:");
+    gtk_misc_set_alignment(GTK_MISC(hs->common_pch_paging_ids), 0.0f, .5f);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_pch_paging_ids, TRUE, TRUE, 0);
+    gtk_widget_show(hs->common_pch_paging_ids);
+
 
     hs->common_rar_frames = gtk_label_new("RAR Frames:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_rar_frames), 0.0f, .5f);

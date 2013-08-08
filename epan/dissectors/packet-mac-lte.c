@@ -1833,7 +1833,7 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Dissect PCH PDU */
 static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        proto_item *pdu_ti, int offset, guint8 direction)
+                        proto_item *pdu_ti, int offset, guint8 direction,  mac_lte_tap_info *tap_info)
 {
     proto_item *ti;
 
@@ -1847,6 +1847,9 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Always show as raw data */
     ti = proto_tree_add_item(tree, hf_mac_lte_pch_pdu,
                              tvb, offset, -1, ENC_NA);
+
+    /* Get number of paging IDs for tap */
+    tap_info->number_of_paging_ids = ((tvb_get_ntohs(tvb, offset) >> 7) & 0x000f) + 1;
 
     if (global_mac_lte_attempt_rrc_decode) {
 
@@ -4612,7 +4615,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case P_RNTI:
             /* PCH PDU */
-            dissect_pch(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info->direction);
+            dissect_pch(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info->direction, tap_info);
             break;
 
         case RA_RNTI:
