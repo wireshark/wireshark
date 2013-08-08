@@ -21,9 +21,9 @@ Please note that if you shift any files in the directory structure you MUST adju
 
     <!-- Resolve DTD URL system ID to local file -->
     <rewriteSystem
-        systemIdStartString="http://www.oasis-open.org/docbook/xml/4.2/"
-        rewritePrefix="/usr/share/xml/docbook/4.2/" />
-        <!-- Debian: rewritePrefix="/usr/share/xml/docbook/schema/dtd/4.2/" /> -->
+        systemIdStartString="http://www.oasis-open.org/docbook/xml/4.5/"
+        rewritePrefix="/usr/share/xml/docbook/4.5/" />
+        <!-- Debian: rewritePrefix="/usr/share/xml/docbook/schema/dtd/4.5/" /> -->
 
     <!-- Resolve stylesheet URL to local file -->
     <!-- if you need to change this, don't forget to change it in the Makefile too -->
@@ -34,7 +34,7 @@ Please note that if you shift any files in the directory structure you MUST adju
         <!-- rewritePrefix="/usr/share/xml/docbook/stylesheet/nwalsh/1.64.1/" /> -->
 
     <!-- Resolve DTD PUBLIC identifiers -->
-    <nextCatalog  catalog="docbook42/catalog.xml" />
+    <nextCatalog  catalog="docbook45/catalog.xml" />
     <!-- Debian: <nextCatalog  catalog="catalog.xml" /> -->
 
     <!-- To resolve simple DTD SYSTEM identifiers. -->
@@ -42,7 +42,7 @@ Please note that if you shift any files in the directory structure you MUST adju
     <!--   classes in Saxon or Xalan -->
     <system
          systemId="docbook.dtd"
-         uri="docbook42/docbookx.dtd" />
+         uri="docbook45/docbookx.dtd" />
          <!-- Debian: uri="docbookx.dtd" /> -->
 
     <!-- To resolve short stylesheet references -->

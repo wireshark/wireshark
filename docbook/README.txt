@@ -43,7 +43,7 @@ Requirements:
 
 DocBook XML DTD
 ---------------
-DocBook "official" XML DTD V4.2:
+DocBook "official" XML DTD V4.5:
 http://www.oasis-open.org/docbook/xml/
 (available as a package for Linux / Cygwin)
 
