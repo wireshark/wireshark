@@ -2644,6 +2644,9 @@ AC_OUTPUT(
   asn1/acse/Makefile
   asn1/ansi_map/Makefile
   asn1/ansi_tcap/Makefile
+  asn1/atn-cm/Makefile
+  asn1/atn-cpdlc/Makefile
+  asn1/atn-ulcs/Makefile
   asn1/c1222/Makefile
   asn1/camel/Makefile
   asn1/cdt/Makefile

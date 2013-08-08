@@ -29,6 +29,9 @@ SUBDIRS =		\
 	acse		\
 	ansi_map	\
 	ansi_tcap	\
+	atn-cm		\
+	atn-cpdlc	\
+	atn-ulcs	\
 	c1222		\
 	camel		\
 	cdt		\
