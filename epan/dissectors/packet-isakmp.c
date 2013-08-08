@@ -87,6 +87,8 @@ static int hf_isakmp_criticalpayload = -1;
 static int hf_isakmp_datapayload     = -1;
 static int hf_isakmp_extradata       = -1;
 static int hf_isakmp_version         = -1;
+static int hf_isakmp_mjver           = -1;
+static int hf_isakmp_mnver           = -1;
 static int hf_isakmp_exchangetype_v1 = -1;
 static int hf_isakmp_exchangetype_v2 = -1;
 static int hf_isakmp_flags           = -1;
@@ -351,6 +353,7 @@ static int hf_isakmp_enc_iv = -1;
 static int hf_isakmp_enc_icd = -1;
 
 static gint ett_isakmp = -1;
+static gint ett_isakmp_version = -1;
 static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
 static gint ett_isakmp_fragment = -1;
@@ -2694,8 +2697,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int			offset = 0, len;
   isakmp_hdr_t	hdr;
-  proto_item *	ti;
-  proto_tree *	isakmp_tree = NULL;
+  proto_item *	ti, *fti;
+  proto_tree *	isakmp_tree = NULL, *ftree;
   int			isakmp_version;
 #ifdef HAVE_LIBGCRYPT
   guint8                i_cookie[COOKIE_SIZE], *ic_key;
@@ -2802,17 +2805,20 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset += 1;
 
-    proto_tree_add_uint_format(isakmp_tree, hf_isakmp_version, tvb, offset,
+    fti = proto_tree_add_uint_format(isakmp_tree, hf_isakmp_version, tvb, offset,
                                1, hdr.version, "Version: %u.%u",
                                hi_nibble(hdr.version), lo_nibble(hdr.version));
+	ftree = proto_item_add_subtree(fti, ett_isakmp_version);
+	proto_tree_add_item(ftree, hf_isakmp_mjver, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(ftree, hf_isakmp_mnver, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     if(isakmp_version == 1) {
-	proto_tree_add_item(isakmp_tree,  hf_isakmp_exchangetype_v1, tvb, offset, 1, ENC_BIG_ENDIAN);
-	col_add_str(pinfo->cinfo, COL_INFO,val_to_str(hdr.exch_type, exchange_v1_type, "Unknown %d"));
+        proto_tree_add_item(isakmp_tree,  hf_isakmp_exchangetype_v1, tvb, offset, 1, ENC_BIG_ENDIAN);
+        col_add_str(pinfo->cinfo, COL_INFO,val_to_str(hdr.exch_type, exchange_v1_type, "Unknown %d"));
     } else if (isakmp_version == 2){
-	proto_tree_add_item(isakmp_tree,  hf_isakmp_exchangetype_v2, tvb, offset, 1, ENC_BIG_ENDIAN);
-	col_add_str(pinfo->cinfo, COL_INFO,val_to_str(hdr.exch_type, exchange_v2_type, "Unknown %d"));
+        proto_tree_add_item(isakmp_tree,  hf_isakmp_exchangetype_v2, tvb, offset, 1, ENC_BIG_ENDIAN);
+        col_add_str(pinfo->cinfo, COL_INFO,val_to_str(hdr.exch_type, exchange_v2_type, "Unknown %d"));
     }
     offset += 1;
 
@@ -5031,6 +5037,14 @@ proto_register_isakmp(void)
       { "Version", "isakmp.version",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "ISAKMP Version (major + minor)", HFILL }},
+    { &hf_isakmp_mjver,
+      { "MjVer", "isakmp.mjver",
+        FT_UINT8, BASE_HEX, NULL, 0xF0,
+        "ISAKMP MjVer", HFILL }},
+    { &hf_isakmp_mnver,
+      { "MnVer", "isakmp.mnver",
+        FT_UINT8, BASE_HEX, NULL, 0x0F,
+        "ISAKMP MnVer", HFILL }},
     { &hf_isakmp_exchangetype_v1,
       { "Exchange type", "isakmp.exchangetype",
         FT_UINT8, BASE_DEC, VALS(exchange_v1_type), 0x0,
@@ -5114,11 +5128,11 @@ proto_register_isakmp(void)
     { &hf_isakmp_spisize,
       { "SPI Size", "isakmp.spisize",
         FT_UINT8, BASE_DEC, NULL, 0x0,
-        "ISAKMP SPI Size", HFILL }},
+        NULL, HFILL }},
     { &hf_isakmp_spi,
-      { "SPI Size", "isakmp.spi",
+      { "SPI", "isakmp.spi",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        "ISAKMP SPI", HFILL }},
+        NULL, HFILL }},
     { &hf_isakmp_prop_transforms,
       { "Proposal transforms", "isakmp.prop.transforms",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -6072,6 +6086,7 @@ proto_register_isakmp(void)
 
   static gint *ett[] = {
     &ett_isakmp,
+    &ett_isakmp_version,
     &ett_isakmp_flags,
     &ett_isakmp_payload,
     &ett_isakmp_fragment,
