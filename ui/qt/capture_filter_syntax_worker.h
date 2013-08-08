@@ -1,4 +1,4 @@
-/* recent_file_status.cpp
+/* capture_filter_syntax_worker.h
  *
  * $Id$
  *
@@ -21,28 +21,34 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "recent_file_status.h"
+#ifndef CAPTURE_FILTER_SYNTAX_WORKER_H
+#define CAPTURE_FILTER_SYNTAX_WORKER_H
 
-#include <QFileInfo>
+#include <QMutex>
+#include <QObject>
+#include <QWaitCondition>
 
-// Sigh. The Qt 4 documentation says we should subclass QThread here. Other sources
-// insist that we should subclass QObject, then move it to a newly created QThread.
-//RecentFileStatus::RecentFileStatus(const QString &filename, QObject *parent) :
-//    QObject(parent), filename_(filename), size_(0)
-//{
-//}
+class CaptureFilterSyntaxWorker : public QObject
+{
+    Q_OBJECT
 
-void RecentFileStatus::start(void) {
-    QFileInfo fi;
+public:
+    CaptureFilterSyntaxWorker(QObject *parent = 0) : QObject(parent) {}
+    void checkFilter(const QString &filter);
 
-    fi.setFile(filename_);
+public slots:
+    void start();
 
-    if (fi.isFile() && fi.isReadable()) {
-        emit statusFound(filename_, fi.size(), true);
-    } else {
-        emit statusFound(filename_, 0, false);
-    }
-}
+private:
+    QMutex data_mtx_;
+    QWaitCondition data_cond_;
+    QString filter_text_;
+
+signals:
+    void syntaxResult(QString filter, bool valid, QString err_msg);
+};
+
+#endif // CAPTURE_FILTER_SYNTAX_WORKER_H
 
 /*
  * Editor modelines

@@ -28,6 +28,9 @@ set(QTSHARK_H_SRC
 	byte_view_tab.h
 	byte_view_text.h
 	capture_file_dialog.h
+	capture_filter_combo.h
+	capture_filter_edit.h
+	capture_filter_syntax_worker.h
 	capture_info_dialog.h
 	capture_interface_dialog.h
 	capture_preferences_frame.h
@@ -83,6 +86,9 @@ set(CLEAN_FILES
 	byte_view_tab.cpp
 	byte_view_text.cpp
 	capture_file_dialog.cpp
+	capture_filter_combo.cpp
+	capture_filter_edit.cpp
+	capture_filter_syntax_worker.cpp
 	capture_info_dialog.cpp
 	capture_interface_dialog.cpp
 	color_dialog.cpp

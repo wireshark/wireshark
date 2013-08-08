@@ -30,15 +30,16 @@ class RecentFileStatus : public QObject
 {
     Q_OBJECT
 public:
-    RecentFileStatus(const QString &filename, QObject *parent = 0);
+    RecentFileStatus(const QString &filename, QObject *parent = 0) :
+        QObject(parent), filename_(filename), size_(0) {}
 
-    QString getFilename() const { return (m_filename); }
-    size_t getSize() const { return (m_size); }
+    QString getFilename() const { return (filename_); }
+    size_t getSize() const { return (size_); }
     void quit() { emit finished(); }
 
 private:
-    QString m_filename;
-    size_t m_size;
+    QString filename_;
+    size_t size_;
 
 signals:
     void statusFound(const QString &filename = *new QString(), qint64 size = 0, bool accessible = false);

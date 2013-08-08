@@ -181,7 +181,6 @@ void WiresharkApplication::refreshRecentFiles(void) {
         connect(rf_status, SIGNAL(statusFound(QString, qint64, bool)), this, SLOT(itemStatusFinished(QString, qint64, bool)));
         connect(rf_status, SIGNAL(finished()), rf_thread, SLOT(quit()));
         connect(rf_status, SIGNAL(finished()), rf_status, SLOT(deleteLater()));
-//        connect(rf_status, SIGNAL(finished()), rf_thread, SLOT(deleteLater()));
 
         rf_thread->start();
     }

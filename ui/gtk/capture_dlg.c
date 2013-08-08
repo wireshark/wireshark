@@ -596,7 +596,7 @@ typedef struct capture_filter_check {
  */
 
 /* We could make this smarter by caching results */
-capture_filter_check_t cfc_data;
+static capture_filter_check_t cfc_data;
 
 static GMutex *pcap_compile_mtx;
 static GCond *cfc_data_cond;

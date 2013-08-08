@@ -25,6 +25,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+cache()
+
 isEqual(QT_MAJOR_VERSION, 4) {
   QT += core gui
 } else {
@@ -449,6 +451,9 @@ HEADERS += \
     byte_view_tab.h \
     byte_view_text.h \
     capture_file_dialog.h \
+    capture_filter_combo.h \
+    capture_filter_edit.h \
+    capture_filter_syntax_worker.h \
     capture_info_dialog.h \
     capture_interface_dialog.h \
     color_dialog.h \
@@ -484,6 +489,9 @@ SOURCES += \
     byte_view_tab.cpp \
     byte_view_text.cpp \
     capture_file_dialog.cpp \
+    capture_filter_combo.cpp \
+    capture_filter_edit.cpp \
+    capture_filter_syntax_worker.cpp \
     capture_info_dialog.cpp \
     capture_interface_dialog.cpp \
     capture_preferences_frame.cpp \

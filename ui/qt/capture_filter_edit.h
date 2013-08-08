@@ -1,4 +1,4 @@
-/* main_welcome.h
+/* capture_filter_edit.h
  *
  * $Id$
  *
@@ -21,55 +21,54 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef MAIN_WELCOME_H
-#define MAIN_WELCOME_H
+#ifndef CAPTURE_FILTER_EDIT_H
+#define CAPTURE_FILTER_EDIT_H
 
-#include <QFrame>
-#include <QListWidget>
-#include <QTreeWidgetItem>
+#include <QThread>
+#include <QToolButton>
+#include "syntax_line_edit.h"
+#include "capture_filter_syntax_worker.h"
 
-#include "splash_overlay.h"
-
-namespace Ui {
-    class MainWelcome;
-}
-
-class MainWelcome : public QFrame
+class CaptureFilterEdit : public SyntaxLineEdit
 {
     Q_OBJECT
 public:
-    explicit MainWelcome(QWidget *parent = 0);
+    explicit CaptureFilterEdit(QWidget *parent = 0, bool plain = false);
 
 protected:
-    void resizeEvent(QResizeEvent *event);
+    void paintEvent(QPaintEvent *evt);
+    void resizeEvent(QResizeEvent *);
+//    void focusInEvent(QFocusEvent *evt);
+//    void focusOutEvent(QFocusEvent *evt);
+
+public slots:
+    void checkFilter();
+
+private slots:
+    void applyCaptureFilter();
+    void checkFilter(const QString &text);
+    void setFilterSyntaxState(QString filter, bool valid, QString err_msg);
+    void bookmarkClicked();
 
 private:
-    Ui::MainWelcome *welcome_ui_;
-
-    SplashOverlay *splash_overlay_;
-    // QListWidget doesn't activate items when the return or enter keys are pressed on OS X.
-    // We may want to subclass it at some point.
-    QListWidget *task_list_;
-    QListWidget *recent_files_;
-//    MWOverlay *overlay;
-
+    bool plain_;
+    bool field_name_only_;
+    QString empty_filter_message_;
+    QToolButton *bookmark_button_;
+    QToolButton *clear_button_;
+    QToolButton *apply_button_;
+    CaptureFilterSyntaxWorker *syntax_worker_;
 
 signals:
-    void startCapture();
-    void recentFileActivated(QString& cfile);
     void pushFilterSyntaxStatus(QString&);
     void popFilterSyntaxStatus();
     void captureFilterSyntaxChanged(bool valid);
+    void startCapture();
+    void addBookmark(QString filter);
 
-private slots:
-    void destroySplashOverlay();
-    void showTask();
-    void interfaceDoubleClicked(QTreeWidgetItem *item, int column);
-    void updateRecentFiles();
-    void openRecentItem(QListWidgetItem *item);
 };
 
-#endif // MAIN_WELCOME_H
+#endif // CAPTURE_FILTER_EDIT_H
 
 /*
  * Editor modelines

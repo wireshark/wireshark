@@ -1,4 +1,4 @@
-/* recent_file_status.cpp
+/* capture_filter_combo.h
  *
  * $Id$
  *
@@ -21,28 +21,39 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "recent_file_status.h"
+#ifndef CAPTURE_FILTER_COMBO_H
+#define CAPTURE_FILTER_COMBO_H
 
-#include <QFileInfo>
+#include "capture_filter_edit.h"
 
-// Sigh. The Qt 4 documentation says we should subclass QThread here. Other sources
-// insist that we should subclass QObject, then move it to a newly created QThread.
-//RecentFileStatus::RecentFileStatus(const QString &filename, QObject *parent) :
-//    QObject(parent), filename_(filename), size_(0)
-//{
-//}
+#include <QComboBox>
+#include <QList>
 
-void RecentFileStatus::start(void) {
-    QFileInfo fi;
+class CaptureFilterCombo : public QComboBox
+{
+    Q_OBJECT
+public:
+    explicit CaptureFilterCombo(QWidget *parent = 0);
+    bool addRecentCapture(const char *filter);
+    void writeRecent(FILE *rf);
 
-    fi.setFile(filename_);
+signals:
+    void interfacesChanged();
+    void pushFilterSyntaxStatus(QString&);
+    void popFilterSyntaxStatus();
+    void captureFilterSyntaxChanged(bool valid);
+    void startCapture();
 
-    if (fi.isFile() && fi.isReadable()) {
-        emit statusFound(filename_, fi.size(), true);
-    } else {
-        emit statusFound(filename_, 0, false);
-    }
-}
+public slots:
+
+private:
+    CaptureFilterEdit *cf_edit_;
+
+private slots:
+    void rebuildFilterList(bool insert_edit_text = true);
+};
+
+#endif // CAPTURE_FILTER_COMBO_H
 
 /*
  * Editor modelines

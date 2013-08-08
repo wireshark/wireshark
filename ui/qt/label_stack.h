@@ -34,7 +34,7 @@ class LabelStack : public QLabel
     Q_OBJECT
 public:
     explicit LabelStack(QWidget *parent = 0);
-    void setTemporaryContext(int ctx);
+    void setTemporaryContext(const int ctx);
     void pushText(QString &text, int ctx);
 
 protected:

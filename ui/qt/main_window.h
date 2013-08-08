@@ -104,6 +104,7 @@ private:
     FileSetDialog file_set_dialog_;
     SummaryDialog summary_dialog_;
     bool capture_stopping_;
+    bool capture_filter_valid_;
 
     // Pipe input
     gint                pipe_source_;
@@ -181,6 +182,7 @@ private slots:
     void setMenusForSelectedPacket();
     void setMenusForSelectedTreeRow(field_info *fi = NULL);
     void interfaceSelectionChanged();
+    void captureFilterSyntaxChanged(bool valid);
     void redissectPackets();
     void recreatePacketList();
 

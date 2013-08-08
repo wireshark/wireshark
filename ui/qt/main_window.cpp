@@ -82,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     cap_file_(NULL),
     previous_focus_(NULL),
     capture_stopping_(false),
+    capture_filter_valid_(false),
 #ifdef _WIN32
     pipe_timer_(NULL)
 #else
@@ -112,7 +113,8 @@ MainWindow::MainWindow(QWidget *parent) :
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     connect(df_edit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
     connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
-    connect(df_edit, SIGNAL(pushFilterSyntaxWarning(QString&)), main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
+    connect(df_edit, SIGNAL(pushFilterSyntaxWarning(QString&)),
+            main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
     connect(df_edit, SIGNAL(filterPackets(QString&,bool)), this, SLOT(filterPackets(QString&,bool)));
     connect(df_edit, SIGNAL(addBookmark(QString)), this, SLOT(addDisplayFilterButton(QString)));
     connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
@@ -231,6 +233,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(startCapture()));
     connect(main_welcome_, SIGNAL(recentFileActivated(QString&)),
             this, SLOT(openCaptureFile(QString&)));
+    connect(main_welcome_, SIGNAL(pushFilterSyntaxStatus(QString&)),
+            main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
+    connect(main_welcome_, SIGNAL(popFilterSyntaxStatus()),
+            main_ui_->statusBar, SLOT(popFilterStatus()));
 
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             main_ui_->searchFrame, SLOT(setCaptureFile(capture_file*)));
@@ -276,6 +282,9 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(iface_tree, SIGNAL(itemSelectionChanged()),
                 this, SLOT(interfaceSelectionChanged()));
     }
+    connect(main_ui_->welcomePage, SIGNAL(captureFilterSyntaxChanged(bool)),
+            this, SLOT(captureFilterSyntaxChanged(bool)));
+
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
 

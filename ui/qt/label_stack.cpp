@@ -45,7 +45,7 @@ LabelStack::LabelStack(QWidget *parent) :
     connect(&temporary_timer_, SIGNAL(timeout()), this, SLOT(updateTemporaryStatus()));
 }
 
-void LabelStack::setTemporaryContext(int ctx) {
+void LabelStack::setTemporaryContext(const int ctx) {
     temporary_ctx_ = ctx;
 }
 

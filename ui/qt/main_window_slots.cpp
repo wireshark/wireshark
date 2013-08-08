@@ -422,6 +422,15 @@ void MainWindow::startCapture() {
         return;
     }
 
+    // Ideally we should have disabled the start capture
+    // toolbar buttons and menu items. This may not be the
+    // case, e.g. with QtMacExtras.
+    if(!capture_filter_valid_) {
+        QString msg = QString("Invalid capture filter");
+        main_ui_->statusBar->pushTemporaryStatus(msg);
+        return;
+    }
+
     /* XXX - we might need to init other pref data as well... */
 //    main_auto_scroll_live_changed(auto_scroll_live);
 
@@ -949,11 +958,19 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 
 void MainWindow::interfaceSelectionChanged()
 {
-    if (global_capture_opts.num_selected > 0) {
+    // XXX This doesn't disable the toolbar button when using
+    // QtMacExtras.
+    if (global_capture_opts.num_selected > 0 && capture_filter_valid_) {
         main_ui_->actionStartCapture->setEnabled(true);
     } else {
         main_ui_->actionStartCapture->setEnabled(false);
     }
+}
+
+void MainWindow::captureFilterSyntaxChanged(bool valid)
+{
+    capture_filter_valid_ = valid;
+    interfaceSelectionChanged();
 }
 
 void MainWindow::redissectPackets()
