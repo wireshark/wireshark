@@ -117,7 +117,7 @@ void CaptureFilterCombo::rebuildFilterList(bool insert_edit_text)
     for (GList *li = g_list_first(cfilter_list); li != NULL; li = g_list_next(li)) {
         insertItem(0, (const gchar *) li->data);
     }
-    setCurrentText(cur_filter);
+    setEditText(cur_filter);
 }
 
 /*
