@@ -232,6 +232,8 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
  if (!parameter_tvb)
 	return offset;
+ if(tvb_length(parameter_tvb)==0)
+     return offset;
 
  digit_str = unpack_digits(parameter_tvb, 0);
  proto_tree_add_string(tree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, digit_str);
