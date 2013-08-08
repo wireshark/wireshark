@@ -528,6 +528,7 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
                             const size_t size)
 {
     wmem_block_chunk_t *extra;
+    wmem_block_free_t  *old_blk, *new_blk;
     size_t aligned_size, available;
     gboolean last;
 
@@ -539,20 +540,15 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     if (WMEM_CHUNK_DATA_LEN(chunk) < aligned_size + sizeof(wmem_block_free_t)) {
         /* If the available space is not enought to store all of
          * (hdr + requested size + alignment padding + hdr + free-header) then
-         * remove the current chunk from the free list. If the chunk does have
-         * space we reuse its free-header later, so we don't have to do a full
-         * remove/insert. */
+         * just remove the current chunk from the free list and return, since we
+         * can't usefully split it. */
         if (chunk == allocator->master_head) {
             wmem_block_pop_master(allocator);
         }
         else {
             wmem_block_remove_from_recycler(allocator, chunk);
         }
-        if (WMEM_CHUNK_DATA_LEN(chunk) < aligned_size) {
-            /* If it doesn't even have room for just the chunk header then we
-             * can't split it at all, so just return. */
-            return;
-        }
+        return;
     }
 
     /* preserve a few values from chunk that we'll need to manipulate */
@@ -567,42 +563,33 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
      * the location and size of the new free chunk */
     extra = WMEM_CHUNK_NEXT(chunk);
 
-    if (available >= sizeof(wmem_block_chunk_t) + sizeof(wmem_block_free_t)) {
-        /* If the new block has room for the free header (in which case the old
-         * bigger one must have as well) then we move the free chunk's address
-         * without changing its location in either list.
-         *
-         * XXX: Note that we have not yet written to the new *chunk* header - it
-         * may overlap the old *free* header, so we have to do all of our reads
-         * here first!
-         */
-        wmem_block_chunk_t *prev, *next;
-        wmem_block_free_t  *old_blk, *new_blk;
+    /* Now we move the free chunk's address without changing its location
+     * in whichever list it is in.
+     *
+     * XXX: Note that we have not yet written to the new *chunk* header - it
+     * may overlap the old *free* header, so we have to do all of our reads
+     * here first!
+     */
+    old_blk = WMEM_GET_FREE(chunk);
+    new_blk = WMEM_GET_FREE(extra);
 
-        old_blk = WMEM_GET_FREE(chunk);
-        new_blk = WMEM_GET_FREE(extra);
+    if (old_blk->prev == chunk) {
+        new_blk->prev = extra;
+        new_blk->next = extra;
+    }
+    else {
+        new_blk->prev = old_blk->prev;
+        new_blk->next = old_blk->next;
+    }
 
-        prev = old_blk->prev;
-        next = old_blk->next;
+    if (old_blk->prev) WMEM_GET_FREE(old_blk->prev)->next = extra;
+    if (old_blk->next) WMEM_GET_FREE(old_blk->next)->prev = extra;
 
-        if (prev == chunk) {
-            new_blk->prev = extra;
-            new_blk->next = extra;
-        }
-        else {
-            new_blk->prev = prev;
-            new_blk->next = next;
-        }
-
-        if (prev) WMEM_GET_FREE(prev)->next = extra;
-        if (next) WMEM_GET_FREE(next)->prev = extra;
-
-        if (allocator->master_head == chunk) {
-            allocator->master_head = extra;
-        }
-        else if (allocator->recycler_head == chunk) {
-            allocator->recycler_head = extra;
-        }
+    if (allocator->master_head == chunk) {
+        allocator->master_head = extra;
+    }
+    else if (allocator->recycler_head == chunk) {
+        allocator->recycler_head = extra;
     }
 
     /* Now that we've copied over the free-list stuff (which may have overlapped
