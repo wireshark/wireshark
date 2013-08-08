@@ -37,29 +37,38 @@
 #include "pcap-common.h"
 
 /*
- * Map link-layer types (LINKTYPE_ values) to Wiretap encapsulations.
- */
-/*
+ * Map link-layer header types (LINKTYPE_ values) to Wiretap encapsulations.
+ *
  * Either LBL NRG wasn't an adequate central registry (e.g., because of
  * the slow rate of releases from them), or nobody bothered using them
  * as a central registry, as many different groups have patched libpcap
  * (and BPF, on the BSDs) to add new encapsulation types, and have ended
  * up using the same DLT_ values for different encapsulation types.
  *
- * For those numerical encapsulation type values that everybody uses for
- * the same encapsulation type (which inclues those that some platforms
- * specify different DLT_ names for but don't appear to use), we map
- * those values to the appropriate Wiretap values.
+ * The Tcpdump Group now maintains the list of link-layer header types;
+ * they introduced a separate namespace of LINKTYPE_ values for the
+ * values to be used in capture files, and have libpcap map between
+ * those values in capture file headers and the DLT_ values that the
+ * pcap_datalink() and pcap_open_dead() APIs use.
  *
- * For those numerical encapsulation type values that different libpcap
- * variants use for different encapsulation types, we check what
- * <pcap.h> defined to determine how to interpret them, so that we
- * interpret them the way the libpcap with which we're building
+ * In most cases, the corresponding LINKTYPE_ and DLT_ values are the
+ * same.  In the cases where the same link-layer header type was given
+ * different values in different OSes, a new LINKTYPE_ value was defined,
+ * different from all of the existing DLT_ values.
+ *
+ * This table maps LINKTYPE_ values to the corresponding Wiretap
+ * encapsulation.  For cases where multiple DLT_ values were in use,
+ * it also checks what <pcap.h> defineds to determine how to interpret
+ * them, so that if a file was written by a version of libpcap prior
+ * to the introduction of the LINKTYPE_ values, and has a DLT_ value
+ * from the OS on which it was written rather than a LINKTYPE_ value
+ * as its linktype value in the file header, we map the numerical
+ * DLT_ value, as interpreted by the libpcap with which we're building
  * Wireshark/Wiretap interprets them (which, if it doesn't support
  * them at all, means we don't support them either - any capture files
  * using them are foreign, and we don't hazard a guess as to which
  * platform they came from; we could, I guess, choose the most likely
- * platform).
+ * platform), to the corresponding Wiretap encapsulation.
  *
  * Note: if you need a new encapsulation type for libpcap files, do
  * *N*O*T* use *ANY* of the values listed here!  I.e., do *NOT*
@@ -67,21 +76,21 @@
  * leave the existing entries alone.
  *
  * Instead, send mail to tcpdump-workers@lists.tcpdump.org, asking for
- * a new DLT_ value, and specifying the purpose of the new value.  When
- * you get the new DLT_ value, use that numerical value in the "dlt_value"
- * field of "pcap_to_wtap_map[]".
+ * a new LINKTYPE_/DLT_ value, and specifying the purpose of the new
+ * value.  When you get the new LINKTYPE_/DLT_ value, use that numerical
+ * value in the "linktype_value" field of "pcap_to_wtap_map[]".
  */
 
 static const struct {
-	int	dlt_value;
+	int	linktype_value;
 	int	wtap_encap_value;
 } pcap_to_wtap_map[] = {
 	/*
 	 * These are the values that are almost certainly the same
 	 * in all libpcaps (I've yet to find one where the values
 	 * in question are used for some purpose other than the
-	 * one below, but...), and that Wiretap and Wireshark
-	 * currently support.
+	 * one below, but...), and thus assigned as LINKTYPE_ values,
+	 * and that Wiretap and Wireshark currently support.
 	 */
 	{ 0,		WTAP_ENCAP_NULL },	/* null encapsulation */
 	{ 1,		WTAP_ENCAP_ETHERNET },
@@ -174,7 +183,9 @@ static const struct {
 	 * These are the values that libpcap 0.5 and later use in
 	 * capture file headers, in an attempt to work around the
 	 * confusion decried above, and that Wiretap and Wireshark
-	 * currently support.
+	 * currently support.  I.e., they're the LINKTYPE_ values
+	 * for RFC 1483 ATM and "raw IP", respectively, not the
+	 * DLT_ values for them on all platforms.
 	 */
 	{ 100,		WTAP_ENCAP_ATM_RFC1483 },
 	{ 101,		WTAP_ENCAP_RAW_IP },
@@ -307,7 +318,7 @@ static const struct {
 
 	{ 177,		WTAP_ENCAP_LINUX_LAPD },
 
-    /* Ethernet frames prepended with meta-information */
+	/* Ethernet frames prepended with meta-information */
 	{ 178,		WTAP_ENCAP_JUNIPER_ETHER },
 	/* PPP frames prepended with meta-information */
 	{ 179,		WTAP_ENCAP_JUNIPER_PPP },
@@ -415,18 +426,20 @@ static const struct {
 	 * Instead, send mail to tcpdump-workers@lists.tcpdump.org, asking
 	 * for a new DLT_ value, and specifying the purpose of the new value.
 	 * When you get the new DLT_ value, use that numerical value in
-	 * the "dlt_value" field of "pcap_to_wtap_map[]".
+	 * the "linktype_value" field of "pcap_to_wtap_map[]".
 	 */
 
 	/*
 	 * The following are entries for libpcap type values that have
-	 * different meanings on different OSes.
+	 * different meanings on different OSes.  I.e., these are DLT_
+	 * values that are different on different OSes, and that have
+	 * a separate LINKTYPE_ value assigned to them.
 	 *
-	 * We put these *after* the entries for the platform-independent
-	 * libpcap type values for those Wiretap encapsulation types, so
-	 * that Wireshark chooses the platform-independent libpcap type
-	 * value for those encapsulatioin types, not the platform-dependent
-	 * one.
+	 * We put these *after* the entries for the LINKTYPE_ values for
+	 * those Wiretap encapsulation types, so that, when writing a
+	 * pcap or pcap-ng file, Wireshark writes the LINKTYPE_ value,
+	 * not the OS's DLT_ value, as the file's link-layer header type
+	 * for pcap or the interface's link-layer header type.
 	 */
 
 	/*
@@ -596,7 +609,7 @@ static const struct {
 	 * Instead, send mail to tcpdump-workers@lists.tcpdump.org, asking
 	 * for a new DLT_ value, and specifying the purpose of the new value.
 	 * When you get the new DLT_ value, use that numerical value in
-	 * the "dlt_value" field of "pcap_to_wtap_map[]".
+	 * the "linktype_value" field of "pcap_to_wtap_map[]".
 	 */
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
@@ -607,7 +620,7 @@ wtap_pcap_encap_to_wtap_encap(int encap)
 	unsigned int i;
 
 	for (i = 0; i < NUM_PCAP_ENCAPS; i++) {
-		if (pcap_to_wtap_map[i].dlt_value == encap)
+		if (pcap_to_wtap_map[i].linktype_value == encap)
 			return pcap_to_wtap_map[i].wtap_encap_value;
 	}
 	return WTAP_ENCAP_UNKNOWN;
@@ -664,7 +677,7 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 
 	for (i = 0; i < NUM_PCAP_ENCAPS; i++) {
 		if (pcap_to_wtap_map[i].wtap_encap_value == encap)
-			return pcap_to_wtap_map[i].dlt_value;
+			return pcap_to_wtap_map[i].linktype_value;
 	}
 	return -1;
 }
