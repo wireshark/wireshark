@@ -2697,8 +2697,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int			offset = 0, len;
   isakmp_hdr_t	hdr;
-  proto_item *	ti, *fti;
-  proto_tree *	isakmp_tree = NULL, *ftree;
+  proto_item *	ti, *vers_item;
+  proto_tree *	isakmp_tree = NULL, *vers_tree;
   int			isakmp_version;
 #ifdef HAVE_LIBGCRYPT
   guint8                i_cookie[COOKIE_SIZE], *ic_key;
@@ -2805,12 +2805,12 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset += 1;
 
-    fti = proto_tree_add_uint_format(isakmp_tree, hf_isakmp_version, tvb, offset,
-                               1, hdr.version, "Version: %u.%u",
-                               hi_nibble(hdr.version), lo_nibble(hdr.version));
-	ftree = proto_item_add_subtree(fti, ett_isakmp_version);
-	proto_tree_add_item(ftree, hf_isakmp_mjver, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(ftree, hf_isakmp_mnver, tvb, offset, 1, ENC_BIG_ENDIAN);
+    vers_item = proto_tree_add_uint_format(isakmp_tree, hf_isakmp_version, tvb, offset,
+                                           1, hdr.version, "Version: %u.%u",
+                                           hi_nibble(hdr.version), lo_nibble(hdr.version));
+    vers_tree = proto_item_add_subtree(vers_item, ett_isakmp_version);
+    proto_tree_add_item(vers_tree, hf_isakmp_mjver, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(vers_tree, hf_isakmp_mnver, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     if(isakmp_version == 1) {
