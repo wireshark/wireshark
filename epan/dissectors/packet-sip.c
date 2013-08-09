@@ -4456,8 +4456,8 @@ void proto_register_sip(void)
 		},
 		{ &hf_header_array[POS_FEATURE_CAPS],
 		       { "Feature-Caps", 		"sip.feature_caps",
-		       FT_UINT32, BASE_DEC,NULL,0x0,
-			NULL, HFILL }
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 6809: Feature-Caps", HFILL }
 		},
 		{ &hf_header_array[POS_FLOW_TIMER],
 		       { "Flow-Timer", 		"sip.Flow-Timer",
