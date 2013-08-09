@@ -5191,6 +5191,7 @@ static void dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 sta
   guint items = 0;
   guint octets;
   guint i;
+  guint8      step;
 
   i = start_offset;
   while (i < l)
@@ -5209,7 +5210,8 @@ static void dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 sta
   cf_item = proto_tree_add_text (tree, tvb, start_offset, l, "Capabilities (%u items)", items);
   cf_tree = proto_item_add_subtree (cf_item, ett_r3capabilities);
 
-  for (i = start_offset; i < l; i += tvb_get_guint8 (tvb, start_offset + i))
+  i = 0;
+  while (i<l && (step=tvb_get_guint8(tvb, i))>0)
   {
     proto_item *tmp_item = proto_tree_add_item (cf_tree, hf_r3_capabilities, tvb, start_offset + i, tvb_get_guint8 (tvb, start_offset + i), ENC_NA);
     proto_tree *tmp_tree = proto_item_add_subtree (tmp_item, ett_r3capabilities);
@@ -5221,6 +5223,8 @@ static void dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 sta
     proto_tree_add_item (tmp_tree, hf_r3_capabilities_length, tvb, start_offset + i + 0, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (tmp_tree, hf_r3_capabilities_type, tvb, start_offset + i + 1, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (tmp_tree, hf_r3_capabilities_value, tvb, start_offset + i + 2, 2, ENC_LITTLE_ENDIAN);
+
+    i += step;
   }
 }
 
@@ -5328,18 +5332,24 @@ static void dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 
   guint32 l = tvb_length_remaining (tvb, start_offset);
   guint32 error = FALSE;
   guint32 i;
+  guint8      step;
 
   if (l % 3 != 0)
     expert_add_info_format (pinfo, tree, PI_UNDECODED, PI_WARN, "Checksum results data length not modulo 3 == 0");
   else
   {
-    for (i = start_offset; i < l; i += tvb_get_guint8 (tvb, start_offset + i))
+    i = 0;
+    while (i<l && (step=tvb_get_guint8(tvb, i))>0)
+    {
       error |= tvb_get_guint8 (tvb, start_offset + i + 2);
+      i += step;
+    }
 
     cksum_item = proto_tree_add_text (tree, tvb, start_offset, l, "Checksum Results (%s)", error ? "Error" : "No Errors");
     cksum_tree = proto_item_add_subtree (cksum_item, ett_r3checksumresults);
 
-    for (i = 0; i < l; i += tvb_get_guint8 (tvb, start_offset + i))
+    i = 0;
+    while (i<l && (step=tvb_get_guint8(tvb, i))>0)
     {
       proto_item *res_item = proto_tree_add_item (cksum_tree, hf_r3_checksumresults, tvb, start_offset + i, tvb_get_guint8 (tvb, start_offset + i), ENC_NA);
       proto_tree *res_tree = proto_item_add_subtree (res_item, ett_r3checksumresultsfield);
@@ -5352,6 +5362,8 @@ static void dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 
       proto_tree_add_item (res_tree, hf_r3_checksumresults_length, tvb, start_offset + i + 0, 1, ENC_LITTLE_ENDIAN);
       proto_tree_add_item (res_tree, hf_r3_checksumresults_field, tvb, start_offset + i + 1, 1, ENC_LITTLE_ENDIAN);
       proto_tree_add_item (res_tree, hf_r3_checksumresults_state, tvb, start_offset + i + 2, 1, ENC_LITTLE_ENDIAN);
+
+      i += step;
     }
   }
 }
@@ -6267,6 +6279,7 @@ static void dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset,
 {
   guint i = 0;
   guint l = 0;
+  guint8  step;
 
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg, tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -6274,7 +6287,8 @@ static void dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset,
   start_offset += 2;
   l = tvb_length_remaining (tvb, start_offset);
 
-  for (i = 0; i < l; i += tvb_get_guint8 (tvb, start_offset + i))
+  i = 0;
+  while (i<l && (step=tvb_get_guint8(tvb, start_offset + i))>0)
   {
     proto_item *force_item = proto_tree_add_text (tree, tvb, start_offset + i, tvb_get_guint8 (tvb, start_offset + i), "Force Option %s (%u)", val_to_str_ext_const (tvb_get_guint8 (tvb, start_offset + i + 1), &r3_forceitemnames_ext, "[Unknown]"), tvb_get_guint8 (tvb, start_offset + i + 1));
     proto_tree *force_tree = proto_item_add_subtree (force_item, ett_r3forceoptions);
@@ -6290,6 +6304,8 @@ static void dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset,
       case 4  : proto_tree_add_item (force_tree, hf_r3_forceoptions_state_32, tvb, start_offset + i + 2, 4, ENC_LITTLE_ENDIAN); break;
       default : DISSECTOR_ASSERT (0);
     }
+
+    i += step;
   }
 }
 
