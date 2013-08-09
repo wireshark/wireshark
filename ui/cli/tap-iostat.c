@@ -107,16 +107,16 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 
     mit = (io_stat_item_t *) arg;
     parent = mit->parent;
-    
-	/* If this frame's relative time is negative, set its relative time to last_relative_time
-	   rather than disincluding it from the calculations. */
-	if (pinfo->rel_ts.secs >= 0) {
-		relative_time = ((guint64)pinfo->rel_ts.secs * 1000000ULL) + 
-						((guint64)((pinfo->rel_ts.nsecs+500)/1000));
-		last_relative_time = relative_time;
-	} else {
-		relative_time = last_relative_time;
-	}
+
+    /* If this frame's relative time is negative, set its relative time to last_relative_time
+       rather than disincluding it from the calculations. */
+    if (pinfo->rel_ts.secs >= 0) {
+        relative_time = ((guint64)pinfo->rel_ts.secs * 1000000ULL) +
+                        ((guint64)((pinfo->rel_ts.nsecs+500)/1000));
+        last_relative_time = relative_time;
+    } else {
+        relative_time = last_relative_time;
+    }
 
     if (mit->parent->start_time == 0) {
         mit->parent->start_time = pinfo->fd->abs_ts.secs - pinfo->rel_ts.secs;
@@ -562,7 +562,7 @@ iostat_draw(void *arg)
     num_cols = iot->num_cols;
     col_w = (column_width *)g_malloc(sizeof(column_width) * num_cols);
     fmts = (char **)g_malloc(sizeof(char *) * num_cols);
-    duration = ((guint64)cfile.elapsed_time.secs * 1000000ULL) + 
+    duration = ((guint64)cfile.elapsed_time.secs * 1000000ULL) +
                 (guint64)((cfile.elapsed_time.nsecs + 500) / 1000);
 
     /* Store the pointer to each stat column */
@@ -617,7 +617,7 @@ iostat_draw(void *arg)
         duration = (duration/dv) * dv;
         dur_secs  = (int)(duration/1000000ULL);
         dur_nsecs = (int)(duration%1000000ULL);
-        /* 
+        /*
          * Recalc dur_mag in case rounding has increased its magnitude */
         dur_mag  = magnitude((guint64)dur_secs, 5);
     }
@@ -798,7 +798,7 @@ iostat_draw(void *arg)
 
         full_fmt = g_strconcat("| Interval: ", invl_fmt, " secs%s|\n", NULL);
         spaces_s = &spaces[19 + dur_mag + invl_prec];
-        printf(full_fmt, (guint32)(interval/1000000ULL), 
+        printf(full_fmt, (guint32)(interval/1000000ULL),
                          (guint32)((interval%1000000ULL)/dv), spaces_s);
     }
     g_free(full_fmt);
@@ -942,13 +942,13 @@ iostat_draw(void *arg)
         full_fmt = g_strconcat("|  ", invl_fmt, " <> ", invl_fmt, "  |", NULL);
     else
         full_fmt = g_strconcat("| ", invl_fmt, " <> ", invl_fmt, " |", NULL);
-    
-	if (interval == 0 || duration == 0) {
-		num_rows = 0;
-	} else {
-		num_rows = (int)(duration/interval) + ((int)(duration%interval) > 0 ? 1 : 0);
-	}
-	
+
+    if (interval == 0 || duration == 0) {
+        num_rows = 0;
+    } else {
+        num_rows = (int)(duration/interval) + ((int)(duration%interval) > 0 ? 1 : 0);
+    }
+
     /* Load item_in_column with the first item in each column */
     item_in_column = (io_stat_item_t **) g_malloc(sizeof(io_stat_item_t *) * num_cols);
     for (j=0; j<num_cols; j++) {
@@ -1365,7 +1365,7 @@ iostat_init(const char *optarg, void* userdata _U_)
         }
         if (io->invl_prec==0) {
             /* The precision is zero but if the user specified one of more zeros after the decimal point,
-               they want that many decimal places shown in the table for all time intervals except 
+               they want that many decimal places shown in the table for all time intervals except
                response time values such as smb.time which always have 6 decimal places of precision.
                This feature is useful in cases where for example the duration is 9.1, you specify an
                interval of 1 and the last interval becomes "9 <> 9". If the interval is instead set to
@@ -1451,3 +1451,16 @@ register_tap_listener_iostat(void)
 {
     register_stat_cmd_arg("io,stat,", iostat_init, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
