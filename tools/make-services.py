@@ -114,9 +114,9 @@ def parse_rows(svc_fd):
 
 def exit_msg(msg=None, status=1):
     if msg is not None:
-        sys.stderr.write(msg + '\n')
+        sys.stderr.write(msg + '\n\n')
     sys.stderr.write(__doc__ + '\n')
-    sys.exit(1)
+    sys.exit(status)
 
 def main(argv):
     try:
@@ -138,12 +138,12 @@ def main(argv):
         else:
             req = urllib.request.urlopen(svc_url)
             svc_fd = codecs.getreader('utf8')(req)
-    except URLError:
-        exit_err(URLError)
+    except:
+        exit_msg('Error opening ' + svc_url)
 
     body = parse_rows(svc_fd)
     if len(body) < min_body_size:
-        exit_err('Not enough parsed data')
+        exit_msg('Not enough parsed data')
 
     out = open(services_file, 'w')
     out.write('''\
