@@ -52,6 +52,7 @@
 #include <epan/packet.h>
 #include <epan/ptvcursor.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/frequency-utils.h>
 
@@ -252,9 +253,9 @@ static int hf_80211n_mac_phy_rssi_ant3_ext = -1;
 static int hf_80211n_mac_phy_ext_chan_freq = -1;
 static int hf_80211n_mac_phy_ext_chan_flags = -1;
 static int hf_80211n_mac_phy_ext_chan_flags_turbo = -1;
-static int hhf_80211n_mac_phy_ext_chan_flags_cck = -1;
+static int hf_80211n_mac_phy_ext_chan_flags_cck = -1;
 static int hf_80211n_mac_phy_ext_chan_flags_ofdm = -1;
-static int hhf_80211n_mac_phy_ext_chan_flags_2ghz = -1;
+static int hf_80211n_mac_phy_ext_chan_flags_2ghz = -1;
 static int hf_80211n_mac_phy_ext_chan_flags_5ghz = -1;
 static int hf_80211n_mac_phy_ext_chan_flags_passive = -1;
 static int hf_80211n_mac_phy_ext_chan_flags_dynamic = -1;
@@ -299,6 +300,13 @@ static int hf_8023_extension_errors_sequence = -1;
 static int hf_8023_extension_errors_symbol = -1;
 static int hf_8023_extension_errors_data = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_ppi_antenna = -1;
+static int hf_ppi_harris = -1;
+static int hf_ppi_reserved = -1;
+static int hf_ppi_vector = -1;
+static int hf_ppi_gps = -1;
+
 static gint ett_ppi_pph = -1;
 static gint ett_ppi_flags = -1;
 static gint ett_dot11_common = -1;
@@ -315,6 +323,9 @@ static gint ett_aggregation_extension = -1;
 static gint ett_8023_extension = -1;
 static gint ett_8023_extension_flags = -1;
 static gint ett_8023_extension_errors = -1;
+
+/* Generated from convert_proto_tree_add_text.pl */
+static expert_field ei_ppi_invalid_length = EI_INIT;
 
 static dissector_handle_t ppi_handle;
 
@@ -477,7 +488,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     data_len -= 4; /* Subtract field header length */
 
     if (data_len != PPI_80211_COMMON_LEN) {
-        proto_tree_add_text(ftree, tvb, offset, data_len, "Invalid length: %u", data_len);
+        proto_tree_add_expert_format(ftree, pinfo, &ei_ppi_invalid_length, tvb, offset, data_len, "Invalid length: %u", data_len);
         THROW(ReportedBoundsError);
     }
 
@@ -560,7 +571,7 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     }
 
     if (data_len != PPI_80211N_MAC_LEN) {
-        proto_tree_add_text(ftree, tvb, offset, data_len, "Invalid length: %u", data_len);
+        proto_tree_add_expert_format(ftree, pinfo, &ei_ppi_invalid_length, tvb, offset, data_len, "Invalid length: %u", data_len);
         THROW(ReportedBoundsError);
     }
 
@@ -602,7 +613,7 @@ dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     data_len -= 4; /* Subtract field header length */
 
     if (data_len != PPI_80211N_MAC_PHY_LEN) {
-        proto_tree_add_text(ftree, tvb, offset, data_len, "Invalid length: %u", data_len);
+        proto_tree_add_expert_format(ftree, pinfo, &ei_ppi_invalid_length, tvb, offset, data_len, "Invalid length: %u", data_len);
         THROW(ReportedBoundsError);
     }
 
@@ -636,9 +647,9 @@ dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     ptvcursor_add_with_subtree(csr, hf_80211n_mac_phy_ext_chan_flags, 2, ENC_LITTLE_ENDIAN,
                                ett_dot11n_mac_phy_ext_channel_flags);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_turbo, 2, ENC_LITTLE_ENDIAN);
-    ptvcursor_add_no_advance(csr, hhf_80211n_mac_phy_ext_chan_flags_cck, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_cck, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_ofdm, 2, ENC_LITTLE_ENDIAN);
-    ptvcursor_add_no_advance(csr, hhf_80211n_mac_phy_ext_chan_flags_2ghz, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_2ghz, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_5ghz, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_passive, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_dynamic, 2, ENC_LITTLE_ENDIAN);
@@ -674,7 +685,7 @@ dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     data_len -= 4; /* Subtract field header length */
 
     if (data_len != PPI_AGGREGATION_EXTENSION_LEN) {
-        proto_tree_add_text(ftree, tvb, offset, data_len, "Invalid length: %u", data_len);
+        proto_tree_add_expert_format(ftree, pinfo, &ei_ppi_invalid_length, tvb, offset, data_len, "Invalid length: %u", data_len);
         THROW(ReportedBoundsError);
     }
 
@@ -697,7 +708,7 @@ dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     data_len -= 4; /* Subtract field header length */
 
     if (data_len != PPI_8023_EXTENSION_LEN) {
-        proto_tree_add_text(ftree, tvb, offset, data_len, "Invalid length: %u", data_len);
+        proto_tree_add_expert_format(ftree, pinfo, &ei_ppi_invalid_length, tvb, offset, data_len, "Invalid length: %u", data_len);
         THROW(ReportedBoundsError);
     }
 
@@ -827,8 +838,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case PPI_GPS_INFO:
             if (ppi_gps_handle == NULL)
             {
-                proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                                    "%s (%u bytes)", val_to_str_const(data_type, vs_ppi_field_type, "GPS: "), data_len);
+                proto_tree_add_item(ppi_tree, hf_ppi_gps, tvb, offset, data_len, ENC_NA);
             }
             else /* we found a suitable dissector */
             {
@@ -840,8 +850,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case PPI_VECTOR_INFO:
             if (ppi_vector_handle == NULL)
             {
-                proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                                    "%s (%u bytes)", val_to_str_const(data_type, vs_ppi_field_type, "VECTOR: "), data_len);
+                proto_tree_add_item(ppi_tree, hf_ppi_vector, tvb, offset, data_len, ENC_NA);
             }
             else /* we found a suitable dissector */
             {
@@ -853,8 +862,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case PPI_SENSOR_INFO:
             if (ppi_sensor_handle == NULL)
             {
-                proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                                    "%s (%u bytes)", val_to_str_const(data_type, vs_ppi_field_type, "HARRIS: "), data_len);
+                proto_tree_add_item(ppi_tree, hf_ppi_harris, tvb, offset, data_len, ENC_NA);
             }
             else /* we found a suitable dissector */
             {
@@ -866,8 +874,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case PPI_ANTENNA_INFO:
             if (ppi_antenna_handle == NULL)
             {
-                proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                                    "%s (%u bytes)", val_to_str_const(data_type, vs_ppi_field_type, "ANTENNA: "), data_len);
+                proto_tree_add_item(ppi_tree, hf_ppi_antenna, tvb, offset, data_len, ENC_NA);
             }
             else /* we found a suitable dissector */
             {
@@ -878,9 +885,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         default:
-            if (tree)
-                proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                                    "%s (%u bytes)", val_to_str_const(data_type, vs_ppi_field_type, "Reserved"), data_len);
+            proto_tree_add_item(ppi_tree, hf_ppi_reserved, tvb, offset, data_len, ENC_NA);
         }
 
         offset += data_len;
@@ -907,8 +912,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         if (ampdu_len > AGGREGATE_MAX) {
             if (tree) {
-                proto_tree_add_text(ppi_tree, tvb, offset, -1,
-                    "[Aggregate length greater than maximum (%u)]", AGGREGATE_MAX);
+                proto_tree_add_expert_format(ppi_tree, pinfo, &ei_ppi_invalid_length, tvb, offset, -1, "Aggregate length greater than maximum (%u)", AGGREGATE_MAX);
                 THROW(ReportedBoundsError);
             } else {
                 return;
@@ -1193,13 +1197,13 @@ proto_register_ppi(void)
     { &hf_80211n_mac_phy_ext_chan_flags_turbo,
        { "Turbo", "ppi.80211-mac-phy.ext-chan.type.turbo",
          FT_BOOLEAN, 16, NULL, 0x0010, "PPI 802.11n MAC+PHY Channel Type Turbo", HFILL } },
-    { &hhf_80211n_mac_phy_ext_chan_flags_cck,
+    { &hf_80211n_mac_phy_ext_chan_flags_cck,
        { "Complementary Code Keying (CCK)", "ppi.80211-mac-phy.ext-chan.type.cck",
          FT_BOOLEAN, 16, NULL, 0x0020, "PPI 802.11n MAC+PHY Channel Type Complementary Code Keying (CCK) Modulation", HFILL } },
     { &hf_80211n_mac_phy_ext_chan_flags_ofdm,
        { "Orthogonal Frequency-Division Multiplexing (OFDM)", "ppi.80211-mac-phy.ext-chan.type.ofdm",
          FT_BOOLEAN, 16, NULL, 0x0040, "PPI 802.11n MAC+PHY Channel Type Orthogonal Frequency-Division Multiplexing (OFDM)", HFILL } },
-    { &hhf_80211n_mac_phy_ext_chan_flags_2ghz,
+    { &hf_80211n_mac_phy_ext_chan_flags_2ghz,
        { "2 GHz spectrum", "ppi.80211-mac-phy.ext-chan.type.2ghz",
          FT_BOOLEAN, 16, NULL, 0x0080, "PPI 802.11n MAC+PHY Channel Type 2 GHz spectrum", HFILL } },
     { &hf_80211n_mac_phy_ext_chan_flags_5ghz,
@@ -1310,6 +1314,12 @@ proto_register_ppi(void)
             FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0008,
             "PPI 802.3 Extension Data Error", HFILL } },
 
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_ppi_gps, { "GPS", "ppi.gps", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ppi_vector, { "VECTOR", "ppi.vector", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ppi_harris, { "HARRIS", "ppi.harris", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ppi_antenna, { "ANTENNA", "ppi.antenna", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ppi_reserved, { "Reserved", "ppi.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -1331,11 +1341,18 @@ proto_register_ppi(void)
         &ett_8023_extension_errors
     };
 
+    static ei_register_info ei[] = {
+        { &ei_ppi_invalid_length, { "ppi.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+    };
+
     module_t *ppi_module;
+    expert_module_t* expert_ppi;
 
     proto_ppi = proto_register_protocol("PPI Packet Header", "PPI", "ppi");
     proto_register_field_array(proto_ppi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ppi = expert_register_protocol(proto_ppi);
+    expert_register_field_array(expert_ppi, ei, array_length(ei));
 
     ppi_handle = register_dissector("ppi", dissect_ppi, proto_ppi);
 
