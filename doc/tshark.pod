@@ -36,7 +36,6 @@ S<[ B<-q> ]>
 S<[ B<-Q> ]>
 S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>Read filterE<gt> ]>
-S<[ B<-Y> E<lt>displaY filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> E<lt>separatorE<gt> ]>
 S<[ B<-t> a|ad|d|dd|e|r|u|ud ]>
@@ -48,6 +47,7 @@ S<[ B<-W> E<lt>file format optionE<gt>]>
 S<[ B<-x> ]>
 S<[ B<-X> E<lt>eXtension optionE<gt>]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
+S<[ B<-Y> E<lt>displaY filterE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
 S<[ B<--capture-comment> E<lt>commentE<gt> ]>
 S<[ E<lt>capture filterE<gt> ]>
@@ -620,20 +620,6 @@ Note that forward-looking fields such as 'response in frame #' cannot be used
 with this filter, since they will not have been calculate when this filter is
 applied.
 
-=item -Y  E<lt>displaY filterE<gt>
-
-Cause the specified filter (which uses the syntax of read/display filters,
-rather than that of capture filters) to be applied before printing a
-decoded form of packets or writing packets to a file.  Packets matching the
-filter are printed or written to file; packets that the matching packets
-depend upon (e.g., fragments), are not printed but are written to file;
-packets not matching the filter nor depended upon are discarded rather
-than being printed or written.
-
-Use this instead of -R for filtering using single-pass analysis. If doing
-two-pass analysis (see -2) then only packets matching the read filter (if there
-is one) will be checked against this filter.
-
 =item -s  E<lt>capture snaplenE<gt>
 
 Set the default snapshot length to use when capturing live data.
@@ -769,6 +755,20 @@ If used after an B<-i> option, it sets the capture link type for
 the interface specified by the last B<-i> option occurring before
 this option.  If the capture link type is not set specifically,
 the default capture link type is used if provided.
+
+=item -Y  E<lt>displaY filterE<gt>
+
+Cause the specified filter (which uses the syntax of read/display filters,
+rather than that of capture filters) to be applied before printing a
+decoded form of packets or writing packets to a file.  Packets matching the
+filter are printed or written to file; packets that the matching packets
+depend upon (e.g., fragments), are not printed but are written to file;
+packets not matching the filter nor depended upon are discarded rather
+than being printed or written.
+
+Use this instead of -R for filtering using single-pass analysis. If doing
+two-pass analysis (see -2) then only packets matching the read filter (if there
+is one) will be checked against this filter.
 
 =item -z  E<lt>statisticsE<gt>
 
