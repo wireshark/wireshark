@@ -153,7 +153,7 @@ static const char *separator = "";
 /*
  * TRUE if we're to print packet counts to keep track of captured packets.
  */
-static gboolean print_packet_counts = TRUE;
+static gboolean print_packet_counts;
 
 static capture_options global_capture_opts;
 static capture_session global_capture_session;
@@ -2007,23 +2007,43 @@ main(int argc, char *argv[])
         return 0;
     }
 
+    /*
+     * If the standard error isn't a terminal, don't print packet counts,
+     * as they won't show up on the user's terminal and they'll get in
+     * the way of error messages in the file (to which we assume the
+     * standard error was redirected; if it's redirected to the null
+     * device, there's no point in printing packet counts anyway).
+     *
+     * Otherwise, if we're printing packet information and the standard
+     * output is a terminal (which we assume means the standard output and
+     * error are going to the same terminal), don't print packet counts,
+     * as they'll get in the way of the packet information.
+     *
+     * Otherwise, if the user specified -q, don't print packet counts.
+     *
+     * Otherwise, print packet counts.
+     *
+     * XXX - what if the user wants to do a live capture, doesn't want
+     * to save it to a file, doesn't want information printed for each
+     * packet, does want some "-z" statistic, and wants packet counts
+     * so they know whether they're seeing any packets?  -q will
+     * suppress the information printed for each packet, but it'll
+     * also suppress the packet counts.
+     */
+    if (!isatty(fileno(stderr)))
+      print_packet_counts = FALSE;
+    else if (print_packet_info && isatty(fileno(stdout)))
+      print_packet_counts = FALSE;
+    else if (quiet)
+      print_packet_counts = FALSE;
+    else
+      print_packet_counts = TRUE;
+
     if (print_packet_info) {
       if (!write_preamble(NULL)) {
         show_print_file_io_error(errno);
         return 2;
       }
-    } else if (!quiet) {
-      /*
-       * We're not printing information for each packet, and the user
-       * didn't ask us not to print a count of packets as they arrive,
-       * so print that count so the user knows that packets are arriving.
-       *
-       * XXX - what if the user wants to do a live capture, doesn't want
-       * to save it to a file, doesn't want information printed for each
-       * packet, does want some "-z" statistic, and wants packet counts
-       * so they know whether they're seeing any packets?
-       */
-      print_packet_counts = TRUE;
     }
 
     /* For now, assume libpcap gives microsecond precision. */
