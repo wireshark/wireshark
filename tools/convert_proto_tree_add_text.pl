@@ -287,16 +287,16 @@ sub verify_line {
 			print "$line_number: Poorly formed hf_ variable ($proto_tree_item[3])!\n";
 			$errors++;
 		}
-		foreach (split(/\|/, $proto_tree_item[9])) {
-			if (!exists($FIELD_TYPE{$_})) {
-				print "$line_number: Field type '$proto_tree_item[9]' unknown!\n";
+		if (!exists($FIELD_TYPE{$proto_tree_item[9]})) {
+			print "$line_number: Field type '$proto_tree_item[9]' unknown!\n";
+			$errors++;
+		}
+		foreach (split(/\|/, $proto_tree_item[11])) {
+			if ((!exists($DISPLAY_BASE{$_})) &&
+				(!($proto_tree_item[11] =~ /\d+/))) {
+				print "$line_number: Display base '$proto_tree_item[11]' unknown!\n";
 				$errors++;
 			}
-		}
-		if ((!exists($DISPLAY_BASE{$proto_tree_item[11]})) &&
-			(!($proto_tree_item[11] =~ /\d+/))) {
-			print "$line_number: Display base '$proto_tree_item[11]' unknown!\n";
-			$errors++;
 		}
 
 	} elsif ($proto_tree_item[1] eq "2") {
