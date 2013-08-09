@@ -194,10 +194,11 @@ typedef struct _wmem_block_allocator_t {
 } wmem_block_allocator_t;
 
 /* DEBUG AND TEST */
-static void
+static int
 wmem_block_verify_chunk_chain(wmem_block_chunk_t *chunk)
 {
     guint32 total_len = 0;
+    int     total_free_space = 0;
 
     g_assert(chunk->prev == 0);
 
@@ -210,32 +211,42 @@ wmem_block_verify_chunk_chain(wmem_block_chunk_t *chunk)
             g_assert(chunk->len == WMEM_CHUNK_NEXT(chunk)->prev);
         }
 
-        if (!chunk->used && !chunk->last &&
-                WMEM_CHUNK_DATA_LEN(chunk) > sizeof(wmem_block_free_t)) {
-            g_assert(WMEM_GET_FREE(chunk)->next);
-            g_assert(WMEM_GET_FREE(chunk)->prev);
+        if (!chunk->used &&
+                WMEM_CHUNK_DATA_LEN(chunk) >= sizeof(wmem_block_free_t)) {
+
+            total_free_space += chunk->len;
+
+            if (!chunk->last) {
+                g_assert(WMEM_GET_FREE(chunk)->next);
+                g_assert(WMEM_GET_FREE(chunk)->prev);
+            }
         }
 
         chunk = WMEM_CHUNK_NEXT(chunk);
     } while (chunk);
 
     g_assert(total_len == WMEM_BLOCK_SIZE);
+
+    return total_free_space;
 }
 
-static void
+static int
 wmem_block_verify_master_list(wmem_block_allocator_t *allocator)
 {
     wmem_block_chunk_t *cur;
     wmem_block_free_t  *cur_free;
+    int                 free_space = 0;
 
     cur = allocator->master_head;
     if (!cur) {
-        return;
+        return 0;
     }
 
     g_assert(WMEM_GET_FREE(cur)->prev == NULL);
 
     while (cur) {
+        free_space += cur->len;
+
         cur_free = WMEM_GET_FREE(cur);
 
         g_assert(! cur->used);
@@ -250,20 +261,25 @@ wmem_block_verify_master_list(wmem_block_allocator_t *allocator)
 
         cur = cur_free->next;
     }
+
+    return free_space;
 }
 
-static void
+static int
 wmem_block_verify_recycler(wmem_block_allocator_t *allocator)
 {
     wmem_block_chunk_t *cur;
     wmem_block_free_t  *cur_free;
+    int                 free_space = 0;
 
     cur = allocator->recycler_head;
     if (!cur) {
-        return;
+        return 0;
     }
 
     do {
+        free_space += cur->len;
+
         cur_free = WMEM_GET_FREE(cur);
 
         g_assert(! cur->used);
@@ -276,6 +292,8 @@ wmem_block_verify_recycler(wmem_block_allocator_t *allocator)
 
         cur = cur_free->next;
     } while (cur != allocator->recycler_head);
+
+    return free_space;
 }
 
 void
@@ -283,6 +301,7 @@ wmem_block_verify(wmem_allocator_t *allocator)
 {
     GSList                 *tmp;
     wmem_block_allocator_t *private_allocator;
+    int                     master_free, recycler_free, chunk_free = 0;
 
     /* Normally it would be bad for an allocator helper function to depend
      * on receiving the right type of allocator, but this is for testing only
@@ -297,14 +316,17 @@ wmem_block_verify(wmem_allocator_t *allocator)
         return;
     }
 
-    wmem_block_verify_master_list(private_allocator);
-    wmem_block_verify_recycler(private_allocator);
+    master_free   = wmem_block_verify_master_list(private_allocator);
+    recycler_free = wmem_block_verify_recycler(private_allocator);
 
     tmp = private_allocator->block_list;
     while (tmp) {
-        wmem_block_verify_chunk_chain((wmem_block_chunk_t *)tmp->data);
+        chunk_free += wmem_block_verify_chunk_chain(
+                (wmem_block_chunk_t *)tmp->data);
         tmp = tmp->next;
     }
+
+    g_assert(chunk_free == master_free + recycler_free);
 }
 
 /* MASTER/RECYCLER HELPERS */
