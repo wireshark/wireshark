@@ -91,6 +91,8 @@ typedef struct _io_stat_item_t {
 
 #define NANOSECS_PER_SEC 1000000000ULL
 
+static guint64 last_relative_time;
+
 static int
 iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
@@ -105,20 +107,23 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 
     mit = (io_stat_item_t *) arg;
     parent = mit->parent;
-    relative_time = ((guint64)pinfo->rel_ts.secs * 1000000ULL) + 
-                    ((guint64)((pinfo->rel_ts.nsecs+500)/1000));
+    
+	/* If this frame's relative time is negative, set its relative time to last_relative_time
+	   rather than disincluding it from the calculations. */
+	if (pinfo->rel_ts.secs >= 0) {
+		relative_time = ((guint64)pinfo->rel_ts.secs * 1000000ULL) + 
+						((guint64)((pinfo->rel_ts.nsecs+500)/1000));
+		last_relative_time = relative_time;
+	} else {
+		relative_time = last_relative_time;
+	}
+
     if (mit->parent->start_time == 0) {
         mit->parent->start_time = pinfo->fd->abs_ts.secs - pinfo->rel_ts.secs;
     }
 
-    /* The prev item before the main one is always the last interval we saw packets for */
+    /* The prev item is always the last interval in which we saw packets. */
     it = mit->prev;
-
-    /* XXX for the time being, just ignore all frames that are in the past.
-       should be fixed in the future but hopefully it is uncommon */
-    if(relative_time < it->time){
-        return FALSE;
-    }
 
     /* If we have moved into a new interval (row), create a new io_stat_item_t struct for every interval
     *  between the last struct and this one. If an item was not found in a previous interval, an empty
@@ -937,8 +942,13 @@ iostat_draw(void *arg)
         full_fmt = g_strconcat("|  ", invl_fmt, " <> ", invl_fmt, "  |", NULL);
     else
         full_fmt = g_strconcat("| ", invl_fmt, " <> ", invl_fmt, " |", NULL);
-    num_rows = (int)(duration/interval) + (duration%interval > 0 ? 1 : 0);
-
+    
+	if (interval == 0 || duration == 0) {
+		num_rows = 0;
+	} else {
+		num_rows = (int)(duration/interval) + ((int)(duration%interval) > 0 ? 1 : 0);
+	}
+	
     /* Load item_in_column with the first item in each column */
     item_in_column = (io_stat_item_t **) g_malloc(sizeof(io_stat_item_t *) * num_cols);
     for (j=0; j<num_cols; j++) {
