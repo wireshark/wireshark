@@ -166,21 +166,21 @@ static int hf_ul_message_type = -1;
 static int hf_ul_mac_header_spare = -1;
 static int hf_ul_retry = -1;
 
-/*< Global TFI IE >*/
+/* < Global TFI IE > */
 
-/*< Starting Frame Number Description IE >*/
+/* < Starting Frame Number Description IE > */
 static int hf_starting_frame_number_k = -1;
 
-/*< Ack/Nack Description IE >*/
+/* < Ack/Nack Description IE > */
 static int hf_final_ack_indication = -1;
 static int hf_starting_sequence_number = -1;
 
-/*< Packet Timing Advance IE >*/
+/* < Packet Timing Advance IE > */
 static int hf_timing_advance_value = -1;
 static int hf_timing_advance_index = -1;
 static int hf_timing_advance_timeslot_number = -1;
 
-/*< Power Control Parameters IE >*/
+/* < Power Control Parameters IE > */
 static int hf_alpha = -1;
 static int hf_gamma = -1;
 static int hf_t_avg_w = -1;
@@ -188,13 +188,13 @@ static int hf_t_avg_t = -1;
 static int hf_pc_meas_chan = -1;
 static int hf_n_avg_i = -1;
 
-/*< Global Power Control Parameters IE >*/
+/* < Global Power Control Parameters IE > */
 static int hf_global_power_control_parameters_pb = -1;
 static int hf_global_power_control_parameters_int_meas_channel_list_avail = -1;
 
-/*< Global Packet Timing Advance IE >*/
+/* < Global Packet Timing Advance IE > */
 
-/*< Channel Quality Report struct >*/
+/* < Channel Quality Report struct > */
 static int hf_channel_quality_report_c_value = -1;
 static int hf_channel_quality_report_rxqual = -1;
 static int hf_channel_quality_report_sign_var = -1;
@@ -207,15 +207,15 @@ static int hf_channel_quality_report_slot5_i_level_tn = -1;
 static int hf_channel_quality_report_slot6_i_level_tn = -1;
 static int hf_channel_quality_report_slot7_i_level_tn = -1;
 
-/*< EGPRS Ack/Nack Description >*/
+/* < EGPRS Ack/Nack Description > */
 static int hf_egprs_acknack_beginning_of_window = -1;
 static int hf_egprs_acknack_end_of_window = -1;
 static int hf_egprs_acknack_crbb_length = -1;
 static int hf_egprs_acknack_crbb_starting_color_code = -1;
 
-/*<P1 Rest Octets>*/
+/* <P1 Rest Octets> */
 
-/*<P2 Rest Octets>*/
+/* <P2 Rest Octets> */
 static int hf_mobileallocationie_length = -1;
 static int hf_single_rf_channel_spare = -1;
 static int hf_arfcn = -1;
@@ -261,7 +261,7 @@ static int hf_tqi = -1;
 /* <Packet Polling Request> */
 static int hf_dl_message_type = -1;
 
-/*< SI 13 Rest Octets >*/
+/* < SI 13 Rest Octets > */
 static int hf_gprs_cell_options_nmo = -1;
 static int hf_gprs_cell_options_t3168 = -1;
 static int hf_gprs_cell_options_t3192 = -1;
@@ -285,24 +285,24 @@ static int hf_si13_change_mark = -1;
 static int hf_sgsnr = -1;
 static int hf_si_status_ind = -1;
 
-/*< Packet TBF Release message content >*/
+/* < Packet TBF Release message content > */
 static int hf_packetbf_release_uplink_release = -1;
 static int hf_packetbf_release_downlink_release = -1;
 static int hf_packetbf_release_tbf_release_cause = -1;
 
-/*< Packet Control Acknowledgement message content >*/
+/* < Packet Control Acknowledgement message content > */
 static int hf_packet_control_acknowledgement_additionsr6_ctrl_ack_extension = -1;
 static int hf_packet_control_acknowledgement_additionsr5_tn_rrbp = -1;
 static int hf_packet_control_acknowledgement_additionsr5_g_rnti_extension = -1;
 static int hf_packet_control_acknowledgement_ctrl_ack = -1;
 
-/*< Packet Downlink Dummy Control Block message content >*/
+/* < Packet Downlink Dummy Control Block message content > */
 
-/*< Packet Uplink Dummy Control Block message content >*/
+/* < Packet Uplink Dummy Control Block message content > */
 static int hf_receive_n_pdu_number_nsapi = -1;
 static int hf_receive_n_pdu_number_value = -1;
 
-/*< MS Radio Access capability IE >*/
+/* < MS Radio Access capability IE > */
 static int hf_dtm_egprs_dtm_egprs_multislot_class = -1;
 static int hf_dtm_egprs_highmultislotclass_dtm_egprs_highmultislotclass = -1;
 static int hf_multislot_capability_hscsd_multislot_class = -1;
@@ -348,7 +348,7 @@ static int hf_additional_accessechnologies_struct_t_eight_psk_power_class = -1;
 /* static int hf_ms_radio_access_capability_iei = -1; */
 /* static int hf_ms_radio_access_capability_length = -1; */
 
-/*< MS Classmark 3 IE >*/
+/* < MS Classmark 3 IE > */
 static int hf_arc_a5_bits = -1;
 static int hf_multiband_a5_bits = -1;
 static int hf_arc_arc2_spare = -1;
@@ -414,10 +414,10 @@ static int hf_packet_resource_request_change_mark = -1;
 static int hf_packet_resource_request_c_value = -1;
 static int hf_packet_resource_request_sign_var = -1;
 
-/*< Packet Mobile TBF Status message content > */
+/* < Packet Mobile TBF Status message content > */
 static int hf_packet_mobile_tbf_status_tbf_cause = -1;
 
-/*< Packet PSI Status message content > */
+/* < Packet PSI Status message content > */
 static int hf_psi_message_psix_change_mark = -1;
 static int hf_additional_msg_type = -1;
 static int hf_packet_psi_status_pbcch_change_mark = -1;
@@ -427,7 +427,7 @@ static int hf_si_message_mess_rec = -1;
 
 /* < Packet Downlink Ack/Nack message content > */
 
-/*< EGPRS Packet Downlink Ack/Nack message content > */
+/* < EGPRS Packet Downlink Ack/Nack message content > */
 static int hf_egprs_channelqualityreport_c_value = -1;
 static int hf_egprs_pd_acknack_ms_out_of_memory = -1;
 static int hf_fddarget_cell_t_fdd_arfcn = -1;
@@ -441,7 +441,7 @@ static int hf_tddarget_cell_t_cell_parameter = -1;
 static int hf_tddarget_cell_t_sync_case_tstd = -1;
 
 
-/*< Packet Cell Change Failure message content > */
+/* < Packet Cell Change Failure message content > */
 static int hf_packet_cell_change_failure_bsic = -1;
 static int hf_packet_cell_change_failure_cause = -1;
 static int hf_utran_csg_target_cell_ci = -1;
@@ -449,7 +449,7 @@ static int hf_eutran_csg_target_cell_ci = -1;
 static int hf_eutran_csg_target_cell_tac = -1;
 
 
-/*< Packet Uplink Ack/Nack message content > */
+/* < Packet Uplink Ack/Nack message content > */
 static int hf_pu_acknack_gprs_additionsr99_tbf_est = -1;
 static int hf_pu_acknack_gprs_fixedallocationdummy = -1;
 static int hf_pu_acknack_egprs_00_pre_emptive_transmission = -1;
@@ -458,7 +458,7 @@ static int hf_pu_acknack_egprs_00_arac_retransmission_request = -1;
 static int hf_pu_acknack_egprs_00_tbf_est = -1;
 static int hf_packet_extended_timing_advance = -1;
 
-/*< Packet Uplink Assignment message content > */
+/* < Packet Uplink Assignment message content > */
 static int hf_change_mark_change_mark_1 = -1;
 static int hf_change_mark_change_mark_2 = -1;
 static int hf_indirect_encoding_ma_number = -1;
@@ -472,7 +472,7 @@ static int hf_compact_reducedma_bitmaplength = -1;
 static int hf_multiblock_allocation_timeslot_number = -1;
 static int hf_pua_egprs_00_arac_retransmission_request = -1;
 
-/*< Packet Downlink Assignment message content > */
+/* < Packet Downlink Assignment message content > */
 static int hf_measurement_mapping_struct_measurement_interval = -1;
 static int hf_measurement_mapping_struct_measurement_bitmap = -1;
 static int hf_mac_mode = -1;
@@ -480,19 +480,19 @@ static int hf_control_ack = -1;
 static int hf_dl_timeslot_allocation = -1;
 static int hf_dtm_channel_request_description_dtm_pkt_est_cause = -1;
 
-/*< Packet Paging Request message content > */
+/* < Packet Paging Request message content > */
 static int hf_mobile_identity_length_of_mobile_identity_contents = -1;
 static int hf_page_request_for_rr_conn_channel_needed = -1;
 static int hf_page_request_for_rr_conn_emlpp_priority = -1;
 static int hf_packet_pdch_release_timeslots_available = -1;
 
-/*< Packet Power Control/Timing Advance message content >*/
+/* < Packet Power Control/Timing Advance message content > */
 
-/*< Packet Queueing Notification message content > */
+/* < Packet Queueing Notification message content > */
 
-/*< Packet Timeslot Reconfigure message content > */
+/* < Packet Timeslot Reconfigure message content > */
 
-/*< Packet PRACH Parameters message content > */
+/* < Packet PRACH Parameters message content > */
 static int hf_prach_control_s = -1;
 static int hf_prach_control_tx_int = -1;
 static int hf_hcs_priority_class = -1;
@@ -537,7 +537,7 @@ static int hf_nc_measurement_parameters_with_frequency_list_nc_non_drx_period = 
 static int hf_nc_measurement_parameters_with_frequency_list_nc_reporting_period_i = -1;
 static int hf_nc_measurement_parameters_with_frequency_list_nc_reporting_period_t = -1;
 
-/*< Packet Cell Change Order message contents >*/
+/* < Packet Cell Change Order message contents > */
 static int hf_ba_ind_ba_ind = -1;
 static int hf_ba_ind_ba_ind_3g = -1;
 static int hf_gprsreportpriority_number_cells = -1;
@@ -689,7 +689,7 @@ static int hf_target_cell_g_rnti_ext = -1;
 
 
 
-/*< Packet (Enhanced) Measurement Report message contents > */
+/* < Packet (Enhanced) Measurement Report message contents > */
 static int hf_ba_used_ba_used = -1;
 static int hf_ba_used_ba_used_3g = -1;
 static int hf_serving_cell_data_rxlev_serving_cell = -1;
@@ -735,7 +735,7 @@ static int hf_enhancedmeasurementreport_bsic_seen = -1;
 static int hf_enhancedmeasurementreport_scale = -1;
 static int hf_packet_measurement_report_psi5_change_mark = -1;
 
-/*< Packet Measurement Order message contents >*/
+/* < Packet Measurement Order message contents > */
 static int hf_ext_frequency_list_start_frequency = -1;
 static int hf_ext_frequency_list_nr_of_frequencies = -1;
 static int hf_ext_frequency_list_freq_diff_length = -1;
@@ -750,7 +750,7 @@ static int hf_fdd_target_cell_notif_scrambling_code = -1;
 static int hf_target_cell_3g_notif_reporting_quantity = -1;
 static int hf_pccn_additionsr6_ba_used_3g = -1;
 
-/*< Packet Cell Change Notification message contents > */
+/* < Packet Cell Change Notification message contents > */
 static int hf_packet_cell_change_notification_ba_ind = -1;
 static int hf_packet_cell_change_notification_pmo_used = -1;
 static int hf_packet_cell_change_notification_pccn_sending = -1;
@@ -771,18 +771,18 @@ static int hf_eutran_csg_meas_rpt_quantity = -1;
 
 
 
-/*< Packet Cell Change Continue message contents > */
+/* < Packet Cell Change Continue message contents > */
 static int hf_packet_cell_change_continue_arfcn = -1;
 static int hf_packet_cell_change_continue_bsic = -1;
 static int hf_packet_cell_change_continue_container_id = -1;
 
-/*< Packet Neighbour Cell Data message contents > */
+/* < Packet Neighbour Cell Data message contents > */
 static int hf_pncd_container_with_id_bsic = -1;
 static int hf_packet_neighbour_cell_data_container_id = -1;
 static int hf_packet_neighbour_cell_data_spare = -1;
 static int hf_packet_neighbour_cell_data_container_index = -1;
 
-/*< Packet Serving Cell Data message contents > */
+/* < Packet Serving Cell Data message contents > */
 static int hf_packet_serving_cell_data_spare = -1;
 static int hf_packet_serving_cell_data_container_index = -1;
 static int hf_servingcelldata_rxlev_serving_cell = -1;
@@ -794,7 +794,7 @@ static int hf_nc_measurementreport_nc_mode = -1;
 static int hf_nc_measurementreport_pmo_used = -1;
 static int hf_nc_measurementreport_scale = -1;
 
-/*< Packet Handover Command message content > */
+/* < Packet Handover Command message content > */
 static int hf_globaltimeslotdescription_ms_timeslotallocation = -1;
 static int hf_pho_usf_1_7_usf = -1;
 static int hf_usf_allocationarray_usf_0 = -1;
@@ -812,11 +812,11 @@ static int hf_pho_radioresources_rlc_reset = -1;
 static int hf_pho_radioresources_uplinkcontroltimeslot = -1;
 static int hf_packet_handover_command_containerid = -1;
 
-/*< End Packet Handover Command >*/
+/* < End Packet Handover Command > */
 
-/*< Packet Physical Information message content > */
+/* < Packet Physical Information message content > */
 
-/*< End Packet Physical Information > */
+/* < End Packet Physical Information > */
 
 /* < Additinal MS Radio Access Capability */
 /* < End Additinal MS Radio Access Capability */
@@ -1111,7 +1111,7 @@ CSN_DESCR_BEGIN(StartingTime_t)
   M_UINT       (StartingTime_t,  N26,  5, &hf_startingtime_n26),
 CSN_DESCR_END  (StartingTime_t)
 
-/*< Global TFI IE >*/
+/* < Global TFI IE > */
 static const
 CSN_DESCR_BEGIN(Global_TFI_t)
   M_UNION      (Global_TFI_t, 2),
@@ -1119,7 +1119,7 @@ CSN_DESCR_BEGIN(Global_TFI_t)
   M_UINT       (Global_TFI_t,  u.DOWNLINK_TFI,  5, &hf_downlink_tfi),
 CSN_DESCR_END  (Global_TFI_t)
 
-/*< Starting Frame Number Description IE >*/
+/* < Starting Frame Number Description IE > */
 static const
 CSN_DESCR_BEGIN(Starting_Frame_Number_t)
   M_UNION      (Starting_Frame_Number_t, 2),
@@ -1127,7 +1127,7 @@ CSN_DESCR_BEGIN(Starting_Frame_Number_t)
   M_UINT       (Starting_Frame_Number_t,  u.k,  13, &hf_starting_frame_number_k),
 CSN_DESCR_END(Starting_Frame_Number_t)
 
-/*< Ack/Nack Description IE >*/
+/* < Ack/Nack Description IE > */
 static const
 CSN_DESCR_BEGIN(Ack_Nack_Description_t)
   M_UINT       (Ack_Nack_Description_t,  FINAL_ACK_INDICATION, 1, &hf_final_ack_indication),
@@ -1135,7 +1135,7 @@ CSN_DESCR_BEGIN(Ack_Nack_Description_t)
   M_BITMAP     (Ack_Nack_Description_t, RECEIVED_BLOCK_BITMAP, 64),
 CSN_DESCR_END  (Ack_Nack_Description_t)
 
-/*< Packet Timing Advance IE >*/
+/* < Packet Timing Advance IE > */
 static const
 CSN_DESCR_BEGIN(Packet_Timing_Advance_t)
   M_NEXT_EXIST (Packet_Timing_Advance_t, Exist_TIMING_ADVANCE_VALUE, 1),
@@ -1146,7 +1146,7 @@ CSN_DESCR_BEGIN(Packet_Timing_Advance_t)
   M_UINT       (Packet_Timing_Advance_t, TIMING_ADVANCE_TIMESLOT_NUMBER, 3, &hf_timing_advance_timeslot_number),
 CSN_DESCR_END  (Packet_Timing_Advance_t)
 
-/*< Power Control Parameters IE >*/
+/* < Power Control Parameters IE > */
 static const
 CSN_DESCR_BEGIN(GPRS_Power_Control_Parameters_t)
   M_UINT       (GPRS_Power_Control_Parameters_t, ALPHA, 4, &hf_alpha),
@@ -1156,7 +1156,7 @@ CSN_DESCR_BEGIN(GPRS_Power_Control_Parameters_t)
   M_UINT       (GPRS_Power_Control_Parameters_t, N_AVG_I, 4, &hf_n_avg_i),
 CSN_DESCR_END  (GPRS_Power_Control_Parameters_t)
 
-/*< Global Power Control Parameters IE >*/
+/* < Global Power Control Parameters IE > */
 static const
 CSN_DESCR_BEGIN(Global_Power_Control_Parameters_t)
   M_UINT       (Global_Power_Control_Parameters_t, ALPHA, 4, &hf_alpha),
@@ -1168,7 +1168,7 @@ CSN_DESCR_BEGIN(Global_Power_Control_Parameters_t)
   M_UINT       (Global_Power_Control_Parameters_t, N_AVG_I, 4, &hf_n_avg_i),
 CSN_DESCR_END  (Global_Power_Control_Parameters_t)
 
-/*< Global Packet Timing Advance IE >*/
+/* < Global Packet Timing Advance IE > */
 static const
 CSN_DESCR_BEGIN(Global_Packet_Timing_Advance_t)
   M_NEXT_EXIST (Global_Packet_Timing_Advance_t, Exist_TIMING_ADVANCE_VALUE, 1),
@@ -1183,7 +1183,7 @@ CSN_DESCR_BEGIN(Global_Packet_Timing_Advance_t)
   M_UINT       (Global_Packet_Timing_Advance_t,  DOWNLINK_TIMING_ADVANCE_TIMESLOT_NUMBER,  3, &hf_timing_advance_timeslot_number),
 CSN_DESCR_END  (Global_Packet_Timing_Advance_t)
 
-/*< Channel Quality Report struct >*/
+/* < Channel Quality Report struct > */
 static const
 CSN_DESCR_BEGIN(Channel_Quality_Report_t)
   M_UINT       (Channel_Quality_Report_t,  C_VALUE,  6, &hf_channel_quality_report_c_value),
@@ -1215,7 +1215,7 @@ CSN_DESCR_BEGIN(Channel_Quality_Report_t)
   M_UINT       (Channel_Quality_Report_t,  Slot[7].I_LEVEL_TN,  4, &hf_channel_quality_report_slot7_i_level_tn),
 CSN_DESCR_END  (Channel_Quality_Report_t)
 
-/*< EGPRS Ack/Nack Description struct >*/
+/* < EGPRS Ack/Nack Description struct > */
 static const
 CSN_DESCR_BEGIN   (EGPRS_AckNack_Desc_t)
   M_UINT          (EGPRS_AckNack_Desc_t,  FINAL_ACK_INDICATION,  1, &hf_final_ack_indication),
@@ -1231,7 +1231,7 @@ CSN_DESCR_BEGIN   (EGPRS_AckNack_Desc_t)
   M_LEFT_VAR_BMP_1(EGPRS_AckNack_Desc_t,  URBB, URBB_LENGTH, 0),
 CSN_DESCR_END     (EGPRS_AckNack_Desc_t)
 
-/*< EGPRS Ack/Nack Description IE >*/
+/* < EGPRS Ack/Nack Description IE > */
 gint16 Egprs_Ack_Nack_Desc_w_len_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1 _U_)
 {
   return csnStreamDissector(tree, ar, CSNDESCR(EGPRS_AckNack_Desc_t), tvb, data, ett_gsm_rlcmac);
@@ -1250,8 +1250,8 @@ CSN_DESCR_BEGIN(EGPRS_AckNack_t)
   M_TYPE       (EGPRS_AckNack_t, Desc, EGPRS_AckNack_w_len_t),
 CSN_DESCR_END  (EGPRS_AckNack_t)
 
-/*<P1 Rest Octets>*/
-/*<P2 Rest Octets>*/
+/* <P1 Rest Octets> */
+/* <P2 Rest Octets> */
 static const
 CSN_DESCR_BEGIN(MobileAllocationIE_t)
   M_UINT       (MobileAllocationIE_t,  Length,  8, &hf_mobileallocationie_length),
@@ -1609,7 +1609,7 @@ CSN_DESCR_BEGIN(GPRS_Mobile_Allocation_t)
   M_TYPE       (GPRS_Mobile_Allocation_t, u.ARFCN_index_list, ARFCN_index_list_t),
 CSN_DESCR_END  (GPRS_Mobile_Allocation_t)
 
-/*< SI 13 Rest Octets >*/
+/* < SI 13 Rest Octets > */
 static const
 CSN_DESCR_BEGIN (Extension_Bits_t)
   M_UINT_OFFSET (Extension_Bits_t, extension_length, 6, 1),
@@ -1712,7 +1712,7 @@ CSN_DESCR_END            (SI_13_t)
 /*                         TS 44.060 messages               */
 /************************************************************/
 
-/*< Packet TBF Release message content >*/
+/* < Packet TBF Release message content > */
 static const
 CSN_DESCR_BEGIN(Packet_TBF_Release_t)
   M_UINT       (Packet_TBF_Release_t, MESSAGE_TYPE, 6, &hf_dl_message_type),
@@ -1725,7 +1725,7 @@ CSN_DESCR_BEGIN(Packet_TBF_Release_t)
   M_PADDING_BITS(Packet_TBF_Release_t ),
 CSN_DESCR_END  (Packet_TBF_Release_t)
 
-/*< Packet Control Acknowledgement message content >*/
+/* < Packet Control Acknowledgement message content > */
 
 static const
 CSN_DESCR_BEGIN        (Packet_Control_Acknowledgement_AdditionsR6_t)
@@ -1759,7 +1759,7 @@ CSN_DESCR_BEGIN        (Packet_Control_Acknowledgement_t)
   M_PADDING_BITS       (Packet_Control_Acknowledgement_t),
 CSN_DESCR_END  (Packet_Control_Acknowledgement_t)
 
-/*< Packet Downlink Dummy Control Block message content >*/
+/* < Packet Downlink Dummy Control Block message content > */
 static const
 CSN_DESCR_BEGIN(Packet_Downlink_Dummy_Control_Block_t)
   M_UINT       (Packet_Downlink_Dummy_Control_Block_t, MESSAGE_TYPE, 6, &hf_dl_message_type),
@@ -1771,7 +1771,7 @@ CSN_DESCR_BEGIN(Packet_Downlink_Dummy_Control_Block_t)
   M_PADDING_BITS(Packet_Downlink_Dummy_Control_Block_t ),
 CSN_DESCR_END  (Packet_Downlink_Dummy_Control_Block_t)
 
-/*< Packet Uplink Dummy Control Block message content >*/
+/* < Packet Uplink Dummy Control Block message content > */
 static const
 CSN_DESCR_BEGIN(Packet_Uplink_Dummy_Control_Block_t)
   M_UINT       (Packet_Uplink_Dummy_Control_Block_t, PayloadType, 2, &hf_ul_payload_type),
@@ -1801,7 +1801,7 @@ CSN_DESCR_BEGIN(Receive_N_PDU_Number_list_t)
   M_VAR_TARRAY (Receive_N_PDU_Number_list_t, Receive_N_PDU_Number, Receive_N_PDU_Number_t, Count_Receive_N_PDU_Number),
 CSN_DESCR_END  (Receive_N_PDU_Number_list_t)
 
-/*< MS Radio Access capability IE >*/
+/* < MS Radio Access capability IE > */
 static const
 CSN_DESCR_BEGIN       (DTM_EGPRS_t)
   M_NEXT_EXIST        (DTM_EGPRS_t, Exist_DTM_EGPRS_multislot_class, 1),
@@ -1941,7 +1941,7 @@ CSN_DESCR_BEGIN (MS_Radio_Access_capability_t)
   M_REC_TARRAY_1(MS_Radio_Access_capability_t, MS_RA_capability_value, MS_RA_capability_value_t, Count_MS_RA_capability_value),
 CSN_DESCR_END   (MS_Radio_Access_capability_t)
 
-/*< MS Classmark 3 IE >*/
+/* < MS Classmark 3 IE > */
 static const
 CSN_DESCR_BEGIN(ARC_t)
   M_UINT       (ARC_t,  A5_Bits,  4, &hf_arc_a5_bits),
@@ -2170,7 +2170,7 @@ CSN_DESCR_BEGIN       (Packet_Resource_Request_t)
    M_PADDING_BITS     (Packet_Resource_Request_t),
 CSN_DESCR_END         (Packet_Resource_Request_t)
 
-/*< Packet Mobile TBF Status message content > */
+/* < Packet Mobile TBF Status message content > */
 static const
 CSN_DESCR_BEGIN(Packet_Mobile_TBF_Status_t)
   /* Mac header */
@@ -2189,7 +2189,7 @@ CSN_DESCR_BEGIN(Packet_Mobile_TBF_Status_t)
   M_PADDING_BITS(Packet_Mobile_TBF_Status_t),
 CSN_DESCR_END  (Packet_Mobile_TBF_Status_t)
 
-/*< Packet PSI Status message content > */
+/* < Packet PSI Status message content > */
 static const
 CSN_DESCR_BEGIN(PSI_Message_t)
   M_UINT       (PSI_Message_t, PSI_MESSAGE_TYPE, 6, &hf_dl_message_type),
@@ -2293,7 +2293,7 @@ CSN_DESCR_BEGIN       (Packet_Downlink_Ack_Nack_t)
 CSN_DESCR_END         (Packet_Downlink_Ack_Nack_t)
 
 
-/*< EGPRS Packet Downlink Ack/Nack message content > */
+/* < EGPRS Packet Downlink Ack/Nack message content > */
 static const
 CSN_DESCR_BEGIN(EGPRS_ChannelQualityReport_t)
   M_TYPE       (EGPRS_ChannelQualityReport_t, EGPRS_BEP_LinkQualityMeasurements, EGPRS_BEP_LinkQualityMeasurements_t),
@@ -2405,7 +2405,7 @@ CSN_DESCR_BEGIN(PCCF_AdditionsR99_t)
   M_TYPE       (PCCF_AdditionsR99_t, AdditionsR5, PCCF_AdditionsR5_t),
 CSN_DESCR_END  (PCCF_AdditionsR99_t)
 
-/*< Packet Cell Change Failure message content > */
+/* < Packet Cell Change Failure message content > */
 static const
 CSN_DESCR_BEGIN(Packet_Cell_Change_Failure_t)
   /* Mac header */
@@ -2426,7 +2426,7 @@ CSN_DESCR_BEGIN(Packet_Cell_Change_Failure_t)
   M_PADDING_BITS       (Packet_Cell_Change_Failure_t),
 CSN_DESCR_END          (Packet_Cell_Change_Failure_t)
 
-/*< Packet Uplink Ack/Nack message content > */
+/* < Packet Uplink Ack/Nack message content > */
 static const
 CSN_DESCR_BEGIN(Power_Control_Parameters_t)
   M_UINT       (Power_Control_Parameters_t, ALPHA, 4, &hf_alpha),
@@ -2542,7 +2542,7 @@ CSN_DESCR_BEGIN(Packet_Uplink_Ack_Nack_t)
   M_PADDING_BITS(Packet_Uplink_Ack_Nack_t ),
 CSN_DESCR_END  (Packet_Uplink_Ack_Nack_t)
 
-/*< Packet Uplink Assignment message content > */
+/* < Packet Uplink Assignment message content > */
 static const
 CSN_DESCR_BEGIN(CHANGE_MARK_t)
   M_UINT       (CHANGE_MARK_t,  CHANGE_MARK_1,  2, &hf_change_mark_change_mark_1),
@@ -2725,7 +2725,7 @@ CSN_DESCR_END  (h0_Global_TFI_t)
 
 typedef struct
 {
-  guint32 TLLI;/* | 10  < TLLI : bit (32) >*/
+  guint32 TLLI;/* | 10  < TLLI : bit (32) > */
 } h10_TLLI_t;
 
 static const
@@ -2882,7 +2882,7 @@ CSN_DESCR_BEGIN(Packet_Uplink_Assignment_t)
   M_PADDING_BITS(Packet_Uplink_Assignment_t ),
 CSN_DESCR_END  (Packet_Uplink_Assignment_t)
 
-/*< Packet Downlink Assignment message content > */
+/* < Packet Downlink Assignment message content > */
 static const
 CSN_DESCR_BEGIN(Measurement_Mapping_struct_t)
   M_TYPE       (Measurement_Mapping_struct_t, Measurement_Starting_Time, Starting_Frame_Number_t),
@@ -3052,7 +3052,7 @@ CSN_DESCR_BEGIN(DTM_Channel_Request_Description_t)
 CSN_DESCR_END(DTM_Channel_Request_Description_t)
 /* DTM  */
 
-/*< Packet Paging Request message content > */
+/* < Packet Paging Request message content > */
 typedef struct
 {
   guint8 Length_of_Mobile_Identity_contents;/* bit (4) */
@@ -3116,7 +3116,7 @@ CSN_DESCR_BEGIN(Packet_PDCH_Release_t)
   M_PADDING_BITS(Packet_PDCH_Release_t),
 CSN_DESCR_END  (Packet_PDCH_Release_t)
 
-/*< Packet Power Control/Timing Advance message content >*/
+/* < Packet Power Control/Timing Advance message content > */
 static const
 CSN_DESCR_BEGIN(GlobalTimingAndPower_t)
   M_TYPE       (GlobalTimingAndPower_t, Global_Packet_Timing_Advance, Global_Packet_Timing_Advance_t),
@@ -3163,7 +3163,7 @@ CSN_DESCR_BEGIN(Packet_Power_Control_Timing_Advance_t)
   M_PADDING_BITS(Packet_Power_Control_Timing_Advance_t),
 CSN_DESCR_END  (Packet_Power_Control_Timing_Advance_t)
 
-/*< Packet Queueing Notification message content > */
+/* < Packet Queueing Notification message content > */
 static const
 CSN_DESCR_BEGIN(Packet_Queueing_Notification_t)
   M_UINT       (Packet_Queueing_Notification_t, MESSAGE_TYPE, 6, &hf_dl_message_type),
@@ -3201,7 +3201,7 @@ CSN_DESCR_BEGIN(TRDynamic_Allocation_t)
   M_TYPE       (TRDynamic_Allocation_t, u.Timeslot_Allocation_Power_Ctrl_Param, Timeslot_Allocation_Power_Ctrl_Param_t),
 CSN_DESCR_END  (TRDynamic_Allocation_t)
 
-/*< Packet Timeslot Reconfigure message content > */
+/* < Packet Timeslot Reconfigure message content > */
 static const
 CSN_DESCR_BEGIN(PTR_GPRS_AdditionsR99_t)
   M_NEXT_EXIST (PTR_GPRS_AdditionsR99_t, Exist_Packet_Extended_Timing_Advance, 1),
@@ -3308,7 +3308,7 @@ CSN_DESCR_BEGIN(PTRCheck_t)
   M_TYPE       (PTRCheck_t, Global_TFI, Global_TFI_t),
 CSN_DESCR_END  (PTRCheck_t)
 
-/*< Packet PRACH Parameters message content > */
+/* < Packet PRACH Parameters message content > */
 static const
 CSN_DESCR_BEGIN(PRACH_Control_t)
   M_UINT_ARRAY (PRACH_Control_t, ACC_CONTR_CLASS, 8, 2), /* bit (16) == 8bit*2 */
@@ -3554,7 +3554,7 @@ CSN_DESCR_BEGIN(NC_Measurement_Parameters_with_Frequency_List_t)
   M_TYPE       (NC_Measurement_Parameters_with_Frequency_List_t, NC_Frequency_list, NC_Frequency_list_t),
 CSN_DESCR_END  (NC_Measurement_Parameters_with_Frequency_List_t)
 
-/*< Packet Cell Change Order message contents >*/
+/* < Packet Cell Change Order message contents > */
 static const
 CSN_DESCR_BEGIN(BA_IND_t)
   M_UINT       (BA_IND_t,  BA_IND,  1, &hf_ba_ind_ba_ind),
@@ -4576,7 +4576,7 @@ CSN_DESCR_BEGIN(Packet_Cell_Change_Order_t)
   M_PADDING_BITS(Packet_Cell_Change_Order_t),
 CSN_DESCR_END  (Packet_Cell_Change_Order_t)
 
-/*< Packet (Enhanced) Measurement Report message contents > */
+/* < Packet (Enhanced) Measurement Report message contents > */
 static const
 CSN_DESCR_BEGIN(BA_USED_t)
   M_UINT       (BA_USED_t,  BA_USED,  1, &hf_ba_used_ba_used),
@@ -4853,7 +4853,7 @@ CSN_DESCR_BEGIN       (Packet_Enh_Measurement_Report_t)
   M_PADDING_BITS(Packet_Enh_Measurement_Report_t),
 CSN_DESCR_END         (Packet_Enh_Measurement_Report_t)
 
-/*< Packet Measurement Order message contents >*/
+/* < Packet Measurement Order message contents > */
 static const
 CSN_DESCR_BEGIN(EXT_Frequency_List_t)
   M_UINT       (EXT_Frequency_List_t,  START_FREQUENCY,  10, &hf_ext_frequency_list_start_frequency),
@@ -5008,7 +5008,7 @@ CSN_DESCR_BEGIN (PCCN_AdditionsR6_t)
   M_VAR_TARRAY_OFFSET (PCCN_AdditionsR6_t, Measurements_3G, Measurements_3G_t, N_3G),
 CSN_DESCR_END   (PCCN_AdditionsR6_t)
 
-/*< Packet Cell Change Notification message contents > */
+/* < Packet Cell Change Notification message contents > */
 static const
 CSN_DESCR_BEGIN(Packet_Cell_Change_Notification_t)
   /* Mac header */
@@ -5035,7 +5035,7 @@ CSN_DESCR_BEGIN(Packet_Cell_Change_Notification_t)
   M_PADDING_BITS(Packet_Cell_Change_Notification_t),
 CSN_DESCR_END  (Packet_Cell_Change_Notification_t)
 
-/*< Packet Cell Change Continue message contents > */
+/* < Packet Cell Change Continue message contents > */
 static const
 CSN_DESCR_BEGIN(Packet_Cell_Change_Continue_t)
   M_UINT       (Packet_Cell_Change_Continue_t, MESSAGE_TYPE, 6, &hf_dl_message_type),
@@ -5051,7 +5051,7 @@ CSN_DESCR_BEGIN(Packet_Cell_Change_Continue_t)
   M_PADDING_BITS(Packet_Cell_Change_Continue_t),
 CSN_DESCR_END  (Packet_Cell_Change_Continue_t)
 
-/*< Packet Neighbour Cell Data message contents > */
+/* < Packet Neighbour Cell Data message contents > */
 static const
 CSN_DESCR_BEGIN(PNCD_Container_With_ID_t)
   M_UINT       (PNCD_Container_With_ID_t,  ARFCN, 10, &hf_arfcn),
@@ -5091,7 +5091,7 @@ CSN_DESCR_BEGIN(Packet_Neighbour_Cell_Data_t)
   M_PADDING_BITS(Packet_Neighbour_Cell_Data_t),
 CSN_DESCR_END  (Packet_Neighbour_Cell_Data_t)
 
-/*< Packet Serving Cell Data message contents > */
+/* < Packet Serving Cell Data message contents > */
 static const
 CSN_DESCR_BEGIN(Packet_Serving_Cell_Data_t)
   M_UINT       (Packet_Serving_Cell_Data_t, MESSAGE_TYPE, 6, &hf_dl_message_type),
@@ -5147,7 +5147,7 @@ CSN_DESCR_END   (NC_MeasurementReport_t)
 
 
 
-/*< Packet Handover Command message content > */
+/* < Packet Handover Command message content > */
 static const
 CSN_DESCR_BEGIN (GlobalTimeslotDescription_t)
   M_UNION       (GlobalTimeslotDescription_t, 2),
@@ -5350,9 +5350,9 @@ CSN_DESCR_BEGIN(Packet_Handover_Command_t)
   M_PADDING_BITS(Packet_Handover_Command_t),
 CSN_DESCR_END  (Packet_Handover_Command_t)
 
-/*< End Packet Handover Command >*/
+/* < End Packet Handover Command > */
 
-/*< Packet Physical Information message content > */
+/* < Packet Physical Information message content > */
 
 static const
 CSN_DESCR_BEGIN(Packet_PhysicalInformation_t)
@@ -5365,10 +5365,10 @@ CSN_DESCR_BEGIN(Packet_PhysicalInformation_t)
   M_PADDING_BITS(Packet_PhysicalInformation_t),
 CSN_DESCR_END  (Packet_PhysicalInformation_t)
 
-/*< End Packet Physical Information > */
+/* < End Packet Physical Information > */
 
 
-/*< ADDITIONAL MS RADIO ACCESS CAPABILITIES content > */
+/* < ADDITIONAL MS RADIO ACCESS CAPABILITIES content > */
 static const
 CSN_ChoiceElement_t AdditionalMsRadAccessCapID[] =
 {
@@ -5397,10 +5397,10 @@ CSN_DESCR_BEGIN       (Additional_MS_Rad_Access_Cap_t)
 CSN_DESCR_END         (Additional_MS_Rad_Access_Cap_t)
 
 
-/*< End  ADDITIONAL MS RADIO ACCESS CAPABILITIES > */
+/* < End  ADDITIONAL MS RADIO ACCESS CAPABILITIES > */
 
 
-/*< Packet Pause content > */
+/* < Packet Pause content > */
 
 static const
 CSN_DESCR_BEGIN       (Packet_Pause_t)
@@ -5411,10 +5411,10 @@ CSN_DESCR_BEGIN       (Packet_Pause_t)
 CSN_DESCR_END         (Packet_Pause_t)
 
 
-/*< End Packet Pause > */
+/* < End Packet Pause > */
 
 
-/*< Packet System Information Type 1 message content >*/
+/* < Packet System Information Type 1 message content > */
 static const
 CSN_DESCR_BEGIN(PSI1_AdditionsR6_t)
   M_UINT       (PSI1_AdditionsR6_t, LB_MS_TXPWR_MAX_CCH, 5, &hf_packet_system_info_type1_lb_ms_txpwr_max_ccch),
@@ -5463,10 +5463,10 @@ CSN_DESCR_BEGIN(PSI1_t)
 
   M_PADDING_BITS(PSI1_t),
 CSN_DESCR_END  (PSI1_t)
-/*< End Packet System Information Type 1 message content >*/
+/* < End Packet System Information Type 1 message content > */
 
 
-/*< Packet System Information Type 2 message content >*/
+/* < Packet System Information Type 2 message content > */
 
 static const
 CSN_DESCR_BEGIN(LAI_t)
@@ -5569,11 +5569,11 @@ CSN_DESCR_BEGIN(PSI2_t)
   M_REC_TARRAY (PSI2_t, PCCCH_Description[0], PCCCH_Description_t, Count_PCCCH_Description),
   M_PADDING_BITS(PSI2_t),
 CSN_DESCR_END  (PSI2_t)
-/*< End Packet System Information Type 2 message content >*/
+/* < End Packet System Information Type 2 message content > */
 
 
 
-/*< Packet System Information Type 3 message content >*/
+/* < Packet System Information Type 3 message content > */
 static const
 CSN_DESCR_BEGIN(Serving_Cell_params_t)
   M_UINT       (Serving_Cell_params_t,  CELL_BAR_ACCESS_2, 1, &hf_cell_bar_access_2),
@@ -5706,10 +5706,10 @@ CSN_DESCR_BEGIN(PSI3_t)
 
   M_PADDING_BITS(PSI3_t),
 CSN_DESCR_END  (PSI3_t)
-/*< End Packet System Information Type 3 message content >*/
+/* < End Packet System Information Type 3 message content > */
 
 
-/*< Packet System Information Type 5 message content >*/
+/* < Packet System Information Type 5 message content > */
 static const
 CSN_DESCR_BEGIN(MeasurementParams_t)
   M_NEXT_EXIST (MeasurementParams_t, Exist_MULTI_BAND_REPORTING, 1),
@@ -5816,10 +5816,10 @@ CSN_DESCR_BEGIN(PSI5_t)
 
   M_PADDING_BITS(PSI5_t),
 CSN_DESCR_END  (PSI5_t)
-/*< End Packet System Information Type 5 message content >*/
+/* < End Packet System Information Type 5 message content > */
 
 
-/*< Packet System Information Type 13 message content >*/
+/* < Packet System Information Type 13 message content > */
 static const
 CSN_DESCR_BEGIN(PSI13_AdditionsR6)
   M_NEXT_EXIST (PSI13_AdditionsR6, Exist_LB_MS_TXPWR_MAX_CCH, 1),
@@ -5861,7 +5861,7 @@ CSN_DESCR_BEGIN(PSI13_t)
 
   M_PADDING_BITS(PSI13_t),
 CSN_DESCR_END  (PSI13_t)
-/*< End Packet System Information Type 13 message content >*/
+/* < End Packet System Information Type 13 message content > */
 
 
 #if 0 /* Not used ??? */
@@ -8106,9 +8106,9 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Global TFI IE >*/
+/* < Global TFI IE > */
 
-/*< Starting Frame Number Description IE >*/
+/* < Starting Frame Number Description IE > */
     { &hf_starting_frame_number_k,
       { "k",        "gsm_rlcmac.dl.k",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8116,7 +8116,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Ack/Nack Description IE >*/
+/* < Ack/Nack Description IE > */
     { &hf_final_ack_indication,
       { "FINAL_ACK_INDICATION",        "gsm_rlcmac.dl.final_ack_indication",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -8130,7 +8130,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Timing Advance IE >*/
+/* < Packet Timing Advance IE > */
     { &hf_timing_advance_value,
       { "TIMING_ADVANCE_VALUE",        "gsm_rlcmac.dl.timing_advance_value",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8150,7 +8150,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Power Control Parameters IE >*/
+/* < Power Control Parameters IE > */
     { &hf_alpha,
       { "ALPHA",        "gsm_rlcmac.dl.alpha",
         FT_UINT8, BASE_DEC, VALS(alpha_vals), 0x0,
@@ -8182,7 +8182,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Global Power Control Parameters IE >*/
+/* < Global Power Control Parameters IE > */
     { &hf_global_power_control_parameters_pb,
       { "Pb",        "gsm_rlcmac.dl.pb",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8196,9 +8196,9 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Global Packet Timing Advance IE >*/
+/* < Global Packet Timing Advance IE > */
 
-/*< Channel Quality Report struct >*/
+/* < Channel Quality Report struct > */
     { &hf_channel_quality_report_c_value,
       { "C_VALUE",        "gsm_rlcmac.dl.c_value",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8266,7 +8266,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< EGPRS Ack/Nack Description >*/
+/* < EGPRS Ack/Nack Description > */
     { &hf_egprs_acknack_beginning_of_window,
       { "BEGINNING_OF_WINDOW",        "gsm_rlcmac.dl.beginning_of_window",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8292,9 +8292,9 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*<P1 Rest Octets>*/
+/* <P1 Rest Octets> */
 
-/*<P2 Rest Octets>*/
+/* <P2 Rest Octets> */
     { &hf_mobileallocationie_length,
       { "Length",        "gsm_rlcmac.dl.mobileallocationie_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8551,7 +8551,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< SI 13 Rest Octets >*/
+/* < SI 13 Rest Octets > */
     { &hf_gprs_cell_options_nmo,
       { "NMO",        "gsm_rlcmac.dl.gprs_cell_options_nmo",
         FT_UINT8, BASE_DEC, VALS(gsm_rlcmac_nmo_vals), 0x0,
@@ -8685,7 +8685,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet TBF Release message content >*/
+/* < Packet TBF Release message content > */
     { &hf_packetbf_release_uplink_release,
       { "UPLINK_RELEASE",        "gsm_rlcmac.dl.packetbf_release_uplink_release",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -8705,7 +8705,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Control Acknowledgement message content >*/
+/* < Packet Control Acknowledgement message content > */
     { &hf_packet_control_acknowledgement_additionsr6_ctrl_ack_extension,
       { "CTRL_ACK_Extension",        "gsm_rlcmac.ul.packet_control_ack_additionsr6_ctrl_ack_extension",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8743,9 +8743,9 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Downlink Dummy Control Block message content >*/
+/* < Packet Downlink Dummy Control Block message content > */
 
-/*< Packet Uplink Dummy Control Block message content >*/
+/* < Packet Uplink Dummy Control Block message content > */
     { &hf_receive_n_pdu_number_nsapi,
       { "nsapi",        "gsm_rlcmac.dl.receive_n_pdu_number_nsapi",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8759,7 +8759,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< MS Radio Access capability IE >*/
+/* < MS Radio Access capability IE > */
     { &hf_dtm_egprs_dtm_egprs_multislot_class,
       { "DTM_EGPRS_multislot_class",        "gsm_rlcmac.ul.dtm_egprs_multislot_class",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9026,7 +9026,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 **/
-/*< MS Classmark 3 IE >*/
+/* < MS Classmark 3 IE > */
     { &hf_arc_a5_bits,
       { "A5_Bits",        "gsm_rlcmac.ul.a5_bits",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9408,14 +9408,14 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Mobile TBF Status message content > */
+/* < Packet Mobile TBF Status message content > */
     { &hf_packet_mobile_tbf_status_tbf_cause,
       { "TBF_CAUSE",        "gsm_rlcmac.ul.pmts_tbf_cause",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-/*< Packet PSI Status message content > */
+/* < Packet PSI Status message content > */
     { &hf_psi_message_psix_change_mark,
       { "PSIX_CHANGE_MARK",        "gsm_rlcmac.ul.pps_psix_change_mark",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9445,7 +9445,7 @@ proto_register_gsm_rlcmac(void)
 
 /* < Packet Downlink Ack/Nack message content > */
 
-/*< EGPRS Packet Downlink Ack/Nack message content > */
+/* < EGPRS Packet Downlink Ack/Nack message content > */
     { &hf_egprs_channelqualityreport_c_value,
       { "C_VALUE",        "gsm_rlcmac.ul.epdan_c_value",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9513,7 +9513,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Cell Change Failure message content > */
+/* < Packet Cell Change Failure message content > */
     { &hf_packet_cell_change_failure_bsic,
       { "BSIC",        "gsm_rlcmac.ul.pccf_bsic",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9545,7 +9545,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Uplink Ack/Nack message content > */
+/* < Packet Uplink Ack/Nack message content > */
     { &hf_pu_acknack_gprs_additionsr99_tbf_est,
       { "TBF_EST",        "gsm_rlcmac.ul.puan_tbf_est",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9589,7 +9589,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Uplink Assignment message content > */
+/* < Packet Uplink Assignment message content > */
     { &hf_change_mark_change_mark_1,
       { "CHANGE_MARK_1",        "gsm_rlcmac.dl.pua_change_mark_1",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9658,7 +9658,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Downlink Assignment message content > */
+/* < Packet Downlink Assignment message content > */
     { &hf_measurement_mapping_struct_measurement_interval,
       { "MEASUREMENT_INTERVAL",        "gsm_rlcmac.dl.pda_measurement_interval",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9696,7 +9696,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Paging Request message content > */
+/* < Packet Paging Request message content > */
     { &hf_mobile_identity_length_of_mobile_identity_contents,
       { "Length_of_Mobile_Identity_contents",        "gsm_rlcmac.dl.ppr_length_of_mobile_identity_contents",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9721,13 +9721,13 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-/*< Packet Power Control/Timing Advance message content >*/
+/* < Packet Power Control/Timing Advance message content > */
 
-/*< Packet Queueing Notification message content > */
+/* < Packet Queueing Notification message content > */
 
-/*< Packet Timeslot Reconfigure message content > */
+/* < Packet Timeslot Reconfigure message content > */
 
-/*< Packet PRACH Parameters message content > */
+/* < Packet PRACH Parameters message content > */
     { &hf_prach_control_s,
       { "S",        "gsm_rlcmac.dl.prach_s",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9973,7 +9973,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Cell Change Order message contents >*/
+/* < Packet Cell Change Order message contents > */
     { &hf_ba_ind_ba_ind,
       { "BA_IND",        "gsm_rlcmac.dl.pcco_ba_ind",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -10845,7 +10845,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet (Enhanced) Measurement Report message contents > */
+/* < Packet (Enhanced) Measurement Report message contents > */
     { &hf_ba_used_ba_used,
       { "BA_USED",        "gsm_rlcmac.ul.ba_used",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11111,7 +11111,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Measurement Order message contents >*/
+/* < Packet Measurement Order message contents > */
     { &hf_ext_frequency_list_start_frequency,
       { "START_FREQUENCY",        "gsm_rlcmac.dl.ext_frequency_list_start_frequency",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11191,7 +11191,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Cell Change Notification message contents > */
+/* < Packet Cell Change Notification message contents > */
     { &hf_packet_cell_change_notification_ba_ind,
       { "BA_IND",        "gsm_rlcmac.ul.pccn_ba_ind",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11295,7 +11295,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Cell Change Continue message contents > */
+/* < Packet Cell Change Continue message contents > */
     { &hf_packet_cell_change_continue_arfcn,
       { "ARFCN",        "gsm_rlcmac.dl.pccc_arfcn",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11315,7 +11315,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Neighbour Cell Data message contents > */
+/* < Packet Neighbour Cell Data message contents > */
     { &hf_pncd_container_with_id_bsic,
       { "BSIC",        "gsm_rlcmac.dl.pncd_bsic",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11341,7 +11341,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Serving Cell Data message contents > */
+/* < Packet Serving Cell Data message contents > */
     { &hf_packet_serving_cell_data_spare,
       { "spare",        "gsm_rlcmac.dl.pscd_spare",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11403,7 +11403,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
 
-/*< Packet Handover Command message content > */
+/* < Packet Handover Command message content > */
     { &hf_globaltimeslotdescription_ms_timeslotallocation,
       { "MS_TimeslotAllocation",        "gsm_rlcmac.dl.pho_ms_timeslotallocation",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11500,11 +11500,11 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-/*< End Packet Handover Command >*/
+/* < End Packet Handover Command > */
 
-/*< Packet Physical Information message content > */
+/* < Packet Physical Information message content > */
 
-/*< End Packet Physical Information > */
+/* < End Packet Physical Information > */
     { &hf_si1_restoctet_nch_position,
       { "NCH_Position",        "gsm_rlcmac.dl.i1_restoctet_nch_position",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11637,11 +11637,11 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-/*< Additional MS Radio Access Capability message content > */
-/*< End Additional MS Radio Access Capability> */
+/* < Additional MS Radio Access Capability message content > */
+/* < End Additional MS Radio Access Capability> */
 
-/*< Packet Pause message content > */
-/*< End Packet Pause> */
+/* < Packet Pause message content > */
+/* < End Packet Pause> */
 
 /* < Packet System Information Type 1 message content > */
     { &hf_packet_system_info_type1_pbcch_change_mark,

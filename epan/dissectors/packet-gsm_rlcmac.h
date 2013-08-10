@@ -1083,10 +1083,10 @@ typedef struct
   guint32 TLLI;
 } Packet_Uplink_Dummy_Control_Block_t;
 
-/*< MS Radio Access capability IE >
+/* MS Radio Access capability IE >
  * 24.008 (10.5.5.12a)
  */
-typedef guint8 A5_bits_t;/*<A5 bits> ::= < A5/1 : bit> <A5/2 : bit> <A5/3 : bit> <A5/4 : bit> <A5/5 : bit> <A5/6 : bit> <A5/7 : bit>; -- bits for circuit mode ciphering algorithms */
+typedef guint8 A5_bits_t;/* <A5 bits> ::= < A5/1 : bit> <A5/2 : bit> <A5/3 : bit> <A5/4 : bit> <A5/5 : bit> <A5/6 : bit> <A5/7 : bit>; -- bits for circuit mode ciphering algorithms */
 
 typedef struct
 {
