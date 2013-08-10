@@ -23,8 +23,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _PACKET_OSI_OPTION_H
-#define _PACKET_OSI_OPTIONS_H
+#ifndef _PACKET_OSI_OPTIONS_H__
+#define _PACKET_OSI_OPTIONS_H__
 
 /*
  * published API functions
@@ -33,4 +33,4 @@ extern void dissect_osi_options( guchar, tvbuff_t *, int,
                                  proto_tree *);
 extern void proto_register_osi_options(void);
 
-#endif /* _PACKET_OSI_OPTIONS_H */
+#endif /* _PACKET_OSI_OPTIONS_H__ */
