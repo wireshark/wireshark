@@ -22,7 +22,7 @@
  */
 
 #ifndef __PACKET_BLUETOOTH_HCI_H__
-#define __PACKET_BLUETOOTH_HCI__H__
+#define __PACKET_BLUETOOTH_HCI_H__
 
 #include <epan/wmem/wmem.h>
 
