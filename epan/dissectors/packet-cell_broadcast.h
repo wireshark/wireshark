@@ -30,9 +30,9 @@
 /**
  * Dissects the GSM/UMTS/SABP Message Identifier
  * 
- * @param tvb
- * @param tree
- * @param offset
+ * @param tvb the tv buffer of the current data
+ * @param tree the tree to append this item to
+ * @param offset the offset in the tvb
  */
 void dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint16 offset);
 
@@ -40,9 +40,9 @@ void dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint16 off
 /**
  * Decodes the GSM/UMTS/SABP message Serial Number
  * 
- * @param tvb
- * @param tree
- * @param offset
+ * @param tvb the tv buffer of the current data
+ * @param tree the tree to append this item to
+ * @param offset the offset in the tvb
  */
 void dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint16 offset);
 
@@ -50,9 +50,9 @@ void dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint16 offset);
 /**
  * Dissects UMTS/SABP Cell Broadcast Message
  * 
- * @param tvb
- * @param pinfo
- * @param tree
+ * @param tvb the tv buffer of the current data
+ * @param pinfo the packet info of the current data
+ * @param tree the tree to append this item to
  */
 guint16 dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
