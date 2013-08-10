@@ -673,8 +673,8 @@ char *cf_get_comment(capture_file *cf, const frame_data *fd);
  * Update(replace) the comment on a capture from a frame
  *
  * @param cf the capture file
- * @param fdata the frame_data structure for the frame
- * @param comment the string replacing the old comment
+ * @param fd the frame_data structure for the frame
+ * @param new_comment the string replacing the old comment
  */
 gboolean cf_set_user_packet_comment(capture_file *cf, frame_data *fd, const gchar *new_comment);
 
