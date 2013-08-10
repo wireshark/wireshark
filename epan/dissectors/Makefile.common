@@ -164,7 +164,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-qsig.c \
 	packet-ranap.c		\
 	packet-ros.c \
-	packet-rpki-rtr.c \
 	packet-rrc.c \
 	packet-rrlp.c \
 	packet-rtse.c \
@@ -1000,6 +999,7 @@ DISSECTOR_SRC = \
 	packet-roofnet.c	\
 	packet-rpc.c		\
 	packet-rpcap.c		\
+	packet-rpki-rtr.c	\
 	packet-rpl.c		\
 	packet-rquota.c		\
 	packet-rsh.c		\
