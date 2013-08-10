@@ -778,7 +778,6 @@ ucp_mktime(const char *datestr)
  * \param       offset  Location of field within the buffer, returns location
  *                      of next field.
  *
- * \return              For 'int'-types, the value of the field.
  */
 static void
 ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
@@ -951,7 +950,6 @@ ucp_handle_data_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
  *
  * \param       tree    The protocol tree to add to
  * \param       tvb     Buffer containing the data
- * \param       field   The actual field, whose value needs displaying
  * \param       offset  Location of field within the buffer, returns location
  *                      of next field.
  */
