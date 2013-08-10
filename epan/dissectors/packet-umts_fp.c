@@ -3483,12 +3483,11 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 * very similar to regular type two (ehs) the difference being how
 * the configuration is done. NOTE: VERY EXPERIMENTAL.
 *
-* @param tvb
-* @param pinfo packet info.
-* @param tree
-* @param offset
+* @param tvb the tv buffer of the current data
+* @param pinfo the packet info of the current data
+* @param tree the tree to append this item to
+* @param offset the offset in the tvb
 * @param p_fp_info FP-packet information
-* @return Void.
 */
 static
 void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
