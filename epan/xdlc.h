@@ -45,20 +45,20 @@
 /*
  * N(S) and N(R) fields, in basic and extended operation.
  */
-#define XDLC_N_R_MASK		0xE0	/*< basic */
+#define XDLC_N_R_MASK		0xE0	/**< basic */
 #define XDLC_N_R_SHIFT		5
-#define XDLC_N_R_EXT_MASK	0xFE00	/*< extended */
+#define XDLC_N_R_EXT_MASK	0xFE00	/**< extended */
 #define XDLC_N_R_EXT_SHIFT	9
-#define XDLC_N_S_MASK		0x0E	/*< basic */
+#define XDLC_N_S_MASK		0x0E	/**< basic */
 #define XDLC_N_S_SHIFT		1
-#define XDLC_N_S_EXT_MASK	0x00FE	/*< extended */
+#define XDLC_N_S_EXT_MASK	0x00FE	/**< extended */
 #define XDLC_N_S_EXT_SHIFT	1
 
 /*
  * Poll/Final bit, in basic and extended operation.
  */
-#define XDLC_P_F		0x10	/*< basic */
-#define XDLC_P_F_EXT	0x0100	/*< extended */
+#define XDLC_P_F		0x10	/**< basic */
+#define XDLC_P_F_EXT	0x0100	/**< extended */
 
 /*
  * S-format frame types.
