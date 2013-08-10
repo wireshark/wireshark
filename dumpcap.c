@@ -3986,7 +3986,7 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
         if (global_capture_opts.use_pcapng) {
             successful = libpcap_write_enhanced_packet_block(libpcap_write_to_file, global_ld.pdh,
                                                              NULL,
-                                                             phdr->ts.tv_sec, phdr->ts.tv_usec,
+                                                             phdr->ts.tv_sec, (gint32)phdr->ts.tv_usec,
                                                              phdr->caplen, phdr->len,
                                                              pcap_opts->interface_id,
                                                              ts_mul,
@@ -3994,7 +3994,7 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
                                                              &global_ld.bytes_written, &err);
         } else {
             successful = libpcap_write_packet(libpcap_write_to_file, global_ld.pdh,
-                                              phdr->ts.tv_sec, phdr->ts.tv_usec,
+                                              phdr->ts.tv_sec, (gint32)phdr->ts.tv_usec,
                                               phdr->caplen, phdr->len,
                                               pd,
                                               &global_ld.bytes_written, &err);
