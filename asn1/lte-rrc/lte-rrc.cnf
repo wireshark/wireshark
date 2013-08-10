@@ -1276,16 +1276,16 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   actx->private_data = NULL;
 
 #.FN_BODY RACH-ConfigCommon/preambleInfo/numberOfRA-Preambles VAL_PTR=&value
-  guint32 value;
+  guint value;
 %(DEFAULT_BODY)s
   /* This is mandatory, store value */
-  actx->private_data = (guint32*)value;
+  actx->private_data = (guint*)value;
 
 #.FN_BODY RACH-ConfigCommon/preambleInfo/preamblesGroupAConfig/sizeOfRA-PreamblesGroupA VAL_PTR=&value
-  guint32 ra_value, value;
+  guint ra_value, value;
 %(DEFAULT_BODY)s
   /* Retrived stored value for RA (both Group A & Group B) */
-  ra_value = (guint32)(guint32*)actx->private_data;
+  ra_value = (guint)(guint32*)actx->private_data;
   if (value > ra_value) {
     /* Something is wrong if A has more RAPIDs than A & B combined! */
     expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_too_many_group_a_rapids,

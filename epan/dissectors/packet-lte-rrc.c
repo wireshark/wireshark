@@ -5551,12 +5551,12 @@ static const value_string lte_rrc_T_numberOfRA_Preambles_vals[] = {
 
 static int
 dissect_lte_rrc_T_numberOfRA_Preambles(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
+  guint value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      16, &value, FALSE, 0, NULL);
 
   /* This is mandatory, store value */
-  actx->private_data = (guint32*)value;
+  actx->private_data = (guint*)value;
 
 
   return offset;
@@ -5585,12 +5585,12 @@ static const value_string lte_rrc_T_sizeOfRA_PreamblesGroupA_vals[] = {
 
 static int
 dissect_lte_rrc_T_sizeOfRA_PreamblesGroupA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 ra_value, value;
+  guint ra_value, value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      15, &value, FALSE, 0, NULL);
 
   /* Retrived stored value for RA (both Group A & Group B) */
-  ra_value = (guint32)(guint32*)actx->private_data;
+  ra_value = (guint)(guint32*)actx->private_data;
   if (value > ra_value) {
     /* Something is wrong if A has more RAPIDs than A & B combined! */
     expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_too_many_group_a_rapids,
