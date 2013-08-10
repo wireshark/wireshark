@@ -630,12 +630,10 @@ static const value_string eigrp_saf_srv2string[] = {
  *@fn void dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
  *
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] ti        protocol item
- *
- * @return void
  *
  * @par
  * Dissect the Parameter TLV, which is used to convey metric weights and the
@@ -688,12 +686,10 @@ dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
  *@fn void dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
  *                                 packet_info *pinfo, proto_item *ti)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] ti        protocol item
- *
- * @return void
  *
  * @par
  * Dissect the Authentication TLV and display digest. Currently MD5 and SHA256
@@ -762,11 +758,9 @@ dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
  *@fn void dissect_eigrp_seq_tlv (proto_tree *tree, tvbuff_t *tvb,
  *                                packet_info *pinfo)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
- *
- * @return void
  *
  * @par
  * Dissect the Sequence TLV which consist of the address of peers that must
@@ -811,11 +805,9 @@ dissect_eigrp_seq_tlv (proto_tree *tree, tvbuff_t *tvb,
  *@fn void dissect_eigrp_sw_version (tvbuff_t *tvb, proto_tree *tree,
  *                                   proto_item *ti)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] ti        protocol item
- *
- * @return void
  *
  * @par
  * Dissect Software Version TLV.  The older versions of EIGRP sent the IOS
@@ -850,11 +842,9 @@ dissect_eigrp_sw_version (tvbuff_t *tvb, proto_tree *tree,
  *@fn void dissect_eigrp_next_mcast_seq (tvbuff_t *tvb, proto_tree *tree,
  *                                      proto_item *ti)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] ti        protocol item
- *
- * @return void
  *
  * @par
  * Dissect Next Multicast Sequence TLV, which is part of the Hello with a
@@ -875,13 +865,8 @@ dissect_eigrp_next_mcast_seq (tvbuff_t *tvb, proto_tree *tree,
  *@fn void dissect_eigrp_peer_stubinfo (tvbuff_t *tvb, proto_tree *tree)
  *
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
- * @param[in] pinfo     general data about the protocol
- * @param[in] ti        protocol item
- * @param[out] None
- *
- * @return void
  *
  * @par
  * Dissect the PEER STUB TLV which contains the route types which the Peer will
@@ -899,9 +884,6 @@ dissect_eigrp_peer_stubinfo (tvbuff_t *tvb, proto_tree *tree)
  *
  * @param[in] pinfo     general data about the protocol
  * @param[in] ti        protocol item
- * @param[out] None
- *
- * @return void
  *
  * @par
  * Dissect Peer Termination TLV.  This TLV has no parameters and is used to
@@ -916,10 +898,8 @@ dissect_eigrp_peer_termination (packet_info *pinfo, proto_item *ti)
 /**
  *@fn void dissect_eigrp_peer_tidlist (proto_tree *tree, tvbuff_t *tvb)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
- *
- * @return void
  *
  * @par
  *  Dissect the Topology Identifier List TLV.  This TLV was introduced as part
@@ -964,7 +944,7 @@ dissect_eigrp_peer_tidlist (proto_tree *tree, tvbuff_t *tvb)
 /**
  *@fn int dissect_eigrp_extdata_flags (proto_tree *tree, tvbuff_t *tvb, int offset)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] offset    current byte offset in packet being processed
  *
@@ -1006,7 +986,7 @@ dissect_eigrp_extdata_flags (proto_tree *tree, tvbuff_t *tvb, int offset)
 /**
  *@fn int dissect_eigrp_metric_flags (proto_tree *tree, tvbuff_t *tvb, int offset, int limit)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] offset    current byte offset in packet being processed
  * @param[in] limit     maximum number of bytes which can be process
@@ -1056,7 +1036,7 @@ dissect_eigrp_metric_flags (proto_tree *tree, tvbuff_t *tvb, int offset, int lim
  *@fn int dissect_eigrp_ipv4_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *                                 packet_info *pinfo, int offset, int unreachable)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] offset    current byte offset in packet being processed
@@ -1111,7 +1091,7 @@ dissect_eigrp_ipv4_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *@fn int dissect_eigrp_ipv6_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *                                 packet_info *pinfo, int offset, int unreachable)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] offset    current byte offset in packet being processed
@@ -1171,7 +1151,7 @@ dissect_eigrp_ipv6_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *@fn int dissect_eigrp_ipx_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *                                packet_info *pinfo, int offset, int unreachable)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] offset    current byte offset in packet being processed
@@ -1207,7 +1187,7 @@ dissect_eigrp_ipx_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *@fn int dissect_eigrp_service (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *                               packet_info *pinfo, int offset)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] ti        protocol item
@@ -1368,7 +1348,7 @@ dissect_eigrp_service (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 /**
  *@fn int dissect_eigrp_legacy_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] offset    current byte offset in packet being processed
  *
@@ -1427,7 +1407,7 @@ dissect_eigrp_legacy_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
 /**
  *@fn int dissect_eigrp_ipx_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] offset    current byte offset in packet being processed
  *
@@ -1498,7 +1478,7 @@ dissect_eigrp_ipx_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
 /**
  *@fn int dissect_eigrp_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] offset    current byte offset in packet being processed
  *
@@ -1565,7 +1545,7 @@ dissect_eigrp_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
 /**
  *@fn int dissect_eigrp_nexthop (proto_tree *tree, tvbuff_t *tvb, guint16 afi, int offset)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] afi       IANA address family indicator
  * @param[in] offset    current byte offset in packet being processed
@@ -1619,14 +1599,11 @@ dissect_eigrp_nexthop (proto_tree *tree, tvbuff_t *tvb, guint16 afi, int offset)
  *@fn void dissect_eigrp_general_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *                                    packet_info *pinfo, guint16 tlv)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] ti        protocol item
  * @param[in] tlv       Specific TLV in to be dissected
- * @param[out] None
- *
- * @return void
  *
  * @par
  * General EIGRP parameters carry EIGRP management information and are not
@@ -1673,7 +1650,7 @@ dissect_eigrp_general_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *@fn int dissect_eigrp_ipv4_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *                                 packet_info *pinfo, guint16 tlv)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] tlv       Specific TLV in to be dissected
@@ -1730,12 +1707,9 @@ dissect_eigrp_ipv4_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *@fn void dissect_eigrp_atalk_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *                                  proto_item *ti, guint16 tlv)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
- * @param[in] pinfo     general data about the protocol
  * @param[in] tlv       Specific TLV in to be dissected
- *
- * @return void
  *
  * @par
  * Dissect the legacy AppleTalk route TLV; handles both the internal and external
@@ -1783,12 +1757,10 @@ dissect_eigrp_atalk_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *@fn void dissect_eigrp_ipv6_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *                                 packet_info *pinfo, guint16 tlv)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] tlv       Specific TLV in to be dissected
- *
- * @return void
  *
  * @par
  * Dissect the Legacy IPv6 route TLV; handles both the internal and external
@@ -1825,7 +1797,7 @@ dissect_eigrp_ipv6_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *@fn int dissect_eigrp_ipx_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *                                packet_info *pinfo, guint16 tlv)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] tlv       Specific TLV in to be dissected
@@ -1903,7 +1875,7 @@ dissect_eigrp_ipx_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *@fn void dissect_eigrp_ipv4_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *                                 packet_info *pinfo, proto_item *ti, guint16 tlv)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
  * @param[in] ti        protocol item
@@ -2014,7 +1986,7 @@ dissect_eigrp_multi_topology_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
 /**
  *@fn int dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limit)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] offset    current byte offset in packet being processed
  * @param[in] limit     maximum number of bytes which can be process
@@ -2128,7 +2100,7 @@ dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limi
  *@fn int dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
  *                                        int offset, int limit)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] offset    current byte offset in packet being processed
  * @param[in] limit     maximum number of words which should be process
@@ -2220,7 +2192,7 @@ dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
 /**
  *@fn int dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] offset    current byte offset in packet being processed
  *
@@ -2322,7 +2294,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
  *                                           packet_info *pinfo, guint16 tlv)
 
  *
- * @param[in|out] tree  detail dissection result
+ * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] ti        protocol item
  * @param[in] pinfo     general data about the protocol
@@ -2421,8 +2393,7 @@ dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
  *
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
- * @param[in|out] tree  detail dissection result
- * @param[out] None
+ * @param[in,out] tree  detail dissection result
  *
  * @return int          0 if packet is not for this decoder
  *
@@ -2609,11 +2580,6 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 /**
  *@fn void proto _ register _ eigrp (void)
- *
- * @param[in] void
- * @param[out] None
- *
- * @return void
  *
  * @usage
  *      you can not have the function name inside a comment or else Wireshark
@@ -3351,11 +3317,6 @@ proto_register_eigrp(void)
 
 /**
  *@fn void proto_reg_handoff_eigrp(void)
- *
- * @param[in] void
- * @param[out] None
- *
- * @return void
  *
  * @usage
  * This exact format is required because a script is used to find these
