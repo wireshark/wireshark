@@ -203,6 +203,7 @@ static expert_field ei_lte_rrc_earthquake_warning_sys = EI_INIT;
 static expert_field ei_lte_rrc_commercial_mobile_alert_sys = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_type_value = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_length_value = EI_INIT;
+static expert_field ei_lte_rrc_too_many_group_a_rapids = EI_INIT;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -2538,6 +2539,7 @@ void proto_register_lte_rrc(void) {
      { &ei_lte_rrc_commercial_mobile_alert_sys, { "lte_rrc.commercial_mobile_alert_sys", PI_SEQUENCE, PI_WARN, "Commercial Mobile Alert System Indication!", EXPFILL }},
      { &ei_lte_rrc_unexpected_type_value, { "lte_rrc.unexpected_type_value", PI_MALFORMED, PI_ERROR, "Unexpected type value", EXPFILL }},
      { &ei_lte_rrc_unexpected_length_value, { "lte_rrc.unexpected_length_value", PI_MALFORMED, PI_ERROR, "Unexpected type length", EXPFILL }},
+     { &ei_lte_rrc_too_many_group_a_rapids, { "lte_rrc.too_many_groupa_rapids", PI_MALFORMED, PI_ERROR, "Unexpected type length", EXPFILL }},
   };
 
   expert_module_t* expert_lte_rrc;

@@ -3529,6 +3529,7 @@ static expert_field ei_lte_rrc_earthquake_warning_sys = EI_INIT;
 static expert_field ei_lte_rrc_commercial_mobile_alert_sys = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_type_value = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_length_value = EI_INIT;
+static expert_field ei_lte_rrc_too_many_group_a_rapids = EI_INIT;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -5550,8 +5551,13 @@ static const value_string lte_rrc_T_numberOfRA_Preambles_vals[] = {
 
 static int
 dissect_lte_rrc_T_numberOfRA_Preambles(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     16, NULL, FALSE, 0, NULL);
+                                     16, &value, FALSE, 0, NULL);
+
+  /* This is mandatory, store value */
+  actx->private_data = (guint32*)value;
+
 
   return offset;
 }
@@ -5579,8 +5585,20 @@ static const value_string lte_rrc_T_sizeOfRA_PreamblesGroupA_vals[] = {
 
 static int
 dissect_lte_rrc_T_sizeOfRA_PreamblesGroupA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 ra_value, value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     15, NULL, FALSE, 0, NULL);
+                                     15, &value, FALSE, 0, NULL);
+
+  /* Retrived stored value for RA (both Group A & Group B) */
+  ra_value = (guint32)(guint32*)actx->private_data;
+  if (value > ra_value) {
+    /* Something is wrong if A has more RAPIDs than A & B combined! */
+    expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_too_many_group_a_rapids,
+                                "Group A size (%s) > Total RA size (%s)!",
+                                val_to_str_const(value, lte_rrc_T_sizeOfRA_PreamblesGroupA_vals, "Unknown"),
+                                val_to_str_const(ra_value, lte_rrc_T_numberOfRA_Preambles_vals, "Unknown"));
+
+  }
 
   return offset;
 }
@@ -5652,6 +5670,9 @@ static int
 dissect_lte_rrc_T_preambleInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_T_preambleInfo, T_preambleInfo_sequence);
+
+  actx->private_data = NULL;
+
 
   return offset;
 }
@@ -12487,6 +12508,8 @@ dissect_lte_rrc_T_pdcp_SN_Size_v1130(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
     ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = 15;
     ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
   }
+
+
   return offset;
 }
 
@@ -34151,7 +34174,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 1945 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1946 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -42813,7 +42836,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2094 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2095 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44324,7 +44347,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2517 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2518 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -44349,6 +44372,7 @@ void proto_register_lte_rrc(void) {
      { &ei_lte_rrc_commercial_mobile_alert_sys, { "lte_rrc.commercial_mobile_alert_sys", PI_SEQUENCE, PI_WARN, "Commercial Mobile Alert System Indication!", EXPFILL }},
      { &ei_lte_rrc_unexpected_type_value, { "lte_rrc.unexpected_type_value", PI_MALFORMED, PI_ERROR, "Unexpected type value", EXPFILL }},
      { &ei_lte_rrc_unexpected_length_value, { "lte_rrc.unexpected_length_value", PI_MALFORMED, PI_ERROR, "Unexpected type length", EXPFILL }},
+     { &ei_lte_rrc_too_many_group_a_rapids, { "lte_rrc.too_many_groupa_rapids", PI_MALFORMED, PI_ERROR, "Unexpected type length", EXPFILL }},
   };
 
   expert_module_t* expert_lte_rrc;
@@ -44389,7 +44413,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2566 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2568 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
