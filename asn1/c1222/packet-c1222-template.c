@@ -345,10 +345,10 @@ c1222_cksum(tvbuff_t *tvb, gint offset, int len)
  * Dissects C12.22 packet in detail (with a tree).
  *
  * \param tvb input buffer containing packet to be dissected
- * \param pinfo
- * \param tree
- * \param length
- * \param offset
+ * \param pinfo the packet info of the current data
+ * \param tree the tree to append this item to
+ * \param length length of data
+ * \param offset the offset in the tvb
  */
 static void
 parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cmd, guint32 *length, int *offset)
@@ -755,7 +755,7 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
 /**
  * Looks up the required key in the key table.
  *
- * \param keybuf is updated with a copy of the key data if successful lookup.
+ * \param keybuff is updated with a copy of the key data if successful lookup.
  * \param keyid is the ID number of the desired key
  * \returns TRUE if key was found; otherwise FALSE
  */
@@ -876,11 +876,11 @@ ber_len_ok(tvbuff_t *tvb, int offset)
 /**
  * Dissects the EPSEM portion of the User-information part of a C12.22 message.
  *
- * \param tvb
- * \param offset
- * \param len
- * \param pinfo
- * \param tree
+ * \param tvb the tv buffer of the current data
+ * \param offset the offset in the tvb
+ * \param len length of data
+ * \param pinfo the packet info of the current data
+ * \param tree the tree to append this item to
  */
 static int
 dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_tree *tree)
@@ -1020,15 +1020,15 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
 /**
  * Dissects a a full (reassembled) C12.22 message.
  *
- * \param tvb
- * \param pinfo
- * \param tree
+ * \param tvb the tv buffer of the current data
+ * \param pinfo the packet info of the current data
+ * \param tree the tree to append this item to
  */
 static void
 dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item      *c1222_item = NULL;
-    proto_tree	    *c1222_tree = NULL;
+    proto_tree      *c1222_tree = NULL;
 
     /* make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
@@ -1044,9 +1044,9 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /**
  * Fetches the length of an entire C12.22 message to assist in reassembly.
  *
- * \param pinfo
- * \param tvb
- * \param offset
+ * \param pinfo the packet info of the current data
+ * \param tvb the tv buffer of the current data
+ * \param offset the offset in the tvb
  * \returns length of entire C12.22 message
  */
 static guint
@@ -1065,9 +1065,9 @@ get_c1222_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 /**
  * Reassembles and dissects C12.22 messages.
  *
- * \param tvb
- * \param pinfo
- * \param tree
+ * \param tvb the tv buffer of the current data
+ * \param pinfo the packet info of the current data
+ * \param tree the tree to append this item to
  */
 static void
 dissect_c1222(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
