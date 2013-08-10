@@ -65,7 +65,7 @@ WS_DLL_PUBLIC guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 see
 
 /** Calculates a CRC16 checksum for the given buffer with the polynom
  *  0x5935 using a precompiled CRC table
- * @param pBuffer a pointer to a buffer of the given length
+ * @param buf a pointer to a buffer of the given length
  * @param len the length of the given buffer
  * @param seed The seed to use.
  * @return the CRC16 checksum for the buffer
@@ -74,7 +74,7 @@ WS_DLL_PUBLIC guint16 crc16_0x5935(const guint8 *buf, guint32 len, guint16 seed)
 
 /** Calculates a CRC16 checksum for the given buffer with the polynom
  *  0x755B using a precompiled CRC table
- * @param pBuffer a pointer to a buffer of the given length
+ * @param buf a pointer to a buffer of the given length
  * @param len the length of the given buffer
  * @param seed The seed to use.
  * @return the CRC16 checksum for the buffer
