@@ -640,7 +640,7 @@ static void my_timersub(const struct timeval *a,
                         const struct timeval *b,
                               struct timeval *c)
 {
-      gint32 usec = a->tv_usec;
+      gint32 usec = (gint32)a->tv_usec;
 
       c->tv_sec = a->tv_sec - b->tv_sec;
       if (b->tv_usec > usec) {
