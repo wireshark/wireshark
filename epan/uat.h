@@ -242,7 +242,7 @@ typedef struct _uat_field_t {
  * @param filename The filename to be used (either in userdir or datadir)
  * @param from_profile TRUE if profile directory to be used
  * @param data_ptr A pointer to a null terminated array of pointers to the data
- * @param num_items_ptr
+ * @param num_items_ptr A pointer with number of items
  * @param flags flags indicating what this UAT affects
  * @param help A pointer to help text
  * @param copy_cb A function that copies the data in the struct
