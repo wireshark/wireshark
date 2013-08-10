@@ -30,8 +30,6 @@
 
 #include "ws_symbol_export.h"
 
-/** @file
- */
 /**  Initialize all the memory allocation pools described below.
  *  This function must be called once when *shark initialize to set up the
  *  required structures.
