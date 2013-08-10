@@ -463,7 +463,6 @@ dissect_payload(tvbuff_t *buffer, int offset, int messageid, proto_tree *tree, i
  * @param tvb the buffer to the data
  * @param pinfo the packet info structure
  * @param tree the parent tree where the dissected data is going to be inserted
- * @return void
  *
  */
 static void
@@ -515,7 +514,6 @@ dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, em
  * @param tvb the buffer to the data
  * @param pinfo the packet info structure
  * @param tree the parent tree where the dissected data is going to be inserted
- * @return void
  *
  */
 static void
@@ -674,7 +672,6 @@ get_knet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
  * @param tvb the buffer to the data
  * @param pinfo the packet info structure
  * @param tree the parent tree where the dissected data is going to be inserted
- * @return void
  *
  */
 static void
@@ -689,12 +686,9 @@ dissect_knet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * dissect_knet_sctp is the dissector which is called
  * by Wireshark when kNet STCP packets are captured.
  *
-
  * @param tvb the buffer to the data
  * @param pinfo the packet info structure
  * @param tree the parent tree where the dissected data is going to be inserted
-
- * @return void
  *
  */
 static void
@@ -709,12 +703,9 @@ dissect_knet_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * dissect_knet_udp is the dissector which is called
  * by Wireshark when kNet UDP packets are captured.
  *
-
  * @param tvb the buffer to the data
  * @param pinfo the packet info structure
  * @param tree the parent tree where the dissected data is going to be inserted
-
- * @return void
  *
  */
 static void
@@ -727,8 +718,6 @@ dissect_knet_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /**
  * proto_register_knet registers our kNet protocol,
  * headerfield- and subtree-array to Wireshark.
- *
- * @return void
  *
  */
 void
@@ -845,9 +834,7 @@ proto_register_knet(void)
 }
 
 /**
- * proto_reg_handoff_knet registers our kNet dissectors to Wireshark.
- *
- * @return void
+ * proto_reg_handoff_knet registers our kNet dissectors to Wireshark
  *
  */
 void
