@@ -69,16 +69,16 @@ gchar *ascii_strup_inplace(gchar *str);
 
 /** Check if an entire string consists of printable characters
  *
- * @param str The string to be checked
- * @return    TRUE if the entire string is printable, otherwise FALSE
+ * @param string The string to be checked
+ * @return       TRUE if the entire string is printable, otherwise FALSE
  */
 WS_DLL_PUBLIC
 gboolean isprint_string(const gchar *string);
 
 /** Check if an entire string consists of digits
  *
- * @param str The string to be checked
- * @return    TRUE if the entire string is digits, otherwise FALSE
+ * @param string The string to be checked
+ * @return       TRUE if the entire string is digits, otherwise FALSE
  */
 WS_DLL_PUBLIC
 gboolean isdigit_string(guchar *string);
