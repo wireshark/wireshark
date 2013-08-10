@@ -69,6 +69,9 @@ static int hf_dvb_ait_descr_trpt_sel_onid = -1;
 static int hf_dvb_ait_descr_trpt_sel_tsid = -1;
 static int hf_dvb_ait_descr_trpt_sel_svcid = -1;
 static int hf_dvb_ait_descr_trpt_sel_comp = -1;
+static int hf_dvb_ait_descr_trpt_sel_url_base = -1;
+static int hf_dvb_ait_descr_trpt_sel_url_ext_cnt = -1;
+static int hf_dvb_ait_descr_trpt_sel_url_ext = -1;
 static int hf_dvb_ait_descr_trpt_sel_bytes = -1;
 static int hf_dvb_ait_descr_sal_init_path = -1;
 static int hf_dvb_ait_app_loop_len = -1;
@@ -245,6 +248,27 @@ dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, guint offset,
             proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_comp,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
+        }
+        else if (proto_id == TRPT_HTTP) {
+            guint8 url_base_len, url_ext_cnt, url_ext_len, i;
+
+            url_base_len = tvb_get_guint8(tvb, offset);
+            /* FT_UINT_STRING with one leading length byte */
+            proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_url_base,
+                tvb, offset, 1, ENC_ASCII|ENC_NA);
+            offset += 1+url_base_len;
+
+            url_ext_cnt = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_url_ext_cnt,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            for (i=0; i<url_ext_cnt; i++) {
+                url_ext_len = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_url_ext,
+                        tvb, offset, 1, ENC_ASCII|ENC_NA);
+                offset += 1+url_ext_len;
+            }
         }
         else {
             proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_bytes,
@@ -517,6 +541,15 @@ proto_register_dvb_ait(void)
         { &hf_dvb_ait_descr_trpt_sel_comp,
             { "Component tag", "dvb_ait.descr.trpt_proto.comp_tag",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_dvb_ait_descr_trpt_sel_url_base,
+            { "URL base", "dvb_ait.descr.trpt_proto.url_base",
+            FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvb_ait_descr_trpt_sel_url_ext_cnt,
+            { "URL extension count", "dvb_ait.descr.trpt_proto.url_ext_cnt",
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_dvb_ait_descr_trpt_sel_url_ext,
+            { "URL extension", "dvb_ait.descr.trpt_proto.url_ext",
+            FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_dvb_ait_descr_trpt_sel_bytes,
             { "Selector bytes", "dvb_ait.descr.trpt_proto.selector_bytes",
                 FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
