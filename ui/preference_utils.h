@@ -37,16 +37,16 @@ extern "C" {
 /** "Stash" a preference.
  * Copy a preference to its stashed value. Can be called from prefs_pref_foreach().
  *
- * @param pref: A preference.
- * @param unused: unused
+ * @param pref A preference.
+ * @param unused unused
  */
 extern guint pref_stash(pref_t *pref, gpointer unused _U_);
 
 /** "Untash" a preference.
  * Set a preference to its stashed value. Can be called from prefs_pref_foreach().
  *
- * @param pref: A preference.
- * @param changed_p: A pointer to a gboolean. Set to TRUE if the preference differs
+ * @param pref A preference.
+ * @param changed_p A pointer to a gboolean. Set to TRUE if the preference differs
  * from its stashed value.
  *
  * @return Always returns 0.
@@ -57,7 +57,7 @@ extern guint pref_unstash(pref_t *pref, gpointer changed_p);
  * Can be called from prefs_pref_foreach().
  *
  * @param pref A preference.
- * @param unused: unused
+ * @param unused unused
  *
  * @return Always returns 0.
  */
