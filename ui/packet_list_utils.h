@@ -34,8 +34,8 @@ extern "C" {
 /**
  * Check to see if a column should be right justified.
  *
- * @param col[IN] The column number.
- * @param cf[IN] The capture file containing the packet data.
+ * @param [IN]col The column number.
+ * @param [IN]cf The capture file containing the packet data.
  *
  * @return TRUE if the column should be right justified, FALSE otherwise.
  */
@@ -44,8 +44,8 @@ gboolean right_justify_column (gint col, capture_file *cf);
 /**
  * Check to see if a column's data should be resolved.
  *
- * @param col[IN] The column number.
- * @param cf[IN] The capture file containing the packet data.
+ * @param [IN]col The column number.
+ * @param [IN]cf The capture file containing the packet data.
  *
  * @return TRUE if resolution is required, FALSE otherwise.
  */
