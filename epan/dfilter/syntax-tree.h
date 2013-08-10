@@ -65,6 +65,7 @@ typedef struct {
 	 * set aside to time to do so. */
 	gpointer	data;
 	gint32		value;
+	gboolean        inside_brackets;
         const char      *deprecated_token;
 } stnode_t;
 
@@ -87,6 +88,9 @@ sttype_register(sttype_t *type);
 
 stnode_t*
 stnode_new(sttype_id_t type_id, gpointer data);
+
+void
+stnode_set_bracket(stnode_t *node, gboolean bracket);
 
 stnode_t*
 stnode_dup(const stnode_t *org);

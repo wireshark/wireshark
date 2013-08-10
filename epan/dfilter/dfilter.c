@@ -216,6 +216,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	gboolean failure = FALSE;
 	const char	*depr_test;
 	guint		i;
+	/* XXX, GHashTable */
 	GPtrArray	*deprecated;
 
 	g_assert(dfp);
@@ -318,7 +319,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	else {
 
 		/* Check semantics and do necessary type conversion*/
-		if (!dfw_semcheck(dfw)) {
+		if (!dfw_semcheck(dfw, deprecated)) {
 			goto FAILURE;
 		}
 

@@ -309,5 +309,6 @@ funcparams(P) ::= funcparams(L) COMMA entity(E).
 expr(X) ::= LPAREN expr(Y) RPAREN.
 {
 	X = Y;
+	stnode_set_bracket(X, TRUE);
 }
 

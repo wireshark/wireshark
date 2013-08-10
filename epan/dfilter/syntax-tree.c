@@ -91,6 +91,7 @@ stnode_new(sttype_id_t type_id, gpointer data)
 	node = g_new(stnode_t, 1);
 	node->magic = STNODE_MAGIC;
         node->deprecated_token = NULL;
+	node->inside_brackets = FALSE;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -110,6 +111,12 @@ stnode_new(sttype_id_t type_id, gpointer data)
 	}
 
 	return node;
+}
+
+void
+stnode_set_bracket(stnode_t *node, gboolean bracket)
+{
+	node->inside_brackets = bracket;
 }
 
 stnode_t*
@@ -132,6 +139,7 @@ stnode_dup(const stnode_t *org)
 	else
 		node->data = org->data;
 	node->value = org->value;
+	node->inside_brackets = org->inside_brackets;
 
 	return node;
 }

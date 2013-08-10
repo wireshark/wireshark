@@ -49,7 +49,7 @@
 #endif
 
 static void
-semcheck(stnode_t *st_node);
+semcheck(stnode_t *st_node, GPtrArray *deprecated);
 
 static stnode_t*
 check_param_entity(stnode_t *st_node);
@@ -1214,9 +1214,9 @@ header_field_info   *hfinfo;
 
 /* Check the semantics of any type of TEST */
 static void
-check_test(stnode_t *st_node)
+check_test(stnode_t *st_node, GPtrArray *deprecated)
 {
-	test_op_t		st_op;
+	test_op_t		st_op, st_arg_op;
 	stnode_t		*st_arg1, *st_arg2;
 #ifdef DEBUG_dfilter
 	static guint i = 0;
@@ -1236,13 +1236,29 @@ check_test(stnode_t *st_node)
 			break;
 
 		case TEST_OP_NOT:
-			semcheck(st_arg1);
+			semcheck(st_arg1, deprecated);
 			break;
 
 		case TEST_OP_AND:
 		case TEST_OP_OR:
-			semcheck(st_arg1);
-			semcheck(st_arg2);
+			if (stnode_type_id(st_arg1) == STTYPE_TEST) {
+				sttype_test_get(st_arg1, &st_arg_op, NULL, NULL);
+				if (st_arg_op == TEST_OP_AND || st_arg_op == TEST_OP_OR) {
+					if (st_op != st_arg_op && !st_arg1->inside_brackets)
+						g_ptr_array_add(deprecated, g_strdup("suggest parentheses around '&&' within '||'"));
+				}
+			}
+
+			if (stnode_type_id(st_arg2) == STTYPE_TEST) {
+				sttype_test_get(st_arg2, &st_arg_op, NULL, NULL);
+				if (st_arg_op == TEST_OP_AND || st_arg_op == TEST_OP_OR) {
+					if (st_op != st_arg_op && !st_arg2->inside_brackets)
+						g_ptr_array_add(deprecated, g_strdup("suggest parentheses around '&&' within '||'"));
+				}
+			}
+
+			semcheck(st_arg1, deprecated);
+			semcheck(st_arg2, deprecated);
 			break;
 
 		case TEST_OP_EQ:
@@ -1281,7 +1297,7 @@ check_test(stnode_t *st_node)
 
 /* Check the entire syntax tree. */
 static void
-semcheck(stnode_t *st_node)
+semcheck(stnode_t *st_node, GPtrArray *deprecated)
 {
 #ifdef DEBUG_dfilter
 	static guint i = 0;
@@ -1291,7 +1307,7 @@ semcheck(stnode_t *st_node)
 	 * node will be a TEST node, no matter what. So assert that. */
 	switch (stnode_type_id(st_node)) {
 		case STTYPE_TEST:
-			check_test(st_node);
+			check_test(st_node, deprecated);
 			break;
 		default:
 			g_assert_not_reached();
@@ -1303,7 +1319,7 @@ semcheck(stnode_t *st_node)
  * some of the nodes into the form they need to be in order to
  * later generate the DFVM bytecode. */
 gboolean
-dfw_semcheck(dfwork_t *dfw)
+dfw_semcheck(dfwork_t *dfw, GPtrArray *deprecated)
 {
 	volatile gboolean ok_filter = TRUE;
 #ifdef DEBUG_dfilter
@@ -1315,7 +1331,7 @@ dfw_semcheck(dfwork_t *dfw)
 	 * the semantic-checking, the semantic-checking code will
 	 * throw an exception if a problem is found. */
 	TRY {
-		semcheck(dfw->st_root);
+		semcheck(dfw->st_root, deprecated);
 	}
 	CATCH(TypeError) {
 		ok_filter = FALSE;
