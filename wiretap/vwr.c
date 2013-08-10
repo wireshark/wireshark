@@ -2083,7 +2083,7 @@ guint64 get_signature_ts(guint8 *m_ptr,int sig_off)
 static float getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 nss )
 {
     /* Rate conversion data */
-    float canonical_rate_legacy[] = {1.0, 2.0, 5.5, 11.0, 6.0, 9.0, 12.0, 18.0, 24.0, 36.0, 48.0, 54.0};
+    float canonical_rate_legacy[] = {1.0f, 2.0f, 5.5f, 11.0f, 6.0f, 9.0f, 12.0f, 18.0f, 24.0f, 36.0f, 48.0f, 54.0f};
     
     int canonical_ndbps_20_ht[] = {26, 52, 78, 104, 156, 208, 234, 260};
     int canonical_ndbps_40_ht[] = {54, 108, 162, 216, 324, 432, 486, 540};
@@ -2093,16 +2093,16 @@ static float getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 n
     int canonical_ndbps_80_vht[] = {117, 234, 351, 468, 702, 936, 1053, 1170, 1404, 1560};
     
     int ndbps;
-    float symbol_tx_time, bitrate = 0.0;
+    float symbol_tx_time, bitrate = 0.0f;
 
     if (plcpType == 0)
         bitrate =  canonical_rate_legacy[mcsIndex];
     else if (plcpType == 1 || plcpType == 2) 
     {
         if ( rflags & IEEE80211_RADIOTAP_F_SHORTGI)
-            symbol_tx_time = (float)3.6;
+            symbol_tx_time = 3.6f;
         else
-            symbol_tx_time = (float)4.0;
+            symbol_tx_time = 4.0f;
 
         if ( rflags & IEEE80211_RADIOTAP_F_40MHZ )
             ndbps = canonical_ndbps_40_ht[ mcsIndex - 8*(int)(mcsIndex/8) ];
@@ -2114,9 +2114,9 @@ static float getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 n
     else
     {
         if ( rflags & IEEE80211_RADIOTAP_F_SHORTGI)
-            symbol_tx_time = (float)3.6;
+            symbol_tx_time = 3.6f;
         else
-            symbol_tx_time = (float)4.0;
+            symbol_tx_time = 4.0f;
 
     /* Check for the out of range mcsIndex.  Should never happen, but if mcs index is greater than 9 assume 9 is the value */
     if (mcsIndex > 9) mcsIndex = 9;
