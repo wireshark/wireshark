@@ -44,8 +44,6 @@ stat_group_name(register_stat_group_t group);
  *
  * @param name the menu label
  *
- * @param group the menu group this stat should be registered to
- *
  * @param stock_id the stock_id (icon) to show, or NULL
  *
  * @param callback gets called when the menu item is selected; it should do
@@ -74,7 +72,7 @@ void register_menu_bar_menu_items(
     const char   *accelerator,
     const gchar  *tooltip,
     gpointer     callback,
-    gpointer	 callback_data,
+    gpointer     callback_data,
     gboolean     enabled,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data));
