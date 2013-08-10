@@ -1665,7 +1665,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 *   @param  pinfo Packet Info.
 *   @param  tree The protocol tree.
 *   @param  names_count The number of elements in the names table.
-*   @param  names The table of names.
+*   @param  names_table The table of names.
 *   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
