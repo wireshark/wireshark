@@ -83,8 +83,8 @@ WS_DLL_PUBLIC range_t *range_empty(void);
  *   -              All values
  * @param range the range
  * @param es points to the string to be converted.
- * @param max_value' specifies the maximum value in a range.
- * @return
+ * @param max_value specifies the maximum value in a range.
+ * @return convert_ret_t
  */
 WS_DLL_PUBLIC convert_ret_t range_convert_str(range_t **range, const gchar *es,
     guint32 max_value);
