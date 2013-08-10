@@ -23,7 +23,7 @@
  */
 
 #ifndef __PACKET_IDP_H__
-#define __PACKET_IPX_H__
+#define __PACKET_IDP_H__
 
 #define IDP_PACKET_TYPE_RIP	1
 #define IDP_PACKET_TYPE_ECHO	2
