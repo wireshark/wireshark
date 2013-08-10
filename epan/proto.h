@@ -1772,7 +1772,6 @@ WS_DLL_PUBLIC const char *proto_get_protocol_short_name(const protocol_t *protoc
 WS_DLL_PUBLIC const char *proto_get_protocol_long_name(const protocol_t *protocol);
 
 /** Is protocol's decoding enabled ?
- @param protocol
  @return TRUE if decoding is enabled, FALSE if not */
 WS_DLL_PUBLIC gboolean proto_is_protocol_enabled(const protocol_t *protocol);
 
@@ -1944,7 +1943,7 @@ proto_tree_add_bitmask_len(proto_tree *tree, tvbuff_t *tvb, const guint offset, 
  @param ett subtree index
  @param fields NULL-terminated array of bitfield indexes
  @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN)
- @param flags
+ @param flags bitmask field
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint len,
