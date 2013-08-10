@@ -36,7 +36,6 @@ extern void proto_help_init(void);
 /** Initialize the menu
  *
  * @param widget Context menu root
- * @return void
  */
 extern void proto_help_menu_init(GtkWidget *widget);
 
@@ -44,7 +43,6 @@ extern void proto_help_menu_init(GtkWidget *widget);
  *
  * @param selection Currently-selected packet
  * @param cfile Capture file
- * @return void
  */
 extern void proto_help_menu_modify(GtkTreeSelection* selection, capture_file *cfile);
 
