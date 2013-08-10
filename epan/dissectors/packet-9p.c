@@ -339,8 +339,8 @@ enum _9p_qid_t {
  */
 
 struct _9p_str {
-	guint16  len; /*< Length of the string */
-	char *str; /*< The string */
+	guint16  len; /* Length of the string */
+	char *str; /* The string */
 };
 
 /**
@@ -361,9 +361,9 @@ struct _9p_str {
  */
 
 struct _9p_qid {
-	guint8 type; /*< Type */
-	guint32 version; /*< Monotonically incrementing version number */
-	guint64 path; /*< Per-server-unique ID for a file system element */
+	guint8 type; /* Type */
+	guint32 version; /* Monotonically incrementing version number */
+	guint64 path; /* Per-server-unique ID for a file system element */
 };
 
 
