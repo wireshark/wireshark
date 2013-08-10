@@ -2302,7 +2302,7 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
 	proto_tree_add_item(pcep_header_obj_flags, hf_pcep_hdr_obj_flags_p, tvb, offset+1, 1, ENC_NA);
 	proto_tree_add_item(pcep_header_obj_flags, hf_pcep_hdr_obj_flags_i, tvb, offset+1, 1, ENC_NA);
 
-	ti = proto_tree_add_item(pcep_object_tree, hf_pcep_object_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(pcep_object_tree, hf_pcep_object_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
 	obj_length = tvb_get_ntohs(tvb, offset+2);
 	proto_item_set_len(pcep_object_item, obj_length);
