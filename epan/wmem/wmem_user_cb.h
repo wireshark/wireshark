@@ -49,9 +49,9 @@ typedef enum _wmem_cb_event_t {
 
 /** Function signature for registered user callbacks.
  *
- * @param allocator The allocator that triggered this callback.
- * @param event     The event type that triggered this callback.
- * @param user_data Whatever user_data was originally passed to the call to
+ * allocator The allocator that triggered this callback.
+ * event     The event type that triggered this callback.
+ * user_data Whatever user_data was originally passed to the call to
  *                  wmem_register_cleanup_callback().
  * @return          FALSE to unregister the callback, TRUE otherwise.
  */
@@ -60,10 +60,6 @@ typedef gboolean (*wmem_user_cb_t) (wmem_allocator_t*, wmem_cb_event_t, void*);
 /** Register a callback function with the given allocator pool.
  *
  * @param allocator The allocator with which to register the callback.
- * @param recurring If this is FALSE then the callback is called exactly once.
- *                  If this is TRUE then the callback is called every time
- *                  wmem_free_all() is called on the allocator, and one last
- *                  time when wmem_destroy_allocator() is called on it.
  * @param callback  The function to be called as the callback.
  * @param user_data An arbitrary data pointer that is passed to the callback as
  *                  a way to specify extra parameters or store extra data. Note
