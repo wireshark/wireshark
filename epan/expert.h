@@ -171,9 +171,9 @@ expert_add_info_format_text(packet_info *pinfo, proto_item *pi, expert_field *ei
  This function is intended to replace places where 
  proto_tree_add_text or proto_tree_add_none_format + expert_add_info
  would be used.
+ @param tree Current protocol item (or NULL)
  @param pinfo Packet info of the currently processed packet. May be NULL if
         pi is supplied
- @param pi Current protocol item (or NULL)
  @param eiindex The registered expert info item
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
@@ -190,9 +190,8 @@ proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field* eiinde
  This function is intended to replace places where 
  proto_tree_add_text or proto_tree_add_none_format + expert_add_info_format_text
  would be used.
- @param pinfo Packet info of the currently processed packet. May be NULL if
-        pi is supplied
- @param pi Current protocol item (or NULL)
+ @param tree Current protocol item (or NULL)
+ @param pinfo Packet info of the currently processed packet. May be NULL if tree is supplied
  @param eiindex The registered expert info item
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
