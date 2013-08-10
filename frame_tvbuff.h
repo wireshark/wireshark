@@ -22,7 +22,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __FRAME_TVBUFF__
+#ifndef __FRAME_TVBUFF_H__
 #define __FRAME_TVBUFF_H__
 
 #ifdef __cplusplus
