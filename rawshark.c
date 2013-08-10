@@ -897,7 +897,7 @@ main(int argc, char *argv[])
 /**
  * Read data from a raw pipe.  The "raw" data consists of a libpcap
  * packet header followed by the payload.
- * @param fd [IN] A POSIX file descriptor.  Because that's _exactly_ the sort
+ * @param pd [IN] A POSIX file descriptor.  Because that's _exactly_ the sort
  *           of thing you want to use in Windows.
  * @param phdr [OUT] Packet header information.
  * @param err [OUT] Error indicator.  Uses wiretap values.
@@ -937,7 +937,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
 
     if (want_pcap_pkthdr) {
         phdr->ts.secs = mem_hdr.ts.tv_sec;
-        phdr->ts.nsecs = mem_hdr.ts.tv_usec * 1000;
+        phdr->ts.nsecs = (gint32)mem_hdr.ts.tv_usec * 1000;
         phdr->caplen = mem_hdr.caplen;
         phdr->len = mem_hdr.len;
     } else {
