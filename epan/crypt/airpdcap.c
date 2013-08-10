@@ -128,7 +128,7 @@ extern "C" {
 /**
  * It is a step of the PBKDF2 (specifically the PKCS #5 v2.0) defined in
  * the RFC 2898 to derive a key (used as PMK in WPA)
- * @param password [IN] pointer to a password (sequence of between 8 and
+ * @param ppbytes [IN] pointer to a password (sequence of between 8 and
  * 63 ASCII encoded characters)
  * @param ssid [IN] pointer to the SSID string encoded in max 32 ASCII
  * encoded characters
@@ -151,7 +151,7 @@ static INT AirPDcapRsnaPwd2PskStep(
  * It calculates the passphrase-to-PSK mapping reccomanded for use with
  * RSNAs. This implementation uses the PBKDF2 method defined in the RFC
  * 2898.
- * @param password [IN] pointer to a password (sequence of between 8 and
+ * @param passphrase [IN] pointer to a password (sequence of between 8 and
  * 63 ASCII encoded characters)
  * @param ssid [IN] pointer to the SSID string encoded in max 32 ASCII
  * encoded characters
