@@ -159,10 +159,15 @@ typedef struct _wmem_block_hdr_t {
     struct _wmem_block_hdr_t *prev, *next;
 } wmem_block_hdr_t;
 
-/* The header for a single 'chunk' of memory as returned from alloc/realloc. */
+/* The header for a single 'chunk' of memory as returned from alloc/realloc.
+ * The 'jumbo' flag indicates an allocation larger than a normal-sized block
+ * would be capable of serving. If this is set, it is the only chunk in the
+ * block and the other chunk header fields are irrelevant.
+ */
 typedef struct _wmem_block_chunk_t {
     guint32 used:1;
-    guint32 prev:31;
+    guint32 jumbo:1;
+    guint32 prev:30;
 
     guint32 last:1;
     guint32 len:31;
@@ -217,6 +222,12 @@ wmem_block_verify_block(wmem_block_hdr_t *block)
 
     chunk     = WMEM_BLOCK_TO_CHUNK(block);
     total_len = WMEM_BLOCK_HEADER_SIZE;
+
+    if (chunk->jumbo) {
+        /* We can tell nothing else about jumbo chunks except that they are
+         * always used. */
+        return 0;
+    }
 
     g_assert(chunk->prev == 0);
 
@@ -726,6 +737,22 @@ wmem_block_add_to_block_list(wmem_block_allocator_t *allocator,
     allocator->block_list = block;
 }
 
+static void
+wmem_block_remove_from_block_list(wmem_block_allocator_t *allocator,
+                                  wmem_block_hdr_t *block)
+{
+    if (block->prev) {
+        block->prev->next = block->next;
+    }
+    else {
+        allocator->block_list = block->next;
+    }
+
+    if (block->next) {
+        block->next->prev = block->prev;
+    }
+}
+
 /* Initializes a single unused chunk at the beginning of the block, and
  * adds that chunk to the free list. */
 static void
@@ -737,10 +764,11 @@ wmem_block_init_block(wmem_block_allocator_t *allocator,
     /* a new block contains one chunk, right at the beginning */
     chunk = WMEM_BLOCK_TO_CHUNK(block);
 
-    chunk->used = FALSE;
-    chunk->last = TRUE;
-    chunk->prev = 0;
-    chunk->len = WMEM_BLOCK_SIZE - WMEM_BLOCK_HEADER_SIZE;
+    chunk->used  = FALSE;
+    chunk->jumbo = FALSE;
+    chunk->last  = TRUE;
+    chunk->prev  = 0;
+    chunk->len   = WMEM_BLOCK_SIZE - WMEM_BLOCK_HEADER_SIZE;
 
     /* now push that chunk onto the master list */
     wmem_block_push_master(allocator, chunk);
@@ -760,6 +788,29 @@ wmem_block_new_block(wmem_block_allocator_t *allocator)
     wmem_block_init_block(allocator, block);
 }
 
+/* Handles special 'jumbo' allocations that won't fit in a usual block. */
+static void *
+wmem_block_alloc_jumbo(wmem_block_allocator_t *allocator, const size_t size)
+{
+    wmem_block_hdr_t   *block;
+    wmem_block_chunk_t *chunk;
+
+    /* allocate a new block of exactly the right size */
+    block = (wmem_block_hdr_t *) g_malloc(size
+            + WMEM_BLOCK_HEADER_SIZE
+            + WMEM_CHUNK_HEADER_SIZE);
+
+    /* add it to the block list */
+    wmem_block_add_to_block_list(allocator, block);
+
+    /* the new block contains a single jumbo chunk */
+    chunk = WMEM_BLOCK_TO_CHUNK(block);
+    chunk->jumbo = TRUE;
+
+    /* and return the data pointer */
+    return WMEM_CHUNK_TO_DATA(chunk);
+}
+
 /* API */
 static void *
 wmem_block_alloc(void *private_data, const size_t size)
@@ -767,9 +818,9 @@ wmem_block_alloc(void *private_data, const size_t size)
     wmem_block_allocator_t *allocator = (wmem_block_allocator_t*) private_data;
     wmem_block_chunk_t     *chunk;
 
-    /* We can't allocate more than will fit in a block (less our header),
-     * which is still an awful lot. */
-    g_assert(size <= WMEM_BLOCK_MAX_ALLOC_SIZE);
+    if (size > WMEM_BLOCK_MAX_ALLOC_SIZE) {
+        return wmem_block_alloc_jumbo(allocator, size);
+    }
 
     if (allocator->recycler_head &&
             WMEM_CHUNK_DATA_LEN(allocator->recycler_head) >= size) {
@@ -827,6 +878,14 @@ wmem_block_free(void *private_data, void *ptr)
 
     chunk = WMEM_DATA_TO_CHUNK(ptr);
 
+    if (chunk->jumbo) {
+        wmem_block_hdr_t *block;
+        block = WMEM_CHUNK_TO_BLOCK(chunk);
+        wmem_block_remove_from_block_list(allocator, block);
+        g_free(block);
+        return;
+    }
+
     g_assert(chunk->used);
 
     /* mark it as unused */
@@ -844,6 +903,17 @@ wmem_block_realloc(void *private_data, void *ptr, const size_t size)
     wmem_block_chunk_t     *chunk;
 
     chunk = WMEM_DATA_TO_CHUNK(ptr);
+
+    if (chunk->jumbo) {
+        wmem_block_hdr_t *block;
+        block = WMEM_CHUNK_TO_BLOCK(chunk);
+        wmem_block_remove_from_block_list(allocator, block);
+        block = (wmem_block_hdr_t *) g_realloc(block, size
+                + WMEM_BLOCK_HEADER_SIZE
+                + WMEM_CHUNK_HEADER_SIZE);
+        wmem_block_add_to_block_list(allocator, block);
+        return WMEM_CHUNK_TO_DATA(WMEM_BLOCK_TO_CHUNK(block));
+    }
 
     g_assert(chunk->used);
 
@@ -917,18 +987,27 @@ static void
 wmem_block_free_all(void *private_data)
 {
     wmem_block_allocator_t *allocator = (wmem_block_allocator_t*) private_data;
-    wmem_block_hdr_t       *tmp;
+    wmem_block_hdr_t       *cur;
+    wmem_block_chunk_t     *chunk;
 
     /* the existing free lists are entirely irrelevant */
     allocator->master_head   = NULL;
     allocator->recycler_head = NULL;
 
     /* iterate through the blocks, reinitializing each one */
-    tmp = allocator->block_list;
+    cur = allocator->block_list;
 
-    while (tmp) {
-        wmem_block_init_block(allocator, tmp);
-        tmp = tmp->next;
+    while (cur) {
+        chunk = WMEM_BLOCK_TO_CHUNK(cur);
+        if (chunk->jumbo) {
+            wmem_block_remove_from_block_list(allocator, cur);
+            cur = cur->next;
+            g_free(WMEM_CHUNK_TO_BLOCK(chunk));
+        }
+        else {
+            wmem_block_init_block(allocator, cur);
+            cur = cur->next;
+        }
     }
 }
 
@@ -949,7 +1028,7 @@ wmem_block_gc(void *private_data)
         chunk = WMEM_BLOCK_TO_CHUNK(cur);
         next  = cur->next;
 
-        if (!chunk->used && chunk->last) {
+        if (!chunk->jumbo && !chunk->used && chunk->last) {
             /* If the first chunk is also the last, and is unused, then
              * the block as a whole is entirely unused, so return it to
              * the OS and remove it from whatever lists it is in. */

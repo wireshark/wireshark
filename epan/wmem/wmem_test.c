@@ -225,7 +225,6 @@ wmem_test_allocator_det(wmem_allocator_t *allocator, wmem_verify_func verify,
     wmem_free_all(allocator);
     wmem_gc(allocator);
     if (verify) (*verify)(allocator);
-
 }
 
 static void
@@ -261,6 +260,22 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
     wmem_gc(allocator);
     ptrs[0] = (char*)wmem_alloc0(allocator, 4*1024*1024);
 
+    if (verify) (*verify)(allocator);
+    wmem_free_all(allocator);
+    wmem_gc(allocator);
+    if (verify) (*verify)(allocator);
+
+    /* test jumbo allocations and frees */
+    ptrs[0] = (char *)wmem_alloc0(allocator, 10*1024*1024);
+    ptrs[1] = (char *)wmem_alloc0(allocator, 13*1024*1024);
+    ptrs[1] = (char *)wmem_realloc(allocator, ptrs[1], 10*1024*1024);
+    memset(ptrs[1], 0, 10*1024*1024);
+    ptrs[0] = (char *)wmem_realloc(allocator, ptrs[0], 13*1024*1024);
+    memset(ptrs[0], 0, 13*1024*1024);
+    if (verify) (*verify)(allocator);
+    wmem_gc(allocator);
+    if (verify) (*verify)(allocator);
+    wmem_free(allocator, ptrs[1]);
     if (verify) (*verify)(allocator);
     wmem_free_all(allocator);
     wmem_gc(allocator);
