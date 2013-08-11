@@ -646,10 +646,10 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
         else {
             new_blk->prev = old_blk->prev;
             new_blk->next = old_blk->next;
-        }
 
-        WMEM_GET_FREE(old_blk->prev)->next = extra;
-        WMEM_GET_FREE(old_blk->next)->prev = extra;
+            WMEM_GET_FREE(old_blk->prev)->next = extra;
+            WMEM_GET_FREE(old_blk->next)->prev = extra;
+        }
 
         if (allocator->recycler_head == chunk) {
             allocator->recycler_head = extra;
