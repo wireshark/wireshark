@@ -130,8 +130,10 @@ tvb_new_chain(tvbuff_t *parent, tvbuff_t *backing)
 void
 tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 {
-	DISSECTOR_ASSERT(parent && child);
-	DISSECTOR_ASSERT(!child->next && !child->previous);
+	DISSECTOR_ASSERT(parent);
+	DISSECTOR_ASSERT(child);
+	DISSECTOR_ASSERT(!child->next);
+	DISSECTOR_ASSERT(!child->previous);
 	child->next	= parent->next;
 	child->previous = parent;
 	if (parent->next)
