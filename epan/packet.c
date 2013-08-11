@@ -70,6 +70,44 @@ struct data_source {
   char *name;
 };
 
+/*
+ * A dissector table.
+ *
+ * "hash_table" is a hash table, indexed by port number, supplying
+ * a "struct dtbl_entry"; it records what dissector is assigned to
+ * that uint or string value in that table.
+ *
+ * "dissector_handles" is a list of all dissectors that *could* be
+ * used in that table; not all of them are necessarily in the table,
+ * as they may be for protocols that don't have a fixed uint value,
+ * e.g. for TCP or UDP port number tables and protocols with no fixed
+ * port number.
+ *
+ * "ui_name" is the name the dissector table has in the user interface.
+ *
+ * "type" is a field type giving the width of the uint value for that
+ * dissector table, if it's a uint dissector table.
+ *
+ * "base" is the base in which to display the uint value for that
+ * dissector table, if it's a uint dissector table.
+ */
+struct dissector_table {
+	GHashTable	*hash_table;
+	GSList		*dissector_handles;
+	const char	*ui_name;
+	ftenum_t	type;
+	int		base;
+};
+
+static GHashTable *dissector_tables = NULL;
+
+/*
+ * List of registered dissectors.
+ */
+static GHashTable *registered_dissectors = NULL;
+
+static GHashTable *heur_dissector_lists = NULL;
+
 void
 packet_init(void)
 {
@@ -86,7 +124,9 @@ packet_init(void)
 void
 packet_cleanup(void)
 {
-	/* nothing */
+	g_hash_table_destroy(dissector_tables);
+	g_hash_table_destroy(registered_dissectors);
+	g_hash_table_destroy(heur_dissector_lists);
 }
 
 /*
@@ -662,37 +702,6 @@ struct dtbl_entry {
 	dissector_handle_t initial;
 	dissector_handle_t current;
 };
-
-/*
- * A dissector table.
- *
- * "hash_table" is a hash table, indexed by port number, supplying
- * a "struct dtbl_entry"; it records what dissector is assigned to
- * that uint or string value in that table.
- *
- * "dissector_handles" is a list of all dissectors that *could* be
- * used in that table; not all of them are necessarily in the table,
- * as they may be for protocols that don't have a fixed uint value,
- * e.g. for TCP or UDP port number tables and protocols with no fixed
- * port number.
- *
- * "ui_name" is the name the dissector table has in the user interface.
- *
- * "type" is a field type giving the width of the uint value for that
- * dissector table, if it's a uint dissector table.
- *
- * "base" is the base in which to display the uint value for that
- * dissector table, if it's a uint dissector table.
- */
-struct dissector_table {
-	GHashTable	*hash_table;
-	GSList		*dissector_handles;
-	const char	*ui_name;
-	ftenum_t	type;
-	int		base;
-};
-
-static GHashTable *dissector_tables = NULL;
 
 /* Finds a dissector table by table name. */
 dissector_table_t
@@ -1627,9 +1636,6 @@ get_dissector_table_base(const char *name)
 	return sub_dissectors->base;
 }
 
-static GHashTable *heur_dissector_lists = NULL;
-
-
 /* Finds a heuristic dissector table by table name. */
 static heur_dissector_list_t *
 find_heur_dissector_list(const char *name)
@@ -1895,11 +1901,6 @@ register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissec
  * to call on something other than a numerical value or on "try a bunch
  * of dissectors until one likes the packet".
  */
-
-/*
- * List of registered dissectors.
- */
-static GHashTable *registered_dissectors = NULL;
 
 /* Get the long name of the protocol for a dissector handle, if it has
    a protocol. */
