@@ -721,6 +721,8 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
 
 /* BLOCK HELPERS */
 
+/* Add a block to the allocator's embedded doubly-linked list of OS-level blocks
+ * that it owns. */
 static void
 wmem_block_add_to_block_list(wmem_block_allocator_t *allocator,
                              wmem_block_hdr_t *block)
@@ -733,6 +735,8 @@ wmem_block_add_to_block_list(wmem_block_allocator_t *allocator,
     allocator->block_list = block;
 }
 
+/* Remove a block from the allocator's embedded doubly-linked list of OS-level
+ * blocks that it owns. */
 static void
 wmem_block_remove_from_block_list(wmem_block_allocator_t *allocator,
                                   wmem_block_hdr_t *block)
@@ -784,7 +788,9 @@ wmem_block_new_block(wmem_block_allocator_t *allocator)
     wmem_block_init_block(allocator, block);
 }
 
-/* Handles special 'jumbo' allocations that won't fit in a usual block. */
+/* JUMBO ALLOCATIONS */
+
+/* Allocates special 'jumbo' blocks for sizes that won't fit normally. */
 static void *
 wmem_block_alloc_jumbo(wmem_block_allocator_t *allocator, const size_t size)
 {
@@ -807,7 +813,43 @@ wmem_block_alloc_jumbo(wmem_block_allocator_t *allocator, const size_t size)
     return WMEM_CHUNK_TO_DATA(chunk);
 }
 
+/* Frees special 'jumbo' blocks of sizes that won't fit normally. */
+static void
+wmem_block_free_jumbo(wmem_block_allocator_t *allocator,
+                      wmem_block_chunk_t *chunk)
+{
+    wmem_block_hdr_t *block;
+
+    block = WMEM_CHUNK_TO_BLOCK(chunk);
+
+    wmem_block_remove_from_block_list(allocator, block);
+
+    g_free(block);
+}
+
+/* Reallocs special 'jumbo' blocks of sizes that won't fit normally. */
+static void *
+wmem_block_realloc_jumbo(wmem_block_allocator_t *allocator,
+                         wmem_block_chunk_t *chunk,
+                         const size_t size)
+{
+    wmem_block_hdr_t *block;
+
+    block = WMEM_CHUNK_TO_BLOCK(chunk);
+
+    wmem_block_remove_from_block_list(allocator, block);
+
+    block = (wmem_block_hdr_t *) g_realloc(block, size
+            + WMEM_BLOCK_HEADER_SIZE
+            + WMEM_CHUNK_HEADER_SIZE);
+
+    wmem_block_add_to_block_list(allocator, block);
+
+    return WMEM_CHUNK_TO_DATA(WMEM_BLOCK_TO_CHUNK(block));
+}
+
 /* API */
+
 static void *
 wmem_block_alloc(void *private_data, const size_t size)
 {
@@ -877,10 +919,7 @@ wmem_block_free(void *private_data, void *ptr)
     chunk = WMEM_DATA_TO_CHUNK(ptr);
 
     if (chunk->jumbo) {
-        wmem_block_hdr_t *block;
-        block = WMEM_CHUNK_TO_BLOCK(chunk);
-        wmem_block_remove_from_block_list(allocator, block);
-        g_free(block);
+        wmem_block_free_jumbo(allocator, chunk);
         return;
     }
 
@@ -903,14 +942,7 @@ wmem_block_realloc(void *private_data, void *ptr, const size_t size)
     chunk = WMEM_DATA_TO_CHUNK(ptr);
 
     if (chunk->jumbo) {
-        wmem_block_hdr_t *block;
-        block = WMEM_CHUNK_TO_BLOCK(chunk);
-        wmem_block_remove_from_block_list(allocator, block);
-        block = (wmem_block_hdr_t *) g_realloc(block, size
-                + WMEM_BLOCK_HEADER_SIZE
-                + WMEM_CHUNK_HEADER_SIZE);
-        wmem_block_add_to_block_list(allocator, block);
-        return WMEM_CHUNK_TO_DATA(WMEM_BLOCK_TO_CHUNK(block));
+        return wmem_block_realloc_jumbo(allocator, chunk, size);
     }
 
     g_assert(chunk->used);
