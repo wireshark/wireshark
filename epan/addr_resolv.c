@@ -486,6 +486,9 @@ add_service_name(port_type proto, const guint port, const char *service_name)
     serv_port_table = g_new0(serv_port_t,1);
     g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
   }
+  else {
+      g_free(key);
+  }
 
   switch(proto){
   case PT_TCP:
@@ -717,12 +720,23 @@ static gchar
 } /* serv_name_lookup */
 
 static void
+destroy_serv_port(gpointer data)
+{
+    serv_port_t *table = (serv_port_t*)data;
+    g_free(table->udp_name);
+    g_free(table->tcp_name);
+    g_free(table->sctp_name);
+    g_free(table->dccp_name);
+    g_free(table);
+}
+
+static void
 initialize_services(void)
 {
 
   /* the hash table won't ignore duplicates, so use the personal path first */
   g_assert(serv_port_hashtable == NULL);
-  serv_port_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+  serv_port_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, destroy_serv_port);
 
   /* set personal services path */
   if (g_pservices_path == NULL)
