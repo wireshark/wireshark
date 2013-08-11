@@ -86,77 +86,6 @@
 
 static GtkWidget *addr_resolution_dlg_w = NULL;
 
-#if 0
-static void
-pkt_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
-{
-  GtkTextBuffer *buffer;
-  GtkTextIter start_iter;
-  GtkTextIter end_iter;
-  gchar *new_packet_comment = NULL;
-
-  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-  gtk_text_buffer_get_start_iter (buffer, &start_iter);
-  gtk_text_buffer_get_end_iter (buffer, &end_iter);
-
-  new_packet_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);
-
-  /*g_warning("The new comment is '%s'",new_packet_comment);*/
-
-  packet_list_update_packet_comment(new_packet_comment);
-  expert_comp_packet_comment_updated();
-
-  window_destroy(addr_resolution_dlg_w);
-
-}
-
-
-static void
-capture_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
-{
-  GtkTextBuffer *buffer;
-  GtkTextIter start_iter;
-  GtkTextIter end_iter;
-  gchar *new_capture_comment = NULL;
-
-  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-  gtk_text_buffer_get_start_iter (buffer, &start_iter);
-  gtk_text_buffer_get_end_iter (buffer, &end_iter);
-
-  new_capture_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);
-
-  /*g_warning("The new comment is '%s'",new_capture_comment);*/
-  cf_update_capture_comment(&cfile, new_capture_comment);
-
-  /* Update the main window as appropriate */
-  main_update_for_unsaved_changes(&cfile);
-
-  status_capture_comment_update();
-
-  window_destroy(edit_or_add_capture_comment_dlg);
-
-}
-
-static void
-comment_summary_copy_to_clipboard_cb(GtkWidget *w _U_, GtkWidget *view)
-{
-  GtkTextBuffer *buffer;
-  GtkTextIter start_iter, end_iter;
-  GtkClipboard *clipboard;
-
-  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-
-  gtk_text_buffer_get_bounds(buffer, &start_iter, &end_iter);
-
-  gtk_text_buffer_select_range(buffer, &start_iter, &end_iter);
-
-  clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
-  gtk_text_buffer_copy_clipboard (buffer, clipboard);
-
-  gtk_text_buffer_select_range(buffer, &end_iter, &end_iter);
-
-}
-#endif
 
 #define HOSTNAME_POS 48
 #define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
@@ -236,6 +165,24 @@ serv_port_hash_to_texbuff(gpointer key, gpointer value, gpointer user_data)
 }
 
 static void
+ipv4_hash_table_to_texbuff(gpointer key, gpointer value, gpointer user_data)
+{
+	gchar string_buff[ADDRESS_STR_MAX];
+	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
+	hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
+	int addr = *(int*)key;
+
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "Key:0x%x IP: %s, Name: %s\n",
+		  addr,
+		  ipv4_hash_table_entry->ip,
+		  ipv4_hash_table_entry->name);
+
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+}
+
+
+static void
 addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 {
     struct addrinfo *ai;
@@ -248,6 +195,7 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 	GHashTable *wka_hashtable;
 	GHashTable *eth_hashtable;
 	GHashTable *serv_port_hashtable;
+	GHashTable *ipv4_hash_table;
 
     g_snprintf(string_buff, ADDRESS_STR_MAX, "# Hosts information in Wireshark \n#\n");
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
@@ -294,6 +242,17 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
         }
     }
 
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Address resolution Hash table \n#\n");
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+	ipv4_hash_table = get_ipv4_hash_table();
+	if(ipv4_hash_table){
+		g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(ipv4_hash_table));
+		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+		g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_to_texbuff, buffer);
+	}
+
+
 	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Port names information in Wireshark \n#\n");
 	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
@@ -303,7 +262,6 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 		g_hash_table_foreach( serv_port_hashtable, serv_port_hash_to_texbuff, buffer);
 	}
-
 
 	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Eth names information in Wireshark \n#\n");
 	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);

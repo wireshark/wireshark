@@ -71,6 +71,19 @@ typedef struct serv_port {
 } serv_port_t;
 
 /*
+ * XXX Some of this is duplicated in addrinfo_list. We may want to replace the
+ * addr and name parts with a struct addrinfo or create our own addrinfo-like
+ * struct that simply points to the data below.
+ */
+typedef struct hashipv4 {
+  guint             addr;
+  gboolean          is_dummy_entry; /* name is IPv4 address in dot format */
+  gboolean          resolve;        /* already tried to resolve it */
+  gchar             ip[16];
+  gchar             name[MAXNAMELEN];
+} hashipv4_t;
+
+/*
  * Flag controlling what names to resolve.
  */
 WS_DLL_PUBLIC e_addr_resolve gbl_resolv_flags;
@@ -317,6 +330,9 @@ GHashTable *get_eth_hashtable(void);
 
 WS_DLL_PUBLIC
 GHashTable *get_serv_port_hashtable(void);
+
+WS_DLL_PUBLIC
+GHashTable *get_ipv4_hash_table(void);
 
 /*
  * private functions (should only be called by epan directly)

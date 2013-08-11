@@ -194,6 +194,7 @@ g_int64_hash (gconstpointer v)
 
 #define HASH_IPV4_ADDRESS(addr) (g_htonl(addr) & (HASHHOSTSIZE - 1))
 
+#if 0
 /*
  * XXX Some of this is duplicated in addrinfo_list. We may want to replace the
  * addr and name parts with a struct addrinfo or create our own addrinfo-like
@@ -207,6 +208,16 @@ typedef struct hashipv4 {
     gchar             ip[16];
     gchar             name[MAXNAMELEN];
 } hashipv4_t;
+#endif
+
+typedef struct sub_net_hashipv4 {
+    guint             addr;
+    gboolean          is_dummy_entry; /* name is IPv4 address in dot format */
+    gboolean          resolve;        /* already tried to resolve it */
+    struct sub_net_hashipv4   *next;
+    gchar             ip[16];
+    gchar             name[MAXNAMELEN];
+} sub_net_hashipv4_t;
 
 /* hash table used for IPv6 lookup */
 
@@ -226,7 +237,7 @@ typedef struct hashipv6 {
 typedef struct {
     gsize        mask_length;      /*1-32*/
     guint32      mask;             /* e.g. 255.255.255.*/
-    hashipv4_t** subnet_addresses; /* Hash table of subnet addresses */
+    sub_net_hashipv4_t** subnet_addresses; /* Hash table of subnet addresses */
 } subnet_length_entry_t;
 
 /* hash table used for TCP/UDP/SCTP port lookup */
@@ -284,8 +295,9 @@ typedef struct _ipxnet
     char              name[MAXNAMELEN];
 } ipxnet_t;
 
-static hashipv4_t   *ipv4_table[HASHHOSTSIZE];
 static hashipv6_t   *ipv6_table[HASHHOSTSIZE];
+
+static GHashTable   *ipv4_hash_table = NULL;
 
 static gchar        *cb_service;
 static port_type    cb_proto = PT_NONE;
@@ -854,9 +866,8 @@ c_ares_ghba_cb(
 static hashipv4_t *
 new_ipv4(const guint addr)
 {
-    hashipv4_t *tp = se_new(hashipv4_t);
+    hashipv4_t *tp = g_new(hashipv4_t, 1);
     tp->addr = addr;
-    tp->next = NULL;
     tp->resolve = FALSE;
     tp->is_dummy_entry = FALSE;
     ip_to_str_buf((const guint8 *)&addr, tp->ip, sizeof(tp->ip));
@@ -866,38 +877,33 @@ new_ipv4(const guint addr)
 static hashipv4_t *
 host_lookup(const guint addr, gboolean *found)
 {
-    int hash_idx;
     hashipv4_t * volatile tp;
     struct hostent *hostp;
 
     *found = TRUE;
 
-    hash_idx = HASH_IPV4_ADDRESS(addr);
+    tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, &addr);
+    if(tp == NULL){
+        int *key;
 
-    tp = ipv4_table[hash_idx];
-
-    if( tp == NULL ) {
-        tp = ipv4_table[hash_idx] = new_ipv4(addr);
-    } else {
-        while(1) {
-            if( tp->addr == addr ) {
-                if (tp->is_dummy_entry && !tp->resolve)
-                    break;
-                if (tp->is_dummy_entry)
-                    *found = FALSE;
-                return tp;
-            }
-            if (tp->next == NULL) {
-                tp->next = new_ipv4(addr);
-                tp = tp->next;
-                break;
-            }
-            tp = tp->next;
+        key = (int *)g_new(int, 1);
+        *key = addr;
+        tp = new_ipv4(addr);
+        g_hash_table_insert(ipv4_hash_table, key, tp);
+    }else{
+        if (tp->is_dummy_entry && !tp->resolve){
+            goto try_resolv;
+        }
+        if (tp->is_dummy_entry){
+            *found = FALSE;
+            return tp;
         }
     }
 
+try_resolv:
     if (gbl_resolv_flags.network_name && gbl_resolv_flags.use_external_net_name_resolver) {
         tp->resolve = TRUE;
+
 #ifdef ASYNC_DNS
         if (gbl_resolv_flags.concurrent_dns &&
                 name_resolve_concurrency > 0 &&
@@ -2328,7 +2334,7 @@ subnet_lookup(const guint32 addr)
         length_entry = &subnet_length_entries[i];
 
         if(NULL != length_entry->subnet_addresses) {
-            hashipv4_t * tp;
+            sub_net_hashipv4_t * tp;
             guint32 hash_idx;
 
             masked_addr = addr & length_entry->mask;
@@ -2363,7 +2369,7 @@ static void
 subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* name)
 {
     subnet_length_entry_t* entry;
-    hashipv4_t * tp;
+    sub_net_hashipv4_t * tp;
     gsize hash_idx;
 
     g_assert(mask_length > 0 && mask_length <= 32);
@@ -2375,19 +2381,19 @@ subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* na
     hash_idx = HASH_IPV4_ADDRESS(subnet_addr);
 
     if(NULL == entry->subnet_addresses) {
-        entry->subnet_addresses = (hashipv4_t**) se_alloc0(sizeof(hashipv4_t*) * HASHHOSTSIZE);
+        entry->subnet_addresses = (sub_net_hashipv4_t**) se_alloc0(sizeof(sub_net_hashipv4_t*) * HASHHOSTSIZE);
     }
 
     if(NULL != (tp = entry->subnet_addresses[hash_idx])) {
         if(tp->addr == subnet_addr) {
             return;    /* XXX provide warning that an address was repeated? */
         } else {
-            hashipv4_t * new_tp = se_new(hashipv4_t);
+            sub_net_hashipv4_t * new_tp = se_new(sub_net_hashipv4_t);
             tp->next = new_tp;
             tp = new_tp;
         }
     } else {
-        tp = entry->subnet_addresses[hash_idx] = se_new(hashipv4_t);
+        tp = entry->subnet_addresses[hash_idx] = se_new(sub_net_hashipv4_t);
     }
 
     tp->next = NULL;
@@ -2692,7 +2698,6 @@ get_hostname6(const struct e_in6_addr *addr)
 void
 add_ipv4_name(const guint addr, const gchar *name)
 {
-    int hash_idx;
     hashipv4_t *tp;
     struct addrinfo *ai;
     struct sockaddr_in *sa4;
@@ -2704,31 +2709,34 @@ add_ipv4_name(const guint addr, const gchar *name)
     if (name[0] == '\0')
         return;
 
-    hash_idx = HASH_IPV4_ADDRESS(addr);
 
-    tp = ipv4_table[hash_idx];
+    if(ipv4_hash_table == NULL){
+        int *key;
 
-    if( tp == NULL ) {
-        tp = ipv4_table[hash_idx] = new_ipv4(addr);
-    } else {
-        while(1) {
-            if (tp->addr == addr) {
-                /* address already known */
-                if (!tp->is_dummy_entry) {
-                    return;
-                } else {
-                    /* replace this dummy entry with the new one */
-                    break;
-                }
-            }
-            if (tp->next == NULL) {
-                tp->next = new_ipv4(addr);
-                tp = tp->next;
-                break;
-            }
-            tp = tp->next;
+        key = (int *)g_new(int, 1);
+        *key = addr;
+        ipv4_hash_table = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+        tp = new_ipv4(addr);
+        g_strlcpy(tp->name, name, MAXNAMELEN);
+        tp->resolve = TRUE;
+        g_hash_table_insert(ipv4_hash_table, key, tp);
+    }else{
+        tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, &addr);
+        if(tp){
+            g_strlcpy(tp->name, name, MAXNAMELEN);
+            tp->resolve = TRUE;
+        }else{
+            int *key;
+
+            key = (int *)g_new(int, 1);
+            *key = addr;
+            tp = new_ipv4(addr);
+            g_strlcpy(tp->name, name, MAXNAMELEN);
+            tp->resolve = TRUE;
+            g_hash_table_insert(ipv4_hash_table, key, tp);
         }
     }
+
     g_strlcpy(tp->name, name, MAXNAMELEN);
     tp->resolve = TRUE;
     new_resolved_objects = TRUE;
@@ -2933,7 +2941,10 @@ host_name_lookup_cleanup(void)
 {
     _host_name_lookup_cleanup();
 
-    memset(ipv4_table, 0, sizeof(ipv4_table));
+    if(ipv4_hash_table){
+        g_hash_table_destroy(ipv4_hash_table);
+		ipv4_hash_table = NULL;
+    }
     memset(ipv6_table, 0, sizeof(ipv6_table));
 
     memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
@@ -3483,6 +3494,12 @@ GHashTable *
 get_serv_port_hashtable(void)
 {
     return serv_port_hashtable;
+}
+
+GHashTable *
+get_ipv4_hash_table(void)
+{
+        return ipv4_hash_table;
 }
 
 /* Initialize all the address resolution subsystems in this file */
