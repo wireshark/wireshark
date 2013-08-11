@@ -64,23 +64,24 @@
  * BLOCKS AND CHUNKS
  *
  * As in previous versions, allocations typically happen sequentially out of
- * large OS-level blocks. A linked list of OS blocks is maintained to keep track
- * of all blocks (used or not) currently owned by the allocator. Each block is
- * divided into chunks, which represent allocations and free sections (a block
- * is initialized with one large, free, chunk). Each chunk is prefixed with a
- * wmem_block_chunk_t structure, which is a short metadata header (8 bytes,
- * regardless of 32 or 64-bit architecture) that contains the length of the
- * chunk, the length of the previous chunk, a flag marking the chunk as free or
- * used, and a flag marking the last chunk in a block. This serves to implement
- * an inline sequential doubly-linked list of all the chunks in each block.
- * A block with three chunks might look something like this:
+ * large OS-level blocks. Each block has a short embedded header used to
+ * maintain a doubly-linked list of all blocks (used or not) currently owned by
+ * the allocator. Each block is divided into chunks, which represent allocations
+ * and free sections (a block is initialized with one large, free, chunk). Each
+ * chunk is prefixed with a wmem_block_chunk_t structure, which is a short
+ * metadata header (8 bytes, regardless of 32 or 64-bit architecture unless
+ * alignment requires it to be padded) that contains the length of the chunk,
+ * the length of the previous chunk, a flag marking the chunk as free or used,
+ * and a flag marking the last chunk in a block. This serves to implement an
+ * inline sequential doubly-linked list of all the chunks in each block. A block
+ * with three chunks might look something like this:
  *
- *     0                        _________________________
- *     ^      _______________  /        ______________   \       __________
- * ||--|-----/---------------||--------/--------------||--\-----/----------||
- * || prv | len |    body    || prv | len |   body    || prv | len | body  ||
- * ||------------------------||--/--------------------||-------------------||
- *   \__________________________/
+ *          0                    _________________________
+ *          ^      ___________  /        ______________   \       __________
+ * ||---||--|-----/-----------||--------/--------------||--\-----/----------||
+ * ||hdr|| prv | len |  body  || prv | len |   body    || prv | len | body  ||
+ * ||---||--------------------||--/--------------------||-------------------||
+ *        \______________________/
  *
  *
  * When allocating, a free chunk is found (more on that later) and split into
@@ -153,6 +154,11 @@
  * also a nice power of two, of course. */
 #define WMEM_BLOCK_SIZE (8 * 1024 * 1024)
 
+/* The header for an entire OS-level 'block' of memory */
+typedef struct _wmem_block_hdr_t {
+    struct _wmem_block_hdr_t *prev, *next;
+} wmem_block_hdr_t;
+
 /* The header for a single 'chunk' of memory as returned from alloc/realloc. */
 typedef struct _wmem_block_chunk_t {
     guint32 used:1;
@@ -174,10 +180,18 @@ typedef struct _wmem_block_chunk_t {
 
 #define WMEM_CHUNK_HEADER_SIZE WMEM_ALIGN_SIZE(sizeof(wmem_block_chunk_t))
 
+#define WMEM_BLOCK_MAX_ALLOC_SIZE (WMEM_BLOCK_SIZE - \
+        (WMEM_BLOCK_HEADER_SIZE + WMEM_CHUNK_HEADER_SIZE))
+
 /* other handy chunk macros */
 #define WMEM_CHUNK_TO_DATA(CHUNK) ((void*)((guint8*)(CHUNK) + WMEM_CHUNK_HEADER_SIZE))
 #define WMEM_DATA_TO_CHUNK(DATA) ((wmem_block_chunk_t*)((guint8*)(DATA) - WMEM_CHUNK_HEADER_SIZE))
 #define WMEM_CHUNK_DATA_LEN(CHUNK) ((CHUNK)->len - WMEM_CHUNK_HEADER_SIZE)
+
+/* some handy block macros */
+#define WMEM_BLOCK_HEADER_SIZE WMEM_ALIGN_SIZE(sizeof(wmem_block_hdr_t))
+#define WMEM_BLOCK_TO_CHUNK(BLOCK) ((wmem_block_chunk_t*)((guint8*)(BLOCK) + WMEM_BLOCK_HEADER_SIZE))
+#define WMEM_CHUNK_TO_BLOCK(CHUNK) ((wmem_block_hdr_t*)((guint8*)(CHUNK) - WMEM_BLOCK_HEADER_SIZE))
 
 /* This is what the 'data' section of a chunk contains if it is free. */
 typedef struct _wmem_block_free_t {
@@ -188,17 +202,21 @@ typedef struct _wmem_block_free_t {
 #define WMEM_GET_FREE(CHUNK) ((wmem_block_free_t*)WMEM_CHUNK_TO_DATA(CHUNK))
 
 typedef struct _wmem_block_allocator_t {
-    GSList             *block_list;
+    wmem_block_hdr_t   *block_list;
     wmem_block_chunk_t *master_head;
     wmem_block_chunk_t *recycler_head;
 } wmem_block_allocator_t;
 
 /* DEBUG AND TEST */
 static int
-wmem_block_verify_chunk_chain(wmem_block_chunk_t *chunk)
+wmem_block_verify_block(wmem_block_hdr_t *block)
 {
-    guint32 total_len = 0;
-    int     total_free_space = 0;
+    int                 total_free_space = 0;
+    guint32             total_len;
+    wmem_block_chunk_t *chunk;
+
+    chunk     = WMEM_BLOCK_TO_CHUNK(block);
+    total_len = WMEM_BLOCK_HEADER_SIZE;
 
     g_assert(chunk->prev == 0);
 
@@ -299,7 +317,7 @@ wmem_block_verify_recycler(wmem_block_allocator_t *allocator)
 void
 wmem_block_verify(wmem_allocator_t *allocator)
 {
-    GSList                 *tmp;
+    wmem_block_hdr_t       *cur;
     wmem_block_allocator_t *private_allocator;
     int                     master_free, recycler_free, chunk_free = 0;
 
@@ -319,11 +337,14 @@ wmem_block_verify(wmem_allocator_t *allocator)
     master_free   = wmem_block_verify_master_list(private_allocator);
     recycler_free = wmem_block_verify_recycler(private_allocator);
 
-    tmp = private_allocator->block_list;
-    while (tmp) {
-        chunk_free += wmem_block_verify_chunk_chain(
-                (wmem_block_chunk_t *)tmp->data);
-        tmp = tmp->next;
+    cur = private_allocator->block_list;
+    g_assert(cur->prev == NULL);
+    while (cur) {
+        if (cur->next) {
+            g_assert(cur->next->prev == cur);
+        }
+        chunk_free += wmem_block_verify_block(cur);
+        cur = cur->next;
     }
 
     g_assert(chunk_free == master_free + recycler_free);
@@ -461,7 +482,7 @@ wmem_block_pop_master(wmem_block_allocator_t *allocator)
     }
 }
 
-/* BLOCK/CHUNK HELPERS */
+/* CHUNK HELPERS */
 
 /* Takes a free chunk and checks the chunks to its immediate right and left in
  * the block. If they are also free, the contigous free chunks are merged into
@@ -691,19 +712,35 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     wmem_block_merge_free(allocator, extra);
 }
 
+/* BLOCK HELPERS */
+
+static void
+wmem_block_add_to_block_list(wmem_block_allocator_t *allocator,
+                             wmem_block_hdr_t *block)
+{
+    block->prev = NULL;
+    block->next = allocator->block_list;
+    if (block->next) {
+        block->next->prev = block;
+    }
+    allocator->block_list = block;
+}
+
 /* Initializes a single unused chunk at the beginning of the block, and
  * adds that chunk to the free list. */
 static void
-wmem_block_init_block(wmem_block_allocator_t *allocator, void *block)
+wmem_block_init_block(wmem_block_allocator_t *allocator,
+                      wmem_block_hdr_t *block)
 {
     wmem_block_chunk_t *chunk;
 
     /* a new block contains one chunk, right at the beginning */
-    chunk = (wmem_block_chunk_t*) block;
+    chunk = WMEM_BLOCK_TO_CHUNK(block);
+
     chunk->used = FALSE;
     chunk->last = TRUE;
     chunk->prev = 0;
-    chunk->len = WMEM_BLOCK_SIZE;
+    chunk->len = WMEM_BLOCK_SIZE - WMEM_BLOCK_HEADER_SIZE;
 
     /* now push that chunk onto the master list */
     wmem_block_push_master(allocator, chunk);
@@ -713,11 +750,11 @@ wmem_block_init_block(wmem_block_allocator_t *allocator, void *block)
 static void
 wmem_block_new_block(wmem_block_allocator_t *allocator)
 {
-    void *block;
+    wmem_block_hdr_t *block;
 
     /* allocate the new block and add it to the block list */
-    block = g_malloc(WMEM_BLOCK_SIZE);
-    allocator->block_list = g_slist_prepend(allocator->block_list, block);
+    block = (wmem_block_hdr_t *)g_malloc(WMEM_BLOCK_SIZE);
+    wmem_block_add_to_block_list(allocator, block);
 
     /* initialize it */
     wmem_block_init_block(allocator, block);
@@ -732,7 +769,7 @@ wmem_block_alloc(void *private_data, const size_t size)
 
     /* We can't allocate more than will fit in a block (less our header),
      * which is still an awful lot. */
-    g_assert(size < WMEM_BLOCK_SIZE - WMEM_CHUNK_HEADER_SIZE);
+    g_assert(size <= WMEM_BLOCK_MAX_ALLOC_SIZE);
 
     if (allocator->recycler_head &&
             WMEM_CHUNK_DATA_LEN(allocator->recycler_head) >= size) {
@@ -880,7 +917,7 @@ static void
 wmem_block_free_all(void *private_data)
 {
     wmem_block_allocator_t *allocator = (wmem_block_allocator_t*) private_data;
-    GSList *tmp;
+    wmem_block_hdr_t       *tmp;
 
     /* the existing free lists are entirely irrelevant */
     allocator->master_head   = NULL;
@@ -890,7 +927,7 @@ wmem_block_free_all(void *private_data)
     tmp = allocator->block_list;
 
     while (tmp) {
-        wmem_block_init_block(allocator, tmp->data);
+        wmem_block_init_block(allocator, tmp);
         tmp = tmp->next;
     }
 }
@@ -899,17 +936,18 @@ static void
 wmem_block_gc(void *private_data)
 {
     wmem_block_allocator_t *allocator = (wmem_block_allocator_t*) private_data;
-    GSList *tmp, *new_block_list = NULL;
+    wmem_block_hdr_t   *cur, *next;
     wmem_block_chunk_t *chunk;
     wmem_block_free_t  *free_chunk;
 
-    /* Walk through the blocks, adding used blocks to a new list and
-     * completely destroying unused blocks. The newly built list is the new
-     * block list. */
-    tmp = allocator->block_list;
+    /* Walk through the blocks, adding used blocks to the new list and
+     * completely destroying unused blocks. */
+    cur = allocator->block_list;
+    allocator->block_list = NULL;
 
-    while (tmp) {
-        chunk = (wmem_block_chunk_t *) tmp->data;
+    while (cur) {
+        chunk = WMEM_BLOCK_TO_CHUNK(cur);
+        next  = cur->next;
 
         if (!chunk->used && chunk->last) {
             /* If the first chunk is also the last, and is unused, then
@@ -933,20 +971,15 @@ wmem_block_gc(void *private_data)
             else if (allocator->master_head == chunk) {
                 allocator->master_head = free_chunk->next;
             }
-            g_free(chunk);
+            g_free(cur);
         }
         else {
             /* part of this block is used, so add it to the new block list */
-            new_block_list = g_slist_prepend(new_block_list, chunk);
+            wmem_block_add_to_block_list(allocator, cur);
         }
 
-        tmp = tmp->next;
+        cur = next;
     }
-
-    /* free the data structure for the old list */
-    g_slist_free(allocator->block_list);
-    /* and store the new list */
-    allocator->block_list = new_block_list;
 }
 
 static void
