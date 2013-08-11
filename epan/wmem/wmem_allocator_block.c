@@ -165,12 +165,14 @@ typedef struct _wmem_block_hdr_t {
  * block and the other chunk header fields are irrelevant.
  */
 typedef struct _wmem_block_chunk_t {
+    guint32 prev;
+
+    /* flags */
+    guint32 last:1;
     guint32 used:1;
     guint32 jumbo:1;
-    guint32 prev:30;
 
-    guint32 last:1;
-    guint32 len:31;
+    guint32 len:29;
 } wmem_block_chunk_t;
 
 /* Handy macros for navigating the chunks in a block as if they were a
