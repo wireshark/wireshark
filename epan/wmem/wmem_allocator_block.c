@@ -373,10 +373,6 @@ wmem_block_cycle_recycler(wmem_block_allocator_t *allocator)
 
     chunk = allocator->recycler_head;
 
-    if (! chunk) {
-        return;
-    }
-
     free_chunk = WMEM_GET_FREE(chunk);
 
     if (free_chunk->next->len < chunk->len) {
@@ -861,7 +857,9 @@ wmem_block_alloc(void *private_data, const size_t size)
     g_assert(chunk != allocator->recycler_head);
 
     /* Now cycle the recycler */
-    wmem_block_cycle_recycler(allocator);
+    if (allocator->recycler_head) {
+        wmem_block_cycle_recycler(allocator);
+    }
 
     /* mark it as used */
     chunk->used = TRUE;
