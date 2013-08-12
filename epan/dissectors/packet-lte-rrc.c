@@ -5599,6 +5599,7 @@ dissect_lte_rrc_T_sizeOfRA_PreamblesGroupA(tvbuff_t *tvb _U_, int offset _U_, as
                                 val_to_str_const(ra_value, lte_rrc_T_numberOfRA_Preambles_vals, "Unknown"));
 
   }
+  actx->private_data = NULL;
 
   return offset;
 }
@@ -44372,7 +44373,7 @@ void proto_register_lte_rrc(void) {
      { &ei_lte_rrc_commercial_mobile_alert_sys, { "lte_rrc.commercial_mobile_alert_sys", PI_SEQUENCE, PI_WARN, "Commercial Mobile Alert System Indication!", EXPFILL }},
      { &ei_lte_rrc_unexpected_type_value, { "lte_rrc.unexpected_type_value", PI_MALFORMED, PI_ERROR, "Unexpected type value", EXPFILL }},
      { &ei_lte_rrc_unexpected_length_value, { "lte_rrc.unexpected_length_value", PI_MALFORMED, PI_ERROR, "Unexpected type length", EXPFILL }},
-     { &ei_lte_rrc_too_many_group_a_rapids, { "lte_rrc.too_many_groupa_rapids", PI_MALFORMED, PI_ERROR, "Unexpected type length", EXPFILL }},
+     { &ei_lte_rrc_too_many_group_a_rapids, { "lte_rrc.too_many_groupa_rapids", PI_MALFORMED, PI_ERROR, "Too many group A RAPIDs", EXPFILL }},
   };
 
   expert_module_t* expert_lte_rrc;

@@ -1294,3 +1294,4 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
                                 val_to_str_const(ra_value, lte_rrc_T_numberOfRA_Preambles_vals, "Unknown"));
 
   }
+  actx->private_data = NULL;
