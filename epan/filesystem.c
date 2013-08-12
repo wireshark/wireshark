@@ -71,7 +71,7 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #endif
-#ifdef DLADDR_FINDS_EXECUTABLE_PATH
+#ifdef HAVE_DLADDR
 #include <dlfcn.h>
 #endif
 #include <pwd.h>
@@ -441,7 +441,7 @@ init_progfile_dir(const char *arg0
     _U_
 #endif
 , int (*main_addr)(int, char **)
-#if defined(_WIN32) || !defined(DLADDR_FINDS_EXECUTABLE_PATH)
+#if defined(_WIN32) || !defined(HAVE_DLADDR)
     _U_
 #endif
 )
@@ -507,7 +507,7 @@ init_progfile_dir(const char *arg0
             msg, error);
     }
 #else
-#ifdef DLADDR_FINDS_EXECUTABLE_PATH
+#ifdef HAVE_DLADDR
     Dl_info info;
 #endif
     const char *execname;
@@ -535,7 +535,7 @@ init_progfile_dir(const char *arg0
         running_in_build_directory_flag = TRUE;
 
     execname = get_executable_path();
-#ifdef DLADDR_FINDS_EXECUTABLE_PATH
+#ifdef HAVE_DLADDR
     if (execname == NULL) {
         /*
          * Try to use dladdr() to find the pathname of the executable.

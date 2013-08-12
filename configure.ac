@@ -1574,23 +1574,34 @@ else
 fi
 
 #
-# If we have <dlfcn.h>, check whether we can use dladdr to find a
-# filename (hopefully, a full pathname, but no guarantees) for
-# the executable.
+# If we have <dlfcn.h>, check whether we have dladdr.
 #
 if test "$ac_cv_header_dlfcn_h" = "yes"
 then
-	AC_MSG_CHECKING(whether dladdr can be used to find the pathname of an executable)
-	AC_WIRESHARK_CHECK_DLADDR
-	if test x$ac_cv_dladdr_finds_executable_path = xno
+	#
+	# Use GLib compiler flags and linker flags; GLib's gmodule
+	# stuff uses the dl APIs if available, so it might know
+	# what flags are needed.
+	#
+	ac_save_CFLAGS="$CFLAGS"
+	ac_save_LIBS="$LIBS"
+	CFLAGS="$CFLAGS $GLIB_CFLAGS"
+	LIBS="$GLIB_LIBS $LIBS"
+	AC_CHECK_FUNCS(dladdr)
+	if test x$ac_cv_func_dladdr = xno
 	then
 		#
 		# OK, try it with -ldl, in case you need that to get
-		# dladdr().
+		# dladdr().  For some reason, on Linux, that's not
+		# part of the GLib flags; perhaps GLib itself is
+		# linked with libdl, so that you can link with
+		# Glib and it'll pull libdl in itself.
 		#
-		AC_WIRESHARK_CHECK_DLADDR(-ldl)
+		LIBS="$LIBS -ldl"
+		AC_CHECK_FUNCS(dladdr)
 	fi
-	AC_MSG_RESULT($ac_cv_dladdr_finds_executable_path)
+	CFLAGS="$ac_save_CFLAGS"
+	LIBS="$ac_save_LIBS"
 fi
 
 #
