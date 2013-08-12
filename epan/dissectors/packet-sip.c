@@ -2104,6 +2104,7 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		if (len == -1)
 			break;	/* need more data */
 		offset += len;
+		first = FALSE;
 	}
 	return TRUE;
 }
