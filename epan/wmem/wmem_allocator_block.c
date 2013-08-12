@@ -237,6 +237,7 @@ wmem_block_verify_block(wmem_block_hdr_t *block)
         total_len += chunk->len;
 
         g_assert(chunk->len >= WMEM_CHUNK_HEADER_SIZE);
+        g_assert(!chunk->jumbo);
 
         if (WMEM_CHUNK_NEXT(chunk)) {
             g_assert(chunk->len == WMEM_CHUNK_NEXT(chunk)->prev);
@@ -656,10 +657,11 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
 
     /* Now that we've copied over the free-list stuff (which may have overlapped
      * with our new chunk header) we can safely write our new chunk header. */
-    extra->len  = (guint32) available;
-    extra->last = last;
-    extra->prev = chunk->len;
-    extra->used = FALSE;
+    extra->len   = (guint32) available;
+    extra->last  = last;
+    extra->prev  = chunk->len;
+    extra->used  = FALSE;
+    extra->jumbo = FALSE;
 
     /* Correctly update the following chunk's back-pointer */
     if (!last) {
@@ -706,10 +708,11 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     extra = WMEM_CHUNK_NEXT(chunk);
 
     /* set the new values for the chunk */
-    extra->len  = (guint32) available;
-    extra->last = last;
-    extra->prev = chunk->len;
-    extra->used = FALSE;
+    extra->len   = (guint32) available;
+    extra->last  = last;
+    extra->prev  = chunk->len;
+    extra->used  = FALSE;
+    extra->jumbo = FALSE;
 
     /* Correctly update the following chunk's back-pointer */
     if (!last) {
@@ -809,7 +812,11 @@ wmem_block_alloc_jumbo(wmem_block_allocator_t *allocator, const size_t size)
 
     /* the new block contains a single jumbo chunk */
     chunk = WMEM_BLOCK_TO_CHUNK(block);
+    chunk->last  = TRUE;
+    chunk->used  = TRUE;
     chunk->jumbo = TRUE;
+    chunk->len   = 0;
+    chunk->prev  = 0;
 
     /* and return the data pointer */
     return WMEM_CHUNK_TO_DATA(chunk);
