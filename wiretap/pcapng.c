@@ -1147,7 +1147,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         pcapng_debug3("pcapng_read_packet_block: encapsulation = %d (%s), pseudo header size = %d.",
                        int_data.wtap_encap,
                        wtap_encap_string(int_data.wtap_encap),
-                       pcap_get_phdr_size(int_data.wtap_encap, &wblock->packet_header.pseudo_header));
+                       pcap_get_phdr_size(int_data.wtap_encap, &wblock->packet_header->pseudo_header));
         wblock->packet_header->interface_id = wblock->data.packet.interface_id;
         wblock->packet_header->pkt_encap = int_data.wtap_encap;
 
