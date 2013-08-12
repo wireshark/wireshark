@@ -48,11 +48,12 @@ aclocal_dir=`aclocal --print-ac-dir`
 # And where do we want to make sure it looks?
 # Look for pkg-config first.
 #
-pkg_config_path=`which pkg-config 2>/dev/null`
+pkg_config_path=`command -v pkg-config 2>/dev/null`
 if [ -z "$pkg_config_path" ]
 then
 	#
-	# Either we don't have "which" or it didn't find pkg-config.
+	# Either we don't have "command" (which is required by recent
+	# POSIX) or it didn't find pkg-config.
 	#
 	pkg_config_aclocal_dir=""
 else
@@ -73,9 +74,20 @@ else
 		# it in /usr/ccs/bin, but there's no /usr/ccs/share.
 		# Map /usr/ccs to /usr.
 		#
+		# Ubuntu 7.10 has /usr/X11R6/bin as a symbolic link
+		# to /usr/bin, but there's no /usr/X11R6/share.  If
+		# /usr/X11R6/bin is a symlink to /usr/bin, map
+		# /usr/X11R6 to /usr.
+		#
 		if [ "$pkg_config_prefix" = /usr/ccs ]
 		then
 			pkg_config_prefix=/usr
+		elif [ "$pkg_config_prefix" = /usr/X11R6 ]
+		then
+			if expr "`ls -ld /usr/X11R6/bin`" : '.*/usr/X11R6/bin -> .*/bin$' >/dev/null
+			then
+				pkg_config_prefix=/usr
+			fi
 		fi
 
 		#
