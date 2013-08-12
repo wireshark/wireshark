@@ -1849,7 +1849,8 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              tvb, offset, -1, ENC_NA);
 
     /* Get number of paging IDs for tap */
-    tap_info->number_of_paging_ids = ((tvb_get_ntohs(tvb, offset) >> 7) & 0x000f) + 1;
+    tap_info->number_of_paging_ids = (tvb_get_guint8(tvb, offset) & 0x40) ?
+                                        ((tvb_get_ntohs(tvb, offset) >> 7) & 0x000f) + 1 : 0;
 
     if (global_mac_lte_attempt_rrc_decode) {
 
