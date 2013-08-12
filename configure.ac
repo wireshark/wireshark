@@ -1581,31 +1581,14 @@ fi
 if test "$ac_cv_header_dlfcn_h" = "yes"
 then
 	AC_MSG_CHECKING(whether dladdr can be used to find the pathname of an executable)
-	ac_save_CFLAGS="$CFLAGS"
-	ac_save_LIBS="$LIBS"
-	CFLAGS="$CFLAGS $GLIB_CFLAGS"
-	LIBS="$GLIB_LIBS $LIBS"
-	AC_TRY_RUN([
-#define _GNU_SOURCE	/* required on Linux, sigh */
-#include <dlfcn.h>
-
-int
-main(void)
-{
-	Dl_info info;
-
-	if (!dladdr((void *)main, &info))
-		return 1;	/* failure */
-	return 0;		/* assume success */
-}
-], ac_cv_dladdr_finds_executable_path=yes, ac_cv_dladdr_finds_executable_path=no,
-   [echo $ac_n "cross compiling; assumed OK... $ac_c"
-    ac_cv_dladdr_finds_executable_path=yes])
-	CFLAGS="$ac_save_CFLAGS"
-	LIBS="$ac_save_LIBS"
-	if test x$ac_cv_dladdr_finds_executable_path = xyes
+	AC_WIRESHARK_CHECK_DLADDR
+	if test x$ac_cv_dladdr_finds_executable_path = xno
 	then
-		AC_DEFINE(DLADDR_FINDS_EXECUTABLE_PATH, 1, [Define if dladdr can be used to find the path of the executable])
+		#
+		# OK, try it with -ldl, in case you need that to get
+		# dladdr().
+		#
+		AC_WIRESHARK_CHECK_DLADDR(-ldl)
 	fi
 	AC_MSG_RESULT($ac_cv_dladdr_finds_executable_path)
 fi
