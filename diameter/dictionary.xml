@@ -579,7 +579,7 @@
 			field MUST be set to 12 (16 if the 'V' bit is enabled).
 		-->
 		<typedefn type-name="VendorId" type-parent="Unsigned32"/>
-		<typedefn type-name="AppId" type-parent="Integer32"/>
+		<typedefn type-name="AppId" type-parent="Unsigned32"/>
 		<typedefn type-name="Integer64"/>
 		<!--
 			64 bit signed value, in network byte order. The AVP Length
@@ -6559,7 +6559,8 @@
 	<application id="16777292"	name="3GPP SGmb"		uri="http://www.3gpp.org/ftp/Specs/html-info/29061.htm"></application>
 	<application id="16777302"	name="3GPP Sy"			uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"></application>
 	<application id="16777304"	name="Ericsson Sy"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
-
+  <application id="4294967295" name="Relay"  uri="http://www.ietf.org/rfc/rfc6733.txt?number=6733"></application>
+  
 	&nasreq;
 	&eap;
 	&mobileipv4;
