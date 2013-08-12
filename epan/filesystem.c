@@ -63,7 +63,7 @@
 #else /* _WIN32 */
 #ifdef DLADDR_FINDS_EXECUTABLE_PATH
 #include <dlfcn.h>
-#endif /* DLADDR_FINDS_EXECUTABLE_PATH */
+#endif
 #include <pwd.h>
 #endif /* _WIN32 */
 
@@ -243,6 +243,14 @@ test_for_fifo(const char *path)
  */
 static char *progfile_dir;
 
+#ifdef __APPLE__
+/*
+ * Directory of the application bundle in which we're contained,
+ * if we're contained in an application bundle.  Otherwise, NULL.
+ */
+static char *appbundle_dir;
+#endif
+ 
 /*
  * TRUE if we're running from the build directory and we aren't running
  * with special privileges.
@@ -510,6 +518,45 @@ init_progfile_dir(const char *arg0
                 if (!started_with_special_privs())
                     running_in_build_directory_flag = TRUE;
             }
+#ifdef __APPLE__
+            else {
+                if (!started_with_special_privs()) {
+                    /*
+                     * Scan up the path looking for a component
+                     * named "Contents".  If we find it, we assume
+                     * we're in a bundle, and that the top-level
+                     * directory of the bundle is the one containing
+                     * "Contents".
+                     */
+                    char *component_end, *p;
+
+                    component_end = strchr(prog_pathname, '\0');
+                    p = component_end;
+                    for (;;) {
+                        while (p >= prog_pathname && *p != '/')
+                            p--;
+                        if (p == prog_pathname) {
+                            /*
+                             * We're looking at the first component of
+                             * the pathname now, so we're definitely
+                             * not in a bundle, even if we're in
+                             * "/Contents".
+                             */
+                            break;
+                        }
+                        if (strncmp(p, "/Contents", component_end - p) == 0) {
+                            /* Found it. */
+                            appbundle_dir = (char *)g_malloc(p - prog_pathname + 1);
+                            memcpy(appbundle_dir, prog_pathname, p - prog_pathname);
+                            appbundle_dir[p - prog_pathname] = '\0';
+                            break;
+                        }
+                        component_end = p;
+                        p--;
+                    }
+                }
+            }
+#endif
         }
 
         /*
@@ -641,6 +688,10 @@ get_datafile_dir(void)
      * directory and started without special privileges, and also
      * check whether we were able to determine the directory in
      * which the program was found.
+     *
+     * (running_in_build_directory_flag is never set to TRUE
+     * if we're started with special privileges, so we need
+     * only check it; we don't need to call started_with_special_privs().)
      */
     if (running_in_build_directory_flag && progfile_dir != NULL) {
         /*
@@ -664,7 +715,23 @@ get_datafile_dir(void)
              * XXX - We might be able to dispense with the priv check
              */
             datafile_dir = g_strdup(getenv("WIRESHARK_DATA_DIR"));
-        } else {
+        }
+#ifdef __APPLE__
+        /*
+         * If we're running from an app bundle and weren't started
+         * with special privileges, use the Contents/Resources/share/wireshark
+         * subdirectory of the app bundle.
+         *
+         * (appbundle_dir is not set to a non-null value if we're
+         * started with special privileges, so we need only check
+         * it; we don't need to call started_with_special_privs().)
+         */
+        else if (appbundle_dir != NULL) {
+            datafile_dir = g_strdup_printf("%s/Contents/Resources/share/wireshark",
+                                           appbundle_dir);
+        }
+#endif
+        else {
             datafile_dir = DATAFILE_DIR;
         }
     }
@@ -746,7 +813,23 @@ init_wspython_dir(void)
              * and we aren't running with special privileges.
              */
             wspython_dir = g_strdup(getenv("WIRESHARK_PYTHON_DIR"));
-        } else {
+        }
+#ifdef __APPLE__
+        /*
+         * If we're running from an app bundle and weren't started
+         * with special privileges, use the Contents/Resources/lib/wireshark/python
+         * subdirectory of the app bundle.
+         *
+         * (appbundle_dir is not set to a non-null value if we're
+         * started with special privileges, so we need only check
+         * it; we don't need to call started_with_special_privs().)
+         */
+        else if (appbundle_dir != NULL) {
+            wspython_dir = g_strdup_printf("%s/Contents/Resources/lib/wireshark/python",
+                                           appbundle_dir);
+        }
+#endif
+        else {
             wspython_dir = PYTHON_DIR;
         }
     }
@@ -842,7 +925,23 @@ init_plugin_dir(void)
              * and we aren't running with special privileges.
              */
             plugin_dir = g_strdup(getenv("WIRESHARK_PLUGIN_DIR"));
-        } else {
+        }
+#ifdef __APPLE__
+        /*
+         * If we're running from an app bundle and weren't started
+         * with special privileges, use the Contents/Resources/lib/wireshark/plugins
+         * subdirectory of the app bundle.
+         *
+         * (appbundle_dir is not set to a non-null value if we're
+         * started with special privileges, so we need only check
+         * it; we don't need to call started_with_special_privs().)
+         */
+        else if (appbundle_dir != NULL) {
+            plugin_dir = g_strdup_printf("%s/Contents/Resources/lib/wireshark/plugins",
+                                         appbundle_dir);
+        }
+#endif
+        else {
             plugin_dir = PLUGIN_DIR;
         }
     }
