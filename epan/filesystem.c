@@ -324,17 +324,17 @@ static gboolean running_in_build_directory_flag = FALSE;
  * that doesn't match the executable path.
  *
  * Sadly, not all UN*Xes necessarily have dladdr(), and those that
- * do don't necessarily have dladdr(NULL) return information about
+ * do don't necessarily have dladdr(main) return information about
  * the executable image, and those that do aren't necessarily running
  * on a platform wherein the executable image can get its own path
  * from the kernel (either by a call or by it being handed to it along
  * with argv[] and the environment), and those that can don't
- * necessarily use that to supply the path you get from dladdr(NULL),
- * so we try this first and, if that fails, use dladdr(NULL) if
+ * necessarily use that to supply the path you get from dladdr(main),
+ * so we try this first and, if that fails, use dladdr(main) if
  * available.
  *
  * This is not guaranteed to return a non-null value; if it returns null,
- * our caller must use some other mechanism, such as dladdr(NULL) or
+ * our caller must use some other mechanism, such as dladdr(main) or
  * looking at argv[0].
  *
  * This is not guaranteed to return an absolute path; if it doesn't,
@@ -372,8 +372,10 @@ get_executable_path(void)
         return NULL;
     if (strncmp(name.release, "1.", 2) == 0)
         return NULL; /* Linux 1.x */
-    if (strcmp(name, "2.0") == 0 || strncmp(name, "2.0.", 4) == 0 ||
-        strcmp(name, "2.1") == 0 || strncmp(name, "2.1.", 4) == 0)
+    if (strcmp(name.release, "2.0") == 0 ||
+        strncmp(name.release, "2.0.", 4) == 0 ||
+        strcmp(name.release, "2.1") == 0 ||
+        strncmp(name.release, "2.1.", 4) == 0)
         return NULL; /* Linux 2.0.x or 2.1.x */
     if (readlink("/proc/self/exe", executable_path, sizeof executable_path) == -1)
         return NULL;
