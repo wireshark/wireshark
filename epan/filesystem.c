@@ -247,6 +247,53 @@ static char *progfile_dir;
 /*
  * Directory of the application bundle in which we're contained,
  * if we're contained in an application bundle.  Otherwise, NULL.
+ *
+ * Note: Table 2-5 "Subdirectories of the Contents directory" of
+ *
+ *    https://developer.apple.com/library/mac/documentation/CoreFoundation/Conceptual/CFBundles/BundleTypes/BundleTypes.html#//apple_ref/doc/uid/10000123i-CH101-SW1
+ *
+ * says that the "Frameworks" directory
+ *
+ *    Contains any private shared libraries and frameworks used by the
+ *    executable.  The frameworks in this directory are revision-locked
+ *    to the application and cannot be superseded by any other, even
+ *    newer, versions that may be available to the operating system.  In
+ *    other words, the frameworks included in this directory take precedence
+ *    over any other similarly named frameworks found in other parts of
+ *    the operating system.  For information on how to add private
+ *    frameworks to your application bundle, see Framework Programming Guide.
+ *
+ * so if we were to ship with any frameworks (e.g. Qt) we should
+ * perhaps put them in a Frameworks directory rather than under
+ * Resources.
+ *
+ * It also says that the "PlugIns" directory
+ *
+ *    Contains loadable bundles that extend the basic features of your
+ *    application. You use this directory to include code modules that
+ *    must be loaded into your applicationbs process space in order to
+ *    be used. You would not use this directory to store standalone
+ *    executables.
+ *
+ * Our plugins are just raw .so/.dylib files; I don't know whether by
+ * "bundles" they mean application bundles (i.e., directory hierarchies)
+ * or just "bundles" in the Mach-O sense (which are an image type that
+ * can be loaded with dlopen() but not linked as libraries; our plugins
+ * are, I think, built as dylibs and can be loaded either way).
+ *
+ * And it says that the "SharedSupport" directory
+ *
+ *    Contains additional non-critical resources that do not impact the
+ *    ability of the application to run. You might use this directory to
+ *    include things like document templates, clip art, and tutorials
+ *    that your application expects to be present but that do not affect
+ *    the ability of your application to run.
+ *
+ * I don't think I'd put the files that currently go under Resources/share
+ * into that category; they're not, for example, sample Lua scripts that
+ * don't actually get run by Wireshark, they're configuration/data files
+ * for Wireshark whose absence might not prevent Wireshark from running
+ * but that would affect how it behaves when run.
  */
 static char *appbundle_dir;
 #endif
