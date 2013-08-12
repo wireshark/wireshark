@@ -2710,31 +2710,19 @@ add_ipv4_name(const guint addr, const gchar *name)
         return;
 
 
-    if(ipv4_hash_table == NULL){
+    tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, &addr);
+    if(tp){
+        g_strlcpy(tp->name, name, MAXNAMELEN);
+        tp->resolve = TRUE;
+    }else{
         int *key;
 
         key = (int *)g_new(int, 1);
         *key = addr;
-        ipv4_hash_table = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
         tp = new_ipv4(addr);
         g_strlcpy(tp->name, name, MAXNAMELEN);
         tp->resolve = TRUE;
         g_hash_table_insert(ipv4_hash_table, key, tp);
-    }else{
-        tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, &addr);
-        if(tp){
-            g_strlcpy(tp->name, name, MAXNAMELEN);
-            tp->resolve = TRUE;
-        }else{
-            int *key;
-
-            key = (int *)g_new(int, 1);
-            *key = addr;
-            tp = new_ipv4(addr);
-            g_strlcpy(tp->name, name, MAXNAMELEN);
-            tp->resolve = TRUE;
-            g_hash_table_insert(ipv4_hash_table, key, tp);
-        }
     }
 
     g_strlcpy(tp->name, name, MAXNAMELEN);
@@ -2840,6 +2828,9 @@ host_name_lookup_init(void)
     static char rootpath_ot[] = "\\hosts";
 #endif /* _WIN32 */
 #endif /*GNU_ADNS */
+
+    g_assert(ipv4_hash_table == NULL);
+    ipv4_hash_table = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
 
     if (!addrinfo_list) {
         ai = se_new0(struct addrinfo);
