@@ -390,7 +390,7 @@ buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double emptyspee
 	}
 
 	sec = buffer[cur].tv_sec - buffer[prev].tv_sec;
-	usec = buffer[cur].tv_usec - buffer[prev].tv_usec;
+	usec = (gint32)buffer[cur].tv_usec - (gint32)buffer[prev].tv_usec;
 	timeelapsed = (double)usec/1000000 + (double)sec;
 
 	/* bytes added to buffer */
