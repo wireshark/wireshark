@@ -32,8 +32,40 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/plugins_dlg.h"
 
+#include "webbrowser.h"
 
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
+
+static gboolean
+about_plugins_callback(GtkWidget *widget, GdkEventButton *event, gint id _U_)
+{
+  GtkTreeSelection *tree_selection;
+  GtkTreeModel *model;
+  GtkTreeIter  iter;
+  gchar        *type;
+  gchar        *file;
+
+  tree_selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(widget));
+
+  if (gtk_tree_selection_count_selected_rows (tree_selection) == 0)
+    return FALSE;
+
+  if (event->type != GDK_2BUTTON_PRESS)
+    /* not a double click */
+    return FALSE;
+
+  if (gtk_tree_selection_get_selected (tree_selection, &model, &iter)) {
+     gtk_tree_model_get (model, &iter, 2, &type, -1);
+     if (strcmp (type, "lua script") == 0) {
+        gtk_tree_model_get (model, &iter, 3, &file, -1);
+        browser_open_data_file (file);
+        g_free (file);
+     }
+     g_free (type);
+  }
+
+  return TRUE;
+}
 
 /*
  * Fill the list widget with a list of the plugin modules.
@@ -112,6 +144,10 @@ about_plugins_page_new(void)
     plugins_list = simple_list_new(4, titles);
     plugins_scan(plugins_list);
 
+    /* connect a callback so we can spot a double-click */
+    g_signal_connect(plugins_list, "button_press_event",
+		     G_CALLBACK(about_plugins_callback), NULL);
+    
     gtk_container_add(GTK_CONTAINER(scrolledwindow), plugins_list);
 
     return scrolledwindow;
