@@ -61,6 +61,16 @@
 #include <shlobj.h>
 #include <wsutil/unicode-utils.h>
 #else /* _WIN32 */
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
+#ifdef __linux__
+#include <sys/utsname.h>
+#endif
+#ifdef __FreeBSD__
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
 #ifdef DLADDR_FINDS_EXECUTABLE_PATH
 #include <dlfcn.h>
 #endif
@@ -304,6 +314,98 @@ static char *appbundle_dir;
  */
 static gboolean running_in_build_directory_flag = FALSE;
 
+#ifndef _WIN32
+/*
+ * Get the pathname of the executable using various platform-
+ * dependent mechanisms for various UN*Xes.
+ *
+ * These calls all should return something independent of the argv[0]
+ * passed to the program, so it shouldn't be fooled by an argv[0]
+ * that doesn't match the executable path.
+ *
+ * Sadly, not all UN*Xes necessarily have dladdr(), and those that
+ * do don't necessarily have dladdr(NULL) return information about
+ * the executable image, and those that do aren't necessarily running
+ * on a platform wherein the executable image can get its own path
+ * from the kernel (either by a call or by it being handed to it along
+ * with argv[] and the environment), and those that can don't
+ * necessarily use that to supply the path you get from dladdr(NULL),
+ * so we try this first and, if that fails, use dladdr(NULL) if
+ * available.
+ *
+ * This is not guaranteed to return a non-null value; if it returns null,
+ * our caller must use some other mechanism, such as dladdr(NULL) or
+ * looking at argv[0].
+ *
+ * This is not guaranteed to return an absolute path; if it doesn't,
+ * our caller must prepend the current directory if it's a path, or
+ * search for it in $PATH if it's only a name.
+ *
+ * This is not guaranteed to return the "real path"; it might return
+ * something with symbolic links in the path.  Our caller must
+ * use realpath() if they want the real thing, but that's also true of
+ * something obtained by looking at argv[0].
+ */
+const char *
+get_executable_path(void)
+{
+#if defined(__APPLE__)
+    char *executable_path;
+    uint32_t path_buf_size;
+
+    path_buf_size = PATH_MAX;
+    executable_path = (char *)g_malloc(path_buf_size);
+    if (_NSGetExecutablePath(executable_path, &path_buf_size) == -1) {
+        executable_path = (char *)g_realloc(executable_path, path_buf_size);
+        if (_NSGetExecutablePath(executable_path, &path_buf_size) == -1)
+            return NULL;
+    }
+    return executable_path;
+#elif defined(__linux__)
+    struct utsname name;
+    static char executable_path[PATH_MAX];
+
+    /*
+     * This only works on Linux 2.2 or later.
+     */
+    if (uname(&name) == -1)
+        return NULL;
+    if (strncmp(name.release, "1.", 2) == 0)
+        return NULL; /* Linux 1.x */
+    if (strcmp(name, "2.0") == 0 || strncmp(name, "2.0.", 4) == 0 ||
+        strcmp(name, "2.1") == 0 || strncmp(name, "2.1.", 4) == 0)
+        return NULL; /* Linux 2.0.x or 2.1.x */
+    if (readlink("/proc/self/exe", executable_path, sizeof executable_path) == -1)
+        return NULL;
+    return executable_path;
+#elif defined(__FreeBSD__) && defined(KERN_PROC_PATHNAME)
+    int mib[4];
+    char executable_path*;
+    size_t path_buf_size;
+
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_PATHNAME;
+    mib[3] = -1;
+    path_buf_size = PATH_MAX;
+    executable_path = (char *)g_malloc(path_buf_size);
+    if (sysctl(mib, 4, executable_path, &path_buf_size, NULL, 0) == -1) {
+        if (errno != ENOMEM)
+            return NULL;
+        executable_path = (char *)g_realloc(executable_path, path_buf_size);
+        if (sysctl(mib, 4, executable_path, &path_buf_size, NULL, 0) == -1)
+            return NULL;
+    }
+    return executable_path;
+#elif defined(sun) || defined(__sun)
+    return getexecname();
+#else
+    /* Fill in your favorite UN*X's code here, if there is something */
+    return NULL;
+#endif
+}
+#endif /* _WIN32 */
+
 /*
  * Get the pathname of the directory from which the executable came,
  * and save it for future use.  Returns NULL on success, and a
@@ -384,6 +486,7 @@ init_progfile_dir(const char *arg0
 #ifdef DLADDR_FINDS_EXECUTABLE_PATH
     Dl_info info;
 #endif
+    const char *execname;
     char *prog_pathname;
     char *curdir;
     long path_max;
@@ -407,19 +510,29 @@ init_progfile_dir(const char *arg0
         && !started_with_special_privs())
         running_in_build_directory_flag = TRUE;
 
+    execname = get_executable_path();
 #ifdef DLADDR_FINDS_EXECUTABLE_PATH
-    /*
-     * Try to use dladdr() to find the pathname of the executable.
-     * dladdr() is not guaranteed to give you anything better than
-     * argv[0] (i.e., it might not contain a / at all, much less
-     * being an absolute path), and doesn't appear to do so on
-     * Linux, but on other platforms it could give you an absolute
-     * path and obviate the need for us to determine the absolute
-     * path.
-     */
-    if (dladdr((void *)main_addr, &info))
-        arg0 = info.dli_fname;
+    if (execname == NULL) {
+        /*
+         * Try to use dladdr() to find the pathname of the executable.
+         * dladdr() is not guaranteed to give you anything better than
+         * argv[0] (i.e., it might not contain a / at all, much less
+         * being an absolute path), and doesn't appear to do so on
+         * Linux, but on other platforms it could give you an absolute
+         * path and obviate the need for us to determine the absolute
+         * path.
+         */
+        if (dladdr((void *)main_addr, &info))
+            execname = info.dli_fname;
+    }
 #endif
+    if (execname == NULL) {
+        /*
+         * OK, guess based on argv[0].
+         */
+        execname = arg0;
+    }
+
     /*
      * Try to figure out the directory in which the currently running
      * program resides, given something purporting to be the executable
@@ -430,12 +543,12 @@ init_progfile_dir(const char *arg0
      * line and was searched for in $PATH.  It's not guaranteed to be
      * any of those, however, so there are no guarantees....
      */
-    if (arg0[0] == '/') {
+    if (execname[0] == '/') {
         /*
          * It's an absolute path.
          */
-        prog_pathname = g_strdup(arg0);
-    } else if (strchr(arg0, '/') != NULL) {
+        prog_pathname = g_strdup(execname);
+    } else if (strchr(execname, '/') != NULL) {
         /*
          * It's a relative path, with a directory in it.
          * Get the current directory, and combine it
@@ -460,7 +573,7 @@ init_progfile_dir(const char *arg0
             return g_strdup_printf("getcwd failed: %s\n",
                 g_strerror(errno));
         }
-        path = g_strdup_printf("%s/%s", curdir, arg0);
+        path = g_strdup_printf("%s/%s", curdir, execname);
         g_free(curdir);
         prog_pathname = path;
     } else {
@@ -479,11 +592,11 @@ init_progfile_dir(const char *arg0
                     path_end = path_start + strlen(path_start);
                 path_component_len = path_end - path_start;
                 path = (char *)g_malloc(path_component_len + 1
-                    + strlen(arg0) + 1);
+                    + strlen(execname) + 1);
                 memcpy(path, path_start, path_component_len);
                 path[path_component_len] = '\0';
                 strncat(path, "/", 2);
-                strncat(path, arg0, strlen(arg0) + 1);
+                strncat(path, execname, strlen(execname) + 1);
                 if (access(path, X_OK) == 0) {
                     /*
                      * Found it!
@@ -512,7 +625,7 @@ init_progfile_dir(const char *arg0
                  * Program not found in path.
                  */
                 return g_strdup_printf("\"%s\" not found in \"%s\"",
-                    arg0, pathstr);
+                    execname, pathstr);
             }
         } else {
             /*
@@ -574,6 +687,13 @@ init_progfile_dir(const char *arg0
                      * we're in a bundle, and that the top-level
                      * directory of the bundle is the one containing
                      * "Contents".
+                     *
+                     * Not all executables are in the Contents/MacOS
+                     * directory, so we can't just check for those
+                     * in the path and strip them off.
+                     *
+                     * XXX - should we assume that it's either
+                     * Contents/MacOS or Resources/bin?
                      */
                     char *component_end, *p;
 
