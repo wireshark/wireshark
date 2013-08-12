@@ -721,7 +721,7 @@ static const value_string csd_data_rate_vals[] = {
 	{ 134, "64000 bps (multimedia)" },
 	{   0, NULL }
 };
-static value_string_ext csd_data_rate_vals_ext = VALUE_STRING_EXT_INIT(csd_data_rate_vals);
+value_string_ext csd_data_rate_vals_ext = VALUE_STRING_EXT_INIT(csd_data_rate_vals);
 
 static const value_string csd_bearer_serv_vals[] = {
 	{ 0, "Data circuit asynchronous (UDI or 3.1 kHz modem)" },

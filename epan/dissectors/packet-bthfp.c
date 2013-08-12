@@ -38,6 +38,7 @@
 static int proto_bthfp = -1;
 
 static int hf_command                                                      = -1;
+static int hf_parameters                                                   = -1;
 static int hf_role                                                         = -1;
 static int hf_at_cmd                                                       = -1;
 static int hf_at_cmd_type                                                  = -1;
@@ -76,17 +77,50 @@ static int hf_nrec                                                         = -1;
 static int hf_bvra_vrect                                                   = -1;
 static int hf_bsir                                                         = -1;
 static int hf_btrh                                                         = -1;
+static int hf_chld_mode                                                    = -1;
+static int hf_chld_mode_1x                                                 = -1;
+static int hf_chld_mode_2x                                                 = -1;
+static int hf_chld_supported_modes                                         = -1;
 static int hf_cmer_mode                                                    = -1;
 static int hf_cmer_keyp                                                    = -1;
 static int hf_cmer_disp                                                    = -1;
 static int hf_cmer_ind                                                     = -1;
 static int hf_cmer_bfr                                                     = -1;
+static int hf_cmee                                                         = -1;
+static int hf_cme_error                                                    = -1;
+static int hf_cnum_speed                                                   = -1;
+static int hf_cnum_service                                                 = -1;
+static int hf_cnum_itc                                                     = -1;
 static int hf_bcs_codec                                                    = -1;
 static int hf_bac_codec                                                    = -1;
 static int hf_binp_request                                                 = -1;
 static int hf_binp_response                                                = -1;
+static int hf_ciev_indicator_index                                         = -1;
+static int hf_vts_dtmf                                                     = -1;
+static int hf_vts_duration                                                 = -1;
+static int hf_cops_mode                                                    = -1;
+static int hf_cops_format                                                  = -1;
+static int hf_cops_operator                                                = -1;
+static int hf_cops_act                                                     = -1;
+static int hf_at_number                                                    = -1;
+static int hf_at_type                                                      = -1;
+static int hf_at_subaddress                                                = -1;
+static int hf_at_subaddress_type                                           = -1;
+static int hf_at_alpha                                                     = -1;
+static int hf_at_priority                                                  = -1;
+static int hf_at_cli_validity                                              = -1;
+static int hf_clip_mode                                                    = -1;
+static int hf_clip_status                                                  = -1;
+static int hf_clcc_id                                                      = -1;
+static int hf_clcc_dir                                                     = -1;
+static int hf_clcc_stat                                                    = -1;
+static int hf_clcc_mode                                                    = -1;
+static int hf_clcc_mpty                                                    = -1;
+static int hf_ccwa_show_result_code                                        = -1;
+static int hf_ccwa_mode                                                    = -1;
+static int hf_ccwa_class                                                   = -1;
 static int hf_bia_indicator[20]  = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-static int hf_cind_indicator[20] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_indicator[20] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 static expert_field ei_non_mandatory_command                          = EI_INIT;
 static expert_field ei_invalid_usage                                  = EI_INIT;
@@ -108,11 +142,19 @@ static expert_field ei_cmer_keyp                                      = EI_INIT;
 static expert_field ei_cmer_disp                                      = EI_INIT;
 static expert_field ei_cmer_ind                                       = EI_INIT;
 static expert_field ei_cmer_btr                                       = EI_INIT;
+static expert_field ei_chld_mode                                      = EI_INIT;
+static expert_field ei_ciev_indicator                                 = EI_INIT;
+static expert_field ei_vts_dtmf                                       = EI_INIT;
+static expert_field ei_at_type                                        = EI_INIT;
+static expert_field ei_cnum_service                                   = EI_INIT;
+static expert_field ei_cnum_itc                                       = EI_INIT;
+static expert_field ei_parameter_blank                                = EI_INIT;
 
-static gint ett_bthfp         = -1;
-static gint ett_bthfp_command = -1;
-static gint ett_bthfp_brsf_hf = -1;
-static gint ett_bthfp_brsf_ag = -1;
+static gint ett_bthfp            = -1;
+static gint ett_bthfp_command    = -1;
+static gint ett_bthfp_parameters = -1;
+static gint ett_bthfp_brsf_hf    = -1;
+static gint ett_bthfp_brsf_ag    = -1;
 
 static dissector_handle_t bthfp_handle;
 
@@ -162,7 +204,8 @@ typedef struct _at_cmd_t {
     gboolean (*check_command)(gint role, guint16 type);
     gboolean (*dissect_parameter)(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree *tree, gint offset, gint role, guint16 type,
-            guint8 *parameter_stream, guint parameter_number, gint parameter_length);
+            guint8 *parameter_stream, guint parameter_number,
+            gint parameter_length, void **data);
 } at_cmd_t;
 
 static const value_string role_vals[] = {
@@ -229,6 +272,195 @@ static const value_string indicator_vals[] = {
     { 0x01,   "Activate" },
     { 0, NULL }
 };
+
+static const value_string cme_error_vals[] = {
+    {   0,   "Phone/AG failure" },
+    {   1,   "No Connection to Phone" },
+    {   2,   "Phone-adaptor Link Reserved" },
+    {   3,   "Operation not Allowed" },
+    {   4,   "Operation not Supported" },
+    {   5,   "PH-SIM PIN required" },
+    {   6,   "PH-FSIM PIN Required" },
+    {   7,   "PH-FSIM PUK Required" },
+    {  10,   "SIM not Inserted" },
+    {  11,   "SIM PIN Required" },
+    {  12,   "SIM PUK Required" },
+    {  13,   "SIM Failure" },
+    {  14,   "SIM Busy" },
+    {  15,   "SIM Wrong" },
+    {  16,   "Incorrect Password" },
+    {  17,   "SIM PIN2 Required" },
+    {  18,   "SIM PUK2 Required" },
+    {  20,   "Memory Full" },
+    {  21,   "Invalid Index" },
+    {  22,   "Not Found" },
+    {  23,   "Memory Failure" },
+    {  24,   "Text String too Long" },
+    {  25,   "Invalid Characters in Text String" },
+    {  26,   "Dial String too Long" },
+    {  27,   "Invalid Characters in Dial String" },
+    {  30,   "No Network Service" },
+    {  31,   "Network Timeout" },
+    {  32,   "Network not Allowed - Emergency Calls Only" },
+    {  40,   "Network Personalization PIN Required" },
+    {  41,   "Network Personalization PUK Required" },
+    {  42,   "Network Subset Personalization PIN Required" },
+    {  43,   "Network Subset upersonalization PUK Required" },
+    {  44,   "Service Provider Personalization PIN Required" },
+    {  45,   "Service Provider Personalization PUK Required" },
+    {  46,   "Corporate Personalization PIN Required" },
+    {  47,   "Corporate Personalization PUK Required" },
+    {  48,   "Hidden Key Required" },
+    {  49,   "EAP Method not Supported" },
+    {  50,   "Incorrect Parameters" },
+    { 100,   "Unknown" },
+    { 0, NULL }
+};
+
+static const value_string cmee_vals[] = {
+    { 0,   "Disabled" },
+    { 1,   "Enabled" },
+    { 2,   "Verbose" },
+    { 0, NULL }
+};
+
+static const value_string chld_vals[] = {
+    { 0,   "Releases all held calls or sets User Determined User Busy (UDUB) for a waiting call" },
+    { 1,   "Releases all active calls (if any exist) and accepts the other (held or waiting) call" },
+    { 2,   "Places all active calls (if any exist) on hold and accepts the other (held or waiting) call" },
+    { 3,   "Adds a held call to the conversation" },
+    { 4,   "Connects the two calls and disconnects the subscriber from both calls (Explicit Call Transfer)" },
+    { 0, NULL }
+};
+
+static const value_string cops_mode_vals[] = {
+    { 0,   "Automatic" },
+    { 1,   "Manual" },
+    { 2,   "Deregister from Network" },
+    { 3,   "Set Only Format" },
+    { 4,   "Manual/Automatic" },
+    { 0, NULL }
+};
+
+static const value_string cops_format_vals[] = {
+    { 0,   "Long Format Alphanumeric" },
+    { 1,   "Short Format Alphanumeric" },
+    { 2,   "Numeric" },
+    { 0, NULL }
+};
+
+static const value_string cops_act_vals[] = {
+    { 0,   "GSM" },
+    { 1,   "GSM Compact" },
+    { 2,   "UTRAN" },
+    { 0, NULL }
+};
+
+static const range_string at_type_vals[] = {
+    { 128, 143,  "The phone number format may be a national or international format, and may contain prefix and/or escape digits. No changes on the number presentation are required." },
+    { 144, 159,  " The phone number format is an international number, including the country code prefix. If the plus sign (\"+\") is not included as part of the number and shall be added by the AG as needed." },
+    { 160, 175,  "National number. No prefix nor escape digits included." },
+    { 0, 0, NULL }
+};
+
+static const value_string cli_validity_vals[] = {
+    { 0,   "CLI Valid" },
+    { 1,   "CLI has been withheld by the originator" },
+    { 2,   "CLI is not available due to interworking problems or limitations of originating network" },
+    { 0, NULL }
+};
+
+static const value_string cnum_service_vals[] = {
+    { 0,   "Asynchronous Modem" },
+    { 1,   "Synchronous Modem" },
+    { 2,   "PAD Access" },
+    { 3,   "Packet Access" },
+    { 4,   "Voice" },
+    { 5,   "Fax" },
+    { 0, NULL }
+};
+
+static const value_string cnum_itc_vals[] = {
+    { 0,   "3.1 kHz" },
+    { 1,   "UDI" },
+    { 0, NULL }
+};
+
+static const value_string clip_mode_vals[] = {
+    { 0,   "Disabled" },
+    { 1,   "Enabled" },
+    { 0, NULL }
+};
+
+static const value_string clip_status_vals[] = {
+    { 0,   "CLIP not Provisioned" },
+    { 1,   "CLIP Provisioned" },
+    { 2,   "Unknown" },
+    { 0, NULL }
+};
+
+static const value_string clcc_dir_vals[] = {
+    { 0,   "Mobile Originated" },
+    { 1,   "Mobile Terminated" },
+    { 0, NULL }
+};
+
+static const value_string clcc_stat_vals[] = {
+    { 0,   "Active" },
+    { 1,   "Held" },
+    { 2,   "Dialing" },
+    { 3,   "Alerting" },
+    { 4,   "Incoming" },
+    { 5,   "Waiting" },
+    { 0, NULL }
+};
+
+static const value_string clcc_mode_vals[] = {
+    { 0,   "Voice" },
+    { 1,   "Data" },
+    { 2,   "Fax" },
+    { 3,   "Voice Followed by Data, Voice Mode" },
+    { 4,   "Alternating Voice/Data, Voice Mode" },
+    { 5,   "Alternating Voice/Fax, Voice Mode" },
+    { 6,   "Voice Followed by Data, Data Mode" },
+    { 7,   "Alternating Voice/Data, Data Mode" },
+    { 8,   "Alternating Voice/Fax, Fax Mode" },
+    { 9,   "Unknown" },
+    { 0, NULL }
+};
+
+static const value_string clcc_mpty_vals[] = {
+    { 0,   "Call is not one of multiparty (conference) call parties" },
+    { 1,   "Call is one of multiparty (conference) call parties" },
+    { 0, NULL }
+};
+
+static const value_string ccwa_show_result_code_vals[] = {
+    { 0,   "Disabled" },
+    { 1,   "Enabled" },
+    { 0, NULL }
+};
+
+static const value_string ccwa_mode_vals[] = {
+    { 0,   "Disabled" },
+    { 1,   "Enabled" },
+    { 2,   "Query Status" },
+    { 0, NULL }
+};
+
+static const value_string ccwa_class_vals[] = {
+    {   1,   "Voice" },
+    {   2,   "Data" },
+    {   4,   "Fax" },
+    {   8,   "Short Message Service" },
+    {  16,   "Data Circuit Sync" },
+    {  32,   "Data Circuit Async" },
+    {  64,   "Dedicated Packet Access" },
+    { 128,   "Dedicated PAD Access" },
+    { 0, NULL }
+};
+
+extern value_string_ext csd_data_rate_vals_ext;
 
 void proto_register_bthfp(void);
 void proto_reg_handoff_bthfp(void);
@@ -424,7 +656,7 @@ static gboolean check_vts(gint role, guint16 type) {
 }
 
 static gboolean check_cnum(gint role, guint16 type) {
-    if (role == ROLE_HS && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_HS && type == TYPE_ACTION_SIMPLY) return TRUE;
     if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
@@ -433,7 +665,7 @@ static gboolean check_cnum(gint role, guint16 type) {
 static gboolean
 dissect_brsf_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_tree  *ptree;
     proto_item  *pitem;
@@ -492,7 +724,7 @@ dissect_brsf_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_vgs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -519,7 +751,7 @@ dissect_vgs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_vgm_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -546,7 +778,7 @@ dissect_vgm_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_nrec_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -572,7 +804,7 @@ dissect_nrec_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_bvra_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -598,7 +830,7 @@ dissect_bvra_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_bcs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -623,7 +855,7 @@ dissect_bcs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_bac_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number _U_, gint parameter_length)
+        guint parameter_number _U_, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -646,7 +878,7 @@ dissect_bac_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
         gint offset _U_, gint role _U_, guint16 type _U_, guint8 *parameter_stream _U_,
-        guint parameter_number _U_, gint parameter_length _U_)
+        guint parameter_number _U_, gint parameter_length _U_, void **data _U_)
 {
     return FALSE;
 }
@@ -654,7 +886,7 @@ dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
 static gint
 dissect_bsir_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -679,7 +911,7 @@ dissect_bsir_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_btrh_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -706,7 +938,7 @@ dissect_btrh_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_binp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -737,7 +969,7 @@ dissect_binp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_bia_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -759,22 +991,123 @@ dissect_bia_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_cind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     if (!check_cind(role, type)) return FALSE;
     if (parameter_number > 19) return FALSE;
 
-    proto_tree_add_item(tree, hf_cind_indicator[parameter_number], tvb, offset,
+    proto_tree_add_item(tree, hf_indicator[parameter_number], tvb, offset,
             parameter_length, ENC_NA | ENC_ASCII);
 
     return TRUE;
 }
 
+static gint
+dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    guint32      value;
+
+    if (!check_chld(role, type)) return FALSE;
+
+    if (role == ROLE_HS && type == TYPE_ACTION && parameter_number == 0) {
+        value = get_uint_parameter(parameter_stream, 1);
+
+        if (parameter_length >= 2) {
+            if (tvb_get_guint8(tvb, offset + 1) == 'x') {
+                if (value == 1)
+                    proto_tree_add_item(tree, hf_chld_mode_1x, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                else if (value == 2)
+                    proto_tree_add_item(tree, hf_chld_mode_2x, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            }
+
+            if (tvb_get_guint8(tvb, offset + 1) != 'x' || value > 4) {
+                proto_tree_add_expert(tree, pinfo, &ei_chld_mode, tvb, offset, parameter_length);
+            }
+        }
+
+        proto_tree_add_uint(tree, hf_chld_mode, tvb, offset, parameter_length, value);
+        return TRUE;
+    }
+
+    /* Type == Test  */
+    proto_tree_add_item(tree, hf_chld_supported_modes, tvb, offset,
+            parameter_length, ENC_NA | ENC_ASCII);
+
+    return TRUE;
+}
+
+static gint
+dissect_ccwa_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    guint32      value;
+
+    if (!check_ccwa(role, type)) return FALSE;
+
+    if (role == ROLE_HS && parameter_number > 2) return FALSE;
+    if (role == ROLE_AG && parameter_number > 7) return FALSE;
+
+    if (role == ROLE_HS) switch (parameter_number) {
+        case 0:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_ccwa_show_result_code, tvb, offset, parameter_length, value);
+            break;
+        case 1:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_ccwa_mode, tvb, offset, parameter_length, value);
+            break;
+        case 2:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_ccwa_class, tvb, offset, parameter_length, value);
+            break;
+    }
+
+    /* If AT+CCWA = 1 */
+    if (role == ROLE_AG) switch (parameter_number) {
+        case 0:
+            proto_tree_add_item(tree, hf_at_number, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            break;
+        case 1:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            pitem = proto_tree_add_uint(tree, hf_at_type, tvb, offset, parameter_length, value);
+            if (value < 128 || value > 175)
+                expert_add_info(pinfo, pitem, &ei_at_type);
+            break;
+        case 2:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_ccwa_class, tvb, offset, parameter_length, value);
+            break;
+        case 3:
+            proto_tree_add_item(tree, hf_at_alpha, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            break;
+        case 4:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_at_cli_validity, tvb, offset, parameter_length, value);
+            break;
+        case 5:
+            proto_tree_add_item(tree, hf_at_subaddress, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            break;
+        case 6:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_at_subaddress_type, tvb, offset, parameter_length, value);
+            break;
+        case 7:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_at_priority, tvb, offset, parameter_length, value);
+            break;
+    }
+
+    return TRUE;
+}
 
 static gint
 dissect_cmer_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -783,7 +1116,7 @@ dissect_cmer_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return FALSE;
     }
 
-    if (parameter_number > 5) return FALSE;
+    if (parameter_number > 4) return FALSE;
 
     value = get_uint_parameter(parameter_stream, parameter_length);
 
@@ -818,6 +1151,299 @@ dissect_cmer_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
+static gint
+dissect_clip_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    guint32      value;
+
+    if (!check_clip(role, type))
+        return FALSE;
+
+    if (role == ROLE_HS && type == TYPE_ACTION && parameter_number > 1)
+        return FALSE;
+    else if (role == ROLE_AG && parameter_number > 5)
+        return FALSE;
+
+    if (role == ROLE_HS && type == TYPE_ACTION) switch (parameter_number) {
+        case 0:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_clip_mode, tvb, offset, parameter_length, value);
+            break;
+        case 1:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_clip_status, tvb, offset, parameter_length, value);
+            break;
+    } else {
+        switch (parameter_number) {
+        case 0:
+            proto_tree_add_item(tree, hf_at_number, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            break;
+        case 1:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            pitem = proto_tree_add_uint(tree, hf_at_type, tvb, offset, parameter_length, value);
+            if (value < 128 || value > 175)
+                expert_add_info(pinfo, pitem, &ei_at_type);
+            break;
+        case 2:
+            proto_tree_add_item(tree, hf_at_subaddress, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            break;
+        case 3:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_at_subaddress_type, tvb, offset, parameter_length, value);
+        case 4:
+            proto_tree_add_item(tree, hf_at_alpha, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            break;
+        case 5:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_at_cli_validity, tvb, offset, parameter_length, value);
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
+static gint
+dissect_cmee_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    guint32      value;
+
+    if (!(role == ROLE_HS && type == TYPE_ACTION)) {
+        return FALSE;
+    }
+
+    if (parameter_number > 0) return FALSE;
+
+    value = get_uint_parameter(parameter_stream, parameter_length);
+    proto_tree_add_uint(tree, hf_cmee, tvb, offset, parameter_length, value);
+
+    return TRUE;
+}
+
+static gint
+dissect_cops_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    guint32      value;
+
+    if (!((role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ)) ||
+            (role == ROLE_AG && type == TYPE_RESPONSE))) {
+        return FALSE;
+    }
+
+    if (parameter_number > 3) return FALSE;
+
+    switch (parameter_number) {
+    case 0:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_cops_mode, tvb, offset, parameter_length, value);
+        break;
+    case 1:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_cops_format, tvb, offset, parameter_length, value);
+        break;
+    case 2:
+        proto_tree_add_item(tree, hf_cops_operator, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 3:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_cops_act, tvb, offset, parameter_length, value);
+        break;
+    }
+
+    return TRUE;
+}
+
+static gint
+dissect_clcc_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    guint32      value;
+
+    if (!((role == ROLE_HS && type == TYPE_ACTION_SIMPLY) ||
+            (role == ROLE_AG && type == TYPE_RESPONSE))) {
+        return FALSE;
+    }
+
+    if (parameter_number > 8) return FALSE;
+
+    switch (parameter_number) {
+    case 0:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_clcc_id, tvb, offset, parameter_length, value);
+        break;
+    case 1:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_clcc_dir, tvb, offset, parameter_length, value);
+        break;
+    case 2:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_clcc_stat, tvb, offset, parameter_length, value);
+        break;
+    case 3:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_clcc_mode, tvb, offset, parameter_length, value);
+        break;
+    case 4:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_clcc_mpty, tvb, offset, parameter_length, value);
+        break;
+    case 5:
+        proto_tree_add_item(tree, hf_at_number, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 6:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        pitem = proto_tree_add_uint(tree, hf_at_type, tvb, offset, parameter_length, value);
+        if (value < 128 || value > 175)
+            expert_add_info(pinfo, pitem, &ei_at_type);
+        break;
+    case 7:
+        pitem = proto_tree_add_item(tree, hf_at_alpha, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 8:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_at_priority, tvb, offset, parameter_length, value);
+        break;
+    }
+
+    return TRUE;
+}
+
+
+static gint
+dissect_cme_error_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    guint32      value;
+
+    if (!(role == ROLE_AG && type == TYPE_RESPONSE)) {
+        return FALSE;
+    }
+
+    if (parameter_number > 0) return FALSE;
+
+    value = get_uint_parameter(parameter_stream, parameter_length);
+    proto_tree_add_uint(tree, hf_cme_error, tvb, offset, parameter_length, value);
+
+    return TRUE;
+}
+
+static gint
+dissect_cnum_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    guint32      value;
+
+    if (!(role == ROLE_AG && type == TYPE_RESPONSE)) return TRUE;
+    if (parameter_number > 5) return FALSE;
+
+    switch (parameter_number) {
+    case 0:
+        pitem = proto_tree_add_item(tree, hf_at_alpha, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        if (parameter_length > 0)
+            expert_add_info(pinfo, pitem, &ei_parameter_blank);
+        break;
+    case 1:
+        pitem = proto_tree_add_item(tree, hf_at_number, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 2:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        pitem = proto_tree_add_uint(tree, hf_at_type, tvb, offset, parameter_length, value);
+        if (value < 128 || value > 175)
+            expert_add_info(pinfo, pitem, &ei_at_type);
+        break;
+    case 3:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        pitem = proto_tree_add_uint(tree, hf_cnum_speed, tvb, offset, parameter_length, value);
+        if (parameter_length > 0)
+            expert_add_info(pinfo, pitem, &ei_parameter_blank);
+        break;
+    case 4:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        pitem = proto_tree_add_uint(tree, hf_cnum_service, tvb, offset, parameter_length, value);
+        if (value > 5)
+            expert_add_info(pinfo, pitem, &ei_cnum_service);
+        break;
+    case 5:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        pitem = proto_tree_add_uint(tree, hf_cnum_itc, tvb, offset, parameter_length, value);
+        if (value > 1)
+            expert_add_info(pinfo, pitem, &ei_cnum_itc);
+        break;
+    }
+
+    return TRUE;
+}
+
+static gint
+dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    guint32      value;
+
+    if (!(role == ROLE_HS && type == TYPE_ACTION)) return TRUE;
+    if (parameter_number > 1) return FALSE;
+
+    switch (parameter_number) {
+    case 0:
+        pitem = proto_tree_add_item(tree, hf_vts_dtmf, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        if (parameter_length != 1)
+            expert_add_info(pinfo, pitem, &ei_vts_dtmf);
+        break;
+    case 1:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_vts_duration, tvb, offset, parameter_length, value);
+        break;
+    }
+
+    return TRUE;
+}
+
+static gint
+dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data)
+{
+    guint32      value;
+    guint        indicator_index;
+
+    if (!(role == ROLE_AG && type == TYPE_RESPONSE)) return TRUE;
+    if (parameter_number > 1) return FALSE;
+
+    switch (parameter_number) {
+    case 0:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_ciev_indicator_index, tvb, offset, parameter_length, value);
+        *data = wmem_alloc(wmem_packet_scope(), sizeof(guint));
+        *((guint *) *data) = value;
+        break;
+    case 1:
+        indicator_index = *((guint *) *data) - 1;
+        if (indicator_index > 19) {
+            proto_tree_add_expert(tree, pinfo, &ei_ciev_indicator, tvb, offset, parameter_length);
+        } else {
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_item(tree, hf_indicator[indicator_index], tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        }
+        break;
+    }
+
+    return TRUE;
+}
+
 /* TODO: Some commands need to save request command type (request with TYPE_READ vs TYPE_TEST, etc.)
          to properly dissect response parameters.
          Some commands can use TYPE_TEST respose to properly dissect parameters,
@@ -838,19 +1464,19 @@ static const at_cmd_t at_cmds[] = {
     { "+BINP",      "Bluetooth Input",                          check_binp, dissect_binp_parameter },
     { "+BIA",       "Bluetooth Indicators Activation",          check_bia,  dissect_bia_parameter  },
     /* Inherited from normal AT Commands */
-    { "+CCWA",      "Call Waiting Notification",                check_ccwa, NULL }, /* TODO */
-    { "+CHLD",      "Call Hold and Multiparty Handling",        check_chld, NULL }, /* TODO */
-    { "+CHUP",      "Call Hang-up",                             check_chup, NULL }, /* TODO */
+    { "+CCWA",      "Call Waiting Notification",                check_ccwa, dissect_ccwa_parameter },
+    { "+CHLD",      "Call Hold and Multiparty Handling",        check_chld, dissect_chld_parameter },
+    { "+CHUP",      "Call Hang-up",                             check_chup, dissect_no_parameter   },
     { "+CIND",      "Phone Indicators",                         check_cind, dissect_cind_parameter },
-    { "+CLCC",      "Current Calls",                            check_clcc, NULL }, /* TODO */
-    { "+COPS",      "Reading Network Operator",                 check_cops, NULL }, /* TODO */
-    { "+CMEE",      "Mobile Equipment Error",                   check_cmee, NULL }, /* TODO */
-    { "+CME ERROR", "Extended Audio Gateway Error Result Code", check_cme,  NULL }, /* TODO */
-    { "+CLIP",      "Calling Line Identification Notification", check_clip, NULL }, /* TODO */
+    { "+CLCC",      "Current Calls",                            check_clcc, dissect_clcc_parameter },
+    { "+COPS",      "Reading Network Operator",                 check_cops, dissect_cops_parameter },
+    { "+CMEE",      "Mobile Equipment Error",                   check_cmee, dissect_cmee_parameter },
+    { "+CME ERROR", "Extended Audio Gateway Error Result Code", check_cme,  dissect_cme_error_parameter },
+    { "+CLIP",      "Calling Line Identification Notification", check_clip, dissect_clip_parameter },
     { "+CMER",      "Event Reporting Activation/Deactivation",  check_cmer, dissect_cmer_parameter },
-    { "+CIEV",      "Indicator Events Reporting",               check_ciev, NULL }, /* TODO */
-    { "+VTS",       "DTMF and tone generation",                 check_vts,  NULL }, /* TODO */
-    { "+CNUM",      "Subscriber Number Information",            check_cnum, NULL }, /* TODO */
+    { "+CIEV",      "Indicator Events Reporting",               check_ciev, dissect_ciev_parameter },
+    { "+VTS",       "DTMF and tone generation",                 check_vts,  dissect_vts_parameter  },
+    { "+CNUM",      "Subscriber Number Information",            check_cnum, dissect_cnum_parameter },
     { "ERROR",      "ERROR",                                    check_only_ag_role, dissect_no_parameter },
     { "RING",       "Incomming Call Indication",                check_only_ag_role, dissect_no_parameter },
     { "OK",         "OK",                                       check_only_ag_role, dissect_no_parameter },
@@ -867,6 +1493,8 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item      *pitem;
     proto_tree      *command_item;
     proto_item      *command_tree;
+    proto_tree      *parameters_item = NULL;
+    proto_item      *parameters_tree = NULL;
     guint8          *col_str = NULL;
     guint8          *at_stream;
     guint8          *at_command = NULL;
@@ -875,11 +1503,14 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint             length;
     const at_cmd_t  *i_at_cmd;
     gint             parameter_length;
-    guint            parameter_number;
+    guint            parameter_number = 0;
+    gint             first_parameter_offset = offset;
+    gint             last_parameter_offset  = offset;
     guint16          type = TYPE_UNKNOWN;
     guint32          brackets;
     gboolean         quotation;
     gboolean         next;
+    void            *data;
 
     length = tvb_length_remaining(tvb, offset);
     if (length <= 0)
@@ -1031,7 +1662,11 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             expert_add_info(pinfo, command_item, &ei_invalid_usage);
         }
 
-        parameter_number = 0;
+        parameters_item = proto_tree_add_none_format(command_tree, hf_parameters, tvb,
+                offset, 0, "Parameters");
+        parameters_tree = proto_item_add_subtree(parameters_item, ett_bthfp_parameters);
+
+        data = NULL;
 
         while (i_char < length) {
 
@@ -1077,24 +1712,27 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     parameter_length += 1;
                 }
 
+                first_parameter_offset = offset;
                 if (type == TYPE_ACTION || type == TYPE_RESPONSE) {
                     if (i_at_cmd && (i_at_cmd->dissect_parameter != NULL &&
-                            !i_at_cmd->dissect_parameter(tvb, pinfo, command_tree, offset, role,
-                            type, &at_command[i_char], parameter_number, parameter_length) )) {
-                        pitem = proto_tree_add_item(command_tree,
+                            !i_at_cmd->dissect_parameter(tvb, pinfo, parameters_tree, offset, role,
+                            type, &at_command[i_char], parameter_number, parameter_length, &data) )) {
+                        pitem = proto_tree_add_item(parameters_tree,
                                 hf_unknown_parameter, tvb, offset,
                                 parameter_length, ENC_NA | ENC_ASCII);
                         expert_add_info(pinfo, pitem, &ei_unknown_parameter);
                     } else if (i_at_cmd && i_at_cmd->dissect_parameter == NULL) {
-                        proto_tree_add_item(command_tree, hf_parameter, tvb, offset,
+                        proto_tree_add_item(parameters_tree, hf_parameter, tvb, offset,
                                 parameter_length, ENC_NA | ENC_ASCII);
                     }
                 }
             }
 
-            parameter_number += 1;
+            if (type != TYPE_ACTION_SIMPLY && type != TYPE_RESPONSE_ACK && type != TYPE_TEST && type != TYPE_READ)
+                parameter_number += 1;
             i_char += parameter_length;
             offset += parameter_length;
+            last_parameter_offset = offset;
 
             if (role == ROLE_AG &&
                     i_char + 1 <= length &&
@@ -1122,6 +1760,11 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_set_len(command_item, length);
         offset += length;
     }
+
+    if (parameter_number > 0 && last_parameter_offset - first_parameter_offset > 0)
+        proto_item_set_len(parameters_item, last_parameter_offset - first_parameter_offset);
+    else
+        proto_item_append_text(parameters_item, ": No");
 
     return offset;
 }
@@ -1535,6 +2178,11 @@ proto_register_bthfp(void)
            FT_NONE, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
+        { &hf_parameters,
+           { "Parameters",                       "bthfp.parameters",
+           FT_NONE, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
         { &hf_data,
            { "AT Stream",                        "bthfp.data",
            FT_STRING, BASE_NONE, NULL, 0,
@@ -1770,6 +2418,171 @@ proto_register_bthfp(void)
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
+        { &hf_cme_error,
+           { "CME Error",                        "bthfp.cme_error",
+           FT_UINT8, BASE_DEC, VALS(cme_error_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_cmee,
+           { "Mode",                             "bthfp.cmee",
+           FT_UINT8, BASE_DEC, VALS(cmee_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_chld_mode,
+           { "Mode",                             "bthfp.chld.mode",
+           FT_UINT8, BASE_DEC, VALS(chld_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_chld_mode_1x,
+           { "Mode: Releases specified active call only",  "bthfp.chld.mode",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_chld_mode_2x,
+           { "Mode:  Request private consultation mode with specified call - place all calls on hold EXCEPT the call indicated by x",  "bthfp.chld.mode",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_chld_supported_modes,
+           { "Supported Modes",                  "bthfp.chld.supported_modes",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_ciev_indicator_index,
+           { "Indicator Index",                  "bthfp.ciev.indicator_index",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_vts_dtmf,
+           { "DTMF",                             "bthfp.vts.dtmf",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_vts_duration,
+           { "Duration",                         "bthfp.vts.duration",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cops_mode,
+           { "Mode",                             "bthfp.cops.mode",
+           FT_UINT8, BASE_DEC, VALS(cops_mode_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_cops_format,
+           { "Format",                           "bthfp.cops.format",
+           FT_UINT8, BASE_DEC, VALS(cops_format_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_cops_operator,
+           { "Operator",                         "bthfp.cops.operator",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cops_act,
+           { "AcT",                              "bthfp.cops.act",
+           FT_UINT8, BASE_DEC, VALS(cops_act_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_clip_mode,
+           { "Mode",                             "bthfp.clip.mode",
+           FT_UINT8, BASE_DEC, VALS(clip_mode_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_clip_status,
+           { "Status",                           "bthfp.clip.status",
+           FT_UINT8, BASE_DEC, VALS(clip_status_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_at_number,
+           { "Number",                           "bthfp.at.number",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_at_type,
+           { "Number",                           "bthfp.at.type",
+           FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(at_type_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_at_subaddress,
+           { "Subaddress",                       "bthfp.at.subaddress",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_at_subaddress_type,
+           { "Subaddress Type",                  "bthfp.at.subaddress_type",
+           FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(at_type_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_cnum_speed,
+           { "Speed",                            "bthfp.cnum.speed",
+           FT_UINT8, BASE_DEC | BASE_EXT_STRING, &csd_data_rate_vals_ext, 0,
+           NULL, HFILL}
+        },
+        { &hf_cnum_service,
+           { "Service",                          "bthfp.cnum.service",
+           FT_UINT8, BASE_DEC, VALS(cnum_service_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_cnum_itc,
+           { "Information Transfer Capability",  "bthfp.cnum.itc",
+           FT_UINT8, BASE_DEC, VALS(cnum_itc_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_at_alpha,
+           { "Alpha",                            "bthfp.at.alpha",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_at_cli_validity,
+           { "CLI Validity",                     "bthfp.at.cli_validity",
+           FT_UINT8, BASE_DEC, VALS(cli_validity_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_at_priority,
+           { "Priority",                         "bthfp.at.priority",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_clcc_id,
+           { "ID",                               "bthfp.clcc.id",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_clcc_dir,
+           { "Direction",                        "bthfp.clcc.dir",
+           FT_UINT32, BASE_DEC, VALS(clcc_dir_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_clcc_stat,
+           { "State",                            "bthfp.clcc.stat",
+           FT_UINT32, BASE_DEC, VALS(clcc_stat_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_clcc_mode,
+           { "Mode",                             "bthfp.clcc.mode",
+           FT_UINT32, BASE_DEC, VALS(clcc_mode_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_clcc_mpty,
+           { "Mpty",                             "bthfp.clcc.mpty",
+           FT_UINT32, BASE_DEC, VALS(clcc_mpty_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_ccwa_show_result_code,
+           { "Show Result Code Presentation Status",       "bthfp.ccwa.presentaion_status",
+           FT_UINT32, BASE_DEC, VALS(ccwa_show_result_code_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_ccwa_mode,
+           { "Mode",                             "bthfp.ccwa.mode",
+           FT_UINT32, BASE_DEC, VALS(ccwa_mode_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_ccwa_class,
+           { "Class",                             "bthfp.ccwa.class",
+           FT_UINT32, BASE_DEC, VALS(ccwa_class_vals), 0,
+           NULL, HFILL}
+        },
         { &hf_bia_indicator[0],
            { "Indicator 1",                      "bthfp.bia.indicator.1",
            FT_UINT8, BASE_DEC, VALS(indicator_vals), 0,
@@ -1870,103 +2683,103 @@ proto_register_bthfp(void)
            FT_UINT8, BASE_DEC, VALS(indicator_vals), 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[0],
-           { "Indicator 1",                      "bthfp.cind.indicator.1",
+        { &hf_indicator[0],
+           { "Indicator 1",                      "bthfp.indicator.1",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[1],
-           { "Indicator 2",                      "bthfp.cind.indicator.2",
+        { &hf_indicator[1],
+           { "Indicator 2",                      "bthfp.indicator.2",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[2],
-           { "Indicator 3",                      "bthfp.cind.indicator.3",
+        { &hf_indicator[2],
+           { "Indicator 3",                      "bthfp.indicator.3",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[3],
-           { "Indicator 4",                      "bthfp.cind.indicator.4",
+        { &hf_indicator[3],
+           { "Indicator 4",                      "bthfp.indicator.4",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[4],
-           { "Indicator 5",                      "bthfp.cind.indicator.5",
+        { &hf_indicator[4],
+           { "Indicator 5",                      "bthfp.indicator.5",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[5],
-           { "Indicator 6",                      "bthfp.cind.indicator.6",
+        { &hf_indicator[5],
+           { "Indicator 6",                      "bthfp.indicator.6",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[6],
-           { "Indicator 7",                      "bthfp.cind.indicator.7",
+        { &hf_indicator[6],
+           { "Indicator 7",                      "bthfp.indicator.7",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[7],
-           { "Indicator 8",                      "bthfp.cind.indicator.8",
+        { &hf_indicator[7],
+           { "Indicator 8",                      "bthfp.indicator.8",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[8],
-           { "Indicator 9",                      "bthfp.cind.indicator.9",
+        { &hf_indicator[8],
+           { "Indicator 9",                      "bthfp.indicator.9",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[9],
-           { "Indicator 10",                     "bthfp.cind.indicator.10",
+        { &hf_indicator[9],
+           { "Indicator 10",                     "bthfp.indicator.10",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[10],
-           { "Indicator 11",                     "bthfp.cind.indicator.11",
+        { &hf_indicator[10],
+           { "Indicator 11",                     "bthfp.indicator.11",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[11],
-           { "Indicator 12",                     "bthfp.cind.indicator.12",
+        { &hf_indicator[11],
+           { "Indicator 12",                     "bthfp.indicator.12",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[12],
-           { "Indicator 13",                     "bthfp.cind.indicator.13",
+        { &hf_indicator[12],
+           { "Indicator 13",                     "bthfp.indicator.13",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[13],
-           { "Indicator 14",                     "bthfp.cind.indicator.14",
+        { &hf_indicator[13],
+           { "Indicator 14",                     "bthfp.indicator.14",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[14],
-           { "Indicator 15",                     "bthfp.cind.indicator.15",
+        { &hf_indicator[14],
+           { "Indicator 15",                     "bthfp.indicator.15",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[15],
-           { "Indicator 16",                     "bthfp.cind.indicator.16",
+        { &hf_indicator[15],
+           { "Indicator 16",                     "bthfp.indicator.16",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[16],
-           { "Indicator 17",                     "bthfp.cind.indicator.17",
+        { &hf_indicator[16],
+           { "Indicator 17",                     "bthfp.indicator.17",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[17],
-           { "Indicator 18",                     "bthfp.cind.indicator.18",
+        { &hf_indicator[17],
+           { "Indicator 18",                     "bthfp.indicator.18",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[18],
-           { "Indicator 19",                     "bthfp.cind.indicator.19",
+        { &hf_indicator[18],
+           { "Indicator 19",                     "bthfp.indicator.19",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cind_indicator[19],
-           { "Indicator 20",                     "bthfp.cind.indicator.20",
+        { &hf_indicator[19],
+           { "Indicator 20",                     "bthfp.indicator.20",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         }
@@ -1992,14 +2805,22 @@ proto_register_bthfp(void)
         { &ei_cmer_disp,             { "bthfp.expert.cmer.disp", PI_PROTOCOL, PI_WARN, "Value is ignored for HFP", EXPFILL }},
         { &ei_cmer_keyp,             { "bthfp.expert.cmer.keyp", PI_PROTOCOL, PI_WARN, "Value is ignored for HFP", EXPFILL }},
         { &ei_cmer_ind,              { "bthfp.expert.cmer.ind", PI_PROTOCOL, PI_NOTE, "Only 0-1 is valid for HFP", EXPFILL }},
-        { &ei_cmer_btr,              { "bthfp.expert.cmer.btr", PI_PROTOCOL, PI_WARN, "Value is ignored for HFP", EXPFILL }}
+        { &ei_cmer_btr,              { "bthfp.expert.cmer.btr", PI_PROTOCOL, PI_WARN, "Value is ignored for HFP", EXPFILL }},
+        { &ei_chld_mode,             { "bthfp.expert.chld.mode", PI_PROTOCOL, PI_WARN, "Invalid value for HFP", EXPFILL }},
+        { &ei_ciev_indicator,        { "bthfp.expert.ciev.indicator", PI_PROTOCOL, PI_WARN, "Unknown indicator", EXPFILL }},
+        { &ei_vts_dtmf,              { "bthfp.expert.vts.dtmf", PI_PROTOCOL, PI_WARN, "DTMF should be single character", EXPFILL }},
+        { &ei_at_type,               { "bthfp.expert.at.type", PI_PROTOCOL, PI_WARN, "Unknown type value", EXPFILL }},
+        { &ei_parameter_blank,       { "bthfp.expert.parameter_blank", PI_PROTOCOL, PI_WARN, "Should be blank for HFP", EXPFILL }},
+        { &ei_cnum_service,          { "bthfp.expert.cnum.service", PI_PROTOCOL, PI_WARN, "Only 0-5 is valid", EXPFILL }},
+        { &ei_cnum_itc,              { "bthfp.expert.cnum.itc", PI_PROTOCOL, PI_WARN, "Only 0-1 is valid", EXPFILL }}
     };
 
     static gint *ett[] = {
         &ett_bthfp,
         &ett_bthfp_brsf_hf,
         &ett_bthfp_brsf_ag,
-        &ett_bthfp_command
+        &ett_bthfp_command,
+        &ett_bthfp_parameters
     };
 
     fragments = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
