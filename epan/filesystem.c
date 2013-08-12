@@ -333,6 +333,28 @@ static gboolean running_in_build_directory_flag = FALSE;
  * so we try this first and, if that fails, use dladdr(main) if
  * available.
  *
+ * In particular:
+ *
+ *    older versions of GNU libc's dynamic linker, as used on Linux;
+ *    older versions of FreeBSD's dynamic linker;
+ *    current versions of NetBSD's dynamic linker as of 2013-08-12;
+ *    current versions of OpenBSD's dynamic linker as of 2013-08-12;
+ *    older versions of DragonFly BSD's dynamic linker;
+ *
+ * just return argv[0], so we cannot trust dladdr() on those platforms
+ * any more than we can trust argv[0].
+ *
+ * However, at least in newer versions of DragonFly BSD, the dynamic
+ * linker *does* get it from the aux vector passed to the program
+ * by the kernel, and there's no sysctl to get the path, so dladdr()
+ * is the only way to get the path, other than argv[0].
+ *
+ * So we try this first, on those of the above platforms that, in some
+ * versions, provide a mechanism to get it that isn't used by the
+ * dynamic linker used by those versions and, if that fails and
+ * dladdr() is available, fall back on dladdr(), and if that fails
+ * or is unavailable, just go with argv[0].
+ *
  * This is not guaranteed to return a non-null value; if it returns null,
  * our caller must use some other mechanism, such as dladdr(main) or
  * looking at argv[0].
