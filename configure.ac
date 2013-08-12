@@ -1325,8 +1325,8 @@ if test "x$enable_wireshark" = "xyes"; then
 			CFLAGS="$CFLAGS $Qt_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
 			have_qt=yes
-		]
-		, [AC_MSG_ERROR([Qt is not available])])
+		],
+		[AC_MSG_ERROR([Qt is not available])])
 
 		#
 		# XXX - greasy hack to make ui/gtk/recent.c
@@ -1353,7 +1353,8 @@ if test "x$enable_wireshark" = "xyes"; then
 			CFLAGS="$CFLAGS $GTK_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
-		], have_gtk=no)
+		],
+		[AC_MSG_ERROR([GTK+ 3 is not available])])
 	elif test "x$with_gtk2" = "xyes"; then
 		#
 		# GTK+ 3 wasn't specified, and GTK+ 2 was specified;
@@ -1364,7 +1365,8 @@ if test "x$enable_wireshark" = "xyes"; then
 			CFLAGS="$CFLAGS $GTK_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
-		], have_gtk=no)
+		],
+		[AC_MSG_ERROR([GTK+ 2 is not available])])
 	fi
 fi
 
