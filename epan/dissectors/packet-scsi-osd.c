@@ -126,13 +126,21 @@ static int hf_scsi_osd_attrval_user_object_logical_length = -1;
 static int hf_scsi_osd_attrval_object_type              = -1;
 static int hf_scsi_osd_attrval_partition_id             = -1;
 static int hf_scsi_osd_attrval_object_id                = -1;
+static int hf_scsi_osd2_query_type = -1;
+static int hf_scsi_osd2_query_entry_length = -1;
+static int hf_scsi_osd2_query_attributes_page = -1;
+static int hf_scsi_osd2_query_attribute_number = -1;
+static int hf_scsi_osd2_query_minimum_attribute_value_length = -1;
+static int hf_scsi_osd2_query_maximum_attribute_value_length = -1;
 
 /* Fields that are defined in OSD-2 are prefixed with hf_scsi_osd2_ */
 static int hf_scsi_osd2_attributes_list_length      = -1;
 static int hf_scsi_osd2_set_attribute_value         = -1;
 static int hf_scsi_osd2_isolation                   = -1;
+static int hf_scsi_osd2_immed_tr                    = -1;
 static int hf_scsi_osd2_list_attr                   = -1;
 static int hf_scsi_osd2_object_descriptor_format    = -1;
+static int hf_scsi_osd2_matches_collection_object_id = -1;
 static int hf_scsi_osd2_source_collection_object_id = -1;
 static int hf_scsi_osd2_cdb_continuation_length     = -1;
 static int hf_scsi_osd2_cdb_continuation_format     = -1;
@@ -140,6 +148,7 @@ static int hf_scsi_osd2_continued_service_action    = -1;
 static int hf_scsi_osd2_cdb_continuation_descriptor_type = -1;
 static int hf_scsi_osd2_cdb_continuation_descriptor_pad_length = -1;
 static int hf_scsi_osd2_cdb_continuation_descriptor_length = -1;
+static int hf_scsi_osd2_remove_scope                       = -1;
 
 static gint ett_osd_option                  = -1;
 static gint ett_osd_partition               = -1;
@@ -151,6 +160,7 @@ static gint ett_osd_get_attributes          = -1;
 static gint ett_osd_set_attributes          = -1;
 static gint ett_osd_multi_object            = -1;
 static gint ett_osd_attribute               = -1;
+static gint ett_osd2_query_criteria_entry   = -1;
 
 static expert_field ei_osd_attr_unknown = EI_INIT;
 static expert_field ei_osd2_invalid_offset = EI_INIT;
@@ -162,6 +172,7 @@ static expert_field ei_osd2_cdb_continuation_descriptor_type_unknown = EI_INIT;
 static expert_field ei_osd2_cdb_continuation_descriptor_length_invalid = EI_INIT;
 static expert_field ei_osd2_cdb_continuation_length_invalid = EI_INIT;
 static expert_field ei_osd_attr_length_invalid = EI_INIT;
+static expert_field ei_osd2_query_values_equal= EI_INIT;
 
 #define PAGE_NUMBER_OBJECT          0x00000000
 #define PAGE_NUMBER_PARTITION       0x30000000
@@ -322,11 +333,18 @@ static const value_string scsi_osd2_isolation_val[] = {
 static const value_string scsi_osd2_object_descriptor_format_val[] = {
     {0x01, "Partition ID"},
     {0x02, "Partition ID followed by attribute parameters"},
+    {0x11, "Collection ID"},
+    {0x12, "Collection ID followed by attribute parameters"},
     {0x21, "User Object ID"},
     {0x22, "User Object ID followed by attribute parameters"},
     {0,NULL}
 };
 
+static const value_string scsi_osd2_remove_scope[] = {
+    {0x00, "Fail if there are collections or user objects in the partition"},
+    {0x01, "Remove collections and user objects in the partition"},
+    {0,NULL}
+};
 
 static const value_string scsi_osd2_cdb_continuation_format_val[] = {
     {0x01, "OSD2"},
@@ -340,6 +358,12 @@ static const value_string  scsi_osd2_cdb_continuation_descriptor_type_val[] = {
     {0x0100, "User object"},
     {0x0101, "Copy user object source"},
     {0xFFEE, "Extension capabilities"},
+    {0,NULL}
+};
+
+static const value_string scsi_osd2_query_type_vals[] = {
+    {0x00, "Match any query criteria"},
+    {0x01, "Match all query criteria"},
     {0,NULL}
 };
 
@@ -844,6 +868,85 @@ dissect_osd2_cdb_continuation_length(packet_info *pinfo, tvbuff_t *tvb,
     }
 }
 
+static void dissect_osd2_query_list_descriptor(packet_info *pinfo, tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint32 length) {
+    guint32 end = offset+length;
+
+    /* query type */
+    proto_tree_add_item(tree, hf_scsi_osd2_query_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* 3 reserved bytes */
+    offset+=3;
+
+    /*query criteria entry*/
+    while (offset<end) {
+        guint32 page, number;
+        guint32 min_value_length, max_value_length;
+        guint32 min_value_offset, max_value_offset;
+        const attribute_page_numbers_t *apn;
+        proto_item* item;
+
+        /* 2 reserved bytes */
+        offset+=2;
+
+        /* query entry length */
+        proto_tree_add_item(tree, hf_scsi_osd2_query_entry_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+
+        /* query attributes page */
+        page=tvb_get_ntohl(tvb, offset);
+        proto_tree_add_item(tree, hf_scsi_osd2_query_attributes_page, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+
+        /* query attributes number */
+        number=tvb_get_ntohl(tvb, offset);
+        item=proto_tree_add_item(tree, hf_scsi_osd2_query_attribute_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+
+        apn=osd_lookup_attribute(page,number);
+
+        if (!apn) {
+            expert_add_info(pinfo, item, &ei_osd_attr_unknown);
+            proto_item_append_text(item, " (Unknown)");
+        } else {
+            proto_item_append_text(item, " (%s)", apn->name);
+        }
+
+        /* query minimum attribute value length */
+        proto_tree_add_item(tree, hf_scsi_osd2_query_minimum_attribute_value_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        min_value_length=tvb_get_ntohs(tvb,offset);
+        offset+=2;
+
+        /* query minimum attribute value */
+        /* if(apn&&min_value_length) {
+            call_apn_dissector(tvb, pinfo, tree, lun_info, apn, offset, min_value_length);
+        } */
+        max_value_offset=offset;
+        offset+=min_value_length;
+
+        /* query maximum attribute value length */
+        item=proto_tree_add_item(tree, hf_scsi_osd2_query_maximum_attribute_value_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        max_value_length=tvb_get_ntohs(tvb,offset);
+        offset+=2;
+
+        /* xxx query maximum attribute value */
+        /* if(apn&&max_value_length) {
+            call_apn_dissector(tvb, pinfo, tree, lun_info, apn, offset, max_value_length);
+        } */
+        min_value_offset=offset;
+        offset+=max_value_length;
+
+        /* test if min and max values are equal */
+        if (max_value_length==min_value_length) {
+            unsigned int i; 
+            for (i=0; i<max_value_length; i++) {
+                if (tvb_get_guint8(tvb,max_value_offset+i)!=tvb_get_guint8(tvb,min_value_offset+i)) return;
+            }
+            expert_add_info(pinfo,item,&ei_osd2_query_values_equal);
+        }
+    }
+}
+
 static void
 dissect_osd2_cdb_continuation(packet_info *pinfo, tvbuff_t *tvb, guint32 offset,
                               proto_tree *tree, scsi_task_data_t *cdata)
@@ -908,7 +1011,7 @@ dissect_osd2_cdb_continuation(packet_info *pinfo, tvbuff_t *tvb, guint32 offset,
         switch (type) {
             case 0x0000: break;
             case 0x0001: break;
-            case 0x0002: break;
+            case 0x0002: dissect_osd2_query_list_descriptor(pinfo, tvb, offset, tree, length);
             case 0x0100: break;
             case 0x0101: break;
             case 0xFFEE: break;
@@ -1242,9 +1345,13 @@ dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                              scsi_osd_conv_info_t *conv_info _U_,
                              scsi_osd_lun_info_t *lun_info)
 {
+    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2=osd2;
+
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
     if(isreq && iscdb){
         /* options byte */
+        if (osd2) dissect_osd2_isolation(tvb,offset,tree);
         dissect_osd_option(tvb, offset, tree);
         offset++;
 
@@ -1263,8 +1370,15 @@ dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_requested_partition_id, lun_info, TRUE, FALSE);
         offset+=8;
 
-        /* 28 reserved bytes */
-        offset+=28;
+        /* 24 reserved bytes */
+        offset+=24;
+
+        if (osd2) {
+            dissect_osd2_cdb_continuation_length(pinfo, tvb, offset, tree, cdata);
+        } else {
+            /* 4 reserved bytes */
+        }
+        offset+=4;
 
         /* attribute parameters */
         dissect_osd_attribute_parameters(pinfo, tvb, offset, tree, cdata);
@@ -1272,15 +1386,18 @@ dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         /* capability */
         dissect_osd_capability(tvb, offset, tree);
-        offset+=80;
+        offset+=osd2?104:80;
 
         /* security parameters */
         dissect_osd_security_parameters(tvb, offset, tree);
-        offset+=40;
+        offset+=osd2?52:40;
     }
 
     /* dissecting the DATA OUT */
     if(isreq && !iscdb){
+        /* CDB continuation */
+        dissect_osd2_cdb_continuation(pinfo, tvb, offset, tree, cdata);
+
         /* attribute data out */
         dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata, lun_info);
 
@@ -1692,14 +1809,19 @@ dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                              scsi_osd_conv_info_t *conv_info _U_,
                              scsi_osd_lun_info_t *lun_info)
 {
+    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2=osd2;
+
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
     if(isreq && iscdb){
         /* options byte */
+        if (osd2) dissect_osd2_isolation(tvb,offset,tree);
         dissect_osd_option(tvb, offset, tree);
         offset++;
 
         /* getset attributes byte */
         dissect_osd_getsetattrib(tvb, offset, tree, cdata);
+        if (osd2) proto_tree_add_item(tree, hf_scsi_osd2_remove_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* timestamps control */
@@ -1713,8 +1835,15 @@ dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, TRUE);
         offset+=8;
 
-        /* 28 reserved bytes */
-        offset+=28;
+        /* 24 reserved bytes */
+        offset+=24;
+
+        if (osd2) {
+            dissect_osd2_cdb_continuation_length(pinfo, tvb, offset, tree, cdata);
+        } else {
+            /* 4 reserved bytes */
+        }
+        offset+=4;
 
         /* attribute parameters */
         dissect_osd_attribute_parameters(pinfo, tvb, offset, tree, cdata);
@@ -1722,15 +1851,18 @@ dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         /* capability */
         dissect_osd_capability(tvb, offset, tree);
-        offset+=80;
+        offset+=osd2?104:80;
 
         /* security parameters */
         dissect_osd_security_parameters(tvb, offset, tree);
-        offset+=40;
+        offset+=osd2?52:40;
     }
 
     /* dissecting the DATA OUT */
     if(isreq && !iscdb){
+        /* CDB continuation */
+        dissect_osd2_cdb_continuation(pinfo, tvb, offset, tree, cdata);
+
         /* attribute data out */
         dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata, lun_info);
 
@@ -1927,6 +2059,9 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                               scsi_osd_conv_info_t *conv_info _U_,
                               scsi_osd_lun_info_t *lun_info)
 {
+    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2=osd2;
+
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
     if(isreq && iscdb){
         /* options byte */
@@ -1953,8 +2088,15 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd_collection_object_id);
         offset+=8;
 
-        /* 20 reserved bytes */
-        offset+=20;
+        /* 16 reserved bytes */
+        offset+=16;
+
+        if (osd2) {
+            dissect_osd2_cdb_continuation_length(pinfo, tvb, offset, tree, cdata);
+        } else {
+            /* 4 reserved bytes */
+        }
+        offset+=4;
 
         /* attribute parameters */
         dissect_osd_attribute_parameters(pinfo, tvb, offset, tree, cdata);
@@ -1962,15 +2104,18 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         /* capability */
         dissect_osd_capability(tvb, offset, tree);
-        offset+=80;
+        offset+=osd2?104:80;
 
         /* security parameters */
         dissect_osd_security_parameters(tvb, offset, tree);
-        offset+=40;
+        offset+=osd2?52:40;
     }
 
     /* dissecting the DATA OUT */
     if(isreq && !iscdb){
+        /* CDB continuation */
+        dissect_osd2_cdb_continuation(pinfo, tvb, offset, tree, cdata);
+
         /* attribute data out */
         dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata, lun_info);
 
@@ -2628,6 +2773,9 @@ dissect_osd_get_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            scsi_osd_conv_info_t *conv_info _U_,
                            scsi_osd_lun_info_t *lun_info)
 {
+    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2=osd2;
+
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
     if(isreq && iscdb){
         /* options byte */
@@ -2653,8 +2801,15 @@ dissect_osd_get_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_osd_user_object_id(tvb, offset, tree);
         offset+=8;
 
-        /* 20 reserved bytes */
-        offset+=20;
+        /* 16 reserved bytes */
+        offset+=16;
+
+        if (osd2) {
+            dissect_osd2_cdb_continuation_length(pinfo, tvb, offset, tree, cdata);
+        } else {
+            /* 4 reserved bytes */
+        }
+        offset+=4;
 
         /* attribute parameters */
         dissect_osd_attribute_parameters(pinfo, tvb, offset, tree, cdata);
@@ -2662,11 +2817,11 @@ dissect_osd_get_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* capability */
         dissect_osd_capability(tvb, offset, tree);
-        offset+=80;
+        offset+=osd2?104:80;
 
         /* security parameters */
         dissect_osd_security_parameters(tvb, offset, tree);
-        offset+=40;
+        offset+=osd2?52:40;
     }
 
     /* dissecting the DATA OUT */
@@ -2770,6 +2925,9 @@ dissect_osd_set_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            scsi_osd_conv_info_t *conv_info _U_,
                            scsi_osd_lun_info_t *lun_info)
 {
+    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2=osd2;
+
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
     if(isreq && iscdb){
         /* options byte */
@@ -2795,8 +2953,15 @@ dissect_osd_set_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_osd_user_object_id(tvb, offset, tree);
         offset+=8;
 
-        /* 20 reserved bytes */
-        offset+=20;
+        /* 16 reserved bytes */
+        offset+=16;
+
+        if (osd2) {
+            dissect_osd2_cdb_continuation_length(pinfo, tvb, offset, tree, cdata);
+        } else {
+            /* 4 reserved bytes */
+        }
+        offset+=4;
 
         /* attribute parameters */
         dissect_osd_attribute_parameters(pinfo, tvb, offset, tree, cdata);
@@ -2804,11 +2969,11 @@ dissect_osd_set_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* capability */
         dissect_osd_capability(tvb, offset, tree);
-        offset+=80;
+        offset+=osd2?104:80;
 
         /* security parameters */
         dissect_osd_security_parameters(tvb, offset, tree);
-        offset+=40;
+        offset+=osd2?52:40;
     }
 
     /* dissecting the DATA OUT */
@@ -2911,6 +3076,119 @@ dissect_osd2_create_user_tracking_collection(tvbuff_t *tvb, packet_info *pinfo, 
 
 }
 
+static void
+dissect_osd2_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                        scsi_osd_conv_info_t *conv_info _U_,
+                        scsi_osd_lun_info_t *lun_info)
+{
+    ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2=TRUE;
+
+    /* dissecting the CDB   dissection starts at byte 10 of the CDB */
+    if(isreq && iscdb){
+
+        /* isolation field */
+        dissect_osd2_isolation(tvb,offset,tree);
+        offset++;
+
+        /* immed_tr, getset attributes*/
+        proto_tree_add_item(tree, hf_scsi_osd2_immed_tr, tvb, offset, 1, ENC_BIG_ENDIAN);
+        dissect_osd_getsetattrib(tvb, offset, tree, cdata);
+        offset++;
+
+        /* timestamps control */
+        dissect_osd_timestamps_control(tvb, offset, tree);
+        offset++;
+
+        /* 3 reserved bytes */
+        offset+=3;
+
+        /* partition id */
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        offset+=8;
+
+        /* collection_object id */
+        dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd_collection_object_id);
+        offset+=8;
+
+        /* allocation_length */
+        dissect_osd_allocation_length(tvb, offset, tree, cdata);
+        offset+=8;
+
+        /* matches collection id */
+        dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd2_matches_collection_object_id);
+        offset+=8;
+
+        /*cdb continuation length*/
+        dissect_osd2_cdb_continuation_length(pinfo, tvb, offset, tree, cdata);
+        offset+=4;
+
+        /* attribute parameters */
+        dissect_osd_attribute_parameters(pinfo, tvb, offset, tree, cdata);
+        offset+=28;
+
+        /* capability */
+        dissect_osd_capability(tvb, offset, tree);
+        offset+=104;
+
+        /* security parameters */
+        dissect_osd_security_parameters(tvb, offset, tree);
+        offset+=52;
+    }
+
+    /* dissecting the DATA OUT */
+    if(isreq && !iscdb){
+        /* CDB continuation */
+        dissect_osd2_cdb_continuation(pinfo, tvb, offset, tree, cdata);
+
+        /* attribute data out */
+        dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata, lun_info);
+
+        /* no data out for query */
+    }
+
+    /* dissecting the DATA IN */
+    if(!isreq && !iscdb){
+        guint64  additional_length;
+        guint64  allocation_length;
+        guint64  remaining_length;
+        guint8   format;
+        proto_item *item;
+
+        /* attribute data in */
+        dissect_osd_attribute_data_in(pinfo, tvb, offset, tree, cdata, lun_info);
+
+        allocation_length=cdata->itlq->alloc_len;
+        remaining_length=tvb_length_remaining(tvb, offset);
+        if (remaining_length<allocation_length) allocation_length=remaining_length;
+        if (allocation_length<12) return;
+
+        /* dissection of the LIST or LIST COLLECTION DATA-IN */
+        /* additional length */
+        additional_length=tvb_get_ntoh64(tvb, offset);
+        if ((guint32)(allocation_length-8)<additional_length) additional_length=(guint32)(allocation_length-8);
+
+        dissect_osd_additional_length(tvb, offset, tree);
+        offset+=8;
+
+        /* 3 reserved bytes */
+        offset+=3;
+        item = proto_tree_add_item(tree, hf_scsi_osd2_object_descriptor_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+        format = tvb_get_guint8(tvb, offset)>>2;
+        offset++;
+        if (format!=0x21) {
+            expert_add_info(pinfo,item,&ei_osd2_invalid_object_descriptor_format);
+            return;
+        }
+
+        while(additional_length > (offset-4)) {
+            dissect_osd_user_object_id(tvb, offset, tree);
+            offset+=8;
+        }
+    }
+
+}
 
 /* OSD Service Actions */
 #define OSD_FORMAT_OSD          0x8801
@@ -2942,6 +3220,7 @@ dissect_osd2_create_user_tracking_collection(tvbuff_t *tvb, packet_info *pinfo, 
 #define OSD_2_CLEAR             0x8889
 #define OSD_2_REMOVE            0x888a
 #define OSD_2_CREATE_PARTITION  0x888b
+#define OSD_2_REMOVE_PARTITION  0x888c
 #define OSD_2_GET_ATTRIBUTES    0x888e
 #define OSD_2_SET_ATTRIBUTES    0x888f
 #define OSD_2_CREATE_AND_WRITE  0x8892
@@ -2983,6 +3262,7 @@ static const value_string scsi_osd_svcaction_vals[] = {
     {OSD_2_CLEAR, "Clear (OSD-2)"},
     {OSD_2_REMOVE, "Remove (OSD-2)"},
     {OSD_2_CREATE_PARTITION, "Create Partition (OSD-2)"},
+    {OSD_2_REMOVE_PARTITION, "Remove Partition (OSD-2)"},
     {OSD_2_GET_ATTRIBUTES, "Get Attributes (OSD-2)"},
     {OSD_2_SET_ATTRIBUTES, "Set Attributes (OSD-2)"},
     {OSD_2_CREATE_AND_WRITE, "Create And Write (OSD-2)"},
@@ -3027,7 +3307,15 @@ static const scsi_osd_svcaction_t scsi_osd_svcaction[] = {
     {OSD_FLUSH_PARTITION, dissect_osd_flush_partition},
     {OSD_FLUSH_OSD, dissect_osd_flush_osd},
     {OSD_2_LIST, dissect_osd_list},
+    {OSD_2_CREATE_PARTITION, dissect_osd_create_partition},
     {OSD_2_CREATE_USER_TRACKING_COLLECTION, dissect_osd2_create_user_tracking_collection},
+    {OSD_2_REMOVE_PARTITION, dissect_osd_remove_partition},
+    {OSD_2_LIST_COLLECTION, dissect_osd_list},
+    {OSD_2_CREATE_USER_TRACKING_COLLECTION, dissect_osd2_create_user_tracking_collection},
+    {OSD_2_REMOVE_COLLECTION, dissect_osd_remove_collection},
+    {OSD_2_GET_ATTRIBUTES, dissect_osd_get_attributes},
+    {OSD_2_SET_ATTRIBUTES, dissect_osd_set_attributes},
+    {OSD_2_QUERY, dissect_osd2_query},
     {0, NULL},
 };
 
@@ -3699,8 +3987,15 @@ proto_register_scsi_osd(void)
          {"LIST ATTR flag", "scsi_osd2.list_attr", FT_BOOLEAN, 8, 0, 0x40, NULL, HFILL}},
         { &hf_scsi_osd2_object_descriptor_format,
          {"Object Descriptor Format", "scsi_osd2.object_descriptor_format", FT_UINT8, BASE_HEX, VALS(scsi_osd2_object_descriptor_format_val), 0xFC, NULL, HFILL}},
+        { &hf_scsi_osd2_immed_tr,
+         {"Immed TR", "scsi_osd2.immed_tr", FT_UINT8, BASE_DEC, 0, 0x80, NULL, HFILL}},
+        { &hf_scsi_osd2_remove_scope,
+        {"Remove scope","scsi_osd2.remove_scope", FT_UINT8, BASE_HEX, VALS(scsi_osd2_remove_scope), 0x07, NULL, HFILL}},
         { &hf_scsi_osd2_source_collection_object_id,
-         {"Source Collection Object ID", "scsi_osd2.source_collection_object_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}},{ &hf_scsi_osd2_cdb_continuation_length,
+         {"Source Collection Object ID", "scsi_osd2.source_collection_object_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}},
+        { &hf_scsi_osd2_matches_collection_object_id,
+         {"Matches Collection Object ID", "scsi_osd2.matches_collection_object_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}},
+        { &hf_scsi_osd2_cdb_continuation_length,
          {"CDB Continuation Length", "scsi_osd2.cdb_continuation.length", FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL}},
         { &hf_scsi_osd2_cdb_continuation_format,
          {"CDB Continuation Format", "scsi_osd2.cdb_continuation.format", FT_UINT8, BASE_HEX, VALS(scsi_osd2_cdb_continuation_format_val), 0, NULL, HFILL}},
@@ -3712,6 +4007,18 @@ proto_register_scsi_osd(void)
          {"Descriptor Pad Length", "scsi_osd2.cdb_continuation.desc.padlen", FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL}},
         { &hf_scsi_osd2_cdb_continuation_descriptor_length,
          {"Descriptor Length", "scsi_osd2.cdb_continuation.desc.length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
+        { &hf_scsi_osd2_query_type,
+         {"Query Type", "scsi_osd2.query.type", FT_UINT8, BASE_HEX, VALS(scsi_osd2_query_type_vals), 0x0f, NULL, HFILL}},
+        { &hf_scsi_osd2_query_entry_length,
+         {"Entry Length", "scsi_osd2.query.entry.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
+        { &hf_scsi_osd2_query_attributes_page,
+         {"Attributes Page", "scsi_osd2.query.entry.page", FT_UINT32, BASE_HEX, VALS(attributes_page_vals), 0, NULL, HFILL}},
+        { &hf_scsi_osd2_query_attribute_number,
+         {"Attribute Number", "scsi_osd2.query.entry.number", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
+        { &hf_scsi_osd2_query_minimum_attribute_value_length,
+         {"Minimum Attribute Value Length", "scsi_osd2.query.entry.min_length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
+        { &hf_scsi_osd2_query_maximum_attribute_value_length,
+         {"Maximum Attribute Value Length", "scsi_osd2.query.entry.max_length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
     };
 
     /* Setup protocol subtree array */
@@ -3725,7 +4032,8 @@ proto_register_scsi_osd(void)
         &ett_osd_get_attributes,
         &ett_osd_set_attributes,
         &ett_osd_multi_object,
-        &ett_osd_attribute
+        &ett_osd_attribute,
+        &ett_osd2_query_criteria_entry,
     };
 
     /* Setup expert info */
@@ -3740,6 +4048,7 @@ proto_register_scsi_osd(void)
         { &ei_osd2_cdb_continuation_descriptor_length_invalid, {"scsi_osd2.cdb_continuation.desc.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid descriptor length (not a multiple of 8)", EXPFILL }},
         { &ei_osd2_cdb_continuation_length_invalid, {"scsi_osd2.cdb_continuation.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid CDB continuation length", EXPFILL }},
         { &ei_osd_attr_length_invalid, {"scsi_osd.attribute_length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid Attribute Length", EXPFILL }},
+        { &ei_osd2_query_values_equal,{"scsi_osd2.query.entry.equal",PI_PROTOCOL,PI_NOTE,"The minimum and maximum values are equal", EXPFILL }},
     };
 
     /* Register the protocol name and description */
