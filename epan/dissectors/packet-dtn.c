@@ -1257,10 +1257,8 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     proto_item *payload_item, *ti;
     proto_tree *payload_tree;
     int         sdnv_length;
-    int         header_start;
     int         payload_length;
 
-    header_start = offset;      /*Used to compute total payload length*/
     payload_item = proto_tree_add_text(tree, tvb, offset, -1, "Payload Header");
     payload_tree = proto_item_add_subtree(payload_item, ett_payload_hdr);
 
@@ -2306,7 +2304,7 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             /*
              * Returns payload size or 0 if can't parse payload
              */
-            offset = dissect_payload_header(tree, tvb, pinfo, offset, version, pri_hdr_procflags, &lastheader);
+            offset = dissect_payload_header(bundle_tree, tvb, pinfo, offset, version, pri_hdr_procflags, &lastheader);
         }
         else {  /*Assume anything else is a Metadata Block*/
             offset = display_metadata_block(tree, tvb, offset, &lastheader);
