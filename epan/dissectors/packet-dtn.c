@@ -1669,6 +1669,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         break;
     }   /* End Switch */
 
+    proto_item_set_len(admin_record_item, offset - start_offset);
     *success = TRUE;
     return offset;
 }
