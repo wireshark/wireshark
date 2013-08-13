@@ -1128,6 +1128,15 @@ AC_SUBST(SYSTEMCONFIGURATION_FRAMEWORKS)
 AC_SUBST(COREFOUNDATION_FRAMEWORKS)
 AC_SUBST(OSX_APP_FLAGS)
 
+#
+# On Solaris, check whether we have getexecname().
+#
+case "$host_os" in
+solaris*)
+	AC_CHECK_FUNC(getexecname)
+	;;
+esac
+
 dnl Look in /usr/local for header files and libraries ?
 dnl XXX FIXME don't include /usr/local if it is already in the system
 dnl search path as this causes gcc 3.2 on Linux to complain about a change

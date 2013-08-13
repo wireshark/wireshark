@@ -333,35 +333,30 @@ static gboolean running_in_build_directory_flag = FALSE;
  * so we try this first and, if that fails, use dladdr(main) if
  * available.
  *
- * In particular:
- *
- *    older versions of GNU libc's dynamic linker, as used on Linux;
- *    older versions of FreeBSD's dynamic linker;
- *    current versions of NetBSD's dynamic linker as of 2013-08-12;
- *    current versions of OpenBSD's dynamic linker as of 2013-08-12;
- *    older versions of DragonFly BSD's dynamic linker;
- *
- * just return argv[0], so we cannot trust dladdr() on those platforms
- * any more than we can trust argv[0].
+ * In particular, some dynamic linkers supply a dladdr() such that
+ * dladdr(main) just returns something derived from argv[0], so
+ * just using dladdr(main) is the wrong thing to do if there's
+ * another mechanism that can get you a more reliable version of
+ * the executable path.
  *
  * However, at least in newer versions of DragonFly BSD, the dynamic
  * linker *does* get it from the aux vector passed to the program
- * by the kernel, and there's no sysctl to get the path, so dladdr()
- * is the only way to get the path, other than argv[0].
+ * by the kernel,  readlink /proc/curproc/file - which came first?
  *
- * So we try this first, on those of the above platforms that, in some
- * versions, provide a mechanism to get it that isn't used by the
- * dynamic linker used by those versions and, if that fails and
- * dladdr() is available, fall back on dladdr(), and if that fails
- * or is unavailable, just go with argv[0].
+ * On OpenBSD, dladdr(main) returns a value derived from argv[0],
+ * and there doesn't appear to be any way to get the executable path
+ * from the kernel, so we're out of luck there.
  *
- * This is not guaranteed to return a non-null value; if it returns null,
- * our caller must use some other mechanism, such as dladdr(main) or
- * looking at argv[0].
+ * So, on platforms where some versions have a version of dladdr()
+ * that gives an argv[0]-based path and that also have a mechanism
+ * to get a more reliable version of the path, we try that.  On
+ * other platforms, we return NULL.  If our caller gets back a NULL
+ * from us, it falls back on dladdr(main) if dladdr() is available,
+ * and if that fails or is unavailable, it falls back on processing
+ * argv[0] itself.
  *
  * This is not guaranteed to return an absolute path; if it doesn't,
- * our caller must prepend the current directory if it's a path, or
- * search for it in $PATH if it's only a name.
+ * our caller must prepend the current directory if it's a path.
  *
  * This is not guaranteed to return the "real path"; it might return
  * something with symbolic links in the path.  Our caller must
@@ -384,12 +379,22 @@ get_executable_path(void)
     }
     return executable_path;
 #elif defined(__linux__)
+    /*
+     * In older versions of GNU libc's dynamic linker, as used on Linux,
+     * dladdr(main) supplies a path based on argv[0], so we use
+     * /proc/self/exe instead; there are Linux distributions with
+     * kernels that support /proc/self/exe and those older versions
+     * of the dynamic linker, and this will get a better answer on
+     * those versions.
+     *
+     * It only works on Linux 2.2 or later, so we just give up on
+     * earlier versions.
+     *
+     * XXX - are there OS versions that support "exe" but not "self"?
+     */
     struct utsname name;
     static char executable_path[PATH_MAX];
 
-    /*
-     * This only works on Linux 2.2 or later.
-     */
     if (uname(&name) == -1)
         return NULL;
     if (strncmp(name.release, "1.", 2) == 0)
@@ -403,6 +408,14 @@ get_executable_path(void)
         return NULL;
     return executable_path;
 #elif defined(__FreeBSD__) && defined(KERN_PROC_PATHNAME)
+    /*
+     * In older versions of FreeBSD's dynamic linker, dladdr(main)
+     * supplies a path based on argv[0], so we use the KERN_PROC_PATHNAME
+     * sysctl instead; there are, I think, versions of FreeBSD
+     * that support the sysctl that have and those older versions
+     * of the dynamic linker, and this will get a better answer on
+     * those versions.
+     */
     int mib[4];
     char executable_path*;
     size_t path_buf_size;
@@ -421,7 +434,40 @@ get_executable_path(void)
             return NULL;
     }
     return executable_path;
-#elif defined(sun) || defined(__sun)
+#elif defined(__NetBSD__)
+    /*
+     * In all versions of NetBSD's dynamic linker as of 2013-08-12,
+     * dladdr(main) supplies a path based on argv[0], so we use
+     * /proc/curproc/exe instead.
+     *
+     * XXX - are there OS versions that support "exe" but not "curproc"
+     * or "self"?  Are there any that support "self" but not "curproc"?
+     */
+    static char executable_path[PATH_MAX];
+
+    if (readlink("/proc/curproc/exe", executable_path, sizeof executable_path) == -1)
+        return NULL;
+    return executable_path;
+#elif defined(__DragonFly__)
+    /*
+     * In older versions of DragonFly BSD's dynamic linker, dladdr(main)
+     * supplies a path based on argv[0], so we use /proc/curproc/file
+     * instead; it appears to be supported by all versions of DragonFly
+     * BSD.
+     */
+    static char executable_path[PATH_MAX];
+
+    if (readlink("/proc/curproc/file", executable_path, sizeof executable_path) == -1)
+        return NULL;
+    return executable_path;
+#elif (defined(sun) || defined(__sun)) && defined(HAVE_GETEXECNAME)
+    /*
+     * It appears that getexecname() dates back to at least Solaris 8,
+     * but /proc/*/path is first documented in the Solaris 10 documentation,
+     * so we use getexecname() if available, rather than /proc/self/path/a.out
+     * (which isn't documented, but appears to be a symlink to the
+     * executable image file).
+     */
     return getexecname();
 #else
     /* Fill in your favorite UN*X's code here, if there is something */
