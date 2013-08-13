@@ -476,7 +476,7 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     cos_flag_item = proto_tree_add_item(primary_tree, hf_bundle_cosflags, tvb,
                                                 offset, 1, ENC_BIG_ENDIAN);
     cos_flag_tree = proto_item_add_subtree(cos_flag_item, ett_cos_flags);
-    proto_tree_add_uint(cos_flag_tree, hf_bundle_cosflags_priority,
+    proto_tree_add_item(cos_flag_tree, hf_bundle_cosflags_priority,
                                                 tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Status Report Request Flags */
     ++offset;
