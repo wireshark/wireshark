@@ -26,6 +26,11 @@
 #define __ETYPES_H__
 
 #include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <epan/value_string.h>
 
 /*
@@ -545,4 +550,8 @@
 
 WS_DLL_PUBLIC const value_string etype_vals[];
 
-#endif /* etypes.h */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __ETYPES_H__ */
