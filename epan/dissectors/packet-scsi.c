@@ -846,6 +846,16 @@ static const value_string scsi_evpd_pagecode_val[] = {
     {0, NULL},
 };
 
+static const value_string mrr_val[] = {
+    {0x0,       "Media rotation speed not reported"},
+    {0x1,       "Non-rotating media"},
+    /* 0x2 - 0x400 - reserved */
+    {5400,      "5,400 RPM"},
+    {7200,      "7,200 RPM"},
+    {10000,     "10,000 RPM"},
+    {15000,     "15,000 RPM"},
+    {0, NULL},
+};
 static const value_string scsi_log_pc_val[] = {
     {0, "Threshold Values"},
     {1, "Cumulative Values"},
@@ -6587,7 +6597,7 @@ proto_register_scsi(void)
                 NULL, 0, NULL, HFILL}},
         { &hf_scsi_inquiry_bdc_mrr,
             { "Medium Rotation Rate", "scsi.inquiry.bdc.mrr", FT_UINT16, BASE_DEC,
-                NULL, 0, NULL, HFILL}},
+                VALS(mrr_val), 0, NULL, HFILL}},
         { &hf_scsi_inquiry_bdc_pt,
             { "Product Type", "scsi.inquiry.bdc.pt", FT_UINT8, BASE_DEC,
                 NULL, 0, NULL, HFILL}},
