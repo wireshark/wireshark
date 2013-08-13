@@ -84,6 +84,7 @@ typedef struct _packet_counts {
 #define PACKET_COUNTS_SIZE sizeof(packet_counts) / sizeof (gint)
 
 extern void packet_init(void);
+extern void packet_cache_proto_handles(void);
 extern void packet_cleanup(void);
 
 /* Handle for dissectors you call directly or register with "dissector_add_uint()".

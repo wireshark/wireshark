@@ -111,6 +111,13 @@ static GHashTable *heur_dissector_lists = NULL;
 void
 packet_init(void)
 {
+	registered_dissectors = g_hash_table_new_full(g_str_hash, g_str_equal,
+			NULL, g_free);
+}
+
+void
+packet_cache_proto_handles(void)
+{
 	frame_handle = find_dissector("frame");
 	g_assert(frame_handle != NULL);
 
@@ -2000,12 +2007,6 @@ register_dissector(const char *name, dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
-	/* Create our hash table if it doesn't already exist */
-	if (registered_dissectors == NULL) {
-		registered_dissectors = g_hash_table_new(g_str_hash, g_str_equal);
-		g_assert(registered_dissectors != NULL);
-	}
-
 	/* Make sure the registration is unique */
 	g_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
 
@@ -2025,12 +2026,6 @@ dissector_handle_t
 new_register_dissector(const char *name, new_dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
-
-	/* Create our hash table if it doesn't already exist */
-	if (registered_dissectors == NULL) {
-		registered_dissectors = g_hash_table_new(g_str_hash, g_str_equal);
-		g_assert(registered_dissectors != NULL);
-	}
 
 	/* Make sure the registration is unique */
 	g_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
