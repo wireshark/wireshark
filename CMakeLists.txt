@@ -943,6 +943,7 @@ if(BUILD_mergecap)
 	set(mergecap_LIBS
 		wiretap
 		${ZLIB_LIBRARIES}
+		${CMAKE_DL_LIBS}
 	)
 	set(mergecap_FILES
 		mergecap.c
@@ -960,6 +961,7 @@ if(BUILD_reordercap)
 	set(reordercap_LIBS
 		wiretap
 		${ZLIB_LIBRARIES}
+		${CMAKE_DL_LIBS}
 	)
 	set(reordercap_FILES
 		reordercap.c
@@ -979,6 +981,7 @@ if(BUILD_capinfos)
 		wsutil
 		${ZLIB_LIBRARIES}
 		${GCRYPT_LIBRARIES}
+		${CMAKE_DL_LIBS}
 	)
 	set(capinfos_FILES
 		capinfos.c
@@ -995,6 +998,7 @@ if(BUILD_editcap)
 	set(editcap_LIBS
 		wiretap
 		${ZLIB_LIBRARIES}
+		${CMAKE_DL_LIBS}
 	)
 	set(editcap_FILES
 		editcap.c

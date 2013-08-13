@@ -65,7 +65,14 @@ check_include_file("winsock2.h"          HAVE_WINSOCK2_H)
 
 #Functions
 include(CheckFunctionExists)
+include(CMakePushCheckState)
 check_function_exists("chown"            HAVE_CHOWN)
+
+cmake_push_check_state()
+set(CMAKE_REQUIRED_LIBRARIES ¼{CMAKE_DL_LIBS})
+check_function_exists("dladdr"           HAVE_DLADDR)
+cmake_pop_check_state()
+
 check_function_exists("gethostbyname2"   HAVE_GETHOSTBYNAME2)
 check_function_exists("getopt"           HAVE_GETOPT)
 check_function_exists("getprotobynumber" HAVE_GETPROTOBYNUMBER)
