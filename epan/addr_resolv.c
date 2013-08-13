@@ -896,8 +896,8 @@ host_lookup(const guint addr, gboolean *found)
         }
         if (tp->is_dummy_entry){
             *found = FALSE;
-            return tp;
         }
+        return tp;
     }
 
 try_resolv:
@@ -2185,7 +2185,7 @@ read_hosts_file (const char *hostspath)
     return TRUE;
 } /* read_hosts_file */
 
-    gboolean
+gboolean
 add_hosts_file (const char *hosts_file)
 {
     gboolean found = FALSE;
@@ -2211,7 +2211,7 @@ add_hosts_file (const char *hosts_file)
     return TRUE;
 }
 
-    gboolean
+gboolean
 add_ip_name_from_string (const char *addr, const char *name)
 {
     guint32 host_addr[4]; /* IPv4 */
@@ -2438,7 +2438,7 @@ subnet_name_lookup_init(void)
  *  External Functions
  */
 
-    void
+void
 addr_resolve_pref_init(module_t *nameres)
 {
     prefs_register_bool_preference(nameres, "mac_name",
@@ -2838,14 +2838,6 @@ host_name_lookup_init(void)
     }
 
     /*
-     * Load the user's hosts file no matter what, if they have one.
-     */
-    hostspath = get_persconffile_path(ENAME_HOSTS, TRUE);
-    if (!read_hosts_file(hostspath) && errno != ENOENT) {
-        report_open_failure(hostspath, errno, FALSE);
-    }
-    g_free(hostspath);
-    /*
      * Load the global hosts file, if we have one.
      */
     if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
@@ -2855,6 +2847,14 @@ host_name_lookup_init(void)
         }
         g_free(hostspath);
     }
+    /*
+     * Load the user's hosts file no matter what, if they have one.
+     */
+    hostspath = get_persconffile_path(ENAME_HOSTS, TRUE);
+    if (!read_hosts_file(hostspath) && errno != ENOENT) {
+        report_open_failure(hostspath, errno, FALSE);
+    }
+    g_free(hostspath);
 #ifdef HAVE_C_ARES
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
     if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
