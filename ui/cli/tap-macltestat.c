@@ -245,7 +245,8 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             return 1;
         case SI_RNTI:
             hs->common_stats.sib_frames++;
-            hs->common_stats.sib_bytes += si->single_number_of_bytes;        	
+            hs->common_stats.sib_bytes += si->single_number_of_bytes;
+            return 1;
         case NO_RNTI:
             hs->common_stats.mib_frames++;
             return 1;
