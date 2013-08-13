@@ -106,6 +106,8 @@ static int hf_ltp_reassembled_length = -1;
 static expert_field ei_ltp_neg_reception_claim_count = EI_INIT;
 static expert_field ei_ltp_mal_reception_claim = EI_INIT;
 
+static dissector_handle_t bundle_handle;
+
 static const value_string ltp_type_codes[] = {
 	{0x0, "Red data, NOT {Checkpoint, EORP or EOB}"},
 	{0x1, "Red data, Checkpoint, NOT {EORP or EOB}"},
@@ -360,7 +362,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 			ltp_data_data_tree = proto_item_add_subtree(ltp_data_data_item, ett_data_data_segm);
 
 			datatvb = tvb_new_subset(new_tvb, data_offset, (int)data_length - dissected_data_size, tvb_length(new_tvb));
-			bundle_size = dissect_complete_bundle(datatvb, pinfo, ltp_data_data_tree);
+			bundle_size = call_dissector(bundle_handle, datatvb, pinfo, ltp_data_data_tree);
 			if(bundle_size == 0) {  /*Couldn't parse bundle*/
 				col_set_str(pinfo->cinfo, COL_INFO, "Dissection Failed");
 				return 0;           /*Give up*/
@@ -1001,6 +1003,7 @@ proto_reg_handoff_ltp(void)
 
 	if (!initialized) {
 		ltp_handle = new_create_dissector_handle(dissect_ltp, proto_ltp);
+        bundle_handle = find_dissector("bundle");
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("udp.port", currentPort, ltp_handle);

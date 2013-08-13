@@ -151,6 +151,5 @@
 
 int evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount);
 gint64 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
-int dissect_complete_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 
