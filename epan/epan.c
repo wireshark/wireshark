@@ -123,7 +123,6 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 void
 epan_cleanup(void)
 {
-	cleanup_dissection();
 	dfilter_cleanup();
 	proto_cleanup();
 	prefs_cleanup();
@@ -184,10 +183,12 @@ epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 void
 epan_free(epan_t *session)
 {
-	/* XXX, it should take session as param */
-	cleanup_dissection();
+	if (session) {
+		/* XXX, it should take session as param */
+		cleanup_dissection();
 
-	g_slice_free(epan_t, session);
+		g_slice_free(epan_t, session);
+	}
 }
 
 void

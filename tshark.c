@@ -2084,6 +2084,7 @@ main(int argc, char *argv[])
 
   draw_tap_listeners(TRUE);
   funnel_dump_all_text_windows();
+  epan_free(cfile.epan);
   epan_cleanup();
 
   output_fields_free(output_fields);

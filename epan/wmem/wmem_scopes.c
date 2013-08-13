@@ -106,18 +106,8 @@ wmem_enter_file_scope(void)
 void
 wmem_leave_file_scope(void)
 {
-    /* XXX: cleanup_dissection (the current caller of this function) is
-     * itself sometimes called when no file exists to be cleaned up. It's not
-     * a huge problem really, but it means that we can't assert
-     * file_scope->in_scope here because it's not always true.
-     * 
-     * At some point the code should be fixed so that cleanup_dissection is
-     * only ever called when it's really needed.
-     *
-     * g_assert(file_scope->in_scope);
-     */
-
     g_assert(file_scope);
+    g_assert(file_scope->in_scope);
     g_assert(!packet_scope->in_scope);
 
     wmem_free_all(file_scope);
