@@ -37,6 +37,9 @@
 #ifdef HAVE_GEOIP
 #include <epan/geoip_db.h>
 #endif
+#ifdef HAVE_LUA
+#include <epan/wslua/init_wslua.h>
+#endif
 
 #include "../log.h"
 #include "../version_info.h"
@@ -248,7 +251,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 					  registering plugins, handingoff plugins,
 					  preferences and configuration */
 #ifdef HAVE_LUA
-      ul_count++;   /* additional one for lua plugins */
+      ul_count += wslua_count_plugins (); /* get count of lua plugins */
 #endif
 #ifdef HAVE_PYTHON
       ul_count += 2;   /* additional 2 for python register and handoff */

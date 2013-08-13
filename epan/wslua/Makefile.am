@@ -46,6 +46,7 @@ libwslua_la_SOURCES = \
 	taps_wslua.c \
 	register_wslua.c \
 	init_wslua.c \
+	init_wslua.h \
 	wslua.h
 
 libwslua_la_LIBADD = @LUA_LIBS@
