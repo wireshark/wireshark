@@ -258,10 +258,15 @@ free_pref(gpointer data, gpointer user_data _U_)
 static guint
 free_module_prefs(module_t *module, gpointer data _U_)
 {
-    g_list_foreach(module->prefs, free_pref, NULL);
-    g_list_free(module->prefs);
+    if (module->prefs) {
+        g_list_foreach(module->prefs, free_pref, NULL);
+        g_list_free(module->prefs);
+    }
     module->prefs = NULL;
     module->numprefs = 0;
+    if (module->submodules) {
+        prefs_modules_foreach_submodules(module, free_module_prefs, NULL);
+    }
     /*  We don't free the actual module: its submodules pointer points to
         a wmem_tree and the module itself is stored in a wmem_tree
      */
