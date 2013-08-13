@@ -1731,7 +1731,9 @@ cf_reftime_packets(capture_file *cf)
 void
 cf_redissect_packets(capture_file *cf)
 {
-  rescan_packets(cf, "Reprocessing", "all packets", TRUE);
+  if (cf->state != FILE_CLOSED) {
+    rescan_packets(cf, "Reprocessing", "all packets", TRUE);
+  }
 }
 
 gboolean
