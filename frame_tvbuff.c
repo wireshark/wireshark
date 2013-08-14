@@ -56,6 +56,9 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	if (cfile.wth != frame_tvb->wth)
 		return FALSE;
 
+	/* XXX, frame_tvb->tvb.length + frame_tvb->offset might be not real captured packet length
+	 *      can it cause some problems for wiretap readers?
+	 */
 	if (!wtap_seek_read(frame_tvb->wth, frame_tvb->file_off, phdr, buf, frame_tvb->tvb.length + frame_tvb->offset, &err, &err_info)) {
 		switch (err) {
 			case WTAP_ERR_UNSUPPORTED_ENCAP:
