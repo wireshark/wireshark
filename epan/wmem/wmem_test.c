@@ -23,14 +23,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <glib.h>
+
 #include "wmem.h"
 #include "wmem_allocator.h"
 #include "wmem_allocator_block.h"
 #include "wmem_allocator_simple.h"
 #include "wmem_allocator_strict.h"
-#include "config.h"
 
 #define MAX_ALLOC_SIZE          (1024*64)
 #define MAX_SIMULTANEOUS_ALLOCS  1024
