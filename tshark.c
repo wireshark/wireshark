@@ -877,7 +877,7 @@ main(int argc, char *argv[])
   char                *init_progfile_dir_error;
   int                  opt;
   struct option     long_options[] = {
-    {"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
+    {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;

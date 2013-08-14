@@ -4131,7 +4131,7 @@ main(int argc, char *argv[])
     GString          *runtime_info_str;
     int               opt;
     struct option     long_options[] = {
-        {"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
+        {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
         {0, 0, 0, 0 }
     };
 
