@@ -27,6 +27,10 @@
 
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Maximum length of an IEEE 802.3 frame; Ethernet type/length values
  * less than or equal to it are lengths.
@@ -540,4 +544,8 @@
 
 WS_DLL_PUBLIC const value_string etype_vals[];
 
-#endif /* etypes.h */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __ETYPES_H__ */
