@@ -1854,7 +1854,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
             offset = dissect_usb_interface_assn_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
             break;
         default:
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            next_tvb = tvb_new_subset(tvb, offset, next_len, next_len);
             if (dissector_try_uint(usb_descriptor_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent_tree)) {
                 offset += next_len;
             } else {
