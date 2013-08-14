@@ -516,7 +516,7 @@ packets_bar_update(void)
             }
             if(!cfile.is_tempfile){
                 /* Loading an existing file */
-                gulong computed_elapsed = cf_get_computed_elapsed();
+                gulong computed_elapsed = cf_get_computed_elapsed(&cfile);
                 g_string_append_printf(packets_str, " " UTF8_MIDDLE_DOT " Load time: %lu:%02lu.%03lu",
                                        computed_elapsed/60000,
                                        computed_elapsed%60000/1000,

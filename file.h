@@ -392,7 +392,7 @@ void cf_reftime_packets(capture_file *cf);
 /**
  * Return the time it took to load the file
  */
-gulong cf_get_computed_elapsed(void);
+gulong cf_get_computed_elapsed(capture_file *cf);
 
 /**
  * "Something" has changed, rescan all packets.

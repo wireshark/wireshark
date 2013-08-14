@@ -108,13 +108,6 @@
 gboolean auto_scroll_live;
 #endif
 
-static guint32 cum_bytes;
-static const frame_data *ref;
-static frame_data *prev_dis;
-static frame_data *prev_cap;
-
-static gulong computed_elapsed;
-
 static void cf_reset_state(capture_file *cf);
 
 static int read_packet(capture_file *cf, dfilter_t *dfcode,
@@ -278,21 +271,16 @@ cf_timestamp_auto_precision(capture_file *cf)
 }
 
 gulong
-cf_get_computed_elapsed(void)
+cf_get_computed_elapsed(capture_file *cf)
 {
-  return computed_elapsed;
-}
-
-static void reset_elapsed(void)
-{
-  computed_elapsed = 0;
+  return cf->computed_elapsed;
 }
 
 /*
  * GLIB_CHECK_VERSION(2,28,0) adds g_get_real_time which could minimize or
  * replace this
  */
-static void compute_elapsed(GTimeVal *start_time)
+static void compute_elapsed(capture_file *cf, GTimeVal *start_time)
 {
   gdouble  delta_time;
   GTimeVal time_now;
@@ -302,7 +290,7 @@ static void compute_elapsed(GTimeVal *start_time)
   delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
     time_now.tv_usec - start_time->tv_usec;
 
-  computed_elapsed = (gulong) (delta_time / 1000); /* ms */
+  cf->computed_elapsed = (gulong) (delta_time / 1000); /* ms */
 }
 
 static const nstime_t *
@@ -310,11 +298,11 @@ ws_get_frame_ts(void *data, guint32 frame_num)
 {
   capture_file *cf = (capture_file *) data;
 
-  if (prev_dis && prev_dis->num == frame_num)
-    return &prev_dis->abs_ts;
+  if (cf->prev_dis && cf->prev_dis->num == frame_num)
+    return &cf->prev_dis->abs_ts;
 
-  if (prev_cap && prev_cap->num == frame_num)
-    return &prev_cap->abs_ts;
+  if (cf->prev_cap && cf->prev_cap->num == frame_num)
+    return &cf->prev_cap->abs_ts;
 
   if (cf->frames) {
     frame_data *fd = frame_data_sequence_find(cf->frames, frame_num);
@@ -386,7 +374,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   /* No user changes yet. */
   cf->unsaved_changes = FALSE;
 
-  reset_elapsed();
+  cf->computed_elapsed = 0;
 
   cf->cd_t        = wtap_file_type(cf->wth);
   cf->linktypes = g_array_sized_new(FALSE, FALSE, (guint) sizeof(int), 1);
@@ -410,10 +398,10 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf->frames = new_frame_data_sequence();
 
   nstime_set_zero(&cf->elapsed_time);
-  ref = NULL;
-  prev_dis = NULL;
-  prev_cap = NULL;
-  cum_bytes = 0;
+  cf->ref = NULL;
+  cf->prev_dis = NULL;
+  cf->prev_cap = NULL;
+  cf->cum_bytes = 0;
 
   /* Adjust timestamp precision if auto is selected, col width will be adjusted */
   cf_timestamp_auto_precision(cf);
@@ -747,7 +735,7 @@ cf_read(capture_file *cf, gboolean reloading)
   postseq_cleanup_all_protocols();
 
   /* compute the time it took to load the file */
-  compute_elapsed(&start_time);
+  compute_elapsed(cf, &start_time);
 
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether
@@ -1172,8 +1160,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   gint            row               = -1;
 
   frame_data_set_before_dissect(fdata, &cf->elapsed_time,
-                                &ref, prev_dis);
-  prev_cap = fdata;
+                                &cf->ref, cf->prev_dis);
+  cf->prev_cap = fdata;
 
   /* Dissect the frame. */
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
@@ -1208,8 +1196,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   if (fdata->flags.passed_dfilter || fdata->flags.ref_time)
   {
-    frame_data_set_after_dissect(fdata, &cum_bytes);
-    prev_dis = fdata;
+    frame_data_set_after_dissect(fdata, &cf->cum_bytes);
+    cf->prev_dis = fdata;
 
     /* If we haven't yet seen the first frame, this is it.
 
@@ -1261,7 +1249,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
      frames in the file so far. */
   framenum = cf->count + 1;
 
-  frame_data_init(&fdlocal, framenum, phdr, offset, cum_bytes);
+  frame_data_init(&fdlocal, framenum, phdr, offset, cf->cum_bytes);
 
   passed = TRUE;
   if (cf->rfcode) {
@@ -1890,10 +1878,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   /* Iterate through the list of frames.  Call a routine for each frame
      to check whether it should be displayed and, if so, add it to
      the display list. */
-  ref = NULL;
-  prev_dis = NULL;
-  prev_cap = NULL;
-  cum_bytes = 0;
+  cf->ref = NULL;
+  cf->prev_dis = NULL;
+  cf->prev_cap = NULL;
+  cf->cum_bytes = 0;
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -2049,7 +2037,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     packet_list_recreate_visible_rows();
 
   /* Compute the time it took to filter the file */
-  compute_elapsed(&start_time);
+  compute_elapsed(cf, &start_time);
 
   packet_list_thaw();
 
@@ -2129,15 +2117,15 @@ ref_time_packets(capture_file *cf)
   frame_data *fdata;
   nstime_t rel_ts;
 
-  ref = NULL;
-  prev_dis = NULL;
-  cum_bytes = 0;
+  cf->ref = NULL;
+  cf->prev_dis = NULL;
+  cf->cum_bytes = 0;
 
   for (framenum = 1; framenum <= cf->count; framenum++) {
     fdata = frame_data_sequence_find(cf->frames, framenum);
 
     /* just add some value here until we know if it is being displayed or not */
-    fdata->cum_bytes = cum_bytes + fdata->pkt_len;
+    fdata->cum_bytes = cf->cum_bytes + fdata->pkt_len;
 
     /*
      *Timestamps
@@ -2146,24 +2134,24 @@ ref_time_packets(capture_file *cf)
     /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the first packet. */
-    if (ref == NULL)
-        ref = fdata;
+    if (cf->ref == NULL)
+        cf->ref = fdata;
       /* if this frames is marked as a reference time frame, reset
         firstsec and firstusec to this frame */
     if (fdata->flags.ref_time)
-        ref = fdata;
+        cf->ref = fdata;
 
     /* If we don't have the time stamp of the previous displayed packet,
      it's because this is the first displayed packet.  Save the time
      stamp of this packet as the time stamp of the previous displayed
      packet. */
-    if (prev_dis == NULL) {
-        prev_dis = fdata;
+    if (cf->prev_dis == NULL) {
+        cf->prev_dis = fdata;
     }
 
     /* Get the time elapsed between the first packet and this packet. */
-    fdata->frame_ref_num = (fdata != ref) ? ref->num : 0;
-    nstime_delta(&rel_ts, &fdata->abs_ts, &ref->abs_ts);
+    fdata->frame_ref_num = (fdata != cf->ref) ? cf->ref->num : 0;
+    nstime_delta(&rel_ts, &fdata->abs_ts, &cf->ref->abs_ts);
 
     /* If it's greater than the current elapsed time, set the elapsed time
      to it (we check for "greater than" so as not to be confused by
@@ -2176,8 +2164,8 @@ ref_time_packets(capture_file *cf)
     /* If this frame is displayed, get the time elapsed between the
      previous displayed packet and this packet. */
     if ( fdata->flags.passed_dfilter ) {
-        fdata->prev_dis_num = prev_dis->num;
-        prev_dis = fdata;
+        fdata->prev_dis_num = cf->prev_dis->num;
+        cf->prev_dis = fdata;
     }
 
     /*
@@ -2189,11 +2177,11 @@ ref_time_packets(capture_file *cf)
         even if they dont pass the display filter */
         if (fdata->flags.ref_time) {
             /* if this was a TIME REF frame we should reset the cum_bytes field */
-            cum_bytes = fdata->pkt_len;
-            fdata->cum_bytes =  cum_bytes;
+            cf->cum_bytes = fdata->pkt_len;
+            fdata->cum_bytes = cf->cum_bytes;
         } else {
             /* increase cum_bytes with this packets length */
-            cum_bytes += fdata->pkt_len;
+            cf->cum_bytes += fdata->pkt_len;
         }
     }
   }
@@ -4397,7 +4385,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   wtap_sequential_close(cf->wth);
 
   /* compute the time it took to load the file */
-  compute_elapsed(&start_time);
+  compute_elapsed(cf, &start_time);
 
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether

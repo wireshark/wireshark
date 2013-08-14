@@ -314,7 +314,7 @@ void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
         }
         if(!cap_file_->is_tempfile) {
             /* Loading an existing file */
-            gulong computed_elapsed = cf_get_computed_elapsed();
+            gulong computed_elapsed = cf_get_computed_elapsed(cap_file_);
             packets_str.append(QString(tr(" %1  Load time: %2:%3.%4"))
                                         .arg(UTF8_MIDDLE_DOT)
                                         .arg(computed_elapsed/60000)
