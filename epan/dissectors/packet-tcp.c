@@ -306,14 +306,12 @@ static expert_field ei_tcp_analysis_zero_window_probe_ack = EI_INIT;
 static expert_field ei_tcp_scps_capable = EI_INIT;
 static expert_field ei_tcp_option_snack_sequence = EI_INIT;
 static expert_field ei_tcp_short_segment = EI_INIT;
-static expert_field ei_tcp_ack_nonzero = EI_INIT;
 static expert_field ei_tcp_connection_sack = EI_INIT;
 static expert_field ei_tcp_connection_syn = EI_INIT;
 static expert_field ei_tcp_connection_fin = EI_INIT;
 static expert_field ei_tcp_connection_rst = EI_INIT;
 static expert_field ei_tcp_checksum_ffff = EI_INIT;
 static expert_field ei_tcp_checksum_bad = EI_INIT;
-static expert_field ei_tcp_urgent_pointer_non_zero = EI_INIT;
 
 /* Some protocols such as encrypted DCE/RPCoverHTTP have dependencies
  * from one PDU to the next PDU and require that they are called in sequence.
@@ -867,12 +865,12 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
      * There's no guarantee that the ACK field of a SYN
      * contains zeros; get the ISN from the first segment
      * with the ACK bit set instead (usually the SYN/ACK).
-	 *
-	 * If the SYN and SYN/ACK were received out-of-order,
-	 * the ISN is ack-1. If we missed the SYN/ACK, but got
-	 * the last ACK of the 3WHS, the ISN is ack-1. For all
-	 * all other packets the ISN is unknown, so ack-1 is
-	 * as good a guess as ack.
+     *
+     * If the SYN and SYN/ACK were received out-of-order,
+     * the ISN is ack-1. If we missed the SYN/ACK, but got
+     * the last ACK of the 3WHS, the ISN is ack-1. For all
+     * other packets the ISN is unknown, so ack-1 is
+     * as good a guess as ack.
      */
     if( (tcpd->rev->base_seq==0) && (flags & TH_ACK) ) {
         tcpd->rev->base_seq = ack-1;
@@ -1079,8 +1077,8 @@ finished_fwd:
 
 
     /* RETRANSMISSION/FAST RETRANSMISSION/OUT-OF-ORDER
-     * If the segments contains data (or is a SYN or a FIN) and 
-     * if it does not advance sequence number it must be either 
+     * If the segment contains data (or is a SYN or a FIN) and
+     * if it does not advance the sequence number, it must be one
      * of these three.
      * Only test for this if we know what the seq number should be
      * (tcpd->fwd->nextseq)
@@ -4004,7 +4002,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8  th_off_x2; /* combines th_off and th_x2 */
     guint16 th_sum;
-    guint32 ack;
     guint16 th_urp;
     proto_tree *tcp_tree = NULL, *field_tree = NULL;
     proto_item *ti = NULL, *tf, *hidden_item;
@@ -4297,13 +4294,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tcp_relative_seq) {
             proto_item_append_text(tf, "    (relative ack number)");
         }
-    } else {
-        /* Verify that the ACK field is zero */
-        ack = tvb_get_ntohl(tvb, offset+8);
-        if (ack != 0) {
-            proto_item_append_text(tf, "[should be 0x00000000 because ACK flag is not set]");
-            expert_add_info(pinfo, tf, &ei_tcp_ack_nonzero);
-        }
     }
 
     if (tree) {
@@ -4536,9 +4526,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    th_urp = tvb_get_ntohs(tvb, offset + 18);
     item = proto_tree_add_item(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, ENC_BIG_ENDIAN);
     if (tcph->th_flags & TH_URG) {
+        th_urp = tvb_get_ntohs(tvb, offset + 18);
+
         /* Export the urgent pointer, for the benefit of protocols such as
            rlogin. */
         tcpinfo.urgent = TRUE;
@@ -4546,12 +4537,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_fstr(pinfo->cinfo, COL_INFO, " Urg=%u", th_urp);
     } else {
         tcpinfo.urgent = FALSE;
-        if (th_urp) {
-            proto_item_append_text(item, " [should be 0x0000 because URG flag is not set]");
-            expert_add_info(pinfo, item, &ei_tcp_urgent_pointer_non_zero);
-        }
     }
-
 
     if (tcph->th_have_seglen) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", tcph->th_seglen);
@@ -4573,7 +4559,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tf = NULL;
             field_tree = NULL;
         }
-        dissect_ip_tcp_options(tvb, offset + 20, optlen, tcpopts, N_TCP_OPTS, TCPOPT_EOL, 
+        dissect_ip_tcp_options(tvb, offset + 20, optlen, tcpopts, N_TCP_OPTS, TCPOPT_EOL,
                                &TCP_OPT_TYPES, &ei_tcp_opt_len_invalid, pinfo, field_tree, tf, tcph);
     }
 
@@ -5552,14 +5538,12 @@ proto_register_tcp(void)
         { &ei_tcp_scps_capable, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated", EXPFILL }},
         { &ei_tcp_option_snack_sequence, { "tcp.options.snack.sequence", PI_SEQUENCE, PI_NOTE, "SNACK Sequence", EXPFILL }},
         { &ei_tcp_short_segment, { "tcp.short_segment", PI_MALFORMED, PI_WARN, "Short segment", EXPFILL }},
-        { &ei_tcp_ack_nonzero, { "tcp.ack.nonzero", PI_PROTOCOL, PI_WARN, "Acknowledgment number: Broken TCP. The acknowledge field is nonzero while the ACK flag is not set", EXPFILL }},
         { &ei_tcp_connection_sack, { "tcp.connection.sack", PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK)", EXPFILL }},
         { &ei_tcp_connection_syn, { "tcp.connection.syn", PI_SEQUENCE, PI_CHAT, "Connection establish request (SYN)", EXPFILL }},
         { &ei_tcp_connection_fin, { "tcp.connection.fin", PI_SEQUENCE, PI_CHAT, "Connection finish (FIN)", EXPFILL }},
         { &ei_tcp_connection_rst, { "tcp.connection.rst", PI_SEQUENCE, PI_CHAT, "Connection reset (RST)", EXPFILL }},
         { &ei_tcp_checksum_ffff, { "tcp.checksum.ffff", PI_CHECKSUM, PI_WARN, "TCP Checksum 0xffff instead of 0x0000 (see RFC 1624)", EXPFILL }},
-        { &ei_tcp_checksum_bad, { "tcp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
-        { &ei_tcp_urgent_pointer_non_zero, { "tcp.urgent_pointer.non_zero", PI_PROTOCOL, PI_WARN, "Urgent Pointer: Broken TCP. The urgent pointer field is nonzero while the URG flag is not set", EXPFILL }},
+        { &ei_tcp_checksum_bad, { "tcp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }}
     };
 
     module_t *tcp_module;
