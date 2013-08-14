@@ -413,7 +413,7 @@ static int statcmd_init_cb_error_handler(lua_State* L _U_) {
     return 0;
 }
 
-static void statcmd_init(const char *optarg, void* userdata) {
+static void statcmd_init(const char *opt_arg, void* userdata) {
     statcmd_t* sc = (statcmd_t *)userdata;
     lua_State* L = sc->L;
 
@@ -421,7 +421,7 @@ static void statcmd_init(const char *optarg, void* userdata) {
     lua_pushcfunction(L,statcmd_init_cb_error_handler);
     lua_rawgeti(L, LUA_REGISTRYINDEX, sc->func_ref);
 
-    lua_pushstring(L,optarg);
+    lua_pushstring(L,opt_arg);
 
     switch ( lua_pcall(L,1,0,1) ) {
         case 0:
