@@ -173,7 +173,7 @@ dcerpcstat_draw(void *prs)
 
 
 static void
-dcerpcstat_init(const char *optarg, void* userdata _U_)
+dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 {
 	rpcstat_t *rs;
 	guint32 i, max_procs;
@@ -198,7 +198,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 	 * report aggregate statistics for all minor version numbers
 	 * if it's omitted?
 	 */
-	if(sscanf(optarg,
+	if(sscanf(opt_arg,
 		"dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n",
 		&d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,
 		&major,&minor,&pos)==13){
@@ -214,7 +214,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 		uuid.Data4[6]=d46;
 		uuid.Data4[7]=d47;
 		if(pos){
-			filter=optarg+pos;
+			filter=opt_arg+pos;
 		} else {
 			filter=NULL;
 		}

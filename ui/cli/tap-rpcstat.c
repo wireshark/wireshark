@@ -262,7 +262,7 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
  * instance for the rpc tap.
  */
 static void
-rpcstat_init(const char *optarg, void* userdata _U_)
+rpcstat_init(const char *opt_arg, void* userdata _U_)
 {
 	rpcstat_t *rs;
 	guint32 i;
@@ -271,9 +271,9 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 	const char *filter=NULL;
 	GString *error_string;
 
-	if(sscanf(optarg,"rpc,srt,%d,%d,%n",&program,&version,&pos)==2){
+	if(sscanf(opt_arg,"rpc,srt,%d,%d,%n",&program,&version,&pos)==2){
 		if(pos){
-			filter=optarg+pos;
+			filter=opt_arg+pos;
 		} else {
 			filter=NULL;
 		}

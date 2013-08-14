@@ -131,7 +131,7 @@ rtp_streams_stat_draw(void *arg _U_)
 
 
 static void
-rtp_streams_stat_init(const char *optarg _U_, void* userdata _U_)
+rtp_streams_stat_init(const char *opt_arg _U_, void* userdata _U_)
 {
     GString		*err_p;
 

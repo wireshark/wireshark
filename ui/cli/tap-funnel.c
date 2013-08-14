@@ -150,8 +150,8 @@ typedef struct _menu_cb_t {
 } menu_cb_t;
 
 
-static void  init_funnel_cmd(const char *optarg, void* data ) {
-    gchar** args = g_strsplit(optarg,",",0); 
+static void  init_funnel_cmd(const char *opt_arg, void* data ) {
+    gchar** args = g_strsplit(opt_arg,",",0); 
     gchar** arg;
     menu_cb_t* mcb = data;
     

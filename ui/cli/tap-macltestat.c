@@ -508,16 +508,16 @@ mac_lte_stat_draw(void *phs)
 }
 
 /* Create a new MAC LTE stats struct */
-static void mac_lte_stat_init(const char *optarg, void *userdata _U_)
+static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     mac_lte_stat_t    *hs;
     const char    *filter = NULL;
     GString       *error_string;
 
     /* Check for a filter string */
-    if (strncmp(optarg, "mac-lte,stat,", 13) == 0) {
+    if (strncmp(opt_arg, "mac-lte,stat,", 13) == 0) {
         /* Skip those characters from filter to display */
-        filter = optarg + 13;
+        filter = opt_arg + 13;
     }
     else {
         /* No filter */

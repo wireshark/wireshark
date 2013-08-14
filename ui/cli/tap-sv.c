@@ -52,7 +52,7 @@ sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 }
 
 static void
-svstat_init(const char *optarg _U_, void* userdata _U_)
+svstat_init(const char *opt_arg _U_, void* userdata _U_)
 {
 	GString	*error_string;
 

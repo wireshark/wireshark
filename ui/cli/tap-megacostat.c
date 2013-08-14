@@ -72,7 +72,7 @@ megacostat_draw(void *pms)
 
 
 static void
-megacostat_init(const char *optarg, void* userdata _U_)
+megacostat_init(const char *opt_arg, void* userdata _U_)
 {
 	megacostat_t *ms;
 	int i;
@@ -94,8 +94,8 @@ megacostat_init(const char *optarg, void* userdata _U_)
 	}
 
 	ms=g_new(megacostat_t,1);
-	if(!strncmp(optarg,"megaco,rtd,",11)){
-		ms->filter=g_strdup(optarg+11);
+	if(!strncmp(opt_arg,"megaco,rtd,",11)){
+		ms->filter=g_strdup(opt_arg+11);
 	} else {
 		ms->filter=NULL;
 	}

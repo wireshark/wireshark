@@ -207,7 +207,7 @@ wspstat_draw(void *psp)
  * new instance for the wsp tap.
  */
 static void
-wspstat_init(const char *optarg, void* userdata _U_)
+wspstat_init(const char *opt_arg, void* userdata _U_)
 {
 	wspstat_t          *sp;
 	const char         *filter=NULL;
@@ -216,8 +216,8 @@ wspstat_init(const char *optarg, void* userdata _U_)
 	wsp_status_code_t  *sc;
 	const value_string *wsp_vals_status_p;
 
-	if (!strncmp (optarg, "wsp,stat," , 9)){
-		filter=optarg+9;
+	if (!strncmp (opt_arg, "wsp,stat," , 9)){
+		filter=opt_arg+9;
 	} else {
 		filter=NULL;
 	}

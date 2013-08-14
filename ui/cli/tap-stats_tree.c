@@ -72,9 +72,9 @@ draw_stats_tree(void *psp)
 }
 
 static void
-init_stats_tree(const char *optarg, void *userdata _U_)
+init_stats_tree(const char *opt_arg, void *userdata _U_)
 {
-	char *abbr = stats_tree_get_abbr(optarg);
+	char *abbr = stats_tree_get_abbr(opt_arg);
 	GString	*error_string;
 	stats_tree_cfg *cfg = NULL;
 	stats_tree *st = NULL;
@@ -83,8 +83,8 @@ init_stats_tree(const char *optarg, void *userdata _U_)
 		cfg = stats_tree_get_cfg_by_abbr(abbr);
 
 		if (cfg != NULL) {
-			if (strncmp (optarg, cfg->pr->init_string, strlen(cfg->pr->init_string)) == 0){
-				st = stats_tree_new(cfg,NULL,optarg+strlen(cfg->pr->init_string));
+			if (strncmp (opt_arg, cfg->pr->init_string, strlen(cfg->pr->init_string)) == 0){
+				st = stats_tree_new(cfg,NULL,opt_arg+strlen(cfg->pr->init_string));
 			} else {
 				report_failure("Wrong stats_tree (%s) found when looking at ->init_string",abbr);
 				return;
@@ -97,7 +97,7 @@ init_stats_tree(const char *optarg, void *userdata _U_)
 		g_free(abbr);
 		
 	} else {
-		report_failure("could not obtain stats_tree abbr (%s) from arg '%s'",abbr,optarg);		
+		report_failure("could not obtain stats_tree abbr (%s) from arg '%s'",abbr,opt_arg);		
 		return;
 	}
 	

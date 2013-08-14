@@ -264,14 +264,14 @@ icmpv6stat_draw(void *tapdata)
  * instance for the icmpv6 tap.
  */
 static void
-icmpv6stat_init(const char *optarg, void* userdata _U_)
+icmpv6stat_init(const char *opt_arg, void* userdata _U_)
 {
     icmpv6stat_t *icmpv6stat;
     const char *filter = NULL;
     GString *error_string;
 
-    if (strstr(optarg, "icmpv6,srt,"))
-        filter = optarg + strlen("icmpv6,srt,");
+    if (strstr(opt_arg, "icmpv6,srt,"))
+        filter = opt_arg + strlen("icmpv6,srt,");
 
     icmpv6stat = (icmpv6stat_t *)g_try_malloc(sizeof(icmpv6stat_t));
     if (icmpv6stat == NULL) {

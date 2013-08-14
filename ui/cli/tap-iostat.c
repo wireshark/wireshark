@@ -1304,7 +1304,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 }
 
 static void
-iostat_init(const char *optarg, void* userdata _U_)
+iostat_init(const char *opt_arg, void* userdata _U_)
 {
     gdouble interval_float;
     guint32 idx=0;
@@ -1312,14 +1312,14 @@ iostat_init(const char *optarg, void* userdata _U_)
     io_stat_t *io;
     const gchar *filters, *str, *pos;
 
-    if ((*(optarg+(strlen(optarg)-1)) == ',') ||
-        (sscanf(optarg, "io,stat,%lf%n", &interval_float, (int *)&idx) != 1) ||
+    if ((*(opt_arg+(strlen(opt_arg)-1)) == ',') ||
+        (sscanf(opt_arg, "io,stat,%lf%n", &interval_float, (int *)&idx) != 1) ||
         (idx < 8)) {
         fprintf(stderr, "\ntshark: invalid \"-z io,stat,<interval>[,<filter>][,<filter>]...\" argument\n");
         exit(1);
     }
 
-    filters=optarg+idx;
+    filters=opt_arg+idx;
     if (*filters) {
         if (*filters != ',') {
             /* For locale's that use ',' instead of '.', the comma might
@@ -1371,7 +1371,7 @@ iostat_init(const char *optarg, void* userdata _U_)
                interval of 1 and the last interval becomes "9 <> 9". If the interval is instead set to
                1.1, the last interval becomes
                last interval is rounded up to value that is greater than the duration. */
-            const gchar *invl_start = optarg+8;
+            const gchar *invl_start = opt_arg+8;
             gchar *intv_end;
             int invl_len;
 

@@ -263,14 +263,14 @@ icmpstat_draw(void *tapdata)
  * instance for the icmp tap.
  */
 static void
-icmpstat_init(const char *optarg, void* userdata _U_)
+icmpstat_init(const char *opt_arg, void* userdata _U_)
 {
     icmpstat_t *icmpstat;
     const char *filter = NULL;
     GString *error_string;
 
-    if (strstr(optarg, "icmp,srt,"))
-        filter = optarg + strlen("icmp,srt,");
+    if (strstr(opt_arg, "icmp,srt,"))
+        filter = opt_arg + strlen("icmp,srt,");
 
     icmpstat = (icmpstat_t *)g_try_malloc(sizeof(icmpstat_t));
     if (icmpstat == NULL) {

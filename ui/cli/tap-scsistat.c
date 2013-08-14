@@ -168,7 +168,7 @@ scsistat_draw(void *prs)
 }
 
 static void
-scsistat_init(const char *optarg, void* userdata _U_)
+scsistat_init(const char *opt_arg, void* userdata _U_)
 {
 	scsistat_t *rs;
 	guint32 i;
@@ -177,9 +177,9 @@ scsistat_init(const char *optarg, void* userdata _U_)
 	GString *error_string;
 
 	pos=0;
-	if(sscanf(optarg, "scsi,srt,%d,%n", &program, &pos)==1) {
+	if(sscanf(opt_arg, "scsi,srt,%d,%n", &program, &pos)==1) {
 		if(pos) {
-			filter=optarg+pos;
+			filter=opt_arg+pos;
 		} else {
 			filter=NULL;
 		}

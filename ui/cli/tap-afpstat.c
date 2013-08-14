@@ -106,15 +106,15 @@ afpstat_draw(void *pss)
 
 
 static void
-afpstat_init(const char *optarg, void* userdata _U_)
+afpstat_init(const char *opt_arg, void* userdata _U_)
 {
 	afpstat_t *ss;
 	guint32 i;
 	const char *filter=NULL;
 	GString *error_string;
 
-	if(!strncmp(optarg,"afp,srt,",8)){
-		filter=optarg+8;
+	if(!strncmp(opt_arg,"afp,srt,",8)){
+		filter=opt_arg+8;
 	} else {
 		filter=NULL;
 	}

@@ -449,7 +449,7 @@ iousers_draw(void *arg)
 }
 
 static void
-iousers_init(const char *optarg, void* userdata _U_)
+iousers_init(const char *opt_arg, void* userdata _U_)
 {
 	const char *filter=NULL;
 	const char *tap_type, *tap_type_name;
@@ -457,90 +457,90 @@ iousers_init(const char *optarg, void* userdata _U_)
 	io_users_t *iu=NULL;
 	GString *error_string;
 
-	if(!strncmp(optarg,"conv,eth",8)){
-		if(optarg[8]==','){
-			filter=optarg+9;
+	if(!strncmp(opt_arg,"conv,eth",8)){
+		if(opt_arg[8]==','){
+			filter=opt_arg+9;
 		} else {
 			filter=NULL;
 		}
 		tap_type="eth";
 		tap_type_name="Ethernet";
 		packet_func=iousers_eth_packet;
-	} else if(!strncmp(optarg,"conv,fc",7)){
-		if(optarg[7]==','){
-			filter=optarg+8;
+	} else if(!strncmp(opt_arg,"conv,fc",7)){
+		if(opt_arg[7]==','){
+			filter=opt_arg+8;
 		} else {
 			filter=NULL;
 		}
 		tap_type="fc";
 		tap_type_name="Fibre Channel";
 		packet_func=iousers_fc_packet;
-	} else if(!strncmp(optarg,"conv,fddi",9)){
-		if(optarg[9]==','){
-			filter=optarg+10;
+	} else if(!strncmp(opt_arg,"conv,fddi",9)){
+		if(opt_arg[9]==','){
+			filter=opt_arg+10;
 		} else {
 			filter=NULL;
 		}
 		tap_type="fddi";
 		tap_type_name="FDDI";
 		packet_func=iousers_fddi_packet;
-	} else if(!strncmp(optarg,"conv,tcp",8)){
-		if(optarg[8]==','){
-			filter=optarg+9;
+	} else if(!strncmp(opt_arg,"conv,tcp",8)){
+		if(opt_arg[8]==','){
+			filter=opt_arg+9;
 		} else {
 			filter=NULL;
 		}
 		tap_type="tcp";
 		tap_type_name="TCP";
 		packet_func=iousers_tcpip_packet;
-	} else if(!strncmp(optarg,"conv,udp",8)){
-		if(optarg[8]==','){
-			filter=optarg+9;
+	} else if(!strncmp(opt_arg,"conv,udp",8)){
+		if(opt_arg[8]==','){
+			filter=opt_arg+9;
 		} else {
 			filter=NULL;
 		}
 		tap_type="udp";
 		tap_type_name="UDP";
 		packet_func=iousers_udpip_packet;
-	} else if(!strncmp(optarg,"conv,tr",7)){
-		if(optarg[7]==','){
-			filter=optarg+8;
+	} else if(!strncmp(opt_arg,"conv,tr",7)){
+		if(opt_arg[7]==','){
+			filter=opt_arg+8;
 		} else {
 			filter=NULL;
 		}
 		tap_type="tr";
 		tap_type_name="Token Ring";
 		packet_func=iousers_tr_packet;
-	} else if(!strncmp(optarg,"conv,ipx",8)){
-		if(optarg[8]==','){
-			filter=optarg+9;
+	} else if(!strncmp(opt_arg,"conv,ipx",8)){
+		if(opt_arg[8]==','){
+			filter=opt_arg+9;
 		} else {
 			filter=NULL;
 		}
 		tap_type="ipx";
 		tap_type_name="IPX";
 		packet_func=iousers_ipx_packet;
-	} else if(!strncmp(optarg,"conv,ipv6",9)){
-		if(optarg[9]==','){
-			filter=optarg+10;
+	} else if(!strncmp(opt_arg,"conv,ipv6",9)){
+		if(opt_arg[9]==','){
+			filter=opt_arg+10;
 		} else {
 			filter=NULL;
 		}
 		tap_type="ipv6";
 		tap_type_name="IPv6";
 		packet_func=iousers_ipv6_packet;
-	} else if(!strncmp(optarg,"conv,ip",7)){
-		if(optarg[7]==','){
-			filter=optarg+8;
+	} else if(!strncmp(opt_arg,"conv,ip",7)){
+		if(opt_arg[7]==','){
+			filter=opt_arg+8;
 		} else {
 			filter=NULL;
 		}
 		tap_type="ip";
 		tap_type_name="IPv4";
 		packet_func=iousers_ip_packet;
-	} else if(!strncmp(optarg,"conv,sctp",9)) {
-		if(optarg[9]==','){
-				filter=optarg+10;
+	} else if(!strncmp(opt_arg,"conv,sctp",9)) {
+		if(opt_arg[9]==','){
+				filter=opt_arg+10;
 		} else {
                         filter=NULL;
                 }

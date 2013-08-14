@@ -166,18 +166,18 @@ protohierstat_draw(void *prs)
 
 
 static void
-protohierstat_init(const char *optarg, void* userdata _U_)
+protohierstat_init(const char *opt_arg, void* userdata _U_)
 {
 	phs_t *rs;
 	int pos=0;
 	const char *filter=NULL;
 	GString *error_string;
 
-	if(strcmp("io,phs",optarg)==0){
+	if(strcmp("io,phs",opt_arg)==0){
 		/* No arguments */
-	} else if(sscanf(optarg,"io,phs,%n",&pos)==0){
+	} else if(sscanf(opt_arg,"io,phs,%n",&pos)==0){
 		if(pos){
-			filter=optarg+pos;
+			filter=opt_arg+pos;
 		}
 	} else {
 		fprintf(stderr, "tshark: invalid \"-z io,phs[,<filter>]\" argument\n");

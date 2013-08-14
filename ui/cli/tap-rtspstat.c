@@ -231,14 +231,14 @@ rtspstat_draw(void *psp  )
 /* When called, this function will create a new instance of gtk_rtspstat.
  */
 static void
-gtk_rtspstat_init(const char *optarg,void* userdata _U_)
+gtk_rtspstat_init(const char *opt_arg,void* userdata _U_)
 {
 	rtspstat_t *sp;
 	const char *filter=NULL;
 	GString	*error_string;
 	
-	if (!strncmp (optarg, "rtsp,stat,", 10)){
-		filter=optarg+10;
+	if (!strncmp (opt_arg, "rtsp,stat,", 10)){
+		filter=opt_arg+10;
 	} else {
 		filter=NULL;
 	}

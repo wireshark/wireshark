@@ -81,7 +81,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 
 
 static void
-protocolinfo_init(const char *optarg, void* userdata _U_)
+protocolinfo_init(const char *opt_arg, void* userdata _U_)
 {
 	pci_t *rs;
 	const char *field=NULL;
@@ -89,8 +89,8 @@ protocolinfo_init(const char *optarg, void* userdata _U_)
 	header_field_info *hfi;
 	GString *error_string;
 
-	if(!strncmp("proto,colinfo,",optarg,14)){
-		filter=optarg+14;
+	if(!strncmp("proto,colinfo,",opt_arg,14)){
+		filter=opt_arg+14;
 		field=strchr(filter,',');
 		if(field){
 			field+=1;  /* skip the ',' */

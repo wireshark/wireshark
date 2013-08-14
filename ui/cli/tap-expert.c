@@ -190,7 +190,7 @@ expert_stat_draw(void *phs _U_)
 }
 
 /* Create a new expert stats struct */
-static void expert_stat_init(const char *optarg, void *userdata _U_)
+static void expert_stat_init(const char *opt_arg, void *userdata _U_)
 {
     const char        *args = NULL;
     const char        *filter = NULL;
@@ -199,9 +199,9 @@ static void expert_stat_init(const char *optarg, void *userdata _U_)
     int n;
 
     /* Check for args. */
-    if (strncmp(optarg, "expert", 6) == 0) {
+    if (strncmp(opt_arg, "expert", 6) == 0) {
         /* Skip those characters */
-        args = optarg + 6;
+        args = opt_arg + 6;
     }
     else {
         /* No args. Will show all reports, with no filter */

@@ -134,14 +134,14 @@ dhcpstat_draw(void *psp)
 /* When called, this function will create a new instance of tap-boopstat.
  */
 static void
-dhcpstat_init(const char *optarg, void* userdata _U_)
+dhcpstat_init(const char *opt_arg, void* userdata _U_)
 {
 	dhcpstat_t *sp;
 	const char	*filter=NULL;
 	GString		*error_string;
 
-	if (!strncmp (optarg, "bootp,stat,", 11)){
-		filter=optarg+11;
+	if (!strncmp (opt_arg, "bootp,stat,", 11)){
+		filter=opt_arg+11;
 	} else {
 		filter=NULL;
 	}

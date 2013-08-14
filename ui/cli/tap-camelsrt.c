@@ -199,14 +199,14 @@ static void camelsrt_draw(void *phs)
   printf("\n");
 }
 
-static void camelsrt_init(const char *optarg, void* userdata _U_)
+static void camelsrt_init(const char *opt_arg, void* userdata _U_)
 {
   struct camelsrt_t *p_camelsrt;
   GString *error_string;
 
   p_camelsrt = g_new(struct camelsrt_t,1);
-  if(!strncmp(optarg,"camel,srt,",9)){
-    p_camelsrt->filter=g_strdup(optarg+9);
+  if(!strncmp(opt_arg,"camel,srt,",9)){
+    p_camelsrt->filter=g_strdup(opt_arg+9);
   } else {
     p_camelsrt->filter=NULL;
   }

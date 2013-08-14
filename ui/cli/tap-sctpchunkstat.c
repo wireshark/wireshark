@@ -211,14 +211,14 @@ sctpstat_draw(void *phs)
 
 
 static void
-sctpstat_init(const char *optarg, void* userdata _U_)
+sctpstat_init(const char *opt_arg, void* userdata _U_)
 {
 	sctpstat_t *hs;
 	GString *error_string;
 
 	hs = (sctpstat_t *)g_malloc(sizeof(sctpstat_t));
-	if(!strncmp(optarg,"sctp,stat,",11)){
-		hs->filter=g_strdup(optarg+11);
+	if(!strncmp(opt_arg,"sctp,stat,",11)){
+		hs->filter=g_strdup(opt_arg+11);
 	} else {
 		hs->filter=NULL;
 	}

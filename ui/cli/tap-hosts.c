@@ -128,7 +128,7 @@ hosts_draw(void *dummy _U_)
 
 
 static void
-hosts_init(const char *optarg, void* userdata _U_)
+hosts_init(const char *opt_arg, void* userdata _U_)
 {
 	GString *error_string;
 	gchar **tokens;
@@ -137,12 +137,12 @@ hosts_init(const char *optarg, void* userdata _U_)
 	dump_v4 = FALSE;
 	dump_v6 = FALSE;
 
-	if(strcmp(TAP_NAME, optarg)==0) {
+	if(strcmp(TAP_NAME, opt_arg)==0) {
 		/* No arguments; dump everything */
 		dump_v4 = TRUE;
 		dump_v6 = TRUE;
 	} else {
-		tokens = g_strsplit(optarg,",", 0);
+		tokens = g_strsplit(opt_arg,",", 0);
 		opt_count=0;
 		while (tokens[opt_count]) {
 			if (strcmp("ipv4", tokens[opt_count]) == 0) {

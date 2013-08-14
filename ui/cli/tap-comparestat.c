@@ -501,7 +501,7 @@ comparestat_draw(void *prs)
  * new instance for the compare tap.
  */
 static void
-comparestat_init(const char *optarg, void* userdata _U_)
+comparestat_init(const char *opt_arg, void* userdata _U_)
 {
 	comparestat_t *cs;
 	const char *filter=NULL;
@@ -509,12 +509,12 @@ comparestat_init(const char *optarg, void* userdata _U_)
 	gint start, stop,ttl, order, pos=0;
 	gdouble variance;
 
-	if(sscanf(optarg,"compare,%d,%d,%d,%d,%lf%n",&start, &stop, &ttl, &order, &variance, &pos)==5){
+	if(sscanf(opt_arg,"compare,%d,%d,%d,%d,%lf%n",&start, &stop, &ttl, &order, &variance, &pos)==5){
 		if(pos){
-			if(*(optarg+pos)==',')
-				filter=optarg+pos+1;
+			if(*(opt_arg+pos)==',')
+				filter=opt_arg+pos+1;
 			else
-				filter=optarg+pos;
+				filter=opt_arg+pos;
 		} else {
 			filter=NULL;
 		}

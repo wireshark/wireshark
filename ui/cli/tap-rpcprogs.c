@@ -206,7 +206,7 @@ rpcprogs_draw(void *dummy _U_)
 
 
 static void
-rpcprogs_init(const char *optarg _U_, void* userdata _U_)
+rpcprogs_init(const char *opt_arg _U_, void* userdata _U_)
 {
 	GString *error_string;
 

@@ -85,14 +85,14 @@ static void camelcounter_draw(void *phs)
   printf("------------------------------------------\n");
 }
 
-static void camelcounter_init(const char *optarg, void* userdata _U_)
+static void camelcounter_init(const char *opt_arg, void* userdata _U_)
 {
   struct camelcounter_t *p_camelcounter;
   GString *error_string;
 
   p_camelcounter = g_new(struct camelcounter_t,1);
-  if(!strncmp(optarg,"camel,counter,",13)){
-    p_camelcounter->filter=g_strdup(optarg+13);
+  if(!strncmp(opt_arg,"camel,counter,",13)){
+    p_camelcounter->filter=g_strdup(opt_arg+13);
   } else {
     p_camelcounter->filter=NULL;
   }
