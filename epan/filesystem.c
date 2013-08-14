@@ -463,7 +463,7 @@ get_executable_path(void)
 #elif (defined(sun) || defined(__sun)) && defined(HAVE_GETEXECNAME)
     /*
      * It appears that getexecname() dates back to at least Solaris 8,
-     * but /proc/*/path is first documented in the Solaris 10 documentation,
+     * but /proc/{pid}/path is first documented in the Solaris 10 documentation,
      * so we use getexecname() if available, rather than /proc/self/path/a.out
      * (which isn't documented, but appears to be a symlink to the
      * executable image file).
