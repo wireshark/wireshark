@@ -573,18 +573,18 @@ stats_tree_manip_node(manip_node_mode mode, stats_tree *st, const char *name,
 
 
 extern char*
-stats_tree_get_abbr(const char *optarg)
+stats_tree_get_abbr(const char *opt_arg)
 {
 	guint i;
 
 	/* XXX: this fails when tshark is given any options
 	   after the -z */
-	g_assert(optarg != NULL);
+	g_assert(opt_arg != NULL);
 
-	for (i=0; optarg[i] && optarg[i] != ','; i++);
+	for (i=0; opt_arg[i] && opt_arg[i] != ','; i++);
 
-	if (optarg[i] == ',') {
-		return g_strndup(optarg,i);
+	if (opt_arg[i] == ',') {
+		return g_strndup(opt_arg,i);
 	} else {
 		return NULL;
 	}
