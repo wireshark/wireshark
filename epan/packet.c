@@ -111,8 +111,13 @@ static GHashTable *heur_dissector_lists = NULL;
 void
 packet_init(void)
 {
+	dissector_tables = g_hash_table_new(g_str_hash, g_str_equal);
+
 	registered_dissectors = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, g_free);
+
+	heur_dissector_lists = g_hash_table_new(g_str_hash, g_str_equal);
+
 }
 
 void
@@ -714,7 +719,6 @@ struct dtbl_entry {
 dissector_table_t
 find_dissector_table(const char *name)
 {
-	g_assert(dissector_tables);
 	return (dissector_table_t)g_hash_table_lookup( dissector_tables, name );
 }
 
@@ -1570,12 +1574,6 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 {
 	dissector_table_t	sub_dissectors;
 
-	/* Create our hash-of-hashes if it doesn't already exist */
-	if (!dissector_tables) {
-		dissector_tables = g_hash_table_new( g_str_hash, g_str_equal );
-		g_assert(dissector_tables);
-	}
-
 	/* Make sure the registration is unique */
 	if(g_hash_table_lookup( dissector_tables, name )) {
 		g_error("The filter name %s (%s) is already registered - do you use a buggy plugin?", name, ui_name);
@@ -1647,7 +1645,6 @@ get_dissector_table_base(const char *name)
 static heur_dissector_list_t *
 find_heur_dissector_list(const char *name)
 {
-	g_assert(heur_dissector_lists != NULL);
 	return (heur_dissector_list_t *)g_hash_table_lookup(heur_dissector_lists, name);
 }
 
@@ -1888,12 +1885,6 @@ dissector_dump_heur_decodes(void)
 void
 register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissectors)
 {
-	/* Create our hash-of-lists if it doesn't already exist */
-	if (heur_dissector_lists == NULL) {
-		heur_dissector_lists = g_hash_table_new(g_str_hash, g_str_equal);
-		g_assert(heur_dissector_lists != NULL);
-	}
-
 	/* Make sure the registration is unique */
 	g_assert(g_hash_table_lookup(heur_dissector_lists, name) == NULL);
 
@@ -1958,7 +1949,6 @@ dissector_handle_get_protocol_index(const dissector_handle_t handle)
 dissector_handle_t
 find_dissector(const char *name)
 {
-	g_assert(registered_dissectors != NULL);
 	return (dissector_handle_t)g_hash_table_lookup(registered_dissectors, name);
 }
 
