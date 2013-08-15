@@ -30,7 +30,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Specification reference:
- * Ref http://www.ietf.org/rfc/rfc5050.txt?number=5050
+ * RFC 5050
+ * http://tools.ietf.org/html/rfc5050
  */
 
 #include "config.h"
@@ -1439,8 +1440,6 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     int block_length;
     guint8 type;
     unsigned int control_flags;
-    int control_flags_offset;
-    int control_flags_length;
     proto_tree *block_flag_tree = NULL;
     proto_item *block_flag_item = NULL;
     int num_eid_ref = 0;
@@ -1476,8 +1475,6 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
                            tvb, offset, sdnv_length, control_flags);
     block_flag_eid_reference_item = proto_tree_add_boolean(block_flag_tree, hf_block_control_eid_reference,
                            tvb, offset, sdnv_length, control_flags);
-    control_flags_offset = offset;
-    control_flags_length = sdnv_length;
     offset += sdnv_length;
 
     /* TODO: if this block has EID references, add them to display tree */
