@@ -2349,7 +2349,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					if (rfc3396_sip_server.total_number_of_block == 1)
 						expert_add_info_format_text(pinfo, vti, &ei_bootp_bad_length, "length isn't a multiple of 4 plus 1 (len = %u).", tvb_length(rfc3396_sip_server.tvb_composite));
 					else
-						expert_add_info_format_text(pinfo, vti, &ei_bootp_bad_length, 
+						expert_add_info_format_text(pinfo, vti, &ei_bootp_bad_length,
 							"length isn't a multiple of 4 plus 1 (len = %u). For your information with RFC 3396, the length is the length sum of all options 120 into this BOOTP packet.",
 							tvb_length(rfc3396_sip_server.tvb_composite));
 					break;
@@ -4558,7 +4558,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 			{
 				proto_item_append_text(ti, "%i", val_byte);
 			}
-			else 
+			else
 			{
 				display_uint_with_range_checking(ti, val_byte, val_uint16, 205, 244);
 			}
@@ -5177,7 +5177,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (secs > 0 && secs <= 0xff) {
 		ti = proto_tree_add_uint_format_value(bp_tree, hf_bootp_secs, tvb,
 			    8, 2, secs, "%u", secs);
-		expert_add_info_format_text(pinfo, ti, &ei_bootp_secs_le, "Seconds elapsed (%u) appears to be encoded as little-endian", secs);
+		expert_add_info_format_text(pinfo, ti, &ei_bootp_secs_le, "Seconds elapsed appears to be encoded as little-endian");
 	} else {
 		proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
 			    8, 2, ENC_BIG_ENDIAN);
