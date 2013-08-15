@@ -4526,7 +4526,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    item = proto_tree_add_item(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, ENC_BIG_ENDIAN);
     if (tcph->th_flags & TH_URG) {
         th_urp = tvb_get_ntohs(tvb, offset + 18);
 
