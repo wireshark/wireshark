@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2011 by Spenser Sheng <spenser.sheng@ericsson.com>
  *
- * $Id: packet-lcsap.c 28770 2011-06-18 21:30:42Z stig  Spenser Sheng$
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
