@@ -394,6 +394,7 @@ static int hf_scsi_spc_modepage_gltsd = -1;
 static int hf_scsi_smc_modepage_st_ne_dt = -1;
 static int hf_scsi_modesel_dev_sbc_medium_type = -1;
 static int hf_scsi_inq_evpd_devid_identifier_type = -1;
+static int hf_scsi_inq_evpd_identifier_number = -1;
 static int hf_scsi_sbc_modepage_write_retry_count = -1;
 static int hf_scsi_spc_modepage_buffer_empty_ratio = -1;
 static int hf_scsi_ssc2_modepage_partition_size = -1;
@@ -1495,6 +1496,8 @@ static const value_string scsi_inquiry_vers_val[] = {
     {0x02, "Compliance to ANSI X3.131:1994"},
     {0x03, "Compliance to ANSI X3.301:1997"},
     {0x04, "Compliance to SPC-2"},
+    {0x05, "Compliance to SPC-3"},
+    {0x06, "Compliance to SPC-4"},
     {0x80, "Compliance to ISO/IEC 9316:1995"},
     {0x82, "Compliance to ISO/IEC 9316:1995 and to ANSI X3.131:1994"},
     {0x83, "Compliance to ISO/IEC 9316:1995 and to ANSI X3.301:1997"},
@@ -1965,23 +1968,28 @@ static const value_string scsi_cmdt_supp_val[] = {
 
 #define CODESET_BINARY  1
 #define CODESET_ASCII   2
+#define CODESET_UTF8    3
 
 const value_string scsi_devid_codeset_val[] = {
     {0,              "Reserved"},
     {CODESET_BINARY, "Identifier field contains binary values"},
     {CODESET_ASCII,  "Identifier field contains ASCII graphic codes"},
+    {CODESET_UTF8,   "Identifier field contains UTF-8 codes"}, 
     {0,              NULL},
 };
 
 static const value_string scsi_devid_assoc_val[] = {
     {0, "Identifier is associated with addressed logical/physical device"},
     {1, "Identifier is associated with the port that received the request"},
+    {2, "Identifier is associated with the SCSI target devices that contains the logical/physical device"},
     {0, NULL},
 };
 
+#define DEVID_TYPE_VEND_ID_VEND_SPEC_ID 1
+
 const value_string scsi_devid_idtype_val[] = {
     {0, "Vendor-specific ID (non-globally unique)"},
-    {1, "Vendor-ID + vendor-specific ID (globally unique)"},
+    {DEVID_TYPE_VEND_ID_VEND_SPEC_ID, "Vendor-ID + vendor-specific ID (globally unique)"},
     {2, "EUI-64 ID"},
     {3, "WWN"},
     {4, "4-byte Binary Number/Reserved"},
@@ -2594,7 +2602,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_tree *evpd_tree;
     proto_item *ti;
     guint       pcode, plen, i, idlen;
-    guint8      codeset;
+    guint8      codeset, identifier_type;
 
     if (tree) {
         pcode = tvb_get_guint8(tvb, offset+1);
@@ -2618,8 +2626,12 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             }
             break;
         case SCSI_EVPD_DEVID:
+            i = 0;
             while (plen != 0) {
+                i++;
                 codeset = tvb_get_guint8(tvb, offset) & 0x0F;
+                ti = proto_tree_add_uint(evpd_tree, hf_scsi_inq_evpd_identifier_number, tvb, offset, 0, i);
+                PROTO_ITEM_SET_GENERATED(ti);
                 ti = proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_code_set, tvb, offset, 1, ENC_NA);
                 plen -= 1;
                 offset += 1;
@@ -2628,7 +2640,9 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     expert_add_info(pinfo, ti, &ei_scsi_product_data_goes_past_end_of_page);
                     break;
                 }
+
                 proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_association, tvb, offset, 1, ENC_NA);
+                identifier_type = tvb_get_guint8(tvb, offset);
                 ti = proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_type, tvb, offset, 1, ENC_NA);
                 plen -= 1;
                 offset += 1;
@@ -2656,7 +2670,12 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         break;
                     }
                     if (codeset == CODESET_ASCII) {
-                        proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset, idlen, ENC_NA|ENC_ASCII);
+                        if (identifier_type == DEVID_TYPE_VEND_ID_VEND_SPEC_ID) {
+                            proto_tree_add_item(evpd_tree, hf_scsi_inq_vendor_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
+                            proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset + 8, idlen - 8, ENC_NA|ENC_ASCII);
+                        } else {
+                            proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset, idlen, ENC_NA|ENC_ASCII);
+                        }
                     } else {
                         /*
                          * XXX - decode this based on the identifier type,
@@ -6623,6 +6642,8 @@ proto_register_scsi(void)
       { &hf_scsi_inq_evpd_devid_code_set, { "Code Set", "scsi.inquiry.evpd.devid.code_set", FT_UINT8, BASE_HEX, VALS(scsi_devid_codeset_val), 0x0F, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_association, { "Association", "scsi.inquiry.evpd.devid.association", FT_UINT8, BASE_HEX, VALS(scsi_devid_assoc_val), 0x30, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_identifier_type, { "Identifier Type", "scsi.inquiry.evpd.devid.identifier_type", FT_UINT8, BASE_HEX, VALS(scsi_devid_idtype_val), 0x0F, NULL, HFILL }},
+      { &hf_scsi_inq_evpd_identifier_number, { "Identifier Number", "scsi.inquiry.evpd.identifier_number", FT_UINT8, BASE_DEC, NULL,
+0x0, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_identifier_length, { "Identifier Length", "scsi.inquiry.evpd.devid.identifier_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_identifier_str, { "Identifier", "scsi.inquiry.evpd.devid.identifier_str", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_inq_evpd_devid_identifier_bytes, { "Identifier", "scsi.inquiry.evpd.devid.identifier_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
