@@ -1683,11 +1683,11 @@ eth_addr_resolve(hashether_t *tp) {
     g_assert_not_reached();
 } /* eth_addr_resolve */
 
-static hashether_t *
-eth_hash_new_entry(const guint8 *addr, const gboolean resolve) {
-    hashether_t *tp;
-    gint64       eth_as_int64, *key;
-    guint8       oct;
+static gint64
+eth_to_int64(const guint8 *addr)
+{
+    guint8 oct;
+    gint64 eth_as_int64;
 
     eth_as_int64 = addr[0];
     eth_as_int64 = eth_as_int64<<8;
@@ -1705,6 +1705,17 @@ eth_hash_new_entry(const guint8 *addr, const gboolean resolve) {
     eth_as_int64 = eth_as_int64<<8;
     oct = addr[5];
     eth_as_int64 = eth_as_int64 | oct;
+
+    return eth_as_int64;
+}
+
+static hashether_t *
+eth_hash_new_entry(const guint8 *addr, const gboolean resolve)
+{
+    hashether_t *tp;
+    gint64       eth_as_int64, *key;
+
+    eth_as_int64 = eth_to_int64(addr);
 
     key = (gint64 *)g_new(gint64, 1);
     *key = eth_as_int64;
@@ -1727,30 +1738,11 @@ static hashether_t *
 add_eth_name(const guint8 *addr, const gchar *name)
 {
     hashether_t *tp;
-    gint64       eth_as_int64, *key;
-    guint8       oct;
+    gint64       eth_as_int64;
 
-    eth_as_int64 = addr[0];
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[1];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[2];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[3];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[4];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[5];
-    eth_as_int64 = eth_as_int64 | oct;
+    eth_as_int64 = eth_to_int64(addr);
 
-    key = (gint64 *)g_new(gint64, 1);
-    *key = eth_as_int64;
-
-    tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, key);
+    tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, &eth_as_int64);
 
     if( tp == NULL ){
         tp = eth_hash_new_entry(addr, FALSE);
@@ -1764,32 +1756,14 @@ add_eth_name(const guint8 *addr, const gchar *name)
 } /* add_eth_name */
 
 static hashether_t *
-eth_name_lookup(const guint8 *addr, const gboolean resolve) {
+eth_name_lookup(const guint8 *addr, const gboolean resolve)
+{
     hashether_t  *tp;
-    gint64       eth_as_int64, *key;
-    guint8       oct;
+    gint64       eth_as_int64;
 
-    eth_as_int64 = addr[0];
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[1];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[2];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[3];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[4];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[5];
-    eth_as_int64 = eth_as_int64 | oct;
+    eth_as_int64 = eth_to_int64(addr);
 
-    key = (gint64 *)g_new(gint64, 1);
-    *key = eth_as_int64;
-
-    tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, key);
+    tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, &eth_as_int64);
     if( tp == NULL ) {
         tp = eth_hash_new_entry(addr, resolve);
     } else {
