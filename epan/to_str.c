@@ -979,8 +979,8 @@ decode_bitfield_value(char *buf, const guint32 val, const guint32 mask, const in
   char *p;
 
   p = other_decode_bitfield_value(buf, val, mask, width);
-  strcpy(p, " = ");
-  p += 3;
+  p = g_stpcpy(p, " = ");
+
   return p;
 }
 
