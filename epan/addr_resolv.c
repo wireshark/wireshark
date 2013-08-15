@@ -504,15 +504,19 @@ add_service_name(port_type proto, const guint port, const char *service_name)
 
     switch(proto){
         case PT_TCP:
+            g_free(serv_port_table->tcp_name);
             serv_port_table->tcp_name = g_strdup(service_name);
             break;
         case PT_UDP:
+            g_free(serv_port_table->udp_name);
             serv_port_table->udp_name = g_strdup(service_name);
             break;
         case PT_SCTP:
+            g_free(serv_port_table->sctp_name);
             serv_port_table->sctp_name = g_strdup(service_name);
             break;
         case PT_DCCP:
+            g_free(serv_port_table->dccp_name);
             serv_port_table->dccp_name = g_strdup(service_name);
             break;
         default:
