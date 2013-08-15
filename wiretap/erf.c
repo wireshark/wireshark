@@ -40,6 +40,7 @@
  * See
  *
  *      http://www.endace.com/support/EndaceRecordFormat.pdf
+ *      (mirror: https://bugs.wireshark.org/bugzilla/attachment.cgi?id=4333) (bug #4484)
  */
 
 #include "config.h"
