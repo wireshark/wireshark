@@ -1,6 +1,8 @@
 /*
  * Cross platform defines for exporting symbols from shared libraries
  *
+ * $Id$
+ *
  * Wireshark - Network traffic analyzer
  * By Balint Reczey <balint@balintreczey.hu>
  * Copyright 2013 Balint Reczey
