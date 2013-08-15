@@ -1,5 +1,7 @@
 /* summary_dialog.cpp
  *
+ * $Id$
+ *
  * GSoC 2013 - QtShark
  *
  * Wireshark - Network traffic analyzer
