@@ -56,9 +56,6 @@ static int proto_bundle = -1;
 static int proto_tcp_conv = -1;
 static int hf_bundle_pdu_version = -1;
 
-/* Custodian from Primary Block, used to validate CTEB */
-static gchar *bundle_custodian = NULL;
-
 /* TCP Convergence Header Variables */
 static int hf_tcp_convergence_pkt_type = -1;
 
@@ -111,11 +108,9 @@ static int hf_bundle_procflags_application_ack = -1;
 
 /* Additions for Version 5 */
 static int hf_bundle_control_flags = -1;
-#if 0
 static int hf_bundle_procflags_general = -1;
 static int hf_bundle_procflags_cos = -1;
 static int hf_bundle_procflags_status = -1;
-#endif
 
 /* Primary Header COS Flag Variables */
 static int hf_bundle_cosflags = -1;
@@ -131,18 +126,30 @@ static int hf_bundle_srrflags_report_deletion = -1;
 static int hf_bundle_srrflags_report_ack = -1;
 
 /* Primary Header Fields*/
-/* static int hf_bundle_primary_header_len = -1; */
+static int hf_bundle_primary_header_len = -1;
+static int hf_bundle_primary_dictionary_len = -1;
 static int hf_bundle_primary_timestamp = -1;
+static int hf_bundle_primary_fragment_offset = -1;
+static int hf_bundle_primary_total_adu_len = -1;
+static int hf_bundle_primary_timestamp_seq_num64 = -1;
+static int hf_bundle_primary_timestamp_seq_num32 = -1;
 
-
-static int hf_bundle_dest_scheme_offset = -1;
-static int hf_bundle_dest_ssp_offset = -1;
-static int hf_bundle_source_scheme_offset = -1;
-static int hf_bundle_source_ssp_offset = -1;
-static int hf_bundle_report_scheme_offset = -1;
-static int hf_bundle_report_ssp_offset = -1;
-static int hf_bundle_cust_scheme_offset = -1;
-static int hf_bundle_cust_ssp_offset = -1;
+static int hf_bundle_dest_scheme_offset_u16 = -1;
+static int hf_bundle_dest_scheme_offset_i32 = -1;
+static int hf_bundle_dest_ssp_offset_u16 = -1;
+static int hf_bundle_dest_ssp_offset_i32 = -1;
+static int hf_bundle_source_scheme_offset_u16 = -1;
+static int hf_bundle_source_scheme_offset_i32 = -1;
+static int hf_bundle_source_ssp_offset_u16 = -1;
+static int hf_bundle_source_ssp_offset_i32 = -1;
+static int hf_bundle_report_scheme_offset_u16 = -1;
+static int hf_bundle_report_scheme_offset_i32 = -1;
+static int hf_bundle_report_ssp_offset_u16 = -1;
+static int hf_bundle_report_ssp_offset_i32 = -1;
+static int hf_bundle_cust_scheme_offset_u16 = -1;
+static int hf_bundle_cust_scheme_offset_i32 = -1;
+static int hf_bundle_cust_ssp_offset_u16 = -1;
+static int hf_bundle_cust_ssp_offset_i32 = -1;
 
 /* Dictionary EIDs */
 static int hf_bundle_dest_scheme = -1;
@@ -157,6 +164,7 @@ static int hf_bundle_custodian_ssp = -1;
 /* Remaining Primary Header Fields */
 static int hf_bundle_creation_timestamp = -1;
 static int hf_bundle_lifetime = -1;
+static int hf_bundle_lifetime_sdnv = -1;
 
 /* Secondary Header Processing Flag Variables */
 static int hf_bundle_payload_length = -1;
@@ -168,6 +176,7 @@ static int hf_bundle_payload_flags_last_header = -1;
 
 /* Block Processing Control Flag Variables (Version 5) */
 static int hf_block_control_flags = -1;
+static int hf_block_control_flags_sdnv = -1;
 static int hf_block_control_replicate = -1;
 static int hf_block_control_transmit_status = -1;
 static int hf_block_control_delete_bundle = -1;
@@ -175,6 +184,9 @@ static int hf_block_control_last_block = -1;
 static int hf_block_control_discard_block = -1;
 static int hf_block_control_not_processed = -1;
 static int hf_block_control_eid_reference = -1;
+static int hf_block_control_block_length = -1;
+static int hf_block_control_block_cteb_custody_id = -1;
+static int hf_block_control_block_cteb_creator_custodian_eid = -1;
 
 /* Non-Primary Block Type Code Variable */
 static int hf_bundle_block_type_code = -1;
@@ -184,6 +196,7 @@ static int hf_ecos_flags = -1;
 static int hf_ecos_flags_critical = -1;
 static int hf_ecos_flags_streaming = -1;
 static int hf_ecos_flags_ordinal = -1;
+static int hf_ecos_flow_label = -1;
 
 static int hf_ecos_ordinal = -1;
 
@@ -201,6 +214,8 @@ static int hf_bundle_admin_fragment_offset = -1;
 static int hf_bundle_admin_fragment_length = -1;
 static int hf_bundle_admin_timestamp_seq_num64 = -1;
 static int hf_bundle_admin_timestamp_seq_num32 = -1;
+static int hf_bundle_admin_endpoint_length = -1;
+static int hf_bundle_admin_endpoint_id = -1;
 
 static int hf_bundle_admin_receipt_time = -1;
 static int hf_bundle_admin_accept_time = -1;
@@ -213,6 +228,8 @@ static int hf_bundle_admin_signal_time = -1;
 static int hf_bundle_status_report_reason_code = -1;
 static int hf_bundle_custody_trf_succ_flg = -1;
 static int hf_bundle_custody_signal_reason = -1;
+static int hf_bundle_custody_id_range_start = -1;
+static int hf_bundle_custody_id_range_end = -1;
 
 /* Tree Node Variables */
 static gint ett_bundle = -1;
@@ -241,8 +258,12 @@ static gint ett_msg_fragments = -1;
 
 static expert_field ei_bundle_payload_length = EI_INIT;
 static expert_field ei_bundle_control_flags_length = EI_INIT;
+static expert_field ei_bundle_block_control_flags = EI_INIT;
 static expert_field ei_bundle_sdnv_length = EI_INIT;
 static expert_field ei_bundle_timestamp_seq_num = EI_INIT;
+static expert_field ei_bundle_offset_error = EI_INIT;
+static expert_field ei_block_control_block_cteb_invalid = EI_INIT;
+static expert_field ei_block_control_block_cteb_valid = EI_INIT;
 
 static expert_field ei_tcp_convergence_data_flags = EI_INIT;
 static expert_field ei_tcp_convergence_segment_length = EI_INIT;
@@ -254,6 +275,33 @@ static dissector_handle_t data_handle;
 
 static guint bundle_tcp_port = 4556;
 static guint bundle_udp_port = 4556;
+
+typedef struct dictionary_data {
+    int bundle_header_dict_length;
+
+    int dest_scheme_offset;
+    int dst_scheme_pos;
+    int dst_scheme_len;
+    int source_scheme_offset;
+    int src_scheme_pos;
+    int src_scheme_len;
+    int report_scheme_offset;
+    int rpt_scheme_pos;
+    int rpt_scheme_len;
+    int cust_scheme_offset;
+    int cust_scheme_pos;
+    int cust_scheme_len;
+    int dest_ssp_offset;
+    int dst_ssp_len;
+    int source_ssp_offset;
+    int src_ssp_len;
+    int report_ssp_offset;
+    int rpt_ssp_len;
+    int cust_ssp_offset;
+    int cust_ssp_len;
+
+} dictionary_data_t;
+
 
 static const value_string packet_type_vals[] = {
     {((TCP_CONVERGENCE_DATA_SEGMENT>>4) & 0x0F), "Data"},
@@ -306,6 +354,14 @@ static const value_string bundle_block_type_codes[] = {
     {0x09, "Extension Security Block"},
     {0x0a, "Custody Transfer Enhancement Block"},
     {0x13, "Extended Class of Service Block"},
+    {0, NULL}
+};
+
+static const value_string cosflags_priority_vals[] = {
+    {0x00, "Bulk"},
+    {0x01, "Normal"},
+    {0x02, "Expedited"},
+    {0x03, "Invalid (Reserved)"},
     {0, NULL}
 };
 
@@ -422,174 +478,20 @@ add_sdnv_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, int offset
     return sdnv_length;
 }
 
-/* XXX: Consider common functions for use by dissect_version_4_primary_header() and
-        dissect_version_5_and_6_primary_header() since there's much identical code
-        between the two.
-*/
+/*
+ * Pull out stuff from the dictionary
+ */
 static int
-dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *tvb, guint8* pri_hdr_procflags)
+dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, dictionary_data_t* dict_data,
+                    guint8 pri_hdr_procflags, gchar **bundle_custodian)
 {
-    int           bundle_header_length;
-    int           bundle_header_dict_length;
-    int           offset;     /*Total offset into frame (frame_offset + convergence layer size)*/
-    int           sdnv_length;
-    int           dest_scheme_offset, dest_ssp_offset, source_scheme_offset, source_ssp_offset;
-    int           report_scheme_offset, report_ssp_offset, cust_scheme_offset, cust_ssp_offset;
-    int           fragment_offset, total_adu_length;
-    int           dst_scheme_pos, src_scheme_pos, rpt_scheme_pos, cust_scheme_pos;
-    int           dst_scheme_len, src_scheme_len, rpt_scheme_len, cust_scheme_len;
-    int           dst_ssp_len, src_ssp_len, rpt_ssp_len, cust_ssp_len;
-    const gchar  *src_node;
-    const gchar  *dst_node;
+    proto_item *ti;
+    proto_tree *dict_tree;
+    int sdnv_length;
+    const gchar *src_node, *dst_node;
 
-    guint8        srrflags;
-    proto_item   *srr_flag_item;
-    proto_tree   *srr_flag_tree;
-
-    proto_item   *proc_flag_item;
-    proto_tree   *proc_flag_tree;
-    proto_item   *cos_flag_item;
-    proto_tree   *cos_flag_tree;
-    proto_item   *dict_item;
-    proto_tree   *dict_tree;
-
-    offset = 1;         /* Version Number already displayed*/
-
-    /* Primary Header Processing Flags */
-    *pri_hdr_procflags = tvb_get_guint8(tvb, offset);
-    proc_flag_item = proto_tree_add_item(primary_tree, hf_bundle_procflags, tvb,
-                                                offset, 1, ENC_BIG_ENDIAN);
-    proc_flag_tree = proto_item_add_subtree(proc_flag_item, ett_proc_flags);
-    proto_tree_add_item(proc_flag_tree, hf_bundle_procflags_fragment,
-                                                tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(proc_flag_tree, hf_bundle_procflags_admin,
-                                                tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(proc_flag_tree, hf_bundle_procflags_dont_fragment,
-                                                tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(proc_flag_tree, hf_bundle_procflags_cust_xfer_req,
-                                                tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(proc_flag_tree, hf_bundle_procflags_dest_singleton,
-                                                tvb, offset, 1, ENC_BIG_ENDIAN);
-
-    /* Primary Header COS Flags */
-    ++offset;
-    cos_flag_item = proto_tree_add_item(primary_tree, hf_bundle_cosflags, tvb,
-                                                offset, 1, ENC_BIG_ENDIAN);
-    cos_flag_tree = proto_item_add_subtree(cos_flag_item, ett_cos_flags);
-    proto_tree_add_item(cos_flag_tree, hf_bundle_cosflags_priority,
-                                                tvb, offset, 1, ENC_BIG_ENDIAN);
-    /* Status Report Request Flags */
-    ++offset;
-    srrflags = tvb_get_guint8(tvb, offset);
-    srr_flag_item = proto_tree_add_item(primary_tree, hf_bundle_srrflags, tvb,
-                                                offset, 1, ENC_BIG_ENDIAN);
-    srr_flag_tree = proto_item_add_subtree(srr_flag_item, ett_srr_flags);
-
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_receipt,
-                                                tvb, offset, 1, srrflags);
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_cust_accept,
-                                                tvb, offset, 1, srrflags);
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_forward,
-                                                tvb, offset, 1, srrflags);
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_delivery,
-                                                tvb, offset, 1, srrflags);
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_deletion,
-                                                tvb, offset, 1, srrflags);
-    proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_ack,
-                                                tvb, offset, 1, srrflags);
-    ++offset;
-
-    bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-    if(bundle_header_length < 0) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, "Bundle Header Length: Error");
-        return 0;
-    }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Bundle Header Length: %d", bundle_header_length);
-
-    tvb_ensure_bytes_exist(tvb, offset + sdnv_length, bundle_header_length);
-    offset += sdnv_length;
-
-    /*
-     * Pick up offsets into dictionary (8 of them)
-     */
-
-    dest_scheme_offset = tvb_get_ntohs(tvb, offset);
-    dst_scheme_pos = offset;
-    dst_scheme_len = 2;
-    proto_tree_add_item(primary_tree, hf_bundle_dest_scheme_offset,
-                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    dest_ssp_offset = tvb_get_ntohs(tvb, offset);
-    dst_ssp_len = 2;
-    proto_tree_add_item(primary_tree, hf_bundle_dest_ssp_offset,
-                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    source_scheme_offset = tvb_get_ntohs(tvb, offset);
-    src_scheme_pos = offset;
-    src_scheme_len = 2;
-    proto_tree_add_item(primary_tree, hf_bundle_source_scheme_offset,
-                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    source_ssp_offset = tvb_get_ntohs(tvb, offset);
-    src_ssp_len = 2;
-    proto_tree_add_item(primary_tree, hf_bundle_source_ssp_offset,
-                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    report_scheme_offset = tvb_get_ntohs(tvb, offset);
-    rpt_scheme_pos = offset;
-    rpt_scheme_len = 2;
-    proto_tree_add_item(primary_tree, hf_bundle_report_scheme_offset,
-                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    report_ssp_offset = tvb_get_ntohs(tvb, offset);
-    rpt_ssp_len = 2;
-    proto_tree_add_item(primary_tree, hf_bundle_report_ssp_offset,
-                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    cust_scheme_offset = tvb_get_ntohs(tvb, offset);
-    cust_scheme_pos = offset;
-    cust_scheme_len = 2;
-    proto_tree_add_item(primary_tree, hf_bundle_cust_scheme_offset,
-                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    cust_ssp_offset = tvb_get_ntohs(tvb, offset);
-    cust_ssp_len = 2;
-    proto_tree_add_item(primary_tree, hf_bundle_cust_ssp_offset,
-                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    proto_tree_add_item(primary_tree, hf_bundle_creation_timestamp,
-                                                        tvb, offset, 8, ENC_BIG_ENDIAN);
-    offset += 8;
-
-    proto_tree_add_item(primary_tree, hf_bundle_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
-
-    bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-    if(bundle_header_dict_length < 0) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, "Dictionary Length: Error");
-        return 0;
-    }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Dictionary Length: %d", bundle_header_dict_length);
-    offset += sdnv_length;
-
-    /*
-     * Pull out stuff from the dictionary
-     */
-
-    tvb_ensure_bytes_exist(tvb, offset, bundle_header_dict_length);
-
-    dict_item = proto_tree_add_text(primary_tree, tvb, offset, bundle_header_dict_length, "Dictionary");
-    dict_tree = proto_item_add_subtree(dict_item, ett_dictionary);
+    ti = proto_tree_add_text(tree, tvb, offset, dict_data->bundle_header_dict_length, "Dictionary");
+    dict_tree = proto_item_add_subtree(ti, ett_dictionary);
 
     /*
      * If the dictionary length is 0, then the CBHE block compression method is applied. (RFC6260)
@@ -597,96 +499,93 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
      * If destination scheme offset is 2 and destination ssp offset is 1, then the EID is
      * ipn:2.1
      */
-    if(bundle_header_dict_length == 0)
+    if(dict_data->bundle_header_dict_length == 0)
     {
         /*
          * Destination info
          */
         proto_tree_add_text(dict_tree, tvb, 0,
                                 0, "Destination Scheme: %s",IPN_SCHEME_STR);
-        if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
+        if(dict_data->dest_scheme_offset == 0 && dict_data->dest_ssp_offset == 0)
         {
-                proto_tree_add_text(dict_tree, tvb, dst_scheme_pos,
-                                dst_scheme_len + dst_ssp_len, "Destination: Null");
+            proto_tree_add_text(dict_tree, tvb, dict_data->dst_scheme_pos,
+                            dict_data->dst_scheme_len + dict_data->dst_ssp_len, "Destination: Null");
         }
         else
         {
-                proto_tree_add_text(dict_tree, tvb, dst_scheme_pos,
-                                dst_scheme_len + dst_ssp_len,
-                                "Destination: %d.%d",dest_scheme_offset,dest_ssp_offset);
+            proto_tree_add_text(dict_tree, tvb, dict_data->dst_scheme_pos,
+                            dict_data->dst_scheme_len + dict_data->dst_ssp_len,
+                            "Destination: %d.%d",dict_data->dest_scheme_offset,dict_data->dest_ssp_offset);
         }
 
         /*
          * Source info
          */
-        proto_tree_add_text(dict_tree, tvb, 0,
-                                        0, "Source Scheme: %s",IPN_SCHEME_STR);
-        if(source_scheme_offset == 0 && source_ssp_offset == 0)
+        proto_tree_add_text(dict_tree, tvb, 0, 0, "Source Scheme: %s",IPN_SCHEME_STR);
+        if(dict_data->source_scheme_offset == 0 && dict_data->source_ssp_offset == 0)
         {
-                proto_tree_add_text(dict_tree, tvb, src_scheme_pos,
-                                src_scheme_len + src_ssp_len, "Source: Null");
+            proto_tree_add_text(dict_tree, tvb, dict_data->src_scheme_pos,
+                            dict_data->src_scheme_len + dict_data->src_ssp_len, "Source: Null");
         }
         else
         {
-                proto_tree_add_text(dict_tree, tvb, src_scheme_pos,
-                                src_scheme_len + src_ssp_len,
-                                "Source: %d.%d",source_scheme_offset,source_ssp_offset);
+            proto_tree_add_text(dict_tree, tvb, dict_data->src_scheme_pos,
+                            dict_data->src_scheme_len + dict_data->src_ssp_len,
+                            "Source: %d.%d", dict_data->source_scheme_offset, dict_data->source_ssp_offset);
         }
 
         /*
          * Report to info
          */
-        proto_tree_add_text(dict_tree, tvb, 0,
-                                        0, "Report Scheme: %s",IPN_SCHEME_STR);
-        if(report_scheme_offset == 0 && report_ssp_offset == 0)
+        proto_tree_add_text(dict_tree, tvb, 0, 0, "Report Scheme: %s",IPN_SCHEME_STR);
+        if (dict_data->report_scheme_offset == 0 && dict_data->report_ssp_offset == 0)
         {
-                proto_tree_add_text(dict_tree, tvb, rpt_scheme_pos,
-                                rpt_scheme_len + rpt_ssp_len, "Report: Null");
+            proto_tree_add_text(dict_tree, tvb, dict_data->rpt_scheme_pos,
+                            dict_data->rpt_scheme_len + dict_data->rpt_ssp_len, "Report: Null");
         }
         else
         {
-                proto_tree_add_text(dict_tree, tvb, rpt_scheme_pos,
-                                rpt_scheme_len + rpt_ssp_len,
-                                "Report: %d.%d",report_scheme_offset,report_ssp_offset);
+            proto_tree_add_text(dict_tree, tvb, dict_data->rpt_scheme_pos,
+                            dict_data->rpt_scheme_len + dict_data->rpt_ssp_len,
+                            "Report: %d.%d", dict_data->report_scheme_offset, dict_data->report_ssp_offset);
         }
 
         /*
          * Custodian info
          */
-        proto_tree_add_text(dict_tree, tvb, 0,
-                                        0, "Custodian Scheme: %s",IPN_SCHEME_STR);
-        if(cust_scheme_offset == 0 && cust_ssp_offset == 0)
+        proto_tree_add_text(dict_tree, tvb, 0, 0, "Custodian Scheme: %s",IPN_SCHEME_STR);
+        if (dict_data->cust_scheme_offset == 0 && dict_data->cust_ssp_offset == 0)
         {
-                proto_tree_add_text(dict_tree, tvb, cust_scheme_pos,
-                                cust_scheme_len + cust_ssp_len, "Custodian: Null");
+            proto_tree_add_text(dict_tree, tvb, dict_data->cust_scheme_pos,
+                            dict_data->cust_scheme_len + dict_data->cust_ssp_len, "Custodian: Null");
         }
         else
         {
-                proto_tree_add_text(dict_tree, tvb, cust_scheme_pos,
-                                cust_scheme_len + cust_ssp_len,
-                                "Custodian: %d.%d",cust_scheme_offset,cust_ssp_offset);
+            proto_tree_add_text(dict_tree, tvb, dict_data->cust_scheme_pos,
+                            dict_data->cust_scheme_len + dict_data->cust_ssp_len,
+                            "Custodian: %d.%d", dict_data->cust_scheme_offset, dict_data->cust_ssp_offset);
         }
 
-        if(source_scheme_offset == 0 && source_ssp_offset == 0)
+        if (dict_data->source_scheme_offset == 0 && dict_data->source_ssp_offset == 0)
         {
-                src_node = "Null";
+            src_node = "Null";
         }
         else
         {
-                src_node = ep_strdup_printf("%s:%d.%d",IPN_SCHEME_STR, source_scheme_offset, source_ssp_offset);
+            src_node = ep_strdup_printf("%s:%d.%d", IPN_SCHEME_STR, dict_data->source_scheme_offset, dict_data->source_ssp_offset);
         }
-        if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
+        if (dict_data->dest_scheme_offset == 0 && dict_data->dest_ssp_offset == 0)
         {
-                dst_node = "Null";
+            dst_node = "Null";
         }
         else
         {
-                dst_node = ep_strdup_printf("%s:%d.%d",IPN_SCHEME_STR, dest_scheme_offset, dest_ssp_offset);
+            dst_node = ep_strdup_printf("%s:%d.%d", IPN_SCHEME_STR, dict_data->dest_scheme_offset, dict_data->dest_ssp_offset);
         }
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s", src_node,dst_node);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s", src_node, dst_node);
         /* remember custodian, for use in checking cteb validity */
-        bundle_custodian = ep_strdup_printf("%s:%d.%d", IPN_SCHEME_STR, cust_scheme_offset, cust_ssp_offset);
+        *bundle_custodian = ep_strdup_printf("%s:%d.%d", IPN_SCHEME_STR, dict_data->cust_scheme_offset, dict_data->cust_ssp_offset);
     }
 
     /*
@@ -700,111 +599,233 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
          * Destination info
          */
 
-        proto_tree_add_item(dict_tree, hf_bundle_dest_scheme, tvb, offset + dest_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_dest_ssp, tvb, offset + dest_ssp_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_dest_scheme, tvb, offset + dict_data->dest_scheme_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_dest_ssp, tvb, offset + dict_data->dest_ssp_offset, -1, ENC_ASCII|ENC_NA);
 
         /*
          * Source info
          */
 
-        proto_tree_add_item(dict_tree, hf_bundle_source_scheme, tvb, offset + source_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_source_ssp, tvb, offset + source_ssp_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_source_scheme, tvb, offset + dict_data->source_scheme_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_source_ssp, tvb, offset + dict_data->source_ssp_offset, -1, ENC_ASCII|ENC_NA);
 
         /*
          * Report to info
          */
 
-        proto_tree_add_item(dict_tree, hf_bundle_report_scheme, tvb, offset + report_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_report_ssp, tvb, offset + report_ssp_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_report_scheme, tvb, offset + dict_data->report_scheme_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_report_ssp, tvb, offset + dict_data->report_ssp_offset, -1, ENC_ASCII|ENC_NA);
 
         /*
          * Custodian info
          */
 
-        proto_tree_add_item(dict_tree, hf_bundle_custodian_scheme, tvb, offset + cust_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_custodian_ssp, tvb, offset + cust_ssp_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_custodian_scheme, tvb, offset + dict_data->cust_scheme_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_custodian_ssp, tvb, offset + dict_data->cust_ssp_offset, -1, ENC_ASCII|ENC_NA);
 
         /*
          * Add Source/Destination to INFO Field
          */
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
-                     tvb_get_ephemeral_stringz(tvb, offset + source_scheme_offset, NULL),
-                     tvb_get_ephemeral_stringz(tvb, offset + source_ssp_offset, NULL),
-                     tvb_get_ephemeral_stringz(tvb, offset + dest_scheme_offset, NULL),
-                     tvb_get_ephemeral_stringz(tvb, offset + dest_ssp_offset, NULL));
+                     tvb_get_ephemeral_stringz(tvb, offset + dict_data->source_scheme_offset, NULL),
+                     tvb_get_ephemeral_stringz(tvb, offset + dict_data->source_ssp_offset, NULL),
+                     tvb_get_ephemeral_stringz(tvb, offset + dict_data->dest_scheme_offset, NULL),
+                     tvb_get_ephemeral_stringz(tvb, offset + dict_data->dest_ssp_offset, NULL));
 
         /* remember custodian, for use in checking cteb validity */
-        bundle_custodian = ep_strdup_printf("%s:%s", tvb_get_ephemeral_stringz(tvb, offset + cust_scheme_offset, NULL),
-                                            tvb_get_ephemeral_stringz(tvb, offset + cust_ssp_offset, NULL));
+        *bundle_custodian = ep_strdup_printf("%s:%s", tvb_get_ephemeral_stringz(tvb, offset + dict_data->cust_scheme_offset, NULL),
+                                            tvb_get_ephemeral_stringz(tvb, offset + dict_data->cust_ssp_offset, NULL));
     }
-    offset += bundle_header_dict_length;        /*Skip over dictionary*/
+    offset += dict_data->bundle_header_dict_length;        /*Skip over dictionary*/
 
     /*
      * Do this only if Fragment Flag is set
      */
 
-    if(*pri_hdr_procflags & BUNDLE_PROCFLAGS_FRAG_MASK) {
-        fragment_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
-        if(fragment_offset < 0) {
+    if(pri_hdr_procflags & BUNDLE_PROCFLAGS_FRAG_MASK) {
+        sdnv_length = add_sdnv_to_tree(tree, tvb, pinfo, offset, hf_bundle_primary_fragment_offset);
+        if (sdnv_length < 0) {
             return 0;
         }
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                                        "Fragment Offset: %d", fragment_offset);
         offset += sdnv_length;
 
-        total_adu_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-        if(total_adu_length < 0) {
+        sdnv_length = add_sdnv_to_tree(tree, tvb, pinfo, offset, hf_bundle_primary_total_adu_len);
+        if (sdnv_length < 0) {
             return 0;
         }
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Total Application Data Unit Length: %d", fragment_offset);
         offset += sdnv_length;
     }
-    return (offset);
+
+    return offset;
+}
+
+/*
+ * This routine returns 0 if header decoding fails, otherwise the length of the primary
+ * header, starting right after version number.
+ */
+static int
+dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *tvb, guint8* pri_hdr_procflags, gchar **bundle_custodian)
+{
+    int           bundle_header_length;
+    int           offset = 1;     /* Version Number already displayed */
+    int           sdnv_length;
+    dictionary_data_t dict_data;
+
+    proto_item   *ti;
+    proto_tree   *srr_flag_tree, *proc_flag_tree, *cos_flag_tree;
+
+    /* Primary Header Processing Flags */
+    *pri_hdr_procflags = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_item(primary_tree, hf_bundle_procflags, tvb,
+                                                offset, 1, ENC_BIG_ENDIAN);
+    proc_flag_tree = proto_item_add_subtree(ti, ett_proc_flags);
+    proto_tree_add_item(proc_flag_tree, hf_bundle_procflags_fragment,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(proc_flag_tree, hf_bundle_procflags_admin,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(proc_flag_tree, hf_bundle_procflags_dont_fragment,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(proc_flag_tree, hf_bundle_procflags_cust_xfer_req,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(proc_flag_tree, hf_bundle_procflags_dest_singleton,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /* Primary Header COS Flags */
+    ++offset;
+    ti = proto_tree_add_item(primary_tree, hf_bundle_cosflags, tvb,
+                                                offset, 1, ENC_BIG_ENDIAN);
+    cos_flag_tree = proto_item_add_subtree(ti, ett_cos_flags);
+    proto_tree_add_item(cos_flag_tree, hf_bundle_cosflags_priority,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* Status Report Request Flags */
+    ++offset;
+    ti = proto_tree_add_item(primary_tree, hf_bundle_srrflags, tvb,
+                                                offset, 1, ENC_BIG_ENDIAN);
+    srr_flag_tree = proto_item_add_subtree(ti, ett_srr_flags);
+
+    proto_tree_add_item(srr_flag_tree, hf_bundle_srrflags_report_receipt,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(srr_flag_tree, hf_bundle_srrflags_report_cust_accept,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(srr_flag_tree, hf_bundle_srrflags_report_forward,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(srr_flag_tree, hf_bundle_srrflags_report_delivery,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(srr_flag_tree, hf_bundle_srrflags_report_deletion,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(srr_flag_tree, hf_bundle_srrflags_report_ack,
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
+    ++offset;
+
+    bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_header_len, tvb, offset, sdnv_length, bundle_header_length);
+    if(bundle_header_length < 0) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "Bundle Header Length Error");
+        return 0;
+    }
+
+    offset += sdnv_length;
+
+    /* Ensure all fields have been initialized */
+    memset(&dict_data, 0, sizeof(dict_data));
+
+    /*
+     * Pick up offsets into dictionary (8 of them)
+     */
+
+    dict_data.dest_scheme_offset = tvb_get_ntohs(tvb, offset);
+    dict_data.dst_scheme_pos = offset;
+    dict_data.dst_scheme_len = 2;
+    proto_tree_add_item(primary_tree, hf_bundle_dest_scheme_offset_u16,
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    dict_data.dest_ssp_offset = tvb_get_ntohs(tvb, offset);
+    dict_data.dst_ssp_len = 2;
+    proto_tree_add_item(primary_tree, hf_bundle_dest_ssp_offset_u16,
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    dict_data.source_scheme_offset = tvb_get_ntohs(tvb, offset);
+    dict_data.src_scheme_pos = offset;
+    dict_data.src_scheme_len = 2;
+    proto_tree_add_item(primary_tree, hf_bundle_source_scheme_offset_u16,
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    dict_data.source_ssp_offset = tvb_get_ntohs(tvb, offset);
+    dict_data.src_ssp_len = 2;
+    proto_tree_add_item(primary_tree, hf_bundle_source_ssp_offset_u16,
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    dict_data.report_scheme_offset = tvb_get_ntohs(tvb, offset);
+    dict_data.rpt_scheme_pos = offset;
+    dict_data.rpt_scheme_len = 2;
+    proto_tree_add_item(primary_tree, hf_bundle_report_scheme_offset_u16,
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    dict_data.report_ssp_offset = tvb_get_ntohs(tvb, offset);
+    dict_data.rpt_ssp_len = 2;
+    proto_tree_add_item(primary_tree, hf_bundle_report_ssp_offset_u16,
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    dict_data.cust_scheme_offset = tvb_get_ntohs(tvb, offset);
+    dict_data.cust_scheme_pos = offset;
+    dict_data.cust_scheme_len = 2;
+    proto_tree_add_item(primary_tree, hf_bundle_cust_scheme_offset_u16,
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    dict_data.cust_ssp_offset = tvb_get_ntohs(tvb, offset);
+    dict_data.cust_ssp_len = 2;
+    proto_tree_add_item(primary_tree, hf_bundle_cust_ssp_offset_u16,
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(primary_tree, hf_bundle_creation_timestamp,
+                                                        tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(primary_tree, hf_bundle_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    dict_data.bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_dictionary_len, tvb, offset, sdnv_length, dict_data.bundle_header_dict_length);
+    if(dict_data.bundle_header_dict_length < 0) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "Dictionary Header Length Error");
+        return 0;
+    }
+    offset += sdnv_length;
+
+    offset = dissect_dictionary(pinfo, primary_tree, tvb, offset, &dict_data, *pri_hdr_procflags, bundle_custodian);
+    return offset;
 }
 
 
 /*
  * This routine returns 0 if header decoding fails, otherwise the length of the primary
- * header. The bundle starts right at the beginning of the tvbuff.
+ * header, starting right after version number.
  */
 
 static int
 dissect_version_5_and_6_primary_header(packet_info *pinfo,
-                                        proto_tree *primary_tree, tvbuff_t *tvb, guint8* pri_hdr_procflags)
+                                        proto_tree *primary_tree, tvbuff_t *tvb, guint8* pri_hdr_procflags, gchar **bundle_custodian)
 {
     guint64 bundle_processing_control_flags;
     guint8 cosflags;
     int bundle_header_length;
-    int bundle_header_dict_length;
-    int offset;         /*Total offset into frame (frame_offset + convergence layer size)*/
+    int offset = 1;         /* Version Number already displayed */
     int sdnv_length;
-    int dest_scheme_offset, dest_ssp_offset, source_scheme_offset, source_ssp_offset;
-    int report_scheme_offset, report_ssp_offset, cust_scheme_offset, cust_ssp_offset;
-    int dest_scheme_pos, source_scheme_pos, report_scheme_pos, cust_scheme_pos;
-    int dest_scheme_len, source_scheme_len, report_scheme_len, cust_scheme_len;
-    int dest_ssp_len, source_ssp_len, report_ssp_len, cust_ssp_len;
-    int fragment_offset, total_adu_length;
+    dictionary_data_t dict_data;
     int timestamp_sequence;
-    int lifetime;
-    const gchar *src_node;
-    const gchar *dst_node;
     guint8 srrflags;
-    proto_item *srr_flag_item;
-    proto_tree *srr_flag_tree;
-    proto_item *gen_flag_item;
-    proto_tree *gen_flag_tree;
+    proto_item *ti;
+    proto_tree *gen_flag_tree, *srr_flag_tree, *proc_flag_tree, *cos_flag_tree;
 
-    proto_item *proc_flag_item;
-    proto_tree *proc_flag_tree;
-    proto_item *cos_flag_item;
-    proto_tree *cos_flag_tree;
-    proto_item *dict_item;
-    proto_tree *dict_tree;
-
-
-    offset = 1;         /* Version Number already displayed */
     bundle_processing_control_flags = evaluate_sdnv_64(tvb, offset, &sdnv_length);
 
     /* Primary Header Processing Flags */
@@ -815,13 +836,13 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
                                "Wrong bundle control flag length: %d", sdnv_length);
         return 0;
     }
-    proc_flag_item = proto_tree_add_item(primary_tree, hf_bundle_control_flags, tvb,
+    ti = proto_tree_add_item(primary_tree, hf_bundle_control_flags, tvb,
                                                 offset, sdnv_length, ENC_BIG_ENDIAN);
-    proc_flag_tree = proto_item_add_subtree(proc_flag_item, ett_proc_flags);
+    proc_flag_tree = proto_item_add_subtree(ti, ett_proc_flags);
 
-    gen_flag_item = proto_tree_add_text(proc_flag_tree, tvb, offset,
-                                        sdnv_length, "General Flags");
-    gen_flag_tree = proto_item_add_subtree(gen_flag_item, ett_gen_flags);
+    ti = proto_tree_add_uint(proc_flag_tree, hf_bundle_procflags_general, tvb, offset,
+                                        sdnv_length, *pri_hdr_procflags);
+    gen_flag_tree = proto_item_add_subtree(ti, ett_gen_flags);
 
     proto_tree_add_boolean(gen_flag_tree, hf_bundle_procflags_fragment,
                                         tvb, offset, sdnv_length, *pri_hdr_procflags);
@@ -838,34 +859,17 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     /* Primary Header COS Flags */
     cosflags = (guint8) ((bundle_processing_control_flags >> 7) & 0x7f);
-    cos_flag_item = proto_tree_add_text(proc_flag_tree, tvb, offset,
-                                        sdnv_length, "Class of Service Flags");
-    cos_flag_tree = proto_item_add_subtree(cos_flag_item, ett_cos_flags);
-    if((cosflags & BUNDLE_COSFLAGS_PRIORITY_MASK) == BUNDLE_COSFLAGS_PRIORITY_BULK) {
-        proto_tree_add_text(cos_flag_tree, tvb, offset,
-                                        sdnv_length, "00 -- Priority = Bulk");
-    }
-    else if((cosflags & BUNDLE_COSFLAGS_PRIORITY_MASK) ==
-                                        BUNDLE_COSFLAGS_PRIORITY_NORMAL) {
-        proto_tree_add_text(cos_flag_tree, tvb, offset,
-                                        sdnv_length, "01 -- Priority = Normal");
-    }
-    else if((cosflags & BUNDLE_COSFLAGS_PRIORITY_MASK) ==
-                                        BUNDLE_COSFLAGS_PRIORITY_EXP) {
-        proto_tree_add_text(cos_flag_tree, tvb, offset,
-                                        sdnv_length, "10 -- Priority = Expedited");
-    }
-    else {
-        proto_tree_add_text(cos_flag_tree, tvb, offset,
-                                        sdnv_length, "11 -- Invalid (Reserved)");
-        return 0;
-    }
+    ti = proto_tree_add_uint(proc_flag_tree, hf_bundle_procflags_cos, tvb, offset,
+                                        sdnv_length, cosflags);
+    cos_flag_tree = proto_item_add_subtree(ti, ett_cos_flags);
+    proto_tree_add_uint(cos_flag_tree, hf_bundle_cosflags_priority, tvb, offset,
+                                    sdnv_length, cosflags);
 
     /* Status Report Request Flags */
     srrflags = (guint8) ((bundle_processing_control_flags >> 14) & 0x7f);
-    srr_flag_item = proto_tree_add_text(proc_flag_tree, tvb, offset,
-                                        sdnv_length, "Status Report Request Flags");
-    srr_flag_tree = proto_item_add_subtree(srr_flag_item, ett_srr_flags);
+    ti = proto_tree_add_uint(proc_flag_tree, hf_bundle_procflags_status, tvb, offset,
+                                        sdnv_length, srrflags);
+    srr_flag_tree = proto_item_add_subtree(ti, ett_srr_flags);
 
     proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_receipt,
                                                 tvb, offset, sdnv_length, srrflags);
@@ -881,14 +885,12 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     /* -- hdr_length -- */
     bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_header_len, tvb, offset, sdnv_length, bundle_header_length);
     if(bundle_header_length < 0) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Bundle Header Length: Error");
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "Bundle Header Length Error");
         return 0;
     }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Bundle Header Length: %d", bundle_header_length);
-    tvb_ensure_bytes_exist(tvb, offset + sdnv_length, bundle_header_length);
+
     offset += sdnv_length;
 
     /*
@@ -896,115 +898,92 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
      * hasn't told us to access way past the Primary Header.
      */
 
-    /* -- dest_scheme -- */
-    dest_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
-    dest_scheme_pos = offset;
-    dest_scheme_len = sdnv_length;
+    /* Ensure all fields have been initialized */
+    memset(&dict_data, 0, sizeof(dict_data));
 
-    if((dest_scheme_offset < 0) || (dest_scheme_offset > bundle_header_length)) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Destination Scheme Offset: Error");
-        return 0;
+    /* -- dest_scheme -- */
+    dict_data.dest_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    dict_data.dst_scheme_pos = offset;
+    dict_data.dst_scheme_len = sdnv_length;
+
+    ti = proto_tree_add_int(primary_tree, hf_bundle_dest_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.dest_scheme_offset);
+    if((dict_data.dest_scheme_offset < 0) || (dict_data.dest_scheme_offset > bundle_header_length)) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Destination Scheme Offset Error");
     }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Destination Scheme Offset: %d", dest_scheme_offset);
     offset += sdnv_length;
 
     /* -- dest_ssp -- */
-    dest_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
-    dest_ssp_len = sdnv_length;
+    dict_data.dest_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    dict_data.dst_ssp_len = sdnv_length;
 
-    if((dest_ssp_offset < 0) || (dest_ssp_offset > bundle_header_length)) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Destination SSP Offset: Error");
-        return 0;
+    ti = proto_tree_add_int(primary_tree, hf_bundle_dest_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.dest_ssp_offset);
+    if((dict_data.dest_ssp_offset < 0) || (dict_data.dest_ssp_offset > bundle_header_length)) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Destination SSP Offset Error");
     }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Destination SSP Offset: %d", dest_ssp_offset);
     offset += sdnv_length;
 
-
     /* -- source_scheme -- */
-    source_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
-    source_scheme_pos = offset;
-    source_scheme_len = sdnv_length;
+    dict_data.source_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    dict_data.src_scheme_pos = offset;
+    dict_data.src_scheme_len = sdnv_length;
 
-    if((source_scheme_offset < 0) || (source_scheme_offset > bundle_header_length)) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Source Scheme Offset: Error");
-        return 0;
+    ti = proto_tree_add_int(primary_tree, hf_bundle_source_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.source_scheme_offset);
+    if((dict_data.source_scheme_offset < 0) || (dict_data.source_scheme_offset > bundle_header_length)) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Source Scheme Offset Error");
     }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Source Scheme Offset: %d", source_scheme_offset);
     offset += sdnv_length;
 
     /* -- source_ssp -- */
-    source_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
-    source_ssp_len = sdnv_length;
+    dict_data.source_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    dict_data.src_ssp_len = sdnv_length;
 
-    if((source_ssp_offset < 0) || (source_ssp_offset > bundle_header_length)) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Source SSP Offset: Error");
-        return 0;
+    ti = proto_tree_add_int(primary_tree, hf_bundle_source_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.source_ssp_offset);
+    if((dict_data.source_ssp_offset < 0) || (dict_data.source_ssp_offset > bundle_header_length)) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Source SSP Offset Error");
     }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Source SSP Offset: %d", source_ssp_offset);
     offset += sdnv_length;
 
-
     /* -- report_scheme -- */
-    report_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
-    report_scheme_pos = offset;
-    report_scheme_len = sdnv_length;
+    dict_data.report_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    dict_data.rpt_scheme_pos = offset;
+    dict_data.rpt_scheme_len = sdnv_length;
 
-    if((report_scheme_offset < 0) || (report_scheme_offset > bundle_header_length)) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Report Scheme Offset: Error");
-        return 0;
+    ti = proto_tree_add_int(primary_tree, hf_bundle_report_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.report_scheme_offset);
+    if((dict_data.report_scheme_offset < 0) || (dict_data.report_scheme_offset > bundle_header_length)) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Report Scheme Offset Error");
     }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Report Scheme Offset: %d", report_scheme_offset);
     offset += sdnv_length;
 
     /* -- report_ssp -- */
-    report_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
-    report_ssp_len = sdnv_length;
+    dict_data.report_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    dict_data.rpt_ssp_len = sdnv_length;
 
-    if((report_ssp_offset < 0) || (report_ssp_offset > bundle_header_length)) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Report SSP Offset: Error");
-        return 0;
+    ti = proto_tree_add_int(primary_tree, hf_bundle_report_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.report_ssp_offset);
+    if((dict_data.report_ssp_offset < 0) || (dict_data.report_ssp_offset > bundle_header_length)) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Report SSP Offset Error");
     }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Report SSP Offset: %d", report_ssp_offset);
     offset += sdnv_length;
 
 
     /* -- cust_scheme -- */
-    cust_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
-    cust_scheme_pos = offset;
-    cust_scheme_len = sdnv_length;
+    dict_data.cust_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    dict_data.cust_scheme_pos = offset;
+    dict_data.cust_scheme_len = sdnv_length;
 
-    if((cust_scheme_offset < 0) || (cust_scheme_offset > bundle_header_length)) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Custodian Scheme Offset: Error");
-        return 0;
+    ti = proto_tree_add_int(primary_tree, hf_bundle_cust_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.cust_scheme_offset);
+    if((dict_data.cust_scheme_offset < 0) || (dict_data.cust_scheme_offset > bundle_header_length)) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Custodian Scheme Offset Error");
     }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Custodian Scheme Offset: %d", cust_scheme_offset);
     offset += sdnv_length;
 
     /* -- cust_ssp -- */
-    cust_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
-    cust_ssp_len = sdnv_length;
+    dict_data.cust_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    dict_data.cust_ssp_len = sdnv_length;
 
-    if((cust_ssp_offset < 0) || (cust_ssp_offset > bundle_header_length)) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Custodian SSP Offset: Error");
-        return 0;
+    ti = proto_tree_add_int(primary_tree, hf_bundle_cust_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.cust_ssp_offset);
+    if((dict_data.cust_ssp_offset < 0) || (dict_data.cust_ssp_offset > bundle_header_length)) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Custodian SSP Offset Error");
     }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Custodian SSP Offset: %d", cust_ssp_offset);
     offset += sdnv_length;
 
 
@@ -1017,247 +996,48 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     /* -- timestamp_sequence -- */
     timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
     if(timestamp_sequence < 0) {
-        gint64 ts_seq;
+        gint64 ts_seq = evaluate_sdnv_64(tvb, offset, &sdnv_length);
 
-        if((ts_seq = evaluate_sdnv_64(tvb, offset, &sdnv_length)) < 0) {
-            proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                                "Timestamp Sequence Number: Error");
-            return 0;
+        ti = proto_tree_add_int64(primary_tree, hf_bundle_primary_timestamp_seq_num64,
+                                                        tvb, offset, sdnv_length, ts_seq);
+        if(ts_seq < 0) {
+            expert_add_info(pinfo, ti, &ei_bundle_timestamp_seq_num);
         }
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Timestamp Sequence Number: 0x%" G_GINT64_MODIFIER "x", ts_seq);
     }
     else {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Timestamp Sequence Number: %d", timestamp_sequence);
+        proto_tree_add_int(primary_tree, hf_bundle_primary_timestamp_seq_num32,
+                                                        tvb, offset, sdnv_length, timestamp_sequence);
     }
     offset += sdnv_length;
 
     /* -- lifetime -- */
-    lifetime = evaluate_sdnv(tvb, offset, &sdnv_length);
-    if(lifetime < 0) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Lifetime: Error");
-        return 0;
-    }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Lifetime: %d", lifetime);
+    sdnv_length = add_sdnv_to_tree(primary_tree, tvb, pinfo, offset, hf_bundle_lifetime_sdnv);
     offset += sdnv_length;
 
     /* -- dict_length -- */
-    bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-    if(bundle_header_dict_length < 0) {
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                            "Dictionary Length: Error");
+    dict_data.bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+    ti = proto_tree_add_int(primary_tree, hf_bundle_primary_dictionary_len, tvb, offset, sdnv_length, dict_data.bundle_header_dict_length);
+    if(dict_data.bundle_header_dict_length < 0) {
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "Dictionary Header Length Error");
         return 0;
     }
-    proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Dictionary Length: %d",bundle_header_dict_length);
     offset += sdnv_length;
 
-    /*
-     * Pull out stuff from the dictionary
-     */
-
-    tvb_ensure_bytes_exist(tvb, offset, bundle_header_dict_length);
-
-    dict_item = proto_tree_add_text(primary_tree, tvb, offset, bundle_header_dict_length,
-                                    "Dictionary");
-    dict_tree = proto_item_add_subtree(dict_item, ett_dictionary);
-
-    /*
-     * If the dictionary length is 0, then the CBHE block compression method is applied. (RFC6260)
-     * So the scheme offset is the node number and the ssp offset is the service number.
-     * If destination scheme offset is 2 and destination ssp offset is 1, then the EID is
-     * ipn:2.1
-     */
-    if(bundle_header_dict_length == 0)
-    {
-        /*
-         * Destination info
-         */
-        proto_tree_add_text(dict_tree, tvb,
-                            0, 0,
-                            "Destination Scheme: %s",IPN_SCHEME_STR);
-        if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
-        {
-                proto_tree_add_text(dict_tree, tvb,
-                                    dest_scheme_pos, dest_scheme_len + dest_ssp_len,
-                                    "Destination: Null");
-        }
-        else
-        {
-                proto_tree_add_text(dict_tree, tvb,
-                                    dest_scheme_pos, dest_scheme_len + dest_ssp_len,
-                                    "Destination: %d.%d",dest_scheme_offset,dest_ssp_offset);
-        }
-
-        /*
-         * Source info
-         */
-        proto_tree_add_text(dict_tree, tvb,
-                            0, 0,
-                            "Source Scheme: %s",IPN_SCHEME_STR);
-        if(source_scheme_offset == 0 && source_ssp_offset == 0)
-        {
-                proto_tree_add_text(dict_tree, tvb,
-                                    source_scheme_pos, source_scheme_len + source_ssp_len,
-                                    "Source: Null");
-        }
-        else
-        {
-                proto_tree_add_text(dict_tree, tvb,
-                                    source_scheme_pos, source_scheme_len + source_ssp_len,
-                                    "Source: %d.%d",source_scheme_offset,source_ssp_offset);
-        }
-
-        /*
-         * Report to info
-         */
-        proto_tree_add_text(dict_tree, tvb,
-                            0, 0,
-                            "Report Scheme: %s",IPN_SCHEME_STR);
-        if((report_scheme_offset == 0) && (report_ssp_offset == 0))
-        {
-                proto_tree_add_text(dict_tree, tvb,
-                                    report_scheme_pos, report_scheme_len + report_ssp_len,
-                                    "Report: Null");
-        }
-        else
-        {
-                proto_tree_add_text(dict_tree, tvb,
-                                    report_scheme_pos, report_scheme_len + report_ssp_len,
-                                    "Report: %d.%d",report_scheme_offset,report_ssp_offset);
-        }
-
-        /*
-         * Custodian info
-         */
-        proto_tree_add_text(dict_tree, tvb, 0,
-                                        0, "Custodian Scheme: %s",IPN_SCHEME_STR);
-        if(cust_scheme_offset == 0 && cust_ssp_offset == 0)
-        {
-                proto_tree_add_text(dict_tree, tvb,
-                                    cust_scheme_pos, cust_scheme_len + cust_ssp_len,
-                                    "Custodian: Null");
-        }
-        else
-        {
-                proto_tree_add_text(dict_tree, tvb, cust_scheme_pos,
-                                cust_scheme_len + cust_ssp_len,
-                                "Custodian: %d.%d",cust_scheme_offset,cust_ssp_offset);
-        }
-
-        if(source_scheme_offset == 0 && source_ssp_offset == 0)
-        {
-                src_node = "Null";
-        }
-        else
-        {
-                src_node = ep_strdup_printf("%s:%d.%d",IPN_SCHEME_STR, source_scheme_offset, source_ssp_offset);
-        }
-        if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
-        {
-                dst_node = "Null";
-        }
-        else
-        {
-                dst_node = ep_strdup_printf("%s:%d.%d",IPN_SCHEME_STR, dest_scheme_offset, dest_ssp_offset);
-        }
-
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s", src_node, dst_node);
-        /* remember custodian, for use in checking cteb validity */
-        bundle_custodian = ep_strdup_printf("%s:%d.%d", IPN_SCHEME_STR, cust_scheme_offset, cust_ssp_offset);
-    }
-    else
-    {
-        /*
-         * Note that the various "offset" pointers may address outside the packet boundaries.
-         * proto_tree_add_item() will throw a "bounds exception" for invalid "offset" values.
-         */
-
-        /*
-         * Destination info
-         */
-
-        proto_tree_add_item(dict_tree, hf_bundle_dest_scheme, tvb, offset + dest_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_dest_ssp, tvb, offset + dest_ssp_offset, -1, ENC_ASCII|ENC_NA);
-
-        /*
-         * Source info
-         */
-
-        proto_tree_add_item(dict_tree, hf_bundle_source_scheme, tvb, offset + source_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_source_ssp, tvb, offset + source_ssp_offset, -1, ENC_ASCII|ENC_NA);
-
-        /*
-         * Report to info
-         */
-
-        proto_tree_add_item(dict_tree, hf_bundle_report_scheme, tvb, offset + report_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_report_ssp, tvb, offset + report_ssp_offset, -1, ENC_ASCII|ENC_NA);
-
-        /*
-         * Custodian info
-         */
-
-        proto_tree_add_item(dict_tree, hf_bundle_custodian_scheme, tvb, offset + cust_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_custodian_ssp, tvb, offset + cust_ssp_offset, -1, ENC_ASCII|ENC_NA);
-
-        /*
-         * Add Source/Destination to INFO Field
-         */
-
-        /* Note: If we get this far, the offsets (and the strings) are at least within the TVB */
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
-                     tvb_get_ephemeral_stringz(tvb, offset + source_scheme_offset, NULL),
-		     tvb_get_ephemeral_stringz(tvb, offset + source_ssp_offset, NULL),
-                     tvb_get_ephemeral_stringz(tvb, offset + dest_scheme_offset, NULL),
-		     tvb_get_ephemeral_stringz(tvb, offset + dest_ssp_offset, NULL));
-        /* remember custodian, for use in checking cteb validity */
-        bundle_custodian = ep_strdup_printf("%s:%s",
-                                            tvb_get_ephemeral_stringz(tvb, offset + cust_scheme_offset, NULL),
-                                            tvb_get_ephemeral_stringz(tvb, offset + cust_ssp_offset, NULL));
-    }
-    offset += bundle_header_dict_length;        /*Skip over dictionary*/
-
-    /*
-     * Do this only if Fragment Flag is set
-     */
-
-    if(*pri_hdr_procflags & BUNDLE_PROCFLAGS_FRAG_MASK) {
-        fragment_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
-        if(fragment_offset < 0) {
-            return 0;
-        }
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                                        "Fragment Offset: %d", fragment_offset);
-        offset += sdnv_length;
-
-        total_adu_length = evaluate_sdnv(tvb, offset, &sdnv_length);
-        if(total_adu_length < 0) {
-            return 0;
-        }
-        proto_tree_add_text(primary_tree, tvb, offset, sdnv_length,
-                        "Total Application Data Unit Length: %d", fragment_offset);
-        offset += sdnv_length;
-    }
-    return (offset);
+    offset = dissect_dictionary(pinfo, primary_tree, tvb, offset, &dict_data, *pri_hdr_procflags, bundle_custodian);
+    return offset;
 }
 
 /*
- * bundle_offset is offset into this bundle where header starts.
- * Return size of payload (including payload header) or 0 on failure.
+ * offset is where the header starts.
+ * Return new offset, and set lastheader if failure.
  */
-
 static int
 dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 version,
                        guint8 pri_hdr_procflags, gboolean *lastheader)
 {
     proto_item *payload_item, *ti;
     proto_tree *payload_tree;
-    int         sdnv_length;
-    int         payload_length;
+    int         sdnv_length, payload_length;
 
     payload_item = proto_tree_add_text(tree, tvb, offset, -1, "Payload Header");
     payload_tree = proto_item_add_subtree(payload_item, ett_payload_hdr);
@@ -1357,14 +1137,13 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 }
 
 /*
- * Return the length of the Administrative Record or 0 if analysis fails.
+ * Return the offset after the Administrative Record or set success = FALSE if analysis fails.
  */
-
 static int
 dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo,
                      int offset, int payload_length, gboolean* success)
 {
-    proto_item *admin_record_item;
+    proto_item *admin_record_item, *ti;
     proto_tree *admin_record_tree;
     proto_item *timestamp_sequence_item;
     guint8 record_type;
@@ -1373,11 +1152,9 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
     int sdnv_length;
     int timestamp_sequence;
     int endpoint_length;
-    guint8 *string_ptr;
 
     *success = FALSE;
-    admin_record_item = proto_tree_add_text(primary_tree, tvb, offset, -1,
-                                                        "Administrative Record");
+    admin_record_item = proto_tree_add_text(primary_tree, tvb, offset, -1, "Administrative Record");
     admin_record_tree = proto_item_add_subtree(admin_record_item, ett_admin_record);
     record_type = tvb_get_guint8(tvb, offset);
 
@@ -1499,17 +1276,14 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         if(endpoint_length < 0) {
             return offset;
         }
-        proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length,
-                                        "Endpoint Length: %d", endpoint_length);
+        proto_tree_add_int(admin_record_tree, hf_bundle_admin_endpoint_length, tvb, offset, sdnv_length, endpoint_length);
         offset += sdnv_length;
 
         /*
          * Endpoint name may not be null terminated. This routine is supposed
          * to add the null at the end of the string buffer.
          */
-        string_ptr = tvb_get_ephemeral_string(tvb, offset, endpoint_length);
-        proto_tree_add_text(admin_record_tree, tvb, offset, endpoint_length,
-                                                "Bundle Endpoint ID: %s", string_ptr);
+        proto_tree_add_item(admin_record_tree, hf_bundle_admin_endpoint_id, tvb, offset, endpoint_length, ENC_NA|ENC_ASCII);
         offset += endpoint_length;
 
         break;
@@ -1571,12 +1345,9 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         if(endpoint_length < 0) {
             return 0;
         }
-        proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length,
-                                        "Endpoint Length: %d", endpoint_length);
+        proto_tree_add_int(admin_record_tree, hf_bundle_admin_endpoint_length, tvb, offset, sdnv_length, endpoint_length);
         offset += sdnv_length;
-        string_ptr = tvb_get_ephemeral_string(tvb, offset, endpoint_length);
-        proto_tree_add_text(admin_record_tree, tvb, offset, endpoint_length,
-                                                "Bundle Endpoint ID: %s", string_ptr);
+        proto_tree_add_item(admin_record_tree, hf_bundle_admin_endpoint_id, tvb, offset, endpoint_length, ENC_NA|ENC_ASCII);
         offset += endpoint_length;
         break;
     } /* case ADMIN_REC_TYPE_CUSTODY_SIGNAL */
@@ -1602,25 +1373,19 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
 
         /* process the first fill */
         fill_start = evaluate_sdnv(tvb, offset, &sdnv_length_start);
+        ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_start, tvb, offset, sdnv_length_start, fill_start);
         if (fill_start < 0 || sdnv_length_start < 0) {
-            proto_tree_add_text(admin_record_tree, tvb, offset, 0,
-                                        "ACS: Unable to process CTEB Custody ID Range start SDNV");
+            expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range start SDNV");
             return offset;
         }
         fill_length = evaluate_sdnv(tvb, offset + sdnv_length_start, &sdnv_length_length);
+        ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_end, tvb, offset,
+                                sdnv_length_start + sdnv_length_length, fill_start + fill_length - 1);
         if (fill_length < 0 || sdnv_length_length < 0) {
-            proto_tree_add_text(admin_record_tree, tvb, offset, 0,
-                                        "ACS: Unable to process CTEB Custody ID Range length SDNV");
+            expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range length SDNV");
             return offset;
         }
-        if (fill_length == 1) {
-            proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_start + sdnv_length_length,
-                                "CTEB Custody ID Range: %d", fill_start);
-        }
-        else {
-            proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_start + sdnv_length_length,
-                                "CTEB Custody ID Range: %d-%d", fill_start, fill_start + fill_length - 1);
-        }
+
         right_edge = fill_start + fill_length;
         offset += sdnv_length_start + sdnv_length_length;
         payload_bytes_processed += sdnv_length_start + sdnv_length_length;
@@ -1629,33 +1394,26 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
          * payload as additional fills */
         while (payload_bytes_processed < payload_length) {
             fill_gap = evaluate_sdnv(tvb, offset, &sdnv_length_gap);
+            ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_start, tvb, offset, sdnv_length_gap, fill_gap);
             if (fill_gap < 0 || sdnv_length_gap < 0) {
-                proto_tree_add_text(admin_record_tree, tvb, offset, 0,
-                                            "ACS: Unable to process CTEB Custody ID Range gap SDNV");
+                expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range gap SDNV");
                 return offset;
             }
             fill_length = evaluate_sdnv(tvb, offset + sdnv_length_gap, &sdnv_length_length);
+            ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_end, tvb, offset,
+                                    sdnv_length_gap + sdnv_length_length, right_edge + fill_gap + fill_length - 1);
             if (fill_length < 0 || sdnv_length_length < 0) {
-                proto_tree_add_text(admin_record_tree, tvb, offset, 0,
-                                            "ACS: Unable to process CTEB Custody ID Range length SDNV");
+                expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range length SDNV");
                 return offset;
             }
-            if (fill_length == 1) {
-                proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_gap + sdnv_length_length,
-                                    "CTEB Custody ID Range: %d", right_edge + fill_gap);
-            }
-            else {
-                proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_gap + sdnv_length_length,
-                                    "CTEB Custody ID Range: %d-%d", right_edge + fill_gap, right_edge + fill_gap + fill_length - 1);
-            }
+
             right_edge += fill_gap + fill_length;
             offset += sdnv_length_gap + sdnv_length_length;
             payload_bytes_processed += sdnv_length_gap + sdnv_length_length;
         }
 
         if (payload_bytes_processed > payload_length) {
-            proto_tree_add_text(admin_record_tree, tvb, offset, 0,
-                                        "ACS: CTEB Custody ID Range data extends past payload length");
+            expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "ACS: CTEB Custody ID Range data extends past payload length");
             return offset;
         }
 
@@ -1673,14 +1431,14 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
 }
 
 static int
-display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *lastheader)
+display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gchar *bundle_custodian, gboolean *lastheader)
 {
-    proto_item *block_item;
+    proto_item *block_item, *ti, *block_flag_replicate_item, *block_flag_eid_reference_item;
     proto_tree *block_tree;
     int sdnv_length;
     int block_length;
     guint8 type;
-    int control_flags;
+    unsigned int control_flags;
     int control_flags_offset;
     int control_flags_length;
     proto_tree *block_flag_tree = NULL;
@@ -1695,16 +1453,16 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     proto_tree_add_item(block_tree, hf_bundle_block_type_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     ++offset;
 
-    control_flags = evaluate_sdnv(tvb, offset, &sdnv_length);
+    control_flags = (unsigned int)evaluate_sdnv(tvb, offset, &sdnv_length);
     if(control_flags & BLOCK_CONTROL_LAST_BLOCK) {
         *lastheader = TRUE;
     } else {
         *lastheader = FALSE;
     }
-    block_flag_item = proto_tree_add_item(block_tree, hf_block_control_flags, tvb,
-                                            offset, sdnv_length, ENC_BIG_ENDIAN);
+    block_flag_item = proto_tree_add_uint(block_tree, hf_block_control_flags_sdnv, tvb,
+                                            offset, sdnv_length, control_flags);
     block_flag_tree = proto_item_add_subtree(block_flag_item, ett_block_flags);
-    proto_tree_add_boolean(block_flag_tree, hf_block_control_replicate,
+    block_flag_replicate_item = proto_tree_add_boolean(block_flag_tree, hf_block_control_replicate,
                            tvb, offset, sdnv_length, control_flags);
     proto_tree_add_boolean(block_flag_tree, hf_block_control_transmit_status,
                            tvb, offset, sdnv_length, control_flags);
@@ -1716,7 +1474,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
                            tvb, offset, sdnv_length, control_flags);
     proto_tree_add_boolean(block_flag_tree, hf_block_control_not_processed,
                            tvb, offset, sdnv_length, control_flags);
-    proto_tree_add_boolean(block_flag_tree, hf_block_control_eid_reference,
+    block_flag_eid_reference_item = proto_tree_add_boolean(block_flag_tree, hf_block_control_eid_reference,
                            tvb, offset, sdnv_length, control_flags);
     control_flags_offset = offset;
     control_flags_length = sdnv_length;
@@ -1736,15 +1494,15 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
             offset += sdnv_length;
         }
     }
-
+    
     block_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+    ti = proto_tree_add_int(block_tree, hf_block_control_block_length, tvb, offset, sdnv_length, block_length);
     if(block_length < 0) {
-        proto_tree_add_text(block_tree, tvb, offset, sdnv_length, "Metadata Block Length: Error");
+        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
         /* Force quitting */
         *lastheader = TRUE;
         return offset;
     }
-    proto_tree_add_text(block_tree, tvb, offset, sdnv_length, "Block Length: %d", block_length);
     offset += sdnv_length;
     /* now we have enough info to know total length of metadata block */
     proto_item_set_len(block_item, offset + block_length);
@@ -1764,55 +1522,46 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     }
     case BUNDLE_BLOCK_TYPE_CUSTODY_TRANSFER:
     {
-        int custody_id = -1;
-        const char *cteb_creator_custodian_eid = NULL;
-        int cteb_creator_custodian_eid_length = -1;
+        int custody_id;
+        const char *cteb_creator_custodian_eid;
+        int cteb_creator_custodian_eid_length;
 
         /* check requirements for Block Processing Control Flags */
         if ((control_flags & BLOCK_CONTROL_REPLICATE) != 0) {
-            proto_tree_add_text(block_tree, tvb, control_flags_offset, control_flags_length, "Block Processing Control Flags: ERROR: Replicate must be clear for CTEB");
+            expert_add_info_format_text(pinfo, block_flag_replicate_item, &ei_bundle_block_control_flags, "ERROR: Replicate must be clear for CTEB");
         }
         if ((control_flags & BLOCK_CONTROL_EID_REFERENCE) != 0) {
-            proto_tree_add_text(block_tree, tvb, control_flags_offset, control_flags_length, "Block Processing Control Flags: ERROR: EID-Reference must be clear for CTEB");
+            expert_add_info_format_text(pinfo, block_flag_eid_reference_item, &ei_bundle_block_control_flags, "ERROR: EID-Reference must be clear for CTEB");
         }
 
         /* there are two elements in a CTEB, first is the custody ID */
         custody_id = evaluate_sdnv(tvb, offset, &sdnv_length);
-        proto_tree_add_text(block_tree, tvb, offset, sdnv_length, "CTEB Custody ID: %d", custody_id);
+        proto_tree_add_int(block_tree, hf_block_control_block_cteb_custody_id, tvb, offset, sdnv_length, custody_id);
         offset += sdnv_length;
 
         /* and second is the creator custodian EID */
         cteb_creator_custodian_eid_length = block_length - sdnv_length;
         cteb_creator_custodian_eid = (char *) tvb_get_ephemeral_string(tvb, offset, cteb_creator_custodian_eid_length);
-        proto_tree_add_text(block_tree, tvb, offset, cteb_creator_custodian_eid_length,
-                                "CTEB Creator Custodian EID: %s", cteb_creator_custodian_eid);
+        ti = proto_tree_add_string(block_tree, hf_block_control_block_cteb_creator_custodian_eid, tvb, offset,
+                                cteb_creator_custodian_eid_length, cteb_creator_custodian_eid);
+
         /* also check if CTEB is valid, i.e. custodians match */
-        if (cteb_creator_custodian_eid == NULL) {
-            proto_tree_add_text(block_tree, tvb, offset,
-                                cteb_creator_custodian_eid_length,
-                                "CTEB Is NOT Valid (CTEB Custodian NULL)");
-        }
-        else if (bundle_custodian == NULL) {
-            proto_tree_add_text(block_tree, tvb, offset,
-                                cteb_creator_custodian_eid_length,
+        if (bundle_custodian == NULL) {
+            expert_add_info_format_text(pinfo, ti, &ei_block_control_block_cteb_invalid,
                                 "CTEB Is NOT Valid (Bundle Custodian NULL)");
         }
         else if (strlen(cteb_creator_custodian_eid) != strlen(bundle_custodian)) {
-            proto_tree_add_text(block_tree, tvb, offset,
-                                cteb_creator_custodian_eid_length,
+            expert_add_info_format_text(pinfo, ti, &ei_block_control_block_cteb_invalid,
                                 "CTEB Is NOT Valid (Bundle Custodian [%s] != CTEB Custodian [%s])",
                                 bundle_custodian, cteb_creator_custodian_eid);
         }
         else if (memcmp(cteb_creator_custodian_eid, bundle_custodian, strlen(bundle_custodian)) != 0) {
-            proto_tree_add_text(block_tree, tvb, offset,
-                                cteb_creator_custodian_eid_length,
+            expert_add_info_format_text(pinfo, ti, &ei_block_control_block_cteb_invalid,
                                 "CTEB Is NOT Valid (Bundle Custodian [%s] != CTEB Custodian [%s])",
                                 bundle_custodian, cteb_creator_custodian_eid);
         }
         else {
-            proto_tree_add_text(block_tree, tvb, offset,
-                                cteb_creator_custodian_eid_length,
-                                "CTEB Is Valid");
+            expert_add_info(pinfo, ti, &ei_block_control_block_cteb_valid);
         }
         offset += cteb_creator_custodian_eid_length;
 
@@ -1822,15 +1571,14 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     {
         proto_item *ecos_flag_item;
         proto_tree *ecos_flag_tree;
-        int flags;
-        int flow_label;
+        int flags, flow_label;
 
         /* check requirements for Block Processing Control Flags */
         if ((control_flags & BLOCK_CONTROL_REPLICATE) == 0) {
-            proto_tree_add_text(block_tree, tvb, control_flags_offset, control_flags_length, "Block Processing Control Flags: ERROR: Replicate must be set for ECOS");
+            expert_add_info_format_text(pinfo, block_flag_replicate_item, &ei_bundle_block_control_flags, "ERROR: Replicate must be set for ECOS");
         }
         if ((control_flags & BLOCK_CONTROL_EID_REFERENCE) != 0) {
-            proto_tree_add_text(block_tree, tvb, control_flags_offset, control_flags_length, "Block Processing Control Flags: ERROR: EID-Reference must be clear for ECOS");
+            expert_add_info_format_text(pinfo, block_flag_eid_reference_item, &ei_bundle_block_control_flags, "ERROR: EID-Reference must be clear for ECOS");
         }
 
         /* flags byte */
@@ -1849,13 +1597,13 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
         /* optional flow label sdnv */
         if ((flags & ECOS_FLAGS_ORDINAL) != 0) {
             flow_label = evaluate_sdnv(tvb, offset, &sdnv_length);
+            ti = proto_tree_add_int(block_tree, hf_ecos_flow_label, tvb, offset, sdnv_length, flow_label);
             if(flow_label < 0) {
-                proto_tree_add_text(block_tree, tvb, offset, sdnv_length, "ECOS Flow Label: Error");
+                expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "ECOS Flow Label Error");
                 /* Force quitting */
                 *lastheader = TRUE;
                 return offset;
             }
-            proto_tree_add_text(block_tree, tvb, offset, sdnv_length, "ECOS Flow Label: %d", flow_label);
             offset += sdnv_length;
         }
 
@@ -2259,6 +2007,8 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     gboolean    lastheader = FALSE;
     int         offset = 0;
     guint8      version, pri_hdr_procflags;
+    /* Custodian from Primary Block, used to validate CTEB */
+    gchar       *bundle_custodian = NULL;
 
     version = tvb_get_guint8(tvb, offset);  /* Primary Header Version */
     if((version != 4) && (version != 5) && (version != 6)) {
@@ -2277,10 +2027,12 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     proto_tree_add_item(primary_tree, hf_bundle_pdu_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (version == 4) {
-        primary_header_size = dissect_version_4_primary_header(pinfo, primary_tree, tvb, &pri_hdr_procflags);
+        primary_header_size = dissect_version_4_primary_header(pinfo, primary_tree, tvb,
+                                &pri_hdr_procflags, &bundle_custodian);
     }
     else {
-        primary_header_size = dissect_version_5_and_6_primary_header(pinfo, primary_tree, tvb, &pri_hdr_procflags);
+        primary_header_size = dissect_version_5_and_6_primary_header(pinfo, primary_tree, tvb,
+                                &pri_hdr_procflags, &bundle_custodian);
     }
 
     if(primary_header_size == 0) {      /*Couldn't parse primary header*/
@@ -2307,7 +2059,7 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             offset = dissect_payload_header(bundle_tree, tvb, pinfo, offset, version, pri_hdr_procflags, &lastheader);
         }
         else {  /*Assume anything else is a Metadata Block*/
-            offset = display_metadata_block(tree, tvb, offset, &lastheader);
+            offset = display_metadata_block(bundle_tree, tvb, pinfo, offset, bundle_custodian, &lastheader);
         }
     }
 
@@ -2331,11 +2083,7 @@ proto_reg_handoff_bundle(void)
     static int Initialized = FALSE;
 
     if (!Initialized) {
-#if 0
-        tcpcl_handle = create_dissector_handle(dissect_tcp_bundle, proto_bundle);
-#else
         tcpcl_handle = new_create_dissector_handle(dissect_tcpcl, proto_bundle);
-#endif
         data_handle = find_dissector("data");
         Initialized = TRUE;
     }
@@ -2431,7 +2179,6 @@ proto_register_bundle(void)
          {"Bundle Processing Control Flags", "bundle.primary.proc.flag",
           FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-#if 0
         {&hf_bundle_procflags_general,
          {"General Flags", "bundle.primary.proc.gen",
           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -2444,14 +2191,13 @@ proto_register_bundle(void)
          {"Status Report Flags", "bundle.primary.proc.status",
           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-#endif
         {&hf_bundle_cosflags,
          {"Primary Header COS Flags", "bundle.primary.cos.flags",
           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_cosflags_priority,
          {"Priority", "bundle.primary.cos.priority",
-          FT_UINT8, BASE_DEC, NULL, BUNDLE_COSFLAGS_PRIORITY_MASK, NULL, HFILL}
+          FT_UINT8, BASE_DEC, VALS(cosflags_priority_vals), BUNDLE_COSFLAGS_PRIORITY_MASK, NULL, HFILL}
         },
         {&hf_bundle_srrflags,
          {"Primary Header Report Request Flags", "bundle.primary.srr.flag",
@@ -2481,47 +2227,97 @@ proto_register_bundle(void)
          {"Request Report of Application Ack", "bundle.primary.srr.ack",
           FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_ACK_MASK, NULL, HFILL}
         },
-#if 0
         {&hf_bundle_primary_header_len,
          {"Bundle Header Length", "bundle.primary.len",
-          FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-#endif
+        {&hf_bundle_primary_dictionary_len,
+         {"Dictionary Length", "bundle.primary.dictionary_len",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_primary_fragment_offset,
+         {"Fragment Offset", "bundle.primary.fragment_offset",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_primary_total_adu_len,
+         {"Total Application Data Unit Length", "bundle.primary.total_adu_len",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_primary_timestamp_seq_num64,
+         {"Timestamp Sequence Number", "bundle.primary.timestamp_seq_num",
+          FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_primary_timestamp_seq_num32,
+         {"Timestamp Sequence Number", "bundle.primary.timestamp_seq_num",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
         {&hf_bundle_primary_timestamp,
          {"Timestamp", "bundle.primary.timestamp",
           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_bundle_dest_scheme_offset,
+        {&hf_bundle_dest_scheme_offset_u16,
          {"Destination Scheme Offset", "bundle.primary.destschemeoff",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_bundle_dest_ssp_offset,
+        {&hf_bundle_dest_scheme_offset_i32,
+         {"Destination Scheme Offset", "bundle.primary.destschemeoff",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_dest_ssp_offset_u16,
          {"Destination SSP Offset", "bundle.primary.destssspoff",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_bundle_source_scheme_offset,
+        {&hf_bundle_dest_ssp_offset_i32,
+         {"Destination SSP Offset", "bundle.primary.destssspoff",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_source_scheme_offset_u16,
          {"Source Scheme Offset", "bundle.primary.srcschemeoff",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_bundle_source_ssp_offset,
+        {&hf_bundle_source_scheme_offset_i32,
+         {"Source Scheme Offset", "bundle.primary.srcschemeoff",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_source_ssp_offset_u16,
          {"Source SSP Offset", "bundle.primary.srcsspoff",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_bundle_report_scheme_offset,
+        {&hf_bundle_source_ssp_offset_i32,
+         {"Source SSP Offset", "bundle.primary.srcsspoff",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_report_scheme_offset_u16,
          {"Report Scheme Offset", "bundle.primary.rptschemeoff",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_bundle_report_ssp_offset,
+        {&hf_bundle_report_scheme_offset_i32,
+         {"Report Scheme Offset", "bundle.primary.rptschemeoff",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_report_ssp_offset_u16,
          {"Report SSP Offset", "bundle.primary.rptsspoff",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_bundle_cust_scheme_offset,
+        {&hf_bundle_report_ssp_offset_i32,
+         {"Report SSP Offset", "bundle.primary.rptsspoff",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_cust_scheme_offset_u16,
          {"Custodian Scheme Offset", "bundle.primary.custschemeoff",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_bundle_cust_ssp_offset,
+        {&hf_bundle_cust_scheme_offset_i32,
+         {"Custodian Scheme Offset", "bundle.primary.custschemeoff",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_cust_ssp_offset_u16,
          {"Custodian SSP Offset", "bundle.primary.custsspoff",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_cust_ssp_offset_i32,
+         {"Custodian SSP Offset", "bundle.primary.custsspoff",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_dest_scheme,
          {"Destination Scheme", "bundle.primary.destination_scheme",
@@ -2562,6 +2358,10 @@ proto_register_bundle(void)
         {&hf_bundle_lifetime,
          {"Lifetime", "bundle.primary.lifetime",
           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_lifetime_sdnv,
+         {"Lifetime", "bundle.primary.lifetime",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_payload_length,
          {"Payload Length", "bundle.payload.length",
@@ -2639,6 +2439,14 @@ proto_register_bundle(void)
          {"Timestamp Sequence Number", "bundle.admin.timestamp_seq_num",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
+        {&hf_bundle_admin_endpoint_length,
+         {"Endpoint Length", "bundle.admin.endpoint_length",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_admin_endpoint_id,
+         {"Bundle Endpoint ID", "bundle.admin.endpoint_id",
+          FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
         {&hf_bundle_admin_receipt_time,
          {"Bundle Received Time", "bundle.admin.status.receipttime",
           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL}
@@ -2674,6 +2482,22 @@ proto_register_bundle(void)
         {&hf_block_control_flags,
          {"Block Processing Control Flags", "bundle.block.control.flags",
           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_control_flags_sdnv,
+         {"Block Processing Control Flags", "bundle.block.control.flags",
+          FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_control_block_length,
+         {"Block Length", "bundle.block.length",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_control_block_cteb_custody_id,
+         {"CTEB Custody ID", "bundle.block.cteb_custody_id",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_control_block_cteb_creator_custodian_eid,
+         {"CTEB Creator Custodian EID", "bundle.block.cteb_creator_custodian_eid",
+          FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_block_control_replicate,
          {"Replicate Block in Every Fragment", "bundle.block.control.replicate",
@@ -2715,6 +2539,14 @@ proto_register_bundle(void)
          {"Custody Signal Reason Code", "bundle.custody_signal_reason_code",
           FT_UINT8, BASE_DEC, VALS(custody_signal_reason_codes), ADMIN_REC_CUSTODY_REASON_MASK, NULL, HFILL}
         },
+        {&hf_bundle_custody_id_range_start,
+         {"CTEB Custody ID Range Start", "bundle.custody_id_range_start",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_custody_id_range_end,
+         {"CTEB Custody ID Range End", "bundle.custody_id_range_end",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
         {&hf_bundle_block_type_code,
          {"Non-Primary Bundle Block Type Code", "bundle.block_type_code",
           FT_UINT8, BASE_DEC, VALS(bundle_block_type_codes), 0x0, NULL, HFILL}
@@ -2734,6 +2566,10 @@ proto_register_bundle(void)
         {&hf_ecos_flags_ordinal,
          {"ECOS Ordinal Flag", "bundle.block.ecos.flags.ordinal",
           FT_BOOLEAN, 8, NULL, ECOS_FLAGS_ORDINAL, NULL, HFILL}
+        },
+        {&hf_ecos_flow_label,
+         {"ECOS Flow Label", "bundle.block.ecos.flow_label",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ecos_ordinal,
          {"ECOS Ordinal", "bundle.block.ecos.ordinal",
@@ -2854,8 +2690,12 @@ proto_register_bundle(void)
     static ei_register_info ei[] = {
         { &ei_bundle_control_flags_length, { "bundle.block.control.flags.length", PI_UNDECODED, PI_WARN, "Wrong bundle control flag length", EXPFILL }},
         { &ei_bundle_payload_length, { "bundle.payload.length.invalid", PI_PROTOCOL, PI_ERROR, "Payload length error", EXPFILL }},
-        { &ei_bundle_sdnv_length, { "bundle.sdnv_length.invalid", PI_PROTOCOL, PI_ERROR, "SDNV length error", EXPFILL }},
-        { &ei_bundle_timestamp_seq_num, { "bundle.admin.timestamp_seq_num.invalid", PI_PROTOCOL, PI_ERROR, "Timestamp Sequence Number error", EXPFILL }},
+        { &ei_bundle_sdnv_length, { "bundle.sdnv_length_invalid", PI_PROTOCOL, PI_ERROR, "SDNV length error", EXPFILL }},
+        { &ei_bundle_timestamp_seq_num, { "bundle.timestamp_seq_num_invalid", PI_PROTOCOL, PI_ERROR, "Timestamp Sequence Number error", EXPFILL }},
+        { &ei_bundle_offset_error, { "bundle.offset_error", PI_PROTOCOL, PI_WARN, "Offset field error", EXPFILL }},
+        { &ei_bundle_block_control_flags, { "bundle.block.control.flags.error", PI_PROTOCOL, PI_WARN, "Control flag error", EXPFILL }},
+        { &ei_block_control_block_cteb_invalid, { "bundle.block.control.cteb_invalid", PI_PROTOCOL, PI_WARN, "CTEB Is Invalid", EXPFILL }},
+        { &ei_block_control_block_cteb_valid, { "bundle.block.control.cteb_valid", PI_PROTOCOL, PI_NOTE, "CTEB Is Valid", EXPFILL }},
     };
 
     static ei_register_info ei_tcpcl[] = {
