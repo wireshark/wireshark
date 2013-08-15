@@ -490,28 +490,31 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         }
 
         /* Probably an EMV/ISO 14443-A (VISA - 30 bytes payload/MC - 33 bytes payload)
-                 card with a 4 byte UID */
+                 card with a 4 byte UID
 
-        if (tvb_reported_length(tvb) == 30 || tvb_reported_length(tvb) == 33) {
+           MTCOS-based contactless passports also have a 4 byte (randomised) UID (28 bytes payload)
+        */
 
-        /* Check to see if there's a plausible ATQA value (0x0004 for my MC/VISA cards) */
+        if (tvb_reported_length(tvb) == 28 || tvb_reported_length(tvb) == 30 || tvb_reported_length(tvb) == 33) {
 
-            if ((tvb_get_guint8(tvb, 4) == 0x00 && tvb_get_guint8(tvb, 5) == 0x04)) {
-            
+        /* Check to see if there's a plausible ATQA value (0x0004 for my MC/VISA cards, and 0x0008 for MTCOS) */
+
+            if (tvb_get_ntohs(tvb, 4) == 0x0004 || tvb_get_ntohs(tvb, 4) == 0x08) {
+
                 /* Add the ATQA/SENS_RES */
                 proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
-                
+
                 /* Add the SAK/SEL_RES value */
                 proto_tree_add_item(pn532_tree, hf_pn532_14443a_sak, tvb, 6, 1, ENC_BIG_ENDIAN);
-                                        
+
                 /* Add the UID length */
                 proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid_length, tvb, 7, 1, ENC_BIG_ENDIAN);
-                
+
                 /* Add the UID */
                 proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
-                
+
                 /* ATS length is probably prepended to the ATS data... */
-                
+
                 /* Pass the ATS value to the Data dissector, since it's too long to handle normally
                     Don't care about the "status word" at the end, right now */
                 next_tvb = tvb_new_subset_remaining(tvb, 13);
