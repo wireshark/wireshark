@@ -106,6 +106,7 @@
 
 static int proto_smb = -1;
 static int hf_smb_cmd = -1;
+static int hf_smb_andxcmd = -1;
 static int hf_smb_mapped_in = -1;
 static int hf_smb_unmapped_in = -1;
 static int hf_smb_opened_in = -1;
@@ -407,9 +408,6 @@ static int hf_smb_setup_count = -1;
 static int hf_smb_nt_trans_subcmd = -1;
 static int hf_smb_nt_ioctl_isfsctl = -1;
 static int hf_smb_nt_ioctl_flags_root_handle = -1;
-#ifdef SMB_UNUSED_HANDLES
-static int hf_smb_nt_security_information = -1;
-#endif
 static int hf_smb_nt_notify_action = -1;
 static int hf_smb_nt_notify_watch_tree = -1;
 static int hf_smb_nt_notify_stream_write = -1;
@@ -719,6 +717,46 @@ static int hf_smb_posix_ace_perm_owner_uid = -1;
 static int hf_smb_posix_ace_perm_owner_gid = -1;
 static int hf_smb_posix_ace_perm_uid = -1;
 static int hf_smb_posix_ace_perm_gid = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_smb_get_dfs_flags = -1;
+static int hf_smb_file_eattr = -1;
+static int hf_smb_dfs_referral_flags = -1;
+static int hf_smb_copy_flags = -1;
+static int hf_smb_fs_attr = -1;
+static int hf_smb_nt_ioctl_flags_completion_filter = -1;
+static int hf_smb_ipc_state = -1;
+static int hf_smb_open_action = -1;
+static int hf_smb_device_char = -1;
+static int hf_smb_setup_action = -1;
+static int hf_smb_open_flags = -1;
+static int hf_smb_transaction_flags = -1;
+static int hf_smb_connect_flags = -1;
+static int hf_smb_nt_notify_completion_filter = -1;
+static int hf_smb_ff2 = -1;
+static int hf_smb_flags2 = -1;
+static int hf_smb_mac_sup = -1;
+static int hf_smb_nt_security_flags = -1;
+static int hf_smb_trans_data_setup_word = -1;
+static int hf_smb_trans_data_parameters = -1;
+static int hf_smb_sm16 = -1;
+static int hf_smb_server_cap = -1;
+static int hf_smb_search_attribute = -1;
+static int hf_smb_connect_support = -1;
+static int hf_smb_length_of_sid = -1;
+static int hf_smb_flags = -1;
+static int hf_smb_trans_data = -1;
+static int hf_smb_file_attr = -1;
+static int hf_smb_size_returned_quota_data = -1;
+static int hf_smb_file_attr8 = -1;
+static int hf_smb_write_mode = -1;
+static int hf_smb_open_function = -1;
+static int hf_smb_dialect = -1;
+static int hf_smb_move_flags = -1;
+static int hf_smb_lock_type = -1;
+static int hf_smb_nt_qsd = -1;
+static int hf_smb_rm = -1;
+static int hf_smb_unix_capability = -1;
+static int hf_smb_sm = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_fid = -1;
@@ -801,6 +839,7 @@ static gint ett_smb_posix_ace_perms = -1;
 static gint ett_smb_info2_file_flags = -1;
 
 static expert_field ei_smb_mal_information_level = EI_INIT;
+static expert_field ei_smb_not_implemented = EI_INIT;
 
 static int smb_tap = -1;
 static int smb_eo_tap = -1;
@@ -829,7 +868,6 @@ static const fragment_items smb_frag_items = {
 
 static proto_tree *top_tree_global = NULL;     /* ugly */
 
-static const char *decode_smb_name(guint8);
 static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd, gboolean first_pdu);
 
 /*
@@ -1462,11 +1500,11 @@ dissect_smb_UTIME(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 	guint32  timeval;
 	nstime_t ts;
 
-	timeval = tvb_get_letohl(tvb, offset);
+	ts.secs = timeval = tvb_get_letohl(tvb, offset);
+	ts.nsecs = 0;
 	if (timeval == 0xffffffff) {
-		proto_tree_add_text(tree, tvb, offset, 4,
-		    "%s: No time specified (0xffffffff)",
-		    proto_registrar_get_name(hf_date));
+		proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 4, &ts,
+		    "No time specified (0xffffffff)");
 		offset += 4;
 		return offset;
 	}
@@ -1475,7 +1513,6 @@ dissect_smb_UTIME(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 	 * We add the local time offset.
 	 */
 	ts.secs = timeval + LocTimeDiff(timeval);
-	ts.nsecs = 0;
 
 	proto_tree_add_time(tree, hf_date, tvb, offset, 4, &ts);
 	offset += 4;
@@ -1517,10 +1554,9 @@ dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		 * No date/time specified.
 		 */
 		if (parent_tree) {
-			proto_tree_add_text(parent_tree, tvb, offset, 4,
-			    "%s: No time specified (0x%08x)",
-			    proto_registrar_get_name(hf_date),
-			    (dos_date << 16) | dos_time);
+			proto_tree_add_uint_format_value(parent_tree, hf_date, tvb, offset, 4,
+			    ((dos_date << 16) | dos_time), "No time specified (0x%08x)",
+			    ((dos_date << 16) | dos_time));
 		}
 		offset += 4;
 		return offset;
@@ -1549,9 +1585,8 @@ dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		 * Invalid date/time.
 		 */
 		if (parent_tree) {
-			item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			    "%s: Invalid time",
-			    proto_registrar_get_name(hf_date));
+			item = proto_tree_add_uint_format_value(parent_tree, hf_date, tvb, offset, 4,
+			    ((dos_date << 16) | dos_time), "Invalid time");
 			tree = proto_item_add_subtree(item, ett_smb_time_date);
 			if (time_first) {
 				proto_tree_add_uint_format(tree, hf_dos_time, tvb, offset, 2, dos_time, "DOS Time: %02d:%02d:%02d (0x%04x)", tm.tm_hour, tm.tm_min, tm.tm_sec, dos_time);
@@ -1749,8 +1784,7 @@ dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"File Attributes: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_file_attr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
 
 		proto_tree_add_boolean(tree, hf_smb_file_attr_archive_16bit,
@@ -1784,8 +1818,7 @@ dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	proto_tree *tree;
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, len,
-			"File Attributes: 0x%08x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_file_eattr, tvb, offset, len, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
 
 		/*
@@ -1857,8 +1890,7 @@ dissect_dir_info_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int off
 	mask = tvb_get_guint8(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-			"File Attributes: 0x%02x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_file_attr8, tvb, offset, 1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
 
 		proto_tree_add_boolean(tree, hf_smb_file_attr_read_only_8bit,
@@ -1919,8 +1951,7 @@ dissect_search_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Search Attributes: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_search_attribute, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_search);
 
 		proto_tree_add_boolean(tree, hf_smb_search_attribute_read_only,
@@ -1958,8 +1989,7 @@ dissect_extended_file_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	mask = tvb_get_letohl(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"File Attributes: 0x%08x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_file_eattr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
 	}
 	proto_tree_add_boolean(tree, hf_smb_file_attr_read_only_16bit,
@@ -2106,7 +2136,7 @@ dissect_negprot_capabilities(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohl(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4, "Capabilities: 0x%08x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_server_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_capabilities);
 
 		proto_tree_add_boolean(tree, hf_smb_server_cap_raw_mode,
@@ -2173,7 +2203,7 @@ dissect_negprot_rawmode(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2, "Raw Mode: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_rm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_rawmode);
 
 		proto_tree_add_boolean(tree, hf_smb_rm_read, tvb, offset, 2, mask);
@@ -2216,8 +2246,7 @@ dissect_negprot_security_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	switch(wc) {
 	case 13:
 		mask = tvb_get_letohs(tvb, offset);
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-				"Security Mode: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_sm16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_mode);
 		proto_tree_add_boolean(tree, hf_smb_sm_mode16, tvb, offset, 2, mask);
 		proto_tree_add_boolean(tree, hf_smb_sm_password16, tvb, offset, 2, mask);
@@ -2226,8 +2255,7 @@ dissect_negprot_security_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 
 	case 17:
 		mask = tvb_get_guint8(tvb, offset);
-		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-				"Security Mode: 0x%02x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_sm, tvb, offset, 1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_smb_mode);
 		proto_tree_add_boolean(tree, hf_smb_sm_mode, tvb, offset, 1, mask);
 		proto_tree_add_boolean(tree, hf_smb_sm_password, tvb, offset, 1, mask);
@@ -2265,8 +2293,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	if (tree) {
 		tvb_ensure_bytes_exist(tvb, offset, bc);
-		it = proto_tree_add_text(tree, tvb, offset, bc,
-				"Requested Dialects");
+		it = proto_tree_add_text(tree, tvb, offset, bc, "Requested Dialects");
 		tr = proto_item_add_subtree(it, ett_smb_dialects);
 	}
 
@@ -2288,8 +2315,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		str = tvb_get_const_stringz(tvb, offset+1, &len);
 
 		if (tr) {
-			dit = proto_tree_add_text(tr, tvb, offset, len+1,
-					"Dialect: %s", str);
+			dit = proto_tree_add_string(tr, hf_smb_dialect, tvb, offset, len+1, str);
 			dtr = proto_item_add_subtree(dit, ett_smb_dialect);
 		}
 
@@ -2351,23 +2377,23 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	switch(wc) {
 	case 1:
 		if (dialect == 0xffff) {
-			proto_tree_add_uint_format(tree, hf_smb_dialect_index,
+			proto_tree_add_uint_format_value(tree, hf_smb_dialect_index,
 				tvb, offset, 2, dialect,
-				"Selected Index: -1, PC NETWORK PROGRAM 1.0 chosen");
+				"-1, PC NETWORK PROGRAM 1.0 chosen");
 		} else {
 			proto_tree_add_uint(tree, hf_smb_dialect_index,
 				tvb, offset, 2, dialect);
 		}
 		break;
 	case 13:
-		proto_tree_add_uint_format(tree, hf_smb_dialect_index,
+		proto_tree_add_uint_format_value(tree, hf_smb_dialect_index,
 			tvb, offset, 2, dialect,
-			"Dialect Index: %u, Greater than CORE PROTOCOL and up to LANMAN2.1", dialect);
+			"%u, Greater than CORE PROTOCOL and up to LANMAN2.1", dialect);
 		break;
 	case 17:
-		proto_tree_add_uint_format(tree, hf_smb_dialect_index,
+		proto_tree_add_uint_format_value(tree, hf_smb_dialect_index,
 			tvb, offset, 2, dialect,
-			"Dialect Index: %u: %s", dialect, dialect_name);
+			"%u: %s", dialect, dialect_name);
 		break;
 	default:
 		tvb_ensure_bytes_exist(tvb, offset, wc*2);
@@ -2412,7 +2438,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 		/* time zone */
 		tz = tvb_get_letohs(tvb, offset);
-		proto_tree_add_int_format(tree, hf_smb_server_timezone, tvb, offset, 2, tz, "Server Time Zone: %d min from UTC", tz);
+		proto_tree_add_int_format_value(tree, hf_smb_server_timezone, tvb, offset, 2, tz, "%d min from UTC", tz);
 		offset += 2;
 
 		/* encryption key length */
@@ -2465,9 +2491,9 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 		/* time zone */
 		tz = tvb_get_letohs(tvb, offset);
-		proto_tree_add_int_format(tree, hf_smb_server_timezone,
+		proto_tree_add_int_format_value(tree, hf_smb_server_timezone,
 			tvb, offset, 2, tz,
-			"Server Time Zone: %d min from UTC", tz);
+			"%d min from UTC", tz);
 		offset += 2;
 
 		/* encryption key length */
@@ -2994,8 +3020,7 @@ dissect_open_function(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Open Function: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_open_function, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_openfunction);
 	}
 
@@ -3032,8 +3057,7 @@ dissect_move_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Flags: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_move_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_move_copy_flags);
 	}
 
@@ -3071,8 +3095,7 @@ dissect_copy_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Flags: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_copy_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_move_copy_flags);
 	}
 
@@ -4336,7 +4359,7 @@ dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 bc, guint
 	}
 	tvblen = tvb_length_remaining(tvb, offset);
 	if (bc > tvblen) {
-		proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, tvblen, NULL,"File Data: Incomplete. Only %d of %u bytes", tvblen, bc);
+		proto_tree_add_bytes_format_value(tree, hf_smb_file_data, tvb, offset, tvblen, NULL, "Incomplete. Only %d of %u bytes", tvblen, bc);
 		offset += tvblen;
 	} else {
 		proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, ENC_NA);
@@ -5003,7 +5026,7 @@ dissect_read_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
+	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
 	offset += 4;
 
 	/* 2 reserved bytes */
@@ -5180,8 +5203,7 @@ dissect_write_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int bm)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Write Mode: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_write_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_rawmode);
 
 		if (bm&WRITE_MODE_CONNECTIONLESS) {
@@ -5238,7 +5260,7 @@ dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
+	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
 	offset += 4;
 
 	/* mode */
@@ -5316,7 +5338,7 @@ dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
+	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
 	offset += 4;
 
 	/* mode */
@@ -5739,9 +5761,9 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -5762,8 +5784,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* lock type */
 	lt = tvb_get_guint8(tvb, offset);
 	if (tree) {
-		litem = proto_tree_add_text(tree, tvb, offset, 1,
-			"Lock Type: 0x%02x", lt);
+		litem = proto_tree_add_item(tree, hf_smb_lock_type, tvb, offset, 1, ENC_NA);
 		ltree = proto_item_add_subtree(litem, ett_smb_lock_type);
 
 		proto_tree_add_boolean(ltree, hf_smb_lock_type_large,
@@ -5786,7 +5807,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* timeout */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
+	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
 	offset += 4;
 
 	/* number of unlocks */
@@ -5820,8 +5841,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if (un) {
 		old_offset = offset;
 
-		it = proto_tree_add_text(tree, tvb, offset, -1,
-			"Unlocks");
+		it = proto_tree_add_text(tree, tvb, offset, -1, "Unlocks");
 		tr = proto_item_add_subtree(it, ett_smb_unlocks);
 		while(un--) {
 			proto_item *litem_2 = NULL;
@@ -5833,8 +5853,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				guint64 lock_length;
 
 				/* large lock format */
-				litem_2 = proto_tree_add_text(tr, tvb, offset, 20,
-					"Unlock");
+				litem_2 = proto_tree_add_text(tr, tvb, offset, 20, "Unlock");
 				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_unlock);
 
 				/* PID */
@@ -5876,8 +5895,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				}
 			} else {
 				/* normal lock format */
-				litem_2 = proto_tree_add_text(tr, tvb, offset, 10,
-					"Unlock");
+				litem_2 = proto_tree_add_text(tr, tvb, offset, 10, "Unlock");
 				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_unlock);
 
 				/* PID */
@@ -5904,8 +5922,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if (ln) {
 		old_offset = offset;
 
-		it = proto_tree_add_text(tree, tvb, offset, -1,
-			"Locks");
+		it = proto_tree_add_text(tree, tvb, offset, -1, "Locks");
 		tr = proto_item_add_subtree(it, ett_smb_locks);
 		while(ln--) {
 			proto_item *litem_2 = NULL;
@@ -5917,8 +5934,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				guint64 lock_length;
 
 				/* large lock format */
-				litem_2 = proto_tree_add_text(tr, tvb, offset, 20,
-					"Lock");
+				litem_2 = proto_tree_add_text(tr, tvb, offset, 20, "Lock");
 				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_lock);
 
 				/* PID */
@@ -5960,8 +5976,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				}
 			} else {
 				/* normal lock format */
-				litem_2 = proto_tree_add_text(tr, tvb, offset, 10,
-					"Lock");
+				litem_2 = proto_tree_add_text(tr, tvb, offset, 10, "Lock");
 				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_lock);
 
 				/* PID */
@@ -6028,8 +6043,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			proto_tree *ltr;
 			smb_lock_info_t *li;
 			if (tree) {
-				litem = proto_tree_add_text(tree, tvb, 0, 0,
-					"Lock Type: 0x%02x", ld->type);
+				litem = proto_tree_add_item(tree, hf_smb_lock_type, tvb, 0, 0, ENC_NA);
 				PROTO_ITEM_SET_GENERATED(litem);
 				ltree = proto_item_add_subtree(litem, ett_smb_lock_type);
 
@@ -6069,9 +6083,9 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -6123,8 +6137,7 @@ dissect_open_action(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Action: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_open_action, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_open_action);
 
 		proto_tree_add_boolean(tree, hf_smb_open_action_lock,
@@ -6163,8 +6176,7 @@ dissect_open_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int bm)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Flags: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_open_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_open_flags);
 
 		if (bm&0x0001) {
@@ -6218,9 +6230,9 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -6257,7 +6269,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* timeout, described at http://us1.samba.org/samba/ftp/SMB-info/DOSEXTP.TXT */
 	to = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
+	proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
 	offset += 4;
 
 	/* 4 reserved bytes */
@@ -6333,8 +6345,7 @@ dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"IPC State: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_ipc_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_ipc_state);
 
 		proto_tree_add_boolean(tree, hf_smb_ipc_state_nonblocking,
@@ -6374,9 +6385,9 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -6492,9 +6503,9 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -6650,9 +6661,9 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -6789,9 +6800,9 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -6960,9 +6971,9 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -7045,8 +7056,7 @@ dissect_setup_action(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Action: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_setup_action, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_setup_action);
 
 		proto_tree_add_boolean(tree, hf_smb_setup_action_guest,
@@ -7099,9 +7109,9 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -7462,9 +7472,9 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -7585,9 +7595,9 @@ dissect_empty_andx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -7654,8 +7664,7 @@ dissect_connect_support_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Optional Support: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_connect_support, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_connect_support_bits);
 
 		proto_tree_add_boolean(tree, hf_smb_connect_support_search,
@@ -7700,8 +7709,7 @@ dissect_connect_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Flags: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_connect_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_connect_flags);
 
 		proto_tree_add_boolean(tree, hf_smb_connect_flags_dtid,
@@ -7734,9 +7742,9 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -7835,9 +7843,9 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -8309,8 +8317,7 @@ dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_guint8(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-			"Security Flags: 0x%02x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_nt_security_flags, tvb, offset, 1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_smb_nt_security_flags);
 
 		proto_tree_add_boolean(tree, hf_smb_nt_security_flags_context_tracking,
@@ -8432,8 +8439,7 @@ dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int 
 	mask = tvb_get_letohl(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Completion Filter: 0x%08x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_nt_notify_completion_filter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_nt_notify_completion_filter);
 
 		proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_write,
@@ -8476,8 +8482,7 @@ dissect_nt_ioctl_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_guint8(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-			"Completion Filter: 0x%02x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_nt_ioctl_flags_completion_filter, tvb, offset, 1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_smb_nt_ioctl_flags);
 
 		proto_tree_add_boolean(tree, hf_smb_nt_ioctl_flags_root_handle,
@@ -8527,8 +8532,7 @@ dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int of
 	mask = tvb_get_letohl(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Security Information: 0x%08x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_nt_qsd, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_security_information_mask);
 
 		proto_tree_add_boolean(tree, hf_smb_nt_qsd_owner,
@@ -8562,7 +8566,7 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		/* length of SID */
-		proto_tree_add_text(tree, tvb, offset, 4, "Length of SID: %d", tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_length_of_sid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 
 		/* 16 unknown bytes */
@@ -8686,7 +8690,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		offset += 4;
 
 		/* length of SID */
-		proto_tree_add_text(tree, tvb, offset, 4, "Length of SID: %d", tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_length_of_sid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
 		offset = dissect_nt_sid(tvb, offset, tree, "Quota", NULL, -1);
@@ -9495,8 +9499,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		offset += 4;
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
-		proto_tree_add_text(tree, tvb, offset, 4, "Size of returned Quota data: %d",
-			tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_size_returned_quota_data, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 		break;
 	case NT_TRANS_SET_USER_QUOTA:
@@ -9602,8 +9605,8 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str_ext(nti->subcmd, &nt_cmd_vals_ext, "<unknown (%u)>"));
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 0,
-			"Function: <unknown function - could not find matching request>");
+		proto_tree_add_uint_format_value(tree, hf_smb_nt_trans_subcmd, tvb, offset, 0, -1,
+			"<unknown function - could not find matching request>");
 		col_append_str(pinfo->cinfo, COL_INFO, ", <unknown>");
 	}
 
@@ -10211,9 +10214,9 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -10338,9 +10341,9 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
 	if (cmd != 0xff) {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+		proto_tree_add_uint(tree, hf_smb_andxcmd, tvb, offset, 1, cmd);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_uint_format_value(tree, hf_smb_andxcmd, tvb, offset, 1, cmd, "No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -10881,8 +10884,7 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 	}
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Flags: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_ff2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_find_first2_flags);
 
 		proto_tree_add_boolean(tree, hf_smb_ff2_backup,
@@ -11411,8 +11413,7 @@ dissect_transaction_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Flags: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_transaction_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_transaction_flags);
 
 		proto_tree_add_boolean(tree, hf_smb_transaction_flags_owt,
@@ -11435,8 +11436,7 @@ dissect_get_dfs_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Flags: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_get_dfs_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_get_dfs_flags);
 
 		proto_tree_add_boolean(tree, hf_smb_get_dfs_server_hold_storage,
@@ -11459,8 +11459,7 @@ dissect_dfs_referral_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Flags: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_dfs_referral_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_dfs_referral_flags);
 
 		proto_tree_add_boolean(tree, hf_smb_dfs_referral_flags_name_list_referral,
@@ -12799,60 +12798,60 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static int
-dissect_qspi_unix_xattr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qspi_unix_xattr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  int offset, guint16 *bcp _U_, gboolean *trunc)
 {
-	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+	proto_tree_add_expert(tree, pinfo, &ei_smb_not_implemented, tvb, offset, 0);
 
 	*trunc = FALSE;
 	return offset;
 }
 
 static int
-dissect_qspi_unix_attr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qspi_unix_attr_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  int offset, guint16 *bcp _U_, gboolean *trunc)
 {
-	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+	proto_tree_add_expert(tree, pinfo, &ei_smb_not_implemented, tvb, offset, 0);
 
 	*trunc = FALSE;
 	return offset;
 }
 
 static int
-dissect_qpi_unix_permissions(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qpi_unix_permissions(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  int offset, guint16 *bcp _U_, gboolean *trunc)
 {
-	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+	proto_tree_add_expert(tree, pinfo, &ei_smb_not_implemented, tvb, offset, 0);
 
 	*trunc = FALSE;
 	return offset;
 }
 
 static int
-dissect_qspi_unix_lock(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qspi_unix_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  int offset, guint16 *bcp _U_, gboolean *trunc)
 {
-	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+	proto_tree_add_expert(tree, pinfo, &ei_smb_not_implemented, tvb, offset, 0);
 
 	*trunc = FALSE;
 	return offset;
 }
 
 static int
-dissect_qspi_unix_open(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qspi_unix_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  int offset, guint16 *bcp _U_, gboolean *trunc)
 {
-	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+	proto_tree_add_expert(tree, pinfo, &ei_smb_not_implemented, tvb, offset, 0);
 
 	*trunc = FALSE;
 	return offset;
 }
 
 static int
-dissect_qspi_unix_unlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_qspi_unix_unlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  int offset, guint16 *bcp _U_, gboolean *trunc)
 {
-	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+	proto_tree_add_expert(tree, pinfo, &ei_smb_not_implemented, tvb, offset, 0);
 
 	*trunc = FALSE;
 	return offset;
@@ -13822,9 +13821,8 @@ dissect_trans_data(tvbuff_t *s_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/*
 			 * XXX - add a setup word filterable field?
 			 */
-			proto_tree_add_text(tree, s_tvb, offset, 2,
-			    "Setup Word %d: 0x%04x", i,
-			    tvb_get_letohs(s_tvb, offset));
+			proto_tree_add_uint_format(tree, hf_smb_trans_data_setup_word, s_tvb, offset, 2,
+			    tvb_get_letohs(s_tvb, offset), "Setup Word %d: 0x%04x", i, tvb_get_letohs(s_tvb, offset));
 		}
 	}
 
@@ -13834,9 +13832,7 @@ dissect_trans_data(tvbuff_t *s_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	if (p_tvb != NULL) {
 		length = tvb_reported_length(p_tvb);
 		if (length != 0) {
-			proto_tree_add_text(tree, p_tvb, 0, length,
-			    "Parameters: %s",
-			    tvb_bytes_to_str(p_tvb, 0, length));
+			proto_tree_add_item(tree, hf_smb_trans_data_parameters, p_tvb, 0, length, ENC_NA);
 		}
 	}
 
@@ -13846,8 +13842,7 @@ dissect_trans_data(tvbuff_t *s_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	if (d_tvb != NULL) {
 		length = tvb_reported_length(d_tvb);
 		if (length != 0) {
-			proto_tree_add_text(tree, d_tvb, 0, length,
-			    "Data: %s", tvb_bytes_to_str(d_tvb, 0, length));
+			proto_tree_add_item(tree, hf_smb_trans_data, d_tvb, 0, length, ENC_NA);
 		}
 	}
 }
@@ -13970,7 +13965,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* timeout */
 		to = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", smbext20_timeout_msecs_to_str(to));
+		proto_tree_add_uint_format_value(tree, hf_smb_timeout, tvb, offset, 4, to, "%s", smbext20_timeout_msecs_to_str(to));
 		offset += 4;
 
 		/* 2 reserved bytes */
@@ -15532,8 +15527,7 @@ dissect_fs_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohl(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"FS Attributes: 0x%08x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_fs_attr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_fs_attributes);
 
 		/* case sensitive search */
@@ -15598,8 +15592,7 @@ dissect_device_characteristics(tvbuff_t *tvb, proto_tree *parent_tree, int offse
 	mask = tvb_get_letohl(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Device Characteristics: 0x%08x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_device_char, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_device_characteristics);
 
 		proto_tree_add_boolean(tree, hf_smb_device_char_removable,
@@ -15927,9 +15920,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		caps_hi = tvb_get_letohl(tvb, offset + 4);
 
 		if (tree) {
-			item_2 = proto_tree_add_text(
-				tree, tvb, offset, 8, "Capabilities: 0x%08x%08x",
-				caps_hi, caps_lo);
+			item_2 = proto_tree_add_item(tree, hf_smb_unix_capability, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 			subtree = proto_item_add_subtree(
 				item_2, ett_smb_unix_capabilities);
 		}
@@ -15977,9 +15968,9 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		COUNT_BYTES_TRANS_SUBR(4);
 		/* Finder Info ... */
 		CHECK_BYTE_COUNT_TRANS_SUBR(32);
-		proto_tree_add_bytes_format(tree, hf_smb_mac_fndrinfo, tvb,
+		proto_tree_add_bytes_format_value(tree, hf_smb_mac_fndrinfo, tvb,
 					    offset, 32, NULL,
-					    "Finder Info: %s",
+					    "%s",
 					    tvb_format_text(tvb, offset, 32));
 		COUNT_BYTES_TRANS_SUBR(32);
 		/* Number Files */
@@ -16005,8 +15996,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		/* Mac Support Flags */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		support = tvb_get_letohl(tvb, offset);
-		item = proto_tree_add_text(tree, tvb, offset, 4,
-					   "Mac Support Flags: 0x%08x", support);
+		item = proto_tree_add_item(tree, hf_smb_mac_sup, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		ti = proto_item_add_subtree(item, ett_smb_mac_support_flags);
 		proto_tree_add_boolean(ti, hf_smb_mac_sup_access_ctrl,
 				       tvb, offset, 4, support);
@@ -16507,8 +16497,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			 * We didn't see the matching request, so we don't
 			 * know what type of transaction this is.
 			 */
-			proto_tree_add_text(tree, tvb, 0, 0,
-				"Subcommand: <UNKNOWN> since request packet wasn't seen");
+			proto_tree_add_uint_format_value(tree, hf_smb_trans2_subcmd, tvb, 0, 0, -1,
+				"<UNKNOWN> since request packet wasn't seen");
 			col_append_str(pinfo->cinfo, COL_INFO, "<unknown>");
 		} else {
 			si->info_level = t2i->info_level;
@@ -16519,8 +16509,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				 * the frame was short), so we don't know what
 				 * type of transaction this is.
 				 */
-				proto_tree_add_text(tree, tvb, 0, 0,
-					"Subcommand: <UNKNOWN> since transaction code wasn't found in request packet");
+				proto_tree_add_uint_format_value(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd,
+					"<UNKNOWN> since transaction code wasn't found in request packet");
 				col_append_str(pinfo->cinfo, COL_INFO, "<unknown>");
 			} else {
 				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd);
@@ -16528,7 +16518,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 				case 0x0001:	/* FIND_FIRST2 */
 					if (t2i->info_level == -1)
-						item = proto_tree_add_text(tree, tvb, 0, 0, "Level of Information: <UNKNOWN> since information level wasn't found in request packet");
+						item = proto_tree_add_uint_format_value(tree, hf_smb_ff2_information_level, tvb, 0, 0, t2i->info_level,
+										"<UNKNOWN> since information level wasn't found in request packet");
 					else
 						item = proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, t2i->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
@@ -16540,7 +16531,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 				case 0x0005:	/* QUERY_PATH_INFORMATION */
 					if (t2i->info_level == -1)
-						item = proto_tree_add_text(tree, tvb, 0, 0, "Level of Information: <UNKNOWN> since information level wasn't found in request packet");
+						item = proto_tree_add_uint_format_value(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level,
+										"<UNKNOWN> since information level wasn't found in request packet");
 					else
 						item = proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
@@ -16552,7 +16544,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 				case 0x0007:	/* QUERY_FILE_INFORMATION */
 					if (t2i->info_level == -1)
-						item = proto_tree_add_text(tree, tvb, 0, 0, "Level of Information: <UNKNOWN> since information level wasn't found in request packet");
+						item = proto_tree_add_uint_format_value(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level,
+										"<UNKNOWN> since information level wasn't found in request packet");
 					else
 						item = proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
@@ -16560,7 +16553,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 				case 0x0003:	/* QUERY_FS_INFORMATION */
 					if (t2i->info_level == -1)
-						item = proto_tree_add_text(tree, tvb, 0, 0, "Level of Information: <UNKNOWN> since information level wasn't found in request packet");
+						item = proto_tree_add_uint_format_value(tree, hf_smb_qfsi_information_level, tvb, 0, 0, si->info_level,
+										"<UNKNOWN> since information level wasn't found in request packet");
 					else
 						item = proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, 0, 0, si->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
@@ -16568,7 +16562,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 				case 0x0004:	/* SET_FS_INFORMATION */
 					if (t2i->info_level == -1)
-						item = proto_tree_add_text(tree, tvb, 0, 0, "Level of Information: <UNKNOWN> since information level wasn't found in request packet");
+						item = proto_tree_add_uint_format_value(tree, hf_smb_sfsi_information_level, tvb, 0, 0, si->info_level,
+										"<UNKNOWN> since information level wasn't found in request packet");
 					else
 						item = proto_tree_add_uint(tree, hf_smb_sfsi_information_level, tvb, 0, 0, si->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
@@ -17189,17 +17184,17 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 		if (first_pdu) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 				"%s %s",
-				decode_smb_name(cmd),
+				val_to_str_ext(cmd, &smb_cmd_vals_ext, "Unknown (0x%02x)"),
 				(si->request)? "Request" : "Response");
 		} else {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 				"; %s",
-				decode_smb_name(cmd));
+				val_to_str_ext(cmd, &smb_cmd_vals_ext, "Unknown (0x%02x)"));
 		}
 
 		cmd_item = proto_tree_add_text(smb_tree, tvb, offset, -1,
 			"%s %s (0x%02x)",
-			decode_smb_name(cmd),
+			val_to_str_ext_const(cmd, &smb_cmd_vals_ext, "Unknown"),
 			(si->request)?"Request":"Response",
 			cmd);
 
@@ -17230,17 +17225,6 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 	return offset;
 }
 
-
-/* NOTE: this value_string array will also be used to access data directly by
- * index instead of val_to_str() since
- * 1, the array will always span every value from 0x00 to 0xff and
- * 2, smb_cmd_vals[i].strptr  is much cheaper than  val_to_str(i, smb_cmd_vals,)
- * This means that this value_string array MUST always
- * 1, contain all entries 0x00 to 0xff
- * 2, all entries must be in order.
- * Note: This value_string array can also be accessed directly via the use of value_string_ext
- * ToDo?: use val_to_str_ext instead of decode_smb_name() ?
- */
 static const value_string smb_cmd_vals[] = {
   { 0x00, "Create Directory" },
   { 0x01, "Delete Directory" },
@@ -17325,160 +17309,27 @@ static const value_string smb_cmd_vals[] = {
   { 0x33, "Trans2 Secondary" },
   { 0x34, "Find Close2" },
   { 0x35, "Find Notify Close" },
-  { 0x36, "unknown-0x36" },
-  { 0x37, "unknown-0x37" },
-  { 0x38, "unknown-0x38" },
-  { 0x39, "unknown-0x39" },
-  { 0x3A, "unknown-0x3A" },
-  { 0x3B, "unknown-0x3B" },
-  { 0x3C, "unknown-0x3C" },
-  { 0x3D, "unknown-0x3D" },
-  { 0x3E, "unknown-0x3E" },
-  { 0x3F, "unknown-0x3F" },
-  { 0x40, "unknown-0x40" },
-  { 0x41, "unknown-0x41" },
-  { 0x42, "unknown-0x42" },
-  { 0x43, "unknown-0x43" },
-  { 0x44, "unknown-0x44" },
-  { 0x45, "unknown-0x45" },
-  { 0x46, "unknown-0x46" },
-  { 0x47, "unknown-0x47" },
-  { 0x48, "unknown-0x48" },
-  { 0x49, "unknown-0x49" },
-  { 0x4A, "unknown-0x4A" },
-  { 0x4B, "unknown-0x4B" },
-  { 0x4C, "unknown-0x4C" },
-  { 0x4D, "unknown-0x4D" },
-  { 0x4E, "unknown-0x4E" },
-  { 0x4F, "unknown-0x4F" },
-  { 0x50, "unknown-0x50" },
-  { 0x51, "unknown-0x51" },
-  { 0x52, "unknown-0x52" },
-  { 0x53, "unknown-0x53" },
-  { 0x54, "unknown-0x54" },
-  { 0x55, "unknown-0x55" },
-  { 0x56, "unknown-0x56" },
-  { 0x57, "unknown-0x57" },
-  { 0x58, "unknown-0x58" },
-  { 0x59, "unknown-0x59" },
-  { 0x5A, "unknown-0x5A" },
-  { 0x5B, "unknown-0x5B" },
-  { 0x5C, "unknown-0x5C" },
-  { 0x5D, "unknown-0x5D" },
-  { 0x5E, "unknown-0x5E" },
-  { 0x5F, "unknown-0x5F" },
-  { 0x60, "unknown-0x60" },
-  { 0x61, "unknown-0x61" },
-  { 0x62, "unknown-0x62" },
-  { 0x63, "unknown-0x63" },
-  { 0x64, "unknown-0x64" },
-  { 0x65, "unknown-0x65" },
-  { 0x66, "unknown-0x66" },
-  { 0x67, "unknown-0x67" },
-  { 0x68, "unknown-0x68" },
-  { 0x69, "unknown-0x69" },
-  { 0x6A, "unknown-0x6A" },
-  { 0x6B, "unknown-0x6B" },
-  { 0x6C, "unknown-0x6C" },
-  { 0x6D, "unknown-0x6D" },
-  { 0x6E, "unknown-0x6E" },
-  { 0x6F, "unknown-0x6F" },
   { 0x70, "Tree Connect" },
   { 0x71, "Tree Disconnect" },
   { 0x72, "Negotiate Protocol" },
   { 0x73, "Session Setup AndX" },
   { 0x74, "Logoff AndX" },
   { 0x75, "Tree Connect AndX" },
-  { 0x76, "unknown-0x76" },
-  { 0x77, "unknown-0x77" },
-  { 0x78, "unknown-0x78" },
-  { 0x79, "unknown-0x79" },
-  { 0x7A, "unknown-0x7A" },
-  { 0x7B, "unknown-0x7B" },
-  { 0x7C, "unknown-0x7C" },
-  { 0x7D, "unknown-0x7D" },
-  { 0x7E, "unknown-0x7E" },
-  { 0x7F, "unknown-0x7F" },
   { 0x80, "Query Information Disk" },
   { 0x81, "Search" },
   { 0x82, "Find" },
   { 0x83, "Find Unique" },
   { 0x84, "Find Close" },
-  { 0x85, "unknown-0x85" },
-  { 0x86, "unknown-0x86" },
-  { 0x87, "unknown-0x87" },
-  { 0x88, "unknown-0x88" },
-  { 0x89, "unknown-0x89" },
-  { 0x8A, "unknown-0x8A" },
-  { 0x8B, "unknown-0x8B" },
-  { 0x8C, "unknown-0x8C" },
-  { 0x8D, "unknown-0x8D" },
-  { 0x8E, "unknown-0x8E" },
-  { 0x8F, "unknown-0x8F" },
-  { 0x90, "unknown-0x90" },
-  { 0x91, "unknown-0x91" },
-  { 0x92, "unknown-0x92" },
-  { 0x93, "unknown-0x93" },
-  { 0x94, "unknown-0x94" },
-  { 0x95, "unknown-0x95" },
-  { 0x96, "unknown-0x96" },
-  { 0x97, "unknown-0x97" },
-  { 0x98, "unknown-0x98" },
-  { 0x99, "unknown-0x99" },
-  { 0x9A, "unknown-0x9A" },
-  { 0x9B, "unknown-0x9B" },
-  { 0x9C, "unknown-0x9C" },
-  { 0x9D, "unknown-0x9D" },
-  { 0x9E, "unknown-0x9E" },
-  { 0x9F, "unknown-0x9F" },
   { 0xA0, "NT Trans" },
   { 0xA1, "NT Trans Secondary" },
   { 0xA2, "NT Create AndX" },
   { 0xA3, "unknown-0xA3" },
   { 0xA4, "NT Cancel" },
   { 0xA5, "NT Rename" },
-  { 0xA6, "unknown-0xA6" },
-  { 0xA7, "unknown-0xA7" },
-  { 0xA8, "unknown-0xA8" },
-  { 0xA9, "unknown-0xA9" },
-  { 0xAA, "unknown-0xAA" },
-  { 0xAB, "unknown-0xAB" },
-  { 0xAC, "unknown-0xAC" },
-  { 0xAD, "unknown-0xAD" },
-  { 0xAE, "unknown-0xAE" },
-  { 0xAF, "unknown-0xAF" },
-  { 0xB0, "unknown-0xB0" },
-  { 0xB1, "unknown-0xB1" },
-  { 0xB2, "unknown-0xB2" },
-  { 0xB3, "unknown-0xB3" },
-  { 0xB4, "unknown-0xB4" },
-  { 0xB5, "unknown-0xB5" },
-  { 0xB6, "unknown-0xB6" },
-  { 0xB7, "unknown-0xB7" },
-  { 0xB8, "unknown-0xB8" },
-  { 0xB9, "unknown-0xB9" },
-  { 0xBA, "unknown-0xBA" },
-  { 0xBB, "unknown-0xBB" },
-  { 0xBC, "unknown-0xBC" },
-  { 0xBD, "unknown-0xBD" },
-  { 0xBE, "unknown-0xBE" },
-  { 0xBF, "unknown-0xBF" },
   { 0xC0, "Open Print File" },
   { 0xC1, "Write Print File" },
   { 0xC2, "Close Print File" },
   { 0xC3, "Get Print Queue" },
-  { 0xC4, "unknown-0xC4" },
-  { 0xC5, "unknown-0xC5" },
-  { 0xC6, "unknown-0xC6" },
-  { 0xC7, "unknown-0xC7" },
-  { 0xC8, "unknown-0xC8" },
-  { 0xC9, "unknown-0xC9" },
-  { 0xCA, "unknown-0xCA" },
-  { 0xCB, "unknown-0xCB" },
-  { 0xCC, "unknown-0xCC" },
-  { 0xCD, "unknown-0xCD" },
-  { 0xCE, "unknown-0xCE" },
-  { 0xCF, "unknown-0xCF" },
   { 0xD0, "Send Single Block Message" },
   { 0xD1, "Send Broadcast Message" },
   { 0xD2, "Forward User Name" },
@@ -17490,52 +17341,11 @@ static const value_string smb_cmd_vals[] = {
   { 0xD8, "SMBreadbulk" },
   { 0xD9, "SMBwritebulk" },
   { 0xDA, "SMBwritebulkdata" },
-  { 0xDB, "unknown-0xDB" },
-  { 0xDC, "unknown-0xDC" },
-  { 0xDD, "unknown-0xDD" },
-  { 0xDE, "unknown-0xDE" },
-  { 0xDF, "unknown-0xDF" },
-  { 0xE0, "unknown-0xE0" },
-  { 0xE1, "unknown-0xE1" },
-  { 0xE2, "unknown-0xE2" },
-  { 0xE3, "unknown-0xE3" },
-  { 0xE4, "unknown-0xE4" },
-  { 0xE5, "unknown-0xE5" },
-  { 0xE6, "unknown-0xE6" },
-  { 0xE7, "unknown-0xE7" },
-  { 0xE8, "unknown-0xE8" },
-  { 0xE9, "unknown-0xE9" },
-  { 0xEA, "unknown-0xEA" },
-  { 0xEB, "unknown-0xEB" },
-  { 0xEC, "unknown-0xEC" },
-  { 0xED, "unknown-0xED" },
-  { 0xEE, "unknown-0xEE" },
-  { 0xEF, "unknown-0xEF" },
-  { 0xF0, "unknown-0xF0" },
-  { 0xF1, "unknown-0xF1" },
-  { 0xF2, "unknown-0xF2" },
-  { 0xF3, "unknown-0xF3" },
-  { 0xF4, "unknown-0xF4" },
-  { 0xF5, "unknown-0xF5" },
-  { 0xF6, "unknown-0xF6" },
-  { 0xF7, "unknown-0xF7" },
-  { 0xF8, "unknown-0xF8" },
-  { 0xF9, "unknown-0xF9" },
-  { 0xFA, "unknown-0xFA" },
-  { 0xFB, "unknown-0xFB" },
-  { 0xFC, "unknown-0xFC" },
-  { 0xFD, "unknown-0xFD" },
   { 0xFE, "SMBinvalid" },
-  { 0xFF, "unknown-0xFF" },
   { 0x00, NULL },
 };
 
 value_string_ext smb_cmd_vals_ext = VALUE_STRING_EXT_INIT(smb_cmd_vals);
-
-static const char *decode_smb_name(guint8 cmd)
-{
-	return(smb_cmd_vals[cmd].strptr);
-}
 
 
 static void
@@ -17711,8 +17521,7 @@ dissect_smb_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_guint8(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-			"Flags: 0x%02x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_flags, tvb, offset, 1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_smb_flags);
 
 		proto_tree_add_boolean(tree, hf_smb_flags_response,
@@ -17795,8 +17604,7 @@ dissect_smb_flags2(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
-			"Flags2: 0x%04x", mask);
+		item = proto_tree_add_item(parent_tree, hf_smb_flags2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_flags2);
 
 		proto_tree_add_boolean(tree, hf_smb_flags2_string,
@@ -18213,7 +18021,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	/* smb command */
-	proto_tree_add_uint_format(htree, hf_smb_cmd, tvb, offset, 1, si->cmd, "SMB Command: %s (0x%02x)", decode_smb_name(si->cmd), si->cmd);
+	proto_tree_add_uint(htree, hf_smb_cmd, tvb, offset, 1, si->cmd);
 	offset += 1;
 
 	if (flags2 & 0x4000) {
@@ -18242,8 +18050,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 * fo it, so there can't be a single field for it.
 		 */
 		errcode = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint_format(htree, hf_smb_error_code, tvb,
-			offset, 2, errcode, "Error Code: %s",
+		proto_tree_add_uint_format_value(htree, hf_smb_error_code, tvb,
+			offset, 2, errcode, "%s",
 			decode_smb_error(errclass, errcode));
 		offset += 2;
 	}
@@ -18416,6 +18224,10 @@ proto_register_smb(void)
 	static hf_register_info hf[] = {
 	{ &hf_smb_cmd,
 		{ "SMB Command", "smb.cmd", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+		&smb_cmd_vals_ext, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_andxcmd,
+		{ "AndXCommand", "smb.cmd", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
 		&smb_cmd_vals_ext, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_trans2_subcmd,
@@ -18611,7 +18423,7 @@ proto_register_smb(void)
 		NULL, 0, "Unique token identifying this session", HFILL }},
 
 	{ &hf_smb_server_timezone,
-		{ "Time Zone", "smb.server_timezone", FT_INT16, BASE_DEC,
+		{ "Server Time Zone", "smb.server_timezone", FT_INT16, BASE_DEC,
 		NULL, 0, "Current timezone at server.", HFILL }},
 
 	{ &hf_smb_encryption_key_length,
@@ -20866,6 +20678,46 @@ proto_register_smb(void)
 	  { "GID", "smb.posix_acl.ace_perms.gid", FT_UINT32, BASE_DEC,
 	    NULL, 0, NULL, HFILL }},
 
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_smb_file_attr, { "File Attributes", "smb.file_attribute", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_file_eattr, { "File Attributes", "smb.file_attribute", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_file_attr8, { "File Attributes", "smb.file_attribute", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_search_attribute, { "Search Attributes", "smb.search.attribute", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_server_cap, { "Capabilities", "smb.server_cap", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_rm, { "Raw Mode", "smb.rm", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_sm16, { "Security Mode", "smb.sm", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_sm, { "Security Mode", "smb.sm", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_dialect, { "Dialect", "smb.dialect", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_open_function, { "Open Function", "smb.open_function", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_move_flags, { "Flags", "smb.move.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_copy_flags, { "Flags", "smb.copy.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_write_mode, { "Write Mode", "smb.write.mode", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_lock_type, { "Lock Type", "smb.lock.type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_open_action, { "Action", "smb.open.action", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_open_flags, { "Flags", "smb.open.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_ipc_state, { "IPC State", "smb.ipc_state", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_setup_action, { "Action", "smb.setup.action", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_connect_support, { "Optional Support", "smb.connect.support", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_connect_flags, { "Flags", "smb.connect.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_nt_security_flags, { "Security Flags", "smb.security.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_nt_notify_completion_filter, { "Completion Filter", "smb.nt.notify.completion_filter", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_nt_ioctl_flags_completion_filter, { "Completion Filter", "smb.nt.ioctl.completion_filter", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_nt_qsd, { "Security Information", "smb.nt_qsd", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_length_of_sid, { "Length of SID", "smb.length_of_sid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_size_returned_quota_data, { "Size of returned Quota data", "smb.size_returned_quota_data", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_ff2, { "Flags", "smb.find_first2.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_transaction_flags, { "Flags", "smb.transaction.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_get_dfs_flags, { "Flags", "smb.dfs.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_dfs_referral_flags, { "Flags", "smb.dfs.referral.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_trans_data_setup_word, { "Setup Word", "smb.trans_data.setup_word", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_trans_data_parameters, { "Parameters", "smb.trans_data.parameters", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_trans_data, { "Data", "smb.trans_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_fs_attr, { "FS Attributes", "smb.fs_attr", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_device_char, { "Device Characteristics", "smb.device", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_unix_capability, { "Capabilities", "smb.unix.capability", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_mac_sup, { "Mac Support Flags", "smb.mac", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_flags, { "Flags", "smb.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_flags2, { "Flags2", "smb.flags2", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -20952,6 +20804,7 @@ proto_register_smb(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_smb_mal_information_level, { "smb.information_level.malformed", PI_MALFORMED, PI_ERROR, "Information level structure goes past the end of the transation data.", EXPFILL }},
+		{ &ei_smb_not_implemented, { "smb.not_implemented", PI_UNDECODED, PI_WARN, "Not Implemented yet", EXPFILL }},
 	};
 
 	module_t *smb_module;

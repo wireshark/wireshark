@@ -38,6 +38,7 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
 #include <glib.h>
 #include <ctype.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/dissectors/packet-smb.h>
 #include "packet-smb-pipe.h"
 #include "packet-smb-browse.h"
@@ -175,6 +176,14 @@ static int hf_new_password = -1;
 static int hf_old_password = -1;
 static int hf_reserved = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_smb_pipe_stringz_param = -1;
+static int hf_smb_pipe_string_param = -1;
+static int hf_smb_pipe_byte_param = -1;
+static int hf_smb_pipe_byte_param8 = -1;
+static int hf_smb_pipe_doubleword_param = -1;
+static int hf_smb_pipe_word_param = -1;
+
 static gint ett_lanman = -1;
 static gint ett_lanman_unknown_entries = -1;
 static gint ett_lanman_unknown_entry = -1;
@@ -183,6 +192,9 @@ static gint ett_lanman_share = -1;
 static gint ett_lanman_groups = -1;
 static gint ett_lanman_servers = -1;
 static gint ett_lanman_server = -1;
+
+static expert_field ei_smb_pipe_bogus_netwkstauserlogon = EI_INIT;
+static expert_field ei_smb_pipe_bad_type = EI_INIT;
 
 static dissector_handle_t data_handle;
 
@@ -253,8 +265,7 @@ add_word_param(tvbuff_t *tvb, int offset, int count _U_,
 		    ENC_LITTLE_ENDIAN);
 	} else {
 		WParam = tvb_get_letohs(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 2,
-		    "Word Param: %u (0x%04X)", WParam, WParam);
+		proto_tree_add_item(tree, hf_smb_pipe_word_param, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	}
 	offset += 2;
 	return offset;
@@ -264,15 +275,10 @@ static int
 add_dword_param(tvbuff_t *tvb, int offset, int count _U_,
     packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
-	guint32 LParam;
-
 	if (hf_index != -1) {
-		proto_tree_add_item(tree, hf_index, tvb, offset, 4,
-		    ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	} else {
-		LParam = tvb_get_letohl(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 4,
-		    "Doubleword Param: %u (0x%08X)", LParam, LParam);
+		proto_tree_add_item(tree, hf_smb_pipe_doubleword_param, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	}
 	offset += 4;
 	return offset;
@@ -282,7 +288,6 @@ static int
 add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
     proto_tree *tree, int convert _U_, int hf_index)
 {
-	guint8 BParam;
 	header_field_info *hfinfo;
 
 	if (hf_index != -1) {
@@ -312,14 +317,9 @@ add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 		}
 	} else {
 		if (count == 1) {
-			BParam = tvb_get_guint8(tvb, offset);
-			proto_tree_add_text(tree, tvb, offset, count,
-			    "Byte Param: %u (0x%02X)",
-			    BParam, BParam);
+			proto_tree_add_item(tree, hf_smb_pipe_byte_param8, tvb, offset, count, ENC_NA);
 		} else {
-			proto_tree_add_text(tree, tvb, offset, count,
-			    "Byte Param: %s",
-			    tvb_bytes_to_str(tvb, offset, count));
+			proto_tree_add_item(tree, hf_smb_pipe_byte_param, tvb, offset, count, ENC_NA);
 		}
 	}
 	offset += count;
@@ -343,12 +343,9 @@ add_null_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
     packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
 	if (hf_index != -1) {
-		proto_tree_add_text(tree, tvb, offset, 0,
-		  "%s (Null pointer)",
-		  proto_registrar_get_name(hf_index));
+		proto_tree_add_string_format_value(tree, hf_index, tvb, offset, 0, "", "(Null pointer)");
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 0,
-		    "String Param (Null pointer)");
+		proto_tree_add_string_format_value(tree, hf_smb_pipe_string_param, tvb, offset, 0, "", "(Null pointer)");
 	}
 }
 
@@ -363,9 +360,7 @@ add_string_param(tvbuff_t *tvb, int offset, int count _U_,
 		proto_tree_add_item(tree, hf_index, tvb, offset, string_len,
 		    ENC_ASCII|ENC_NA);	/* XXX - code page? */
 	} else {
-		proto_tree_add_text(tree, tvb, offset, string_len,
-		    "String Param: %s",
-		    tvb_format_text(tvb, offset, string_len));
+		proto_tree_add_item(tree, hf_smb_pipe_string_param, tvb, offset, string_len, ENC_NA|ENC_ASCII);
 	}
 	offset += string_len;
 	return offset;
@@ -410,17 +405,15 @@ add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
 			proto_tree_add_item(tree, hf_index, tvb, cptr,
 			    string_len, ENC_ASCII|ENC_NA);	/* XXX - code page? */
 		} else {
-			proto_tree_add_text(tree, tvb, cptr, string_len,
-			    "String Param: %s", string);
+			proto_tree_add_item(tree, hf_smb_pipe_stringz_param, tvb, cptr, string_len, ENC_NA|ENC_ASCII);
 		}
 	} else {
 		if (hf_index != -1) {
-			proto_tree_add_text(tree, tvb, 0, 0,
-			    "%s: <String goes past end of frame>",
-			    proto_registrar_get_name(hf_index));
+			proto_tree_add_string(tree, hf_index, tvb, 0, 0,
+			    "<String goes past end of frame>");
 		} else {
-			proto_tree_add_text(tree, tvb, 0, 0,
-			    "String Param: <String goes past end of frame>");
+			proto_tree_add_string(tree, hf_smb_pipe_stringz_param, tvb, 0, 0,
+			    "<String goes past end of frame>");
 		}
 	}
 
@@ -443,18 +436,15 @@ add_bytes_pointer_param(tvbuff_t *tvb, int offset, int count,
 			proto_tree_add_item(tree, hf_index, tvb, cptr,
 			    count, ENC_NA);
 		} else {
-			proto_tree_add_text(tree, tvb, cptr, count,
-			    "Byte Param: %s",
-			    tvb_bytes_to_str(tvb, cptr, count));
+			proto_tree_add_item(tree, hf_smb_pipe_byte_param, tvb, cptr, count, ENC_NA);
 		}
 	} else {
 		if (hf_index != -1) {
-			proto_tree_add_text(tree, tvb, 0, 0,
-			    "%s: <Bytes go past end of frame>",
-			    proto_registrar_get_name(hf_index));
+			proto_tree_add_bytes_format_value(tree, hf_index, tvb, 0, 0,
+			    NULL, "<Bytes go past end of frame>");
 		} else {
-			proto_tree_add_text(tree, tvb, 0, 0,
-			    "Byte Param: <Bytes goes past end of frame>");
+			proto_tree_add_bytes_format_value(tree, hf_smb_pipe_byte_param, tvb, 0, 0,
+			    NULL, "<Bytes go past end of frame>");
 		}
 	}
 
@@ -490,10 +480,9 @@ add_max_uses(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 
 	WParam = tvb_get_letohs(tvb, offset);
 	if (WParam == 0xffff) {	/* -1 */
-		proto_tree_add_uint_format(tree, hf_index, tvb,
+		proto_tree_add_uint_format_value(tree, hf_index, tvb,
 		    offset, 2, WParam,
-		    "%s: No limit",
-		    proto_registrar_get_name(hf_index));
+		    "%No limit");
 	} else {
 		proto_tree_add_uint(tree, hf_index, tvb,
 			    offset, 2, WParam);
@@ -528,8 +517,8 @@ add_reltime(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 
 	nstime.secs = tvb_get_letohl(tvb, offset);
 	nstime.nsecs = 0;
-	proto_tree_add_time_format(tree, hf_index, tvb, offset, 4,
-	    &nstime, "%s: %s", proto_registrar_get_name(hf_index),
+	proto_tree_add_time_format_value(tree, hf_index, tvb, offset, 4,
+	    &nstime, "%s",
 	    time_secs_to_str( (gint32) nstime.secs));
 	offset += 4;
 	return offset;
@@ -554,8 +543,8 @@ add_abstime_common(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_index,
 	 * logoff date/time.
 	 */
 	if (nstime.secs == -1 || nstime.secs == 0) {
-		proto_tree_add_time_format(tree, hf_index, tvb, offset, 4,
-		    &nstime, "%s: %s", proto_registrar_get_name(hf_index),
+		proto_tree_add_time_format_value(tree, hf_index, tvb, offset, 4,
+		    &nstime, "%s",
 		    absent_name);
 	} else {
 		/*
@@ -595,12 +584,10 @@ add_nlogons(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 
 	nlogons = tvb_get_letohs(tvb, offset);
 	if (nlogons == 0xffff)	/* -1 */
-		proto_tree_add_uint_format(tree, hf_index, tvb, offset, 2,
-		    nlogons, "%s: Unknown",
-		    proto_registrar_get_name(hf_index));
+		proto_tree_add_uint_format_value(tree, hf_index, tvb, offset, 2,
+		    nlogons, "Unknown");
 	else
-		proto_tree_add_uint(tree, hf_index, tvb, offset, 2,
-		    nlogons);
+		proto_tree_add_uint(tree, hf_index, tvb, offset, 2, nlogons);
 	offset += 2;
 	return offset;
 }
@@ -614,11 +601,9 @@ add_max_storage(tvbuff_t *tvb, int offset, int count _U_,
 	max_storage = tvb_get_letohl(tvb, offset);
 	if (max_storage == 0xffffffff)
 		proto_tree_add_uint_format(tree, hf_index, tvb, offset, 4,
-		    max_storage, "%s: No limit",
-		    proto_registrar_get_name(hf_index));
+		    max_storage, "No limit");
 	else
-		proto_tree_add_uint(tree, hf_index, tvb, offset, 4,
-		    max_storage);
+		proto_tree_add_uint(tree, hf_index, tvb, offset, 4, max_storage);
 	offset += 4;
 	return offset;
 }
@@ -645,16 +630,14 @@ add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 			proto_tree_add_item(tree, hf_index, tvb, cptr, count,
 			    ENC_NA);
 		} else {
-			proto_tree_add_bytes_format(tree, hf_index, tvb,
+			proto_tree_add_bytes_format_value(tree, hf_index, tvb,
 			    cptr, count, NULL,
-			    "%s: %s (wrong length, should be 21, is %d",
-			    proto_registrar_get_name(hf_index),
+			    "%s (wrong length, should be 21, is %d",
 			    tvb_bytes_to_str(tvb, cptr, count), count);
 		}
 	} else {
-		proto_tree_add_text(tree, tvb, 0, 0,
-		    "%s: <Bytes go past end of frame>",
-		    proto_registrar_get_name(hf_index));
+		proto_tree_add_bytes_format_value(tree, hf_index, tvb, 0, 0,
+			    NULL, "<Bytes go past end of frame>");
 	}
 
 	return offset;
@@ -668,19 +651,16 @@ add_tzoffset(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 
 	tzoffset = tvb_get_letohs(tvb, offset);
 	if (tzoffset < 0) {
-		proto_tree_add_int_format(tree, hf_tzoffset, tvb, offset, 2,
-		    tzoffset, "%s: %s east of UTC",
-		    proto_registrar_get_name(hf_index),
+		proto_tree_add_int_format_value(tree, hf_tzoffset, tvb, offset, 2,
+		    tzoffset, "%s east of UTC",
 		    time_secs_to_str(-tzoffset*60));
 	} else if (tzoffset > 0) {
-		proto_tree_add_int_format(tree, hf_tzoffset, tvb, offset, 2,
-		    tzoffset, "%s: %s west of UTC",
-		    proto_registrar_get_name(hf_index),
+		proto_tree_add_int_format_value(tree, hf_tzoffset, tvb, offset, 2,
+		    tzoffset, "%s west of UTC",
 		    time_secs_to_str(tzoffset*60));
 	} else {
-		proto_tree_add_int_format(tree, hf_tzoffset, tvb, offset, 2,
-		    tzoffset, "%s: at UTC",
-		    proto_registrar_get_name(hf_index));
+		proto_tree_add_int_format_value(tree, hf_tzoffset, tvb, offset, 2,
+		    tzoffset, "at UTC");
 	}
 	offset += 2;
 	return offset;
@@ -693,9 +673,8 @@ add_timeinterval(tvbuff_t *tvb, int offset, int count _U_,
 	guint16 timeinterval;
 
 	timeinterval = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_timeinterval, tvb, offset, 2,
-	   timeinterval, "%s: %f seconds", proto_registrar_get_name(hf_index),
-	   timeinterval*.0001);
+	proto_tree_add_uint_format_value(tree, hf_timeinterval, tvb, offset, 2,
+	   timeinterval, "%f seconds", timeinterval*.0001);
 	offset += 2;
 	return offset;
 }
@@ -705,9 +684,7 @@ add_logon_args(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
     proto_tree *tree, int convert _U_, int hf_index _U_)
 {
 	if (count != 54) {
-		proto_tree_add_text(tree, tvb, offset, count,
-		   "Bogus NetWkstaUserLogon parameters: length is %d, should be 54",
-		   count);
+		proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bogus_netwkstauserlogon, tvb, offset, count, "Bogus NetWkstaUserLogon parameters: length is %d, should be 54", count);
 		offset += count;
 		return offset;
 	}
@@ -1671,11 +1648,10 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * isn't a word parameter.
 				 */
 				WParam = tvb_get_letohs(tvb, offset);
-				proto_tree_add_text(tree, tvb, offset, 2,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%04X), type is wrong (W)",
-				    (*items->hf_index == -1) ?
-				      "Word Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_word_param : *items->hf_index),
 				    WParam, WParam);
 				offset += 2;
 				items++;
@@ -1703,11 +1679,10 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * isn't a doubleword parameter.
 				 */
 				LParam = tvb_get_letohl(tvb, offset);
-				proto_tree_add_text(tree, tvb, offset, 2,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%08X), type is wrong (D)",
-				    (*items->hf_index == -1) ?
-				      "Doubleword Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_doubleword_param : *items->hf_index),
 				    LParam, LParam);
 				offset += 4;
 				items++;
@@ -1735,11 +1710,10 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * Descriptor character is 'b', but this
 				 * isn't a byte/bytes parameter.
 				 */
-				proto_tree_add_text(tree, tvb, offset, count,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (b)",
-				    (*items->hf_index == -1) ?
-				      "Byte Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_byte_param : *items->hf_index),
 				    tvb_bytes_to_str(tvb, offset, count));
 				offset += count;
 				items++;
@@ -1794,11 +1768,10 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * isn't a string parameter.
 				 */
 				string_len = tvb_strsize(tvb, offset);
-				proto_tree_add_text(tree, tvb, offset, string_len,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, string_len,
 				    "%s: Value is %s, type is wrong (z)",
-				    (*items->hf_index == -1) ?
-				      "String Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_string_param : *items->hf_index),
 				    tvb_format_text(tvb, offset, string_len));
 				offset += string_len;
 				items++;
@@ -1814,8 +1787,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * One or more pad bytes.
 			 */
 			desc = get_count(desc, &count);
-			proto_tree_add_text(tree, tvb, offset, count,
-			    "%s", "Padding");
+			proto_tree_add_text(tree, tvb, offset, count, "Padding");
 			offset += count;
 			break;
 
@@ -1891,11 +1863,10 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * Descriptor character is 'b', but this
 				 * isn't a byte/bytes parameter.
 				 */
-				proto_tree_add_text(tree, tvb, offset, count,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (g)",
-				    (*items->hf_index == -1) ?
-				      "Byte Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_byte_param : *items->hf_index),
 				    tvb_bytes_to_str(tvb, offset, count));
 				offset += count;
 				items++;
@@ -1923,11 +1894,10 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * isn't a word parameter.
 				 */
 				WParam = tvb_get_letohs(tvb, offset);
-				proto_tree_add_text(tree, tvb, offset, 2,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%04X), type is wrong (W)",
-				    (*items->hf_index == -1) ?
-				      "Word Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_word_param : *items->hf_index),
 				    WParam, WParam);
 				offset += 2;
 				items++;
@@ -1955,11 +1925,10 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * isn't a doubleword parameter.
 				 */
 				LParam = tvb_get_letohl(tvb, offset);
-				proto_tree_add_text(tree, tvb, offset, 2,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%08X), type is wrong (i)",
-				    (*items->hf_index == -1) ?
-				      "Doubleword Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_doubleword_param : *items->hf_index),
 				    LParam, LParam);
 				offset += 4;
 				items++;
@@ -2027,11 +1996,10 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * isn't a word parameter.
 				 */
 				WParam = tvb_get_letohs(tvb, offset);
-				proto_tree_add_text(tree, tvb, offset, 2,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%04X), type is wrong (W)",
-				    (*items->hf_index == -1) ?
-				      "Word Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_word_param : *items->hf_index),
 				    WParam, WParam);
 				offset += 2;
 				items++;
@@ -2061,11 +2029,10 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * isn't a doubleword parameter.
 				 */
 				LParam = tvb_get_letohl(tvb, offset);
-				proto_tree_add_text(tree, tvb, offset, 2,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, 2,
 				    "%s: Value is %u (0x%08X), type is wrong (D)",
-				    (*items->hf_index == -1) ?
-				      "Doubleword Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_doubleword_param : *items->hf_index),
 				    LParam, LParam);
 				offset += 4;
 				items++;
@@ -2093,11 +2060,10 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * Descriptor character is 'B', but this
 				 * isn't a byte/bytes parameter.
 				 */
-				proto_tree_add_text(tree, tvb, offset, count,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (B)",
-				    (*items->hf_index == -1) ?
-				      "Byte Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_byte_param : *items->hf_index),
 				    tvb_bytes_to_str(tvb, offset, count));
 				offset += count;
 				items++;
@@ -2154,11 +2120,10 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				string = get_stringz_pointer_value(tvb, offset,
 				    convert, &cptr, &string_len);
 				offset += 4;
-				proto_tree_add_text(tree, tvb, cptr, string_len,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, cptr, string_len,
 				    "%s: Value is %s, type is wrong (z)",
-				    (*items->hf_index == -1) ?
-				      "String Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_string_param : *items->hf_index),
 				    string ? string : "(null)");
 				items++;
 			} else {
@@ -2187,11 +2152,10 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 */
 				cptr = (tvb_get_letohl(tvb, offset)&0xffff)-convert;
 				offset += 4;
-				proto_tree_add_text(tree, tvb, offset, count,
+				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (b)",
-				    (*items->hf_index == -1) ?
-				      "Byte Param" :
-				      proto_registrar_get_name(*items->hf_index),
+				    proto_registrar_get_name((*items->hf_index == -1) ?
+				      hf_smb_pipe_byte_param : *items->hf_index),
 				    tvb_bytes_to_str(tvb, cptr, count));
 				items++;
 			} else {
@@ -2208,8 +2172,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 			 */
 			WParam = tvb_get_letohs(tvb, offset);
 			proto_tree_add_text(tree, tvb, offset, 2,
-			    "%s: %u (0x%04X)",
-			    "Auxiliary data structure count",
+			    "Auxiliary data structure count: %u (0x%04X)",
 			    WParam, WParam);
 			offset += 2;
 			if (aux_count_p != NULL)
@@ -2533,8 +2496,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 				ett = *lanman->ett_data_entry_list;
 			else
 				ett = ett_lanman_unknown_entries;
-			data_item = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-			    label);
+			data_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", label);
 			data_tree = proto_item_add_subtree(data_item, ett);
 		} else {
 			data_item = NULL;
@@ -3913,6 +3875,14 @@ proto_register_smb_pipe(void)
 		{ &hf_pipe_reassembled_length,
 			{ "Reassembled SMB Pipe length", "pipe.reassembled.length", FT_UINT32,
 			BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_smb_pipe_word_param, { "Word Param", "smb_pipe.word_param", FT_UINT16, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_pipe_doubleword_param, { "Doubleword Param", "smb_pipe.doubleword_param", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_pipe_byte_param8, { "Byte Param", "smb_pipe.byte_param8", FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_pipe_byte_param, { "Byte Param", "smb_pipe.byte_param", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_pipe_string_param, { "String Param", "smb_pipe.string_param", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_smb_pipe_stringz_param, { "String Param", "smb_pipe.string_param", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_smb_pipe,
@@ -3920,11 +3890,19 @@ proto_register_smb_pipe(void)
 		&ett_smb_pipe_fragments,
 	};
 
-	proto_smb_pipe = proto_register_protocol(
-		"SMB Pipe Protocol", "SMB Pipe", "pipe");
+	static ei_register_info ei[] = {
+		{ &ei_smb_pipe_bogus_netwkstauserlogon, { "smb_pipe.bogus_netwkstauserlogon_parameters", PI_PROTOCOL, PI_WARN, "Bogus NetWkstaUserLogon parameters", EXPFILL }},
+		{ &ei_smb_pipe_bad_type, { "smb_pipe.bad_type", PI_PROTOCOL, PI_ERROR, "Bad type field", EXPFILL }},
+	};
+
+	expert_module_t* expert_smb_pipe;
+
+	proto_smb_pipe = proto_register_protocol("SMB Pipe Protocol", "SMB Pipe", "pipe");
 
 	proto_register_field_array(proto_smb_pipe, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_smb_pipe = expert_register_protocol(proto_smb_pipe);
+	expert_register_field_array(expert_smb_pipe, ei, array_length(ei));
 }
 
 void
