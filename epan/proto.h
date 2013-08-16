@@ -382,7 +382,7 @@ struct _header_field_info {
  * _header_field_info. If new fields are added or removed, it should
  * be changed as necessary.
  */
-#define HFILL 0, 0, HF_REF_TYPE_NONE, -1, NULL
+#define HFILL -1, 0, HF_REF_TYPE_NONE, -1, NULL
 
 /** Used when registering many fields at once, using proto_register_field_array() */
 typedef struct hf_register_info {
@@ -756,15 +756,24 @@ WS_DLL_PUBLIC void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint
 /** Add an item to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.
  @param tree the tree to append this item to
- @param hfindex field index
+ @param hfinfo field 
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
  @param length length of data in tvb
  @param encoding data encoding
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
-proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
+proto_tree_add_item(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding);
+
+#ifndef NEW_PROTO_TREE_API
+#define proto_tree_add_item(tree, hfindex, tvb, start, length, encoding) \
+        proto_tree_add_item_old(tree, hfindex, tvb, start, length, encoding)
+#endif
+
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_old(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		    const gint start, gint length, const guint encoding);
 
 /** Add a text-only node to a proto_tree.
  @param tree the tree to append this item to
@@ -1661,6 +1670,10 @@ proto_register_prefix(const char *prefix,  prefix_initializer_t initializer);
 
 /** Initialize every remaining uninitialized prefix. */
 WS_DLL_PUBLIC void proto_initialize_all_prefixes(void);
+
+#define HFI_INIT(proto)
+
+WS_DLL_PUBLIC void proto_register_fields(const int parent, header_field_info **hfi, const int num_records);
 
 /** Register a header_field array.
  @param parent the protocol handle from proto_register_protocol()

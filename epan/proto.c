@@ -22,6 +22,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#define NEW_PROTO_TREE_API
+
 #include "config.h"
 
 #include <stdio.h>
@@ -1811,18 +1813,18 @@ test_length(header_field_info *hfinfo, proto_tree *tree, tvbuff_t *tvb,
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 proto_item *
-proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
+proto_tree_add_item(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 		    const gint start, gint length, const guint encoding)
 {
 	field_info        *new_fi;
-	header_field_info *hfinfo;
 	gint		  item_length;
 
-	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
 	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
 	test_length(hfinfo, tree, tvb, start, item_length, encoding);
 
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
+	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
 
 	new_fi = new_field_info(tree, hfinfo, tvb, start, item_length);
 
@@ -1830,6 +1832,13 @@ proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 		return NULL;
 
 	return proto_tree_new_item(new_fi, tree, tvb, start, length, encoding);
+}
+
+proto_item *
+proto_tree_add_item_old(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		    const gint start, gint length, const guint encoding)
+{
+        return proto_tree_add_item(tree, proto_registrar_get_nth(hfindex), tvb, start, length, encoding);
 }
 
 /* Add a FT_NONE to a proto_tree */
@@ -1867,7 +1876,7 @@ ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length,
 {
 	proto_item *item;
 
-	item = proto_tree_add_item(ptvc->tree, hf, ptvc->tvb, ptvc->offset,
+	item = proto_tree_add_item_old(ptvc->tree, hf, ptvc->tvb, ptvc->offset,
 				   length, encoding);
 
 	return item;
@@ -4450,29 +4459,25 @@ header_field_info *
 proto_get_first_protocol_field(const int proto_id, void **cookie)
 {
 	protocol_t       *protocol = find_protocol_by_id(proto_id);
-	hf_register_info *ptr;
 
 	if ((protocol == NULL) || (protocol->fields == NULL))
 		return NULL;
 
 	*cookie = protocol->fields;
-	ptr = (hf_register_info *)protocol->fields->data;
-	return &ptr->hfinfo;
+	return (header_field_info *)protocol->fields->data;
 }
 
 header_field_info *
 proto_get_next_protocol_field(void **cookie)
 {
 	GSList           *list_item = (GSList *)*cookie;
-	hf_register_info *ptr;
 
 	list_item = g_slist_next(list_item);
 	if (list_item == NULL)
 		return NULL;
 
 	*cookie = list_item;
-	ptr = (hf_register_info *)list_item->data;
-	return &ptr->hfinfo;
+	return (header_field_info *)list_item->data;
 }
 
 protocol_t *
@@ -4640,15 +4645,46 @@ proto_register_field_array(const int parent, hf_register_info *hf, const int num
 
 		if (proto != NULL) {
 			if (proto->fields == NULL) {
-				proto->fields = g_slist_append(NULL, ptr);
+				proto->fields = g_slist_append(NULL, &ptr->hfinfo);
 				proto->last_field = proto->fields;
 			} else {
 				proto->last_field =
-					g_slist_append(proto->last_field, ptr)->next;
+					g_slist_append(proto->last_field, &ptr->hfinfo)->next;
 			}
 		}
 		field_id = proto_register_field_init(&ptr->hfinfo, parent);
 		*ptr->p_id = field_id;
+	}
+}
+
+void
+proto_register_fields(const int parent, header_field_info **hfi, const int num_records)
+{
+	int		  i;
+	protocol_t	 *proto;
+
+	proto = find_protocol_by_id(parent);
+	for (i = 0; i < num_records; i++) {
+		/*
+		 * Make sure we haven't registered this yet.
+		 */
+		if (hfi[i]->id != -1) {
+			fprintf(stderr,
+				"Duplicate field detected in call to proto_register_field_array: %s is already registered\n",
+				hfi[i]->abbrev);
+			return;
+		}
+
+		if (proto != NULL) {
+			if (proto->fields == NULL) {
+				proto->fields = g_slist_append(NULL, hfi[i]);
+				proto->last_field = proto->fields;
+			} else {
+				proto->last_field =
+					g_slist_append(proto->last_field, hfi[i])->next;
+			}
+		}
+		proto_register_field_init(hfi[i], parent);
 	}
 }
 
@@ -6732,7 +6768,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			continue;
 		}
 
-		proto_tree_add_item(tree, **fields, tvb, offset, len, encoding);
+		proto_tree_add_item_old(tree, **fields, tvb, offset, len, encoding);
 		if (flags & BMT_NO_APPEND) {
 			fields++;
 			continue;
@@ -6840,7 +6876,7 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 	len = ftype_length(hf->type);
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, encoding);
+		item = proto_tree_add_item_old(parent_tree, hf_hdr, tvb, offset, len, encoding);
 		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, encoding,
 					    BMT_NO_INT|BMT_NO_TFS, FALSE);
 	}
