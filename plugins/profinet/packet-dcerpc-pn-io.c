@@ -9217,7 +9217,7 @@ dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO Cyclic Service Data Unit (on top of PN-RT protocol) */
 static int
 dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, guint8 *drep _U_)
 {
     proto_tree *data_tree = NULL;
     /*gint iTotalLen    = 0;*/
