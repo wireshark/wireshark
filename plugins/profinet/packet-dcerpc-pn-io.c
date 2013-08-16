@@ -9241,7 +9241,8 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
     /* this will be one or more DataItems followed by an optional GAP and RTCPadding */
     /* as we don't have the required context information to dissect the specific DataItems, */
     /* this will be tricky :-( */
-    offset = dissect_PNIO_IOxS(tvb, offset, pinfo, data_tree, drep, hf_pn_io_ioxs);
+    /* actual: there may be an IOxS but most case there isn't so better display a data-stream */
+    /* offset = dissect_PNIO_IOxS(tvb, offset, pinfo, data_tree, drep, hf_pn_io_ioxs);        */
     offset = dissect_pn_user_data(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset),
                                   "User Data (including GAP and RTCPadding)");
 
