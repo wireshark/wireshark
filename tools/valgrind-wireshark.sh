@@ -89,4 +89,17 @@ export WIRESHARK_DEBUG_SE_NO_CHUNKS=
 export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
 export G_SLICE=always-malloc # or debug-blocks
 
-./libtool --mode=execute valgrind $TOOL $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $BIN_DIR/$COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
+COMMAND="$BIN_DIR/$COMMAND"
+
+if file $COMMAND | grep -q "ASCII text"; then
+    if [ -x "`dirname $0`/../libtool" ]; then
+        LIBTOOL="`dirname $0`/../libtool"
+    else
+        LIBTOOL="libtool"
+    fi
+    LIBTOOL="$LIBTOOL --mode=execute"
+else
+    LIBTOOL=""
+fi
+
+$LIBTOOL valgrind $TOOL $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null

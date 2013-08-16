@@ -73,7 +73,7 @@ shift $(($OPTIND - 1))
 ### usually you won't have to change anything below this line ###
 
 if [ $VALGRIND -eq 1 ]; then
-    RUNNER="$BIN_DIR/tools/valgrind-wireshark.sh"
+    RUNNER="`dirname $0`/valgrind-wireshark.sh"
     declare -a RUNNER_ARGS=("${CONFIG_PROFILE}${TWO_PASS}" "${CONFIG_PROFILE}${TWO_PASS}-T")
 else
     # Not using valgrind, use regular tshark.
