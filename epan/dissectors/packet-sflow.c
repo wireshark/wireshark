@@ -652,7 +652,7 @@ static gint
 dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *tree, volatile gint offset) {
     guint32 version, header_proto, frame_length;
-    guint32 header_length;
+    volatile guint32 header_length;
     tvbuff_t *next_tvb;
     proto_tree *sflow_245_header_tree;
     proto_item *ti;
@@ -923,7 +923,7 @@ dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree
      * 255 is a sensible limit of label count */
     for (i = 0, j = 0; i < (out_label_count & 0x000000ff); i++, j += 4) {
         label = tvb_get_ntohl(tvb, offset + j);
-        proto_tree_add_uint_format(in_stack, hf_sflow_245_extended_mpls_out_label, tvb, offset, 4,
+        proto_tree_add_uint_format(out_stack, hf_sflow_245_extended_mpls_out_label, tvb, offset, 4,
             label, "Label %u: %u", i + 1, label);
     }
     offset = offset + out_label_count * 4;
