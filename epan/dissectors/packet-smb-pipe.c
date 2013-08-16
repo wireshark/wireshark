@@ -48,29 +48,29 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
 #include <epan/reassemble.h>
 
 static int proto_smb_pipe = -1;
-static int hf_pipe_function = -1;
-static int hf_pipe_priority = -1;
-static int hf_pipe_peek_available = -1;
-static int hf_pipe_peek_remaining = -1;
-static int hf_pipe_peek_status = -1;
-static int hf_pipe_getinfo_info_level = -1;
-static int hf_pipe_getinfo_output_buffer_size = -1;
-static int hf_pipe_getinfo_input_buffer_size = -1;
-static int hf_pipe_getinfo_maximum_instances = -1;
-static int hf_pipe_getinfo_current_instances = -1;
-static int hf_pipe_getinfo_pipe_name_length = -1;
-static int hf_pipe_getinfo_pipe_name = -1;
-static int hf_pipe_write_raw_bytes_written = -1;
-static int hf_pipe_fragments = -1;
-static int hf_pipe_fragment = -1;
-static int hf_pipe_fragment_overlap = -1;
-static int hf_pipe_fragment_overlap_conflict = -1;
-static int hf_pipe_fragment_multiple_tails = -1;
-static int hf_pipe_fragment_too_long_fragment = -1;
-static int hf_pipe_fragment_error = -1;
-static int hf_pipe_fragment_count = -1;
-static int hf_pipe_reassembled_in = -1;
-static int hf_pipe_reassembled_length = -1;
+static int hf_smb_pipe_function = -1;
+static int hf_smb_pipe_priority = -1;
+static int hf_smb_pipe_peek_available = -1;
+static int hf_smb_pipe_peek_remaining = -1;
+static int hf_smb_pipe_peek_status = -1;
+static int hf_smb_pipe_getinfo_info_level = -1;
+static int hf_smb_pipe_getinfo_output_buffer_size = -1;
+static int hf_smb_pipe_getinfo_input_buffer_size = -1;
+static int hf_smb_pipe_getinfo_maximum_instances = -1;
+static int hf_smb_pipe_getinfo_current_instances = -1;
+static int hf_smb_pipe_getinfo_pipe_name_length = -1;
+static int hf_smb_pipe_getinfo_pipe_name = -1;
+static int hf_smb_pipe_write_raw_bytes_written = -1;
+static int hf_smb_pipe_fragments = -1;
+static int hf_smb_pipe_fragment = -1;
+static int hf_smb_pipe_fragment_overlap = -1;
+static int hf_smb_pipe_fragment_overlap_conflict = -1;
+static int hf_smb_pipe_fragment_multiple_tails = -1;
+static int hf_smb_pipe_fragment_too_long_fragment = -1;
+static int hf_smb_pipe_fragment_error = -1;
+static int hf_smb_pipe_fragment_count = -1;
+static int hf_smb_pipe_reassembled_in = -1;
+static int hf_smb_pipe_reassembled_length = -1;
 
 static gint ett_smb_pipe = -1;
 static gint ett_smb_pipe_fragment = -1;
@@ -79,16 +79,16 @@ static gint ett_smb_pipe_fragments = -1;
 static const fragment_items smb_pipe_frag_items = {
 	&ett_smb_pipe_fragment,
 	&ett_smb_pipe_fragments,
-	&hf_pipe_fragments,
-	&hf_pipe_fragment,
-	&hf_pipe_fragment_overlap,
-	&hf_pipe_fragment_overlap_conflict,
-	&hf_pipe_fragment_multiple_tails,
-	&hf_pipe_fragment_too_long_fragment,
-	&hf_pipe_fragment_error,
-	&hf_pipe_fragment_count,
+	&hf_smb_pipe_fragments,
+	&hf_smb_pipe_fragment,
+	&hf_smb_pipe_fragment_overlap,
+	&hf_smb_pipe_fragment_overlap_conflict,
+	&hf_smb_pipe_fragment_multiple_tails,
+	&hf_smb_pipe_fragment_too_long_fragment,
+	&hf_smb_pipe_fragment_error,
+	&hf_smb_pipe_fragment_count,
 	NULL,
-	&hf_pipe_reassembled_length,
+	&hf_smb_pipe_reassembled_length,
 	/* Reassembled data field */
 	NULL,
 	"fragments"
@@ -179,8 +179,8 @@ static int hf_reserved = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_smb_pipe_stringz_param = -1;
 static int hf_smb_pipe_string_param = -1;
+static int hf_smb_pipe_bytes_param = -1;
 static int hf_smb_pipe_byte_param = -1;
-static int hf_smb_pipe_byte_param8 = -1;
 static int hf_smb_pipe_doubleword_param = -1;
 static int hf_smb_pipe_word_param = -1;
 
@@ -285,7 +285,7 @@ add_dword_param(tvbuff_t *tvb, int offset, int count _U_,
 }
 
 static int
-add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
+add_bytes_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
     proto_tree *tree, int convert _U_, int hf_index)
 {
 	header_field_info *hfinfo;
@@ -317,9 +317,9 @@ add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 		}
 	} else {
 		if (count == 1) {
-			proto_tree_add_item(tree, hf_smb_pipe_byte_param8, tvb, offset, count, ENC_NA);
-		} else {
 			proto_tree_add_item(tree, hf_smb_pipe_byte_param, tvb, offset, count, ENC_NA);
+		} else {
+			proto_tree_add_item(tree, hf_smb_pipe_bytes_param, tvb, offset, count, ENC_NA);
 		}
 	}
 	offset += count;
@@ -436,14 +436,14 @@ add_bytes_pointer_param(tvbuff_t *tvb, int offset, int count,
 			proto_tree_add_item(tree, hf_index, tvb, cptr,
 			    count, ENC_NA);
 		} else {
-			proto_tree_add_item(tree, hf_smb_pipe_byte_param, tvb, cptr, count, ENC_NA);
+			proto_tree_add_item(tree, hf_smb_pipe_bytes_param, tvb, cptr, count, ENC_NA);
 		}
 	} else {
 		if (hf_index != -1) {
 			proto_tree_add_bytes_format_value(tree, hf_index, tvb, 0, 0,
 			    NULL, "<Bytes go past end of frame>");
 		} else {
-			proto_tree_add_bytes_format_value(tree, hf_smb_pipe_byte_param, tvb, 0, 0,
+			proto_tree_add_bytes_format_value(tree, hf_smb_pipe_bytes_param, tvb, 0, 0,
 			    NULL, "<Bytes go past end of frame>");
 		}
 	}
@@ -482,7 +482,7 @@ add_max_uses(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 	if (WParam == 0xffff) {	/* -1 */
 		proto_tree_add_uint_format_value(tree, hf_index, tvb,
 		    offset, 2, WParam,
-		    "%No limit");
+		    "No limit");
 	} else {
 		proto_tree_add_uint(tree, hf_index, tvb,
 			    offset, 2, WParam);
@@ -645,7 +645,7 @@ add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 
 static int
 add_tzoffset(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
-    proto_tree *tree, int convert _U_, int hf_index)
+    proto_tree *tree, int convert _U_, int hf_index _U_)
 {
 	gint16 tzoffset;
 
@@ -668,7 +668,7 @@ add_tzoffset(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 
 static int
 add_timeinterval(tvbuff_t *tvb, int offset, int count _U_,
-    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index _U_)
 {
 	guint16 timeinterval;
 
@@ -811,7 +811,7 @@ static const item_list_t lm_null_list[] = {
 };
 
 static const item_t lm_data_resp_netshareenum_1[] = {
-	{ &hf_share_name, add_byte_param, PARAM_BYTES },
+	{ &hf_share_name, add_bytes_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_share_type, add_word_param, PARAM_WORD },
 	{ &hf_share_comment, add_stringz_pointer_param, PARAM_STRINGZ },
@@ -835,12 +835,12 @@ static const item_t lm_params_resp_netsharegetinfo[] = {
 };
 
 static const item_t lm_data_resp_netsharegetinfo_0[] = {
-	{ &hf_share_name, add_byte_param, PARAM_BYTES },
+	{ &hf_share_name, add_bytes_param, PARAM_BYTES },
 	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_resp_netsharegetinfo_1[] = {
-	{ &hf_share_name, add_byte_param, PARAM_BYTES },
+	{ &hf_share_name, add_bytes_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_share_type, add_word_param, PARAM_WORD },
 	{ &hf_share_comment, add_stringz_pointer_param, PARAM_STRINGZ },
@@ -848,7 +848,7 @@ static const item_t lm_data_resp_netsharegetinfo_1[] = {
 };
 
 static const item_t lm_data_resp_netsharegetinfo_2[] = {
-	{ &hf_share_name, add_byte_param, PARAM_BYTES },
+	{ &hf_share_name, add_bytes_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_share_type, add_word_param, PARAM_WORD },
 	{ &hf_share_comment, add_stringz_pointer_param, PARAM_STRINGZ },
@@ -856,7 +856,7 @@ static const item_t lm_data_resp_netsharegetinfo_2[] = {
 	{ &hf_share_max_uses, add_max_uses, PARAM_WORD },
 	{ &hf_share_current_uses, add_word_param, PARAM_WORD },
 	{ &hf_share_path, add_stringz_pointer_param, PARAM_STRINGZ },
-	{ &hf_share_password, add_byte_param, PARAM_BYTES },
+	{ &hf_share_password, add_bytes_param, PARAM_BYTES },
 	{ NULL, NULL, PARAM_NONE }
 };
 
@@ -878,14 +878,14 @@ static const item_t lm_params_resp_netservergetinfo[] = {
 };
 
 static const item_t lm_data_serverinfo_0[] = {
-	{ &hf_server_name, add_byte_param, PARAM_BYTES },
+	{ &hf_server_name, add_bytes_param, PARAM_BYTES },
 	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_serverinfo_1[] = {
-	{ &hf_server_name, add_byte_param, PARAM_BYTES },
-	{ &hf_server_major, add_byte_param, PARAM_BYTES },
-	{ &hf_server_minor, add_byte_param, PARAM_BYTES },
+	{ &hf_server_name, add_bytes_param, PARAM_BYTES },
+	{ &hf_server_major, add_bytes_param, PARAM_BYTES },
+	{ &hf_server_minor, add_bytes_param, PARAM_BYTES },
 	{ &no_hf, add_server_type, PARAM_DWORD },
 	{ &hf_server_comment, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ NULL, NULL, PARAM_NONE }
@@ -909,7 +909,7 @@ static const item_t lm_params_resp_netusergetinfo[] = {
 };
 
 static const item_t lm_data_resp_netusergetinfo_11[] = {
-	{ &hf_user_name, add_byte_param, PARAM_BYTES },
+	{ &hf_user_name, add_bytes_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_comment, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_user_comment, add_stringz_pointer_param, PARAM_STRINGZ },
@@ -950,7 +950,7 @@ static const item_t lm_params_resp_netusergetgroups[] = {
 };
 
 static const item_t lm_data_resp_netusergetgroups_0[] = {
-	{ &hf_group_name, add_byte_param, PARAM_BYTES },
+	{ &hf_group_name, add_bytes_param, PARAM_BYTES },
 	{ NULL, NULL, PARAM_NONE }
 };
 
@@ -965,16 +965,16 @@ static const item_list_t lm_data_resp_netusergetgroups[] = {
 static const item_t lm_data_resp_netremotetod_nolevel[] = {
 	{ &hf_current_time, add_abstime_absent_unknown, PARAM_DWORD },
 	{ &hf_msecs, add_dword_param, PARAM_DWORD },
-	{ &hf_hour, add_byte_param, PARAM_BYTES },
-	{ &hf_minute, add_byte_param, PARAM_BYTES },
-	{ &hf_second, add_byte_param, PARAM_BYTES },
-	{ &hf_hundredths, add_byte_param, PARAM_BYTES },
+	{ &hf_hour, add_bytes_param, PARAM_BYTES },
+	{ &hf_minute, add_bytes_param, PARAM_BYTES },
+	{ &hf_second, add_bytes_param, PARAM_BYTES },
+	{ &hf_hundredths, add_bytes_param, PARAM_BYTES },
 	{ &hf_tzoffset, add_tzoffset, PARAM_WORD },
 	{ &hf_timeinterval, add_timeinterval, PARAM_WORD },
-	{ &hf_day, add_byte_param, PARAM_BYTES },
-	{ &hf_month, add_byte_param, PARAM_BYTES },
+	{ &hf_day, add_bytes_param, PARAM_BYTES },
+	{ &hf_month, add_bytes_param, PARAM_BYTES },
 	{ &hf_year, add_word_param, PARAM_WORD },
-	{ &hf_weekday, add_byte_param, PARAM_BYTES },
+	{ &hf_weekday, add_bytes_param, PARAM_BYTES },
 	{ NULL, NULL, PARAM_NONE }
 };
 
@@ -1031,8 +1031,8 @@ static const item_t lm_data_resp_netwkstagetinfo_10[] = {
 	{ &hf_computer_name, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_user_name, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_workstation_domain, add_stringz_pointer_param, PARAM_STRINGZ },
-	{ &hf_workstation_major, add_byte_param, PARAM_BYTES },
-	{ &hf_workstation_minor, add_byte_param, PARAM_BYTES },
+	{ &hf_workstation_major, add_bytes_param, PARAM_BYTES },
+	{ &hf_workstation_minor, add_bytes_param, PARAM_BYTES },
 	{ &hf_logon_domain, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_other_domains, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ NULL, NULL, PARAM_NONE }
@@ -1059,7 +1059,7 @@ static const item_t lm_params_resp_netwkstauserlogon[] = {
 
 static const item_t lm_data_resp_netwkstauserlogon_1[] = {
 	{ &hf_logon_code, add_word_param, PARAM_WORD },
-	{ &hf_user_name, add_byte_param, PARAM_BYTES },
+	{ &hf_user_name, add_bytes_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_privilege_level, add_word_param, PARAM_WORD },
 	{ &hf_operator_privileges, add_dword_param, PARAM_DWORD },
@@ -1085,9 +1085,9 @@ static const item_list_t lm_data_resp_netwkstauserlogon[] = {
 };
 
 static const item_t lm_params_req_netwkstauserlogoff[] = {
-	{ &hf_user_name, add_byte_param, PARAM_BYTES },
+	{ &hf_user_name, add_bytes_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
-	{ &hf_workstation_name, add_byte_param, PARAM_BYTES },
+	{ &hf_workstation_name, add_bytes_param, PARAM_BYTES },
 	{ NULL, NULL, PARAM_NONE }
 };
 
@@ -1114,8 +1114,8 @@ static const item_t lm_params_req_samoemchangepassword[] = {
 };
 
 static const item_t lm_data_req_samoemchangepassword[] = {
-	{ &hf_new_password, add_byte_param, PARAM_BYTES },
-	{ &hf_old_password, add_byte_param, PARAM_BYTES },
+	{ &hf_new_password, add_bytes_param, PARAM_BYTES },
+	{ &hf_old_password, add_bytes_param, PARAM_BYTES },
 	{ NULL, NULL, PARAM_NONE }
 };
 
@@ -1703,7 +1703,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * We've run out of items in the table;
 				 * fall back on the default.
 				 */
-				offset = add_byte_param(tvb, offset, count,
+				offset = add_bytes_param(tvb, offset, count,
 				    pinfo, tree, 0, -1);
 			} else if (items->type != PARAM_BYTES) {
 				/*
@@ -1713,7 +1713,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (b)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
-				      hf_smb_pipe_byte_param : *items->hf_index),
+				      hf_smb_pipe_bytes_param : *items->hf_index),
 				    tvb_bytes_to_str(tvb, offset, count));
 				offset += count;
 				items++;
@@ -1856,7 +1856,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * We've run out of items in the table;
 				 * fall back on the default.
 				 */
-				offset = add_byte_param(tvb, offset, count,
+				offset = add_bytes_param(tvb, offset, count,
 				    pinfo, tree, 0, -1);
 			} else if (items->type != PARAM_BYTES) {
 				/*
@@ -1866,7 +1866,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (g)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
-				      hf_smb_pipe_byte_param : *items->hf_index),
+				      hf_smb_pipe_bytes_param : *items->hf_index),
 				    tvb_bytes_to_str(tvb, offset, count));
 				offset += count;
 				items++;
@@ -2053,7 +2053,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * We've run out of items in the table;
 				 * fall back on the default.
 				 */
-				offset = add_byte_param(tvb, offset, count,
+				offset = add_bytes_param(tvb, offset, count,
 				    pinfo, tree, convert, -1);
 			} else if (items->type != PARAM_BYTES) {
 				/*
@@ -2063,7 +2063,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (B)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
-				      hf_smb_pipe_byte_param : *items->hf_index),
+				      hf_smb_pipe_bytes_param : *items->hf_index),
 				    tvb_bytes_to_str(tvb, offset, count));
 				offset += count;
 				items++;
@@ -2155,7 +2155,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				proto_tree_add_expert_format(tree, pinfo, &ei_smb_pipe_bad_type, tvb, offset, count,
 				    "%s: Value is %s, type is wrong (b)",
 				    proto_registrar_get_name((*items->hf_index == -1) ?
-				      hf_smb_pipe_byte_param : *items->hf_index),
+				      hf_smb_pipe_bytes_param : *items->hf_index),
 				    tvb_bytes_to_str(tvb, cptr, count));
 				items++;
 			} else {
@@ -3250,7 +3250,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 	fragment_head *fd_head;
 	tvbuff_t *new_tvb;
-    proto_item *frag_tree_item;
+	proto_item *frag_tree_item;
 
 	pinfo->dcetransportsalt = fid;
 
@@ -3386,7 +3386,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 	/* it is reassembled but it was reassembled in a different frame */
 	if(pinfo->fd->num!=fd_head->reassembled_in){
-		proto_tree_add_uint(parent_tree, hf_pipe_reassembled_in, d_tvb, 0, 0, fd_head->reassembled_in);
+		proto_tree_add_uint(parent_tree, hf_smb_pipe_reassembled_in, d_tvb, 0, 0, fd_head->reassembled_in);
 		goto clean_up_and_exit;
 	}
 
@@ -3528,7 +3528,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 * Yes.  The first of them is the function.
 		 */
 		function = tvb_get_letohs(s_tvb, offset);
-		proto_tree_add_uint(pipe_tree, hf_pipe_function, s_tvb,
+		proto_tree_add_uint(pipe_tree, hf_smb_pipe_function, s_tvb,
 		    offset, 2, function);
 		offset += 2;
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
@@ -3548,7 +3548,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			/*
 			 * It's a priority.
 			 */
-			proto_tree_add_item(pipe_tree, hf_pipe_priority, s_tvb,
+			proto_tree_add_item(pipe_tree, hf_smb_pipe_priority, s_tvb,
 			    offset, 2, ENC_LITTLE_ENDIAN);
 			break;
 
@@ -3587,7 +3587,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 */
 		if (tri != NULL && tri->function != -1) {
 			function = tri->function;
-			proto_tree_add_uint(pipe_tree, hf_pipe_function, NULL,
+			proto_tree_add_uint(pipe_tree, hf_smb_pipe_function, NULL,
 			    0, 0, function);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 				    val_to_str(function, functions, "Unknown function (0x%04x)"),
@@ -3681,13 +3681,13 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (p_tvb == NULL)
 				return FALSE;
 			offset = 0;
-			proto_tree_add_item(pipe_tree, hf_pipe_peek_available,
+			proto_tree_add_item(pipe_tree, hf_smb_pipe_peek_available,
 			    p_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
-			proto_tree_add_item(pipe_tree, hf_pipe_peek_remaining,
+			proto_tree_add_item(pipe_tree, hf_smb_pipe_peek_remaining,
 			    p_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
-			proto_tree_add_item(pipe_tree, hf_pipe_peek_status,
+			proto_tree_add_item(pipe_tree, hf_smb_pipe_peek_status,
 			    p_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		}
 		break;
@@ -3724,7 +3724,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			 * Request contains an information level.
 			 */
 			info_level = tvb_get_letohs(p_tvb, offset);
-			proto_tree_add_uint(pipe_tree, hf_pipe_getinfo_info_level,
+			proto_tree_add_uint(pipe_tree, hf_smb_pipe_getinfo_info_level,
 			    p_tvb, offset, 2, info_level);
 			if (!pinfo->fd->flags.visited)
 				tri->info_level = info_level;
@@ -3738,29 +3738,29 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 
 			case 1:
 				proto_tree_add_item(pipe_tree,
-				    hf_pipe_getinfo_output_buffer_size,
+				    hf_smb_pipe_getinfo_output_buffer_size,
 				    d_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 				proto_tree_add_item(pipe_tree,
-				    hf_pipe_getinfo_input_buffer_size,
+				    hf_smb_pipe_getinfo_input_buffer_size,
 				    d_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 				proto_tree_add_item(pipe_tree,
-				    hf_pipe_getinfo_maximum_instances,
+				    hf_smb_pipe_getinfo_maximum_instances,
 				    d_tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				proto_tree_add_item(pipe_tree,
-				    hf_pipe_getinfo_current_instances,
+				    hf_smb_pipe_getinfo_current_instances,
 				    d_tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				pipe_namelen = tvb_get_guint8(d_tvb, offset);
 				proto_tree_add_uint(pipe_tree,
-				    hf_pipe_getinfo_pipe_name_length,
+				    hf_smb_pipe_getinfo_pipe_name_length,
 				    d_tvb, offset, 1, pipe_namelen);
 				offset += 1;
 				/* XXX - can this be Unicode? */
 				proto_tree_add_item(pipe_tree,
-				    hf_pipe_getinfo_pipe_name,
+				    hf_smb_pipe_getinfo_pipe_name,
 				    d_tvb, offset, pipe_namelen, ENC_ASCII|ENC_NA);
 				break;
 			}
@@ -3794,7 +3794,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (p_tvb == NULL)
 				return FALSE;
 			proto_tree_add_item(pipe_tree,
-			    hf_pipe_write_raw_bytes_written,
+			    hf_smb_pipe_write_raw_bytes_written,
 			    p_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		}
 		break;
@@ -3806,83 +3806,95 @@ void
 proto_register_smb_pipe(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_pipe_function,
-			{ "Function", "pipe.function", FT_UINT16, BASE_HEX,
+		{ &hf_smb_pipe_function,
+			{ "Function", "smb_pipe.function", FT_UINT16, BASE_HEX,
 			VALS(functions), 0, "SMB Pipe Function Code", HFILL }},
-		{ &hf_pipe_priority,
-			{ "Priority", "pipe.priority", FT_UINT16, BASE_DEC,
+		{ &hf_smb_pipe_priority,
+			{ "Priority", "smb_pipe.priority", FT_UINT16, BASE_DEC,
 			NULL, 0, "SMB Pipe Priority", HFILL }},
-		{ &hf_pipe_peek_available,
-			{ "Available Bytes", "pipe.peek.available_bytes", FT_UINT16, BASE_DEC,
+		{ &hf_smb_pipe_peek_available,
+			{ "Available Bytes", "smb_pipe.peek.available_bytes", FT_UINT16, BASE_DEC,
 			NULL, 0, "Total number of bytes available to be read from the pipe", HFILL }},
-		{ &hf_pipe_peek_remaining,
-			{ "Bytes Remaining", "pipe.peek.remaining_bytes", FT_UINT16, BASE_DEC,
+		{ &hf_smb_pipe_peek_remaining,
+			{ "Bytes Remaining", "smb_pipe.peek.remaining_bytes", FT_UINT16, BASE_DEC,
 			NULL, 0, "Total number of bytes remaining in the message at the head of the pipe", HFILL }},
-		{ &hf_pipe_peek_status,
-			{ "Pipe Status", "pipe.peek.status", FT_UINT16, BASE_DEC,
+		{ &hf_smb_pipe_peek_status,
+			{ "Pipe Status", "smb_pipe.peek.status", FT_UINT16, BASE_DEC,
 			VALS(pipe_status), 0, NULL, HFILL }},
-		{ &hf_pipe_getinfo_info_level,
-			{ "Information Level", "pipe.getinfo.info_level", FT_UINT16, BASE_DEC,
+		{ &hf_smb_pipe_getinfo_info_level,
+			{ "Information Level", "smb_pipe.getinfo.info_level", FT_UINT16, BASE_DEC,
 			NULL, 0, "Information level of information to return", HFILL }},
-		{ &hf_pipe_getinfo_output_buffer_size,
-			{ "Output Buffer Size", "pipe.getinfo.output_buffer_size", FT_UINT16, BASE_DEC,
+		{ &hf_smb_pipe_getinfo_output_buffer_size,
+			{ "Output Buffer Size", "smb_pipe.getinfo.output_buffer_size", FT_UINT16, BASE_DEC,
 			NULL, 0, "Actual size of buffer for outgoing (server) I/O", HFILL }},
-		{ &hf_pipe_getinfo_input_buffer_size,
-			{ "Input Buffer Size", "pipe.getinfo.input_buffer_size", FT_UINT16, BASE_DEC,
+		{ &hf_smb_pipe_getinfo_input_buffer_size,
+			{ "Input Buffer Size", "smb_pipe.getinfo.input_buffer_size", FT_UINT16, BASE_DEC,
 			NULL, 0, "Actual size of buffer for incoming (client) I/O", HFILL }},
-		{ &hf_pipe_getinfo_maximum_instances,
-			{ "Maximum Instances", "pipe.getinfo.maximum_instances", FT_UINT8, BASE_DEC,
+		{ &hf_smb_pipe_getinfo_maximum_instances,
+			{ "Maximum Instances", "smb_pipe.getinfo.maximum_instances", FT_UINT8, BASE_DEC,
 			NULL, 0, "Maximum allowed number of instances", HFILL }},
-		{ &hf_pipe_getinfo_current_instances,
-			{ "Current Instances", "pipe.getinfo.current_instances", FT_UINT8, BASE_DEC,
+		{ &hf_smb_pipe_getinfo_current_instances,
+			{ "Current Instances", "smb_pipe.getinfo.current_instances", FT_UINT8, BASE_DEC,
 			NULL, 0, "Current number of instances", HFILL }},
-		{ &hf_pipe_getinfo_pipe_name_length,
-			{ "Pipe Name Length", "pipe.getinfo.pipe_name_length", FT_UINT8, BASE_DEC,
+		{ &hf_smb_pipe_getinfo_pipe_name_length,
+			{ "Pipe Name Length", "smb_pipe.getinfo.pipe_name_length", FT_UINT8, BASE_DEC,
 			NULL, 0, "Length of pipe name", HFILL }},
-		{ &hf_pipe_getinfo_pipe_name,
-			{ "Pipe Name", "pipe.getinfo.pipe_name", FT_STRING, BASE_NONE,
+		{ &hf_smb_pipe_getinfo_pipe_name,
+			{ "Pipe Name", "smb_pipe.getinfo.pipe_name", FT_STRING, BASE_NONE,
 			NULL, 0, "Name of pipe", HFILL }},
-		{ &hf_pipe_write_raw_bytes_written,
-			{ "Bytes Written", "pipe.write_raw.bytes_written", FT_UINT16, BASE_DEC,
+		{ &hf_smb_pipe_write_raw_bytes_written,
+			{ "Bytes Written", "smb_pipe.write_raw.bytes_written", FT_UINT16, BASE_DEC,
 			NULL, 0, "Number of bytes written to the pipe", HFILL }},
-		{ &hf_pipe_fragment_overlap,
-			{ "Fragment overlap",	"pipe.fragment.overlap", FT_BOOLEAN, BASE_NONE,
+		{ &hf_smb_pipe_fragment_overlap,
+			{ "Fragment overlap",	"smb_pipe.fragment.overlap", FT_BOOLEAN, BASE_NONE,
 			NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
-		{ &hf_pipe_fragment_overlap_conflict,
-			{ "Conflicting data in fragment overlap",	"pipe.fragment.overlap.conflict", FT_BOOLEAN,
+		{ &hf_smb_pipe_fragment_overlap_conflict,
+			{ "Conflicting data in fragment overlap",	"smb_pipe.fragment.overlap.conflict", FT_BOOLEAN,
 			BASE_NONE, NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
-		{ &hf_pipe_fragment_multiple_tails,
-			{ "Multiple tail fragments found",	"pipe.fragment.multipletails", FT_BOOLEAN,
+		{ &hf_smb_pipe_fragment_multiple_tails,
+			{ "Multiple tail fragments found",	"smb_pipe.fragment.multipletails", FT_BOOLEAN,
 			BASE_NONE, NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
-		{ &hf_pipe_fragment_too_long_fragment,
-			{ "Fragment too long",	"pipe.fragment.toolongfragment", FT_BOOLEAN,
+		{ &hf_smb_pipe_fragment_too_long_fragment,
+			{ "Fragment too long",	"smb_pipe.fragment.toolongfragment", FT_BOOLEAN,
 			BASE_NONE, NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
-		{ &hf_pipe_fragment_error,
-			{ "Defragmentation error", "pipe.fragment.error", FT_FRAMENUM,
+		{ &hf_smb_pipe_fragment_error,
+			{ "Defragmentation error", "smb_pipe.fragment.error", FT_FRAMENUM,
 			BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
-		{ &hf_pipe_fragment_count,
-			{ "Fragment count", "pipe.fragment.count", FT_UINT32,
+		{ &hf_smb_pipe_fragment_count,
+			{ "Fragment count", "smb_pipe.fragment.count", FT_UINT32,
 			BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &hf_pipe_fragment,
-			{ "Fragment", "pipe.fragment", FT_FRAMENUM,
+		{ &hf_smb_pipe_fragment,
+			{ "Fragment", "smb_pipe.fragment", FT_FRAMENUM,
 			BASE_NONE, NULL, 0x0, "Pipe Fragment", HFILL }},
-		{ &hf_pipe_fragments,
-			{ "Fragments", "pipe.fragments", FT_NONE,
+		{ &hf_smb_pipe_fragments,
+			{ "Fragments", "smb_pipe.fragments", FT_NONE,
 			BASE_NONE, NULL, 0x0, "Pipe Fragments", HFILL }},
-		{ &hf_pipe_reassembled_in,
-			{ "This PDU is reassembled in", "pipe.reassembled_in", FT_FRAMENUM,
+		{ &hf_smb_pipe_reassembled_in,
+			{ "This PDU is reassembled in", "smb_pipe.reassembled_in", FT_FRAMENUM,
 			BASE_NONE, NULL, 0x0, "The DCE/RPC PDU is completely reassembled in this frame", HFILL }},
-		{ &hf_pipe_reassembled_length,
-			{ "Reassembled SMB Pipe length", "pipe.reassembled.length", FT_UINT32,
+		{ &hf_smb_pipe_reassembled_length,
+			{ "Reassembled SMB Pipe length", "smb_pipe.reassembled.length", FT_UINT32,
 			BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_smb_pipe_word_param, { "Word Param", "smb_pipe.word_param", FT_UINT16, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_pipe_doubleword_param, { "Doubleword Param", "smb_pipe.doubleword_param", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_pipe_byte_param8, { "Byte Param", "smb_pipe.byte_param8", FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_pipe_byte_param, { "Byte Param", "smb_pipe.byte_param", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_pipe_string_param, { "String Param", "smb_pipe.string_param", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_pipe_stringz_param, { "String Param", "smb_pipe.string_param", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		/* Generated from convert_proto_tree_add_text.pl */
+		{ &hf_smb_pipe_word_param,
+			{ "Word Param", "smb_pipe.word_param", FT_UINT16,
+			BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb_pipe_doubleword_param,
+			{ "Doubleword Param", "smb_pipe.doubleword_param", FT_UINT32,
+			BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb_pipe_byte_param,
+			{ "Byte Param", "smb_pipe.byte_param", FT_UINT8,
+			BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb_pipe_bytes_param,
+			{ "Bytes Param", "smb_pipe.bytes_param", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb_pipe_string_param,
+			{ "String Param", "smb_pipe.string_param", FT_STRING,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb_pipe_stringz_param,
+			{ "String Param", "smb_pipe.string_param", FT_STRINGZ,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_smb_pipe,
@@ -3897,7 +3909,7 @@ proto_register_smb_pipe(void)
 
 	expert_module_t* expert_smb_pipe;
 
-	proto_smb_pipe = proto_register_protocol("SMB Pipe Protocol", "SMB Pipe", "pipe");
+	proto_smb_pipe = proto_register_protocol("SMB Pipe Protocol", "SMB Pipe", "smb_pipe");
 
 	proto_register_field_array(proto_smb_pipe, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
