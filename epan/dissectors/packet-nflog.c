@@ -22,6 +22,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define NEW_PROTO_TREE_API
+
 #include "config.h"
 
 #include <glib.h>
@@ -65,31 +67,6 @@ static const enum_val_t byte_order_types[] = {
     { NULL, NULL, 0 }
 };
 
-static gint nflog_byte_order = BYTE_ORDER_AUTO;
-
-static int proto_nflog = -1;
-
-static int ett_nflog = -1;
-static int ett_nflog_tlv = -1;
-
-static int hf_nflog_family = -1;
-static int hf_nflog_version = -1;
-static int hf_nflog_resid = -1;
-static int hf_nflog_encoding = -1;
-
-static int hf_nflog_tlv = -1;
-static int hf_nflog_tlv_length = -1;
-static int hf_nflog_tlv_type = -1;
-static int hf_nflog_tlv_prefix = -1;
-static int hf_nflog_tlv_uid = -1;
-static int hf_nflog_tlv_gid = -1;
-static int hf_nflog_tlv_timestamp = -1;
-static int hf_nflog_tlv_unknown = -1;
-
-static dissector_handle_t ip_handle;
-static dissector_handle_t ip6_handle;
-static dissector_handle_t data_handle;
-
 static const value_string _linux_family_vals[] = {
 	{ LINUX_AF_INET,  "IP" },
 	{ LINUX_AF_INET6, "IPv6" },
@@ -124,6 +101,56 @@ static const value_string nflog_tlv_vals[] = {
 	{ WS_NFULA_HWLEN,              "NFULA_HWLEN" },
 	{ 0, NULL }
 };
+
+static gint nflog_byte_order = BYTE_ORDER_AUTO;
+
+static int proto_nflog = -1;
+
+static int ett_nflog = -1;
+static int ett_nflog_tlv = -1;
+
+/* Header */
+static header_field_info hfi_nflog_family HFI_INIT(proto_nflog) =
+	{ "Family", "nflog.family", FT_UINT8, BASE_DEC, VALS(_linux_family_vals), 0x00, NULL, HFILL };
+
+static header_field_info hfi_nflog_version HFI_INIT(proto_nflog) =
+	{ "Version", "nflog.version", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nflog_resid HFI_INIT(proto_nflog) =
+	{ "Resource id", "nflog.res_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nflog_encoding HFI_INIT(proto_nflog) =
+	{ "Encoding", "nflog.encoding", FT_UINT32, BASE_HEX, VALS(_encoding_vals), 0x00, NULL, HFILL };
+
+/* TLV */
+static header_field_info hfi_nflog_tlv HFI_INIT(proto_nflog) =
+	{ "TLV", "nflog.tlv", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_nflog_tlv_length HFI_INIT(proto_nflog) =
+	{ "Length", "nflog.tlv_length", FT_UINT16, BASE_DEC, NULL, 0x00, "TLV Length", HFILL };
+
+static header_field_info hfi_nflog_tlv_type HFI_INIT(proto_nflog) =
+	{ "Type", "nflog.tlv_type", FT_UINT16, BASE_DEC, VALS(nflog_tlv_vals), 0x7fff, "TLV Type", HFILL };
+
+/* TLV values */
+static header_field_info hfi_nflog_tlv_prefix HFI_INIT(proto_nflog) =
+	{ "Prefix", "nflog.prefix", FT_STRINGZ, BASE_NONE, NULL, 0x00, "TLV Prefix Value", HFILL };
+
+static header_field_info hfi_nflog_tlv_uid HFI_INIT(proto_nflog) =
+	{ "UID", "nflog.uid", FT_INT32, BASE_DEC, NULL, 0x00, "TLV UID Value", HFILL };
+
+static header_field_info hfi_nflog_tlv_gid HFI_INIT(proto_nflog) =
+	{ "GID", "nflog.gid", FT_INT32, BASE_DEC, NULL, 0x00, "TLV GID Value", HFILL };
+
+static header_field_info hfi_nflog_tlv_timestamp HFI_INIT(proto_nflog) =
+	{ "Timestamp", "nflog.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00, "TLV Timestamp Value", HFILL };
+
+static header_field_info hfi_nflog_tlv_unknown HFI_INIT(proto_nflog) =
+	{ "Value", "nflog.tlv_value", FT_BYTES, BASE_NONE, NULL, 0x00, "TLV Value", HFILL };
+
+static dissector_handle_t ip_handle;
+static dissector_handle_t ip6_handle;
+static dissector_handle_t data_handle;
 
 static int
 nflog_tvb_test_order(tvbuff_t *tvb, int offset, guint16 (*val16_get)(tvbuff_t *, int))
@@ -208,19 +235,19 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Header */
 	if (proto_field_is_referenced(tree, proto_nflog)) {
-		ti = proto_tree_add_item(tree, proto_nflog, tvb, 0, -1, ENC_NA);
+		ti = proto_tree_add_item_old(tree, proto_nflog, tvb, 0, -1, ENC_NA);
 		nflog_tree = proto_item_add_subtree(ti, ett_nflog);
 
-		proto_tree_add_item(nflog_tree, hf_nflog_family, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(nflog_tree, &hfi_nflog_family, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
-		proto_tree_add_item(nflog_tree, hf_nflog_version, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(nflog_tree, &hfi_nflog_version, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
-		proto_tree_add_item(nflog_tree, hf_nflog_resid, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(nflog_tree, &hfi_nflog_resid, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		ti = proto_tree_add_uint(nflog_tree, hf_nflog_encoding,
+		ti = proto_tree_add_uint(nflog_tree, hfi_nflog_encoding.id,
 					 tvb, offset, tvb_length_remaining(tvb, offset), enc);
 		PROTO_ITEM_SET_GENERATED(ti);
 	}
@@ -244,15 +271,15 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (nflog_tree) {
 			gboolean handled = FALSE;
 
-			ti = proto_tree_add_bytes_format(nflog_tree, hf_nflog_tlv,
+			ti = proto_tree_add_bytes_format(nflog_tree, hfi_nflog_tlv.id,
 							 tvb, offset, tlv_len, NULL,
 							 "TLV Type: %s (%u), Length: %u",
 							 val_to_str_const(tlv_type, nflog_tlv_vals, "Unknown"),
 							 tlv_type, tlv_len);
 			tlv_tree = proto_item_add_subtree(ti, ett_nflog_tlv);
 
-			proto_tree_add_item(tlv_tree, hf_nflog_tlv_length, tvb, offset + 0, 2, enc);
-			proto_tree_add_item(tlv_tree, hf_nflog_tlv_type, tvb, offset + 2, 2, enc);
+			proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_length, tvb, offset + 0, 2, enc);
+			proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_type, tvb, offset + 2, 2, enc);
 			switch (tlv_type) {
 				case WS_NFULA_PAYLOAD:
 					handled = TRUE;
@@ -260,7 +287,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				case WS_NFULA_PREFIX:
 					if (value_len >= 1) {
-						proto_tree_add_item(tlv_tree, hf_nflog_tlv_prefix,
+						proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_prefix,
 								    tvb, offset + 4, value_len, ENC_NA);
 						handled = TRUE;
 					}
@@ -268,7 +295,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				case WS_NFULA_UID:
 					if (value_len == 4) {
-						proto_tree_add_item(tlv_tree, hf_nflog_tlv_uid,
+						proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_uid,
 								    tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
 						handled = TRUE;
 					}
@@ -276,7 +303,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				case WS_NFULA_GID:
 					if (value_len == 4) {
-						proto_tree_add_item(tlv_tree, hf_nflog_tlv_gid,
+						proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_gid,
 								    tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
 						handled = TRUE;
 					}
@@ -289,7 +316,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						ts.secs  = (time_t)tvb_get_ntoh64(tvb, offset + 4);
 						/* XXX - add an "expert info" warning if this is >= 10^9? */
 						ts.nsecs = (int)tvb_get_ntoh64(tvb, offset + 12);
-						proto_tree_add_time(tlv_tree, hf_nflog_tlv_timestamp,
+						proto_tree_add_time(tlv_tree, hfi_nflog_tlv_timestamp.id,
 									tvb, offset + 4, value_len, &ts);
 						handled = TRUE;
 					}
@@ -297,7 +324,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 
 			if (!handled)
-					proto_tree_add_item(tlv_tree, hf_nflog_tlv_unknown,
+					proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_unknown,
 							    tvb, offset + 4, value_len, ENC_NA);
 		}
 
@@ -325,48 +352,22 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_nflog(void)
 {
-	static hf_register_info hf[] = {
+	static header_field_info *hfi[] = {
 	/* Header */
-		{ &hf_nflog_family,
-			{ "Family", "nflog.family", FT_UINT8, BASE_DEC, VALS(_linux_family_vals), 0x00, NULL, HFILL }
-		},
-		{ &hf_nflog_version,
-			{ "Version", "nflog.version", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_nflog_resid,
-			{ "Resource id", "nflog.res_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-
-		{ &hf_nflog_encoding,
-			{ "Encoding", "nflog.encoding", FT_UINT32, BASE_HEX, VALS(_encoding_vals), 0x00, NULL, HFILL }
-		},
-
+		&hfi_nflog_family,
+		&hfi_nflog_version,
+		&hfi_nflog_resid,
+		&hfi_nflog_encoding,
 	/* TLV */
-		{ &hf_nflog_tlv,
-			{ "TLV", "nflog.tlv", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_nflog_tlv_length,
-			{ "Length", "nflog.tlv_length", FT_UINT16, BASE_DEC, NULL, 0x00, "TLV Length", HFILL }
-		},
-		{ &hf_nflog_tlv_type,
-			{ "Type", "nflog.tlv_type", FT_UINT16, BASE_DEC, VALS(nflog_tlv_vals), 0x7fff, "TLV Type", HFILL }
-		},
+		&hfi_nflog_tlv,
+		&hfi_nflog_tlv_length,
+		&hfi_nflog_tlv_type,
 	/* TLV values */
-		{ &hf_nflog_tlv_prefix,
-			{ "Prefix", "nflog.prefix", FT_STRINGZ, BASE_NONE, NULL, 0x00, "TLV Prefix Value", HFILL }
-		},
-		{ &hf_nflog_tlv_uid,
-			{ "UID", "nflog.uid", FT_INT32, BASE_DEC, NULL, 0x00, "TLV UID Value", HFILL }
-		},
-		{ &hf_nflog_tlv_gid,
-			{ "GID", "nflog.gid", FT_INT32, BASE_DEC, NULL, 0x00, "TLV GID Value", HFILL }
-		},
-		{ &hf_nflog_tlv_timestamp,
-			{ "Timestamp", "nflog.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00, "TLV Timestamp Value", HFILL }
-		},
-		{ &hf_nflog_tlv_unknown,
-			{ "Value", "nflog.tlv_value", FT_BYTES, BASE_NONE, NULL, 0x00, "TLV Value", HFILL }
-		},
+		&hfi_nflog_tlv_prefix,
+		&hfi_nflog_tlv_uid,
+		&hfi_nflog_tlv_gid,
+		&hfi_nflog_tlv_timestamp,
+		&hfi_nflog_tlv_unknown,
 	};
 
 	static gint *ett[] = {
@@ -384,7 +385,7 @@ proto_register_nflog(void)
 
 	register_dissector("nflog", dissect_nflog, proto_nflog);
 
-	proto_register_field_array(proto_nflog, hf, array_length(hf));
+	proto_register_fields(proto_nflog, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
 }

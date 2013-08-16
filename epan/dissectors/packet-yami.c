@@ -26,6 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define NEW_PROTO_TREE_API
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -39,32 +41,6 @@ void proto_register_yami(void);
 static gboolean yami_desegment = TRUE;
 static guint global_yami_config_tcp_port = 0;
 static guint global_yami_config_udp_port = 0;
-
-static int hf_yami_message_id = -1;
-static int hf_yami_frame_number = -1;
-static int hf_yami_message_header_size = -1;
-static int hf_yami_frame_payload_size = -1;
-
-static int hf_yami_message_hdr = -1;
-static int hf_yami_message_data = -1;
-
-static int hf_yami_param = -1;
-static int hf_yami_param_name = -1;
-static int hf_yami_param_type = -1;
-static int hf_yami_param_value_bool = -1;
-static int hf_yami_param_value_int = -1;
-static int hf_yami_param_value_long = -1;
-static int hf_yami_param_value_double = -1;
-static int hf_yami_param_value_str = -1;
-static int hf_yami_param_value_bin = -1;
-
-static int hf_yami_params_count = -1;
-static int hf_yami_items_count = -1;
-
-static int ett_yami = -1;
-static int ett_yami_msg_hdr = -1;
-static int ett_yami_msg_data = -1;
-static int ett_yami_param = -1;
 
 static int proto_yami = -1;
 
@@ -99,6 +75,64 @@ static const value_string yami_param_type_vals[] = {
 	{ 0, NULL }
 };
 
+/* Header */
+static header_field_info hfi_yami_message_id HFI_INIT(proto_yami) =
+	{ "Message ID", "yami.message_id", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_yami_frame_number HFI_INIT(proto_yami) =
+	{ "Frame Number", "yami.frame_number", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_yami_message_header_size HFI_INIT(proto_yami) =
+	{ "Message Header Size", "yami.message_header_size", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_yami_frame_payload_size HFI_INIT(proto_yami) =
+	{ "Frame Payload Size", "yami.frame_payload_size", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_yami_message_hdr HFI_INIT(proto_yami) =
+	{ "Header message", "yami.msg_hdr", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_yami_message_data HFI_INIT(proto_yami) =
+	{ "Data message", "yami.msg_data", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+/* Parameter */
+static header_field_info hfi_yami_param HFI_INIT(proto_yami) =
+	{ "Parameter", "yami.param", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_yami_param_name HFI_INIT(proto_yami) =
+	{ "Name", "yami.param.name", FT_STRING, BASE_NONE, NULL, 0x00, "Parameter name", HFILL };
+
+static header_field_info hfi_yami_param_type HFI_INIT(proto_yami) =
+	{ "Type", "yami.param.type", FT_INT32, BASE_DEC, VALS(yami_param_type_vals), 0x00, "Parameter type", HFILL };
+
+static header_field_info hfi_yami_param_value_bool HFI_INIT(proto_yami) =
+	{ "Value", "yami.param.value_bool", FT_BOOLEAN, BASE_NONE, NULL, 0x00, "Parameter value (bool)", HFILL };
+
+static header_field_info hfi_yami_param_value_int HFI_INIT(proto_yami) =
+	{ "Value", "yami.param.value_int", FT_INT32, BASE_DEC, NULL, 0x00, "Parameter value (int)", HFILL };
+
+static header_field_info hfi_yami_param_value_long HFI_INIT(proto_yami) =
+	{ "Value", "yami.param.value_long", FT_INT64, BASE_DEC, NULL, 0x00, "Parameter value (long)", HFILL };
+
+static header_field_info hfi_yami_param_value_double HFI_INIT(proto_yami) =
+	{ "Value", "yami.param.value_double", FT_DOUBLE, BASE_NONE, NULL, 0x00, "Parameter value (double)", HFILL };
+
+static header_field_info hfi_yami_param_value_str HFI_INIT(proto_yami) =
+	{ "Value", "yami.param.value_str", FT_STRING, BASE_NONE, NULL, 0x00, "Parameter value (string)", HFILL };
+
+static header_field_info hfi_yami_param_value_bin HFI_INIT(proto_yami) =
+	{ "Value", "yami.param.value_bin", FT_BYTES, BASE_NONE, NULL, 0x00, "Parameter value (binary)", HFILL };
+
+static header_field_info hfi_yami_params_count HFI_INIT(proto_yami) =
+	{ "Parameters count", "yami.params_count", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_yami_items_count HFI_INIT(proto_yami) =
+	{ "Items count", "yami.items_count", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static int ett_yami = -1;
+static int ett_yami_msg_hdr = -1;
+static int ett_yami_msg_data = -1;
+static int ett_yami_param = -1;
+
 static int
 dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *par_ti)
 {
@@ -113,7 +147,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 
 	guint32 type;
 
-	ti = proto_tree_add_item(tree, hf_yami_param, tvb, offset, 0, ENC_NA);
+	ti = proto_tree_add_item(tree, &hfi_yami_param, tvb, offset, 0, ENC_NA);
 	yami_param = proto_item_add_subtree(ti, ett_yami_param);
 
 	name_offset = offset;
@@ -124,10 +158,10 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 	proto_item_append_text(ti, ": %s", name);
 	proto_item_append_text(par_ti, "%s, ", name);
 	offset += (name_len + 3) & ~3;
-	proto_tree_add_string(yami_param, hf_yami_param_name, tvb, name_offset, offset - name_offset, name);
+	proto_tree_add_string(yami_param, hfi_yami_param_name.id, tvb, name_offset, offset - name_offset, name);
 
 	type = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(yami_param, hf_yami_param_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(yami_param, &hfi_yami_param_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	switch (type) {
@@ -135,7 +169,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 		{
 			guint32 val = tvb_get_letohl(tvb, offset);
 			proto_item_append_text(ti, ", Type: boolean, Value: %s", val ? "True" : "False");
-			proto_tree_add_item(yami_param, hf_yami_param_value_bool, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_param_value_bool, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			break;
 		}
@@ -144,7 +178,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 		{
 			gint32 val = tvb_get_letohl(tvb, offset);
 			proto_item_append_text(ti, ", Type: integer, Value: %d", val);
-			proto_tree_add_item(yami_param, hf_yami_param_value_int, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_param_value_int, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			break;
 		}
@@ -153,7 +187,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 		{
 			gint64 val = tvb_get_letoh64(tvb, offset);
 			proto_item_append_text(ti, ", Type: long, Value: %" G_GINT64_MODIFIER "d", val);
-			proto_tree_add_item(yami_param, hf_yami_param_value_long, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_param_value_long, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 			offset += 8;
 			break;
 		}
@@ -162,7 +196,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 		{
 			gdouble val = tvb_get_letohieee_double(tvb, offset);
 			proto_item_append_text(ti, ", Type: double, Value: %g", val);
-			proto_tree_add_item(yami_param, hf_yami_param_value_double, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_param_value_double, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 			offset += 8;
 			break;
 		}
@@ -180,7 +214,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 
 			proto_item_append_text(ti, ", Type: string, Value: \"%s\"", val);
 			offset += (val_len + 3) & ~3;
-			proto_tree_add_string(yami_param, hf_yami_param_value_str, tvb, val_offset, offset - val_offset, val);
+			proto_tree_add_string(yami_param, hfi_yami_param_value_str.id, tvb, val_offset, offset - val_offset, val);
 			break;
 		}
 
@@ -199,7 +233,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 
 			proto_item_append_text(ti, ", Type: binary, Value: %s", repr);
 			offset += (val_len + 3) & ~3;
-			proto_tree_add_bytes_format_value(yami_param, hf_yami_param_value_bin, tvb, val_offset, offset - val_offset, val, "%s", repr);
+			proto_tree_add_bytes_format_value(yami_param, hfi_yami_param_value_bin.id, tvb, val_offset, offset - val_offset, val, "%s", repr);
 			break;
 		}
 
@@ -210,7 +244,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			int j;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: boolean[], %u items: {", count);
@@ -222,7 +256,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 					int r = !!(val & (1 << j));
 
 					proto_item_append_text(ti, "%s, ", r ? "T" : "F");
-					proto_tree_add_boolean(yami_param, hf_yami_param_value_bool, tvb, offset+(j/8), 1, r);
+					proto_tree_add_boolean(yami_param, hfi_yami_param_value_bool.id, tvb, offset+(j/8), 1, r);
 				}
 				offset += 4;
 			}
@@ -235,7 +269,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 					int r = !!(val & (1 << j));
 
 					proto_item_append_text(ti, "%s, ", r ? "T" : "F");
-					proto_tree_add_boolean(yami_param, hf_yami_param_value_bool, tvb, offset+(j/8), 1, r);
+					proto_tree_add_boolean(yami_param, hfi_yami_param_value_bool.id, tvb, offset+(j/8), 1, r);
 				}
 				offset += 4;
 			}
@@ -250,7 +284,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: integer[], %u items: {", count);
@@ -258,7 +292,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				gint32 val = tvb_get_letohl(tvb, offset);
 
 				proto_item_append_text(ti, "%d, ", val);
-				proto_tree_add_item(yami_param, hf_yami_param_value_int, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(yami_param, &hfi_yami_param_value_int, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 			}
 			proto_item_append_text(ti, "}");
@@ -271,7 +305,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: long long[], %u items: {", count);
@@ -280,7 +314,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				gint64 val = tvb_get_letoh64(tvb, offset);
 
 				proto_item_append_text(ti, "%" G_GINT64_MODIFIER "d, ", val);
-				proto_tree_add_item(yami_param, hf_yami_param_value_long, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(yami_param, &hfi_yami_param_value_long, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 				offset += 8;
 			}
 			proto_item_append_text(ti, "}");
@@ -293,7 +327,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: double[], %u items: {", count);
@@ -302,7 +336,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				gdouble val = tvb_get_letohieee_double(tvb, offset);
 
 				proto_item_append_text(ti, "%g, ", val);
-				proto_tree_add_item(yami_param, hf_yami_param_value_double, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(yami_param, &hfi_yami_param_value_double, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 				offset += 8;
 			}
 			proto_item_append_text(ti, "}");
@@ -315,7 +349,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: string[], %u items: {", count);
@@ -331,7 +365,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				val = tvb_get_ephemeral_string_enc(tvb, offset, val_len, ENC_ASCII | ENC_NA);
 
 				proto_item_append_text(ti, "\"%s\", ", val);
-				proto_tree_add_string(yami_param, hf_yami_param_value_str, tvb, val_offset, offset - val_offset, val);
+				proto_tree_add_string(yami_param, hfi_yami_param_value_str.id, tvb, val_offset, offset - val_offset, val);
 				offset += (val_len + 3) & ~3;
 			}
 			proto_item_append_text(ti, "}");
@@ -344,7 +378,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: binary[], %u items: {", count);
@@ -363,7 +397,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 
 				proto_item_append_text(ti, "%s, ", repr);
 				offset += (val_len + 3) & ~3;
-				proto_tree_add_bytes_format_value(yami_param, hf_yami_param_value_bin, tvb, val_offset, offset - val_offset, val, "%s", repr);
+				proto_tree_add_bytes_format_value(yami_param, hfi_yami_param_value_bin.id, tvb, val_offset, offset - val_offset, val, "%s", repr);
 			}
 			proto_item_append_text(ti, "}");
 			break;
@@ -375,7 +409,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, &hfi_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: nested, %u parameters: ", count);
@@ -409,11 +443,11 @@ dissect_yami_data(tvbuff_t *tvb, gboolean data, proto_tree *tree, int offset)
 	guint32 count;
 	guint i;
 
-	ti = proto_tree_add_item(tree, (data) ? hf_yami_message_data : hf_yami_message_hdr, tvb, offset, 0, ENC_NA);
+	ti = proto_tree_add_item(tree, (data) ? &hfi_yami_message_data : &hfi_yami_message_hdr, tvb, offset, 0, ENC_NA);
 	yami_data_tree = proto_item_add_subtree(ti, (data) ? ett_yami_msg_data : ett_yami_msg_hdr);
 
 	count = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(yami_data_tree, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(yami_data_tree, &hfi_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	proto_item_append_text(ti, ", %u parameters: ", count);
@@ -446,30 +480,30 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_yami, tvb, 0, -1, ENC_NA);
+		ti = proto_tree_add_item_old(tree, proto_yami, tvb, 0, -1, ENC_NA);
 		yami_tree = proto_item_add_subtree(ti, ett_yami);
 	}
 
 	offset = 0;
 
-	proto_tree_add_item(yami_tree, hf_yami_message_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(yami_tree, &hfi_yami_message_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	frame_number = tvb_get_letohl(tvb, offset);
-	ti = proto_tree_add_item(yami_tree, hf_yami_frame_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	ti = proto_tree_add_item(yami_tree, &hfi_yami_frame_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	if(frame_number < 0)
 		proto_item_append_text(ti, "%s", " (last frame)");
 	offset += 4;
 
 	message_header_size = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(yami_tree, hf_yami_message_header_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(yami_tree, &hfi_yami_message_header_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	if (message_header_size < 4) {
 		/* XXX, expert info */
 	}
 	offset += 4;
 
 	frame_payload_size = tvb_get_letohl(tvb, offset);
-	ti = proto_tree_add_item(yami_tree, hf_yami_frame_payload_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	ti = proto_tree_add_item(yami_tree, &hfi_yami_frame_payload_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	frame_size = frame_payload_size + 16;
 	proto_item_append_text(ti, ", (YAMI Frame Size: %d)", frame_size);
 	offset += 4;
@@ -509,60 +543,26 @@ dissect_yami(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 void
 proto_register_yami(void)
 {
-	static hf_register_info hf[] = {
+	static header_field_info *hfi[] = {
 	/* Header */
-		{ &hf_yami_message_id,
-			{ "Message ID", "yami.message_id", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_yami_frame_number,
-			{ "Frame Number", "yami.frame_number", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_yami_message_header_size,
-			{ "Message Header Size", "yami.message_header_size", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_yami_frame_payload_size,
-			{ "Frame Payload Size", "yami.frame_payload_size", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_yami_message_hdr,
-			{ "Header message", "yami.msg_hdr", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_yami_message_data,
-			{ "Data message", "yami.msg_data", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
+		&hfi_yami_message_id,
+		&hfi_yami_frame_number,
+		&hfi_yami_message_header_size,
+		&hfi_yami_frame_payload_size,
+		&hfi_yami_message_hdr,
+		&hfi_yami_message_data,
 	/* Parameter */
-		{ &hf_yami_param,
-			{ "Parameter", "yami.param", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_yami_param_name,
-			{ "Name", "yami.param.name", FT_STRING, BASE_NONE, NULL, 0x00, "Parameter name", HFILL }
-		},
-		{ &hf_yami_param_type,
-			{ "Type", "yami.param.type", FT_INT32, BASE_DEC, VALS(yami_param_type_vals), 0x00, "Parameter type", HFILL }
-		},
-		{ &hf_yami_param_value_bool,
-			{ "Value", "yami.param.value_bool", FT_BOOLEAN, BASE_NONE, NULL, 0x00, "Parameter value (bool)", HFILL }
-		},
-		{ &hf_yami_param_value_int,
-			{ "Value", "yami.param.value_int", FT_INT32, BASE_DEC, NULL, 0x00, "Parameter value (int)", HFILL }
-		},
-		{ &hf_yami_param_value_long,
-			{ "Value", "yami.param.value_long", FT_INT64, BASE_DEC, NULL, 0x00, "Parameter value (long)", HFILL }
-		},
-		{ &hf_yami_param_value_double,
-			{ "Value", "yami.param.value_double", FT_DOUBLE, BASE_NONE, NULL, 0x00, "Parameter value (double)", HFILL }
-		},
-		{ &hf_yami_param_value_str,
-			{ "Value", "yami.param.value_str", FT_STRING, BASE_NONE, NULL, 0x00, "Parameter value (string)", HFILL }
-		},
-		{ &hf_yami_param_value_bin,
-			{ "Value", "yami.param.value_bin", FT_BYTES, BASE_NONE, NULL, 0x00, "Parameter value (binary)", HFILL }
-		},
-		{ &hf_yami_params_count,
-			{ "Parameters count", "yami.params_count", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_yami_items_count,
-			{ "Items count", "yami.items_count", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		}
+		&hfi_yami_param,
+		&hfi_yami_param_name,
+		&hfi_yami_param_type,
+		&hfi_yami_param_value_bool,
+		&hfi_yami_param_value_int,
+		&hfi_yami_param_value_long,
+		&hfi_yami_param_value_double,
+		&hfi_yami_param_value_str,
+		&hfi_yami_param_value_bin,
+		&hfi_yami_params_count,
+		&hfi_yami_items_count,
 	};
 
 	static gint *ett[] = {
@@ -576,7 +576,7 @@ proto_register_yami(void)
 
 	proto_yami = proto_register_protocol("YAMI Protocol", "YAMI", "yami");
 
-	proto_register_field_array(proto_yami, hf, array_length(hf));
+	proto_register_fields(proto_yami, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	yami_module = prefs_register_protocol(proto_yami, proto_reg_handoff_yami);

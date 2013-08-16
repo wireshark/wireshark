@@ -25,6 +25,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define NEW_PROTO_TREE_API
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -36,36 +38,6 @@ void proto_register_dbus(void);
 void proto_reg_handoff_dbus(void);
 
 static gboolean dbus_desegment = TRUE;
-
-static int hf_dbus_hdr = -1;
-static int hf_dbus_hdr_endianness = -1;
-static int hf_dbus_hdr_type = -1;
-static int hf_dbus_hdr_flags = -1;
-static int hf_dbus_hdr_version = -1;
-static int hf_dbus_hdr_body_length = -1;
-static int hf_dbus_hdr_serial = -1;
-static int hf_dbus_hdr_fields_length = -1;
-static int hf_dbus_hdr_field = -1;
-static int hf_dbus_hdr_field_code = -1;
-
-static int hf_dbus_value_bool = -1;
-static int hf_dbus_value_int = -1;
-static int hf_dbus_value_uint = -1;
-static int hf_dbus_value_str = -1;
-static int hf_dbus_value_double = -1;
-
-static int hf_dbus_body = -1;
-static int hf_dbus_type_signature = -1;
-
-static int ett_dbus = -1;
-static int ett_dbus_hdr = -1;
-static int ett_dbus_body = -1;
-static int ett_dbus_field = -1;
-
-static expert_field ei_dbus_value_bool_invalid = EI_INIT;
-static expert_field ei_dbus_value_str_invalid = EI_INIT;
-static expert_field ei_dbus_invalid_object_path = EI_INIT;
-static expert_field ei_dbus_invalid_signature = EI_INIT;
 
 static int proto_dbus = -1;
 
@@ -108,6 +80,73 @@ static const value_string field_code_vals[] = {
 	{ DBUS_HEADER_FIELD_UNIX_FDS, "UNIX_FDS" },
 	{ 0, NULL }
 };
+
+/* XXX, FT_NONE -> FT_BYTES? */
+
+/* Header */
+static header_field_info hfi_dbus_hdr HFI_INIT(proto_dbus) =
+	{ "Header", "dbus.header", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_hdr_endianness HFI_INIT(proto_dbus) =
+	{ "Endianness Flag", "dbus.endianness", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_hdr_type HFI_INIT(proto_dbus) =
+	{ "Message Type", "dbus.type", FT_UINT8, BASE_DEC, VALS(message_type_vals), 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_hdr_flags HFI_INIT(proto_dbus) =
+	{ "Message Flags", "dbus.flags", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_hdr_version HFI_INIT(proto_dbus) =
+	{ "Protocol Version", "dbus.version", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_hdr_body_length HFI_INIT(proto_dbus) =
+	{ "Message body Length", "dbus.length", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_hdr_serial HFI_INIT(proto_dbus) =
+	{ "Message Serial (cookie)", "dbus.serial", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_hdr_fields_length HFI_INIT(proto_dbus) =
+	{ "Header fields Length", "dbus.fields_length", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+/* Header field */
+static header_field_info hfi_dbus_hdr_field HFI_INIT(proto_dbus) =
+	{ "Header Field", "dbus.field", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_hdr_field_code HFI_INIT(proto_dbus) =
+	{ "Field code", "dbus.field.code", FT_UINT8, BASE_DEC, VALS(field_code_vals), 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_type_signature HFI_INIT(proto_dbus) =
+	{ "Type signature", "dbus.type_signature", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_body HFI_INIT(proto_dbus) =
+	{ "Body", "dbus.body", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+/* Values */
+static header_field_info hfi_dbus_value_bool HFI_INIT(proto_dbus) =
+	{ "Value", "dbus.value.bool", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_value_int HFI_INIT(proto_dbus) =
+	{ "Value", "dbus.value.int", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_value_uint HFI_INIT(proto_dbus) =
+	{ "Value", "dbus.value.uint", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_value_str HFI_INIT(proto_dbus) =
+	{ "Value", "dbus.value.str", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_dbus_value_double HFI_INIT(proto_dbus) =
+	{ "Value", "dbus.value.double", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL };
+
+
+static int ett_dbus = -1;
+static int ett_dbus_hdr = -1;
+static int ett_dbus_body = -1;
+static int ett_dbus_field = -1;
+
+static expert_field ei_dbus_value_bool_invalid = EI_INIT;
+static expert_field ei_dbus_value_str_invalid = EI_INIT;
+static expert_field ei_dbus_invalid_object_path = EI_INIT;
+static expert_field ei_dbus_invalid_signature = EI_INIT;
 
 typedef struct {
 	packet_info *pinfo;
@@ -173,7 +212,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = tvb_get_guint8(tvb, offset);
 			offset += 1;
 
-			proto_tree_add_uint_format(tree, hf_dbus_value_uint, tvb, org_offset, offset - org_offset, val, "BYTE: %u", val);
+			proto_tree_add_uint_format(tree, hfi_dbus_value_uint.id, tvb, org_offset, offset - org_offset, val, "BYTE: %u", val);
 			ret->uint = val;
 			return offset;
 		}
@@ -185,7 +224,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = dinfo->get32(tvb, offset);
 			offset += 4;
 
-			ti = proto_tree_add_boolean_format(tree, hf_dbus_value_bool, tvb, org_offset, offset - org_offset, val, "BOOLEAN: %s", val ? "True" : "False");
+			ti = proto_tree_add_boolean_format(tree, hfi_dbus_value_bool.id, tvb, org_offset, offset - org_offset, val, "BOOLEAN: %s", val ? "True" : "False");
 			if (val != 0 && val != 1) {
 				expert_add_info_format_text(dinfo->pinfo, ti, &ei_dbus_value_bool_invalid, "Invalid boolean value (must be 0 or 1 is: %u)", val);
 				return -1;
@@ -201,7 +240,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = (gint16 )dinfo->get16(tvb, offset);
 			offset += 2;
 
-			proto_tree_add_uint_format(tree, hf_dbus_value_int, tvb, org_offset, offset - org_offset, val, "INT16: %d", val);
+			proto_tree_add_uint_format(tree, hfi_dbus_value_int.id, tvb, org_offset, offset - org_offset, val, "INT16: %d", val);
 			/* XXX ret */
 			return offset;
 		}
@@ -213,7 +252,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = dinfo->get16(tvb, offset);
 			offset += 2;
 
-			proto_tree_add_uint_format(tree, hf_dbus_value_uint, tvb, org_offset, offset - org_offset, val, "UINT16: %u", val);
+			proto_tree_add_uint_format(tree, hfi_dbus_value_uint.id, tvb, org_offset, offset - org_offset, val, "UINT16: %u", val);
 			ret->uint = val;
 			return offset;
 		}
@@ -225,7 +264,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = (gint32) dinfo->get32(tvb, offset);
 			offset += 4;
 
-			proto_tree_add_int_format(tree, hf_dbus_value_int, tvb, org_offset, offset - org_offset, val, "INT32: %d", val);
+			proto_tree_add_int_format(tree, hfi_dbus_value_int.id, tvb, org_offset, offset - org_offset, val, "INT32: %d", val);
 			/* XXX ret */
 			return offset;
 		}
@@ -237,7 +276,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = dinfo->get32(tvb, offset);
 			offset += 4;
 
-			proto_tree_add_uint_format(tree, hf_dbus_value_uint, tvb, org_offset, offset - org_offset, val, "UINT32: %u", val);
+			proto_tree_add_uint_format(tree, hfi_dbus_value_uint.id, tvb, org_offset, offset - org_offset, val, "UINT32: %u", val);
 			ret->uint = val;
 			return offset;
 		}
@@ -253,7 +292,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = dinfo->getdouble(tvb, offset);
 			offset += 8;
 
-			proto_tree_add_double_format(tree, hf_dbus_value_double, tvb, org_offset, offset - org_offset, val, "DOUBLE: %." STRINGIFY(DBL_DIG) "g", val);
+			proto_tree_add_double_format(tree, hfi_dbus_value_double.id, tvb, org_offset, offset - org_offset, val, "DOUBLE: %." STRINGIFY(DBL_DIG) "g", val);
 			/* XXX ret */
 			return offset;
 		}
@@ -271,13 +310,13 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			offset += (len + 1 /* NUL-byte */ + 3) & ~3;
 
 			if (sig == 's') {
-				ti = proto_tree_add_string_format(tree, hf_dbus_value_str, tvb, org_offset, offset - org_offset, val, "STRING: %s", val);
+				ti = proto_tree_add_string_format(tree, hfi_dbus_value_str.id, tvb, org_offset, offset - org_offset, val, "STRING: %s", val);
 				if (!g_utf8_validate(val, -1, NULL)) {
 					expert_add_info(dinfo->pinfo, ti, &ei_dbus_value_str_invalid);
 					return -1;
 				}
 			} else {
-				ti = proto_tree_add_string_format(tree, hf_dbus_value_str, tvb, org_offset, offset - org_offset, val, "OBJECT_PATH: %s", val);
+				ti = proto_tree_add_string_format(tree, hfi_dbus_value_str.id, tvb, org_offset, offset - org_offset, val, "OBJECT_PATH: %s", val);
 				if (!dbus_validate_object_path(val)) {
 					expert_add_info(dinfo->pinfo, ti, &ei_dbus_invalid_object_path);
 					return -1;
@@ -298,7 +337,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			val = tvb_get_ephemeral_string(tvb, offset, len);
 			offset += (len + 1);
 
-			ti = proto_tree_add_string_format(tree, hf_dbus_value_str, tvb, org_offset, offset - org_offset, val, "SIGNATURE: %s", val);
+			ti = proto_tree_add_string_format(tree, hfi_dbus_value_str.id, tvb, org_offset, offset - org_offset, val, "SIGNATURE: %s", val);
 			if (!dbus_validate_signature(val)) {
 				expert_add_info(dinfo->pinfo, ti, &ei_dbus_invalid_signature);
 				return -1;
@@ -329,7 +368,7 @@ dissect_dbus_field_signature(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree
 	sig = tvb_get_ephemeral_string(tvb, offset, sig_len);
 	offset += (sig_len + 1);
 
-	ti = proto_tree_add_string(tree, hf_dbus_type_signature, tvb, org_offset, offset - org_offset, sig);
+	ti = proto_tree_add_string(tree, hfi_dbus_type_signature.id, tvb, org_offset, offset - org_offset, sig);
 	if (!dbus_validate_signature(sig)) {
 		expert_add_info(dinfo->pinfo, ti, &ei_dbus_invalid_signature);
 		return -1;
@@ -396,11 +435,11 @@ dissect_dbus_hdr_fields(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int
 
 		guint8 field_code;
 
-		ti = proto_tree_add_item(tree, hf_dbus_hdr_field, tvb, offset, 0, ENC_NA);
+		ti = proto_tree_add_item(tree, &hfi_dbus_hdr_field, tvb, offset, 0, ENC_NA);
 		field_tree = proto_item_add_subtree(ti, ett_dbus_field);
 
 		field_code = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(field_tree, hf_dbus_hdr_field_code, tvb, offset, 1, dinfo->enc);
+		proto_tree_add_item(field_tree, &hfi_dbus_hdr_field_code, tvb, offset, 1, dinfo->enc);
 		proto_item_append_text(ti, ": %s", val_to_str(field_code, field_code_vals, "Unknown: %d"));
 		offset += 1;
 
@@ -430,32 +469,32 @@ dissect_dbus_hdr(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 
 	guint8 type;
 
-	ti = proto_tree_add_item(tree, hf_dbus_hdr, tvb, offset, 0, ENC_NA);
+	ti = proto_tree_add_item(tree, &hfi_dbus_hdr, tvb, offset, 0, ENC_NA);
 	hdr_tree = proto_item_add_subtree(ti, ett_dbus_hdr);
 
-	proto_tree_add_item(hdr_tree, hf_dbus_hdr_endianness, tvb, offset, 1, ENC_ASCII | ENC_NA);
+	proto_tree_add_item(hdr_tree, &hfi_dbus_hdr_endianness, tvb, offset, 1, ENC_ASCII | ENC_NA);
 	offset += 1;
 
 	type = tvb_get_guint8(tvb, offset);
 	col_add_str(dinfo->pinfo->cinfo, COL_INFO, val_to_str_const(type, message_type_vals, ""));
-	proto_tree_add_item(hdr_tree, hf_dbus_hdr_type, tvb, offset, 1, dinfo->enc);
+	proto_tree_add_item(hdr_tree, &hfi_dbus_hdr_type, tvb, offset, 1, dinfo->enc);
 	offset += 1;
 
-	proto_tree_add_item(hdr_tree, hf_dbus_hdr_flags, tvb, offset, 1, dinfo->enc);
+	proto_tree_add_item(hdr_tree, &hfi_dbus_hdr_flags, tvb, offset, 1, dinfo->enc);
 	offset += 1;
 
-	proto_tree_add_item(hdr_tree, hf_dbus_hdr_version, tvb, offset, 1, dinfo->enc);
+	proto_tree_add_item(hdr_tree, &hfi_dbus_hdr_version, tvb, offset, 1, dinfo->enc);
 	offset += 1;
 
 	dinfo->body_len = dinfo->get32(tvb, offset);
-	proto_tree_add_item(hdr_tree, hf_dbus_hdr_body_length, tvb, offset, 4, dinfo->enc);
+	proto_tree_add_item(hdr_tree, &hfi_dbus_hdr_body_length, tvb, offset, 4, dinfo->enc);
 	offset += 4;
 
-	proto_tree_add_item(hdr_tree, hf_dbus_hdr_serial, tvb, offset, 4, dinfo->enc);
+	proto_tree_add_item(hdr_tree, &hfi_dbus_hdr_serial, tvb, offset, 4, dinfo->enc);
 	offset += 4;
 
 	dinfo->fields_len = dinfo->get32(tvb, offset);
-	proto_tree_add_item(hdr_tree, hf_dbus_hdr_fields_length, tvb, offset, 4, dinfo->enc);
+	proto_tree_add_item(hdr_tree, &hfi_dbus_hdr_fields_length, tvb, offset, 4, dinfo->enc);
 	offset += 4;
 
 	return offset;
@@ -470,7 +509,7 @@ dissect_dbus_body(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offse
 	if (dinfo->body_len && dinfo->body_sig[0]) {
 		const char *sig = dinfo->body_sig;
 
-		ti = proto_tree_add_item(tree, hf_dbus_body, tvb, offset, 0, ENC_NA);
+		ti = proto_tree_add_item(tree, &hfi_dbus_body, tvb, offset, 0, ENC_NA);
 		body_tree = proto_item_add_subtree(ti, ett_dbus_body);
 
 		while (*sig) {
@@ -525,7 +564,7 @@ dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	}
 
 	if (tree) {
-		proto_item *ti = proto_tree_add_item(tree, proto_dbus, tvb, 0, -1, ENC_NA);
+		proto_item *ti = proto_tree_add_item_old(tree, proto_dbus, tvb, 0, -1, ENC_NA);
 		dbus_tree = proto_item_add_subtree(ti, ett_dbus);
 	}
 
@@ -585,65 +624,27 @@ dissect_dbus_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 void
 proto_register_dbus(void)
 {
-	/* XXX, FT_NONE -> FT_BYTES? */
-	static hf_register_info hf[] = {
+	static header_field_info *hfi[] = {
 	/* Header */
-		{ &hf_dbus_hdr,
-			{ "Header", "dbus.header", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_hdr_endianness,
-			{ "Endianness Flag", "dbus.endianness", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_hdr_type,
-			{ "Message Type", "dbus.type", FT_UINT8, BASE_DEC, VALS(message_type_vals), 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_hdr_flags,
-			{ "Message Flags", "dbus.flags", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_hdr_version,
-			{ "Protocol Version", "dbus.version", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_hdr_body_length,
-			{ "Message body Length", "dbus.length", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_hdr_serial,
-			{ "Message Serial (cookie)", "dbus.serial", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_hdr_fields_length,
-			{ "Header fields Length", "dbus.fields_length", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
+		&hfi_dbus_hdr,
+		&hfi_dbus_hdr_endianness,
+		&hfi_dbus_hdr_type,
+		&hfi_dbus_hdr_flags,
+		&hfi_dbus_hdr_version,
+		&hfi_dbus_hdr_body_length,
+		&hfi_dbus_hdr_serial,
+		&hfi_dbus_hdr_fields_length,
 	/* Header field */
-		{ &hf_dbus_hdr_field,
-			{ "Header Field", "dbus.field", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_hdr_field_code,
-			{ "Field code", "dbus.field.code", FT_UINT8, BASE_DEC, VALS(field_code_vals), 0x00, NULL, HFILL }
-		},
-
-		{ &hf_dbus_type_signature,
-			{ "Type signature", "dbus.type_signature", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-
-		{ &hf_dbus_body,
-			{ "Body", "dbus.body", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-
+		&hfi_dbus_hdr_field,
+		&hfi_dbus_hdr_field_code,
+		&hfi_dbus_type_signature,
+		&hfi_dbus_body,
 	/* Values */
-		{ &hf_dbus_value_bool,
-			{ "Value", "dbus.value.bool", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_value_int,
-			{ "Value", "dbus.value.int", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_value_uint,
-			{ "Value", "dbus.value.uint", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_value_str,
-			{ "Value", "dbus.value.str", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_dbus_value_double,
-			{ "Value", "dbus.value.double", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		}
+		&hfi_dbus_value_bool,
+		&hfi_dbus_value_int,
+		&hfi_dbus_value_uint,
+		&hfi_dbus_value_str,
+		&hfi_dbus_value_double,
 	};
 
 	static gint *ett[] = {
@@ -664,7 +665,7 @@ proto_register_dbus(void)
 
 	proto_dbus = proto_register_protocol("D-Bus", "D-BUS", "dbus");
 
-	proto_register_field_array(proto_dbus, hf, array_length(hf));
+	proto_register_fields(proto_dbus, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_dbus = expert_register_protocol(proto_dbus);
 	expert_register_field_array(expert_dbus, ei, array_length(ei));
