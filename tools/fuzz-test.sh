@@ -72,9 +72,11 @@ shift $(($OPTIND - 1))
 
 ### usually you won't have to change anything below this line ###
 
+COMMON_ARGS="${CONFIG_PROFILE}${TWO_PASS}"
 if [ $VALGRIND -eq 1 ]; then
     RUNNER="`dirname $0`/valgrind-wireshark.sh"
-    declare -a RUNNER_ARGS=("${CONFIG_PROFILE}${TWO_PASS}" "${CONFIG_PROFILE}${TWO_PASS}-T")
+    COMMON_ARGS="-b $BIN_DIR $COMMON_ARGS"
+    declare -a RUNNER_ARGS=("" "-T")
 else
     # Not using valgrind, use regular tshark.
     # TShark arguments (you won't have to change these)
@@ -83,7 +85,7 @@ else
     # x Cause TShark to print a hex and ASCII dump of the packet data after printing the summary or details
     # r Read packet data from the following infile
     RUNNER="$TSHARK"
-    declare -a RUNNER_ARGS=("${CONFIG_PROFILE}${TWO_PASS}-nVxr" "${CONFIG_PROFILE}${TWO_PASS}-nr")
+    declare -a RUNNER_ARGS=("-nVxr" "-nr")
     # Running with a read filter but without generating the tree exposes some
     # "More than 100000 items in tree" bugs.
     # Not sure if we want to add even more cycles to the fuzz bot's work load...
@@ -131,7 +133,7 @@ HOWMANY="forever"
 if [ $MAX_PASSES -gt 0 ]; then
     HOWMANY="$MAX_PASSES passes"
 fi
-echo -n "Running $RUNNER with args: "
+echo -n "Running $RUNNER $COMMON_ARGS with args: "
 printf "\"%s\" " "${RUNNER_ARGS[@]}"
 echo "($HOWMANY)"
 echo ""
@@ -198,7 +200,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
                 ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM -s $MAX_STACK
                 ulimit -c unlimited
 
-                "$RUNNER" $ARGS $TMP_DIR/$TMP_FILE \
+                "$RUNNER" $COMMON_ARGS $ARGS $TMP_DIR/$TMP_FILE \
                     > /dev/null 2>> $TMP_DIR/$ERR_FILE
             )
             RETVAL=$?
