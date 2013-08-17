@@ -726,7 +726,7 @@ findFrame1Position ( tvbuff_t *message_tvb, guint16 byte_offset, guint8 dataLeng
 static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength )
 {
     guint    ctr, rem_length;
-    guint16  crc, calcCrc;
+    guint16  crc, f2crc, calcCrc;
     guint8   b_Length, crcOffset;
     guint8   *bytes;
     guint    b_ID;
@@ -750,11 +750,15 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
             if ( b_ID != 0x0 )
             {
                 b_Length = tvb_get_guint8(message_tvb, ctr + 1 );
-
                 /* 0xFF is often used, but always false, otherwise start detection, if the highest
                  *  bit is set */
                 if ( ( b_ID != 0xFF ) && ( b_ID & 0x80 ) )
                 {
+                    /* The rem_length value might be poluted, due to the else statement of
+                     * above if-decision (frame at end position detection). Therefore we
+                     * calculate it here again, to have a sane value */
+                    rem_length = tvb_reported_length_remaining(message_tvb, ctr);
+
                     /* The calculated length must fit, but for the CRC16 check, also the calculated length
                     * plus the CRC16 end position must fit in the remaining length */
                     if ( ( b_Length <= (guint) 8 && ( b_Length <= rem_length ) ) ||
@@ -765,7 +769,7 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
                         if ( tvb_bytes_exist(message_tvb, ctr - 1, b_Length + 5) )
                         {
                             /* An openSAFETY command has to have a high-byte range between 0x0A and 0x0E
-                             *  b_ID 0x80 took care of everything underneath, we check for 0x09 and 0x0F,
+                             *  b_ID & 0x80 took care of everything underneath, we check for 0x09 and 0x0F,
                              *  as they remain the only values left, which are not valid */
                             if ( ( ( b_ID >> 4 ) != 0x09 ) && ( ( b_ID >> 4 ) != 0x0F ) )
                             {
@@ -786,18 +790,34 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
 
                                 if ( ( crc ^ calcCrc ) == 0 )
                                 {
-                                    /* We have found a Slim frame. Those are not correctly identified yet */
+                                    /* Check if this is a Slim SSDO message */
                                     if ( ( b_ID >> 3 ) == ( OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE >> 3 ) )
                                     {
-                                        *u_frameOffset = ( ctr - 1 );
-                                        *u_frameLength = b_Length + 2 * crcOffset + 11;
-                                        found = 1;
-                                        break;
+                                        /* Slim SSDO messages must have a length != 0, as the first byte
+                                         * in the payload contains the SOD access command */
+                                        if ( b_Length > 0 )
+                                        {
+                                            *u_frameOffset = ( ctr - 1 );
+                                            *u_frameLength = b_Length + 2 * crcOffset + 11;
+
+                                            /* It is highly unlikely, that both frame 1 and frame 2 generate
+                                             * a crc == 0 or equal crc's. Therefore we check, if both crc's are
+                                             * equal. If so, it is a falsely detected frame. */
+                                            f2crc = tvb_get_guint8 ( message_tvb, ctr + 3 + 5 + b_Length );
+                                            if ( b_Length > 8 )
+                                                f2crc = tvb_get_letohs ( message_tvb, ctr + 3 + 5 + b_Length );
+                                            if ( crc != f2crc )
+                                            {
+                                                found = 1;
+                                                break;
+                                            }
+                                        }
                                     }
                                     else
                                     {
                                         *u_frameLength = 2 * b_Length + 2 * crcOffset + 11;
                                         *u_frameOffset = ( ctr - 1 );
+
                                         /* EPL SoC messages can be falsely detected as openSAFETY frames,
                                         *  so we check if both checksums have no lower byte of 0x00. This
                                         *  check remains, although SoC and SoA messages get sorted out in
@@ -811,6 +831,35 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+                else
+                {
+                    /* There exist frames, where the last openSAFETY frame is sitting in the 
+                     * very last bytes of the frame, and the complete frame itself contains 
+                     * more than one openSAFETY frame. It so happens that in such a case, the
+                     * last openSAFETY frame will miss detection. 
+                     * 
+                     * If so we look at the transported length, calculate the frame length,
+                     * and take a look if the calculated frame length, might be a fit for the
+                     * remaining length. If such is the case, we increment ctr and increment 
+                     * rem_length (to hit the while loop one more time) and the frame will be 
+                     * detected correctly. */
+                    if ( rem_length == OSS_MINIMUM_LENGTH )
+                    {
+                        b_ID = tvb_get_guint8(message_tvb, ctr );
+                        b_Length = tvb_get_guint8(message_tvb, ctr + 2 );
+                        if ( ( b_ID >> 3 ) == ( OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE >> 3 ) )
+                            b_Length = ( 11 + ( b_Length > 8 ? 2 : 0 ) + b_Length );
+                        else
+                            b_Length = ( 11 + ( b_Length > 8 ? 2 : 0 ) + 2 * b_Length );
+
+                        if ( rem_length == b_Length )
+                        {
+                            ctr++;
+                            rem_length++;
+                            continue;
                         }
                     }
                 }
@@ -1009,6 +1058,8 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
                                                         ctr, 2,  ssdoIndex, "0x%04X (%s)", ssdoIndex,
                                                         val_to_str_const( ((guint32) (dispSSDOIndex << 16) ),
                                                                           sod_idx_names, "Unknown") );
+                if ( ssdoIndex != dispSSDOIndex )
+                    PROTO_ITEM_SET_GENERATED ( item );
 
                 if ( ssdoIndex < 0x1000 || ssdoIndex > 0xE7FF )
                     expert_add_info ( pinfo, item, &ei_payload_unknown_format );
@@ -1016,10 +1067,12 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
                 sod_tree = proto_item_add_subtree(item, ett_opensafety_ssdo_sodentry);
 
                 if ( ssdoSubIndex != 0 )
+                {
                     proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
                                                  ssdoSubIndex, "0x%02X (%s)", ssdoSubIndex,
                                                  val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex),
                                                                                 sod_idx_names, "Unknown") );
+                }
                 else
                     proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
                                                  ssdoSubIndex, "0x%02X",ssdoSubIndex );
@@ -1558,6 +1611,9 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
     else
         frame1_crc = tvb_get_guint8(message_tvb, start);
 
+    if ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) & OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
+        isSlim = TRUE;
+
     length = (dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? OPENSAFETY_CHECKSUM_CRC16 : OPENSAFETY_CHECKSUM_CRC8);
     item = proto_tree_add_uint_format(opensafety_tree, hf_oss_crc, message_tvb, start, length, frame1_crc,
                                       "CRC for subframe #1: 0x%04X", frame1_crc);
@@ -1571,7 +1627,7 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
         if ( frame1_crc != calc1_crc )
         {
             calc1_crc = crc16_0x5935(&bytes[frameStart1], dataLength + 4, 0);
-            if ( frame1_crc == calc1_crc )
+            if ( ( ! isSlim ) && ( frame1_crc == calc1_crc ) )
                 expert_add_info(pinfo, item, &ei_crc_slimssdo_instead_of_spdo );
         }
     }
@@ -1583,9 +1639,6 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
     /* using the defines, as the values can change */
     proto_tree_add_uint(checksum_tree, hf_oss_crc_type, message_tvb, start, length,
             ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? OPENSAFETY_CHECKSUM_CRC16 : OPENSAFETY_CHECKSUM_CRC8 ) );
-
-    if ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) & OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
-        isSlim = TRUE;
 
     start = frameStart2 + (isSlim ? 5 : dataLength + OSS_FRAME_POS_DATA + 1 );
     if (OSS_FRAME_LENGTH_T(message_tvb, frameStart1) > OSS_PAYLOAD_MAXSIZE_FOR_CRC8)
