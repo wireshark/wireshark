@@ -133,6 +133,7 @@ static int hf_smb_create_flags = -1;
 static int hf_smb_create_options = -1;
 static int hf_smb_share_access = -1;
 static int hf_smb_access_mask = -1;
+static int hf_smb_flags = -1;
 static int hf_smb_flags_lock = -1;
 static int hf_smb_flags_receive_buffer = -1;
 static int hf_smb_flags_caseless = -1;
@@ -140,6 +141,7 @@ static int hf_smb_flags_canon = -1;
 static int hf_smb_flags_oplock = -1;
 static int hf_smb_flags_notify = -1;
 static int hf_smb_flags_response = -1;
+static int hf_smb_flags2 = -1;
 static int hf_smb_flags2_long_names_allowed = -1;
 static int hf_smb_flags2_ea = -1;
 static int hf_smb_flags2_sec_sig = -1;
@@ -155,6 +157,7 @@ static int hf_smb_flags2_string = -1;
 static int hf_smb_word_count = -1;
 static int hf_smb_byte_count = -1;
 static int hf_smb_buffer_format = -1;
+static int hf_smb_dialect = -1;
 static int hf_smb_dialect_name = -1;
 static int hf_smb_dialect_index = -1;
 static int hf_smb_max_trans_buf_size = -1;
@@ -171,17 +174,21 @@ static int hf_smb_server_guid = -1;
 static int hf_smb_volume_guid = -1;
 static int hf_smb_security_blob_len = -1;
 static int hf_smb_security_blob = -1;
+static int hf_smb_sm16 = -1;
 static int hf_smb_sm_mode16 = -1;
 static int hf_smb_sm_password16 = -1;
+static int hf_smb_sm = -1;
 static int hf_smb_sm_mode = -1;
 static int hf_smb_sm_password = -1;
 static int hf_smb_sm_signatures = -1;
 static int hf_smb_sm_sig_required = -1;
+static int hf_smb_rm = -1;
 static int hf_smb_rm_read = -1;
 static int hf_smb_rm_write = -1;
 static int hf_smb_server_date_time = -1;
 static int hf_smb_server_smb_date = -1;
 static int hf_smb_server_smb_time = -1;
+static int hf_smb_server_cap = -1;
 static int hf_smb_server_cap_raw_mode = -1;
 static int hf_smb_server_cap_mpx_mode = -1;
 static int hf_smb_server_cap_unicode = -1;
@@ -216,6 +223,7 @@ static int hf_smb_unicode_password = -1;
 static int hf_smb_unicode_password_len = -1;
 static int hf_smb_path = -1;
 static int hf_smb_service = -1;
+static int hf_smb_move_flags = -1;
 static int hf_smb_move_flags_file = -1;
 static int hf_smb_move_flags_dir = -1;
 static int hf_smb_move_flags_verify = -1;
@@ -237,6 +245,7 @@ static int hf_smb_dir_access_mask_traverse = -1;
 static int hf_smb_dir_access_mask_delete_child = -1;
 static int hf_smb_dir_access_mask_read_attribute = -1;
 static int hf_smb_dir_access_mask_write_attribute = -1;
+static int hf_smb_copy_flags = -1;
 static int hf_smb_copy_flags_file = -1;
 static int hf_smb_copy_flags_dir = -1;
 static int hf_smb_copy_flags_dest_mode = -1;
@@ -248,9 +257,12 @@ static int hf_smb_count = -1;
 static int hf_smb_count_low = -1;
 static int hf_smb_count_high = -1;
 static int hf_smb_file_name = -1;
+static int hf_smb_open_function = -1;
 static int hf_smb_open_function_open = -1;
 static int hf_smb_open_function_create = -1;
 static int hf_smb_fid = -1;
+static int hf_smb_file_attr_16bit = -1;
+static int hf_smb_file_attr_8bit = -1;
 static int hf_smb_file_attr_read_only_16bit = -1;
 static int hf_smb_file_attr_read_only_8bit = -1;
 static int hf_smb_file_attr_hidden_16bit = -1;
@@ -275,6 +287,7 @@ static int hf_smb_file_attr_not_content_indexed = -1;
 static int hf_smb_file_attr_encrypted = -1;
 #endif
 static int hf_smb_file_size = -1;
+static int hf_smb_search_attribute = -1;
 static int hf_smb_search_attribute_read_only = -1;
 static int hf_smb_search_attribute_hidden = -1;
 static int hf_smb_search_attribute_system = -1;
@@ -297,7 +310,7 @@ static int hf_smb_mac_root_file_count = -1;
 static int hf_smb_mac_root_dir_count = -1;
 static int hf_smb_mac_file_count = -1;
 static int hf_smb_mac_dir_count = -1;
-/* static int hf_smb_mac_support_flags = -1; */
+static int hf_smb_mac_sup = -1;
 static int hf_smb_mac_sup_access_ctrl = -1;
 static int hf_smb_mac_sup_getset_comments = -1;
 static int hf_smb_mac_sup_desktopdb_calls = -1;
@@ -340,6 +353,7 @@ static int hf_smb_dcm = -1;
 static int hf_smb_request_mask = -1;
 static int hf_smb_response_mask = -1;
 static int hf_smb_search_id = -1;
+static int hf_smb_write_mode = -1;
 static int hf_smb_write_mode_write_through = -1;
 static int hf_smb_write_mode_return_remaining = -1;
 static int hf_smb_write_mode_raw = -1;
@@ -350,6 +364,7 @@ static int hf_smb_resume_find_id = -1;
 static int hf_smb_resume_server_cookie = -1;
 static int hf_smb_resume_client_cookie = -1;
 static int hf_smb_andxoffset = -1;
+static int hf_smb_lock_type = -1;
 static int hf_smb_lock_type_large = -1;
 static int hf_smb_lock_type_cancel = -1;
 static int hf_smb_lock_type_change = -1;
@@ -361,27 +376,33 @@ static int hf_smb_number_of_unlocks = -1;
 static int hf_smb_lock_long_offset = -1;
 static int hf_smb_lock_long_length = -1;
 static int hf_smb_file_type = -1;
+static int hf_smb_ipc_state = -1;
 static int hf_smb_ipc_state_nonblocking = -1;
 static int hf_smb_ipc_state_endpoint = -1;
 static int hf_smb_ipc_state_pipe_type = -1;
 static int hf_smb_ipc_state_read_mode = -1;
 static int hf_smb_ipc_state_icount = -1;
 static int hf_smb_server_fid = -1;
+static int hf_smb_open_flags = -1;
 static int hf_smb_open_flags_add_info = -1;
 static int hf_smb_open_flags_ex_oplock = -1;
 static int hf_smb_open_flags_batch_oplock = -1;
 static int hf_smb_open_flags_ealen = -1;
+static int hf_smb_open_action = -1;
 static int hf_smb_open_action_open = -1;
 static int hf_smb_open_action_lock = -1;
 static int hf_smb_vc_num = -1;
 static int hf_smb_account = -1;
 static int hf_smb_os = -1;
 static int hf_smb_lanman = -1;
+static int hf_smb_setup_action = -1;
 static int hf_smb_setup_action_guest = -1;
 static int hf_smb_fs = -1;
+static int hf_smb_connect_flags = -1;
 static int hf_smb_connect_flags_dtid = -1;
 static int hf_smb_connect_flags_ext_sig = -1;
 static int hf_smb_connect_flags_ext_resp = -1;
+static int hf_smb_connect_support = -1;
 static int hf_smb_connect_support_search = -1;
 static int hf_smb_connect_support_in_dfs = -1;
 static int hf_smb_connect_support_csc_mask_vals = -1;
@@ -407,9 +428,11 @@ static int hf_smb_data_offset32 = -1;
 static int hf_smb_setup_count = -1;
 static int hf_smb_nt_trans_subcmd = -1;
 static int hf_smb_nt_ioctl_isfsctl = -1;
+static int hf_smb_nt_ioctl_flags_completion_filter = -1;
 static int hf_smb_nt_ioctl_flags_root_handle = -1;
 static int hf_smb_nt_notify_action = -1;
 static int hf_smb_nt_notify_watch_tree = -1;
+static int hf_smb_nt_notify_completion_filter = -1;
 static int hf_smb_nt_notify_stream_write = -1;
 static int hf_smb_nt_notify_stream_size = -1;
 static int hf_smb_nt_notify_stream_name = -1;
@@ -433,6 +456,7 @@ static int hf_smb_ea_name = -1;
 static int hf_smb_ea_data = -1;
 static int hf_smb_file_name_len = -1;
 static int hf_smb_nt_impersonation_level = -1;
+static int hf_smb_nt_security_flags = -1;
 static int hf_smb_nt_security_flags_context_tracking = -1;
 static int hf_smb_nt_security_flags_effective_only = -1;
 static int hf_smb_nt_access_mask_generic_read = -1;
@@ -482,6 +506,7 @@ static int hf_smb_nt_create_options_open_for_free_space_query = -1;
 static int hf_smb_nt_share_access_read = -1;
 static int hf_smb_nt_share_access_write = -1;
 static int hf_smb_nt_share_access_delete = -1;
+static int hf_smb_file_eattr = -1;
 static int hf_smb_file_eattr_read_only = -1;
 static int hf_smb_file_eattr_hidden = -1;
 static int hf_smb_file_eattr_system = -1;
@@ -497,7 +522,9 @@ static int hf_smb_file_eattr_compressed = -1;
 static int hf_smb_file_eattr_offline = -1;
 static int hf_smb_file_eattr_not_content_indexed = -1;
 static int hf_smb_file_eattr_encrypted = -1;
+static int hf_smb_size_returned_quota_data = -1;
 static int hf_smb_sec_desc_len = -1;
+static int hf_smb_nt_qsd = -1;
 static int hf_smb_nt_qsd_owner = -1;
 static int hf_smb_nt_qsd_group = -1;
 static int hf_smb_nt_qsd_dacl = -1;
@@ -539,10 +566,12 @@ static int hf_smb_machine_name = -1;
 static int hf_smb_cancel_to = -1;
 static int hf_smb_trans2_subcmd = -1;
 static int hf_smb_trans_name = -1;
+static int hf_smb_transaction_flags = -1;
 static int hf_smb_transaction_flags_dtid = -1;
 static int hf_smb_transaction_flags_owt = -1;
 static int hf_smb_search_count = -1;
 static int hf_smb_search_pattern = -1;
+static int hf_smb_ff2 = -1;
 static int hf_smb_ff2_backup = -1;
 static int hf_smb_ff2_continue = -1;
 static int hf_smb_ff2_resume = -1;
@@ -577,11 +606,13 @@ static int hf_smb_t2_compressed_cluster_shift = -1;
 static int hf_smb_t2_marked_for_deletion = -1;
 static int hf_smb_dfs_path_consumed = -1;
 static int hf_smb_dfs_num_referrals = -1;
+static int hf_smb_get_dfs_flags = -1;
 static int hf_smb_get_dfs_server_hold_storage = -1;
 static int hf_smb_get_dfs_fielding = -1;
 static int hf_smb_dfs_referral_version = -1;
 static int hf_smb_dfs_referral_size = -1;
 static int hf_smb_dfs_referral_server_type = -1;
+static int hf_smb_dfs_referral_flags = -1;
 static int hf_smb_dfs_referral_flags_name_list_referral = -1;
 static int hf_smb_dfs_referral_flags_target_set_boundary = -1;
 static int hf_smb_dfs_referral_node_offset = -1;
@@ -620,6 +651,7 @@ static int hf_smb_actual_free_alloc_units64 = -1;
 static int hf_smb_max_name_len = -1;
 static int hf_smb_fs_name_len = -1;
 static int hf_smb_fs_name = -1;
+static int hf_smb_device_char = -1;
 static int hf_smb_device_char_removable = -1;
 static int hf_smb_device_char_read_only = -1;
 static int hf_smb_device_char_floppy = -1;
@@ -627,6 +659,7 @@ static int hf_smb_device_char_write_once = -1;
 static int hf_smb_device_char_remote = -1;
 static int hf_smb_device_char_mounted = -1;
 static int hf_smb_device_char_virtual = -1;
+static int hf_smb_fs_attr = -1;
 static int hf_smb_fs_attr_css = -1;
 static int hf_smb_fs_attr_cpn = -1;
 static int hf_smb_fs_attr_uod = -1;
@@ -649,6 +682,7 @@ static int hf_smb_quota_flags_log_warning = -1;
 static int hf_smb_soft_quota_limit = -1;
 static int hf_smb_hard_quota_limit = -1;
 static int hf_smb_user_quota_used = -1;
+static int hf_smb_length_of_sid = -1;
 static int hf_smb_user_quota_offset = -1;
 static int hf_smb_nt_rename_level = -1;
 static int hf_smb_cluster_count = -1;
@@ -664,6 +698,7 @@ static int hf_smb_reassembled_length = -1;
 static int hf_smb_pipe_write_len = -1;
 static int hf_smb_unix_major_version = -1;
 static int hf_smb_unix_minor_version = -1;
+static int hf_smb_unix_capability = -1;
 static int hf_smb_unix_capability_fcntl = -1;
 static int hf_smb_unix_capability_posix_acl = -1;
 static int hf_smb_unix_file_link_dest = -1;
@@ -717,46 +752,9 @@ static int hf_smb_posix_ace_perm_owner_uid = -1;
 static int hf_smb_posix_ace_perm_owner_gid = -1;
 static int hf_smb_posix_ace_perm_uid = -1;
 static int hf_smb_posix_ace_perm_gid = -1;
-/* Generated from convert_proto_tree_add_text.pl */
-static int hf_smb_get_dfs_flags = -1;
-static int hf_smb_file_eattr = -1;
-static int hf_smb_dfs_referral_flags = -1;
-static int hf_smb_copy_flags = -1;
-static int hf_smb_fs_attr = -1;
-static int hf_smb_nt_ioctl_flags_completion_filter = -1;
-static int hf_smb_ipc_state = -1;
-static int hf_smb_open_action = -1;
-static int hf_smb_device_char = -1;
-static int hf_smb_setup_action = -1;
-static int hf_smb_open_flags = -1;
-static int hf_smb_transaction_flags = -1;
-static int hf_smb_connect_flags = -1;
-static int hf_smb_nt_notify_completion_filter = -1;
-static int hf_smb_ff2 = -1;
-static int hf_smb_flags2 = -1;
-static int hf_smb_mac_sup = -1;
-static int hf_smb_nt_security_flags = -1;
 static int hf_smb_trans_data_setup_word = -1;
 static int hf_smb_trans_data_parameters = -1;
-static int hf_smb_sm16 = -1;
-static int hf_smb_server_cap = -1;
-static int hf_smb_search_attribute = -1;
-static int hf_smb_connect_support = -1;
-static int hf_smb_length_of_sid = -1;
-static int hf_smb_flags = -1;
 static int hf_smb_trans_data = -1;
-static int hf_smb_file_attr = -1;
-static int hf_smb_size_returned_quota_data = -1;
-static int hf_smb_file_attr8 = -1;
-static int hf_smb_write_mode = -1;
-static int hf_smb_open_function = -1;
-static int hf_smb_dialect = -1;
-static int hf_smb_move_flags = -1;
-static int hf_smb_lock_type = -1;
-static int hf_smb_nt_qsd = -1;
-static int hf_smb_rm = -1;
-static int hf_smb_unix_capability = -1;
-static int hf_smb_sm = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_fid = -1;
@@ -1784,7 +1782,7 @@ dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	mask = tvb_get_letohs(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_smb_file_attr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		item = proto_tree_add_item(parent_tree, hf_smb_file_attr_16bit, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
 
 		proto_tree_add_boolean(tree, hf_smb_file_attr_archive_16bit,
@@ -1890,7 +1888,7 @@ dissect_dir_info_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int off
 	mask = tvb_get_guint8(tvb, offset);
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_smb_file_attr8, tvb, offset, 1, ENC_NA);
+		item = proto_tree_add_item(parent_tree, hf_smb_file_attr_8bit, tvb, offset, 1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
 
 		proto_tree_add_boolean(tree, hf_smb_file_attr_read_only_8bit,
@@ -15900,7 +15898,6 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 0x200: {	/* SMB_QUERY_CIFS_UNIX_INFO */
 		proto_item *item_2 = NULL;
 		proto_tree *subtree = NULL;
-		guint32 caps_lo, caps_hi;
 
 		/* MajorVersionNumber */
 		CHECK_BYTE_COUNT_TRANS_SUBR(2);
@@ -15916,22 +15913,19 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 
-		caps_lo = tvb_get_letohl(tvb, offset);
-		caps_hi = tvb_get_letohl(tvb, offset + 4);
-
 		if (tree) {
 			item_2 = proto_tree_add_item(tree, hf_smb_unix_capability, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 			subtree = proto_item_add_subtree(
 				item_2, ett_smb_unix_capabilities);
 		}
 
-		proto_tree_add_boolean(
+		proto_tree_add_item(
 			subtree, hf_smb_unix_capability_fcntl, tvb, offset, 8,
-			caps_lo);
+			ENC_LITTLE_ENDIAN);
 
-		proto_tree_add_boolean(
+		proto_tree_add_item(
 			subtree, hf_smb_unix_capability_posix_acl, tvb, offset, 8,
-			caps_lo);
+			ENC_LITTLE_ENDIAN);
 
 		COUNT_BYTES_TRANS_SUBR(8);
 
@@ -18318,6 +18312,10 @@ proto_register_smb(void)
 		{ "Multiplex ID", "smb.mid", FT_UINT16, BASE_DEC,
 		NULL, 0, NULL, HFILL }},
 
+	{ &hf_smb_flags,
+		{ "Flags", "smb.flags", FT_UINT8, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_flags_lock,
 		{ "Lock and Read", "smb.flags.lock", FT_BOOLEAN, 8,
 		TFS(&tfs_smb_flags_lock), 0x01, "Are Lock&Read and Write&Unlock operations supported?", HFILL }},
@@ -18345,6 +18343,10 @@ proto_register_smb(void)
 	{ &hf_smb_flags_response,
 		{ "Request/Response", "smb.flags.response", FT_BOOLEAN, 8,
 		TFS(&tfs_smb_flags_response), 0x80, "Is this a request or a response?", HFILL }},
+
+	{ &hf_smb_flags2,
+		{ "Flags2", "smb.flags2", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_flags2_long_names_allowed,
 		{ "Long Names Allowed", "smb.flags2.long_names_allowed", FT_BOOLEAN, 16,
@@ -18397,6 +18399,10 @@ proto_register_smb(void)
 	{ &hf_smb_buffer_format,
 		{ "Buffer Format", "smb.buffer_format", FT_UINT8, BASE_DEC,
 		VALS(buffer_format_vals), 0x0, "Buffer Format, type of buffer", HFILL }},
+
+	{ &hf_smb_dialect,
+		{ "Dialect", "smb.dialect", FT_STRING, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_dialect_name,
 		{ "Name", "smb.dialect.name", FT_STRING, BASE_NONE,
@@ -18462,6 +18468,10 @@ proto_register_smb(void)
 		{ "Security Blob", "smb.security_blob", FT_BYTES, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
+	{ &hf_smb_sm16,
+		{ "Security Mode", "smb.sm", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_sm_mode16,
 		{ "Mode", "smb.sm.mode", FT_BOOLEAN, 16,
 		TFS(&tfs_sm_mode), SECURITY_MODE_MODE, "User or Share security mode?", HFILL }},
@@ -18469,6 +18479,10 @@ proto_register_smb(void)
 	{ &hf_smb_sm_password16,
 		{ "Password", "smb.sm.password", FT_BOOLEAN, 16,
 		TFS(&tfs_sm_password), SECURITY_MODE_PASSWORD, "Encrypted or plaintext passwords?", HFILL }},
+
+	{ &hf_smb_sm,
+		{ "Security Mode", "smb.sm", FT_UINT8, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_sm_mode,
 		{ "Mode", "smb.sm.mode", FT_BOOLEAN, 8,
@@ -18485,6 +18499,10 @@ proto_register_smb(void)
 	{ &hf_smb_sm_sig_required,
 		{ "Sig Req", "smb.sm.sig_required", FT_BOOLEAN, 8,
 		TFS(&tfs_sm_sig_required), SECURITY_MODE_SIG_REQUIRED, "Are security signatures required?", HFILL }},
+
+	{ &hf_smb_rm,
+		{ "Raw Mode", "smb.rm", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_rm_read,
 		{ "Read Raw", "smb.rm.read", FT_BOOLEAN, 16,
@@ -18505,6 +18523,10 @@ proto_register_smb(void)
 	{ &hf_smb_server_smb_time,
 		{ "Server Time", "smb.server_date_time.smb_time", FT_UINT16, BASE_HEX,
 		NULL, 0, "Current time at server, SMB_TIME format", HFILL }},
+
+	{ &hf_smb_server_cap,
+		{ "Capabilities", "smb.server_cap", FT_UINT32, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_server_cap_raw_mode,
 		{ "Raw Mode", "smb.server_cap.raw_mode", FT_BOOLEAN, 32,
@@ -18632,6 +18654,10 @@ proto_register_smb(void)
 		{ "Unicode Password", "smb.unicode_password", FT_BYTES, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
+	{ &hf_smb_move_flags,
+		{ "Flags", "smb.move.flags", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_move_flags_file,
 		{ "Must be file", "smb.move.flags.file", FT_BOOLEAN, 16,
 		TFS(&tfs_mf_file), 0x0001, "Must target be a file?", HFILL }},
@@ -18647,6 +18673,10 @@ proto_register_smb(void)
 	{ &hf_smb_files_moved,
 		{ "Files Moved", "smb.files_moved", FT_UINT16, BASE_DEC,
 		NULL, 0, "Number of files moved", HFILL }},
+
+	{ &hf_smb_copy_flags,
+		{ "Flags", "smb.copy.flags", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_copy_flags_file,
 		{ "Must be file", "smb.copy.flags.file", FT_BOOLEAN, 16,
@@ -18692,6 +18722,10 @@ proto_register_smb(void)
 		{ "File Name", "smb.file", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
+	{ &hf_smb_open_function,
+		{ "Open Function", "smb.open.function", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_open_function_create,
 		{ "Create", "smb.open.function.create", FT_BOOLEAN, 16,
 		TFS(&tfs_of_create), 0x0010, "Create file if it doesn't exist?", HFILL }},
@@ -18703,6 +18737,14 @@ proto_register_smb(void)
 	{ &hf_smb_fid,
 		{ "FID", "smb.fid", FT_UINT16, BASE_HEX,
 		NULL, 0, "FID: File ID", HFILL }},
+
+	{ &hf_smb_file_attr_16bit,
+		{ "File Attributes", "smb.file_attribute", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_file_attr_8bit,
+		{ "File Attributes", "smb.file_attribute", FT_UINT8, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_file_attr_read_only_16bit,
 		{ "Read Only", "smb.file_attribute.read_only", FT_BOOLEAN, 16,
@@ -18794,6 +18836,10 @@ proto_register_smb(void)
 		{ "File Size", "smb.file_size", FT_UINT32, BASE_DEC,
 		NULL, 0, NULL, HFILL }},
 
+	{ &hf_smb_search_attribute,
+		{ "Search Attributes", "smb.search.attribute", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_search_attribute_read_only,
 		{ "Read Only", "smb.search.attribute.read_only", FT_BOOLEAN, 16,
 		TFS(&tfs_search_attribute_read_only), SMB_FILE_ATTRIBUTE_READ_ONLY, "READ ONLY search attribute", HFILL }},
@@ -18878,11 +18924,9 @@ proto_register_smb(void)
 	  { "Root Directory Count", "smb.dir.count", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Directory Count", HFILL}},
 
-#if 0
-	{ &hf_smb_mac_support_flags,
-	  { "Mac Support Flags", "smb.mac.support.flags", FT_UINT32, BASE_DEC,
-	    NULL, 0, NULL, HFILL}},
-#endif
+	{ &hf_smb_mac_sup,
+	  { "Mac Support Flags", "smb.mac", FT_UINT32, BASE_HEX,
+	    NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_mac_sup_access_ctrl,
 	  { "Mac Access Control", "smb.mac.access_control", FT_BOOLEAN, 32,
@@ -19054,6 +19098,10 @@ proto_register_smb(void)
 		{ "Search ID", "smb.search_id", FT_UINT16, BASE_HEX,
 		NULL, 0, "Search ID, handle for find operations", HFILL }},
 
+	{ &hf_smb_write_mode,
+		{ "Write Mode", "smb.write.mode", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_write_mode_write_through,
 		{ "Write Through", "smb.write.mode.write_through", FT_BOOLEAN, 16,
 		TFS(&tfs_write_mode_write_through), WRITE_MODE_WRITE_THROUGH, "Write through mode requested?", HFILL }},
@@ -19093,6 +19141,10 @@ proto_register_smb(void)
 	{ &hf_smb_andxoffset,
 		{ "AndXOffset", "smb.andxoffset", FT_UINT16, BASE_DEC,
 		NULL, 0, "Offset to next command in this SMB packet", HFILL }},
+
+	{ &hf_smb_lock_type,
+		{ "Lock Type", "smb.lock.type", FT_UINT8, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_lock_type_large,
 		{ "Large Files", "smb.lock.type.large", FT_BOOLEAN, 8,
@@ -19138,6 +19190,10 @@ proto_register_smb(void)
 		{ "File Type", "smb.file_type", FT_UINT16, BASE_DEC,
 		VALS(filetype_vals), 0, "Type of file", HFILL }},
 
+	{ &hf_smb_ipc_state,
+		{ "IPC State", "smb.ipc_state", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_ipc_state_nonblocking,
 		{ "Nonblocking", "smb.ipc_state.nonblocking", FT_BOOLEAN, 16,
 		TFS(&tfs_ipc_state_nonblocking), 0x8000, "Is I/O to this pipe nonblocking?", HFILL }},
@@ -19162,6 +19218,10 @@ proto_register_smb(void)
 		{ "Server FID", "smb.server_fid", FT_UINT32, BASE_HEX,
 		NULL, 0, "Server unique File ID", HFILL }},
 
+	{ &hf_smb_open_flags,
+		{ "Flags", "smb.open.flags", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_open_flags_add_info,
 		{ "Additional Info", "smb.open.flags.add_info", FT_BOOLEAN, 16,
 		TFS(&tfs_open_flags_add_info), 0x0001, "Additional Information Requested?", HFILL }},
@@ -19177,6 +19237,10 @@ proto_register_smb(void)
 	{ &hf_smb_open_flags_ealen,
 		{ "Total EA Len", "smb.open.flags.ealen", FT_BOOLEAN, 16,
 		TFS(&tfs_open_flags_ealen), 0x0008, "Total EA Len Requested?", HFILL }},
+
+	{ &hf_smb_open_action,
+		{ "Action", "smb.open.action", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_open_action_open,
 		{ "Open Action", "smb.open.action.open", FT_UINT16, BASE_DEC,
@@ -19214,6 +19278,10 @@ proto_register_smb(void)
 		{ "Native LAN Manager", "smb.native_lanman", FT_STRING, BASE_NONE,
 		NULL, 0, "Which LANMAN protocol we are running", HFILL }},
 
+	{ &hf_smb_setup_action,
+		{ "Action", "smb.setup.action", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_setup_action_guest,
 		{ "Guest", "smb.setup.action.guest", FT_BOOLEAN, 16,
 		TFS(&tfs_setup_action_guest), 0x0001, "Client logged in as GUEST?", HFILL }},
@@ -19221,6 +19289,10 @@ proto_register_smb(void)
 	{ &hf_smb_fs,
 		{ "Native File System", "smb.native_fs", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_connect_flags,
+		{ "Flags", "smb.connect.flags", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_connect_flags_dtid,
 		{ "Disconnect TID", "smb.connect.flags.dtid", FT_BOOLEAN, 16,
@@ -19233,6 +19305,10 @@ proto_register_smb(void)
 	{ &hf_smb_connect_flags_ext_resp,
 		{ "Extended Response", "smb.connect.flags.extendedresp", FT_BOOLEAN, 16,
 		TFS(&tfs_extended_response), 0x0008, "Extended response?", HFILL }},
+
+	{ &hf_smb_connect_support,
+		{ "Optional Support", "smb.connect.support", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_connect_support_search,
 		{ "Search Bits", "smb.connect.support.search", FT_BOOLEAN, 16,
@@ -19330,6 +19406,10 @@ proto_register_smb(void)
 		{ "IsFSctl", "smb.nt.ioctl.isfsctl", FT_UINT8, BASE_DEC,
 		VALS(nt_ioctl_isfsctl_vals), 0, "Is this a device IOCTL (FALSE) or FS Control (TRUE)", HFILL }},
 
+	{ &hf_smb_nt_ioctl_flags_completion_filter,
+		{ "Completion Filter", "smb.nt.ioctl.completion_filter", FT_UINT8, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_nt_ioctl_flags_root_handle,
 		{ "Root Handle", "smb.nt.ioctl.flags.root_handle", FT_BOOLEAN, 8,
 		TFS(&tfs_nt_ioctl_flags_root_handle), NT_IOCTL_FLAGS_ROOT_HANDLE, "Apply to this share or root Dfs share", HFILL }},
@@ -19341,6 +19421,10 @@ proto_register_smb(void)
 	{ &hf_smb_nt_notify_watch_tree,
 		{ "Watch Tree", "smb.nt.notify.watch_tree", FT_UINT8, BASE_DEC,
 		VALS(watch_tree_vals), 0, "Should Notify watch subdirectories also?", HFILL }},
+
+	{ &hf_smb_nt_notify_completion_filter,
+		{ "Completion Filter", "smb.nt.notify.completion_filter", FT_UINT32, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_nt_notify_stream_write,
 		{ "Stream Write", "smb.nt.notify.stream_write", FT_BOOLEAN, 32,
@@ -19437,6 +19521,10 @@ proto_register_smb(void)
 	{ &hf_smb_nt_impersonation_level,
 		{ "Impersonation", "smb.impersonation.level", FT_UINT32, BASE_DEC,
 		VALS(impersonation_level_vals), 0, "Impersonation level", HFILL }},
+
+	{ &hf_smb_nt_security_flags,
+		{ "Security Flags", "smb.security.flags", FT_UINT8, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_nt_security_flags_context_tracking,
 		{ "Context Tracking", "smb.security.flags.context_tracking", FT_BOOLEAN, 8,
@@ -19646,6 +19734,10 @@ proto_register_smb(void)
 		{ "Delete", "smb.share.access.delete", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_share_access_delete), SHARE_ACCESS_DELETE, NULL, HFILL }},
 
+	{ &hf_smb_file_eattr,
+		{ "File Attributes", "smb.file_attribute", FT_UINT32, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_file_eattr_read_only,
 		{ "Read Only", "smb.file_attribute.read_only", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_read_only), SMB_FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
@@ -19706,9 +19798,17 @@ proto_register_smb(void)
 		{ "Encrypted", "smb.file_attribute.encrypted", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_encrypted), SMB_FILE_ATTRIBUTE_ENCRYPTED, "Is this file encrypted?", HFILL }},
 
+	{ &hf_smb_size_returned_quota_data,
+		{ "Size of returned Quota data", "smb.size_returned_quota_data", FT_UINT32, BASE_DEC,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_sec_desc_len,
 		{ "NT Security Descriptor Length", "smb.sec_desc_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Security Descriptor Length", HFILL }},
+
+	{ &hf_smb_nt_qsd,
+		{ "Security Information", "smb.nt_qsd", FT_UINT32, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_nt_qsd_owner,
 		{ "Owner", "smb.nt_qsd.owner", FT_BOOLEAN, 32,
@@ -19870,6 +19970,10 @@ proto_register_smb(void)
 		{ "Transaction Name", "smb.trans_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of transaction", HFILL }},
 
+	{ &hf_smb_transaction_flags,
+		{ "Flags", "smb.transaction.flags", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_transaction_flags_dtid,
 		{ "Disconnect TID", "smb.transaction.flags.dtid", FT_BOOLEAN, 16,
 		TFS(&tfs_tf_dtid), 0x0001, "Disconnect TID?", HFILL }},
@@ -19885,6 +19989,10 @@ proto_register_smb(void)
 	{ &hf_smb_search_pattern,
 		{ "Search Pattern", "smb.search_pattern", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_ff2,
+		{ "Flags", "smb.find_first2.flags", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_ff2_backup,
 		{ "Backup Intent", "smb.find_first2.flags.backup", FT_BOOLEAN, 16,
@@ -20026,6 +20134,10 @@ proto_register_smb(void)
 		{ "Num Referrals", "smb.dfs.num_referrals", FT_UINT16, BASE_DEC,
 		NULL, 0, "Number of referrals in this pdu", HFILL }},
 
+	{ &hf_smb_get_dfs_flags,
+		{ "Flags", "smb.dfs.flags", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_get_dfs_server_hold_storage,
 		{ "Hold Storage", "smb.dfs.flags.server_hold_storage", FT_BOOLEAN, 16,
 		TFS(&tfs_get_dfs_server_hold_storage), 0x02, "The servers in referrals should hold storage for the file", HFILL }},
@@ -20045,6 +20157,10 @@ proto_register_smb(void)
 	{ &hf_smb_dfs_referral_server_type,
 		{ "Server Type", "smb.dfs.referral.server.type", FT_UINT16, BASE_DEC,
 		VALS(dfs_referral_server_type_vals), 0, "Type of referral server", HFILL }},
+
+	{ &hf_smb_dfs_referral_flags,
+		{ "Flags", "smb.dfs.referral.flags", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_dfs_referral_flags_name_list_referral,
 		{ "NameListReferral", "smb.dfs.referral.flags.name_list_referral", FT_BOOLEAN, 16,
@@ -20210,6 +20326,10 @@ proto_register_smb(void)
 		{ "FS Name", "smb.fs_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of filesystem", HFILL }},
 
+	{ &hf_smb_device_char,
+		{ "Device Characteristics", "smb.device", FT_UINT32, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
 	{ &hf_smb_device_char_removable,
 		{ "Removable", "smb.device.removable", FT_BOOLEAN, 32,
 		TFS(&tfs_device_char_removable), 0x00000001, "Is this a removable device", HFILL }},
@@ -20237,6 +20357,10 @@ proto_register_smb(void)
 	{ &hf_smb_device_char_virtual,
 		{ "Virtual", "smb.device.virtual", FT_BOOLEAN, 32,
 		TFS(&tfs_device_char_virtual), 0x00000040, "Is this a virtual device", HFILL }},
+
+	{ &hf_smb_fs_attr,
+		{ "FS Attributes", "smb.fs_attr", FT_UINT32, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_fs_attr_css,
 		{ "Case Sensitive Search", "smb.fs_attr.css", FT_BOOLEAN, 32,
@@ -20297,6 +20421,10 @@ proto_register_smb(void)
 	{ &hf_smb_fs_attr_rov,
 		{ "Read Only Volume", "smb.fs_attr.rov", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_rov), 0x00080000, "Is this FS on a read only volume?", HFILL }},
+
+	{ &hf_smb_length_of_sid,
+		{ "Length of SID", "smb.length_of_sid", FT_UINT32, BASE_DEC,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_user_quota_offset,
 		{ "Next Offset", "smb.quota.user.offset", FT_UINT32, BASE_DEC,
@@ -20381,6 +20509,10 @@ proto_register_smb(void)
 	{ &hf_smb_unix_minor_version,
 	  { "Minor Version", "smb.unix.minor_version", FT_UINT16, BASE_DEC,
 	    NULL, 0, "UNIX Minor Version", HFILL }},
+
+	{ &hf_smb_unix_capability,
+		{ "Capabilities", "smb.unix.capability", FT_UINT64, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_unix_capability_fcntl,
 	  { "FCNTL Capability", "smb.unix.capability.fcntl", FT_BOOLEAN, 32,
@@ -20678,46 +20810,17 @@ proto_register_smb(void)
 	  { "GID", "smb.posix_acl.ace_perms.gid", FT_UINT32, BASE_DEC,
 	    NULL, 0, NULL, HFILL }},
 
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_smb_file_attr, { "File Attributes", "smb.file_attribute", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_file_eattr, { "File Attributes", "smb.file_attribute", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_file_attr8, { "File Attributes", "smb.file_attribute", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_search_attribute, { "Search Attributes", "smb.search.attribute", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_server_cap, { "Capabilities", "smb.server_cap", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_rm, { "Raw Mode", "smb.rm", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_sm16, { "Security Mode", "smb.sm", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_sm, { "Security Mode", "smb.sm", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_dialect, { "Dialect", "smb.dialect", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_open_function, { "Open Function", "smb.open_function", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_move_flags, { "Flags", "smb.move.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_copy_flags, { "Flags", "smb.copy.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_write_mode, { "Write Mode", "smb.write.mode", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_lock_type, { "Lock Type", "smb.lock.type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_open_action, { "Action", "smb.open.action", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_open_flags, { "Flags", "smb.open.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_ipc_state, { "IPC State", "smb.ipc_state", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_setup_action, { "Action", "smb.setup.action", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_connect_support, { "Optional Support", "smb.connect.support", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_connect_flags, { "Flags", "smb.connect.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_nt_security_flags, { "Security Flags", "smb.security.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_nt_notify_completion_filter, { "Completion Filter", "smb.nt.notify.completion_filter", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_nt_ioctl_flags_completion_filter, { "Completion Filter", "smb.nt.ioctl.completion_filter", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_nt_qsd, { "Security Information", "smb.nt_qsd", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_length_of_sid, { "Length of SID", "smb.length_of_sid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_size_returned_quota_data, { "Size of returned Quota data", "smb.size_returned_quota_data", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_ff2, { "Flags", "smb.find_first2.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_transaction_flags, { "Flags", "smb.transaction.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_get_dfs_flags, { "Flags", "smb.dfs.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_dfs_referral_flags, { "Flags", "smb.dfs.referral.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_trans_data_setup_word, { "Setup Word", "smb.trans_data.setup_word", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_trans_data_parameters, { "Parameters", "smb.trans_data.parameters", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_trans_data, { "Data", "smb.trans_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_fs_attr, { "FS Attributes", "smb.fs_attr", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_device_char, { "Device Characteristics", "smb.device", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_unix_capability, { "Capabilities", "smb.unix.capability", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_mac_sup, { "Mac Support Flags", "smb.mac", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_flags, { "Flags", "smb.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_smb_flags2, { "Flags2", "smb.flags2", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+	{ &hf_smb_trans_data_setup_word,
+		{ "Setup Word", "smb.trans_data.setup_word", FT_UINT16, BASE_HEX,
+		NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_trans_data_parameters,
+		{ "Parameters", "smb.trans_data.parameters", FT_BYTES, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_smb_trans_data,
+		{ "Data", "smb.trans_data", FT_BYTES, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
