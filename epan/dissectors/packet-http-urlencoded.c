@@ -159,7 +159,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_item(url_tree, hf_form_keyvalue, tvb, offset, 0, ENC_NA);
 
-		sub = proto_item_add_subtree(ti, ett_form_urlencoded);
+		sub = proto_item_add_subtree(ti, ett_form_keyvalue);
 
 		next_offset = get_form_key_value(tvb, &key, offset, '=');
 		if (next_offset == -1)
