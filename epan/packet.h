@@ -266,7 +266,7 @@ WS_DLL_PUBLIC void dissector_all_heur_tables_foreach_table (DATFunc_heur_table f
  *  Call this while the parent dissector running.
  *
  * @param sub_dissectors the sub-dissector list
- * @param tvb the tv_buff with the (remaining) packet data
+ * @param tvb the tvbuff with the (remaining) packet data
  * @param pinfo the packet info of this packet (additional info)
  * @param tree the protocol tree to be build or NULL
  * @param data parameter to pass to subdissector
