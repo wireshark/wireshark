@@ -2049,7 +2049,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     rohc_info          *p_rohc_info          = NULL;
     rohc_info           g_rohc_info;
     void               *save_private_data    = pinfo->private_data;
-    tvbuff_t           *next_tvb, *payload_tvb;
+    tvbuff_t           *next_tvb=NULL, *payload_tvb;
     rohc_cid_context_t *rohc_cid_context     = NULL;
 
     if(pinfo->private_data == NULL){
