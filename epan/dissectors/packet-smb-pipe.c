@@ -258,15 +258,7 @@ static int
 add_word_param(tvbuff_t *tvb, int offset, int count _U_,
     packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
-	guint16 WParam;
-
-	if (hf_index != -1) {
-		proto_tree_add_item(tree, hf_index, tvb, offset, 2,
-		    ENC_LITTLE_ENDIAN);
-	} else {
-		WParam = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(tree, hf_smb_pipe_word_param, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	}
+	proto_tree_add_item(tree, hf_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 	return offset;
 }
@@ -275,11 +267,7 @@ static int
 add_dword_param(tvbuff_t *tvb, int offset, int count _U_,
     packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
-	if (hf_index != -1) {
-		proto_tree_add_item(tree, hf_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	} else {
-		proto_tree_add_item(tree, hf_smb_pipe_doubleword_param, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	}
+	proto_tree_add_item(tree, hf_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 	return offset;
 }
@@ -1641,7 +1629,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_word_param(tvb, offset, 0, pinfo,
-				    tree, 0, -1);
+				    tree, 0, hf_smb_pipe_word_param);
 			} else if (items->type != PARAM_WORD) {
 				/*
 				 * Descriptor character is 'W', but this
@@ -1672,7 +1660,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_dword_param(tvb, offset, 0, pinfo,
-				    tree, 0, -1);
+				    tree, 0, hf_smb_pipe_doubleword_param);
 			} else if (items->type != PARAM_DWORD) {
 				/*
 				 * Descriptor character is 'D', but this
@@ -1887,7 +1875,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_word_param(tvb, offset, 0, pinfo,
-				    tree, 0, -1);
+				    tree, 0, hf_smb_pipe_word_param);
 			} else if (items->type != PARAM_WORD) {
 				/*
 				 * Descriptor character is 'h', but this
@@ -1918,7 +1906,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * fall back on the default.
 				 */
 				offset = add_dword_param(tvb, offset, 0, pinfo,
-				    tree, 0, -1);
+				    tree, 0, hf_smb_pipe_doubleword_param);
 			} else if (items->type != PARAM_DWORD) {
 				/*
 				 * Descriptor character is 'i', but this
@@ -1989,7 +1977,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * fall back on the default.
 				 */
 				offset = add_word_param(tvb, offset, 0, pinfo,
-				    tree, convert, -1);
+				    tree, convert, hf_smb_pipe_word_param);
 			} else if (items->type != PARAM_WORD) {
 				/*
 				 * Descriptor character is 'W', but this
@@ -2022,7 +2010,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * fall back on the default.
 				 */
 				offset = add_dword_param(tvb, offset, 0, pinfo,
-				    tree, convert, -1);
+				    tree, convert, hf_smb_pipe_doubleword_param);
 			} else if (items->type != PARAM_DWORD) {
 				/*
 				 * Descriptor character is 'D', but this
