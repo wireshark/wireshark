@@ -118,7 +118,7 @@ typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *, void *);
 
 /** Type of a heuristic dissector, used in heur_dissector_add().
  *
- * @param tvb the tv_buff with the (remaining) packet data
+ * @param tvb the tvbuff with the (remaining) packet data
  * @param pinfo the packet info of this packet (additional info)
  * @param tree the protocol tree to be build or NULL
  * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
