@@ -27,50 +27,75 @@
 /* See http://www.w3.org/TR/PNG for specification
  */
 
+#define NEW_PROTO_TREE_API
+
 #include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>
 
-static int proto_png = -1;
-static int hf_png_signature = -1;
-static int hf_png_chunk_data = -1;
-static int hf_png_chunk_type = -1;
-static int hf_png_chunk_len = -1;
-static int hf_png_chunk_crc = -1;
-static int hf_png_chunk_flag_anc = -1;
-static int hf_png_chunk_flag_priv = -1;
-static int hf_png_chunk_flag_stc = -1;
-static int hf_png_ihdr_width = -1;
-static int hf_png_ihdr_height = -1;
-static int hf_png_ihdr_bitdepth = -1;
-static int hf_png_ihdr_colour_type = -1;
-static int hf_png_ihdr_compression_method = -1;
-static int hf_png_ihdr_filter_method = -1;
-static int hf_png_ihdr_interlace_method = -1;
-static int hf_png_text_keyword = -1;
-static int hf_png_text_string = -1;
-static int hf_png_time_year = -1;
-static int hf_png_time_month = -1;
-static int hf_png_time_day = -1;
-static int hf_png_time_hour = -1;
-static int hf_png_time_minute = -1;
-static int hf_png_time_second = -1;
-static int hf_png_phys_horiz = -1;
-static int hf_png_phys_vert = -1;
-static int hf_png_phys_unit = -1;
-static int hf_png_bkgd_palette_index = -1;
-static int hf_png_bkgd_greyscale = -1;
-static int hf_png_bkgd_red = -1;
-static int hf_png_bkgd_green = -1;
-static int hf_png_bkgd_blue = -1;
+static header_field_info *hfi_png = NULL;
 
-static gint ett_png = -1;
-static gint ett_png_chunk = -1;
-static gint ett_png_chunk_item = -1;
+#define PNG_HFI_INIT HFI_INIT(proto_png)
 
-static dissector_handle_t png_handle;
+static header_field_info hfi_png_signature PNG_HFI_INIT = {
+	  "PNG Signature", "png.signature", FT_BYTES, BASE_NONE,
+	  NULL, 0, NULL, HFILL };
 
+static header_field_info hfi_png_chunk_data PNG_HFI_INIT = {
+	  "Data", "png.chunk.data", FT_NONE, BASE_NONE,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_chunk_type PNG_HFI_INIT = {
+	  "Chunk", "png.chunk.type", FT_STRING, BASE_NONE,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_chunk_len PNG_HFI_INIT = {
+	  "Len", "png.chunk.len", FT_UINT32, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_chunk_crc PNG_HFI_INIT = {
+	  "CRC", "png.chunk.crc", FT_UINT32, BASE_HEX,
+	  NULL, 0, NULL, HFILL };
+
+static const true_false_string png_chunk_anc = {
+	"This is an ANCILLARY chunk",
+	"This is a CRITICAL chunk"
+};
+
+static header_field_info hfi_png_chunk_flag_anc PNG_HFI_INIT = {
+	  "Ancillary", "png.chunk.flag.ancillary", FT_BOOLEAN, 32,
+	  TFS(&png_chunk_anc), 0x20000000, NULL, HFILL };
+
+static const true_false_string png_chunk_priv = {
+	"This is a PRIVATE chunk",
+	"This is a PUBLIC chunk"
+};
+
+static header_field_info hfi_png_chunk_flag_priv PNG_HFI_INIT = {
+	  "Private", "png.chunk.flag.private", FT_BOOLEAN, 32,
+	  TFS(&png_chunk_priv), 0x00200000, NULL, HFILL };
+
+static const true_false_string png_chunk_stc = {
+	"This chunk is SAFE TO COPY",
+	"This chunk is NOT safe to copy"
+};
+
+static header_field_info hfi_png_chunk_flag_stc PNG_HFI_INIT = {
+	  "Safe To Copy", "png.chunk.flag.stc", FT_BOOLEAN, 32,
+	  TFS(&png_chunk_stc), 0x00000020, NULL, HFILL };
+
+static header_field_info hfi_png_ihdr_width PNG_HFI_INIT = {
+	  "Width", "png.ihdr.width", FT_UINT32, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_ihdr_height PNG_HFI_INIT = {
+	  "Height", "png.ihdr.height", FT_UINT32, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_ihdr_bitdepth PNG_HFI_INIT = {
+	  "Bit Depth", "png.ihdr.bitdepth", FT_UINT8, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
 
 static const value_string colour_type_vals[] = {
 	{ 0,	"Greyscale"},
@@ -80,37 +105,132 @@ static const value_string colour_type_vals[] = {
 	{ 6,	"Truecolour with alpha"},
 	{ 0, NULL }
 };
+
+static header_field_info hfi_png_ihdr_colour_type PNG_HFI_INIT = {
+	  "Colour Type", "png.ihdr.colour_type", FT_UINT8, BASE_DEC,
+	  VALS(colour_type_vals), 0, NULL, HFILL };
+
 static const value_string compression_method_vals[] = {
 	{ 0,	"Deflate"},
 	{ 0, NULL }
 };
+
+static header_field_info hfi_png_ihdr_compression_method PNG_HFI_INIT = {
+	  "Compression Method", "png.ihdr.compression_method", FT_UINT8, BASE_DEC,
+	  VALS(compression_method_vals), 0, NULL, HFILL };
+
 static const value_string filter_method_vals[] = {
 	{ 0,	"Adaptive"},
 	{ 0, NULL }
 };
+
+static header_field_info hfi_png_ihdr_filter_method PNG_HFI_INIT = {
+	  "Filter Method", "png.ihdr.filter_method", FT_UINT8, BASE_DEC,
+	  VALS(filter_method_vals), 0, NULL, HFILL };
+
 static const value_string interlace_method_vals[] = {
 	{ 0,	"No interlace"},
 	{ 1,	"Adam7"},
 	{ 0, NULL }
 };
 
+static header_field_info hfi_png_ihdr_interlace_method PNG_HFI_INIT = {
+	  "Interlace Method", "png.ihdr.interlace_method", FT_UINT8, BASE_DEC,
+	  VALS(interlace_method_vals), 0, NULL, HFILL };
+
+static header_field_info hfi_png_text_keyword PNG_HFI_INIT = {
+	  "Keyword", "png.text.keyword", FT_STRING, BASE_NONE,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_text_string PNG_HFI_INIT = {
+	  "String", "png.text.string", FT_STRING, BASE_NONE,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_time_year PNG_HFI_INIT = {
+	  "Year", "png.time.year", FT_UINT16, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_time_month PNG_HFI_INIT = {
+	  "Month", "png.time.month", FT_UINT8, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_time_day PNG_HFI_INIT = {
+	  "Day", "png.time.day", FT_UINT8, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_time_hour PNG_HFI_INIT = {
+	  "Hour", "png.time.hour", FT_UINT8, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_time_minute PNG_HFI_INIT = {
+	  "Minute", "png.time.minute", FT_UINT8, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_time_second PNG_HFI_INIT = {
+	  "Second", "png.time.second", FT_UINT8, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_phys_horiz PNG_HFI_INIT = {
+	  "Horizontal pixels per unit", "png.phys.horiz", FT_UINT32, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_phys_vert PNG_HFI_INIT = {
+	  "Vertical pixels per unit", "png.phys.vert", FT_UINT32, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static const value_string phys_unit_vals[] = {
+	{ 0,	"Unit is unknown"},
+	{ 1,	"Unit is METRE"},
+	{ 0, NULL }
+};
+
+static header_field_info hfi_png_phys_unit PNG_HFI_INIT = {
+	  "Unit", "png.phys.unit", FT_UINT8, BASE_DEC,
+	  VALS(phys_unit_vals), 0, NULL, HFILL };
+
+static header_field_info hfi_png_bkgd_palette_index PNG_HFI_INIT = {
+	  "Palette Index", "png.bkgd.palette_index", FT_UINT8, BASE_DEC,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_bkgd_greyscale PNG_HFI_INIT = {
+	  "Greyscale", "png.bkgd.greyscale", FT_UINT16, BASE_HEX,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_bkgd_red PNG_HFI_INIT = {
+	  "Red", "png.bkgd.red", FT_UINT16, BASE_HEX,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_bkgd_green PNG_HFI_INIT = {
+	  "Green", "png.bkgd.green", FT_UINT16, BASE_HEX,
+	  NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_bkgd_blue PNG_HFI_INIT = {
+	  "Blue", "png.bkgd.blue", FT_UINT16, BASE_HEX,
+	  NULL, 0, NULL, HFILL };
+
+static gint ett_png = -1;
+static gint ett_png_chunk = -1;
+static gint ett_png_chunk_item = -1;
+
+static dissector_handle_t png_handle;
+
 static void
 dissect_png_ihdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 
-	proto_tree_add_item(tree, hf_png_ihdr_width, tvb, 0, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_ihdr_width, tvb, 0, 4, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_height, tvb, 4, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_ihdr_height, tvb, 4, 4, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_bitdepth, tvb, 8, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_ihdr_bitdepth, tvb, 8, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_colour_type, tvb, 9, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_ihdr_colour_type, tvb, 9, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_compression_method, tvb, 10, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_ihdr_compression_method, tvb, 10, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_filter_method, tvb, 11, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_ihdr_filter_method, tvb, 11, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_interlace_method, tvb, 12, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_ihdr_interlace_method, tvb, 12, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -127,35 +247,30 @@ dissect_png_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		offset++;
 	}
 
-	proto_tree_add_item(tree, hf_png_text_keyword, tvb, 0, offset, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, &hfi_png_text_keyword, tvb, 0, offset, ENC_ASCII|ENC_NA);
 	offset++;
 
-	proto_tree_add_item(tree, hf_png_text_string, tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, &hfi_png_text_string, tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
 
 }
 
 static void
 dissect_png_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_png_time_year, tvb, 0, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_png_time_month, tvb, 2, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_png_time_day, tvb, 3, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_png_time_hour, tvb, 4, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_png_time_minute, tvb, 5, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_png_time_second, tvb, 6, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_time_year, tvb, 0, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_time_month, tvb, 2, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_time_day, tvb, 3, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_time_hour, tvb, 4, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_time_minute, tvb, 5, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_time_second, tvb, 6, 1, ENC_BIG_ENDIAN);
 }
 
-static const value_string phys_unit_vals[] = {
-	{ 0,	"Unit is unknown"},
-	{ 1,	"Unit is METRE"},
-	{ 0, NULL }
-};
 static void
 dissect_png_phys(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_png_phys_horiz, tvb, 0, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_png_phys_vert, tvb, 4, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_png_phys_unit, tvb, 8, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_phys_horiz, tvb, 0, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_phys_vert, tvb, 4, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, &hfi_png_phys_unit, tvb, 8, 1, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -163,15 +278,15 @@ dissect_png_bkgd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	switch(tvb_reported_length(tvb)){
 	case 1: /* colour type 3 */
-		proto_tree_add_item(tree, hf_png_bkgd_palette_index, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, &hfi_png_bkgd_palette_index, tvb, 0, 1, ENC_BIG_ENDIAN);
 		break;
 	case 2: /* colour type 0, 4 */
-		proto_tree_add_item(tree, hf_png_bkgd_greyscale, tvb, 0, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, &hfi_png_bkgd_greyscale, tvb, 0, 2, ENC_BIG_ENDIAN);
 		break;
 	case 6: /* colour type 2, 6 */
-		proto_tree_add_item(tree, hf_png_bkgd_red, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_png_bkgd_green, tvb, 2, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_png_bkgd_blue, tvb, 4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, &hfi_png_bkgd_red, tvb, 0, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, &hfi_png_bkgd_green, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, &hfi_png_bkgd_blue, tvb, 4, 2, ENC_BIG_ENDIAN);
 		break;
 	}
 }
@@ -194,20 +309,6 @@ static chunk_dissector_t chunk_table[] = {
 	{ 0, NULL, NULL }
 };
 
-static const true_false_string png_chunk_anc = {
-	"This is an ANCILLARY chunk",
-	"This is a CRITICAL chunk"
-};
-static const true_false_string png_chunk_priv = {
-	"This is a PRIVATE chunk",
-	"This is a PUBLIC chunk"
-};
-static const true_false_string png_chunk_stc = {
-	"This chunk is SAFE TO COPY",
-	"This chunk is NOT safe to copy"
-};
-
-
 static gint
 dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
@@ -226,11 +327,11 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
 	col_append_str(pinfo->cinfo, COL_INFO, " (PNG)");
 
 	if(parent_tree){
-		ti=proto_tree_add_item(parent_tree, proto_png, tvb, offset, -1, ENC_NA);
+		ti=proto_tree_add_item(parent_tree, hfi_png, tvb, offset, -1, ENC_NA);
 		tree=proto_item_add_subtree(ti, ett_png);
 	}
 
-	proto_tree_add_item(tree, hf_png_signature, tvb, offset, 8, ENC_NA);
+	proto_tree_add_item(tree, &hfi_png_signature, tvb, offset, 8, ENC_NA);
 	offset+=8;
 
 	while(tvb_reported_length_remaining(tvb, offset) > 0){
@@ -253,14 +354,14 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
 			chunk_tree=proto_item_add_subtree(it, ett_png_chunk);
 		}
 
-		proto_tree_add_item(chunk_tree, hf_png_chunk_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(chunk_tree, &hfi_png_chunk_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
 
-		it=proto_tree_add_item(chunk_tree, hf_png_chunk_type, tvb, offset, 4, ENC_ASCII|ENC_NA);
-		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_anc, tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_priv, tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_stc, tvb, offset, 4, ENC_BIG_ENDIAN);
+		it=proto_tree_add_item(chunk_tree, &hfi_png_chunk_type, tvb, offset, 4, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(chunk_tree, &hfi_png_chunk_flag_anc, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(chunk_tree, &hfi_png_chunk_flag_priv, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(chunk_tree, &hfi_png_chunk_flag_stc, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
 		if (len >= 1000000000)
@@ -281,7 +382,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
 		}
 
 		if(!cd){
-			proto_tree_add_item(chunk_tree, hf_png_chunk_data, tvb, offset, len, ENC_NA);
+			proto_tree_add_item(chunk_tree, &hfi_png_chunk_data, tvb, offset, len, ENC_NA);
 		} else {
 			if(cd->dissector){
 				tvbuff_t *next_tvb;
@@ -296,7 +397,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
 		}
 		offset+=len;
 
-		proto_tree_add_item(chunk_tree, hf_png_chunk_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(chunk_tree, &hfi_png_chunk_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 	}
 	return offset;
@@ -305,101 +406,39 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
 void
 proto_register_png(void)
 {
-	static hf_register_info hf[] =
+	static header_field_info *hfi[] =
 	{
-	{ &hf_png_signature, {
-	  "PNG Signature", "png.signature", FT_BYTES, BASE_NONE,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_chunk_type, {
-	  "Chunk", "png.chunk.type", FT_STRING, BASE_NONE,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_chunk_data, {
-	  "Data", "png.chunk.data", FT_NONE, BASE_NONE,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_chunk_len, {
-	  "Len", "png.chunk.len", FT_UINT32, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_chunk_crc, {
-	  "CRC", "png.chunk.crc", FT_UINT32, BASE_HEX,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_chunk_flag_anc, {
-	  "Ancillary", "png.chunk.flag.ancillary", FT_BOOLEAN, 32,
-	  TFS(&png_chunk_anc), 0x20000000, NULL, HFILL }},
-	{ &hf_png_chunk_flag_priv, {
-	  "Private", "png.chunk.flag.private", FT_BOOLEAN, 32,
-	  TFS(&png_chunk_priv), 0x00200000, NULL, HFILL }},
-	{ &hf_png_chunk_flag_stc, {
-	  "Safe To Copy", "png.chunk.flag.stc", FT_BOOLEAN, 32,
-	  TFS(&png_chunk_stc), 0x00000020, NULL, HFILL }},
-	{ &hf_png_ihdr_width, {
-	  "Width", "png.ihdr.width", FT_UINT32, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_ihdr_height, {
-	  "Height", "png.ihdr.height", FT_UINT32, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_ihdr_bitdepth, {
-	  "Bit Depth", "png.ihdr.bitdepth", FT_UINT8, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_ihdr_colour_type, {
-	  "Colour Type", "png.ihdr.colour_type", FT_UINT8, BASE_DEC,
-	  VALS(colour_type_vals), 0, NULL, HFILL }},
-	{ &hf_png_ihdr_compression_method, {
-	  "Compression Method", "png.ihdr.compression_method", FT_UINT8, BASE_DEC,
-	  VALS(compression_method_vals), 0, NULL, HFILL }},
-	{ &hf_png_ihdr_filter_method, {
-	  "Filter Method", "png.ihdr.filter_method", FT_UINT8, BASE_DEC,
-	  VALS(filter_method_vals), 0, NULL, HFILL }},
-	{ &hf_png_ihdr_interlace_method, {
-	  "Interlace Method", "png.ihdr.interlace_method", FT_UINT8, BASE_DEC,
-	  VALS(interlace_method_vals), 0, NULL, HFILL }},
-	{ &hf_png_text_keyword, {
-	  "Keyword", "png.text.keyword", FT_STRING, BASE_NONE,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_text_string, {
-	  "String", "png.text.string", FT_STRING, BASE_NONE,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_time_year, {
-	  "Year", "png.time.year", FT_UINT16, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_time_month, {
-	  "Month", "png.time.month", FT_UINT8, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_time_day, {
-	  "Day", "png.time.day", FT_UINT8, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_time_hour, {
-	  "Hour", "png.time.hour", FT_UINT8, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_time_minute, {
-	  "Minute", "png.time.minute", FT_UINT8, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_time_second, {
-	  "Second", "png.time.second", FT_UINT8, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_phys_horiz, {
-	  "Horizontal pixels per unit", "png.phys.horiz", FT_UINT32, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_phys_vert, {
-	  "Vertical pixels per unit", "png.phys.vert", FT_UINT32, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_phys_unit, {
-	  "Unit", "png.phys.unit", FT_UINT8, BASE_DEC,
-	  VALS(phys_unit_vals), 0, NULL, HFILL }},
-	{ &hf_png_bkgd_palette_index, {
-	  "Palette Index", "png.bkgd.palette_index", FT_UINT8, BASE_DEC,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_bkgd_greyscale, {
-	  "Greyscale", "png.bkgd.greyscale", FT_UINT16, BASE_HEX,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_bkgd_red, {
-	  "Red", "png.bkgd.red", FT_UINT16, BASE_HEX,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_bkgd_green, {
-	  "Green", "png.bkgd.green", FT_UINT16, BASE_HEX,
-	  NULL, 0, NULL, HFILL }},
-	{ &hf_png_bkgd_blue, {
-	  "Blue", "png.bkgd.blue", FT_UINT16, BASE_HEX,
-	  NULL, 0, NULL, HFILL }},
+		&hfi_png_signature,
+		&hfi_png_chunk_type,
+		&hfi_png_chunk_data,
+		&hfi_png_chunk_len,
+		&hfi_png_chunk_crc,
+		&hfi_png_chunk_flag_anc,
+		&hfi_png_chunk_flag_priv,
+		&hfi_png_chunk_flag_stc,
+		&hfi_png_ihdr_width,
+		&hfi_png_ihdr_height,
+		&hfi_png_ihdr_bitdepth,
+		&hfi_png_ihdr_colour_type,
+		&hfi_png_ihdr_compression_method,
+		&hfi_png_ihdr_filter_method,
+		&hfi_png_ihdr_interlace_method,
+		&hfi_png_text_keyword,
+		&hfi_png_text_string,
+		&hfi_png_time_year,
+		&hfi_png_time_month,
+		&hfi_png_time_day,
+		&hfi_png_time_hour,
+		&hfi_png_time_minute,
+		&hfi_png_time_second,
+		&hfi_png_phys_horiz,
+		&hfi_png_phys_vert,
+		&hfi_png_phys_unit,
+		&hfi_png_bkgd_palette_index,
+		&hfi_png_bkgd_greyscale,
+		&hfi_png_bkgd_red,
+		&hfi_png_bkgd_green,
+		&hfi_png_bkgd_blue,
 	};
 
 	static gint *ett[] =
@@ -409,9 +448,12 @@ proto_register_png(void)
 		&ett_png_chunk_item,
 	};
 
+	int proto_png;
 
 	proto_png = proto_register_protocol("Portable Network Graphics","PNG","png");
-	proto_register_field_array(proto_png, hf, array_length(hf));
+	hfi_png = proto_registrar_get_nth(proto_png);
+
+	proto_register_fields(proto_png, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	png_handle = new_register_dissector("png", dissect_png, proto_png);
@@ -426,6 +468,6 @@ void
 proto_reg_handoff_png(void)
 {
 	dissector_add_string("media_type", "image/png", png_handle);
-	heur_dissector_add("http", dissect_png_heur, proto_png);
-	heur_dissector_add("wtap_file", dissect_png_heur, proto_png);
+	heur_dissector_add("http", dissect_png_heur, hfi_png->id);
+	heur_dissector_add("wtap_file", dissect_png_heur, hfi_png->id);
 }
