@@ -41,7 +41,7 @@
 /* desegmentation of Gadu-Gadu over TCP */
 static gboolean gadu_gadu_desegment = TRUE;
 
-static int proto_gadu_gadu = -1;
+static dissector_handle_t gadu_gadu_handle;
 
 static int ett_gadu_gadu = -1;
 static int ett_gadu_gadu_contact = -1;
@@ -335,197 +335,201 @@ static const value_string gadu_gadu_pubdir_type_vals[] = {
 	{ 0, NULL }
 };
 
+static header_field_info *hfi_gadu_gadu = NULL;
+
+#define GADU_GADU_HFI_INIT HFI_INIT(proto_gadu_gadu)
+
 /* Header */
-static header_field_info hfi_gadu_gadu_header_type_recv HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_header_type_recv GADU_GADU_HFI_INIT =
 	{ "Packet Type", "gadu-gadu.recv", FT_UINT32, BASE_HEX, VALS(gadu_gadu_packets_type_recv), 0x0, "Packet Type (recv)", HFILL };
 
-static header_field_info hfi_gadu_gadu_header_type_send HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_header_type_send GADU_GADU_HFI_INIT =
 	{ "Packet Type", "gadu-gadu.send", FT_UINT32, BASE_HEX, VALS(gadu_gadu_packets_type_send), 0x0, "Packet Type (send)", HFILL };
 
-static header_field_info hfi_gadu_gadu_header_length HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_header_length GADU_GADU_HFI_INIT =
 	{ "Packet Length", "gadu-gadu.len", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 /* Login common (gadu-gadu.login.*) */
-static header_field_info hfi_gadu_gadu_login_uin HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_login_uin GADU_GADU_HFI_INIT =
 	{ "Client UIN", "gadu-gadu.login.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_login_hash_type HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_login_hash_type GADU_GADU_HFI_INIT =
 	{ "Login hash type", "gadu-gadu.login.hash_type", FT_UINT8, BASE_HEX, gadu_gadu_hash_type_vals, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_login_hash HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_login_hash GADU_GADU_HFI_INIT =
 	{ "Login hash", "gadu-gadu.login.hash", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_login_status HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_login_status GADU_GADU_HFI_INIT =
 	{ "Client status", "gadu-gadu.login.status", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_login_protocol HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_login_protocol GADU_GADU_HFI_INIT =
 	{ "Client protocol", "gadu-gadu.login.protocol", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_login_version HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_login_version GADU_GADU_HFI_INIT =
 	{ "Client version", "gadu-gadu.login.version", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_login_local_ip HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_login_local_ip GADU_GADU_HFI_INIT =
 	{ "Client local IP", "gadu-gadu.login.local_ip", FT_IPv4, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_login_local_port HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_login_local_port GADU_GADU_HFI_INIT =
 	{ "Client local port", "gadu-gadu.login.local_port", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
 /* GG_LOGIN80 (gadu-gadu.login80.*) */
-static header_field_info hfi_gadu_gadu_login80_lang HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_login80_lang GADU_GADU_HFI_INIT =
 	{ "Client language", "gadu-gadu.login80.lang", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 /* Contacts details (gadu-gadu.user_data.*) */
-static header_field_info hfi_gadu_gadu_userdata_uin HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_userdata_uin GADU_GADU_HFI_INIT =
 	{ "UIN", "gadu-gadu.user_data.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_userdata_attr_name HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_userdata_attr_name GADU_GADU_HFI_INIT =
 	{ "Attribute name", "gadu-gadu.user_data.attr_name", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_userdata_attr_type HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_userdata_attr_type GADU_GADU_HFI_INIT =
 	{ "Attribute type", "gadu-gadu.user_data.attr_type", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_userdata_attr_value HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_userdata_attr_value GADU_GADU_HFI_INIT =
 	{ "Attribute value", "gadu-gadu.user_data.attr_val", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 /* Typing notify (gadu-gadu.typing_notify.*) */
-static header_field_info hfi_gadu_gadu_typing_notify_type HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_typing_notify_type GADU_GADU_HFI_INIT =
 	{ "Typing notify type", "gadu-gadu.typing_notify.type", FT_UINT16, BASE_HEX, gadu_gadu_typing_notify_type_vals, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_typing_notify_uin HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_typing_notify_uin GADU_GADU_HFI_INIT =
 	{ "Typing notify recipient", "gadu-gadu.typing_notify.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
 /* Message common (gadu-gadu.msg.*) */
-static header_field_info hfi_gadu_gadu_msg_uin HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg_uin GADU_GADU_HFI_INIT =
 	{ "Message sender or recipient", "gadu-gadu.msg.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_msg_sender HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg_sender GADU_GADU_HFI_INIT =
 	{ "Message sender", "gadu-gadu.msg.sender", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_msg_recipient HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg_recipient GADU_GADU_HFI_INIT =
 	{ "Message recipient", "gadu-gadu.msg.recipient", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_msg_seq HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg_seq GADU_GADU_HFI_INIT =
 	{ "Message sequence number", "gadu-gadu.msg.seq", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_msg_time HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg_time GADU_GADU_HFI_INIT =
 	{ "Message time", "gadu-gadu.msg.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_msg_class HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg_class GADU_GADU_HFI_INIT =
 	{ "Message class", "gadu-gadu.msg.class", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_msg_text HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg_text GADU_GADU_HFI_INIT =
 	{ "Message text", "gadu-gadu.msg.text", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 /* GG_RECV_MSG80, GG_SEND_MSG80 (gadu-gadu.msg80.*) */
-static header_field_info hfi_gadu_gadu_msg80_offset_plain HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg80_offset_plain GADU_GADU_HFI_INIT =
 	{ "Message plaintext offset", "gadu-gadu.msg80.offset_plain", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_msg80_offset_attr HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg80_offset_attr GADU_GADU_HFI_INIT =
 	{ "Message attribute offset", "gadu-gadu.msg80.offset_attributes", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
 /* GG_SEND_MSG_ACK (gadu-gadu.msg_ack.*) */
-static header_field_info hfi_gadu_gadu_msg_ack_status HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg_ack_status GADU_GADU_HFI_INIT =
 	{ "Message status", "gadu-gadu.msg_ack.status", FT_UINT32, BASE_HEX, gadu_gadu_msg_ack_status_vals, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_msg_ack_recipient HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg_ack_recipient GADU_GADU_HFI_INIT =
 	{ "Message recipient", "gadu-gadu.msg_ack.recipient", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_msg_ack_seq HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_msg_ack_seq GADU_GADU_HFI_INIT =
 	{ "Message sequence number", "gadu-gadu.msg_ack.seq", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
 /* Status common (gadu-gadu.status.*) */
-static header_field_info hfi_gadu_gadu_status_uin HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_status_uin GADU_GADU_HFI_INIT =
 	{ "UIN", "gadu-gadu.status.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_status_status HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_status_status GADU_GADU_HFI_INIT =
 	{ "Status", "gadu-gadu.status.status", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_status_ip HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_status_ip GADU_GADU_HFI_INIT =
 	{ "IP", "gadu-gadu.status.remote_ip", FT_IPv4, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_status_port HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_status_port GADU_GADU_HFI_INIT =
 	{ "Port", "gadu-gadu.status.remote_port", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_status_version HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_status_version GADU_GADU_HFI_INIT =
 	{ "Version", "gadu-gadu.status.version", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_status_img_size HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_status_img_size GADU_GADU_HFI_INIT =
 	{ "Image size", "gadu-gadu.status.image_size", FT_UINT8, BASE_DEC, NULL, 0x00, "Maximum image size in KB", HFILL };
 
-static header_field_info hfi_gadu_gadu_status_descr HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_status_descr GADU_GADU_HFI_INIT =
 	{ "Description", "gadu-gadu.status.description", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 /* Direct Connection (gadu-gadu.dcc.*) */
-static header_field_info hfi_dcc_type HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_dcc_type GADU_GADU_HFI_INIT =
 	{ "Direct connection type", "gadu-gadu.dcc.type", FT_UINT32, BASE_HEX, gadu_gadu_dcc_type_vals, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dcc_id HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_dcc_id GADU_GADU_HFI_INIT =
 	{ "Direct connection id", "gadu-gadu.dcc.id", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dcc_uin_to HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_dcc_uin_to GADU_GADU_HFI_INIT =
 	{ "Direct connection UIN target", "gadu-gadu.dcc.uin_to", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dcc_uin_from HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_dcc_uin_from GADU_GADU_HFI_INIT =
 	{ "Direct connection UIN initiator", "gadu-gadu.dcc.uin_from", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dcc_filename HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_dcc_filename GADU_GADU_HFI_INIT =
 	{ "Direct connection filename", "gadu-gadu.dcc.filename", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 /* New status (setting status) common (gadu-gadu.new_status.*) */
-static header_field_info hfi_gadu_gadu_new_status_status HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_new_status_status GADU_GADU_HFI_INIT =
 	{ "Status", "gadu-gadu.new_status.status", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_new_status_desc HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_new_status_desc GADU_GADU_HFI_INIT =
 	{ "Description", "gadu-gadu.new_status.description", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 /* Userlist (gadu-gadu.userlist.*) */
-static header_field_info hfi_gadu_gadu_userlist_request_type HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_userlist_request_type GADU_GADU_HFI_INIT =
 	{ "Request type", "gadu-gadu.userlist.request_type", FT_UINT32, BASE_HEX, gadu_gadu_userlist_request_type_vals, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_userlist_version HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_userlist_version GADU_GADU_HFI_INIT =
 	{ "Userlist version", "gadu-gadu.userlist.version", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_userlist_format HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_userlist_format GADU_GADU_HFI_INIT =
 	{ "Userlist format", "gadu-gadu.userlist.format", FT_UINT8, BASE_HEX, gadu_gadu_userlist_request_format_vals, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_userlist_reply_type HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_userlist_reply_type GADU_GADU_HFI_INIT =
 	{ "Reply type", "gadu-gadu.userlist.reply_type", FT_UINT32, BASE_HEX, gadu_gadu_userlist_reply_type_vals, 0x00, NULL, HFILL };
 
 /* Public Directory (gadu-gadu.pubdir.*) */
-static header_field_info hfi_gadu_gadu_pubdir_request_type HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_pubdir_request_type GADU_GADU_HFI_INIT =
 	{ "Request type", "gadu-gadu.pubdir.request_type", FT_UINT8, BASE_HEX, gadu_gadu_pubdir_type_vals, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_pubdir_request_seq HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_pubdir_request_seq GADU_GADU_HFI_INIT =
 	{ "Request sequence", "gadu-gadu.pubdir.request_seq", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_pubdir_request_str HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_pubdir_request_str GADU_GADU_HFI_INIT =
 	{ "Request string", "gadu-gadu.pubdir.request_str", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_pubdir_reply_type HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_pubdir_reply_type GADU_GADU_HFI_INIT =
 	{ "Reply type", "gadu-gadu.pubdir.reply_type", FT_UINT8, BASE_HEX, gadu_gadu_pubdir_type_vals, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_pubdir_reply_seq HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_pubdir_reply_seq GADU_GADU_HFI_INIT =
 	{ "Reply sequence", "gadu-gadu.pubdir.reply_seq", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_pubdir_reply_str HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_pubdir_reply_str GADU_GADU_HFI_INIT =
 	{ "Reply string", "gadu-gadu.pubdir.request_str", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 /* Contact (notify) common (gadu-gadu.contact.*) */
-static header_field_info hfi_gadu_gadu_contact_uin HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_contact_uin GADU_GADU_HFI_INIT =
 	{ "UIN", "gadu-gadu.contact.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_contact_uin_str HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_contact_uin_str GADU_GADU_HFI_INIT =
 	{ "UIN", "gadu-gadu.contact.uin_str", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_gadu_gadu_contact_type HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_contact_type GADU_GADU_HFI_INIT =
 	{ "Type", "gadu-gadu.contact.type", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
 /* GG_WELCOME */
-static header_field_info hfi_gadu_gadu_welcome_seed HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_welcome_seed GADU_GADU_HFI_INIT =
 	{ "Seed", "gadu-gadu.welcome.seed", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL };
 
 /* Not dissected data */
-static header_field_info hfi_gadu_gadu_data HFI_INIT(proto_gadu_gadu) =
+static header_field_info hfi_gadu_gadu_data GADU_GADU_HFI_INIT =
 	{ "Packet Data", "gadu-gadu.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 
@@ -542,12 +546,12 @@ gadu_gadu_create_conversation(packet_info *pinfo, guint32 uin)
 	struct gadu_gadu_conv_data *gg_conv;
 
 	conv = find_or_create_conversation(pinfo);
-	gg_conv = (struct gadu_gadu_conv_data *)conversation_get_proto_data(conv, proto_gadu_gadu);
+	gg_conv = (struct gadu_gadu_conv_data *)conversation_get_proto_data(conv, hfi_gadu_gadu->id);
 	if (!gg_conv) {
 		gg_conv = se_new(struct gadu_gadu_conv_data);
 		gg_conv->uin = uin;
 
-		conversation_add_proto_data(conv, proto_gadu_gadu, gg_conv);
+		conversation_add_proto_data(conv, hfi_gadu_gadu->id, gg_conv);
 	}
 	/* assert(gg_conv->uin == uin); */
 	return gg_conv;
@@ -560,7 +564,7 @@ gadu_gadu_get_conversation_data(packet_info *pinfo)
 	
 	conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conv)
-		return (struct gadu_gadu_conv_data *)conversation_get_proto_data(conv, proto_gadu_gadu);
+		return (struct gadu_gadu_conv_data *)conversation_get_proto_data(conv, hfi_gadu_gadu->id);
 	return NULL;
 }
 
@@ -697,7 +701,7 @@ dissect_gadu_gadu_login_protocol(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 	protocol = tvb_get_letohl(tvb, offset) & 0xff;
 	proto_tree_add_item(tree, &hfi_gadu_gadu_login_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	ti = proto_tree_add_string(tree, hfi_gadu_gadu_login_version.id, tvb, offset, 4, val_to_str(protocol, gadu_gadu_version_vals, "Unknown (0x%x)"));
+	ti = proto_tree_add_string(tree, &hfi_gadu_gadu_login_version, tvb, offset, 4, val_to_str(protocol, gadu_gadu_version_vals, "Unknown (0x%x)"));
 	PROTO_ITEM_SET_GENERATED(ti);
 	offset += 4;
 
@@ -717,10 +721,10 @@ dissect_gadu_gadu_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	uin = tvb_get_letohl(tvb, offset);
 	gadu_gadu_create_conversation(pinfo, uin);
 
-	proto_tree_add_uint(tree, hfi_gadu_gadu_login_uin.id, tvb, offset, 4, uin);
+	proto_tree_add_uint(tree, &hfi_gadu_gadu_login_uin, tvb, offset, 4, uin);
 	offset += 4;
 
-	ti = proto_tree_add_uint(tree, hfi_gadu_gadu_login_hash_type.id, tvb, 0, 0, GG_LOGIN_HASH_GG32);
+	ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_login_hash_type, tvb, 0, 0, GG_LOGIN_HASH_GG32);
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	/* hash is 32-bit number written in LE */
@@ -796,7 +800,7 @@ dissect_gadu_gadu_login70(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	uin = tvb_get_letohl(tvb, offset) & ~(GG_ERA_OMNIX_MASK | GG_HAS_AUDIO_MASK);
 	gadu_gadu_create_conversation(pinfo, uin);
 
-	proto_tree_add_uint(tree, hfi_gadu_gadu_login_uin.id, tvb, offset, 4, uin);
+	proto_tree_add_uint(tree, &hfi_gadu_gadu_login_uin, tvb, offset, 4, uin);
 	offset += 4;
 
 	offset = dissect_gadu_gadu_login_hash(tvb, tree, offset);
@@ -919,7 +923,7 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset += 4;
 
 			name = tvb_get_ephemeral_string_enc(tvb, offset, name_size, ENC_ASCII | ENC_NA);
-			proto_tree_add_string(tree, hfi_gadu_gadu_userdata_attr_name.id, tvb, offset - 4, 4 + name_size, name);
+			proto_tree_add_string(tree, &hfi_gadu_gadu_userdata_attr_name, tvb, offset - 4, 4 + name_size, name);
 			offset += name_size;
 	/* type */
 			proto_tree_add_item(tree, &hfi_gadu_gadu_userdata_attr_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -929,7 +933,7 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset += 4;
 
 			val = tvb_get_ephemeral_string_enc(tvb, offset, val_size, ENC_ASCII | ENC_NA);
-			proto_tree_add_string(tree, hfi_gadu_gadu_userdata_attr_value.id, tvb, offset - 4, 4 + val_size, val);
+			proto_tree_add_string(tree, &hfi_gadu_gadu_userdata_attr_value, tvb, offset - 4, 4 + val_size, val);
 			offset += val_size;
 		}
 	}
@@ -969,10 +973,10 @@ dissect_gadu_gadu_recv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	col_set_str(pinfo->cinfo, COL_INFO, "Receive message (< 8.0)");
 
 	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
-		ti = proto_tree_add_uint(tree, hfi_gadu_gadu_msg_recipient.id, tvb, 0, 0, conv->uin);
+		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_recipient, tvb, 0, 0, conv->uin);
 		PROTO_ITEM_SET_GENERATED(ti);
 
-		ti = proto_tree_add_uint(tree, hfi_gadu_gadu_msg_uin.id, tvb, 0, 0, conv->uin);
+		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
 		PROTO_ITEM_SET_GENERATED(ti);
 		PROTO_ITEM_SET_HIDDEN(ti);
 	}
@@ -1012,10 +1016,10 @@ dissect_gadu_gadu_send_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 4;
 
 	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
-		ti = proto_tree_add_uint(tree, hfi_gadu_gadu_msg_sender.id, tvb, 0, 0, conv->uin);
+		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_sender, tvb, 0, 0, conv->uin);
 		PROTO_ITEM_SET_GENERATED(ti);
 
-		ti = proto_tree_add_uint(tree, hfi_gadu_gadu_msg_uin.id, tvb, 0, 0, conv->uin);
+		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
 		PROTO_ITEM_SET_GENERATED(ti);
 		PROTO_ITEM_SET_HIDDEN(ti);
 	}
@@ -1023,7 +1027,7 @@ dissect_gadu_gadu_send_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	ti = proto_tree_add_time(tree, hfi_gadu_gadu_msg_time.id, tvb, 0, 0, &(pinfo->fd->abs_ts));
+	ti = proto_tree_add_time(tree, &hfi_gadu_gadu_msg_time, tvb, 0, 0, &(pinfo->fd->abs_ts));
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1045,10 +1049,10 @@ dissect_gadu_gadu_recv_msg80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	col_set_str(pinfo->cinfo, COL_INFO, "Receive message (8.0)");
 
 	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
-		ti = proto_tree_add_uint(tree, hfi_gadu_gadu_msg_recipient.id, tvb, 0, 0, conv->uin);
+		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_recipient, tvb, 0, 0, conv->uin);
 		PROTO_ITEM_SET_GENERATED(ti);
 
-		ti = proto_tree_add_uint(tree, hfi_gadu_gadu_msg_uin.id, tvb, 0, 0, conv->uin);
+		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
 		PROTO_ITEM_SET_GENERATED(ti);
 		PROTO_ITEM_SET_HIDDEN(ti);
 	}
@@ -1092,10 +1096,10 @@ dissect_gadu_gadu_send_msg80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 4;
 
 	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
-		ti = proto_tree_add_uint(tree, hfi_gadu_gadu_msg_sender.id, tvb, 0, 0, conv->uin);
+		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_sender, tvb, 0, 0, conv->uin);
 		PROTO_ITEM_SET_GENERATED(ti);
 
-		ti = proto_tree_add_uint(tree, hfi_gadu_gadu_msg_uin.id, tvb, 0, 0, conv->uin);
+		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
 		PROTO_ITEM_SET_GENERATED(ti);
 		PROTO_ITEM_SET_HIDDEN(ti);
 	}
@@ -1103,7 +1107,7 @@ dissect_gadu_gadu_send_msg80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	ti = proto_tree_add_time(tree, hfi_gadu_gadu_msg_time.id, tvb, 0, 0, &(pinfo->fd->abs_ts));
+	ti = proto_tree_add_time(tree, &hfi_gadu_gadu_msg_time, tvb, 0, 0, &(pinfo->fd->abs_ts));
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1157,7 +1161,7 @@ dissect_gadu_gadu_status60(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	col_set_str(pinfo->cinfo, COL_INFO, "Receive status (6.0)");
 
 	uin = tvb_get_letohl(tvb, offset) & ~(GG_ERA_OMNIX_MASK | GG_HAS_AUDIO_MASK);
-	proto_tree_add_uint(tree, hfi_gadu_gadu_status_uin.id, tvb, offset, 4, uin);
+	proto_tree_add_uint(tree, &hfi_gadu_gadu_status_uin, tvb, offset, 4, uin);
 	offset += 4;
 
 	status = tvb_get_guint8(tvb, offset);
@@ -1194,7 +1198,7 @@ dissect_gadu_gadu_status77(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	col_set_str(pinfo->cinfo, COL_INFO, "Receive status (7.7)");
 
 	uin = tvb_get_letohl(tvb, offset) & ~(GG_ERA_OMNIX_MASK | GG_HAS_AUDIO_MASK);
-	proto_tree_add_uint(tree, hfi_gadu_gadu_status_uin.id, tvb, offset, 4, uin);
+	proto_tree_add_uint(tree, &hfi_gadu_gadu_status_uin, tvb, offset, 4, uin);
 	offset += 4;
 
 	status = tvb_get_guint8(tvb, offset);
@@ -1338,7 +1342,7 @@ dissect_gadu_gadu_notify105_common(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	uin_len = tvb_get_guint8(tvb, offset);
 	offset += 1;
 	uin = tvb_get_ephemeral_string_enc(tvb, offset, uin_len, ENC_ASCII | ENC_NA);
-	proto_tree_add_string(tree, hfi_gadu_gadu_contact_uin_str.id, tvb, offset - 1, 1 + uin_len, uin);
+	proto_tree_add_string(tree, &hfi_gadu_gadu_contact_uin_str, tvb, offset - 1, 1 + uin_len, uin);
 	offset += uin_len;
 	if (puin)
 		*puin = uin;
@@ -1499,7 +1503,7 @@ dissect_gadu_gadu_userlist_request80(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	proto_tree_add_item(tree, &hfi_gadu_gadu_userlist_request_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	ti = proto_tree_add_uint(tree, hfi_gadu_gadu_userlist_format.id, tvb, 0, 0, GG_USERLIST100_FORMAT_TYPE_GG100);
+	ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_userlist_format, tvb, 0, 0, GG_USERLIST100_FORMAT_TYPE_GG100);
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	switch (type) {
@@ -1742,7 +1746,7 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO); /* XXX, remove, add separator when multiple PDU */
 
 	if (tree) {
-		proto_item *ti = proto_tree_add_item_old(tree, proto_gadu_gadu, tvb, 0, -1, ENC_NA);
+		proto_item *ti = proto_tree_add_item(tree, hfi_gadu_gadu, tvb, 0, -1, ENC_NA);
 		gadu_gadu_tree = proto_item_add_subtree(ti, ett_gadu_gadu);
 	}
 
@@ -2117,7 +2121,10 @@ proto_register_gadu_gadu(void)
 
 	module_t *gadu_gadu_module;
 
+	int proto_gadu_gadu;
+
 	proto_gadu_gadu = proto_register_protocol("Gadu-Gadu Protocol", "Gadu-Gadu", "gadu-gadu");
+	hfi_gadu_gadu = proto_registrar_get_nth(proto_gadu_gadu);
 
 	gadu_gadu_module = prefs_register_protocol(proto_gadu_gadu, NULL);
 	prefs_register_bool_preference(gadu_gadu_module, "desegment",
@@ -2128,13 +2135,13 @@ proto_register_gadu_gadu(void)
 
 	proto_register_fields(proto_gadu_gadu, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	gadu_gadu_handle = new_create_dissector_handle(dissect_gadu_gadu, proto_gadu_gadu);
 }
 
 void
 proto_reg_handoff_gadu_gadu(void)
 {
-	dissector_handle_t gadu_gadu_handle = new_create_dissector_handle(dissect_gadu_gadu, proto_gadu_gadu);
-
 	dissector_add_uint("tcp.port", TCP_PORT_GADU_GADU, gadu_gadu_handle);
 
 	xml_handle = find_dissector("xml");

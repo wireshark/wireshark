@@ -42,7 +42,7 @@ static gboolean yami_desegment = TRUE;
 static guint global_yami_config_tcp_port = 0;
 static guint global_yami_config_udp_port = 0;
 
-static int proto_yami = -1;
+static dissector_handle_t yami_handle;
 
 #define YAMI_TYPE_BOOLEAN 1
 #define YAMI_TYPE_INTEGER 2
@@ -75,57 +75,61 @@ static const value_string yami_param_type_vals[] = {
 	{ 0, NULL }
 };
 
+static header_field_info *hfi_yami = NULL;
+
+#define YAMI_HFI_INIT HFI_INIT(proto_yami)
+
 /* Header */
-static header_field_info hfi_yami_message_id HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_message_id YAMI_HFI_INIT =
 	{ "Message ID", "yami.message_id", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_yami_frame_number HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_frame_number YAMI_HFI_INIT =
 	{ "Frame Number", "yami.frame_number", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_yami_message_header_size HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_message_header_size YAMI_HFI_INIT =
 	{ "Message Header Size", "yami.message_header_size", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_yami_frame_payload_size HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_frame_payload_size YAMI_HFI_INIT =
 	{ "Frame Payload Size", "yami.frame_payload_size", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_yami_message_hdr HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_message_hdr YAMI_HFI_INIT =
 	{ "Header message", "yami.msg_hdr", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_yami_message_data HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_message_data YAMI_HFI_INIT =
 	{ "Data message", "yami.msg_data", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 /* Parameter */
-static header_field_info hfi_yami_param HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_param YAMI_HFI_INIT =
 	{ "Parameter", "yami.param", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_yami_param_name HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_param_name YAMI_HFI_INIT =
 	{ "Name", "yami.param.name", FT_STRING, BASE_NONE, NULL, 0x00, "Parameter name", HFILL };
 
-static header_field_info hfi_yami_param_type HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_param_type YAMI_HFI_INIT =
 	{ "Type", "yami.param.type", FT_INT32, BASE_DEC, VALS(yami_param_type_vals), 0x00, "Parameter type", HFILL };
 
-static header_field_info hfi_yami_param_value_bool HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_param_value_bool YAMI_HFI_INIT =
 	{ "Value", "yami.param.value_bool", FT_BOOLEAN, BASE_NONE, NULL, 0x00, "Parameter value (bool)", HFILL };
 
-static header_field_info hfi_yami_param_value_int HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_param_value_int YAMI_HFI_INIT =
 	{ "Value", "yami.param.value_int", FT_INT32, BASE_DEC, NULL, 0x00, "Parameter value (int)", HFILL };
 
-static header_field_info hfi_yami_param_value_long HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_param_value_long YAMI_HFI_INIT =
 	{ "Value", "yami.param.value_long", FT_INT64, BASE_DEC, NULL, 0x00, "Parameter value (long)", HFILL };
 
-static header_field_info hfi_yami_param_value_double HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_param_value_double YAMI_HFI_INIT =
 	{ "Value", "yami.param.value_double", FT_DOUBLE, BASE_NONE, NULL, 0x00, "Parameter value (double)", HFILL };
 
-static header_field_info hfi_yami_param_value_str HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_param_value_str YAMI_HFI_INIT =
 	{ "Value", "yami.param.value_str", FT_STRING, BASE_NONE, NULL, 0x00, "Parameter value (string)", HFILL };
 
-static header_field_info hfi_yami_param_value_bin HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_param_value_bin YAMI_HFI_INIT =
 	{ "Value", "yami.param.value_bin", FT_BYTES, BASE_NONE, NULL, 0x00, "Parameter value (binary)", HFILL };
 
-static header_field_info hfi_yami_params_count HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_params_count YAMI_HFI_INIT =
 	{ "Parameters count", "yami.params_count", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_yami_items_count HFI_INIT(proto_yami) =
+static header_field_info hfi_yami_items_count YAMI_HFI_INIT =
 	{ "Items count", "yami.items_count", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
 static int ett_yami = -1;
@@ -158,7 +162,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 	proto_item_append_text(ti, ": %s", name);
 	proto_item_append_text(par_ti, "%s, ", name);
 	offset += (name_len + 3) & ~3;
-	proto_tree_add_string(yami_param, hfi_yami_param_name.id, tvb, name_offset, offset - name_offset, name);
+	proto_tree_add_string(yami_param, &hfi_yami_param_name, tvb, name_offset, offset - name_offset, name);
 
 	type = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(yami_param, &hfi_yami_param_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -214,7 +218,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 
 			proto_item_append_text(ti, ", Type: string, Value: \"%s\"", val);
 			offset += (val_len + 3) & ~3;
-			proto_tree_add_string(yami_param, hfi_yami_param_value_str.id, tvb, val_offset, offset - val_offset, val);
+			proto_tree_add_string(yami_param, &hfi_yami_param_value_str, tvb, val_offset, offset - val_offset, val);
 			break;
 		}
 
@@ -256,7 +260,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 					int r = !!(val & (1 << j));
 
 					proto_item_append_text(ti, "%s, ", r ? "T" : "F");
-					proto_tree_add_boolean(yami_param, hfi_yami_param_value_bool.id, tvb, offset+(j/8), 1, r);
+					proto_tree_add_boolean(yami_param, &hfi_yami_param_value_bool, tvb, offset+(j/8), 1, r);
 				}
 				offset += 4;
 			}
@@ -269,7 +273,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 					int r = !!(val & (1 << j));
 
 					proto_item_append_text(ti, "%s, ", r ? "T" : "F");
-					proto_tree_add_boolean(yami_param, hfi_yami_param_value_bool.id, tvb, offset+(j/8), 1, r);
+					proto_tree_add_boolean(yami_param, &hfi_yami_param_value_bool, tvb, offset+(j/8), 1, r);
 				}
 				offset += 4;
 			}
@@ -365,7 +369,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				val = tvb_get_ephemeral_string_enc(tvb, offset, val_len, ENC_ASCII | ENC_NA);
 
 				proto_item_append_text(ti, "\"%s\", ", val);
-				proto_tree_add_string(yami_param, hfi_yami_param_value_str.id, tvb, val_offset, offset - val_offset, val);
+				proto_tree_add_string(yami_param, &hfi_yami_param_value_str, tvb, val_offset, offset - val_offset, val);
 				offset += (val_len + 3) & ~3;
 			}
 			proto_item_append_text(ti, "}");
@@ -480,7 +484,7 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item_old(tree, proto_yami, tvb, 0, -1, ENC_NA);
+		ti = proto_tree_add_item(tree, hfi_yami, tvb, 0, -1, ENC_NA);
 		yami_tree = proto_item_add_subtree(ti, ett_yami);
 	}
 
@@ -574,7 +578,10 @@ proto_register_yami(void)
 
 	module_t *yami_module;
 
+	int proto_yami;
+
 	proto_yami = proto_register_protocol("YAMI Protocol", "YAMI", "yami");
+	hfi_yami = proto_registrar_get_nth(proto_yami);
 
 	proto_register_fields(proto_yami, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -587,17 +594,17 @@ proto_register_yami(void)
 			"Whether the YAMI dissector should reassemble messages spanning multiple TCP segments."
 			"To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 			&yami_desegment);
+
+	yami_handle = new_create_dissector_handle(dissect_yami, proto_yami);
 }
 
 void
 proto_reg_handoff_yami(void)
 {
 	static int yami_prefs_initialized = FALSE;
-	static dissector_handle_t yami_handle = NULL;
 	static guint yami_tcp_port, yami_udp_port;
 
 	if(yami_prefs_initialized == FALSE){
-		yami_handle = new_create_dissector_handle(dissect_yami, proto_yami);
 		yami_prefs_initialized = TRUE;
 		yami_tcp_port = global_yami_config_tcp_port;
 		yami_udp_port = global_yami_config_udp_port;

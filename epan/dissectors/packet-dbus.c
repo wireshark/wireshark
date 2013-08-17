@@ -39,7 +39,8 @@ void proto_reg_handoff_dbus(void);
 
 static gboolean dbus_desegment = TRUE;
 
-static int proto_dbus = -1;
+static dissector_handle_t dbus_handle;
+static dissector_handle_t dbus_handle_tcp;
 
 #define DBUS_MESSAGE_TYPE_INVALID 0
 #define DBUS_MESSAGE_TYPE_METHOD_CALL 1
@@ -81,60 +82,64 @@ static const value_string field_code_vals[] = {
 	{ 0, NULL }
 };
 
+static header_field_info *hfi_dbus = NULL;
+
+#define DBUS_HFI_INIT HFI_INIT(proto_dbus)
+
 /* XXX, FT_NONE -> FT_BYTES? */
 
 /* Header */
-static header_field_info hfi_dbus_hdr HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_hdr DBUS_HFI_INIT =
 	{ "Header", "dbus.header", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_hdr_endianness HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_hdr_endianness DBUS_HFI_INIT =
 	{ "Endianness Flag", "dbus.endianness", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_hdr_type HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_hdr_type DBUS_HFI_INIT =
 	{ "Message Type", "dbus.type", FT_UINT8, BASE_DEC, VALS(message_type_vals), 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_hdr_flags HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_hdr_flags DBUS_HFI_INIT =
 	{ "Message Flags", "dbus.flags", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_hdr_version HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_hdr_version DBUS_HFI_INIT =
 	{ "Protocol Version", "dbus.version", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_hdr_body_length HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_hdr_body_length DBUS_HFI_INIT =
 	{ "Message body Length", "dbus.length", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_hdr_serial HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_hdr_serial DBUS_HFI_INIT =
 	{ "Message Serial (cookie)", "dbus.serial", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_hdr_fields_length HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_hdr_fields_length DBUS_HFI_INIT =
 	{ "Header fields Length", "dbus.fields_length", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
 /* Header field */
-static header_field_info hfi_dbus_hdr_field HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_hdr_field DBUS_HFI_INIT =
 	{ "Header Field", "dbus.field", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_hdr_field_code HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_hdr_field_code DBUS_HFI_INIT =
 	{ "Field code", "dbus.field.code", FT_UINT8, BASE_DEC, VALS(field_code_vals), 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_type_signature HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_type_signature DBUS_HFI_INIT =
 	{ "Type signature", "dbus.type_signature", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_body HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_body DBUS_HFI_INIT =
 	{ "Body", "dbus.body", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 /* Values */
-static header_field_info hfi_dbus_value_bool HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_value_bool DBUS_HFI_INIT =
 	{ "Value", "dbus.value.bool", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_value_int HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_value_int DBUS_HFI_INIT =
 	{ "Value", "dbus.value.int", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_value_uint HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_value_uint DBUS_HFI_INIT =
 	{ "Value", "dbus.value.uint", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_value_str HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_value_str DBUS_HFI_INIT =
 	{ "Value", "dbus.value.str", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_dbus_value_double HFI_INIT(proto_dbus) =
+static header_field_info hfi_dbus_value_double DBUS_HFI_INIT =
 	{ "Value", "dbus.value.double", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 
@@ -368,7 +373,7 @@ dissect_dbus_field_signature(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree
 	sig = tvb_get_ephemeral_string(tvb, offset, sig_len);
 	offset += (sig_len + 1);
 
-	ti = proto_tree_add_string(tree, hfi_dbus_type_signature.id, tvb, org_offset, offset - org_offset, sig);
+	ti = proto_tree_add_string(tree, &hfi_dbus_type_signature, tvb, org_offset, offset - org_offset, sig);
 	if (!dbus_validate_signature(sig)) {
 		expert_add_info(dinfo->pinfo, ti, &ei_dbus_invalid_signature);
 		return -1;
@@ -564,7 +569,7 @@ dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	}
 
 	if (tree) {
-		proto_item *ti = proto_tree_add_item_old(tree, proto_dbus, tvb, 0, -1, ENC_NA);
+		proto_item *ti = proto_tree_add_item(tree, hfi_dbus, tvb, 0, -1, ENC_NA);
 		dbus_tree = proto_item_add_subtree(ti, ett_dbus);
 	}
 
@@ -661,22 +666,25 @@ proto_register_dbus(void)
 		{ &ei_dbus_invalid_signature, { "dbus.invalid_signature", PI_PROTOCOL, PI_WARN, "Invalid signature", EXPFILL }},
 	};
 
-	expert_module_t* expert_dbus;
+	expert_module_t *expert_dbus;
+
+	int proto_dbus;
 
 	proto_dbus = proto_register_protocol("D-Bus", "D-BUS", "dbus");
+	hfi_dbus = proto_registrar_get_nth(proto_dbus);
 
 	proto_register_fields(proto_dbus, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_dbus = expert_register_protocol(proto_dbus);
 	expert_register_field_array(expert_dbus, ei, array_length(ei));
+
+	dbus_handle = new_create_dissector_handle(dissect_dbus, proto_dbus);
+	dbus_handle_tcp = new_create_dissector_handle(dissect_dbus_tcp, proto_dbus);
 }
 
 void
 proto_reg_handoff_dbus(void)
 {
-	dissector_handle_t dbus_handle = new_create_dissector_handle(dissect_dbus, proto_dbus);
-	dissector_handle_t dbus_handle_tcp = new_create_dissector_handle(dissect_dbus_tcp, proto_dbus);
-
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_DBUS, dbus_handle);
 	dissector_add_handle("tcp.port", dbus_handle_tcp);
 }

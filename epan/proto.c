@@ -22,8 +22,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <stdio.h>
@@ -1813,7 +1811,7 @@ test_length(header_field_info *hfinfo, proto_tree *tree, tvbuff_t *tvb,
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 proto_item *
-proto_tree_add_item(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
+proto_tree_add_item_new(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 		    const gint start, gint length, const guint encoding)
 {
 	field_info        *new_fi;
@@ -1835,10 +1833,10 @@ proto_tree_add_item(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 }
 
 proto_item *
-proto_tree_add_item_old(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    const gint start, gint length, const guint encoding)
 {
-        return proto_tree_add_item(tree, proto_registrar_get_nth(hfindex), tvb, start, length, encoding);
+        return proto_tree_add_item_new(tree, proto_registrar_get_nth(hfindex), tvb, start, length, encoding);
 }
 
 /* Add a FT_NONE to a proto_tree */
@@ -1876,7 +1874,7 @@ ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length,
 {
 	proto_item *item;
 
-	item = proto_tree_add_item_old(ptvc->tree, hf, ptvc->tvb, ptvc->offset,
+	item = proto_tree_add_item(ptvc->tree, hf, ptvc->tvb, ptvc->offset,
 				   length, encoding);
 
 	return item;
@@ -6768,7 +6766,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			continue;
 		}
 
-		proto_tree_add_item_old(tree, **fields, tvb, offset, len, encoding);
+		proto_tree_add_item(tree, **fields, tvb, offset, len, encoding);
 		if (flags & BMT_NO_APPEND) {
 			fields++;
 			continue;
@@ -6876,7 +6874,7 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 	len = ftype_length(hf->type);
 
 	if (parent_tree) {
-		item = proto_tree_add_item_old(parent_tree, hf_hdr, tvb, offset, len, encoding);
+		item = proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, encoding);
 		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, encoding,
 					    BMT_NO_INT|BMT_NO_TFS, FALSE);
 	}

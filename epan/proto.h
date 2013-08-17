@@ -763,16 +763,11 @@ WS_DLL_PUBLIC void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint
  @param encoding data encoding
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
-proto_tree_add_item(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
+proto_tree_add_item_new(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding);
 
-#ifndef NEW_PROTO_TREE_API
-#define proto_tree_add_item(tree, hfindex, tvb, start, length, encoding) \
-        proto_tree_add_item_old(tree, hfindex, tvb, start, length, encoding)
-#endif
-
 WS_DLL_PUBLIC proto_item *
-proto_tree_add_item_old(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    const gint start, gint length, const guint encoding);
 
 /** Add a text-only node to a proto_tree.
@@ -1671,8 +1666,6 @@ proto_register_prefix(const char *prefix,  prefix_initializer_t initializer);
 /** Initialize every remaining uninitialized prefix. */
 WS_DLL_PUBLIC void proto_initialize_all_prefixes(void);
 
-#define HFI_INIT(proto)
-
 WS_DLL_PUBLIC void proto_register_fields(const int parent, header_field_info **hfi, const int num_records);
 
 /** Register a header_field array.
@@ -2113,6 +2106,25 @@ proto_custom_set(proto_tree* tree, const int field_id,
                              gint occurrence,
                              gchar *result,
                              gchar *expr, const int size );
+
+#define HFI_INIT(proto)
+
+#ifdef NEW_PROTO_TREE_API
+#define proto_tree_add_item(tree, hfinfo, tvb, start, length, encoding) \
+        proto_tree_add_item_new(tree, hfinfo, tvb, start, length, encoding)
+
+#define proto_tree_add_boolean(tree, hfinfo, tvb, start, length, value) \
+	proto_tree_add_boolean(tree, (hfinfo)->id, tvb, start, length, value)
+
+#define proto_tree_add_string(tree, hfinfo, tvb, start, length, value) \
+	proto_tree_add_string(tree, (hfinfo)->id, tvb, start, length, value)
+
+#define proto_tree_add_time(tree, hfinfo, tvb, start, length, value) \
+	proto_tree_add_time(tree, (hfinfo)->id, tvb, start, length, value)
+
+#define proto_tree_add_uint(tree, hfinfo, tvb, start, length, value) \
+	proto_tree_add_uint(tree, (hfinfo)->id, tvb, start, length, value)
+#endif
 
 /** @} */
 

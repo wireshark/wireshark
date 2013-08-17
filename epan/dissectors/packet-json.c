@@ -37,41 +37,43 @@
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 
-static gint proto_json = -1;
-
 static gint ett_json = -1;
 static gint ett_json_array = -1;
 static gint ett_json_object = -1;
 static gint ett_json_member = -1;
 
-static header_field_info hfi_json_array HFI_INIT(proto_json) =
+static header_field_info *hfi_json = NULL;
+
+#define JSON_HFI_INIT HFI_INIT(proto_json)
+
+static header_field_info hfi_json_array JSON_HFI_INIT =
 	{ "Array", "json.array", FT_NONE, BASE_NONE, NULL, 0x00, "JSON array", HFILL };
 
-static header_field_info hfi_json_object HFI_INIT(proto_json) =
+static header_field_info hfi_json_object JSON_HFI_INIT =
 	{ "Object", "json.object", FT_NONE, BASE_NONE, NULL, 0x00, "JSON object", HFILL };
 
-static header_field_info hfi_json_member HFI_INIT(proto_json) =
+static header_field_info hfi_json_member JSON_HFI_INIT =
 	{ "Member", "json.member", FT_NONE, BASE_NONE, NULL, 0x00, "JSON object member", HFILL };
 
 #if 0
 /* XXX */
-static header_field_info hfi_json_member_key HFI_INIT(proto_json) =
+static header_field_info hfi_json_member_key JSON_HFI_INIT =
 	{ "Key", "json.member.key", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
 #endif
 
-static header_field_info hfi_json_value_string HFI_INIT(proto_json) = /* FT_STRINGZ? */
+static header_field_info hfi_json_value_string JSON_HFI_INIT = /* FT_STRINGZ? */
 	{ "String value", "json.value.string", FT_STRING, BASE_NONE, NULL, 0x00, "JSON string value", HFILL };
 
-static header_field_info hfi_json_value_number HFI_INIT(proto_json) = /* FT_DOUBLE/ FT_INT64? */
+static header_field_info hfi_json_value_number JSON_HFI_INIT = /* FT_DOUBLE/ FT_INT64? */
 	{ "Number value", "json.value.number", FT_STRING, BASE_NONE, NULL, 0x00, "JSON number value", HFILL };
 
-static header_field_info hfi_json_value_false HFI_INIT(proto_json) =
+static header_field_info hfi_json_value_false JSON_HFI_INIT =
 	{ "False value", "json.value.false", FT_NONE, BASE_NONE, NULL, 0x00, "JSON false value", HFILL };
 
-static header_field_info hfi_json_value_null HFI_INIT(proto_json) =
+static header_field_info hfi_json_value_null JSON_HFI_INIT =
 	{ "Null value", "json.value.null", FT_NONE, BASE_NONE, NULL, 0x00, "JSON null value", HFILL };
 
-static header_field_info hfi_json_value_true HFI_INIT(proto_json) =
+static header_field_info hfi_json_value_true JSON_HFI_INIT =
 	{ "True value", "json.value.true", FT_NONE, BASE_NONE, NULL, 0x00, "JSON true value", HFILL };
 
 
@@ -126,7 +128,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item_old(tree, proto_json, tvb, 0, -1, ENC_NA);
+		ti = proto_tree_add_item(tree, hfi_json, tvb, 0, -1, ENC_NA);
 		json_tree = proto_item_add_subtree(ti, ett_json);
 
 		if (data_name)
@@ -568,7 +570,10 @@ proto_register_json(void) {
 		&hfi_json_value_true,
 	};
 
+	int proto_json;
+
 	proto_json = proto_register_protocol("JavaScript Object Notation", "JSON", "json");
+	hfi_json = proto_registrar_get_nth(proto_json);
 
 	proto_register_fields(proto_json, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
