@@ -140,56 +140,6 @@ static int hf_bthci_evt_link_type_hv3 = -1;
 static int hf_bthci_evt_page_scan_mode = -1;
 static int hf_bthci_evt_page_scan_repetition_mode = -1;
 static int hf_bthci_evt_page_scan_period_mode = -1;
-static int hf_bthci_evt_lmp_feature_00 = -1;
-static int hf_bthci_evt_lmp_feature_01 = -1;
-static int hf_bthci_evt_lmp_feature_02 = -1;
-static int hf_bthci_evt_lmp_feature_03 = -1;
-static int hf_bthci_evt_lmp_feature_04 = -1;
-static int hf_bthci_evt_lmp_feature_05 = -1;
-static int hf_bthci_evt_lmp_feature_06 = -1;
-static int hf_bthci_evt_lmp_feature_07 = -1;
-static int hf_bthci_evt_lmp_feature_10 = -1;
-static int hf_bthci_evt_lmp_feature_11 = -1;
-static int hf_bthci_evt_lmp_feature_12 = -1;
-static int hf_bthci_evt_lmp_feature_13 = -1;
-static int hf_bthci_evt_lmp_feature_14 = -1;
-static int hf_bthci_evt_lmp_feature_15 = -1;
-static int hf_bthci_evt_lmp_feature_16 = -1;
-static int hf_bthci_evt_lmp_feature_17 = -1;
-static int hf_bthci_evt_lmp_feature_20 = -1;
-static int hf_bthci_evt_lmp_feature_21 = -1;
-static int hf_bthci_evt_lmp_feature_22 = -1;
-static int hf_bthci_evt_lmp_feature_23 = -1;
-static int hf_bthci_evt_lmp_feature_24 = -1;
-static int hf_bthci_evt_lmp_feature_27 = -1;
-static int hf_bthci_evt_lmp_feature_31 = -1;
-static int hf_bthci_evt_lmp_feature_32 = -1;
-static int hf_bthci_evt_lmp_feature_33 = -1;
-static int hf_bthci_evt_lmp_feature_34 = -1;
-static int hf_bthci_evt_lmp_feature_35 = -1;
-static int hf_bthci_evt_lmp_feature_36 = -1;
-static int hf_bthci_evt_lmp_feature_37 = -1;
-static int hf_bthci_evt_lmp_feature_40 = -1;
-static int hf_bthci_evt_lmp_feature_41 = -1;
-static int hf_bthci_evt_lmp_feature_43 = -1;
-static int hf_bthci_evt_lmp_feature_44 = -1;
-static int hf_bthci_evt_lmp_feature_47 = -1;
-static int hf_bthci_evt_lmp_feature_50 = -1;
-static int hf_bthci_evt_lmp_feature_51 = -1;
-static int hf_bthci_evt_lmp_feature_52 = -1;
-static int hf_bthci_evt_lmp_feature_53 = -1;
-static int hf_bthci_evt_lmp_feature_54 = -1;
-static int hf_bthci_evt_lmp_feature_55 = -1;
-static int hf_bthci_evt_lmp_feature_56 = -1;
-static int hf_bthci_evt_lmp_feature_57 = -1;
-static int hf_bthci_evt_lmp_feature_60 = -1;
-static int hf_bthci_evt_lmp_feature_63 = -1;
-static int hf_bthci_evt_lmp_feature_64 = -1;
-static int hf_bthci_evt_lmp_feature_65 = -1;
-static int hf_bthci_evt_lmp_feature_66 = -1;
-static int hf_bthci_evt_lmp_feature_70 = -1;
-static int hf_bthci_evt_lmp_feature_71 = -1;
-static int hf_bthci_evt_lmp_feature_77 = -1;
 static int hf_bthci_evt_num_keys = -1;
 static int hf_bthci_evt_num_keys_read = -1;
 static int hf_bthci_evt_max_num_keys = -1;
@@ -239,7 +189,71 @@ static int hf_bthci_evt_err_data_reporting = -1;
 static int hf_bthci_evt_scan_type = -1;
 static int hf_bthci_evt_inq_mode = -1;
 static int hf_bthci_evt_power_level_type = -1;
-static int hf_bthci_evt_ext_lmp_features = -1;
+static int hf_lmp_features = -1;
+static int hf_lmp_feature_3slot_packets = -1;
+static int hf_lmp_feature_5slot_packets = -1;
+static int hf_lmp_feature_encryption = -1;
+static int hf_lmp_feature_slot_offset = -1;
+static int hf_lmp_feature_timing_accuracy = -1;
+static int hf_lmp_feature_role_switch = -1;
+static int hf_lmp_feature_hold_mode = -1;
+static int hf_lmp_feature_sniff_mode = -1;
+static int hf_lmp_feature_park_state = -1;
+static int hf_lmp_feature_power_control_requests = -1;
+static int hf_lmp_feature_channel_quality_driven_data_rate = -1;
+static int hf_lmp_feature_sco_link = -1;
+static int hf_lmp_feature_hv2_packets = -1;
+static int hf_lmp_feature_hv3_packets = -1;
+static int hf_lmp_feature_u_law_log_synchronous_data = -1;
+static int hf_lmp_feature_a_law_log_synchronous_data = -1;
+static int hf_lmp_feature_cvsd_synchronous_data = -1;
+static int hf_lmp_feature_paging_parameter_negotiation = -1;
+static int hf_lmp_feature_power_control = -1;
+static int hf_lmp_feature_transparent_synchronous_data = -1;
+static int hf_lmp_feature_flow_control_lag = -1;
+static int hf_lmp_feature_broadcast_encryption = -1;
+static int hf_lmp_feature_reserved_24 = -1;
+static int hf_lmp_feature_edr_acl_2mbps_mode = -1;
+static int hf_lmp_feature_edr_acl_3mbps_mode = -1;
+static int hf_lmp_feature_enhanced_inquiry_scan = -1;
+static int hf_lmp_feature_interlaced_inquiry_scan = -1;
+static int hf_lmp_feature_interlaced_page_scan = -1;
+static int hf_lmp_feature_rssi_with_inquiry_results = -1;
+static int hf_lmp_feature_ev3_packets = -1;
+static int hf_lmp_feature_ev4_packets = -1;
+static int hf_lmp_feature_ev5_packets = -1;
+static int hf_lmp_feature_reserved_34 = -1;
+static int hf_lmp_feature_afh_capable_slave = -1;
+static int hf_lmp_feature_afh_classification_slave = -1;
+static int hf_lmp_feature_br_edr_not_supported = -1;
+static int hf_lmp_feature_le_supported_controller = -1;
+static int hf_lmp_feature_3slot_edr_acl_packets = -1;
+static int hf_lmp_feature_5slot_edr_acl_packets = -1;
+static int hf_lmp_feature_sniff_subrating = -1;
+static int hf_lmp_feature_pause_encryption = -1;
+static int hf_lmp_feature_afh_capable_master = -1;
+static int hf_lmp_feature_afh_classification_master = -1;
+static int hf_lmp_feature_edr_esco_2mbps_mode = -1;
+static int hf_lmp_feature_edr_esco_3mbps_mode = -1;
+static int hf_lmp_feature_3slot_edr_esco_packets = -1;
+static int hf_lmp_feature_extended_inquiry_response = -1;
+static int hf_lmp_feature_simultaneous_le_and_br_edr_controller = -1;
+static int hf_lmp_feature_reserved_50 = -1;
+static int hf_lmp_feature_secure_simple_pairing = -1;
+static int hf_lmp_feature_encapsulated_pdu = -1;
+static int hf_lmp_feature_erroneous_data_reporting = -1;
+static int hf_lmp_feature_non_flushable_packet_boundary_flag = -1;
+static int hf_lmp_feature_reserved_55 = -1;
+static int hf_lmp_feature_link_supervision_timeout_changed_event = -1;
+static int hf_lmp_feature_inquiry_tx_power_level = -1;
+static int hf_lmp_feature_enhanced_power_control = -1;
+static int hf_lmp_feature_reserved_59_62 = -1;
+static int hf_lmp_feature_extended_features = -1;
+static int hf_lmp_feature_secure_simple_pairing_host = -1;
+static int hf_lmp_feature_le_supported_host = -1;
+static int hf_lmp_feature_simultaneous_le_and_br_edr_host = -1;
+static int hf_lmp_feature_reserved_67_71 = -1;
+static int hf_lmp_feature_reserved = -1;
 static int hf_bthci_evt_sync_link_type = -1;
 static int hf_bthci_evt_sync_tx_interval = -1;
 static int hf_bthci_evt_sync_rtx_window = -1;
@@ -1166,87 +1180,115 @@ dissect_bthci_evt_auth_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 }
 
 static int
-dissect_bthci_evt_lmp_features(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_lmp_features(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 page_numer)
 {
     guint8      fc_lag;
-    proto_item *item;
-    proto_item *ti_lmp_subtree = NULL;
+    proto_item *fl_lag_item;
+    proto_tree *lmp_tree = NULL;
 
     if (tree) {
-        proto_item *ti_lmp_features;
+        proto_item *lmp_item;
 
-        ti_lmp_features = proto_tree_add_text(tree, tvb, offset, 8, "LMP_Features");
-        ti_lmp_subtree = proto_item_add_subtree(ti_lmp_features, ett_lmp_subtree);
+        lmp_item = proto_tree_add_item(tree, hf_lmp_features, tvb, offset, 8, ENC_NA);
+        lmp_tree = proto_item_add_subtree(lmp_item, ett_lmp_subtree);
     }
 
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_01, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_02, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_03, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_04, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_05, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_06, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_07, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset++;
+    switch (page_numer) {
+    case 0:
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_3slot_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_5slot_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_encryption, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_slot_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_timing_accuracy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_role_switch, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_hold_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_sniff_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
 
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_10, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_11, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_12, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_13, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_14, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_15, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_16, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_17, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset++;
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_park_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_power_control_requests, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_channel_quality_driven_data_rate, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_sco_link, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_hv2_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_hv3_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_u_law_log_synchronous_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_a_law_log_synchronous_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
 
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_20, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_21, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_22, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_23, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    item = proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_24, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    fc_lag = (tvb_get_guint8(tvb, offset) & 0x70)>>4;
-    proto_item_append_text(item, " (%i bytes)", 256*fc_lag);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_cvsd_synchronous_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_paging_parameter_negotiation, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_power_control, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_transparent_synchronous_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        fl_lag_item = proto_tree_add_item(lmp_tree,hf_lmp_feature_flow_control_lag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        fc_lag = (tvb_get_guint8(tvb, offset) & 0x70) >> 4;
+        proto_item_append_text(fl_lag_item, " (%i bytes)", 256 * fc_lag);
 
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_27, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset++;
+        proto_tree_add_item(lmp_tree,hf_lmp_feature_broadcast_encryption, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
 
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_31, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_32, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_33, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_34, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_35, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_36, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_37, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset++;
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_reserved_24, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_edr_acl_2mbps_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_edr_acl_3mbps_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_enhanced_inquiry_scan, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_interlaced_inquiry_scan, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_interlaced_page_scan, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_rssi_with_inquiry_results, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_ev3_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
 
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_40, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_41, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_43, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_44, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_47, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset++;
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_ev4_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_ev5_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_reserved_34, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_afh_capable_slave, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_afh_classification_slave, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_br_edr_not_supported, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_le_supported_controller, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_3slot_edr_acl_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
 
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_50, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_51, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_52, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_53, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_54, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_55, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_56, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_57, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset++;
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_5slot_edr_acl_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_sniff_subrating, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_pause_encryption, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_afh_capable_master, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_afh_classification_master, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_edr_esco_2mbps_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_edr_esco_3mbps_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_3slot_edr_esco_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
 
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_60, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_63, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_64, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_65, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_66, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset++;
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_extended_inquiry_response, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_simultaneous_le_and_br_edr_controller, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_reserved_50, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_secure_simple_pairing, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_encapsulated_pdu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_erroneous_data_reporting, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_non_flushable_packet_boundary_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_reserved_55, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
 
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_70, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_71, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_77, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset++;
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_link_supervision_timeout_changed_event, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_inquiry_tx_power_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_enhanced_power_control, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_reserved_59_62, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_extended_features, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+
+        break;
+    case 1:
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_secure_simple_pairing_host, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_le_supported_host, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_simultaneous_le_and_br_edr_host, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_reserved_67_71, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_reserved, tvb, offset, 7, ENC_NA);
+        offset+=7;
+
+        break;
+    default:
+        proto_tree_add_item(lmp_tree, hf_lmp_feature_reserved, tvb, offset, 8, ENC_NA);
+        offset += 8;
+    }
 
     return offset;
 }
@@ -1310,7 +1352,7 @@ dissect_bthci_evt_read_remote_support_features_complete(tvbuff_t *tvb, int offse
     proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
-    offset=dissect_bthci_evt_lmp_features(tvb, offset, pinfo,tree);
+    offset = dissect_bthci_evt_lmp_features(tvb, offset, pinfo, tree, 0);
 
     return offset;
 }
@@ -1999,9 +2041,7 @@ static int
 dissect_bthci_evt_remote_host_sup_feat_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
-
-    proto_tree_add_item(tree, hf_bthci_evt_ext_lmp_features, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-    offset+=8;
+    offset = dissect_bthci_evt_lmp_features(tvb, offset, pinfo, tree, 0);
 
     return offset;
 }
@@ -2916,7 +2956,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            offset=dissect_bthci_evt_lmp_features(tvb, offset, pinfo, tree);
+            offset = dissect_bthci_evt_lmp_features(tvb, offset, pinfo, tree, 0);
 
             break;
 
@@ -2934,13 +2974,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
                 proto_tree_add_item(tree, hf_bthci_evt_max_page_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset++;
 
-                if (page_number == 0) {
-                    offset=dissect_bthci_evt_lmp_features(tvb, offset, pinfo, tree);
-                }
-                else {
-                    proto_tree_add_item(tree, hf_bthci_evt_ext_lmp_features, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-                    offset+=8;
-                }
+                offset = dissect_bthci_evt_lmp_features(tvb, offset, pinfo, tree, page_number);
             }
 
             break;
@@ -3337,13 +3371,7 @@ dissect_bthci_evt_read_remote_ext_features_complete(tvbuff_t *tvb, int offset, p
     proto_tree_add_item(tree, hf_bthci_evt_max_page_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
-    if (page_number == 0) {
-        offset=dissect_bthci_evt_lmp_features(tvb, offset, pinfo, tree);
-    }
-    else {
-        proto_tree_add_item(tree, hf_bthci_evt_ext_lmp_features, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-        offset+=8;
-    }
+    offset = dissect_bthci_evt_lmp_features(tvb, offset, pinfo, tree, page_number);
 
     return offset;
 }
@@ -4355,255 +4383,330 @@ proto_register_bthci_evt(void)
             FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0080,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_00,
-          { "3-slot packets",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+        { &hf_lmp_features,
+          { "LMP Features",        "bthci_evt.lmp_features",
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_01,
-          { "5-slot packets",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+        { &hf_lmp_feature_3slot_packets,
+          { "3-slot packets",                         "bthci_evt.lmp_features.3slot_packets",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_02,
-          { "encryption",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
+        { &hf_lmp_feature_5slot_packets,
+          { "5-slot packets",                         "bthci_evt.lmp_features.5slot_packets",
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_03,
-          { "slot offset",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+        { &hf_lmp_feature_encryption,
+          { "Encryption",                             "bthci_evt.lmp_features.encryption",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_04,
-          { "timing accuracy",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
+        { &hf_lmp_feature_slot_offset,
+          { "Slot Offset",                            "bthci_evt.lmp_features.slot_offset",
+            FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_05,
-          { "master/slave switch",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
+        { &hf_lmp_feature_timing_accuracy,
+          { "Timing Accuracy",                        "bthci_evt.lmp_features.timing_accuracy",
+            FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_06,
-          { "hold mode",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
+        { &hf_lmp_feature_role_switch,
+          { "Role Switch",                            "bthci_evt.lmp_features.role_switch",
+            FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_07,
-          { "sniff mode",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
+        { &hf_lmp_feature_hold_mode,
+          { "Hold Mode",                              "bthci_evt.lmp_features.hold_mode",
+            FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_10,
-          { "park mode",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+        { &hf_lmp_feature_sniff_mode,
+          { "Sniff Mode",                             "bthci_evt.lmp_features.sniff_mode",
+            FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_11,
-          { "RSSI",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+        { &hf_lmp_feature_park_state,
+          { "Park Mode",                              "bthci_evt.lmp_features.park_state",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_12,
-          { "channel quality driven data rate",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
+        { &hf_lmp_feature_power_control_requests,
+          { "Power Control Requests",                 "bthci_evt.lmp_features.power_control_requests",
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_13,
-          { "SCO link",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+        { &hf_lmp_feature_channel_quality_driven_data_rate,
+          { "Channel Quality Driven Data Rate",       "bthci_evt.lmp_features.channel_quality_driven_data_rate",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_14,
-          { "HV2 packets",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
+        { &hf_lmp_feature_sco_link,
+          { "SCO Link",                               "bthci_evt.lmp_features.sco_link",
+            FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_15,
-          { "HV3 packets",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
+        { &hf_lmp_feature_hv2_packets,
+          { "HV2 packets",                            "bthci_evt.lmp_features.hv2_packets",
+            FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_16,
-          { "u-law log",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
+        { &hf_lmp_feature_hv3_packets,
+          { "HV3 packets",                            "bthci_evt.lmp_features.hv3_packets",
+            FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_17,
-          { "A-law log",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
+        { &hf_lmp_feature_u_law_log_synchronous_data,
+          { "u-law Log Synchronous Data",             "bthci_evt.lmp_features.u_law_log_synchronous_data",
+            FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_20,
-          { "CVSD",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+        { &hf_lmp_feature_a_law_log_synchronous_data,
+          { "A-law Log Synchronous Data",             "bthci_evt.lmp_features.a_law_log_synchronous_data",
+            FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_21,
-          { "paging scheme",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+        { &hf_lmp_feature_cvsd_synchronous_data,
+          { "CVSD Synchronous Data",                  "bthci_evt.lmp_features.cvsd_synchronous_data",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_22,
-          { "power control",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
+        { &hf_lmp_feature_paging_parameter_negotiation,
+          { "Paging Parameter Negotiation",           "bthci_evt.lmp_features.paging_parameter_negotiation",
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_23,
-          { "transparent SCO data",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+        { &hf_lmp_feature_power_control,
+          { "Power Control",                          "bthci_evt.lmp_features.power_control",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_24,
-          { "Flow control lag",        "bthci_evt.lmp_feature",
+        { &hf_lmp_feature_transparent_synchronous_data,
+          { "Transparent Synchronous Data",           "bthci_evt.lmp_features.transparent_synchronous_data",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_lmp_feature_flow_control_lag,
+          { "Flow Control Lag",                       "bthci_evt.lmp_features.flow_control_lag",
             FT_UINT8, BASE_DEC, NULL, 0x70,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_27,
-          { "broadband encryption",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
+        { &hf_lmp_feature_broadcast_encryption,
+          { "Broadband Encryption",                   "bthci_evt.lmp_features.broadcast_encryption",
+            FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_31,
-          { "EDR ACL 2 Mbps mode",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+        { &hf_lmp_feature_reserved_24,
+          { "Reserved",                               "bthci_evt.lmp_features.reserved.24",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_32,
-          { "EDR ACL 3 Mbps mode",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
+        { &hf_lmp_feature_edr_acl_2mbps_mode,
+          { "EDR ACL 2 Mbps Mode",                    "bthci_evt.lmp_features.edr_acl_2mbps_mode",
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_33,
-          { "enhanced inquiry scan",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+        { &hf_lmp_feature_edr_acl_3mbps_mode,
+          { "EDR ACL 3 Mbps Mode",                    "bthci_evt.lmp_features.edr_acl_3mbps_mode",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_34,
-          { "interlaced inquiry scan",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
+        { &hf_lmp_feature_enhanced_inquiry_scan,
+          { "Enhanced Inquiry Scan",                  "bthci_evt.lmp_features.enhanced_inquiry_scan",
+            FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_35,
-          { "interlaced page scan",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
+        { &hf_lmp_feature_interlaced_inquiry_scan,
+          { "Interlaced Inquiry Scan",                "bthci_evt.lmp_features.interlaced_inquiry_scan",
+            FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_36,
-          { "RSSI with inquiry results",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
+        { &hf_lmp_feature_interlaced_page_scan,
+          { "Interlaced Page Scan",                   "bthci_evt.lmp_features.interlaced_page_scan",
+            FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_37,
-          { "eSCO EV3 packets",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
+        { &hf_lmp_feature_rssi_with_inquiry_results,
+          { "RSSI with Inquiry Results",              "bthci_evt.lmp_features.rssi_with_inquiry_results",
+            FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_40,
-          { "eSCO EV4 packets",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+        { &hf_lmp_feature_ev3_packets,
+          { "EV3 Packets",                            "bthci_evt.lmp_features.ev3_packets",
+            FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_41,
-          { "eSCO EV5 packets",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+        { &hf_lmp_feature_ev4_packets,
+          { "EV4 Packets",                            "bthci_evt.lmp_features.ev4_packets",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_43,
-          { "AFH capable slave",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+        { &hf_lmp_feature_ev5_packets,
+          { "EV5 Packets",                            "bthci_evt.lmp_features.ev5_packets",
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_44,
-          { "AFH classification slave",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
+        { &hf_lmp_feature_reserved_34,
+          { "Reserved",                               "bthci_evt.lmp_features.reserved.34",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_47,
-          { "3-slot EDR ACL packets",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
+        { &hf_lmp_feature_afh_capable_slave,
+          { "AFH Capable Slave",                      "bthci_evt.lmp_features.afh_capable_slave",
+            FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_50,
-          { "5-slot EDR ACL packets",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+        { &hf_lmp_feature_afh_classification_slave,
+          { "AFH Classification Slave",               "bthci_evt.lmp_features.afh_classification_slave",
+            FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_51,
-          { "sniff subrating",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+        { &hf_lmp_feature_br_edr_not_supported,
+          { "BR/EDR Not Supported",                   "bthci_evt.lmp_features.br_edr_not_supported",
+            FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_52,
-          { "pause encryption",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x04,
+        { &hf_lmp_feature_le_supported_controller,
+          { "LE Supported Controller",                "bthci_evt.lmp_features.le_supported_controller",
+            FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_53,
-          { "AFH capable master",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+        { &hf_lmp_feature_3slot_edr_acl_packets,
+          { "3-slot EDR ACL packets",                 "bthci_evt.lmp_features.3slot_edr_acl_packets",
+            FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_54,
-          { "AFH classification master",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
+        { &hf_lmp_feature_5slot_edr_acl_packets,
+          { "5-slot EDR ACL packets",                 "bthci_evt.lmp_features.5slot_edr_acl_packets",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_55,
-          { "EDR eSCO 2 Mbps mode",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
+        { &hf_lmp_feature_sniff_subrating,
+          { "Sniff Subrating",                        "bthci_evt.lmp_features.sniff_subrating",
+            FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_56,
-          { "EDR eSCO 3 Mbps mode",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
+        { &hf_lmp_feature_pause_encryption,
+          { "Pause Encryption",                       "bthci_evt.lmp_features.pause_encryption",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_57,
-          { "3-slot EDR eSCO packets",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
+        { &hf_lmp_feature_afh_capable_master,
+          { "AFH Capable Master",                     "bthci_evt.lmp_features.afh_capable_master",
+            FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_60,
-          { "extended inquiry response",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+        { &hf_lmp_feature_afh_classification_master,
+          { "AFH Classification Master",              "bthci_evt.lmp_features.afh_classification_master",
+            FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_63,
-          { "secure simple pairing",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x08,
+        { &hf_lmp_feature_edr_esco_2mbps_mode,
+          { "EDR eSCO 2 Mbps Mode",                   "bthci_evt.lmp_features.edr_esco_2mbps_mode",
+            FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_64,
-          { "encapsulated PDU",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x10,
+        { &hf_lmp_feature_edr_esco_3mbps_mode,
+          { "EDR eSCO 3 Mbps Mode",                   "bthci_evt.lmp_features.edr_esco_3mbps_mode",
+            FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_65,
-          { "erroneous data reporting",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x20,
+        { &hf_lmp_feature_3slot_edr_esco_packets,
+          { "3-slot EDR eSCO Packets",                "bthci_evt.lmp_features.3slot_edr_esco_packets",
+            FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_66,
-          { "non-flushable packet boundary flag",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x40,
+        { &hf_lmp_feature_extended_inquiry_response,
+          { "Extended Inquiry Response",              "bthci_evt.lmp_features.extended_inquiry_response",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_70,
-          { "link supervision timeout changed event",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x01,
+        { &hf_lmp_feature_simultaneous_le_and_br_edr_controller,
+          {"Simultaneous LE and BR/EDR to Same Device Capable Controller", "bthci_evt.lmp_features.simultaneous_le_and_br_edr.controller",
+           FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}
+        },
+        { &hf_lmp_feature_reserved_50,
+          { "Reserved",                               "bthci_evt.lmp_features.reserved.50",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_71,
-          { "inquiry response TX power level",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x02,
+        { &hf_lmp_feature_secure_simple_pairing,
+          { "Secure Simple Pairing",                  "bthci_evt.lmp_features.secure_simple_pairing",
+            FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_lmp_feature_77,
-          { "extended features",        "bthci_evt.lmp_feature",
-            FT_UINT8, BASE_DEC, VALS(evt_boolean), 0x80,
+        { &hf_lmp_feature_encapsulated_pdu,
+          { "Encapsulated PDU",                       "bthci_evt.lmp_features.encapsulated_pdu",
+            FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
+        },
+        { &hf_lmp_feature_erroneous_data_reporting,
+          { "Erroneous Data Reporting",               "bthci_evt.lmp_features.erroneous_data_reporting",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_lmp_feature_non_flushable_packet_boundary_flag,
+          { "Non-flushable Packet Boundary Flag",     "bthci_evt.lmp_features.non_flushable_packet_boundary_flag",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_lmp_feature_reserved_55,
+          { "Reserved",                               "bthci_evt.lmp_features.reserved.55",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_lmp_feature_link_supervision_timeout_changed_event,
+          { "Link Supervision Timeout Changed Event", "bthci_evt.lmp_features.supervision_timeout_changed_event",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_lmp_feature_inquiry_tx_power_level,
+          { "Inquiry TX Power Level",                 "bthci_evt.lmp_features.inquiry_tx_power_level",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_lmp_feature_enhanced_power_control,
+          { "Enhanced Power Control",                 "bthci_evt.lmp_features.enhanced_power_control",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_lmp_feature_reserved_59_62,
+          { "Reserved",                               "bthci_evt.lmp_features.reserved.59_62",
+            FT_BOOLEAN, 8, NULL, 0x78,
+            NULL, HFILL }
+        },
+        { &hf_lmp_feature_extended_features,
+          { "Extended Features",                      "bthci_evt.lmp_features.extended_features",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_lmp_feature_secure_simple_pairing_host,
+          {"Secure Simple Pairing Host",              "bthci_evt.lmp_features.secure_simple_pairing_host",
+           FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
+        },
+        { &hf_lmp_feature_le_supported_host,
+          {"LE Supported Host",                            "bthci_evt.lmp_features.le_supported.host",
+           FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}
+        },
+        { &hf_lmp_feature_simultaneous_le_and_br_edr_host,
+          {"Simultaneous LE and BR/EDR to Same Device Capable Host", "bthci_evt.lmp_features.simultaneous_le_and_br_edr.host",
+           FT_BOOLEAN, 8, NULL, 0x04,
+           NULL, HFILL}
+        },
+        { &hf_lmp_feature_reserved_67_71,
+          {"Reserved",                                "bthci_evt.lmp_features.reserved.67_71",
+           FT_UINT8, BASE_HEX, NULL, 0xF8,
+           NULL, HFILL}
+        },
+        { &hf_lmp_feature_reserved,
+          {"Reserved",                                "bthci_evt.lmp_features.reserved",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_bthci_evt_num_keys,
           { "Number of Link Keys",        "bthci_evt.num_keys",
@@ -4834,11 +4937,6 @@ proto_register_bthci_evt(void)
           {"Type", "bthci_evt.power_level_type",
            FT_UINT8, BASE_HEX, VALS(evt_power_level_types), 0x0,
            NULL, HFILL}
-        },
-        { &hf_bthci_evt_ext_lmp_features,
-          {"Ext. LMP Features", "bthci_evt.page_number",
-           FT_UINT64, BASE_HEX, NULL, 0x0,
-           "Extended LMP Features", HFILL}
         },
         { &hf_bthci_evt_sync_link_type,
           {"Link Type", "bthci_evt.sync_link_type",
