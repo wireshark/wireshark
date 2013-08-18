@@ -1084,6 +1084,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rtp-events.c
 	dissectors/packet-rtp-midi.c
 	dissectors/packet-rtp.c
+	dissectors/packet-rtpproxy.c
 	dissectors/packet-rtps.c
 	dissectors/packet-rtsp.c
 	dissectors/packet-rudp.c
