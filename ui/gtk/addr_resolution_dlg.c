@@ -182,7 +182,7 @@ ipv4_hash_table_to_texbuff(gpointer key, gpointer value, gpointer user_data)
 }
 
 static void
-ipv6_hash_table_to_texbuff(gpointer key, gpointer value, gpointer user_data)
+ipv6_hash_table_to_texbuff(gpointer key _U_, gpointer value, gpointer user_data)
 {
 	gchar string_buff[ADDRESS_STR_MAX];
 	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
