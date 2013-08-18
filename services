@@ -3572,8 +3572,8 @@ infowave         2082/tcp # Infowave Mobility Server [Kaz_Kylheku] [Kaz_Kylheku]
 infowave         2082/udp # Infowave Mobility Server [Kaz_Kylheku] [Kaz_Kylheku]
 radsec           2083/tcp # Secure Radius Service [IESG] [IETF_Chair] 2005-05 [RFC6614] The TCP port 2083 was already      previously assigned by IANA for "RadSec", an early implementation      of RADIUS/TLS, prior to issuance of this RFC.  This early      implementation can be configured to be compatible to RADIUS/TLS as      specified by the IETF.  See [RFC6614],      Appendix A for details.
 radsec           2083/udp # Secure Radius Service [Mike_McCauley] [Mike_McCauley] 2005-05
-sunclustergeo    2084/tcp # SunCluster Geographic [Steve_McKinty] [Steve_McKinty] 2005-11
-sunclustergeo    2084/udp # SunCluster Geographic [Steve_McKinty] [Steve_McKinty] 2005-11
+sunclustergeo    2084/tcp # SunCluster Geographic [Oracle_2] [Steve_McKinty] 2005-11 2013-08-14
+sunclustergeo    2084/udp # SunCluster Geographic [Oracle_2] [Steve_McKinty] 2005-11 2013-08-14
 ada-cip          2085/tcp # ADA Control [Eugene_Frenkel] [Eugene_Frenkel] 2005-11
 ada-cip          2085/udp # ADA Control [Eugene_Frenkel] [Eugene_Frenkel] 2005-11
 gnunet           2086/tcp # GNUnet [Christian_Grothoff] [Christian_Grothoff] 2002-10
@@ -8806,6 +8806,7 @@ a3-sdunode       5604/tcp # A3-SDUNode [Mike_Dolan] [Mike_Dolan]
 a3-sdunode       5604/udp # A3-SDUNode [Mike_Dolan] [Mike_Dolan]
 a4-sdunode       5605/tcp # A4-SDUNode [Mike_Dolan] [Mike_Dolan]
 a4-sdunode       5605/udp # A4-SDUNode [Mike_Dolan] [Mike_Dolan]
+efr              5618/tcp # Fiscal Registering Protocol [efsta] [Alois_Reisinger] 2013-08-13
 ninaf            5627/tcp # Node Initiated Network Association Forma [Thomas_Scholl] [Thomas_Scholl] 2006-03
 ninaf            5627/udp # Node Initiated Network Association Forma [Thomas_Scholl] [Thomas_Scholl] 2006-03
 htrust           5628/tcp # HTrust API [Karl_Olafsson] [Karl_Olafsson] 2008-10-24
@@ -9851,6 +9852,7 @@ mtl8000-matrix   8115/tcp # MTL8000 Matrix [David_Pinch] [David_Pinch] 2002-04
 mtl8000-matrix   8115/udp # MTL8000 Matrix [David_Pinch] [David_Pinch] 2002-04
 cp-cluster       8116/tcp # Check Point Clustering [Roni_Moshitzky] [Roni_Moshitzky]
 cp-cluster       8116/udp # Check Point Clustering [Roni_Moshitzky] [Roni_Moshitzky]
+purityrpc        8117/tcp # Purity replication clustering and remote management [Pure_Storage] [Steve_Hodgson] 2013-08-13
 privoxy          8118/tcp # Privoxy HTTP proxy [Andreas_Oesterhelt] [Andreas_Oesterhelt] 2002-06
 privoxy          8118/udp # Privoxy HTTP proxy [Andreas_Oesterhelt] [Andreas_Oesterhelt] 2002-06
 apollo-data      8121/tcp # Apollo Data Port [Anthony_Carrabino] [Anthony_Carrabino] 2003-08
@@ -9875,6 +9877,7 @@ patrol           8160/tcp # Patrol [Portnoy_Boxman] [Portnoy_Boxman]
 patrol           8160/udp # Patrol [Portnoy_Boxman] [Portnoy_Boxman]
 patrol-snmp      8161/tcp # Patrol SNMP [Portnoy_Boxman] [Portnoy_Boxman]
 patrol-snmp      8161/udp # Patrol SNMP [Portnoy_Boxman] [Portnoy_Boxman]
+lpar2rrd         8162/tcp # LPAR2RRD client server communication [LPAR2RRD_project] [Pavel_Hampl] 2013-08-14
 intermapper      8181/tcp # Intermapper network management system [William_Fisher] [William_Fisher] 2011-05-09
 vmware-fdm       8182/tcp # VMware Fault Domain Manager [Ron_Passerini] [Ron_Passerini] 2010-04-27
 vmware-fdm       8182/udp # VMware Fault Domain Manager [Ron_Passerini] [Ron_Passerini] 2010-04-27
