@@ -348,9 +348,6 @@ typedef struct _continuation_state_data_t {
 #define PDU_TYPE_SERVICE_ATTRIBUTE         0x01
 #define PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE  0x02
 
-#define DID_VENDOR_ID_SOURCE_BLUETOOTH_SIG  1
-#define DID_VENDOR_ID_SOURCE_USB_FORUM      2
-
 #define MAX_SDP_LEN 1024
 
 extern value_string_ext ext_usb_vendors_vals;
@@ -594,6 +591,7 @@ static const value_string did_vendor_id_source_vals[] = {
     { 0x0002,   "USB Implementer's Forum" },
     { 0, NULL }
 };
+value_string_ext did_vendor_id_source_vals_ext = VALUE_STRING_EXT_INIT(did_vendor_id_source_vals);
 
 static const value_string synch_supported_data_store_vals[] = {
     { 0x01,   "Phonebook" },
@@ -1858,12 +1856,13 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     g_snprintf(str, MAX_SDP_LEN, "%s (0x%04x)", str_val, vendor_id);
                     break;
                 case 0x202:
-                    proto_tree_add_item(next_tree, hf_did_product_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    entry_item = proto_tree_add_item(next_tree, hf_did_product_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                     product_id = tvb_get_ntohs(tvb, offset);
 
                     if (service_did_vendor_id_source == DID_VENDOR_ID_SOURCE_USB_FORUM) {
                         str_val = val_to_str_ext_const(service_did_vendor_id << 16 | product_id, &ext_usb_products_vals, "Unknown");
                         g_snprintf(str, MAX_SDP_LEN, "%s (0x%04x)", str_val, product_id);
+                        proto_item_append_text(entry_item, " (%s)", str_val);
                     } else {
                         g_snprintf(str, MAX_SDP_LEN, "0x%04x", product_id);
                     }

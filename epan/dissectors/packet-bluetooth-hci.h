@@ -41,6 +41,8 @@
 #define HCI_OGF_LOGO_TESTING           0x3e
 #define HCI_OGF_VENDOR_SPECIFIC        0x3f
 
+#define DID_VENDOR_ID_SOURCE_BLUETOOTH_SIG  1
+#define DID_VENDOR_ID_SOURCE_USB_FORUM      2
 
 extern value_string_ext bthci_cmd_opcode_vals_ext;
 extern value_string_ext bthci_ogf_vals_ext;
