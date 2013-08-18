@@ -54,6 +54,10 @@ extern value_string_ext bthci_cmd_ocf_status_vals_ext;
 extern value_string_ext bthci_cmd_ocf_testing_vals_ext;
 extern value_string_ext bthci_cmd_ocf_low_energy_vals_ext;
 
+extern value_string_ext bthci_cmd_input_coding_vals_ext;
+extern value_string_ext bthci_cmd_input_data_format_vals_ext;
+extern value_string_ext bthci_cmd_input_sample_size_vals_ext;
+extern value_string_ext bthci_cmd_air_coding_format_vals_ext;
 extern value_string_ext bthci_cmd_status_vals_ext;
 extern value_string_ext bthci_cmd_service_class_type_vals_ext;
 extern value_string_ext bthci_cmd_eir_data_type_vals_ext;

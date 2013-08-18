@@ -158,9 +158,12 @@ static int hf_bthci_evt_scan_enable = -1;
 static int hf_bthci_evt_authentication_enable = -1;
 static int hf_bthci_evt_sco_flow_cont_enable = -1;
 static int hf_bthci_evt_window = -1;
+static int hf_bthci_evt_input_unused = -1;
 static int hf_bthci_evt_input_coding = -1;
 static int hf_bthci_evt_input_data_format = -1;
 static int hf_bthci_evt_input_sample_size = -1;
+static int hf_bthci_evt_linear_pcm_bit_pos = -1;
+static int hf_bthci_evt_air_coding_format = -1;
 static int hf_bthci_evt_num_broadcast_retransm = -1;
 static int hf_bthci_evt_hold_mode_act_page = -1;
 static int hf_bthci_evt_hold_mode_act_inquiry = -1;
@@ -843,26 +846,6 @@ static const value_string evt_enable_values[] = {
     {0, NULL }
 };
 
-static const value_string evt_input_coding_values[] = {
-    {0x0, "Linear" },
-    {0x1, "\xb5-law" },
-    {0x2, "A-law" },
-    {0, NULL }
-};
-
-static const value_string evt_input_data_format_values[] = {
-    {0x0, "1's complement" },
-    {0x1, "2's complement" },
-    {0x2, "Sign-Magnitude" },
-    {0, NULL }
-};
-
-static const value_string evt_input_sample_size_values[] = {
-    {0x0, "8 bit (only for Linear PCM)" },
-    {0x1, "16 bit (only for Linear PCM)" },
-    {0, NULL }
-};
-
 static const value_string evt_loopback_modes[] = {
     {0x00, "No Loopback mode enabled" },
     {0x01, "Enable Local Loopback" },
@@ -873,14 +856,6 @@ static const value_string evt_loopback_modes[] = {
 static const value_string evt_country_code_values[] = {
     {0x0, "North America & Europe (except France) and Japan" },
     {0x1, "France" },
-    {0, NULL }
-};
-
-static const value_string evt_air_mode_values[] = {
-    {0x0, "\xb5-law" },
-    {0x1, "A-law" },
-    {0x2, "CVSD" },
-    {0x3, "Transparent" },
     {0, NULL }
 };
 
@@ -961,6 +936,14 @@ static const value_string evt_master_clock_accuray[] = {
     { 0x05, "50 ppm" },
     { 0x06, "30 ppm" },
     { 0x07, "20 ppm" },
+    { 0, NULL }
+};
+
+static const value_string evt_air_mode_vals[] = {
+    { 0x00,  "\xb5-law log" },
+    { 0x01,  "A-law log" },
+    { 0x02,  "CVSD" },
+    { 0x03,  "Transparent Data" },
     { 0, NULL }
 };
 
@@ -2784,9 +2767,12 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
+            proto_tree_add_item(tree, hf_bthci_evt_input_unused, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_evt_input_coding, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_evt_input_data_format, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_evt_input_sample_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_linear_pcm_bit_pos, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_air_coding_format, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
 
             break;
@@ -4873,19 +4859,34 @@ proto_register_bthci_evt(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Window", HFILL }
         },
+        { &hf_bthci_evt_input_unused,
+          { "Unused bits", "bthci_evt.voice.unused",
+            FT_UINT16, BASE_HEX, NULL, 0xfc00,
+            NULL, HFILL }
+        },
         { &hf_bthci_evt_input_coding,
-          { "Input Coding", "bthci_evt.input_coding",
-            FT_UINT16, BASE_DEC, VALS(evt_input_coding_values), 0x0300,
+          { "Input Coding", "bthci_evt.voice.input_coding",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &bthci_cmd_input_coding_vals_ext, 0x0300,
             "Authentication Enable", HFILL }
         },
         { &hf_bthci_evt_input_data_format,
-          { "Input Data Format", "bthci_evt.input_data_format",
-            FT_UINT16, BASE_DEC, VALS(evt_input_data_format_values), 0x00c0,
+          { "Input Data Format", "bthci_evt.voice.input_data_format",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &bthci_cmd_input_data_format_vals_ext, 0x00c0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_input_sample_size,
-          { "Input Sample Size", "bthci_evt.input_sample_size",
-            FT_UINT16, BASE_DEC, VALS(evt_input_sample_size_values), 0x0020,
+          { "Input Sample Size", "bthci_evt.voice.input_sample_size",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &bthci_cmd_input_sample_size_vals_ext, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_linear_pcm_bit_pos,
+          { "Linear PCM Bit Position", "bthci_evt.voice.linear_pcm_bit_pos",
+            FT_UINT16, BASE_DEC, NULL, 0x001c,
+            "# bit pos. that MSB of sample is away from starting at MSB", HFILL }
+        },
+        { &hf_bthci_evt_air_coding_format,
+          { "Air Coding Format", "bthci_evt.voice.air_coding_format",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &bthci_cmd_air_coding_format_vals_ext, 0x0003,
             NULL, HFILL }
         },
         { &hf_bthci_evt_num_broadcast_retransm,
@@ -5040,7 +5041,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_air_mode,
           {"Air Mode", "bthci_evt.air_mode",
-           FT_UINT8, BASE_DEC, VALS(evt_air_mode_values), 0x0,
+           FT_UINT8, BASE_DEC, VALS(evt_air_mode_vals), 0x0,
            NULL, HFILL}
         },
         { &hf_bthci_evt_max_tx_latency,

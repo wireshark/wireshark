@@ -162,6 +162,7 @@ static int hf_bthci_cmd_auto_acc_flag = -1;
 static int hf_bthci_cmd_read_all_flag = -1;
 static int hf_bthci_cmd_delete_all_flag = -1;
 static int hf_bthci_cmd_authentication_enable = -1;
+static int hf_bthci_cmd_input_unused = -1;
 static int hf_bthci_cmd_input_coding = -1;
 static int hf_bthci_cmd_input_data_format = -1;
 static int hf_bthci_cmd_input_sample_size = -1;
@@ -1217,19 +1218,23 @@ static const value_string cmd_input_coding_values[] = {
     {0x2, "A-law" },
     {0, NULL }
 };
+value_string_ext bthci_cmd_input_coding_vals_ext = VALUE_STRING_EXT_INIT(cmd_input_coding_values);
 
 static const value_string cmd_input_data_format_values[] = {
     {0x0, "1's complement" },
     {0x1, "2's complement" },
     {0x2, "Sign-Magnitude" },
+    {0x3, "Unsigned" },
     {0, NULL }
 };
+value_string_ext bthci_cmd_input_data_format_vals_ext = VALUE_STRING_EXT_INIT(cmd_input_data_format_values);
 
 static const value_string cmd_input_sample_size_values[] = {
     {0x0, "8 bit (only for Linear PCM)" },
     {0x1, "16 bit (only for Linear PCM)" },
     {0, NULL }
 };
+value_string_ext bthci_cmd_input_sample_size_vals_ext = VALUE_STRING_EXT_INIT(cmd_input_sample_size_values);
 
 static const value_string cmd_air_coding_format_values[] = {
     {0x0, "CVSD" },
@@ -1238,6 +1243,7 @@ static const value_string cmd_air_coding_format_values[] = {
     {0x3, "Transparent" },
     {0, NULL }
 };
+value_string_ext bthci_cmd_air_coding_format_vals_ext = VALUE_STRING_EXT_INIT(cmd_air_coding_format_values);
 
 static const value_string cmd_en_disabled[] = {
     {0x00, "disabled" },
@@ -2004,6 +2010,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             proto_tree_add_item(tree, hf_bthci_cmd_max_latency_ms, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
 
+            proto_tree_add_item(tree, hf_bthci_cmd_input_unused, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_input_coding, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_input_data_format, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_input_sample_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2507,6 +2514,8 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             break;
 
         case 0x0026: /* Write Voice Setting */
+            proto_tree_add_item(tree, hf_bthci_cmd_input_unused,
+                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_input_coding,
                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_input_data_format,
@@ -3908,28 +3917,33 @@ proto_register_bthci_cmd(void)
             FT_UINT8, BASE_HEX, VALS(cmd_authentication_enable_values), 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_cmd_input_unused,
+          { "Unused bits", "bthci_cmd.voice.unused",
+            FT_UINT16, BASE_HEX, NULL, 0xfc00,
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_input_coding,
-          { "Input Coding", "bthci_cmd.input_coding",
+          { "Input Coding", "bthci_cmd.voice.input_coding",
             FT_UINT16, BASE_DEC, VALS(cmd_input_coding_values), 0x0300,
             "Authentication Enable", HFILL }
         },
         { &hf_bthci_cmd_input_data_format,
-          { "Input Data Format", "bthci_cmd.input_data_format",
+          { "Input Data Format", "bthci_cmd.voice.input_data_format",
             FT_UINT16, BASE_DEC, VALS(cmd_input_data_format_values), 0x00c0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_input_sample_size,
-          { "Input Sample Size", "bthci_cmd.input_sample_size",
+          { "Input Sample Size", "bthci_cmd.voice.input_sample_size",
             FT_UINT16, BASE_DEC, VALS(cmd_input_sample_size_values), 0x0020,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_linear_pcm_bit_pos,
-          { "Linear PCM Bit Pos", "bthci_cmd.lin_pcm_bit_pos",
+          { "Linear PCM Bit Position", "bthci_cmd.voice.linear_pcm_bit_pos",
             FT_UINT16, BASE_DEC, NULL, 0x001c,
             "# bit pos. that MSB of sample is away from starting at MSB", HFILL }
         },
         { &hf_bthci_cmd_air_coding_format,
-          { "Air Coding Format", "bthci_cmd.air_coding_format",
+          { "Air Coding Format", "bthci_cmd.voice.air_coding_format",
             FT_UINT16, BASE_DEC, VALS(cmd_air_coding_format_values), 0x0003,
             NULL, HFILL }
         },
