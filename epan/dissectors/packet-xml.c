@@ -1218,7 +1218,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         gint *ett_p;
 
         if ( ! dtd_data->description) {
-            dtd_data->description = g_strdup(root_name);
+            dtd_data->description = wmem_strdup(wmem_epan_scope(), root_name);
         }
 
         ett_p = &root_element->ett;
