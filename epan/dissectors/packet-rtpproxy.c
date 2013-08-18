@@ -224,7 +224,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if ((tmp == 'v') && (offset + strlen("VF YYYMMDD") + 1 == realsize)){
 				/* Skip whitespace */
 				new_offset = tvb_skip_wsp(tvb, offset + ((guint)strlen("VF") + 1), -1);
-				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, strlen("YYYYMMDD"), ENC_ASCII | ENC_NA);
+				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, (gint)strlen("YYYYMMDD"), ENC_ASCII | ENC_NA);
 				break;
 			}
 
