@@ -36,6 +36,7 @@
 
 #include <epan/address.h>
 #include <epan/tvbuff.h>
+#include <epan/to_str.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -83,6 +84,14 @@ typedef struct hashipv4 {
   gchar             name[MAXNAMELEN];
 } hashipv4_t;
 
+
+typedef struct hashipv6 {
+    struct e_in6_addr addr;
+    gboolean          is_dummy_entry; /* name is IPv6 address in colon format */
+    gboolean          resolve;        /* */
+    gchar             ip6[MAX_IP6_STR_LEN]; /* XX */
+    gchar             name[MAXNAMELEN];
+} hashipv6_t;
 /*
  * Flag controlling what names to resolve.
  */
@@ -333,6 +342,9 @@ GHashTable *get_serv_port_hashtable(void);
 
 WS_DLL_PUBLIC
 GHashTable *get_ipv4_hash_table(void);
+
+WS_DLL_PUBLIC
+GHashTable *get_ipv6_hash_table(void);
 
 /*
  * private functions (should only be called by epan directly)

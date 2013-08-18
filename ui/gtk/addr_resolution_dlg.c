@@ -181,7 +181,20 @@ ipv4_hash_table_to_texbuff(gpointer key, gpointer value, gpointer user_data)
 
 }
 
+static void
+ipv6_hash_table_to_texbuff(gpointer key, gpointer value, gpointer user_data)
+{
+	gchar string_buff[ADDRESS_STR_MAX];
+	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
+	hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
 
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "IP: %s, Name: %s\n",
+		  ipv6_hash_table_entry->ip6,
+		  ipv6_hash_table_entry->name);
+
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+}
 static void
 addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 {
@@ -196,6 +209,7 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 	GHashTable *eth_hashtable;
 	GHashTable *serv_port_hashtable;
 	GHashTable *ipv4_hash_table;
+	GHashTable *ipv6_hash_table;
 
     g_snprintf(string_buff, ADDRESS_STR_MAX, "# Hosts information in Wireshark \n#\n");
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
@@ -242,7 +256,7 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
         }
     }
 
-	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Address resolution Hash table \n#\n");
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Address resolution IPv4 Hash table \n#\n");
 	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
 	ipv4_hash_table = get_ipv4_hash_table();
@@ -250,6 +264,16 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 		g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(ipv4_hash_table));
 		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 		g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_to_texbuff, buffer);
+	}
+
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Address resolution IPv6 Hash table \n#\n");
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+	ipv6_hash_table = get_ipv6_hash_table();
+	if(ipv6_hash_table){
+		g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(ipv6_hash_table));
+		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+		g_hash_table_foreach( ipv6_hash_table, ipv6_hash_table_to_texbuff, buffer);
 	}
 
 
