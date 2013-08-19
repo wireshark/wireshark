@@ -204,6 +204,7 @@ static expert_field ei_lte_rrc_commercial_mobile_alert_sys = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_type_value = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_length_value = EI_INIT;
 static expert_field ei_lte_rrc_too_many_group_a_rapids = EI_INIT;
+static expert_field ei_lte_rrc_invalid_drx_config = EI_INIT;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -1942,6 +1943,116 @@ dissect_lte_rrc_featureGroupIndRel9Add(tvbuff_t *featureGroupIndRel9Add_tvb, asn
   proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_64, featureGroupIndRel9Add_tvb, 31, 1, ENC_BIG_ENDIAN);
 }
 
+
+
+/* Functions to get enum values out of indices parsed */
+/* If entry not found, return last element of array */
+static guint32 drx_lookup_onDurationTimer(guint32 idx)
+{
+  static const guint32 vals[] = {1,2,3,4,5,6,8,10,20,30,40,50,60,80,100,200};
+  if (idx < sizeof(vals)) {
+    return vals[idx];
+  }
+  else {
+    return (sizeof(vals)/(sizeof(guint32)) - 1);
+  }
+}
+
+static guint32 drx_lookup_inactivityTimer(guint32 idx)
+{
+  static const guint32 vals[] = {1,2,3,4,5,6,8,10,20,30,40,50,60,80,100,200,300,
+                          500,750,1280,1920,2560,0};
+  if (idx < sizeof(vals)) {
+    return vals[idx];
+  }
+  else {
+    return (sizeof(vals)/(sizeof(guint32)) - 1);
+  }
+}
+
+static guint32 drx_lookup_retransmissionTimer(guint32 idx)
+{
+  static const guint32 vals[] = {1,2,4,6,8,16,24,33};
+  if (idx < sizeof(vals)) {
+    return vals[idx];
+  }
+  else {
+    return (sizeof(vals)/(sizeof(guint32)) - 1);
+  }
+}
+
+static guint32 drx_lookup_longCycle(guint32 idx)
+{
+  static const guint32 vals[] = {10,20,32,40,64,80,128,160,256,320,512,640,1024,1280,2048,2560};
+  if (idx < sizeof(vals)) {
+    return vals[idx];
+  }
+  else {
+    return (sizeof(vals)/(sizeof(guint32)) - 1);
+  }
+}
+
+static guint32 drx_lookup_shortCycle(guint32 idx)
+{
+  static const guint32 vals[] = {2,5,8,10,16,20,32,40,64,80,128,160,256,320,512,640};
+  if (idx < sizeof(vals)) {
+    return vals[idx];
+  }
+  else {
+    return (sizeof(vals)/(sizeof(guint32)) - 1);
+  }
+}
+
+/* Dedicated DRX config. Currently used to verify that a sensible config is given.
+   TODO: would be good to configure MAC with these settings and (optionally) show
+   DRX config and state (cycles/timers) attached to each UL/DL PDU! */
+typedef struct drx_config_t {
+    guint32 onDurationTimer;
+    guint32 inactivityTimer;
+    guint32 retransmissionTimer;
+    guint32 longCycle;
+    guint32 cycleOffset;
+    /* Optional Short cycle */
+    gboolean    shortCycleConfigured;
+    guint32     shortCycle;
+    guint32     shortCycleTimer;
+} drx_config_t;
+
+
+static void drx_check_config_sane(drx_config_t *config, asn1_ctx_t *actx)
+{
+  /* OnDuration must be shorter than long cycle */
+  if (config->onDurationTimer >= config->longCycle) {
+      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+                                  "OnDurationTimer (%u) should be less than long cycle (%u)",
+                                  config->onDurationTimer, config->longCycle);
+  }
+
+  if (config->shortCycleConfigured) {
+    /* Short cycle must be < long, and be a multiple of it */
+    if (config->shortCycle >= config->longCycle) {
+      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+                                  "Short DRX cycle (%u) must be shorter than long cycle (%u)",
+                                  config->shortCycle, config->longCycle);
+    }
+    /* Long cycle needs to be an exact multiple of the short cycle */
+    else if (config->shortCycle && ((config->longCycle % config->shortCycle) != 0)) {
+      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+                                  "Short DRX cycle (%u) must divide the long cycle (%u) exactly",
+                                  config->shortCycle, config->longCycle);
+
+    }
+    /* OnDuration shouldn't be longer than the short cycle */
+    if (config->onDurationTimer >= config->shortCycle) {
+      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+                                  "OnDurationTimer (%u) should not be longer than the short cycle (%u)",
+                                  config->onDurationTimer, config->shortCycle);
+    }
+    /* TODO: check that (shortCycle*shortCycleTimer) < longCycle ? */
+  }
+}
+
+
 #include "packet-lte-rrc-fn.c"
 
 static void
@@ -2540,6 +2651,7 @@ void proto_register_lte_rrc(void) {
      { &ei_lte_rrc_unexpected_type_value, { "lte_rrc.unexpected_type_value", PI_MALFORMED, PI_ERROR, "Unexpected type value", EXPFILL }},
      { &ei_lte_rrc_unexpected_length_value, { "lte_rrc.unexpected_length_value", PI_MALFORMED, PI_ERROR, "Unexpected type length", EXPFILL }},
      { &ei_lte_rrc_too_many_group_a_rapids, { "lte_rrc.too_many_groupa_rapids", PI_MALFORMED, PI_ERROR, "Too many group A RAPIDs", EXPFILL }},
+     { &ei_lte_rrc_invalid_drx_config, { "lte_rrc.invalid_drx_config", PI_MALFORMED, PI_ERROR, "Invalid dedicated DRX config detected", EXPFILL }},
   };
 
   expert_module_t* expert_lte_rrc;

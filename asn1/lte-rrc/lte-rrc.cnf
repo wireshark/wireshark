@@ -750,13 +750,6 @@ CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPD
 #.FN_FTR MAC-MainConfig/eag_1/sr-ProhibitTimer-r9
   proto_item_append_text(actx->created_item, " SR period%s", (timer > 1) ? "s" : "");
 
-#.FN_BODY DRX-Config/setup/shortDRX/drxShortCycleTimer VAL_PTR=&timer
-  guint32 timer;
-%(DEFAULT_BODY)s
-
-#.FN_FTR DRX-Config/setup/shortDRX/drxShortCycleTimer
-  proto_item_append_text(actx->created_item, " shortDRX-Cycle%s", plurality(timer, "", "s"));
-
 #.FN_BODY PDSCH-ConfigCommon/referenceSignalPower
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dBm");
@@ -1295,3 +1288,154 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
   }
   actx->private_data = NULL;
+
+
+
+#.FN_BODY DRX-Config/setup
+  /* Accumulate values in drx_config while dissecting DRX config */
+  static drx_config_t drx_config;
+  memset(&drx_config, 0, sizeof(drx_config));
+  actx->private_data = &drx_config;
+%(DEFAULT_BODY)s
+  /* Verify that config is valid */
+  drx_check_config_sane(&drx_config, actx);
+
+  /* Unset again afterwards */
+  actx->private_data = NULL;
+
+#.FN_BODY DRX-Config/setup/onDurationTimer VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->onDurationTimer = drx_lookup_onDurationTimer(value);
+
+#.FN_BODY DRX-Config/setup/drx-InactivityTimer VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->inactivityTimer = drx_lookup_inactivityTimer(value);
+
+#.FN_BODY DRX-Config/setup/drx-RetransmissionTimer VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->retransmissionTimer = drx_lookup_retransmissionTimer(value);
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->longCycle = drx_lookup_longCycle(value);
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf10 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf20 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf32 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf40 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf64 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf80 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf128 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf160 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf256 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf320 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf512 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf640 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf1024 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf1280 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf2048 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf2560 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config/setup/shortDRX/shortDRX-Cycle VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->shortCycleConfigured = TRUE;
+  config->shortCycle = drx_lookup_shortCycle(value);
+
+#.FN_BODY DRX-Config/setup/shortDRX/drxShortCycleTimer VAL_PTR=&timer
+  guint32 timer;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+%(DEFAULT_BODY)s
+  config->shortCycleTimer = timer;
+
+#.FN_FTR DRX-Config/setup/shortDRX/drxShortCycleTimer
+  proto_item_append_text(actx->created_item, " shortDRX-Cycle%s", plurality(timer, "", "s"));
+

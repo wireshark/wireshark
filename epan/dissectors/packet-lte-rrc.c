@@ -1301,22 +1301,22 @@ static int hf_lte_rrc_onDurationTimer = -1;       /* T_onDurationTimer */
 static int hf_lte_rrc_drx_InactivityTimer = -1;   /* T_drx_InactivityTimer */
 static int hf_lte_rrc_drx_RetransmissionTimer = -1;  /* T_drx_RetransmissionTimer */
 static int hf_lte_rrc_longDRX_CycleStartOffset = -1;  /* T_longDRX_CycleStartOffset */
-static int hf_lte_rrc_sf10 = -1;                  /* INTEGER_0_9 */
-static int hf_lte_rrc_sf20 = -1;                  /* INTEGER_0_19 */
-static int hf_lte_rrc_sf32 = -1;                  /* INTEGER_0_31 */
-static int hf_lte_rrc_sf40 = -1;                  /* INTEGER_0_39 */
-static int hf_lte_rrc_sf64 = -1;                  /* INTEGER_0_63 */
-static int hf_lte_rrc_sf80 = -1;                  /* INTEGER_0_79 */
-static int hf_lte_rrc_sf128 = -1;                 /* INTEGER_0_127 */
-static int hf_lte_rrc_sf160 = -1;                 /* INTEGER_0_159 */
-static int hf_lte_rrc_sf256 = -1;                 /* INTEGER_0_255 */
-static int hf_lte_rrc_sf320 = -1;                 /* INTEGER_0_319 */
-static int hf_lte_rrc_sf512 = -1;                 /* INTEGER_0_511 */
-static int hf_lte_rrc_sf640 = -1;                 /* INTEGER_0_639 */
-static int hf_lte_rrc_sf1024 = -1;                /* INTEGER_0_1023 */
-static int hf_lte_rrc_sf1280 = -1;                /* INTEGER_0_1279 */
-static int hf_lte_rrc_sf2048 = -1;                /* INTEGER_0_2047 */
-static int hf_lte_rrc_sf2560 = -1;                /* INTEGER_0_2559 */
+static int hf_lte_rrc_sf10 = -1;                  /* T_sf10 */
+static int hf_lte_rrc_sf20 = -1;                  /* T_sf20 */
+static int hf_lte_rrc_sf32 = -1;                  /* T_sf32 */
+static int hf_lte_rrc_sf40 = -1;                  /* T_sf40 */
+static int hf_lte_rrc_sf64 = -1;                  /* T_sf64 */
+static int hf_lte_rrc_sf80 = -1;                  /* T_sf80 */
+static int hf_lte_rrc_sf128 = -1;                 /* T_sf128 */
+static int hf_lte_rrc_sf160 = -1;                 /* T_sf160 */
+static int hf_lte_rrc_sf256 = -1;                 /* T_sf256 */
+static int hf_lte_rrc_sf320 = -1;                 /* T_sf320 */
+static int hf_lte_rrc_sf512 = -1;                 /* T_sf512 */
+static int hf_lte_rrc_sf640 = -1;                 /* T_sf640 */
+static int hf_lte_rrc_sf1024 = -1;                /* T_sf1024 */
+static int hf_lte_rrc_sf1280 = -1;                /* T_sf1280 */
+static int hf_lte_rrc_sf2048 = -1;                /* T_sf2048 */
+static int hf_lte_rrc_sf2560 = -1;                /* T_sf2560 */
 static int hf_lte_rrc_shortDRX = -1;              /* T_shortDRX */
 static int hf_lte_rrc_shortDRX_Cycle = -1;        /* T_shortDRX_Cycle */
 static int hf_lte_rrc_drxShortCycleTimer = -1;    /* T_drxShortCycleTimer */
@@ -3530,6 +3530,7 @@ static expert_field ei_lte_rrc_commercial_mobile_alert_sys = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_type_value = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_length_value = EI_INIT;
 static expert_field ei_lte_rrc_too_many_group_a_rapids = EI_INIT;
+static expert_field ei_lte_rrc_invalid_drx_config = EI_INIT;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -5269,6 +5270,116 @@ dissect_lte_rrc_featureGroupIndRel9Add(tvbuff_t *featureGroupIndRel9Add_tvb, asn
 }
 
 
+
+/* Functions to get enum values out of indices parsed */
+/* If entry not found, return last element of array */
+static guint32 drx_lookup_onDurationTimer(guint32 idx)
+{
+  static const guint32 vals[] = {1,2,3,4,5,6,8,10,20,30,40,50,60,80,100,200};
+  if (idx < sizeof(vals)) {
+    return vals[idx];
+  }
+  else {
+    return (sizeof(vals)/(sizeof(guint32)) - 1);
+  }
+}
+
+static guint32 drx_lookup_inactivityTimer(guint32 idx)
+{
+  static const guint32 vals[] = {1,2,3,4,5,6,8,10,20,30,40,50,60,80,100,200,300,
+                          500,750,1280,1920,2560,0};
+  if (idx < sizeof(vals)) {
+    return vals[idx];
+  }
+  else {
+    return (sizeof(vals)/(sizeof(guint32)) - 1);
+  }
+}
+
+static guint32 drx_lookup_retransmissionTimer(guint32 idx)
+{
+  static const guint32 vals[] = {1,2,4,6,8,16,24,33};
+  if (idx < sizeof(vals)) {
+    return vals[idx];
+  }
+  else {
+    return (sizeof(vals)/(sizeof(guint32)) - 1);
+  }
+}
+
+static guint32 drx_lookup_longCycle(guint32 idx)
+{
+  static const guint32 vals[] = {10,20,32,40,64,80,128,160,256,320,512,640,1024,1280,2048,2560};
+  if (idx < sizeof(vals)) {
+    return vals[idx];
+  }
+  else {
+    return (sizeof(vals)/(sizeof(guint32)) - 1);
+  }
+}
+
+static guint32 drx_lookup_shortCycle(guint32 idx)
+{
+  static const guint32 vals[] = {2,5,8,10,16,20,32,40,64,80,128,160,256,320,512,640};
+  if (idx < sizeof(vals)) {
+    return vals[idx];
+  }
+  else {
+    return (sizeof(vals)/(sizeof(guint32)) - 1);
+  }
+}
+
+/* Dedicated DRX config. Currently used to verify that a sensible config is given.
+   TODO: would be good to configure MAC with these settings and (optionally) show
+   DRX config and state (cycles/timers) attached to each UL/DL PDU! */
+typedef struct drx_config_t {
+    guint32 onDurationTimer;
+    guint32 inactivityTimer;
+    guint32 retransmissionTimer;
+    guint32 longCycle;
+    guint32 cycleOffset;
+    /* Optional Short cycle */
+    gboolean    shortCycleConfigured;
+    guint32     shortCycle;
+    guint32     shortCycleTimer;
+} drx_config_t;
+
+
+static void drx_check_config_sane(drx_config_t *config, asn1_ctx_t *actx)
+{
+  /* OnDuration must be shorter than long cycle */
+  if (config->onDurationTimer >= config->longCycle) {
+      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+                                  "OnDurationTimer (%u) should be less than long cycle (%u)",
+                                  config->onDurationTimer, config->longCycle);
+  }
+
+  if (config->shortCycleConfigured) {
+    /* Short cycle must be < long, and be a multiple of it */
+    if (config->shortCycle >= config->longCycle) {
+      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+                                  "Short DRX cycle (%u) must be shorter than long cycle (%u)",
+                                  config->shortCycle, config->longCycle);
+    }
+    /* Long cycle needs to be an exact multiple of the short cycle */
+    else if (config->shortCycle && ((config->longCycle % config->shortCycle) != 0)) {
+      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+                                  "Short DRX cycle (%u) must divide the long cycle (%u) exactly",
+                                  config->shortCycle, config->longCycle);
+
+    }
+    /* OnDuration shouldn't be longer than the short cycle */
+    if (config->onDurationTimer >= config->shortCycle) {
+      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+                                  "OnDurationTimer (%u) should not be longer than the short cycle (%u)",
+                                  config->onDurationTimer, config->shortCycle);
+    }
+    /* TODO: check that (shortCycle*shortCycleTimer) < longCycle ? */
+  }
+}
+
+
+
 /*--- Included file: packet-lte-rrc-fn.c ---*/
 #line 1 "../../asn1/lte-rrc/packet-lte-rrc-fn.c"
 /*--- PDUs declarations ---*/
@@ -5600,6 +5711,9 @@ dissect_lte_rrc_T_sizeOfRA_PreamblesGroupA(tvbuff_t *tvb _U_, int offset _U_, as
 
   }
   actx->private_data = NULL;
+
+
+
 
   return offset;
 }
@@ -12763,8 +12877,13 @@ static const value_string lte_rrc_T_onDurationTimer_vals[] = {
 
 static int
 dissect_lte_rrc_T_onDurationTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     16, NULL, FALSE, 0, NULL);
+                                     16, &value, FALSE, 0, NULL);
+
+  config->onDurationTimer = drx_lookup_onDurationTimer(value);
+
 
   return offset;
 }
@@ -12811,8 +12930,13 @@ static value_string_ext lte_rrc_T_drx_InactivityTimer_vals_ext = VALUE_STRING_EX
 
 static int
 dissect_lte_rrc_T_drx_InactivityTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     32, NULL, FALSE, 0, NULL);
+                                     32, &value, FALSE, 0, NULL);
+
+  config->inactivityTimer = drx_lookup_inactivityTimer(value);
+
 
   return offset;
 }
@@ -12833,8 +12957,13 @@ static const value_string lte_rrc_T_drx_RetransmissionTimer_vals[] = {
 
 static int
 dissect_lte_rrc_T_drx_RetransmissionTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, FALSE, 0, NULL);
+                                     8, &value, FALSE, 0, NULL);
+
+  config->retransmissionTimer = drx_lookup_retransmissionTimer(value);
+
 
   return offset;
 }
@@ -12842,9 +12971,14 @@ dissect_lte_rrc_T_drx_RetransmissionTimer(tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 static int
-dissect_lte_rrc_INTEGER_0_9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 9U, NULL, FALSE);
+                                                            0U, 9U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12852,9 +12986,14 @@ dissect_lte_rrc_INTEGER_0_9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static int
-dissect_lte_rrc_INTEGER_0_19(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 19U, NULL, FALSE);
+                                                            0U, 19U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12862,9 +13001,14 @@ dissect_lte_rrc_INTEGER_0_19(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static int
-dissect_lte_rrc_INTEGER_0_39(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 39U, NULL, FALSE);
+                                                            0U, 31U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12872,9 +13016,14 @@ dissect_lte_rrc_INTEGER_0_39(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static int
-dissect_lte_rrc_INTEGER_0_79(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf40(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 79U, NULL, FALSE);
+                                                            0U, 39U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12882,9 +13031,14 @@ dissect_lte_rrc_INTEGER_0_79(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static int
-dissect_lte_rrc_INTEGER_0_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, FALSE);
+                                                            0U, 63U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12892,9 +13046,14 @@ dissect_lte_rrc_INTEGER_0_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static int
-dissect_lte_rrc_INTEGER_0_159(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf80(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 159U, NULL, FALSE);
+                                                            0U, 79U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12902,9 +13061,14 @@ dissect_lte_rrc_INTEGER_0_159(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static int
-dissect_lte_rrc_INTEGER_0_319(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 319U, NULL, FALSE);
+                                                            0U, 127U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12912,9 +13076,14 @@ dissect_lte_rrc_INTEGER_0_319(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static int
-dissect_lte_rrc_INTEGER_0_511(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf160(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 511U, NULL, FALSE);
+                                                            0U, 159U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12922,9 +13091,14 @@ dissect_lte_rrc_INTEGER_0_511(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static int
-dissect_lte_rrc_INTEGER_0_639(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 639U, NULL, FALSE);
+                                                            0U, 255U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12932,9 +13106,14 @@ dissect_lte_rrc_INTEGER_0_639(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static int
-dissect_lte_rrc_INTEGER_0_1023(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf320(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1023U, NULL, FALSE);
+                                                            0U, 319U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12942,9 +13121,14 @@ dissect_lte_rrc_INTEGER_0_1023(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static int
-dissect_lte_rrc_INTEGER_0_1279(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf512(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1279U, NULL, FALSE);
+                                                            0U, 511U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12952,9 +13136,74 @@ dissect_lte_rrc_INTEGER_0_1279(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static int
-dissect_lte_rrc_INTEGER_0_2559(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sf640(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 2559U, NULL, FALSE);
+                                                            0U, 639U, &value, FALSE);
+
+  config->cycleOffset = value;
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_sf1024(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1023U, &value, FALSE);
+
+  config->cycleOffset = value;
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_sf1280(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1279U, &value, FALSE);
+
+  config->cycleOffset = value;
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_sf2048(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 2047U, &value, FALSE);
+
+  config->cycleOffset = value;
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_sf2560(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 2559U, &value, FALSE);
+
+  config->cycleOffset = value;
+
 
   return offset;
 }
@@ -12981,30 +13230,35 @@ static const value_string lte_rrc_T_longDRX_CycleStartOffset_vals[] = {
 };
 
 static const per_choice_t T_longDRX_CycleStartOffset_choice[] = {
-  {   0, &hf_lte_rrc_sf10        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_9 },
-  {   1, &hf_lte_rrc_sf20        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_19 },
-  {   2, &hf_lte_rrc_sf32        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_31 },
-  {   3, &hf_lte_rrc_sf40        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_39 },
-  {   4, &hf_lte_rrc_sf64        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_63 },
-  {   5, &hf_lte_rrc_sf80        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_79 },
-  {   6, &hf_lte_rrc_sf128       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_127 },
-  {   7, &hf_lte_rrc_sf160       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_159 },
-  {   8, &hf_lte_rrc_sf256       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_255 },
-  {   9, &hf_lte_rrc_sf320       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_319 },
-  {  10, &hf_lte_rrc_sf512       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_511 },
-  {  11, &hf_lte_rrc_sf640       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_639 },
-  {  12, &hf_lte_rrc_sf1024      , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_1023 },
-  {  13, &hf_lte_rrc_sf1280      , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_1279 },
-  {  14, &hf_lte_rrc_sf2048      , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_2047 },
-  {  15, &hf_lte_rrc_sf2560      , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_INTEGER_0_2559 },
+  {   0, &hf_lte_rrc_sf10        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf10 },
+  {   1, &hf_lte_rrc_sf20        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf20 },
+  {   2, &hf_lte_rrc_sf32        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf32 },
+  {   3, &hf_lte_rrc_sf40        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf40 },
+  {   4, &hf_lte_rrc_sf64        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf64 },
+  {   5, &hf_lte_rrc_sf80        , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf80 },
+  {   6, &hf_lte_rrc_sf128       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf128 },
+  {   7, &hf_lte_rrc_sf160       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf160 },
+  {   8, &hf_lte_rrc_sf256       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf256 },
+  {   9, &hf_lte_rrc_sf320       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf320 },
+  {  10, &hf_lte_rrc_sf512       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf512 },
+  {  11, &hf_lte_rrc_sf640       , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf640 },
+  {  12, &hf_lte_rrc_sf1024      , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf1024 },
+  {  13, &hf_lte_rrc_sf1280      , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf1280 },
+  {  14, &hf_lte_rrc_sf2048      , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf2048 },
+  {  15, &hf_lte_rrc_sf2560      , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_sf2560 },
   { 0, NULL, 0, NULL }
 };
 
 static int
 dissect_lte_rrc_T_longDRX_CycleStartOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_lte_rrc_T_longDRX_CycleStartOffset, T_longDRX_CycleStartOffset_choice,
-                                 NULL);
+                                 &value);
+
+  config->longCycle = drx_lookup_longCycle(value);
+
 
   return offset;
 }
@@ -13033,8 +13287,14 @@ static const value_string lte_rrc_T_shortDRX_Cycle_vals[] = {
 
 static int
 dissect_lte_rrc_T_shortDRX_Cycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     16, NULL, FALSE, 0, NULL);
+                                     16, &value, FALSE, 0, NULL);
+
+  config->shortCycleConfigured = TRUE;
+  config->shortCycle = drx_lookup_shortCycle(value);
+
 
   return offset;
 }
@@ -13044,9 +13304,11 @@ dissect_lte_rrc_T_shortDRX_Cycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_lte_rrc_T_drxShortCycleTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   guint32 timer;
+  drx_config_t* config = (drx_config_t*)actx->private_data;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 16U, &timer, FALSE);
 
+  config->shortCycleTimer = timer;
 
 
   proto_item_append_text(actx->created_item, " shortDRX-Cycle%s", plurality(timer, "", "s"));
@@ -13081,8 +13343,19 @@ static const per_sequence_t T_setup_15_sequence[] = {
 
 static int
 dissect_lte_rrc_T_setup_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  /* Accumulate values in drx_config while dissecting DRX config */
+  static drx_config_t drx_config;
+  memset(&drx_config, 0, sizeof(drx_config));
+  actx->private_data = &drx_config;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_T_setup_15, T_setup_15_sequence);
+
+  /* Verify that config is valid */
+  drx_check_config_sane(&drx_config, actx);
+
+  /* Unset again afterwards */
+  actx->private_data = NULL;
+
 
   return offset;
 }
@@ -14153,6 +14426,16 @@ static int
 dissect_lte_rrc_INTEGER_0_1185(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 1185U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_INTEGER_0_1023(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1023U, NULL, FALSE);
 
   return offset;
 }
@@ -21148,6 +21431,26 @@ static int
 dissect_lte_rrc_QuantityConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_QuantityConfig, QuantityConfig_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_INTEGER_0_39(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 39U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_INTEGER_0_79(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 79U, NULL, FALSE);
 
   return offset;
 }
@@ -34175,7 +34478,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 1946 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2057 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -38822,67 +39125,67 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_sf10,
       { "sf10", "lte-rrc.sf10",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_9", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf20,
       { "sf20", "lte-rrc.sf20",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_19", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf32,
       { "sf32", "lte-rrc.sf32",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_31", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf40,
       { "sf40", "lte-rrc.sf40",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_39", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf64,
       { "sf64", "lte-rrc.sf64",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_63", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf80,
       { "sf80", "lte-rrc.sf80",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_79", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf128,
       { "sf128", "lte-rrc.sf128",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_127", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf160,
       { "sf160", "lte-rrc.sf160",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_159", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf256,
       { "sf256", "lte-rrc.sf256",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_255", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf320,
       { "sf320", "lte-rrc.sf320",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_319", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf512,
       { "sf512", "lte-rrc.sf512",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_511", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf640,
       { "sf640", "lte-rrc.sf640",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_639", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf1024,
       { "sf1024", "lte-rrc.sf1024",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_1023", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf1280,
       { "sf1280", "lte-rrc.sf1280",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_1279", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf2048,
       { "sf2048", "lte-rrc.sf2048",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_2047", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_sf2560,
       { "sf2560", "lte-rrc.sf2560",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_2559", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_shortDRX,
       { "shortDRX", "lte-rrc.shortDRX_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -42837,7 +43140,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2095 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2206 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44348,7 +44651,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2518 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2629 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -44374,6 +44677,7 @@ void proto_register_lte_rrc(void) {
      { &ei_lte_rrc_unexpected_type_value, { "lte_rrc.unexpected_type_value", PI_MALFORMED, PI_ERROR, "Unexpected type value", EXPFILL }},
      { &ei_lte_rrc_unexpected_length_value, { "lte_rrc.unexpected_length_value", PI_MALFORMED, PI_ERROR, "Unexpected type length", EXPFILL }},
      { &ei_lte_rrc_too_many_group_a_rapids, { "lte_rrc.too_many_groupa_rapids", PI_MALFORMED, PI_ERROR, "Too many group A RAPIDs", EXPFILL }},
+     { &ei_lte_rrc_invalid_drx_config, { "lte_rrc.invalid_drx_config", PI_MALFORMED, PI_ERROR, "Invalid dedicated DRX config detected", EXPFILL }},
   };
 
   expert_module_t* expert_lte_rrc;
@@ -44414,7 +44718,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2568 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2680 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
