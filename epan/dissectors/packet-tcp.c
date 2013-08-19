@@ -306,12 +306,14 @@ static expert_field ei_tcp_analysis_zero_window_probe_ack = EI_INIT;
 static expert_field ei_tcp_scps_capable = EI_INIT;
 static expert_field ei_tcp_option_snack_sequence = EI_INIT;
 static expert_field ei_tcp_short_segment = EI_INIT;
+static expert_field ei_tcp_ack_nonzero = EI_INIT;
 static expert_field ei_tcp_connection_sack = EI_INIT;
 static expert_field ei_tcp_connection_syn = EI_INIT;
 static expert_field ei_tcp_connection_fin = EI_INIT;
 static expert_field ei_tcp_connection_rst = EI_INIT;
 static expert_field ei_tcp_checksum_ffff = EI_INIT;
 static expert_field ei_tcp_checksum_bad = EI_INIT;
+static expert_field ei_tcp_urgent_pointer_non_zero = EI_INIT;
 
 /* Some protocols such as encrypted DCE/RPCoverHTTP have dependencies
  * from one PDU to the next PDU and require that they are called in sequence.
@@ -4294,6 +4296,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tcp_relative_seq) {
             proto_item_append_text(tf, "    (relative ack number)");
         }
+    } else {
+        /* Note if the ACK field is non-zero */
+        if (tvb_get_ntohl(tvb, offset+8) != 0) {
+            expert_add_info(pinfo, tf, &ei_tcp_ack_nonzero);
+        }
     }
 
     if (tree) {
@@ -4526,10 +4533,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    proto_tree_add_item(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, ENC_BIG_ENDIAN);
+    th_urp = tvb_get_ntohs(tvb, offset + 18);
+    item = proto_tree_add_item(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, ENC_BIG_ENDIAN);
     if (tcph->th_flags & TH_URG) {
-        th_urp = tvb_get_ntohs(tvb, offset + 18);
-
         /* Export the urgent pointer, for the benefit of protocols such as
            rlogin. */
         tcpinfo.urgent = TRUE;
@@ -4537,6 +4543,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_fstr(pinfo->cinfo, COL_INFO, " Urg=%u", th_urp);
     } else {
         tcpinfo.urgent = FALSE;
+         if (th_urp) {
+            /* Note if the urgent pointer field is non-zero */
+            expert_add_info(pinfo, item, &ei_tcp_urgent_pointer_non_zero);
+         }
     }
 
     if (tcph->th_have_seglen) {
@@ -5538,12 +5548,14 @@ proto_register_tcp(void)
         { &ei_tcp_scps_capable, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated", EXPFILL }},
         { &ei_tcp_option_snack_sequence, { "tcp.options.snack.sequence", PI_SEQUENCE, PI_NOTE, "SNACK Sequence", EXPFILL }},
         { &ei_tcp_short_segment, { "tcp.short_segment", PI_MALFORMED, PI_WARN, "Short segment", EXPFILL }},
+        { &ei_tcp_ack_nonzero, { "tcp.ack.nonzero", PI_PROTOCOL, PI_NOTE, "The acknowledgment number field is nonzero while the ACK flag is not set", EXPFILL }},
         { &ei_tcp_connection_sack, { "tcp.connection.sack", PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK)", EXPFILL }},
         { &ei_tcp_connection_syn, { "tcp.connection.syn", PI_SEQUENCE, PI_CHAT, "Connection establish request (SYN)", EXPFILL }},
         { &ei_tcp_connection_fin, { "tcp.connection.fin", PI_SEQUENCE, PI_CHAT, "Connection finish (FIN)", EXPFILL }},
         { &ei_tcp_connection_rst, { "tcp.connection.rst", PI_SEQUENCE, PI_CHAT, "Connection reset (RST)", EXPFILL }},
         { &ei_tcp_checksum_ffff, { "tcp.checksum.ffff", PI_CHECKSUM, PI_WARN, "TCP Checksum 0xffff instead of 0x0000 (see RFC 1624)", EXPFILL }},
-        { &ei_tcp_checksum_bad, { "tcp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }}
+        { &ei_tcp_checksum_bad, { "tcp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_tcp_urgent_pointer_non_zero, { "tcp.urgent_pointer.non_zero", PI_PROTOCOL, PI_NOTE, "The urgent pointer field is nonzero while the URG flag is not set", EXPFILL }}
     };
 
     module_t *tcp_module;
