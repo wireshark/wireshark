@@ -170,7 +170,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Extract Cookie */
 	offset = tvb_find_guint8(tvb, offset, -1, ' ');
-	ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_cookie, tvb, 0, offset, ENC_ASCII | ENC_NA);
+	proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_cookie, tvb, 0, offset, ENC_ASCII | ENC_NA);
 
 	/* Skip whitespace */
 	offset = tvb_skip_wsp(tvb, offset+1, -1);
