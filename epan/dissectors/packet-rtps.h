@@ -312,13 +312,36 @@ typedef enum {
 #define PORT_INVALID_STRING             "PORT_INVALID"
 
 /* Protocol Vendor Information (guint16) */
-#define RTPS_VENDOR_UNKNOWN             (0x0000)
-#define RTPS_VENDOR_UNKNOWN_STRING      "VENDOR_ID_UNKNOWN (0x0000)"
-#define RTPS_VENDOR_RTI                 (0x0101)
-#define RTPS_VENDOR_RTI_STRING          "Real-Time Innovations, Inc."
-#define RTPS_VENDOR_TOC                 (0x0106)
-#define RTPS_VENDOR_TOC_STRING          "Twin Oaks Computing, Inc."
-
+#define RTPS_VENDOR_UNKNOWN              (0x0000)
+#define RTPS_VENDOR_UNKNOWN_STRING       "VENDOR_ID_UNKNOWN (0x0000)"
+#define RTPS_VENDOR_RTI_DDS              (0x0101)
+#define RTPS_VENDOR_RTI_DDS_STRING       "Real-Time Innovations, Inc. - Connext DDS"
+#define RTPS_VENDOR_PT_DDS               (0x0102)
+#define RTPS_VENDOR_PT_DDS_STRING        "PrismTech Inc. - OpenSplice DDS"
+#define RTPS_VENDOR_OCI                  (0x0103)
+#define RTPS_VENDOR_OCI_STRING           "Object Computing Incorporated, Inc. (OCI) - OpenDDS"
+#define RTPS_VENDOR_MILSOFT              (0x0104)
+#define RTPS_VENDOR_MILSOFT_STRING       "MilSoft"
+#define RTPS_VENDOR_GALLIUM              (0x0105)
+#define RTPS_VENDOR_GALLIUM_STRING       "Gallium Visual Systems Inc. - InterCOM DDS"
+#define RTPS_VENDOR_TOC                  (0x0106)
+#define RTPS_VENDOR_TOC_STRING           "TwinOaks Computing, Inc. - CoreDX DDS"
+#define RTPS_VENDOR_LAKOTA_TSI           (0x0107)
+#define RTPS_VENDOR_LAKOTA_TSI_STRING    "Lakota Technical Solutions, Inc."
+#define RTPS_VENDOR_ICOUP                (0x0108)
+#define RTPS_VENDOR_ICOUP_STRING         "ICOUP Consulting"
+#define RTPS_VENDOR_ETRI                 (0x0109)
+#define RTPS_VENDOR_ETRI_STRING          "ETRI Electronics and Telecommunication Research Institute"
+#define RTPS_VENDOR_RTI_DDS_MICRO        (0x010A)
+#define RTPS_VENDOR_RTI_DDS_MICRO_STRING "Real-Time Innovations, Inc. (RTI) - Connext DDS Micro"
+#define RTPS_VENDOR_PT_MOBILE            (0x010B)
+#define RTPS_VENDOR_PT_MOBILE_STRING     "PrimsTech - OpenSplice Mobile"
+#define RTPS_VENDOR_PT_GATEWAY           (0x010C)
+#define RTPS_VENDOR_PT_GATEWAY_STRING    "PrimsTech - OpenSplice Gateway"
+#define RTPS_VENDOR_PT_LITE              (0x010D)
+#define RTPS_VENDOR_PT_LITE_STRING       "PrimsTech - OpenSplice Lite"
+#define RTPS_VENDOR_TECHNICOLOR          (0x010E)
+#define RTPS_VENDOR_TECHNICOLOR_STRING   "Technicolor Inc. - Qeo"
 
 /* Data encapsulation */
 #define ENCAPSULATION_CDR_BE            (0x0000)

@@ -267,8 +267,21 @@ static guint rtps_max_batch_samples_dissected = 16;
 /***************************************************************************/
 /* Value-to-String Tables */
 static const value_string vendor_vals[] = {
-  { RTPS_VENDOR_RTI,         RTPS_VENDOR_RTI_STRING},
-  { RTPS_VENDOR_TOC,         RTPS_VENDOR_TOC_STRING},
+  { RTPS_VENDOR_UNKNOWN,       RTPS_VENDOR_UNKNOWN_STRING},
+  { RTPS_VENDOR_RTI_DDS,       RTPS_VENDOR_RTI_DDS_STRING},
+  { RTPS_VENDOR_PT_DDS,        RTPS_VENDOR_PT_DDS_STRING},
+  { RTPS_VENDOR_OCI,           RTPS_VENDOR_OCI_STRING},
+  { RTPS_VENDOR_MILSOFT,       RTPS_VENDOR_MILSOFT_STRING},
+  { RTPS_VENDOR_GALLIUM,       RTPS_VENDOR_GALLIUM_STRING},
+  { RTPS_VENDOR_TOC,           RTPS_VENDOR_TOC_STRING},
+  { RTPS_VENDOR_LAKOTA_TSI,    RTPS_VENDOR_LAKOTA_TSI_STRING},
+  { RTPS_VENDOR_ICOUP,         RTPS_VENDOR_ICOUP_STRING},
+  { RTPS_VENDOR_ETRI,          RTPS_VENDOR_ETRI_STRING},
+  { RTPS_VENDOR_RTI_DDS_MICRO, RTPS_VENDOR_RTI_DDS_MICRO_STRING},
+  { RTPS_VENDOR_PT_MOBILE,     RTPS_VENDOR_PT_MOBILE_STRING},
+  { RTPS_VENDOR_PT_GATEWAY,    RTPS_VENDOR_PT_GATEWAY_STRING},
+  { RTPS_VENDOR_PT_LITE,       RTPS_VENDOR_PT_LITE_STRING},
+  { RTPS_VENDOR_TECHNICOLOR,   RTPS_VENDOR_TECHNICOLOR_STRING},
   { 0, NULL }
 };
 
@@ -3665,7 +3678,7 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
 
     default:
       /* The following PIDS are vendor-specific */
-      if (vendor_id == RTPS_VENDOR_RTI) {
+      if (vendor_id == RTPS_VENDOR_RTI_DDS) {
         switch(parameter) {
           /* 0...2...........7...............15.............23...............31
            * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
