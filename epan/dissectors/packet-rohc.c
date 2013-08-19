@@ -39,7 +39,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/rtp_pt.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-rohc.h"
 
@@ -855,7 +855,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     if(!rohc_cid_context){
         if (p_rohc_info == pinfo->private_data) {
             /* Reuse info coming from private data */
-            rohc_cid_context = ep_new(rohc_cid_context_t);
+            rohc_cid_context = wmem_new(wmem_packet_scope(), rohc_cid_context_t);
             /*rohc_cid_context->d_mode;*/
             rohc_cid_context->rnd = p_rohc_info->rnd;
             rohc_cid_context->udp_checksum_present = p_rohc_info->udp_checksum_present;
@@ -1863,7 +1863,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
             /*g_warning("IR pkt found CID %u",cid);*/
 
-            rohc_cid_context = se_new(rohc_cid_context_t);
+            rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = tmp_prev_ir_frame_number;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
@@ -1876,7 +1876,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             g_hash_table_replace(rohc_cid_hash, GUINT_TO_POINTER(key), rohc_cid_context);
             p_add_proto_data(pinfo->fd, proto_rohc, 0, rohc_cid_context);
         }else{
-            rohc_cid_context = se_new(rohc_cid_context_t);
+            rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             rohc_cid_context->large_cid_present = p_rohc_info->large_cid_present;
             /*rohc_cid_context->mode     mode;*/
             /*rohc_cid_context->d_mode;*/
@@ -1984,7 +1984,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
             /*g_warning("IR pkt found CID %u",cid);*/
 
-            rohc_cid_context = se_new(rohc_cid_context_t);
+            rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = tmp_prev_ir_frame_number;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
@@ -1997,7 +1997,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             g_hash_table_replace(rohc_cid_hash, GUINT_TO_POINTER(key), rohc_cid_context);
             p_add_proto_data(pinfo->fd, proto_rohc, 0, rohc_cid_context);
         }else{
-            rohc_cid_context = se_new(rohc_cid_context_t);
+            rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             /*rohc_cid_context->rohc_ip_version;*/
             rohc_cid_context->large_cid_present = p_rohc_info->large_cid_present;
             /*rohc_cid_context->mode     mode;*/
@@ -2269,7 +2269,7 @@ start_over:
         if(rohc_cid_context){
             /*g_warning("Found CID %u",cid);*/
         }else{
-            rohc_cid_context = se_new(rohc_cid_context_t);
+            rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             /*rohc_cid_context->d_mode;*/
             rohc_cid_context->rnd = p_rohc_info->rnd;
             rohc_cid_context->udp_checksum_present = p_rohc_info->udp_checksum_present;
@@ -2295,11 +2295,10 @@ start_over:
             len = tvb_length_remaining(tvb, offset);
             if (len >= val_len) {
                 len -= val_len;
-                data = (guint8 *)g_malloc(len);
+                data = (guint8 *)wmem_alloc(pinfo->pool, len);
                 tvb_memcpy(tvb, data, offset, 1);
                 tvb_memcpy(tvb, &data[1], offset+1+val_len, len-1);
                 next_tvb = tvb_new_child_real_data(tvb, data, len, len);
-                tvb_set_free_cb(next_tvb, g_free);
                 add_new_data_source(pinfo, next_tvb, "Payload");
             }
         }

@@ -311,7 +311,7 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 
 	/* allocate memory for the marker-free buffer */
 	mfree_buff_length = orig_length - (MPA_MARKER_LEN * num_markers);
-	mfree_buff = (guint8 *)g_malloc(mfree_buff_length);
+	mfree_buff = (guint8 *)wmem_alloc(pinfo->pool, mfree_buff_length);
 
 	tot_copy = 0;
 	source_offset = 0;
@@ -324,7 +324,6 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 	}
 	mfree_tvb = tvb_new_child_real_data(tvb, mfree_buff, mfree_buff_length,
 					    mfree_buff_length);
-	tvb_set_free_cb(mfree_tvb, g_free);
 	add_new_data_source(pinfo, mfree_tvb, "FPDU without Markers");
 
 	return mfree_tvb;

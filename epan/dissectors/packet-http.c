@@ -1794,7 +1794,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
         /* Dechunk the "chunked response" to a new memory buffer */
 	orig_datalen      = datalen;
-	raw_data	      = (guint8 *)g_malloc(datalen);
+	raw_data	      = (guint8 *)wmem_alloc(pinfo->pool, datalen);
 	raw_len		      = 0;
 	chunks_decoded	  = 0;
 	chunked_data_size = 0;
@@ -1894,14 +1894,12 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 	if (chunked_data_size > 0) {
 		tvbuff_t *new_tvb;
 		new_tvb = tvb_new_child_real_data(tvb, raw_data, chunked_data_size, chunked_data_size);
-		tvb_set_free_cb(new_tvb, g_free);
 		*tvb_ptr = new_tvb;
 	} else {
 		/*
 		 * There was no actual chunk data, so don't allow sub dissectors
 		 * try to decode the non-existent entity body.
 		 */
-		g_free(raw_data);
 		chunks_decoded = -1;
 	}
 

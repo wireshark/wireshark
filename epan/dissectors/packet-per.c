@@ -39,7 +39,7 @@ proper helper routines
 #include <epan/oids.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
@@ -171,7 +171,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
   if (offset & 0x07) {  /* unaligned */
     shift1 = offset & 0x07;
     shift0 = 8 - shift1;
-    buf = (guint8 *)g_malloc(actual_length);
+    buf = (guint8 *)wmem_alloc(actx->pinfo->pool, actual_length);
     octet0 = tvb_get_guint8(tvb, boffset);
     for (i=0; i<actual_length; i++) {
       octet1 = octet0;
@@ -179,7 +179,6 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
       buf[i] = (octet1 << shift1) | (octet0 >> shift0);
     }
     sub_tvb = tvb_new_child_real_data(tvb, buf, actual_length, length);
-    tvb_set_free_cb(sub_tvb, g_free);
     add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
   } else {  /* aligned */
     sub_tvb = tvb_new_subset(tvb, boffset, actual_length, length);
@@ -312,7 +311,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 
 		/* prepare the string (max number of bits + quartet separators + prepended space) */
 		str_length = 256+64+1;
-		str=(char *)ep_alloc(str_length+1);
+		str=(char *)wmem_alloc(wmem_packet_scope(), str_length+1);
 		str_index = 0;
 
 		str_length = g_snprintf(str, str_length+1, " ");
@@ -676,7 +675,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	}
 
 
-	buf = (guint8 *)g_malloc(length+1);
+	buf = (guint8 *)wmem_alloc(actx->pinfo->pool, length+1);
 	old_offset=offset;
 	for(char_pos=0;char_pos<length;char_pos++){
 		guchar val;
@@ -706,9 +705,6 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), (char*)buf);
 	if (value_tvb) {
 		*value_tvb = tvb_new_child_real_data(tvb, buf, length, length);
-		tvb_set_free_cb(*value_tvb, g_free);
-	} else {
-		g_free(buf);
 	}
 	return offset;
 }
@@ -1423,7 +1419,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 
 		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
 		str_length = 512+128+(int)strlen(hfi->name)+2;
-		str = (char *)ep_alloc(str_length+1);
+		str = (char *)wmem_alloc(wmem_packet_scope(), str_length+1);
 		str_index = g_snprintf(str, str_length+1, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){

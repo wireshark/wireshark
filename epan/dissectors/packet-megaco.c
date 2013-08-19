@@ -48,7 +48,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -1244,7 +1244,7 @@ nextcontext:
                     if ( (tempchar >= 'a')&& (tempchar <= 'z'))
                         tempchar = tempchar - 0x20;
 
-                    term = ep_new0(gcp_term_t);
+                    term = wmem_new0(wmem_packet_scope(), gcp_term_t);
                     wild_term = GCP_WILDCARD_NONE;
                     term->type = GCP_TERM_TYPE_UNKNOWN;
 
@@ -1754,7 +1754,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
     if(len<20480){
         int i;
         tvbuff_t *h245_tvb;
-        guint8 *buf = (guint8 *)g_malloc(10240);
+        guint8 *buf = (guint8 *)wmem_alloc(pinfo->pool, 10240);
 
         /* first, skip to where the encoded pdu starts, this is
            the first hex digit after the '=' char.
@@ -1814,7 +1814,6 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
             return;
         }
         h245_tvb = tvb_new_child_real_data(tvb, buf,i,i);
-        tvb_set_free_cb(h245_tvb, g_free);
         add_new_data_source(pinfo, h245_tvb, "H.245 over MEGACO");
         /* should go through a handle, however,  the two h245 entry
            points are different, one is over tpkt and the other is raw
@@ -1833,7 +1832,7 @@ dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *meg
     if(len<20480){
         int i;
         tvbuff_t *h245_tvb;
-        guint8 *buf = (guint8 *)g_malloc(10240);
+        guint8 *buf = (guint8 *)wmem_alloc(pinfo->pool, 10240);
 
         /* first, skip to where the encoded pdu starts, this is
            the first hex digit after the '=' char.
@@ -1894,7 +1893,6 @@ dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *meg
         }
         h245_tvb = tvb_new_child_real_data(tvb, buf,i,i);
         add_new_data_source(pinfo, h245_tvb, "H.245 over MEGACO");
-        tvb_set_free_cb(h245_tvb, g_free);
         /* should go through a handle, however,  the two h245 entry
            points are different, one is over tpkt and the other is raw
         */

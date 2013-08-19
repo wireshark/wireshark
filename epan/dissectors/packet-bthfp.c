@@ -1461,7 +1461,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint      i_data_offset;
 
         i_data_offset = fragment->index + fragment->length;
-        data = (guint8 *) wmem_alloc(wmem_packet_scope(), fragment->index + fragment->length);
+        data = (guint8 *) wmem_alloc(pinfo->pool, fragment->index + fragment->length);
 
         i_fragment = fragment;
 

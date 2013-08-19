@@ -26,7 +26,7 @@
 #include "config.h"
 
 #include <glib.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/bitswap.h>
 #include <epan/circuit.h>
 #include <epan/conversation.h>
@@ -209,7 +209,7 @@ circuit_chain_lookup(const h223_call_info* call_info, guint32 child_vc)
     key.vc = child_vc;
     circuit_id = GPOINTER_TO_UINT(g_hash_table_lookup( circuit_chain_hashtable, &key ));
     if( circuit_id == 0 ) {
-        new_key = se_new(circuit_chain_key);
+        new_key = wmem_new(wmem_file_scope(), circuit_chain_key);
         *new_key = key;
         circuit_id = ++circuit_chain_count;
         g_hash_table_insert(circuit_chain_hashtable, new_key, GUINT_TO_POINTER(circuit_id));
@@ -292,7 +292,7 @@ add_h223_mux_element(h223_call_direction_data *direct, guint8 mc, h223_mux_eleme
 
     DISSECTOR_ASSERT(mc < 16);
 
-    li = se_new(h223_mux_element_listitem);
+    li = wmem_new(wmem_file_scope(), h223_mux_element_listitem);
     old_li_ptr = &(direct->mux_table[mc]);
     old_li = *old_li_ptr;
     if( !old_li ) {
@@ -339,7 +339,7 @@ find_h223_mux_element(h223_call_direction_data* direct, guint8 mc, guint32 frame
 static void
 add_h223_lc_params(h223_vc_info* vc_info, int direction, h223_lc_params *lc_params, guint32 framenum )
 {
-    h223_lc_params_listitem *li = se_new(h223_lc_params_listitem);
+    h223_lc_params_listitem *li = wmem_new(wmem_file_scope(), h223_lc_params_listitem);
     h223_lc_params_listitem **old_li_ptr = &(vc_info->lc_params[direction ? 0 : 1]);
     h223_lc_params_listitem *old_li = *old_li_ptr;
     if( !old_li ) {
@@ -386,7 +386,7 @@ init_direction_data(h223_call_direction_data *direct)
         direct->mux_table[i] = NULL;
 
     /* set up MC 0 to contain just VC 0 */
-    mc0_element = se_new(h223_mux_element);
+    mc0_element = wmem_new(wmem_file_scope(), h223_mux_element);
     add_h223_mux_element( direct, 0, mc0_element, 0 );
     mc0_element->sublist = NULL;
     mc0_element->vc = 0;
@@ -397,7 +397,7 @@ init_direction_data(h223_call_direction_data *direct)
 static h223_vc_info*
 h223_vc_info_new( h223_call_info* call_info )
 {
-    h223_vc_info *vc_info = se_new(h223_vc_info);
+    h223_vc_info *vc_info = wmem_new(wmem_file_scope(), h223_vc_info);
     vc_info->lc_params[0] = vc_info->lc_params[1] = NULL;
     vc_info->call_info = call_info;
     return vc_info;
@@ -431,7 +431,7 @@ create_call_info( guint32 start_frame )
     h223_call_info *datax;
     h223_lc_params *vc0_params;
 
-    datax = se_new(h223_call_info);
+    datax = wmem_new(wmem_file_scope(), h223_call_info);
 
     /* initialise the call info */
     init_direction_data(&datax -> direction_data[0]);
@@ -440,7 +440,7 @@ create_call_info( guint32 start_frame )
     /* FIXME shouldn't this be figured out dynamically? */
     datax -> h223_level = 2;
 
-    vc0_params = se_new(h223_lc_params);
+    vc0_params = wmem_new(wmem_file_scope(), h223_lc_params);
     vc0_params->al_type = al1Framed;
     vc0_params->al_params = NULL;
     vc0_params->segmentable = TRUE;
@@ -1369,7 +1369,7 @@ dissect_h223_bitswapped (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint i;
 
     len = tvb_length(tvb);
-    datax = (guint8 *)g_malloc(len);
+    datax = (guint8 *)wmem_alloc(pinfo->pool, len);
     for( i=0; i<len; i++)
         datax[i]=BIT_SWAP(tvb_get_guint8(tvb,i));
 
@@ -1379,9 +1379,6 @@ dissect_h223_bitswapped (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * cleaned up when that tvbuff is cleaned up.
      */
     reversed_tvb = tvb_new_child_real_data(tvb, datax,len,tvb_reported_length(tvb));
-
-    /* Add a freer */
-    tvb_set_free_cb(reversed_tvb, g_free);
 
     /* Add the reversed data to the data source list. */
     add_new_data_source(pinfo, reversed_tvb, "Bit-swapped H.223 frame" );

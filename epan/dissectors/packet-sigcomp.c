@@ -39,6 +39,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 #include <epan/sigcomp-udvm.h>
 #include <epan/sigcomp_state_hdlr.h>
 
@@ -419,7 +420,7 @@ try_again:
     sigcomp_tree = proto_item_add_subtree(ti, ett_sigcomp);
     i=0;
     end_off_message = FALSE;
-    buff = (guint8 *)g_malloc(length-offset);
+    buff = (guint8 *)wmem_alloc(pinfo->pool, length-offset);
     if (udvm_print_detail_level>2)
         proto_tree_add_text(sigcomp_tree, tvb, offset, -1,"Starting to remove escape digits");
     while ((offset < length) && (end_off_message == FALSE)){
@@ -486,10 +487,6 @@ try_again:
         offset++;
     }
     unescaped_tvb = tvb_new_child_real_data(tvb, buff,i,i);
-    /* Arrange that the allocated packet data copy be freed when the
-     * tvbuff is freed.
-     */
-    tvb_set_free_cb( unescaped_tvb, g_free );
 
     add_new_data_source(pinfo, unescaped_tvb, "Unescaped Data handed to the SigComp dissector");
 
@@ -716,7 +713,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             /*
              * Note: The allocated buffer must be zeroed or some strange effects might occur.
              */
-            buff = (guint8 *)g_malloc0(UDVM_MEMORY_SIZE);
+            buff = (guint8 *)wmem_alloc0(pinfo->pool, UDVM_MEMORY_SIZE);
 
 
             p_id_start = 0;
@@ -747,17 +744,11 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 ti = proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Wireshark UDVM diagnostic: %s.",
                                          val_to_str(result_code, result_code_vals,"Unknown (%u)"));
                 PROTO_ITEM_SET_GENERATED(ti);
-                g_free(buff);
                 return tvb_length(tvb);
             }
 
             udvm_tvb = tvb_new_child_real_data(tvb, buff,state_length+state_address,state_length+state_address);
             add_new_data_source(pinfo, udvm_tvb, "State/ExecutionTrace");
-            /* Arrange that the allocated packet data copy be freed when the
-             * tvbuff is freed.
-             */
-            tvb_set_free_cb( udvm_tvb, g_free );
-
 
             udvm2_tvb = tvb_new_subset(udvm_tvb, state_address, state_length, state_length);
             udvm_exe_item = proto_tree_add_item(sigcomp_tree, hf_udvm_execution_trace,

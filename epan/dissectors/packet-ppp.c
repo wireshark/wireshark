@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-ppp.h"
 #include <epan/ppptypes.h>
 #include <epan/etypes.h>
@@ -3624,7 +3624,7 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
     case 2:
     {
-        struct e_in6_addr *ad = ep_new0(struct e_in6_addr);
+        struct e_in6_addr *ad = wmem_new0(wmem_packet_scope(),struct e_in6_addr);
 
         tvb_memcpy(tvb, &ad->bytes[8], offset + 3, 8);
         proto_tree_add_text(field_tree, tvb, offset + 3, length - 3, "%s: %s",
@@ -4952,7 +4952,7 @@ dissect_ppp_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static tvbuff_t*
-remove_escape_chars(tvbuff_t *tvb, int offset, int length)
+remove_escape_chars(tvbuff_t *tvb, packet_info *pinfo, int offset, int length)
 {
     guint8    *buff;
     int        i;
@@ -4960,7 +4960,7 @@ remove_escape_chars(tvbuff_t *tvb, int offset, int length)
     guint8     octet;
     tvbuff_t  *next_tvb;
 
-    buff = (guint8 *)g_malloc(length);
+    buff = (guint8 *)wmem_alloc(pinfo->pool, length);
     i = 0;
     while (scanned_len < length) {
         octet = tvb_get_guint8(tvb, offset);
@@ -4979,14 +4979,10 @@ remove_escape_chars(tvbuff_t *tvb, int offset, int length)
         i++;
     }
     if (i == 0) {
-        g_free(buff);
         return NULL;
     }
     next_tvb = tvb_new_child_real_data(tvb, buff, i, i);
 
-    /* Arrange that the allocated packet data copy be freed when the tvbuff is
-     * freed. */
-    tvb_set_free_cb(next_tvb, g_free);
     return next_tvb;
 }
 
@@ -5031,7 +5027,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             proto_tree_add_text(bs_tree, tvb, offset, -1, "PPP Fragment");
         offset++;
         length = tvb_length_remaining(tvb,offset);
-        ppp_tvb = remove_escape_chars(tvb, offset,length);
+        ppp_tvb = remove_escape_chars(tvb, pinfo, offset,length);
         if (ppp_tvb != NULL) {
             add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
             call_dissector(data_handle, ppp_tvb, pinfo, tree);
@@ -5048,7 +5044,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         if (tree)
             proto_tree_add_text(bs_tree, tvb, 0, length, "PPP Fragment");
         if (length != 0) {
-            ppp_tvb = remove_escape_chars(tvb, 0, length - 1);
+            ppp_tvb = remove_escape_chars(tvb, pinfo, 0, length - 1);
             if (ppp_tvb != NULL) {
                 add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
                 call_dissector(data_handle, ppp_tvb, pinfo, tree);
@@ -5071,7 +5067,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 proto_tree_add_text(bs_tree, tvb, offset, -1, "PPP Fragment");
             offset++;
             length = tvb_length_remaining(tvb, offset);
-            ppp_tvb = remove_escape_chars(tvb, offset, length);
+            ppp_tvb = remove_escape_chars(tvb, pinfo, offset, length);
             if (ppp_tvb != NULL) {
                 add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
                 call_dissector(data_handle, ppp_tvb, pinfo, tree);
@@ -5110,7 +5106,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         if (tree)
             proto_tree_add_text(bs_tree, tvb, offset, length, "PPP Data");
         if (length > 1) {
-            ppp_tvb = remove_escape_chars(tvb, data_offset, data_length);
+            ppp_tvb = remove_escape_chars(tvb, pinfo, data_offset, data_length);
             if (ppp_tvb != NULL) {
                 add_new_data_source(pinfo, ppp_tvb, "PPP Message");
                 dissect_ppp_hdlc_common(ppp_tvb, pinfo, tree);

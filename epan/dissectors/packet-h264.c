@@ -38,7 +38,7 @@
 #include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-
+#include <epan/wmem/wmem.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_h264                                      = -1;
@@ -400,7 +400,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
     bit_offset = *start_bit_offset;
 
     /* prepare the string */
-    str = (char *)ep_alloc(256);
+    str = (char *)wmem_alloc(wmem_packet_scope(), 256);
     str[0] = '\0';
     for (bit=0; bit<((int)(bit_offset&0x07)); bit++) {
         if (bit && (!(bit%4))) {
@@ -1064,7 +1064,7 @@ dissect_h265_unescap_nal_unit(tvbuff_t *tvb, packet_info *pinfo, int offset)
     int       i;
     gchar    *buff;
 
-    buff = (gchar *)g_malloc(length);
+    buff = (gchar *)wmem_alloc(pinfo->pool, length);
     for (i = 0; i < length; i++) {
         if ((i + 2 < length) && (tvb_get_ntoh24(tvb, offset) == 0x000003)) {
             buff[NumBytesInRBSP++] = tvb_get_guint8(tvb, offset);
@@ -1078,7 +1078,6 @@ dissect_h265_unescap_nal_unit(tvbuff_t *tvb, packet_info *pinfo, int offset)
     }
 
     tvb_rbsp = tvb_new_child_real_data(tvb, buff, NumBytesInRBSP, NumBytesInRBSP);
-    tvb_set_free_cb(tvb_rbsp, g_free);
     add_new_data_source(pinfo, tvb_rbsp, "Unescaped RSP Data");
 
     return tvb_rbsp;

@@ -45,6 +45,7 @@
 #include <epan/conversation.h>
 #include "packet-scsi.h"
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/range.h>
 #include <wsutil/crc32.h>
 
@@ -1592,7 +1593,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             /* We have a variable length CDB where bytes >16 is transported
              * in the AHS.
              */
-            cdb_buf=(guint8 *)g_malloc(16+ahs_cdb_length);
+            cdb_buf=(guint8 *)wmem_alloc(pinfo->pool, 16+ahs_cdb_length);
             /* the 16 first bytes of the cdb */
             tvb_memcpy(tvb, cdb_buf, cdb_offset, 16);
             /* the remainder of the cdb from the ahs */
@@ -1601,7 +1602,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             cdb_tvb = tvb_new_child_real_data(tvb, cdb_buf,
                                               ahs_cdb_length+16,
                                               ahs_cdb_length+16);
-            tvb_set_free_cb(cdb_tvb, g_free);
 
             add_new_data_source(pinfo, cdb_tvb, "CDB+AHS");
         } else {

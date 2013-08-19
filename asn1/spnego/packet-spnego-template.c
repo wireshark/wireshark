@@ -570,17 +570,8 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 	int length;
 	const guint8 *original_data;
 
-	static int omb_index=0;
-	static guint8 *omb_arr[4]={NULL,NULL,NULL,NULL};
-	static guint8 *cryptocopy=NULL; /* workaround for pre-0.6.1 heimdal bug */
+	guint8 *cryptocopy=NULL; /* workaround for pre-0.6.1 heimdal bug */
 	guint8 *output_message_buffer;
-
-	omb_index++;
-	if(omb_index>=4){
-		omb_index=0;
-	}
-	output_message_buffer=omb_arr[omb_index];
-
 
 	length=tvb_length(pinfo->gssapi_encrypted_tvb);
 	original_data=tvb_get_ptr(pinfo->gssapi_encrypted_tvb, 0, length);
@@ -595,11 +586,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 	/* XXX We also need to re-read the keytab when the preference changes */
 
 	cryptocopy=(guint8 *)wmem_alloc(wmem_packet_scope(), length);
-	if(output_message_buffer){
-		g_free(output_message_buffer);
-		output_message_buffer=NULL;
-	}
-	output_message_buffer=(guint8 *)g_malloc(length);
+	output_message_buffer=(guint8 *)wmem_alloc(pinfo->pool, length);
 
 	for(ek=enc_key_list;ek;ek=ek->next){
 		/* shortcircuit and bail out if enctypes are not matching */
@@ -626,7 +613,6 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 			pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb,
 				output_message_buffer,
 				ret, ret);
-			tvb_set_free_cb(pinfo->gssapi_decrypted_tvb, g_free);
 			add_new_data_source(pinfo, pinfo->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
 			return;
 		}
@@ -704,7 +690,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 
 	datalen = tvb_length(checksum_tvb) + tvb_length(encrypted_tvb);
 
-	rotated = (guint8 *)g_malloc(datalen);
+	rotated = (guint8 *)wmem_alloc(pinfo->pool, datalen);
 
 	tvb_memcpy(checksum_tvb, rotated,
 		   0, tvb_length(checksum_tvb));
@@ -719,7 +705,6 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 
 	next_tvb=tvb_new_child_real_data(encrypted_tvb, rotated,
 					 datalen, datalen);
-	tvb_set_free_cb(next_tvb, g_free);
 	add_new_data_source(pinfo, next_tvb, "GSSAPI CFX");
 
 	output = decrypt_krb5_data(tree, pinfo, usage, next_tvb,
