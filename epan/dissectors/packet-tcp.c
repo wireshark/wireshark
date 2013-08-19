@@ -4195,7 +4195,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 if(tcpd && tcp_relative_seq) {
                     (tcph->th_seq) -= tcpd->fwd->base_seq;
-                    (tcph->th_ack) -= tcpd->rev->base_seq;
+                    if (tcph->th_flags & TH_ACK) {
+                        (tcph->th_ack) -= tcpd->rev->base_seq;
+                    }
                 }
             }
 
