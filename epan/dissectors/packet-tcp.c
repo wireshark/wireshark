@@ -4624,7 +4624,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* May need to recover absolute values here... */
         if (tcp_relative_seq) {
             use_seq += tcpd->fwd->base_seq;
-            use_ack += tcpd->rev->base_seq;
+            if (tcph->th_flags & TH_ACK) {
+                use_ack += tcpd->rev->base_seq;
+            }
         }
         tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd, use_seq, use_ack);
     }
