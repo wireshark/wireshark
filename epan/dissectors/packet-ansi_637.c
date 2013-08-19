@@ -572,7 +572,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	saved_offset = offset - 1;
 	i = num_fields * 7;
 	required_octs = (i / 8) + ((i % 8) ? 1 : 0);
-	buf = (gchar*)ep_alloc(required_octs);
+	buf = (gchar*)g_malloc(required_octs);
 	for (i=0; i < required_octs; i++)
 	{
 		oct = tvb_get_guint8(tvb, saved_offset);
@@ -581,6 +581,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 		saved_offset++;
 	}
 	tvb_out = tvb_new_child_real_data(tvb, buf, required_octs, required_octs);
+	tvb_set_free_cb(tvb_out, g_free);
 	add_new_data_source(g_pinfo, tvb_out, "Characters");
 	offset = 0;
 	bit = 0;
@@ -634,7 +635,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
         saved_offset = offset - 1;
         i = num_fields * 7;
         required_octs = (i / 8) + ((i % 8) ? 1 : 0);
-        buf = (gchar*)ep_alloc(required_octs);
+        buf = (gchar*)g_malloc(required_octs);
         for (i=0; i < required_octs; i++)
         {
             oct = tvb_get_guint8(tvb, saved_offset);
@@ -643,6 +644,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
             saved_offset++;
         }
         tvb_out = tvb_new_child_real_data(tvb, buf, required_octs, required_octs);
+        tvb_set_free_cb(tvb_out, g_free);
         add_new_data_source(g_pinfo, tvb_out, "Characters");
         offset = 0;
         bit = 0;
@@ -664,7 +666,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     {
         saved_offset = offset - 1;
         required_octs = 2*num_fields;
-        buf = (gchar*)ep_alloc(required_octs);
+        buf = (gchar*)g_malloc(required_octs);
         for (i=0; i < required_octs; i++)
         {
             oct = tvb_get_guint8(tvb, saved_offset);
@@ -673,6 +675,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
             saved_offset++;
         }
         tvb_out = tvb_new_child_real_data(tvb, buf, required_octs, required_octs);
+        tvb_set_free_cb(tvb_out, g_free);
         add_new_data_source(g_pinfo, tvb_out, "Characters");
         offset = 0;
         if (g_pinfo->private_data && (GPOINTER_TO_UINT(g_pinfo->private_data) == TRUE)) {
@@ -699,7 +702,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     else if (encoding == 0x07)/* Latin/Hebrew */
     {
         saved_offset = offset - 1;
-        buf = (gchar*)ep_alloc(num_fields);
+        buf = (gchar*)g_malloc(num_fields);
         for (i=0; i < num_fields; i++)
         {
             oct = tvb_get_guint8(tvb, saved_offset);
@@ -708,6 +711,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
             saved_offset++;
         }
         tvb_out = tvb_new_child_real_data(tvb, buf, num_fields, num_fields);
+        tvb_set_free_cb(tvb_out, g_free);
         add_new_data_source(g_pinfo, tvb_out, "Characters");
         offset = 0;
         required_octs = len - used;
@@ -735,7 +739,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     else if (encoding == 0x08) /* ISO 8859-1 (a/k/a ISO Latin 1) */
     {
         saved_offset = offset - 1;
-        buf = (gchar*)ep_alloc(num_fields);
+        buf = (gchar*)g_malloc(num_fields);
         for (i=0; i < num_fields; i++)
         {
             oct = tvb_get_guint8(tvb, saved_offset);
@@ -744,6 +748,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
             saved_offset++;
         }
         tvb_out = tvb_new_child_real_data(tvb, buf, num_fields, num_fields);
+        tvb_set_free_cb(tvb_out, g_free);
         add_new_data_source(g_pinfo, tvb_out, "Characters");
         offset = 0;
         required_octs = len - used;
@@ -785,7 +790,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
         saved_offset = offset - 1;
         i = num_fields * 7;
         required_octs = (i / 8) + ((i % 8) ? 1 : 0);
-        buf = (gchar*)ep_alloc(required_octs);
+        buf = (gchar*)g_malloc(required_octs);
         for (i=0; i < required_octs; i++)
         {
             oct = tvb_get_guint8(tvb, saved_offset);
@@ -794,6 +799,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
             saved_offset++;
         }
         tvb_out = tvb_new_child_real_data(tvb, buf, required_octs, required_octs);
+        tvb_set_free_cb(tvb_out, g_free);
         add_new_data_source(g_pinfo, tvb_out, "Characters");
         offset = 0;
         bit = 0;

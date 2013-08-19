@@ -11956,7 +11956,7 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE)) > 0) {
         if (linelen >= 2) {
             ansi_a_tvb = tvb_new_composite();
-            msg_type = (guint8*)wmem_alloc(wmem_packet_scope(), 1);
+            msg_type = (guint8*)wmem_alloc(pinfo->pool, 1);
             msg_type[0] = (guint8)strtoul(tvb_get_ephemeral_string(tvb, offset, 2), NULL, 16);
             if ((begin = tvb_find_guint8(tvb, offset, linelen, '"')) > 0) {
                 if (tvb_get_guint8(tvb, begin + 1) == '1') {
