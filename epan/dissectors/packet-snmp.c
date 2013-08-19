@@ -1567,7 +1567,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 
 	cryptgrm = (guint8*)ep_tvb_memdup(encryptedData,0,-1);
 
-	cleartext = (guint8*)ep_alloc(cryptgrm_len);
+	cleartext = (guint8*)g_malloc(cryptgrm_len);
 
 	err = gcry_cipher_open(&hd, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_CBC, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
@@ -1584,10 +1584,12 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 	gcry_cipher_close(hd);
 
 	clear_tvb = tvb_new_child_real_data(encryptedData, cleartext, cryptgrm_len, cryptgrm_len);
+	tvb_set_free_cb(clear_tvb, g_free);
 
 	return clear_tvb;
 
 on_gcry_error:
+	g_free(cleartext);
 	*error = (const gchar *)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
@@ -1637,7 +1639,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	}
 	cryptgrm = (guint8*)ep_tvb_memdup(encryptedData,0,-1);
 
-	cleartext = (guint8*)ep_alloc(cryptgrm_len);
+	cleartext = (guint8*)g_malloc(cryptgrm_len);
 
 	err = gcry_cipher_open(&hd, algo, GCRY_CIPHER_MODE_CFB, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
@@ -1654,10 +1656,12 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	gcry_cipher_close(hd);
 
 	clear_tvb = tvb_new_child_real_data(encryptedData, cleartext, cryptgrm_len, cryptgrm_len);
+	tvb_set_free_cb(clear_tvb, g_free);
 
 	return clear_tvb;
 
 on_gcry_error:
+	g_free(cleartext);
 	*error = (const gchar *)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
@@ -2856,7 +2860,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1636 "../../asn1/snmp/packet-snmp-template.c"
+#line 1640 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3779,7 +3783,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2294 "../../asn1/snmp/packet-snmp-template.c"
+#line 2298 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3819,7 +3823,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2310 "../../asn1/snmp/packet-snmp-template.c"
+#line 2314 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 

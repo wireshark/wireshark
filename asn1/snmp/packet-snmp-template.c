@@ -1465,7 +1465,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 
 	cryptgrm = (guint8*)ep_tvb_memdup(encryptedData,0,-1);
 
-	cleartext = (guint8*)ep_alloc(cryptgrm_len);
+	cleartext = (guint8*)g_malloc(cryptgrm_len);
 
 	err = gcry_cipher_open(&hd, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_CBC, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
@@ -1482,10 +1482,12 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 	gcry_cipher_close(hd);
 
 	clear_tvb = tvb_new_child_real_data(encryptedData, cleartext, cryptgrm_len, cryptgrm_len);
+	tvb_set_free_cb(clear_tvb, g_free);
 
 	return clear_tvb;
 
 on_gcry_error:
+	g_free(cleartext);
 	*error = (const gchar *)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
@@ -1535,7 +1537,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	}
 	cryptgrm = (guint8*)ep_tvb_memdup(encryptedData,0,-1);
 
-	cleartext = (guint8*)ep_alloc(cryptgrm_len);
+	cleartext = (guint8*)g_malloc(cryptgrm_len);
 
 	err = gcry_cipher_open(&hd, algo, GCRY_CIPHER_MODE_CFB, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
@@ -1552,10 +1554,12 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	gcry_cipher_close(hd);
 
 	clear_tvb = tvb_new_child_real_data(encryptedData, cleartext, cryptgrm_len, cryptgrm_len);
+	tvb_set_free_cb(clear_tvb, g_free);
 
 	return clear_tvb;
 
 on_gcry_error:
+	g_free(cleartext);
 	*error = (const gchar *)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;

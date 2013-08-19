@@ -45,6 +45,7 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/strutil.h>
@@ -1740,7 +1741,8 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
     }
 
     reported_len = tvb_reported_length_remaining(given_tvb, 0);
-    bytes = (guint8 *) ep_tvb_memdup(given_tvb, 0, length);
+    bytes = (guint8 *) wmem_alloc(pinfo->pool, length);
+    tvb_memcpy(given_tvb, bytes, 0, length);
 
     if ( do_byte_swap == TRUE && global_mbtcp_big_endian == TRUE )
     {

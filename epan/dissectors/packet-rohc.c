@@ -2274,10 +2274,11 @@ start_over:
             gint len;
             get_self_describing_var_len_val(tvb, rohc_tree, offset+1, hf_rohc_large_cid, &val_len);
             len = tvb_length_remaining(tvb, offset) - val_len;
-            data = (guint8 *)ep_alloc(len);
+            data = (guint8 *)g_malloc(len);
             tvb_memcpy(tvb, data, offset, 1);
             tvb_memcpy(tvb, &data[1], offset+1+val_len, len-1);
             next_tvb = tvb_new_child_real_data(tvb, data, len, len);
+            tvb_set_free_cb(next_tvb, g_free);
             add_new_data_source(pinfo, next_tvb, "Payload");
         }
         else {

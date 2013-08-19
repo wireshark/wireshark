@@ -488,7 +488,7 @@ static tvbuff_t* reassembly_get_reassembled_tvb(rlc_channel_reassembly_info *rea
     for (n=0; n < reassembly_info->number_of_segments; n++) {
         combined_length += reassembly_info->segments[n].length;
     }
-    combined_data = (guint8 *)ep_alloc(combined_length);
+    combined_data = (guint8 *)g_malloc(combined_length);
 
     /* Copy data into contiguous buffer */
     for (n=0; n < reassembly_info->number_of_segments; n++) {
@@ -500,6 +500,7 @@ static tvbuff_t* reassembly_get_reassembled_tvb(rlc_channel_reassembly_info *rea
 
     /* Create and return tvb with this data */
     reassembled_tvb = tvb_new_child_real_data(parent_tvb, combined_data, combined_offset, combined_offset);
+    tvb_set_free_cb(reassembled_tvb, g_free);
     add_new_data_source(pinfo, reassembled_tvb, "Reassembled SDU");
     return reassembled_tvb;
 }

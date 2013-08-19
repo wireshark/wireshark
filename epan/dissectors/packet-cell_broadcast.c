@@ -253,7 +253,7 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
    tvbuff_t * tvb_out = NULL;
    guint8		out_len;
    int			length = tvb_length(tvb) - offset;
-   gchar *utf8_text = NULL;
+   gchar *utf8_text = NULL, *utf8_out;
    static unsigned char msgbuf[1024];
    guint8 * input_string = tvb_get_ephemeral_string(tvb, offset, length);
    GIConv cd;
@@ -267,7 +267,9 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
                                         msgbuf);
      msgbuf[out_len] = '\0';
      utf8_text = gsm_sms_chars_to_utf8(msgbuf, out_len);
-     tvb_out = tvb_new_child_real_data(tvb, utf8_text, out_len, out_len);
+     utf8_out = g_strdup(utf8_text);
+     tvb_out = tvb_new_child_real_data(tvb, utf8_out, out_len, out_len);
+     tvb_set_free_cb(tvb_out, g_free);
      add_new_data_source(pinfo, tvb_out, "unpacked 7 bit data");
      break;
 
