@@ -1810,11 +1810,20 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				if (vht_tree) {
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_gi,
 							tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
-					proto_tree_add_item(vht_tree, hf_radiotap_vht_sgi_nsym_da,
-							tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
 				}
 			} else {
 				can_calculate_rate = FALSE;	/* no GI width */
+			}
+
+			if (known & IEEE80211_RADIOTAP_VHT_HAVE_SGI_NSYM_DA) {
+				if (vht_tree) {
+					it = proto_tree_add_item(vht_tree, hf_radiotap_vht_sgi_nsym_da,
+							tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
+					if ((flags & IEEE80211_RADIOTAP_VHT_SGI_NSYM_DA) &&
+						(known & IEEE80211_RADIOTAP_VHT_HAVE_GI) &&
+						!(flags & IEEE80211_RADIOTAP_VHT_SGI))
+						proto_item_append_text(it, " (invalid)");
+				}
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_LDPC_EXTRA) {
