@@ -1496,6 +1496,21 @@ tvb_get_bits(tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits, const
 	return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
+static gint
+tvb_find_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
+{
+	const guint8 *ptr;
+	const guint8 *result;
+
+	ptr = tvb_get_ptr(tvb, abs_offset, limit);
+
+	result = (const guint8 *) memchr(ptr, needle, limit);
+	if (!result)
+		return -1;
+
+	return (gint) ((result - ptr) + abs_offset);
+}
+
 /* Find first occurrence of needle in tvbuff, starting at offset. Searches
  * at most maxlength number of bytes; if maxlength is -1, searches to
  * end of tvbuff.
@@ -1545,10 +1560,22 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 	if (tvb->ops->tvb_find_guint8)
 		return tvb->ops->tvb_find_guint8(tvb, abs_offset, limit, needle);
 
-	/* XXX, fallback to slower method */
+	return tvb_find_guint8_generic(tvb, offset, limit, needle);
+}
 
-	DISSECTOR_ASSERT_NOT_REACHED();
-	return -1;
+static gint
+tvb_pbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *needles, guchar *found_needle)
+{
+	const guint8 *ptr;
+	const guint8 *result;
+
+	ptr = tvb_get_ptr(tvb, abs_offset, limit);
+
+	result = guint8_pbrk(ptr, limit, needles, found_needle);
+	if (!result)
+		return -1;
+
+	return (gint) ((result - ptr) + abs_offset);
 }
 
 /* Find first occurrence of any of the needles in tvbuff, starting at offset.
@@ -1600,9 +1627,7 @@ tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 	if (tvb->ops->tvb_pbrk_guint8)
 		return tvb->ops->tvb_pbrk_guint8(tvb, abs_offset, limit, needles, found_needle);
 
-	/* XXX, fallback to slower method */
-	DISSECTOR_ASSERT_NOT_REACHED();
-	return -1;
+	return tvb_pbrk_guint8_generic(tvb, abs_offset, limit, needles, found_needle);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
