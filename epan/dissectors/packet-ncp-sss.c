@@ -29,6 +29,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <ctype.h>
 #include "packet-ncp-int.h"
 #include "packet-ncp-sss.h"
 
@@ -402,22 +403,19 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
     return;
 }
 
+/* Find the delimiter, '*'.
+ * Returns the number of bytes from foffset to the delimiter or 0 if not
+ * found within 256 bytes from foffset */
 static int
 find_delimiter(tvbuff_t *tvb, int foffset)
 {
-    int i;
-    int length = 0;
-    guint16 c_char;
+    int offset;
 
-    for (i=0; i < 256; i++) {
-        c_char = tvb_get_guint8(tvb, foffset);
-        if (c_char == 0x2a || tvb_length_remaining(tvb, foffset)==0) {
-            break;
-        }
-        foffset++;
-        length++;
+    offset = tvb_find_guint8(tvb, foffset, 256, '*');
+    if (offset >= foffset) {
+        return offset - foffset;
     }
-    return length;
+    return 0;
 }
 
 static int
@@ -427,8 +425,8 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
     guint32 str_length;
     char    buffer[1024];
     guint32 i;
-    guint16 c_char;
-    guint32 length_remaining = 0;
+    guint8  c_char;
+    gint length_remaining = 0;
 
     if (length==0) {
         if (little) {
@@ -441,36 +439,33 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
         str_length = length;
     }
     length_remaining = tvb_length_remaining(tvb, foffset);
-    if(str_length > (guint)length_remaining || str_length > 1024) {
+    if (length_remaining <= 0) {
+        return foffset;
+    }
+    if (str_length > (guint)length_remaining || str_length > (sizeof(buffer)-1)) {
         proto_tree_add_string(sss_tree, hfinfo, tvb, foffset,
             length_remaining + 4, "<String too long to process>");
         foffset += length_remaining;
         return foffset;
     }
-    if(str_length == 0) {
+    if (str_length == 0) {
         proto_tree_add_string(sss_tree, hfinfo, tvb, offset, 4, "<Not Specified>");
         return foffset;
     }
     for ( i = 0; i < str_length; i++ ) {
-        c_char = tvb_get_guint8(tvb, foffset );
-        if (c_char<0x20 || c_char>0x7e) {
-            if (c_char != 0x00) {
-                c_char = 0x2e;
-                buffer[i] = c_char & 0xff;
+        c_char = tvb_get_guint8(tvb, foffset);
+        if (isprint(c_char)) {
+            buffer[i] = c_char;
+        } else {
+            if (c_char) {
+                buffer[i] = '.';
             } else {
+                /* Skip NULL-terminators */
                 i--;
                 str_length--;
             }
-        } else {
-            buffer[i] = c_char & 0xff;
         }
         foffset++;
-        length_remaining--;
-
-        if(length_remaining==1) {
-            i++;
-            break;
-        }
     }
     buffer[i] = '\0';
 
