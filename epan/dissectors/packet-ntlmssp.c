@@ -1408,7 +1408,7 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
      if NTLMSSP_NEGOTIATE_VERSION is set in the flags (see MS-NLMP) */
   if (offset < data_start) {
     if (negotiate_flags & NTLMSSP_NEGOTIATE_VERSION)
-      offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
+      dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
   }
   return data_end;
 }
@@ -2163,15 +2163,15 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (ntlmssph->type) {
 
     case NTLMSSP_NEGOTIATE:
-      offset = dissect_ntlmssp_negotiate (tvb, offset, ntlmssp_tree, ntlmssph);
+      dissect_ntlmssp_negotiate (tvb, offset, ntlmssp_tree, ntlmssph);
       break;
 
     case NTLMSSP_CHALLENGE:
-      offset = dissect_ntlmssp_challenge (tvb, pinfo, offset, ntlmssp_tree, ntlmssph);
+      dissect_ntlmssp_challenge (tvb, pinfo, offset, ntlmssp_tree, ntlmssph);
       break;
 
     case NTLMSSP_AUTH:
-      offset = dissect_ntlmssp_auth (tvb, pinfo, offset, ntlmssp_tree, ntlmssph);
+      dissect_ntlmssp_auth (tvb, pinfo, offset, ntlmssp_tree, ntlmssph);
       break;
 
     default:
@@ -2350,15 +2350,11 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
                          decr_tvb, decrypted_offset, 8, ENC_NA);
     decrypted_offset += 8;
 
-
-
     /* Incrementing sequence number of DCE conversation */
-   proto_tree_add_item (decr_tree, hf_ntlmssp_verf_sequence,
-                        decr_tvb, decrypted_offset, 4, ENC_NA);
-    decrypted_offset += 4;
+    proto_tree_add_item (decr_tree, hf_ntlmssp_verf_sequence,
+                         decr_tvb, decrypted_offset, 4, ENC_NA);
   }
   else {
-
     /* RANDOM PAD usually it's 0 */
     proto_tree_add_item (decr_tree, hf_ntlmssp_verf_randompad,
                          decr_tvb, decrypted_offset, 4, ENC_LITTLE_ENDIAN);
@@ -2370,9 +2366,8 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     decrypted_offset += 4;
 
     /* Incrementing sequence number of DCE conversation */
-   proto_tree_add_item (decr_tree, hf_ntlmssp_verf_sequence,
-                        decr_tvb, decrypted_offset, 4, ENC_NA);
-    decrypted_offset += 4;
+    proto_tree_add_item (decr_tree, hf_ntlmssp_verf_sequence,
+                         decr_tvb, decrypted_offset, 4, ENC_NA);
   }
 }
 
