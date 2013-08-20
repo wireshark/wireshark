@@ -2067,7 +2067,7 @@ ipxnet_name_lookup(const guint addr)
 } /* ipxnet_name_lookup */
 
 static guint
-ipxnet_addr_lookup(const gchar *name, gboolean *success)
+ipxnet_addr_lookup(const gchar *name _U_, gboolean *success)
 {
 	*success = FALSE;
 	return 0;
