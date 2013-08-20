@@ -1923,6 +1923,8 @@ get_ipxnetent(void)
 
 } /* get_ipxnetent */
 
+/* Unused ??? */
+#if 0
 static ipxnet_t *
 get_ipxnetbyname(const gchar *name)
 {
@@ -1947,6 +1949,7 @@ get_ipxnetbyname(const gchar *name)
     return ipxnet;
 
 } /* get_ipxnetbyname */
+#endif
 
 static ipxnet_t *
 get_ipxnetbyaddr(guint32 addr)
@@ -2005,6 +2008,7 @@ ipx_name_lookup_cleanup(void)
 
 }
 
+#if 0
 static hashipxnet_t *
 add_ipxnet_name(guint addr, const gchar *name)
 {
@@ -2031,6 +2035,7 @@ add_ipxnet_name(guint addr, const gchar *name)
     return tp;
 
 } /* add_ipxnet_name */
+#endif
 
 static gchar *
 ipxnet_name_lookup(const guint addr)
