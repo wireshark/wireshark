@@ -1,0 +1,16 @@
+# This file lists suppressions to hide valgrind errors in libraries we don't
+# control. Be careful adding to it, since overly-broad suppressions may hide
+# real errors in Wireshark!
+#
+# This is primarily targeted towards the set of libraries on the fuzz-bot (which
+# runs a valgrind step) but other entries are welcome as long as they are
+# sufficiently commented.
+
+# Zlib 1.2.3.4 on the buildbot hits an uninitialized jump on the first call to
+# inflateReset2. According to the Zlib changelog this was fixed in 1.2.3.7.
+{
+    libz/inflateReset2/jump
+    Memcheck:Cond
+    fun:inflateReset2
+    fun:inflateInit2_
+}
