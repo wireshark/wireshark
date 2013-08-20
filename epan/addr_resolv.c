@@ -2919,6 +2919,11 @@ host_name_lookup_cleanup(void)
 {
     _host_name_lookup_cleanup();
 
+    if(ipxnet_hash_table){
+        g_hash_table_destroy(ipxnet_hash_table);
+		ipxnet_hash_table = NULL;
+    }
+
     if(ipv4_hash_table){
         g_hash_table_destroy(ipv4_hash_table);
 		ipv4_hash_table = NULL;
