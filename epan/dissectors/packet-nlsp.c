@@ -362,8 +362,6 @@ dissect_hello_local_mtu_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    "MTU Size: %u",
 		    tvb_get_ntohl(tvb, offset));
 	}
-	offset += 4;
-	length -= 4;
 }
 
 static const nlsp_clv_handle_t clv_hello_opts[] = {
@@ -607,8 +605,6 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			    "Name: %s",
 			    tvb_format_text(tvb, offset, name_length));
 		}
-		offset += name_length;
-		length -= name_length;
 	}
 }
 
@@ -765,8 +761,6 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		    val_to_str(tvb_get_ntohs(tvb, offset), media_type_vals,
 			"Unknown (0x%04x)"));
 	}
-	offset += 2;
-	length -= 2;
 }
 
 /*
