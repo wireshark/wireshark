@@ -116,6 +116,13 @@ static int hf_gtpv2_pt = -1;
 static int hf_gtpv2_ps = -1;
 static int hf_gtpv2_si = -1;
 static int hf_gtpv2_msv = -1;
+static int hf_gtpv2_spare1 = -1;
+static int hf_gtpv2_spare2 = -1;
+static int hf_gtpv2_spare3 = -1;
+static int hf_gtpv2_s6af = -1;
+static int hf_gtpv2_s4af = -1;
+static int hf_gtpv2_mbmdt = -1;
+static int hf_gtpv2_israu = -1;
 static int hf_gtpv2_ccrsi = -1;
 static int hf_gtpv2_pdn_type = -1;
 static int hf_gtpv2_pdn_ipv4 = -1;
@@ -1600,7 +1607,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
      * 3GPP TS 29.274 version 9.4.0 Release 9
      */
     proto_tree_add_item(tree, hf_gtpv2_sqci,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_uimsi,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_uimsi,         tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_cfsi,          tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_crsi,          tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1615,7 +1622,15 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     }
     /* Only present in version 9 and higher */
     /* Octet 7 Spare Spare Spare Spare Spare Spare Spare CCRSI */
-    proto_tree_add_item(tree, hf_gtpv2_ccrsi,         tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_spare1,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_spare2,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_spare3,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_s6af,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_s4af,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_mbmdt,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_israu,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ccrsi,           tvb, offset, 1, ENC_BIG_ENDIAN);
+
 
 }
 
@@ -5634,10 +5649,38 @@ void proto_register_gtpv2(void)
          {"MSV (MS Validated)", "gtpv2.msv",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
-        {&hf_gtpv2_ccrsi,
-         {"CCRSI (CSG Change Reporting support indication)", "gtpv2.ccrsi",
-          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
-        },
+		{&hf_gtpv2_spare1,
+		 {"Spare", "gtpv2.spare",
+		  FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
+		},
+		{&hf_gtpv2_spare2,
+		 {"Spare", "gtpv2.spare",
+		  FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
+		},
+		{&hf_gtpv2_spare3,
+		 {"Spare", "gtpv2.spare",
+		  FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
+		},
+		{&hf_gtpv2_s6af,
+		 {"S6AF (Static IPv6 Address Flag)", "gtpv2.s6af",
+		  FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
+		},
+		{&hf_gtpv2_s4af,
+		 {"S4AF (Static IPv4 Address Flag))", "gtpv2.s4af",
+		  FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
+		},
+		{&hf_gtpv2_mbmdt,
+		 {"MBMDT (Management Based MDT allowed flag)", "gtpv2.mbmdt",
+		  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
+		},
+		{&hf_gtpv2_israu,
+		 {"ISRAU (ISR is activated for the UE)", "gtpv2.israu",
+		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
+		},
+		{&hf_gtpv2_ccrsi,
+		 {"CCRSI (CSG Change Reporting support indication)", "gtpv2.ccrsi",
+		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+		},
         { &hf_gtpv2_pdn_type,
           {"PDN Type", "gtpv2.pdn_type",
            FT_UINT8, BASE_DEC, VALS(gtpv2_pdn_type_vals), 0x07,
