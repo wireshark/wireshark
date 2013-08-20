@@ -181,13 +181,10 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
     flags_str[0]='\0';
     sep="";
     flags = tvb_get_ntohl(tvb, foffset);
-    for (i = 0 ; i < 256; i++)
-    {
-        if (flags & bvalue)
-        {
+    for (i = 0 ; i < 256; i++) {
+        if (flags & bvalue) {
             g_strlcat(flags_str, sep, 1024);
-            switch(bvalue)
-            {
+            switch(bvalue) {
                 case 0x00000001:
                         g_strlcat(flags_str, "Enhanced Protection", 1024);
                         break;
@@ -297,12 +294,9 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
 
     bvalue = 0x00000001;
 
-    for (i = 0 ; i < 256; i++ )
-    {
-        if (flags & bvalue)
-        {
-            switch(bvalue)
-            {
+    for (i = 0 ; i < 256; i++ ) {
+        if (flags & bvalue) {
+            switch(bvalue) {
                 case 0x00000001:
                         proto_tree_add_item(flags_tree, hfbit1, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
@@ -415,11 +409,9 @@ find_delimiter(tvbuff_t *tvb, int foffset)
     int length = 0;
     guint16 c_char;
 
-    for (i=0; i < 256; i++)
-    {
+    for (i=0; i < 256; i++) {
         c_char = tvb_get_guint8(tvb, foffset);
-        if (c_char == 0x2a || tvb_length_remaining(tvb, foffset)==0)
-        {
+        if (c_char == 0x2a || tvb_length_remaining(tvb, foffset)==0) {
             break;
         }
         foffset++;
@@ -431,91 +423,69 @@ find_delimiter(tvbuff_t *tvb, int foffset)
 static int
 sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean little, guint32 length)
 {
-        int     foffset = offset;
-        guint32 str_length;
-        char    buffer[1024];
-        guint32 i;
-        guint16 c_char;
-        guint32 length_remaining = 0;
+    int     foffset = offset;
+    guint32 str_length;
+    char    buffer[1024];
+    guint32 i;
+    guint16 c_char;
+    guint32 length_remaining = 0;
 
-        if (length==0)
-        {
-            if (little) {
-                str_length = tvb_get_letohl(tvb, foffset);
-            }
-            else
-            {
-                str_length = tvb_get_ntohl(tvb, foffset);
-            }
-            foffset += 4;
+    if (length==0) {
+        if (little) {
+            str_length = tvb_get_letohl(tvb, foffset);
+        } else {
+            str_length = tvb_get_ntohl(tvb, foffset);
         }
-        else
-        {
-            str_length = length;
-        }
-        length_remaining = tvb_length_remaining(tvb, foffset);
-        if(str_length > (guint)length_remaining || str_length > 1024)
-        {
-                proto_tree_add_string(sss_tree, hfinfo, tvb, foffset,
-                    length_remaining + 4, "<String too long to process>");
-                foffset += length_remaining;
-                return foffset;
-        }
-        if(str_length == 0)
-        {
-            proto_tree_add_string(sss_tree, hfinfo, tvb, offset,
-                4, "<Not Specified>");
-            return foffset;
-        }
-        for ( i = 0; i < str_length; i++ )
-        {
-                c_char = tvb_get_guint8(tvb, foffset );
-                if (c_char<0x20 || c_char>0x7e)
-                {
-                        if (c_char != 0x00)
-                        {
-                                c_char = 0x2e;
-                                buffer[i] = c_char & 0xff;
-                        }
-                        else
-                        {
-                                i--;
-                                str_length--;
-                        }
-                }
-                else
-                {
-                        buffer[i] = c_char & 0xff;
-                }
-                foffset++;
-                length_remaining--;
-
-                if(length_remaining==1)
-                {
-                        i++;
-                        break;
-                }
-        }
-        buffer[i] = '\0';
-
-        if (length==0)
-        {
-            if (little) {
-                str_length = tvb_get_letohl(tvb, offset);
-            }
-            else
-            {
-                str_length = tvb_get_ntohl(tvb, offset);
-            }
-            offset += 4;
-        }
-        else
-        {
-            str_length = length;
-        }
-        proto_tree_add_string(sss_tree, hfinfo, tvb, offset,
-                str_length, buffer);
+        foffset += 4;
+    } else {
+        str_length = length;
+    }
+    length_remaining = tvb_length_remaining(tvb, foffset);
+    if(str_length > (guint)length_remaining || str_length > 1024) {
+        proto_tree_add_string(sss_tree, hfinfo, tvb, foffset,
+            length_remaining + 4, "<String too long to process>");
+        foffset += length_remaining;
         return foffset;
+    }
+    if(str_length == 0) {
+        proto_tree_add_string(sss_tree, hfinfo, tvb, offset, 4, "<Not Specified>");
+        return foffset;
+    }
+    for ( i = 0; i < str_length; i++ ) {
+        c_char = tvb_get_guint8(tvb, foffset );
+        if (c_char<0x20 || c_char>0x7e) {
+            if (c_char != 0x00) {
+                c_char = 0x2e;
+                buffer[i] = c_char & 0xff;
+            } else {
+                i--;
+                str_length--;
+            }
+        } else {
+            buffer[i] = c_char & 0xff;
+        }
+        foffset++;
+        length_remaining--;
+
+        if(length_remaining==1) {
+            i++;
+            break;
+        }
+    }
+    buffer[i] = '\0';
+
+    if (length==0) {
+        if (little) {
+            str_length = tvb_get_letohl(tvb, offset);
+        } else {
+            str_length = tvb_get_ntohl(tvb, offset);
+        }
+        offset += 4;
+    } else {
+        str_length = length;
+    }
+    proto_tree_add_string(sss_tree, hfinfo, tvb, offset, str_length, buffer);
+    return foffset;
 }
 
 void
@@ -553,8 +523,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
         break;
     case 2:
         proto_tree_add_item(ncp_tree, hf_frag_handle, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-        if (tvb_get_letohl(tvb, foffset)==0xffffffff) /* Fragment handle of -1 means no fragment. So process packet */
-        {
+        if (tvb_get_letohl(tvb, foffset)==0xffffffff) { /* Fragment handle of -1 means no fragment. So process packet */
             foffset += 4;
             proto_tree_add_item(ncp_tree, hf_buffer_size, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
             foffset += 4;
@@ -587,24 +556,19 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                    packets and then we will see these as malformed packets.
                    So check to make sure we still have data in the packet anytime
                    we read a secret. */
-                if (tvb_length_remaining(tvb, foffset) > 4)
-                {
+                if (tvb_length_remaining(tvb, foffset) > 4) {
                     foffset = sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
                 }
                 break;
             case 2:
                 foffset += 4;
                 foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, 0);
-                if (tvb_length_remaining(tvb, foffset) > 4)
-                {
+                if (tvb_length_remaining(tvb, foffset) > 4) {
                     msg_length = tvb_get_letohl(tvb, foffset);
                     foffset += 4;
-                    if (tvb_length_remaining(tvb, foffset) < (gint) msg_length)
-                    {
+                    if (tvb_length_remaining(tvb, foffset) < (gint) msg_length) {
                         proto_tree_add_item(atree, hf_enc_data, tvb, foffset, -1, ENC_NA);
-                    }
-                    else
-                    {
+                    } else {
                         proto_tree_add_item(atree, hf_enc_data, tvb, foffset, msg_length, ENC_NA);
                     }
                 }
@@ -612,8 +576,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             case 3:
             case 4:
                 foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, 0);
-                if (tvb_length_remaining(tvb, foffset) > 4)
-                {
+                if (tvb_length_remaining(tvb, foffset) > 4) {
                     foffset = sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
                 }
                 break;
@@ -621,8 +584,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                 break;
             case 6:
                 foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, 0);
-                if (tvb_length_remaining(tvb, foffset) > 4)
-                {
+                if (tvb_length_remaining(tvb, foffset) > 4) {
                     foffset = sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
                 }
                 break;
@@ -636,10 +598,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             default:
                 break;
             }
-
-        }
-        else
-        {
+        } else {
             col_set_str(pinfo->cinfo, COL_INFO, "C SecretStore - fragment");
             proto_tree_add_text(ncp_tree, tvb, foffset, 4, "Fragment");
 
@@ -647,8 +606,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             if (request_value) {
                 request_value->req_nds_flags=255;
             }
-            if (tvb_length_remaining(tvb, foffset) > 8)
-            {
+            if (tvb_length_remaining(tvb, foffset) > 8) {
                 foffset += 4;
                 proto_tree_add_item(ncp_tree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), ENC_NA);
             }
@@ -672,12 +630,11 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
     guint32             number_of_items=0;
     gint32              length_of_string=0;
     guint32             i = 0;
-    const gchar		*str;
+    const gchar         *str;
 
     proto_tree          *atree;
     proto_item          *aitem;
     proto_item          *expert_item;
-
 
     foffset = 8;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
@@ -708,53 +665,40 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
         proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         msg_length -= 4;
-        if ((tvb_get_letohl(tvb, foffset-4)==0xffffffff) && (msg_length > 4))
-        {
+        if ((tvb_get_letohl(tvb, foffset-4)==0xffffffff) && (msg_length > 4)) {
             foffset += 4;
             return_code = tvb_get_letohl(tvb, foffset);
             str = try_val_to_str(return_code, sss_errors_enum);
-            if (str)
-            {
+            if (str) {
                 expert_item = proto_tree_add_item(atree, hf_return_code, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 expert_add_info_format_text(pinfo, expert_item, &ei_return_code, "SSS Error: %s", str);
                 col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", val_to_str(return_code, sss_errors_enum, "Unknown (%d)"));
                 foffset+=4;
-            }
-            else
-            {
+            } else {
                 proto_tree_add_text(atree, tvb, foffset, 4, "Return Code: Success (0x00000000)");
                 if (tvb_length_remaining(tvb, foffset) > 8) {
                     foffset += 4;
-                    if (request_value && subverb == 6)
-                    {
+                    if (request_value && subverb == 6) {
                         foffset += 4;
                         number_of_items = tvb_get_letohl(tvb, foffset);
                         foffset += 8;
-                        for (i=0; i<number_of_items; i++)
-                        {
+                        for (i=0; i<number_of_items; i++) {
                             length_of_string = find_delimiter(tvb, foffset);
-                            if (length_of_string > tvb_length_remaining(tvb, foffset))
-                            {
+                            if (length_of_string > tvb_length_remaining(tvb, foffset)) {
                                 return;
                             }
                             foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, length_of_string);
-                            if (tvb_length_remaining(tvb, foffset) < 8)
-                            {
+                            if (tvb_length_remaining(tvb, foffset) < 8) {
                                 return;
                             }
                             foffset++;
                         }
-
-                    }
-                    else
-                    {
+                    } else {
                         proto_tree_add_item(atree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), ENC_NA);
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             proto_tree_add_text(atree, tvb, foffset, 4, "Return Code: Success (0x00000000)");
             if (tvb_length_remaining(tvb, foffset) > 8) {
                 foffset += 4;
@@ -774,61 +718,43 @@ proto_register_sss(void)
 {
     static hf_register_info hf_sss[] = {
         { &hf_buffer_size,
-        { "Buffer Size", "sss.buffer", FT_UINT32, BASE_DEC, NULL, 0x0,
-          NULL, HFILL }},
+        { "Buffer Size", "sss.buffer", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ping_version,
-        { "Ping Version", "sss.ping_version", FT_UINT32, BASE_HEX, NULL, 0x0,
-          NULL, HFILL }},
+        { "Ping Version", "sss.ping_version", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_flags,
-        { "Flags", "sss.flags", FT_UINT32, BASE_HEX, NULL, 0x0,
-          NULL, HFILL }},
+        { "Flags", "sss.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_context,
-        { "Context", "sss.context", FT_UINT32, BASE_HEX, NULL, 0x0,
-          NULL, HFILL }},
+        { "Context", "sss.context", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_frag_handle,
-        { "Fragment Handle", "sss.frag_handle", FT_UINT32, BASE_HEX, NULL, 0x0,
-          NULL, HFILL }},
+        { "Fragment Handle", "sss.frag_handle", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_length,
-        { "Length", "sss.length", FT_UINT32, BASE_DEC, NULL, 0x0,
-          NULL, HFILL }},
+        { "Length", "sss.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_verb,
-        { "Verb",    "sss.verb",
-          FT_UINT32,    BASE_HEX,   VALS(sss_verb_enum),   0x0,
-          NULL, HFILL }},
+        { "Verb", "sss.verb", FT_UINT32, BASE_HEX,   VALS(sss_verb_enum), 0x0, NULL, HFILL }},
 
         { &hf_user,
-        { "User",    "sss.user",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+        { "User",  "sss.user", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_secret,
-        { "Secret ID",    "sss.secret",
-          FT_STRING,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+        { "Secret ID", "sss.secret", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_sss_version,
-        { "SecretStore Protocol Version", "sss.version", FT_UINT32, BASE_HEX, NULL, 0x0,
-          NULL, HFILL }},
+        { "SecretStore Protocol Version", "sss.version", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_return_code,
-        { "Return Code", "sss.return_code", FT_UINT32, BASE_HEX, VALS(sss_errors_enum), 0x0,
-          NULL, HFILL }},
+        { "Return Code", "sss.return_code", FT_UINT32, BASE_HEX, VALS(sss_errors_enum), 0x0, NULL, HFILL }},
 
         { &hf_enc_cred,
-        { "Encrypted Credential",    "sss.enc_cred",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+        { "Encrypted Credential", "sss.enc_cred", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_enc_data,
-        { "Encrypted Data",    "sss.enc_data",
-          FT_BYTES,    BASE_NONE,   NULL,   0x0,
-          NULL, HFILL }},
+        { "Encrypted Data", "sss.enc_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hfbit1,
         { "Enhanced Protection", "ncp.sss_bit1", FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }},
@@ -924,24 +850,37 @@ proto_register_sss(void)
         { "Not Defined", "ncp.sss_bit31", FT_BOOLEAN, 32, NULL, 0x40000000, NULL, HFILL }},
 
         { &hfbit32,
-        { "Not Defined", "ncp.sss_bit32", FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL }},
-
+        { "Not Defined", "ncp.sss_bit32", FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL }}
     };
 
-        static gint *ett[] = {
-            &ett_sss,
-        };
+    static gint *ett[] = {
+        &ett_sss
+    };
 
-        static ei_register_info ei[] = {
-            { &ei_return_code, { "sss.return_code.expert", PI_RESPONSE_CODE, PI_NOTE, "SSS Error", EXPFILL }},
-        };
+    static ei_register_info ei[] = {
+        { &ei_return_code, { "sss.return_code.expert", PI_RESPONSE_CODE, PI_NOTE, "SSS Error", EXPFILL }}
+    };
 
-        expert_module_t* expert_sss;
-        /*module_t *sss_module;*/
+    expert_module_t* expert_sss;
+    /*module_t *sss_module;*/
 
-        proto_sss = proto_register_protocol("Novell SecretStore Services", "SSS", "sss");
-        proto_register_field_array(proto_sss, hf_sss, array_length(hf_sss));
-        proto_register_subtree_array(ett, array_length(ett));
-        expert_sss = expert_register_protocol(proto_sss);
-        expert_register_field_array(expert_sss, ei, array_length(ei));
+    proto_sss = proto_register_protocol("Novell SecretStore Services", "SSS", "sss");
+    proto_register_field_array(proto_sss, hf_sss, array_length(hf_sss));
+    proto_register_subtree_array(ett, array_length(ett));
+    expert_sss = expert_register_protocol(proto_sss);
+    expert_register_field_array(expert_sss, ei, array_length(ei));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
+

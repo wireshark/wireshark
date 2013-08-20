@@ -141,13 +141,13 @@ struct ncp_ip_rqhdr {
 static const value_string ncp_ip_signature[] = {
     { NCPIP_RQST, "Demand Transport (Request)" },
     { NCPIP_RPLY, "Transport is NCP (Reply)" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const value_string burst_command[] = {
     { 0x01000000, "Burst Read" },
     { 0x02000000, "Burst Write" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 /* The information in this module comes from:
@@ -416,8 +416,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Get request value data */
             request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
             if (request_value) {
-                if ((request_value->session_start_packet_num == pinfo->fd->num) && ncp_echo_conn)
-                {
+                if ((request_value->session_start_packet_num == pinfo->fd->num) && ncp_echo_conn) {
                     expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Detected New Server Session. Connection %d, Task %d", nw_connection, header.task);
                 }
             }
@@ -450,8 +449,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } else {
             request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
             if (request_value) {
-                if ((request_value->session_start_packet_num == pinfo->fd->num) && ncp_echo_conn)
-                {
+                if ((request_value->session_start_packet_num == pinfo->fd->num) && ncp_echo_conn) {
                     expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Detected New Server Session. Connection %d, Task %d", nw_connection, header.task);
                 }
             }
@@ -474,8 +472,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, tvb_get_guint8(tvb, commhdr+9));
         proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, ENC_BIG_ENDIAN);
-        if ((tvb_get_guint8(tvb, commhdr+9)==0x24) && ncp_echo_file)
-        {
+        if ((tvb_get_guint8(tvb, commhdr+9)==0x24) && ncp_echo_file) {
             expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server requesting station to clear oplock on handle - %08x", tvb_get_ntohl(tvb, commhdr+10));
         }
         break;
@@ -838,24 +835,24 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static guint
 get_ncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  guint32 signature;
+    guint32 signature;
 
-  /*
-   * Check the NCP-over-TCP header signature, to make sure it's there.
-   * If it's not there, we cannot trust the next 4 bytes to be a
-   * packet length+"has signature" flag, so we just say the length is
-   * "what remains in the packet".
-   */
-  signature = tvb_get_ntohl(tvb, offset);
-  if (signature != NCPIP_RQST && signature != NCPIP_RPLY)
-    return tvb_length_remaining(tvb, offset);
+    /*
+     * Check the NCP-over-TCP header signature, to make sure it's there.
+     * If it's not there, we cannot trust the next 4 bytes to be a
+     * packet length+"has signature" flag, so we just say the length is
+     * "what remains in the packet".
+     */
+    signature = tvb_get_ntohl(tvb, offset);
+    if (signature != NCPIP_RQST && signature != NCPIP_RPLY)
+        return tvb_length_remaining(tvb, offset);
 
-  /*
-   * Get the length of the NCP-over-TCP packet.  Strip off the "has
-   * signature" flag.
-   */
+    /*
+     * Get the length of the NCP-over-TCP packet.  Strip off the "has
+     * signature" flag.
+     */
 
-  return tvb_get_ntohl(tvb, offset + 4) & 0x7fffffff;
+    return tvb_get_ntohl(tvb, offset + 4) & 0x7fffffff;
 }
 
 static void
@@ -1035,15 +1032,14 @@ proto_register_ncp(void)
             "Packet Burst File Handle", HFILL }},
         { &hf_ncp_burst_reserved,
           { "Reserved",                         "ncp.burst_reserved",
-            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
     };
     static gint *ett[] = {
         &ett_ncp,
         &ett_ncp_system_flags,
         &ett_nds,
         &ett_nds_segments,
-        &ett_nds_segment,
+        &ett_nds_segment
     };
     module_t *ncp_module;
 
@@ -1107,3 +1103,17 @@ proto_reg_handoff_ncp(void)
 
     data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
+
