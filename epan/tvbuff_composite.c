@@ -97,7 +97,12 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 			break;
 		}
 	}
-	DISSECTOR_ASSERT(member_tvb);
+
+	/* special case */
+	if (!member_tvb) {
+		DISSECTOR_ASSERT(abs_offset == tvb->length && abs_length == 0);
+		return "";
+	}
 
 	member_offset = abs_offset - composite->start_offsets[i];
 
@@ -142,7 +147,12 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_lengt
 			break;
 		}
 	}
-	DISSECTOR_ASSERT(member_tvb);
+
+	/* special case */
+	if (!member_tvb) {
+		DISSECTOR_ASSERT(abs_offset == tvb->length && abs_length == 0);
+		return target;
+	}
 
 	member_offset = abs_offset - composite->start_offsets[i];
 
