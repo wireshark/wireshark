@@ -341,6 +341,9 @@ WS_DLL_PUBLIC
 GHashTable *get_serv_port_hashtable(void);
 
 WS_DLL_PUBLIC
+GHashTable *get_ipxnet_table(void);
+
+WS_DLL_PUBLIC
 GHashTable *get_ipv4_hash_table(void);
 
 WS_DLL_PUBLIC

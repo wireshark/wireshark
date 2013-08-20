@@ -286,6 +286,7 @@ typedef struct _ipxnet
     char              name[MAXNAMELEN];
 } ipxnet_t;
 
+static GHashTable   *ipxnet_hash_table = NULL;
 static GHashTable   *ipv4_hash_table = NULL;
 static GHashTable   *ipv6_hash_table = NULL;
 
@@ -297,8 +298,6 @@ static GHashTable *manuf_hashtable = NULL;
 static GHashTable *wka_hashtable = NULL;
 static GHashTable *eth_hashtable = NULL;
 static GHashTable *serv_port_hashtable = NULL;
-
-static hashipxnet_t *ipxnet_table[HASHIPXNETSIZE];
 
 static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
 static gboolean have_subnet_entry = FALSE;
@@ -1799,6 +1798,7 @@ static guint8 *
 eth_addr_lookup(const gchar *name _U_)
 {
 #if 0
+	/* XXX Do we need reverse lookup??? */
     ether_t      *eth;
     hashether_t  *tp;
     hashether_t **table = eth_table;
@@ -1998,33 +1998,29 @@ initialize_ipxnets(void)
 static void
 ipx_name_lookup_cleanup(void)
 {
-    /* The memory pointed to by this table is se_ allocated so we don't have to
-     * free it here.
-     */
-    memset(ipxnet_table, 0, sizeof(ipxnet_table));
+    if(ipxnet_hash_table){
+        g_hash_table_destroy(ipxnet_hash_table);
+		ipxnet_hash_table = NULL;
+    }
+
 }
 
 static hashipxnet_t *
 add_ipxnet_name(guint addr, const gchar *name)
 {
-    int hash_idx;
     hashipxnet_t *tp;
 
-    hash_idx = HASH_IPX_NET(addr);
+    tp = (hashipxnet_t   *)g_hash_table_lookup(ipxnet_hash_table, &addr);
+    if(tp){
+        g_strlcpy(tp->name, name, MAXNAMELEN);
+    }else{
+        int *key;
 
-    tp = ipxnet_table[hash_idx];
-
-    if( tp == NULL ) {
-        tp = ipxnet_table[hash_idx] = se_new(hashipxnet_t);
-    } else {
-        while(1) {
-            if (tp->next == NULL) {
-                tp->next = se_new(hashipxnet_t);
-                tp = tp->next;
-                break;
-            }
-            tp = tp->next;
-        }
+        key = (int *)g_new(int, 1);
+        *key = addr;
+        tp = g_new(hashipxnet_t,1);
+        g_strlcpy(tp->name, name, MAXNAMELEN);
+        g_hash_table_insert(ipxnet_hash_table, key, tp);
     }
 
     tp->addr = addr;
@@ -2039,34 +2035,24 @@ add_ipxnet_name(guint addr, const gchar *name)
 static gchar *
 ipxnet_name_lookup(const guint addr)
 {
-    int hash_idx;
     hashipxnet_t *tp;
     ipxnet_t *ipxnet;
 
-    hash_idx = HASH_IPX_NET(addr);
+    tp = (hashipxnet_t *)g_hash_table_lookup(ipxnet_hash_table, &addr);
+    if(tp == NULL){
+        int *key;
 
-    tp = ipxnet_table[hash_idx];
-
-    if( tp == NULL ) {
-        tp = ipxnet_table[hash_idx] = se_new(hashipxnet_t);
-    } else {
-        while(1) {
-            if (tp->addr == addr) {
-                return tp->name;
-            }
-            if (tp->next == NULL) {
-                tp->next = se_new(hashipxnet_t);
-                tp = tp->next;
-                break;
-            }
-            tp = tp->next;
-        }
+        key = (int *)g_new(int, 1);
+        *key = addr;
+        tp = g_new(hashipxnet_t, 1);
+        g_hash_table_insert(ipxnet_hash_table, key, tp);
+    }else{
+        return tp->name;
     }
 
     /* fill in a new entry */
 
     tp->addr = addr;
-    tp->next = NULL;
 
     if ( (ipxnet = get_ipxnetbyaddr(addr)) == NULL) {
         /* unknown name */
@@ -2083,6 +2069,10 @@ ipxnet_name_lookup(const guint addr)
 static guint
 ipxnet_addr_lookup(const gchar *name, gboolean *success)
 {
+	*success = FALSE;
+	return 0;
+#if 0
+	/* XXX Do we need reverse lookup??? */
     ipxnet_t *ipxnet;
     hashipxnet_t *tp;
     hashipxnet_t **table = ipxnet_table;
@@ -2113,7 +2103,7 @@ ipxnet_addr_lookup(const gchar *name, gboolean *success)
 
     *success = TRUE;
     return tp->addr;
-
+#endif
 } /* ipxnet_addr_lookup */
 
 static gboolean
@@ -2815,6 +2805,9 @@ host_name_lookup_init(void)
 #endif /* _WIN32 */
 #endif /*GNU_ADNS */
 
+    g_assert(ipxnet_hash_table == NULL);
+    ipxnet_hash_table = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+
     g_assert(ipv4_hash_table == NULL);
     ipv4_hash_table = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
 
@@ -2925,6 +2918,7 @@ host_name_lookup_cleanup(void)
         g_hash_table_destroy(ipv4_hash_table);
 		ipv4_hash_table = NULL;
     }
+
     if(ipv6_hash_table){
         g_hash_table_destroy(ipv6_hash_table);
 		ipv6_hash_table = NULL;
@@ -3477,6 +3471,12 @@ GHashTable *
 get_serv_port_hashtable(void)
 {
     return serv_port_hashtable;
+}
+
+GHashTable *
+get_ipxnet_hash_table(void)
+{
+        return ipxnet_hash_table;
 }
 
 GHashTable *
