@@ -426,7 +426,7 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
     char    buffer[1024];
     guint32 i;
     guint8  c_char;
-    gint length_remaining = 0;
+    gint length_remaining;
 
     if (length==0) {
         if (little) {
