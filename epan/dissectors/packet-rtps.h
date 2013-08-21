@@ -335,11 +335,11 @@ typedef enum {
 #define RTPS_VENDOR_RTI_DDS_MICRO        (0x010A)
 #define RTPS_VENDOR_RTI_DDS_MICRO_STRING "Real-Time Innovations, Inc. (RTI) - Connext DDS Micro"
 #define RTPS_VENDOR_PT_MOBILE            (0x010B)
-#define RTPS_VENDOR_PT_MOBILE_STRING     "PrimsTech - OpenSplice Mobile"
+#define RTPS_VENDOR_PT_MOBILE_STRING     "PrismTech - OpenSplice Mobile"
 #define RTPS_VENDOR_PT_GATEWAY           (0x010C)
-#define RTPS_VENDOR_PT_GATEWAY_STRING    "PrimsTech - OpenSplice Gateway"
+#define RTPS_VENDOR_PT_GATEWAY_STRING    "PrismTech - OpenSplice Gateway"
 #define RTPS_VENDOR_PT_LITE              (0x010D)
-#define RTPS_VENDOR_PT_LITE_STRING       "PrimsTech - OpenSplice Lite"
+#define RTPS_VENDOR_PT_LITE_STRING       "PrismTech - OpenSplice Lite"
 #define RTPS_VENDOR_TECHNICOLOR          (0x010E)
 #define RTPS_VENDOR_TECHNICOLOR_STRING   "Technicolor Inc. - Qeo"
 
