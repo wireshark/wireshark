@@ -1333,7 +1333,8 @@ if test "x$enable_wireshark" = "xyes"; then
 		[
 			CFLAGS="$CFLAGS $Qt_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
-			have_qt=yes
+			have_qt=yes		
+			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-qt"
 		],
 		[AC_MSG_ERROR([Qt is not available])])
 
@@ -1362,6 +1363,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			CFLAGS="$CFLAGS $GTK_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
+			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk3"
 		],
 		[AC_MSG_ERROR([GTK+ 3 is not available])])
 	elif test "x$with_gtk2" = "xyes"; then
@@ -1374,10 +1376,12 @@ if test "x$enable_wireshark" = "xyes"; then
 			CFLAGS="$CFLAGS $GTK_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
+			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk2"
 		],
 		[AC_MSG_ERROR([GTK+ 2 is not available])])
 	fi
 fi
+AC_SUBST(GUI_CONFIGURE_FLAGS)
 
 GLIB_MIN_VERSION=2.16.0
 AC_SUBST(GLIB_MIN_VERSION)
