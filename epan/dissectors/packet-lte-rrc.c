@@ -5269,64 +5269,62 @@ dissect_lte_rrc_featureGroupIndRel9Add(tvbuff_t *featureGroupIndRel9Add_tvb, asn
   proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_64, featureGroupIndRel9Add_tvb, 31, 1, ENC_BIG_ENDIAN);
 }
 
-
-
 /* Functions to get enum values out of indices parsed */
 /* If entry not found, return last element of array */
 static guint32 drx_lookup_onDurationTimer(guint32 idx)
 {
   static const guint32 vals[] = {1,2,3,4,5,6,8,10,20,30,40,50,60,80,100,200};
-  if (idx < sizeof(vals)) {
+
+  if (idx < (sizeof(vals)/sizeof(guint32))) {
     return vals[idx];
   }
-  else {
-    return (sizeof(vals)/(sizeof(guint32)) - 1);
-  }
+  return (sizeof(vals)/(sizeof(guint32)) - 1);
 }
 
 static guint32 drx_lookup_inactivityTimer(guint32 idx)
 {
-  static const guint32 vals[] = {1,2,3,4,5,6,8,10,20,30,40,50,60,80,100,200,300,
-                          500,750,1280,1920,2560,0};
-  if (idx < sizeof(vals)) {
+  static const guint32 vals[] = {
+    1,2,3,4,5,6,8,10,20,30,40,50,60,80,100,200,300, 500,750,1280,1920,2560,0
+  };
+
+  if (idx < (sizeof(vals)/sizeof(guint32))) {
     return vals[idx];
   }
-  else {
-    return (sizeof(vals)/(sizeof(guint32)) - 1);
-  }
+  return (sizeof(vals)/(sizeof(guint32)) - 1);
 }
 
 static guint32 drx_lookup_retransmissionTimer(guint32 idx)
 {
   static const guint32 vals[] = {1,2,4,6,8,16,24,33};
-  if (idx < sizeof(vals)) {
+
+  if (idx < (sizeof(vals)/sizeof(guint32))) {
     return vals[idx];
   }
-  else {
-    return (sizeof(vals)/(sizeof(guint32)) - 1);
-  }
+  return (sizeof(vals)/(sizeof(guint32)) - 1);
 }
 
 static guint32 drx_lookup_longCycle(guint32 idx)
 {
-  static const guint32 vals[] = {10,20,32,40,64,80,128,160,256,320,512,640,1024,1280,2048,2560};
-  if (idx < sizeof(vals)) {
+  static const guint32 vals[] = {
+    10,20,32,40,64,80,128,160,256,320,512,640,1024,1280,2048,2560
+  };
+
+  if (idx < (sizeof(vals)/sizeof(guint32))) {
     return vals[idx];
   }
-  else {
-    return (sizeof(vals)/(sizeof(guint32)) - 1);
-  }
+  return (sizeof(vals)/(sizeof(guint32)) - 1);
 }
 
 static guint32 drx_lookup_shortCycle(guint32 idx)
 {
-  static const guint32 vals[] = {2,5,8,10,16,20,32,40,64,80,128,160,256,320,512,640};
-  if (idx < sizeof(vals)) {
+  static const guint32 vals[] = {
+    2,5,8,10,16,20,32,40,64,80,128,160,256,320,512,640
+  };
+
+  if (idx < (sizeof(vals)/sizeof(guint32))) {
     return vals[idx];
   }
-  else {
-    return (sizeof(vals)/(sizeof(guint32)) - 1);
-  }
+  return (sizeof(vals)/(sizeof(guint32)) - 1);
 }
 
 /* Dedicated DRX config. Currently used to verify that a sensible config is given.
@@ -34478,7 +34476,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2057 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2055 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -43140,7 +43138,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2206 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2204 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44651,7 +44649,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2629 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2627 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -44718,7 +44716,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2680 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2678 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
