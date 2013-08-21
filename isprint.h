@@ -35,6 +35,6 @@
  * all characters that aren't printable ASCII.
  */
 #undef isprint
-#define isprint(c) (c >= 0x20 && c < 0x7f)
+#define isprint(c) (((c) >= 0x20) && ((c) < 0x7f))
 
 #endif
