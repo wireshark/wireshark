@@ -167,6 +167,8 @@ static gint hf_ssl_handshake_extension_elliptic_curves      = -1;
 static gint hf_ssl_handshake_extension_elliptic_curve       = -1;
 static gint hf_ssl_handshake_extension_ec_point_formats_len = -1;
 static gint hf_ssl_handshake_extension_ec_point_format      = -1;
+static gint hf_ssl_handshake_extension_alpn_len = -1;
+static gint hf_ssl_handshake_extension_alpn_str = -1;
 static gint hf_ssl_handshake_extension_npn_str_len = -1;
 static gint hf_ssl_handshake_extension_npn_str = -1;
 static gint hf_ssl_handshake_extension_reneg_info_len = -1;
@@ -283,6 +285,7 @@ static gint ett_ssl_comp_methods      = -1;
 static gint ett_ssl_extension         = -1;
 static gint ett_ssl_extension_curves  = -1;
 static gint ett_ssl_extension_curves_point_formats = -1;
+static gint ett_ssl_extension_alpn    = -1;
 static gint ett_ssl_extension_npn     = -1;
 static gint ett_ssl_extension_reneg_info = -1;
 static gint ett_ssl_extension_server_name = -1;
@@ -550,6 +553,9 @@ static gint dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
 
 static gint dissect_ssl3_hnd_hello_ext_ec_point_formats(tvbuff_t *tvb,
                                                         proto_tree *tree, guint32 offset);
+
+static gint dissect_ssl3_hnd_hello_ext_alpn(tvbuff_t *tvb,
+                                            proto_tree *tree, guint32 offset, guint32 ext_len);
 
 static gint dissect_ssl3_hnd_hello_ext_npn(tvbuff_t *tvb,
                                            proto_tree *tree, guint32 offset, guint32 ext_len);
@@ -2480,6 +2486,9 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
         case SSL_HND_HELLO_EXT_EC_POINT_FORMATS:
             offset = dissect_ssl3_hnd_hello_ext_ec_point_formats(tvb, ext_tree, offset);
             break;
+        case SSL_HND_HELLO_EXT_ALPN:
+            offset = dissect_ssl3_hnd_hello_ext_alpn(tvb, ext_tree, offset, ext_len);
+            break;
         case SSL_HND_HELLO_EXT_NPN:
             offset = dissect_ssl3_hnd_hello_ext_npn(tvb, ext_tree, offset, ext_len);
             break;
@@ -2504,6 +2513,41 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
         }
 
         left -= 2 + 2 + ext_len;
+    }
+
+    return offset;
+}
+
+static gint
+dissect_ssl3_hnd_hello_ext_alpn(tvbuff_t *tvb,
+        proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint16 alpn_length;
+    guint8 name_length;
+    proto_tree *alpn_tree;
+    proto_tree *ti;
+
+    alpn_length = tvb_get_ntohs(tvb, offset);
+    if (ext_len<2 || alpn_length!=ext_len-2) {
+        /* ERROR: alpn_length must be 2 less than ext_len */
+        return offset;
+    }
+    proto_tree_add_item(tree, hf_ssl_handshake_extension_alpn_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    ti = proto_tree_add_text(tree, tvb, offset, alpn_length,
+                                    "ALPN Protocol List");
+    alpn_tree = proto_item_add_subtree(ti, ett_ssl_extension_alpn);
+
+    while (alpn_length > 0) {
+        name_length = tvb_get_guint8(tvb, offset);
+        offset++;
+        alpn_length--;
+        proto_tree_add_item(alpn_tree, hf_ssl_handshake_extension_alpn_str,
+                            tvb, offset, name_length, ENC_ASCII|ENC_NA);
+        offset += name_length;
+        alpn_length -= name_length;
     }
 
     return offset;
@@ -5342,6 +5386,16 @@ proto_register_ssl(void)
             FT_UINT8, BASE_DEC, VALS(ssl_extension_ec_point_formats), 0x0,
             "Elliptic curves point format", HFILL }
         },
+        { &hf_ssl_handshake_extension_alpn_len,
+          { "ALPN Extension Length", "ssl.handshake.extensions_alpn_len",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Length of the ALPN Extension", HFILL }
+        },
+        { &hf_ssl_handshake_extension_alpn_str,
+          { "ALPN Next Protocol", "ssl.handshake.extensions_alpn_str",
+            FT_STRING, BASE_NONE, NULL, 0x00, 
+            NULL, HFILL }
+        },
         { &hf_ssl_handshake_extension_npn_str_len,
           { "Protocol string length", "ssl.handshake.extensions_npn_str_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -5862,6 +5916,7 @@ proto_register_ssl(void)
         &ett_ssl_extension,
         &ett_ssl_extension_curves,
         &ett_ssl_extension_curves_point_formats,
+        &ett_ssl_extension_alpn,
         &ett_ssl_extension_npn,
         &ett_ssl_extension_reneg_info,
         &ett_ssl_extension_server_name,
