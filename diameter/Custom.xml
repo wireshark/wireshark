@@ -2,8 +2,8 @@
 <!-- $Id$ -->
 
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd" [
-	<!-- Any files added here need to be added to Makefile.am and
-	     packaging/nsis/wireshark.nsi if you want them to be distributed
+	<!-- Any files added here need to be added to Custom.make and
+	     packaging/nsis/custom_diameter_xmls.txt if you want them to be distributed
 	-->
 
     <!-- create entities like this:

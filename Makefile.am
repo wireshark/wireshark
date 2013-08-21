@@ -72,7 +72,8 @@ nobase_dist_profiles_DATA = \
 # of that directory.
 #
 diameterdir = $(pkgdatadir)/diameter
-dist_diameter_DATA = \
+include diameter/Custom.make
+dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/chargecontrol.xml \
 	diameter/ChinaTelecom.xml \
 	diameter/Cisco.xml \

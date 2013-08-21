@@ -442,6 +442,7 @@ File "..\..\diameter\TGPPS9.xml"
 File "..\..\diameter\TGPPSh.xml"
 File "..\..\diameter\VerizonWireless.xml"
 File "..\..\diameter\Vodafone.xml"
+!include "custom_diameter_xmls.txt"
 SetOutPath $INSTDIR
 
 ;
