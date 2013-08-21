@@ -58,6 +58,7 @@
 #include "ui/gtk/file_dlg.h"
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/drag_and_drop.h"
+#include "ui/gtk/export_pdu_dlg.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/color_dlg.h"
 #include "ui/gtk/packet_list.h"
@@ -2111,6 +2112,75 @@ file_export_specified_packets_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
     g_string_free(file_name, TRUE);
     return;
   }
+}
+
+
+void
+file_export_pdu_ok_cb(GtkWidget *widget _U_, gpointer data)
+{
+  GtkWidget *msg_dialog;
+  gchar     *display_basename;
+  gint       response;
+
+  if (prefs.gui_ask_unsaved && cf_has_unsaved_data(&cfile)) {
+    if (cfile.is_tempfile) {
+      msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+          (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
+          GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE,
+          "Do you want to save the captured packets before exporting PDUs?");
+
+      gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+          "After the export, the captured packets will no longer be accessible.");
+    }
+    else {
+      display_basename = g_filename_display_basename(cfile.filename);
+      msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+          (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
+          GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE,
+          "Do you want to save the changes you've made "
+          "to the capture file \"%s\" before exporting PDUs from it?",
+          display_basename);
+      g_free(display_basename);
+      gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+          "Unsaved changes will be discarded when PDUs are exported.");
+    }
+
+    gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+        WIRESHARK_STOCK_DONT_SAVE, GTK_RESPONSE_CLOSE);
+    gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+    gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+        WIRESHARK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
+    gtk_dialog_set_alternative_button_order(GTK_DIALOG(msg_dialog),
+        GTK_RESPONSE_ACCEPT,
+        GTK_RESPONSE_CANCEL,
+        GTK_RESPONSE_CLOSE,
+        -1);
+    gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_ACCEPT);
+
+    response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
+    gtk_widget_destroy(msg_dialog);
+
+    switch (response) {
+      case GTK_RESPONSE_CLOSE:
+        /* nothing to do, user chose to discard the unsaved data */
+        break;
+
+      case GTK_RESPONSE_ACCEPT:
+        /* save the file but don't close it */
+        do_file_save(&cfile, FALSE);
+        break;
+
+      case GTK_RESPONSE_CANCEL:
+      case GTK_RESPONSE_NONE:
+      case GTK_RESPONSE_DELETE_EVENT:
+      default:
+        /* don't do the export. */
+        return;
+    }
+  }
+
+  do_export_pdu(data);
 }
 
 

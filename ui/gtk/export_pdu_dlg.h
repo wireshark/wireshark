@@ -27,5 +27,6 @@
 #define __EXPORT_PDU_DLG_H__
 
 void export_pdu_show_cb(GtkWidget *widget, gpointer data);
+void do_export_pdu(gpointer data);
 
 #endif /* __EXPORT_PDU_DLG_H__ */

@@ -85,6 +85,14 @@ void file_close_cmd_cb(GtkWidget *widget, gpointer data);
  */
 void file_export_specified_packets_cmd_cb(GtkWidget *widget, gpointer data);
 
+/** User requested the "Export PDUs to file" dialogue box
+ *  and pressed OK to start the export
+ *
+ * @param widget  parent widget
+ * @param data    pointer to internal data used by the export pdu part
+ */
+void file_export_pdu_ok_cb(GtkWidget *widget, gpointer data);
+
 /** User requested "Reload".
  *
  * @param widget parent widget
