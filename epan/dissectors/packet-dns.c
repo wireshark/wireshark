@@ -256,6 +256,7 @@ static gint ett_caa_data = -1;
 
 static expert_field ei_dns_rr_opt_bad_length = EI_INIT;
 static expert_field ei_dns_depr_opc = EI_INIT;
+static expert_field ei_ttl_negative = EI_INIT;
 
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
@@ -1251,9 +1252,10 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 static proto_tree *
 add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   const guchar *name, int namelen, int type, int dns_class, int flush,
-  guint ttl, gushort data_len, gboolean is_mdns)
+  guint ttl, gushort data_len, packet_info *pinfo, gboolean is_mdns)
 {
   proto_tree  *rr_tree;
+  proto_tree  *ttl_tree;
   gchar      **srv_rr_info;
 
   rr_tree = proto_item_add_subtree(trr, rr_type);
@@ -1293,8 +1295,12 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
     proto_tree_add_uint(rr_tree, hf_dns_rr_class, tvb, offset, 2, dns_class);
   }
   offset += 2;
-  proto_tree_add_uint_format(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ttl,
+  ttl_tree = proto_tree_add_uint_format(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ttl,
                              "Time to live: %s", time_secs_to_str(ttl));
+  if (ttl & 0x80000000) {
+    expert_add_info(pinfo, ttl_tree, &ei_ttl_negative);
+  }
+
   offset += 4;
   proto_tree_add_uint(rr_tree, hf_dns_rr_len, tvb, offset, 2, data_len);
   return rr_tree;
@@ -1561,7 +1567,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
                                 "%s: type %s, class %s",
                                 name_out, type_name, class_name);
       rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offsetx, name, name_len,
-                               type, dns_class, flush, ttl, data_len, is_mdns);
+                               type, dns_class, flush, ttl, data_len, pinfo, is_mdns);
     } else  {
       trr = proto_tree_add_text(dns_tree, tvb, offsetx,
                                 (data_offset - data_start) + data_len,
@@ -4849,6 +4855,7 @@ proto_register_dns(void)
   static ei_register_info ei[] = {
      { &ei_dns_rr_opt_bad_length, { "dns.rr.opt.bad_length", PI_MALFORMED, PI_ERROR, "Length too long for any type of IP address.", EXPFILL }},
      { &ei_dns_depr_opc, { "dns.depr.opc", PI_PROTOCOL, PI_WARN, "Deprecated opcode", EXPFILL }},
+     { &ei_ttl_negative, { "dns.ttl.negative", PI_PROTOCOL, PI_WARN, "TTL can't be negative", EXPFILL }}
   };
 
   static gint *ett[] = {
@@ -4866,6 +4873,7 @@ proto_register_dns(void)
     &ett_caa_flags,
     &ett_caa_data,
   };
+
   module_t *dns_module;
   expert_module_t* expert_dns;
 
