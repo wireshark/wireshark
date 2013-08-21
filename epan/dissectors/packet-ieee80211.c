@@ -1603,6 +1603,16 @@ static const true_false_string ieee80211_qos_amsdu_present_flag = {
   "MSDU"
 };
 
+static const true_false_string csa_txrestrict_flags = {
+  "Tx Restrict",
+  "No Tx Restrict"
+};
+
+static const true_false_string csa_initiator_flags = {
+  "Initiator",
+  "Non Initiator"
+};
+
 static const value_string sta_cf_pollable[] = {
   {0x00, "Station is not CF-Pollable"},
   {0x02, "Station is CF-Pollable, not requesting to be placed on the  CF-polling list"},
@@ -3044,6 +3054,13 @@ static int hf_ieee80211_rann_root_sta = -1;
 static int hf_ieee80211_rann_sn = -1;
 static int hf_ieee80211_rann_interval = -1;
 
+static int hf_ieee80211_mesh_channel_switch_ttl = -1;
+static int hf_ieee80211_mesh_channel_switch_flag = -1;
+static int hf_ieee80211_mesh_channel_switch_reason_code = -1;
+static int hf_ieee80211_mesh_channel_switch_precedence_value = -1;
+static int hf_ieee80211_mesh_chswitch_flag_txrestrict = -1;
+static int hf_ieee80211_mesh_chswitch_flag_initiator = -1;
+
 static int hf_ieee80211_mesh_config_path_sel_protocol = -1;
 static int hf_ieee80211_mesh_config_path_sel_metric = -1;
 static int hf_ieee80211_mesh_config_congestion_control = -1;
@@ -4110,6 +4127,7 @@ static gint ett_qos_info_field_tree = -1;
 static gint ett_wep_parameters = -1;
 static gint ett_msh_control = -1;
 static gint ett_hwmp_targ_flags_tree = -1;
+static gint ett_mesh_chswitch_flag_tree = -1;
 
 static gint ett_rsn_gcs_tree = -1;
 static gint ett_rsn_pcs_tree = -1;
@@ -12713,6 +12731,35 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       }
       break;
 
+    case TAG_MESH_CHANNEL_SWITCH: /* Mesh Channel Switch Parameters (118) */
+      {
+        proto_item *item;
+        proto_tree *subtree;
+        if (tag_len != 6)
+        {
+          expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 6", tag_len);
+            break;
+        }
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_ieee80211_mesh_channel_switch_ttl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_item_append_text(ti, " TTL: %d", tvb_get_guint8(tvb, offset));
+        offset += 1;
+
+        item = proto_tree_add_item(tree, hf_ieee80211_mesh_channel_switch_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        subtree = proto_item_add_subtree(item, ett_mesh_chswitch_flag_tree);
+        proto_tree_add_item(subtree, hf_ieee80211_mesh_chswitch_flag_initiator, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(subtree, hf_ieee80211_mesh_chswitch_flag_txrestrict, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_ieee80211_mesh_channel_switch_reason_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_ieee80211_mesh_channel_switch_precedence_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        break;
+     }
+
     case TAG_INTERWORKING:
       dissect_interworking(pinfo, tree, ti, tvb, offset);
       break;
@@ -18533,9 +18580,39 @@ proto_register_ieee80211 (void)
       "Set to the number of the channel to which the STA is moving", HFILL }},
 
     {&hf_ieee80211_csa_channel_switch_count,
-     {"Channel Switch Count", "wlan_mgt.csa.channel_switch_count",
+     {"Channel Switch Count", "wlan_mgt.csa.channel_switch.count",
       FT_UINT8, BASE_DEC, NULL, 0,
       "Set to the number of TBTTs until the STA sending the Channel Switch Announcement element switches to the new channel or shall be set to 0", HFILL }},
+
+    {&hf_ieee80211_mesh_channel_switch_ttl,
+     {"Mesh Channel Switch TTL", "wlan_mgt.csa.mesh_channel_switch.ttl",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_channel_switch_flag,
+     {"Mesh Channel Switch Flag", "wlan_mgt.csa.mesh_channel_switch.flag",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_chswitch_flag_txrestrict,
+     {"CSA Tx Restrict", "wlan_mgt.csa.mesh_channel_switch.flag.txrestrict",
+      FT_BOOLEAN, 16, TFS (&csa_txrestrict_flags), 0x0001,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_chswitch_flag_initiator,
+     {"CSA Initiator", "wlan_mgt.csa.mesh_channel_switch.flag.initiator",
+      FT_BOOLEAN, 16, TFS (&csa_initiator_flags), 0x0002,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_channel_switch_reason_code,
+     {"Mesh Channel Switch Reason Code", "wlan_mgt.csa.mesh_channel_switch.reason_code",
+      FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ieee80211_reason_code_ext, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_channel_switch_precedence_value,
+     {"Mesh Channel Switch Precedence Value", "wlan_mgt.csa.mesh_channel_switch.pre_value",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_token,
      {"Measurement Token", "wlan_mgt.measure.req.token",
@@ -20912,6 +20989,7 @@ proto_register_ieee80211 (void)
     &ett_wep_parameters,
     &ett_msh_control,
     &ett_hwmp_targ_flags_tree,
+    &ett_mesh_chswitch_flag_tree,
     &ett_cap_tree,
     &ett_rsn_gcs_tree,
     &ett_rsn_pcs_tree,
