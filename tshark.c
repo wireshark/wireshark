@@ -3048,7 +3048,6 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
   if (perform_two_pass_analysis) {
     frame_data *fdata;
-    int old_max_packet_count = max_packet_count;
 
     /* Allocate a frame_data_sequence for all the frames. */
     cf->frames = new_frame_data_sequence();
@@ -3074,8 +3073,6 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     /* Allow the protocol dissectors to free up memory that they
      * don't need after the sequential run-through of the packets. */
     postseq_cleanup_all_protocols();
-
-    max_packet_count = old_max_packet_count;
 
     prev_dis = NULL;
     prev_cap = NULL;
@@ -3116,15 +3113,6 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
               g_free(shb_hdr);
               exit(2);
             }
-          }
-          /* Stop reading if we have the maximum number of packets;
-           * When the -c option has not been used, max_packet_count
-           * starts at 0, which practically means, never stop reading.
-           * (unless we roll over max_packet_count ?)
-           */
-          if ( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
-            err = 0; /* This is not an error */
-            break;
           }
         }
       }
