@@ -951,7 +951,7 @@ typedef enum
 	BE_LCLS_CORR_NOT_NEEDED,            /* LCLS-Correlation-Not-Needed         3.2.2.118    */
 	BE_LCLS_BSS_STATUS,                 /* LCLS-BSS-Status                     3.2.2.119    */
 	BE_LCLS_BREAK_REQ,                  /* LCLS-Break-Request                  3.2.2.120    */
-	BE_CSFB_IND,                        /* CSFB Indication                     3.2.2.121    */
+	BE_CSFB_IND                         /* CSFB Indication                     3.2.2.121    */
 }
 bssmap_elem_idx_t;
 
