@@ -1146,6 +1146,22 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
     WSLUA_RETURN(1); /* The zero terminated string */
 }
 
+WSLUA_METHOD TvbRange_strsize(lua_State* L) {
+        /* Find the size of a zero terminated string from a TvbRange.  The size of the string includes the terminating zero. */
+    TvbRange tvbr = checkTvbRange(L,1);
+
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    lua_pushinteger(L, tvb_strsize(tvbr->tvb->ws_tvb, tvbr->offset));
+
+    WSLUA_RETURN(1); /* Length of the zero terminated string */
+}
+
+
 static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
 	/* Obtain a zero terminated string from a TvbRange */
     gint count;
@@ -1364,6 +1380,7 @@ static const luaL_Reg TvbRange_methods[] = {
     {"le_nstime", TvbRange_le_nstime},
     {"string", TvbRange_string},
     {"stringz", TvbRange_stringz},
+    {"strsize", TvbRange_strsize},
     {"bytes", TvbRange_bytes},
     {"bitfield", TvbRange_bitfield},
     {"range", TvbRange_range},
