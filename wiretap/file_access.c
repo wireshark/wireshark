@@ -140,6 +140,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	aethra_open,
 	btsnoop_open,
 	eyesdn_open,
+	vwr_open,          /* XXX - this is really a heuristic */
 	packetlogger_open, /* This type does not have a magic number, but its
 			    * files are sometimes grabbed by mpeg_open. */
 	mpeg_open,
@@ -157,14 +158,9 @@ static wtap_open_routine_t open_routines_base[] = {
 
 	/* I put NetScreen *before* erf, because there were some
 	 * false positives with my test-files (Sake Blok, July 2007)
-	 *
-	 * I put VWR *after* ERF, because there were some cases where
-	 * ERF files were misidentified as vwr files (Stephen
-	 * Donnelly, August 2013; see bug 9054)
 	 */
 	netscreen_open,
 	erf_open,
-	vwr_open,
 	ipfix_open,
 	k12text_open,
 	peekclassic_open,
