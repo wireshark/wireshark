@@ -171,24 +171,30 @@ static void capture_loop_stop(void);
 /** Close a pipe, or socket if \a from_socket is TRUE */
 static void cap_pipe_close(int pipe_fd, gboolean from_socket _U_);
 
-/* Enable kernel BPF jit compiler if available */
-int enable_kernel_bpf_jit_compiler(void)
+#ifdef __linux__
+/*
+ * Enable kernel BPF JIT compiler if available.
+ * If any calls fail, just drive on - the JIT compiler might not be
+ * enabled, but filtering will still work, and it's not clear what
+ * we could do if the calls fail; should we just report the error
+ * and not continue to capture, should we report it as a warning, or
+ * what?
+ */
+void
+enable_kernel_bpf_jit_compiler(void)
 {
     int fd;
-    ssize_t ret;
-
-    const char *file = "/proc/sys/net/core/bpf_jit_enable";
+    static const char file[] = "/proc/sys/net/core/bpf_jit_enable";
 
     fd = open(file, O_WRONLY);
     if (fd < 0)
-        return -1;
+        return;
 
-    ret = write(fd, "1", (unsigned int)strlen("1"));
+    write(fd, "1", strlen("1"));
 
     close(fd);
-    return ret;
 }
-
+#endif
 
 #if !defined (__linux__)
 #ifndef HAVE_PCAP_BREAKLOOP
@@ -238,6 +244,10 @@ int enable_kernel_bpf_jit_compiler(void)
 /* whatever the deal with pcap_breakloop, linux doesn't support timeouts
  * in pcap_dispatch(); on the other hand, select() works just fine there.
  * Hence we use a select for that come what may.
+ *
+ * XXX - with TPACKET_V1 and TPACKET_V2, it currently uses select()
+ * internally, and, with TPACKET_V3, once that's supported, it'll
+ * support timeouts, at least as I understand the way the code works.
  */
 #define MUST_DO_SELECT
 #endif
@@ -4403,7 +4413,9 @@ main(int argc, char *argv[])
 #endif /* SIGINFO */
 #endif  /* _WIN32 */
 
-	enable_kernel_bpf_jit_compiler();
+#ifdef __linux__
+    enable_kernel_bpf_jit_compiler();
+#endif
 
     /* ----------------------------------------------------------------- */
     /* Privilege and capability handling                                 */
