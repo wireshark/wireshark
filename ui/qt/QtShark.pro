@@ -314,36 +314,49 @@ EXTRA_BINFILES = \
 
 # http://stackoverflow.com/questions/3984104/qmake-how-to-copy-a-file-to-the-output
 unix: {
+
     exists(../../.libs/dumpcap) {
         EXTRA_BINFILES += \
             ../../.libs/dumpcap
-    } else:exists(../../dumpcap) {
+        EXTRA_LIBFILES += \
+            ../../epan/.libs/libwireshark*.$${QMAKE_EXTENSION_SHLIB} \
+            ../../wiretap/.libs/libwiretap*.$${QMAKE_EXTENSION_SHLIB} \
+            ../../wsutil/.libs/libwsutil*.$${QMAKE_EXTENSION_SHLIB}
+    } else:exists(../../lib/libw*) {
         EXTRA_BINFILES += \
             ../../dumpcap
-    }
-
-    exists(../../epan/.libs/libw*) {
-        EXTRA_BINFILES += \
-            ../../epan/.libs/libwireshark.* \
-            ../../wiretap/.libs/libwiretap.* \
-            ../../wsutil/.libs/libwsutil.*
-    } else:exists(../../lib/libw*) {
-        EXTRA_BINFILES += ../../lib/libwireshark.* \
-                        ../../lib/libwiretap.* \
-                        ../../lib/libwsutil.*
+        EXTRA_LIBFILES += ../../lib/libwireshark*.$${QMAKE_EXTENSION_SHLIB} \
+                        ../../lib/libwiretap*.$${QMAKE_EXTENSION_SHLIB} \
+                        ../../lib/libwsutil*.$${QMAKE_EXTENSION_SHLIB}
     }
 
 }
 unix:!macx {
+    EXTRA_BINFILES += EXTRA_LIBFILES
     for(FILE,EXTRA_BINFILES){
-        QMAKE_POST_LINK += $$quote(cp $${FILE} $${DESTDIR}$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cp $${FILE} .$$escape_expand(\\n\\t))
     }
 }
 # qmake 2.01a / Qt 4.7.0 doesn't set DESTDIR on OS X.
 macx {
+    MACOS_DIR = "$${DESTDIR}/$${TARGET}.app/Contents/MacOS"
+    FRAMEWORKS_DIR = "$${DESTDIR}/$${TARGET}.app/Contents/Frameworks"
+
     for(FILE,EXTRA_BINFILES){
-        QMAKE_POST_LINK += $$quote(cp -R $${FILE} $${DESTDIR}/$${TARGET}.app/Contents/MacOS$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cp -R $${FILE} $${MACOS_DIR}/$$escape_expand(\\n\\t))
     }
+
+#    QMAKE_POST_LINK += $$quote($(MKDIR) $${FRAMEWORKS_DIR}/$$escape_expand(\\n\\t))
+#    for(FILE,EXTRA_LIBFILES){
+#        QMAKE_POST_LINK += $$quote(cp -R $${FILE} $${FRAMEWORKS_DIR}/$$escape_expand(\\n\\t))
+#    }
+
+    # Homebrew installs libraries read-only, which makes macdeployqt fail when
+    # it tries to adjust paths. Work around this by running it twice.
+    QMAKE_POST_LINK += $$quote(macdeployqt \"$${DESTDIR}/$${TARGET}.app\" || /bin/true$$escape_expand(\\n\\t))
+    QMAKE_POST_LINK += $$quote(chmod 644 \"$${FRAMEWORKS_DIR}/\"*.dylib$$escape_expand(\\n\\t))
+    QMAKE_POST_LINK += $$quote(macdeployqt -executable=\"$${MACOS_DIR}/dumpcap\" \"$${DESTDIR}/$${TARGET}.app\"$$escape_expand(\\n\\t))
+    QMAKE_POST_LINK += $$quote(chmod 444 \"$${FRAMEWORKS_DIR}/\"*.dylib$$escape_expand(\\n\\t))
 }
 
 win32 {
