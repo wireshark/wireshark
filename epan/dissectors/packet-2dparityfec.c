@@ -61,6 +61,8 @@
 ** Mark Lewis - 20th June 2006
 */
 
+#define NEW_PROTO_TREE_API
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -70,26 +72,96 @@
 void proto_register_2dparityfec(void);
 void proto_reg_handoff_2dparityfec(void);
 
+static dissector_handle_t handle_2dparityfec = NULL;
+
 static gboolean dissect_fec = FALSE;
 
-static int proto_2dparityfec = -1;
 static int fec_rtp_payload_type = 96;
 static gint ett_2dparityfec = -1;
 
-static int hf_2dparityfec_snbase_low      = -1;
-static int hf_2dparityfec_length_recovery = -1;
-static int hf_2dparityfec_rfc2733_ext     = -1;
-static int hf_2dparityfec_pt_recovery     = -1;
-static int hf_2dparityfec_mask            = -1;
-static int hf_2dparityfec_ts_recovery     = -1;
-static int hf_2dparityfec_ts_pro_mpeg_ext = -1;
-static int hf_2dparityfec_row_flag        = -1;
-static int hf_2dparityfec_type            = -1;
-static int hf_2dparityfec_index           = -1;
-static int hf_2dparityfec_offset          = -1;
-static int hf_2dparityfec_na              = -1;
-static int hf_2dparityfec_snbase_ext      = -1;
-static int hf_2dparityfec_payload         = -1;
+static header_field_info *hfi_2dparityfec = NULL;
+
+#define _2DPARITYFEC_HFI_INIT HFI_INIT(proto_2dparityfec)
+
+static header_field_info hfi_2dparityfec_snbase_low _2DPARITYFEC_HFI_INIT =
+{  "SNBase low",
+   "2dparityfec.snbase_low",
+   FT_UINT16,
+   BASE_DEC,
+   NULL,
+   0x0,
+   NULL,
+   HFILL};
+
+static header_field_info hfi_2dparityfec_length_recovery _2DPARITYFEC_HFI_INIT =
+{ "Length recovery",
+  "2dparityfec.lr",
+  FT_UINT16,
+  BASE_HEX,
+  NULL,
+  0x0,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_rfc2733_ext _2DPARITYFEC_HFI_INIT =
+{ "RFC2733 Extension (E)",
+  "2dparityfec.e",
+  FT_BOOLEAN,
+  8,
+  NULL,
+  0x80,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_pt_recovery _2DPARITYFEC_HFI_INIT =
+{ "Payload Type recovery",
+  "2dparityfec.ptr",
+  FT_UINT8,
+  BASE_HEX,
+  NULL,
+  0x7f,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_mask _2DPARITYFEC_HFI_INIT =
+{ "Mask",
+  "2dparityfec.mask",
+  /*FT_UINT32*/FT_UINT24,
+  BASE_HEX,
+  NULL,
+  /*0x00ffffff*/0x0,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_ts_recovery _2DPARITYFEC_HFI_INIT =
+{ "Timestamp recovery",
+  "2dparityfec.tsr",
+  FT_UINT32,
+  BASE_HEX,
+  NULL,
+  0x0,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_ts_pro_mpeg_ext _2DPARITYFEC_HFI_INIT =
+{ "Pro-MPEG Extension (X)",
+  "2dparityfec.x",
+  FT_BOOLEAN,
+  8,
+  NULL,
+  0x80,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_row_flag _2DPARITYFEC_HFI_INIT =
+{ "Row FEC (D)",
+  "2dparityfec.d",
+  FT_BOOLEAN,
+  8,
+  NULL,
+  0x40,
+  NULL,
+  HFILL};
 
 static const value_string fec_type_names[] = {
    {0, "XOR"},
@@ -97,6 +169,67 @@ static const value_string fec_type_names[] = {
    {2, "Reed-Solomon"},
    {0, NULL}
 };
+
+static header_field_info hfi_2dparityfec_type _2DPARITYFEC_HFI_INIT =
+{ "Type",
+  "2dparityfec.type",
+  FT_UINT8,
+  BASE_DEC,
+  VALS(fec_type_names),
+  0x38,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_index _2DPARITYFEC_HFI_INIT =
+{ "Index",
+  "2dparityfec.index",
+  FT_UINT8,
+  BASE_DEC,
+  NULL,
+  0x07,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_offset _2DPARITYFEC_HFI_INIT =
+{ "Offset",
+  "2dparityfec.offset",
+  FT_UINT8,
+  BASE_DEC,
+  NULL,
+  0x0,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_na _2DPARITYFEC_HFI_INIT =
+{ "NA",
+  "2dparityfec.na",
+  FT_UINT8,
+  BASE_DEC,
+  NULL,
+  0x0,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_snbase_ext _2DPARITYFEC_HFI_INIT =
+{ "SNBase ext",
+  "2dparityfec.snbase_ext",
+  FT_UINT8,
+  BASE_DEC,
+  NULL,
+  0x0,
+  NULL,
+  HFILL};
+
+static header_field_info hfi_2dparityfec_payload _2DPARITYFEC_HFI_INIT =
+{ "FEC Payload",
+  "2dparityfec.payload",
+  FT_BYTES,
+  BASE_NONE,
+  NULL,
+  0x0,
+  NULL,
+  HFILL};
+
 
 static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -138,23 +271,23 @@ static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_tree *tree_2dparityfec = NULL;
       gint offset = 0;
 
-      ti = proto_tree_add_item(tree, proto_2dparityfec, tvb, 0, -1, ENC_NA);
+      ti = proto_tree_add_item(tree, hfi_2dparityfec, tvb, 0, -1, ENC_NA);
       tree_2dparityfec = proto_item_add_subtree(ti, ett_2dparityfec);
 
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_snbase_low,      tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_length_recovery, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_rfc2733_ext,     tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_pt_recovery,     tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_mask,            tvb, offset, 3, ENC_BIG_ENDIAN); offset += 3;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_ts_recovery,     tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_ts_pro_mpeg_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_row_flag,        tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_type,            tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_index,           tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_offset,          tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_na,              tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_snbase_ext,      tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_payload,         tvb, offset, -1, ENC_NA);
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_snbase_low,      tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_length_recovery, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_rfc2733_ext,     tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_pt_recovery,     tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_mask,            tvb, offset, 3, ENC_BIG_ENDIAN); offset += 3;
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_ts_recovery,     tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_ts_pro_mpeg_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_row_flag,        tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_type,            tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_index,           tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_offset,          tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_na,              tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_snbase_ext,      tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+      proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_payload,         tvb, offset, -1, ENC_NA);
    }
 }
 
@@ -163,148 +296,21 @@ void proto_register_2dparityfec(void)
    module_t *module_2dparityfec;
 
 /* Payload type definitions */
-   static hf_register_info hf[] = {
-      {&hf_2dparityfec_snbase_low,
-       {   "SNBase low",
-           "2dparityfec.snbase_low",
-           FT_UINT16,
-           BASE_DEC,
-           NULL,
-           0x0,
-           NULL,
-           HFILL}   },
-
-      {&hf_2dparityfec_length_recovery,
-       {  "Length recovery",
-          "2dparityfec.lr",
-          FT_UINT16,
-          BASE_HEX,
-          NULL,
-          0x0,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_rfc2733_ext,
-       {  "RFC2733 Extension (E)",
-          "2dparityfec.e",
-          FT_BOOLEAN,
-          8,
-          NULL,
-          0x80,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_pt_recovery,
-       {  "Payload Type recovery",
-          "2dparityfec.ptr",
-          FT_UINT8,
-          BASE_HEX,
-          NULL,
-          0x7f,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_mask,
-       {  "Mask",
-          "2dparityfec.mask",
-          /*FT_UINT32*/FT_UINT24,
-          BASE_HEX,
-          NULL,
-          /*0x00ffffff*/0x0,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_ts_recovery,
-       {  "Timestamp recovery",
-          "2dparityfec.tsr",
-          FT_UINT32,
-          BASE_HEX,
-          NULL,
-          0x0,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_ts_pro_mpeg_ext,
-       {  "Pro-MPEG Extension (X)",
-          "2dparityfec.x",
-          FT_BOOLEAN,
-          8,
-          NULL,
-          0x80,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_row_flag,
-       {  "Row FEC (D)",
-          "2dparityfec.d",
-          FT_BOOLEAN,
-          8,
-          NULL,
-          0x40,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_type,
-       {  "Type",
-          "2dparityfec.type",
-          FT_UINT8,
-          BASE_DEC,
-          VALS(fec_type_names),
-          0x38,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_index,
-       {  "Index",
-          "2dparityfec.index",
-          FT_UINT8,
-          BASE_DEC,
-          NULL,
-          0x07,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_offset,
-       {  "Offset",
-          "2dparityfec.offset",
-          FT_UINT8,
-          BASE_DEC,
-          NULL,
-          0x0,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_na,
-       {  "NA",
-          "2dparityfec.na",
-          FT_UINT8,
-          BASE_DEC,
-          NULL,
-          0x0,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_snbase_ext,
-       {  "SNBase ext",
-          "2dparityfec.snbase_ext",
-          FT_UINT8,
-          BASE_DEC,
-          NULL,
-          0x0,
-          NULL,
-          HFILL}   },
-
-      {&hf_2dparityfec_payload,
-       {  "FEC Payload",
-          "2dparityfec.payload",
-          FT_BYTES,
-          BASE_NONE,
-          NULL,
-          0x0,
-          NULL,
-          HFILL}   }
-
-
+   static header_field_info *hfi[] = {
+      &hfi_2dparityfec_snbase_low,
+      &hfi_2dparityfec_length_recovery,
+      &hfi_2dparityfec_rfc2733_ext,
+      &hfi_2dparityfec_pt_recovery,
+      &hfi_2dparityfec_mask,
+      &hfi_2dparityfec_ts_recovery,
+      &hfi_2dparityfec_ts_pro_mpeg_ext,
+      &hfi_2dparityfec_row_flag,
+      &hfi_2dparityfec_type,
+      &hfi_2dparityfec_index,
+      &hfi_2dparityfec_offset,
+      &hfi_2dparityfec_na,
+      &hfi_2dparityfec_snbase_ext,
+      &hfi_2dparityfec_payload,
    };
 
 /* Setup protocol subtree array */
@@ -312,12 +318,15 @@ void proto_register_2dparityfec(void)
       &ett_2dparityfec,
    };
 
+   int proto_2dparityfec;
+
    proto_2dparityfec = proto_register_protocol(
       "Pro-MPEG Code of Practice #3 release 2 FEC Protocol",   /* name */
       "2dparityfec",            /* short name */
       "2dparityfec");           /* abbrev */
+   hfi_2dparityfec = proto_registrar_get_nth(proto_2dparityfec);
 
-   proto_register_field_array(proto_2dparityfec, hf, array_length(hf));
+   proto_register_fields(proto_2dparityfec, hfi, array_length(hfi));
    proto_register_subtree_array(ett, array_length(ett));
 
    module_2dparityfec = prefs_register_protocol(proto_2dparityfec,
@@ -329,17 +338,12 @@ void proto_register_2dparityfec(void)
                                   "as FEC data corresponding to Pro-MPEG Code of Practice #3 release 2",
                                   &dissect_fec);
 
+      handle_2dparityfec = create_dissector_handle(dissect_2dparityfec,
+                                                   proto_2dparityfec);
 }
 
 void proto_reg_handoff_2dparityfec(void)
 {
-   static dissector_handle_t handle_2dparityfec = NULL;
-
-   if (!handle_2dparityfec) {
-      handle_2dparityfec = create_dissector_handle(dissect_2dparityfec,
-                                                   proto_2dparityfec);
-   }
-
    if (dissect_fec) {
       dissector_add_uint("rtp.pt", fec_rtp_payload_type, handle_2dparityfec);
    } else {

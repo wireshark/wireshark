@@ -23,6 +23,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define NEW_PROTO_TREE_API
+
 #include "config.h"
 
 #include <glib.h>
@@ -40,10 +42,19 @@ void proto_register_data(void);
 
 int proto_data = -1;
 
-static int hf_data_data = -1;
-static int hf_data_text = -1;
-static int hf_data_len = -1;
-static int hf_data_md5_hash = -1;
+#define DATA_HFI_INIT HFI_INIT(proto_data)
+
+static header_field_info hfi_data_data DATA_HFI_INIT =
+	  { "Data", "data.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_data_text DATA_HFI_INIT =
+	  { "Text", "data.text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_data_len DATA_HFI_INIT =
+	  { "Length", "data.len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_data_md5_hash DATA_HFI_INIT =
+	  { "Payload MD5 hash", "data.md5_hash", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 static gboolean new_pane = FALSE;
 static gboolean show_as_text = FALSE;
@@ -76,10 +87,10 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				plurality(bytes, "", "s"));
 			data_tree = proto_item_add_subtree(ti, ett_data);
 
-			proto_tree_add_item(data_tree, hf_data_data, data_tvb, 0, bytes, ENC_NA);
+			proto_tree_add_item(data_tree, &hfi_data_data, data_tvb, 0, bytes, ENC_NA);
 
 			if (show_as_text) {
-				proto_tree_add_item(data_tree, hf_data_text, data_tvb, 0, bytes, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(data_tree, &hfi_data_text, data_tvb, 0, bytes, ENC_ASCII|ENC_NA);
 			}
 
 			if(generate_md5_hash) {
@@ -95,11 +106,11 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				md5_finish(&md_ctx, digest);
 
 				digest_string = bytestring_to_str(digest, 16, '\0');
-				ti = proto_tree_add_string(data_tree, hf_data_md5_hash, tvb, 0, 0, digest_string);
+				ti = proto_tree_add_string(data_tree, &hfi_data_md5_hash, tvb, 0, 0, digest_string);
 				PROTO_ITEM_SET_GENERATED(ti);
 			}
 
-			ti = proto_tree_add_int(data_tree, hf_data_len, data_tvb, 0, 0, bytes);
+			ti = proto_tree_add_int(data_tree, &hfi_data_len, data_tvb, 0, 0, bytes);
 			PROTO_ITEM_SET_GENERATED (ti);
 		}
 	}
@@ -108,15 +119,11 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 void
 proto_register_data(void)
 {
-	static hf_register_info hf[] = {
-		{ &hf_data_data,
-		  { "Data", "data.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-		{ &hf_data_text,
-		  { "Text", "data.text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-		{ &hf_data_md5_hash,
-		  { "Payload MD5 hash", "data.md5_hash", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-		{ &hf_data_len,
-		  { "Length", "data.len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
+	static header_field_info *hfi[] = {
+		&hfi_data_data,
+		&hfi_data_text,
+		&hfi_data_md5_hash,
+		&hfi_data_len,
 	};
 
 	static gint *ett[] = {
@@ -133,7 +140,7 @@ proto_register_data(void)
 
 	register_dissector("data", dissect_data, proto_data);
 
-	proto_register_field_array(proto_data, hf, array_length(hf));
+	proto_register_fields(proto_data, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	module_data = prefs_register_protocol( proto_data, NULL);

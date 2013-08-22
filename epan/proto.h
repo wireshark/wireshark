@@ -2122,6 +2122,9 @@ proto_custom_set(proto_tree* tree, const int field_id,
 #define proto_tree_add_time(tree, hfinfo, tvb, start, length, value) \
 	proto_tree_add_time(tree, (hfinfo)->id, tvb, start, length, value)
 
+#define proto_tree_add_int(tree, hfinfo, tvb, start, length, value) \
+	proto_tree_add_int(tree, (hfinfo)->id, tvb, start, length, value)
+
 #define proto_tree_add_uint(tree, hfinfo, tvb, start, length, value) \
 	proto_tree_add_uint(tree, (hfinfo)->id, tvb, start, length, value)
 #endif

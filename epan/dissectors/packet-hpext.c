@@ -23,6 +23,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#define NEW_PROTO_TREE_API
+
 #include "config.h"
 
 #include <glib.h>
@@ -32,16 +34,9 @@
 #include <epan/llcsaps.h>
 #include "packet-hpext.h"
 
+static dissector_handle_t hpext_handle;
+
 static dissector_table_t subdissector_table;
-
-static dissector_handle_t data_handle;
-
-static int proto_hpext = -1;
-
-static int hf_hpext_dxsap = -1;
-static int hf_hpext_sxsap = -1;
-
-static gint ett_hpext = -1;
 
 static const value_string xsap_vals[] = {
 	{ HPEXT_DXSAP,  "RBOOT Destination Service Access Point" },
@@ -50,6 +45,24 @@ static const value_string xsap_vals[] = {
 	{ HPEXT_SNMP,   "SNMP" },
 	{ 0x00,         NULL }
 };
+
+
+static header_field_info *hfi_hpext = NULL;
+
+#define HPEXT_HFI_INIT HFI_INIT(proto_hpext)
+
+static header_field_info hfi_hpext_dxsap HPEXT_HFI_INIT =
+		{ "DXSAP",	"hpext.dxsap", FT_UINT16, BASE_HEX,
+			VALS(xsap_vals), 0x0, NULL, HFILL };
+
+static header_field_info hfi_hpext_sxsap HPEXT_HFI_INIT =
+		{ "SXSAP", "hpext.sxsap", FT_UINT16, BASE_HEX,
+			VALS(xsap_vals), 0x0, NULL, HFILL };
+
+
+static gint ett_hpext = -1;
+
+static dissector_handle_t data_handle;
 
 static void
 dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -65,12 +78,12 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sxsap = tvb_get_ntohs(tvb, 5);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_hpext, tvb, 0, 7, ENC_NA);
+		ti = proto_tree_add_item(tree, hfi_hpext, tvb, 0, 7, ENC_NA);
 		hpext_tree = proto_item_add_subtree(ti, ett_hpext);
 		proto_tree_add_text(hpext_tree, tvb, 0, 3, "Reserved");
-		proto_tree_add_uint(hpext_tree, hf_hpext_dxsap, tvb, 3,
+		proto_tree_add_uint(hpext_tree, &hfi_hpext_dxsap, tvb, 3,
 			2, dxsap);
-		proto_tree_add_uint(hpext_tree, hf_hpext_sxsap, tvb, 5,
+		proto_tree_add_uint(hpext_tree, &hfi_hpext_sxsap, tvb, 5,
 			2, sxsap);
 	}
 
@@ -91,38 +104,35 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_hpext(void)
 {
-	static hf_register_info hf[] = {
-		{ &hf_hpext_dxsap,
-		{ "DXSAP",	"hpext.dxsap", FT_UINT16, BASE_HEX,
-			VALS(xsap_vals), 0x0, NULL, HFILL }},
-
-		{ &hf_hpext_sxsap,
-		{ "SXSAP", "hpext.sxsap", FT_UINT16, BASE_HEX,
-			VALS(xsap_vals), 0x0, NULL, HFILL }}
+	static header_field_info *hfi[] = {
+		&hfi_hpext_dxsap,
+		&hfi_hpext_sxsap,
 	};
+
 	static gint *ett[] = {
 		&ett_hpext
 	};
 
+	int proto_hpext;
+
 	proto_hpext = proto_register_protocol(
 	    "HP Extended Local-Link Control", "HPEXT", "hpext");
-	proto_register_field_array(proto_hpext, hf, array_length(hf));
+	hfi_hpext = proto_registrar_get_nth(proto_hpext);
+
+	proto_register_fields(proto_hpext, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
 /* subdissector code */
 	subdissector_table = register_dissector_table("hpext.dxsap",
 	  "HPEXT XSAP", FT_UINT16, BASE_HEX);
 
-	register_dissector("hpext", dissect_hpext, proto_hpext);
+	hpext_handle = register_dissector("hpext", dissect_hpext, proto_hpext);
 }
 
 void
 proto_reg_handoff_hpext(void)
 {
-	dissector_handle_t hpext_handle;
-
 	data_handle = find_dissector("data");
 
-	hpext_handle = find_dissector("hpext");
 	dissector_add_uint("llc.dsap", SAP_HPEXT, hpext_handle);
 }

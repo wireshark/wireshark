@@ -26,6 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define NEW_PROTO_TREE_API
+
 #include "config.h"
 
 #include <glib.h>
@@ -36,9 +38,22 @@
 void proto_register_acap(void);
 void proto_reg_handoff_acap(void);
 
-static int proto_acap = -1;
-static int hf_acap_response = -1;
-static int hf_acap_request = -1;
+static dissector_handle_t acap_handle;
+
+static header_field_info *hfi_acap = NULL;
+
+#define HFI_ACAP HFI_INIT(proto_acap)
+
+static header_field_info hfi_acap_response HFI_ACAP =
+		  { "Response",           "acap.response",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "TRUE if ACAP response", HFILL };
+
+static header_field_info hfi_acap_request HFI_ACAP =
+		  { "Request",            "acap.request",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "TRUE if ACAP request", HFILL };
+
 
 static gint ett_acap = -1;
 static gint ett_acap_reqresp = -1;
@@ -84,17 +99,17 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    format_text(line, linelen));
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_acap, tvb, offset, -1,
+		ti = proto_tree_add_item(tree, hfi_acap, tvb, offset, -1,
 		    ENC_NA);
 		acap_tree = proto_item_add_subtree(ti, ett_acap);
 
 		if (is_request) {
 			hidden_item = proto_tree_add_boolean(acap_tree,
-			    hf_acap_request, tvb, 0, 0, TRUE);
+			    &hfi_acap_request, tvb, 0, 0, TRUE);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		} else {
 			hidden_item = proto_tree_add_boolean(acap_tree,
-			    hf_acap_response, tvb, 0, 0, TRUE);
+			    &hfi_acap_response, tvb, 0, 0, TRUE);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
 
@@ -159,33 +174,30 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_acap(void)
 {
-	static hf_register_info hf[] = {
-		{ &hf_acap_response,
-		  { "Response",           "acap.response",
-		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		    "TRUE if ACAP response", HFILL }},
-
-		{ &hf_acap_request,
-		  { "Request",            "acap.request",
-		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		    "TRUE if ACAP request", HFILL }}
+	static header_field_info *hfi[] = {
+		&hfi_acap_response,
+		&hfi_acap_request,
 	};
+
 	static gint *ett[] = {
 		&ett_acap,
 		&ett_acap_reqresp,
 	};
 
+	int proto_acap;
+
 	proto_acap = proto_register_protocol("Application Configuration Access Protocol",
 					     "ACAP", "acap");
-	proto_register_field_array(proto_acap, hf, array_length(hf));
+	hfi_acap = proto_registrar_get_nth(proto_acap);
+
+	proto_register_fields(proto_acap, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	acap_handle = create_dissector_handle(dissect_acap, proto_acap);
 }
 
 void
 proto_reg_handoff_acap(void)
 {
-	dissector_handle_t acap_handle;
-
-	acap_handle = create_dissector_handle(dissect_acap, proto_acap);
 	dissector_add_uint("tcp.port", TCP_PORT_ACAP, acap_handle);
 }
