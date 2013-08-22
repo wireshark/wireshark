@@ -612,7 +612,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  ngsniffer_dump_can_write_encap, ngsniffer_dump_open },
 
 	/* WTAP_FILE_NGSNIFFER_COMPRESSED */
-	{ "NA Sniffer (DOS), compressed", "ngsniffer_comp", "caz", NULL, FALSE, FALSE,
+	{ "NA Sniffer (DOS), compressed", "ngsniffer_comp", "cap", "enc;trc;fdc;syc", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_1_1 */
@@ -620,7 +620,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  netxray_dump_can_write_encap_1_1, netxray_dump_open_1_1 },
 
 	/* WTAP_FILE_NETXRAY_2_00x */
-	{ "NA Sniffer (Windows) 2.00x", "ngwsniffer_2_0", "cap", NULL, TRUE, FALSE,
+	{ "NA Sniffer (Windows) 2.00x", "ngwsniffer_2_0", "cap", "caz", TRUE, FALSE,
 	  netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0 },
 
 	/* WTAP_FILE_NETWORK_INSTRUMENTS */
