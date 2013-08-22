@@ -108,7 +108,7 @@ sub {
 	$module{descr} = $2
 } ],
 
-[ 'WSLUA_CLASS_DEFINE\050\s*([A-Z][a-zA-Z]+).*?\051;' . $TRAILING_COMMENT_RE,
+[ 'WSLUA_CLASS_DEFINE\050\s*([A-Z][a-zA-Z0-9]+).*?\051;' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">c=$1=$2=$3=$4=$5=$6=$7=\n";
 	$class = {
@@ -121,7 +121,7 @@ sub {
 	$classes{$1} = $class;
 } ],
 
-[ 'WSLUA_FUNCTION\s+wslua_([a-z_]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
+[ 'WSLUA_FUNCTION\s+wslua_([a-z_0-9]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">f=$1=$2=$3=$4=$5=$6=$7=\n";
 	$function = {
