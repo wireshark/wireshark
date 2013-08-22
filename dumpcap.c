@@ -171,6 +171,25 @@ static void capture_loop_stop(void);
 /** Close a pipe, or socket if \a from_socket is TRUE */
 static void cap_pipe_close(int pipe_fd, gboolean from_socket _U_);
 
+/* Enable kernel BPF jit compiler if available */
+int enable_kernel_bpf_jit_compiler(void)
+{
+    int fd;
+    ssize_t ret;
+
+    const char *file = "/proc/sys/net/core/bpf_jit_enable";
+
+    fd = open(file, O_WRONLY);
+    if (fd < 0)
+        return -1;
+
+    ret = write(fd, "1", (unsigned int)strlen("1"));
+
+    close(fd);
+    return ret;
+}
+
+
 #if !defined (__linux__)
 #ifndef HAVE_PCAP_BREAKLOOP
 /*
@@ -4383,6 +4402,8 @@ main(int argc, char *argv[])
     sigaction(SIGINFO, &action, NULL);
 #endif /* SIGINFO */
 #endif  /* _WIN32 */
+
+	enable_kernel_bpf_jit_compiler();
 
     /* ----------------------------------------------------------------- */
     /* Privilege and capability handling                                 */
