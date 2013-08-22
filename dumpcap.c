@@ -184,13 +184,14 @@ void
 enable_kernel_bpf_jit_compiler(void)
 {
     int fd;
+    ssize_t written _U_;
     static const char file[] = "/proc/sys/net/core/bpf_jit_enable";
 
     fd = open(file, O_WRONLY);
     if (fd < 0)
         return;
 
-    write(fd, "1", strlen("1"));
+    written = write(fd, "1", strlen("1"));
 
     close(fd);
 }
