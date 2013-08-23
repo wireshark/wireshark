@@ -1734,11 +1734,12 @@ append_file_type(GArray *sa, int ft)
     str16 = utf_8to16(description_str->str);
     sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
     sa = g_array_append_val(sa, zero);
+    g_string_free(description_str, TRUE);
 
     str16 = utf_8to16(pattern_str->str);
     sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
     sa = g_array_append_val(sa, zero);
-
+    g_string_free(pattern_str, TRUE);
 }
 
 static TCHAR *
