@@ -58,6 +58,7 @@ WIRESHARK_LIB_DIR=C:\$(PROGRAM_NAME)-$(WIRESHARK_TARGET_PLATFORM)-libs-1.10
 # This setting is used only inside this file.
 #
 PROGRAM_FILES=$(PROGRAMFILES)
+PROGRAM_FILES_W6432=$(PROGRAMW6432)
 
 #
 # Location of the "tools" directory. This affects HTML2TXT below and should
@@ -730,14 +731,25 @@ UNIX2DOS=u2d
 TEXTIFY=$(SH) $(TOOLS_DIR)/textify.sh
 
 #
-# Optional: To build the NSIS installer.
+# Optional: Build the NSIS installer.
 #
-# If you have the NSIS package, set this to the NSIS executable.
+# If NSIS is installed in a standard location (under Program Files
+# or Program Files (x86)) you shouldn't have to change anything.
 #
-# If you don't have NSIS, comment this line out, so that MAKENSIS
-# isn't defined.
+# If NSIS is installed in a custom location uncomment the following
+# line and adjust the path accordingly.
 #
+
+#MAKENSIS="\custom\path\to\NSIS\makensis.exe"
+
+# Find NSIS automatically
+!IF !DEFINED(MAKENSIS)
+!IF EXIST("$(PROGRAM_FILES)\NSIS\makensis.exe")
 MAKENSIS="$(PROGRAM_FILES)\NSIS\makensis.exe"
+!ELSE IF EXIST("$(PROGRAM_FILES_W6432)\NSIS\makensis.exe")
+MAKENSIS="$(PROGRAM_FILES_W6432)\NSIS\makensis.exe"
+!ENDIF
+!ENDIF
 
 #
 # Optional: To build the NSIS PortableApps installer.
