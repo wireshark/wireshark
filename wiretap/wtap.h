@@ -1331,6 +1331,8 @@ int wtap_short_string_to_file_type(const char *short_name);
 
 /*** various file extension functions ***/
 WS_DLL_PUBLIC
+GSList *wtap_get_all_file_extensions_list(void);
+WS_DLL_PUBLIC
 const char *wtap_default_file_extension(int filetype);
 WS_DLL_PUBLIC
 GSList *wtap_get_file_extensions_list(int filetype, gboolean include_compressed);

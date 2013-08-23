@@ -1499,27 +1499,76 @@ append_file_type(GArray *sa, int ft)
     str16 = utf_8to16(description_str->str);
     sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
     sa = g_array_append_val(sa, zero);
+    g_string_free(description_str, TRUE);
 
     str16 = utf_8to16(pattern_str->str);
     sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
     sa = g_array_append_val(sa, zero);
-
+    g_string_free(pattern_str, TRUE);
 }
 
 static TCHAR *
 build_file_open_type_list(void) {
     TCHAR *str16;
     int   ft;
-    GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
-    guint16 zero = 0;
+    GArray* sa;
+    static const guint16 zero = 0;
+    GString* pattern_str;
+    gchar sep;
+    GSList *extensions_list, *extension;
 
+    /*
+     * Microsoft's UI guidelines say, of the file filters in open and
+     * save dialogs:
+     *
+     *    For meta-filters, remove the file extension list to eliminate
+     *    clutter. Examples: "All files," "All pictures," "All music,"
+     *    and "All videos."
+     *
+     * so we omit them (for "All Capture Files", the filter would be
+     * *really* long).  On both Windows XP and Windows 7, Wordpad doesn't
+     * do that, but Paint does.
+     */
+
+    /*
+     * Array of hexadectets used as a sequence of null-terminated
+     * UTF-16 strings.
+     */
+    sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
 
     /* Add the "All Files" entry. */
-    str16 = utf_8to16("All Files (*.*)");
-    sa = g_array_append_vals(sa, str16, (guint) strlen("All Files (*.*)"));
+    str16 = utf_8to16("All Files");
+    sa = g_array_append_vals(sa, str16, (guint) strlen("All Files"));
     sa = g_array_append_val(sa, zero);
     str16 = utf_8to16("*.*");
     sa = g_array_append_vals(sa, str16, (guint) strlen("*.*"));
+    sa = g_array_append_val(sa, zero);
+
+    /*
+     * Add an "All Capture Files" entry, with all the extensions we
+     * know about.
+     */
+    str16 = utf_8to16("All Capture Files");
+    sa = g_array_append_vals(sa, str16, (guint) strlen("All Capture Files"));
+    sa = g_array_append_val(sa, zero);
+
+    /*
+     * Construct its list of patterns from a list of all extensions
+     * we support.
+     */
+    pattern_str = g_string_new("");
+    extensions_list = wtap_get_all_file_extensions_list();
+    sep = '\0';
+    for (extension = extensions_list; extension != NULL;
+         extension = g_slist_next(extension)) {
+        if (sep != '\0')
+            g_string_append_c(pattern_str, sep);
+        g_string_append_printf(pattern_str, "*.%s", (char *)extension->data);
+        sep = ';';
+    }
+    wtap_free_file_extensions_list(extensions_list);
+    str16 = utf_8to16(pattern_str->str);
+    sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
     sa = g_array_append_val(sa, zero);
 
     /* Include all the file types Wireshark supports. */

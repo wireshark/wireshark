@@ -1117,37 +1117,12 @@ static GSList *add_extensions(GSList *extensions, const gchar *extension,
 	return extensions;
 }
 
-/* Return a list of file extensions that are used by the specified file type.
-
-   If include_compressed is TRUE, the list will include compressed
-   extensions, e.g. not just "pcap" but also "pcap.gz" if we can read
-   gzipped files.
-
-   All strings in the list are allocated with g_malloc() and must be freed
-   with g_free(). */
-GSList *wtap_get_file_extensions_list(int filetype, gboolean include_compressed)
+static GSList *
+add_extensions_for_filetype(int filetype, GSList *extensions,
+    GSList *compressed_file_extensions)
 {
 	gchar **extensions_set, **extensionp;
 	gchar *extension;
-	GSList *compressed_file_extensions;
-	GSList *extensions;
-
-	if (filetype < 0 || filetype >= wtap_num_file_types)
-		return NULL;	/* not a valid file type */
-
-	if (dump_open_table[filetype].default_file_extension == NULL)
-		return NULL;	/* valid, but no extensions known */
-
-	extensions = NULL;	/* empty list, to start with */
-
-	/*
-	 * If include_compressions is true, get the list of compressed-file
-	 * extensions.
-	 */
-	if (include_compressed)
-		compressed_file_extensions = wtap_get_compressed_file_extensions();
-	else
-		compressed_file_extensions = NULL;
 
 	/*
 	 * Add the default extension, and all compressed variants of
@@ -1184,12 +1159,87 @@ GSList *wtap_get_file_extensions_list(int filetype, gboolean include_compressed)
 
 		g_strfreev(extensions_set);
 	}
+	return extensions;
+}
+
+/* Return a list of all extensions that are used by all file types,
+   including compressed extensions, e.g. not just "pcap" but also
+   "pcap.gz" if we can read gzipped files.
+
+   All strings in the list are allocated with g_malloc() and must be freed
+   with g_free(). */
+GSList *wtap_get_all_file_extensions_list(void)
+{
+	GSList *compressed_file_extensions;
+	GSList *extensions;
+	int filetype;
+
+	extensions = NULL;	/* empty list, to start with */
+
+	/*
+	 * Get the list of compressed-file extensions.
+	 */
+	compressed_file_extensions = wtap_get_compressed_file_extensions();
+
+	for (filetype = 0; filetype < WTAP_NUM_FILE_TYPES; filetype++) {
+		if (dump_open_table[filetype].default_file_extension != NULL) {
+			/*
+			 * This file type has at least one extension.
+			 * Add all its extensions, with compressed
+			 * variants.
+			 */
+			extensions = add_extensions_for_filetype(filetype,
+			    extensions, compressed_file_extensions);
+		}
+	}
+
+	g_slist_free(compressed_file_extensions);
+	return extensions;
+}
+
+/* Return a list of file extensions that are used by the specified file type.
+
+   If include_compressed is TRUE, the list will include compressed
+   extensions, e.g. not just "pcap" but also "pcap.gz" if we can read
+   gzipped files.
+
+   All strings in the list are allocated with g_malloc() and must be freed
+   with g_free(). */
+GSList *wtap_get_file_extensions_list(int filetype, gboolean include_compressed)
+{
+	GSList *compressed_file_extensions;
+	GSList *extensions;
+
+	if (filetype < 0 || filetype >= wtap_num_file_types)
+		return NULL;	/* not a valid file type */
+
+	if (dump_open_table[filetype].default_file_extension == NULL)
+		return NULL;	/* valid, but no extensions known */
+
+	extensions = NULL;	/* empty list, to start with */
+
+	/*
+	 * If include_compressions is true, get the list of compressed-file
+	 * extensions.
+	 */
+	if (include_compressed)
+		compressed_file_extensions = wtap_get_compressed_file_extensions();
+	else
+		compressed_file_extensions = NULL;
+
+	/*
+	 * Add all this file type's extensions, with compressed
+	 * variants.
+	 */
+	extensions = add_extensions_for_filetype(filetype, extensions,
+	    compressed_file_extensions);
+
 	g_slist_free(compressed_file_extensions);
 	return extensions;
 }
 
 /*
- * Free a list returned by wtap_file_extensions_list().
+ * Free a list returned by wtap_get_file_extensions_list().
  */
 void wtap_free_file_extensions_list(GSList *extensions)
 {
