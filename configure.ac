@@ -267,10 +267,11 @@ AC_ARG_ENABLE(osx-deploy-target,
 		# Let the user specify an OS X release to use as a
 		# deplayment target; if they specify that we should
 		# have a deployment target but don't specify the
-		# deployment target, pick the OS version on which the
-		# build is being done.  This also causes the build to
-		# be done against an SDK rather than against the headers
-		# and libraries in /usr/include and /usr/lib.
+		# deployment target, then, if we have SDKs available,
+		# pick the OS version on which the build is being done.
+		# This also causes the build to be done against an SDK
+		# rather than against the headers and libraries in
+		# /usr/include and /usr/lib.
 		#
 		# Check for an OS X deployment target early, so that
 		# as many tests using the compiler are done using the
@@ -319,13 +320,23 @@ AC_ARG_ENABLE(osx-deploy-target,
 		#
 		# Yes.
 		#
-		# Default to targeting the major version number of
-		# the version of OS X on which we're running.
+		# If we have SDKs available, default to targeting the major
+		# version number of the version of OS X on which we're
+		# running.
 		#
 		# (We quote the command so that we can use autoconf's
 		# M4 quoting characters, [ and ], in the sed expression.)
 		#
-		[deploy_target=`sw_vers -productVersion | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.[0-9]*/\1.\2/'`]
+		for i in /Developer/SDKs \
+		    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
+		    /Library/Developer/CommandLineTools/SDKs
+		do
+			if [ -d "$i" ]
+			then
+				[deploy_target=`sw_vers -productVersion | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.[0-9]*/\1.\2/'`]
+				break
+			fi
+		done
 		;;
 
 	*)
