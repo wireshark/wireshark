@@ -73,11 +73,10 @@ InterfaceTree::~InterfaceTree() {
 
     while (*iter) {
         QList<int> *points;
-        QVariant v;
 
-        v = (*iter)->data(1, Qt::UserRole);
-        points = v.value<QList<int> *>();
+        points = (*iter)->data(1, Qt::UserRole).value<QList<int> *>();
         delete(points);
+        ++iter;
     }
 }
 

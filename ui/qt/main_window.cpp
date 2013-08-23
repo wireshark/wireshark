@@ -386,6 +386,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         return;
     }
 
+    // Make sure we kill any open dumpcap processes.
+    delete main_welcome_;
+
     if(testCaptureFileClose(true)) {
         /* QCoreApplication::quit() won't exit properly
              * because when during initialization phase we are not in the event loop */
