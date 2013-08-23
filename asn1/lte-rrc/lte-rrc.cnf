@@ -82,13 +82,14 @@ SI-OrPSI-GERAN TYPE_PREFIX
   }
 
 #.FN_BODY UE-CapabilityRAT-Container
-  actx->private_data = NULL;
+  /* Since storing value+1, this effectively unsets this field */
+  private_data_set_rat_type(actx, 0);
 %(DEFAULT_BODY)s
 
 #.FN_BODY RAT-Type VAL_PTR = &rat_type
   guint32 rat_type;
 %(DEFAULT_BODY)s
-  actx->private_data = GUINT_TO_POINTER(rat_type+1);
+  private_data_set_rat_type(actx, rat_type+1);
 
 #RAT-Type ::=						ENUMERATED {
 #										eutra, utra, geran-cs, geran-ps, cdma2000-1XRTT,
@@ -126,8 +127,8 @@ if(ue_cap_tvb){
   proto_tree *subtree, *subtree2;
   guint8 byte;
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_UE_CapabilityRAT_Container);
-  if (actx->private_data) {
-    switch(GPOINTER_TO_UINT(actx->private_data)-1){
+  if (private_data_get_rat_type(actx)) {
+    switch(private_data_get_rat_type(actx)-1){
     case RAT_Type_eutra:
       /* eutra */
       dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
@@ -173,7 +174,8 @@ if(ue_cap_tvb){
     default:
       break;
     }
-    actx->private_data = NULL;
+    /* Unset again */
+    private_data_set_rat_type(actx, 0);
   }
 }
 
@@ -226,13 +228,14 @@ if(ue_cap_tvb){
   }
 
 #.FN_BODY Handover
-  actx->private_data = NULL;
+  /* Initialise to invalid value */
+  private_data_set_rat_type(actx, 0);
 %(DEFAULT_BODY)s
 
 #.FN_BODY Handover/targetRAT-Type VAL_PTR = &target_rat_type
   guint32 target_rat_type;
 %(DEFAULT_BODY)s
-  actx->private_data = GUINT_TO_POINTER(target_rat_type+1);
+  private_data_set_rat_target_type(actx, target_rat_type+1);
 
 #.FN_BODY Handover/targetRAT-MessageContainer VAL_PTR = &target_rat_msg_cont_tvb
   tvbuff_t *target_rat_msg_cont_tvb = NULL;
@@ -241,8 +244,8 @@ if(ue_cap_tvb){
     guint8 byte;
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_targetRAT_MessageContainer);
-    if (actx->private_data) {
-      switch(GPOINTER_TO_UINT(actx->private_data)-1){
+    if (private_data_get_rat_target_type(actx)) {
+      switch (private_data_get_rat_target_type(actx)-1){
       case T_targetRAT_Type_utra:
         /* utra */
         if (rrc_irat_ho_to_utran_cmd_handle)
@@ -270,7 +273,8 @@ if(ue_cap_tvb){
       default:
         break;
       }
-      actx->private_data = NULL;
+      /* Unset again */
+      private_data_set_rat_target_type(actx, 0);
     }
   }
 
@@ -301,10 +305,10 @@ if(ue_cap_tvb){
 #.FN_BODY SI-OrPSI-GERAN VAL_PTR = &si_or_psi_geran
   guint32 si_or_psi_geran;
 %(DEFAULT_BODY)s
-  actx->private_data = GUINT_TO_POINTER(si_or_psi_geran+1);
+  private_data_set_si_or_psi_geran(actx, si_or_psi_geran+1);
 
 #.FN_BODY CellInfoGERAN-r9
-  actx->private_data = GUINT_TO_POINTER(SI_OrPSI_GERAN_si+1); /* SI message */
+  private_data_set_si_or_psi_geran(actx, SI_OrPSI_GERAN_si+1); /* SI message */
 %(DEFAULT_BODY)s
 
 #.FN_BODY SystemInfoListGERAN/_item VAL_PTR = &sys_info_list_tvb
@@ -313,8 +317,8 @@ if(ue_cap_tvb){
 %(DEFAULT_BODY)s
   if (sys_info_list_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
-    if (actx->private_data) {
-      switch (GPOINTER_TO_UINT(actx->private_data)-1) {
+    if (private_data_get_si_or_psi_geran(actx)) {
+      switch (private_data_get_si_or_psi_geran(actx)-1) {
       case SI_OrPSI_GERAN_si:
         /* SI message */
         if (gsm_a_dtap_handle) {
@@ -330,7 +334,8 @@ if(ue_cap_tvb){
       default:
         break;
       }
-      actx->private_data = NULL;
+      /* Unset value */
+      private_data_set_si_or_psi_geran(actx, 0);
     }
   }
 
@@ -542,7 +547,7 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
 
 #.FN_FTR SystemInformationBlockType11/messageIdentifier
   if (msg_id_tvb) {
-    actx->private_data = GUINT_TO_POINTER(tvb_get_ntohs(msg_id_tvb, 0) << 16);
+    private_data_set_message_identifier(actx, tvb_get_ntohs(msg_id_tvb, 0) << 16);
     actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
@@ -553,7 +558,8 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
 #.FN_FTR SystemInformationBlockType11/serialNumber
   if (serial_nb_tvb) {
     proto_tree *subtree;
-    actx->private_data = GUINT_TO_POINTER(GPOINTER_TO_UINT(actx->private_data) | tvb_get_ntohs(serial_nb_tvb, 0));
+    private_data_set_message_identifier(actx,
+                                        private_data_get_message_identifier(actx) | tvb_get_ntohs(serial_nb_tvb, 0));
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -570,7 +576,7 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
     guint32 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
-    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, actx->private_data,
+    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)),
                         GUINT_TO_POINTER(dataCodingScheme));
   }
 
@@ -580,7 +586,7 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
 %(DEFAULT_BODY)s
 
 #.FN_FTR SystemInformationBlockType11/warningMessageSegment
-  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, actx->private_data);
+  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
   if (warning_msg_seg_tvb && p_dcs) {
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
@@ -596,7 +602,7 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
 
 #.FN_FTR SystemInformationBlockType12-r9/messageIdentifier-r9
   if (msg_id_tvb) {
-    actx->private_data = GUINT_TO_POINTER(tvb_get_ntohs(msg_id_tvb, 0) << 16);
+    private_data_set_message_identifier(actx, tvb_get_ntohs(msg_id_tvb, 0) << 16);
     actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
@@ -607,7 +613,8 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
 #.FN_FTR SystemInformationBlockType12-r9/serialNumber-r9
   if (serial_nb_tvb) {
     proto_tree *subtree;
-    actx->private_data = GUINT_TO_POINTER(GPOINTER_TO_UINT(actx->private_data) | tvb_get_ntohs(serial_nb_tvb, 0));
+    private_data_set_message_identifier(actx,
+                                        private_data_get_message_identifier(actx) | tvb_get_ntohs(serial_nb_tvb, 0));
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -624,7 +631,7 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
     guint32 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
-    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, actx->private_data,
+    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)),
                         GUINT_TO_POINTER(dataCodingScheme));
   }
 
@@ -634,7 +641,7 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
 %(DEFAULT_BODY)s
 
 #.FN_FTR SystemInformationBlockType12-r9/warningMessageSegment-r9
-  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, actx->private_data);
+  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
   if (warning_msg_seg_tvb && p_dcs) {
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
@@ -742,6 +749,19 @@ CQI-ReportConfig-r10/nomPDSCH-RS-EPRE-Offset STRINGS=VALS(lte_rrc_nomPDSCH_RS_EP
 
 #.TYPE_ATTR
 CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPDSCH_RS_EPRE_Offset_vals)
+
+#.FN_BODY MAC-MainConfig
+  /* Accumulate values in drx_config while dissecting DRX config.
+     Do this here rather than down in DRX-Config so that we will see
+     fields overwritten in the R11 extension */
+  drx_config_t *drx_config = private_data_get_drx_config(actx);
+%(DEFAULT_BODY)s
+  /* Verify that config is valid */
+  if (drx_config->configured) {
+    drx_check_config_sane(drx_config, actx);
+    drx_config->configured = FALSE;
+  }
+
 
 #.FN_BODY MAC-MainConfig/eag_1/sr-ProhibitTimer-r9 VAL_PTR=&timer
   guint32 timer;
@@ -1176,10 +1196,9 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
 #.FN_BODY DRB-ToAddMod
   struct mac_lte_info  *p_mac_lte_info;
-  /* Clear out the struct */
-  static drb_mapping_t drb_mapping;
-  memset(&drb_mapping, 0, sizeof(drb_mapping));
-  actx->private_data = (void*)&drb_mapping;
+  /* Get the struct and clear it out */
+  drb_mapping_t *drb_mapping = private_data_get_drb_mapping(actx);
+  memset(drb_mapping, 0, sizeof(drb_mapping));
 %(DEFAULT_BODY)s
   /* Need UE identifier */
   p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
@@ -1187,18 +1206,17 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     return offset;
   }
   else {
-    drb_mapping.ueid = p_mac_lte_info->ueid;
+    drb_mapping->ueid = p_mac_lte_info->ueid;
   }
 
   /* Tell MAC about this mapping */
-  set_mac_lte_channel_mapping(&drb_mapping);
-  /* Clear out struct again, just in case */
+  set_mac_lte_channel_mapping(drb_mapping);
 
   /* Also tell RLC how many PDCP sequence number bits */
-  if (drb_mapping.pdcp_sn_size_present) {
-    set_rlc_lte_drb_pdcp_seqnum_length(drb_mapping.ueid,
-                                       drb_mapping.drbid,
-                                       drb_mapping.pdcp_sn_size);
+  if (drb_mapping->pdcp_sn_size_present) {
+    set_rlc_lte_drb_pdcp_seqnum_length(drb_mapping->ueid,
+                                       drb_mapping->drbid,
+                                       drb_mapping->pdcp_sn_size);
   }
 
   /* Clear out the struct again */
@@ -1207,78 +1225,87 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
 #.FN_BODY DRB-Identity VAL_PTR=&value
   guint32 value;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
-  if (actx->private_data != NULL) {
-    ((drb_mapping_t*)actx->private_data)->drbid = (guint8)value;
+  if (mapping != NULL) {
+    mapping->drbid = (guint8)value;
   }
 
 #.FN_BODY RLC-Config VAL_PTR=&value
   guint32 value;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
-  if (actx->private_data != NULL) {
-    ((drb_mapping_t*)actx->private_data)->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
-    ((drb_mapping_t*)actx->private_data)->rlcMode_present = TRUE;
+  if (mapping != NULL) {
+    mapping->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
+    mapping->rlcMode_present = TRUE;
 
-    if (((drb_mapping_t*)actx->private_data)->rlcMode == RLC_AM_MODE) {
-        ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = 12;
-        ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
+    if (mapping->rlcMode == RLC_AM_MODE) {
+        mapping->pdcp_sn_size = 12;
+        mapping->pdcp_sn_size_present = TRUE;
     }
   }
 
 #.FN_BODY DRB-ToAddMod/logicalChannelIdentity VAL_PTR=&value
   guint32 value;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
-  if (actx->private_data != NULL) {
-    ((drb_mapping_t*)actx->private_data)->lcid = (guint8)value;
-    ((drb_mapping_t*)actx->private_data)->lcid_present = TRUE;
+  if (mapping != NULL) {
+    mapping->lcid = (guint8)value;
+    mapping->lcid_present = TRUE;
   }
 
 #.FN_BODY SN-FieldLength VAL_PTR=&value
   guint32 value;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
-  if (actx->private_data != NULL) {
-    ((drb_mapping_t*)actx->private_data)->um_sn_length = (value==0) ? 5 : 10;
-    ((drb_mapping_t*)actx->private_data)->um_sn_length_present = TRUE;
+  if (mapping != NULL) {
+    mapping->um_sn_length = (value==0) ? 5 : 10;
+    mapping->um_sn_length_present = TRUE;
   }
 
 #.FN_BODY LogicalChannelConfig/ul-SpecificParameters/priority VAL_PTR=&value
   guint32 value;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
-  if (actx->private_data != NULL) {
-    ((drb_mapping_t*)actx->private_data)->ul_priority = value;
-    ((drb_mapping_t*)actx->private_data)->ul_priority_present = TRUE;
+  if (mapping != NULL) {
+    mapping->ul_priority = value;
+    mapping->ul_priority_present = TRUE;
   }
 
 #.FN_BODY PDCP-Config/rlc-UM/pdcp-SN-Size VAL_PTR=&value
   guint32 value;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
-  if (actx->private_data != NULL) {
-    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = (value==0) ? 7 : 12;
-    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
+  if (mapping != NULL) {
+    mapping->pdcp_sn_size = (value==0) ? 7 : 12;
+    mapping->pdcp_sn_size_present = TRUE;
   }
 
-#.FN_FTR PDCP-Config/eag_2/pdcp-SN-Size-v1130
-  if (actx->private_data != NULL) {
-    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = 15;
-    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
+#.FN_BODY PDCP-Config/eag_2/pdcp-SN-Size-v1130
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->pdcp_sn_size = 15;
+    mapping->pdcp_sn_size_present = TRUE;
   }
 
 
 #.FN_BODY RACH-ConfigCommon/preambleInfo
 %(DEFAULT_BODY)s
-  actx->private_data = NULL;
+  /* Initialise to invalid value */
+  private_data_set_ra_preambles(actx, 0);
 
 #.FN_BODY RACH-ConfigCommon/preambleInfo/numberOfRA-Preambles VAL_PTR=&value
   guint value;
 %(DEFAULT_BODY)s
   /* This is mandatory, store value */
-  actx->private_data = GUINT_TO_POINTER(value);
+  private_data_set_ra_preambles(actx, value);
 
 #.FN_BODY RACH-ConfigCommon/preambleInfo/preamblesGroupAConfig/sizeOfRA-PreamblesGroupA VAL_PTR=&value
   guint ra_value, value;
 %(DEFAULT_BODY)s
   /* Retrived stored value for RA (both Group A & Group B) */
-  ra_value = GPOINTER_TO_UINT(actx->private_data);
+  ra_value = private_data_get_ra_preambles(actx);
   if (value > ra_value) {
     /* Something is wrong if A has more RAPIDs than A & B combined! */
     expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_too_many_group_a_rapids,
@@ -1287,155 +1314,176 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
                                 val_to_str_const(ra_value, lte_rrc_T_numberOfRA_Preambles_vals, "Unknown"));
 
   }
-  actx->private_data = NULL;
+  /* Reset again */
+  private_data_set_ra_preambles(actx, 0);
 
-
-
-#.FN_BODY DRX-Config/setup
-  /* Accumulate values in drx_config while dissecting DRX config */
-  static drx_config_t drx_config;
-  memset(&drx_config, 0, sizeof(drx_config));
-  actx->private_data = &drx_config;
-%(DEFAULT_BODY)s
-  /* Verify that config is valid */
-  drx_check_config_sane(&drx_config, actx);
-
-  /* Unset again afterwards */
-  actx->private_data = NULL;
 
 #.FN_BODY DRX-Config/setup/onDurationTimer VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
+  /* Set 'configured' state so that config can be examine once complete! */
+  config->configured = TRUE;
   config->onDurationTimer = drx_lookup_onDurationTimer(value);
 
 #.FN_BODY DRX-Config/setup/drx-InactivityTimer VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->inactivityTimer = drx_lookup_inactivityTimer(value);
 
 #.FN_BODY DRX-Config/setup/drx-RetransmissionTimer VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->retransmissionTimer = drx_lookup_retransmissionTimer(value);
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->longCycle = drx_lookup_longCycle(value);
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf10 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf20 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf32 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf40 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf64 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf80 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf128 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf160 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf256 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf320 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf512 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf640 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf1024 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf1280 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf2048 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/longDRX-CycleStartOffset/sf2560 VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->cycleOffset = value;
 
 #.FN_BODY DRX-Config/setup/shortDRX/shortDRX-Cycle VAL_PTR=&value
   guint32 value;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->shortCycleConfigured = TRUE;
   config->shortCycle = drx_lookup_shortCycle(value);
 
 #.FN_BODY DRX-Config/setup/shortDRX/drxShortCycleTimer VAL_PTR=&timer
   guint32 timer;
-  drx_config_t* config = (drx_config_t*)actx->private_data;
+  drx_config_t* config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
   config->shortCycleTimer = timer;
 
 #.FN_FTR DRX-Config/setup/shortDRX/drxShortCycleTimer
   proto_item_append_text(actx->created_item, " shortDRX-Cycle%s", plurality(timer, "", "s"));
+
+#.FN_BODY DRX-Config-v1130/drx-RetransmissionTimer-v1130 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = private_data_get_drx_config(actx);
+%(DEFAULT_BODY)s
+  config->retransmissionTimer = 0;
+
+#.FN_BODY DRX-Config-v1130/longDRX-CycleStartOffset-v1130 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = private_data_get_drx_config(actx);
+%(DEFAULT_BODY)s
+  config->longCycle = drx_lookup_longCycle_v1130(value);
+
+#.FN_BODY DRX-Config-v1130/longDRX-CycleStartOffset-v1130/sf60-v1130 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = private_data_get_drx_config(actx);
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config-v1130/longDRX-CycleStartOffset-v1130/sf70-v1130 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = private_data_get_drx_config(actx);
+%(DEFAULT_BODY)s
+  config->cycleOffset = value;
+
+#.FN_BODY DRX-Config-v1130/shortDRX-Cycle-v1130 VAL_PTR=&value
+  guint32 value;
+  drx_config_t* config = private_data_get_drx_config(actx);
+%(DEFAULT_BODY)s
+  /* Presumably config->shortCycleConfigured will be set... */
+  config->shortCycle = 4;
 

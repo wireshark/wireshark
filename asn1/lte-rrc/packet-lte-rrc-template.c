@@ -33,6 +33,7 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-per.h"
 #include "packet-rrc.h"
@@ -1784,6 +1785,144 @@ static const value_string lte_rrc_warningType_vals[] = {
   { 0, NULL},
 };
 
+
+/*****************************************************************************/
+/* Packet private data                                                       */
+/* For this dissector, all access to actx->private_data should be made       */
+/* through this API, which ensures that they will not overwrite each other!! */
+/*****************************************************************************/
+
+/* Dedicated DRX config. Currently used to verify that a sensible config is given.
+   TODO: would be good to configure MAC with these settings and (optionally) show
+   DRX config and state (cycles/timers) attached to each UL/DL PDU! */
+typedef struct drx_config_t {
+    gboolean    configured;
+    guint32     onDurationTimer;
+    guint32     inactivityTimer;
+    guint32     retransmissionTimer;
+    guint32     longCycle;
+    guint32     cycleOffset;
+    /* Optional Short cycle */
+    gboolean    shortCycleConfigured;
+    guint32     shortCycle;
+    guint32     shortCycleTimer;
+} drx_config_t;
+
+
+/**********************************************************/
+/* Struct to store all current uses of packet private data */
+typedef struct lte_rrc_private_data_t
+{
+    guint32 rat_type;         /* Store as +1 real value, so 0 means 'not set' */
+    guint32 target_rat_type;  /* Store as +1 real value, so 0 means 'not set' */
+    guint32 si_or_psi_geran;  /* Store as +1 real value, so 0 means 'not set' */
+    guint16 message_identifier;
+    guint8  ra_preambles;
+    drb_mapping_t drb_mapping;
+    drx_config_t  drx_config;
+} lte_rrc_private_data_t;
+
+/* Helper function to get or create a struct that will be actx->private_data */
+static lte_rrc_private_data_t* lte_rrc_get_private_data(asn1_ctx_t *actx)
+{
+    if (actx->private_data != NULL) {
+        return (lte_rrc_private_data_t*)actx->private_data;
+    }
+    else {
+        lte_rrc_private_data_t* new_struct =
+            (lte_rrc_private_data_t*)wmem_alloc0(wmem_packet_scope(), sizeof(lte_rrc_private_data_t));
+        actx->private_data = new_struct;
+        return new_struct;
+    }
+}
+
+
+/* DRX config data */
+static drx_config_t* private_data_get_drx_config(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return &private_data->drx_config;
+}
+
+/* DRB mapping info */
+static drb_mapping_t* private_data_get_drb_mapping(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return &private_data->drb_mapping;
+}
+
+
+/* RAT type */
+static guint32 private_data_get_rat_type(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return private_data->rat_type;
+}
+
+static void private_data_set_rat_type(asn1_ctx_t *actx, guint32 rat_type)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    private_data->rat_type = rat_type;
+}
+
+
+/* Target RAT type */
+static guint32 private_data_get_rat_target_type(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return private_data->target_rat_type;
+}
+
+static void private_data_set_rat_target_type(asn1_ctx_t *actx, guint32 target_rat_type)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    private_data->target_rat_type = target_rat_type;
+}
+
+
+/* si_or_psi_geran */
+static guint32 private_data_get_si_or_psi_geran(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return private_data->si_or_psi_geran;
+}
+
+static void private_data_set_si_or_psi_geran(asn1_ctx_t *actx, guint32 si_or_psi_geran)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    private_data->si_or_psi_geran = si_or_psi_geran;
+}
+
+
+/* Message identifier */
+static guint16 private_data_get_message_identifier(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return private_data->message_identifier;
+}
+
+static void private_data_set_message_identifier(asn1_ctx_t *actx, guint16 message_identifier)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    private_data->message_identifier = message_identifier;
+}
+
+
+/* Number of RA-preambles */
+static guint8 private_data_get_ra_preambles(asn1_ctx_t *actx)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    return private_data->ra_preambles;
+}
+
+static void private_data_set_ra_preambles(asn1_ctx_t *actx, guint8 ra_preambles)
+{
+    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+    private_data->ra_preambles = ra_preambles;
+}
+/*****************************************************************************/
+
+
 static void
 lte_rrc_localTimeOffset_fmt(gchar *s, guint32 v)
 {
@@ -1989,6 +2128,19 @@ static guint32 drx_lookup_longCycle(guint32 idx)
   return (sizeof(vals)/(sizeof(guint32)) - 1);
 }
 
+static guint32 drx_lookup_longCycle_v1130(guint32 idx)
+{
+  static const guint32 vals[] = {
+    60,70
+  };
+
+  if (idx < (sizeof(vals)/sizeof(guint32))) {
+    return vals[idx];
+  }
+  return (sizeof(vals)/(sizeof(guint32)) - 1);
+}
+
+
 static guint32 drx_lookup_shortCycle(guint32 idx)
 {
   static const guint32 vals[] = {
@@ -2000,22 +2152,6 @@ static guint32 drx_lookup_shortCycle(guint32 idx)
   }
   return (sizeof(vals)/(sizeof(guint32)) - 1);
 }
-
-/* Dedicated DRX config. Currently used to verify that a sensible config is given.
-   TODO: would be good to configure MAC with these settings and (optionally) show
-   DRX config and state (cycles/timers) attached to each UL/DL PDU! */
-typedef struct drx_config_t {
-    guint32 onDurationTimer;
-    guint32 inactivityTimer;
-    guint32 retransmissionTimer;
-    guint32 longCycle;
-    guint32 cycleOffset;
-    /* Optional Short cycle */
-    gboolean    shortCycleConfigured;
-    guint32     shortCycle;
-    guint32     shortCycleTimer;
-} drx_config_t;
-
 
 static void drx_check_config_sane(drx_config_t *config, asn1_ctx_t *actx)
 {
@@ -2046,6 +2182,7 @@ static void drx_check_config_sane(drx_config_t *config, asn1_ctx_t *actx)
                                   "OnDurationTimer (%u) should not be longer than the short cycle (%u)",
                                   config->onDurationTimer, config->shortCycle);
     }
+    /* TODO: check that (onDuration+(shortCycle*shortCycleTimer)) < longCycle ? */
     /* TODO: check that (shortCycle*shortCycleTimer) < longCycle ? */
   }
 }
