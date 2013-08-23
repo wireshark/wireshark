@@ -121,6 +121,11 @@ Tcpdump Info
   <!ENTITY TcpdumpManpage "&TcpdumpWebsite;/tcpdump_man.html">
 
 <!--
+Misc Info
+-->
+  <!ENTITY SysFsUtils "http://linux-diag.sourceforge.net/Sysfsutils.html">
+
+<!--
 Gnu info
 -->
   <!ENTITY GPLWebsite "http://www.gnu.org/copyleft/gpl.html">

@@ -384,6 +384,14 @@ wireshark -i eth0 -k
         The "Compile selected BPFs" button leads you to 
         <xref linkend="ChCapCompileSelectedBpfsDialog"/>.
           </para>
+	  <tip><title>Tip!</title>
+	  <para>
+	    The execution of BPFs can be sped up on Linux by turning on BPF JIT by
+	    executing <programlisting>echo 1 >/proc/sys/net/core/bpf_jit_enable</programlisting>
+	    if it is not enabled already. To make the change persistent you can use sysfsutils
+	    <ulink url="&SysFsUtils;">sysfsutils</ulink>.
+	  </para>
+	  </tip>
         </listitem>
       </varlistentry>
       <varlistentry>
