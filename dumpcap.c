@@ -551,7 +551,7 @@ print_usage(gboolean print_ver)
 #ifdef __linux__
     fprintf(output, "WARNING: dumpcap will enable kernel BPF JIT compiler if available.\n");
     fprintf(output, "You might want to reset it\n");
-    fprintf(output, "By doing \"echo 0 > /proc/sys/net/core/bpf_jit_enable\n");
+    fprintf(output, "By doing \"echo 0 > /proc/sys/net/core/bpf_jit_enable\"\n");
     fprintf(output, "\n");
 #endif
     fprintf(output, "Example: dumpcap -i eth0 -a duration:60 -w output.pcapng\n");

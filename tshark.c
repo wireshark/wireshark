@@ -352,6 +352,14 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -G [report]              dump one of several available reports and exit\n");
   fprintf(output, "                           default report=\"fields\"\n");
   fprintf(output, "                           use \"-G ?\" for more help\n");
+#ifdef __linux__
+    fprintf(output, "\n");
+    fprintf(output, "WARNING: dumpcap will enable kernel BPF JIT compiler if available.\n");
+    fprintf(output, "You might want to reset it\n");
+    fprintf(output, "By doing \"echo 0 > /proc/sys/net/core/bpf_jit_enable\"\n");
+    fprintf(output, "\n");
+#endif
+
 }
 
 static void
