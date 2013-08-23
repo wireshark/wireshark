@@ -59,6 +59,16 @@ xxx {
     message( )
 }
 
+isEmpty (QMAKE_EXTENSION_SHLIB) {
+    macx {
+        QMAKE_EXTENSION_SHLIB=".dylib"
+    } else: win32 {
+        QMAKE_EXTENSION_SHLIB=".dll"
+    } else { # Everyone else runs Linux or Solaris, right?
+        QMAKE_EXTENSION_SHLIB=".so"
+    }
+}
+
 unix {
 
     #Check if Qt < 4.8.x (packagesExist is present in Qt >= 4.8)
@@ -319,20 +329,20 @@ unix: {
         EXTRA_BINFILES += \
             ../../.libs/dumpcap
         EXTRA_LIBFILES += \
-            ../../epan/.libs/libwireshark*.$${QMAKE_EXTENSION_SHLIB} \
-            ../../wiretap/.libs/libwiretap*.$${QMAKE_EXTENSION_SHLIB} \
-            ../../wsutil/.libs/libwsutil*.$${QMAKE_EXTENSION_SHLIB}
+            ../../epan/.libs/libwireshark*$$QMAKE_EXTENSION_SHLIB* \
+            ../../wiretap/.libs/libwiretap*$$QMAKE_EXTENSION_SHLIB* \
+            ../../wsutil/.libs/libwsutil*$$QMAKE_EXTENSION_SHLIB*
     } else:exists(../../lib/libw*) {
         EXTRA_BINFILES += \
             ../../dumpcap
-        EXTRA_LIBFILES += ../../lib/libwireshark*.$${QMAKE_EXTENSION_SHLIB} \
-                        ../../lib/libwiretap*.$${QMAKE_EXTENSION_SHLIB} \
-                        ../../lib/libwsutil*.$${QMAKE_EXTENSION_SHLIB}
+        EXTRA_LIBFILES += ../../lib/libwireshark*$$QMAKE_EXTENSION_SHLIB* \
+                        ../../lib/libwiretap*$$QMAKE_EXTENSION_SHLIB* \
+                        ../../lib/libwsutil*$$QMAKE_EXTENSION_SHLIB*
     }
 
 }
 unix:!macx {
-    EXTRA_BINFILES += EXTRA_LIBFILES
+    EXTRA_BINFILES += $$EXTRA_LIBFILES
     for(FILE,EXTRA_BINFILES){
         QMAKE_POST_LINK += $$quote(cp $${FILE} .$$escape_expand(\\n\\t))
     }
