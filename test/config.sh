@@ -32,6 +32,13 @@ else
 	WS_SYSTEM=`uname -s`
 fi
 
+#
+#
+ENDIANNESS="little"
+echo -n I | od -to2 | awk '{ lastbit = substr($2,6,1); exit lastbit }'
+if [ $? -eq 0 ] ; then
+	ENDIANNESS="big"
+fi
 
 # Path to the Wireshark binaries, only used for the settings below
 WS_BIN_PATH=..
@@ -48,6 +55,7 @@ fi
 # Tweak the following to your liking.
 WIRESHARK=$WS_BIN_PATH/wireshark
 TSHARK=$WS_BIN_PATH/tshark
+RAWSHARK=$WS_BIN_PATH/rawshark
 CAPINFOS=$WS_BIN_PATH/capinfos
 DUMPCAP=$WS_BIN_PATH/dumpcap
 

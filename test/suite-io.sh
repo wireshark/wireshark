@@ -29,6 +29,8 @@ EXIT_OK=0
 EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
+IO_RAWSHARK_DHCP_PCAP_BASELINE=./baseline/io-rawshark-dhcp-pcap.txt
+IO_RAWSHARK_DHCP_PCAP_TESTOUT=./io-rawshark-dhcp-pcap-testout.txt
 
 # input of file
 io_step_input_file() {
@@ -121,9 +123,27 @@ io_step_input_piping() {
 		cat ./testout.txt
 		cat ./testout2.txt
 		$TSHARK -D
-		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
+		test_step_failed "No or not enough traffic captsured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
 }
+
+# Read a pcap from stdin
+io_step_rawshark_pcap_stdin() {
+	if [ $ENDIANNESS != "little" ] ; then
+		test_step_skipped
+		return
+	fi
+	tail -c +25 "${CAPTURE_DIR}dhcp.pcap" | $RAWSHARK -dencap:1 -R "udp.port==68" -nr - > $IO_RAWSHARK_DHCP_PCAP_TESTOUT 2> /dev/null
+	diff -u $IO_RAWSHARK_DHCP_PCAP_BASELINE $IO_RAWSHARK_DHCP_PCAP_TESTOUT > $DIFF_OUT 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Output of rawshark read pcap via stdin differs from baseline"
+		cat $DIFF_OUT
+		return
+	fi
+	test_step_ok
+}
+
 
 wireshark_io_suite() {
 	# Q: quit after cap, k: start capture immediately
@@ -145,11 +165,16 @@ dumpcap_io_suite() {
 	test_step_add "Input file" io_step_input_file
 }
 
+rawshark_io_suite() {
+	test_step_add "Rawshark pcap stdin" io_step_rawshark_pcap_stdin
+}
+
 io_cleanup_step() {
 	rm -f ./testout.txt
 	rm -f ./testout2.txt
 	rm -f ./testout.pcap
 	rm -f ./testout2.pcap
+	rm -f $IO_RAWSHARK_DHCP_PCAP_TESTOUT
 }
 
 io_suite() {
@@ -158,6 +183,7 @@ io_suite() {
 	test_suite_add "TShark file I/O" tshark_io_suite
 	#test_suite_add "Wireshark file I/O" wireshark_io_suite
 	#test_suite_add "Dumpcap file I/O" dumpcap_io_suite
+	test_suite_add "Rawshark file I/O" rawshark_io_suite
 }
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
