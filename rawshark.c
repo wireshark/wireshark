@@ -955,10 +955,11 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
     phdr->pkt_encap = encap;
 
 #if 0
-    printf("tv_sec: %d (%04x)\n", hdr.ts.tv_sec, hdr.ts.tv_sec);
-    printf("tv_usec: %d (%04x)\n", hdr.ts.tv_usec, hdr.ts.tv_usec);
-    printf("caplen: %d (%04x)\n", hdr.caplen, hdr.caplen);
-    printf("len: %d (%04x)\n", hdr.len, hdr.len);
+    printf("mem_hdr: %lu disk_hdr: %lu\n", sizeof(mem_hdr), sizeof(disk_hdr));
+    printf("tv_sec: %u (%04x)\n", (unsigned int) phdr->ts.secs, (unsigned int) phdr->ts.secs);
+    printf("tv_nsec: %d (%04x)\n", phdr->ts.nsecs, phdr->ts.nsecs);
+    printf("caplen: %d (%04x)\n", phdr->caplen, phdr->caplen);
+    printf("len: %d (%04x)\n", phdr->len, phdr->len);
 #endif
     if (bytes_needed > WTAP_MAX_PACKET_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
@@ -995,6 +996,8 @@ load_cap_file(capture_file *cf)
     gint64       data_offset = 0;
     struct wtap_pkthdr  phdr;
     guchar       pd[WTAP_MAX_PACKET_SIZE];
+
+    memset(&phdr, 0, sizeof(phdr));
 
     while (raw_pipe_read(&phdr, pd, &err, &err_info, &data_offset)) {
         process_packet(cf, data_offset, &phdr, pd);
