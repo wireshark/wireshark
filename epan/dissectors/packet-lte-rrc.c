@@ -12839,7 +12839,7 @@ dissect_lte_rrc_DRB_ToAddMod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   struct mac_lte_info  *p_mac_lte_info;
   /* Get the struct and clear it out */
   drb_mapping_t *drb_mapping = private_data_get_drb_mapping(actx);
-  memset(drb_mapping, 0, sizeof(drb_mapping));
+  memset(drb_mapping, 0, sizeof(*drb_mapping));
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_DRB_ToAddMod, DRB_ToAddMod_sequence);
 

@@ -1189,7 +1189,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   struct mac_lte_info  *p_mac_lte_info;
   /* Get the struct and clear it out */
   drb_mapping_t *drb_mapping = private_data_get_drb_mapping(actx);
-  memset(drb_mapping, 0, sizeof(drb_mapping));
+  memset(drb_mapping, 0, sizeof(*drb_mapping));
 %(DEFAULT_BODY)s
   /* Need UE identifier */
   p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
