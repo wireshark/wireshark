@@ -548,6 +548,12 @@ print_usage(gboolean print_ver)
     fprintf(output, "  -v                       print version information and exit\n");
     fprintf(output, "  -h                       display this help and exit\n");
     fprintf(output, "\n");
+#ifdef __linux__
+    fprintf(output, "WARNING: dumpcap will enable kernel BPF JIT compiler if available.\n");
+    fprintf(output, "You might want to reset it\n");
+    fprintf(output, "By doing \"echo 0 > /proc/sys/net/core/bpf_jit_enable\n");
+    fprintf(output, "\n");
+#endif
     fprintf(output, "Example: dumpcap -i eth0 -a duration:60 -w output.pcapng\n");
     fprintf(output, "\"Capture packets from interface eth0 until 60s passed into output.pcapng\"\n");
     fprintf(output, "\n");
