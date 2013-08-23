@@ -53,7 +53,6 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/base64.h>
 #include <epan/asn1.h>
@@ -89,8 +88,8 @@ static int proto_sdp = -1;
 static int proto_sprt = -1;
 
 static const char* UNKNOWN_ENCODING = "Unknown";
-static emem_tree_t *sdp_transport_reqs = NULL;
-static emem_tree_t *sdp_transport_rsps = NULL;
+static wmem_tree_t *sdp_transport_reqs = NULL;
+static wmem_tree_t *sdp_transport_rsps = NULL;
 
 /* preference globals */
 static gboolean global_sdp_establish_conversation = TRUE;
@@ -1204,7 +1203,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       return;   /* Invalid */
     }
 
-    key  = se_new(gint);
+    key  = wmem_new(wmem_file_scope(), gint);
     *key = (gint)strtol((char*)payload_type, NULL, 10);
 
     transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
@@ -1239,15 +1238,15 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
      */
     if (transport_info->media_count < 0) {
       for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
-        encoding_name_and_rate = se_new(encoding_name_and_rate_t);
-        encoding_name_and_rate->encoding_name = se_strdup(transport_info->encoding_name[pt]);
+        encoding_name_and_rate = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
+        encoding_name_and_rate->encoding_name = wmem_strdup(wmem_file_scope(), transport_info->encoding_name[pt]);
         encoding_name_and_rate->sample_rate = transport_info->sample_rate[pt];
         if (n == 0) {
           g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
                               key, encoding_name_and_rate);
         } else {    /* we create a new key and encoding_name to assign to the other hash tables */
           gint *key2;
-          key2  = se_new(gint);
+          key2  = wmem_new(wmem_file_scope(), gint);
           *key2 = (gint)strtol((char*)payload_type, NULL, 10);
           g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
                               key2, encoding_name_and_rate);
@@ -1257,9 +1256,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       /* if the "a=" is after an "m=", only apply to this "m=" */
     } else
       /* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
-      encoding_name_and_rate = se_new(encoding_name_and_rate_t);
+      encoding_name_and_rate = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
 
-    encoding_name_and_rate->encoding_name = se_strdup(transport_info->encoding_name[pt]);
+    encoding_name_and_rate->encoding_name = wmem_strdup(wmem_file_scope(), transport_info->encoding_name[pt]);
     encoding_name_and_rate->sample_rate   = transport_info->sample_rate[pt];
     g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
                           key, encoding_name_and_rate);
@@ -1662,7 +1661,7 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
     if ((media_info->connection_address != NULL) &&
         (media_info->connection_type != NULL)) {
       if (strcmp(media_info->connection_type, "IP4") == 0) {
-        transport_info->src_addr[transport_index].data = se_alloc(4);
+        transport_info->src_addr[transport_index].data = wmem_alloc(wmem_file_scope(), 4);
         if (inet_pton(AF_INET, media_info->connection_address, (void*)transport_info->src_addr[transport_index].data) > 0) {
           /* connection_address could be converted to a valid ipv4 address*/
           transport_info->proto_bitmask[transport_index] |= SDP_IPv4;
@@ -1670,7 +1669,7 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
           transport_info->src_addr[transport_index].len  = 4;
         }
       } else if (strcmp(media_info->connection_type, "IP6") == 0) {
-          transport_info->src_addr[transport_index].data = se_alloc(16);
+          transport_info->src_addr[transport_index].data = wmem_alloc(wmem_file_scope(), 16);
           if (inet_pton(AF_INET6, media_info->connection_address, (void*)transport_info->src_addr[transport_index].data) > 0) {
             /* connection_address could be converted to a valid ipv6 address*/
             transport_info->proto_bitmask[transport_index] |= SDP_IPv6;
@@ -1687,7 +1686,7 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
         msrp_handle) {
        transport_info->src_addr[transport_index].type = AT_IPv4;
        transport_info->src_addr[transport_index].len  = 4;
-       transport_info->src_addr[transport_index].data = se_memdup(media_info->msrp_ipaddr, 4);
+       transport_info->src_addr[transport_index].data = wmem_memdup(wmem_file_scope(), media_info->msrp_ipaddr, 4);
        transport_info->media_port[transport_index] = media_info->msrp_port_number;
     }
 
@@ -1719,9 +1718,9 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
   memset(&media_info, 0, sizeof(media_info));
 
   if (request_frame != 0)
-    transport_info = (transport_info_t*)se_tree_lookup32( sdp_transport_reqs, request_frame );
+    transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, request_frame );
   if (transport_info == NULL) {
-    transport_info = se_new0(transport_info_t);
+    transport_info = wmem_new0(wmem_file_scope(), transport_info_t);
     transport_info->media_count = -1;
 
     for (n = 0; n < SDP_NO_OF_PT; n++) {
@@ -1734,11 +1733,11 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     }
 
     if (request_frame != 0)
-      se_tree_insert32(sdp_transport_reqs, request_frame, (void *)transport_info);
+      wmem_tree_insert32(sdp_transport_reqs, request_frame, (void *)transport_info);
   }
 
   if (exchange_type != SDP_EXCHANGE_OFFER)
-    se_tree_insert32(sdp_transport_rsps, pinfo->fd->num, (void *)transport_info);
+    wmem_tree_insert32(sdp_transport_rsps, pinfo->fd->num, (void *)transport_info);
 
   /* Offer has already been answered or rejected and hash tables freed, so
    * don't try to add to it
@@ -1840,7 +1839,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
           (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
         if (rtp_handle) {
           if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
-            srtp_info = se_new0(struct srtp_info);
+            srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
             if (transport_info->encryption_algorithm != SRTP_ENC_ALG_NOT_SET) {
               srtp_info->encryption_algorithm = transport_info->encryption_algorithm;
               srtp_info->auth_algorithm       = transport_info->auth_algorithm;
@@ -1955,9 +1954,9 @@ void setup_sdp_transport_resend(int current_frame, int request_frame)
   transport_info_t* transport_info = NULL;
 
   if (request_frame != 0) {
-    transport_info = (transport_info_t*)se_tree_lookup32( sdp_transport_reqs, request_frame );
+    transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, request_frame );
     if (transport_info != NULL) {
-        se_tree_insert32(sdp_transport_reqs, current_frame, (void *)transport_info);
+        wmem_tree_insert32(sdp_transport_reqs, current_frame, (void *)transport_info);
     }
   }
 }
@@ -1982,15 +1981,15 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct srtp_info *srtp_info = NULL;
 
   /* Initialise packet info for passing to tap */
-  sdp_pi = ep_new(sdp_packet_info);
+  sdp_pi = wmem_new(wmem_packet_scope(), sdp_packet_info);
   sdp_pi->summary_str[0] = '\0';
 
   if (!pinfo->fd->flags.visited) {
-    transport_info = (transport_info_t*)se_tree_lookup32( sdp_transport_reqs, pinfo->fd->num );
+    transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, pinfo->fd->num );
 
     if (transport_info == NULL) {
        /* Can't find it in the requests, make sure it's not a response */
-       transport_info = (transport_info_t*)se_tree_lookup32( sdp_transport_rsps, pinfo->fd->num );
+       transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_rsps, pinfo->fd->num );
     }
   }
 
@@ -2182,7 +2181,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
       if (rtp_handle) {
         if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
-          srtp_info = se_new0(struct srtp_info);
+          srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
           if (transport_info->encryption_algorithm != SRTP_ENC_ALG_NOT_SET) {
             srtp_info->encryption_algorithm = transport_info->encryption_algorithm;
             srtp_info->auth_algorithm       = transport_info->auth_algorithm;
@@ -2318,17 +2317,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   /* Report this packet to the tap */
   tap_queue_packet(sdp_tap, pinfo, sdp_pi);
-}
-
-static void
-sdp_init(void)
-{
-   /* se_...() allocations are automatically cleared when a new capture starts,
-      so we should be safe to create the tree without any previous checks */
-    sdp_transport_reqs = se_tree_create_non_persistent(
-            EMEM_TREE_TYPE_RED_BLACK, "sdp_transport_reqs");
-    sdp_transport_rsps = se_tree_create_non_persistent(
-            EMEM_TREE_TYPE_RED_BLACK, "sdp_transport_rsps");
 }
 
 void
@@ -2730,7 +2718,8 @@ proto_register_sdp(void)
                                  "upon port numbers found in SDP payload",
                                  &global_sdp_establish_conversation);
 
-  register_init_routine(sdp_init);
+  sdp_transport_reqs = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+  sdp_transport_rsps = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
   /*
    * Register the dissector by name, so other dissectors can

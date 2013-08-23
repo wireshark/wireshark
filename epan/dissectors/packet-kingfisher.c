@@ -28,7 +28,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 
 #define SUPPORT_KINGFISHER_SERIES_2
@@ -181,7 +181,7 @@ kingfisher_checksum(tvbuff_t *tvb, int offset)
 static gboolean
 dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_conv_dissector)
 {
-    kingfisher_packet_t *kfp;
+    kingfisher_packet_t kfp;
     proto_tree *kingfisher_tree=NULL;
     proto_item *item=NULL;
     const char *func_string = NULL;
@@ -216,100 +216,94 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     }
 
 
-
-
-
-    kfp=ep_new(kingfisher_packet_t);
-
     /* Verify that it looks like kingfisher */
     /* the packet must be at least 9 bytes */
     if(tvb_reported_length(tvb)<9){
         return FALSE;
     }
 
-
     /* the function code must be known */
-    kfp->function = tvb_get_guint8( tvb, 6 );
-    if (try_val_to_str(kfp->function, function_code_vals) == NULL) {
+    kfp.function = tvb_get_guint8( tvb, 6 );
+    if (try_val_to_str(kfp.function, function_code_vals) == NULL) {
         /* This appears not to be a kingfisher packet */
         return FALSE;
     }
 
     /* verify the length */
-    kfp->length = tvb_get_guint8(tvb, 2);
-    if((kfp->length+1) != (guint8)tvb_length(tvb)){
+    kfp.length = tvb_get_guint8(tvb, 2);
+    if((kfp.length+1) != (guint8)tvb_length(tvb)){
         return FALSE;
     }
 
     /* verify the checksum */
-    kfp->checksum = tvb_get_ntohs(tvb, kfp->length - 1);
+    kfp.checksum = tvb_get_ntohs(tvb, kfp.length - 1);
     checksum = kingfisher_checksum(tvb, 0);
-    if(kfp->checksum!=checksum){
+    if(kfp.checksum!=checksum){
         return FALSE;
     }
 
 
-    kfp->version = (kfp->function & 0x80)?3:2;
-    kfp->system = tvb_get_guint8( tvb, 0 );
-    kfp->message = tvb_get_guint8( tvb, 5 );
+    kfp.version = (kfp.function & 0x80)?3:2;
+    kfp.system = tvb_get_guint8( tvb, 0 );
+    kfp.message = tvb_get_guint8( tvb, 5 );
 
-    kfp->target = tvb_get_guint8( tvb, 1 );
-    kfp->from = tvb_get_guint8( tvb, 3 );
-    kfp->via = tvb_get_guint8( tvb, 4 );
+    kfp.target = tvb_get_guint8( tvb, 1 );
+    kfp.from = tvb_get_guint8( tvb, 3 );
+    kfp.via = tvb_get_guint8( tvb, 4 );
 
-    if( kfp->version == 3 )
+    if( kfp.version == 3 )
     {
-        kfp->target |= ( tvb_get_guint8( tvb, 7 ) << 8 );
-        kfp->from   |= ( tvb_get_guint8( tvb, 8 ) << 8 );
-        kfp->via    |= ( tvb_get_guint8( tvb, 9 ) << 8 );
+        kfp.target |= ( tvb_get_guint8( tvb, 7 ) << 8 );
+        kfp.from   |= ( tvb_get_guint8( tvb, 8 ) << 8 );
+        kfp.via    |= ( tvb_get_guint8( tvb, 9 ) << 8 );
     }
 
 
     /* Ok  this does look like Kingfisher, so lets dissect it */
-    func_string = val_to_str_const(kfp->function, function_code_vals, "Unknown function");
+    func_string = val_to_str_const(kfp.function, function_code_vals, "Unknown function");
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Kingfisher");
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%u > %u (%s)", kfp->from, kfp->target, func_string);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%u > %u (%s)", kfp.from, kfp.target, func_string);
 
 
-    message = (kfp->message & 0x0f) | ((kfp->message & 0xf0) >> 4);
+    message = (kfp.message & 0x0f) | ((kfp.message & 0xf0) >> 4);
 
     if(tree){
-        item = proto_tree_add_protocol_format(tree, proto_kingfisher, tvb, 0, -1, "Kingfisher Protocol, From RTU: %d, Target RTU: %d", kfp->from, kfp->target );
+        item = proto_tree_add_protocol_format(tree, proto_kingfisher, tvb, 0, -1, "Kingfisher Protocol, From RTU: %d, Target RTU: %d", kfp.from, kfp.target );
         kingfisher_tree = proto_item_add_subtree( item, ett_kingfisher );
     }
 
     /* version */
-    proto_tree_add_uint(kingfisher_tree, hf_kingfisher_version, tvb, 6, 1, kfp->version);
+    proto_tree_add_uint(kingfisher_tree, hf_kingfisher_version, tvb, 6, 1, kfp.version);
 
     /* system id */
-    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_system, tvb, 0, 1, kfp->system, "System Identifier: %u (0x%02X)", kfp->system, kfp->system);
+    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_system, tvb, 0, 1, kfp.system, "System Identifier: %u (0x%02X)", kfp.system, kfp.system);
 
     /* target rtu */
-    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_target, tvb, 1, 1, kfp->target, "Target RTU: %u (0x%02X)", kfp->target, kfp->target);
+    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_target, tvb, 1, 1, kfp.target, "Target RTU: %u (0x%02X)", kfp.target, kfp.target);
 
     /* length */
-    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_length, tvb, 2, 1, kfp->length, "Length: %u (0x%02X)", kfp->length, kfp->length);
+    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_length, tvb, 2, 1, kfp.length, "Length: %u (0x%02X)", kfp.length, kfp.length);
 
     /* from rtu */
-    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_from, tvb, 3, 1, kfp->from, "From RTU: %u (0x%02X)", kfp->from, kfp->from);
+    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_from, tvb, 3, 1, kfp.from, "From RTU: %u (0x%02X)", kfp.from, kfp.from);
 
     /* via rtu */
-    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_via, tvb, 4, 1, kfp->via, "Via RTU: %u (0x%02X)", kfp->via, kfp->via);
+    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_via, tvb, 4, 1, kfp.via, "Via RTU: %u (0x%02X)", kfp.via, kfp.via);
 
     /* message number */
-    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_message, tvb, 5, 1, kfp->message, "Message Number: %u (0x%02X, %s)", message, kfp->message, ((kfp->message & 0xf0)?"Response":"Request"));
+    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_message, tvb, 5, 1, kfp.message, "Message Number: %u (0x%02X, %s)", message, kfp.message, ((kfp.message & 0xf0)?"Response":"Request"));
 
     /* message function code */
-    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_function, tvb, 6, 1, kfp->function, "Message Function Code: %u (0x%02X, %s)", kfp->function, kfp->function, func_string);
+    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_function, tvb, 6, 1, kfp.function, "Message Function Code: %u (0x%02X, %s)", kfp.function, kfp.function, func_string);
 
     /* message data */
-    if(kfp->length > ((kfp->version==3)?11:8)){
-        proto_tree_add_text(kingfisher_tree, tvb, ((kfp->version==3)?10:7), kfp->length - ((kfp->version==3)?11:8), "Message Data");
+    if(kfp.length > ((kfp.version==3)?11:8)){
+        proto_tree_add_text(kingfisher_tree, tvb, ((kfp.version==3)?10:7), kfp.length - ((kfp.version==3)?11:8), "Message Data");
     }
 
     /* checksum */
-    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_checksum, tvb, kfp->length-1, 2, kfp->checksum, "Checksum: 0x%04X [%s]", kfp->checksum, ((checksum != kfp->checksum)?"incorrect":"correct"));
+    proto_tree_add_uint_format(kingfisher_tree, hf_kingfisher_checksum, tvb, kfp.length-1, 2, kfp.checksum, "Checksum: 0x%04X [%s]", kfp.checksum, ((checksum != kfp.checksum)?"incorrect":"correct"));
 
 
 
