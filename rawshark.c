@@ -809,6 +809,7 @@ main(int argc, char *argv[])
         for (i = 0; i < n_rfilters; i++) {
             if (!dfilter_compile(rfilters[i], &rfcodes[n_rfcodes])) {
                 cmdarg_err("%s", dfilter_error_msg);
+                epan_free(cfile.epan);
                 epan_cleanup();
                 exit(2);
             }
@@ -829,6 +830,7 @@ main(int argc, char *argv[])
         relinquish_special_privs_perm();
 
         if (raw_cf_open(&cfile, pipe_name) != CF_OK) {
+            epan_free(cfile.epan);
             epan_cleanup();
             exit(2);
         }
@@ -880,6 +882,7 @@ main(int argc, char *argv[])
         err = load_cap_file(&cfile);
 
         if (err != 0) {
+            epan_free(cfile.epan);
             epan_cleanup();
             exit(2);
         }
@@ -889,6 +892,7 @@ main(int argc, char *argv[])
         exit(2);
     }
 
+    epan_free(cfile.epan);
     epan_cleanup();
 
     return 0;
