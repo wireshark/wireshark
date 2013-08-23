@@ -530,6 +530,12 @@ static gint ett_tds7_query = -1;
 static gint ett_tds7_login = -1;
 static gint ett_tds7_hdr = -1;
 
+static expert_field ei_tds_type_info_type_undecoded = EI_INIT;
+static expert_field ei_tds_invalid_length = EI_INIT;
+static expert_field ei_tds_token_length_invalid = EI_INIT;
+static expert_field ei_tds_type_info_type = EI_INIT;
+static expert_field ei_tds_all_headers_header_type = EI_INIT;
+
 /* Desegmentation of Netlib buffers crossing TCP segment boundaries. */
 static gboolean tds_desegment = TRUE;
 
@@ -937,7 +943,7 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
         header_sub_tree = proto_item_add_subtree(item, ett_tds_all_headers_header);
         length_item = proto_tree_add_item(header_sub_tree, hf_tds_all_headers_header_length, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         if(header_length == 0 ) {
-            expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Empty header");
+            expert_add_info_format_text(pinfo, length_item, &ei_tds_invalid_length, "Empty header");
             break;
         }
 
@@ -949,20 +955,18 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
                 break;
             case TDS_HEADER_TRANS_DESCR:
                 if(header_length != 18)
-                    expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Length should equal 18");
+                    expert_add_info_format_text(pinfo, length_item, &ei_tds_invalid_length, "Length should equal 18");
                 proto_tree_add_item(header_sub_tree, hf_tds_all_headers_trans_descr, tvb, *offset + 6, 8, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(header_sub_tree, hf_tds_all_headers_request_cnt, tvb, *offset + 14, 4, ENC_LITTLE_ENDIAN);
                 break;
             default:
-                expert_add_info_format(pinfo, type_item, PI_MALFORMED, PI_ERROR, "Invalid header type");
+                expert_add_info(pinfo, type_item, &ei_tds_all_headers_header_type);
         }
 
         *offset += header_length;
     } while(*offset < final_offset);
     if(*offset != final_offset) {
-        expert_add_info_format(pinfo, total_length_item, PI_MALFORMED, PI_ERROR,
-                               "Sum of headers' lengths (%d) differs from total headers length (%d)",
-                               total_length + *offset - final_offset, total_length);
+        expert_add_info_format_text(pinfo, total_length_item, &ei_tds_invalid_length, "Sum of headers' lengths (%d) differs from total headers length (%d)", total_length + *offset - final_offset, total_length);
         return;
     }
 }
@@ -1812,7 +1816,7 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
             varlen = tvb_get_letohl(tvb, *offset);
             break;
         default:
-            expert_add_info_format(pinfo, data_type_item, PI_MALFORMED, PI_ERROR, "Invalid data type");
+            expert_add_info(pinfo, data_type_item, &ei_tds_type_info_type);
             THROW(ReportedBoundsError); /* No point in continuing */
     }
 
@@ -1910,7 +1914,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         break;
                     case TDS_DATA_TYPE_XML:       /* XML (introduced in TDS 7.2) */
                     case TDS_DATA_TYPE_UDT:       /* CLR-UDT (introduced in TDS 7.2) */
-                        expert_add_info_format(pinfo, length_item, PI_UNDECODED, PI_ERROR, "Data type %d not supported yet", data_type);
+                        proto_tree_add_expert_format(sub_tree, pinfo, &ei_tds_type_info_type_undecoded, tvb, *offset, length, "Data type %d not supported yet", data_type);
                         /* No point in continuing: we need to parse the full data_type to know where it ends */
                         THROW(ReportedBoundsError);
                     default:
@@ -1972,7 +1976,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             switch(length) {
                 case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA); break;
                 case 16: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_guid, tvb, *offset + 1, length, ENC_LITTLE_ENDIAN); break;
-                default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
+                default: expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
             }
             *offset += 1 + length;
             break;
@@ -1982,7 +1986,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             switch(length) {
                 case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA); break;
                 case 1: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset + 1, 1, ENC_LITTLE_ENDIAN); break;
-                default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
+                default: expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
             }
             *offset += 1 + length;
             break;
@@ -1995,7 +1999,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                 case 2: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int2, tvb, *offset + 1, 2, ENC_LITTLE_ENDIAN); break;
                 case 4: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4, tvb, *offset + 1, 4, ENC_LITTLE_ENDIAN); break;
                 case 8: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN); break;
-                default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
+                default: expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
             }
             *offset += 1 + length;
             break;
@@ -2006,7 +2010,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                 case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA); break;
                 case 4: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset + 1, 4, ENC_LITTLE_ENDIAN); break;
                 case 8: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN); break;
-                default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
+                default: expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
             }
             *offset += 1 + length;
             break;
@@ -2090,7 +2094,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         proto_tree_add_string(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, string_value);
                         break;
                     default: /*TODO*/
-                        expert_add_info_format(pinfo, length_item, PI_UNDECODED, PI_ERROR, "Data type %d not supported yet", data_type);
+                        proto_tree_add_expert_format(sub_tree, pinfo, &ei_tds_type_info_type_undecoded, tvb, *offset, length, "Data type %d not supported yet", data_type);
                         /* No point in continuing: we need to parse the full data_type to know where it ends */
                         THROW(ReportedBoundsError);
                 }
@@ -2227,7 +2231,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
 
         if ((int) token_sz < 0) {
             token_item = proto_tree_add_text(tree, tvb, pos, 0, "Token");
-            expert_add_info_format(pinfo, token_item, PI_PROTOCOL, PI_WARN, "Bogus token size: %u", token_sz);
+            expert_add_info_format_text(pinfo, token_item, &ei_tds_token_length_invalid, "Bogus token size: %u", token_sz);
             break;
         }
         token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
@@ -2235,8 +2239,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
                                          val_to_str_const(token, token_names, "Unknown Token Type"));
 
         if ((int) token_len_field_size < 0) {
-            expert_add_info_format(pinfo, token_item, PI_PROTOCOL, PI_WARN,
-                                    "Bogus token length field size: %u", token_len_field_size);
+            expert_add_info_format_text(pinfo, token_item, &ei_tds_token_length_invalid, "Bogus token length field size: %u", token_len_field_size);
             break;
         }
 
@@ -2500,7 +2503,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(tds_tree, hf_tds_status,
                                     tvb, offset + 1, 1, ENC_BIG_ENDIAN);
                 tds_item = proto_tree_add_uint(tds_tree, hf_tds_length, tvb, offset + 2, 2, plen);
-                expert_add_info_format(pinfo, tds_item, PI_PROTOCOL, PI_WARN, "bogus, should be >= 8");
+                expert_add_info_format_text(pinfo, tds_item, &ei_tds_invalid_length, "bogus, should be >= 8");
             }
 
             /*
@@ -3162,15 +3165,26 @@ proto_register_tds(void)
         &ett_tds7_login,
         &ett_tds7_hdr,
     };
+
+    static ei_register_info ei[] = {
+        { &ei_tds_all_headers_header_type, { "tds.all_headers.header.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid header type", EXPFILL }},
+        { &ei_tds_type_info_type, { "tds.type_info.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid data type", EXPFILL }},
+        { &ei_tds_type_info_type_undecoded, { "tds.type_info.type.undecoded", PI_UNDECODED, PI_ERROR, "Data type not supported yet", EXPFILL }},
+        { &ei_tds_invalid_length, { "tds.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+        { &ei_tds_token_length_invalid, { "tds.token.length.invalid", PI_PROTOCOL, PI_WARN, "Bogus token size", EXPFILL }},
+    };
+
     module_t *tds_module;
+    expert_module_t* expert_tds;
 
 /* Register the protocol name and description */
-    proto_tds = proto_register_protocol("Tabular Data Stream",
-                                        "TDS", "tds");
+    proto_tds = proto_register_protocol("Tabular Data Stream", "TDS", "tds");
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_tds, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_tds = expert_register_protocol(proto_tds);
+    expert_register_field_array(expert_tds, ei, array_length(ei));
 
 /* Allow dissector to be found by name. */
     tds_tcp_handle = register_dissector("tds", dissect_tds_tcp, proto_tds);

@@ -26,6 +26,8 @@
 #ifndef PACKET_XMPP_H
 #define PACKET_XMPP_H
 
+#include <epan/expert.h>
+
 #define ETT_UNKNOWN_LEN 20
 
 /*#define XMPP_DEBUG*/
@@ -177,9 +179,6 @@ extern gint hf_xmpp_presence_status;
 extern gint hf_xmpp_presence_caps;
 
 extern gint hf_xmpp_auth;
-extern gint hf_xmpp_challenge;
-extern gint hf_xmpp_response;
-extern gint hf_xmpp_success;
 extern gint hf_xmpp_failure;
 extern gint hf_xmpp_stream;
 extern gint hf_xmpp_starttls;
@@ -340,5 +339,19 @@ extern gint ett_xmpp_jitsi_inputevt;
 extern gint ett_xmpp_jitsi_inputevt_rmt_ctrl;
 
 extern gint ett_unknown[ETT_UNKNOWN_LEN];
+
+extern expert_field ei_xmpp_starttls_missing;
+extern expert_field ei_xmpp_response;
+extern expert_field ei_xmpp_challenge;
+extern expert_field ei_xmpp_success;
+extern expert_field ei_xmpp_proceed_already_in_frame;
+extern expert_field ei_xmpp_starttls_already_in_frame;
+extern expert_field ei_xmpp_packet_without_response;
+extern expert_field ei_xmpp_unknown_element;
+extern expert_field ei_xmpp_field_unexpected_value;
+extern expert_field ei_xmpp_unknown_attribute;
+extern expert_field ei_xmpp_required_attribute;
+
+
 #endif /* PACKET_XMPP_H */
 

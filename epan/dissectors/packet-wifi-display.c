@@ -80,6 +80,8 @@ static int hf_wfd_subelem_session_coupled_sink_addr = -1;
 static gint ett_wfd_subelem = -1;
 static gint ett_wfd_dev_info_descr = -1;
 
+static expert_field ei_wfd_subelem_len_invalid = EI_INIT;
+static expert_field ei_wfd_subelem_session_descr_invalid = EI_INIT;
 
 enum wifi_display_subelem {
   WFD_SUBELEM_DEVICE_INFO = 0,
@@ -184,8 +186,7 @@ dissect_wfd_subelem_associated_bssid(packet_info *pinfo, proto_tree *tree,
                                      tvbuff_t *tvb, int offset, int len)
 {
   if (len < 6) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                           "Too short Wi-Fi Display Associated BSSID");
+    expert_add_info_format_text(pinfo, tree, &ei_wfd_subelem_len_invalid, "Too short Wi-Fi Display Associated BSSID");
     return;
   }
   proto_tree_add_item(tree, hf_wfd_subelem_assoc_bssid, tvb, offset, 6, ENC_NA);
@@ -196,8 +197,7 @@ dissect_wfd_subelem_coupled_sink(packet_info *pinfo, proto_tree *tree,
                                  tvbuff_t *tvb, int offset, int len)
 {
   if (len < 1) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                           "Too short Wi-Fi Display Coupled Sink");
+    expert_add_info_format_text(pinfo, tree, &ei_wfd_subelem_len_invalid, "Too short Wi-Fi Display Coupled Sink");
     return;
   }
   proto_tree_add_item(tree, hf_wfd_subelem_coupled_sink_status_bitmap,
@@ -205,8 +205,7 @@ dissect_wfd_subelem_coupled_sink(packet_info *pinfo, proto_tree *tree,
   proto_tree_add_item(tree, hf_wfd_subelem_coupled_sink_reserved,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
   if (len < 1 + 6) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                           "Too short Wi-Fi Display Coupled Sink");
+    expert_add_info_format_text(pinfo, tree, &ei_wfd_subelem_len_invalid, "Too short Wi-Fi Display Coupled Sink");
     return;
   }
   proto_tree_add_item(tree, hf_wfd_subelem_coupled_sink_mac_addr, tvb,
@@ -223,16 +222,15 @@ dissect_wfd_subelem_session_info(packet_info *pinfo, proto_tree *tree,
 
   while (offset < end) {
     guint8 dlen = tvb_get_guint8(tvb, offset);
-    if (offset + 1 + dlen > end || dlen < 23) {
-      expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                             "Invalid WFD Device Info Descriptor");
-      break;
-    }
     next = offset + 1 + dlen;
 
     item = proto_tree_add_text(tree, tvb, offset, 1 + dlen,
                                "WFD Device Info Descriptor");
     descr = proto_item_add_subtree(item, ett_wfd_dev_info_descr);
+    if (offset + 1 + dlen > end || dlen < 23) {
+      expert_add_info(pinfo, item, &ei_wfd_subelem_session_descr_invalid);
+      break;
+    }
 
     proto_tree_add_item(descr, hf_wfd_subelem_session_descr_len,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -319,8 +317,7 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
 
   while (offset < end) {
     if (end - offset < 2) {
-      expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                             "Packet too short for Wi-Fi Display subelement");
+      expert_add_info_format_text(pinfo, tree, &ei_wfd_subelem_len_invalid, "Packet too short for Wi-Fi Display subelement");
       break;
     }
 
@@ -330,9 +327,7 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
                                   val_to_str(id, wfd_subelem_ids,
                                              "Unknown subelement ID (%u)"));
     if (offset + 3 + len > end) {
-      expert_add_info_format(pinfo, subelem, PI_MALFORMED, PI_ERROR,
-                             "Packet too short for Wi-Fi Display subelement "
-                             "payload");
+      expert_add_info_format_text(pinfo, subelem, &ei_wfd_subelem_len_invalid, "Packet too short for Wi-Fi Display subelement payload");
     }
 
     wfd_tree = proto_item_add_subtree(subelem, ett_wfd_subelem);
@@ -528,10 +523,19 @@ proto_register_wifi_display(void)
     &ett_wfd_dev_info_descr
   };
 
-  proto_wifi_display = proto_register_protocol("Wi-Fi Display", "WFD",
-                                               "wifi_display");
+  static ei_register_info ei[] = {
+      { &ei_wfd_subelem_len_invalid, { "wifi_display.subelem.length.invalid", PI_MALFORMED, PI_ERROR, "Subelement length invalid", EXPFILL }},
+      { &ei_wfd_subelem_session_descr_invalid, { "wifi_display.subelem.session.descr_invalid", PI_MALFORMED, PI_ERROR, "Invalid WFD Device Info Descriptor", EXPFILL }},
+  };
+
+  expert_module_t* expert_wifi_display;
+
+  proto_wifi_display = proto_register_protocol("Wi-Fi Display", "WFD", "wifi_display");
   proto_register_field_array(proto_wifi_display, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_wifi_display = expert_register_protocol(proto_wifi_display);
+  expert_register_field_array(expert_wifi_display, ei, array_length(ei));
 }
 
 /*

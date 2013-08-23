@@ -715,6 +715,7 @@ static gint ett_nfs4_chan_attrs = -1;
 static gint ett_nfs4_want_notify_flags = -1;
 
 static expert_field ei_nfs_too_many_ops = EI_INIT;
+static expert_field ei_nfs_not_vnx_file = EI_INIT;
 
 
 /* Types of fhandles we can dissect */
@@ -2302,7 +2303,7 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 		}
 	} else {
 		/* This is not a Celerra|VNX file handle.  Display a warning. */
-		expert_add_info_format(pinfo, tree, PI_UNDECODED, PI_WARN,
+		expert_add_info_format_text(pinfo, tree, &ei_nfs_not_vnx_file,
 			"Celerra|VNX file handles are 32 (NFSv3) or 40 (NFSv4) but the length is %u.\n"
 			"Change the 'Decode NFS file handles as' pref to the correct type or 'Unknown'.",
 			fhlen);
@@ -12591,6 +12592,7 @@ proto_register_nfs(void)
 
   	static ei_register_info ei[] = {
   	  	{ &ei_nfs_too_many_ops, { "nfs.too_many_ops", PI_PROTOCOL, PI_NOTE, "Too many operations", EXPFILL }},
+  	  	{ &ei_nfs_not_vnx_file, { "nfs.not_vnx_file", PI_UNDECODED, PI_WARN, "Not a Celerra|VNX file handle", EXPFILL }},
   	};
 
   	module_t *nfs_module;

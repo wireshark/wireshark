@@ -234,14 +234,10 @@ xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
             proto_item *unknown_item;
             proto_tree *unknown_tree;
 
-#ifdef XMPP_DEBUG
             unknown_item = proto_tree_add_string_format(tree,
                     hf_xmpp_unknown, tvb, child->offset, child->length, child->name,
                     "%s", xmpp_ep_string_upcase(child->name));
-#else
-            unknown_item = proto_tree_add_text(tree, tvb, child->offset, child->length,
-                    "%s", xmpp_ep_string_upcase(child->name));
-#endif
+
             unknown_tree = proto_item_add_subtree(unknown_item, ett_unknown[0]);
 
             /*Add COL_INFO only if root element is IQ*/
@@ -252,11 +248,8 @@ xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
                 proto_item_append_text(unknown_item,"(%s)",child->default_ns_abbrev);
 
             xmpp_unknown_items(unknown_tree, tvb, pinfo, child, 1);
-#ifdef XMPP_DEBUG
             proto_item_append_text(unknown_item, " [UNKNOWN]");
-
-            expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_NOTE,"Unknown element: %s", child->name);
-#endif
+            expert_add_info_format_text(pinfo, unknown_item, &ei_xmpp_unknown_element, "Unknown element: %s", child->name);
         }
         childs = childs->next;
     }
@@ -298,18 +291,12 @@ xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp
                 if (xmlns_needle && xmlns_needle == keys->data) {
                     proto_tree_add_string_format(tree, hf_xmpp_xmlns, tvb, attr->offset, attr->length, attr->value,"%s: %s", (gchar*)keys->data, attr->value);
                 } else {
-
-#ifdef XMPP_DEBUG
                     proto_item* unknown_attr_item;
                     unknown_attr_item = proto_tree_add_string_format(tree,
                             hf_xmpp_unknown_attr, tvb, attr->offset, attr->length,
                             attr->name, "%s: %s", attr->name, attr->value);
                     proto_item_append_text(unknown_attr_item, " [UNKNOWN ATTR]");
-                    expert_add_info_format(pinfo, unknown_attr_item, PI_UNDECODED, PI_NOTE, "Unknown attribute %s.", attr->name);
-#else
-                    proto_tree_add_text(tree, tvb, attr->offset, attr->length,
-                            "%s: %s", attr->name, attr->value);
-#endif
+                    expert_add_info_format_text(pinfo, unknown_attr_item, &ei_xmpp_unknown_attribute, "Unknown attribute %s", attr->name);
                 }
             }
         }
@@ -855,9 +842,7 @@ xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo
 
         } else if(attrs[i].is_required)
         {
-            expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
-                    "Required attribute \"%s\" doesn't appear in \"%s\".",attrs[i].name,
-                    element->name);
+            expert_add_info_format_text(pinfo, item, &ei_xmpp_required_attribute, "Required attribute \"%s\" doesn't appear in \"%s\".", attrs[i].name, element->name);
         }
 
         if(attrs[i].val_func)
@@ -919,9 +904,7 @@ xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *p
                     }
 
                 } else if (attrs[i].info.is_required) {
-                    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
-                            "Required attribute \"%s\" doesn't appear in \"%s\".", attrs[i].info.name,
-                            element->name);
+                    expert_add_info_format_text(pinfo, item, &ei_xmpp_required_attribute, "Required attribute \"%s\" doesn't appear in \"%s\".", attrs[i].info.name, element->name);
                 }
 
                 if (attrs[i].info.val_func) {
@@ -1049,9 +1032,7 @@ xmpp_val_enum_list(packet_info *pinfo, proto_item *item, const gchar *name, cons
             }
         }
         if (!value_in_enums) {
-            expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
-                    "Field \"%s\" has unexpected value \"%s\"",
-                    name, value);
+            expert_add_info_format_text(pinfo, item, &ei_xmpp_field_unexpected_value, "Field \"%s\" has unexpected value \"%s\"", name, value);
         }
     }
 }

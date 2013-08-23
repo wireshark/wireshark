@@ -44,7 +44,7 @@ extern void xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 extern void xmpp_auth(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         xmpp_element_t *packet);
 extern void xmpp_challenge_response_success(proto_tree *tree, tvbuff_t *tvb,
-        packet_info *pinfo, xmpp_element_t *packet, gint hf, gint ett,
+        packet_info *pinfo, xmpp_element_t *packet, expert_field* ei, gint ett,
         const char *col_info);
 extern void xmpp_failure(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         xmpp_element_t *packet);

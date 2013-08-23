@@ -209,6 +209,26 @@ static int ett_fp_hsdsch_new_ie_flags = -1;
 static int ett_fp_rach_new_ie_flags = -1;
 static int ett_fp_hsdsch_pdu_block_header = -1;
 
+static expert_field ei_fp_hsdsch_common_experimental_support = EI_INIT;
+static expert_field ei_fp_hsdsch_common_t3_not_implemented = EI_INIT;
+static expert_field ei_fp_channel_type_unknown = EI_INIT;
+static expert_field ei_fp_ddi_not_defined = EI_INIT;
+static expert_field ei_fp_stop_hsdpa_transmission = EI_INIT;
+static expert_field ei_fp_hsdsch_entity_not_specified = EI_INIT;
+static expert_field ei_fp_expecting_tdd = EI_INIT;
+static expert_field ei_fp_bad_payload_checksum = EI_INIT;
+static expert_field ei_fp_e_rnti_t2_edch_frames = EI_INIT;
+static expert_field ei_fp_crci_no_subdissector = EI_INIT;
+static expert_field ei_fp_timing_adjustmentment_reported = EI_INIT;
+static expert_field ei_fp_mac_is_sdus_miscount = EI_INIT;
+static expert_field ei_fp_maybe_srb = EI_INIT;
+static expert_field ei_fp_transport_channel_type_unknown = EI_INIT;
+static expert_field ei_fp_unable_to_locate_ddi_entry = EI_INIT;
+static expert_field ei_fp_e_rnti_first_entry = EI_INIT;
+static expert_field ei_fp_bad_header_checksum = EI_INIT;
+static expert_field ei_fp_crci_error_bit_set_for_tb = EI_INIT;
+static expert_field ei_fp_spare_extension = EI_INIT;
+
 static dissector_handle_t rlc_bcch_handle;
 static dissector_handle_t mac_fdd_dch_handle;
 static dissector_handle_t mac_fdd_rach_handle;
@@ -583,7 +603,7 @@ static gboolean verify_control_frame_crc(tvbuff_t * tvb, packet_info * pinfo, pr
         return TRUE;
     } else {
         proto_item_append_text(pi, " [incorrect, should be 0x%x]", crc);
-        expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_WARN, "Bad header checksum.");
+        expert_add_info(pinfo, pi, &ei_fp_bad_header_checksum);
         return FALSE;
     }
 }
@@ -601,7 +621,7 @@ static gboolean verify_header_crc(tvbuff_t * tvb, packet_info * pinfo, proto_ite
         return TRUE;
     } else {
         proto_item_append_text(pi, " [incorrect, should be 0x%x]", crc);
-        expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_WARN, "Bad header checksum.");
+        expert_add_info(pinfo, pi, &ei_fp_bad_header_checksum);
         return FALSE;
     }
 }
@@ -621,7 +641,7 @@ static gboolean verify_header_crc_edch(tvbuff_t * tvb, packet_info * pinfo, prot
         return TRUE;
     } else {
         proto_item_append_text(pi, " [incorrect, should be 0x%x]", crc);
-        expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_WARN, "Bad header checksum.");
+        expert_add_info(pinfo, pi, &ei_fp_bad_header_checksum);
         return FALSE;
     }
 }
@@ -721,11 +741,8 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     call_dissector(*data_handle, next_tvb, pinfo, top_level_tree);
                     dissected = TRUE;
                 } else {
-                    item = proto_tree_add_text(tree, tvb, offset + bit_offset/8,
-                                               ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8,
-                                               "Not sent to subdissector as CRCI is set");
-                    expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "Not sent to subdissectors as CRCI is set");
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_tree_add_expert(tree, pinfo, &ei_fp_crci_no_subdissector, tvb, offset + bit_offset/8,
+                                               ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8);
                 }
 
             }
@@ -918,9 +935,7 @@ dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (bit == 1) {
             errors++;
-            expert_add_info_format(pinfo, ti,
-                                   PI_CHECKSUM, PI_WARN,
-                                   "CRCI error bit set for TB");
+            expert_add_info(pinfo, ti, &ei_fp_crci_error_bit_set_for_tb);
         }
     }
 
@@ -955,9 +970,7 @@ dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
         ti = proto_tree_add_item(tree, hf_fp_spare_extension, tvb,
                                  offset, remain-crc_size, ENC_NA);
         proto_item_append_text(ti, " (%u octets)", remain-crc_size);
-        expert_add_info_format(pinfo, ti,
-                               PI_UNDECODED, PI_WARN,
-                               "Spare Extension present (%u bytes)", remain-crc_size);
+        expert_add_info_format_text(pinfo, ti, &ei_fp_spare_extension, "Spare Extension present (%u bytes)", remain-crc_size);
         offset += remain-crc_size;
     }
 
@@ -974,7 +987,7 @@ dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
                 proto_item_append_text(pi, " [correct]");
             } else {
                 proto_item_append_text(pi, " [incorrect, should be 0x%x]", calc_crc);
-                expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_WARN, "Bad payload checksum.");
+                expert_add_info(pinfo, pi, &ei_fp_bad_payload_checksum);
             }
         }
     }
@@ -1186,9 +1199,7 @@ dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     /* Interesting values */
     if (credits == 0) {
         proto_item_append_text(ti, " (stop transmission)");
-        expert_add_info_format(pinfo, ti,
-                               PI_RESPONSE_CODE, PI_NOTE,
-                               "Stop HSDPA transmission");
+        expert_add_info(pinfo, ti, &ei_fp_stop_hsdpa_transmission);
     }
     if (credits == 2047) {
         proto_item_append_text(ti, " (unlimited)");
@@ -1266,9 +1277,7 @@ dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tree,
     /* Interesting values */
     if (credits == 0) {
         proto_item_append_text(ti, " (stop transmission)");
-        expert_add_info_format(pinfo, ti,
-                               PI_RESPONSE_CODE, PI_NOTE,
-                               "Stop HSDPA transmission");
+        expert_add_info(pinfo, ti, &ei_fp_stop_hsdpa_transmission);
     }
     if (credits == 65535) {
         proto_item_append_text(ti, " (unlimited)");
@@ -2102,10 +2111,7 @@ dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
     toa_ti = proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    expert_add_info_format(pinfo, toa_ti,
-                           PI_SEQUENCE, PI_WARN,
-                           "Timing adjustmentment reported (%f ms)",
-                           (float)(toa / 8));
+    expert_add_info_format_text(pinfo, toa_ti, &ei_fp_timing_adjustmentment_reported, "Timing adjustmentment reported (%f ms)", (float)(toa / 8));
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
                     " CFN = %u, ToA = %d", control_cfn, toa);
@@ -2161,12 +2167,7 @@ dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
                     break;
                 default:
                     {
-                        proto_item *ti = proto_tree_add_text(tree, tvb, 0, 0,
-                                                             "Error: expecting TDD-384 or TDD-768");
-                        PROTO_ITEM_SET_GENERATED(ti);
-                        expert_add_info_format(pinfo, ti,
-                                               PI_MALFORMED, PI_NOTE,
-                                               "Error: expecting TDD-384 or TDD-768");
+                        proto_tree_add_expert(tree, pinfo, &ei_fp_expecting_tdd, tvb, 0, 0);
                         bit_offset = 6;
                     }
             }
@@ -2659,9 +2660,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
 
                 if (ddi_size == -1) {
-                    expert_add_info_format(pinfo, ddi_ti,
-                                           PI_MALFORMED, PI_ERROR,
-                                           "DDI %u not defined for this UE!", (guint)ddi);
+                    expert_add_info_format_text(pinfo, ddi_ti, &ei_fp_ddi_not_defined, "DDI %u not defined for this UE!", (guint)ddi);
                     return;
                 }
                 else {
@@ -2729,7 +2728,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 if (m == p_fp_info->no_ddi_entries) {
                     /* Not found.  Oops */
-                    expert_add_info_format(pinfo,NULL,PI_UNDECODED,PI_ERROR,"Unable to locate DDI entry.");
+                    expert_add_info(pinfo, NULL, &ei_fp_unable_to_locate_ddi_entry);
                     return;
                 }
 
@@ -2951,9 +2950,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
             do {
                 /* Check we haven't gone past the limit */
                 if (macis_sdus_found++ > total_macis_sdus) {
-                    expert_add_info_format(pinfo, f_ti, PI_MALFORMED, PI_ERROR,
-                                           "Found too many (%u) MAC-is SDUs - header said there were %u",
-                                           macis_sdus_found, (guint16)total_macis_sdus);
+                    expert_add_info_format_text(pinfo, f_ti, &ei_fp_mac_is_sdus_miscount, "Found too many (%u) MAC-is SDUs - header said there were %u", macis_sdus_found, (guint16)total_macis_sdus);
                 }
 
                 /* LCH-ID */
@@ -2973,14 +2970,10 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                        - it's the common case AND
                        - it's the first descriptor */
                     if (!is_common) {
-                        expert_add_info_format(pinfo, ti,
-                                               PI_MALFORMED, PI_ERROR,
-                                               "E-RNTI not supposed to appear for T2 EDCH frames");
+                        expert_add_info(pinfo, ti, &ei_fp_e_rnti_t2_edch_frames);
                     }
                     if (subframes[n].number_of_mac_is_sdus[pdu_no] > 0) {
-                        expert_add_info_format(pinfo, ti,
-                                               PI_MALFORMED, PI_ERROR,
-                                               "E-RNTI must be first entry among descriptors");
+                        expert_add_info(pinfo, ti, &ei_fp_e_rnti_first_entry);
                     }
                     continue;
                 }
@@ -3003,9 +2996,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
     /* Check overall count of MAC-is SDUs */
     if (macis_sdus_found != total_macis_sdus) {
-        expert_add_info_format(pinfo, subframe_macis_descriptors_ti, PI_MALFORMED, PI_ERROR,
-                               "Frame contains %u MAC-is SDUs - header said there would be %u!",
-                               macis_sdus_found, (guint16)total_macis_sdus);
+        expert_add_info_format_text(pinfo, subframe_macis_descriptors_ti, &ei_fp_mac_is_sdus_miscount, "Frame contains %u MAC-is SDUs - header said there would be %u!", macis_sdus_found, (guint16)total_macis_sdus);
     }
     header_length = offset;
     /* Now PDUs */
@@ -3158,7 +3149,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if( /*!rlc_is_ciphered(pinfo) &&*/ p_fp_info->hsdhsch_macfdlow_is_mux[p_fp_info->hsdsch_macflowd_id] ){
                 macinf->ctmux[i] = TRUE;
             }else if(p_fp_info->hsdsch_macflowd_id == 0){              /*MACd-flow = 0 is often SRB */
-                expert_add_info_format(pinfo,NULL,PI_PROTOCOL,PI_NOTE,"Found MACd-Flow = 0 and  not MUX detected. (This might be SRB)");
+                expert_add_info(pinfo, NULL, &ei_fp_maybe_srb);
             }else{
                     macinf->ctmux[i] = FALSE;    /*Either it's multiplexed and not signled or it's not MUX*/
             }
@@ -4137,7 +4128,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
                 p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
             break;
         default:
-            expert_add_info_format(pinfo,NULL,PI_UNDECODED,PI_WARN,"Unknown transport channel type");
+            expert_add_info(pinfo, NULL, &ei_fp_transport_channel_type_unknown);
             return NULL;
     }
 
@@ -4387,18 +4378,18 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     break;
                 default:
                     /* Report Error */
-                     expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "HSDSCH Entity not specified");
+                     expert_add_info(pinfo, NULL, &ei_fp_hsdsch_entity_not_specified);
                     break;
             }
             break;
         case CHANNEL_HSDSCH_COMMON:
-			expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_WARN, "HSDSCH COMMON - Experimental support!");
+			expert_add_info(pinfo, NULL, &ei_fp_hsdsch_common_experimental_support);
             /*if(FALSE)*/
             dissect_hsdsch_common_channel_info(tvb,pinfo, fp_tree, offset, p_fp_info);
 
             break;
         case CHANNEL_HSDSCH_COMMON_T3:
-         expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_ERROR, "HSDSCH COMMON T3 - Not implemeneted!");
+         expert_add_info(pinfo, NULL, &ei_fp_hsdsch_common_t3_not_implemented);
 
             /* TODO: */
             break;
@@ -4418,7 +4409,7 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         default:
-             expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Unknown channel type");
+             expert_add_info(pinfo, NULL, &ei_fp_channel_type_unknown);
             break;
     }
 }
@@ -5373,12 +5364,37 @@ void proto_register_fp(void)
         &ett_fp_release
     };
 
+    static ei_register_info ei[] = {
+        { &ei_fp_bad_header_checksum, { "fp.header.bad_checksum.", PI_CHECKSUM, PI_WARN, "Bad header checksum.", EXPFILL }},
+        { &ei_fp_crci_no_subdissector, { "fp.crci.no_subdissector", PI_UNDECODED, PI_NOTE, "Not sent to subdissectors as CRCI is set", EXPFILL }},
+        { &ei_fp_crci_error_bit_set_for_tb, { "fp.crci.error_bit_set_for_tb", PI_CHECKSUM, PI_WARN, "CRCI error bit set for TB", EXPFILL }},
+        { &ei_fp_spare_extension, { "fp.spare-extension.expert", PI_UNDECODED, PI_WARN, "Spare Extension present (%u bytes)", EXPFILL }},
+        { &ei_fp_bad_payload_checksum, { "fp.payload-crc.bad.", PI_CHECKSUM, PI_WARN, "Bad payload checksum.", EXPFILL }},
+        { &ei_fp_stop_hsdpa_transmission, { "fp.stop_hsdpa_transmission", PI_RESPONSE_CODE, PI_NOTE, "Stop HSDPA transmission", EXPFILL }},
+        { &ei_fp_timing_adjustmentment_reported, { "fp.timing_adjustmentment_reported", PI_SEQUENCE, PI_WARN, "Timing adjustmentment reported (%f ms)", EXPFILL }},
+        { &ei_fp_expecting_tdd, { "fp.expecting_tdd", PI_MALFORMED, PI_NOTE, "Error: expecting TDD-384 or TDD-768", EXPFILL }},
+        { &ei_fp_ddi_not_defined, { "fp.ddi_not_defined", PI_MALFORMED, PI_ERROR, "DDI %u not defined for this UE!", EXPFILL }},
+        { &ei_fp_unable_to_locate_ddi_entry, { "fp.unable_to_locate_ddi_entry", PI_UNDECODED, PI_ERROR, "Unable to locate DDI entry.", EXPFILL }},
+        { &ei_fp_mac_is_sdus_miscount, { "fp.mac_is_sdus.miscount", PI_MALFORMED, PI_ERROR, "Found too many (%u) MAC-is SDUs - header said there were %u", EXPFILL }},
+        { &ei_fp_e_rnti_t2_edch_frames, { "fp.e_rnti.t2_edch_frames", PI_MALFORMED, PI_ERROR, "E-RNTI not supposed to appear for T2 EDCH frames", EXPFILL }},
+        { &ei_fp_e_rnti_first_entry, { "fp.e_rnti.first_entry", PI_MALFORMED, PI_ERROR, "E-RNTI must be first entry among descriptors", EXPFILL }},
+        { &ei_fp_maybe_srb, { "fp.maybe_srb", PI_PROTOCOL, PI_NOTE, "Found MACd-Flow = 0 and not MUX detected. (This might be SRB)", EXPFILL }},
+        { &ei_fp_transport_channel_type_unknown, { "fp.transport_channel_type.unknown", PI_UNDECODED, PI_WARN, "Unknown transport channel type", EXPFILL }},
+        { &ei_fp_hsdsch_entity_not_specified, { "fp.hsdsch_entity_not_specified", PI_MALFORMED, PI_ERROR, "HSDSCH Entity not specified", EXPFILL }},
+        { &ei_fp_hsdsch_common_experimental_support, { "fp.hsdsch_common.experimental_support", PI_DEBUG, PI_WARN, "HSDSCH COMMON - Experimental support!", EXPFILL }},
+        { &ei_fp_hsdsch_common_t3_not_implemented, { "fp.hsdsch_common_t3.not_implemented", PI_DEBUG, PI_ERROR, "HSDSCH COMMON T3 - Not implemeneted!", EXPFILL }},
+        { &ei_fp_channel_type_unknown, { "fp.channel_type.unknown", PI_MALFORMED, PI_ERROR, "Unknown channel type", EXPFILL }},
+    };
+
     module_t *fp_module;
+    expert_module_t* expert_fp;
 
     /* Register protocol. */
     proto_fp = proto_register_protocol("FP", "FP", "fp");
     proto_register_field_array(proto_fp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_fp = expert_register_protocol(proto_fp);
+    expert_register_field_array(expert_fp, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("fp", dissect_fp, proto_fp);

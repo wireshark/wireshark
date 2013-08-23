@@ -33,7 +33,6 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/conversation.h>
-#include <epan/expert.h>
 #include <epan/prefs.h>
 
 #include <epan/dissectors/packet-xml.h>
@@ -193,9 +192,6 @@ gint hf_xmpp_presence_status = -1;
 gint hf_xmpp_presence_caps = -1;
 
 gint hf_xmpp_auth = -1;
-gint hf_xmpp_challenge = -1;
-gint hf_xmpp_response = -1;
-gint hf_xmpp_success = -1;
 gint hf_xmpp_failure = -1;
 gint hf_xmpp_starttls = -1;
 gint hf_xmpp_proceed = -1;
@@ -359,6 +355,17 @@ gint ett_unknown[ETT_UNKNOWN_LEN];
 
 static expert_field ei_xmpp_xml_disabled = EI_INIT;
 static expert_field ei_xmpp_packet_unknown = EI_INIT;
+expert_field ei_xmpp_starttls_missing = EI_INIT;
+expert_field ei_xmpp_response = EI_INIT;
+expert_field ei_xmpp_challenge = EI_INIT;
+expert_field ei_xmpp_success = EI_INIT;
+expert_field ei_xmpp_proceed_already_in_frame = EI_INIT;
+expert_field ei_xmpp_starttls_already_in_frame = EI_INIT;
+expert_field ei_xmpp_packet_without_response = EI_INIT;
+expert_field ei_xmpp_unknown_element = EI_INIT;
+expert_field ei_xmpp_field_unexpected_value = EI_INIT;
+expert_field ei_xmpp_unknown_attribute = EI_INIT;
+expert_field ei_xmpp_required_attribute = EI_INIT;
 
 static dissector_handle_t xmpp_handle;
 
@@ -517,11 +524,11 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         } else if (strcmp(packet->name, "auth") == 0) {
             xmpp_auth(xmpp_tree, tvb, pinfo, packet);
         } else if (strcmp(packet->name, "challenge") == 0) {
-            xmpp_challenge_response_success(xmpp_tree, tvb, pinfo, packet, hf_xmpp_challenge, ett_xmpp_challenge, "CHALLENGE");
+            xmpp_challenge_response_success(xmpp_tree, tvb, pinfo, packet, &ei_xmpp_challenge, ett_xmpp_challenge, "CHALLENGE");
         } else if (strcmp(packet->name, "response") == 0) {
-            xmpp_challenge_response_success(xmpp_tree, tvb, pinfo, packet, hf_xmpp_response, ett_xmpp_response, "RESPONSE");
+            xmpp_challenge_response_success(xmpp_tree, tvb, pinfo, packet, &ei_xmpp_response, ett_xmpp_response, "RESPONSE");
         } else if (strcmp(packet->name, "success") == 0) {
-            xmpp_challenge_response_success(xmpp_tree, tvb, pinfo, packet, hf_xmpp_success, ett_xmpp_success, "SUCCESS");
+            xmpp_challenge_response_success(xmpp_tree, tvb, pinfo, packet, &ei_xmpp_success, ett_xmpp_success, "SUCCESS");
         } else if (strcmp(packet->name, "failure") == 0) {
             xmpp_failure(xmpp_tree, tvb, pinfo, packet);
         } else if (strcmp(packet->name, "xml") == 0) {
@@ -1113,21 +1120,6 @@ proto_register_xmpp(void) {
               "STREAM", "xmpp.stream", FT_NONE, BASE_NONE, NULL, 0x0,
               "XMPP stream", HFILL
           }},
-        { &hf_xmpp_challenge,
-          {
-              "CHALLENGE", "xmpp.challenge", FT_NONE, BASE_NONE, NULL, 0x0,
-              "challenge packet", HFILL
-          }},
-        { &hf_xmpp_response,
-          {
-              "RESPONSE", "xmpp.response", FT_NONE, BASE_NONE, NULL, 0x0,
-              "response packet", HFILL
-          }},
-        { &hf_xmpp_success,
-          {
-              "SUCCESS", "xmpp.success", FT_NONE, BASE_NONE, NULL, 0x0,
-              "success packet", HFILL
-          }},
         { &hf_xmpp_failure,
           {
               "FAILURE", "xmpp.failure", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1403,6 +1395,17 @@ proto_register_xmpp(void) {
     static ei_register_info ei[] = {
         { &ei_xmpp_xml_disabled, { "xmpp.xml_disabled", PI_UNDECODED, PI_WARN, "XML dissector disabled, can't dissect XMPP", EXPFILL }},
         { &ei_xmpp_packet_unknown, { "xmpp.packet_unknown", PI_UNDECODED, PI_NOTE, "Unknown packet", EXPFILL }},
+        { &ei_xmpp_packet_without_response, { "xmpp.packet_without_response", PI_PROTOCOL, PI_CHAT, "Packet without response", EXPFILL }},
+        { &ei_xmpp_response, { "xmpp.response", PI_RESPONSE_CODE, PI_CHAT, "RESPONSE", EXPFILL }},
+        { &ei_xmpp_challenge, { "xmpp.challenge", PI_RESPONSE_CODE, PI_CHAT, "CHALLENGE", EXPFILL }},
+        { &ei_xmpp_success, { "xmpp.success", PI_RESPONSE_CODE, PI_CHAT, "SUCCESS", EXPFILL }},
+        { &ei_xmpp_starttls_already_in_frame, { "xmpp.starttls.already_in_frame", PI_PROTOCOL, PI_WARN, "Already saw STARTTLS in frame X", EXPFILL }},
+        { &ei_xmpp_starttls_missing, { "xmpp.starttls.missing", PI_PROTOCOL, PI_WARN, "Haven't seen a STARTTLS, did the capture start in the middle of a session?", EXPFILL }},
+        { &ei_xmpp_proceed_already_in_frame, { "xmpp.proceed.already_in_frame", PI_PROTOCOL, PI_WARN, "Already saw PROCEED in frame X", EXPFILL }},
+        { &ei_xmpp_unknown_element, { "xmpp.unknown.element", PI_UNDECODED, PI_NOTE, "Unknown element", EXPFILL }},
+        { &ei_xmpp_unknown_attribute, { "xmpp.unknown.attribute", PI_UNDECODED, PI_NOTE, "Unknown attribute", EXPFILL }},
+        { &ei_xmpp_required_attribute, { "xmpp.required_attribute", PI_PROTOCOL, PI_WARN, "Required attribute doesn't appear", EXPFILL }},
+        { &ei_xmpp_field_unexpected_value, { "xmpp.field.unexpected_value", PI_PROTOCOL, PI_WARN, "Field has unexpected value", EXPFILL }},
     };
 
     module_t *xmpp_module;

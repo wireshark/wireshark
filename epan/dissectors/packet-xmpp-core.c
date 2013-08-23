@@ -199,7 +199,7 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
                     PROTO_ITEM_SET_GENERATED(it);
                 } else
                 {
-                    expert_add_info_format(pinfo, xmpp_iq_item , PI_PROTOCOL, PI_CHAT, "Packet without response");
+                    expert_add_info(pinfo, xmpp_iq_item, &ei_xmpp_packet_without_response);
                 }
 
             } else {
@@ -208,7 +208,7 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
                     PROTO_ITEM_SET_GENERATED(it);
                 } else
                 {
-                    expert_add_info_format(pinfo, xmpp_iq_item , PI_PROTOCOL, PI_CHAT, "Packet without response");
+                    expert_add_info(pinfo, xmpp_iq_item, &ei_xmpp_packet_without_response);
                 }
             }
         }
@@ -258,7 +258,7 @@ xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
         error_info = ep_strdup_printf("%s Text: %s", error_info, text_element->data?text_element->data->value:"");
     }
 
-    expert_add_info_format(pinfo, error_item, PI_RESPONSE_CODE, PI_CHAT,"%s", error_info);
+    expert_add_info_format_text(pinfo, error_item, &ei_xmpp_response, "%s", error_info);
 
     xmpp_unknown(error_tree, tvb, pinfo, element);
 }
@@ -534,7 +534,7 @@ xmpp_auth(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *p
 
 void
 xmpp_challenge_response_success(proto_tree *tree, tvbuff_t *tvb,
-    packet_info *pinfo, xmpp_element_t *packet, gint hf, gint ett,  const char *col_info)
+    packet_info *pinfo, xmpp_element_t *packet, expert_field* ei, gint ett,  const char *col_info)
 {
     proto_item *item;
     proto_tree *subtree;
@@ -545,7 +545,7 @@ xmpp_challenge_response_success(proto_tree *tree, tvbuff_t *tvb,
 
     col_set_str(pinfo->cinfo, COL_INFO, col_info);
 
-    item = proto_tree_add_item(tree, hf, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
+    item = proto_tree_add_expert(tree, pinfo, ei, tvb, packet->offset, packet->length);
     subtree = proto_item_add_subtree(item, ett);
 
     xmpp_display_attrs(subtree, packet, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -714,8 +714,7 @@ xmpp_starttls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     tls_tree = proto_item_add_subtree(tls_item, ett_xmpp_starttls);
 
     if (xmpp_info->ssl_start && xmpp_info->ssl_start != pinfo->fd->num) {
-        expert_add_info_format(pinfo, tls_item, PI_PROTOCOL, PI_WARN,
-                "Already saw STARTTLS in frame %u", xmpp_info->ssl_start);
+        expert_add_info_format_text(pinfo, tls_item, &ei_xmpp_starttls_already_in_frame, "Already saw STARTTLS in frame %u", xmpp_info->ssl_start);
     }
     else {
         xmpp_info->ssl_start = pinfo->fd->num;
@@ -742,13 +741,11 @@ xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     proceed_tree = proto_item_add_subtree(proceed_item, ett_xmpp_proceed);
 
     if (!xmpp_info->ssl_start) {
-        expert_add_info_format(pinfo, proceed_item, PI_PROTOCOL, PI_WARN,
-                "Haven't seen a STARTTLS, did the capture start in the middle of a session?");
+        expert_add_info(pinfo, proceed_item, &ei_xmpp_starttls_missing);
     }
 
     if (xmpp_info->ssl_proceed && xmpp_info->ssl_proceed != pinfo->fd->num) {
-        expert_add_info_format(pinfo, proceed_item, PI_PROTOCOL, PI_WARN,
-                "Already saw PROCEED in frame %u", xmpp_info->ssl_proceed);
+        expert_add_info_format_text(pinfo, proceed_item, &ei_xmpp_proceed_already_in_frame, "Already saw PROCEED in frame %u", xmpp_info->ssl_proceed);
     }
     else {
         xmpp_info->ssl_proceed = pinfo->fd->num;

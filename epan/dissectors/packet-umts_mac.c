@@ -78,6 +78,12 @@ static int ett_mac_hsdsch = -1;
 static int ett_mac_edch_type2 = -1;
 static int ett_mac_edch_type2_sdu = -1;
 
+static expert_field ei_mac_cs_dtch_not_implemented = EI_INIT;
+static expert_field ei_mac_rach_tctf_unknown = EI_INIT;
+static expert_field ei_mac_unknown_content = EI_INIT;
+static expert_field ei_mac_per_frame_info_missing = EI_INIT;
+static expert_field ei_mac_fach_content_type_unknown = EI_INIT;
+
 static dissector_handle_t rlc_pcch_handle;
 static dissector_handle_t rlc_ccch_handle;
 static dissector_handle_t rlc_ctch_handle;
@@ -293,9 +299,7 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
     rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
     if (!macinf || !fpinf) {
-        proto_tree_add_text(rach_tree, tvb, 0, -1,
-            "Cannot dissect MAC frame because per-frame info is missing");
-            expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"Cannot dissect MAC frame because per-frame info is missing");
+        proto_tree_add_expert(rach_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
         return;
     }
 
@@ -345,12 +349,12 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                     break;
                 default:
                     proto_item_append_text(ti, " (Unknown RACH DCCH/DTCH Content)");
-                    expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Unknown RACH DCCH/DTCH Content");
+                    expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, "Unknown RACH DCCH/DTCH Content");
             }
             break;
         default:
             proto_item_append_text(ti, " (Unknown RACH TCTF)");
-            expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Unknown RACH TCTF ");
+            expert_add_info_format_text(pinfo, NULL, &ei_mac_rach_tctf_unknown, "Unknown RACH TCTF");
     }
 }
 
@@ -386,9 +390,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 
     if (!macinf || !fpinf) {
-        proto_tree_add_text(fach_tree, tvb, 0, -1,
-            "Cannot dissect MAC frame because per-frame info is missing");
-            expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"Cannot dissect MAC frame because per-frame info is missing");
+        proto_tree_add_expert(fach_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
         return;
     }
 
@@ -435,12 +437,12 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                     break;
                 case MAC_CONTENT_CS_DTCH:
                     proto_item_append_text(ti, " (CS DTCH)");
-                    expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_ERROR, "CS DTCH Is not implemented");
+                    expert_add_info(pinfo, NULL, &ei_mac_cs_dtch_not_implemented);
                     /* TODO */
                     break;
                 default:
                     proto_item_append_text(ti, " (Unknown FACH Content");
-                    expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Unknown FACH Content for this transportblock");
+                    expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, "Unknown FACH Content for this transportblock");
             }
             break;
         case TCTF_CTCH_FACH_FDD:
@@ -475,11 +477,11 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         case TCTF_MSCH_FACH_FDD:
         case TCTF_MCCH_FACH_FDD:
         case TCTF_MTCH_FACH_FDD:
-            expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_ERROR, " Unimplemented FACH Content type!");
+            expert_add_info(pinfo, NULL, &ei_mac_fach_content_type_unknown);
             break;
         default:
             proto_item_append_text(ti, " (Unknown FACH Content)");
-            expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, " Unknown FACH Content");
+            expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, " Unknown FACH Content");
             break;
     }
 }
@@ -511,9 +513,7 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if(!fpinf){
         g_warning("fpinf == NULL");
     }
-       ti =  proto_tree_add_text(dch_tree, tvb, 0, -1,
-            "Cannot dissect MAC frame because per-frame info is missing");
-        expert_add_info_format(pinfo,ti,PI_DEBUG,PI_ERROR,"MAC frame missing frame information!");
+        proto_tree_add_expert(dch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
         return;
     }
     pos = fpinf->cur_tb;
@@ -598,7 +598,7 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             break;
         default:
             proto_item_append_text(ti, " (Unknown DCH Content)");
-            expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Unknown DCH Content");
+            expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, "Unknown DCH Content");
     }
 }
 
@@ -928,7 +928,7 @@ static void call_rlc(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pro
             break;
         default:
             proto_item_append_text(ti, " (Unknown EDCH Content)");
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Unknown EDCH Content");
+            expert_add_info_format_text(pinfo, ti, &ei_mac_unknown_content, "Unknown EDCH Content");
             break;
     }
 }
@@ -1018,9 +1018,7 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
     if (!macinf|| !fpinf) {
-        ti = proto_tree_add_text(edch_tree, tvb, 0, -1,
-            "Cannot dissect MAC frame because per-frame info is missing");
-          expert_add_info_format(pinfo,ti,PI_DEBUG,PI_ERROR,"MAC frame missing frame information!");
+        proto_tree_add_expert(edch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
         return;
     }
 
@@ -1058,7 +1056,7 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             break;
         default:
             proto_item_append_text(ti, " (Unknown EDCH Content)");
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Unknown EDCH Content");
+            expert_add_info_format_text(pinfo, ti, &ei_mac_unknown_content, "Unknown EDCH Content");
             break;
     }
 }
@@ -1097,9 +1095,7 @@ static void dissect_mac_fdd_hsdsch_common(tvbuff_t *tvb, packet_info *pinfo, pro
 	macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
 
 	 if (!macinf) {
-        proto_tree_add_text(hsdsch_tree, tvb, 0, -1,
-            "Cannot dissect MAC frame because per-frame info is missing");
-        expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"Cannot dissect MAC frame because per-frame info is missing");
+        proto_tree_add_expert(hsdsch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
         return;
     }
     pos = fpinf->cur_tb;
@@ -1121,7 +1117,7 @@ static void dissect_mac_fdd_hsdsch_common(tvbuff_t *tvb, packet_info *pinfo, pro
 		default:
 
 			proto_item_append_text(ti, " (Unknown HSDSCH-Common Content)");
-			expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Unknown HSDSCH-Common Content");
+			expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, "Unknown HSDSCH-Common Content");
 		break;
 	}
 
@@ -1159,9 +1155,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;	/*No MAC-d header for type 2*/
 
     if (!macinf) {
-        proto_tree_add_text(hsdsch_tree, tvb, 0, -1,
-            "Cannot dissect MAC frame because per-frame info is missing");
-        expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"Cannot dissect MAC frame because per-frame info is missing");
+        proto_tree_add_expert(hsdsch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
         return;
     }
     if (macinf->ctmux[pos]) {	/*The 4'st bits are padding*/
@@ -1271,7 +1265,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             break;
         default:
             proto_item_append_text(ti, " (Unknown HSDSCH Content)");
-           expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Unknown HSDSCH Content");
+           expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, "Unknown HSDSCH Content");
     }
 }
 
@@ -1442,9 +1436,21 @@ proto_register_umts_mac(void)
         }
     };
 
+    static ei_register_info ei[] = {
+        { &ei_mac_per_frame_info_missing, { "mac.per_frame_info_missing", PI_MALFORMED, PI_ERROR, "Cannot dissect MAC frame because per-frame info is missing", EXPFILL }},
+        { &ei_mac_unknown_content, { "mac.unknown_content", PI_MALFORMED, PI_ERROR, "Unknown RACH DCCH/DTCH Content", EXPFILL }},
+        { &ei_mac_rach_tctf_unknown, { "mac.rach_tctf.unknown", PI_MALFORMED, PI_ERROR, "Unknown RACH TCTF", EXPFILL }},
+        { &ei_mac_cs_dtch_not_implemented, { "mac.cs_dtch.not_implemented", PI_DEBUG, PI_ERROR, "CS DTCH Is not implemented", EXPFILL }},
+        { &ei_mac_fach_content_type_unknown, { "mac.fach_content_type.unknown", PI_UNDECODED, PI_WARN, " Unimplemented FACH Content type!", EXPFILL }},
+    };
+
+    expert_module_t* expert_umts_mac;
+
     proto_umts_mac = proto_register_protocol("MAC", "MAC", "mac");
     proto_register_field_array(proto_umts_mac, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_umts_mac = expert_register_protocol(proto_umts_mac);
+    expert_register_field_array(expert_umts_mac, ei, array_length(ei));
 
     register_dissector("mac.fdd.rach", dissect_mac_fdd_rach, proto_umts_mac);
     register_dissector("mac.fdd.fach", dissect_mac_fdd_fach, proto_umts_mac);

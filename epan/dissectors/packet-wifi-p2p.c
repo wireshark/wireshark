@@ -366,6 +366,11 @@ static int hf_p2p_action_dialog_token = -1;
 static int hf_p2p_public_action_subtype = -1;
 static int hf_p2p_public_action_dialog_token = -1;
 
+static expert_field ei_wifi_p2p_attr_dev_info_dev_name_type = EI_INIT;
+static expert_field ei_wifi_p2p_attr_len = EI_INIT;
+static expert_field ei_wifi_p2p_anqp_length = EI_INIT;
+static expert_field ei_wifi_p2p_anqp_unexpected_padding = EI_INIT;
+
 static void dissect_wifi_p2p_capability(proto_item *tlv_root,
                                         proto_item *tlv_item,
                                         tvbuff_t *tvb, int offset)
@@ -578,8 +583,7 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
                              tvb, s_offset, 2, ENC_BIG_ENDIAN);
   attr_type = tvb_get_ntohs(tvb, s_offset);
   if (attr_type != 0x1011) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                           "Incorrect Device Name attribute type");
+    expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_dev_info_dev_name_type, "Incorrect Device Name attribute type");
   }
   s_offset += 2;
   item = proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_dev_name_len,
@@ -587,8 +591,7 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
   attr_len = tvb_get_ntohs(tvb, s_offset);
   s_offset += 2;
   if (attr_len > offset + 3 + slen - s_offset) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                           "Invalid Device Name attribute length");
+    expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute length");
     return;
   }
   nlen = offset + 3 + slen - s_offset;
@@ -598,8 +601,7 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
                                nlen > attr_len ? attr_len : nlen,
                                ENC_ASCII|ENC_NA);
   if (nlen != attr_len) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                           "Invalid Device Name attribute");
+    expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute");
   }
 }
 
@@ -668,8 +670,7 @@ static void dissect_wifi_p2p_group_bssid(packet_info *pinfo,
   guint8 addr[6];
 
   if (slen != 6) {
-    expert_add_info_format(pinfo, tlv_item, PI_MALFORMED, PI_ERROR,
-                           "Invalid ethernet address");
+    expert_add_info_format_text(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Invalid ethernet address");
     return;
   }
 
@@ -687,8 +688,7 @@ static void dissect_notice_of_absence(packet_info *pinfo, proto_item *tlv_root,
   int s_offset = offset + 3;
 
   if (slen < 2) {
-    expert_add_info_format(pinfo, tlv_item, PI_MALFORMED, PI_ERROR,
-                           "Too short NoA");
+    expert_add_info_format_text(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Too short NoA");
     return;
   }
 
@@ -732,8 +732,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
 
   while (offset + 3 + slen > s_offset) {
     if (offset + 3 + slen - s_offset < 25) {
-      expert_add_info_format(pinfo, tlv_item, PI_MALFORMED, PI_ERROR,
-                             "Too short P2P Client Info Descriptor");
+      expert_add_info_format_text(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Too short P2P Client Info Descriptor");
       break;
     }
 
@@ -745,8 +744,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     item = proto_tree_add_item(tree, hf_p2p_attr_gi_length, tvb, s_offset,
                                1, ENC_BIG_ENDIAN);
     if (ci_len < 24 || s_offset + ci_len > offset + 3 + slen) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Invalid P2P Client Info Descriptor Length");
+      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid P2P Client Info Descriptor Length");
       break;
     }
     s_offset++;
@@ -801,8 +799,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     s_offset++;
     left = offset + 3 + slen - s_offset;
     if (left < 8 * num_sec) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Invalid Secondary Device Type List");
+      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Secondary Device Type List");
       break;
     }
     while (num_sec > 0) {
@@ -816,8 +813,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
                                tvb, s_offset, 2, ENC_BIG_ENDIAN);
     attr_type = tvb_get_ntohs(tvb, s_offset);
     if (attr_type != 0x1011) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Incorrect Device Name attribute type");
+      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_dev_info_dev_name_type, "Incorrect Device Name attribute type");
     }
     s_offset += 2;
     item = proto_tree_add_item(tree, hf_p2p_attr_gi_dev_name_len,
@@ -825,8 +821,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     attr_len = tvb_get_ntohs(tvb, s_offset);
     s_offset += 2;
     if (attr_len > offset + 3 + slen - s_offset) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Invalid Device Name attribute length");
+      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute length");
       break;
     }
     nlen = next_offset - s_offset;
@@ -836,8 +831,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
                                  nlen > attr_len ? attr_len : nlen,
                                  ENC_ASCII|ENC_NA);
     if (nlen != attr_len) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Invalid Device Name attribute");
+      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute");
     }
 
     s_offset = next_offset;
@@ -894,8 +888,7 @@ void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
   while (size > 0) {
     if (size < 3) {
-      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
-                             "Packet too short for P2P IE");
+      expert_add_info_format_text(pinfo, NULL, &ei_wifi_p2p_attr_len, "Packet too short for P2P IE");
       break;
     }
 
@@ -1018,13 +1011,11 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
     len = tvb_get_letohs(tvb, offset);
     if (len < 2) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Too short Service TLV field");
+      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_anqp_length, "Too short Service TLV field");
       return;
     }
     if (len > tvb_length_remaining(tvb, offset + 2)) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Too short frame for Service TLV field");
+      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_anqp_length, "Too short frame for Service TLV field");
       return;
     }
 
@@ -1058,8 +1049,7 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   }
 
   if (tvb_length_remaining(tvb, offset) > 0) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                           "Unexpected padding in the end of P2P ANQP");
+    expert_add_info(pinfo, item, &ei_wifi_p2p_anqp_unexpected_padding);
   }
 }
 
@@ -1537,10 +1527,21 @@ proto_register_p2p(void)
     &ett_p2p_client_descr
   };
 
-  proto_p2p = proto_register_protocol("Wi-Fi Peer-to-Peer", "Wi-Fi P2P",
-                                      "wifi_p2p");
+  static ei_register_info ei[] = {
+      { &ei_wifi_p2p_attr_dev_info_dev_name_type, { "wifi_p2p.dev_info.dev_name_type.invalid", PI_MALFORMED, PI_ERROR, "Incorrect Device Name attribute type", EXPFILL }},
+      { &ei_wifi_p2p_attr_len, { "wifi_p2p.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid attribute length", EXPFILL }},
+      { &ei_wifi_p2p_anqp_length, { "wifi_p2p.anqp.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid anqp_length", EXPFILL }},
+      { &ei_wifi_p2p_anqp_unexpected_padding, { "wifi_p2p.anqp.unexpected_padding", PI_MALFORMED, PI_ERROR, "Unexpected padding in the end of P2P ANQP", EXPFILL }},
+  };
+
+  expert_module_t* expert_p2p;
+
+  proto_p2p = proto_register_protocol("Wi-Fi Peer-to-Peer", "Wi-Fi P2P", "wifi_p2p");
   proto_register_field_array(proto_p2p, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_p2p = expert_register_protocol(proto_p2p);
+  expert_register_field_array(expert_p2p, ei, array_length(ei));
 }
 
 /*
