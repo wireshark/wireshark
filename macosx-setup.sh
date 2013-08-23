@@ -1000,7 +1000,7 @@ if [ ! -f gtk+-$GTK_VERSION-done ] ; then
         # just ignore unknown --enable/--disable and --with/--without
         # options (at least they've always do so up to now).
         #
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-cups--without-libtiff --without-libjpeg || exit 1
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-cups --without-libtiff --without-libjpeg || exit 1
     else
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
     fi
