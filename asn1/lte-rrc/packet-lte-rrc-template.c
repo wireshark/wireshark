@@ -1813,11 +1813,11 @@ typedef struct drx_config_t {
 /* Struct to store all current uses of packet private data */
 typedef struct lte_rrc_private_data_t
 {
-    guint32 rat_type;         /* Store as +1 real value, so 0 means 'not set' */
-    guint32 target_rat_type;  /* Store as +1 real value, so 0 means 'not set' */
-    guint32 si_or_psi_geran;  /* Store as +1 real value, so 0 means 'not set' */
-    guint16 message_identifier;
+    guint8  rat_type;
+    guint8  target_rat_type;
+    guint8  si_or_psi_geran;
     guint8  ra_preambles;
+    guint16 message_identifier;
     drb_mapping_t drb_mapping;
     drx_config_t  drx_config;
 } lte_rrc_private_data_t;
@@ -1853,13 +1853,13 @@ static drb_mapping_t* private_data_get_drb_mapping(asn1_ctx_t *actx)
 
 
 /* RAT type */
-static guint32 private_data_get_rat_type(asn1_ctx_t *actx)
+static guint8 private_data_get_rat_type(asn1_ctx_t *actx)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     return private_data->rat_type;
 }
 
-static void private_data_set_rat_type(asn1_ctx_t *actx, guint32 rat_type)
+static void private_data_set_rat_type(asn1_ctx_t *actx, guint8 rat_type)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     private_data->rat_type = rat_type;
@@ -1867,13 +1867,13 @@ static void private_data_set_rat_type(asn1_ctx_t *actx, guint32 rat_type)
 
 
 /* Target RAT type */
-static guint32 private_data_get_rat_target_type(asn1_ctx_t *actx)
+static guint8 private_data_get_rat_target_type(asn1_ctx_t *actx)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     return private_data->target_rat_type;
 }
 
-static void private_data_set_rat_target_type(asn1_ctx_t *actx, guint32 target_rat_type)
+static void private_data_set_rat_target_type(asn1_ctx_t *actx, guint8 target_rat_type)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     private_data->target_rat_type = target_rat_type;
@@ -1881,13 +1881,13 @@ static void private_data_set_rat_target_type(asn1_ctx_t *actx, guint32 target_ra
 
 
 /* si_or_psi_geran */
-static guint32 private_data_get_si_or_psi_geran(asn1_ctx_t *actx)
+static guint8 private_data_get_si_or_psi_geran(asn1_ctx_t *actx)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     return private_data->si_or_psi_geran;
 }
 
-static void private_data_set_si_or_psi_geran(asn1_ctx_t *actx, guint32 si_or_psi_geran)
+static void private_data_set_si_or_psi_geran(asn1_ctx_t *actx, guint8 si_or_psi_geran)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     private_data->si_or_psi_geran = si_or_psi_geran;

@@ -457,8 +457,8 @@ static int hf_lte_rrc_geran = -1;                 /* T_geran */
 static int hf_lte_rrc_physCellId = -1;            /* PhysCellIdGERAN */
 static int hf_lte_rrc_carrierFreq = -1;           /* CarrierFreqGERAN */
 static int hf_lte_rrc_networkControlOrder = -1;   /* BIT_STRING_SIZE_2 */
-static int hf_lte_rrc_si = -1;                    /* SystemInfoListGERAN */
-static int hf_lte_rrc_psi = -1;                   /* SystemInfoListGERAN */
+static int hf_lte_rrc_si = -1;                    /* T_si */
+static int hf_lte_rrc_psi = -1;                   /* T_psi */
 static int hf_lte_rrc_messageContCDMA2000_1XRTT_r9 = -1;  /* OCTET_STRING */
 static int hf_lte_rrc_mobilityCDMA2000_HRPD_r9 = -1;  /* T_mobilityCDMA2000_HRPD_r9 */
 static int hf_lte_rrc_messageContCDMA2000_HRPD_r9 = -1;  /* OCTET_STRING */
@@ -647,7 +647,7 @@ static int hf_lte_rrc_BandClassPriorityList1XRTT_item = -1;  /* BandClassPriorit
 static int hf_lte_rrc_CellInfoListGERAN_r9_item = -1;  /* CellInfoGERAN_r9 */
 static int hf_lte_rrc_physCellId_r9 = -1;         /* PhysCellIdGERAN */
 static int hf_lte_rrc_carrierFreq_r9_01 = -1;     /* CarrierFreqGERAN */
-static int hf_lte_rrc_systemInformation_r9 = -1;  /* SystemInfoListGERAN */
+static int hf_lte_rrc_systemInformation_r9 = -1;  /* T_systemInformation_r9 */
 static int hf_lte_rrc_CellInfoListUTRA_FDD_r9_item = -1;  /* CellInfoUTRA_FDD_r9 */
 static int hf_lte_rrc_physCellId_r9_01 = -1;      /* PhysCellIdUTRA_FDD */
 static int hf_lte_rrc_utra_BCCH_Container_r9 = -1;  /* T_utra_BCCH_Container_r9 */
@@ -5139,11 +5139,11 @@ typedef struct drx_config_t {
 /* Struct to store all current uses of packet private data */
 typedef struct lte_rrc_private_data_t
 {
-    guint32 rat_type;         /* Store as +1 real value, so 0 means 'not set' */
-    guint32 target_rat_type;  /* Store as +1 real value, so 0 means 'not set' */
-    guint32 si_or_psi_geran;  /* Store as +1 real value, so 0 means 'not set' */
-    guint16 message_identifier;
+    guint8  rat_type;
+    guint8  target_rat_type;
+    guint8  si_or_psi_geran;
     guint8  ra_preambles;
+    guint16 message_identifier;
     drb_mapping_t drb_mapping;
     drx_config_t  drx_config;
 } lte_rrc_private_data_t;
@@ -5179,13 +5179,13 @@ static drb_mapping_t* private_data_get_drb_mapping(asn1_ctx_t *actx)
 
 
 /* RAT type */
-static guint32 private_data_get_rat_type(asn1_ctx_t *actx)
+static guint8 private_data_get_rat_type(asn1_ctx_t *actx)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     return private_data->rat_type;
 }
 
-static void private_data_set_rat_type(asn1_ctx_t *actx, guint32 rat_type)
+static void private_data_set_rat_type(asn1_ctx_t *actx, guint8 rat_type)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     private_data->rat_type = rat_type;
@@ -5193,13 +5193,13 @@ static void private_data_set_rat_type(asn1_ctx_t *actx, guint32 rat_type)
 
 
 /* Target RAT type */
-static guint32 private_data_get_rat_target_type(asn1_ctx_t *actx)
+static guint8 private_data_get_rat_target_type(asn1_ctx_t *actx)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     return private_data->target_rat_type;
 }
 
-static void private_data_set_rat_target_type(asn1_ctx_t *actx, guint32 target_rat_type)
+static void private_data_set_rat_target_type(asn1_ctx_t *actx, guint8 target_rat_type)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     private_data->target_rat_type = target_rat_type;
@@ -5207,13 +5207,13 @@ static void private_data_set_rat_target_type(asn1_ctx_t *actx, guint32 target_ra
 
 
 /* si_or_psi_geran */
-static guint32 private_data_get_si_or_psi_geran(asn1_ctx_t *actx)
+static guint8 private_data_get_si_or_psi_geran(asn1_ctx_t *actx)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     return private_data->si_or_psi_geran;
 }
 
-static void private_data_set_si_or_psi_geran(asn1_ctx_t *actx, guint32 si_or_psi_geran)
+static void private_data_set_si_or_psi_geran(asn1_ctx_t *actx, guint8 si_or_psi_geran)
 {
     lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
     private_data->si_or_psi_geran = si_or_psi_geran;
@@ -19338,7 +19338,7 @@ dissect_lte_rrc_T_targetRAT_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      8, &target_rat_type, TRUE, 0, NULL);
 
-  private_data_set_rat_target_type(actx, target_rat_type+1);
+  private_data_set_rat_target_type(actx, (guint8)target_rat_type);
 
 
   return offset;
@@ -19356,37 +19356,33 @@ dissect_lte_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, 
     guint8 byte;
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_targetRAT_MessageContainer);
-    if (private_data_get_rat_target_type(actx)) {
-      switch (private_data_get_rat_target_type(actx)-1){
-      case T_targetRAT_Type_utra:
-        /* utra */
-        if (rrc_irat_ho_to_utran_cmd_handle)
-          call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
-        break;
-      case T_targetRAT_Type_geran:
-        /* geran */
-        byte = tvb_get_guint8(target_rat_msg_cont_tvb, 0);
-        if (byte == 0x06) {
-          if (gsm_a_dtap_handle) {
-            call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
-          }
-        } else {
-          if (gsm_rlcmac_dl_handle) {
-            call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
-          }
+    switch (private_data_get_rat_target_type(actx)){
+    case T_targetRAT_Type_utra:
+      /* utra */
+      if (rrc_irat_ho_to_utran_cmd_handle)
+        call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+      break;
+    case T_targetRAT_Type_geran:
+      /* geran */
+      byte = tvb_get_guint8(target_rat_msg_cont_tvb, 0);
+      if (byte == 0x06) {
+        if (gsm_a_dtap_handle) {
+          call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
         }
-        break;
-      case T_targetRAT_Type_cdma2000_1XRTT:
-        /* cdma2000-1XRTT */
-        break;
-      case T_targetRAT_Type_cdma2000_HRPD:
-        /* cdma2000-HRPD */
-        break;
-      default:
-        break;
+      } else {
+        if (gsm_rlcmac_dl_handle) {
+          call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+        }
       }
-      /* Unset again */
-      private_data_set_rat_target_type(actx, 0);
+      break;
+    case T_targetRAT_Type_cdma2000_1XRTT:
+      /* cdma2000-1XRTT */
+      break;
+    case T_targetRAT_Type_cdma2000_HRPD:
+      /* cdma2000-HRPD */
+      break;
+    default:
+      break;
     }
   }
 
@@ -19426,25 +19422,21 @@ dissect_lte_rrc_SystemInfoListGERAN_item(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   if (sys_info_list_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_siPsiSibContainer);
-    if (private_data_get_si_or_psi_geran(actx)) {
-      switch (private_data_get_si_or_psi_geran(actx)-1) {
-      case SI_OrPSI_GERAN_si:
-        /* SI message */
-        if (gsm_a_dtap_handle) {
-          call_dissector(gsm_a_dtap_handle, sys_info_list_tvb, actx->pinfo, subtree);
-        }
-        break;
-      case SI_OrPSI_GERAN_psi:
-        /* PSI message */
-        if (gsm_rlcmac_dl_handle) {
-          call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb, actx->pinfo, subtree);
-        }
-        break;
-      default:
-        break;
+    switch (private_data_get_si_or_psi_geran(actx)) {
+    case SI_OrPSI_GERAN_si:
+      /* SI message */
+      if (gsm_a_dtap_handle) {
+        call_dissector(gsm_a_dtap_handle, sys_info_list_tvb, actx->pinfo, subtree);
       }
-      /* Unset value */
-      private_data_set_si_or_psi_geran(actx, 0);
+      break;
+    case SI_OrPSI_GERAN_psi:
+      /* PSI message */
+      if (gsm_rlcmac_dl_handle) {
+        call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb, actx->pinfo, subtree);
+      }
+      break;
+    default:
+      break;
     }
   }
 
@@ -19467,6 +19459,30 @@ dissect_lte_rrc_SystemInfoListGERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+
+static int
+dissect_lte_rrc_T_si(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  private_data_set_si_or_psi_geran(actx, (guint8)SI_OrPSI_GERAN_si); /* SI message */
+  offset = dissect_lte_rrc_SystemInfoListGERAN(tvb, offset, actx, tree, hf_index);
+
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_psi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  private_data_set_si_or_psi_geran(actx, (guint8)SI_OrPSI_GERAN_psi); /* PSI message */
+  offset = dissect_lte_rrc_SystemInfoListGERAN(tvb, offset, actx, tree, hf_index);
+
+
+
+  return offset;
+}
+
+
 static const value_string lte_rrc_SI_OrPSI_GERAN_vals[] = {
   { SI_OrPSI_GERAN_si, "si" },
   { SI_OrPSI_GERAN_psi, "psi" },
@@ -19474,20 +19490,16 @@ static const value_string lte_rrc_SI_OrPSI_GERAN_vals[] = {
 };
 
 static const per_choice_t SI_OrPSI_GERAN_choice[] = {
-  { SI_OrPSI_GERAN_si, &hf_lte_rrc_si          , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_SystemInfoListGERAN },
-  { SI_OrPSI_GERAN_psi, &hf_lte_rrc_psi         , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_SystemInfoListGERAN },
+  { SI_OrPSI_GERAN_si, &hf_lte_rrc_si          , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_si },
+  { SI_OrPSI_GERAN_psi, &hf_lte_rrc_psi         , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_psi },
   { 0, NULL, 0, NULL }
 };
 
 static int
 dissect_lte_rrc_SI_OrPSI_GERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 si_or_psi_geran;
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_lte_rrc_SI_OrPSI_GERAN, SI_OrPSI_GERAN_choice,
-                                 &si_or_psi_geran);
-
-  private_data_set_si_or_psi_geran(actx, si_or_psi_geran+1);
-
+                                 NULL);
 
   return offset;
 }
@@ -19504,7 +19516,7 @@ static const per_sequence_t Handover_sequence[] = {
 static int
 dissect_lte_rrc_Handover(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   /* Initialise to invalid value */
-  private_data_set_rat_type(actx, 0);
+  private_data_set_rat_target_type(actx, 0xFF);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_Handover, Handover_sequence);
 
@@ -23713,20 +23725,29 @@ dissect_lte_rrc_T_lateNonCriticalExtension(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+
+static int
+dissect_lte_rrc_T_systemInformation_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  private_data_set_si_or_psi_geran(actx, (guint8)SI_OrPSI_GERAN_si); /* SI message */
+  offset = dissect_lte_rrc_SystemInfoListGERAN(tvb, offset, actx, tree, hf_index);
+
+
+
+  return offset;
+}
+
+
 static const per_sequence_t CellInfoGERAN_r9_sequence[] = {
   { &hf_lte_rrc_physCellId_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysCellIdGERAN },
   { &hf_lte_rrc_carrierFreq_r9_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CarrierFreqGERAN },
-  { &hf_lte_rrc_systemInformation_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SystemInfoListGERAN },
+  { &hf_lte_rrc_systemInformation_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_systemInformation_r9 },
   { NULL, 0, 0, NULL }
 };
 
 static int
 dissect_lte_rrc_CellInfoGERAN_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  private_data_set_si_or_psi_geran(actx, SI_OrPSI_GERAN_si+1); /* SI message */
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_CellInfoGERAN_r9, CellInfoGERAN_r9_sequence);
-
-
 
   return offset;
 }
@@ -24236,7 +24257,7 @@ dissect_lte_rrc_RAT_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      8, &rat_type, TRUE, 0, NULL);
 
-  private_data_set_rat_type(actx, rat_type+1);
+  private_data_set_rat_type(actx, (guint8)rat_type);
 
 
 
@@ -27853,55 +27874,51 @@ if(ue_cap_tvb){
   proto_tree *subtree, *subtree2;
   guint8 byte;
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_UE_CapabilityRAT_Container);
-  if (private_data_get_rat_type(actx)) {
-    switch(private_data_get_rat_type(actx)-1){
-    case RAT_Type_eutra:
-      /* eutra */
-      dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
-      break;
-    case RAT_Type_utra:
-      /* utra */
-      dissect_rrc_InterRATHandoverInfo_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
-      break;
-    case RAT_Type_geran_cs:
-      /* geran-cs */
-      /* Mobile Station Classmark 2 is formatted as TLV with the two first bytes set to 0x33 0x03 */
-      item = proto_tree_add_text(subtree, ue_cap_tvb, 0, 5, "Mobile Station Classmark 2");
-      subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
-      byte = tvb_get_guint8(ue_cap_tvb, 0);
-      if (byte != 0x33) {
-        expert_add_info_format_text(actx->pinfo, item, &ei_lte_rrc_unexpected_type_value,
-                               "Unexpected type value (found 0x%02X)", byte);
-      }
-      byte = tvb_get_guint8(ue_cap_tvb, 1);
-      if (byte != 0x03) {
-        expert_add_info_format_text(actx->pinfo, item, &ei_lte_rrc_unexpected_length_value,
-                               "Unexpected length value (found %d)", byte);
-      }
-      de_ms_cm_2(ue_cap_tvb, subtree2, actx->pinfo, 2, 3, NULL, 0);
-      /* Mobile Station Classmark 3 is formatted as V */
-      length = tvb_ensure_length_remaining(ue_cap_tvb, 5);
-      item = proto_tree_add_text(subtree, ue_cap_tvb, 5, length, "Mobile Station Classmark 3");
-      subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
-      de_ms_cm_3(ue_cap_tvb, subtree2, actx->pinfo, 5, length, NULL, 0);
-      break;
-    case RAT_Type_geran_ps:
-      /* geran-ps */
-      /* MS Radio Access Capability is formatted as V */
-      length = tvb_length(ue_cap_tvb);
-      item = proto_tree_add_text(subtree, ue_cap_tvb, 0, length, "MS Radio Access Capability");
-      subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
-      de_gmm_ms_radio_acc_cap(ue_cap_tvb, subtree2, actx->pinfo, 0, length, NULL, 0);
-      break;
-    case RAT_Type_cdma2000_1XRTT:
-      /* cdma2000-1XRTT */
-      /* dissection of "A21 Mobile Subscription Information" could be added to packet-ansi_a.c */
-      break;
-    default:
-      break;
+  switch(private_data_get_rat_type(actx)){
+  case RAT_Type_eutra:
+    /* eutra */
+    dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+    break;
+  case RAT_Type_utra:
+    /* utra */
+    dissect_rrc_InterRATHandoverInfo_PDU(ue_cap_tvb, actx->pinfo, subtree, NULL);
+    break;
+  case RAT_Type_geran_cs:
+    /* geran-cs */
+    /* Mobile Station Classmark 2 is formatted as TLV with the two first bytes set to 0x33 0x03 */
+    item = proto_tree_add_text(subtree, ue_cap_tvb, 0, 5, "Mobile Station Classmark 2");
+    subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+    byte = tvb_get_guint8(ue_cap_tvb, 0);
+    if (byte != 0x33) {
+      expert_add_info_format_text(actx->pinfo, item, &ei_lte_rrc_unexpected_type_value,
+                             "Unexpected type value (found 0x%02X)", byte);
     }
-    /* Unset again */
-    private_data_set_rat_type(actx, 0);
+    byte = tvb_get_guint8(ue_cap_tvb, 1);
+    if (byte != 0x03) {
+      expert_add_info_format_text(actx->pinfo, item, &ei_lte_rrc_unexpected_length_value,
+                             "Unexpected length value (found %d)", byte);
+    }
+    de_ms_cm_2(ue_cap_tvb, subtree2, actx->pinfo, 2, 3, NULL, 0);
+    /* Mobile Station Classmark 3 is formatted as V */
+    length = tvb_ensure_length_remaining(ue_cap_tvb, 5);
+    item = proto_tree_add_text(subtree, ue_cap_tvb, 5, length, "Mobile Station Classmark 3");
+    subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+    de_ms_cm_3(ue_cap_tvb, subtree2, actx->pinfo, 5, length, NULL, 0);
+    break;
+  case RAT_Type_geran_ps:
+    /* geran-ps */
+    /* MS Radio Access Capability is formatted as V */
+    length = tvb_length(ue_cap_tvb);
+    item = proto_tree_add_text(subtree, ue_cap_tvb, 0, length, "MS Radio Access Capability");
+    subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
+    de_gmm_ms_radio_acc_cap(ue_cap_tvb, subtree2, actx->pinfo, 0, length, NULL, 0);
+    break;
+  case RAT_Type_cdma2000_1XRTT:
+    /* cdma2000-1XRTT */
+    /* dissection of "A21 Mobile Subscription Information" could be added to packet-ansi_a.c */
+    break;
+  default:
+    break;
   }
 }
 
@@ -27917,8 +27934,8 @@ static const per_sequence_t UE_CapabilityRAT_Container_sequence[] = {
 
 static int
 dissect_lte_rrc_UE_CapabilityRAT_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  /* Since storing value+1, this effectively unsets this field */
-  private_data_set_rat_type(actx, 0);
+  /* Initialise to invalid value */
+  private_data_set_rat_type(actx, 0xFF);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UE_CapabilityRAT_Container, UE_CapabilityRAT_Container_sequence);
 
@@ -35921,11 +35938,11 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_si,
       { "si", "lte-rrc.si",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SystemInfoListGERAN", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_psi,
       { "psi", "lte-rrc.psi",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SystemInfoListGERAN", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_messageContCDMA2000_1XRTT_r9,
       { "messageContCDMA2000-1XRTT-r9", "lte-rrc.messageContCDMA2000_1XRTT_r9",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -36681,7 +36698,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_systemInformation_r9,
       { "systemInformation-r9", "lte-rrc.systemInformation_r9",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SystemInfoListGERAN", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_CellInfoListUTRA_FDD_r9_item,
       { "CellInfoUTRA-FDD-r9", "lte-rrc.CellInfoUTRA_FDD_r9_element",
         FT_NONE, BASE_NONE, NULL, 0,
