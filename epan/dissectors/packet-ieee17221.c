@@ -825,8 +825,7 @@
 #define AEM_OFFSET_DESCRIPTOR_ID                            2
 
 #define ENTITY_OFFSET_ENTITY_GUID                           4
-#define ENTITY_OFFSET_VENDOR_ID                             12
-#define ENTITY_OFFSET_ENTITY_MODEL_ID                       16
+#define ENTITY_OFFSET_ENTITY_MODEL_ID                       12
 #define ENTITY_OFFSET_ENTITY_CAPABILITIES                   20
 #define ENTITY_OFFSET_TALKER_STREAM_SOURCES                 24
 #define ENTITY_OFFSET_TALKER_CAPABILITIES                   26
@@ -1932,6 +1931,7 @@ static int hf_adp_list_cap_video_sink = -1;
 static int hf_adp_cont_cap_implement = -1;
 static int hf_adp_cont_cap_layer3_proxy = -1;
 
+#if 0
 /* Default Audio Format */
 static int hf_adp_def_aud_sample_rates = -1;
 static int hf_adp_def_aud_max_chan = -1;
@@ -1964,6 +1964,7 @@ static int hf_adp_chan_format_18ch = -1;
 static int hf_adp_chan_format_20ch = -1;
 static int hf_adp_chan_format_22ch = -1;
 static int hf_adp_chan_format_24ch = -1;
+#endif
 
 
 /* ***************************************************************** */
@@ -2257,6 +2258,7 @@ static int hf_aem_dbs = -1;
 static int hf_aem_descriptor_counts_count = -1;
 static int hf_aem_descriptor_counts_offset = -1;
 /* static int hf_aem_div = -1; */
+static int hf_aem_entity_id = -1;
 static int hf_aem_entity_model_id = -1;
 static int hf_aem_entity_name = -1;
 static int hf_aem_fdf_evt = -1;
@@ -2371,7 +2373,6 @@ static int hf_aem_unit = -1;
 static int hf_aem_unknown_descriptor = -1;
 /* static int hf_aem_value_offset = -1; */
 static int hf_aem_values_offset = -1;
-static int hf_aem_vendor_id = -1;
 static int hf_aem_vendor_name_string = -1;
 static int hf_aem_video_mode = -1;
 /* static int hf_aem_width = -1; */
@@ -2879,12 +2880,10 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     * will fall through to the same code                               */
    switch(desc_type) {
       case AEM_DESCRIPTOR_ENTITY:
-         proto_tree_add_item(aem_tree, hf_aem_entity_model_id, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_entity_id, tvb,
                ENTITY_OFFSET_ENTITY_GUID, 8, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aem_tree, hf_aem_vendor_id, tvb,
-               ENTITY_OFFSET_VENDOR_ID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_entity_model_id, tvb,
-               ENTITY_OFFSET_ENTITY_MODEL_ID, 4, ENC_BIG_ENDIAN);
+               ENTITY_OFFSET_ENTITY_MODEL_ID, 8, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_adp_entity_cap, tvb,
                ENTITY_OFFSET_ENTITY_CAPABILITIES, 4, ENC_BIG_ENDIAN);
@@ -4926,6 +4925,7 @@ proto_register_17221(void)
          { "Default Audio Format", "ieee17221.default_audio_format",
             FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
+#if 0
       /* Default Audio Formats Fields Begin */
       { &hf_adp_def_aud_sample_rates,
          { "Sample Rates", "ieee17221.default_audio_format.sample_rates",
@@ -5038,6 +5038,7 @@ proto_register_17221(void)
          { "24_CH", "ieee17221.default_audio_format.channel_formats.24_ch",
             FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_24CH, NULL, HFILL }
       },
+#endif
       /* Channel Formats Fields End */
       /* Default Audio Formats Fields End */
       { &hf_adp_def_vid_format,
@@ -5934,6 +5935,10 @@ proto_register_17221(void)
       /* ENTITY */
       /* hf_aecp_descriptor_type */
       /* hf_aecp_descriptor_index */
+      { &hf_aem_entity_id,
+         {"Entity ID", "ieee17221.entity_id",
+            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
       { &hf_aem_entity_model_id,
          {"Entity Model ID", "ieee17221.entity_model_id",
             FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
