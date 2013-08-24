@@ -399,13 +399,21 @@ sub generate_hfs {
 		$proto_tree_item[8] =~ s/\"//;
 		$proto_tree_item[8] = trim($proto_tree_item[8]);
 
-		#hf variable name
-		$proto_tree_item[3] = sprintf("hf_%s_%s", $protabbrev, lc($proto_tree_item[8]));
-		$proto_tree_item[3] =~ s/\s+|-|:/_/g;
+		if ($proto_tree_item[8] eq "%s\"") {
+			#assume proto_tree_add_text will not be converted
+			$proto_tree_item[0] = 0;
+			$proto_tree_item[1] = 0;
+			$proto_tree_item[3] = sprintf("hf_%s_", $protabbrev);
+			$proto_tree_item[10] = sprintf("%s.", $protabbrev);
+		} else {
+			#hf variable name
+			$proto_tree_item[3] = sprintf("hf_%s_%s", $protabbrev, lc($proto_tree_item[8]));
+			$proto_tree_item[3] =~ s/\s+|-|:/_/g;
 
-		#field abbreviated name
-		$proto_tree_item[10] = sprintf("%s.%s", $protabbrev, lc($proto_tree_item[8]));
-		$proto_tree_item[10] =~ s/\s+|-|:/_/g;
+			#field abbreviated name
+			$proto_tree_item[10] = sprintf("%s.%s", $protabbrev, lc($proto_tree_item[8]));
+			$proto_tree_item[10] =~ s/\s+|-|:/_/g;
+		}
 
 		#VALS
 		if ($str =~ /val_to_str(_const)?\(\s*tvb_get_[^\(]*\([^\,]*,[^\)]*\)\s*\,\s*([^\,]*)\s*\,\s*([^\)]*)\)/) {
