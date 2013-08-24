@@ -107,7 +107,11 @@
 
 
 
-#ifndef _WIN32
+#ifdef _WIN32
+static void create_dummy_signal_pipe();
+static HANDLE dummy_signal_pipe; /* Dummy named pipe which lets the child check for a dropped connection */
+static gchar *dummy_control_id;
+#else
 static const char *sync_pipe_signame(int);
 #endif
 
@@ -1349,7 +1353,12 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg, void 
 
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
+#ifdef _WIN32
+    create_dummy_signal_pipe();
+    argv = sync_pipe_add_arg(argv, &argc, dummy_control_id);
+#else
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
+#endif
 #endif
     ret = sync_pipe_open_command(argv, data_read_fd, &message_read_fd,
                                  fork_child, msg, update_cb);
@@ -1991,6 +2000,23 @@ sync_pipe_signame(int sig)
 
 
 #ifdef _WIN32
+
+static void create_dummy_signal_pipe() {
+    gchar *dummy_signal_pipe_name;
+    
+    if (dummy_signal_pipe != NULL) return;
+    
+    if (!dummy_control_id) {
+	dummy_control_id = g_strdup_printf("%d.dummy", GetCurrentProcessId());
+    }
+    
+    /* Create the signal pipe */
+    dummy_signal_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, dummy_control_id);
+    dummy_signal_pipe = CreateNamedPipe(utf_8to16(dummy_signal_pipe_name),
+                                  PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 65535, 65535, 0, NULL);
+    g_free(dummy_signal_pipe_name);
+}
+
 /* tell the child through the signal pipe that we want to quit the capture */
 static void
 signal_pipe_capquit_to_child(capture_session *cap_session)
