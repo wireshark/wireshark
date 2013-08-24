@@ -331,7 +331,7 @@ AC_ARG_ENABLE(osx-deploy-target,
 		    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
 		    /Library/Developer/CommandLineTools/SDKs
 		do
-			if [ -d "$i" ]
+			if test -d "$i"
 			then
 				[deploy_target=`sw_vers -productVersion | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.[0-9]*/\1.\2/'`]
 				break
