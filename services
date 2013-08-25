@@ -10872,6 +10872,7 @@ athand-mmp      20999/tcp # At Hand MMP [Stepan_Riha] [Stepan_Riha]
 athand-mmp      20999/udp # AT Hand MMP [Stepan_Riha] [Stepan_Riha]
 irtrans         21000/tcp # IRTrans Control [Marcus_Mueller] [Marcus_Mueller] 2004-11
 irtrans         21000/udp # IRTrans Control [Marcus_Mueller] [Marcus_Mueller] 2004-11
+notezilla-lan   21010/tcp # Notezilla.Lan Server [Conceptworld_Corporation] [Gautam_Jain] 2013-08-20
 rdm-tfs         21553/tcp # Raima RDM TFS [Paul_Johnson] [Paul_Johnson] 2011-05-02
 dfserver        21554/tcp # MineScape Design File Server [Michael_Purser] [Michael_Purser] 2006-06
 dfserver        21554/udp # MineScape Design File Server [Michael_Purser] [Michael_Purser] 2006-06
@@ -11058,12 +11059,12 @@ tw-auth-key     27999/udp # Attribute Certificate Services [Alex_Duncan_2] [Alex
 nxlmd           28000/tcp # NX License Manager [Anthony_Greatorex] [Anthony_Greatorex] 2004-11 Unauthorized Use Known on port 28000
 nxlmd           28000/udp # NX License Manager [Anthony_Greatorex] [Anthony_Greatorex] 2004-11
 pqsp            28001/tcp # PQ Service [Peter_Laschtowitz] [Peter_Laschtowitz] 2009-09-15
+a27-ran-ran     28119/udp # A27 cdma2000 RAN Management [ThreeGPP2] [Zhiming_Li] 2012-04-13
 voxelstorm      28200/tcp # VoxelStorm game server [VoxelStorm] [Eugene_Hopkinson] 2012-11-08
 voxelstorm      28200/udp # VoxelStorm game server [VoxelStorm] [Eugene_Hopkinson] 2012-11-08
 siemensgsm      28240/tcp # Siemens GSM [David_Anuszewski] [David_Anuszewski] 2004-11
 siemensgsm      28240/udp # Siemens GSM [David_Anuszewski] [David_Anuszewski] 2004-11
 sgsap           29118/sctp # SGsAP in 3GPP [GPP_Specifications] [GPP_Specifications] 2009-06-11
-a27-ran-ran     28119/udp # A27 cdma2000 RAN Management [ThreeGPP2] [Zhiming_Li] 2012-04-13
 otmp            29167/tcp # ObTools Message Protocol [Paul_Clark] [Paul_Clark] 2006-02
 otmp            29167/udp # ObTools Message Protocol [Paul_Clark] [Paul_Clark] 2006-02
 sbcap           29168/sctp # SBcAP in 3GPP [GPP_Specifications] [GPP_Specifications] 2009-06-11
