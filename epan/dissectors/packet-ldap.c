@@ -801,6 +801,8 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
           lcr.req_frame=0;
           lcr.rep_frame=pinfo->fd->num;
           break;
+        default:
+          return NULL;
       }
       lcrp=g_hash_table_lookup(ldap_info->matched, &lcr);
 
