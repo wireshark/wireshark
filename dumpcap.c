@@ -1513,6 +1513,10 @@ print_statistics_loop(gboolean machine_readable)
             }
         }
 #ifdef _WIN32
+        /* If we have a dummy signal pipe check it */
+        if (!signal_pipe_check_running()) {
+            global_ld.go = FALSE;
+        }
         Sleep(1 * 1000);
 #else
         sleep(1);
