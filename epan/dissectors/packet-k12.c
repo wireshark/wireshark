@@ -33,6 +33,7 @@
 #include <epan/conversation.h>
 #include <prefs.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
@@ -71,7 +72,7 @@ static dissector_handle_t fp_handle;
 extern int proto_sscop;
 extern int proto_fp;
 
-static emem_tree_t* port_handles = NULL;
+static wmem_tree_t* port_handles = NULL;
 static uat_t* k12_uat = NULL;
 static k12_handles_t* k12_handles = NULL;
 static guint nk12_handles = 0;
@@ -212,7 +213,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 			break;
 		case K12_PORT_ATMPVC:
 		{
-		gchar* circuit_str = ep_strdup_printf("%u:%u:%u",
+		gchar* circuit_str = wmem_strdup_printf(wmem_packet_scope(), "%u:%u:%u",
 						      (guint)pinfo->pseudo_header->k12.input_info.atm.vp,
 						      (guint)pinfo->pseudo_header->k12.input_info.atm.vc,
 						      (guint)pinfo->pseudo_header->k12.input_info.atm.cid);
@@ -236,7 +237,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 			break;
 	}
 
-	handles = (dissector_handle_t *)se_tree_lookup32(port_handles, pinfo->pseudo_header->k12.input);
+	handles = (dissector_handle_t *)wmem_tree_lookup32(port_handles, pinfo->pseudo_header->k12.input);
 
 	if (! handles ) {
 		for (i=0 ; i < nk12_handles; i++) {
@@ -252,7 +253,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 			handles = data_handles;
 		}
 
-		se_tree_insert32(port_handles, pinfo->pseudo_header->k12.input, handles);
+		wmem_tree_insert32(port_handles, pinfo->pseudo_header->k12.input, handles);
 
 	}
 
@@ -276,7 +277,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 		if (handles[i] == sscop_handle) {
 			sscop_payload_info *p_sscop_info = (sscop_payload_info *)p_get_proto_data(pinfo->fd, proto_sscop, 0);
 			if (!p_sscop_info) {
-				p_sscop_info = se_new0(sscop_payload_info);
+				p_sscop_info = wmem_new0(wmem_file_scope(), sscop_payload_info);
                 p_add_proto_data(pinfo->fd, proto_sscop, 0, p_sscop_info);
                 p_sscop_info->subdissector = handles[i+1];
 			}
@@ -290,7 +291,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 	if (sub_handle == fp_handle) {
 		fp_info *p_fp_info = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
 		if (!p_fp_info) {
-			p_fp_info = se_new0(fp_info);
+			p_fp_info = wmem_new0(wmem_file_scope(), fp_info);
             p_add_proto_data(pinfo->fd, proto_fp, 0, p_fp_info);
 
             fill_fp_info(p_fp_info,
@@ -477,6 +478,6 @@ proto_register_k12(void)
 				"A table of matches vs stack filenames and relative protocols",
 				k12_uat);
 
-  port_handles = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "k12_port_handles");
+  port_handles = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
 }

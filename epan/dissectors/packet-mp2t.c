@@ -33,7 +33,7 @@
 
 #include <epan/rtp_pt.h>
 
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
@@ -277,7 +277,7 @@ typedef struct mp2t_analysis_data {
 	 * individual pid's, this is only used when packets are
 	 * processed sequencially.
 	 */
-	emem_tree_t	*pid_table;
+	wmem_tree_t	*pid_table;
 
 	/* When detecting a CC drop, store that information for the
 	 * given frame.  This info is needed, when clicking around in
@@ -286,7 +286,7 @@ typedef struct mp2t_analysis_data {
 	 * used to tell the difference.
 	 *
 	 */
-	emem_tree_t	*frame_table;
+	wmem_tree_t	*frame_table;
 
 	/* Total counters per conversation / multicast stream */
 	guint32 total_skips;
@@ -312,7 +312,7 @@ typedef struct subpacket_analysis_data {
 typedef struct packet_analysis_data {
 
 	/* Contain information for each MPEG2-TS packet in the current big packet */
-	emem_tree_t *subpacket_table;
+	wmem_tree_t *subpacket_table;
 } packed_analysis_data_t;
 
 /* Analysis TS frame info needed during sequential processing */
@@ -341,7 +341,7 @@ typedef struct frame_analysis_data {
 	/* As each frame has several pid's, thus need a pid data
 	 * structure per TS frame.
 	 */
-	emem_tree_t	*ts_table;
+	wmem_tree_t	*ts_table;
 
 } frame_analysis_data_t;
 
@@ -350,14 +350,11 @@ init_mp2t_conversation_data(void)
 {
 	mp2t_analysis_data_t *mp2t_data = NULL;
 
-	mp2t_data = se_new0(struct mp2t_analysis_data);
+	mp2t_data = wmem_new0(wmem_file_scope(), struct mp2t_analysis_data);
 
-	mp2t_data->pid_table =
-		se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-					      "mp2t_pid_table");
-	mp2t_data->frame_table =
-		se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-					      "mp2t_frame_table");
+	mp2t_data->pid_table = wmem_tree_new(wmem_file_scope());
+
+	mp2t_data->frame_table = wmem_tree_new(wmem_file_scope());
 
 	mp2t_data->total_skips = 0;
 	mp2t_data->total_discontinuity = 0;
@@ -384,12 +381,10 @@ init_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 {
 	frame_analysis_data_t *frame_analysis_data_p = NULL;
 
-	frame_analysis_data_p = se_new0(struct frame_analysis_data);
-	frame_analysis_data_p->ts_table =
-		se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-					"mp2t_frame_pid_table");
+	frame_analysis_data_p = wmem_new0(wmem_file_scope(), struct frame_analysis_data);
+	frame_analysis_data_p->ts_table = wmem_tree_new(wmem_file_scope());
 	/* Insert into mp2t tree */
-	se_tree_insert32(mp2t_data->frame_table, pinfo->fd->num,
+	wmem_tree_insert32(mp2t_data->frame_table, pinfo->fd->num,
 			 (void *)frame_analysis_data_p);
 
 	return frame_analysis_data_p;
@@ -400,7 +395,7 @@ static frame_analysis_data_t *
 get_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 {
 	frame_analysis_data_t *frame_analysis_data_p = NULL;
-	frame_analysis_data_p = (frame_analysis_data_t *)se_tree_lookup32(mp2t_data->frame_table, pinfo->fd->num);
+	frame_analysis_data_p = (frame_analysis_data_t *)wmem_tree_lookup32(mp2t_data->frame_table, pinfo->fd->num);
 	return frame_analysis_data_p;
 }
 
@@ -413,14 +408,14 @@ get_pid_analysis(guint32 pid, conversation_t *conv)
 
 	mp2t_data = get_mp2t_conversation_data(conv);
 
-	pid_data = (pid_analysis_data_t *)se_tree_lookup32(mp2t_data->pid_table, pid);
+	pid_data = (pid_analysis_data_t *)wmem_tree_lookup32(mp2t_data->pid_table, pid);
 	if (!pid_data) {
-		pid_data          = se_new0(struct pid_analysis_data);
+		pid_data          = wmem_new0(wmem_file_scope(), struct pid_analysis_data);
 		pid_data->cc_prev = -1;
 		pid_data->pid     = pid;
 		pid_data->frag_id = (pid << (32 - 13)) | 0x1;
 
-		se_tree_insert32(mp2t_data->pid_table, pid, (void *)pid_data);
+		wmem_tree_insert32(mp2t_data->pid_table, pid, (void *)pid_data);
 	}
 	return pid_data;
 }
@@ -641,22 +636,22 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 		frag_id = pid_analysis->frag_id;
 		pdata = (packed_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t, 0);
 		if (!pdata) {
-			pdata = se_new0(packed_analysis_data_t);
-			pdata->subpacket_table = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "mp2t_frame_table");
+			pdata = wmem_new0(wmem_file_scope(), packed_analysis_data_t);
+			pdata->subpacket_table = wmem_tree_new(wmem_file_scope());
 			p_add_proto_data(pinfo->fd, proto_mp2t, 0, pdata);
 
 		} else {
-			spdata = (subpacket_analysis_data_t *)se_tree_lookup32(pdata->subpacket_table, offset);
+			spdata = (subpacket_analysis_data_t *)wmem_tree_lookup32(pdata->subpacket_table, offset);
 		}
 
 		if (!spdata) {
-			spdata = se_new0(subpacket_analysis_data_t);
+			spdata = wmem_new0(wmem_file_scope(), subpacket_analysis_data_t);
 			/* Save the info into pdata from pid_analysis */
 			spdata->frag_cur_pos = frag_cur_pos;
 			spdata->frag_tot_len = frag_tot_len;
 			spdata->fragmentation = fragmentation;
 			spdata->frag_id = frag_id;
-			se_tree_insert32(pdata->subpacket_table, offset, (void *)spdata);
+			wmem_tree_insert32(pdata->subpacket_table, offset, (void *)spdata);
 
 		}
 
@@ -668,7 +663,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 			return;
 		}
 
-		spdata = (subpacket_analysis_data_t *)se_tree_lookup32(pdata->subpacket_table, offset);
+		spdata = (subpacket_analysis_data_t *)wmem_tree_lookup32(pdata->subpacket_table, offset);
 		if (!spdata) {
 			/* Occurs for the first sub packets in the capture which cannot be reassembled */
 			return;
@@ -894,11 +889,11 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 		/* Create and store a new TS frame pid_data object.
 		   This indicate that we have a drop
 		 */
-		ts_data = se_new0(struct ts_analysis_data);
+		ts_data = wmem_new0(wmem_file_scope(), struct ts_analysis_data);
 		ts_data->cc_prev = cc_prev;
 		ts_data->pid = pid;
 		ts_data->skips = skips;
-		se_tree_insert32(frame_analysis_data_p->ts_table, KEY(pid, cc_curr),
+		wmem_tree_insert32(frame_analysis_data_p->ts_table, KEY(pid, cc_curr),
 				 (void *)ts_data);
 	}
 
@@ -910,7 +905,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 		if (!frame_analysis_data_p)
 			return 0; /* No stored frame data -> no drops*/
 		else {
-			ts_data = (struct ts_analysis_data *)se_tree_lookup32(frame_analysis_data_p->ts_table,
+			ts_data = (struct ts_analysis_data *)wmem_tree_lookup32(frame_analysis_data_p->ts_table,
 						   KEY(pid, cc_curr));
 
 			if (ts_data) {

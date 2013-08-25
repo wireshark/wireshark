@@ -40,7 +40,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
@@ -662,7 +662,7 @@ typedef struct enip_request_key {
 } enip_request_key_t;
 
 typedef struct enip_request_val {
-   emem_tree_t *frames;
+   wmem_tree_t *frames;
 } enip_request_val_t;
 
 /*
@@ -733,24 +733,24 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
       {
          if ( request_val == NULL )
          {
-            new_request_key = (enip_request_key_t *)se_memdup(prequest_key, sizeof(enip_request_key_t));
+            new_request_key = (enip_request_key_t *)wmem_memdup(wmem_file_scope(), prequest_key, sizeof(enip_request_key_t));
 
-            request_val = se_new(enip_request_val_t);
-            request_val->frames = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "enip_frames");
+            request_val = wmem_new(wmem_file_scope(), enip_request_val_t);
+            request_val->frames = wmem_tree_new(wmem_file_scope());
 
             g_hash_table_insert(enip_request_hashtable, new_request_key, request_val );
          }
 
-         request_info = se_new(enip_request_info_t);
+         request_info = wmem_new(wmem_file_scope(), enip_request_info_t);
          request_info->req_num = pinfo->fd->num;
          request_info->rep_num = 0;
          request_info->req_time = pinfo->fd->abs_ts;
          request_info->cip_info = NULL;
-         se_tree_insert32(request_val->frames, pinfo->fd->num, (void *)request_info);
+         wmem_tree_insert32(request_val->frames, pinfo->fd->num, (void *)request_info);
       }
       if( request_val && prequest_key && prequest_key->requesttype == ENIP_RESPONSE_PACKET )
       {
-         request_info = (enip_request_info_t*)se_tree_lookup32_le( request_val->frames, pinfo->fd->num );
+         request_info = (enip_request_info_t*)wmem_tree_lookup32_le( request_val->frames, pinfo->fd->num );
          if ( request_info )
          {
             request_info->rep_num = pinfo->fd->num;
@@ -760,7 +760,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
    else
    {
       if ( request_val )
-         request_info = (enip_request_info_t*)se_tree_lookup32_le( request_val->frames, pinfo->fd->num );
+         request_info = (enip_request_info_t*)wmem_tree_lookup32_le( request_val->frames, pinfo->fd->num );
    }
 
    if ( tree && request_info )
@@ -829,8 +829,8 @@ typedef struct enip_conn_val {
 } enip_conn_val_t;
 
 typedef struct _enip_conv_info_t {
-   emem_tree_t *O2TConnIDs;
-   emem_tree_t *T2OConnIDs;
+   wmem_tree_t *O2TConnIDs;
+   wmem_tree_t *T2OConnIDs;
 } enip_conv_info_t;
 
 static GHashTable *enip_conn_hashtable = NULL;
@@ -876,7 +876,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    if (pinfo->fd->flags.visited)
       return;
 
-   conn_key = se_new(enip_conn_key_t);
+   conn_key = wmem_new(wmem_file_scope(), enip_conn_key_t);
    conn_key->ConnSerialNumber = connInfo->ConnSerialNumber;
    conn_key->VendorID = connInfo->VendorID;
    conn_key->DeviceSerialNumber = connInfo->DeviceSerialNumber;
@@ -886,7 +886,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    conn_val = (enip_conn_val_t *)g_hash_table_lookup( enip_conn_hashtable, conn_key );
    if ( conn_val == NULL )
    {
-      conn_val = se_new(enip_conn_val_t);
+      conn_val = wmem_new(wmem_file_scope(), enip_conn_val_t);
 
       conn_val->ConnSerialNumber       = connInfo->ConnSerialNumber;
       conn_val->VendorID               = connInfo->VendorID;
@@ -950,15 +950,13 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
          enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversation, proto_enip);
          if (enip_info == NULL)
          {
-            enip_info = se_new(enip_conv_info_t);
-            enip_info->O2TConnIDs = se_tree_create_non_persistent(
-                     EMEM_TREE_TYPE_RED_BLACK, "enip_O2T");
-            enip_info->T2OConnIDs = se_tree_create_non_persistent(
-                        EMEM_TREE_TYPE_RED_BLACK, "enip_T2O");
+            enip_info = wmem_new(wmem_file_scope(), enip_conv_info_t);
+            enip_info->O2TConnIDs = wmem_tree_new(wmem_file_scope());
+            enip_info->T2OConnIDs = wmem_tree_new(wmem_file_scope());
 
             conversation_add_proto_data(conversation, proto_enip, enip_info);
          }
-         se_tree_insert32(enip_info->O2TConnIDs, connInfo->O2T.connID, (void *)conn_val);
+         wmem_tree_insert32(enip_info->O2TConnIDs, connInfo->O2T.connID, (void *)conn_val);
 
          /* Check if separate T->O conversation is necessary.  If either side is multicast
             or ports aren't equal, a separate conversation must be generated */
@@ -974,14 +972,12 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
          enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversationTO, proto_enip);
          if (enip_info == NULL)
          {
-            enip_info = se_new(enip_conv_info_t);
-            enip_info->O2TConnIDs = se_tree_create_non_persistent(
-                     EMEM_TREE_TYPE_RED_BLACK, "enip_O2T");
-            enip_info->T2OConnIDs = se_tree_create_non_persistent(
-                     EMEM_TREE_TYPE_RED_BLACK, "enip_T2O");
+            enip_info = wmem_new(wmem_file_scope(), enip_conv_info_t);
+            enip_info->O2TConnIDs = wmem_tree_new(wmem_file_scope());
+            enip_info->T2OConnIDs = wmem_tree_new(wmem_file_scope());
             conversation_add_proto_data(conversationTO, proto_enip, enip_info);
          }
-         se_tree_insert32(enip_info->T2OConnIDs, connInfo->T2O.connID, (void *)conn_val);
+         wmem_tree_insert32(enip_info->T2OConnIDs, connInfo->T2O.connID, (void *)conn_val);
       }
       else
       {
@@ -996,16 +992,14 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
              * No.  Attach that information to the conversation, and add
              * it to the list of information structures.
              */
-            enip_info = se_new(enip_conv_info_t);
-            enip_info->O2TConnIDs = se_tree_create_non_persistent(
-                     EMEM_TREE_TYPE_RED_BLACK, "enip_O2T");
-            enip_info->T2OConnIDs = se_tree_create_non_persistent(
-                     EMEM_TREE_TYPE_RED_BLACK, "enip_T2O");
+            enip_info = wmem_new(wmem_file_scope(), enip_conv_info_t);
+            enip_info->O2TConnIDs = wmem_tree_new(wmem_file_scope());
+            enip_info->T2OConnIDs = wmem_tree_new(wmem_file_scope());
 
             conversation_add_proto_data(conversation, proto_enip, enip_info);
          }
-         se_tree_insert32(enip_info->O2TConnIDs, connInfo->O2T.connID, (void *)conn_val);
-         se_tree_insert32(enip_info->T2OConnIDs, connInfo->T2O.connID, (void *)conn_val);
+         wmem_tree_insert32(enip_info->O2TConnIDs, connInfo->O2T.connID, (void *)conn_val);
+         wmem_tree_insert32(enip_info->T2OConnIDs, connInfo->T2O.connID, (void *)conn_val);
       }
    }
 }
@@ -1066,15 +1060,15 @@ enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, g
    switch ( prequest_key->requesttype )
    {
    case ENIP_REQUEST_PACKET:
-      conn_val = (enip_conn_val_t *)se_tree_lookup32( enip_info->O2TConnIDs, connid );
+      conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->O2TConnIDs, connid );
       if ( conn_val == NULL )
-         conn_val = (enip_conn_val_t *)se_tree_lookup32( enip_info->T2OConnIDs, connid );
+         conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->T2OConnIDs, connid );
       break;
 
    case ENIP_RESPONSE_PACKET:
-      conn_val = (enip_conn_val_t *)se_tree_lookup32( enip_info->T2OConnIDs, connid );
+      conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->T2OConnIDs, connid );
       if ( conn_val == NULL )
-         conn_val = (enip_conn_val_t *)se_tree_lookup32( enip_info->O2TConnIDs, connid );
+         conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->O2TConnIDs, connid );
       break;
    case ENIP_CANNOT_CLASSIFY:
       /* ignore */
@@ -1114,13 +1108,13 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
       return NULL;
 
    if (enip_info->O2TConnIDs != NULL)
-      conn_val = (enip_conn_val_t *)se_tree_lookup32( enip_info->O2TConnIDs, connid );
+      conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->O2TConnIDs, connid );
 
    if ( conn_val == NULL )
    {
       if (enip_info->T2OConnIDs != NULL)
       {
-         if ((conn_val = (enip_conn_val_t *)se_tree_lookup32( enip_info->T2OConnIDs, connid)) != NULL)
+         if ((conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->T2OConnIDs, connid)) != NULL)
             *pconnid_type = ECIDT_T2O;
       }
    }
@@ -1752,7 +1746,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                          if (conn_info->safety.safety_seg == TRUE)
                          {
                             /* Add any possible safety related data */
-                            cip_safety = se_new(cip_safety_info_t);
+                            cip_safety = wmem_new(wmem_file_scope(), cip_safety_info_t);
                             cip_safety->conn_type = connid_type;
                             cip_safety->server_dir = (conn_info->TransportClass_trigger & CI_PRODUCTION_DIR_MASK) ? TRUE : FALSE;
                             cip_safety->format = conn_info->safety.format;
@@ -1908,14 +1902,14 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                      {
                         request_info->cip_info->connInfo->O2T.port = tvb_get_ntohs(tvb, offset+8);
                         request_info->cip_info->connInfo->O2T.ipaddress.type = AT_IPv4;
-                        request_info->cip_info->connInfo->O2T.ipaddress.data = se_alloc(sizeof(guint32));
+                        request_info->cip_info->connInfo->O2T.ipaddress.data = wmem_alloc(wmem_file_scope(), sizeof(guint32));
                         *((guint32*)request_info->cip_info->connInfo->O2T.ipaddress.data) = tvb_get_ipv4(tvb, offset+10);
                      }
                      else
                      {
                         request_info->cip_info->connInfo->T2O.port = tvb_get_ntohs(tvb, offset+8);
                         request_info->cip_info->connInfo->T2O.ipaddress.type = AT_IPv4;
-                        request_info->cip_info->connInfo->T2O.ipaddress.data = se_alloc(sizeof(guint32));
+                        request_info->cip_info->connInfo->T2O.ipaddress.data = wmem_alloc(wmem_file_scope(), sizeof(guint32));
                         *((guint32*)request_info->cip_info->connInfo->T2O.ipaddress.data) = tvb_get_ipv4(tvb, offset+10);
                      }
                   }

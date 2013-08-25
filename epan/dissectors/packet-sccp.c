@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
 #include <epan/uat.h>
@@ -811,7 +812,7 @@ static guint slr = 0;
 
 static dissector_table_t sccp_ssn_dissector_table;
 
-static emem_tree_t       *assocs        = NULL;
+static wmem_tree_t       *assocs        = NULL;
 static sccp_assoc_info_t *assoc;
 static sccp_msg_info_t   *sccp_msg;
 static sccp_assoc_info_t  no_assoc      = {0,0,0,0,0,FALSE,FALSE,NULL,NULL,SCCP_PLOAD_NONE,NULL,NULL,NULL,0};
@@ -1293,7 +1294,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 static sccp_assoc_info_t *
 new_assoc(guint32 calling, guint32 called)
 {
-  sccp_assoc_info_t *a = se_new0(sccp_assoc_info_t);
+  sccp_assoc_info_t *a = wmem_new0(wmem_file_scope(), sccp_assoc_info_t);
 
   a->id            = next_assoc_id++;
   a->calling_dpc   = calling;
@@ -1335,16 +1336,16 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
   case SCCP_MSG_TYPE_CR:
   {
     /* CR contains the opc,dpc,dlr key of backward messages swapped as dpc,opc,slr  */
-    emem_tree_key_t bw_key[] = {
+    wmem_tree_key_t bw_key[] = {
       {1, &dpck},
       {1, &opck},
       {1, &src_lr},
       {0, NULL}
     };
 
-    if (! ( assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, bw_key) ) && ! PINFO_FD_VISITED(pinfo) ) {
+    if (! ( assoc = (sccp_assoc_info_t *)wmem_tree_lookup32_array(assocs, bw_key) ) && ! PINFO_FD_VISITED(pinfo) ) {
       assoc = new_assoc(opck, dpck);
-      se_tree_insert32_array(assocs, bw_key, assoc);
+      wmem_tree_insert32_array(assocs, bw_key, assoc);
       assoc->has_bw_key = TRUE;
     }
 
@@ -1354,18 +1355,18 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
   }
   case SCCP_MSG_TYPE_CC:
   {
-    emem_tree_key_t fw_key[] = {
+    wmem_tree_key_t fw_key[] = {
       {1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
     };
-    emem_tree_key_t bw_key[] = {
+    wmem_tree_key_t bw_key[] = {
       {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
     };
 
-    if ( ( assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, bw_key) ) ) {
+    if ( ( assoc = (sccp_assoc_info_t *)wmem_tree_lookup32_array(assocs, bw_key) ) ) {
       goto got_assoc;
     }
 
-    if ( (assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, fw_key) ) ) {
+    if ( (assoc = (sccp_assoc_info_t *)wmem_tree_lookup32_array(assocs, fw_key) ) ) {
       goto got_assoc;
     }
 
@@ -1376,12 +1377,12 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
     pinfo->p2p_dir = P2P_DIR_RECV;
 
     if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_bw_key ) {
-      se_tree_insert32_array(assocs, bw_key, assoc);
+      wmem_tree_insert32_array(assocs, bw_key, assoc);
       assoc->has_bw_key = TRUE;
     }
 
     if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_fw_key ) {
-      se_tree_insert32_array(assocs, fw_key, assoc);
+      wmem_tree_insert32_array(assocs, fw_key, assoc);
       assoc->has_fw_key = TRUE;
     }
 
@@ -1389,17 +1390,17 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
   }
   case SCCP_MSG_TYPE_RLC:
   {
-    emem_tree_key_t bw_key[] = {
+    wmem_tree_key_t bw_key[] = {
       {1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
     };
-    emem_tree_key_t fw_key[] = {
+    wmem_tree_key_t fw_key[] = {
       {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
     };
-    if ( ( assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, bw_key) ) ) {
+    if ( ( assoc = (sccp_assoc_info_t *)wmem_tree_lookup32_array(assocs, bw_key) ) ) {
       goto got_assoc_rlc;
     }
 
-    if ( (assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, fw_key) ) ) {
+    if ( (assoc = (sccp_assoc_info_t *)wmem_tree_lookup32_array(assocs, fw_key) ) ) {
       goto got_assoc_rlc;
     }
 
@@ -1410,23 +1411,23 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
     pinfo->p2p_dir = P2P_DIR_SENT;
 
     if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_bw_key ) {
-      se_tree_insert32_array(assocs, bw_key, assoc);
+      wmem_tree_insert32_array(assocs, bw_key, assoc);
       assoc->has_bw_key = TRUE;
     }
 
     if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_fw_key ) {
-      se_tree_insert32_array(assocs, fw_key, assoc);
+      wmem_tree_insert32_array(assocs, fw_key, assoc);
       assoc->has_fw_key = TRUE;
     }
     break;
   }
   default:
   {
-    emem_tree_key_t key[] = {
+    wmem_tree_key_t key[] = {
       {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
     };
 
-    assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, key);
+    assoc = (sccp_assoc_info_t *)wmem_tree_lookup32_array(assocs, key);
 
     if (assoc) {
       if (assoc->calling_dpc == dpck) {
@@ -1442,7 +1443,7 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
 
   if (assoc && trace_sccp) {
     if ( ! PINFO_FD_VISITED(pinfo)) {
-      sccp_msg_info_t *msg = se_new0(sccp_msg_info_t);
+      sccp_msg_info_t *msg = wmem_new0(wmem_file_scope(), sccp_msg_info_t);
       msg->framenum = framenum;
       msg->offset = offset;
       msg->data.co.next = NULL;
@@ -1549,7 +1550,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *digits_tree;
   char *gt_digits;
 
-  gt_digits = (char *)ep_alloc0(GT_MAX_SIGNALS+1);
+  gt_digits = (char *)wmem_alloc0(wmem_packet_scope(), GT_MAX_SIGNALS+1);
 
   while (offset < length) {
     odd_signal = tvb_get_guint8(tvb, offset) & GT_ODD_SIGNAL_MASK;
@@ -1570,7 +1571,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
   if (is_connectionless(message_type) && sccp_msg) {
     guint8 **gt_ptr = called ? &(sccp_msg->data.ud.called_gt) : &(sccp_msg->data.ud.calling_gt);
 
-    *gt_ptr  = (guint8 *)ep_strdup(gt_digits);
+    *gt_ptr  = (guint8 *)wmem_strdup(wmem_packet_scope(), gt_digits);
   }
 
   digits_item = proto_tree_add_string(tree, called ? hf_sccp_called_gt_digits
@@ -2613,7 +2614,7 @@ dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
 static sccp_msg_info_t *
 new_ud_msg(packet_info *pinfo, guint32 msg_type _U_)
 {
-  sccp_msg_info_t *m = ep_new0(sccp_msg_info_t);
+  sccp_msg_info_t *m = wmem_new0(wmem_packet_scope(), sccp_msg_info_t);
   m->framenum = PINFO_FD_NUM(pinfo);
   m->data.ud.calling_gt = NULL;
   m->data.ud.called_gt = NULL;
@@ -4046,7 +4047,7 @@ proto_register_sccp(void)
 
   register_init_routine(&init_sccp);
 
-  assocs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sccp_associations");
+  assocs = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
   sccp_tap = register_tap("sccp");
 
