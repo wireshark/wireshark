@@ -834,6 +834,21 @@ dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t h
 	dissector_add_handle(name, handle);
 }
 
+
+
+void dissector_add_uint_range(const char *abbrev, range_t *range,
+    dissector_handle_t handle)
+{
+   guint32 i, j;
+   
+   if (range) {
+      for (i=0; i < range->nranges; i++) {
+         for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
+			 dissector_add_uint(abbrev, j, handle);
+      }
+   }
+}
+
 /* Delete the entry for a dissector in a uint dissector table
    with a particular pattern. */
 
@@ -864,6 +879,19 @@ dissector_delete_uint(const char *name, const guint32 pattern,
 		g_hash_table_remove(sub_dissectors->hash_table,
 				    GUINT_TO_POINTER(pattern));
 	}
+}
+
+void dissector_delete_uint_range(const char *abbrev, range_t *range,
+    dissector_handle_t handle)
+{
+   guint32 i, j;
+   
+   if (range) {
+      for (i=0; i < range->nranges; i++) {
+         for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
+			 dissector_delete_uint(abbrev, j, handle);
+      }
+   }
 }
 
 /* Change the entry for a dissector in a uint dissector table

@@ -1700,30 +1700,6 @@ dictionary_load(void)
 	return 1;
 }
 
-static void
-tcp_range_delete_callback(guint32 port)
-{
-	dissector_delete_uint("tcp.port", port, diameter_tcp_handle);
-}
-
-static void
-tcp_range_add_callback(guint32 port)
-{
-	dissector_add_uint("tcp.port", port, diameter_tcp_handle);
-}
-
-static void
-sctp_range_delete_callback(guint32 port)
-{
-	dissector_delete_uint("sctp.port", port, diameter_sctp_handle);
-}
-
-static void
-sctp_range_add_callback(guint32 port)
-{
-	dissector_add_uint("sctp.port", port, diameter_sctp_handle);
-}
-
 /* registration with the filtering engine */
 void proto_reg_handoff_diameter(void);
 
@@ -1989,8 +1965,8 @@ proto_reg_handoff_diameter(void)
 		diameter_udp_port = g_diameter_udp_port;
 		Initialized=TRUE;
 	} else {
-		range_foreach(diameter_tcp_port_range, tcp_range_delete_callback);
-		range_foreach(diameter_sctp_port_range, sctp_range_delete_callback);
+		dissector_delete_uint_range("tcp.port", diameter_tcp_port_range, diameter_tcp_handle);
+		dissector_delete_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
 		g_free(diameter_tcp_port_range);
 		g_free(diameter_sctp_port_range);
 		dissector_delete_uint("udp.port", diameter_udp_port, diameter_udp_handle);
@@ -2004,8 +1980,8 @@ proto_reg_handoff_diameter(void)
 	/* set port for future deletes */
 	diameter_tcp_port_range = range_copy(global_diameter_tcp_port_range);
 	diameter_sctp_port_range = range_copy(global_diameter_sctp_port_range);
-	range_foreach(diameter_tcp_port_range, tcp_range_add_callback);
-	range_foreach(diameter_sctp_port_range, sctp_range_add_callback);
+	dissector_add_uint_range("tcp.port",  diameter_tcp_port_range,  diameter_tcp_handle);
+	dissector_add_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
 
 	exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 

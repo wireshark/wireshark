@@ -38,6 +38,7 @@
 #include "epan.h"
 #include "tfs.h"
 #include "ws_symbol_export.h"
+#include "range.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -174,9 +175,17 @@ WS_DLL_PUBLIC int get_dissector_table_base(const char *name);
 WS_DLL_PUBLIC void dissector_add_uint(const char *abbrev, const guint32 pattern,
     dissector_handle_t handle);
 
+/* Add an range of entries to a uint dissector table. */
+WS_DLL_PUBLIC void dissector_add_uint_range(const char *abbrev, range_t *range,
+    dissector_handle_t handle);
+
 /* Delete the entry for a dissector in a uint dissector table
    with a particular pattern. */
 WS_DLL_PUBLIC void dissector_delete_uint(const char *name, const guint32 pattern,
+    dissector_handle_t handle);
+
+/* Delete an range of entries from a uint dissector table. */
+WS_DLL_PUBLIC void dissector_delete_uint_range(const char *abbrev, range_t *range,
     dissector_handle_t handle);
 
 /* Change the entry for a dissector in a uint dissector table
