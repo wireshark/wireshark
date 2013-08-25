@@ -29,7 +29,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 
@@ -168,28 +168,28 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
     {
         gchar *jingle_sid, *ibb_sid, *gtalk_sid;
 
-        jingle_sid = (gchar *)se_tree_lookup_string(xmpp_info->jingle_sessions, attr_id->value, EMEM_TREE_STRING_NOCASE);
+        jingle_sid = (gchar *)wmem_tree_lookup_string(xmpp_info->jingle_sessions, attr_id->value, WMEM_TREE_STRING_NOCASE);
 
         if (jingle_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_jingle_session, tvb, 0, 0, jingle_sid);
             PROTO_ITEM_SET_GENERATED(it);
         }
 
-        ibb_sid = (gchar *)se_tree_lookup_string(xmpp_info->ibb_sessions, attr_id->value, EMEM_TREE_STRING_NOCASE);
+        ibb_sid = (gchar *)wmem_tree_lookup_string(xmpp_info->ibb_sessions, attr_id->value, WMEM_TREE_STRING_NOCASE);
 
         if (ibb_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_ibb, tvb, 0, 0, ibb_sid);
             PROTO_ITEM_SET_GENERATED(it);
         }
 
-        gtalk_sid = (gchar *)se_tree_lookup_string(xmpp_info->gtalk_sessions, attr_id->value, EMEM_TREE_STRING_NOCASE);
+        gtalk_sid = (gchar *)wmem_tree_lookup_string(xmpp_info->gtalk_sessions, attr_id->value, WMEM_TREE_STRING_NOCASE);
 
         if (gtalk_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_gtalk, tvb, 0, 0, gtalk_sid);
             PROTO_ITEM_SET_GENERATED(it);
         }
 
-        reqresp_trans = (xmpp_transaction_t *)se_tree_lookup_string(xmpp_info->req_resp, attr_id->value, EMEM_TREE_STRING_NOCASE);
+        reqresp_trans = (xmpp_transaction_t *)wmem_tree_lookup_string(xmpp_info->req_resp, attr_id->value, WMEM_TREE_STRING_NOCASE);
         /*displays request/response field in each iq packet*/
         if (reqresp_trans) {
 
@@ -234,7 +234,7 @@ xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
 
     xmpp_attr_t *fake_condition = NULL;
 
-    error_info = ep_strdup("Stanza error");
+    error_info = wmem_strdup(wmem_packet_scope(), "Stanza error");
 
     error_item = proto_tree_add_item(tree, hf_xmpp_error, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     error_tree = proto_item_add_subtree(error_item, ett_xmpp_query_item);
@@ -245,7 +245,7 @@ xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
         fake_condition = xmpp_ep_init_attr_t(cond_element->name, cond_element->offset, cond_element->length);
         g_hash_table_insert(element->attrs, (gpointer)"condition", fake_condition);
 
-        error_info = ep_strdup_printf("%s: %s;", error_info, cond_element->name);
+        error_info = wmem_strdup_printf(wmem_packet_scope(), "%s: %s;", error_info, cond_element->name);
     }
 
 
@@ -255,7 +255,7 @@ xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
     {
         xmpp_error_text(error_tree, tvb, text_element);
 
-        error_info = ep_strdup_printf("%s Text: %s", error_info, text_element->data?text_element->data->value:"");
+        error_info = wmem_strdup_printf(wmem_packet_scope(), "%s Text: %s", error_info, text_element->data?text_element->data->value:"");
     }
 
     expert_add_info_format_text(pinfo, error_item, &ei_xmpp_response, "%s", error_info);
@@ -423,7 +423,7 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     {
         gchar *ibb_sid;
 
-        ibb_sid = (gchar *)se_tree_lookup_string(xmpp_info->ibb_sessions, id->value, EMEM_TREE_STRING_NOCASE);
+        ibb_sid = (gchar *)wmem_tree_lookup_string(xmpp_info->ibb_sessions, id->value, WMEM_TREE_STRING_NOCASE);
 
         if (ibb_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_ibb, tvb, 0, 0, ibb_sid);
@@ -600,7 +600,7 @@ xmpp_failure_text(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element)
     xmpp_attr_t *lang = xmpp_get_attr(element,"xml:lang");
 
     proto_tree_add_text(tree, tvb, element->offset, element->length, "TEXT%s: %s",
-            lang?ep_strdup_printf("(%s)",lang->value):"",
+            lang?wmem_strdup_printf(wmem_packet_scope(), "(%s)",lang->value):"",
             element->data?element->data->value:"");
 }
 

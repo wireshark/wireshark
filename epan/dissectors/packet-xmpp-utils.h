@@ -29,6 +29,7 @@
 #include "ws_symbol_export.h"
 #include "tvbuff.h"
 #include "dissectors/packet-xml.h"
+#include <epan/wmem/wmem.h>
 
 #define xmpp_elem_cdata(elem) \
 elem->data?elem->data->value:""
@@ -114,10 +115,10 @@ typedef struct _xmpp_elem_info{
 } xmpp_elem_info;
 
 typedef struct _xmpp_conv_info_t {
-    emem_tree_t *req_resp;
-    emem_tree_t *jingle_sessions;
-    emem_tree_t *ibb_sessions;
-    emem_tree_t *gtalk_sessions;
+    wmem_tree_t *req_resp;
+    wmem_tree_t *jingle_sessions;
+    wmem_tree_t *ibb_sessions;
+    wmem_tree_t *gtalk_sessions;
     guint32      ssl_start;
     guint32      ssl_proceed;
 } xmpp_conv_info_t;
@@ -132,23 +133,23 @@ typedef struct _xmpp_reqresp_transaction_t {
 
 /** Function that is responsibe for request/response tracking in IQ packets.
  * Each IQ set/get packet should have the response in other IQ result/error packet.
- * Both packet should have the same id attribute. Function saves in emem_tree pairs of
+ * Both packet should have the same id attribute. Function saves in wmem_tree pairs of
  * packet id and struct xmpp_transaction_t.
  */
 extern void xmpp_iq_reqresp_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info);
 
 /** Function that is responsibe for jingle session tracking in IQ packets.
- * Function saves in emem_tree pairs of packet's id and Jingle session's id.
+ * Function saves in wmem_tree pairs of packet's id and Jingle session's id.
  */
 extern void xmpp_jingle_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info);
 
 /** Function that is responsibe for ibb(in band bytestreams) session tracking in IQ packets.
- * Function saves in emem_tree pairs of packet's id and In-Band Bytestreams session's id.
+ * Function saves in wmem_tree pairs of packet's id and In-Band Bytestreams session's id.
  */
 extern void xmpp_ibb_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info);
 
 /** Function that is responsibe for GTalk session(voice/video) tracking in IQ packets.
- * Function saves in emem_tree pairs of packet's id and GTalk session's id.
+ * Function saves in wmem_tree pairs of packet's id and GTalk session's id.
  */
 extern void xmpp_gtalk_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info);
 

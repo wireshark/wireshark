@@ -31,7 +31,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 
@@ -474,11 +474,11 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         return;
 
     if (!xmpp_info) {
-        xmpp_info = se_new(xmpp_conv_info_t);
-        xmpp_info->req_resp = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_req_resp");
-        xmpp_info->jingle_sessions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_jingle_sessions");
-        xmpp_info->ibb_sessions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_ibb_sessions");
-        xmpp_info->gtalk_sessions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_gtalk_sessions");
+        xmpp_info = wmem_new(wmem_file_scope(), xmpp_conv_info_t);
+        xmpp_info->req_resp        = wmem_tree_new(wmem_file_scope());
+        xmpp_info->jingle_sessions = wmem_tree_new(wmem_file_scope());
+        xmpp_info->ibb_sessions    = wmem_tree_new(wmem_file_scope());
+        xmpp_info->gtalk_sessions  = wmem_tree_new(wmem_file_scope());
         xmpp_info->ssl_start   = 0;
         xmpp_info->ssl_proceed = 0;
         conversation_add_proto_data(conversation, proto_xmpp, (void *) xmpp_info);
