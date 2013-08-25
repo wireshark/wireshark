@@ -257,7 +257,16 @@ static gint ett_rtps_sample_info_list           = -1;
 static gint ett_rtps_sample_info                = -1;
 static gint ett_rtps_sample_batch_list          = -1;
 
-static expert_field rtps_sm_octets_to_next_header_error = EI_INIT;
+static expert_field ei_rtps_sm_octets_to_next_header_error = EI_INIT;
+static expert_field ei_rtps_port_invalid = EI_INIT;
+static expert_field ei_rtps_ip_invalid = EI_INIT;
+static expert_field ei_rtps_parameter_value_invalid = EI_INIT;
+static expert_field ei_rtps_extra_bytes = EI_INIT;
+static expert_field ei_rtps_missing_bytes = EI_INIT;
+static expert_field ei_rtps_locator_port = EI_INIT;
+static expert_field ei_rtps_more_samples_available = EI_INIT;
+static expert_field ei_rtps_parameter_not_decoded = EI_INIT;
+static expert_field ei_rtps_sm_octets_to_next_header_not_zero = EI_INIT;
 
 /***************************************************************************/
 /* Preferences                                                             */
@@ -1052,7 +1061,7 @@ void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tv
   proto_tree_add_uint(locator_tree, hf_rtps_locator_kind, tvb, offset, 4, kind);
   ti = proto_tree_add_int(locator_tree, hf_rtps_locator_port, tvb, offset+4, 4, port);
   if (port == 0)
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid Port");
+    expert_add_info(pinfo, ti, &ei_rtps_locator_port);
 
   if (kind == LOCATOR_KIND_UDPV4) {
     proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset+20, 4, ENC_BIG_ENDIAN);
@@ -1116,7 +1125,7 @@ void rtps_util_add_ipv4_address_t(proto_tree *tree, packet_info *pinfo, tvbuff_t
 
   ti = proto_tree_add_ipv4(tree, hf_item, tvb, offset, 4, addr);
   if (addr == IPADDRESS_INVALID)
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, IPADDRESS_INVALID_STRING);
+    expert_add_info(pinfo, ti, &ei_rtps_ip_invalid);
 }
 
 
@@ -1147,7 +1156,7 @@ void rtps_util_add_locator_udp_v4(proto_tree *tree, packet_info *pinfo, tvbuff_t
   port = NEXT_guint32(tvb, offset+4, little_endian);
   ti = proto_tree_add_uint(locator_tree, hf_rtps_locator_udp_v4_port, tvb, offset, 4, port);
   if (port == PORT_INVALID)
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, PORT_INVALID_STRING);
+    expert_add_info(pinfo, ti, &ei_rtps_port_invalid);
 }
 
 
@@ -1496,7 +1505,7 @@ void rtps_util_add_port(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,
 
   ti = proto_tree_add_uint(tree, hf_item, tvb, offset, 4, port);
   if (port == PORT_INVALID)
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, PORT_INVALID_STRING);
+    expert_add_info(pinfo, ti, &ei_rtps_port_invalid);
 }
 
 
@@ -2222,7 +2231,7 @@ void rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t* tv
 
   offset += 4;
   if (param_length < 4 + (int)seq_length) {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "ERROR: Parameter value too small");
+    expert_add_info_format_text(pinfo, ti, &ei_rtps_parameter_value_invalid, "ERROR: Parameter value too small");
     return;
   }
 
@@ -2352,7 +2361,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
       offset += 12;
     } else {
       /* size don't match, packet error */
-      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN, "Illegal size for fragment number set");
+      expert_add_info_format_text(pinfo, ti, &ei_rtps_parameter_value_invalid, "Illegal size for fragment number set");
       return -1;
     }
   }
@@ -2481,8 +2490,7 @@ static void rtps_util_decode_flags_16bit(proto_tree * tree, tvbuff_t *tvb, gint 
  */
 #define ENSURE_LENGTH(size)                                                          \
         if (param_length < size) {                                                   \
-          expert_add_info_format(pinfo, param_len_item, PI_PROTOCOL, PI_WARN,        \
-            "ERROR: parameter value too small (must be at least %d octects)", size); \
+          expert_add_info_format_text(pinfo, param_len_item, &ei_rtps_parameter_value_invalid, "ERROR: parameter value too small (must be at least %d octects)", size); \
           break;                                                                     \
         }
 
@@ -3425,7 +3433,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_TYPE2_NAME:
     case PID_TYPE2_CHECKSUM:
     case PID_RELIABILITY_ENABLED:
-      expert_add_info_format(pinfo, parameter_item, PI_PROTOCOL, PI_WARN, "[DEPRECATED] - Parameter not decoded");
+      expert_add_info(pinfo, parameter_item, &ei_rtps_parameter_not_decoded);
 
     case PID_PAD:
       if (param_length > 0) {
@@ -3902,8 +3910,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
   for (;;) {
     size -= offset - original_offset;
     if (size < 4) {
-      expert_add_info_format(pinfo, (param_len_item == NULL) ? ti : param_len_item,
-                             PI_PROTOCOL, PI_WARN, "ERROR: not enough bytes to read the next parameter");
+      expert_add_info_format_text(pinfo, (param_len_item == NULL) ? ti : param_len_item, &ei_rtps_parameter_value_invalid, "ERROR: not enough bytes to read the next parameter");
       return 0;
     }
     original_offset = offset; 
@@ -3942,7 +3949,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
     /* Make sure we have enough bytes for the param value */
     if ((size-4 < param_length) &&
         (parameter != PID_SENTINEL)) {
-      expert_add_info_format(pinfo, param_len_item, PI_PROTOCOL, PI_WARN, "Not enough bytes to read the parameter value");
+      expert_add_info_format_text(pinfo, param_len_item, &ei_rtps_parameter_value_invalid, "Not enough bytes to read the parameter value");
       return 0;
     }
 
@@ -4060,7 +4067,7 @@ void dissect_PAD(tvbuff_t *tvb,
                           2,
                           little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   if (octets_to_next_header != 0) {
-    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Should be ZERO");
+    expert_add_info(pinfo, item, &ei_rtps_sm_octets_to_next_header_not_zero);
   }
 }
 
@@ -4147,7 +4154,7 @@ static void dissect_DATA_v1(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
   if ((flags & FLAG_DATA_D) != 0) min_len += 4;
 
   if (octets_to_next_header < min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
     return;
   }
 
@@ -4294,7 +4301,7 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
   if ((flags & FLAG_DATA_H) != 0) min_len += 12;
 
   if (octets_to_next_header < min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
     return;
   }
 
@@ -4425,7 +4432,7 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
   if ((flags & FLAG_DATA_FRAG_H) != 0) min_len += 12;
 
   if (octets_to_next_header < min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
     return;
   }
 
@@ -4592,7 +4599,7 @@ static void dissect_NOKEY_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, g
   if ((flags & FLAG_NOKEY_DATA_Q) != 0) min_len += 4;
 
   if (octets_to_next_header < min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
     return;
   }
 
@@ -4683,7 +4690,7 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
   if ((flags & FLAG_NOKEY_DATA_Q) != 0) min_len += 4;
 
   if (octets_to_next_header < min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
     return;
   }
 
@@ -4789,7 +4796,7 @@ static void dissect_ACKNACK(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
                         little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
   if (octets_to_next_header < 20) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= 20)");
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= 20)");
     return;
   }
 
@@ -4838,15 +4845,13 @@ static void dissect_ACKNACK(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
     /* In this case there must be something wrong in the bitmap: there
      * are some extra bytes that we don't know how to decode
      */
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                           "Don't know how to decode those extra bytes: %d", octets_to_next_header - offset);
+    expert_add_info_format_text(pinfo, item, &ei_rtps_extra_bytes, "Don't know how to decode those extra bytes: %d", octets_to_next_header - offset);
   } else if (offset > original_offset + octets_to_next_header) {
     /* Decoding the bitmap went over the end of this submessage.
      * Enter an item in the protocol tree that spans over the entire
      * submessage.
      */
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                           "Not enough bytes to decode");
+    expert_add_info(pinfo, item, &ei_rtps_missing_bytes);
   }
 
 }
@@ -4884,7 +4889,7 @@ static void dissect_NACK_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
   if (octets_to_next_header < 24) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= 24)");
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= 24)");
     return;
   }
 
@@ -4985,11 +4990,11 @@ static void dissect_HEARTBEAT(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
                         little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
   if ((octets_to_next_header < 24) && (version <= 0x0101)) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= 24)");
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= 24)");
     return;
   }
   else if (octets_to_next_header < 28) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= 28)");
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= 28)");
     return;
   }
 
@@ -5061,7 +5066,7 @@ static void dissect_HEARTBEAT_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
   if (octets_to_next_header < 36) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= 36)");
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= 36)");
     return;
   }
 
@@ -5134,7 +5139,7 @@ static void dissect_HEARTBEAT_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
   if (octets_to_next_header < 24) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= 24)");
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= 24)");
     return;
   }
 
@@ -5250,7 +5255,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
   if ((flags & FLAG_RTPS_DATA_K) != 0) min_len += 4;
 
   if (octets_to_next_header < min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
     return;
   }
 
@@ -5448,7 +5453,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb,
   if ((flags & FLAG_RTPS_DATA_FRAG_Q) != 0) min_len += 4;
 
   if (octets_to_next_header < min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
     return;
   }
 
@@ -5635,7 +5640,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
   if ((flags & FLAG_RTPS_DATA_BATCH_Q) != 0) min_len += 4;
 
   if (octets_to_next_header < min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
     return;
   }
 
@@ -5741,8 +5746,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
       gint offset_begin_sampleinfo = offset;
 
       if (rtps_max_batch_samples_dissected > 0 && (guint)sample_info_count >= rtps_max_batch_samples_dissected) {
-        expert_add_info_format(pinfo, list_item, PI_PROTOCOL, PI_NOTE, 
-                               "more samples available. Configure this limit from preferences dialog");
+        expert_add_info(pinfo, list_item, &ei_rtps_more_samples_available);
         offset = sampleListOffset;
         break;
       }
@@ -5765,8 +5769,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
 
       /* Ensure there are enough bytes to decode */
       if (sampleListOffset - offset < min_length) {
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
-                               "Error: not enough bytes to dissect sample info");
+        expert_add_info_format_text(pinfo, ti, &ei_rtps_parameter_value_invalid, "Error: not enough bytes to dissect sample info");
         return;
       }
 
@@ -5833,8 +5836,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
     for (count = 0; count < sample_info_count; ++count) {
       /* Ensure there are enough bytes in the buffer to dissect the next sample */
       if (octets_to_next_header - (offset - old_offset) + 4 < (gint)sample_info_length[count]) {
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
-                               "Error: not enough bytes to dissect sample");
+        expert_add_info_format_text(pinfo, ti, &ei_rtps_parameter_value_invalid, "Error: not enough bytes to dissect sample");
         return;
       }
 
@@ -5904,7 +5906,7 @@ static void dissect_GAP(tvbuff_t *tvb,
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
   if (octets_to_next_header < 24) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= 24)");
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= 24)");
     return;
   }
 
@@ -5974,7 +5976,7 @@ void dissect_INFO_TS(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flag
   if ((flags & FLAG_INFO_TS_T) == 0) min_len += 8;
 
   if (octets_to_next_header != min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be == %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == %u)", min_len);
     return;
   }
 
@@ -6033,7 +6035,7 @@ void dissect_INFO_SRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 fla
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
   if (octets_to_next_header != 16) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be == 16)");
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == 16)");
     return;
   }
 
@@ -6119,7 +6121,7 @@ static void dissect_INFO_REPLY_IP4(tvbuff_t *tvb, packet_info *pinfo, gint offse
   if ((flags & FLAG_INFO_REPLY_IP4_M) != 0) min_len += 8;
 
   if (octets_to_next_header != min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be == %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == %u)", min_len);
     return;
   }
 
@@ -6173,7 +6175,7 @@ static void dissect_INFO_DST(tvbuff_t *tvb, packet_info *pinfo, gint offset, gui
                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
   if (octets_to_next_header != 8) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be == 8)");
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == 8)");
     return;
   }
 
@@ -6236,7 +6238,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
   if ((flags & FLAG_INFO_REPLY_M) != 0) min_len += 4;
 
   if (octets_to_next_header < min_len) {
-    expert_add_info_format_text(pinfo, octet_item, &rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
+    expert_add_info_format_text(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
     return;
   }
 
@@ -7756,7 +7758,16 @@ void proto_register_rtps(void) {
   };
 
   static ei_register_info ei[] = {
-     { &rtps_sm_octets_to_next_header_error, { "rtps.sm.octetsToNextHeader.error", PI_PROTOCOL, PI_WARN, "(Error: bad length)", EXPFILL }},
+     { &ei_rtps_sm_octets_to_next_header_error, { "rtps.sm.octetsToNextHeader.error", PI_PROTOCOL, PI_WARN, "(Error: bad length)", EXPFILL }},
+     { &ei_rtps_locator_port, { "rtps.locator.port.invalid", PI_PROTOCOL, PI_WARN, "Invalid Port", EXPFILL }},
+     { &ei_rtps_ip_invalid, { "rtps.ip_invalid", PI_PROTOCOL, PI_WARN, "IPADDRESS_INVALID_STRING", EXPFILL }},
+     { &ei_rtps_port_invalid, { "rtps.port_invalid", PI_PROTOCOL, PI_WARN, "PORT_INVALID_STRING", EXPFILL }},
+     { &ei_rtps_parameter_value_invalid, { "rtps.parameter_value_too_small", PI_PROTOCOL, PI_WARN, "ERROR: Parameter value too small", EXPFILL }},
+     { &ei_rtps_parameter_not_decoded, { "rtps.parameter_not_decoded", PI_PROTOCOL, PI_WARN, "[DEPRECATED] - Parameter not decoded", EXPFILL }},
+     { &ei_rtps_sm_octets_to_next_header_not_zero, { "rtps.sm.octetsToNextHeader.not_zero", PI_PROTOCOL, PI_WARN, "Should be ZERO", EXPFILL }},
+     { &ei_rtps_extra_bytes, { "rtps.extra_bytes", PI_MALFORMED, PI_ERROR, "Don't know how to decode those extra bytes: %d", EXPFILL }},
+     { &ei_rtps_missing_bytes, { "rtps.missing_bytes", PI_MALFORMED, PI_ERROR, "Not enough bytes to decode", EXPFILL }},
+     { &ei_rtps_more_samples_available, { "rtps.more_samples_available", PI_PROTOCOL, PI_NOTE, "More samples available. Configure this limit from preferences dialog", EXPFILL }},
   };
 
   module_t *rtps_module;

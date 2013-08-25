@@ -272,6 +272,12 @@ static int hf_openwire_cached_enabled = -1;
 static gint ett_openwire = -1;
 static gint ett_openwire_type = -1;
 
+static expert_field ei_openwire_tight_encoding_not_supported = EI_INIT;
+static expert_field ei_openwire_encoding_not_supported = EI_INIT;
+static expert_field ei_openwire_type_not_supported = EI_INIT;
+static expert_field ei_openwire_command_not_supported = EI_INIT;
+static expert_field ei_openwire_body_type_not_supported = EI_INIT;
+
 static dissector_handle_t openwire_tcp_handle;
 
 static gboolean openwire_desegment = TRUE;
@@ -281,8 +287,6 @@ static gboolean openwire_verbose_type = FALSE;
 
 #define OPENWIRE_MAGIC_PART_1    0x41637469 /* "Acti" */
 #define OPENWIRE_MAGIC_PART_2    0x76654D51 /* "veMQ" */
-#define OPENWIRE_BOOLEAN_FALSE   0x00
-#define OPENWIRE_BOOLEAN_TRUE    0x01
 
 #define OPENWIRE_WIREFORMAT_INFO                 1
 #define OPENWIRE_BROKER_INFO                     2
@@ -549,10 +553,9 @@ validate_boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int of
     /* Sanity check of boolean : must be 0x00 or 0x01 */
     guint8 booleanByte;
     booleanByte = tvb_get_guint8(tvb, offset);
-    if (booleanByte != OPENWIRE_BOOLEAN_FALSE && booleanByte != OPENWIRE_BOOLEAN_TRUE)
+    if (booleanByte != FALSE && booleanByte != TRUE)
     {
-        expert_add_info_format(pinfo, boolean_item, PI_MALFORMED, PI_ERROR,
-                               "OpenWire encoding not supported by Wireshark or dissector bug");
+        expert_add_info(pinfo, boolean_item, &ei_openwire_encoding_not_supported);
         THROW(ReportedBoundsError);
     }
 }
@@ -612,7 +615,7 @@ detect_protocol_options(tvbuff_t *tvb, packet_info *pinfo, int offset, int iComm
                 }
                 else
                 {
-                    if (present == OPENWIRE_BOOLEAN_TRUE && type == OPENWIRE_TYPE_NULL)
+                    if (present == TRUE && type == OPENWIRE_TYPE_NULL)
                     {
                         /* If a cached object is not-null, it should be the "NULL" object.
                            This can be misdetected with "loose" encoding if the capture is started after 256 cached objects on the connection,
@@ -684,7 +687,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         guint8 inlined = 0;
         gint cachedID = 0;
         proto_item * cached_item = NULL;
-        inlined = tvb_get_guint8(tvb, offset + 0) == OPENWIRE_BOOLEAN_TRUE ? TRUE : FALSE;
+        inlined = tvb_get_guint8(tvb, offset + 0) == TRUE ? TRUE : FALSE;
         cachedID = tvb_get_ntohs(tvb, offset + 1);
         ep_strbuf_append_printf(cache_strbuf, " (CachedID: %d)", cachedID);
         if (openwire_verbose_type)
@@ -711,7 +714,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
     if (nullable == TRUE && (type == OPENWIRE_TYPE_NESTED || type == OPENWIRE_TYPE_CACHED || type == OPENWIRE_COMMAND_INNER) && tvb_length_remaining(tvb, offset) >= 1)
     {
-        nullable = tvb_get_guint8(tvb, offset + 0) == OPENWIRE_BOOLEAN_FALSE ? TRUE : FALSE;
+        nullable = tvb_get_guint8(tvb, offset + 0) == FALSE ? TRUE : FALSE;
         if (openwire_verbose_type)
         {
             boolean_item = proto_tree_add_item(tree, hf_openwire_type_notnull, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -746,7 +749,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
     if (nullable == TRUE && tvb_length_remaining(tvb, offset) >= 1)
     {
-        nullable = tvb_get_guint8(tvb, offset + 0) == OPENWIRE_BOOLEAN_FALSE ? TRUE : FALSE;
+        nullable = tvb_get_guint8(tvb, offset + 0) == FALSE ? TRUE : FALSE;
         if (openwire_verbose_type)
         {
             boolean_item = proto_tree_add_item(tree, hf_openwire_type_notnull, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -875,7 +878,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                 {
                     next_tvb = tvb_new_subset(tvb, offset + 4, iArrayLength, iArrayLength);
                     add_new_data_source(pinfo, next_tvb, "Body");
-                    expert_add_info_format(pinfo, array_item, PI_UNDECODED, PI_NOTE, "OpenWire body type not supported by Wireshark");
+                    expert_add_info(pinfo, array_item, &ei_openwire_body_type_not_supported);
                 }
             }
             else if (field == hf_openwire_message_properties)
@@ -1078,7 +1081,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         }
         else if (tvb_length_remaining(tvb, offset) > 0)
         {
-            expert_add_info_format(pinfo, object_tree, PI_UNDECODED, PI_NOTE, "OpenWire type not supported by Wireshark : %d", type);
+            expert_add_info_format_text(pinfo, object_tree, &ei_openwire_type_not_supported, "OpenWire type not supported by Wireshark : %d", type);
             offset += tvb_length_remaining(tvb, offset);
         }
         proto_item_set_len(ti, offset - startOffset);
@@ -1299,7 +1302,7 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
             }
             else if (tvb_length_remaining(tvb, offset) > 0)
             {
-                expert_add_info_format(pinfo, tree, PI_UNDECODED, PI_NOTE, "OpenWire command not supported by Wireshark: %d", iCommand);
+                expert_add_info_format_text(pinfo, tree, &ei_openwire_command_not_supported, "OpenWire command not supported by Wireshark: %d", iCommand);
             }
         }
     }
@@ -1339,8 +1342,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (iCommand != OPENWIRE_WIREFORMAT_INFO && retrieve_tight(pinfo) == TRUE)
         {
             proto_tree_add_item(openwireroot_tree, hf_openwire_command, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-            expert_add_info_format(pinfo, openwireroot_tree, PI_UNDECODED, PI_NOTE,
-                                   "OpenWire tight encoding not supported by Wireshark, use wireFormat.tightEncodingEnabled=false");
+            expert_add_info(pinfo, openwireroot_tree, &ei_openwire_tight_encoding_not_supported);
             return;
         }
 
@@ -1354,7 +1356,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += dissect_openwire_command(tvb, pinfo, openwireroot_tree, offset, iCommand);
         if (tvb_length_remaining(tvb, offset) > 0)
         {
-            expert_add_info_format(pinfo, tree, PI_UNDECODED, PI_NOTE, "OpenWire command fields unknown to Wireshark: %d", iCommand);
+            expert_add_info_format_text(pinfo, tree, &ei_openwire_command_not_supported, "OpenWire command fields unknown to Wireshark: %d", iCommand);
         }
     }
 }
@@ -1978,11 +1980,22 @@ proto_register_openwire(void)
         &ett_openwire_type
     };
 
+    static ei_register_info ei[] = {
+        { &ei_openwire_encoding_not_supported, { "openwire.encoding_not_supported", PI_PROTOCOL, PI_WARN, "OpenWire encoding not supported by Wireshark or dissector bug", EXPFILL }},
+        { &ei_openwire_body_type_not_supported, { "openwire.body_type_not_supported", PI_UNDECODED, PI_NOTE, "OpenWire body type not supported by Wireshark", EXPFILL }},
+        { &ei_openwire_type_not_supported, { "openwire.type.not_supported", PI_UNDECODED, PI_NOTE, "OpenWire type not supported by Wireshark", EXPFILL }},
+        { &ei_openwire_command_not_supported, { "openwire.command.not_supported", PI_UNDECODED, PI_NOTE, "OpenWire command not supported by Wireshark", EXPFILL }},
+        { &ei_openwire_tight_encoding_not_supported, { "openwire.tight_encoding_not_supported", PI_UNDECODED, PI_NOTE, "OpenWire tight encoding not supported by Wireshark", EXPFILL }},
+    };
+
     module_t *openwire_module;
+    expert_module_t* expert_openwire;
 
     proto_openwire = proto_register_protocol("OpenWire", "OpenWire", "openwire");
     proto_register_field_array(proto_openwire, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_openwire = expert_register_protocol(proto_openwire);
+    expert_register_field_array(expert_openwire, ei, array_length(ei));
 
     openwire_module = prefs_register_protocol(proto_openwire, NULL);
     prefs_register_bool_preference(openwire_module, "desegment",

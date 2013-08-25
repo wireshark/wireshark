@@ -960,6 +960,17 @@ static gint ett_oampdu_lpbk_ctrl = -1;
 static gint ett_ossppdu = -1;
 static gint ett_itu_ossp = -1;
 
+static expert_field ei_esmc_tlv_type_ql_type_not_first = EI_INIT;
+static expert_field ei_esmc_tlv_type_not_timestamp = EI_INIT;
+static expert_field ei_esmc_quality_level_invalid = EI_INIT;
+static expert_field ei_esmc_tlv_ql_unused_not_zero = EI_INIT;
+static expert_field ei_esmc_tlv_type_decoded_as_timestamp = EI_INIT;
+static expert_field ei_esmc_tlv_type_decoded_as_ql_type = EI_INIT;
+static expert_field ei_esmc_version_compliance = EI_INIT;
+static expert_field ei_oampdu_event_length_bad = EI_INIT;
+static expert_field ei_esmc_tlv_length_bad = EI_INIT;
+static expert_field ei_esmc_reserved_not_zero = EI_INIT;
+
 static const char initial_sep[] = " (";
 static const char cont_sep[] = ", ";
 
@@ -1660,9 +1671,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             if ((tvb_get_guint8(tvb, offset) >> 4) != ESMC_VERSION_1)
             {
                 malformed = TRUE;
-                expert_add_info_format(pinfo, item_b, PI_MALFORMED, PI_ERROR
-                        ,"Version must be 0x%.1x claim compliance with Version 1 of this protocol"
-                        ,ESMC_VERSION_1);
+                expert_add_info_format_text(pinfo, item_b, &ei_esmc_version_compliance, "Version must be 0x%.1x claim compliance with Version 1 of this protocol", ESMC_VERSION_1);
             }
             /*stay at the same octet in tvb*/
         }
@@ -1687,8 +1696,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             if (reserved != 0x0)
             {
                 malformed = TRUE;
-                expert_add_info_format(pinfo, item_b, PI_MALFORMED, PI_WARN
-                        ,"Reserved bits must be set to all zero on transmitter");
+                expert_add_info_format_text(pinfo, item_b, &ei_esmc_reserved_not_zero, "Reserved bits must be set to all zero on transmitter");
             }
             offset += 4;
         }
@@ -1716,11 +1724,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     if (type != ESMC_QL_TLV_TYPE)
                     {
                         malformed = TRUE;
-                        expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_ERROR
-                                ,"TLV Type must be == 0x%.2x (QL) because QL TLV must be first in the ESMC PDU"
-                                ,ESMC_QL_TLV_TYPE);
-                        expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_NOTE
-                                ,"Let's decode as if this is QL TLV");
+                        expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_type_ql_type_not_first, "TLV Type must be == 0x%.2x (QL) because QL TLV must be first in the ESMC PDU", ESMC_QL_TLV_TYPE);
+                        expert_add_info(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_ql_type);
                     }
                     offset += 1;
 
@@ -1730,10 +1735,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     if (length != ESMC_QL_TLV_LENGTH)
                     {
                         malformed = TRUE;
-                        expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_ERROR
-                                ,"QL TLV Length must be == 0x%.4x", ESMC_QL_TLV_LENGTH);
-                        expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_NOTE
-                                ,"Let's decode this TLV as if Length has valid value");
+                        expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_length_bad, "QL TLV Length must be == 0x%.4x", ESMC_QL_TLV_LENGTH);
+                        expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_ql_type, "Let's decode this TLV as if Length has valid value");
                     }
                     offset += 2;
 
@@ -1745,8 +1748,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     if (unused != 0x00)
                     {
                         malformed = TRUE;
-                        expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_WARN
-                                ,"Unused bits of TLV must be all zeroes");
+                        expert_add_info(pinfo, item_c, &ei_esmc_tlv_ql_unused_not_zero);
                     }
                     if (NULL != try_val_to_str(ql, esmc_quality_level_opt_1_vals))
                     {
@@ -1755,8 +1757,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     else
                     {
                         item_c = proto_tree_add_item(tree_b, hf_esmc_quality_level_invalid, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_WARN
-                                ,"Invalid SSM message, unknown QL code");
+                        expert_add_info(pinfo, item_c, &ei_esmc_quality_level_invalid);
                     }
                     offset += 1;
                 }
@@ -1794,11 +1795,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         if (type != ESMC_TIMESTAMP_TLV_TYPE)
                         {
                             malformed = TRUE;
-                            expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_ERROR
-                                    ,"TLV Type must be == 0x%.2x (Timestamp) because Timestamp Valid Flag is set"
-                                    ,ESMC_TIMESTAMP_TLV_TYPE);
-                            expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_NOTE
-                                    ,"Let's decode as if this is Timestamp TLV");
+                            expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_type_not_timestamp, "TLV Type must be == 0x%.2x (Timestamp) because Timestamp Valid Flag is set", ESMC_TIMESTAMP_TLV_TYPE);
+                            expert_add_info(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_timestamp);
                         }
                         offset += 1;
 
@@ -1808,11 +1806,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         if (length != ESMC_TIMESTAMP_TLV_LENGTH)
                         {
                             malformed = TRUE;
-                            expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_ERROR
-                                    ,"Timestamp TLV Length must be == 0x%.4x"
-                                    ,ESMC_TIMESTAMP_TLV_LENGTH);
-                            expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_NOTE
-                                    ,"Let's decode this TLV as if Length has valid value");
+                            expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_length_bad, "Timestamp TLV Length must be == 0x%.4x", ESMC_TIMESTAMP_TLV_LENGTH);
+                            expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_timestamp, "Let's decode this TLV as if Length has valid value");
                         }
                         offset += 2;
 
@@ -1827,8 +1822,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ts_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                         if (reserved != 0x0)
                         {
-                            expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_WARN
-                                    ,"Reserved bits must be set to all zero");
+                            expert_add_info(pinfo, item_c, &ei_esmc_reserved_not_zero);
                         }
                         offset += 1;
                     }
@@ -2532,8 +2526,7 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
                 if (raw_octet < 2)
                 {
-                    expert_add_info_format(pinfo, event_item, PI_MALFORMED, PI_ERROR,
-                        "Event length should be at least 2");
+                    expert_add_info_format_text(pinfo, event_item, &ei_oampdu_event_length_bad, "Event length should be at least 2");
                 }
                 else
                 {
@@ -3523,6 +3516,22 @@ proto_register_slow_protocols(void)
 
     };
 
+    static ei_register_info ei[] = {
+        { &ei_esmc_version_compliance, { "slow.esmc.version.compliance", PI_MALFORMED, PI_ERROR, "Version must claim compliance with Version 1 of this protocol", EXPFILL }},
+        { &ei_esmc_tlv_type_ql_type_not_first, { "slow.esmc.tlv_type.ql_type_not_first", PI_MALFORMED, PI_ERROR, "TLV Type must be QL because QL TLV must be first in the ESMC PDU", EXPFILL }},
+        { &ei_esmc_tlv_type_decoded_as_ql_type, { "slow.esmc.tlv_type.decoded_as_ql_type", PI_UNDECODED, PI_NOTE, "Let's decode as if this is QL TLV", EXPFILL }},
+        { &ei_esmc_tlv_length_bad, { "slow.esmc.tlv_length.bad", PI_MALFORMED, PI_ERROR, "QL TLV Length must be X", EXPFILL }},
+        { &ei_esmc_tlv_ql_unused_not_zero, { "slow.esmc.tlv_ql_unused.not_zero", PI_MALFORMED, PI_WARN, "Unused bits of TLV must be all zeroes", EXPFILL }},
+        { &ei_esmc_quality_level_invalid, { "slow.esmc.ql.invalid", PI_UNDECODED, PI_WARN, "Invalid SSM message, unknown QL code", EXPFILL }},
+        { &ei_esmc_tlv_type_not_timestamp, { "slow.esmc.tlv_type.not_timestamp", PI_MALFORMED, PI_ERROR, "TLV Type must be == Timestamp because Timestamp Valid Flag is set", EXPFILL }},
+        { &ei_esmc_tlv_type_decoded_as_timestamp, { "slow.esmc.tlv_type.decoded_as_timestamp", PI_UNDECODED, PI_NOTE, "Let's decode as if this is Timestamp TLV", EXPFILL }},
+        { &ei_esmc_reserved_not_zero, { "slow.reserved_bits_must_be_set_to_all_zero", PI_PROTOCOL, PI_WARN, "Reserved bits must be set to all zero", EXPFILL }},
+        { &ei_oampdu_event_length_bad, { "slow.oam.event.length.bad", PI_MALFORMED, PI_ERROR, "Event length should be at least 2", EXPFILL }},
+    };
+
+    expert_module_t* expert_slow;
+
+
     /* Register the protocol name and description */
 
     proto_slow = proto_register_protocol("Slow Protocols", "802.3 Slow protocols", "slow");
@@ -3531,6 +3540,8 @@ proto_register_slow_protocols(void)
 
     proto_register_field_array(proto_slow, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_slow = expert_register_protocol(proto_slow);
+    expert_register_field_array(expert_slow, ei, array_length(ei));
 }
 
 

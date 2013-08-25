@@ -158,6 +158,11 @@ static int ett_rohc_dynamic_rtp = -1;
 static int ett_rohc_compressed_list = -1;
 static int ett_rohc_packet = -1;
 
+static expert_field ei_rohc_profile_spec_octet = EI_INIT;
+static expert_field ei_rohc_rohc_opt_clock = EI_INIT;
+static expert_field ei_rohc_opt_jitter = EI_INIT;
+static expert_field ei_rohc_feedback_type_2_is_not_applicable_for_uncompressed_profile = EI_INIT;
+
 static dissector_handle_t rohc_handle;
 
 static dissector_handle_t ip_handle;
@@ -881,7 +886,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
             case ROHC_PROFILE_UNCOMPRESSED: /* 0 */
                 ti = proto_tree_add_item(tree, hf_rohc_profile_spec_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
                 if (oct) {
-                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid profile-specific octet value (0x%02X)", oct);
+                    expert_add_info_format_text(pinfo, ti, &ei_rohc_profile_spec_octet, "Invalid profile-specific octet value (0x%02X)", oct);
                 }
                 break;
             case ROHC_PROFILE_RTP: /* 1 */
@@ -907,8 +912,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     proto_item_append_text(p_rohc_info->last_created_item, " (type 2)");
     switch(rohc_cid_context->profile){
         case ROHC_PROFILE_UNCOMPRESSED: /* 0 */
-            expert_add_info_format(pinfo, p_rohc_info->last_created_item, PI_MALFORMED, PI_ERROR,
-                                   "Feedback type 2 is not applicable for uncompressed profile");
+            expert_add_info(pinfo, p_rohc_info->last_created_item, &ei_rohc_feedback_type_2_is_not_applicable_for_uncompressed_profile);
             break;
         case ROHC_PROFILE_RTP: /* 1 */
         case ROHC_PROFILE_UDP: /* 2 */
@@ -963,8 +967,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
                             oct = tvb_get_guint8(tvb, offset);
                             col_append_fstr(pinfo->cinfo, COL_INFO, "Clock=%u ", oct);
                         } else {
-                            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                                   "CLOCK option should not be used for UDP");
+                            expert_add_info(pinfo, ti, &ei_rohc_rohc_opt_clock);
                         }
                         break;
                     case 6:
@@ -974,8 +977,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
                             oct = tvb_get_guint8(tvb, offset);
                             col_append_fstr(pinfo->cinfo, COL_INFO, "Jitter=%u ", oct);
                         }else {
-                            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                                   "JITTER option should not be used for UDP");
+                            expert_add_info(pinfo, ti, &ei_rohc_opt_jitter);
                         }
                         break;
                     case 7:
@@ -2947,6 +2949,15 @@ proto_register_rohc(void)
         &ett_rohc_packet
     };
 
+    static ei_register_info ei[] = {
+        { &ei_rohc_profile_spec_octet, { "rohc.profile_spec_octet.bad", PI_PROTOCOL, PI_WARN, "Invalid profile-specific octet value", EXPFILL }},
+        { &ei_rohc_feedback_type_2_is_not_applicable_for_uncompressed_profile, { "rohc.feedback.type_2_is_not_applicable_for_uncompressed_profile", PI_PROTOCOL, PI_WARN, "Feedback type 2 is not applicable for uncompressed profile", EXPFILL }},
+        { &ei_rohc_rohc_opt_clock, { "rohc.opt.clock.udp", PI_MALFORMED, PI_ERROR, "CLOCK option should not be used for UDP", EXPFILL }},
+        { &ei_rohc_opt_jitter, { "rohc.opt.jitter.udp", PI_MALFORMED, PI_ERROR, "JITTER option should not be used for UDP", EXPFILL }},
+    };
+
+    expert_module_t* expert_rohc;
+
     /* Register the protocol name and description */
     proto_rohc = proto_register_protocol("RObust Header Compression (ROHC)", "ROHC", "rohc");
 
@@ -2957,6 +2968,8 @@ proto_register_rohc(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_rohc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_rohc = expert_register_protocol(proto_rohc);
+    expert_register_field_array(expert_rohc, ei, array_length(ei));
 }
 
 void

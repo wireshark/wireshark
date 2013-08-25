@@ -424,6 +424,9 @@ static int hf_omron_cyclic_57        = -1;
 static int hf_omron_cyclic_56        = -1;
 static int hf_omron_node_error_count = -1;
 
+static expert_field ei_omron_command_code = EI_INIT;
+static expert_field ei_omron_bad_length = EI_INIT;
+static expert_field ei_oomron_command_memory_area_code = EI_INIT;
 
 
 /* Defines */
@@ -1189,7 +1192,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         if (cmd_str_idx == -1) {
             /* Unknown command-code */
-            expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown Command-Code");
+            expert_add_info(pinfo, ti, &ei_omron_command_code);
             return tvb_length(tvb);
         }
 
@@ -1208,7 +1211,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             /* command data length > 0 is NG;  response data lengths are > 0  */
             if (is_command) {
                 if (reported_length_remaining != 0) {
-                    expert_add_info_format(pinfo, omron_tree, PI_MALFORMED, PI_WARN, "Unexpected Length (Should be 0)");
+                    expert_add_info_format_text(pinfo, omron_tree, &ei_omron_bad_length, "Unexpected Length (Should be 0)");
                 }
                 return tvb_length(tvb);
             }
@@ -1218,13 +1221,13 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             /* command data length should be 0 */
             if (is_command) {
                 if(reported_length_remaining != 0) {
-                    expert_add_info_format(pinfo, omron_tree, PI_MALFORMED, PI_WARN, "Unexpected Length (Should be 0)");
+                    expert_add_info_format_text(pinfo, omron_tree, &ei_omron_bad_length, "Unexpected Length (Should be 0)");
                 }
             }
             /* There's no response */
             if (is_response)
             {
-                expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown Response Command-Code");
+                expert_add_info_format_text(pinfo, ti, &ei_omron_command_code, "Unknown Response Command-Code");
             }
             return tvb_length(tvb);
             break;
@@ -1246,7 +1249,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             /* There's no response */
             if (is_response)
             {
-                expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown Response Command-Code");
+                expert_add_info_format_text(pinfo, ti, &ei_omron_command_code, "Unknown Response Command-Code");
                 return tvb_length(tvb);
             }
             break;
@@ -1476,8 +1479,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         reported_length_remaining = reported_length_remaining - 1;
 
                         if(memory_code_len == 0) {
-                            expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
-                                                   "Unknown Memory-Area-Code (%u)", memory_area_code);
+                            expert_add_info_format_text(pinfo, ti, &ei_oomron_command_memory_area_code, "Unknown Memory-Area-Code (%u)", memory_area_code);
                             return tvb_length(tvb); /* Bail out .... */
                         }
                         proto_tree_add_item(command_tree, hf_omron_data, tvb, offset, memory_code_len, ENC_NA);
@@ -3233,7 +3235,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         } /* switch(command_code) */
 
         if ((guint)offset != tvb_reported_length(tvb)) {
-            expert_add_info_format(pinfo, omron_tree, PI_MALFORMED, PI_WARN, "Unexpected Length");
+            expert_add_info(pinfo, omron_tree, &ei_omron_bad_length);
         }
 
     } /* if(tree) */
@@ -3952,6 +3954,14 @@ proto_register_omron_fins(void)
         &ett_omron_data_link_status_tree,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_omron_command_code, { "omron.command.unknown", PI_UNDECODED, PI_WARN, "Unknown Command-Code", EXPFILL }},
+        { &ei_oomron_command_memory_area_code, { "omron.memory.area.read.unknown", PI_UNDECODED, PI_WARN, "Unknown Memory-Area-Code (%u)", EXPFILL }},
+        { &ei_omron_bad_length, { "omron.bad_length", PI_MALFORMED, PI_WARN, "Unexpected Length", EXPFILL }},
+    };
+
+    expert_module_t* expert_omron_fins;
+
     /* Register the protocol name and description */
     proto_omron_fins = proto_register_protocol (
             "OMRON FINS Protocol", /* name       */
@@ -3962,6 +3972,8 @@ proto_register_omron_fins(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_omron_fins, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_omron_fins = expert_register_protocol(proto_omron_fins);
+    expert_register_field_array(expert_omron_fins, ei, array_length(ei));
 
 #if 0
     /*Register preferences module (See Section 2.6 for more on preferences) */

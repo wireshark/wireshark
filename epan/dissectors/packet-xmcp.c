@@ -123,6 +123,23 @@ static gint ett_xmcp_attr_all = -1;
 static gint ett_xmcp_attr = -1;
 static gint ett_xmcp_attr_flag = -1;
 
+static expert_field ei_xmcp_message_class_reserved = EI_INIT;
+static expert_field ei_xmcp_attr_length_bad = EI_INIT;
+static expert_field ei_xmcp_attr_error_number_out_of_range = EI_INIT;
+static expert_field ei_xmcp_type_reserved_not_zero = EI_INIT;
+static expert_field ei_xmcp_data_following_message_integrity = EI_INIT;
+static expert_field ei_xmcp_msg_type_method_reserved = EI_INIT;
+static expert_field ei_xmcp_xmcp_attr_servtrans_unknown = EI_INIT;
+static expert_field ei_xmcp_attr_realm_incorrect = EI_INIT;
+static expert_field ei_xmcp_new_session = EI_INIT;
+static expert_field ei_xmcp_response_without_request = EI_INIT;
+static expert_field ei_xmcp_length_bad = EI_INIT;
+static expert_field ei_xmcp_error_response = EI_INIT;
+static expert_field ei_xmcp_magic_cookie_incorrect = EI_INIT;
+static expert_field ei_xmcp_attr_type_unknown = EI_INIT;
+static expert_field ei_xmcp_session_termination = EI_INIT;
+static expert_field ei_xmcp_attr_error_code_unusual = EI_INIT;
+
 #define TCP_PORT_XMCP 4788
 #define XMCP_MAGIC_COOKIE 0x7f5a9bc7
 
@@ -437,8 +454,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                         attr_length, ENC_NA);
     /* Message-integrity should be the last attribute in the message */
     if ((guint)(offset + get_xmcp_attr_padded_len(attr_length)) < tvb_reported_length(tvb)) {
-      expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
-                             "Data following message-integrity");
+      expert_add_info(pinfo, attr_tree, &ei_xmcp_data_following_message_integrity);
     }
     break;
   case XMCP_ERROR_CODE:
@@ -458,8 +474,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       error_number = tvb_get_guint8(tvb, offset+3);
 
       if (error_number > 99) {
-        expert_add_info_format(pinfo, it, PI_PROTOCOL, PI_WARN,
-                               "Error number out of 0-99 range");
+        expert_add_info(pinfo, it, &ei_xmcp_attr_error_number_out_of_range);
       } else {
         /* Error code = error class + (error num % 100) */
         error_code = (error_class * 100) + error_number;
@@ -485,10 +500,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
         case 477: /* Already Registered */
         case 499: /* Miscellaneous Request Error */
         case 500: /* Responder Error */
-          expert_add_info_format(pinfo, it, PI_RESPONSE_CODE, PI_WARN,
-                                 "Unusual error code (%u, %s)", error_code,
-                                 val_to_str_const(error_code, error_codes,
-                                                  "Unknown"));
+          expert_add_info_format_text(pinfo, it, &ei_xmcp_attr_error_code_unusual, "Unusual error code (%u, %s)", error_code, val_to_str_const(error_code, error_codes, "Unknown"));
           break;
         default:
           break;
@@ -504,7 +516,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                                                     (attr_length-4)));
     break;
   case XMCP_REALM:
-    proto_tree_add_item(attr_tree, xmcp_attr_realm, tvb, offset,
+    it = proto_tree_add_item(attr_tree, xmcp_attr_realm, tvb, offset,
                         attr_length, ENC_ASCII|ENC_NA);
     {
       guint8 *realm;
@@ -512,8 +524,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       proto_item_append_text(attr_tree, ": %s", realm);
       /* In XMCP the REALM string should always be "SAF" including the quotes */
       if (attr_length != 5 || strncmp(realm, "\"SAF\"", attr_length)) {
-        expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
-                               "Incorrect Realm");
+        expert_add_info(pinfo, it, &ei_xmcp_attr_realm_incorrect);
       }
     }
     break;
@@ -631,8 +642,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     switch (tvb_get_guint8(tvb, (offset+1))) {
     case 0x01: /* IPv4 */
       if (attr_length != 8) {
-        expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
-                               "Malformed IPv4 address");
+        expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv4 address");
       } else {
         guint32 ip;
         proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv4, tvb,
@@ -644,8 +654,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       break;
     case 0x02: /* IPv6 */
       if (attr_length != 20) {
-        expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
-                               "Malformed IPv6 address");
+        expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv6 address");
       } else {
         struct e_in6_addr ipv6;
         proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv6, tvb,
@@ -656,8 +665,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       }
       break;
     default:
-      expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
-                             "Unknown transport type");
+      expert_add_info(pinfo, attr_tree, &ei_xmcp_xmcp_attr_servtrans_unknown);
       break;
     }
     break;
@@ -680,8 +688,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_FLAGS:
     /* Flags is a series of type-value pairs */
     if (attr_length % 4 != 0) {
-      expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
-                             "Malformed Flags - length not divisible by 4");
+      expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed Flags - length not divisible by 4");
     }
     {
       guint16 flag_type, flag_value, current_offset = offset;
@@ -808,8 +815,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   default:
     proto_tree_add_item(attr_tree, xmcp_attr_value, tvb, offset,
                         attr_length, ENC_NA);
-    expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_NOTE,
-                           "Unrecognized attribute type 0x%x", attr_type);
+    expert_add_info(pinfo, attr_tree, &ei_xmcp_attr_type_unknown);
     break;
   }
   if (attr_length % 4 != 0) {
@@ -817,11 +823,9 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                         (4 - (attr_length % 4)), ENC_NA);
   }
   if (attr_length < get_xmcp_attr_min_len(attr_type)) {
-    expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
-                           "Length less than minimum for this attribute type");
+    expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Length less than minimum for this attribute type");
   } else if (attr_length > get_xmcp_attr_max_len(attr_type)) {
-    expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
-                           "Length exceeds maximum for this attribute type");
+    expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Length exceeds maximum for this attribute type");
   }
 }
 
@@ -920,20 +924,16 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               xmcp_type_fields, ENC_BIG_ENDIAN);
 
   if (msg_type & XMCP_TYPE_RESERVED) {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                           "First two bits not zero");
+    expert_add_info(pinfo, ti, &ei_xmcp_type_reserved_not_zero);
   }
   if (xmcp_msg_type_class == XMCP_CLASS_RESERVED) {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                           "Reserved message class");
+    expert_add_info(pinfo, ti, &ei_xmcp_message_class_reserved);
   } else if (xmcp_msg_type_class == XMCP_CLASS_RESPONSE_ERROR) {
-    expert_add_info_format(pinfo, ti, PI_RESPONSE_CODE, PI_NOTE,
-                           "Error Response");
+    expert_add_info(pinfo, ti, &ei_xmcp_error_response);
   }
 
   if (xmcp_msg_type_method < 0x001 || xmcp_msg_type_method > 0x00b) {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                           "Reserved message method");
+    expert_add_info(pinfo, ti, &ei_xmcp_msg_type_method_reserved);
   }
 
   /*
@@ -948,18 +948,14 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item(xmcp_tree, hf_xmcp_length, tvb, 2, 2, ENC_BIG_ENDIAN);
   msg_length = tvb_get_ntohs(tvb, 2);
   if ((guint)(msg_length + XMCP_HDR_LEN) > tvb_reported_length(tvb)) {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR,
-                           "XMCP message length (%u-byte header + %u) exceeds "
-                           "packet length (%u)",
-                           XMCP_HDR_LEN, msg_length, tvb_reported_length(tvb));
+    expert_add_info_format_text(pinfo, ti, &ei_xmcp_length_bad, "XMCP message length (%u-byte header + %u) exceeds packet length (%u)", XMCP_HDR_LEN, msg_length, tvb_reported_length(tvb));
     return;
   }
 
   /* ...a 4 byte magic cookie... */
   ti = proto_tree_add_item(xmcp_tree, hf_xmcp_cookie, tvb, 4, 4, ENC_BIG_ENDIAN);
   if (tvb_get_ntohl(tvb, 4) != XMCP_MAGIC_COOKIE) {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                           "Magic cookie not correct for XMCP");
+    expert_add_info(pinfo, ti, &ei_xmcp_magic_cookie_incorrect);
   }
 
   /* ...and a 12-byte transaction id */
@@ -985,8 +981,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       PROTO_ITEM_SET_GENERATED(ti);
     } else {
       /* This is a response, but we don't know about a request for this response? */
-      expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE,
-                             "Response without corresponding request");
+      expert_add_info(pinfo, ti, &ei_xmcp_response_without_request);
     }
   }
 
@@ -1026,8 +1021,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if ((offset + attr_length) > (XMCP_HDR_LEN + msg_length)) {
         proto_item_append_text(ti, " (bogus, exceeds message length)");
-        expert_add_info_format(pinfo, attr_tree, PI_MALFORMED, PI_ERROR,
-                               "Attribute length exceeds message length");
+        expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Attribute length exceeds message length");
         break;
       }
 
@@ -1055,15 +1049,10 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } else if (xmcp_msg_type_class == XMCP_CLASS_REQUEST ||
              xmcp_msg_type_class == XMCP_CLASS_RESPONSE_SUCCESS) {
     if (xmcp_msg_type_method == XMCP_METHOD_REGISTER) {
-      expert_add_info_format(pinfo, xmcp_tree, PI_SEQUENCE, PI_CHAT,
-                             "New session - Register %s",
-                             val_to_str_const(xmcp_msg_type_class, classes, ""));
+      expert_add_info_format_text(pinfo, xmcp_tree, &ei_xmcp_new_session, "New session - Register %s", val_to_str_const(xmcp_msg_type_class, classes, ""));
     } else if (xmcp_msg_type_method == XMCP_METHOD_UNREGISTER ||
                xmcp_msg_type_method == XMCP_METHOD_REG_REVOKE) {
-      expert_add_info_format(pinfo, xmcp_tree, PI_SEQUENCE, PI_CHAT,
-                             "Session termination - %s %s",
-                             val_to_str_const(xmcp_msg_type_method, methods, ""),
-                             val_to_str_const(xmcp_msg_type_class, classes, ""));
+      expert_add_info_format_text(pinfo, xmcp_tree, &ei_xmcp_session_termination, "Session termination - %s %s", val_to_str_const(xmcp_msg_type_method, methods, ""), val_to_str_const(xmcp_msg_type_class, classes, ""));
     }
   }
 }
@@ -1340,13 +1329,36 @@ proto_register_xmcp(void)
     &ett_xmcp_attr,
     &ett_xmcp_attr_flag
   };
+
+  static ei_register_info ei[] = {
+      { &ei_xmcp_data_following_message_integrity, { "xmcp.data_following_message_integrity", PI_PROTOCOL, PI_WARN, "Data following message-integrity", EXPFILL }},
+      { &ei_xmcp_attr_error_number_out_of_range, { "xmcp.attr.error.number.out_of_range", PI_PROTOCOL, PI_WARN, "Error number out of 0-99 range", EXPFILL }},
+      { &ei_xmcp_attr_error_code_unusual, { "xmcp.attr.error.unusual", PI_RESPONSE_CODE, PI_WARN, "Unusual error code", EXPFILL }},
+      { &ei_xmcp_attr_realm_incorrect, { "xmcp.attr.realm.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect Realm", EXPFILL }},
+      { &ei_xmcp_attr_length_bad, { "xmcp.attr.length.bad", PI_PROTOCOL, PI_WARN, "Malformed IPv4 address", EXPFILL }},
+      { &ei_xmcp_xmcp_attr_servtrans_unknown, { "xmcp.attr.service.transport.unknown", PI_PROTOCOL, PI_WARN, "Unknown transport type", EXPFILL }},
+      { &ei_xmcp_attr_type_unknown, { "xmcp.attr.type.unknown", PI_PROTOCOL, PI_NOTE, "Unrecognized attribute type", EXPFILL }},
+      { &ei_xmcp_type_reserved_not_zero, { "xmcp.type.reserved.not_zero", PI_PROTOCOL, PI_WARN, "First two bits not zero", EXPFILL }},
+      { &ei_xmcp_message_class_reserved, { "xmcp.message_class.reserved", PI_PROTOCOL, PI_WARN, "Reserved message class", EXPFILL }},
+      { &ei_xmcp_error_response, { "xmcp.error_response", PI_RESPONSE_CODE, PI_NOTE, "Error Response", EXPFILL }},
+      { &ei_xmcp_msg_type_method_reserved, { "xmcp.msg_type_method.reserved", PI_PROTOCOL, PI_WARN, "Reserved message method", EXPFILL }},
+      { &ei_xmcp_length_bad, { "xmcp.length.bad", PI_PROTOCOL, PI_ERROR, "XMCP message length exceeds packet length", EXPFILL }},
+      { &ei_xmcp_magic_cookie_incorrect, { "xmcp.cookie.incorrect", PI_PROTOCOL, PI_WARN, "Magic cookie not correct for XMCP", EXPFILL }},
+      { &ei_xmcp_response_without_request, { "xmcp.response_without_request", PI_SEQUENCE, PI_NOTE, "Response without corresponding request", EXPFILL }},
+      { &ei_xmcp_new_session, { "xmcp.new_session", PI_SEQUENCE, PI_CHAT, "New session - Register", EXPFILL }},
+      { &ei_xmcp_session_termination, { "xmcp.session_termination", PI_SEQUENCE, PI_CHAT, "Session termination", EXPFILL }},
+  };
+
   module_t *xmcp_module;
+  expert_module_t* expert_xmcp;
 
   proto_xmcp = proto_register_protocol("eXtensible Messaging Client Protocol",
                                        "XMCP", "xmcp");
 
   proto_register_field_array(proto_xmcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_xmcp = expert_register_protocol(proto_xmcp);
+  expert_register_field_array(expert_xmcp, ei, array_length(ei));
 
   /* Register XMCP configuration options */
   xmcp_module = prefs_register_protocol(proto_xmcp, proto_reg_handoff_xmcp);

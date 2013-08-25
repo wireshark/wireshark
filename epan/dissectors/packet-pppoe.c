@@ -117,6 +117,9 @@ static int proto_pppoes = -1;
 static gint ett_pppoes = -1;
 static gint ett_pppoes_tags = -1;
 
+static expert_field ei_pppoe_payload_length = EI_INIT;
+static expert_field ei_pppoe_tag_length = EI_INIT;
+
 /* PPPoE parent fields */
 
 static int proto_pppoe = -1;
@@ -305,8 +308,9 @@ static const value_string datarate_scale_vals[] = {
 
 #define CASE_VSPEC_DSLF_TAG_UINT(tag_name, relation, length, hf_var) case tag_name: \
 		if (!(poe_tag_length relation length)) { \
-			expert_add_info_format(pinfo, pppoe_tree, PI_MALFORMED, PI_WARN, "%s: Wrong length: %u (expected %s %d)", \
-					val_to_str_const(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
+			expert_add_info_format_text(pinfo, pppoe_tree, &ei_pppoe_tag_length, \
+			"%s: Wrong length: %u (expected %s %d)", \
+			val_to_str_const(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
 		} else { \
 			proto_tree_add_item(pppoe_tree, hf_var, tvb, \
 				tagstart+2, poe_tag_length, ENC_BIG_ENDIAN); \
@@ -315,8 +319,9 @@ static const value_string datarate_scale_vals[] = {
 
 #define CASE_VSPEC_DSLF_TAG_STRING(tag_name, relation, length, hf_var) case tag_name: \
 		if (!(poe_tag_length relation length)) { \
-			expert_add_info_format(pinfo, pppoe_tree, PI_MALFORMED, PI_WARN, "%s: Wrong length: %u (expected %s %d)", \
-					val_to_str_const(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
+			expert_add_info_format_text(pinfo, pppoe_tree, &ei_pppoe_tag_length, \
+			"%s: Wrong length: %u (expected %s %d)", \
+			val_to_str_const(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
 		} else { \
 			proto_tree_add_item(pppoe_tree, hf_var, tvb, \
 				tagstart+2, poe_tag_length, ENC_ASCII|ENC_NA); \
@@ -395,9 +400,7 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 					ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vspec_access_loop_encapsulation, tvb,
 							tagstart+2, 3, ENC_NA);
 					if (poe_tag_length != 3) {
-						expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-								"%s: Wrong length: %u (expected 3)",
-								val_to_str_const(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length);
+						expert_add_info_format_text(pinfo, ti, &ei_pppoe_tag_length, "%s: Wrong length: %u (expected 3)", val_to_str_const(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length);
 					}
 					encaps_tree = proto_item_add_subtree(ti, ett_pppoed_tag_vspec_dslf_access_loop_encaps);
 					proto_tree_add_item(encaps_tree, hf_pppoed_tag_vspec_access_loop_encap_data_link,
@@ -602,9 +605,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 							    proto_registrar_get_name(hf_pppoed_tag_seq_num),
 							    poe_tag_length);
 						}
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
-								       "Sequence Number tag: Wrong length: %u (expected 2)",
-								       poe_tag_length);
+						expert_add_info_format_text(pinfo, item, &ei_pppoe_tag_length, "Sequence Number tag: Wrong length: %u (expected 2)", poe_tag_length);
 					}
 					break;
                                 case PPPOE_TAG_CRED_SCALE:
@@ -621,9 +622,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 							    proto_registrar_get_name(hf_pppoed_tag_cred_scale),
 							    poe_tag_length);
 						}
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
-								       "Credit Scale Factor tag: Wrong length: %u (expected 2)",
-								       poe_tag_length);
+						expert_add_info_format_text(pinfo, item, &ei_pppoe_tag_length, "Credit Scale Factor tag: Wrong length: %u (expected 2)", poe_tag_length);
 					}
                                         break;
 				case PPPOE_TAG_RELAY_ID:
@@ -1170,9 +1169,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			((reported_payload_length + 4) != actual_payload_length)) {
 			proto_item_append_text(ti, " [incorrect, should be %u]",
 				actual_payload_length);
-			expert_add_info_format(pinfo, ti, PI_MALFORMED,
-				PI_WARN, "Possible bad payload length %u != %u",
-				reported_payload_length, actual_payload_length);
+			expert_add_info_format_text(pinfo, ti, &ei_pppoe_payload_length, "Possible bad payload length %u != %u", reported_payload_length, actual_payload_length);
 		}
 	}
 
@@ -1279,11 +1276,20 @@ void proto_register_pppoe(void)
 		&ett_pppoe
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_pppoe_tag_length, { "pppoed.tag_length.invalid", PI_MALFORMED, PI_WARN, "Wrong length", EXPFILL }},
+		{ &ei_pppoe_payload_length, { "pppoe.payload_length.bad", PI_MALFORMED, PI_WARN, "Possible bad payload length", EXPFILL }},
+	};
+
+	expert_module_t* expert_pppoe;
+
 	/* Register protocol */
 	proto_pppoe = proto_register_protocol("PPP-over-Ethernet", "PPPoE", "pppoe");
 
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_pppoe, hf, array_length(hf));
+	expert_pppoe = expert_register_protocol(proto_pppoe);
+	expert_register_field_array(expert_pppoe, ei, array_length(ei));
 
 }
 

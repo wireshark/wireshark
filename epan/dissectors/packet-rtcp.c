@@ -498,7 +498,6 @@ static int hf_rtcp_xr_idms_ntp_rcv_ts_lsw = -1;
 static int hf_rtcp_xr_idms_rtp_ts = -1;
 static int hf_rtcp_xr_idms_ntp_pres_ts = -1;
 static int hf_rtcp_length_check = -1;
-static int hf_rtcp_bye_reason_not_padded = -1;
 static int hf_rtcp_rtpfb_fmt = -1;
 static int hf_rtcp_rtpfb_nack_pid = -1;
 static int hf_rtcp_rtpfb_nack_blp = -1;
@@ -568,9 +567,12 @@ static gint ett_xr_ssrc                 = -1;
 static gint ett_xr_loss_chunk           = -1;
 static gint ett_poc1_conn_contents      = -1;
 static gint ett_rtcp_nack_blp           = -1;
-/* Protocol registration */
-void proto_register_rtcp(void);
-void proto_reg_handoff_rtcp(void);
+
+static expert_field ei_rtcp_bye_reason_not_padded = EI_INIT;
+static expert_field ei_rtcp_xr_block_length_bad = EI_INIT;
+static expert_field ei_rtcp_roundtrip_delay = EI_INIT;
+static expert_field ei_rtcp_length_check = EI_INIT;
+static expert_field ei_rtcp_roundtrip_delay_negative = EI_INIT;
 
 /* Main dissection function */
 static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
@@ -1652,13 +1654,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
             if ((!(tvb_offset_exists(tvb, offset + i))) ||
                 (tvb_get_guint8(tvb, offset + i) != 0))
             {
-                proto_item *ti;
-                ti = proto_tree_add_none_format(tree, hf_rtcp_bye_reason_not_padded,
-                                                tvb, reason_offset, reason_length,
-                                                "Reason string is not NULL padded (see RFC3550, section 6.6)");
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-                                      "Reason string is not NULL padded (see RFC3550, section 6.6)");
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_tree_add_expert(tree, pinfo, &ei_rtcp_bye_reason_not_padded, tvb, reason_offset, reason_length);
             }
         }
 
@@ -1810,27 +1806,23 @@ static gboolean validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, int 
     switch (block_type) {
         case RTCP_XR_REF_TIME:
             if (block_len != 2)
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                                       "Invalid block length, should be 2");
+                expert_add_info_format_text(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 2");
             return FALSE;
 
         case RTCP_XR_STATS_SUMRY:
             if (block_len != 9)
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                                       "Invalid block length, should be 9");
+                expert_add_info_format_text(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 9");
             return FALSE;
 
         case RTCP_XR_VOIP_METRCS:
         case RTCP_XR_BT_XNQ:
             if (block_len != 8)
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                                       "Invalid block length, should be 8");
+                expert_add_info_format_text(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 8");
             return FALSE;
 
         case RTCP_XR_IDMS:
             if (block_len != 7)
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                                       "Invalid block length, should be 7");
+                expert_add_info_format_text(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 7");
             return FALSE;
 
         default:
@@ -2788,17 +2780,11 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     /* Add to expert info */
     if (delay >= 0)
     {
-        expert_add_info_format(pinfo, item,
-                               PI_SEQUENCE, PI_NOTE,
-                               "RTCP round-trip delay detected (%d ms)",
-                               delay);
+        expert_add_info_format_text(pinfo, item, &ei_rtcp_roundtrip_delay, "RTCP round-trip delay detected (%d ms)", delay);
     }
     else
     {
-        expert_add_info_format(pinfo, item,
-                               PI_SEQUENCE, PI_ERROR,
-                               "Negative RTCP round-trip delay detected (%d ms)",
-                               delay);
+        expert_add_info_format_text(pinfo, item, &ei_rtcp_roundtrip_delay_negative, "Negative RTCP round-trip delay detected (%d ms)", delay);
     }
 
     /* Report delay in INFO column */
@@ -3119,10 +3105,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                                             total_packet_length, offset);
         PROTO_ITEM_SET_GENERATED(ti);
 
-        expert_add_info_format(pinfo, ti,
-                               PI_MALFORMED, PI_WARN,
-                               "Incorrect RTCP packet length information (expected %u bytes, found %d)",
-                               total_packet_length, offset);
+        expert_add_info_format_text(pinfo, ti, &ei_rtcp_length_check, "Incorrect RTCP packet length information (expected %u bytes, found %d)", total_packet_length, offset);
     }
 }
 
@@ -4621,18 +4604,6 @@ proto_register_rtcp(void)
             }
         },
         {
-            &hf_rtcp_bye_reason_not_padded,
-            {
-                "BYE reason string not NULL padded",
-                "rtcp.bye_reason_not_padded",
-                FT_NONE,
-                BASE_NONE,
-                NULL,
-                0x0,
-                "RTCP BYE reason string not padded", HFILL
-            }
-        },
-        {
             &hf_rtcp_rtpfb_fmt,
             {
                 "RTCP Feedback message type (FMT)",
@@ -5111,12 +5082,23 @@ proto_register_rtcp(void)
         &ett_rtcp_nack_blp,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_rtcp_bye_reason_not_padded, { "rtcp.bye_reason_not_padded", PI_MALFORMED, PI_WARN, "Reason string is not NULL padded (see RFC3550, section 6.6)", EXPFILL }},
+        { &ei_rtcp_xr_block_length_bad, { "rtcp.invalid_block_length", PI_PROTOCOL, PI_WARN, "Invalid block length, should be 2", EXPFILL }},
+        { &ei_rtcp_roundtrip_delay, { "rtcp.roundtrip-delay.expert", PI_SEQUENCE, PI_NOTE, "RTCP round-trip delay detected (%d ms)", EXPFILL }},
+        { &ei_rtcp_roundtrip_delay_negative, { "rtcp.roundtrip-delay.negative", PI_SEQUENCE, PI_ERROR, "Negative RTCP round-trip delay detected (%d ms)", EXPFILL }},
+        { &ei_rtcp_length_check, { "rtcp.length_check.bad", PI_MALFORMED, PI_WARN, "Incorrect RTCP packet length information (expected %u bytes, found %d)", EXPFILL }},
+    };
+
     module_t *rtcp_module;
+    expert_module_t* expert_rtcp;
 
     proto_rtcp = proto_register_protocol("Real-time Transport Control Protocol",
                                              "RTCP", "rtcp");
     proto_register_field_array(proto_rtcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_rtcp = expert_register_protocol(proto_rtcp);
+    expert_register_field_array(expert_rtcp, ei, array_length(ei));
 
     register_dissector("rtcp", dissect_rtcp, proto_rtcp);
 

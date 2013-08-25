@@ -240,7 +240,6 @@ static dissector_table_t sctp_port_dissector_table;
 static dissector_table_t sctp_ppi_dissector_table;
 static heur_dissector_list_t sctp_heur_subdissector_list;
 static int sctp_tap = -1;
-static module_t *sctp_module;
 
 /* Initialize the subtree pointers */
 static gint ett_sctp = -1;
@@ -275,6 +274,21 @@ static gint ett_sctp_acked = -1;
 static gint ett_sctp_tsn_retransmission = -1;
 static gint ett_sctp_tsn_retransmitted_count = -1;
 static gint ett_sctp_tsn_retransmitted = -1;
+
+static expert_field ei_sctp_sack_chunk_adv_rec_window_credit = EI_INIT;
+static expert_field ei_sctp_nr_sack_chunk_number_tsns_gap_acked_100 = EI_INIT;
+static expert_field ei_sctp_parameter_length = EI_INIT;
+static expert_field ei_sctp_bad_sctp_checksum = EI_INIT;
+static expert_field ei_sctp_tsn_retransmitted_more_than_twice = EI_INIT;
+static expert_field ei_sctp_parameter_padding = EI_INIT;
+static expert_field ei_sctp_retransmitted_after_ack = EI_INIT;
+static expert_field ei_sctp_nr_sack_chunk_number_tsns_nr_gap_acked_100 = EI_INIT;
+static expert_field ei_sctp_sack_chunk_gap_block_out_of_order = EI_INIT;
+static expert_field ei_sctp_chunk_length_bad = EI_INIT;
+static expert_field ei_sctp_tsn_retransmitted = EI_INIT;
+static expert_field ei_sctp_sack_chunk_gap_block_malformed = EI_INIT;
+static expert_field ei_sctp_sack_chunk_number_tsns_gap_acked_100 = EI_INIT;
+
 static dissector_handle_t data_handle;
 
 #define SCTP_DATA_CHUNK_ID               0
@@ -642,7 +656,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
     pi = proto_tree_add_uint(tsn_tree_pt, hf_sctp_retransmission, tvb, 0, 0, t->first_transmit.framenum);
     pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmission);
     PROTO_ITEM_SET_GENERATED(pi);
-    expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE, "Retransmitted TSN");
+    expert_add_info(pinfo, pi, &ei_sctp_tsn_retransmitted);
 
     nstime_delta( &rto, &pinfo->fd->abs_ts, &(t->first_transmit.ts) );
     pi = proto_tree_add_time(pt, hf_sctp_rto, tvb, 0, 0, &rto);
@@ -656,8 +670,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
                                       "This TSN was acked (in frame %u) prior to this retransmission (reneged ack?)",
                                       t->ack.framenum);
       PROTO_ITEM_SET_GENERATED(pi);
-      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN,
-                             "This TSN was acked prior to this retransmission (reneged ack?).");
+      expert_add_info(pinfo, pi, &ei_sctp_retransmitted_after_ack);
     }
   } else if (t->retransmit) {
     retransmit_t **r;
@@ -679,8 +692,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
     PROTO_ITEM_SET_GENERATED(pi);
 
     if (t->retransmit_count > 2)
-      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN,
-                             "This TSN was retransmitted more than 2 times.");
+      expert_add_info(pinfo, pi, &ei_sctp_tsn_retransmitted_more_than_twice);
 
     pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmitted_count);
 
@@ -1474,14 +1486,11 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
   parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
   if (final_parameter) {
     if (padding_length > 0) {
-      expert_add_info_format(pinfo, parameter_item, PI_MALFORMED, PI_NOTE,
-                             "The padding of this final parameter should be the padding of the chunk.");
+      expert_add_info(pinfo, parameter_item, &ei_sctp_parameter_padding);
     }
   } else {
     if (reported_length % 4) {
-      expert_add_info_format(pinfo, parameter_item, PI_MALFORMED, PI_ERROR,
-                             "Parameter length is not padded to a multiple of 4 bytes (length=%d)",
-                             reported_length);
+      expert_add_info_format_text(pinfo, parameter_item, &ei_sctp_parameter_length, "Parameter length is not padded to a multiple of 4 bytes (length=%d)", reported_length);
     }
   }
 
@@ -3046,7 +3055,7 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
 
   a_rwnd = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
   if (a_rwnd == 0)
-      expert_add_info_format(pinfo, a_rwnd_item, PI_SEQUENCE, PI_NOTE, "Zero Advertised Receiver Window Credit");
+      expert_add_info(pinfo, a_rwnd_item, &ei_sctp_sack_chunk_adv_rec_window_credit);
 
 
   /* handle the gap acknowledgement blocks */
@@ -3089,10 +3098,10 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
 
     /* Check validity */
     if (start > end) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block.");
+       expert_add_info(pinfo, pi, &ei_sctp_sack_chunk_gap_block_malformed);
     }
     if (last_end > start) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order.");
+       expert_add_info(pinfo, pi, &ei_sctp_sack_chunk_gap_block_out_of_order);
     }
     last_end = end;
   }
@@ -3107,7 +3116,7 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
      *  number: it could be tuned.
      */
     if (tsns_gap_acked > 100)
-      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this SACK.");
+      expert_add_info(pinfo, pi, &ei_sctp_sack_chunk_number_tsns_gap_acked_100);
 
   }
 
@@ -3224,10 +3233,10 @@ dissect_nr_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
 
     /* Check validity */
     if (start > end) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block.");
+       expert_add_info(pinfo, pi, &ei_sctp_sack_chunk_gap_block_malformed);
     }
     if (last_end > start) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order.");
+       expert_add_info(pinfo, pi, &ei_sctp_sack_chunk_gap_block_out_of_order);
     }
     last_end = end;
   }
@@ -3242,7 +3251,7 @@ dissect_nr_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
      *  number: it could be tuned.
      */
     if (tsns_gap_acked > 100)
-      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this NR-SACK.");
+      expert_add_info(pinfo, pi, &ei_sctp_nr_sack_chunk_number_tsns_gap_acked_100);
 
   }
 
@@ -3281,10 +3290,10 @@ dissect_nr_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
 
     /* Check validity */
     if (start > end) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block.");
+       expert_add_info(pinfo, pi, &ei_sctp_sack_chunk_gap_block_malformed);
     }
     if (last_end > start) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order.");
+       expert_add_info(pinfo, pi, &ei_sctp_sack_chunk_gap_block_out_of_order);
     }
     last_end = end;
   }
@@ -3299,7 +3308,7 @@ dissect_nr_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
      *  number: it could be tuned.
      */
     if (tsns_nr_gap_acked > 100)
-      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were nr-gap-acknowledged in this NR-SACK.");
+      expert_add_info(pinfo, pi, &ei_sctp_nr_sack_chunk_number_tsns_nr_gap_acked_100);
   }
 
   /* handle the duplicate TSNs */
@@ -3706,8 +3715,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length, "%s chunk", val_to_str_const(type, chunk_type_values, "RESERVED"));
   chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
   if (reported_length % 4)
-    expert_add_info_format(pinfo, chunk_item, PI_MALFORMED, PI_ERROR,
-                           "Chunk length is not padded to a multiple of 4 bytes (length=%d).", reported_length);
+    expert_add_info_format_text(pinfo, chunk_item, &ei_sctp_chunk_length_bad, "Chunk length is not padded to a multiple of 4 bytes (length=%d).", reported_length);
 
   if (tree) {
     /* then insert the chunk header components into the protocol tree */
@@ -3736,9 +3744,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
 
   length_item = proto_tree_add_uint(chunk_tree, hf_chunk_length, chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH, length);
   if (length > reported_length) {
-    expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR,
-                           "Chunk length (%d) is longer than remaining data (%d) in the packet.",
-                           length, reported_length);
+    expert_add_info_format_text(pinfo, length_item, &ei_sctp_chunk_length_bad, "Chunk length (%d) is longer than remaining data (%d) in the packet.", length, reported_length);
     /* We'll almost certainly throw an exception shortly... */
   }
 
@@ -3982,7 +3988,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
                                           "Checksum: 0x%08x [incorrect Adler32, should be 0x%08x]",
                                           checksum, calculated_adler32);
-        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum.");
+        expert_add_info(pinfo, item, &ei_sctp_bad_sctp_checksum);
       }
       hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
       PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -3995,7 +4001,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
                                           "Checksum: 0x%08x [incorrect CRC32C, should be 0x%08x]",
                                           checksum, calculated_crc32c);
-        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum.");
+        expert_add_info(pinfo, item, &ei_sctp_bad_sctp_checksum);
       }
       hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
       PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -4014,7 +4020,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
                                           "Checksum: 0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
                                           checksum, calculated_adler32, calculated_crc32c);
-        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum.");
+        expert_add_info(pinfo, item, &ei_sctp_bad_sctp_checksum);
       }
       hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
       PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -4268,6 +4274,22 @@ proto_register_sctp(void)
     &ett_sctp_tsn_retransmitted
   };
 
+  static ei_register_info ei[] = {
+      { &ei_sctp_tsn_retransmitted, { "sctp.retransmission.expert", PI_SEQUENCE, PI_NOTE, "Retransmitted TSN", EXPFILL }},
+      { &ei_sctp_retransmitted_after_ack, { "retransmitted_after_ack.expert", PI_SEQUENCE, PI_WARN, "This TSN was acked prior to this retransmission (reneged ack?).", EXPFILL }},
+      { &ei_sctp_tsn_retransmitted_more_than_twice, { "sctp.retransmission.more_than_twice", PI_SEQUENCE, PI_WARN, "This TSN was retransmitted more than 2 times.", EXPFILL }},
+      { &ei_sctp_parameter_padding, { "sctp.parameter_padding.expert", PI_MALFORMED, PI_NOTE, "The padding of this final parameter should be the padding of the chunk.", EXPFILL }},
+      { &ei_sctp_parameter_length, { "sctp.parameter_length.bad", PI_MALFORMED, PI_ERROR, "Parameter length bad", EXPFILL }},
+      { &ei_sctp_sack_chunk_adv_rec_window_credit, { "sctp.sack_a_rwnd.expert", PI_SEQUENCE, PI_NOTE, "Zero Advertised Receiver Window Credit", EXPFILL }},
+      { &ei_sctp_sack_chunk_gap_block_malformed, { "sctp.sack_gap_block_malformed", PI_PROTOCOL, PI_ERROR, "Malformed gap block.", EXPFILL }},
+      { &ei_sctp_sack_chunk_gap_block_out_of_order, { "sctp.sack_gap_block_out_of_order", PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order.", EXPFILL }},
+      { &ei_sctp_sack_chunk_number_tsns_gap_acked_100, { "sctp.sack_number_of_tsns_gap_acked.100", PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this SACK.", EXPFILL }},
+      { &ei_sctp_nr_sack_chunk_number_tsns_gap_acked_100, { "sctp.nr_sack_number_of_tsns_gap_acked.100", PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this NR-SACK.", EXPFILL }},
+      { &ei_sctp_nr_sack_chunk_number_tsns_nr_gap_acked_100, { "sctp.nr_sack_number_of_tsns_nr_gap_acked.100", PI_SEQUENCE, PI_WARN, "More than 100 TSNs were nr-gap-acknowledged in this NR-SACK.", EXPFILL }},
+      { &ei_sctp_chunk_length_bad, { "sctp.chunk_length.bad", PI_MALFORMED, PI_ERROR, "Chunk length bad", EXPFILL }},
+      { &ei_sctp_bad_sctp_checksum, { "sctp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum.", EXPFILL }},
+  };
+
   static const enum_val_t sctp_checksum_options[] = {
     { "none",      "None",        SCTP_CHECKSUM_NONE },
     { "adler-32",  "Adler 32",    SCTP_CHECKSUM_ADLER32 },
@@ -4275,6 +4297,9 @@ proto_register_sctp(void)
     { "automatic", "Automatic",   SCTP_CHECKSUM_AUTOMATIC},
     { NULL, NULL, 0 }
   };
+
+  module_t *sctp_module;
+  expert_module_t* expert_sctp;
 
   /* Register the protocol name and description */
   proto_sctp = proto_register_protocol("Stream Control Transmission Protocol", "SCTP", "sctp");
@@ -4316,6 +4341,9 @@ proto_register_sctp(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sctp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_sctp = expert_register_protocol(proto_sctp);
+  expert_register_field_array(expert_sctp, ei, array_length(ei));
+
   sctp_tap = register_tap("sctp");
   /* subdissector code */
   sctp_port_dissector_table = register_dissector_table("sctp.port", "SCTP port", FT_UINT16, BASE_DEC);
