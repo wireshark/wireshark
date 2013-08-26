@@ -4254,6 +4254,32 @@ static gint ett_qos_map_set_range = -1;
 
 static expert_field ei_ieee80211_bad_length = EI_INIT;
 static expert_field ei_ieee80211_inv_val = EI_INIT;
+static expert_field ei_ieee80211_vht_tpe_pwr_info_count = EI_INIT;
+static expert_field ei_ieee80211_ff_query_response_length = EI_INIT;
+static expert_field ei_ieee80211_ff_anqp_nai_realm_eap_len = EI_INIT;
+static expert_field ei_hs20_anqp_nai_hrq_length = EI_INIT;
+static expert_field ei_ieee80211_extra_data = EI_INIT;
+static expert_field ei_ieee80211_tag_data = EI_INIT;
+static expert_field ei_ieee80211_tdls_setup_confirm_malformed = EI_INIT;
+static expert_field ei_ieee80211_ff_anqp_nai_field_len = EI_INIT;
+static expert_field ei_ieee80211_rsn_pcs_count = EI_INIT;
+static expert_field ei_ieee80211_tag_measure_request_beacon_unknown = EI_INIT;
+static expert_field ei_ieee80211_tag_number = EI_INIT;
+static expert_field ei_ieee80211_ff_anqp_info_length = EI_INIT;
+static expert_field ei_hs20_anqp_ofn_length = EI_INIT;
+static expert_field ei_ieee80211_tdls_setup_response_malformed = EI_INIT;
+static expert_field ei_ieee80211_ff_anqp_capability = EI_INIT;
+static expert_field ei_ieee80211_not_enough_room_for_anqp_header = EI_INIT;
+static expert_field ei_ieee80211_ff_query_request_length = EI_INIT;
+static expert_field ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype = EI_INIT;
+static expert_field ei_ieee80211_pmkid_count_too_large = EI_INIT;
+static expert_field ei_ieee80211_ff_anqp_venue_length = EI_INIT;
+static expert_field ei_ieee80211_ff_anqp_roaming_consortium_oi_len = EI_INIT;
+static expert_field ei_ieee80211_tag_length = EI_INIT;
+static expert_field ei_ieee80211_missing_data = EI_INIT;
+static expert_field ei_ieee80211_rsn_pmkid_count = EI_INIT;
+static expert_field ei_ieee80211_fc_retry = EI_INIT;
+static expert_field ei_ieee80211_tag_wnm_sleep_mode_no_key_data = EI_INIT;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -4970,7 +4996,7 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
 
   tag_len = tvb_get_guint8(tvb, offset + 1);
   if (tag_no != TAG_ADVERTISEMENT_PROTOCOL) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, item, &ei_ieee80211_tag_number,
                            "Unexpected IE %d (expected Advertisement "
                            "Protocol)", tag_no);
     return 2 + tag_len;
@@ -4980,7 +5006,7 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
   if (tag_len < 2) {
     if (!anqp)
       item = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, 1, tag_len);
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, item, &ei_ieee80211_tag_length,
                            "Advertisement Protocol: IE must be at least 2 "
                            "octets long");
     return 2 + tag_len;
@@ -5026,7 +5052,7 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
       offset += 1;
       left   -= 1;
       if (len > left) {
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, item, &ei_ieee80211_tag_length,
                                "Vendor specific info length error");
         return 2 + tag_len;
       }
@@ -5038,7 +5064,7 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
   }
 
   if (left) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, item, &ei_ieee80211_extra_data,
                            "Unexpected extra data in the end");
   }
 
@@ -5054,7 +5080,7 @@ dissect_anqp_query_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     offset += 2;
   }
   if (offset != end) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, tree, &ei_ieee80211_ff_anqp_info_length,
                            "Unexpected ANQP Query list format");
   }
 }
@@ -5091,8 +5117,7 @@ dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
       if ((len < 3) || ((offset + len) > end)) {
-        expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                               "Invalid vendor-specific ANQP capability");
+        expert_add_info(pinfo, tree, &ei_ieee80211_ff_anqp_capability);
         return;
       }
       oui = tvb_get_ntoh24(tvb, offset);
@@ -5132,7 +5157,7 @@ dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     }
   }
   if (offset != end) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, tree, &ei_ieee80211_ff_anqp_info_length,
                            "Unexpected ANQP Capability list format");
   }
 }
@@ -5176,8 +5201,7 @@ dissect_venue_name_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
                                tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if ((vlen > (end - offset)) || (vlen < 3)) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Invalid Venue Name Duple length");
+      expert_add_info(pinfo, item, &ei_ieee80211_ff_anqp_venue_length);
       break;
     }
     proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_language,
@@ -5240,8 +5264,7 @@ dissect_roaming_consortium_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pi
                                tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if ((len > (end - offset)) || (len < 3)) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Invalid Roaming Consortium OI");
+      expert_add_info(pinfo, item, &ei_ieee80211_ff_anqp_roaming_consortium_oi_len);
       break;
     }
     item = proto_tree_add_item(tree,
@@ -5322,7 +5345,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
                                tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     if (offset + len > end) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+      expert_add_info_format_text(pinfo, item, &ei_ieee80211_ff_anqp_nai_field_len,
                              "Invalid NAI Realm List");
       break;
     }
@@ -5336,7 +5359,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     if (offset + nai_len > f_end) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+      expert_add_info_format_text(pinfo, item, &ei_ieee80211_ff_anqp_nai_field_len,
                              "Invalid NAI Realm Data");
       break;
     }
@@ -5364,8 +5387,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
                                  tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
       if (offset + eap_len > f_end) {
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                               "Invalid EAP Method subfield");
+        expert_add_info(pinfo, item, &ei_ieee80211_ff_anqp_nai_realm_eap_len);
         break;
       }
 
@@ -5513,8 +5535,7 @@ static void dissect_hs20_anqp_operator_friendly_name(proto_tree *tree,
                                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
     if (vlen > end - offset || vlen < 3) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Invalid Operator Friendly Name Duple length");
+      expert_add_info(pinfo, item, &ei_hs20_anqp_ofn_length);
       break;
     }
     proto_tree_add_item(tree, hf_hs20_anqp_ofn_language,
@@ -5628,8 +5649,7 @@ dissect_hs20_anqp_nai_home_realm_query(proto_tree *tree, tvbuff_t *tvb, packet_i
                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
     if (offset + len > end) {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Invalid NAI Home Realm Query length");
+      expert_add_info(pinfo, item, &ei_hs20_anqp_nai_hrq_length);
       break;
     }
     proto_tree_add_item(tree, hf_hs20_anqp_nai_hrq_realm_name,
@@ -5732,8 +5752,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   len = tvb_get_letohs(tvb, offset);
   offset += 2;
   if (tvb_reported_length_remaining(tvb, offset) < len) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                           "Invalid ANQP Info length");
+    expert_add_info(pinfo, tree, &ei_ieee80211_ff_anqp_info_length);
     return 4 + len;
   }
   switch (id)
@@ -5807,7 +5826,7 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gb
   proto_item_append_text(tree, ": ANQP ");
   proto_item_append_text(tree, request ? "Request" : "Response");
   if (tvb_reported_length_remaining(tvb, offset) < 4) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, tree, &ei_ieee80211_not_enough_room_for_anqp_header,
                            "Not enough room for ANQP header");
     return;
   }
@@ -5833,8 +5852,7 @@ dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
   item = proto_tree_add_text(tree, tvb, offset, 2 + req_len, "Query Request");
   if (tvb_reported_length_remaining(tvb, offset) < 2 + req_len) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                           "Invalid Query Request Length");
+    expert_add_info(pinfo, tree, &ei_ieee80211_ff_query_request_length);
     return tvb_reported_length_remaining(tvb, offset);
   }
   query = proto_item_add_subtree(item, ett_gas_query);
@@ -5871,8 +5889,7 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   item = proto_tree_add_text(tree, tvb, offset, 2 + resp_len,
                              "Query Response");
   if (tvb_reported_length_remaining(tvb, offset) < 2 + resp_len) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                           "Invalid Query Response Length");
+    expert_add_info(pinfo, tree, &ei_ieee80211_ff_query_response_length);
     return tvb_reported_length_remaining(tvb, offset);
   }
   query = proto_item_add_subtree(item, ett_gas_query);
@@ -5950,8 +5967,7 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   item = proto_tree_add_text(tree, tvb, offset, 2 + resp_len,
                              "Query Response");
   if (tvb_reported_length_remaining(tvb, offset) < 2 + resp_len) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                           "Invalid Query Response Length");
+    expert_add_info(pinfo, tree, &ei_ieee80211_ff_query_response_length);
     return tvb_reported_length_remaining(tvb, offset);
   }
   query = proto_item_add_subtree(item, ett_gas_query);
@@ -6992,9 +7008,7 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
   offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_KEY_DATA_LENGTH);
   left = tvb_reported_length_remaining(tvb, offset);
   if (left < key_data_len) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                           "WNM-Sleep Mode Response is not long enough to "
-                           "include Key Data");
+    expert_add_info(pinfo, tree, &ei_ieee80211_tag_wnm_sleep_mode_no_key_data);
     return offset - start;
   }
   proto_tree_add_item(tree, hf_ieee80211_ff_key_data, tvb, offset,
@@ -7082,9 +7096,7 @@ add_ff_action_tdls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offs
     offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
     if (tvb_reported_length_remaining(tvb, offset) < 2) {
       if (status == 0) {
-        expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                               "TDLS Setup Response (success) does not "
-                               "include mandatory fields");
+        expert_add_info(pinfo, tree, &ei_ieee80211_tdls_setup_response_malformed);
       }
       break;
     }
@@ -7095,9 +7107,7 @@ add_ff_action_tdls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offs
     offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
     if (tvb_reported_length_remaining(tvb, offset) < 1) {
       if (status == 0) {
-        expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                               "TDLS Setup Confirm (success) does not include "
-                               "mandatory fields");
+        expert_add_info(pinfo, tree, &ei_ieee80211_tdls_setup_confirm_malformed);
       }
       break;
     }
@@ -7809,7 +7819,7 @@ dissect_qos_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset
       break;
     }
     default:
-        expert_add_info_format(pinfo, qos_info_item, PI_UNDECODED, PI_WARN, "Could not deduce direction to decode correctly, ftype %u", ftype);
+        expert_add_info_format_text(pinfo, qos_info_item, &ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype, "Could not deduce direction to decode correctly, ftype %u", ftype);
       break;
     }
 
@@ -8194,7 +8204,7 @@ dissect_vendor_ie_atheros(proto_item *item _U_, proto_tree *ietree,
   proto_item *cap_item;
 
   if (tag_len <= 3) {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 6", tag_len+3); /* Add length of OUI to tag_length */
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length %u too short, must be >= 6", tag_len+3); /* Add length of OUI to tag_length */
         return;
   }
   proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_type, tvb, offset, 1, ENC_NA);
@@ -8518,7 +8528,7 @@ dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
       break;
     }
     default:
-        expert_add_info_format(pinfo, cap_info_item, PI_UNDECODED, PI_WARN, "Could not deduce direction to decode correctly, ftype %u", ftype);
+        expert_add_info_format_text(pinfo, cap_info_item, &ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype, "Could not deduce direction to decode correctly, ftype %u", ftype);
       break;
   }
 
@@ -8563,7 +8573,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
   if (offset + (pcs_count * 4) > tag_end)
   {
-    expert_add_info_format(pinfo, rsn_pcs_count, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, rsn_pcs_count, &ei_ieee80211_rsn_pcs_count,
         "Pairwise Cipher Suite Count too large, 4*%u > %d", pcs_count, tag_end - offset);
     pcs_count = (tag_end - offset) / 4;
   }
@@ -8599,7 +8609,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
   if (offset + (akms_count * 4) > tag_end)
   {
-    expert_add_info_format(pinfo, rsn_akms_count, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, rsn_akms_count, &ei_ieee80211_rsn_pmkid_count,
         "Auth Key Management (AKM) Suite Count too large, 4*%u > %d", akms_count, tag_end - offset);
     akms_count = (tag_end - offset) / 4;
   }
@@ -8646,7 +8656,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
   if (offset + (pmkid_count * 16) > tag_end)
   {
-    expert_add_info_format(pinfo, rsn_pmkid_count, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, rsn_pmkid_count, &ei_ieee80211_pmkid_count_too_large,
         "PMKID Count too large, 16*%u > %d", pmkid_count, tag_end - offset);
     pmkid_count = (tag_end - offset) / 16;
   }
@@ -8689,7 +8699,7 @@ dissect_extended_capabilities_ie(packet_info *pinfo, proto_tree *tree,
 
   if (tag_len < 1)
   {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be greater than 0", tag_len);
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length %u too short, must be greater than 0", tag_len);
     return offset;
   }
   proto_item_append_text(ti, " (%u octet%s)", tag_len, plurality(tag_len, "", "s"));
@@ -8876,7 +8886,7 @@ dissect_vht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
   proto_tree *cap_tree;
 
   if (tag_len != 12) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "VHT Capabilities IE length %u wrong, must be = 12", tag_len);
     return offset;
   }
@@ -8950,7 +8960,7 @@ dissect_vht_operation_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   proto_tree *op_tree, *basic_mcs_tree;
 
   if (tag_len != 5) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "VHT Operation IE length %u wrong, must be = 5", tag_len);
     return offset;
   }
@@ -8990,7 +9000,7 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint8 i;
 
   if (tag_len < 2 && tag_len <= 5) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "VHT TX PWR Envelope IE length %u wrong, must be >= 2 and <= 5", tag_len);
     return offset;
   }
@@ -9026,8 +9036,7 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       offset += 1;
       break;
     default:
-      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-             "Max Tx Pwr Count is Incorrect, should be 0-7");
+      expert_add_info(pinfo, ti, &ei_ieee80211_vht_tpe_pwr_info_count);
       offset += 1;
       break;
     }
@@ -9327,7 +9336,7 @@ dissect_timeout_interval(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
   pi = proto_tree_add_item(tree, hf_ieee80211_tag_timeout_int_type, tvb,
                            offset, 1, ENC_BIG_ENDIAN);
   if (tag_len < 5) {
-    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, pi, &ei_ieee80211_tag_length,
                            "Timeout Interval content length must be at least "
                           "5 bytes");
     return;
@@ -9348,7 +9357,7 @@ dissect_ric_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
   int          offset_r = 0;
 
   if (tag_len !=  4)  {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "RIC Data Length must be 4 bytes");
     return 0;
   }
@@ -9403,7 +9412,7 @@ dissect_ric_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
   guint8       rsrc_type = 0;
 
   if (tag_len < 1)  {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "RIC Data Length must be at least 1 byte");
     return 0;
   }
@@ -9500,7 +9509,7 @@ dissect_ht_info_ie_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
   cap_tree = tree;
 
   if (tag_len < 22) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "HT Information IE content length %u wrong, must be at least 22 bytes", tag_len);
     return offset;
   }
@@ -9584,13 +9593,13 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
 
   /*MIN: 2 + (2+4)+ (2+4) + 4 + 2 + 0 (BKID CNT and LIST)  =20*/
   if (tag_len < 20) {
-      expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+      expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                 "tag_len is  %d, its neither WAPI not BSS-AC-Access-Delay", tag_len);
     return offset;
   }
 
   if (version != 1) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Version of WAPI protocol is %d, must be = 1", version);
     return offset;
   }
@@ -9613,7 +9622,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
     }
     proto_item_append_text(ti, " /");
   } else {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Number of AKM suites is 0, must be min 1");
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Number of AKM suites is 0, must be min 1");
     return offset;
 
   }
@@ -9635,7 +9644,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
     }
   proto_item_append_text(ti, " /");
   } else {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Number of Unicast Cipher suites is 0, must be min  1");
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Number of Unicast Cipher suites is 0, must be min 1");
     return offset;
 
   }
@@ -9713,7 +9722,7 @@ static int dissect_tfs_request(packet_info *pinfo, proto_tree *tree,
                       tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset++;
   if (offset + 1 >= end) {
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_WARN,
+    expert_add_info_format_text(pinfo, tree, &ei_ieee80211_missing_data,
                            "No TFS Request subelements in TFS Request");
     return end;
   }
@@ -9731,7 +9740,7 @@ static int dissect_tfs_request(packet_info *pinfo, proto_tree *tree,
                         tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
     if (offset + len > end) {
-      expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+      expert_add_info_format_text(pinfo, tree, &ei_ieee80211_tag_length,
                              "Not enough data for TFS Request subelement");
       return end;
     }
@@ -9755,7 +9764,7 @@ static int dissect_tfs_request(packet_info *pinfo, proto_tree *tree,
   if (offset < end) {
     proto_tree_add_text(tree, tvb, offset, end - offset,
                         "Unexpected extra data");
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_WARN,
+    expert_add_info_format_text(pinfo, tree, &ei_ieee80211_extra_data,
                            "Extra data after TFS Subelements");
   }
 
@@ -9794,7 +9803,7 @@ static int dissect_tfs_response(packet_info *pinfo, proto_tree *tree,
                         tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
     if (offset + len > end) {
-      expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+      expert_add_info_format_text(pinfo, tree, &ei_ieee80211_tag_length,
                              "Not enough data for TFS Request subelement");
       return end;
     }
@@ -9825,7 +9834,7 @@ static int dissect_tfs_response(packet_info *pinfo, proto_tree *tree,
   if (offset < end) {
     proto_tree_add_text(tree, tvb, offset, end - offset,
                         "Unexpected extra data");
-    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_WARN,
+    expert_add_info_format_text(pinfo, tree, &ei_ieee80211_extra_data,
                            "Extra data after TFS Status subelements");
   }
 
@@ -9974,7 +9983,7 @@ dissect_ap_channel_report(tvbuff_t *tvb, packet_info *pinfo,
                           int tag_end, proto_item *ti)
 {
   if (tag_len < 1) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "AP Channel Report length %u wrong, must be > 1", tag_len);
     return offset;
   }
@@ -9998,7 +10007,7 @@ dissect_secondary_channel_offset_ie(tvbuff_t *tvb, packet_info *pinfo,
 {
 
   if (tag_len != 1) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Secondary Channel Offset length %u wrong, must be = 1", tag_len);
     return offset;
   }
@@ -10017,7 +10026,7 @@ dissect_bss_avg_access_delay_ie(tvbuff_t *tvb, packet_info *pinfo,
 {
 
   if (tag_len != 1) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "BSS Average Access Delay length %u wrong, must be = 1", tag_len);
     return offset;
   }
@@ -10036,7 +10045,7 @@ dissect_antenna_ie(tvbuff_t *tvb, packet_info *pinfo,
 {
 
   if (tag_len != 1) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Antenna length %u wrong, must be = 1", tag_len);
     return offset;
   }
@@ -10055,7 +10064,7 @@ dissect_rsni_ie(tvbuff_t *tvb, packet_info *pinfo,
 {
 
   if (tag_len != 1) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "RSNI length %u wrong, must be = 1", tag_len);
     return offset;
   }
@@ -10076,7 +10085,7 @@ dissect_bss_available_admission_capacity_ie(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *btree;
   guint16 bitmask;
   if (tag_len < 2) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "BSS Available Admission Capacity length %u wrong, must > = 2", tag_len);
     return offset;
   }
@@ -10169,7 +10178,7 @@ dissect_bss_ac_access_delay_ie(tvbuff_t *tvb, packet_info *pinfo,
 {
 
   if (tag_len == 4) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "BSS AC Access Delay length %u wrong, must = 4", tag_len);
     return offset;
   }
@@ -10201,7 +10210,7 @@ dissect_rm_enabled_capabilities_ie(packet_info *pinfo, proto_tree *tree,
 
   if (tag_len != 5)
   {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "RM Enabled Capabilities length %u wrong, must = 4", tag_len);
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "RM Enabled Capabilities length %u wrong, must = 4", tag_len);
     return offset;
   }
   proto_item_append_text(ti, " (%d octets)", tag_len);
@@ -10276,7 +10285,7 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   proto_tree *cap_tree;
 
   if (tag_len != 26) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "HT Capabilities IE length %u wrong, must be = 26", tag_len);
     return offset;
   }
@@ -10415,7 +10424,7 @@ dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
   proto_tree *cap_tree;
 
   if (tag_len != 22) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag length %u wrong, must be = 22", tag_len);
     return offset;
   }
@@ -10604,7 +10613,7 @@ dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, gboolean wlan_broken_fc,
   ti = proto_tree_add_item(flag_tree, hf_ieee80211_fc_retry, tvb, offset, 1, ENC_NA);
   if( IS_RETRY(flags) )
   {
-    expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE, "Retransmission (retry)");
+    expert_add_info(pinfo, ti, &ei_ieee80211_fc_retry);
   }
   proto_tree_add_item(flag_tree, hf_ieee80211_fc_pwr_mgt, tvb, offset, 1, ENC_NA);
   proto_tree_add_item(flag_tree, hf_ieee80211_fc_more_data, tvb, offset, 1, ENC_NA);
@@ -10677,7 +10686,7 @@ dissect_interworking(packet_info *pinfo, proto_tree *tree, proto_item *item,
   offset += 1;
 
   if ((tvb_reported_length_remaining(tvb, offset) < len) || (len == 0)) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, item, &ei_ieee80211_tag_length,
                            "Truncated Interworking element");
     return offset;
   }
@@ -10706,7 +10715,7 @@ dissect_interworking(packet_info *pinfo, proto_tree *tree, proto_item *item,
   }
 
   if ((len != 1) && (len != (1 + 2)) && (len != (1 + 6)) && (len != (1 + 2 + 6))) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, item, &ei_ieee80211_tag_length,
                            "Invalid Interworking element length");
   }
 
@@ -10812,7 +10821,7 @@ dissect_roaming_consortium(packet_info *pinfo, proto_tree *tree,
   end = offset + len;
 
   if ((tvb_reported_length_remaining(tvb, offset) < len) || (len < 2)) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, item, &ei_ieee80211_tag_length,
                            "Truncated Roaming Consortium element");
     return 2 + len;
   }
@@ -10831,7 +10840,7 @@ dissect_roaming_consortium(packet_info *pinfo, proto_tree *tree,
   offset += 1;
 
   if (offset + oi1_len > end) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, item, &ei_ieee80211_tag_length,
                            "Truncated Roaming Consortium element");
     return 2 + len;
   }
@@ -10842,7 +10851,7 @@ dissect_roaming_consortium(packet_info *pinfo, proto_tree *tree,
   offset += oi1_len;
 
   if (offset + oi2_len > end) {
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, item, &ei_ieee80211_tag_length,
                            "Truncated Roaming Consortium element");
     return 2 + len;
   }
@@ -10882,7 +10891,7 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
     return offset;
 
   if (ssid_len > MAX_SSID_LEN) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "SSID length (%u) greater than maximum (%u)",
                            ssid_len, MAX_SSID_LEN);
     ssid_len = MAX_SSID_LEN;
@@ -10933,7 +10942,7 @@ ieee80211_tag_supp_rates(packet_info *pinfo, proto_tree *tree,
 {
   /* 7.3.2.2 Supported Rates element (1) */
   if (tag_len < 1) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag length %u too short, must be greater than 0",
                            tag_len);
     return offset;
@@ -10963,7 +10972,7 @@ ieee80211_tag_fh_parameter(packet_info *pinfo, proto_tree *tree,
 {
   /* 7.3.2.3 FH Parameter Set element (2) */
   if (tag_len < 5) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag length %u too short, must be >= 5", tag_len);
     return offset;
   }
@@ -10997,7 +11006,7 @@ ieee80211_tag_ds_parameter(packet_info *pinfo, proto_tree *tree,
 {
   /* 7.3.2.4 DS Parameter Set element (3) */
   if (tag_len != 1) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
         "Tag length %u wrong, must be = 1", tag_len);
     return offset;
   }
@@ -11024,7 +11033,7 @@ ieee80211_tag_cf_parameter(packet_info *pinfo, proto_tree *tree,
 {
   /* 7.3.2.5 CF Parameter Set element (4) */
   if (tag_len != 6) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag length %u wrong, must be = 6", tag_len);
     return offset;
   }
@@ -11066,7 +11075,7 @@ ieee80211_tag_tim(packet_info *pinfo, proto_tree *tree,
 
   /* 7.3.2.6 TIM (5) */
   if (tag_len < 4) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag length %u too short, must be >= 4", tag_len);
     return offset;
   }
@@ -11108,7 +11117,7 @@ ieee80211_tag_ibss_parameter(packet_info *pinfo, proto_tree *tree,
   /* 7.3.2.7 IBSS Parameter Set element (6) */
 
   if (tag_len != 2) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag length %u wrong, must be = 2", tag_len);
     return offset;
   }
@@ -11142,7 +11151,7 @@ ieee80211_tag_country_info(packet_info *pinfo, proto_tree *tree,
   proto_item *sub_item;
 
   if (tag_len < 6) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag length %u too short, must be >= 6", tag_len);
     return offset;
   }
@@ -11228,7 +11237,7 @@ ieee80211_tag_fh_hopping_parameter(packet_info *pinfo,
 {
   /* 7.3.2.10 Hopping Pattern Parameters information element (8) */
   if (tag_len < 2) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag length %u too short, must be >= 2", tag_len);
     return offset;
   }
@@ -11257,7 +11266,7 @@ ieee80211_tag_fh_hopping_table(packet_info *pinfo, proto_tree *tree,
 {
   /* 7.3.2.11 Hopping Pattern Table information element (9) */
   if (tag_len < 4) {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag length %u too short, must be >= 4", tag_len);
     return offset;
   }
@@ -11371,7 +11380,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_QBSS_LOAD: /* 7.3.2.28 BSS Load element (11) */
       if ((tag_len < 4) || (tag_len > 5))
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 4 or 5", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 4 or 5", tag_len);
         break;
       }
 
@@ -11402,7 +11411,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_TSPEC: /* 7.3.2.30 TSPEC element (13) */
       if (tag_len != 55)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 55", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 55", tag_len);
         break;
       }
       offset += 2;
@@ -11460,7 +11469,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_TCLAS: /* 7.3.2.31 TCLAS element (14) */
       if (tag_len < 6)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 6", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length %u too short, must be >= 6", tag_len);
         break;
       }
       {
@@ -11597,7 +11606,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_SCHEDULE: /* 7.3.2.34 Schedule element (15) */
       if (tag_len != 14)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 14", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 14", tag_len);
         break;
       }
       offset += 2;
@@ -11624,7 +11633,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     {
       if (tag_len != 1)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 1", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 1", tag_len);
         break;
       }
       offset += 2;
@@ -11640,7 +11649,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     {
       if (tag_len != 2)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 2", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 2", tag_len);
         break;
       }
       offset += 2;
@@ -11659,7 +11668,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     {
       if (tag_len != 0)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 0", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 0", tag_len);
         break;
       }
       offset += 2;
@@ -11672,7 +11681,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     {
       if (tag_len != 2)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 2", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 2", tag_len);
         break;
       }
       offset += 2;
@@ -11696,7 +11705,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
         offset += 2;
         if (tag_len % 2 == 1) {
-           expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u must be even",tag_len);
+           expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length %u must be even", tag_len);
            break;
         }
         while (offset < tag_end)
@@ -11722,7 +11731,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     {
       if (tag_len != 3)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 3", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 3", tag_len);
         break;
       }
       offset += 2;
@@ -11745,7 +11754,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_MEASURE_REQ: /* 7.3.2.21 Measurement Request element (38) with update from 802.11k-2008 */
       if (tag_len < 3)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 3", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length %u too short, must be >= 3", tag_len);
         break;
       }
       {
@@ -11869,7 +11878,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
              {
                proto_item *tix;
                tix = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_unknown, tvb, offset, sub_tag_end - offset, ENC_NA);
-               expert_add_info_format(pinfo, tix, PI_UNDECODED, PI_WARN, " Unknown Data (not interpreted)");
+               expert_add_info(pinfo, tix, &ei_ieee80211_tag_measure_request_beacon_unknown);
                offset = sub_tag_end;
              }
             }
@@ -11931,7 +11940,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_MEASURE_REP: /* 7.3.2.22 Measurement Report element (39) with update from 802.11k-2008 */
       if (tag_len < 3)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 3", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length %u too short, must be >= 3", tag_len);
         break;
       }
       {
@@ -12175,7 +12184,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_QUIET: /* 7.3.2.23 Quiet element (40) */
       if (tag_len != 6)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 6", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 6", tag_len);
         break;
       }
       offset += 2;
@@ -12201,7 +12210,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_IBSS_DFS: /* 7.3.2.24 IBSS DFS element (41) */
       if (tag_len < 7)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be >= 7", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 7", tag_len);
         break;
       }
       {
@@ -12230,7 +12239,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_ERP_INFO_OLD:
       if (tag_len != 1)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 1", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 1", tag_len);
         break;
       }
       {
@@ -12252,7 +12261,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_TS_DELAY: /* 7.3.2.32 TS Delay element (43) */
       if (tag_len != 4)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 4", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 4", tag_len);
         break;
       }
       offset += 2;
@@ -12265,7 +12274,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_TCLAS_PROCESS: /* 7.3.2.33 TCLAS Processing element (44) */
       if (tag_len != 1)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 1", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 1", tag_len);
         break;
       }
       offset += 2;
@@ -12278,7 +12287,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_QOS_CAPABILITY: /* 7.3.2.35 QoS Capability element (46) */
       if (tag_len != 1)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 1", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 1", tag_len);
         break;
       }
       {
@@ -12292,7 +12301,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_RSN_IE: /* 7.3.2.25 RSN information element (48) */
       if (tag_len < 18)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be >= 18", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 18", tag_len);
         break;
       }
       offset += 2;
@@ -12303,7 +12312,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_EXT_SUPP_RATES: /* 7.3.2.14 Extended Supported Rates element (50) */
       if (tag_len < 1)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be greater than 0", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag length %u too short, must be greater than 0", tag_len);
         break;
       }
       offset += 2;
@@ -12334,7 +12343,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
       if (tag_len < 26)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u too short, must be >= 26", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u too short, must be >= 26", tag_len);
         break;
       }
       offset += 2;
@@ -12368,7 +12377,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     case TAG_VENDOR_SPECIFIC_IE: /* 7.3.2.26 Vendor Specific information element (221) */
       if (tag_len < 3)
       {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be >= 3", tag_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 3", tag_len);
         break;
       }
       {
@@ -12738,7 +12747,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         proto_tree *subtree;
         if (tag_len != 6)
         {
-          expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag Length %u wrong, must be = 6", tag_len);
+          expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 6", tag_len);
             break;
         }
         offset += 2;
@@ -12943,7 +12952,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     }
     default:
       proto_tree_add_item(tree, hf_ieee80211_tag_data, tvb, offset + 1 + 1, tag_len, ENC_NA);
-      expert_add_info_format(pinfo, ti_tag, PI_UNDECODED, PI_NOTE,
+      expert_add_info_format_text(pinfo, ti_tag, &ei_ieee80211_tag_data,
                              "Dissector for 802.11 IE Tag"
                              " (%s) code not implemented, Contact"
                              " Wireshark developers if you want this supported", val_to_str_ext(tag_no,
@@ -21108,6 +21117,32 @@ proto_register_ieee80211 (void)
     { &ei_ieee80211_inv_val,
       { "ieee80211.invalid_value", PI_MALFORMED, PI_WARN,
         "Invalid value", EXPFILL }},
+    { &ei_ieee80211_tag_number, { "wlan_mgt.tag.number.unexpected_ie", PI_MALFORMED, PI_ERROR, "Unexpected IE (expected Advertisement Protocol)", EXPFILL }},
+    { &ei_ieee80211_tag_length, { "wlan_mgt.tag.length.bad", PI_MALFORMED, PI_ERROR, "Bad tag length", EXPFILL }},
+    { &ei_ieee80211_extra_data, { "ieee80211.extra_data", PI_MALFORMED, PI_WARN, "Unexpected extra data in the end", EXPFILL }},
+    { &ei_ieee80211_ff_anqp_capability, { "wlan_mgt.fixed.anqp.capability.invalid", PI_MALFORMED, PI_ERROR, "Invalid vendor-specific ANQP capability", EXPFILL }},
+    { &ei_ieee80211_ff_anqp_venue_length, { "wlan_mgt.fixed.anqp.venue.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid Venue Name Duple length", EXPFILL }},
+    { &ei_ieee80211_ff_anqp_roaming_consortium_oi_len, { "wlan_mgt.fixed.anqp.roaming_consortium.oi_len.invalid", PI_MALFORMED, PI_ERROR, "Invalid Roaming Consortium OI", EXPFILL }},
+    { &ei_ieee80211_ff_anqp_nai_field_len, { "wlan_mgt.fixed.anqp.nai_realm_list.field_len.invalid", PI_MALFORMED, PI_ERROR, "Invalid NAI Realm List", EXPFILL }},
+    { &ei_ieee80211_ff_anqp_nai_realm_eap_len, { "wlan_mgt.fixed.naqp_nai_realm_list.eap_method_len.invalid", PI_MALFORMED, PI_ERROR, "Invalid EAP Method subfield", EXPFILL }},
+    { &ei_hs20_anqp_ofn_length, { "wlan_mgt.hs20.anqp.ofn.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid Operator Friendly Name Duple length", EXPFILL }},
+    { &ei_hs20_anqp_nai_hrq_length, { "wlan_mgt.hs20.anqp.nai_hrq.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid NAI Home Realm Query length", EXPFILL }},
+    { &ei_ieee80211_ff_anqp_info_length, { "wlan_mgt.fixed.anqp.info_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid ANQP Info length", EXPFILL }},
+    { &ei_ieee80211_not_enough_room_for_anqp_header, { "wlan_mgt.fixed.query_length_invalid", PI_MALFORMED, PI_ERROR, "Not enough room for ANQP header", EXPFILL }},
+    { &ei_ieee80211_ff_query_request_length, { "wlan_mgt.fixed.query_request_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid Query Request Length", EXPFILL }},
+    { &ei_ieee80211_ff_query_response_length, { "wlan_mgt.fixed.query_response_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid Query Response Length", EXPFILL }},
+    { &ei_ieee80211_tag_wnm_sleep_mode_no_key_data, { "wlan_mgt.wnm_sleep_mode.no_key_data", PI_MALFORMED, PI_ERROR, "WNM-Sleep Mode Response is not long enough to include Key Data", EXPFILL }},
+    { &ei_ieee80211_tdls_setup_response_malformed, { "wlan_mgt.tdls_setup_response_malformed", PI_MALFORMED, PI_ERROR, "TDLS Setup Response (success) does not include mandatory fields", EXPFILL }},
+    { &ei_ieee80211_tdls_setup_confirm_malformed, { "wlan_mgt.tdls_setup_confirm_malformed", PI_MALFORMED, PI_ERROR, "TDLS Setup Confirm (success) does not include mandatory fields", EXPFILL }},
+    { &ei_ieee80211_wfa_ie_wme_qos_info_bad_ftype, { "wlan_mgt.wfa.ie.wme.qos_info.bad_ftype", PI_UNDECODED, PI_WARN, "Could not deduce direction to decode correctly", EXPFILL }},
+    { &ei_ieee80211_rsn_pcs_count, { "wlan_mgt.rsn.pcs.count.invalid", PI_MALFORMED, PI_ERROR, "Pairwise Cipher Suite Count too large", EXPFILL }},
+    { &ei_ieee80211_rsn_pmkid_count, { "wlan_mgt.rsn.akms.count.invalid", PI_MALFORMED, PI_ERROR, "Auth Key Management (AKM) Suite Count too large", EXPFILL }},
+    { &ei_ieee80211_pmkid_count_too_large, { "wlan_mgt.rsn.pmkid.count.invalid", PI_MALFORMED, PI_ERROR, "PMKID Count too large", EXPFILL }},
+    { &ei_ieee80211_vht_tpe_pwr_info_count, { "wlan_mgt.vht.tpe.pwr_info.count.invalid", PI_MALFORMED, PI_ERROR, "Max Tx Pwr Count is Incorrect, should be 0-7", EXPFILL }},
+    { &ei_ieee80211_missing_data, { "ieee80211.missing_data", PI_MALFORMED, PI_WARN, "No TFS Request subelements in TFS Request", EXPFILL }},
+    { &ei_ieee80211_fc_retry, { "wlan.fc.retry.expert", PI_SEQUENCE, PI_NOTE, "Retransmission (retry)", EXPFILL }},
+    { &ei_ieee80211_tag_measure_request_beacon_unknown, { "wlan_mgt.measure.req.beacon.unknown.expert", PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)", EXPFILL }},
+    { &ei_ieee80211_tag_data, { "wlan_mgt.tag.data.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for 802.11 IE Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
   };
 
   expert_module_t *expert_ieee80211;
