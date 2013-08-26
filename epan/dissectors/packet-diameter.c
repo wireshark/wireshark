@@ -292,7 +292,7 @@ static dissector_handle_t diameter_tcp_handle;
 static dissector_handle_t diameter_sctp_handle;
 static range_t *global_diameter_tcp_port_range;
 static range_t *global_diameter_sctp_port_range;
-static guint g_diameter_udp_port = 0;
+static range_t *global_diameter_udp_port_range;
 /* This is used for TCP and SCTP */
 #define DEFAULT_DIAMETER_PORT_RANGE "3868"
 
@@ -1892,10 +1892,9 @@ real_proto_register_diameter(void)
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &gbl_diameter_desegment);
 
-	prefs_register_uint_preference(diameter_module, "udp.port",
-                                 "Diameter UDP Port",
-                                 "Diameter UDP Port",
-                                 10, &g_diameter_udp_port);
+	prefs_register_range_preference(diameter_module, "udp.ports", "Diameter UDP ports",
+					"UDP ports to be decoded as Diameter (default: 0 as Diameter over UDP is nonstandard)",
+					&global_diameter_udp_port_range, MAX_UDP_PORT);
 
 
 	/*  Register some preferences we no longer support, so we can report
@@ -1936,7 +1935,7 @@ proto_reg_handoff_diameter(void)
 	static gboolean Initialized=FALSE;
 	static range_t *diameter_tcp_port_range;
 	static range_t *diameter_sctp_port_range;
-	static guint diameter_udp_port;
+	static range_t *diameter_udp_port_range;
 
 	if (!Initialized) {
 		diameter_sctp_handle = find_dissector("diameter");
@@ -1962,26 +1961,23 @@ proto_reg_handoff_diameter(void)
 		dissector_add_uint("diameter.base", 463,
 			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
 
-		diameter_udp_port = g_diameter_udp_port;
 		Initialized=TRUE;
 	} else {
 		dissector_delete_uint_range("tcp.port", diameter_tcp_port_range, diameter_tcp_handle);
 		dissector_delete_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
+		dissector_delete_uint_range("udp.port", diameter_udp_port_range, diameter_udp_handle);
 		g_free(diameter_tcp_port_range);
 		g_free(diameter_sctp_port_range);
-		dissector_delete_uint("udp.port", diameter_udp_port, diameter_udp_handle);
-	}
-
-	diameter_udp_port = g_diameter_udp_port;
-	if(diameter_udp_port > 0){
-		dissector_add_uint("udp.port", diameter_udp_port, diameter_udp_handle);
+		g_free(diameter_udp_port_range);
 	}
 
 	/* set port for future deletes */
 	diameter_tcp_port_range = range_copy(global_diameter_tcp_port_range);
 	diameter_sctp_port_range = range_copy(global_diameter_sctp_port_range);
+	diameter_sctp_port_range = range_copy(global_diameter_udp_port_range);
 	dissector_add_uint_range("tcp.port",  diameter_tcp_port_range,  diameter_tcp_handle);
 	dissector_add_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
+	dissector_add_uint_range("udp.port", diameter_udp_port_range, diameter_udp_handle);
 
 	exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 
