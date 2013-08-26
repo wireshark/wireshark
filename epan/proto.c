@@ -29,6 +29,7 @@
 #include <ctype.h>
 #include <glib.h>
 #include <float.h>
+#include <wsutil/swar.h>
 
 #include "packet.h"
 #include "ptvcursor.h"
@@ -126,7 +127,7 @@ struct ptvcursor {
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
 
 static void fill_label_boolean(field_info *fi, gchar *label_str);
-static void fill_label_bitfield(field_info *fi, gchar *label_str);
+static void fill_label_bitfield(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed);
 
@@ -3128,6 +3129,7 @@ proto_tree_set_int(field_info *fi, gint32 value)
 {
 	header_field_info *hfinfo;
 	guint32		   integer;
+	gint		   no_of_bits;
 
 	hfinfo = fi->hfinfo;
 	integer = (guint32) value;
@@ -3138,6 +3140,10 @@ proto_tree_set_int(field_info *fi, gint32 value)
 
 		/* Shift bits */
 		integer >>= hfinfo_bitshift(hfinfo);
+
+		no_of_bits = swar_count_bits(hfinfo->bitmask);
+		if (integer & (1 << (no_of_bits-1)))
+			integer |= (-1 << no_of_bits);
 	}
 
 	fvalue_set_sinteger(&fi->value, integer);
@@ -5208,7 +5214,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT24:
 		case FT_UINT32:
 			if (hfinfo->bitmask) {
-				fill_label_bitfield(fi, label_str);
+				fill_label_bitfield(fi, label_str, FALSE);
 			} else {
 				fill_label_number(fi, label_str, FALSE);
 			}
@@ -5226,8 +5232,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
-			DISSECTOR_ASSERT(!hfinfo->bitmask);
-			fill_label_number(fi, label_str, TRUE);
+			if (hfinfo->bitmask) {
+				fill_label_bitfield(fi, label_str, TRUE);
+			} else {
+				fill_label_number(fi, label_str, TRUE);
+			}
 			break;
 
 		case FT_INT64:
@@ -5423,7 +5432,7 @@ hf_try_val64_to_str_const(guint64 value, const header_field_info *hfinfo, const 
 
 /* Fills data for bitfield ints with val_strings */
 static void
-fill_label_bitfield(field_info *fi, gchar *label_str)
+fill_label_bitfield(field_info *fi, gchar *label_str, gboolean is_signed)
 {
 	char       *p;
 	int         bitfield_byte_length, bitwidth;
@@ -5439,7 +5448,11 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 	bitwidth = hfinfo_bitwidth(hfinfo);
 
 	/* Un-shift bits */
-	unshifted_value = fvalue_get_uinteger(&fi->value);
+	if (is_signed)
+		unshifted_value = fvalue_get_sinteger(&fi->value);
+	else
+		unshifted_value = fvalue_get_uinteger(&fi->value);
+
 	value = unshifted_value;
 	if (hfinfo->bitmask) {
 		unshifted_value <<= hfinfo_bitshift(hfinfo);
