@@ -64,7 +64,7 @@ dissect_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(cmd_tree, hf_cmd_options, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(cmd_tree, hf_cmd_sgt, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+        /*offset += 2;*/
     }
 
     encap_proto = tvb_get_ntohs(tvb, 6);
