@@ -8291,22 +8291,6 @@ proto_register_netflow(void)
  * protocol/port association
  */
 static void
-netflow_delete_callback(guint32 port)
-{
-    if ( port ) {
-        dissector_delete_uint("udp.port", port, netflow_handle);
-    }
-}
-
-static void
-netflow_add_callback(guint32 port)
-{
-    if ( port ) {
-        dissector_add_uint("udp.port", port, netflow_handle);
-    }
-}
-
-static void
 ipfix_delete_callback(guint32 port)
 {
     if ( port ) {
@@ -8338,7 +8322,7 @@ proto_reg_handoff_netflow(void)
         netflow_prefs_initialized = TRUE;
         dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IPFIX, netflow_handle);
     } else {
-        range_foreach(netflow_ports, netflow_delete_callback);
+        dissector_delete_uint_range("udp.port", netflow_ports, netflow_handle);
         g_free(netflow_ports);
         range_foreach(ipfix_ports, ipfix_delete_callback);
         g_free(ipfix_ports);
@@ -8347,7 +8331,7 @@ proto_reg_handoff_netflow(void)
     netflow_ports = range_copy(global_netflow_ports);
     ipfix_ports = range_copy(global_ipfix_ports);
 
-    range_foreach(netflow_ports, netflow_add_callback);
+    dissector_add_uint_range("udp.port", netflow_ports, netflow_handle);
     range_foreach(ipfix_ports, ipfix_add_callback);
 }
 

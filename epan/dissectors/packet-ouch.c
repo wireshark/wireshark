@@ -1268,29 +1268,14 @@ dissect_ouch(
 
 
 /* Register the protocol with Wireshark */
-static void
-range_add_ouch_callback(
-    guint32 port)
-{
-    dissector_add_uint("tcp.port", port, ouch_handle);
-}
-
-static void
-range_delete_ouch_callback(
-    guint32 port)
-{
-    dissector_delete_uint("tcp.port", port, ouch_handle);
-}
 
 static void
 ouch_prefs(void)
 {
-    range_foreach(ouch_range,
-                  range_delete_ouch_callback);
+    dissector_delete_uint_range("tcp.port", ouch_range, ouch_handle);
     g_free(ouch_range);
     ouch_range = range_copy(global_ouch_range);
-    range_foreach(ouch_range,
-                  range_add_ouch_callback);
+    dissector_add_uint_range("tcp.port", ouch_range, ouch_handle);
 }
 
 

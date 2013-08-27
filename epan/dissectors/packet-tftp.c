@@ -503,16 +503,6 @@ proto_register_tftp(void)
 				  &global_tftp_port_range, MAX_UDP_PORT);
 }
 
-static void range_delete_callback (guint32 port)
-{
-  dissector_delete_uint("udp.port", port, tftp_handle);
-}
-
-static void range_add_callback (guint32 port)
-{
-  dissector_add_uint("udp.port", port, tftp_handle);
-}
-
 void
 proto_reg_handoff_tftp(void)
 {
@@ -525,12 +515,12 @@ proto_reg_handoff_tftp(void)
     heur_dissector_add("stun", dissect_embeddedtftp_heur, proto_tftp);
     tftp_initialized = TRUE;
   } else {
-    range_foreach(tftp_port_range, range_delete_callback);
+    dissector_add_uint_range("udp.port", tftp_port_range, tftp_handle);
     g_free(tftp_port_range);
   }
 
   tftp_port_range = range_copy(global_tftp_port_range);
-  range_foreach(tftp_port_range, range_add_callback);
+  dissector_add_uint_range("udp.port", tftp_port_range, tftp_handle);
 }
 
 /*

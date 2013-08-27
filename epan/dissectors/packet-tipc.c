@@ -2288,18 +2288,6 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} /*if (hdr_size <= 5) */
 }
 
-static void
-udp_range_delete_callback(guint32 port)
-{
-  dissector_delete_uint("udp.port", port, tipc_handle);
-}
-
-static void
-udp_range_add_callback(guint32 port)
-{
-  dissector_add_uint("udp.port", port, tipc_handle);
-}
-
 /* Register TIPC with Wireshark */
 void
 proto_register_tipc(void)
@@ -2985,10 +2973,10 @@ proto_reg_handoff_tipc(void)
 				dissector_add_uint("tcp.port", tipc_alternate_tcp_port, tipc_tcp_handle);
 			tipc_alternate_tcp_port_prev = tipc_alternate_tcp_port;
 		}
-		range_foreach(tipc_udp_port_range, udp_range_delete_callback);
+		dissector_add_uint_range("udp.port", tipc_udp_port_range, tipc_handle);
 		g_free(tipc_udp_port_range);
 	}
 
 	tipc_udp_port_range = range_copy(global_tipc_udp_port_range);
-	range_foreach(tipc_udp_port_range, udp_range_add_callback);
+	dissector_add_uint_range("udp.port", tipc_udp_port_range, tipc_handle);
 }

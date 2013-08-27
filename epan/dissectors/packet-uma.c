@@ -1739,18 +1739,6 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 }
 
-static void
-range_delete_callback(guint32 port)
-{
-    dissector_delete_uint("tcp.port", port, uma_tcp_handle);
-}
-
-static void
-range_add_callback(guint32 port)
-{
-    dissector_add_uint("tcp.port", port, uma_tcp_handle);
-}
-
 /* Register the protocol with Wireshark */
 /* If this dissector uses sub-dissector registration add a registration routine.
    This format is required because a script is used to find these routines and
@@ -1773,12 +1761,12 @@ proto_reg_handoff_uma(void)
 		bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
 		Initialized=TRUE;
 	} else {
-		range_foreach(uma_tcp_port_range, range_delete_callback);
+		dissector_delete_uint_range("tcp.port", uma_tcp_port_range, uma_tcp_handle);
 		g_free(uma_tcp_port_range);
 	}
 
 	uma_tcp_port_range = range_copy(global_uma_tcp_port_range);
-	range_foreach(uma_tcp_port_range, range_add_callback);
+	dissector_add_uint_range("tcp.port", uma_tcp_port_range, uma_tcp_handle);
 }
 
 /* this format is require because a script is used to build the C function

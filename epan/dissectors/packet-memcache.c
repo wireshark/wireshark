@@ -2166,23 +2166,6 @@ proto_register_memcache (void)
                                   65535);
 }
 
-static void range_delete_tcp_port_callback(guint32 port) {
-  dissector_delete_uint("tcp.port", port, memcache_tcp_handle);
-}
-
-static void range_delete_udp_port_callback(guint32 port) {
-  dissector_delete_uint("udp.port", port, memcache_udp_handle);
-}
-
-static void range_add_tcp_port_callback(guint32 port) {
-  dissector_add_uint("tcp.port", port, memcache_tcp_handle);
-}
-
-static void range_add_udp_port_callback(guint32 port) {
-  dissector_add_uint("udp.port", port, memcache_udp_handle);
-}
-
-
 /* Register the tcp and udp memcache dissectors. */
 void
 proto_reg_handoff_memcache (void)
@@ -2196,16 +2179,16 @@ proto_reg_handoff_memcache (void)
     memcache_udp_handle = find_dissector("memcache.udp");
     initialized = TRUE;
   } else {
-    range_foreach(orig_memcache_tcp_port_range, range_delete_tcp_port_callback);
-    range_foreach(orig_memcache_udp_port_range, range_delete_udp_port_callback);
+    dissector_delete_uint_range("tcp.port", orig_memcache_tcp_port_range, memcache_tcp_handle);
+    dissector_delete_uint_range("udp.port", orig_memcache_udp_port_range, memcache_udp_handle);
     g_free(orig_memcache_tcp_port_range);
     g_free(orig_memcache_udp_port_range);
   }
 
   orig_memcache_tcp_port_range = range_copy(memcache_tcp_port_range);
   orig_memcache_udp_port_range = range_copy(memcache_udp_port_range);
-  range_foreach(orig_memcache_tcp_port_range, range_add_tcp_port_callback);
-  range_foreach(orig_memcache_udp_port_range, range_add_udp_port_callback);
+  dissector_add_uint_range("tcp.port", orig_memcache_tcp_port_range, memcache_tcp_handle);
+  dissector_add_uint_range("udp.port", orig_memcache_udp_port_range, memcache_udp_handle);
 }
 
 /*

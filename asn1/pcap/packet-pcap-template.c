@@ -139,21 +139,6 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_PCAP_PDU_PDU(tvb, pinfo, pcap_tree, NULL);
 }
 
-
-static void range_delete_callback(guint32 ssn)
-{
-    if ( ssn ) {
-        dissector_delete_uint("sccp.ssn", ssn, pcap_handle);
-    }
-}
-
-static void range_add_callback(guint32 ssn)
-{
-    if (ssn) {
-        dissector_add_uint("sccp.ssn", ssn, pcap_handle);
-    }
-}
-
 /*--- proto_reg_handoff_pcap ---------------------------------------*/
 void
 proto_reg_handoff_pcap(void)
@@ -167,11 +152,11 @@ proto_reg_handoff_pcap(void)
         prefs_initialized = TRUE;
 #include "packet-pcap-dis-tab.c"
     } else {
-        range_foreach(ssn_range, range_delete_callback);
+        dissector_delete_uint_range("sccp.ssn", ssn_range, pcap_handle);
         g_free(ssn_range);
     }
     ssn_range = range_copy(global_ssn_range);
-    range_foreach(ssn_range, range_add_callback);
+    dissector_add_uint_range("sccp.ssn", ssn_range, pcap_handle);
 }
 
 /*--- proto_register_pcap -------------------------------------------*/

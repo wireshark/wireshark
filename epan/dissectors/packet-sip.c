@@ -4021,17 +4021,6 @@ guint sip_find_invite(packet_info *pinfo,
 
 	return result;
 }
-static void
-tcp_range_add_callback(guint32 port)
-{
-	dissector_add_uint("tcp.port", port, sip_tcp_handle);
-}
-
-static void
-tcp_range_delete_callback(guint32 port)
-{
-	dissector_delete_uint("tcp.port", port, sip_tcp_handle);
-}
 
 /* Register the protocol with Wireshark */
 void proto_register_sip(void)
@@ -5285,13 +5274,13 @@ proto_reg_handoff_sip(void)
 		heur_dissector_add("stun", dissect_sip_heur, proto_sip);
 		sip_prefs_initialized = TRUE;
 	} else {
-		range_foreach(sip_tcp_port_range, tcp_range_delete_callback);
+		dissector_delete_uint_range("tcp.port", sip_tcp_port_range, sip_tcp_handle);
 		g_free(sip_tcp_port_range);
 		ssl_dissector_delete(saved_sip_tls_port, "sip.tcp", TRUE);
 	}
 	/* Set our port number for future use */
 	sip_tcp_port_range = range_copy(global_sip_tcp_port_range);
-	range_foreach(sip_tcp_port_range, tcp_range_add_callback);
+	dissector_add_uint_range("tcp.port", sip_tcp_port_range, sip_tcp_handle);
 	saved_sip_tls_port = sip_tls_port;
 	ssl_dissector_add(saved_sip_tls_port, "sip.tcp", TRUE);
 

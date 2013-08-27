@@ -3178,21 +3178,6 @@ proto_register_sflow(void) {
             &global_analyze_samp_ip_headers);
 }
 
-
-static void
-sflow_245_delete_callback(guint32 port) {
-    if (port) {
-        dissector_delete_uint("udp.port", port, sflow_handle);
-    }
-}
-
-static void
-sflow_245_add_callback(guint32 port) {
-    if (port) {
-        dissector_add_uint("udp.port", port, sflow_handle);
-    }
-}
-
 void
 proto_reg_handoff_sflow_245(void) {
     static range_t *sflow_ports;
@@ -3203,12 +3188,13 @@ proto_reg_handoff_sflow_245(void) {
         data_handle = find_dissector("data");
         sflow_245_prefs_initialized = TRUE;
     } else {
-        range_foreach(sflow_ports, sflow_245_delete_callback);
+		dissector_delete_uint_range("udp.port", sflow_ports, sflow_handle);
         g_free(sflow_ports);
     }
 
     sflow_ports = range_copy(global_sflow_ports);
-    range_foreach(sflow_ports, sflow_245_add_callback);
+    dissector_add_uint_range("udp.port", sflow_ports, sflow_handle);
+
 
     /*dissector_handle_t sflow_245_handle;*/
 

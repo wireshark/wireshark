@@ -1189,18 +1189,6 @@ proto_register_nsip(void)
                                   &global_nsip_udp_port_range, MAX_UDP_PORT);
 }
 
-static void
-range_delete_callback(guint32 port)
-{
-    dissector_delete_uint("udp.port", port, nsip_handle);
-}
-
-static void
-range_add_callback(guint32 port)
-{
-    dissector_add_uint("udp.port", port, nsip_handle);
-}
-
 void
 proto_reg_handoff_nsip(void) {
   static gboolean nsip_prefs_initialized = FALSE;
@@ -1211,12 +1199,12 @@ proto_reg_handoff_nsip(void) {
     bssgp_handle = find_dissector("bssgp");
     nsip_prefs_initialized = TRUE;
   } else {
-    range_foreach(nsip_udp_port_range, range_delete_callback);
+    dissector_delete_uint_range("udp.port", nsip_udp_port_range, nsip_handle);
     g_free(nsip_udp_port_range);
   }
 
   nsip_udp_port_range = range_copy(global_nsip_udp_port_range);
 
-  range_foreach(nsip_udp_port_range, range_add_callback);
+  dissector_add_uint_range("udp.port", nsip_udp_port_range, nsip_handle);
 
 }

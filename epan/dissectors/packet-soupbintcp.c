@@ -483,32 +483,13 @@ dissect_soupbintcp_tcp(
                      dissect_soupbintcp_tcp_pdu);
 }
 
-
-static void
-range_add_soupbintcp_callback(
-    guint32 port)
-{
-    dissector_add_uint("tcp.port", port, soupbintcp_handle);
-}
-
-
-static void
-range_delete_soupbintcp_callback(
-    guint32 port)
-{
-    dissector_delete_uint("tcp.port", port, soupbintcp_handle);
-}
-
-
 static void
 soupbintcp_prefs(void)
 {
-    range_foreach(soupbintcp_range,
-                  range_delete_soupbintcp_callback);
+	dissector_delete_uint_range("tcp.port", soupbintcp_range, soupbintcp_handle);
     g_free(soupbintcp_range);
     soupbintcp_range = range_copy(global_soupbintcp_range);
-    range_foreach(soupbintcp_range,
-                  range_add_soupbintcp_callback);
+	dissector_add_uint_range("tcp.port", soupbintcp_range, soupbintcp_handle);
 }
 
 

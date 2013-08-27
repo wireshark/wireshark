@@ -1621,16 +1621,6 @@ void proto_register_p_mul (void)
                                   &decode_option, decode_options, FALSE);
 }
 
-static void range_delete_callback (guint32 port)
-{
-    dissector_delete_uint ("udp.port", port, p_mul_handle);
-}
-
-static void range_add_callback (guint32 port)
-{
-    dissector_add_uint ("udp.port", port, p_mul_handle);
-}
-
 void proto_reg_handoff_p_mul (void)
 {
   static gboolean p_mul_prefs_initialized = FALSE;
@@ -1640,14 +1630,14 @@ void proto_reg_handoff_p_mul (void)
     p_mul_prefs_initialized = TRUE;
     data_handle = find_dissector ("data");
   } else {
-    range_foreach (p_mul_port_range, range_delete_callback);
+	dissector_delete_uint_range ("udp.port", p_mul_port_range, p_mul_handle);
     g_free (p_mul_port_range);
   }
 
   /* Save port number for later deletion */
   p_mul_port_range = range_copy (global_p_mul_port_range);
 
-  range_foreach (p_mul_port_range, range_add_callback);
+  dissector_add_uint_range ("udp.port", p_mul_port_range, p_mul_handle);
 }
 
 /*

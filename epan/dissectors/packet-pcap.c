@@ -13565,21 +13565,6 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_PCAP_PDU_PDU(tvb, pinfo, pcap_tree, NULL);
 }
 
-
-static void range_delete_callback(guint32 ssn)
-{
-    if ( ssn ) {
-        dissector_delete_uint("sccp.ssn", ssn, pcap_handle);
-    }
-}
-
-static void range_add_callback(guint32 ssn)
-{
-    if (ssn) {
-        dissector_add_uint("sccp.ssn", ssn, pcap_handle);
-    }
-}
-
 /*--- proto_reg_handoff_pcap ---------------------------------------*/
 void
 proto_reg_handoff_pcap(void)
@@ -13725,13 +13710,13 @@ proto_reg_handoff_pcap(void)
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 169 "../../asn1/pcap/packet-pcap-template.c"
+#line 154 "../../asn1/pcap/packet-pcap-template.c"
     } else {
-        range_foreach(ssn_range, range_delete_callback);
+        dissector_delete_uint_range("sccp.ssn", ssn_range, pcap_handle);
         g_free(ssn_range);
     }
     ssn_range = range_copy(global_ssn_range);
-    range_foreach(ssn_range, range_add_callback);
+    dissector_add_uint_range("sccp.ssn", ssn_range, pcap_handle);
 }
 
 /*--- proto_register_pcap -------------------------------------------*/
@@ -18306,7 +18291,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 185 "../../asn1/pcap/packet-pcap-template.c"
+#line 170 "../../asn1/pcap/packet-pcap-template.c"
   };
 
   /* List of subtrees */
@@ -18710,7 +18695,7 @@ void proto_register_pcap(void) {
     &ett_pcap_Outcome,
 
 /*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 191 "../../asn1/pcap/packet-pcap-template.c"
+#line 176 "../../asn1/pcap/packet-pcap-template.c"
   };
 
   module_t *pcap_module;

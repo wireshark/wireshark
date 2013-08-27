@@ -352,21 +352,6 @@ static void dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree)
 		dissect_sscop_and_payload(tvb,pinfo,tree,default_handle);
 }
 
-
-static void range_delete_callback(guint32 port)
-{
-    if (port) {
-	dissector_delete_uint("udp.port", port, sscop_handle);
-    }
-}
-
-static void range_add_callback(guint32 port)
-{
-    if (port) {
-	dissector_add_uint("udp.port", port, sscop_handle);
-    }
-}
-
 /* Make sure handles for various protocols are initialized */
 static void initialize_handles_once(void) {
     static gboolean initialized = FALSE;
@@ -403,14 +388,13 @@ proto_reg_handoff_sscop(void)
 
   } else {
 
-    range_foreach(udp_port_range, range_delete_callback);
+    dissector_delete_uint_range("udp.port", udp_port_range, sscop_handle);
     g_free(udp_port_range);
 
   }
 
   udp_port_range = range_copy(global_udp_port_range);
-
-  range_foreach(udp_port_range, range_add_callback);
+  dissector_add_uint_range("udp.port", udp_port_range, sscop_handle);
 
   switch(sscop_payload_dissector) {
 	  case DATA_DISSECTOR: default_handle = data_handle; break;

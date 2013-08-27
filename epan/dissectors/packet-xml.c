@@ -1352,16 +1352,6 @@ static void init_xml_names(void)
     g_free(dummy);
 }
 
-static void range_delete_xml_tcp_callback(guint32 port)
-{
-    dissector_delete_uint("tcp.port", port, xml_handle);
-}
-
-static void range_add_xml_tcp_callback(guint32 port)
-{
-    dissector_add_uint("tcp.port", port, xml_handle);
-}
-
 static void apply_prefs(void)
 {
     if (pref_heuristic_media_save != pref_heuristic_media) {
@@ -1398,10 +1388,10 @@ static void apply_prefs(void)
         }
     }
 
-    range_foreach(xml_tcp_range, range_delete_xml_tcp_callback);
+	dissector_delete_uint_range("tcp.port", xml_tcp_range, xml_handle);
     g_free(xml_tcp_range);
     xml_tcp_range = range_copy(global_xml_tcp_range);
-    range_foreach(xml_tcp_range, range_add_xml_tcp_callback);
+	dissector_add_uint_range("tcp.port", xml_tcp_range, xml_handle);
 }
 
 void

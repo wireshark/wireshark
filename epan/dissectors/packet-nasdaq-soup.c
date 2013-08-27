@@ -196,20 +196,12 @@ dissect_nasdaq_soup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Register the protocol with Wireshark */
-static void range_delete_nasdaq_soup_tcp_callback(guint32 port) {
-    dissector_delete_uint("tcp.port", port, nasdaq_soup_handle);
-}
-
-static void range_add_nasdaq_soup_tcp_callback(guint32 port) {
-    dissector_add_uint("tcp.port", port, nasdaq_soup_handle);
-}
-
 static void nasdaq_soup_prefs(void)
 {
-    range_foreach(nasdaq_soup_tcp_range, range_delete_nasdaq_soup_tcp_callback);
+    dissector_delete_uint_range("tcp.port", nasdaq_soup_tcp_range, nasdaq_soup_handle);
     g_free(nasdaq_soup_tcp_range);
     nasdaq_soup_tcp_range = range_copy(global_nasdaq_soup_tcp_range);
-    range_foreach(nasdaq_soup_tcp_range, range_add_nasdaq_soup_tcp_callback);
+    dissector_add_uint_range("tcp.port", nasdaq_soup_tcp_range, nasdaq_soup_handle);
 }
 
 void
