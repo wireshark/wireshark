@@ -1869,7 +1869,7 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
 }
 
 
-/* check if the given CC item item may appear in the clear
+/* check if the given CC resource item may appear in the clear
    as part of an exported PDU */
 static inline gboolean
 is_cc_item_exportable(guint8 dat_id)
