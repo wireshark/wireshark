@@ -1426,8 +1426,16 @@ void proto_reg_handoff_bthci_cmd(void);
 static int
 dissect_bthci_cmd_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
+    guint8 bd_addr[6];
 
-    proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, ENC_NA);
+    bd_addr[5] = tvb_get_guint8(tvb, offset);
+    bd_addr[4] = tvb_get_guint8(tvb, offset + 1);
+    bd_addr[3] = tvb_get_guint8(tvb, offset + 2);
+    bd_addr[2] = tvb_get_guint8(tvb, offset + 3);
+    bd_addr[1] = tvb_get_guint8(tvb, offset + 4);
+    bd_addr[0] = tvb_get_guint8(tvb, offset + 5);
+
+    proto_tree_add_ether(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, bd_addr);
     offset += 6;
 
     return offset;
