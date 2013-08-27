@@ -23,6 +23,9 @@
 #ifndef __PACKET_USB_HID_H__
 #define __PACKET_USB_HID_H__
 
+/* HID class specific descriptor types */
+#define USB_DT_HID 33
+
 int
 dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_);
 

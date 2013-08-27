@@ -500,7 +500,6 @@ extern value_string_ext ext_usb_products_vals;
 #define USB_DT_BOS                            15
 #define USB_DT_DEVICE_CAPABILITY              16
 #define USB_DT_WIRELESS_ENDPOINT_COMP         17
-#define USB_DT_HID                            33
 #define USB_DT_RPIPE                          34
 #define USB_DT_SUPERSPEED_ENDPOINT_COMPANION  48
 

@@ -86,6 +86,7 @@ static int hf_usb_hid_localitem_delimiter = -1;
 static gint ett_usb_hid_report = -1;
 static gint ett_usb_hid_item_header = -1;
 static gint ett_usb_hid_wValue = -1;
+static gint ett_usb_hid_descriptor = -1;
 
 static int hf_usb_hid_request = -1;
 static int hf_usb_hid_value = -1;
@@ -797,6 +798,31 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return TRUE;
 }
 
+
+static gint
+dissect_usb_hid_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, void *data _U_)
+{
+    guint8      type;
+    proto_item *ti;
+    proto_tree *desc_tree;
+
+    type = tvb_get_guint8(tvb, 1);
+
+    /* for now, we only handle the HID descriptor here */
+    if (type != USB_DT_HID)
+        return 0;
+
+    ti = proto_tree_add_text(tree,
+            tvb, 0, tvb_reported_length(tvb), "HID DESCRIPTOR");
+    desc_tree = proto_item_add_subtree(ti, ett_usb_hid_descriptor);
+
+    dissect_usb_descriptor_header(desc_tree, tvb, 0);
+
+    return tvb_reported_length(tvb);
+}
+
+
 void
 proto_register_usb_hid(void)
 {
@@ -1041,7 +1067,8 @@ proto_register_usb_hid(void)
     static gint *usb_hid_subtrees[] = {
         &ett_usb_hid_report,
         &ett_usb_hid_item_header,
-        &ett_usb_hid_wValue
+        &ett_usb_hid_wValue,
+        &ett_usb_hid_descriptor
     };
 
     proto_usb_hid = proto_register_protocol("USB HID", "USBHID", "usbhid");
@@ -1051,10 +1078,13 @@ proto_register_usb_hid(void)
 
 void
 proto_reg_handoff_usb_hid(void) {
-    dissector_handle_t usb_hid_control_handle;
+    dissector_handle_t usb_hid_control_handle, usb_hid_descr_handle;
 
     usb_hid_control_handle = new_create_dissector_handle(dissect_usb_hid_control, proto_usb_hid);
     dissector_add_uint("usb.control", IF_CLASS_HID, usb_hid_control_handle);
+
+    usb_hid_descr_handle = new_create_dissector_handle(dissect_usb_hid_descriptors, proto_usb_hid);
+    dissector_add_uint("usb.descriptor", IF_CLASS_HID, usb_hid_descr_handle);
 }
 
 /*
