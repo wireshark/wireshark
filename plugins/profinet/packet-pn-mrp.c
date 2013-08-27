@@ -134,7 +134,7 @@ dissect_pn_uint16_ret_item(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 static int
 dissect_PNMRP_Common(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item)
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_)
 {
     guint16  sequence_id;
     e_uuid_t uuid;
@@ -146,49 +146,13 @@ dissect_PNMRP_Common(tvbuff_t *tvb, int offset,
     /* MRP_DomainUUID */
     offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_mrp_domain_uuid, &uuid);
 
-    col_append_str(pinfo->cinfo, COL_INFO, "Common");
-
-    proto_item_append_text(item, "Common");
-
     return offset;
 }
 
-#if 0
-static int
-dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item)
-{
-    guint8  mac[6];
-    guint16 port_role;
-    guint16 interval;
-    guint16 blocked;
-
-    /* MRP_SA */
-    offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrp_sa, mac);
-
-    /* MRP_PortRole */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_port_role, &port_role);
-
-    /* MRP_Interval */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_interval, &interval);
-
-    /* MRP_Blocked */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_blocked, &blocked);
-
-    /* Padding */
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
-
-    col_append_str(pinfo->cinfo, COL_INFO, "LinkUp");
-
-    proto_item_append_text(item, "LinkUp");
-
-    return offset;
-}
-#endif
 
 static int
-dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 type)
+dissect_PNMRP_Link(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_)
 {
     guint8      mac[6];
     guint16     port_role;
@@ -206,32 +170,28 @@ dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_interval, &interval, &sub_item);
     if (tree)
     {
-        proto_item_append_text(sub_item,"Interval for next topology change event (in ms)");
+        proto_item_append_text(sub_item," Interval for next topology change event (in ms)");
         if (interval <0x07D1)
-            proto_item_append_text(sub_item,"Mandatory");
+            proto_item_append_text(sub_item," Mandatory");
         else
-            proto_item_append_text(sub_item,"Optional");
+            proto_item_append_text(sub_item," Optional");
+    }
+
     /* MRP_Blocked */
-        offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_blocked, &blocked, &sub_item);
+    offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_blocked, &blocked, &sub_item);
+    if (tree)
+    {
         if (blocked == 0)
-            proto_item_append_text(sub_item,"The MRC is not able to receive and forward frames to port in state blocked");
+            proto_item_append_text(sub_item," The MRC is not able to receive and forward frames to port in state blocked");
         else
             if (blocked == 1)
-                proto_item_append_text(sub_item,"The MRC is able to receive and forward frames to port in state blocked");
+                proto_item_append_text(sub_item," The MRC is able to receive and forward frames to port in state blocked");
             else
-                proto_item_append_text(sub_item,"Reserved");
+                proto_item_append_text(sub_item," Reserved");
     }
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
-
-    if (type == 0x04) {
-        col_append_str(pinfo->cinfo, COL_INFO, "LinkDown");
-        proto_item_append_text(item, "LinkDown");
-    } else {
-        col_append_str(pinfo->cinfo, COL_INFO, "LinkUp");
-        proto_item_append_text(item, "LinkUp");
-    }
 
     return offset;
 }
@@ -261,7 +221,7 @@ if (prio ==0xFFFF)
 
 static int
 dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item)
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_)
 {
     guint16     prio;
     guint8      mac[6];
@@ -295,17 +255,13 @@ dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    col_append_str(pinfo->cinfo, COL_INFO, "Test");
-    if (tree)
-    proto_item_append_text(item, "Test");
-
     return offset;
 }
 
 
 static int
 dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item)
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_)
 {
     guint16     prio;
     guint8      mac[6];
@@ -333,10 +289,6 @@ dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset,
     }
     /* Padding */
     /*offset = dissect_pn_align4(tvb, offset, pinfo, tree);*/
-
-    col_append_str(pinfo->cinfo, COL_INFO, "TopologyChange");
-    if (tree)
-    proto_item_append_text(item, "TopologyChange");
 
     return offset;
 }
@@ -369,7 +321,7 @@ dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
     switch (oui)
     {
     case OUI_SIEMENS:
-        proto_item_append_text(item, "Option(SIEMENS)");
+        proto_item_append_text(item, "(SIEMENS)");
         /* No Padding !
         if (offset % 4) {
             length -= 4 - (offset % 4);
@@ -378,13 +330,12 @@ dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
         if (length != 0) {
             offset = dissect_pn_ManuData(tvb, offset, pinfo, tree, length);
         }
-        col_append_str(pinfo->cinfo, COL_INFO, "Option(Siemens)");
+        col_append_str(pinfo->cinfo, COL_INFO, "(Siemens)");
         break;
     default:
-        proto_item_append_text(item, "Option(Unknown-OUI)");
+        proto_item_append_text(item, " (Unknown-OUI)");
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
 
-        col_append_str(pinfo->cinfo, COL_INFO, "Option");
     }
 
     /* Padding */
@@ -427,12 +378,12 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
         } else {
             proto_item_append_text(item, " ");
         }
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(type, pn_mrp_block_type_vals, "Unknown TLVType 0x%x"));
+        proto_item_append_text(item, "%s", val_to_str_const(type, pn_mrp_block_type_vals, "Unknown TLVType 0x%x"));
 
         switch(type) {
         case 0x00:
             /* no content */
-            col_append_str(pinfo->cinfo, COL_INFO, "End");
-            proto_item_append_text(item, "End");
             return offset;
             break;
         case 0x01:
@@ -446,7 +397,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             break;
         case 0x04:
         case 0x05: /* dissection of up and down is identical! */
-            offset = dissect_PNMRP_LinkDown(new_tvb, offset, pinfo, tree, item, type);
+            offset = dissect_PNMRP_Link(new_tvb, offset, pinfo, tree, item);
             break;
         case 0x7f:
             offset = dissect_PNMRP_Option(new_tvb, offset, pinfo, tree, item, length);
@@ -454,8 +405,6 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
         default:
             offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown TLVType 0x%x", type);
-        proto_item_append_text(item, "Unknown TLVType 0x%x", type);
         }
     }
 
@@ -562,7 +511,7 @@ proto_register_pn_mrp (void)
         NULL, HFILL }},
 
     { &hf_pn_mrp_oui,
-      { "MRP_ManufacturerOUIr", "pn_mrp.oui",
+      { "MRP_ManufacturerOUI", "pn_mrp.oui",
         FT_UINT24, BASE_HEX, VALS(pn_mrp_oui_vals), 0x0,
         NULL, HFILL }},
 
