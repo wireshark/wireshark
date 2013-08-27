@@ -239,9 +239,10 @@ static int hf_gsm_a_sm_qos_ber = -1;
 static int hf_gsm_a_sm_qos_sdu_err_rat = -1;
 static int hf_gsm_a_sm_qos_traff_hdl_pri = -1;
 
+static int hf_gsm_a_gmm_split_pg_cycle_code = -1;
 static int hf_gsm_a_gmm_split_on_ccch = -1;
 static int hf_gsm_a_gmm_non_drx_timer = -1;
-static int hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef = -1;
+static int hf_gsm_a_gmm_cn_spec_drx_cycle_len_coef = -1;
 
 static int hf_gsm_a_gmm_ptmsi_sig =-1;
 static int hf_gsm_a_gmm_ptmsi_sig2 =-1;
@@ -650,8 +651,114 @@ de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
 /*
  * [7] 10.5.5.6
- *
- * SPLIT on CCCH, octet 3 (bit 4)
+ */
+
+/* SPLIT PG CYCLE CODE, octet 2 */
+static const value_string gsm_a_gmm_split_pg_cycle_code_strings[] = {
+	{  0, "704 (equivalent to no DRX)" },
+	{  1, "1" },
+	{  2, "2" },
+	{  3, "3" },
+	{  4, "4" },
+	{  5, "5" },
+	{  6, "6" },
+	{  7, "7" },
+	{  8, "8" },
+	{  9, "9" },
+	{ 10, "10" },
+	{ 11, "11" },
+	{ 12, "12" },
+	{ 13, "13" },
+	{ 14, "14" },
+	{ 15, "15" },
+	{ 16, "16" },
+	{ 17, "17" },
+	{ 18, "18" },
+	{ 19, "19" },
+	{ 20, "20" },
+	{ 21, "21" },
+	{ 22, "22" },
+	{ 23, "23" },
+	{ 24, "24" },
+	{ 25, "25" },
+	{ 26, "26" },
+	{ 27, "27" },
+	{ 28, "28" },
+	{ 29, "29" },
+	{ 30, "30" },
+	{ 31, "31" },
+	{ 32, "32" },
+	{ 33, "33" },
+	{ 34, "34" },
+	{ 35, "35" },
+	{ 36, "36" },
+	{ 37, "37" },
+	{ 38, "38" },
+	{ 39, "39" },
+	{ 40, "40" },
+	{ 41, "41" },
+	{ 42, "42" },
+	{ 43, "43" },
+	{ 44, "44" },
+	{ 45, "45" },
+	{ 46, "46" },
+	{ 47, "47" },
+	{ 48, "48" },
+	{ 49, "49" },
+	{ 50, "50" },
+	{ 51, "51" },
+	{ 52, "52" },
+	{ 53, "53" },
+	{ 54, "54" },
+	{ 55, "55" },
+	{ 56, "56" },
+	{ 57, "57" },
+	{ 58, "58" },
+	{ 59, "59" },
+	{ 60, "60" },
+	{ 61, "61" },
+	{ 62, "62" },
+	{ 63, "63" },
+	{ 64, "64" },
+	{ 65, "71" },
+	{ 66, "72" },
+	{ 67, "74" },
+	{ 68, "75" },
+	{ 69, "77" },
+	{ 70, "79" },
+	{ 71, "80" },
+	{ 72, "83" },
+	{ 73, "86" },
+	{ 74, "88" },
+	{ 75, "90" },
+	{ 76, "92" },
+	{ 77, "96" },
+	{ 78, "101" },
+	{ 79, "103" },
+	{ 80, "107" },
+	{ 81, "112" },
+	{ 82, "116" },
+	{ 83, "118" },
+	{ 84, "128" },
+	{ 85, "141" },
+	{ 86, "144" },
+	{ 87, "150" },
+	{ 88, "160" },
+	{ 89, "171" },
+	{ 90, "176" },
+	{ 91, "192" },
+	{ 92, "214" },
+	{ 93, "224" },
+	{ 94, "235" },
+	{ 95, "256" },
+	{ 96, "288" },
+	{ 97, "320" },
+	{ 98, "352" },
+	{ 0, NULL }
+};
+static value_string_ext gsm_a_gmm_split_pg_cycle_code_strings_ext = VALUE_STRING_EXT_INIT(gsm_a_gmm_split_pg_cycle_code_strings);
+
+/* SPLIT on CCCH, octet 3 (bit 4)
  * 0 Split pg cycle on CCCH is not supported by the mobile station
  * 1 Split pg cycle on CCCH is supported by the mobile station
  */
@@ -692,7 +799,7 @@ static const value_string gsm_a_gmm_non_drx_timer_strings[] = {
  * NOTE: For Iu mode and S1 mode, this field (octet 3 bits 8 to 5) is used, but was spare in earlier
  * versions of this protocol.
  */
-static const range_string gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings[] = {
+static const range_string gsm_a_gmm_cn_spec_drx_cycle_len_coef_strings[] = {
 	{ 0x00,	0x05, "CN Specific DRX cycle length coefficient / value not specified by the MS" },
 	{ 0x06,	0x06, "CN Specific DRX cycle length coefficient 6 and T = 32" },
 	{ 0x07,	0x07, "CN Specific DRX cycle length coefficient 7 and T = 64" },
@@ -704,72 +811,15 @@ static const range_string gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings[] = {
 guint16
 de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8       oct;
-	guint32	     curr_offset;
-	const gchar *str;
-	proto_item  *tf;
-	proto_tree  *tf_tree;
+	guint32 curr_offset;
 
 	curr_offset = offset;
 
-	tf = proto_tree_add_text(tree,
-		tvb, curr_offset, 2,
-		"DRX Parameter");
-
-	tf_tree = proto_item_add_subtree(tf, ett_gmm_drx);
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch (oct)
-	{
-		case 0:  str = "704"; break;
-		case 65: str = "71";  break;
-		case 66: str = "72";  break;
-		case 67: str = "74";  break;
-		case 68: str = "75";  break;
-		case 69: str = "77";  break;
-		case 70: str = "79";  break;
-		case 71: str = "80";  break;
-		case 72: str = "83";  break;
-		case 73: str = "86";  break;
-		case 74: str = "88";  break;
-		case 75: str = "90";  break;
-		case 76: str = "92";  break;
-		case 77: str = "96";  break;
-		case 78: str = "101"; break;
-		case 79: str = "103"; break;
-		case 80: str = "107"; break;
-		case 81: str = "112"; break;
-		case 82: str = "116"; break;
-		case 83: str = "118"; break;
-		case 84: str = "128"; break;
-		case 85: str = "141"; break;
-		case 86: str = "144"; break;
-		case 87: str = "150"; break;
-		case 88: str = "160"; break;
-		case 89: str = "171"; break;
-		case 90: str = "176"; break;
-		case 91: str = "192"; break;
-		case 92: str = "214"; break;
-		case 93: str = "224"; break;
-		case 94: str = "235"; break;
-		case 95: str = "256"; break;
-		case 96: str = "288"; break;
-		case 97: str = "320"; break;
-		case 98: str = "352"; break;
-		default: str = "Reserved, interpreted as 1";
-	}
-
-	proto_tree_add_text(tf_tree,
-		tvb, curr_offset, 1,
-		"Split PG Cycle Code: %s (%u)",
-		str,
-		oct);
-
+	proto_tree_add_item(tree, hf_gsm_a_gmm_split_pg_cycle_code, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
-	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_split_on_ccch, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_non_drx_timer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_cn_spec_drx_cycle_len_coef, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_split_on_ccch, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_non_drx_timer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
@@ -7218,6 +7268,11 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_qos_traff_hdl_pri_vals), 0x03,
 		    NULL, HFILL }
 		},
+		{ &hf_gsm_a_gmm_split_pg_cycle_code,
+		  { "SPLIT PG CYCLE CODE", "gsm_a.gm.gmm.split_pg_cycle_code",
+		    FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gsm_a_gmm_split_pg_cycle_code_strings_ext, 0x00,
+		    NULL, HFILL }
+		},
 		{ &hf_gsm_a_gmm_split_on_ccch,
 		  { "SPLIT on CCCH", "gsm_a.gm.gmm.split_on_ccch",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_split_on_ccch_value), 0x08,
@@ -7228,9 +7283,9 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gmm_non_drx_timer_strings), 0x07,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef,
-		  { "CN Specific DRX cycle length coefficient", "gsm_a.gm.gmm.cn_spec_drs_cycle_len_coef",
-		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings), 0xf0,
+		{ &hf_gsm_a_gmm_cn_spec_drx_cycle_len_coef,
+		  { "CN Specific DRX cycle length coefficient", "gsm_a.gm.gmm.cn_spec_drx_cycle_len_coef",
+		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_gmm_cn_spec_drx_cycle_len_coef_strings), 0xf0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_tft_op_code,
