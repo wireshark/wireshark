@@ -97,6 +97,12 @@ static int hf_usb_hid_report_id = -1;
 static int hf_usb_hid_duration = -1;
 static int hf_usb_hid_zero = -1;
 
+static int hf_usb_hid_bcdHID = -1;
+static int hf_usb_hid_bCountryCode = -1;
+static int hf_usb_hid_bNumDescriptors = -1;
+static int hf_usb_hid_bDescriptorType = -1;
+static int hf_usb_hid_wDescriptorLength = -1;
+
 static const true_false_string tfs_mainitem_bit0 = {"Data", "Constant"};
 static const true_false_string tfs_mainitem_bit1 = {"Array", "Variable"};
 static const true_false_string tfs_mainitem_bit2 = {"Absolute", "Relative"};
@@ -804,8 +810,11 @@ dissect_usb_hid_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, void *data _U_)
 {
     guint8      type;
+    gint        offset = 0;
     proto_item *ti;
     proto_tree *desc_tree;
+    guint8      num_desc;
+    guint       i;
 
     type = tvb_get_guint8(tvb, 1);
 
@@ -814,12 +823,31 @@ dissect_usb_hid_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_,
         return 0;
 
     ti = proto_tree_add_text(tree,
-            tvb, 0, tvb_reported_length(tvb), "HID DESCRIPTOR");
+            tvb, offset, tvb_reported_length(tvb), "HID DESCRIPTOR");
     desc_tree = proto_item_add_subtree(ti, ett_usb_hid_descriptor);
 
-    dissect_usb_descriptor_header(desc_tree, tvb, 0);
+    dissect_usb_descriptor_header(desc_tree, tvb, offset);
+    offset += 2;
+    proto_tree_add_item(desc_tree, hf_usb_hid_bcdHID,
+            tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(desc_tree, hf_usb_hid_bCountryCode,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    num_desc = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(desc_tree, hf_usb_hid_bNumDescriptors,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    for (i=0;i<num_desc;i++) {
+        proto_tree_add_item(desc_tree, hf_usb_hid_bDescriptorType,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(desc_tree, hf_usb_hid_wDescriptorLength,
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
 
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 
@@ -1060,8 +1088,28 @@ proto_register_usb_hid(void)
 
         { &hf_usb_hid_zero,
         { "(zero)", "usbhid.setup.zero", FT_UINT8, BASE_DEC, NULL, 0x0,
-          NULL, HFILL }}
+          NULL, HFILL }},
 
+        /* components of the HID descriptor */
+        { &hf_usb_hid_bcdHID,
+        { "bcdHID", "usbhid.descriptor.hid.bcdHID", FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+
+        { &hf_usb_hid_bCountryCode,
+        { "bCountryCode", "usbhid.descriptor.hid.bCountryCode", FT_UINT8,
+            BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_usb_hid_bNumDescriptors,
+        { "bNumDescriptors", "usbhid.descriptor.hid.bNumDescriptors", FT_UINT8,
+            BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_usb_hid_bDescriptorType,
+        { "bDescriptorType", "usbhid.descriptor.hid.bDescriptorType", FT_UINT8,
+            BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_usb_hid_wDescriptorLength,
+        { "wDescriptorLength", "usbhid.descriptor.hid.wDescriptorLength", FT_UINT16,
+            BASE_DEC, NULL, 0x0, NULL, HFILL }}
     };
 
     static gint *usb_hid_subtrees[] = {
