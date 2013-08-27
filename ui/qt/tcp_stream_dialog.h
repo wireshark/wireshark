@@ -48,10 +48,14 @@ public:
     explicit TCPStreamDialog(QWidget *parent = 0, capture_file *cf = NULL, tcp_graph_type graph_type = GRAPH_TSEQ_STEVENS);
     ~TCPStreamDialog();
 
+protected:
+    void keyPressEvent(QKeyEvent *event);
+
 private:
     Ui::TCPStreamDialog *ui;
     capture_file *cap_file_;
     struct tcp_graph graph_;
+    QRectF data_range_;
 };
 
 #endif // TCP_STREAM_DIALOG_H
