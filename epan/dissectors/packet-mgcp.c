@@ -7,6 +7,8 @@
  * NCS 1.0: PacketCable Network-Based Call Signaling Protocol Specification,
  *          PKT-SP-EC-MGCP-I09-040113, January 13, 2004, Cable Television
  *          Laboratories, Inc., http://www.PacketCable.com/
+ * NCS 1.5: PKT-SP-NCS1.5-I03-070412, April 12, 2007 Cable Television
+ *          Laboratories, Inc., http://www.PacketCable.com/
  * www.iana.org/assignments/mgcp-localconnectionoptions
  *
  * $Id$
@@ -101,6 +103,8 @@ static int hf_mgcp_param_localconnoptions_t = -1;
 static int hf_mgcp_param_localconnoptions_rcnf = -1;
 static int hf_mgcp_param_localconnoptions_rdir = -1;
 static int hf_mgcp_param_localconnoptions_rsh = -1;
+static int hf_mgcp_param_localconnoptions_mp = -1;
+static int hf_mgcp_param_localconnoptions_fxr = -1;
 static int hf_mgcp_param_connectionmode = -1;
 static int hf_mgcp_param_reqevents = -1;
 static int hf_mgcp_param_restartmethod = -1;
@@ -721,6 +725,12 @@ void proto_register_mgcp(void)
         { &hf_mgcp_param_localconnoptions_rsh,
           { "Resource Sharing (r-sh)", "mgcp.param.localconnectionoptions.rsh", FT_STRING, BASE_NONE, NULL, 0x0,
             "Resource Sharing", HFILL }},
+        { &hf_mgcp_param_localconnoptions_mp,
+          { "Multiple Packetization period (mp)", "mgcp.param.localconnectionoptions.mp", FT_STRING, BASE_NONE, NULL, 0x0,
+            "Multiple Packetization period", HFILL }},
+        { &hf_mgcp_param_localconnoptions_fxr,
+          { "FXR (fxr/fx)", "mgcp.param.localconnectionoptions.fxr", FT_STRING, BASE_NONE, NULL, 0x0,
+            "FXR", HFILL }},
         { &hf_mgcp_param_connectionmode,
           { "ConnectionMode (M)", "mgcp.param.connectionmode", FT_STRING, BASE_NONE, NULL, 0x0,
             "Connection Mode", HFILL }},
@@ -2063,6 +2073,14 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "r-sh"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_rsh;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "mp"))
+			{
+				hf_string = hf_mgcp_param_localconnoptions_mp;
+			}
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "fxr/fx"))
+			{
+				hf_string = hf_mgcp_param_localconnoptions_fxr;
 			}
 			else
 			{
