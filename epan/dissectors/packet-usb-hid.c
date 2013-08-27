@@ -804,9 +804,9 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return TRUE;
 }
 
-
+/* dissect a descriptor that is specific to the HID class */
 static gint
-dissect_usb_hid_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_usb_hid_class_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, void *data _U_)
 {
     guint8      type;
@@ -1131,7 +1131,8 @@ proto_reg_handoff_usb_hid(void) {
     usb_hid_control_handle = new_create_dissector_handle(dissect_usb_hid_control, proto_usb_hid);
     dissector_add_uint("usb.control", IF_CLASS_HID, usb_hid_control_handle);
 
-    usb_hid_descr_handle = new_create_dissector_handle(dissect_usb_hid_descriptors, proto_usb_hid);
+    usb_hid_descr_handle = new_create_dissector_handle(
+                        dissect_usb_hid_class_descriptors, proto_usb_hid);
     dissector_add_uint("usb.descriptor", IF_CLASS_HID, usb_hid_descr_handle);
 }
 
