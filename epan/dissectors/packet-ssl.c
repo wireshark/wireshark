@@ -168,6 +168,8 @@ static gint hf_ssl_handshake_extension_elliptic_curve       = -1;
 static gint hf_ssl_handshake_extension_ec_point_formats_len = -1;
 static gint hf_ssl_handshake_extension_ec_point_format      = -1;
 static gint hf_ssl_handshake_extension_alpn_len = -1;
+static gint hf_ssl_handshake_extension_alpn_list = -1;
+static gint hf_ssl_handshake_extension_alpn_str_len = -1;
 static gint hf_ssl_handshake_extension_alpn_str = -1;
 static gint hf_ssl_handshake_extension_npn_str_len = -1;
 static gint hf_ssl_handshake_extension_npn_str = -1;
@@ -2536,12 +2538,14 @@ dissect_ssl3_hnd_hello_ext_alpn(tvbuff_t *tvb,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    ti = proto_tree_add_text(tree, tvb, offset, alpn_length,
-                                    "ALPN Protocol List");
+    ti = proto_tree_add_item(tree, hf_ssl_handshake_extension_alpn_list,
+                             tvb, offset, alpn_length, ENC_NA);
     alpn_tree = proto_item_add_subtree(ti, ett_ssl_extension_alpn);
 
     while (alpn_length > 0) {
         name_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(alpn_tree, hf_ssl_handshake_extension_alpn_str_len,
+                            tvb, offset, 1, ENC_NA);
         offset++;
         alpn_length--;
         proto_tree_add_item(alpn_tree, hf_ssl_handshake_extension_alpn_str,
@@ -5390,6 +5394,16 @@ proto_register_ssl(void)
           { "ALPN Extension Length", "ssl.handshake.extensions_alpn_len",
           FT_UINT16, BASE_DEC, NULL, 0x0,
           "Length of the ALPN Extension", HFILL }
+        },
+        { &hf_ssl_handshake_extension_alpn_list,
+          { "ALPN Protocol", "ssl.handshake.extensions_alpn_list",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+        },
+        { &hf_ssl_handshake_extension_alpn_str_len,
+          { "ALPN string length", "ssl.handshake.extensions_alpn_str_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Length of ALPN string", HFILL }
         },
         { &hf_ssl_handshake_extension_alpn_str,
           { "ALPN Next Protocol", "ssl.handshake.extensions_alpn_str",
