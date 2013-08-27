@@ -89,6 +89,143 @@
 #include "stanag4607.h"
 #include "pcap-encap.h"
 
+/*
+ * Add an extension, and all compressed versions thereof, to a GSList
+ * of extensions.
+ */
+static GSList *add_extensions(GSList *extensions, const gchar *extension,
+    GSList *compressed_file_extensions)
+{
+	GSList *compressed_file_extension;
+
+	/*
+	 * Add the specified extension.
+	 */
+	extensions = g_slist_append(extensions, g_strdup(extension));
+
+	/*
+	 * Now add the extensions for compressed-file versions of
+	 * that extension.
+	 */
+	for (compressed_file_extension = compressed_file_extensions;
+	    compressed_file_extension != NULL;
+	    compressed_file_extension = g_slist_next(compressed_file_extension)) {
+		extensions = g_slist_append(extensions,
+		    g_strdup_printf("%s.%s", extension,
+		      (gchar *)compressed_file_extension->data));
+	}
+
+	return extensions;
+}
+
+/*
+ * File types that can be identified by file extensions.
+ */
+static const struct file_extension_info file_type_extensions_base[] = {
+	{ "Wireshark/tcpdump/... - pcap", "pcap;cap;dmp" },
+	{ "Wireshark/... - pcapng", "pcapng;ntar" },
+	{ "Network Monitor, Surveyor, NetScaler", "cap" },
+	{ "InfoVista 5View capture", "5vw" },
+	{ "Sniffer (DOS)", "cap;enc;trc;fdc;syc" },
+	{ "NetXRay, Sniffer (Windows)", "cap;caz" },
+	{ "Endace ERF capture", "erf" },
+	{ "EyeSDN USB S0/E1 ISDN trace format", "trc" },
+	{ "HP-UX nettl trace", "trc0;trc1" },
+	{ "Network Instruments Observer", "bfr" },
+	{ "Novell LANalyzer", "tr1" },
+	{ "Tektronix K12xx 32-bit .rf5 format", "rf5" },
+	{ "WildPackets *Peek", "pkt;tpc;apc;wpz" },
+	{ "Catapult DCT2000 trace (.out format)", "out" },
+	{ "MPEG files", "mpg;mp3" },
+	{ "CommView", "ncf" },
+	{ "Symbian OS btsnoop", "log" },
+	{ "Transport-Neutral Encapsulation Format", "tnef" },
+	{ "XML files (including Gammu DCT3 traces)", "xml" },
+	{ "OS X PacketLogger", "pklg" },
+	{ "Daintree SNA", "dcf" },
+	{ "JPEG/JFIF files", "jpg;jpeg;jfif" },
+	{ "IPFIX File Format", "pfx;ipfix" },
+	{ "Aethra .aps file", "aps" },
+	{ "MPEG2 transport stream", "mp2t;ts;mpg" },
+	{ "Ixia IxVeriWave .vwr Raw 802.11 Capture", "vwr" },
+	{ "CAM Inspector file", "camins" },
+};
+
+#define	N_FILE_TYPE_EXTENSIONS	(sizeof file_type_extensions_base / sizeof file_type_extensions_base[0])
+
+static const struct file_extension_info* file_type_extensions = NULL;
+
+static GArray* file_type_extensions_arr = NULL;
+
+/* initialize the extensions array if it has not been initialized yet */
+static void init_file_type_extensions(void) {
+
+	if (file_type_extensions_arr) return;
+
+	file_type_extensions_arr = g_array_new(FALSE,TRUE,sizeof(struct file_extension_info));
+
+	g_array_append_vals(file_type_extensions_arr,file_type_extensions_base,N_FILE_TYPE_EXTENSIONS);
+
+	file_type_extensions = (struct file_extension_info*)(void *)file_type_extensions_arr->data;
+}
+
+void wtap_register_file_type_extension(const struct file_extension_info *ei) {
+	init_file_type_extensions();
+
+	g_array_append_val(file_type_extensions_arr,*ei);
+
+	file_type_extensions = (const struct file_extension_info*)(void *)file_type_extensions_arr->data;
+}
+
+/* Return a list of all extensions that are used by all file types,
+   including compressed extensions, e.g. not just "pcap" but also
+   "pcap.gz" if we can read gzipped files.
+
+   All strings in the list are allocated with g_malloc() and must be freed
+   with g_free(). */
+GSList *wtap_get_all_file_extensions_list(void)
+{
+	GSList *compressed_file_extensions;
+	GSList *extensions;
+	unsigned int i;
+	gchar **extensions_set, **extensionp, *extension;
+
+	extensions = NULL;	/* empty list, to start with */
+
+	/*
+	 * Get the list of compressed-file extensions.
+	 */
+	compressed_file_extensions = wtap_get_compressed_file_extensions();
+
+	for (i = 0; i < file_type_extensions_arr->len; i++) {
+		/*
+		 * Split the extension-list string into a set of extensions.
+		 */
+		extensions_set = g_strsplit(file_type_extensions[i].extensions,
+		    ";", 0);
+
+		/*
+		 * Add each of those extensions to the list.
+		 */
+		for (extensionp = extensions_set; *extensionp != NULL;
+		    extensionp++) {
+			extension = *extensionp;
+
+			/*
+			 * Add the extension, and all compressed variants
+			 * of it.
+			 */
+			extensions = add_extensions(extensions, extension,
+			    compressed_file_extensions);
+		}
+
+		g_strfreev(extensions_set);
+	}
+
+	g_slist_free(compressed_file_extensions);
+	return extensions;
+}
+
 /* The open_file_* routines should return:
  *
  *	-1 on an I/O error;
@@ -651,22 +788,22 @@ static const struct file_type_info dump_open_table_base[] = {
 	  netmon_dump_can_write_encap_2_x, netmon_dump_open },
 
 	/* WTAP_FILE_NGSNIFFER_UNCOMPRESSED */
-	{ "NA Sniffer (DOS)", "ngsniffer", "cap", "enc;trc;fdc;syc",
+	{ "Sniffer (DOS)", "ngsniffer", "cap", "enc;trc;fdc;syc",
 	  FALSE, FALSE, 0,
 	  ngsniffer_dump_can_write_encap, ngsniffer_dump_open },
 
 	/* WTAP_FILE_NGSNIFFER_COMPRESSED */
-	{ "NA Sniffer (DOS), compressed", "ngsniffer_comp", "cap", "enc;trc;fdc;syc",
+	{ "Sniffer (DOS), compressed", "ngsniffer_comp", "cap", "enc;trc;fdc;syc",
 	  FALSE, FALSE, 0,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_1_1 */
-	{ "NA Sniffer (Windows) 1.1", "ngwsniffer_1_1", "cap", NULL,
+	{ "NetXray, Sniffer (Windows) 1.1", "ngwsniffer_1_1", "cap", NULL,
 	  TRUE, FALSE, 0,
 	  netxray_dump_can_write_encap_1_1, netxray_dump_open_1_1 },
 
 	/* WTAP_FILE_NETXRAY_2_00x */
-	{ "NA Sniffer (Windows) 2.00x", "ngwsniffer_2_0", "cap", "caz",
+	{ "Sniffer (Windows) 2.00x", "ngwsniffer_2_0", "cap", "caz",
 	  TRUE, FALSE, 0,
 	  netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0 },
 
@@ -842,7 +979,7 @@ gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_typ
 static GArray*  dump_open_table_arr = NULL;
 static const struct file_type_info* dump_open_table = dump_open_table_base;
 
-/* initialize the open routines array if it has not being initialized yet */
+/* initialize the file types array if it has not being initialized yet */
 static void init_file_types(void) {
 
 	if (dump_open_table_arr) return;
@@ -1092,31 +1229,6 @@ int wtap_short_string_to_file_type(const char *short_name)
 	return -1;	/* no such file type, or we can't write it */
 }
 
-static GSList *add_extensions(GSList *extensions, const gchar *extension,
-    GSList *compressed_file_extensions)
-{
-	GSList *compressed_file_extension;
-
-	/*
-	 * Add the specified extension.
-	 */
-	extensions = g_slist_append(extensions, g_strdup(extension));
-
-	/*
-	 * Now add the extensions for compressed-file versions of
-	 * that extension.
-	 */
-	for (compressed_file_extension = compressed_file_extensions;
-	    compressed_file_extension != NULL;
-	    compressed_file_extension = g_slist_next(compressed_file_extension)) {
-		extensions = g_slist_append(extensions,
-		    g_strdup_printf("%s.%s", extension,
-		      (gchar *)compressed_file_extension->data));
-	}
-
-	return extensions;
-}
-
 static GSList *
 add_extensions_for_filetype(int filetype, GSList *extensions,
     GSList *compressed_file_extensions)
@@ -1159,41 +1271,6 @@ add_extensions_for_filetype(int filetype, GSList *extensions,
 
 		g_strfreev(extensions_set);
 	}
-	return extensions;
-}
-
-/* Return a list of all extensions that are used by all file types,
-   including compressed extensions, e.g. not just "pcap" but also
-   "pcap.gz" if we can read gzipped files.
-
-   All strings in the list are allocated with g_malloc() and must be freed
-   with g_free(). */
-GSList *wtap_get_all_file_extensions_list(void)
-{
-	GSList *compressed_file_extensions;
-	GSList *extensions;
-	int filetype;
-
-	extensions = NULL;	/* empty list, to start with */
-
-	/*
-	 * Get the list of compressed-file extensions.
-	 */
-	compressed_file_extensions = wtap_get_compressed_file_extensions();
-
-	for (filetype = 0; filetype < WTAP_NUM_FILE_TYPES; filetype++) {
-		if (dump_open_table[filetype].default_file_extension != NULL) {
-			/*
-			 * This file type has at least one extension.
-			 * Add all its extensions, with compressed
-			 * variants.
-			 */
-			extensions = add_extensions_for_filetype(filetype,
-			    extensions, compressed_file_extensions);
-		}
-	}
-
-	g_slist_free(compressed_file_extensions);
 	return extensions;
 }
 

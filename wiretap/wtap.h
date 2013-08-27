@@ -1102,6 +1102,30 @@ typedef struct wtap_dumper wtap_dumper;
 typedef struct wtap_reader *FILE_T;
 
 /*
+ * For registering extensions used for capture file formats.
+ *
+ * These items are used in dialogs for opening files, so that
+ * the user can ask to see all capture files (as identified
+ * by file extension) or particular types of capture files.
+ *
+ * Each file type has a description and a list of extensions the file
+ * might have.  Some file types aren't real file types, they're
+ * just generic types, such as "text file" or "XML file", that can
+ * be used for, among other things, captures we can read, or for
+ * extensions such as ".cap" that were unimaginatively chosen by
+ * several different sniffers for their file formats.
+ */
+struct file_extension_info {
+    /* the file type name */
+    const char *name;
+
+    /* a semicolon-separated list of file extensions used for this type */
+    const char *extensions;
+};
+
+typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
+
+/*
  * Types of comments.
  */
 #define WTAP_COMMENT_PER_SECTION	0x00000001	/* per-file/per-file-section */
@@ -1145,9 +1169,6 @@ struct file_type_info {
     /* should be NULL is this file type don't have write support */
     int (*dump_open)(wtap_dumper *, int *);
 };
-
-
-typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
 
 
 /** On failure, "wtap_open_offline()" returns NULL, and puts into the
@@ -1356,6 +1377,8 @@ WS_DLL_PUBLIC
 int wtap_get_num_file_types(void);
 
 /*** dynamically register new file types and encapsulations ***/
+WS_DLL_PUBLIC
+void wtap_register_file_type_extension(const struct file_extension_info *ei);
 WS_DLL_PUBLIC
 void wtap_register_open_routine(wtap_open_routine_t, gboolean has_magic);
 WS_DLL_PUBLIC
