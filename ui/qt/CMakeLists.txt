@@ -64,6 +64,7 @@ set(QTSHARK_H_SRC
 	profile_dialog.h
 	progress_bar.h
 	proto_tree.h
+	qcustomplot.h
 	recent_file_status.h
 	search_frame.h
 	simple_dialog_qt.h
@@ -142,6 +143,7 @@ set(CLEAN_FILES
 
 set(DIRTY_FILES
 	packet_list_record.cpp
+	qcustomplot.cpp
 )
 
 set(QTSHARK_UI

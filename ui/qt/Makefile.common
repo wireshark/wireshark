@@ -166,7 +166,7 @@ UI_FILES = \
 	print_dialog.ui			\
 	profile_dialog.ui		\
 	search_frame.ui			\
-	summary_dialog.ui 		\
+	summary_dialog.ui		\
 	splash_overlay.ui		\
 	tcp_stream_dialog.ui		\
 	time_shift_dialog.ui		\
@@ -259,13 +259,14 @@ WIRESHARK_QT_SRC = \
 	profile_dialog.cpp \
 	progress_bar.cpp \
 	proto_tree.cpp \
+	qcustomplot.c \
 	qt_ui_utils.cpp \
 	recent_file_status.cpp \
 	related_packet_delegate.cpp \
 	search_frame.cpp \
 	simple_dialog_qt.cpp \
 	sparkline_delegate.cpp \
-	summary_dialog.cpp 		\
+	summary_dialog.cpp \
 	splash_overlay.cpp \
 	syntax_line_edit.cpp \
 	tcp_stream_dialog.cpp \
@@ -276,5 +277,6 @@ WIRESHARK_QT_SRC = \
 noinst_HEADERS = \
 	$(MOC_HDRS) \
 	packet_list_record.h \
+	qcustomplot.h \
 	qt_ui_utils.h \
 	tango_colors.h

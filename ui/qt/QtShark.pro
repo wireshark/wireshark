@@ -552,8 +552,8 @@ SOURCES += \
     profile_dialog.cpp \
     progress_bar.cpp \
     proto_tree.cpp \
-    qt_ui_utils.cpp \
     qcustomplot.cpp \
+    qt_ui_utils.cpp \
     recent_file_status.cpp \
     related_packet_delegate.cpp \
     search_frame.cpp \
