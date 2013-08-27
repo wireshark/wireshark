@@ -129,6 +129,7 @@ MOC_HDRS = \
 	profile_dialog.h \
 	progress_bar.h \
 	proto_tree.h \
+	qcustomplot.h \
 	recent_file_status.h \
 	related_packet_delegate.h \
 	search_frame.h \
@@ -259,7 +260,7 @@ WIRESHARK_QT_SRC = \
 	profile_dialog.cpp \
 	progress_bar.cpp \
 	proto_tree.cpp \
-	qcustomplot.c \
+	qcustomplot.cpp \
 	qt_ui_utils.cpp \
 	recent_file_status.cpp \
 	related_packet_delegate.cpp \

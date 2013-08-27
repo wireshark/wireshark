@@ -137,6 +137,8 @@ splash_overlay.cpp splash_overlay.h: ui_splash_overlay.h
 
 summary_dialog.cpp summary_dialog.h: ui_summary_dialog.h
 
+tcp_stream_dialog.cpp: ui_tcp_stream_dialog.h
+
 time_shift_dialog.cpp time_shift_dialog.h: ui_time_shift_dialog.h
 
 uat_dialog.cpp uat_dialog.h: ui_uat_dialog.h
