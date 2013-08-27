@@ -4903,6 +4903,11 @@ set_menus_for_selected_packet(capture_file *cf)
            than one time reference frame or the current frame isn't a
            time reference frame). (XXX - why check frame_selected?) */
 
+    gboolean tcp_packet_selected = FALSE;
+    if (cf) {
+        tcp_packet_selected = frame_selected && (cf->edt->pi.ipproto == IP_PROTO_TCP);
+    }
+
     if (cfile.edt && cfile.edt->tree) {
         GPtrArray          *ga;
         header_field_info  *hfinfo;
@@ -4997,9 +5002,9 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SCTP",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowTCPStream",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+                         tcp_packet_selected);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowTCPStream",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+                         tcp_packet_selected);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowUDPStream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowSSLStream",
@@ -5013,7 +5018,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/IP",
                          frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/TCP",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+                         tcp_packet_selected);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/UDP",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowUDPStream",
@@ -5027,7 +5032,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/IP",
                          frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/TCP",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+                         tcp_packet_selected);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/UDP",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/PN-CBA",
@@ -5061,7 +5066,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
                                             gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowTCPStream",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+                         tcp_packet_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowUDPStream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowSSLStream",
@@ -5074,7 +5079,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
-                         tcp_graph_selected_packet_enabled(cf->current_frame,cf->edt, NULL));
+                         tcp_packet_selected);
 
     while (list_entry != NULL) {
         dissector_filter_t *filter_entry;

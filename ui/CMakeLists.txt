@@ -38,6 +38,7 @@ set(COMMON_UI_SRC
 	software_update.c
 	tap-megaco-common.c
 	tap-rtp-common.c
+	tap-tcp-stream.c
 	text_import.c
 	time_shift.c
 	util.c

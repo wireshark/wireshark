@@ -52,6 +52,7 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_search_frame.h \
 	ui_summary_dialog.h \
 	ui_splash_overlay.h \
+	ui_tcp_stream_dialog.h \
 	ui_time_shift_dialog.h \
 	ui_uat_dialog.h
 
@@ -136,6 +137,7 @@ MOC_HDRS = \
 	sparkline_delegate.h \
 	splash_overlay.h \
 	syntax_line_edit.h \
+	tcp_stream_dialog.h \
 	time_shift_dialog.h \
 	uat_dialog.h \
 	wireshark_application.h
@@ -166,6 +168,7 @@ UI_FILES = \
 	search_frame.ui			\
 	summary_dialog.ui 		\
 	splash_overlay.ui		\
+	tcp_stream_dialog.ui		\
 	time_shift_dialog.ui		\
 	uat_dialog.ui
 
@@ -265,6 +268,7 @@ WIRESHARK_QT_SRC = \
 	summary_dialog.cpp 		\
 	splash_overlay.cpp \
 	syntax_line_edit.cpp \
+	tcp_stream_dialog.cpp \
 	time_shift_dialog.cpp \
 	uat_dialog.cpp \
 	wireshark_application.cpp

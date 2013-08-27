@@ -290,6 +290,7 @@ private slots:
     void on_actionStopCapture_triggered();
 
     void on_actionSummary_triggered();
+    void on_actionStatisticsTcpStreamStevens_triggered();
 };
 
 

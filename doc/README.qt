@@ -159,7 +159,10 @@ HTTP request statistics?
 
 - Preferences are complete, and are arguably more useful than the GTK+ version.
   An "Advanced" preference pane exists, which lets you edit everything. They use
-  the proper menu placement and keyboard shortcut on OS X. 
+  the proper menu placement and keyboard shortcut on OS X.
+
+- Some dialogs (file sets, profiles, and UATs) provide a link to filesystem paths
+  where appropriate.
 
 3. Translations (i18n)
 For make your own translation of QtShark ! it is easy !

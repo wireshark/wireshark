@@ -28,7 +28,16 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <property name="spacing">
@@ -59,7 +68,7 @@
        <item>
         <widget class="QLineEdit" name="goToLineEdit">
          <property name="inputMask">
-          <string>900000000; </string>
+          <string>900000000</string>
          </property>
         </widget>
        </item>
@@ -97,7 +106,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -306,8 +315,15 @@
     <property name="title">
      <string>Statistics</string>
     </property>
+    <widget class="QMenu" name="menuTcpStreamGraphs">
+     <property name="title">
+      <string>TCP Stream Graphs</string>
+     </property>
+     <addaction name="actionStatisticsTcpStreamStevens"/>
+    </widget>
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
+    <addaction name="menuTcpStreamGraphs"/>
    </widget>
    <widget class="QMenu" name="menuTelephony">
     <property name="title">
@@ -1230,6 +1246,14 @@
   <action name="actionHelpMPReordercap">
    <property name="text">
     <string>Reordercap</string>
+   </property>
+  </action>
+  <action name="actionStatisticsTcpStreamStevens">
+   <property name="text">
+    <string>Time Sequence (Stevens)</string>
+   </property>
+   <property name="toolTip">
+    <string>TCP time sequence graph (Stevens)</string>
    </property>
   </action>
  </widget>

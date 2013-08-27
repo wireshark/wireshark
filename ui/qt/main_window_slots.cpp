@@ -54,7 +54,10 @@
 #include "wsutil/file_util.h"
 
 #include "epan/column.h"
+#include <epan/epan_dissect.h>
 #include "epan/filter_expressions.h"
+#include <epan/value_string.h>
+#include <epan/ipproto.h>
 
 #include "ui/alert_box.h"
 #include "ui/ui_util.h"
@@ -70,12 +73,13 @@
 
 #include "capture_file_dialog.h"
 #include "export_object_dialog.h"
-#include "time_shift_dialog.h"
 #include "packet_comment_dialog.h"
 #include "preferences_dialog.h"
 #include "print_dialog.h"
 #include "profile_dialog.h"
 #include "qt_ui_utils.h"
+#include "tcp_stream_dialog.h"
+#include "time_shift_dialog.h"
 #include "wireshark_application.h"
 
 #include <QClipboard>
@@ -641,6 +645,7 @@ void MainWindow::setMenusForSelectedPacket()
        than one time reference frame or the current frame isn't a
        time reference frame). (XXX - why check frame_selected?) */
     gboolean another_is_time_ref = FALSE;
+    gboolean tcp_packet_selected = FALSE;
 
     if (cap_file_) {
         frame_selected = cap_file_->current_frame != NULL;
@@ -653,6 +658,7 @@ void MainWindow::setMenusForSelectedPacket()
         have_time_ref = cap_file_->ref_time_count > 0;
         another_is_time_ref = frame_selected && have_time_ref &&
                 !(cap_file_->ref_time_count == 1 && cap_file_->current_frame->flags.ref_time);
+        tcp_packet_selected = frame_selected && (cap_file_->edt->pi.ipproto == IP_PROTO_TCP);
     }
 //    if (cfile.edt && cfile.edt->tree) {
 //        GPtrArray          *ga;
@@ -805,8 +811,7 @@ void MainWindow::setMenusForSelectedPacket()
 //                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
 //                         frame_selected);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
-//                         tcp_graph_selected_packet_enabled(cf->current_frame,cf->edt, NULL));
+    main_ui_->menuTcpStreamGraphs->setEnabled(tcp_packet_selected);
 
 //    while (list_entry != NULL) {
 //        dissector_filter_t *filter_entry;
@@ -1588,8 +1593,16 @@ void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
     matchSelectedFilter(MatchSelectedOrNot, false, false);
 }
 
-
 // Next / previous / first / last slots in packet_list
+
+// Statistics Menu
+
+void MainWindow::on_actionStatisticsTcpStreamStevens_triggered()
+{
+    TCPStreamDialog stream_dialog(this, cap_file_, GRAPH_TSEQ_STEVENS);
+    stream_dialog.exec();
+}
+
 
 // Help Menu
 void MainWindow::on_actionHelpContents_triggered() {

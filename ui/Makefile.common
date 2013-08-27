@@ -59,6 +59,7 @@ WIRESHARK_UI_SRC = \
 	ssl_key_export.c	\
 	tap-megaco-common.c	\
 	tap-rtp-common.c	\
+	tap-tcp-stream.c	\
 	text_import.c		\
 	time_shift.c		\
 	util.c
@@ -83,6 +84,7 @@ noinst_HEADERS = \
 	ssl_key_export.h	\
 	tap-megaco-common.h	\
 	tap-rtp-common.h	\
+	tap-tcp-stream.h	\
 	text_import.h		\
 	text_import_scanner.h	\
 	time_shift.h		\

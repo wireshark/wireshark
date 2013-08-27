@@ -227,7 +227,8 @@ FORMS += \
     splash_overlay.ui \
     summary_dialog.ui \
     time_shift_dialog.ui \
-    uat_dialog.ui
+    uat_dialog.ui \
+    tcp_stream_dialog.ui
 
 
 win32 { ## These should be in config.pri ??
@@ -273,7 +274,8 @@ HEADERS += $$HEADERS_WS_C \
     summary_dialog.h \
     tango_colors.h \
     uat_dialog.h \
-    elided_label.h
+    elided_label.h \
+    tcp_stream_dialog.h
 
 
 win32 {
@@ -498,6 +500,7 @@ HEADERS += \
     proto_tree.h \
     qt_ui_utils.h \
     qt_ui_utils.h \
+    qcustomplot.h \
     recent_file_status.h \
     related_packet_delegate.h \
     simple_dialog_qt.h \
@@ -552,6 +555,7 @@ SOURCES += \
     progress_bar.cpp \
     proto_tree.cpp \
     qt_ui_utils.cpp \
+    qcustomplot.cpp \
     recent_file_status.cpp \
     related_packet_delegate.cpp \
     search_frame.cpp \
@@ -562,4 +566,5 @@ SOURCES += \
     syntax_line_edit.cpp \
     time_shift_dialog.cpp \
     uat_dialog.cpp \
-    wireshark_application.cpp
+    wireshark_application.cpp \
+    tcp_stream_dialog.cpp

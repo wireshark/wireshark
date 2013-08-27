@@ -70,6 +70,7 @@ set(QTSHARK_H_SRC
 	splash_overlay.h
 	summary_dialog.h
 	syntax_line_edit.h
+	tcp_stream_dialog.h
 	time_shift_dialog.h
 	uat_dialog.h
 	wireshark_application.h
@@ -133,6 +134,7 @@ set(CLEAN_FILES
 	sparkline_delegate.cpp
 	summary_dialog.cpp
 	syntax_line_edit.cpp
+	tcp_stream_dialog.cpp
 	time_shift_dialog.cpp
 	uat_dialog.cpp
 	wireshark_application.cpp
@@ -164,6 +166,7 @@ set(QTSHARK_UI
 	search_frame.ui
 	splash_overlay.ui
 	summary_dialog.ui
+	tcp_stream_dialog.ui
 	time_shift_dialog.ui
 	uat_dialog.ui
 )
