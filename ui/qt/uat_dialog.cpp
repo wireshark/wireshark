@@ -262,7 +262,7 @@ void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column
     {
         QString cur_path = fieldString(row, column);
         QString new_path = QFileDialog::getSaveFileName(this, field->title, cur_path, QString(), NULL, fd_opt);
-        field->cb.set(rec, new_path.toUtf8().constData(), strlen(new_path.toUtf8().constData()), field->cbdata.set, field->fld_data);
+        field->cb.set(rec, new_path.toUtf8().constData(), (unsigned) strlen(new_path.toUtf8().constData()), field->cbdata.set, field->fld_data);
         updateItem(*item);
         break;
     }
@@ -356,8 +356,8 @@ void UatDialog::enumPrefCurrentIndexChanged(int index)
     const char *enum_txt = cur_combo_box_->itemText(index).toUtf8().constData();
     const char *err = NULL;
 
-    if (field->cb.chk && field->cb.chk(rec, enum_txt, strlen(enum_txt), field->cbdata.chk, field->fld_data, &err)) {
-        field->cb.set(rec, enum_txt, strlen(enum_txt), field->cbdata.set, field->fld_data);
+    if (field->cb.chk && field->cb.chk(rec, enum_txt, (unsigned) strlen(enum_txt), field->cbdata.chk, field->fld_data, &err)) {
+        field->cb.set(rec, enum_txt, (unsigned) strlen(enum_txt), field->cbdata.set, field->fld_data);
         ok_button_->setEnabled(true);
     } else {
         ok_button_->setEnabled(false);
@@ -378,8 +378,8 @@ void UatDialog::stringPrefTextChanged(const QString &text)
     SyntaxLineEdit::SyntaxState ss = SyntaxLineEdit::Empty;
 
     if (field->cb.chk) {
-        if (field->cb.chk(rec, txt, strlen(txt), field->cbdata.chk, field->fld_data, &err)) {
-            field->cb.set(rec, txt, strlen(txt), field->cbdata.set, field->fld_data);
+        if (field->cb.chk(rec, txt, (unsigned) strlen(txt), field->cbdata.chk, field->fld_data, &err)) {
+            field->cb.set(rec, txt, (unsigned) strlen(txt), field->cbdata.set, field->fld_data);
             saved_string_pref_ = text;
             ss = SyntaxLineEdit::Valid;
         } else {
