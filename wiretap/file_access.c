@@ -190,6 +190,8 @@ GSList *wtap_get_all_file_extensions_list(void)
 	unsigned int i;
 	gchar **extensions_set, **extensionp, *extension;
 
+	init_file_type_extensions();
+
 	extensions = NULL;	/* empty list, to start with */
 
 	/*
