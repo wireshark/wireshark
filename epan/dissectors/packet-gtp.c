@@ -320,6 +320,7 @@ static gint ett_gtp_node_addr = -1;
 static gint ett_gtp_rel_pack = -1;
 static gint ett_gtp_can_pack = -1;
 static gint ett_gtp_data_resp = -1;
+static gint ett_gtp_drx = -1;
 static gint ett_gtp_net_cap = -1;
 static gint ett_gtp_tmgi = -1;
 static gint ett_gtp_cdr_ver = -1;
@@ -4070,6 +4071,8 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
 /*
  * 3GPP TS 24.008 10.5.5.6 ( see packet-gsm_a.c )
  */
+    tf = proto_tree_add_text(ext_tree_mm, tvb, offset, 2, "DRX Parameter");
+    tf_tree = proto_item_add_subtree(tf, ett_gtp_drx);
     de_gmm_drx_param(tvb, ext_tree_mm, pinfo, offset, 2, NULL, 0);
     offset = offset + 2;
 
@@ -9270,7 +9273,7 @@ proto_register_gtp(void)
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    27
+#define GTP_NUM_INDIVIDUAL_ELEMS    28
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -9289,17 +9292,18 @@ proto_register_gtp(void)
     ett_gtp_array[13] = &ett_gtp_tmgi;
     ett_gtp_array[14] = &ett_gtp_trip;
     ett_gtp_array[15] = &ett_gtp_quint;
-    ett_gtp_array[16] = &ett_gtp_net_cap;
-    ett_gtp_array[17] = &ett_gtp_can_pack;
-    ett_gtp_array[18] = &ett_gtp_proto;
-    ett_gtp_array[19] = &ett_gtp_gsn_addr;
-    ett_gtp_array[20] = &ett_gtp_tft;
-    ett_gtp_array[21] = &ett_gtp_tft_pf;
-    ett_gtp_array[22] = &ett_gtp_tft_flags;
-    ett_gtp_array[23] = &ett_gtp_rab_setup;
-    ett_gtp_array[24] = &ett_gtp_hdr_list;
-    ett_gtp_array[25] = &ett_gtp_rel_pack;
-    ett_gtp_array[26] = &ett_gtp_node_addr;
+    ett_gtp_array[16] = &ett_gtp_drx;
+    ett_gtp_array[17] = &ett_gtp_net_cap;
+    ett_gtp_array[18] = &ett_gtp_can_pack;
+    ett_gtp_array[19] = &ett_gtp_proto;
+    ett_gtp_array[20] = &ett_gtp_gsn_addr;
+    ett_gtp_array[21] = &ett_gtp_tft;
+    ett_gtp_array[22] = &ett_gtp_tft_pf;
+    ett_gtp_array[23] = &ett_gtp_tft_flags;
+    ett_gtp_array[24] = &ett_gtp_rab_setup;
+    ett_gtp_array[25] = &ett_gtp_hdr_list;
+    ett_gtp_array[26] = &ett_gtp_rel_pack;
+    ett_gtp_array[27] = &ett_gtp_node_addr;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
