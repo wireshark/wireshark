@@ -602,7 +602,7 @@ void tcp_graph_cb(GtkAction *action, gpointer user_data _U_)
     struct segment  current;
     struct gtk_graph   *g;
     const  gchar   *name;
-    guint           graph_type;
+    tcp_graph_type  graph_type;
 
     name = gtk_action_get_name(action);
     if (strcmp(name, "/Statistics/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens") == 0) {
@@ -1597,10 +1597,10 @@ static GtkWidget *control_panel_create_graph_type_group(struct gtk_graph *g)
 
 static void callback_graph_type(GtkWidget *toggle, gpointer data)
 {
-    int old_type, new_type;
+    tcp_graph_type old_type, new_type;
     struct gtk_graph *g = (struct gtk_graph * )data;
 
-    new_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(toggle), "new-graph-type"));
+    new_type = (tcp_graph_type)GPOINTER_TO_INT(g_object_get_data(G_OBJECT(toggle), "new-graph-type"));
 
     if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle)))
         return;
