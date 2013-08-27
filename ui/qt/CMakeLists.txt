@@ -127,11 +127,11 @@ set(CLEAN_FILES
 	qt_ui_utils.cpp
 	recent_file_status.cpp
 	related_packet_delegate.cpp
+	search_frame.cpp
 	simple_dialog_qt.cpp
+	splash_overlay.cpp
 	sparkline_delegate.cpp
 	summary_dialog.cpp
-	search_frame.cpp
-	splash_overlay.cpp
 	syntax_line_edit.cpp
 	time_shift_dialog.cpp
 	uat_dialog.cpp
@@ -161,9 +161,9 @@ set(QTSHARK_UI
 	preferences_dialog.ui
 	print_dialog.ui
 	profile_dialog.ui
-	summary_dialog.ui
 	search_frame.ui
 	splash_overlay.ui
+	summary_dialog.ui
 	time_shift_dialog.ui
 	uat_dialog.ui
 )
@@ -183,8 +183,8 @@ set(QTSHARK_TS
 )
 
 include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
 )
 
 if (QT_VERSION EQUAL 5)
