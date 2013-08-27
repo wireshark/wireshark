@@ -2231,10 +2231,20 @@ static const guint8 VID_CISCO_FRAG[] = { /* Cisco Fragmentation */
 	0x80, 0x00, 0x00, 0x00
 };
 
-static const guint8 VID_CP[] = { /* Check Point */
+static const guint8 VID_CP_01_R65[] = { /* CryptoPro/GOST 0.1 / Check Point R65 */
 	0xF4, 0xED, 0x19, 0xE0, 0xC1, 0x14, 0xEB, 0x51,
 	0x6F, 0xAA, 0xAC, 0x0E, 0xE3, 0x7D, 0xAF, 0x28,
 	0x7, 0xB4, 0x38, 0x1F
+};
+
+static const guint8 VID_CP_10_R71[] = { /* CryptoPro/GOST 1.0 / Check Point R71 */
+        0x03, 0x10, 0x17, 0xE0, 0x7F, 0x7A, 0x82, 0xE3,
+	0xAA, 0x69, 0x50, 0xC9, 0x99, 0x99, 0x01, 0x00
+};
+
+static const guint8 VID_CP_11[] = { /* CryptoPro/GOST 1.1 */
+        0x03, 0x10, 0x17, 0xE0, 0x7F, 0x7A, 0x82, 0xE3,
+	0xAA, 0x69, 0x50, 0xC9, 0x99, 0x99, 0x01, 0x01
 };
 
 static const guint8 VID_CYBERGUARD[] = { /* CyberGuard */
@@ -2404,6 +2414,20 @@ static const guint8 VID_ARUBA_VIA_AUTH_PROFILE[] = { /* VIA Auth Profile (Aruba 
 	0x20, 0x3a, 0x20
 };
 
+/*
+ * MS-IKEE Internet Key Exchange Protocol Extensions (v20080212).pdf
+ * Windows Vista and Windows Server 2008
+*/
+static const guint8 VID_MS_IKEE_20080212_CGA1[] = { /* IKE CGA Version 1 */
+        0xe3, 0xa5, 0x96, 0x6a, 0x76, 0x37, 0x9f, 0xe7,
+	0x07, 0x22, 0x82, 0x31, 0xe5, 0xce, 0x86, 0x52
+};
+
+static const guint8 VID_MS_IKEE_20080212_MS_NDC[] = { /* MS-Negotiation Discovery Capable */
+        0xfb, 0x1d, 0xe3, 0xcd, 0xf3, 0x41, 0xb7, 0xea,
+	0x16, 0xb7, 0xe5, 0xbe, 0x08, 0x55, 0xf1, 0x20
+};
+
 /* Based from value_string.c/h */
 static const byte_string vendor_id[] = {
   { VID_SSH_IPSEC_EXPRESS_1_1_0, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_0), "Ssh Communications Security IPSEC Express version 1.1.0" },
@@ -2473,7 +2497,9 @@ static const byte_string vendor_id[] = {
   { VID_CISCO_UNITY, sizeof(VID_CISCO_UNITY), "CISCO-UNITY" },
   { VID_CISCO_CONCENTRATOR, sizeof(VID_CISCO_CONCENTRATOR), "CISCO-CONCENTRATOR" },
   { VID_CISCO_FRAG, sizeof(VID_CISCO_FRAG), "Cisco Fragmentation" },
-  { VID_CP, sizeof(VID_CP), "Check Point" },
+  { VID_CP_01_R65, sizeof(VID_CP_01_R65), "CryptoPro/GOST 0.1 / Check Point R65" },
+  { VID_CP_10_R71, sizeof(VID_CP_10_R71), "CryptoPro/GOST 1.0 / Check Point R71" },
+  { VID_CP_11, sizeof(VID_CP_11), "CryptoPro/GOST 1.1" },
   { VID_CYBERGUARD, sizeof(VID_CYBERGUARD), "CyberGuard" },
   { VID_SHREWSOFT, sizeof(VID_SHREWSOFT), "Shrew Soft" },
   { VID_STRONGSWAN, sizeof(VID_STRONGSWAN), "strongSwan" },
@@ -2504,6 +2530,8 @@ static const byte_string vendor_id[] = {
   { VID_ARUBA_CONTROLLER, sizeof(VID_ARUBA_CONTROLLER), "Controller (Aruba Networks)" },
   { VID_ARUBA_VIA_CLIENT, sizeof(VID_ARUBA_VIA_CLIENT), "VIA Client (Aruba Networks)" },
   { VID_ARUBA_VIA_AUTH_PROFILE, sizeof(VID_ARUBA_VIA_AUTH_PROFILE), "VIA Auth Profile (Aruba Networks)" },
+  { VID_MS_IKEE_20080212_CGA1, sizeof(VID_MS_IKEE_20080212_CGA1), "IKE CGA Version 1" },
+  { VID_MS_IKEE_20080212_MS_NDC, sizeof(VID_MS_IKEE_20080212_MS_NDC), "MS-Negotiation Discovery Capable" },
   { 0, 0, NULL }
 };
 
@@ -4057,8 +4085,8 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   proto_tree_add_string(tree, hf_isakmp_vid_string, tvb, offset, length, vendorstring);
   proto_item_append_text(tree," : %s", vendorstring);
 
-  /* Check Point VID */
-  if (length >= 24 && memcmp(pVID, VID_CP, 20) == 0)
+  /* very old CryptPro/GOST (Check Point R65) VID */
+  if (length >= 24 && memcmp(pVID, VID_CP_01_R65, 20) == 0)
   {
     offset += 20;
     proto_tree_add_item(tree, hf_isakmp_vid_cp_product, tvb, offset, 4, ENC_BIG_ENDIAN);
