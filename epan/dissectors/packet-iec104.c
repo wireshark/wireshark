@@ -38,6 +38,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/emem.h>
 
@@ -521,8 +522,7 @@ static const true_false_string tfs_coi_i = { "Initialisation after change of loc
 
 /* Protocol fields to be filtered */
 static int hf_apdulen = -1;
-static int hf_apcitype1 = -1;
-static int hf_apcitype2 = -1;
+static int hf_apcitype = -1;
 static int hf_apciutype = -1;
 static int hf_apcitx = -1;
 static int hf_apcirx = -1;
@@ -823,20 +823,28 @@ static void get_VTI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
    ==================================================================== */
 static void get_NVA(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  /* Normalized value F16[1..16]<-1..+1-2^-15> */
-  proto_tree_add_item(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+  gint16 value;
+  float fvalue;
+  
+  value = (gint16)tvb_get_letohs(tvb, *offset);
+  fvalue = (float)value / 32768;
 
-  /* todo ... presentation as float +/- 1 (val/32767) ... */
+  /* Normalized value F16[1..16]<-1..+1-2^-15> */
+  proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
 
   (*offset) += 2;
 }
 
 static void get_NVAspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-  /* Normalized value F16[1..16]<-1..+1-2^-15> */
-  proto_tree_add_item(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+  gint16 value;
+  float fvalue;
+  
+  value = (gint16)tvb_get_letohs(tvb, *offset);
+  fvalue = (float)value / 32768;
 
-  /* todo ... presentation as float +/- 1 */
+  /* Normalized value F16[1..16]<-1..+1-2^-15> */
+  proto_tree_add_float_format_value(iec104_header_tree, hf_asdu_normval, tvb, *offset, 2, fvalue, "%." STRINGIFY(FLT_DIG) "g (%d)", fvalue, value);
 
   (*offset) += 2;
 }
@@ -1384,9 +1392,9 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				type = temp8 & 0x03;
 
 			if (type == I_TYPE)
-				proto_tree_add_item(it104tree, hf_apcitype1, tvb, Off + 2, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 7, 1, ENC_LITTLE_ENDIAN);
 			else
-				proto_tree_add_item(it104tree, hf_apcitype2, tvb, Off + 2, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 6, 2, ENC_LITTLE_ENDIAN);
 
 			if (len <= APDU_MAX_LEN) {
 				ep_strbuf_append_printf(res, "%s %s (",
@@ -1454,12 +1462,8 @@ proto_register_iec104apci(void)
 		  { "ApduLen", "104apci.apdulen", FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "APDU Len", HFILL }},
 
-		{ &hf_apcitype1,
-		  { "Type", "104apci.type", FT_UINT8, BASE_HEX, VALS(apci_types), 0x01,
-		    "APCI type", HFILL }},
-
-		{ &hf_apcitype2,
-		  { "Type", "104apci.type", FT_UINT8, BASE_HEX, VALS(apci_types), 0x03,
+		{ &hf_apcitype,
+		  { "Type", "104apci.type", FT_UINT8, BASE_HEX, VALS(apci_types), 0x00,
 		    "APCI type", HFILL }},
 
 		{ &hf_apciutype,
@@ -1652,7 +1656,7 @@ proto_register_iec104asdu(void)
 		    NULL, HFILL }},
 
 		{ &hf_vti_v,
-		  { "Value", "104asdu.vti.v", FT_UINT8, BASE_DEC, NULL, 0x7F,
+		  { "Value", "104asdu.vti.v", FT_INT8, BASE_DEC, NULL, 0x7F,
 		    "VTI Value", HFILL }},
 
 		{ &hf_vti_t,
@@ -1744,7 +1748,7 @@ proto_register_iec104asdu(void)
 		    "Float value", HFILL }},
 
 		{ &hf_asdu_normval,
-		  { "Value", "104asdu.normval", FT_INT16, BASE_DEC, NULL, 0x0,
+		  { "Value", "104asdu.normval", FT_FLOAT, BASE_NONE, NULL, 0x0,
 		    "Normalised value", HFILL }},
 
 		{ &hf_asdu_scalval,
