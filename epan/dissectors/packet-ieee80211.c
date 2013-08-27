@@ -1613,6 +1613,11 @@ static const true_false_string csa_initiator_flags = {
   "Non Initiator"
 };
 
+static const true_false_string mesh_config_cap_power_save_level_flags = {
+   "One of the peer-specific mesh power modes is deep sleep mode",
+   "No one is in deep sleep mode"
+};
+
 static const value_string sta_cf_pollable[] = {
   {0x00, "Station is not CF-Pollable"},
   {0x02, "Station is CF-Pollable, not requesting to be placed on the  CF-polling list"},
@@ -3069,6 +3074,13 @@ static int hf_ieee80211_mesh_config_auth_protocol = -1;
 static int hf_ieee80211_mesh_config_formation_info = -1;
 static int hf_ieee80211_mesh_config_capability = -1;
 static int hf_ieee80211_mesh_id = -1;
+static int hf_ieee80211_mesh_config_cap_accepting = -1;
+static int hf_ieee80211_mesh_config_cap_mcca_support = -1;
+static int hf_ieee80211_mesh_config_cap_mcca_enabled = -1;
+static int hf_ieee80211_mesh_config_cap_forwarding = -1;
+static int hf_ieee80211_mesh_config_cap_mbca_enabled = -1;
+static int hf_ieee80211_mesh_config_cap_tbtt_adjusting = -1;
+static int hf_ieee80211_mesh_config_cap_power_save_level = -1;
 
 static int hf_ieee80211_ff_public_action = -1;
 
@@ -4128,6 +4140,7 @@ static gint ett_wep_parameters = -1;
 static gint ett_msh_control = -1;
 static gint ett_hwmp_targ_flags_tree = -1;
 static gint ett_mesh_chswitch_flag_tree = -1;
+static gint ett_mesh_config_cap_tree = -1;
 
 static gint ett_rsn_gcs_tree = -1;
 static gint ett_rsn_pcs_tree = -1;
@@ -12593,6 +12606,8 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_MESH_CONFIGURATION:
       {
+	proto_item *item;
+	proto_tree *subtree;
         offset += 2;
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_path_sel_protocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_path_sel_metric, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -12600,7 +12615,15 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_sync_method, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_auth_protocol, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_formation_info, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item (tree, hf_ieee80211_mesh_config_capability, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+	item = proto_tree_add_item (tree, hf_ieee80211_mesh_config_capability, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+	subtree = proto_item_add_subtree(item, ett_mesh_config_cap_tree);
+	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_accepting, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_mcca_support, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_mcca_enabled, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_forwarding, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_mbca_enabled, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_tbtt_adjusting, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_power_save_level, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
         break;
       }
 
@@ -16405,6 +16428,41 @@ proto_register_ieee80211 (void)
      {"Capability", "wlan.mesh.config.cap",
       FT_UINT8, BASE_HEX, NULL, 0,
       "Mesh Configuration Capability", HFILL }},
+
+    {&hf_ieee80211_mesh_config_cap_accepting,
+     {"Accepting Additional Mesh Peerings", "wlan.mesh.config.cap.accept",
+      FT_BOOLEAN, 8, TFS (&tfs_yes_no), 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_config_cap_mcca_support,
+     {"MCCA Support", "wlan.mesh.config.cap.mcca_support",
+      FT_BOOLEAN, 8, TFS (&tfs_yes_no), 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_config_cap_mcca_enabled,
+     {"MCCA Enabled", "wlan.mesh.config.cap.mcca_enabled",
+      FT_BOOLEAN, 8, TFS (&tfs_yes_no), 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_config_cap_forwarding,
+     {"Mesh Forwarding", "wlan.mesh.config.cap.forwarding",
+      FT_BOOLEAN, 8, TFS (&tfs_yes_no), 0x08,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_config_cap_mbca_enabled,
+     {"MBCA Enabled", "wlan.mesh.config.cap.mbca_enabled",
+      FT_BOOLEAN, 8, TFS (&tfs_yes_no), 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_config_cap_tbtt_adjusting,
+     {"TBTT Adjustment", "wlan.mesh.config.cap.tbtt_adjusting",
+      FT_BOOLEAN, 8, TFS (&tfs_yes_no), 0x20,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_config_cap_power_save_level,
+     {"Power Save", "wlan.mesh.config.cap.power_save_level",
+      FT_BOOLEAN, 8, TFS (&mesh_config_cap_power_save_level_flags), 0x40,
+      NULL, HFILL }},
 
     {&hf_ieee80211_mesh_id,
      {"Mesh ID", "wlan.mesh.id",
@@ -21000,6 +21058,7 @@ proto_register_ieee80211 (void)
     &ett_msh_control,
     &ett_hwmp_targ_flags_tree,
     &ett_mesh_chswitch_flag_tree,
+    &ett_mesh_config_cap_tree,
     &ett_cap_tree,
     &ett_rsn_gcs_tree,
     &ett_rsn_pcs_tree,
