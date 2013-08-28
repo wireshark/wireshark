@@ -4904,9 +4904,8 @@ set_menus_for_selected_packet(capture_file *cf)
            time reference frame). (XXX - why check frame_selected?) */
 
     gboolean tcp_packet_selected = FALSE;
-    if (cf) {
-        tcp_packet_selected = frame_selected && (cf->edt->pi.ipproto == IP_PROTO_TCP);
-    }
+
+    tcp_packet_selected = frame_selected && (cf->edt->pi.ipproto == IP_PROTO_TCP);
 
     if (cfile.edt && cfile.edt->tree) {
         GPtrArray          *ga;
