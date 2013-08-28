@@ -7074,7 +7074,7 @@ static void dcm_apply_settings(void) {
 	We would never be called, by just having the heuristic registration
     */
 
-    dissector_add_uint_range("tcp.port", global_dcm_tcp_range_backup, dcm_handle);
+    dissector_add_uint_range("tcp.port", global_dcm_tcp_range, dcm_handle);
 
     /* remember settings for next time */
     global_dcm_tcp_range_backup = range_copy(global_dcm_tcp_range);
