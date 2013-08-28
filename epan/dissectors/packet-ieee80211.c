@@ -661,7 +661,7 @@ enum fixed_field {
 #define TAG_DESTINATION_URI          141
 #define TAG_U_APSD_COEX              142
 #define TAG_CISCO_CCX3               149  /* Cisco Compatible eXtensions v3 */
-#define TAG_CISCO_UNKNOWN_96         150  /* Cisco Compatible eXtensions */
+#define TAG_CISCO_VENDOR_SPECIFIC    150  /* Cisco Compatible eXtensions */
 #define TAG_SYMBOL_PROPRIETARY       173
 #define TAG_MCCAOP_ADVERTISSEMENT_OV 174
 #define TAG_VHT_CAPABILITY           191  /* IEEE Std 802.11ac/D3.1 */
@@ -793,7 +793,7 @@ static const value_string tag_num_vals[] = {
   { TAG_DESTINATION_URI,                      "Destination URI" },
   { TAG_U_APSD_COEX,                          "U-APSD Coexistence" },
   { TAG_CISCO_CCX3,                           "Cisco Unknown 95" },
-  { TAG_CISCO_UNKNOWN_96,                     "Cisco Unknown 96" },
+  { TAG_CISCO_VENDOR_SPECIFIC,                "Cisco Vendor Specific" },
   { TAG_SYMBOL_PROPRIETARY,                   "Symbol Proprietary" },
   { TAG_MCCAOP_ADVERTISSEMENT_OV,             "MCCAOP Advertissement Overviw" },
   { TAG_VHT_CAPABILITY,                       "VHT Capabilities (IEEE Std 802.11ac/D3.1)" },
@@ -8311,15 +8311,21 @@ dissect_vendor_ie_atheros(proto_item *item _U_, proto_tree *ietree,
 }
 
 typedef enum {
+  AIRONET_IE_UNKNOWN0 = 0,
+  AIRONET_IE_UNKNOWN1 = 1,
   AIRONET_IE_VERSION = 3,
   AIRONET_IE_QOS,
+  AIRONET_IE_UNKNOWN11 = 11,
   AIRONET_IE_QBSS_V2 = 14,
   AIRONET_IE_CLIENT_MFP = 20
 } aironet_ie_type_t;
 
 static const value_string aironet_ie_type_vals[] = {
+  { AIRONET_IE_UNKNOWN0,  "Unknown (0)"},
+  { AIRONET_IE_UNKNOWN1,  "Unknown (1)"},
   { AIRONET_IE_VERSION,   "CCX version"},
   { AIRONET_IE_QOS,       "Qos"},
+  { AIRONET_IE_UNKNOWN11, "Unknown (11)"},
   { AIRONET_IE_QBSS_V2,   "QBSS V2 - CCA"},
   { AIRONET_IE_CLIENT_MFP, "Client MFP"},
   { 0,                    NULL }
@@ -12395,6 +12401,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       break;
 
     case TAG_VENDOR_SPECIFIC_IE: /* 7.3.2.26 Vendor Specific information element (221) */
+    case TAG_CISCO_VENDOR_SPECIFIC: /* This Cisco proprietary IE seems to mimic 221 */
       if (tag_len < 3)
       {
         expert_add_info_format_text(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 3", tag_len);
