@@ -5058,16 +5058,6 @@ void proto_register_dmp (void)
                                   10, &dmp_struct_length);
 }
 
-static void range_delete_callback (guint32 port)
-{
-    dissector_delete_uint ("udp.port", port, dmp_handle);
-}
-
-static void range_add_callback (guint32 port)
-{
-    dissector_add_uint ("udp.port", port, dmp_handle);
-}
-
 void proto_reg_handoff_dmp (void)
 {
   static range_t *dmp_port_range;
@@ -5076,14 +5066,14 @@ void proto_reg_handoff_dmp (void)
   if (!dmp_prefs_initialized) {
     dmp_prefs_initialized = TRUE;
   } else {
-    range_foreach (dmp_port_range, range_delete_callback);
+    dissector_delete_uint_range ("udp.port", dmp_port_range, dmp_handle);
     g_free (dmp_port_range);
   }
 
   /* Save port number for later deletion */
   dmp_port_range = range_copy (global_dmp_port_range);
 
-  range_foreach (dmp_port_range, range_add_callback);
+  dissector_add_uint_range ("udp.port", dmp_port_range, dmp_handle);
 }
 
 /*

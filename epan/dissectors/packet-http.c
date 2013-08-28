@@ -2689,15 +2689,6 @@ dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_http_message(tvb, 0, pinfo, tree, conv_data);
 }
 
-static void
-range_delete_http_tcp_callback(guint32 port) {
-	dissector_delete_uint("tcp.port", port, http_handle);
-}
-
-static void
-range_add_http_tcp_callback(guint32 port) {
-	dissector_add_uint("tcp.port", port, http_handle);
-}
 
 static void
 range_delete_http_ssl_callback(guint32 port) {
@@ -2710,10 +2701,10 @@ range_add_http_ssl_callback(guint32 port) {
 }
 
 static void reinit_http(void) {
-	range_foreach(http_tcp_range, range_delete_http_tcp_callback);
+	dissector_delete_uint_range("tcp.port", http_tcp_range, http_handle);
 	g_free(http_tcp_range);
 	http_tcp_range = range_copy(global_http_tcp_range);
-	range_foreach(http_tcp_range, range_add_http_tcp_callback);
+	dissector_add_uint_range("tcp.port", http_tcp_range, http_handle);
 
 	range_foreach(http_ssl_range, range_delete_http_ssl_callback);
 	g_free(http_ssl_range);

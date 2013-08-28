@@ -470,30 +470,6 @@ void proto_register_ipa(void)
 					NULL, &global_ipa_in_info);
 }
 
-static void ipa_tcp_delete_callback(guint32 port)
-{
-	if (port)
-		dissector_delete_uint("tcp.port", port, ipa_handle);
-}
-
-static void ipa_udp_delete_callback(guint32 port)
-{
-	if (port)
-		dissector_delete_uint("udp.port", port, ipa_handle);
-}
-
-static void ipa_tcp_add_callback(guint32 port)
-{
-	if (port)
-		dissector_add_uint("tcp.port", port, ipa_handle);
-}
-
-static void ipa_udp_add_callback(guint32 port)
-{
-	if (port)
-		dissector_add_uint("udp.port", port, ipa_handle);
-}
-
 void proto_reg_handoff_gsm_ipa(void)
 {
 	static gboolean ipa_initialized = FALSE;
@@ -509,15 +485,15 @@ void proto_reg_handoff_gsm_ipa(void)
 		ipa_handle = create_dissector_handle(dissect_ipa, proto_ipa);
 		ipa_initialized = TRUE;
 	} else {
-		range_foreach(ipa_tcp_ports, ipa_tcp_delete_callback);
+		dissector_delete_uint_range("tcp.port", ipa_tcp_ports, ipa_handle);
 		g_free(ipa_tcp_ports);
-		range_foreach(ipa_udp_ports, ipa_udp_delete_callback);
+		dissector_delete_uint_range("udp.port", ipa_udp_ports, ipa_handle);
 		g_free(ipa_udp_ports);
 	}
 
 	ipa_tcp_ports = range_copy(global_ipa_tcp_ports);
 	ipa_udp_ports = range_copy(global_ipa_udp_ports);
 
-	range_foreach(ipa_tcp_ports, ipa_tcp_add_callback);
-	range_foreach(ipa_udp_ports, ipa_udp_add_callback);
+	dissector_add_uint_range("udp.port", ipa_udp_ports, ipa_handle);
+	dissector_add_uint_range("tcp.port", ipa_tcp_ports, ipa_handle);
 }

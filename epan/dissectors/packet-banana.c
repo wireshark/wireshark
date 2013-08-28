@@ -261,21 +261,11 @@ dissect_banana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 }
 
 static void
-range_delete_banana_tcp_callback(guint32 port) {
-      dissector_delete_uint("tcp.port", port, banana_handle);
-}
-
-static void
-range_add_banana_tcp_callback(guint32 port) {
-    dissector_add_uint("tcp.port", port, banana_handle);
-}
-
-static void
 banana_prefs(void) {
-    range_foreach(banana_tcp_range, range_delete_banana_tcp_callback);
+    dissector_delete_uint_range("tcp.port", banana_tcp_range, banana_handle);
     g_free(banana_tcp_range);
     banana_tcp_range = range_copy(global_banana_tcp_range);
-    range_foreach(banana_tcp_range, range_add_banana_tcp_callback);
+    dissector_add_uint_range("tcp.port", banana_tcp_range, banana_handle);
 }
 
 /* Register the protocol with Wireshark */

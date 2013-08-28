@@ -3845,30 +3845,6 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    dissect_dns_tcp_pdu);
 }
 
-static void
-tcp_range_delete_callback(guint32 port)
-{
-  dissector_delete_uint("tcp.port", port, dns_tcp_handle);
-}
-
-static void
-udp_range_delete_callback(guint32 port)
-{
-  dissector_delete_uint("udp.port", port, dns_udp_handle);
-}
-
-static void
-tcp_range_add_callback(guint32 port)
-{
-  dissector_add_uint("tcp.port", port, dns_tcp_handle);
-}
-
-static void
-udp_range_add_callback(guint32 port)
-{
-  dissector_add_uint("udp.port", port, dns_udp_handle);
-}
-
 void
 proto_reg_handoff_dns(void)
 {
@@ -3887,16 +3863,16 @@ proto_reg_handoff_dns(void)
     Initialized    = TRUE;
 
   } else {
-    range_foreach(dns_tcp_port_range, tcp_range_delete_callback);
-    range_foreach(dns_udp_port_range, udp_range_delete_callback);
+    dissector_delete_uint_range("tcp.port", dns_tcp_port_range, dns_tcp_handle);
+    dissector_delete_uint_range("udp.port", dns_udp_port_range, dns_udp_handle);
     g_free(dns_tcp_port_range);
     g_free(dns_udp_port_range);
   }
 
   dns_tcp_port_range = range_copy(global_dns_tcp_port_range);
   dns_udp_port_range = range_copy(global_dns_udp_port_range);
-  range_foreach(dns_tcp_port_range, tcp_range_add_callback);
-  range_foreach(dns_udp_port_range, udp_range_add_callback);
+  dissector_add_uint_range("tcp.port", dns_tcp_port_range, dns_tcp_handle);
+  dissector_add_uint_range("udp.port", dns_udp_port_range, dns_udp_handle);
 
   dns_sctp_handle  = create_dissector_handle(dissect_dns_sctp, proto_dns);
   mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_dns);

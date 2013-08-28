@@ -7060,18 +7060,10 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     return offset;	    /* return the number of processed bytes */
 }
 
-static void range_delete_dcm_tcp_callback(guint32 port) {
-    dissector_delete_uint("tcp.port", port, dcm_handle);
-}
-
-static void range_add_dcm_tcp_callback(guint32 port) {
-    dissector_add_uint("tcp.port", port, dcm_handle);
-}
-
 static void dcm_apply_settings(void) {
 
     /* deregister first */
-    range_foreach(global_dcm_tcp_range_backup, range_delete_dcm_tcp_callback);
+    dissector_delete_uint_range("tcp.port", global_dcm_tcp_range_backup, dcm_handle);
     g_free(global_dcm_tcp_range_backup);
 
     heur_dissector_delete("tcp", dissect_dcm_heuristic, proto_dcm);
@@ -7082,7 +7074,7 @@ static void dcm_apply_settings(void) {
 	We would never be called, by just having the heuristic registration
     */
 
-    range_foreach(global_dcm_tcp_range, range_add_dcm_tcp_callback);
+    dissector_add_uint_range("tcp.port", global_dcm_tcp_range_backup, dcm_handle);
 
     /* remember settings for next time */
     global_dcm_tcp_range_backup = range_copy(global_dcm_tcp_range);
@@ -7090,7 +7082,7 @@ static void dcm_apply_settings(void) {
     /*	Add heuristic search, if user selected it */
 
     if (global_dcm_heuristic)
-	heur_dissector_add("tcp", dissect_dcm_heuristic, proto_dcm);
+	    heur_dissector_add("tcp", dissect_dcm_heuristic, proto_dcm);
 
 }
 

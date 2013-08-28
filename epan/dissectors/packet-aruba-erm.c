@@ -149,11 +149,12 @@ proto_reg_handoff_aruba_erm(void)
         initialized = TRUE;
     } else {
         range_foreach(aruba_erm_port_range, range_delete_callback);
+        dissector_delete_uint_range("udp.port", aruba_erm_port_range, aruba_erm_handle);
         g_free(aruba_erm_port_range);
     }
 
     aruba_erm_port_range = range_copy(global_aruba_erm_port_range);
 
-    range_foreach(aruba_erm_port_range, range_add_callback);
+    dissector_add_uint_range("udp.port", aruba_erm_port_range, aruba_erm_handle);
 }
 
