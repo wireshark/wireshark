@@ -1643,8 +1643,8 @@ main(int argc, char *argv[])
   }
 
   if (rfilter != NULL && !perform_two_pass_analysis) {
-    /* Just a warning, so we don't return */
     cmdarg_err("-R without -2 is deprecated. For single-pass filtering use -Y.");
+    return 1;
   }
 
 #ifdef HAVE_LIBPCAP
@@ -3164,15 +3164,15 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
             exit(2);
           }
         }
-        /* Stop reading if we have the maximum number of packets;
-         * When the -c option has not been used, max_packet_count
-         * starts at 0, which practically means, never stop reading.
-         * (unless we roll over max_packet_count ?)
-         */
-        if ( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
-          err = 0; /* This is not an error */
-          break;
-        }
+      }
+      /* Stop reading if we have the maximum number of packets;
+       * When the -c option has not been used, max_packet_count
+       * starts at 0, which practically means, never stop reading.
+       * (unless we roll over max_packet_count ?)
+       */
+      if ( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
+        err = 0; /* This is not an error */
+        break;
       }
     }
   }
@@ -3316,8 +3316,6 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
 
     /* If we're running a filter, prime the epan_dissect_t with that
        filter. */
-    if (cf->rfcode)
-      epan_dissect_prime_dfilter(&edt, cf->rfcode);
     if (cf->dfcode)
       epan_dissect_prime_dfilter(&edt, cf->dfcode);
 
@@ -3344,10 +3342,8 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
 
     epan_dissect_run_with_taps(&edt, whdr, frame_tvbuff_new(&fdata, pd), &fdata, cinfo);
 
-    /* Run the filters if we have them. */
-    if (cf->rfcode)
-      passed = dfilter_apply_edt(cf->rfcode, &edt);
-    if (passed && cf->dfcode)
+    /* Run the filter if we have it. */
+    if (cf->dfcode)
       passed = dfilter_apply_edt(cf->dfcode, &edt);
   }
 
