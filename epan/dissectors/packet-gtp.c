@@ -4072,8 +4072,8 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
  * 3GPP TS 24.008 10.5.5.6 ( see packet-gsm_a.c )
  */
     tf = proto_tree_add_text(ext_tree_mm, tvb, offset, 2, "DRX Parameter");
-    /* tf_tree = proto_item_add_subtree(tf, ett_gtp_drx); */
-    de_gmm_drx_param(tvb, ext_tree_mm, pinfo, offset, 2, NULL, 0);
+    tf_tree = proto_item_add_subtree(tf, ett_gtp_drx);
+    de_gmm_drx_param(tvb, tf_tree, pinfo, offset, 2, NULL, 0);
     offset = offset + 2;
 
     len = tvb_get_guint8(tvb, offset);
