@@ -127,16 +127,6 @@ proto_register_aruba_erm(void)
     proto_register_subtree_array(ett, array_length(ett));
 }
 
-static void range_delete_callback (guint32 port)
-{
-    dissector_delete_uint("udp.port", port, aruba_erm_handle);
-}
-
-static void range_add_callback (guint32 port)
-{
-    dissector_add_uint("udp.port", port, aruba_erm_handle);
-}
-
 void
 proto_reg_handoff_aruba_erm(void)
 {
@@ -148,7 +138,6 @@ proto_reg_handoff_aruba_erm(void)
         aruba_erm_handle = create_dissector_handle(dissect_aruba_erm, proto_aruba_erm);
         initialized = TRUE;
     } else {
-        range_foreach(aruba_erm_port_range, range_delete_callback);
         dissector_delete_uint_range("udp.port", aruba_erm_port_range, aruba_erm_handle);
         g_free(aruba_erm_port_range);
     }
