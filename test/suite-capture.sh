@@ -317,7 +317,7 @@ capture_step_read_filter() {
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
-		-R 'dcerpc.cn_call_id==123456' \
+		-2 -R 'dcerpc.cn_call_id==123456' \
 		-c 10 \
 		-f icmp \
 		>> ./testout.txt 2>&1
@@ -389,7 +389,7 @@ capture_step_snapshot() {
 	fi
 
 	# use tshark to filter out all packets, which are larger than 68 bytes
-	$TSHARK -r ./testout.pcap -w ./testout2.pcap -R 'frame.cap_len>68' > ./testout.txt 2>&1
+	$TSHARK -r ./testout.pcap -w ./testout2.pcap -Y 'frame.cap_len>68' > ./testout.txt 2>&1
 	if [ $? -ne 0 ]; then
 		echo
 		capture_test_output_print ./testout.txt
