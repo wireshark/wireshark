@@ -3892,6 +3892,7 @@ static int hf_ieee80211_aironet_ie_data = -1;
 static int hf_ieee80211_aironet_ie_qos_reserved = -1;
 static int hf_ieee80211_aironet_ie_qos_paramset = -1;
 static int hf_ieee80211_aironet_ie_qos_val = -1;
+static int hf_ieee80211_aironet_ie_clientmfp = -1;
 
 static int hf_ieee80211_vs_nintendo_type = -1;
 static int hf_ieee80211_vs_nintendo_length = -1;
@@ -8312,13 +8313,15 @@ dissect_vendor_ie_atheros(proto_item *item _U_, proto_tree *ietree,
 typedef enum {
   AIRONET_IE_VERSION = 3,
   AIRONET_IE_QOS,
-  AIRONET_IE_QBSS_V2 = 14
+  AIRONET_IE_QBSS_V2 = 14,
+  AIRONET_IE_CLIENT_MFP = 20
 } aironet_ie_type_t;
 
 static const value_string aironet_ie_type_vals[] = {
   { AIRONET_IE_VERSION,   "CCX version"},
   { AIRONET_IE_QOS,       "Qos"},
   { AIRONET_IE_QBSS_V2,   "QBSS V2 - CCA"},
+  { AIRONET_IE_CLIENT_MFP, "Client MFP"},
   { 0,                    NULL }
 };
 
@@ -8371,6 +8374,10 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
     proto_tree_add_item (ietree, hf_ieee80211_qbss2_cu, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item (ietree, hf_ieee80211_qbss2_cal, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item (ietree, hf_ieee80211_qbss2_gl, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+    break;
+  case AIRONET_IE_CLIENT_MFP:
+    proto_tree_add_item (ietree, hf_ieee80211_aironet_ie_clientmfp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
     break;
   default:
     proto_tree_add_item(ietree, hf_ieee80211_aironet_ie_data, tvb, offset,
@@ -20044,6 +20051,11 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_aironet_ie_qos_val,
      {"Aironet IE QoS valueset", "wlan_mgt.aironet.qos.val",
       FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_aironet_ie_clientmfp,
+     {"Aironet IE Client MFP", "wlan_mgt.aironet.clientmfp",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
       NULL, HFILL }},
 
     /* Vendor Specific : Nintendo */
