@@ -90,6 +90,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     data_range_.setBottom(seq_min - range_pad);
     data_range_.setTop(seq_max + range_pad);
     ui->streamPlot->yAxis->setRange(data_range_.bottom(), data_range_.top());
+    // XXX - QCustomPlot doesn't seem to draw any sort of focus indicator.
     ui->streamPlot->setFocus();
 }
 
@@ -148,6 +149,7 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
         ui->streamPlot->yAxis->setRange(data_range_.bottom(), data_range_.top());
         ui->streamPlot->replot();
         break;
+    // Alas, there is no Blade Runner-style Qt::Key_Ehance
     }
 
     if (scale_range) {
