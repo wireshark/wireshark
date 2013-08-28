@@ -24,7 +24,9 @@
 #include "packet_list_record.h"
 
 PacketListRecord::PacketListRecord(frame_data *frameData) :
-    col_text_(NULL), col_text_len_(NULL), fdata_(frameData)
+    //col_text_(NULL),
+    //col_text_len_(NULL),
+    fdata_(frameData)
 {
 }
 
