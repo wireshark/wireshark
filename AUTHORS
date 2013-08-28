@@ -3787,5 +3787,8 @@ detection code from Airsnort.
 
 IANA gave permission for their port-numbers file to be used.
 
+We use the natural order string comparison algorithm, written by
+Martin Pool <mbp[AT]sourcefrog.net>.
+
 Emanuel Eichhammer <support[AT]qcustomplot.com> granted permission
 to use QCustomPlot.
