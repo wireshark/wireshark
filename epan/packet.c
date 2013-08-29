@@ -66,8 +66,8 @@ static dissector_handle_t data_handle = NULL;
  * Has a tvbuff and a name.
  */
 struct data_source {
-  tvbuff_t *tvb;
-  char *name;
+	tvbuff_t *tvb;
+	char *name;
 };
 
 /*
@@ -387,13 +387,13 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	edt->pi.pool = tmp;
 	edt->pi.current_proto = "<Missing Protocol Name>";
 	edt->pi.cinfo = cinfo;
-	edt->pi.fd = fd;
-	edt->pi.phdr = phdr;
+	edt->pi.fd    = fd;
+	edt->pi.phdr  = phdr;
 	edt->pi.pseudo_header = &phdr->pseudo_header;
-	edt->pi.dl_src.type = AT_NONE;
-	edt->pi.dl_dst.type = AT_NONE;
-	edt->pi.net_src.type = AT_NONE;
-	edt->pi.net_dst.type = AT_NONE;
+	edt->pi.dl_src.type   = AT_NONE;
+	edt->pi.dl_dst.type   = AT_NONE;
+	edt->pi.net_src.type  = AT_NONE;
+	edt->pi.net_dst.type  = AT_NONE;
 	edt->pi.src.type = AT_NONE;
 	edt->pi.dst.type = AT_NONE;
 	edt->pi.ctype = CT_NONE;
@@ -837,16 +837,16 @@ dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t h
 
 
 void dissector_add_uint_range(const char *abbrev, range_t *range,
-    dissector_handle_t handle)
+			      dissector_handle_t handle)
 {
-   guint32 i, j;
-   
-   if (range) {
-      for (i=0; i < range->nranges; i++) {
-         for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
-			 dissector_add_uint(abbrev, j, handle);
-      }
-   }
+	guint32 i, j;
+
+	if (range) {
+		for (i = 0; i < range->nranges; i++) {
+			for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
+				dissector_add_uint(abbrev, j, handle);
+		}
+	}
 }
 
 /* Delete the entry for a dissector in a uint dissector table
@@ -882,16 +882,16 @@ dissector_delete_uint(const char *name, const guint32 pattern,
 }
 
 void dissector_delete_uint_range(const char *abbrev, range_t *range,
-    dissector_handle_t handle)
+				 dissector_handle_t handle)
 {
-   guint32 i, j;
-   
-   if (range) {
-      for (i=0; i < range->nranges; i++) {
-         for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
-			 dissector_delete_uint(abbrev, j, handle);
-      }
-   }
+	guint32 i, j;
+
+	if (range) {
+		for (i = 0; i < range->nranges; i++) {
+			for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
+				dissector_delete_uint(abbrev, j, handle);
+		}
+	}
 }
 
 /* Change the entry for a dissector in a uint dissector table
@@ -1551,7 +1551,7 @@ dissector_all_tables_foreach_table_func (gpointer key, const gpointer value, con
 	dissector_foreach_table_info_t *info;
 
 	table = (dissector_table_t)value;
-	info = (dissector_foreach_table_info_t *)user_data;
+	info  = (dissector_foreach_table_info_t *)user_data;
 	(*info->caller_func)((gchar*)key, table->ui_name, info->caller_data);
 }
 
@@ -1565,7 +1565,7 @@ dissector_all_tables_foreach_list_func (gpointer key, gpointer user_data)
 	dissector_foreach_table_info_t *info;
 
 	table = (dissector_table_t)g_hash_table_lookup( dissector_tables, key );
-	info = (dissector_foreach_table_info_t *)user_data;
+	info  = (dissector_foreach_table_info_t *)user_data;
 	(*info->caller_func)((gchar*)key, table->ui_name, info->caller_data);
 }
 
@@ -1579,7 +1579,7 @@ dissector_all_tables_foreach_table (DATFunc_table func,
 					GCompareFunc compare_key_func)
 {
 	dissector_foreach_table_info_t info;
-	GList* list;
+	GList *list;
 
 	info.caller_data = user_data;
 	info.caller_func = func;
@@ -1716,6 +1716,7 @@ static int
 find_matching_heur_dissector( gconstpointer a, gconstpointer b) {
 	const heur_dtbl_entry_t *hdtbl_entry_a = (const heur_dtbl_entry_t *) a;
 	const heur_dtbl_entry_t *hdtbl_entry_b = (const heur_dtbl_entry_t *) b;
+
 	return (hdtbl_entry_a->dissector == hdtbl_entry_b->dissector) &&
 		(hdtbl_entry_a->protocol == hdtbl_entry_b->protocol) ? 0 : 1;
 }
@@ -2010,11 +2011,11 @@ new_create_dissector_handle(new_dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
-	handle                = (struct dissector_handle *)g_malloc(sizeof (struct dissector_handle));
-	handle->name          = NULL;
-	handle->is_new        = TRUE;
+	handle			= (struct dissector_handle *)g_malloc(sizeof (struct dissector_handle));
+	handle->name		= NULL;
+	handle->is_new		= TRUE;
 	handle->dissector.new_d = dissector;
-	handle->protocol      = find_protocol_by_id(proto);
+	handle->protocol	= find_protocol_by_id(proto);
 
 	return handle;
 }
