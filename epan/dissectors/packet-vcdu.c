@@ -169,7 +169,8 @@ static guint          num_channels_uat = 0;
 
 UAT_DEC_CB_DEF(uat_bitchannels, channel, uat_channel_t)
 
-static void vcdu_uat_data_update_cb(void* p, const char** err) {
+static void
+vcdu_uat_data_update_cb(void *p, const char **err) {
     uat_channel_t *ud = (uat_channel_t *)p;
 
     if (ud->channel >= 64) {
@@ -178,13 +179,14 @@ static void vcdu_uat_data_update_cb(void* p, const char** err) {
     }
 }
 
-static void vcdu_prefs_apply_cb(void)
+static void
+vcdu_prefs_apply_cb(void)
 {
     guint i;
 
     if (num_channels_uat > 0)
     {
-        memset ( bitstream_channels, 0, sizeof(bitstream_channels) );
+        memset(bitstream_channels, 0, sizeof(bitstream_channels));
 
         for (i = 0; i < num_channels_uat; i++)
         {
@@ -197,7 +199,8 @@ static void vcdu_prefs_apply_cb(void)
  *
  * note:  this is not true PB5 time either, but a tsi specific version, although it is similar
  */
-static const char* smex_time_to_string ( int pb5_days_since_midnight_9_10_oct_1995, int pb5_seconds, int pb5_milliseconds )
+static const char *
+smex_time_to_string (int pb5_days_since_midnight_9_10_oct_1995, int pb5_seconds, int pb5_milliseconds)
 {
     static int utcdiff = 0;
     nstime_t t;
@@ -215,17 +218,17 @@ static const char* smex_time_to_string ( int pb5_days_since_midnight_9_10_oct_19
      * between midnight 9-10 October 1995 (PB5 time) and
      * seconds since 1/1/1970 (UTC time) just this once
      */
-    if ( 0 == utcdiff )
+    if (0 == utcdiff)
     {
-        for ( yr=1970; yr < 1995; ++yr )
+        for (yr=1970; yr < 1995; ++yr)
         {
-            utcdiff += ( Leap(yr)  ?  366 : 365 ) * 24 * 60 * 60;
+            utcdiff += (Leap(yr)  ?  366 : 365) * 24 * 60 * 60;
         }
 
         days = 0;
-        ix = ( Leap(1995)  ?  1 : 0 );
+        ix = (Leap(1995)  ?  1 : 0);
 
-        for ( month=1; month < 10; ++month )
+        for (month=1; month < 10; ++month)
         {
             days += Days[ix][month];
         }
@@ -235,14 +238,13 @@ static const char* smex_time_to_string ( int pb5_days_since_midnight_9_10_oct_19
         utcdiff += days * 24 * 60 * 60;  /* add days in 1995 prior to October 10 */
     }
 
-    t.secs = ( pb5_days_since_midnight_9_10_oct_1995 * 86400 ) + pb5_seconds + utcdiff;
+    t.secs = (pb5_days_since_midnight_9_10_oct_1995 * 86400) + pb5_seconds + utcdiff;
     t.nsecs = pb5_milliseconds*1000000; /* msecs to nsecs */
 
     return abs_time_to_str(&t, ABSOLUTE_TIME_DOY_UTC, TRUE);
 }
 
 
-/* Code to actually dissect the packets */
 static void
 dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -265,51 +267,51 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *new_tvb = NULL;
 
     int vcid = 0, pb5_days = 0, pb5_seconds = 0, pb5_milliseconds = 0;
-    const char* time_string = NULL;
+    const char *time_string = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VCDU");
     col_set_str(pinfo->cinfo, COL_INFO, "Virtual Channel Data Unit");
 
     {
         /* build the smex header tree */
-        smex_header=proto_tree_add_text(tree, tvb, offset, SMEX_HEADER_LENGTH, "SMEX Header");
-        smex_tree=proto_item_add_subtree(smex_header, ett_smex);
+        smex_header = proto_tree_add_text(tree, tvb, offset, SMEX_HEADER_LENGTH, "SMEX Header");
+        smex_tree   = proto_item_add_subtree(smex_header, ett_smex);
 
         proto_tree_add_item(smex_tree, hf_smex_gsc, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
         /* proto_tree_add_item(smex_tree, hf_smex_unused, tvb, offset, 2, ENC_BIG_ENDIAN); */
         offset += 2;
 
-        first_word=tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(smex_tree, hf_smex_version, tvb, offset, 2, first_word);
+        first_word = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_uint(smex_tree, hf_smex_version,  tvb, offset, 2, first_word);
         proto_tree_add_uint(smex_tree, hf_smex_framelen, tvb, offset, 2, first_word);
         offset += 2;
 
-        proto_tree_add_item(smex_tree, hf_smex_rs_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_rs_error, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_crc_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_crc_error, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_mcs_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(smex_tree, hf_smex_rs_enable,     tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(smex_tree, hf_smex_rs_error,      tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(smex_tree, hf_smex_crc_enable,    tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(smex_tree, hf_smex_crc_error,     tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(smex_tree, hf_smex_mcs_enable,    tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(smex_tree, hf_smex_mcs_num_error, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_data_inv, tvb, offset, 1, ENC_BIG_ENDIAN);
-        ++offset;
+        proto_tree_add_item(smex_tree, hf_smex_data_inv,      tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
         proto_tree_add_item(smex_tree, hf_smex_frame_sync, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(smex_tree, hf_smex_data_dir, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(smex_tree, hf_smex_data_class, tvb, offset, 1, ENC_BIG_ENDIAN);
-        ++offset;
+        offset += 1;
 
         /* extract smex ground receipt time tag */
-        long_word = tvb_get_ntohl ( tvb, offset );
-        pb5_days = ( long_word >> 17 ) & PB5_JULIAN_DAY_MASK;
-        pb5_seconds = ( long_word & PB5_SECONDS_MASK );
+        long_word   = tvb_get_ntohl(tvb, offset);
+        pb5_days    = (long_word >> 17) & PB5_JULIAN_DAY_MASK;
+        pb5_seconds = (long_word & PB5_SECONDS_MASK);
 
-        first_word = tvb_get_ntohs ( tvb, offset+4 );
-        pb5_milliseconds = ( first_word & PB5_MILLISECONDS_MASK ) >> 6;
+        first_word = tvb_get_ntohs(tvb, offset+4);
+        pb5_milliseconds = (first_word & PB5_MILLISECONDS_MASK) >> 6;
 
-        proto_tree_add_item(smex_tree, hf_smex_pb5, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_jday, tvb, offset, 2, ENC_BIG_ENDIAN);
-        ++offset;
+        proto_tree_add_item(smex_tree, hf_smex_pb5,     tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(smex_tree, hf_smex_jday,    tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 1;
         proto_tree_add_item(smex_tree, hf_smex_seconds, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
 
@@ -318,42 +320,42 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 2;
 
         /* format ground receipt time into human readable time format for display */
-        time_string = smex_time_to_string ( pb5_days, pb5_seconds, pb5_milliseconds );
-        proto_tree_add_text (smex_tree, tvb, offset-6, 6, "%s = Ground Receipt Time", time_string );
+        time_string = smex_time_to_string(pb5_days, pb5_seconds, pb5_milliseconds);
+        proto_tree_add_text(smex_tree, tvb, offset-6, 6, "%s = Ground Receipt Time", time_string);
 
         proto_item_set_end(smex_header, tvb, offset);
 
 
         /* build the vcdu header tree */
-        vcdu_header=proto_tree_add_text(tree, tvb, offset, VCDU_HEADER_LENGTH, "VCDU Header");
-        vcdu_tree = proto_item_add_subtree(vcdu_header, ett_vcdu);
+        vcdu_header = proto_tree_add_text(tree, tvb, offset, VCDU_HEADER_LENGTH, "VCDU Header");
+        vcdu_tree   = proto_item_add_subtree(vcdu_header, ett_vcdu);
 
         /* extract the virtual channel for use later on */
-        first_word=tvb_get_ntohs(tvb, offset);
+        first_word = tvb_get_ntohs(tvb, offset);
         vcid = first_word & 0x3f;
 
         proto_tree_add_item(vcdu_tree, hf_vcdu_version, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(vcdu_tree, hf_vcdu_sp_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(vcdu_tree, hf_vcdu_vc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vcdu_tree, hf_vcdu_sp_id,   tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vcdu_tree, hf_vcdu_vc_id,   tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item(vcdu_tree, hf_vcdu_seq, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vcdu_tree, hf_vcdu_seq,     tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
-        proto_tree_add_item(vcdu_tree, hf_vcdu_replay, tvb, offset, 1, ENC_BIG_ENDIAN);
-        ++offset;
+        proto_tree_add_item(vcdu_tree, hf_vcdu_replay,  tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
         /* extract mpdu/bpdu header word */
-        first_word=tvb_get_ntohs(tvb, offset);
+        first_word = tvb_get_ntohs(tvb, offset);
 
         /* do bitstream channel processing */
-        if ( bitstream_channels[vcid] )
+        if (bitstream_channels[vcid])
         {
             /* extract last bit pointer for bitstream channels */
-            new_ptr=first_word & LBP_MASK;
+            new_ptr = first_word & LBP_MASK;
 
             /* add last bit pointer to display tree */
             proto_tree_add_item(vcdu_tree, hf_vcdu_lbp, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-            switch ( new_ptr )
+            switch (new_ptr)
             {
             case LBP_ALL_DATA:
                 proto_tree_add_text(vcdu_tree, tvb, 0, -1, "Bitream ALL Data");
@@ -376,18 +378,18 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else
         {
             /* extract first header pointer for ccsds channels */
-            new_ptr=first_word & FHP_MASK;
+            new_ptr = first_word & FHP_MASK;
 
             /* add first header pointer to display tree */
             proto_tree_add_item(vcdu_tree, hf_vcdu_fhp, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             /* process special cases of first header pointer */
-            if ( FHP_ALL_FILL == new_ptr )
+            if (FHP_ALL_FILL == new_ptr)
             {
                 proto_tree_add_text(vcdu_tree, tvb, 0, -1, "Ccsds ALL Fill");
             }
 
-            else if ( FHP_CONTINUATION == new_ptr )
+            else if (FHP_CONTINUATION == new_ptr)
             {
                 proto_tree_add_text(vcdu_tree, tvb, 0, -1, "Ccsds Continuation Packet");
             }
@@ -396,24 +398,24 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
             {
                 /* compute offset and packet boundary lengths for ccsds dissector loop */
-                new_offset=offset+2+new_ptr;
+                new_offset = offset + 2 + new_ptr;
 
                 packet_boundary =
                     pinfo->iplen - IP_HEADER_LENGTH - VCDU_HEADER_LENGTH
                     - CCSDS_PRIMARY_HEADER_LENGTH - CCSDS_SECONDARY_HEADER_LENGTH;
 
-                while ( (new_offset-offset+2) < packet_boundary  &&  (new_offset-offset+2) >= 4 )
+                while ( ((new_offset-offset+2) < packet_boundary)  &&  ((new_offset-offset+2) >= 4) )
                 {
                     ccsds_tree_added = 1;
-                    ccsds_len=tvb_get_ntohs(tvb, new_offset+4);
+                    ccsds_len = tvb_get_ntohs(tvb, new_offset+4);
 
                     new_tvb = tvb_new_subset_remaining(tvb, new_offset);
                     call_dissector(ccsds_handle, new_tvb, pinfo, vcdu_tree);
 
-                    new_offset=new_offset+ccsds_len+7;
+                    new_offset = new_offset + ccsds_len + 7;
                 }
 
-                if ( ! ccsds_tree_added )
+                if (! ccsds_tree_added)
                 {
                     proto_tree_add_text(vcdu_tree, tvb, 0, -1,
                                         "FHP too close to end of VCDU.  Incomplete Hdr Info Available"
@@ -431,7 +433,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* offset += 2; */
         proto_item_set_end(vcdu_tree, tvb, offset);
 
-        if ( ! ccsds_tree_added )
+        if (! ccsds_tree_added)
         {
             /* add "Data" section if ccsds parsing did not do so already */
             proto_tree_add_text(vcdu_tree, tvb, offset, -1, "Data");
@@ -440,10 +442,6 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Wireshark
- * this format is require because a script is used to build the C function
- * that calls all the protocol registration.
- */
 void
 proto_register_vcdu(void)
 {
@@ -610,7 +608,7 @@ proto_register_vcdu(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* XX: Does this dissector need to be publicly registered ?? */
-    vcdu_handle = register_dissector ( "vcdu", dissect_vcdu, proto_vcdu );
+    vcdu_handle = register_dissector("vcdu", dissect_vcdu, proto_vcdu);
 
     vcdu_module = prefs_register_protocol(proto_vcdu, vcdu_prefs_apply_cb);
 
@@ -637,14 +635,10 @@ proto_register_vcdu(void)
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
- * This format is required because a script is used to find these routines and
- * create the code that calls these routines.
- */
 void
 proto_reg_handoff_vcdu(void)
 {
-    dissector_add_handle ( "udp.port", find_dissector("vcdu") ); /* for 'decode as' */
-    ccsds_handle = find_dissector ( "ccsds" );
+    dissector_add_handle("udp.port", vcdu_handle); /* for 'decode as' */
+    ccsds_handle = find_dissector("ccsds");
 }
 
