@@ -549,11 +549,8 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* Create display subtree for SSL as a whole */
-  if (tree)
-    {
-      ti = proto_tree_add_item(tree, proto_dtls, tvb, 0, -1, ENC_NA);
-      dtls_tree = proto_item_add_subtree(ti, ett_dtls);
-    }
+  ti = proto_tree_add_item(tree, proto_dtls, tvb, 0, -1, ENC_NA);
+  dtls_tree = proto_item_add_subtree(ti, ett_dtls);
 
   /* iterate through the records in this tvbuff */
   while (tvb_reported_length_remaining(tvb, offset) != 0)
@@ -784,8 +781,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   guint32         record_length;
   guint16         version;
   guint16         epoch;
-  gdouble         sequence_number;
-  gint64          sequence_number_temp;
+  guint64         sequence_number;
   guint8          content_type;
   guint8          next_byte;
   proto_tree     *ti;
@@ -793,19 +789,13 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   SslAssociation *association;
   SslDataInfo    *appl_data;
 
-  ti               = NULL;
-  dtls_record_tree = NULL;
-
   /*
    * Get the record layer fields of interest
    */
   content_type          = tvb_get_guint8(tvb, offset);
   version               = tvb_get_ntohs(tvb, offset + 1);
   epoch                 = tvb_get_ntohs(tvb, offset + 3);
-  sequence_number       = tvb_get_ntohl(tvb, offset + 7);
-  sequence_number_temp  = tvb_get_ntohs(tvb, offset + 5);
-  sequence_number_temp  = sequence_number_temp<<32;
-  sequence_number      += sequence_number_temp;
+  sequence_number       = tvb_get_ntoh48(tvb, offset + 5);
   record_length         = tvb_get_ntohs(tvb, offset + 11);
 
   if(ssl){
@@ -838,51 +828,33 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
    * If GUI, fill in record layer part of tree
    */
 
-  if (tree)
-    {
-      /* add the record layer subtree header */
-      tvb_ensure_bytes_exist(tvb, offset, 13 + record_length);
-      ti = proto_tree_add_item(tree, hf_dtls_record, tvb,
+  /* add the record layer subtree header */
+  ti = proto_tree_add_item(tree, hf_dtls_record, tvb,
                                offset, 13 + record_length, ENC_NA);
-      dtls_record_tree = proto_item_add_subtree(ti, ett_dtls_record);
-    }
+  dtls_record_tree = proto_item_add_subtree(ti, ett_dtls_record);
 
-  if (dtls_record_tree)
-    {
+  /* show the one-byte content type */
+  proto_tree_add_item(dtls_record_tree, hf_dtls_record_content_type,
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
 
-      /* show the one-byte content type */
-      proto_tree_add_item(dtls_record_tree, hf_dtls_record_content_type,
-                          tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset++;
+  /* add the version */
+  proto_tree_add_item(dtls_record_tree, hf_dtls_record_version, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
 
-      /* add the version */
-      proto_tree_add_item(dtls_record_tree, hf_dtls_record_version, tvb,
-                          offset, 2, ENC_BIG_ENDIAN);
-      offset += 2;
+  /* show epoch */
+  proto_tree_add_uint(dtls_record_tree, hf_dtls_record_epoch, tvb, offset, 2, epoch);
+  offset += 2;
 
-      /* show epoch */
-      proto_tree_add_uint(dtls_record_tree, hf_dtls_record_epoch, tvb, offset, 2, epoch);
+  /* add sequence_number */
+  proto_tree_add_uint64(dtls_record_tree, hf_dtls_record_sequence_number, tvb, offset, 6, sequence_number);
+  offset += 6;
 
-      offset += 2;
-
-      /* add sequence_number */
-
-      proto_tree_add_double(dtls_record_tree, hf_dtls_record_sequence_number, tvb, offset, 6, sequence_number);
-
-      offset += 6;
-
-      /* add the length */
-      proto_tree_add_uint(dtls_record_tree, hf_dtls_record_length, tvb,
-                          offset, 2, record_length);
-      offset += 2;    /* move past length field itself */
-
-    }
-  else
-    {
-      /* if no GUI tree, then just skip over those fields */
-      offset += 13;
-    }
-
+  /* add the length */
+  proto_tree_add_uint(dtls_record_tree, hf_dtls_record_length, tvb,
+                        offset, 2, record_length);
+  offset += 2;    /* move past length field itself */
 
   /*
    * if we don't already have a version set for this conversation,
@@ -1134,14 +1106,9 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
   const gchar *desc;
   guint8       byte;
 
-  ssl_alert_tree = NULL;
-
-  if (tree)
-    {
-      ti = proto_tree_add_item(tree, hf_dtls_alert_message, tvb,
+   ti = proto_tree_add_item(tree, hf_dtls_alert_message, tvb,
                                offset, 2, ENC_NA);
-      ssl_alert_tree = proto_item_add_subtree(ti, ett_dtls_alert);
-    }
+   ssl_alert_tree = proto_item_add_subtree(ti, ett_dtls_alert);
 
   /*
    * set the record layer label
@@ -1233,8 +1200,6 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
   gboolean     frag_hand;
   guint32      reassembled_length;
 
-  ti              = NULL;
-  ssl_hand_tree   = NULL;
   msg_type_str    = NULL;
   first_iteration = TRUE;
 
@@ -1255,13 +1220,9 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       const gchar   *frag_str = NULL;
       gboolean       fragmented;
 
-      if (tree)
-        {
-          /* add a subtree for the handshake protocol */
-          ti = proto_tree_add_item(tree, hf_dtls_handshake_protocol, tvb,
-                                   offset, -1, ENC_NA);
-          ssl_hand_tree = proto_item_add_subtree(ti, ett_dtls_handshake);
-        }
+      /* add a subtree for the handshake protocol */
+      ti = proto_tree_add_item(tree, hf_dtls_handshake_protocol, tvb, offset, -1, ENC_NA);
+      ssl_hand_tree = proto_item_add_subtree(ti, ett_dtls_handshake);
 
       msg_type = tvb_get_guint8(tvb, offset);
       msg_type_str = try_val_to_str(msg_type, ssl_31_handshake_type);
@@ -1287,32 +1248,27 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
             ? msg_type_str : "Encrypted Handshake Message");
 
-      if (ssl_hand_tree)
-        proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_type,
+      proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_type,
                             tvb, offset, 1, msg_type);
       offset++;
 
       length = tvb_get_ntoh24(tvb, offset);
-      if (ssl_hand_tree)
-        length_item = proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
+      length_item = proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
                                           tvb, offset, 3, length);
       offset += 3;
 
       message_seq = tvb_get_ntohs(tvb,offset);
-      if (ssl_hand_tree)
-        proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_message_seq,
+      proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_message_seq,
                             tvb, offset, 2, message_seq);
       offset += 2;
 
       fragment_offset = tvb_get_ntoh24(tvb, offset);
-      if (ssl_hand_tree)
-        proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_offset,
+      proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_offset,
                             tvb, offset, 3, fragment_offset);
       offset += 3;
 
       fragment_length = tvb_get_ntoh24(tvb, offset);
-      if (ssl_hand_tree)
-        fragment_length_item = proto_tree_add_uint(ssl_hand_tree,
+      fragment_length_item = proto_tree_add_uint(ssl_hand_tree,
                                                    hf_dtls_handshake_fragment_length,
                                                    tvb, offset, 3,
                                                    fragment_length);
@@ -1631,13 +1587,9 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
   guint16      payload_length;
   guint16      padding_length;
 
-  dtls_heartbeat_tree = NULL;
-
-  if (tree) {
-    ti = proto_tree_add_item(tree, hf_dtls_heartbeat_message, tvb,
+  ti = proto_tree_add_item(tree, hf_dtls_heartbeat_message, tvb,
                              offset, record_length - 32, ENC_NA);
-    dtls_heartbeat_tree = proto_item_add_subtree(ti, ett_dtls_heartbeat);
-  }
+  dtls_heartbeat_tree = proto_item_add_subtree(ti, ett_dtls_heartbeat);
 
   /*
    * set the record layer label
@@ -1698,7 +1650,7 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
   nstime_t gmt_unix_time;
   guint8   session_id_length;
   proto_item *ti_rnd;
-  proto_tree *dtls_rnd_tree = NULL;
+  proto_tree *dtls_rnd_tree;
 
   if (tree || ssl)
   {
@@ -1722,32 +1674,24 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
                        ssl->state);
     }
 
-    if (tree)
-    {
-        ti_rnd = proto_tree_add_text(tree, tvb, offset, 32, "Random");
-        dtls_rnd_tree = proto_item_add_subtree(ti_rnd, ett_dtls_random);
-    }
+    ti_rnd = proto_tree_add_text(tree, tvb, offset, 32, "Random");
+    dtls_rnd_tree = proto_item_add_subtree(ti_rnd, ett_dtls_random);
 
     /* show the time */
-    if (dtls_rnd_tree)
-    {
-      gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
-      gmt_unix_time.nsecs = 0;
-      proto_tree_add_time(dtls_rnd_tree, hf_dtls_handshake_random_time,
+    gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
+    gmt_unix_time.nsecs = 0;
+    proto_tree_add_time(dtls_rnd_tree, hf_dtls_handshake_random_time,
                           tvb, offset, 4, &gmt_unix_time);
-    }
     offset += 4;
 
     /* show the random bytes */
-    if (dtls_rnd_tree)
-      proto_tree_add_item(dtls_rnd_tree, hf_dtls_handshake_random_bytes,
+    proto_tree_add_item(dtls_rnd_tree, hf_dtls_handshake_random_bytes,
                           tvb, offset, 28, ENC_NA);
     offset += 28;
 
     /* show the session id */
     session_id_length = tvb_get_guint8(tvb, offset);
-    if (tree)
-      proto_tree_add_item(tree, hf_dtls_handshake_session_id_len,
+    proto_tree_add_item(tree, hf_dtls_handshake_session_id_len,
                           tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     if (ssl)
@@ -1764,7 +1708,7 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
         ssl->session_id.data_len = session_id_length;
       }
     }
-    if (tree && session_id_length > 0)
+    if (session_id_length > 0)
       proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
                                   tvb, offset, session_id_length,
                                   NULL, "Session ID (%u byte%s)",
@@ -1807,8 +1751,6 @@ dissect_dtls_hnd_hello_ext(tvbuff_t *tvb,
                                           tls_hello_extension_types,
                                           "Unknown %u"));
       ext_tree = proto_item_add_subtree(pi, ett_dtls_extension);
-      if (!ext_tree)
-        ext_tree = tree;
 
       proto_tree_add_uint(ext_tree, hf_dtls_handshake_extension_type,
                           tvb, offset, 2, ext_type);
@@ -1867,18 +1809,18 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
   if (tree || ssl)
     {
       /* show the client version */
-      if (tree)
-        proto_tree_add_item(tree, hf_dtls_handshake_client_version, tvb,
+      proto_tree_add_item(tree, hf_dtls_handshake_client_version, tvb,
                             offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       /* show the fields in common with server hello */
       offset = dissect_dtls_hnd_hello_common(tvb, tree, offset, ssl, 0);
 
-      /* look for a cookie */
-      cookie_length = tvb_get_guint8(tvb, offset);
       if (!tree)
         return;
+
+      /* look for a cookie */
+      cookie_length = tvb_get_guint8(tvb, offset);
 
       proto_tree_add_uint(tree, hf_dtls_handshake_cookie_len,
                           tvb, offset, 1, cookie_length);
@@ -1900,7 +1842,6 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
 
       if (cipher_suite_length > 0)
         {
-          tvb_ensure_bytes_exist(tvb, offset, cipher_suite_length);
           ti = proto_tree_add_none_format(tree,
                                           hf_dtls_handshake_cipher_suites,
                                           tvb, offset, cipher_suite_length,
@@ -1932,7 +1873,6 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
 
       if (compression_methods_length > 0)
         {
-          tvb_ensure_bytes_exist(tvb, offset, compression_methods_length);
           ti = proto_tree_add_none_format(tree,
                                           hf_dtls_handshake_comp_methods,
                                           tvb, offset, compression_methods_length,
@@ -1943,10 +1883,6 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
 
           /* make this a subtree */
           cs_tree = proto_item_add_subtree(ti, ett_dtls_comp_methods);
-          if (!cs_tree)
-            {
-              cs_tree = tree; /* failsafe */
-            }
 
           while (compression_methods_length > 0)
             {
@@ -1997,8 +1933,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
   if (tree || ssl)
     {
       /* show the server version */
-      if (tree)
-        proto_tree_add_item(tree, hf_dtls_handshake_server_version, tvb,
+      proto_tree_add_item(tree, hf_dtls_handshake_server_version, tvb,
                             offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
@@ -2067,7 +2002,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
 
 static int
 dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
-                                      guint32 offset, SslDecryptSession* ssl)
+                                      guint32 offset, SslDecryptSession* ssl _U_)
 {
   /*
    * struct {
@@ -2078,36 +2013,30 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
 
   guint8 cookie_length;
 
-
-  if (tree || ssl)
-    {
-      /* show the client version */
-      if (tree)
-        proto_tree_add_item(tree, hf_dtls_handshake_server_version, tvb,
-                            offset, 2, ENC_BIG_ENDIAN);
-      offset += 2;
+  /* show the client version */
+  proto_tree_add_item(tree, hf_dtls_handshake_server_version, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
 
 
-      /* look for a cookie */
-      cookie_length = tvb_get_guint8(tvb, offset);
-      if (!tree)
-        return offset;
+  /* look for a cookie */
+  cookie_length = tvb_get_guint8(tvb, offset);
 
-      proto_tree_add_uint(tree, hf_dtls_handshake_cookie_len,
-                          tvb, offset, 1, cookie_length);
-      offset ++;            /* skip opaque length */
+  proto_tree_add_uint(tree, hf_dtls_handshake_cookie_len,
+                        tvb, offset, 1, cookie_length);
+  offset ++;            /* skip opaque length */
 
-      if (cookie_length > 0)
-        {
-          proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
-                                      tvb, offset, cookie_length,
-                                      NULL, "Cookie (%u byte%s)",
-                                      cookie_length,
-                                      plurality(cookie_length, "", "s"));
-          offset += cookie_length;
-        }
-    }
-    return offset;
+  if (cookie_length > 0)
+  {
+     proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
+                                    tvb, offset, cookie_length,
+                                    NULL, "Cookie (%u byte%s)",
+                                    cookie_length,
+                                    plurality(cookie_length, "", "s"));
+     offset += cookie_length;
+  }
+
+  return offset;
 }
 
 static void
@@ -2157,17 +2086,14 @@ dissect_dtls_hnd_cert(tvbuff_t *tvb,
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-  if (tree)
-    {
-      certificate_list_length = tvb_get_ntoh24(tvb, offset);
-      proto_tree_add_uint(tree, hf_dtls_handshake_certificates_len,
+  certificate_list_length = tvb_get_ntoh24(tvb, offset);
+  proto_tree_add_uint(tree, hf_dtls_handshake_certificates_len,
                           tvb, offset, 3, certificate_list_length);
-      offset += 3;            /* 24-bit length value */
+  offset += 3;            /* 24-bit length value */
 
-      if (certificate_list_length > 0)
-        {
-          tvb_ensure_bytes_exist(tvb, offset, certificate_list_length);
-          ti = proto_tree_add_none_format(tree,
+  if (certificate_list_length > 0)
+  {
+     ti = proto_tree_add_none_format(tree,
                                           hf_dtls_handshake_certificates,
                                           tvb, offset, certificate_list_length,
                                           "Certificates (%u byte%s)",
@@ -2175,30 +2101,23 @@ dissect_dtls_hnd_cert(tvbuff_t *tvb,
                                           plurality(certificate_list_length,
                                                     "", "s"));
 
-          /* make it a subtree */
-          subtree = proto_item_add_subtree(ti, ett_dtls_certs);
-          if (!subtree)
-            {
-              subtree = tree; /* failsafe */
-            }
+     /* make it a subtree */
+     subtree = proto_item_add_subtree(ti, ett_dtls_certs);
 
-          /* iterate through each certificate */
-          while (certificate_list_length > 0)
-            {
-              /* get the length of the current certificate */
-              guint32 cert_length = tvb_get_ntoh24(tvb, offset);
-              certificate_list_length -= 3 + cert_length;
+     /* iterate through each certificate */
+     while (certificate_list_length > 0)
+     {
+       /* get the length of the current certificate */
+       guint32 cert_length = tvb_get_ntoh24(tvb, offset);
+       certificate_list_length -= 3 + cert_length;
 
-              proto_tree_add_item(subtree, hf_dtls_handshake_certificate_len,
-                                  tvb, offset, 3, ENC_BIG_ENDIAN);
-              offset += 3;
+       proto_tree_add_item(subtree, hf_dtls_handshake_certificate_len, tvb, offset, 3, ENC_BIG_ENDIAN);
+       offset += 3;
 
-              dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_certificate);
-              offset += cert_length;
-            }
-        }
-
-    }
+       dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_certificate);
+       offset += cert_length;
+     }
+  }
 }
 
 static void
@@ -2256,8 +2175,7 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
    */
 
   proto_tree *ti, *ti2;
-  proto_tree *subtree;
-  proto_tree *saved_subtree;
+  proto_tree *subtree, *algotree;
   guint8      cert_types_count;
   gint        sh_alg_length;
   guint16     sig_hash_alg;
@@ -2312,10 +2230,6 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
                                               sh_alg_length/2,
                                               plurality(sh_alg_length/2, "", "s"));
               subtree = proto_item_add_subtree(ti, ett_dtls_sig_hash_algs);
-              if (!subtree)
-                {
-                  subtree = tree;
-                }
 
               if (sh_alg_length % 2) {
                   expert_add_info_format_text(pinfo, ti2, &ei_dtls_handshake_sig_hash_alg_len_bad,
@@ -2327,23 +2241,15 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
 
               while (sh_alg_length > 0)
                 {
-                  saved_subtree = subtree;
-
                   sig_hash_alg = tvb_get_ntohs(tvb, offset);
                   ti = proto_tree_add_uint(subtree, hf_dtls_handshake_sig_hash_alg,
                                       tvb, offset, 2, sig_hash_alg);
-                  subtree = proto_item_add_subtree(ti, ett_dtls_sig_hash_alg);
-                  if (!subtree)
-                  {
-                      subtree = saved_subtree;
-                  }
+                  algotree = proto_item_add_subtree(ti, ett_dtls_sig_hash_alg);
 
-                  proto_tree_add_item(subtree, hf_dtls_handshake_sig_hash_hash,
+                  proto_tree_add_item(algotree, hf_dtls_handshake_sig_hash_hash,
                                   tvb, offset, 1, ENC_BIG_ENDIAN);
-                  proto_tree_add_item(subtree, hf_dtls_handshake_sig_hash_sig,
+                  proto_tree_add_item(algotree, hf_dtls_handshake_sig_hash_sig,
                                   tvb, offset+1, 1, ENC_BIG_ENDIAN);
-
-                  subtree = saved_subtree;
 
                   offset += 2;
                   sh_alg_length -= 2;
@@ -2362,7 +2268,6 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
 
       if (dnames_length > 0)
         {
-          tvb_ensure_bytes_exist(tvb, offset, dnames_length);
           ti = proto_tree_add_none_format(tree,
                                           hf_dtls_handshake_dnames,
                                           tvb, offset, dnames_length,
@@ -2370,10 +2275,6 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
                                           dnames_length,
                                           plurality(dnames_length, "", "s"));
           subtree = proto_item_add_subtree(ti, ett_dtls_dnames);
-          if (!subtree)
-            {
-              subtree = tree;
-            }
 
           while (dnames_length > 0)
             {
@@ -2386,9 +2287,7 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
                                   tvb, offset, 2, ENC_BIG_ENDIAN);
               offset += 2;
 
-              tvb_ensure_bytes_exist(tvb, offset, name_length);
-
-              (void)dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_dname);
+              dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_dname);
 
               offset += name_length;
             }
@@ -2797,12 +2696,6 @@ dissect_dtls_hnd_finished(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
    *     } Finished;
    */
 
-  /* this all needs a tree, so bail if we don't have one */
-  if (!tree)
-    {
-      return;
-    }
-
   switch(*conv_version) {
   case SSL_VER_DTLS:
     proto_tree_add_item(tree, hf_dtls_handshake_finished,
@@ -2996,7 +2889,7 @@ proto_register_dtls(void)
     },
     { &hf_dtls_record_sequence_number,
       { "Sequence Number", "dtls.record.sequence_number",
-        FT_DOUBLE, BASE_NONE, NULL, 0x0,
+        FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_dtls_record_length,
