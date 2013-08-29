@@ -33,17 +33,11 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
-#include <epan/stats_tree.h>
-#include <epan/req_resp_hdrs.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
@@ -154,17 +148,17 @@ static int hf_name_value = -1;
 static gint ett_memcache = -1;
 static gint ett_extras = -1;
 
-static expert_field ei_value_missing = EI_INIT;
-static expert_field ei_extras_missing = EI_INIT;
-static expert_field ei_value_length = EI_INIT;
-static expert_field ei_key_missing = EI_INIT;
-static expert_field ei_key_unknown = EI_INIT;
-static expert_field ei_extras_unknown = EI_INIT;
-static expert_field ei_value_unknown = EI_INIT;
+static expert_field ei_value_missing   = EI_INIT;
+static expert_field ei_extras_missing  = EI_INIT;
+static expert_field ei_value_length    = EI_INIT;
+static expert_field ei_key_missing     = EI_INIT;
+static expert_field ei_key_unknown     = EI_INIT;
+static expert_field ei_extras_unknown  = EI_INIT;
+static expert_field ei_value_unknown   = EI_INIT;
 static expert_field ei_status_response = EI_INIT;
-static expert_field ei_opcode_unknown = EI_INIT;
-static expert_field ei_reserved_value = EI_INIT;
-static expert_field ei_magic_unknown = EI_INIT;
+static expert_field ei_opcode_unknown  = EI_INIT;
+static expert_field ei_reserved_value  = EI_INIT;
+static expert_field ei_magic_unknown   = EI_INIT;
 
 static const value_string magic_vals[] = {
   { MAGIC_REQUEST,         "Request"            },
@@ -2107,25 +2101,25 @@ proto_register_memcache (void)
   };
 
   static ei_register_info ei[] = {
-      { &ei_extras_unknown, { "memcache.extras.notexpected", PI_UNDECODED, PI_WARN, "shall not have Extras", EXPFILL }},
-      { &ei_extras_missing, { "memcache.extras.missing", PI_UNDECODED, PI_WARN, "must have Extras", EXPFILL }},
-      { &ei_key_unknown, { "memcache.key.notexpected", PI_UNDECODED, PI_WARN, "shall not have Key", EXPFILL }},
-      { &ei_key_missing, { "memcache.key.missing", PI_UNDECODED, PI_WARN, "must have Key", EXPFILL }},
-      { &ei_value_length, { "memcache.value.invalid", PI_UNDECODED, PI_WARN, "Illegal Value length, should be 8", EXPFILL }},
-      { &ei_value_unknown, { "memcache.value.notexpected", PI_UNDECODED, PI_WARN, "shall not have Value", EXPFILL }},
-      { &ei_value_missing, { "memcache.value.missing", PI_UNDECODED, PI_WARN, "must have Value", EXPFILL }},
-      { &ei_magic_unknown, { "memcache.magic.unknown", PI_UNDECODED, PI_WARN, "Unknown magic byte", EXPFILL }},
-      { &ei_opcode_unknown, { "memcache.opcode.unknown", PI_UNDECODED, PI_WARN, "Unknown opcode", EXPFILL }},
+      { &ei_extras_unknown,  { "memcache.extras.notexpected", PI_UNDECODED, PI_WARN, "shall not have Extras", EXPFILL }},
+      { &ei_extras_missing,  { "memcache.extras.missing", PI_UNDECODED, PI_WARN, "must have Extras", EXPFILL }},
+      { &ei_key_unknown,     { "memcache.key.notexpected", PI_UNDECODED, PI_WARN, "shall not have Key", EXPFILL }},
+      { &ei_key_missing,     { "memcache.key.missing", PI_UNDECODED, PI_WARN, "must have Key", EXPFILL }},
+      { &ei_value_length,    { "memcache.value.invalid", PI_UNDECODED, PI_WARN, "Illegal Value length, should be 8", EXPFILL }},
+      { &ei_value_unknown,   { "memcache.value.notexpected", PI_UNDECODED, PI_WARN, "shall not have Value", EXPFILL }},
+      { &ei_value_missing,   { "memcache.value.missing", PI_UNDECODED, PI_WARN, "must have Value", EXPFILL }},
+      { &ei_magic_unknown,   { "memcache.magic.unknown", PI_UNDECODED, PI_WARN, "Unknown magic byte", EXPFILL }},
+      { &ei_opcode_unknown,  { "memcache.opcode.unknown", PI_UNDECODED, PI_WARN, "Unknown opcode", EXPFILL }},
       { &ei_status_response, { "memcache.status.response", PI_RESPONSE_CODE, PI_NOTE, "Error response", EXPFILL }},
-      { &ei_reserved_value, { "memcache.reserved.expert", PI_UNDECODED, PI_WARN, "Reserved value", EXPFILL }},
+      { &ei_reserved_value,  { "memcache.reserved.expert", PI_UNDECODED, PI_WARN, "Reserved value", EXPFILL }},
   };
 
-  module_t *memcache_module;
-  expert_module_t* expert_memcache;
+  module_t        *memcache_module;
+  expert_module_t *expert_memcache;
 
   proto_memcache = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  register_dissector ("memcache.tcp", dissect_memcache_tcp, proto_memcache);
-  register_dissector ("memcache.udp", dissect_memcache_udp, proto_memcache);
+  memcache_tcp_handle = register_dissector ("memcache.tcp", dissect_memcache_tcp, proto_memcache);
+  memcache_udp_handle = register_dissector ("memcache.udp", dissect_memcache_udp, proto_memcache);
 
   proto_register_field_array (proto_memcache, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
@@ -2170,20 +2164,13 @@ proto_register_memcache (void)
 void
 proto_reg_handoff_memcache (void)
 {
-  static range_t *orig_memcache_tcp_port_range = NULL;
-  static range_t *orig_memcache_udp_port_range = NULL;
-  static gboolean initialized = FALSE;
+  static range_t  *orig_memcache_tcp_port_range = NULL;
+  static range_t  *orig_memcache_udp_port_range = NULL;
 
-  if (!initialized) {
-    memcache_tcp_handle = find_dissector("memcache.tcp");
-    memcache_udp_handle = find_dissector("memcache.udp");
-    initialized = TRUE;
-  } else {
-    dissector_delete_uint_range("tcp.port", orig_memcache_tcp_port_range, memcache_tcp_handle);
-    dissector_delete_uint_range("udp.port", orig_memcache_udp_port_range, memcache_udp_handle);
-    g_free(orig_memcache_tcp_port_range);
-    g_free(orig_memcache_udp_port_range);
-  }
+  dissector_delete_uint_range("tcp.port", orig_memcache_tcp_port_range, memcache_tcp_handle);
+  dissector_delete_uint_range("udp.port", orig_memcache_udp_port_range, memcache_udp_handle);
+  g_free(orig_memcache_tcp_port_range);
+  g_free(orig_memcache_udp_port_range);
 
   orig_memcache_tcp_port_range = range_copy(memcache_tcp_port_range);
   orig_memcache_udp_port_range = range_copy(memcache_udp_port_range);
