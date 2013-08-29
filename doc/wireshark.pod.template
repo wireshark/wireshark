@@ -232,9 +232,10 @@ B<duration>:I<value> Stop writing to a capture file after I<value> seconds have
 elapsed.
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of
-I<value> kilobytes (where a kilobyte is 1024 bytes).  If this option is used
-together with the -b option, Wireshark will stop writing to the current
-capture file and switch to the next one if filesize is reached.
+I<value> KiB.  If this option is used together with the -b option, Wireshark
+will stop writing to the current capture file and switch to the next one if
+filesize is reached.  Note that the filesize is limited to a maximum value of
+2 GiB.
 
 B<files>:I<value> Stop writing to capture files after I<value> number of files
 were written.
@@ -263,7 +264,7 @@ B<duration>:I<value> switch to the next file after I<value> seconds have
 elapsed, even if the current file is not completely filled up.
 
 B<filesize>:I<value> switch to the next file after it reaches a size of
-I<value> kilobytes (where a kilobyte is 1024 bytes).
+I<value> KiB.  Note that the filesize is limited to a maximum value of 2 GiB.
 
 B<files>:I<value> begin again with the first file after I<value> number of
 files were written (form a ring buffer).  This value must be less than 100000.
@@ -2361,7 +2362,7 @@ I<Update list of packets in real time> option is checked.
 The I<Next file every ...  megabyte(s)> check box and fields lets
 you specify that a switch to a next file should be done
 if the specified filesize is reached.  You can also select the appropriate
-unit, but beware that the filesize has a maximum of 2 GB.
+unit, but beware that the filesize has a maximum of 2 GiB.
 The check box is forced to be checked, as "multiple files" mode requires a
 file size to be specified.
 

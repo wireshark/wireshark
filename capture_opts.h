@@ -205,14 +205,14 @@ typedef struct capture_options_tag {
     int autostop_packets;           /**< Maximum packet count */
     gboolean has_autostop_filesize; /**< TRUE if maximum capture file size
                                          is specified */
-    gint32 autostop_filesize;       /**< Maximum capture file size */
+    guint32 autostop_filesize;      /**< Maximum capture file size */
     gboolean has_autostop_duration; /**< TRUE if maximum capture duration
                                          is specified */
     gint32 autostop_duration;       /**< Maximum capture duration */
 
     gchar *capture_comment;         /** capture comment to write to the
                                         output file */
- 
+
     /* internally used (don't touch from outside) */
     gboolean output_to_pipe;        /**< save_file is a pipe (named or stdout) */
     gboolean capture_child;         /**< hidden option: Wireshark child mode */

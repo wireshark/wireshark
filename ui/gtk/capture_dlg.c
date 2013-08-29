@@ -952,9 +952,9 @@ guint32 value)
 #define SIZE_UNIT_GIGABYTES 2
 #define MAX_SIZE_UNITS 3
 static const char *size_unit_name[MAX_SIZE_UNITS] = {
-  "kilobyte(s)",
-  "megabyte(s)",
-  "gigabyte(s)",
+  "kibibyte(s)",
+  "mebibyte(s)",
+  "gibibyte(s)"
 };
 
 /* create one of the size options */
@@ -1013,15 +1013,19 @@ guint32 value)
 
   switch(unit) {
   case(SIZE_UNIT_KILOBYTES):
-    return value;
+    if (value > (((guint32)G_MAXINT + 1) / 1024)) {
+        return 0;
+    } else {
+        return value;
+    }
   case(SIZE_UNIT_MEGABYTES):
-    if (value > G_MAXINT / 1024) {
+    if (value > (((guint32)G_MAXINT + 1) / (1024 * 1024))) {
       return 0;
     } else {
       return value * 1024;
     }
   case(SIZE_UNIT_GIGABYTES):
-    if (value > G_MAXINT / (1024 * 1024)) {
+    if (value > (((guint32)G_MAXINT + 1) / (1024 * 1024 * 1024))) {
       return 0;
     } else {
       return value * 1024 * 1024;
@@ -5308,7 +5312,7 @@ fprintf(stderr, "Adding the default filter \"%s\"???\n", global_capture_opts.def
 
   window_get_geometry(top_level, &tl_geom);
   gtk_window_set_default_size(GTK_WINDOW(cap_open_w), tl_geom.width * 8 / 10, -1);
-  
+
   gtk_widget_show_all(cap_open_w);
   window_present(cap_open_w);
 
@@ -5601,8 +5605,8 @@ capture_dlg_prep(gpointer parent_w) {
       } else {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
           "%sMultiple files: Requested filesize too large!%s\n\n"
-          "The setting \"Next file every x byte(s)\" can't be greater than %u bytes (2GB).",
-          simple_dialog_primary_start(), simple_dialog_primary_end(), G_MAXINT);
+          "The setting \"Next file every x byte(s)\" can't be greater than %u bytes (2GiB).",
+          simple_dialog_primary_start(), simple_dialog_primary_end(), (guint32)G_MAXINT + 1);
         return FALSE;
       }
     }
@@ -5635,8 +5639,8 @@ capture_dlg_prep(gpointer parent_w) {
       } else {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
           "%sStop Capture: Requested filesize too large!%s\n\n"
-          "The setting \"after x byte(s)\" can't be greater than %u bytes (2GB).",
-          simple_dialog_primary_start(), simple_dialog_primary_end(), G_MAXINT);
+          "The setting \"after x byte(s)\" can't be greater than %u bytes (2GiB).",
+          simple_dialog_primary_start(), simple_dialog_primary_end(), (guint32)G_MAXINT + 1);
         return FALSE;
       }
     }
@@ -5704,7 +5708,7 @@ create_and_fill_model(GtkTreeView *view)
         device.snaplen = WTAP_MAX_PACKET_SIZE;
         device.has_snaplen = FALSE;
       }
-      
+
       if (device.has_snaplen) {
         snaplen_string = g_strdup_printf("%d", device.snaplen);
       } else {
@@ -5717,7 +5721,7 @@ create_and_fill_model(GtkTreeView *view)
         device.buffer = buffer;
       } else {
         device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
-      } 
+      }
 #endif
       global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
       g_array_insert_val(global_capture_opts.all_ifaces, i, device);

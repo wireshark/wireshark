@@ -245,7 +245,7 @@ win32strerror(DWORD error)
     char *p;
 
     FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		   NULL, error, 0, errbuf, ERRBUF_SIZE, NULL);
+                   NULL, error, 0, errbuf, ERRBUF_SIZE, NULL);
 
     /*
      * "FormatMessage()" "helpfully" sticks CR/LF at the end of the
@@ -415,7 +415,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
     if (capture_opts->multi_files_on) {
         if (capture_opts->has_autostop_filesize) {
             argv = sync_pipe_add_arg(argv, &argc, "-b");
-            g_snprintf(sfilesize, ARGV_NUMBER_LEN, "filesize:%d",capture_opts->autostop_filesize);
+            g_snprintf(sfilesize, ARGV_NUMBER_LEN, "filesize:%u",capture_opts->autostop_filesize);
             argv = sync_pipe_add_arg(argv, &argc, sfilesize);
         }
 
@@ -439,7 +439,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
     } else {
         if (capture_opts->has_autostop_filesize) {
             argv = sync_pipe_add_arg(argv, &argc, "-a");
-            g_snprintf(sautostop_filesize, ARGV_NUMBER_LEN, "filesize:%d",capture_opts->autostop_filesize);
+            g_snprintf(sautostop_filesize, ARGV_NUMBER_LEN, "filesize:%u",capture_opts->autostop_filesize);
             argv = sync_pipe_add_arg(argv, &argc, sautostop_filesize);
         }
     }
@@ -1146,7 +1146,7 @@ sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
     return ret;
 }
 
-/* centralised logging and timing for sync_pipe_run_command_actual(), 
+/* centralised logging and timing for sync_pipe_run_command_actual(),
 * redirects to sync_pipe_run_command_actual()
 */
 static int
@@ -1158,7 +1158,7 @@ sync_pipe_run_command(char** argv, gchar **data, gchar **primary_msg,
     GTimeVal end_time;
     float elapsed;
     int logging_enabled;
-    
+
     /* check if logging is actually enabled, otherwise don't expend the CPU generating logging */
     logging_enabled=( (G_LOG_LEVEL_DEBUG | G_LOG_LEVEL_INFO) & G_LOG_LEVEL_MASK & prefs.console_log_level);
     if(logging_enabled){
@@ -1653,10 +1653,10 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
         /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
         memcpy(msg, header, sizeof(header));
         newly = read(pipe_fd, &msg[sizeof(header)], len-sizeof(header));
-	if (newly < 0) { /* error */
-	    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-		  "read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
-	}
+        if (newly < 0) { /* error */
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
+        }
         *err_msg = g_strdup_printf("Unknown message from dumpcap, try to show it as a string: %s",
                                    msg);
         return -1;
@@ -1760,13 +1760,13 @@ sync_pipe_input_cb(gint source, gpointer user_data)
             /* The child has sent us a filename which we couldn't open.
 
                This could mean that the child is creating files faster
-	       than we can handle it.  (XXX - why would that result in
-	       a failure to open the file?)
+               than we can handle it.  (XXX - why would that result in
+               a failure to open the file?)
 
                That should only be the case for very fast file switches;
                We can't do much more than telling the child to stop.
                (This is the "emergency brake" if the user e.g. wants to
-	       switch files every second).
+               switch files every second).
 
                This can also happen if the user specified "-", meaning
                "standard output", as the capture file. */
@@ -2003,13 +2003,13 @@ sync_pipe_signame(int sig)
 
 static void create_dummy_signal_pipe() {
     gchar *dummy_signal_pipe_name;
-    
+
     if (dummy_signal_pipe != NULL) return;
-    
+
     if (!dummy_control_id) {
-	dummy_control_id = g_strdup_printf("%d.dummy", GetCurrentProcessId());
+        dummy_control_id = g_strdup_printf("%d.dummy", GetCurrentProcessId());
     }
-    
+
     /* Create the signal pipe */
     dummy_signal_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, dummy_control_id);
     dummy_signal_pipe = CreateNamedPipe(utf_8to16(dummy_signal_pipe_name),
