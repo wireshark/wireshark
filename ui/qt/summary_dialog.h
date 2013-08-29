@@ -26,19 +26,15 @@
 #ifndef SUMMARY_DIALOG_H
 #define SUMMARY_DIALOG_H
 
-#include <QDialog>
-#include <QClipboard>
+#include "config.h"
 
 #include <string.h>
 #include <time.h>
-
-#include "config.h"
 
 #include "qt_ui_utils.h"
 
 #include <epan/strutil.h>
 #include <wiretap/wtap.h>
-
 
 #include "globals.h"
 #include "file.h"
@@ -52,7 +48,8 @@
     #include "capture-pcap-util.h"
 #endif
 
-
+#include <QDialog>
+#include <QClipboard>
 
 namespace Ui {
 class SummaryDialog;

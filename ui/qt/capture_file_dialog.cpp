@@ -133,7 +133,7 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
 #if defined(Q_OS_WIN)
     if (!parent || !cf)
         return CANCELLED;
-    return win32_check_save_as_with_comments(parent->effectiveWinId(), cf, file_type);
+    return win32_check_save_as_with_comments((HWND)parent->effectiveWinId(), cf, file_type);
 #else // Q_OS_WIN
     guint32 comment_types;
     QMessageBox msg_dialog;
@@ -236,7 +236,8 @@ int CaptureFileDialog::open(QString &file_name) {
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wof_status;
 
-    wof_status = win32_open_file(parentWidget()->effectiveWinId(), fname, dfilter);
+    // XXX Add a widget->HWND routine to qt_ui_utils and use it instead.
+    wof_status = win32_open_file((HWND)parentWidget()->effectiveWinId(), fname, dfilter);
     file_name = fname->str;
     display_filter_ = dfilter->str;
 
@@ -250,13 +251,13 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wsf_status;
 
-    wsf_status = win32_save_as_file(parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compressed_, must_support_all_comments);
+    wsf_status = win32_save_as_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compressed_, must_support_all_comments);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);
 
     if (wsf_status) {
-        return win32_check_save_as_with_comments(parentWidget()->effectiveWinId(), cap_file_, file_type_);
+        return win32_check_save_as_with_comments((HWND)parentWidget()->effectiveWinId(), cap_file_, file_type_);
     }
 
     return CANCELLED;
@@ -266,13 +267,13 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wespf_status;
 
-    wespf_status = win32_export_specified_packets_file(parentWidget()->effectiveWinId(), fname, &file_type_, &compressed_, range);
+    wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), fname, &file_type_, &compressed_, range);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);
 
     if (wespf_status) {
-        return win32_check_save_as_with_comments(parentWidget()->effectiveWinId(), cap_file_, file_type_);
+        return win32_check_save_as_with_comments((HWND)parentWidget()->effectiveWinId(), cap_file_, file_type_);
     }
 
     return CANCELLED;
@@ -283,7 +284,7 @@ int CaptureFileDialog::merge(QString &file_name) {
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wmf_status;
 
-    wmf_status = win32_merge_file(parentWidget()->effectiveWinId(), fname, dfilter, &merge_type_);
+    wmf_status = win32_merge_file((HWND)parentWidget()->effectiveWinId(), fname, dfilter, &merge_type_);
     file_name = fname->str;
     display_filter_ = dfilter->str;
 

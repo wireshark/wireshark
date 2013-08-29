@@ -94,6 +94,7 @@ QString gchar_free_to_qstring(gchar *glib_string);
 
 #endif /* __QT_UI_UTILS__H__ */
 
+// XXX Add a routine to fetch the HWND corresponding to a widget using QPlatformIntegration
 
 /*
  * Editor modelines

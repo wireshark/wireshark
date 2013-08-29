@@ -26,10 +26,12 @@
 #
 
 isEqual(QT_MAJOR_VERSION, 4) {
-  QT += core gui
+    QT += core gui
 } else {
-  QT += core widgets printsupport
+    QT += core widgets printsupport
+    win: QT += gui-private
 }
+
 
 macx {
     TARGET = Wireshark
@@ -384,14 +386,22 @@ win32 {
         EXTRA_BINFILES += \"$${MSVCR_DLL}\"
     }
 
+    EXTRA_DLLS =
     CONFIG(debug, debug|release) {
-        EXTRA_BINFILES += \
-            $$[QT_INSTALL_BINS]/QtCored4.dll \
-            $$[QT_INSTALL_BINS]/QtGuid4.dll
+        isEqual(QT_MAJOR_VERSION, 4) {
+            EXTRA_DLLS += QtCored4 QtGuid4
+        } else {
+            EXTRA_DLLS += Qt5Cored Qt5Guid Qt5PrintSupportd
+        }
     } else:CONFIG(release, debug|release) {
-        EXTRA_BINFILES += \
-            $$[QT_INSTALL_BINS]/QtCore4.dll \
-            $$[QT_INSTALL_BINS]/QtGui4.dll
+        isEqual(QT_MAJOR_VERSION, 4) {
+            EXTRA_DLLS += QtCore4 QtGui4
+        } else {
+            EXTRA_DLLS += Qt5Cored Qt5Guid Qt5PrintSupportd
+        }
+    }
+    for(DLL,EXTRA_DLLS){
+        EXTRA_BINFILES += $$[QT_INSTALL_BINS]/$${DLL}.dll
     }
 
     EXTRA_BINFILES += \

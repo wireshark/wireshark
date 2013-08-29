@@ -25,7 +25,7 @@
 
 #include <time.h>
 
-#include <import_text_dialog.h>
+#include "import_text_dialog.h"
 
 #include "wiretap/wtap.h"
 #include "wiretap/pcap-encap.h"
@@ -42,7 +42,7 @@
 #include "wsutil/tempfile.h"
 
 #include <ui_import_text_dialog.h>
-#include <wireshark_application.h>
+#include "wireshark_application.h"
 
 #include <QFileDialog>
 #include <QDebug>

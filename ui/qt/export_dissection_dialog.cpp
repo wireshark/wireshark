@@ -201,7 +201,7 @@ int ExportDissectionDialog::exec()
 
     return retval;
 #else // Q_OS_WIN
-    win32_export_file(parentWidget()->effectiveWinId(), cap_file_, export_type_);
+    win32_export_file((HWND)parentWidget()->effectiveWinId(), cap_file_, export_type_);
     return QDialog::Accepted;
 #endif // Q_OS_WIN
 }
