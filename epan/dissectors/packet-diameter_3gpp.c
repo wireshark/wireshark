@@ -60,6 +60,8 @@ static int hf_diameter_3gpp_service_ind             = -1;
 static int hf_diameter_mbms_service_id              = -1;
 static int hf_diameter_address_digits = -1;
 static int hf_diameter_3gpp_spare_bits = -1;
+static int hf_diameter_3gpp_uar_flags_flags = -1;
+static int hf_diameter_3gpp_uar_flags_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list_flags = -1;
 static int hf_diameter_3gpp_feature_list_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list_flags_bit1 = -1;
@@ -155,6 +157,7 @@ static int hf_diameter_3gpp_udp_port = -1;
 static gint diameter_3gpp_path_ett = -1;
 static gint diameter_3gpp_msisdn_ett = -1;
 static gint diameter_3gpp_feature_list_ett = -1;
+static gint diameter_3gpp_uar_flags_ett = -1;
 static gint diameter_3gpp_tmgi_ett  = -1;
 static gint diameter_3gpp_ulr_flags_ett = -1;
 static gint diameter_3gpp_ula_flags_ett = -1;
@@ -239,6 +242,33 @@ dissect_diameter_3gpp_feature_list_id(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     }
 
 	return 4;
+}
+
+/* AVP Code: 637 UAR-Flags
+ * imscxdx.xml
+ * IMS Cx Dx AVPS 3GPP TS 29.229
+ */
+
+static int
+dissect_diameter_3gpp_uar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
+
+    proto_item* item;
+    proto_tree *sub_tree;
+    int offset = 0;
+    guint32 bit_offset;
+
+    item       = proto_tree_add_item(tree, hf_diameter_3gpp_uar_flags_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sub_tree   = proto_item_add_subtree(item, diameter_3gpp_uar_flags_ett);
+
+    bit_offset = 0;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 31, ENC_BIG_ENDIAN);
+    bit_offset+=31;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_uar_flags_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+
+    offset = bit_offset>>3;
+
+    return 4;
 }
 
 /* AVP Code: 630 Feature-List
@@ -851,6 +881,9 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 630 Feature-List */
     dissector_add_uint("diameter.3gpp", 630, new_create_dissector_handle(dissect_diameter_3gpp_feature_list, proto_diameter_3gpp));
 
+    /* AVP Code: 637 UAR-Flags */
+    dissector_add_uint("diameter.3gpp", 637, new_create_dissector_handle(dissect_diameter_3gpp_uar_flags, proto_diameter_3gpp));
+
     /* AVP Code: 640 Path */
     dissector_add_uint("diameter.3gpp", 640, new_create_dissector_handle(dissect_diameter_3gpp_path, proto_diameter_3gpp));
 
@@ -988,6 +1021,16 @@ proto_register_diameter_3gpp(void)
         { &hf_diameter_3gpp_spare_bits,
             { "Spare bit(s)", "diameter.3gpp.spare_bits",
             FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_uar_flags_flags,
+            { "Flags", "diameter.3gpp.uar_flags_flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_uar_flags_flags_bit0,
+            { "Emergency registration", "diameter.3gpp.uar_flags_flags_bit0",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_feature_list_flags,
@@ -1457,6 +1500,7 @@ proto_register_diameter_3gpp(void)
     static gint *ett[] = {
         &diameter_3gpp_path_ett,
         &diameter_3gpp_msisdn_ett,
+        &diameter_3gpp_uar_flags_ett,
         &diameter_3gpp_feature_list_ett,
         &diameter_3gpp_tmgi_ett,
         &diameter_3gpp_ulr_flags_ett,
