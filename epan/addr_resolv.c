@@ -899,6 +899,7 @@ new_ipv4(const guint addr)
     tp->addr = addr;
     tp->resolve = FALSE;
     tp->is_dummy_entry = FALSE;
+    ip_to_str_buf((const guint8 *)&addr, tp->ip, sizeof(tp->ip));
     return tp;
 }
 
@@ -984,6 +985,7 @@ new_ipv6(const struct e_in6_addr *addr)
     tp->addr = *addr;
     tp->resolve = FALSE;
     tp->is_dummy_entry = FALSE;
+    ip6_to_str_buf(addr, tp->ip6);
     return tp;
 }
 
@@ -1038,6 +1040,7 @@ try_resolv:
              * going to risk changing the semantics.
              */
             if (!tp->is_dummy_entry) {
+                g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
                 ip6_to_str_buf(addr, tp->name);
                 tp->is_dummy_entry = TRUE;
             }
@@ -1059,6 +1062,7 @@ try_resolv:
     /* unknown host or DNS timeout */
     if (!tp->is_dummy_entry) {
         tp->is_dummy_entry = TRUE;
+        g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
     }
     *found = FALSE;
     return tp;
@@ -2652,12 +2656,14 @@ const gchar *
 get_hostname(const guint addr)
 {
     gboolean found;
-	hashipv4_t *tp;
+
+    /* XXX why do we call this if we're not resolving? To create hash entries?
+     * Why?
+     */
+    hashipv4_t *tp = host_lookup(addr, &found);
 
     if (!gbl_resolv_flags.network_name)
-        return ip_to_str((guint8*)&addr);
-
-	tp = host_lookup(addr, &found);
+        return tp->ip;
 
     return tp->name;
 }
@@ -2668,14 +2674,16 @@ const gchar *
 get_hostname6(const struct e_in6_addr *addr)
 {
     gboolean found;
-    hashipv6_t *tp;
+
+    /* XXX why do we call this if we're not resolving? To create hash entries?
+     * Why?
+     */
+    hashipv6_t *tp = host_lookup6(addr, &found);
 
     if (!gbl_resolv_flags.network_name)
-        return ip6_to_str(addr);
+        return tp->ip6;
 
-    tp = host_lookup6(addr, &found);
-
-	return tp->name;
+    return tp->name;
 }
 
 /* -------------------------- */
@@ -2690,7 +2698,7 @@ add_ipv4_name(const guint addr, const gchar *name)
      * Don't add zero-length names; apparently, some resolvers will return
      * them if they get them from DNS.
      */
-    if ((name[0] == '\0')||(!gbl_resolv_flags.network_name))
+    if (name[0] == '\0')
         return;
 
 
@@ -2745,7 +2753,7 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
      * Don't add zero-length names; apparently, some resolvers will return
      * them if they get them from DNS.
      */
-    if ((name[0] == '\0')||(!gbl_resolv_flags.network_name))
+    if (name[0] == '\0')
         return;
 
     tp = (hashipv6_t *)g_hash_table_lookup(ipv6_hash_table, addrp);

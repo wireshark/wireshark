@@ -80,6 +80,7 @@ typedef struct hashipv4 {
   guint             addr;
   gboolean          is_dummy_entry; /* name is IPv4 address in dot format */
   gboolean          resolve;        /* already tried to resolve it */
+  gchar             ip[16];
   gchar             name[MAXNAMELEN];
 } hashipv4_t;
 
@@ -88,6 +89,7 @@ typedef struct hashipv6 {
     struct e_in6_addr addr;
     gboolean          is_dummy_entry; /* name is IPv6 address in colon format */
     gboolean          resolve;        /* */
+    gchar             ip6[MAX_IP6_STR_LEN]; /* XX */
     gchar             name[MAXNAMELEN];
 } hashipv6_t;
 /*
