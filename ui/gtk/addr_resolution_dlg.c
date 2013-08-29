@@ -172,9 +172,8 @@ ipv4_hash_table_to_texbuff(gpointer key, gpointer value, gpointer user_data)
 	hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
 	int addr = *(int*)key;
 
-	g_snprintf(string_buff, ADDRESS_STR_MAX, "Key:0x%x IP: %s, Name: %s\n",
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "Key:0x%x Name: %s\n",
 		  addr,
-		  ipv4_hash_table_entry->ip,
 		  ipv4_hash_table_entry->name);
 
 	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
@@ -188,8 +187,7 @@ ipv6_hash_table_to_texbuff(gpointer key _U_, gpointer value, gpointer user_data)
 	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
 	hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
 
-	g_snprintf(string_buff, ADDRESS_STR_MAX, "IP: %s, Name: %s\n",
-		  ipv6_hash_table_entry->ip6,
+	g_snprintf(string_buff, ADDRESS_STR_MAX, "Name: %s\n",
 		  ipv6_hash_table_entry->name);
 
 	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
