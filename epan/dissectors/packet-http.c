@@ -2640,12 +2640,12 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 		while (tvb_reported_length_remaining(tvb, offset) != 0) {
 			if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->fd->num >= conv_data->startframe) {
-                                g_warning("Go Websocket");
+				/*g_warning("Go Websocket");*/
 				call_dissector_only(websocket_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
 				break;
 			}
 			if (conv_data->upgrade == UPGRADE_HTTP2 && pinfo->fd->num >= conv_data->startframe) {
-                                g_warning("Go HTTP2");
+				/*g_warning("Go HTTP2");*/
 				call_dissector_only(http2_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
 				break;
 			}
