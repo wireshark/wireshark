@@ -29,6 +29,11 @@ WIN32_SETUP_OPT=--download
 !IF EXIST("..\..\wireshark-qt-release\qtshark.exe")
 QT_DIR="..\..\wireshark-qt-release"
 !ENDIF
+!IF EXIST("..\..\wireshark-qt-release\Qt5Core.dll")
+	/DQT_VER=5 \
+!ELSE
+	/DQT_VER=4 \
+!ENDIF
 
 UPX_FLAGS = -q
 
@@ -109,6 +114,7 @@ WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
 	/DQT_DIR=$(QT_DIR) \
+	/DQT_VER=$(QT_VER) \
 	/DEXTRA_PLUGINS="$(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)" \
 	Installer.nsi
 
