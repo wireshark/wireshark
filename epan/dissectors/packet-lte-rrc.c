@@ -1297,6 +1297,7 @@ static int hf_lte_rrc_stag_ToReleaseList_r11 = -1;  /* STAG_ToReleaseList_r11 */
 static int hf_lte_rrc_stag_ToAddModList_r11 = -1;  /* STAG_ToAddModList_r11 */
 static int hf_lte_rrc_drx_Config_v1130 = -1;      /* DRX_Config_v1130 */
 static int hf_lte_rrc_stag_Id_r11 = -1;           /* STAG_Id_r11 */
+static int hf_lte_rrc_release_01 = -1;            /* T_release */
 static int hf_lte_rrc_setup_15 = -1;              /* T_setup_15 */
 static int hf_lte_rrc_onDurationTimer = -1;       /* T_onDurationTimer */
 static int hf_lte_rrc_drx_InactivityTimer = -1;   /* T_drx_InactivityTimer */
@@ -5117,22 +5118,6 @@ static const value_string lte_rrc_warningType_vals[] = {
 /* For this dissector, all access to actx->private_data should be made       */
 /* through this API, which ensures that they will not overwrite each other!! */
 /*****************************************************************************/
-
-/* Dedicated DRX config. Currently used to verify that a sensible config is given.
-   TODO: would be good to configure MAC with these settings and (optionally) show
-   DRX config and state (cycles/timers) attached to each UL/DL PDU! */
-typedef struct drx_config_t {
-    gboolean    configured;
-    guint32     onDurationTimer;
-    guint32     inactivityTimer;
-    guint32     retransmissionTimer;
-    guint32     longCycle;
-    guint32     cycleOffset;
-    /* Optional Short cycle */
-    gboolean    shortCycleConfigured;
-    guint32     shortCycle;
-    guint32     shortCycleTimer;
-} drx_config_t;
 
 
 /**********************************************************/
@@ -12998,6 +12983,24 @@ dissect_lte_rrc_T_ul_SCH_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
+
+static int
+dissect_lte_rrc_T_release(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  mac_lte_info* p_mac_lte_info;
+  offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
+
+  /* Look for UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  if (p_mac_lte_info != NULL) {
+    /* If found, tell MAC to release DRX config */
+    set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
+  }
+
+
+  return offset;
+}
+
+
 static const value_string lte_rrc_T_onDurationTimer_vals[] = {
   {   0, "psf1" },
   {   1, "psf2" },
@@ -13503,7 +13506,7 @@ static const value_string lte_rrc_DRX_Config_vals[] = {
 };
 
 static const per_choice_t DRX_Config_choice[] = {
-  {   0, &hf_lte_rrc_release     , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_NULL },
+  {   0, &hf_lte_rrc_release_01  , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_release },
   {   1, &hf_lte_rrc_setup_15    , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_setup_15 },
   { 0, NULL, 0, NULL }
 };
@@ -13929,9 +13932,20 @@ dissect_lte_rrc_MAC_MainConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MAC_MainConfig, MAC_MainConfig_sequence);
 
-  /* Verify that config is valid */
   if (drx_config->configured) {
+    mac_lte_info* p_mac_lte_info;
+
+    /* Verify that config is valid */
     drx_check_config_sane(drx_config, actx);
+
+    /* Look for UE identifier */
+    p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+    if (p_mac_lte_info != NULL) {
+      /* If found, configure MAC with DRX config */
+      set_mac_lte_drx_config(p_mac_lte_info->ueid, drx_config, actx->pinfo);
+    }
+
+    /* Clear out state */
     drx_config->configured = FALSE;
   }
 
@@ -34673,7 +34687,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2192 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2176 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -39295,6 +39309,10 @@ void proto_register_lte_rrc(void) {
       { "stag-Id-r11", "lte-rrc.stag_Id_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_release_01,
+      { "release", "lte-rrc.release_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_setup_15,
       { "setup", "lte-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -43333,7 +43351,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2339 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2323 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44844,7 +44862,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2762 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2746 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -44911,7 +44929,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2813 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2797 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
