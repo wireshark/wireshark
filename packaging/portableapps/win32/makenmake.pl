@@ -20,6 +20,11 @@ COPY_FLAGS	= /d /y
 !IF EXIST("$(TOPDIR)\wireshark-qt-release\qtshark.exe")
 QT_DIR="$(TOPDIR)\wireshark-qt-release" 
 !ENDIF
+!IF EXIST("..\..\wireshark-qt-release\Qt5Core.dll")
+	/DQT_VER=5 \
+!ELSE
+	/DQT_VER=4 \
+!ENDIF
 distribution:
 };
 
