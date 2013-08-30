@@ -24,15 +24,18 @@ COPY		= xcopy
 MKDIR		= mkdir
 COPY_FLAGS	= /d /y
 !IFNDEF WIN32_SETUP_OPT
-WIN32_SETUP_OPT=--download
+WIN32_SETUP_OPT	= --download
 !ENDIF
+
+# XXX This should be defined in config.nmake.
 !IF EXIST("..\..\wireshark-qt-release\qtshark.exe")
-QT_DIR="..\..\wireshark-qt-release"
+QT_DIR		= "..\..\wireshark-qt-release"
 !ENDIF
 !IF EXIST("..\..\wireshark-qt-release\Qt5Core.dll")
-	/DQT_VER=5 \
-!ELSE
-	/DQT_VER=4 \
+NEED_QT5_DLL	= USE
+!ENDIF
+!IF EXIST("..\..\wireshark-qt-release\QtCore4.dll")
+NEED_QT4_DLL	= USE
 !ENDIF
 
 UPX_FLAGS = -q
@@ -114,7 +117,8 @@ WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
 	/DQT_DIR=$(QT_DIR) \
-	/DQT_VER=$(QT_VER) \
+	/DNEED_QT5_DLL=$(NEED_QT5_DLL) \
+	/DNEED_QT4_DLL=$(NEED_QT4_DLL) \
 	/DEXTRA_PLUGINS="$(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)" \
 	Installer.nsi
 

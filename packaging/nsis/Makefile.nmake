@@ -219,9 +219,10 @@ NSIS_FLAGS=\
 	/DQT_DIR="..\..\wireshark-qt-release" \
 !ENDIF
 !IF EXIST("..\..\wireshark-qt-release\Qt5Core.dll")
-	/DQT_VER=5 \
-!ELSE
-	/DQT_VER=4 \
+	/DNEED_QT5_DLL=USE \
+!ENDIF
+!IF EXIST("..\..\wireshark-qt-release\QtCore4.dll")
+	/DNEED_QT4_DLL=USE \
 !ENDIF
 
 $(STAGING_DIR)\uninstall.exe : $(NSI)
