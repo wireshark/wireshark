@@ -577,10 +577,33 @@ static int hf_dcerpc_fragment_count = -1;
 static int hf_dcerpc_reassembled_in = -1;
 static int hf_dcerpc_reassembled_length = -1;
 static int hf_dcerpc_unknown_if_id = -1;
+static int hf_dcerpc_sec_vt_signature = -1;
+static int hf_dcerpc_sec_vt_command = -1;
+static int hf_dcerpc_sec_vt_command_cmd = -1;
+static int hf_dcerpc_sec_vt_command_end = -1;
+static int hf_dcerpc_sec_vt_command_must = -1;
+static int hf_dcerpc_sec_vt_command_length = -1;
+static int hf_dcerpc_sec_vt_bitmask = -1;
+static int hf_dcerpc_sec_vt_bitmask_sign = -1;
+static int hf_dcerpc_sec_vt_pcontext_uuid = -1;
+static int hf_dcerpc_sec_vt_pcontext_ver = -1;
+
+static const int *sec_vt_command_fields[] = {
+    &hf_dcerpc_sec_vt_command_cmd,
+    &hf_dcerpc_sec_vt_command_end,
+    &hf_dcerpc_sec_vt_command_must,
+    NULL
+};
+static int hf_dcerpc_reserved = -1;
+static int hf_dcerpc_unknown = -1;
+static int hf_dcerpc_missalign = -1;
+
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_dcerpc_duplicate_ptr = -1;
 static int hf_dcerpc_encrypted_stub_data = -1;
 static int hf_dcerpc_decrypted_stub_data = -1;
+static int hf_dcerpc_payload_stub_data = -1;
+static int hf_dcerpc_stub_data_with_sec_vt = -1;
 static int hf_dcerpc_stub_data = -1;
 static int hf_dcerpc_auth_padding = -1;
 static int hf_dcerpc_auth_verifier = -1;
@@ -595,6 +618,18 @@ static const int *dcerpc_cn_bind_trans_btfn_fields[] = {
         &hf_dcerpc_cn_bind_trans_btfn_01,
         &hf_dcerpc_cn_bind_trans_btfn_02,
         NULL
+};
+
+static const int *sec_vt_bitmask_fields[] = {
+    &hf_dcerpc_sec_vt_bitmask_sign,
+    NULL
+};
+
+static const value_string sec_vt_command_cmd_vals[] = {
+    {1, "BITMASK_1"},
+    {2, "PCONTEXT"},
+    {3, "HEADER2"},
+    {0, NULL}
 };
 
 static gint ett_dcerpc = -1;
@@ -615,6 +650,12 @@ static gint ett_dcerpc_string = -1;
 static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
 static gint ett_dcerpc_krb5_auth_verf = -1;
+static gint ett_dcerpc_verification_trailer = -1;
+static gint ett_dcerpc_sec_vt_command = -1;
+static gint ett_dcerpc_sec_vt_bitmask = -1;
+static gint ett_dcerpc_sec_vt_pcontext = -1;
+static gint ett_dcerpc_sec_vt_header = -1;
+static gint ett_dcerpc_complete_stub_data = -1;
 
 static expert_field ei_dcerpc_fragment_multiple = EI_INIT;
 static expert_field ei_dcerpc_cn_status = EI_INIT;
@@ -630,6 +671,8 @@ static expert_field ei_dcerpc_invalid_pdu_authentication_attempt = EI_INIT;
 static expert_field ei_dcerpc_long_frame = EI_INIT;
 static expert_field ei_dcerpc_cn_rts_command = EI_INIT;
 
+static const guint8 TRAILER_SIGNATURE[] = {0x8a, 0xe3, 0x13, 0x71, 0x02, 0xf4, 0x36, 0x71};
+static tvbuff_t *tvb_trailer_signature = NULL;
 
 static GSList *decode_dcerpc_bindings = NULL;
 /*
@@ -1262,6 +1305,7 @@ typedef struct _dcerpc_dissector_data
     gboolean decrypted;
     dcerpc_auth_info *auth_info;
     guint8 *drep;
+    proto_tree *dcerpc_tree;
 } dcerpc_dissector_data_t;
 
 /*
@@ -1291,8 +1335,13 @@ dcerpc_uuid_hash(gconstpointer k)
     return key->guid.data1;
 }
 
+
+static int
+dissect_verification_trailer(packet_info *pinfo, tvbuff_t *tvb, int stub_offset,
+                             proto_tree *parent_tree, int *signature_offset);
+
 static void
-show_stub_data(tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
+show_stub_data(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
                dcerpc_auth_info *auth_info, gboolean is_encrypted)
 {
     int   length, plain_length, auth_pad_len;
@@ -1324,9 +1373,11 @@ show_stub_data(tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
                 auth_pad_len = 0;
             } else {
                 proto_tree_add_item(dcerpc_tree, hf_dcerpc_decrypted_stub_data, tvb, offset, plain_length, ENC_NA);
+                dissect_verification_trailer(pinfo, tvb, offset, dcerpc_tree, NULL);
             }
         } else {
             proto_tree_add_item(dcerpc_tree, hf_dcerpc_stub_data, tvb, offset, plain_length, ENC_NA);
+            dissect_verification_trailer(pinfo, tvb, offset, dcerpc_tree, NULL);
         }
         /* If there is auth padding at the end of the stub, display it */
         if (auth_pad_len != 0) {
@@ -1347,6 +1398,7 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     guint                 length, reported_length;
     volatile gint         offset   = 0;
     tvbuff_t *volatile    stub_tvb;
+    tvbuff_t *volatile    payload_tvb = NULL;
     volatile guint        auth_pad_len;
     volatile int          auth_pad_offset;
     const char *volatile  saved_proto;
@@ -1413,7 +1465,7 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     if (!dissector_data->decrypted || (sub_dissect == NULL))
     {
-        show_stub_data(tvb, 0, sub_tree, dissector_data->auth_info, !dissector_data->decrypted);
+        show_stub_data(pinfo, tvb, 0, sub_tree, dissector_data->auth_info, !dissector_data->decrypted);
         return tvb_captured_length(tvb);
     }
 
@@ -1489,21 +1541,68 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
          * dissect; just re-throw that exception.
          */
         TRY {
+            proto_tree *stub_tree = NULL;
             int remaining;
+            int trailer_start_offset = -1;
+            int trailer_end_offset = -1;
 
-            offset = sub_dissect(stub_tvb, 0, pinfo, sub_tree,
-                                    dissector_data->info, dissector_data->drep);
+            stub_tree = proto_tree_add_subtree_format(dissector_data->dcerpc_tree,
+                                stub_tvb, 0, length,
+                                ett_dcerpc_complete_stub_data, NULL,
+                                "Complete stub data (%d byte%s)", length,
+                                plurality(length, "", "s"));
+            trailer_end_offset = dissect_verification_trailer(pinfo,
+                                                    stub_tvb, 0,
+                                                    stub_tree,
+                                                    &trailer_start_offset);
+
+            if (trailer_end_offset != -1) {
+                remaining = tvb_captured_length_remaining(stub_tvb,
+                                                    trailer_start_offset);
+                length -= remaining;
+
+                if (sub_item) {
+                        proto_item_set_len(sub_item, length);
+                }
+            } else {
+                proto_item *payload_item;
+
+                payload_item = proto_tree_add_item(stub_tree,
+                                    hf_dcerpc_payload_stub_data,
+                                    stub_tvb, 0, length, ENC_NA);
+                proto_item_append_text(payload_item, " (%d byte%s)",
+                                        length, plurality(length, "", "s"));
+            }
+
+            payload_tvb = tvb_new_subset(stub_tvb, 0, length, length);
+            offset = sub_dissect(payload_tvb, 0, pinfo, sub_tree,
+                            dissector_data->info, dissector_data->drep);
 
             /* If we have a subdissector and it didn't dissect all
                 data in the tvb, make a note of it. */
             remaining = tvb_reported_length_remaining(stub_tvb, offset);
+
+            if (trailer_end_offset != -1) {
+                if (offset > trailer_start_offset) {
+                    remaining = offset - trailer_start_offset;
+                    proto_tree_add_item(sub_tree, hf_dcerpc_stub_data_with_sec_vt,
+                                        stub_tvb, trailer_start_offset, remaining, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO,
+                                        "[Payload with Verification Trailer (%d byte%s)]",
+                                    remaining,
+                                    plurality(remaining, "", "s"));
+                    remaining = 0;
+                } else {
+                    remaining = trailer_start_offset - offset;
+                }
+            }
+
             if (remaining > 0) {
                 proto_tree_add_expert(sub_tree, pinfo, &ei_dcerpc_long_frame, stub_tvb, offset, remaining);
                 col_append_fstr(pinfo->cinfo, COL_INFO,
                                     "[Long frame (%d byte%s)]",
                                     remaining,
                                     plurality(remaining, "", "s"));
-
             }
         } CATCH_NONFATAL_ERRORS {
             /*
@@ -3234,6 +3333,252 @@ dissect_ndr_embedded_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     return ret;
 }
 
+static void
+dissect_sec_vt_bitmask(proto_tree *tree, tvbuff_t *tvb)
+{
+    proto_tree_add_bitmask(tree, tvb, 0,
+                           hf_dcerpc_sec_vt_bitmask,
+                           ett_dcerpc_sec_vt_bitmask,
+                           sec_vt_bitmask_fields,
+                           ENC_LITTLE_ENDIAN);
+}
+
+static void
+dissect_sec_vt_pcontext(proto_tree *tree, tvbuff_t *tvb)
+{
+    int offset = 0;
+    proto_item *ti = NULL;
+    proto_tree *tr = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                            ett_dcerpc_sec_vt_pcontext,
+                                            &ti, "pcontext");
+    e_guid_t uuid;
+    const char *uuid_name;
+
+    tvb_get_letohguid(tvb, offset, &uuid);
+    uuid_name = guids_get_uuid_name(&uuid);
+    if (!uuid_name) {
+            uuid_name = guid_to_str(wmem_packet_scope(), &uuid);
+    }
+
+    proto_tree_add_guid_format(tr, hf_dcerpc_sec_vt_pcontext_uuid, tvb,
+                               offset, 16, &uuid, "Abstract Syntax: %s", uuid_name);
+    offset += 16;
+
+    proto_tree_add_item(tr, hf_dcerpc_sec_vt_pcontext_ver,
+                        tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    tvb_get_letohguid(tvb, offset, &uuid);
+    uuid_name = guids_get_uuid_name(&uuid);
+    if (!uuid_name) {
+            uuid_name = guid_to_str(wmem_packet_scope(), &uuid);
+    }
+
+    proto_tree_add_guid_format(tr, hf_dcerpc_sec_vt_pcontext_uuid, tvb,
+                               offset, 16, &uuid, "Transfer Syntax: %s", uuid_name);
+    offset += 16;
+
+    proto_tree_add_item(tr, hf_dcerpc_sec_vt_pcontext_ver,
+                        tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_item_set_len(ti, offset);
+}
+
+static void
+dissect_sec_vt_header(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
+{
+    int offset = 0;
+    proto_item *ti = NULL;
+    proto_tree *tr = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                            ett_dcerpc_sec_vt_header,
+                                            &ti, "header2");
+    guint8 drep[4];
+    guint8 ptype = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_uint(tr, hf_dcerpc_packet_type, tvb, offset, 1, ptype);
+    offset += 1;
+
+    proto_tree_add_item(tr, hf_dcerpc_reserved, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tr, hf_dcerpc_reserved, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    tvb_memcpy(tvb, drep, offset, 4);
+    proto_tree_add_dcerpc_drep(tr, tvb, offset, drep, 4);
+    offset += 4;
+
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tr, drep,
+                                   hf_dcerpc_cn_call_id, NULL);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tr, drep,
+                                   hf_dcerpc_cn_ctx_id, NULL);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tr, drep,
+                                   hf_dcerpc_opnum, NULL);
+
+    proto_item_set_len(ti, offset);
+}
+
+static int
+dissect_verification_trailer_impl(packet_info *pinfo, tvbuff_t *tvb, int stub_offset,
+                                  proto_tree *parent_tree, int *signature_offset)
+{
+    int remaining = tvb_captured_length_remaining(tvb, stub_offset);
+    int offset;
+    gint signature_start;
+    gint payload_length;
+    typedef enum {
+        SEC_VT_COMMAND_BITMASK_1    = 0x0001,
+        SEC_VT_COMMAND_PCONTEXT     = 0x0002,
+        SEC_VT_COMMAND_HEADER2      = 0x0003,
+        SEC_VT_COMMAND_END          = 0x4000,
+        SEC_VT_MUST_PROCESS_COMMAND = 0x8000,
+        SEC_VT_COMMAND_MASK         = 0x3fff,
+    } sec_vt_command;
+    proto_item *payload_item;
+    proto_item *item;
+    proto_tree *tree;
+
+    if (signature_offset != NULL) {
+        *signature_offset = -1;
+    }
+
+    /* We need at least signature + the header of one command */
+    if (remaining < (int)(sizeof(TRAILER_SIGNATURE) + 4)) {
+         return -1;
+    }
+
+    /* We only scan the last 512 bytes for a possible trailer */
+    if (remaining > 512) {
+         offset = remaining - 512;
+         remaining = 512;
+    } else {
+         offset = 0;
+    }
+    offset += stub_offset;
+
+    signature_start = tvb_find_tvb(tvb, tvb_trailer_signature, offset);
+    if (signature_start == -1) {
+        return -1;
+    }
+    payload_length = signature_start - stub_offset;
+    payload_item = proto_tree_add_item(parent_tree,
+                                       hf_dcerpc_payload_stub_data,
+                                       tvb, stub_offset, payload_length, ENC_NA);
+    proto_item_append_text(payload_item, " (%d byte%s)",
+                           payload_length, plurality(payload_length, "", "s"));
+
+    if (signature_offset != NULL) {
+        *signature_offset = signature_start;
+    }
+    remaining -= (signature_start - offset);
+    offset = signature_start;
+
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+                                  ett_dcerpc_verification_trailer,
+                                  &item, "Verification Trailer");
+
+    proto_tree_add_item(tree, hf_dcerpc_sec_vt_signature,
+                        tvb, offset, sizeof(TRAILER_SIGNATURE), ENC_NA);
+    offset += sizeof(TRAILER_SIGNATURE);
+    remaining -= sizeof(TRAILER_SIGNATURE);
+
+    while (remaining >= 4) {
+        sec_vt_command cmd;
+        guint16 len, len_missalign;
+        gboolean cmd_end, cmd_must;
+        proto_item *ti;
+        proto_tree *tr;
+        tvbuff_t *cmd_tvb = NULL;
+
+        cmd = (sec_vt_command)tvb_get_letohs(tvb, offset);
+        len = tvb_get_letohs(tvb, offset + 2);
+        cmd_end = cmd & SEC_VT_COMMAND_END;
+        cmd_must = cmd & SEC_VT_MUST_PROCESS_COMMAND;
+        cmd = (sec_vt_command)(cmd & SEC_VT_COMMAND_MASK);
+
+        tr = proto_tree_add_subtree_format(tree, tvb, offset, 4 + len,
+                                           ett_dcerpc_sec_vt_pcontext,
+                                           &ti, "Command: %s",
+                                             val_to_str(cmd, sec_vt_command_cmd_vals,
+                                                        "Unknown (0x%04x)"));
+
+        if (cmd_must) {
+            proto_item_append_text(ti, "!!!");
+        }
+        if (cmd_end) {
+            proto_item_append_text(ti, ", END");
+        }
+
+        proto_tree_add_bitmask(tr, tvb, offset,
+                               hf_dcerpc_sec_vt_command,
+                               ett_dcerpc_sec_vt_command,
+                               sec_vt_command_fields,
+                               ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tr, hf_dcerpc_sec_vt_command_length, tvb,
+                            offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        cmd_tvb = tvb_new_subset_length(tvb, offset, len);
+        switch (cmd) {
+        case SEC_VT_COMMAND_BITMASK_1:
+            dissect_sec_vt_bitmask(tr, cmd_tvb);
+            break;
+        case SEC_VT_COMMAND_PCONTEXT:
+            dissect_sec_vt_pcontext(tr, cmd_tvb);
+            break;
+        case SEC_VT_COMMAND_HEADER2:
+            dissect_sec_vt_header(pinfo, tr, cmd_tvb);
+            break;
+        default:
+            proto_tree_add_item(tr, hf_dcerpc_unknown, cmd_tvb, 0, len, ENC_NA);
+            break;
+        }
+
+        offset += len;
+        remaining -= (4 + len);
+
+        len_missalign = len & 1;
+
+        if (len_missalign) {
+            int l = 2-len_missalign;
+            proto_tree_add_item(tr, hf_dcerpc_missalign, tvb, offset, l, ENC_NA);
+            offset += l;
+            remaining -= l;
+        }
+
+        if (cmd_end) {
+            break;
+        }
+    }
+
+    proto_item_set_end(item, tvb, offset);
+    return offset;
+}
+
+static int
+dissect_verification_trailer(packet_info *pinfo, tvbuff_t *tvb, int stub_offset,
+                             proto_tree *parent_tree, int *signature_offset)
+{
+    int ret = -1;
+    TRY {
+        /*
+         * Even if we found a signature we can't be sure to have a
+         * valid verification trailer, we're only relatively sure
+         * if we manage to dissect it completely, otherwise it
+         * may be part of the real payload. That's why we have
+         * a try/catch block here.
+         */
+        ret = dissect_verification_trailer_impl(pinfo, tvb, stub_offset, parent_tree, signature_offset);
+    } CATCH_NONFATAL_ERRORS {
+    } ENDTRY;
+    return ret;
+}
+
 static int
 dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
                    proto_tree *dcerpc_tree,
@@ -3255,6 +3600,7 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
     dissector_data.decrypted = decrypted;
     dissector_data.auth_info = auth_info;
     dissector_data.drep = drep;
+    dissector_data.dcerpc_tree = dcerpc_tree;
 
     /* Check the dissector table before the hash table.  Hopefully the hash table entries can
        all be converted to use dissector table */
@@ -3271,7 +3617,7 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u",
         guids_resolve_guid_to_str(&info->call_data->uuid), info->call_data->ver);
 
-        show_stub_data(tvb, 0, dcerpc_tree, auth_info, !decrypted);
+        show_stub_data(pinfo, tvb, 0, dcerpc_tree, auth_info, !decrypted);
         return -1;
     }
 
@@ -4036,9 +4382,9 @@ end_cn_stub:
         expert_add_info_format(pinfo, NULL, &ei_dcerpc_fragment, "%s fragment", fragment_type(hdr->flags));
 
         if (decrypted_tvb) {
-            show_stub_data(decrypted_tvb, 0, tree, auth_info, FALSE);
+            show_stub_data(pinfo, decrypted_tvb, 0, tree, auth_info, FALSE);
         } else {
-            show_stub_data(payload_tvb, 0, tree, auth_info, TRUE);
+            show_stub_data(pinfo, payload_tvb, 0, tree, auth_info, TRUE);
         }
     }
 
@@ -4098,7 +4444,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                              pinfo->srcport, pinfo->destport, 0);
     if (!conv)
-        show_stub_data(tvb, offset, dcerpc_tree, &auth_info, TRUE);
+        show_stub_data(pinfo, tvb, offset, dcerpc_tree, &auth_info, TRUE);
     else {
         dcerpc_matched_key matched_key, *new_matched_key;
         dcerpc_call_value *value;
@@ -4208,7 +4554,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         } else {
             /* no bind information, simply show stub data */
             proto_tree_add_expert_format(dcerpc_tree, pinfo, &ei_dcerpc_cn_ctx_id_no_bind, tvb, offset, 0, "No bind info for interface Context ID %u - capture start too late?", ctx_id);
-            show_stub_data(tvb, offset, dcerpc_tree, &auth_info, TRUE);
+            show_stub_data(pinfo, tvb, offset, dcerpc_tree, &auth_info, TRUE);
         }
     }
 
@@ -4263,7 +4609,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     if (!conv) {
         /* no point in creating one here, really */
-        show_stub_data(tvb, offset, dcerpc_tree, &auth_info, TRUE);
+        show_stub_data(pinfo, tvb, offset, dcerpc_tree, &auth_info, TRUE);
     } else {
         dcerpc_matched_key matched_key, *new_matched_key;
 
@@ -4342,7 +4688,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         } else {
             /* no bind information, simply show stub data */
             proto_tree_add_expert_format(dcerpc_tree, pinfo, &ei_dcerpc_cn_ctx_id_no_bind, tvb, offset, 0, "No bind info for interface Context ID %u - capture start too late?", ctx_id);
-            show_stub_data(tvb, offset, dcerpc_tree, &auth_info, TRUE);
+            show_stub_data(pinfo, tvb, offset, dcerpc_tree, &auth_info, TRUE);
         }
     }
 
@@ -6495,10 +6841,38 @@ proto_register_dcerpc(void)
           {"Forward Destination", "dcerpc.cn_rts_command.forwarddestination", FT_UINT32, BASE_DEC, VALS(rts_forward_destination_vals), 0x0, NULL, HFILL }},
         { &hf_dcerpc_cn_rts_command_pingtrafficsentnotify,
           {"Ping Traffic Sent Notify", "dcerpc.cn_rts_command.pingtrafficsentnotify", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_sec_vt_signature,
+          {"SEC_VT_SIGNATURE", "dcerpc.rpc_sec_vt.signature", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_sec_vt_command_end,
+          {"SEC_VT_COMMAND_END", "dcerpc.rpc_sec_vt.command.end", FT_BOOLEAN, 16, NULL, 0x4000, NULL, HFILL }},
+        { &hf_dcerpc_sec_vt_command_must,
+          {"SEC_VT_MUST_PROCESS_COMMAND", "dcerpc.rpc_sec_vt.command.must_process", FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL }},
+        { &hf_dcerpc_sec_vt_command_cmd,
+          {"Cmd", "dcerpc.rpc_sec_vt.command.cmd", FT_UINT16, BASE_HEX, VALS(sec_vt_command_cmd_vals), 0x3fff, NULL, HFILL }},
+        { &hf_dcerpc_sec_vt_command,
+          {"Command", "dcerpc.rpc_sec_vt.command", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_dcerpc_sec_vt_command_length,
+          {"Length", "dcerpc.rpc_sec_vt.command.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
+        { &hf_dcerpc_sec_vt_bitmask,
+          {"rpc_sec_vt_bitmask", "dcerpc.rpc_sec_vt.bitmask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_dcerpc_sec_vt_bitmask_sign,
+          {"CLIENT_SUPPORT_HEADER_SIGNING", "dcerpc.rpc_sec_vt.bitmask.sign", FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL }},
+        { &hf_dcerpc_sec_vt_pcontext_uuid,
+          {"UUID", "dcerpc.rpc_sec_vt.pcontext.interface.uuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_dcerpc_sec_vt_pcontext_ver,
+          {"Version", "dcerpc.rpc_sec_vt.pcontext.interface.ver", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_dcerpc_reserved,
+          {"Reserved", "dcerpc.reserved", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_dcerpc_unknown,
+          {"Unknown", "dcerpc.unknown", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_dcerpc_missalign,
+          {"missalign", "dcerpc.missalign", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
         /* Generated from convert_proto_tree_add_text.pl */
         { &hf_dcerpc_duplicate_ptr, { "duplicate PTR", "dcerpc.duplicate_ptr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_encrypted_stub_data, { "Encrypted stub data", "dcerpc.encrypted_stub_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_decrypted_stub_data, { "Decrypted stub data", "dcerpc.decrypted_stub_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_payload_stub_data, { "Payload stub data", "dcerpc.payload_stub_data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_stub_data_with_sec_vt, { "Stub data with rpc_sec_verification_trailer", "dcerpc.stub_data_with_sec_vt", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_stub_data, { "Stub data", "dcerpc.stub_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_auth_padding, { "Auth Padding", "dcerpc.auth_padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_auth_verifier, { "Auth Verifier", "dcerpc.auth_verifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -6528,6 +6902,12 @@ proto_register_dcerpc(void)
         &ett_dcerpc_fragments,
         &ett_dcerpc_fragment,
         &ett_dcerpc_krb5_auth_verf,
+        &ett_dcerpc_verification_trailer,
+        &ett_dcerpc_sec_vt_command,
+        &ett_dcerpc_sec_vt_bitmask,
+        &ett_dcerpc_sec_vt_pcontext,
+        &ett_dcerpc_sec_vt_header,
+        &ett_dcerpc_complete_stub_data,
     };
 
     static ei_register_info ei[] = {
@@ -6587,6 +6967,10 @@ proto_register_dcerpc(void)
     register_decode_as(&dcerpc_da);
 
     register_srt_table(proto_dcerpc, NULL, 1, dcerpcstat_packet, dcerpcstat_init, dcerpcstat_param);
+
+    tvb_trailer_signature = tvb_new_real_data(TRAILER_SIGNATURE,
+                                              sizeof(TRAILER_SIGNATURE),
+                                              sizeof(TRAILER_SIGNATURE));
 }
 
 void
