@@ -53,6 +53,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-csn1.h"
 #include "packet-gsm_rlcmac.h"
@@ -7702,7 +7703,7 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     RlcMacDownlink_t * data;
 
     /* allocate a data structure and guess the coding scheme */
-    data = ep_new(RlcMacDownlink_t);
+    data = wmem_new(wmem_packet_scope(), RlcMacDownlink_t);
 
     if ((pinfo->private_data != NULL) && (((RlcMacPrivateData_t *)(pinfo->private_data))->magic == GSM_RLC_MAC_MAGIC_NUMBER))
     {
@@ -7752,7 +7753,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     RlcMacUplink_t *data;
 
     /* allocate a data structure and set the coding scheme */
-   data = ep_new(RlcMacUplink_t);
+   data = wmem_new(wmem_packet_scope(), RlcMacUplink_t);
 
     if ((pinfo->private_data != NULL) && (((RlcMacPrivateData_t *)(pinfo->private_data))->magic == GSM_RLC_MAC_MAGIC_NUMBER))
     {

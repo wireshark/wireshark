@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-e212.h"
 #include "expert.h"
@@ -2499,10 +2500,10 @@ static expert_field ei_E212_mnc_non_decimal = EI_INIT;
  */
 
 /*
- * Return MCC MNC in a ep allocated string that can be used in labels.
+ * Return MCC MNC in a packet scope allocated string that can be used in labels.
  */
 gchar *
-dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
+dissect_e212_mcc_mnc_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
 {
 
     int         start_offset, mcc_mnc;
@@ -2551,7 +2552,7 @@ dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Prepare a string with the MCC and MNC including the country and Operator if
          * known, do NOT print unknown.
          */
-        mcc_mnc_str = ep_strdup_printf("MCC %u %s, MNC %03u %s",
+        mcc_mnc_str = wmem_strdup_printf(wmem_packet_scope(), "MCC %u %s, MNC %03u %s",
             mcc,
             val_to_str_ext_const(mcc,&E212_codes_ext,""),
             mnc,
@@ -2564,7 +2565,7 @@ dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Prepare a string with the MCC and MNC including the country and Operator if
          * known, do NOT print unknown.
          */
-        mcc_mnc_str = ep_strdup_printf("MCC %u %s, MNC %02u %s",
+        mcc_mnc_str = wmem_strdup_printf(wmem_packet_scope(), "MCC %u %s, MNC %02u %s",
             mcc,
             val_to_str_ext_const(mcc,&E212_codes_ext,""),
             mnc,
@@ -2580,7 +2581,7 @@ dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 int
 dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
 {
-    dissect_e212_mcc_mnc_ep_str(tvb, pinfo, tree, offset, little_endian);
+    dissect_e212_mcc_mnc_packet_str(tvb, pinfo, tree, offset, little_endian);
     return offset +3;
 }
 

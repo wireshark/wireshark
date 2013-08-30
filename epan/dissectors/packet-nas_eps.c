@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
@@ -1011,7 +1012,7 @@ unpack_eps_mid_digits(tvbuff_t *tvb) {
 
     length = tvb_length(tvb);
 
-    digit_str = (char *)ep_alloc(length*2);
+    digit_str = (char *)wmem_alloc(wmem_packet_scope(), length*2);
 
     /* Get identity digit 1 */
     octet = tvb_get_guint8(tvb,offset);

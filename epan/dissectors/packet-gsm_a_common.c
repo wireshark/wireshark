@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-bssap.h"
 #include "packet-sccp.h"
@@ -1279,7 +1280,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
             {
                 gchar *a_add_string;
 
-                a_add_string = (gchar *)ep_alloc(1024);
+                a_add_string = (gchar *)wmem_alloc(wmem_packet_scope(), 1024);
                 a_add_string[0] = '\0';
                 consumed =
                 (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 2,
@@ -1374,7 +1375,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
             {
                 gchar *a_add_string;
 
-                a_add_string = (gchar*)ep_alloc(1024);
+                a_add_string = (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
                 a_add_string[0] = '\0';
                 consumed =
                 (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 1 + lengt_length,
@@ -1455,7 +1456,7 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
             {
                 gchar *a_add_string;
 
-                a_add_string = (gchar*)ep_alloc(1024);
+                a_add_string = (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
                 a_add_string[0] = '\0';
                 consumed =
                 (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 1 + 2,
@@ -1532,7 +1533,7 @@ guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei,
         {
             gchar *a_add_string;
 
-            a_add_string = (gchar*)ep_alloc(1024);
+            a_add_string = (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
             a_add_string[0] = '\0';
             consumed = (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 1, -1, a_add_string, 1024);
 
@@ -1613,7 +1614,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
         {
             gchar *a_add_string;
 
-            a_add_string = (gchar*)ep_alloc(1024);
+            a_add_string = (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
             a_add_string[0] = '\0';
             consumed = (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset, RIGHT_NIBBLE, a_add_string, 1024);
 
@@ -1720,7 +1721,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int 
         {
             gchar *a_add_string;
 
-            a_add_string = (gchar*)ep_alloc(1024);
+            a_add_string = (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
             a_add_string[0] = '\0';
             consumed =
                 (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 1,
@@ -1787,7 +1788,7 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_
         {
             gchar *a_add_string;
 
-            a_add_string = (gchar*)ep_alloc(1024);
+            a_add_string = (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
             a_add_string[0] = '\0';
             consumed =
                 (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 2,
@@ -1848,7 +1849,7 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_typ
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
-        a_add_string= (gchar*)ep_alloc(1024);
+        a_add_string= (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
         a_add_string[0] = '\0';
         consumed = (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset, -1, a_add_string, 1024);
         if (a_add_string[0] != '\0')
@@ -1897,7 +1898,7 @@ guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint p
 
     subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
-    a_add_string= (gchar*)ep_alloc(1024);
+    a_add_string= (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
     a_add_string[0] = '\0';
 
     if (elem_funcs[idx] == NULL)
@@ -2239,7 +2240,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
             digit_str);
 
         if (sccp_assoc && ! sccp_assoc->calling_party) {
-            sccp_assoc->calling_party = se_strdup_printf(
+            sccp_assoc->calling_party = wmem_strdup_printf(wmem_file_scope(), 
                 ((oct & 0x07) == 3) ? "IMEISV: %s" : "IMSI: %s",
                 digit_str );
         }

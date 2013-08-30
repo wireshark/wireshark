@@ -32,6 +32,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
@@ -425,7 +426,7 @@ static GHashTable *reassembly_report_hash = NULL;
 /* Create a new struct for reassembly */
 static void reassembly_reset(channel_sequence_analysis_status *status)
 {
-    status->reassembly_info = se_new0(rlc_channel_reassembly_info);
+    status->reassembly_info = wmem_new0(wmem_file_scope(), rlc_channel_reassembly_info);
 }
 
 /* Hide previous one */
@@ -449,7 +450,7 @@ static void reassembly_add_segment(channel_sequence_analysis_status *status,
         return;
     }
 
-    segment_data = (guint8 *)se_alloc(length);
+    segment_data = (guint8 *)wmem_alloc(wmem_file_scope(), length);
     /* TODO: is there a better way to do this? */
     memcpy(segment_data, tvb_get_ptr(tvb, offset, length), length);
 
@@ -766,7 +767,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
             /* Reuse or allocate struct */
             p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte, 0);
             if (p_pdcp_lte_info == NULL) {
-                p_pdcp_lte_info = se_new0(pdcp_lte_info);
+                p_pdcp_lte_info = wmem_new0(wmem_file_scope(), pdcp_lte_info);
                 /* Store info in packet */
                 p_add_proto_data(pinfo->fd, proto_pdcp_lte, 0, p_pdcp_lte_info);
             }
@@ -940,7 +941,7 @@ static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
 
     /* Only allocate a struct when will be adding entry */
     if (do_persist) {
-        p_key = se_new0(rlc_result_hash_key);
+        p_key = wmem_new0(wmem_file_scope(), rlc_result_hash_key);
     }
     else {
         memset(&key, 0, sizeof(rlc_result_hash_key));
@@ -1370,8 +1371,8 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
         createdChannel = TRUE;
 
         /* Allocate a new value and duplicate key contents */
-        p_channel_status = se_new0(channel_sequence_analysis_status);
-        p_channel_key = (channel_hash_key *)se_memdup(&channel_key, sizeof(channel_hash_key));
+        p_channel_status = wmem_new0(wmem_file_scope(), channel_sequence_analysis_status);
+        p_channel_key = (channel_hash_key *)wmem_memdup(wmem_file_scope(), &channel_key, sizeof(channel_hash_key));
 
         /* Set mode */
         p_channel_status->rlcMode = p_rlc_lte_info->rlcMode;
@@ -1381,7 +1382,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
     }
 
     /* Create space for frame state_report */
-    p_report_in_frame = se_new0(sequence_analysis_report);
+    p_report_in_frame = wmem_new0(wmem_file_scope(), sequence_analysis_report);
 
 
     /* Deal with according to channel mode */
@@ -1780,8 +1781,8 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     if (p_channel_status == NULL) {
 
         /* Allocate a new key and value */
-        p_channel_key = se_new(channel_hash_key);
-        p_channel_status = se_new0(channel_repeated_nack_status);
+        p_channel_key = wmem_new(wmem_file_scope(), channel_hash_key);
+        p_channel_status = wmem_new0(wmem_file_scope(), channel_repeated_nack_status);
 
         /* Copy key contents */
         memcpy(p_channel_key, &channel_key, sizeof(channel_hash_key));
@@ -1813,7 +1814,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
 
     if (noOfNACKsRepeated >= 1) {
         /* Create space for frame state_report */
-        p_report_in_frame = se_new(channel_repeated_nack_report);
+        p_report_in_frame = wmem_new(wmem_file_scope(), channel_repeated_nack_report);
 
         /* Copy in found duplicates */
         for (n=0; n < MIN(tap_info->noOfNACKs, MAX_NACKs); n++) {
@@ -1891,7 +1892,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
     if (((1024 + p_channel_status->previousSequenceNumber+1 - ack_sn) % 1024) > 512) {
 
         /* Set result */
-        p_report_in_frame = se_new0(sequence_analysis_report);
+        p_report_in_frame = wmem_new0(wmem_file_scope(), sequence_analysis_report);
         p_report_in_frame->state = ACK_Out_of_Window;
         p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
         p_report_in_frame->sequenceExpected = p_channel_status->previousSequenceNumber;
@@ -2647,7 +2648,7 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte, 0);
     if (p_rlc_lte_info == NULL) {
         /* Allocate new info struct for this frame */
-        p_rlc_lte_info = se_new0(struct rlc_lte_info);
+        p_rlc_lte_info = wmem_new0(wmem_file_scope(), struct rlc_lte_info);
         infoAlreadySet = FALSE;
     }
     else {
@@ -2742,7 +2743,7 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     struct rlc_lte_info    *p_rlc_lte_info = NULL;
 
     /* Allocate and Zero tap struct */
-    rlc_lte_tap_info *tap_info = ep_new0(rlc_lte_tap_info);
+    rlc_lte_tap_info *tap_info = wmem_new0(wmem_packet_scope(), rlc_lte_tap_info);
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-LTE");

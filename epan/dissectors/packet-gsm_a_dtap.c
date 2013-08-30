@@ -106,7 +106,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 
@@ -2634,7 +2634,7 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 
 	if(addr_extr) {
 		if (sccp_assoc && ! sccp_assoc->called_party) {
-			sccp_assoc->called_party = se_strdup(a_bigbuf);
+			sccp_assoc->called_party = wmem_strdup(wmem_file_scope(), a_bigbuf);
 		}
 
 		if (add_string)
@@ -6527,7 +6527,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg);
 
 		if (sccp_msg && !sccp_msg->data.co.label) {
-			sccp_msg->data.co.label = se_strdup_printf("DTAP (0x%02x)",oct);
+			sccp_msg->data.co.label = wmem_strdup_printf(wmem_file_scope(), "DTAP (0x%02x)",oct);
 		}
 
 
@@ -6542,7 +6542,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dtap_tree = proto_item_add_subtree(dtap_item, ett_tree);
 
 		if (sccp_msg && !sccp_msg->data.co.label) {
-			sccp_msg->data.co.label = se_strdup(msg_str);
+			sccp_msg->data.co.label = wmem_strdup(wmem_file_scope(), msg_str);
 		}
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);

@@ -32,7 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
@@ -324,7 +324,7 @@ static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
 
     /* Only allocate a struct when will be adding entry */
     if (do_persist) {
-        p_key = se_new(pdcp_result_hash_key);
+        p_key = wmem_new(wmem_file_scope(), pdcp_result_hash_key);
     }
     else {
         memset(&key, 0, sizeof(pdcp_result_hash_key));
@@ -538,7 +538,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         createdChannel = TRUE;
 
         /* Allocate a new value and duplicate key contents */
-        p_channel_status = se_new0(pdcp_channel_status);
+        p_channel_status = wmem_new0(wmem_file_scope(), pdcp_channel_status);
 
         /* Add entry */
         g_hash_table_insert(pdcp_sequence_analysis_channel_hash,
@@ -546,7 +546,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     }
 
     /* Create space for frame state_report */
-    p_report_in_frame = se_new(pdcp_sequence_report_in_frame);
+    p_report_in_frame = wmem_new(wmem_file_scope(), pdcp_sequence_report_in_frame);
     p_report_in_frame->nextFrameNum = 0;
 
     switch (p_pdcp_lte_info->seqnum_length) {
@@ -879,7 +879,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte, 0);
     if (p_pdcp_lte_info == NULL) {
         /* Allocate new info struct for this frame */
-        p_pdcp_lte_info = se_new0(pdcp_lte_info);
+        p_pdcp_lte_info = wmem_new0(wmem_file_scope(), pdcp_lte_info);
         infoAlreadySet = FALSE;
     }
     else {
@@ -1233,7 +1233,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                                                 offset, -1, ENC_NA);
                                 bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_report_bitmap);
 
-                                 buff = (gchar *)ep_alloc(BUFF_SIZE);
+                                 buff = (gchar *)wmem_alloc(wmem_packet_scope(), BUFF_SIZE);
                                  len = tvb_length_remaining(tvb, offset);
                                  bit_offset = offset<<3;
                                 /* For each byte... */
@@ -1393,7 +1393,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     rohc_tvb = tvb_new_subset_remaining(tvb, rohc_offset);
 
     /* RoHC settings */
-    p_rohc_info = ep_new(rohc_info);
+    p_rohc_info = wmem_new(wmem_packet_scope(), rohc_info);
 
     p_rohc_info->rohc_compression     = p_pdcp_info->rohc_compression;
     p_rohc_info->rohc_ip_version      = p_pdcp_info->rohc_ip_version;

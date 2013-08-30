@@ -28,6 +28,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/uat.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
@@ -1169,7 +1170,7 @@ static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
                                                                          GUINT_TO_POINTER((guint)p_mac_lte_info->ueid));
     if (drx_config_entry != NULL) {
         /* Copy config into separate struct just for this frame, and add to result table */
-        drx_config_t *frame_config = se_new(drx_config_t);
+        drx_config_t *frame_config = wmem_new(wmem_file_scope(), drx_config_t);
         *frame_config = *drx_config_entry;
         g_hash_table_insert(mac_lte_drx_config_result, GUINT_TO_POINTER(pinfo->fd->num), frame_config);
     }
@@ -1425,7 +1426,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     p_mac_lte_info = (mac_lte_info *)p_get_proto_data(pinfo->fd, proto_mac_lte, 0);
     if (p_mac_lte_info == NULL) {
         /* Allocate new info struct for this frame */
-        p_mac_lte_info = se_new0(struct mac_lte_info);
+        p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
         infoAlreadySet = FALSE;
     }
     else {
@@ -1775,7 +1776,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                         gint offset, mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
     gint        number_of_rars         = 0; /* No of RAR bodies expected following headers */
-    guint8     *rapids                 = (guint8 *)ep_alloc(MAX_RAR_PDUS * sizeof(guint8));
+    guint8     *rapids                 = (guint8 *)wmem_alloc(wmem_packet_scope(), MAX_RAR_PDUS * sizeof(guint8));
     gboolean    backoff_indicator_seen = FALSE;
     guint8      backoff_indicator      = 0;
     guint8      extension;
@@ -2073,7 +2074,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Resuse or create RLC info */
     p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte, 0);
     if (p_rlc_lte_info == NULL) {
-        p_rlc_lte_info = se_new0(struct rlc_lte_info);
+        p_rlc_lte_info = wmem_new0(wmem_file_scope(), struct rlc_lte_info);
     }
 
     /* Fill in struct details for srb channels */
@@ -2170,7 +2171,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                     if ((total_gap >= 8) && (total_gap <= 13)) {
 
                         /* Resend detected! Store result pointing back. */
-                        result = se_new0(DLHARQResult);
+                        result = wmem_new0(wmem_file_scope(), DLHARQResult);
                         result->previousSet = TRUE;
                         result->previousFrameNum = lastData->framenum;
                         result->timeSincePreviousFrame = total_gap;
@@ -2179,7 +2180,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                         /* Now make previous frame point forward to here */
                         original_result = (DLHARQResult *)g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(lastData->framenum));
                         if (original_result == NULL) {
-                            original_result = se_new0(DLHARQResult);
+                            original_result = wmem_new0(wmem_file_scope(), DLHARQResult);
                             g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(lastData->framenum), original_result);
                         }
                         original_result->nextSet = TRUE;
@@ -2191,7 +2192,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         }
         else {
             /* Allocate entry in table for this UE/RNTI */
-            ueData = se_new0(DLHarqBuffers);
+            ueData = wmem_new0(wmem_file_scope(), DLHarqBuffers);
             g_hash_table_insert(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti), ueData);
         }
 
@@ -2319,7 +2320,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                             ULHARQResult *original_result;
 
                             /* Original detected!!! Store result pointing back */
-                            result = se_new0(ULHARQResult);
+                            result = wmem_new0(wmem_file_scope(), ULHARQResult);
                             result->previousSet = TRUE;
                             result->previousFrameNum = lastData->framenum;
                             result->timeSincePreviousFrame = total_gap;
@@ -2328,7 +2329,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                             /* Now make previous frame point forward to here */
                             original_result = (ULHARQResult *)g_hash_table_lookup(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(lastData->framenum));
                             if (original_result == NULL) {
-                                original_result = se_new0(ULHARQResult);
+                                original_result = wmem_new0(wmem_file_scope(), ULHARQResult);
                                 g_hash_table_insert(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(lastData->framenum), original_result);
                             }
                             original_result->nextSet = TRUE;
@@ -2341,7 +2342,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         }
         else {
             /* Allocate entry in table for this UE/RNTI */
-            ueData = se_new0(ULHarqBuffers);
+            ueData = wmem_new0(wmem_file_scope(), ULHarqBuffers);
             g_hash_table_insert(mac_lte_ul_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti), ueData);
         }
 
@@ -2406,7 +2407,7 @@ static SRResult *GetSRResult(guint32 frameNum, gboolean can_create)
     result = (SRResult *)g_hash_table_lookup(mac_lte_sr_request_hash, GUINT_TO_POINTER(frameNum));
 
     if ((result == NULL) && can_create) {
-        result = se_new0(SRResult);
+        result = wmem_new0(wmem_file_scope(), SRResult);
         g_hash_table_insert(mac_lte_sr_request_hash, GUINT_TO_POINTER((guint)frameNum), result);
     }
     return result;
@@ -2440,7 +2441,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
     state = (SRState *)g_hash_table_lookup(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti));
     if (state == NULL) {
         /* Allocate status for this RNTI */
-        state = se_new(SRState);
+        state = wmem_new(wmem_file_scope(), SRState);
         state->status = None;
         g_hash_table_insert(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti), state);
     }
@@ -2708,7 +2709,7 @@ static guint16 count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
     }
 
     /* Set result state for this frame */
-    result = se_new(TTIInfoResult_t);
+    result = wmem_new(wmem_file_scope(), TTIInfoResult_t);
     result->ues_in_tti = tti_info->ues_in_tti;
     g_hash_table_insert(mac_lte_tti_info_result_hash,
                         GUINT_TO_POINTER(pinfo->fd->num), result);
@@ -3253,7 +3254,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             guint msg3Key = p_mac_lte_info->rnti;
 
                             /* Allocate result and add it to the table */
-                            crResult = se_new(ContentionResolutionResult);
+                            crResult = wmem_new(wmem_file_scope(), ContentionResolutionResult);
                             g_hash_table_insert(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num), crResult);
 
                             /* Look for Msg3 */
@@ -3781,7 +3782,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 /* Look for previous entry for this UE */
                 if (data == NULL) {
                     /* Allocate space for data and add to table */
-                    data = se_new(Msg3Data);
+                    data = wmem_new(wmem_file_scope(), Msg3Data);
                     g_hash_table_insert(mac_lte_msg3_hash, GUINT_TO_POINTER(key), data);
                 }
 
@@ -4374,7 +4375,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                 n;
 
     /* Allocate and zero tap struct */
-    mac_lte_tap_info *tap_info = (mac_lte_tap_info *)ep_alloc0(sizeof(mac_lte_tap_info));
+    mac_lte_tap_info *tap_info = (mac_lte_tap_info *)wmem_alloc0(wmem_packet_scope(), sizeof(mac_lte_tap_info));
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
@@ -4918,7 +4919,7 @@ void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping)
                                                                    GUINT_TO_POINTER((guint)drb_mapping->ueid));
     if (!ue_mappings) {
         /* If not found, create & add to table */
-        ue_mappings = se_new0(ue_dynamic_drb_mappings_t);
+        ue_mappings = wmem_new0(wmem_file_scope(), ue_dynamic_drb_mappings_t);
         g_hash_table_insert(mac_lte_ue_channels_hash,
                             GUINT_TO_POINTER((guint)drb_mapping->ueid),
                             ue_mappings);
@@ -5000,7 +5001,7 @@ void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info 
         /* Find or create config struct for table entry */
         drx_config_entry = (drx_config_t *)g_hash_table_lookup(mac_lte_drx_config, GUINT_TO_POINTER((guint)ueid));
         if (drx_config_entry == NULL) {
-            drx_config_entry = (drx_config_t *)se_new(drx_config_t);
+            drx_config_entry = (drx_config_t *)wmem_new(wmem_file_scope(), drx_config_t);
         }
         /* Copy in new config */
         *drx_config_entry = *drx_config;
@@ -5009,7 +5010,7 @@ void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info 
         /* TODO: remember previous config (if any?) */
 
         /* Store this snapshot into the result info table */
-        result_entry = (drx_config_t *)se_new(drx_config_t);
+        result_entry = (drx_config_t *)wmem_new(wmem_file_scope(), drx_config_t);
         *result_entry = *drx_config_entry;
         g_hash_table_insert(mac_lte_drx_config, GUINT_TO_POINTER((guint)ueid), result_entry);
     }

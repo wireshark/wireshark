@@ -42,7 +42,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/req_resp_hdrs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
@@ -2215,7 +2215,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	}
 
 	/* Initialise stat info for passing to tap */
-	stat_info = ep_new0(sip_info_value_t);
+	stat_info = wmem_new0(wmem_packet_scope(), sip_info_value_t);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
 
@@ -2810,7 +2810,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					case POS_CALL_ID :
 						/* Store the Call-id */
 						g_strlcpy(call_id, value, MAX_CALL_ID_SIZE);
-						stat_info->tap_call_id = ep_strdup(call_id);
+						stat_info->tap_call_id = wmem_strdup(wmem_packet_scope(), call_id);
 
 						/* Add 'Call-id' string item to tree */
 						if(hdr_tree) {
@@ -3688,8 +3688,8 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		/* Need to create a new table entry */
 
 		/* Allocate a new key and value */
-		p_key = se_new(sip_hash_key);
-		p_val = se_new(sip_hash_value);
+		p_key = wmem_new(wmem_file_scope(), sip_hash_key);
+		p_val = wmem_new(wmem_file_scope(), sip_hash_value);
 
 		/* Fill in key and value details */
 		g_snprintf(p_key->call_id, MAX_CALL_ID_SIZE, "%s", call_id);
@@ -3780,7 +3780,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip, pinfo->curr_layer_num);
 	if (sip_frame_result == NULL)
 	{
-		sip_frame_result = se_new0(sip_frame_result_value);
+		sip_frame_result = wmem_new0(wmem_file_scope(), sip_frame_result_value);
 		p_add_proto_data(pinfo->fd, proto_sip, pinfo->curr_layer_num, sip_frame_result);
 	}
 
@@ -3884,7 +3884,7 @@ guint sip_find_request(packet_info *pinfo,
 	if (sip_frame_result == NULL)
 	{
 		/* Allocate and set all values to zero */
-		sip_frame_result = se_new0(sip_frame_result_value);
+		sip_frame_result = wmem_new0(wmem_file_scope(), sip_frame_result_value);
 		p_add_proto_data(pinfo->fd, proto_sip, pinfo->curr_layer_num, sip_frame_result);
 	}
 
@@ -4003,7 +4003,7 @@ guint sip_find_invite(packet_info *pinfo,
 	if (sip_frame_result == NULL)
 	{
 		/* Allocate and set all values to zero */
-		sip_frame_result = se_new0(sip_frame_result_value);
+		sip_frame_result = wmem_new0(wmem_file_scope(), sip_frame_result_value);
 		p_add_proto_data(pinfo->fd, proto_sip,  pinfo->curr_layer_num, sip_frame_result);
 	}
 
