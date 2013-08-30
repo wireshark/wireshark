@@ -1600,6 +1600,8 @@ void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 void MainWindow::on_actionStatisticsTcpStreamStevens_triggered()
 {
     TCPStreamDialog stream_dialog(this, cap_file_, GRAPH_TSEQ_STEVENS);
+    connect(&stream_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
     stream_dialog.exec();
 }
 

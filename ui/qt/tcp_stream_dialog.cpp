@@ -24,6 +24,10 @@
 #include "tcp_stream_dialog.h"
 #include "ui_tcp_stream_dialog.h"
 
+#include "epan/to_str.h"
+
+#include "ui/utf8_entities.h"
+
 #include "tango_colors.h"
 
 #include <QDebug>
@@ -31,7 +35,8 @@
 TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_type graph_type) :
     QDialog(parent),
     ui(new Ui::TCPStreamDialog),
-    cap_file_(cf)
+    cap_file_(cf),
+    tracer_(NULL)
 {
     struct segment current;
 
@@ -41,57 +46,81 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
         done(QDialog::Rejected);
     }
 
+//#ifdef Q_OS_MAC
+//    ui->hintLabel->setAttribute(Qt::WA_MacSmallSize, true);
+//#endif
+
     memset (&graph_, 0, sizeof(graph_));
     graph_.type = graph_type;
     graph_segment_list_get(cap_file_, &graph_, FALSE);
-    ui->streamPlot->setInteractions(
-                QCP::iRangeDrag |
-                QCP::iRangeZoom |
-                QCP::iSelectPlottables
-                );
+
+    QString dlg_title = QString(tr("TCP Graph %1 %2:%3 %4 %5:%6"))
+            .arg(cf_get_display_name(cap_file_))
+            .arg(ep_address_to_str(&graph_.src_address))
+            .arg(graph_.src_port)
+            .arg(UTF8_RIGHTWARDS_ARROW)
+            .arg(ep_address_to_str(&graph_.dst_address))
+            .arg(graph_.dst_port);
+    setWindowTitle(dlg_title);
 
     QVector<double> rel_time, seq;
     double rel_time_min = QCPRange::maxRange, rel_time_max = QCPRange::minRange;
     double seq_min = QCPRange::maxRange, seq_max = QCPRange::minRange;
-    for (struct segment *cur = graph_.segments; cur != NULL; cur = cur->next) {
-        if (!compare_headers(&graph_.src_address, &graph_.dst_address,
-                             graph_.src_port, graph_.dst_port,
-                             &cur->ip_src, &cur->ip_dst,
-                             cur->th_sport, cur->th_dport,
-                             COMPARE_CURR_DIR)) {
+    for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
+        if (!compareHeaders(seg)) {
             continue;
         }
 
-        double rt_val = cur->rel_secs + cur->rel_usecs / 1000000.0;
+        double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
 
         rel_time.append(rt_val);
         if (rel_time_min > rt_val) rel_time_min = rt_val;
         if (rel_time_max < rt_val) rel_time_max = rt_val;
 
-        seq.append(cur->th_seq);
-        if (seq_min > cur->th_seq) seq_min = cur->th_seq;
-        if (seq_max < cur->th_seq) seq_max = cur->th_seq;
+        seq.append(seg->th_seq);
+        if (seq_min > seg->th_seq) seq_min = seg->th_seq;
+        if (seq_max < seg->th_seq) seq_max = seg->th_seq;
+
+        segment_map_.insertMulti(rt_val, seg);
     }
 
-    ui->streamPlot->addGraph();
-    ui->streamPlot->graph(0)->setData(rel_time, seq);
+    QCustomPlot *sp = ui->streamPlot;
+    sp->addGraph();
+    sp->graph(0)->setData(rel_time, seq);
+    sp->setInteractions(
+                QCP::iRangeDrag |
+                QCP::iRangeZoom
+                );
+    sp->setMouseTracking(true);
     // True Stevens-style graphs don't have lines but I like them - gcc
-    ui->streamPlot->graph(0)->setPen(QPen(QBrush(tango_sky_blue_5), 0.25));
-    ui->streamPlot->graph(0)->setLineStyle(QCPGraph::lsStepLeft);
-    ui->streamPlot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 5));
+    sp->graph(0)->setPen(QPen(QBrush(tango_sky_blue_5), 0.25));
+    sp->graph(0)->setLineStyle(QCPGraph::lsStepLeft);
+    sp->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 5));
 
-    ui->streamPlot->xAxis->setLabel(tr("Time (s)"));
+    sp->xAxis->setLabel(tr("Time (s)"));
     double range_pad = (rel_time_max - rel_time_min) * 0.05;
     data_range_.setLeft(rel_time_min - range_pad);
     data_range_.setRight(rel_time_max + range_pad);
-    ui->streamPlot->xAxis->setRange(data_range_.left(), data_range_.right());
-    ui->streamPlot->yAxis->setLabel(tr("Sequence number (B)"));
+    sp->xAxis->setRange(data_range_.left(), data_range_.right());
+    sp->yAxis->setLabel(tr("Sequence number (B)"));
     range_pad = (seq_max - seq_min) * 0.05;
     data_range_.setBottom(seq_min - range_pad);
     data_range_.setTop(seq_max + range_pad);
-    ui->streamPlot->yAxis->setRange(data_range_.bottom(), data_range_.top());
+    sp->yAxis->setRange(data_range_.bottom(), data_range_.top());
+
+    tracer_ = new QCPItemTracer(sp);
+    tracer_->setVisible(false);
+    tracer_->setGraph(sp->graph(0));
+    tracer_->setInterpolating(false);
+    sp->addItem(tracer_);
+    toggleTracerStyle(true);
+
     // XXX - QCustomPlot doesn't seem to draw any sort of focus indicator.
-    ui->streamPlot->setFocus();
+    sp->setFocus();
+
+    connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(graphClicked(QMouseEvent*)));
+    connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
+//    connect(sp, SIGNAL(mou))
 }
 
 TCPStreamDialog::~TCPStreamDialog()
@@ -101,8 +130,9 @@ TCPStreamDialog::~TCPStreamDialog()
 
 void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
 {
-    double h_factor = ui->streamPlot->axisRect()->rangeZoomFactor(Qt::Horizontal);
-    double v_factor = ui->streamPlot->axisRect()->rangeZoomFactor(Qt::Vertical);
+    QCustomPlot *sp = ui->streamPlot;
+    double h_factor = sp->axisRect()->rangeZoomFactor(Qt::Horizontal);
+    double v_factor = sp->axisRect()->rangeZoomFactor(Qt::Vertical);
     bool scale_range = false;
 
     double h_pan = 0.0;
@@ -125,51 +155,133 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
 
     case Qt::Key_Right:
     case Qt::Key_L:
-        h_pan = ui->streamPlot->xAxis->range().size() * 0.1;
+        h_pan = sp->xAxis->range().size() * 0.1;
         break;
     case Qt::Key_Left:
     case Qt::Key_H:
-        h_pan = ui->streamPlot->xAxis->range().size() * -0.1;
+        h_pan = sp->xAxis->range().size() * -0.1;
         break;
     case Qt::Key_Up:
     case Qt::Key_K:
-        v_pan = ui->streamPlot->yAxis->range().size() * 0.1;
+        v_pan = sp->yAxis->range().size() * 0.1;
         break;
     case Qt::Key_Down:
     case Qt::Key_J:
-        v_pan = ui->streamPlot->yAxis->range().size() * -0.1;
+        v_pan = sp->yAxis->range().size() * -0.1;
         break;
 
-    // Reset
+    case Qt::Key_Space:
+        toggleTracerStyle();
+        break;
+
+        // Reset
     case Qt::Key_0:
     case Qt::Key_ParenRight:    // Shifted 0 on U.S. keyboards
     case Qt::Key_R:
     case Qt::Key_Home:
-        ui->streamPlot->xAxis->setRange(data_range_.left(), data_range_.right());
-        ui->streamPlot->yAxis->setRange(data_range_.bottom(), data_range_.top());
-        ui->streamPlot->replot();
+        sp->xAxis->setRange(data_range_.left(), data_range_.right());
+        sp->yAxis->setRange(data_range_.bottom(), data_range_.top());
+        sp->replot();
         break;
     // Alas, there is no Blade Runner-style Qt::Key_Ehance
     }
 
     if (scale_range) {
-        ui->streamPlot->xAxis->scaleRange(h_factor, ui->streamPlot->xAxis->range().center());
-        ui->streamPlot->yAxis->scaleRange(v_factor, ui->streamPlot->yAxis->range().center());
-        ui->streamPlot->replot();
+        sp->xAxis->scaleRange(h_factor, sp->xAxis->range().center());
+        sp->yAxis->scaleRange(v_factor, sp->yAxis->range().center());
+        sp->replot();
     }
 
     double pan_mul = event->modifiers() & Qt::ShiftModifier ? 0.1 : 1.0;
 
     // The GTK+ version won't pan unless we're zoomed. Should we do the same here?
     if (h_pan) {
-        ui->streamPlot->xAxis->moveRange(h_pan * pan_mul);
-        ui->streamPlot->replot();
+        sp->xAxis->moveRange(h_pan * pan_mul);
+        sp->replot();
     }
     if (v_pan) {
-        ui->streamPlot->yAxis->moveRange(v_pan * pan_mul);
-        ui->streamPlot->replot();
+        sp->yAxis->moveRange(v_pan * pan_mul);
+        sp->replot();
     }
     QDialog::keyPressEvent(event);
+}
+
+bool TCPStreamDialog::compareHeaders(segment *seg)
+{
+    return (compare_headers(&graph_.src_address, &graph_.dst_address,
+                         graph_.src_port, graph_.dst_port,
+                         &seg->ip_src, &seg->ip_dst,
+                         seg->th_sport, seg->th_dport,
+                            COMPARE_CURR_DIR));
+}
+
+void TCPStreamDialog::toggleTracerStyle(bool force_default)
+{
+    if (!tracer_->visible() && !force_default) return;
+
+    QPen sp_pen = ui->streamPlot->graph(0)->pen();
+    QCPItemTracer::TracerStyle tstyle = QCPItemTracer::tsCrosshair;
+    QPen tr_pen = QPen(tracer_->pen());
+    QColor tr_color = sp_pen.color();
+
+    if (force_default || tracer_->style() != QCPItemTracer::tsCircle) {
+        tstyle = QCPItemTracer::tsCircle;
+        tr_color.setAlphaF(1.0);
+        tr_pen.setWidthF(1.5);
+        tr_pen.color().setAlphaF(1.0);
+    } else {
+        tr_color.setAlphaF(0.5);
+        tr_pen.setWidthF(1.0);
+    }
+
+    tracer_->setStyle(tstyle);
+    tr_pen.setColor(tr_color);
+    tracer_->setPen(tr_pen);
+    ui->streamPlot->replot();
+}
+
+void TCPStreamDialog::graphClicked(QMouseEvent *event)
+{
+    Q_UNUSED(event)
+//    QRect spr = ui->streamPlot->axisRect()->rect();
+
+    if (tracer_->visible() && packet_num_ > 0) {
+        emit goToPacket(packet_num_);
+    }
+}
+
+// Setting mouseTracking on our streamPlot may not be as reliable
+// as we need. If it's not we might want to poll the mouse position
+// using a QTimer instead.
+void TCPStreamDialog::mouseMoved(QMouseEvent *event)
+{
+    QRect spr = ui->streamPlot->axisRect()->rect();
+    struct segment *packet_seg = NULL;
+    packet_num_ = 0;
+
+    if (spr.contains(event->pos())) {
+        double ts = tracer_->position->key();
+        packet_seg = segment_map_.value(ts, NULL);
+    }
+
+    if (!packet_seg) {
+        tracer_->setVisible(false);
+        ui->hintLabel->setText(tr("<small><i>Hover over the graph for details.</i></small>"));
+        ui->streamPlot->replot();
+        return;
+    }
+
+    tracer_->setVisible(true);
+    packet_num_ = packet_seg->num;
+    QString hint = QString(tr("<small><i>Click to select packet %1 (len %2 seq %3 ack %4 win %5)</i></small>"))
+            .arg(packet_num_)
+            .arg(packet_seg->th_seglen)
+            .arg(packet_seg->th_seq)
+            .arg(packet_seg->th_ack)
+            .arg(packet_seg->th_win);
+    ui->hintLabel->setText(hint);
+    tracer_->setGraphKey(ui->streamPlot->xAxis->pixelToCoord(event->pos().x()));
+    ui->streamPlot->replot();
 }
 
 /*

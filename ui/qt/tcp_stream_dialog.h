@@ -34,6 +34,7 @@
 
 #include "ui/tap-tcp-stream.h"
 
+#include <qcustomplot.h>
 #include <QDialog>
 
 namespace Ui {
@@ -48,14 +49,28 @@ public:
     explicit TCPStreamDialog(QWidget *parent = 0, capture_file *cf = NULL, tcp_graph_type graph_type = GRAPH_TSEQ_STEVENS);
     ~TCPStreamDialog();
 
+signals:
+    void goToPacket(int packet_num);
+
 protected:
     void keyPressEvent(QKeyEvent *event);
 
 private:
     Ui::TCPStreamDialog *ui;
     capture_file *cap_file_;
+    QMap<double, struct segment *> segment_map_;
     struct tcp_graph graph_;
     QRectF data_range_;
+    QCPItemTracer *tracer_;
+    guint32 packet_num_;
+
+
+    bool compareHeaders(struct segment *seg);
+    void toggleTracerStyle(bool force_default = false);
+
+private slots:
+    void graphClicked(QMouseEvent *event);
+    void mouseMoved(QMouseEvent *event);
 };
 
 #endif // TCP_STREAM_DIALOG_H

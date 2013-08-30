@@ -39,6 +39,10 @@
 #define VINES_ADDR_LEN	6
 #define EUI64_STR_LEN 24
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * These are utility functions which convert various types to strings,
  * but for which no more specific module applies.
@@ -102,5 +106,9 @@ WS_DLL_PUBLIC const char *decode_numeric_bitfield(const guint32 val, const guint
   const char *fmt);
 
 WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __TO_STR_H__  */

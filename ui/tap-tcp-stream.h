@@ -70,6 +70,7 @@ struct tcp_graph {
     guint16          src_port;
     address          dst_address;
     guint16          dst_port;
+    /* Should this be a map or tree instead? */
     struct segment  *segments;
 };
 

@@ -47,6 +47,7 @@
 #include "../../stat_menu.h"
 
 #include "ui/tap-tcp-stream.h"
+#include "ui/utf8_entities.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
@@ -700,7 +701,7 @@ static void create_drawing_area(struct gtk_graph *g)
 
     /* Set title of window with file + conversation details */
     display_name = cf_get_display_name(&cfile);
-    g_snprintf(window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d -> %s:%d",
+    g_snprintf(window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d " UTF8_RIGHTWARDS_ARROW " %s:%d",
                refnum,
                display_name,
                ep_address_to_str(&g->tg.src_address),
@@ -2058,7 +2059,7 @@ static void draw_element_ellipse(struct gtk_graph *g, struct element *e, cairo_t
     gdouble x = e->p.ellipse.dim.x + g->geom.x - g->wp.x;
     gdouble y = g->geom.height-1 - e->p.ellipse.dim.y + g->geom.y - g->wp.y;
 
-    debug(DBS_GRAPH_DRAWING) printf("ellipse: (x, y) -> (w, h): (%f, %f) -> (%f, %f)\n", x, y, w, h);
+    debug(DBS_GRAPH_DRAWING) printf("ellipse: (x, y) " UTF8_RIGHTWARDS_ARROW " (w, h): (%f, %f) " UTF8_RIGHTWARDS_ARROW " (%f, %f)\n", x, y, w, h);
 
     cairo_save(cr);
     cairo_set_source_rgb(cr, 0, 0, 0);
@@ -2383,7 +2384,7 @@ static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int di
 
     axis->major = steps[j] * pow(10, i);
 
-    debug(DBS_AXES_TICKS) printf("zoom=%.1f, x=%f -> i=%d -> ms=%d -> j=%d ->"
+    debug(DBS_AXES_TICKS) printf("zoom=%.1f, x=%f " UTF8_RIGHTWARDS_ARROW " i=%d " UTF8_RIGHTWARDS_ARROW " ms=%d " UTF8_RIGHTWARDS_ARROW " j=%d ->"
                                  " axis->major=%f\n", zoom, x, i, ms, j, axis->major);
 
     /* let's compute minor ticks */
