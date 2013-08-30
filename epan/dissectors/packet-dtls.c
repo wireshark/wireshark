@@ -1225,15 +1225,15 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       ssl_hand_tree = proto_item_add_subtree(ti, ett_dtls_handshake);
 
       msg_type = tvb_get_guint8(tvb, offset);
-      length   = tvb_get_ntoh24(tvb, offset + 1);
+      fragment_length = tvb_get_ntoh24(tvb, offset + 9);
 
-      /* Check the length in the handshake message. Assume it's an
+      /* Check the fragment length in the handshake message. Assume it's an
        * encrypted handshake message if the message would pass
        * the record_length boundary. This is a workaround for the
        * situation where the first octet of the encrypted handshake
        * message is actually a known handshake message type.
        */
-      if (offset + length <= record_length)
+      if (offset + fragment_length <= record_length)
           msg_type_str = try_val_to_str(msg_type, ssl_31_handshake_type);
       else
           msg_type_str = NULL;
@@ -1267,6 +1267,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                             tvb, offset, 1, msg_type);
       offset++;
 
+      length = tvb_get_ntoh24(tvb, offset);
       length_item = proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
                                           tvb, offset, 3, length);
       offset += 3;
