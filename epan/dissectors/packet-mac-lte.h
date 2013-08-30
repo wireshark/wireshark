@@ -298,7 +298,7 @@ void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping);
 /* Dedicated DRX config. Used to verify that a sensible config is given.
    Also, beginning to configure MAC with this config and (optionally) show
    DRX config and state (cycles/timers) attached to each UL/DL PDU! */
-typedef struct drx_config_t {
+typedef struct drx_config {
     gboolean    configured;
     guint32     frameNum;
     guint32     onDurationTimer;
