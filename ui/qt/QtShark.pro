@@ -386,18 +386,18 @@ win32 {
         EXTRA_BINFILES += \"$${MSVCR_DLL}\"
     }
 
-    EXTRA_DLLS =
     CONFIG(debug, debug|release) {
         isEqual(QT_MAJOR_VERSION, 4) {
-            EXTRA_DLLS += QtCored4 QtGuid4
+            EXTRA_DLLS = QtCored4 QtGuid4
         } else {
-            EXTRA_DLLS += Qt5Cored Qt5Guid Qt5PrintSupportd
+            EXTRA_DLLS = Qt5Cored Qt5Guid Qt5Widgetsd Qt5PrintSupportd
         }
-    } else:CONFIG(release, debug|release) {
+    }
+    CONFIG(release, debug|release) {
         isEqual(QT_MAJOR_VERSION, 4) {
-            EXTRA_DLLS += QtCore4 QtGui4
+            EXTRA_DLLS = QtCore4 QtGui4
         } else {
-            EXTRA_DLLS += Qt5Cored Qt5Guid Qt5PrintSupportd
+            EXTRA_DLLS = Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport
         }
     }
     for(DLL,EXTRA_DLLS){

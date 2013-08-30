@@ -840,8 +840,15 @@ Section "QtShark (Experimental)" SecQtshark
 ; by default, QtShark is not installed
 SetOutPath $INSTDIR
 File "${QT_DIR}\qtshark.exe"
+!if ${QT_VER} == "4"
 File "${QT_DIR}\QtCore4.dll"
 File "${QT_DIR}\QtGui4.dll"
+!else
+File "${QT_DIR}\Qt5Core.dll"
+File "${QT_DIR}\Qt5Gui.dll"
+File "${QT_DIR}\Qt5Widgets.dll"
+File "${QT_DIR}\Qt5PrintSupport.dll"
+!endif
 ; Disable Qtshark shortcut if Qtshark isn't selected
 Push $0
 SectionGetFlags ${SecQtshark} $0
