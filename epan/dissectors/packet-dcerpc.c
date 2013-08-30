@@ -3179,7 +3179,7 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
 
             /* If there is auth padding at the end of the stub, display it */
             if (auth_pad_len != 0) {
-                proto_tree_add_item(sub_tree, hf_dcerpc_auth_padding, decrypted_tvb, auth_pad_offset, auth_pad_len, ENC_NA);
+                proto_tree_add_item(dcerpc_tree, hf_dcerpc_auth_padding, decrypted_tvb, auth_pad_offset, auth_pad_len, ENC_NA);
             }
 
             pinfo->current_proto = saved_proto;
