@@ -1282,7 +1282,6 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                             tvb, offset, 3, fragment_offset);
       offset += 3;
 
-      fragment_length = tvb_get_ntoh24(tvb, offset);
       fragment_length_item = proto_tree_add_uint(ssl_hand_tree,
                                                    hf_dtls_handshake_fragment_length,
                                                    tvb, offset, 3,
