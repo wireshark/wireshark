@@ -456,7 +456,6 @@ static gint ett_tc_err_code = -1;
 static gint ett_tc_prob_code = -1;
 static gint ett_tc_sequence = -1;
 
-static gint ett_gmm_detach_type = -1;
 static gint ett_gmm_attach_type = -1;
 static gint ett_gmm_context_stat = -1;
 static gint ett_gmm_update_type = -1;
@@ -8324,7 +8323,7 @@ proto_register_gsm_a_gm(void)
 	};
 
 	/* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	18
+#define	NUM_INDIVIDUAL_ELEMS	17
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SM +
 		  NUM_GSM_GM_ELEM];
@@ -8336,17 +8335,16 @@ proto_register_gsm_a_gm(void)
 	ett[4]  = &ett_tc_err_code;
 	ett[5]  = &ett_tc_prob_code;
 	ett[6]  = &ett_tc_sequence;
-	ett[7]  = &ett_gmm_detach_type;
-	ett[8]  = &ett_gmm_attach_type;
-	ett[9]  = &ett_gmm_context_stat;
-	ett[10] = &ett_gmm_update_type;
-	ett[11] = &ett_gmm_radio_cap;
-	ett[12] = &ett_gmm_rai;
-	ett[13] = &ett_sm_tft;
-	ett[14] = &ett_gmm_gprs_timer;
-	ett[15] = &ett_gmm_network_cap;
-	ett[16] = &ett_gsm_a_gm_msrac_multislot_capability;
-	ett[17] = &ett_sm_pco;
+	ett[7]  = &ett_gmm_attach_type;
+	ett[8]  = &ett_gmm_context_stat;
+	ett[9]  = &ett_gmm_update_type;
+	ett[10] = &ett_gmm_radio_cap;
+	ett[11] = &ett_gmm_rai;
+	ett[12] = &ett_sm_tft;
+	ett[13] = &ett_gmm_gprs_timer;
+	ett[14] = &ett_gmm_network_cap;
+	ett[15] = &ett_gsm_a_gm_msrac_multislot_capability;
+	ett[16] = &ett_sm_pco;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
