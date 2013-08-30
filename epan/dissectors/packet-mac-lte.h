@@ -294,6 +294,29 @@ typedef struct drb_mapping_t
    configuration protocol (e.g. RRC) */
 void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping);
 
+
+/* Dedicated DRX config. Used to verify that a sensible config is given.
+   Also, beginning to configure MAC with this config and (optionally) show
+   DRX config and state (cycles/timers) attached to each UL/DL PDU! */
+typedef struct drx_config_t {
+    gboolean    configured;
+    guint32     frameNum;
+    guint32     onDurationTimer;
+    guint32     inactivityTimer;
+    guint32     retransmissionTimer;
+    guint32     longCycle;
+    guint32     cycleOffset;
+    /* Optional Short cycle */
+    gboolean    shortCycleConfigured;
+    guint32     shortCycle;
+    guint32     shortCycleTimer;
+} drx_config_t;
+
+/* Functions to set/release up dedicated DRX config */
+void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info *pinfo);
+void set_mac_lte_drx_config_release(guint16 ueid,  packet_info *pinfo);
+
+
 /* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
    isn't available) to get/set per-packet data */
 WS_DLL_PUBLIC

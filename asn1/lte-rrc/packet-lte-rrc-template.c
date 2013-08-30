@@ -1792,22 +1792,6 @@ static const value_string lte_rrc_warningType_vals[] = {
 /* through this API, which ensures that they will not overwrite each other!! */
 /*****************************************************************************/
 
-/* Dedicated DRX config. Currently used to verify that a sensible config is given.
-   TODO: would be good to configure MAC with these settings and (optionally) show
-   DRX config and state (cycles/timers) attached to each UL/DL PDU! */
-typedef struct drx_config_t {
-    gboolean    configured;
-    guint32     onDurationTimer;
-    guint32     inactivityTimer;
-    guint32     retransmissionTimer;
-    guint32     longCycle;
-    guint32     cycleOffset;
-    /* Optional Short cycle */
-    gboolean    shortCycleConfigured;
-    guint32     shortCycle;
-    guint32     shortCycleTimer;
-} drx_config_t;
-
 
 /**********************************************************/
 /* Struct to store all current uses of packet private data */

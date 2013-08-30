@@ -747,9 +747,20 @@ CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPD
      fields overwritten in the R11 extension */
   drx_config_t *drx_config = private_data_get_drx_config(actx);
 %(DEFAULT_BODY)s
-  /* Verify that config is valid */
   if (drx_config->configured) {
+    mac_lte_info* p_mac_lte_info;
+
+    /* Verify that config is valid */
     drx_check_config_sane(drx_config, actx);
+
+    /* Look for UE identifier */
+    p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+    if (p_mac_lte_info != NULL) {
+      /* If found, configure MAC with DRX config */
+      set_mac_lte_drx_config(p_mac_lte_info->ueid, drx_config, actx->pinfo);
+    }
+
+    /* Clear out state */
     drx_config->configured = FALSE;
   }
 
@@ -1477,4 +1488,14 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 %(DEFAULT_BODY)s
   /* Presumably config->shortCycleConfigured will be set... */
   config->shortCycle = 4;
+
+#.FN_BODY DRX-Config/release
+  mac_lte_info* p_mac_lte_info;
+%(DEFAULT_BODY)s
+  /* Look for UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  if (p_mac_lte_info != NULL) {
+    /* If found, tell MAC to release DRX config */
+    set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
+  }
 
