@@ -135,6 +135,7 @@ static dissector_handle_t http_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
 static dissector_handle_t websocket_handle;
+static dissector_handle_t http2_handle;
 
 /* Stuff for generation/handling of fields for custom HTTP headers */
 typedef struct _header_field_t {
@@ -254,6 +255,7 @@ static gboolean http_decompress_body = FALSE;
 #define SSL_DEFAULT_RANGE "443"
 
 #define UPGRADE_WEBSOCKET 1
+#define UPGRADE_HTTP2 2
 
 static range_t *global_http_tcp_range = NULL;
 static range_t *global_http_ssl_range = NULL;
@@ -2499,8 +2501,13 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_UPGRADE:
-			if (g_ascii_strncasecmp(value, "WebSocket", value_len) == 0)
+			if (g_ascii_strncasecmp(value, "WebSocket", value_len) == 0){
 				eh_ptr->upgrade = UPGRADE_WEBSOCKET;
+			}
+			/* Check if upgrade is HTTP 2.0 (work for HTTP/2.0 and draft HTTP-draft-XX/2.0) */
+			if ( (g_str_has_prefix(value, "HTTP") && g_str_has_suffix(value, "/2.0")) == 1){
+				eh_ptr->upgrade = UPGRADE_HTTP2;
+			}
 			break;
 		}
 	}
@@ -2633,7 +2640,13 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 		while (tvb_reported_length_remaining(tvb, offset) != 0) {
 			if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->fd->num >= conv_data->startframe) {
+                                g_warning("Go Websocket");
 				call_dissector_only(websocket_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
+				break;
+			}
+			if (conv_data->upgrade == UPGRADE_HTTP2 && pinfo->fd->num >= conv_data->startframe) {
+                                g_warning("Go HTTP2");
+				call_dissector_only(http2_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
 				break;
 			}
 			len = dissect_http_message(tvb, offset, pinfo, tree, conv_data);
@@ -3084,6 +3097,7 @@ proto_reg_handoff_http(void)
 	data_handle = find_dissector("data");
 	media_handle = find_dissector("media");
 	websocket_handle = find_dissector("websocket");
+	http2_handle = find_dissector("http2");
 	/*
 	 * XXX - is there anything to dissect in the body of an SSDP
 	 * request or reply?  I.e., should there be an SSDP dissector?
