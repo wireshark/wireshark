@@ -71,6 +71,7 @@ private:
 private slots:
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
+    void on_buttonBox_accepted();
 };
 
 #endif // TCP_STREAM_DIALOG_H

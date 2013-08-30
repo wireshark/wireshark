@@ -28,7 +28,12 @@
 
 #include "ui/utf8_entities.h"
 
+#include "wireshark_application.h"
 #include "tango_colors.h"
+
+#include <QDir>
+#include <QFileDialog>
+#include <QPushButton>
 
 #include <QDebug>
 
@@ -85,6 +90,8 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     }
 
     QCustomPlot *sp = ui->streamPlot;
+    sp->plotLayout()->insertRow(0);
+    sp->plotLayout()->addElement(0, 0, new QCPPlotTitle(sp, dlg_title));
     sp->addGraph();
     sp->graph(0)->setData(rel_time, seq);
     sp->setInteractions(
@@ -118,9 +125,12 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     // XXX - QCustomPlot doesn't seem to draw any sort of focus indicator.
     sp->setFocus();
 
+    QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
+    save_bt->setText(tr("Save As..."));
+
     connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(graphClicked(QMouseEvent*)));
     connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
-//    connect(sp, SIGNAL(mou))
+    disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
 }
 
 TCPStreamDialog::~TCPStreamDialog()
@@ -282,6 +292,43 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
     ui->hintLabel->setText(hint);
     tracer_->setGraphKey(ui->streamPlot->xAxis->pixelToCoord(event->pos().x()));
     ui->streamPlot->replot();
+}
+
+void TCPStreamDialog::on_buttonBox_accepted()
+{
+    QString file_name, extension;
+    QDir path(wsApp->lastOpenDir());
+    QString pdf_filter = tr("Portable Document Format (*.pdf)");
+    QString png_filter = tr("Portable Network Graphics (*.png)");
+    QString bmp_filter = tr("Windows Bitmap (*.bmp)");
+    // Gaze upon my beautiful graph with lossy artifacts!
+    QString jpeg_filter = tr("JPEG File Interchange Format (*.jpeg *.jpg)");
+    QString filter = QString("%1;;%2;;%3;;%4")
+            .arg(pdf_filter)
+            .arg(png_filter)
+            .arg(bmp_filter)
+            .arg(jpeg_filter);
+
+    file_name = QFileDialog::getSaveFileName(this, tr("Wireshark: Save Graph As..."),
+                                             path.canonicalPath(), filter, &extension);
+
+    if (file_name.length() > 0) {
+        bool save_ok = false;
+        if (extension.compare(pdf_filter) == 0) {
+            save_ok = ui->streamPlot->savePdf(file_name);
+        } else if (extension.compare(png_filter) == 0) {
+            save_ok = ui->streamPlot->savePng(file_name);
+        } else if (extension.compare(bmp_filter) == 0) {
+            save_ok = ui->streamPlot->saveBmp(file_name);
+        } else if (extension.compare(jpeg_filter) == 0) {
+            save_ok = ui->streamPlot->saveJpg(file_name);
+        }
+        // else error dialog?
+        if (save_ok) {
+            path = QDir(file_name);
+            wsApp->setLastOpenDir(path.canonicalPath().toUtf8().constData());
+        }
+    }
 }
 
 /*
