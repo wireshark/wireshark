@@ -276,6 +276,9 @@ static int hf_gsm_a_gm_ciph_key_seq_num = -1;
 static int hf_gsm_a_gm_for = -1;
 static int hf_gsm_a_gm_type_of_attach = -1;
 static int hf_gsm_a_gm_tmsi_flag = -1;
+static int hf_gsm_a_gm_power_off = -1;
+static int hf_gsm_a_gm_type_of_detach_mo = -1;
+static int hf_gsm_a_gm_type_of_detach_mt = -1;
 static int hf_gsm_a_gm_update_type = -1;
 static int hf_gsm_a_gm_gprs_timer_unit = -1;
 static int hf_gsm_a_gm_gprs_timer_value = -1;
@@ -553,51 +556,39 @@ de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 /*
  * [7] 10.5.5.5
  */
+const true_false_string gsm_a_gm_power_off_value = {
+	"power switched off",
+	"normal detach"
+};
+
+const value_string gsm_a_gm_type_of_detach_mo_vals[] = {
+	{ 0x01, "GPRS detach" },
+	{ 0x02, "IMSI detach" },
+	{ 0x03, "Combined GPRS/IMSI detach" },
+	{ 0, NULL }
+};
+
+const value_string gsm_a_gm_type_of_detach_mt_vals[] = {
+	{ 0x01, "re-attach required" },
+	{ 0x02, "re-attach not required" },
+	{ 0x03, "IMSI detach (after VLR failure)" },
+	{ 0, NULL }
+};
+
 static guint16
 de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8       oct;
-	guint32	     curr_offset;
-	const gchar *str;
-	const gchar *str_power;
-	proto_item  *tf;
-	proto_tree  *tf_tree;
+	guint32 curr_offset;
 
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch (oct&7)
-	{
-		case 1:  str = "GPRS detach/re-attach required";                            break;
-		case 2:  str = "IMSI detach/re-attach not required";                        break;
-		case 3:  str = "Combined GPRS/IMSI detach/IMSI detach (after VLR failure)"; break;
-		default: str = "Combined GPRS/IMSI detach/re-attach not required";
+	if (pinfo->p2p_dir == P2P_DIR_RECV) {
+		proto_tree_add_item(tree, hf_gsm_a_gm_power_off, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_gm_type_of_detach_mo, tvb, offset, 1, ENC_BIG_ENDIAN);
+	} else {
+		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_gm_type_of_detach_mt, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
-
-	switch (oct&8)
-	{
-		case 8:  str_power = "power switched off"; break;
-		default: str_power = "normal detach";      break;
-	}
-
-	tf = proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Detach Type");
-
-	tf_tree = proto_item_add_subtree(tf, ett_gmm_detach_type);
-
-	proto_tree_add_text(tf_tree,
-		tvb, curr_offset, 1,
-		"Type: %s (%u)",
-		str,
-		oct&7);
-
-	proto_tree_add_text(tf_tree,
-		tvb, curr_offset, 1,
-		"Power: %s (%u)",
-		str_power,
-		(oct>>3)&1);
 
 	curr_offset++;
 
@@ -5488,7 +5479,7 @@ dtap_gmm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
  * [7] 9.4.5
  */
 static void
-dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+dtap_gmm_detach_req_MT(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5499,27 +5490,22 @@ dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, NULL);
-	/* Force to standy might be wrong - To decode it correct, we need the direction */
-	curr_len++;
-	curr_offset--;
+	elem_v(tvb, tree, pinfo, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, curr_offset, NULL);
+	elem_v(tvb, tree, pinfo, GSM_A_PDU_TYPE_GM, DE_DETACH_TYPE, curr_offset, NULL);
+	curr_offset += 1;
+	curr_len    -= 1;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_DETACH_TYPE, NULL);
+	if (curr_len == 0) {
+		return;
+	}
 
 	ELEM_OPT_TV( 0x25, GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
-
-	ELEM_OPT_TLV( 0x18, GSM_A_PDU_TYPE_COMMON, DE_MID, " - P-TMSI" );
-
-	ELEM_OPT_TLV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG_2, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
 
-/*
- * [7] 9.4.6
- */
 static void
-dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+dtap_gmm_detach_req_MO(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5530,13 +5516,66 @@ dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	if (curr_len != 0 )
-	{
-		ELEM_MAND_V( GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, NULL);
-		curr_len++;
-		curr_offset--;
+	elem_v(tvb, tree, pinfo, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, curr_offset, NULL);
+	elem_v(tvb, tree, pinfo, GSM_A_PDU_TYPE_GM, DE_DETACH_TYPE, curr_offset, NULL);
+	curr_offset += 1;
+	curr_len    -= 1;
 
-		ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, NULL);
+	if (curr_len == 0) {
+		return;
+	}
+
+	ELEM_OPT_TLV( 0x18, GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+
+	ELEM_OPT_TLV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG_2, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+}
+
+static void
+dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+	if (pinfo->link_dir == P2P_DIR_UL) {
+		dtap_gmm_detach_req_MO(tvb, tree, pinfo, offset, len);
+		return;
+	}else if (pinfo->link_dir == P2P_DIR_DL) {
+		dtap_gmm_detach_req_MT(tvb, tree, pinfo, offset, len);
+		return;
+	} else {
+		/* Unknown direction. Try heuristics based on message length. */
+		if (len > 5) {
+			dtap_gmm_detach_req_MO(tvb, tree, pinfo, offset, len);
+		} else {
+			dtap_gmm_detach_req_MT(tvb, tree, pinfo, offset, len);
+		}
+	}
+}
+
+/*
+ * [7] 9.4.6
+ */
+static void
+dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len    = len;
+
+	pinfo->p2p_dir = P2P_DIR_RECV;
+
+	if (curr_len == 0) {
+		return;
+	}
+
+	elem_v(tvb, tree, pinfo, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, curr_offset, NULL);
+	elem_v(tvb, tree, pinfo, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, curr_offset, NULL);
+	curr_offset += 1;
+	curr_len    -= 1;
+
+	if (curr_len == 0) {
+		return;
 	}
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
@@ -5747,6 +5786,10 @@ dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
 	curr_offset += 1;
 	curr_len    -= 1;
+
+	if (curr_len == 0) {
+		return;
+	}
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
 }
@@ -7158,6 +7201,21 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_tmsi_flag,
 		  { "TMSI flag", "gsm_a.gm.tmsi_flag",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_tmsi_flag_value), 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_power_off,
+		  { "Power off", "gsm_a.gm.power_off",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_power_off_value), 0x08,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_type_of_detach_mo,
+		  { "Type of detach", "gsm_a.gm.type_of_detach",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_detach_mo_vals), 0x07,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_type_of_detach_mt,
+		  { "Type of detach", "gsm_a.gm.type_of_detach",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_detach_mt_vals), 0x07,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_update_type,

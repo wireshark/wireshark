@@ -3175,7 +3175,7 @@ guint16 de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
    else
        bit_offset = 0;
 
-   proto_tree_add_bits_item(tree, hf_gsm_a_spare_nibble, tvb, (curr_offset<<3)+bit_offset+3, 1, ENC_BIG_ENDIAN);
+   proto_tree_add_bits_item(tree, hf_gsm_a_spare_nibble, tvb, (curr_offset<<3)+bit_offset, 4, ENC_BIG_ENDIAN);
    curr_offset = curr_offset + 1;
 
    return(curr_offset - offset);
