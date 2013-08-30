@@ -34,7 +34,7 @@
 
 #include "ui/tap-tcp-stream.h"
 
-#include <qcustomplot.h>
+#include "qcustomplot.h"
 #include <QDialog>
 
 namespace Ui {
