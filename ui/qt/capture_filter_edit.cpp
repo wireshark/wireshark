@@ -31,6 +31,7 @@
 #include "ui/capture_globals.h"
 
 #include "capture_filter_edit.h"
+#include "wireshark_application.h"
 
 #include <QPainter>
 #include <QStyleOptionFrame>
@@ -197,14 +198,13 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     QThread *syntax_thread = new QThread;
     syntax_worker_ = new CaptureFilterSyntaxWorker;
     syntax_worker_->moveToThread(syntax_thread);
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initCaptureFilter()));
     connect(syntax_thread, SIGNAL(started()), syntax_worker_, SLOT(start()));
     connect(syntax_thread, SIGNAL(started()), this, SLOT(checkFilter()));
     connect(syntax_worker_, SIGNAL(syntaxResult(QString,bool,QString)),
             this, SLOT(setFilterSyntaxState(QString,bool,QString)));
     connect(syntax_thread, SIGNAL(finished()), syntax_worker_, SLOT(deleteLater()));
     syntax_thread->start();
-
-    setText(global_capture_opts.default_options.cfilter);
 }
 
 void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
@@ -277,6 +277,11 @@ void CaptureFilterEdit::checkFilter(const QString& text)
 void CaptureFilterEdit::checkFilter()
 {
     checkFilter(text());
+}
+
+void CaptureFilterEdit::initCaptureFilter()
+{
+    setText(global_capture_opts.default_options.cfilter);
 }
 
 void CaptureFilterEdit::setFilterSyntaxState(QString filter, bool valid, QString err_msg)

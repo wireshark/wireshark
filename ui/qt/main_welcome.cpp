@@ -31,8 +31,6 @@
 
 #include "main_welcome.h"
 #include "ui_main_welcome.h"
-
-#include "ui/util.h"
 #include "tango_colors.h"
 
 #include "wireshark_application.h"
@@ -136,8 +134,6 @@ MainWelcome::MainWelcome(QWidget *parent) :
             "}"
             );
     recent_files_->setTextElideMode(Qt::ElideLeft);
-
-    welcome_ui_->captureFilterComboBox->lineEdit()->setText(get_conn_cfilter());
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(destroySplashOverlay()));

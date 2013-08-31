@@ -479,7 +479,7 @@ int main(int argc, char *argv[])
     char                *gdp_path, *dp_path;
     int                  err;
 #ifdef HAVE_LIBPCAP
-//    gboolean             start_capture = FALSE;
+    gboolean             start_capture = FALSE;
 //    gboolean             list_link_layer_types = FALSE;
     GList               *if_list;
     gchar               *err_str;
@@ -1054,6 +1054,15 @@ int main(int argc, char *argv[])
     color_filters_init();
 
 ////////
+
+#ifdef HAVE_LIBPCAP
+    /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
+    if (!start_capture && !global_capture_opts.default_options.cfilter) {
+      global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
+    }
+#else /* HAVE_LIBPCAP */
+    ////////
+#endif /* HAVE_LIBPCAP */
 
 //    w->setEnabled(true);
     wsApp->allSystemsGo();

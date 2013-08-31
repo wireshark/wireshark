@@ -45,6 +45,7 @@ public slots:
     void checkFilter();
 
 private slots:
+    void initCaptureFilter();
     void applyCaptureFilter();
     void checkFilter(const QString &text);
     void setFilterSyntaxState(QString filter, bool valid, QString err_msg);
