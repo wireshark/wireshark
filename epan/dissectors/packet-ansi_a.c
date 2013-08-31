@@ -9214,9 +9214,13 @@ bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_TLV(ANSI_A_E_CELL_ID, "");
+    if (!GPOINTER_TO_UINT(pinfo->private_data)) {
+        /* With femtoInterfaceMsg application, the Information Elements
+           for the Complete Layer 3 Information message shall not be included */
+        ELEM_MAND_TLV(ANSI_A_E_CELL_ID, "");
 
-    ELEM_MAND_TLV(ANSI_A_E_L3_INFO, "");
+        ELEM_MAND_TLV(ANSI_A_E_L3_INFO, "");
+    }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
