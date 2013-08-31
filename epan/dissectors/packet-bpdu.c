@@ -791,7 +791,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
           msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
                                      tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);
-          msti_regional_root_mac_str = tvb_ether_to_str(tvb, MSTI_REGIONAL_ROOT + 2);
+          msti_regional_root_mac_str = tvb_ether_to_str(tvb, offset + MSTI_REGIONAL_ROOT + 2);
 
           msti_item = proto_tree_add_text(mstp_tree, tvb, offset, 16,
                                           "MSTID %d, Regional Root Identifier %d / %s",
