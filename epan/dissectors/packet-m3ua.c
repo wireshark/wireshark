@@ -39,7 +39,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-mtp3.h"
 #include "packet-sccp.h"
 #include "packet-frame.h"
@@ -1158,11 +1158,13 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   guint16 ulp_length;
   tvbuff_t *payload_tvb;
   proto_item *item, *gen_item;
-  mtp3_tap_rec_t* mtp3_tap = ep_new0(mtp3_tap_rec_t);
+  mtp3_tap_rec_t* mtp3_tap;
   proto_tree *q708_tree;
   gint heuristic_standard;
   guint8 si;
   guint32 opc, dpc;
+
+  mtp3_tap = wmem_new0(pinfo->pool, mtp3_tap_rec_t);
 
   si = tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET);
   ulp_length  = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - DATA_HDR_LENGTH;
