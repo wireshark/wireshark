@@ -45,7 +45,7 @@
 #include "packet-ip.h"
 #include "packet-icmp.h"
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 
 static int icmp_tap = -1;
@@ -58,8 +58,8 @@ static int hf_icmp_data_time = -1;
 static int hf_icmp_data_time_relative = -1;
 
 typedef struct _icmp_conv_info_t {
-	emem_tree_t *unmatched_pdus;
-	emem_tree_t *matched_pdus;
+	wmem_tree_t *unmatched_pdus;
+	wmem_tree_t *matched_pdus;
 } icmp_conv_info_t;
 
 static icmp_transaction_t *transaction_start(packet_info * pinfo,
@@ -1017,20 +1017,16 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 	conversation_t *conversation;
 	icmp_conv_info_t *icmp_info;
 	icmp_transaction_t *icmp_trans;
-	emem_tree_key_t icmp_key[3];
+	wmem_tree_key_t icmp_key[3];
 	proto_item *it;
 
 	/* Handle the conversation tracking */
 	conversation = _find_or_create_conversation(pinfo);
 	icmp_info = (icmp_conv_info_t *)conversation_get_proto_data(conversation, proto_icmp);
 	if (icmp_info == NULL) {
-		icmp_info = se_new(icmp_conv_info_t);
-		icmp_info->unmatched_pdus =
-		    se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-						  "icmp_unmatched_pdus");
-		icmp_info->matched_pdus =
-		    se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-						  "icmp_matched_pdus");
+		icmp_info = wmem_new(wmem_file_scope(), icmp_conv_info_t);
+		icmp_info->unmatched_pdus = wmem_tree_new(wmem_file_scope());
+		icmp_info->matched_pdus   = wmem_tree_new(wmem_file_scope());
 		conversation_add_proto_data(conversation, proto_icmp,
 					    icmp_info);
 	}
@@ -1044,12 +1040,12 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 		icmp_key[1].length = 0;
 		icmp_key[1].key = NULL;
 
-		icmp_trans = se_new(icmp_transaction_t);
+		icmp_trans = wmem_new(wmem_file_scope(), icmp_transaction_t);
 		icmp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
 		icmp_trans->resp_frame = 0;
 		icmp_trans->rqst_time = pinfo->fd->abs_ts;
 		nstime_set_zero(&icmp_trans->resp_time);
-		se_tree_insert32_array(icmp_info->unmatched_pdus, icmp_key,
+		wmem_tree_insert32_array(icmp_info->unmatched_pdus, icmp_key,
 				       (void *) icmp_trans);
 	} else {
 		/* Already visited this frame */
@@ -1063,7 +1059,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 		icmp_key[2].key = NULL;
 
 		icmp_trans =
-		    (icmp_transaction_t *)se_tree_lookup32_array(icmp_info->matched_pdus,
+		    (icmp_transaction_t *)wmem_tree_lookup32_array(icmp_info->matched_pdus,
 					   icmp_key);
 	}
 	if (icmp_trans == NULL) {
@@ -1092,7 +1088,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 	conversation_t *conversation;
 	icmp_conv_info_t *icmp_info;
 	icmp_transaction_t *icmp_trans;
-	emem_tree_key_t icmp_key[3];
+	wmem_tree_key_t icmp_key[3];
 	proto_item *it;
 	nstime_t ns;
 	double resp_time;
@@ -1117,7 +1113,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 		icmp_key[1].length = 0;
 		icmp_key[1].key = NULL;
 		icmp_trans =
-		    (icmp_transaction_t *)se_tree_lookup32_array(icmp_info->unmatched_pdus,
+		    (icmp_transaction_t *)wmem_tree_lookup32_array(icmp_info->unmatched_pdus,
 					   icmp_key);
 		if (icmp_trans == NULL) {
 			return NULL;
@@ -1140,11 +1136,11 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 		icmp_key[2].key = NULL;
 
 		frame_num = icmp_trans->rqst_frame;
-		se_tree_insert32_array(icmp_info->matched_pdus, icmp_key,
+		wmem_tree_insert32_array(icmp_info->matched_pdus, icmp_key,
 				       (void *) icmp_trans);
 
 		frame_num = icmp_trans->resp_frame;
-		se_tree_insert32_array(icmp_info->matched_pdus, icmp_key,
+		wmem_tree_insert32_array(icmp_info->matched_pdus, icmp_key,
 				       (void *) icmp_trans);
 	} else {
 		/* Already visited this frame */
@@ -1158,7 +1154,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 		icmp_key[2].key = NULL;
 
 		icmp_trans =
-		    (icmp_transaction_t *)se_tree_lookup32_array(icmp_info->matched_pdus,
+		    (icmp_transaction_t *)wmem_tree_lookup32_array(icmp_info->matched_pdus,
 					   icmp_key);
 
 		if (icmp_trans == NULL) {

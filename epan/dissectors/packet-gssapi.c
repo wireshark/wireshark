@@ -32,7 +32,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
@@ -66,7 +66,7 @@ static gboolean gssapi_reassembly = TRUE;
 typedef struct _gssapi_conv_info_t {
 	gssapi_oid_value *oid;
 
-        emem_tree_t *frags;
+        wmem_tree_t *frags;
 
 	gboolean do_reassembly;  /* this field is used on first sequential scan of packets to help indicate when the next blob is a fragment continuing a previous one */
 	int first_frame;
@@ -215,10 +215,10 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	gss_info = (gssapi_conv_info_t *)conversation_get_proto_data(conversation, proto_gssapi);
 	if (!gss_info) {
-		gss_info = se_new(gssapi_conv_info_t);
+		gss_info = wmem_new(wmem_file_scope(), gssapi_conv_info_t);
 		gss_info->oid=NULL;
 		gss_info->do_reassembly=FALSE;
-		gss_info->frags=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "gssapi_frags");
+		gss_info->frags=wmem_tree_new(wmem_file_scope());
 
 		conversation_add_proto_data(conversation, proto_gssapi, gss_info);
 	}
@@ -251,11 +251,11 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if( (!pinfo->fd->flags.visited)
 		&&  (gss_info->do_reassembly)
 		&&  (gssapi_reassembly) ){
-			fi=(gssapi_frag_info_t *)se_tree_lookup32(gss_info->frags, gss_info->first_frame);
+			fi=(gssapi_frag_info_t *)wmem_tree_lookup32(gss_info->frags, gss_info->first_frame);
 			if(!fi){
 				goto done;
 			}
-			se_tree_insert32(gss_info->frags, pinfo->fd->num, fi);
+			wmem_tree_insert32(gss_info->frags, pinfo->fd->num, fi);
 			fd_head=fragment_add(&gssapi_reassembly_table,
 				tvb, 0, pinfo, fi->first_frame, NULL,
 				gss_info->frag_offset,
@@ -279,7 +279,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		if( (pinfo->fd->flags.visited)
 		&&  (gssapi_reassembly) ){
-			fi=(gssapi_frag_info_t *)se_tree_lookup32(gss_info->frags, pinfo->fd->num);
+			fi=(gssapi_frag_info_t *)wmem_tree_lookup32(gss_info->frags, pinfo->fd->num);
 			if(fi){
 				fd_head=fragment_get(&gssapi_reassembly_table,
 					pinfo, fi->first_frame, NULL);
@@ -422,10 +422,10 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		&&  (tvb_length(gss_tvb)==tvb_reported_length(gss_tvb))
 		&&  (len1>(guint32)tvb_length_remaining(gss_tvb, oid_start_offset))
 		&&  (gssapi_reassembly) ){
-			fi=se_new(gssapi_frag_info_t);
+			fi=wmem_new(wmem_file_scope(), gssapi_frag_info_t);
 			fi->first_frame=pinfo->fd->num;
 			fi->reassembled_in=0;
-			se_tree_insert32(gss_info->frags, pinfo->fd->num, fi);
+			wmem_tree_insert32(gss_info->frags, pinfo->fd->num, fi);
 
 			fragment_add(&gssapi_reassembly_table,
 				gss_tvb, 0, pinfo, pinfo->fd->num, NULL,
