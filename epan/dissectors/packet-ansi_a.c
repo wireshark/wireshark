@@ -4232,6 +4232,7 @@ elem_signal(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 off
         break;
     }
 
+    other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
     proto_tree_add_text(tree,
         tvb, curr_offset, 1,
         "%s : Alert Pitch: %s",
@@ -6514,6 +6515,10 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
                     oct);
 
                 curr_offset++;
+                break;
+
+            case ANSI_FWD_MS_INFO_REC_SIGNAL:
+                curr_offset += elem_signal(tvb, pinfo, subtree, curr_offset, len, add_string, string_len);
                 break;
 
             default:
