@@ -386,11 +386,14 @@ win32 {
         EXTRA_BINFILES += \"$${MSVCR_DLL}\"
     }
 
+    PLATFORM_DLL_DIR = $(DESTDIR)\\platforms
     CONFIG(debug, debug|release) {
         isEqual(QT_MAJOR_VERSION, 4) {
             EXTRA_DLLS = QtCored4 QtGuid4
         } else {
             EXTRA_DLLS = Qt5Cored Qt5Guid Qt5Widgetsd Qt5PrintSupportd
+            EXTRA_PLATFORM_DLLS = qwindowsd
+            QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLATFORM_DLL_DIR} $(MKDIR) $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
         }
     }
     CONFIG(release, debug|release) {
@@ -398,10 +401,18 @@ win32 {
             EXTRA_DLLS = QtCore4 QtGui4
         } else {
             EXTRA_DLLS = Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport
+            EXTRA_PLATFORM_DLLS = qwindows
+            QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLATFORM_DLL_DIR} $(MKDIR) $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
         }
     }
     for(DLL,EXTRA_DLLS){
         EXTRA_BINFILES += $$[QT_INSTALL_BINS]/$${DLL}.dll
+    }
+    INSTALL_PLATFORM_DIR = $$[QT_INSTALL_PLUGINS]/platforms
+    INSTALL_PLATFORM_DIR ~= s,/,\\,g
+    for(DLL,EXTRA_PLATFORM_DLLS){
+        QMAKE_POST_LINK +=$$quote($(COPY_FILE) $${INSTALL_PLATFORM_DIR}\\$${DLL}.dll $${PLATFORM_DLL_DIR}$$escape_expand(\\n\\t))
+        EXTRA_BINFILES +=
     }
 
     EXTRA_BINFILES += \

@@ -15,6 +15,7 @@ my %u3locs = qw(
 	$INSTDIR\${GTK_MODULES_DIR} host
 	$INSTDIR\etc\pango host
 	$INSTDIR\help device
+	$INSTDIR\platforms host
 	$INSTDIR\plugins\${VERSION} device
 	$INSTDIR\profiles\Bluetooth device
 	$INSTDIR\profiles\Classic device
