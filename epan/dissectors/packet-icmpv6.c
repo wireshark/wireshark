@@ -47,7 +47,7 @@
 #include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 
 #include "packet-ber.h"
@@ -463,8 +463,8 @@ static int hf_icmpv6_resp_to = -1;
 static int hf_icmpv6_resptime = -1;
 
 typedef struct _icmpv6_conv_info_t {
-    emem_tree_t *unmatched_pdus;
-    emem_tree_t *matched_pdus;
+    wmem_tree_t *unmatched_pdus;
+    wmem_tree_t *matched_pdus;
 } icmpv6_conv_info_t;
 
 static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, guint32 *key);
@@ -1139,18 +1139,16 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
     conversation_t     *conversation;
     icmpv6_conv_info_t *icmpv6_info;
     icmp_transaction_t *icmpv6_trans;
-    emem_tree_key_t     icmpv6_key[3];
+    wmem_tree_key_t     icmpv6_key[3];
     proto_item         *it;
 
     /* Handle the conversation tracking */
     conversation = _find_or_create_conversation(pinfo);
     icmpv6_info = (icmpv6_conv_info_t *)conversation_get_proto_data(conversation, proto_icmpv6);
     if (icmpv6_info == NULL) {
-        icmpv6_info = se_new(icmpv6_conv_info_t);
-        icmpv6_info->unmatched_pdus = se_tree_create_non_persistent(
-            EMEM_TREE_TYPE_RED_BLACK, "icmpv6_unmatched_pdus");
-        icmpv6_info->matched_pdus = se_tree_create_non_persistent(
-            EMEM_TREE_TYPE_RED_BLACK, "icmpv6_matched_pdus");
+        icmpv6_info = wmem_new(wmem_file_scope(), icmpv6_conv_info_t);
+        icmpv6_info->unmatched_pdus = wmem_tree_new(wmem_file_scope());
+        icmpv6_info->matched_pdus = wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(conversation, proto_icmpv6, icmpv6_info);
     }
 
@@ -1164,12 +1162,12 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         icmpv6_key[1].length = 0;
         icmpv6_key[1].key = NULL;
 
-        icmpv6_trans = se_new(icmp_transaction_t);
+        icmpv6_trans = wmem_new(wmem_file_scope(), icmp_transaction_t);
         icmpv6_trans->rqst_frame = PINFO_FD_NUM(pinfo);
         icmpv6_trans->resp_frame = 0;
         icmpv6_trans->rqst_time = pinfo->fd->abs_ts;
         nstime_set_zero(&icmpv6_trans->resp_time);
-        se_tree_insert32_array(icmpv6_info->unmatched_pdus, icmpv6_key, (void *)icmpv6_trans);
+        wmem_tree_insert32_array(icmpv6_info->unmatched_pdus, icmpv6_key, (void *)icmpv6_trans);
     } else {
         /* Already visited this frame */
         guint32 frame_num = pinfo->fd->num;
@@ -1181,7 +1179,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         icmpv6_key[2].length = 0;
         icmpv6_key[2].key = NULL;
 
-        icmpv6_trans = (icmp_transaction_t *)se_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
+        icmpv6_trans = (icmp_transaction_t *)wmem_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
     }
 
     if (icmpv6_trans == NULL)
@@ -1207,7 +1205,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
     conversation_t     *conversation;
     icmpv6_conv_info_t *icmpv6_info;
     icmp_transaction_t *icmpv6_trans;
-    emem_tree_key_t     icmpv6_key[3];
+    wmem_tree_key_t     icmpv6_key[3];
     proto_item         *it;
     nstime_t            ns;
     double resp_time;
@@ -1229,7 +1227,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         icmpv6_key[1].length = 0;
         icmpv6_key[1].key = NULL;
 
-        icmpv6_trans = (icmp_transaction_t *)se_tree_lookup32_array(icmpv6_info->unmatched_pdus, icmpv6_key);
+        icmpv6_trans = (icmp_transaction_t *)wmem_tree_lookup32_array(icmpv6_info->unmatched_pdus, icmpv6_key);
         if (icmpv6_trans == NULL)
             return NULL;
 
@@ -1251,10 +1249,10 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         icmpv6_key[2].key = NULL;
 
         frame_num = icmpv6_trans->rqst_frame;
-        se_tree_insert32_array(icmpv6_info->matched_pdus, icmpv6_key, (void *)icmpv6_trans);
+        wmem_tree_insert32_array(icmpv6_info->matched_pdus, icmpv6_key, (void *)icmpv6_trans);
 
         frame_num = icmpv6_trans->resp_frame;
-        se_tree_insert32_array(icmpv6_info->matched_pdus, icmpv6_key, (void *)icmpv6_trans);
+        wmem_tree_insert32_array(icmpv6_info->matched_pdus, icmpv6_key, (void *)icmpv6_trans);
     } else {
         /* Already visited this frame */
         guint32 frame_num = pinfo->fd->num;
@@ -1266,7 +1264,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         icmpv6_key[2].length = 0;
         icmpv6_key[2].key = NULL;
 
-        icmpv6_trans = (icmp_transaction_t *)se_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
+        icmpv6_trans = (icmp_transaction_t *)wmem_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
         if (icmpv6_trans == NULL)
             return NULL;
     }
@@ -3520,7 +3518,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             case ICMP6_ND_NEIGHBOR_ADVERT: /* Neighbor Advertisement (136) */
             {
                 guint32 na_flags;
-                emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("");
+                wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
 
                 /* Flags */
                 ti_flag = proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_na_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3537,21 +3535,22 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 
                 if (na_flags & ND_NA_FLAG_R) {
-                    ep_strbuf_append(flags_strbuf, "rtr, ");
+                    wmem_strbuf_append(flags_strbuf, "rtr, ");
                 }
                 if (na_flags & ND_NA_FLAG_S) {
-                    ep_strbuf_append(flags_strbuf, "sol, ");
+                    wmem_strbuf_append(flags_strbuf, "sol, ");
                 }
                 if (na_flags & ND_NA_FLAG_O) {
-                    ep_strbuf_append(flags_strbuf, "ovr, ");
+                    wmem_strbuf_append(flags_strbuf, "ovr, ");
                 }
-                if (flags_strbuf->len > 2) {
-                    ep_strbuf_truncate(flags_strbuf, flags_strbuf->len - 2);
+                if (wmem_strbuf_get_len(flags_strbuf) > 2) {
+                    wmem_strbuf_truncate(flags_strbuf, wmem_strbuf_get_len(flags_strbuf) - 2);
                 } else {
-                    ep_strbuf_printf(flags_strbuf, "none");
+                    wmem_strbuf_truncate(flags_strbuf, 0);
+                    wmem_strbuf_append(flags_strbuf, "none");
                 }
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " %s (%s)", tvb_ip6_to_str(tvb, offset), flags_strbuf->str);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %s (%s)", tvb_ip6_to_str(tvb, offset), wmem_strbuf_get_str(flags_strbuf));
                 offset += 16;
 
                 /* Show options */

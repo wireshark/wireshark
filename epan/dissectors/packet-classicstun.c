@@ -32,6 +32,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/wmem/wmem.h>
 
 void proto_register_classicstun(void);
 void proto_reg_handoff_classicstun(void);
@@ -80,7 +81,7 @@ typedef struct _classicstun_transaction_t {
 
 /* Structure containing conversation specific information */
 typedef struct _classicstun_conv_info_t {
-    emem_tree_t *pdus;
+    wmem_tree_t *pdus;
 } classicstun_conv_info_t;
 
 
@@ -229,7 +230,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     conversation_t            *conversation;
     classicstun_conv_info_t   *classicstun_info;
     classicstun_transaction_t *classicstun_trans;
-    emem_tree_key_t            transaction_id_key[2];
+    wmem_tree_key_t            transaction_id_key[2];
     guint32                    transaction_id[4];
 
 
@@ -285,33 +286,33 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         /* No.  Attach that information to the conversation, and add
          * it to the list of information structures.
          */
-        classicstun_info = se_new(classicstun_conv_info_t);
-        classicstun_info->pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "classicstun_pdus");
+        classicstun_info = wmem_new(wmem_file_scope(), classicstun_conv_info_t);
+        classicstun_info->pdus=wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(conversation, proto_classicstun, classicstun_info);
     }
 
     if(!pinfo->fd->flags.visited){
         if (((msg_type & CLASS_MASK) >> 4) == REQUEST) {
             /* This is a request */
-            classicstun_trans=se_new(classicstun_transaction_t);
+            classicstun_trans=wmem_new(wmem_file_scope(), classicstun_transaction_t);
             classicstun_trans->req_frame=pinfo->fd->num;
             classicstun_trans->rep_frame=0;
             classicstun_trans->req_time=pinfo->fd->abs_ts;
-            se_tree_insert32_array(classicstun_info->pdus, transaction_id_key,
+            wmem_tree_insert32_array(classicstun_info->pdus, transaction_id_key,
                            (void *)classicstun_trans);
         } else {
-            classicstun_trans=(classicstun_transaction_t *)se_tree_lookup32_array(classicstun_info->pdus,
+            classicstun_trans=(classicstun_transaction_t *)wmem_tree_lookup32_array(classicstun_info->pdus,
                                  transaction_id_key);
             if(classicstun_trans){
                 classicstun_trans->rep_frame=pinfo->fd->num;
             }
         }
     } else {
-        classicstun_trans=(classicstun_transaction_t *)se_tree_lookup32_array(classicstun_info->pdus, transaction_id_key);
+        classicstun_trans=(classicstun_transaction_t *)wmem_tree_lookup32_array(classicstun_info->pdus, transaction_id_key);
     }
     if(!classicstun_trans){
         /* create a "fake" pana_trans structure */
-        classicstun_trans=ep_new(classicstun_transaction_t);
+        classicstun_trans=wmem_new(wmem_packet_scope(), classicstun_transaction_t);
         classicstun_trans->req_frame=0;
         classicstun_trans->rep_frame=0;
         classicstun_trans->req_time=pinfo->fd->abs_ts;

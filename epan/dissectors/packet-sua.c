@@ -39,7 +39,7 @@
 
 #include "packet-mtp3.h"
 #include "packet-sccp.h"
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 #define SCTP_PORT_SUA          14001
@@ -394,7 +394,7 @@ typedef struct _sua_assoc_info_t {
     gboolean has_fw_key;
 } sua_assoc_info_t;
 
-static emem_tree_t* assocs = NULL;
+static wmem_tree_t* assocs = NULL;
 sua_assoc_info_t* assoc;
 sua_assoc_info_t no_sua_assoc = {
     0,      /* assoc_id */
@@ -411,7 +411,7 @@ sua_assoc_info_t no_sua_assoc = {
 static sua_assoc_info_t *
 new_assoc(guint32 calling, guint32 called)
 {
-    sua_assoc_info_t *a = se_new0(sua_assoc_info_t);
+    sua_assoc_info_t *a = wmem_new0(wmem_file_scope(), sua_assoc_info_t);
 
     a->assoc_id               = next_assoc_id++;
     a->calling_routing_ind    = 0;
@@ -440,16 +440,16 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
         case MESSAGE_TYPE_CORE:
         {
             /* Calling and called is seen from initiator of CORE */
-            emem_tree_key_t bw_key[] = {
+            wmem_tree_key_t bw_key[] = {
                             {1, &dpck},
                             {1, &opck},
                             {1, &src_rn},
                             {0, NULL}
                             };
 
-            if ( !(assoc = (sua_assoc_info_t *)se_tree_lookup32_array(assocs,bw_key)) && ! pinfo->fd->flags.visited) {
+            if ( !(assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs,bw_key)) && ! pinfo->fd->flags.visited) {
                 assoc = new_assoc(opck, dpck);
-                se_tree_insert32_array(assocs,bw_key,assoc);
+                wmem_tree_insert32_array(assocs,bw_key,assoc);
                 assoc->has_bw_key = TRUE;
                 /*g_warning("CORE dpck %u,opck %u,src_rn %u",dpck,opck,src_rn);*/
             }
@@ -460,23 +460,23 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
         case MESSAGE_TYPE_COAK:
         {
             /* Calling and called is seen from initiator of CORE */
-            emem_tree_key_t fw_key[] = {
+            wmem_tree_key_t fw_key[] = {
                                     {1,&dpck},
                                     {1,&opck},
                                     {1,&src_rn},
                                     {0,NULL}
                                     };
-            emem_tree_key_t bw_key[] = {
+            wmem_tree_key_t bw_key[] = {
                                     {1,&opck},
                                     {1,&dpck},
                                     {1,&dst_rn},
                                     {0,NULL}
                                     };
                     /*g_warning("MESSAGE_TYPE_COAK dst_rn %u,src_rn %u ",dst_rn,src_rn);*/
-                    if ( ( assoc = (sua_assoc_info_t *)se_tree_lookup32_array(assocs, bw_key) ) ) {
+                    if ( ( assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs, bw_key) ) ) {
                             goto got_assoc;
                     }
-                    if ( (assoc = (sua_assoc_info_t *)se_tree_lookup32_array(assocs, fw_key) ) ) {
+                    if ( (assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs, fw_key) ) ) {
                             goto got_assoc;
                     }
 
@@ -487,12 +487,12 @@ got_assoc:
             pinfo->p2p_dir = P2P_DIR_RECV;
 
             if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
-                se_tree_insert32_array(assocs, bw_key, assoc);
+                wmem_tree_insert32_array(assocs, bw_key, assoc);
                 assoc->has_bw_key = TRUE;
             }
 
             if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
-                se_tree_insert32_array(assocs, fw_key, assoc);
+                wmem_tree_insert32_array(assocs, fw_key, assoc);
                 assoc->has_fw_key = TRUE;
             }
 
@@ -501,13 +501,13 @@ got_assoc:
 
         default:
         {
-            emem_tree_key_t key[] = {
+            wmem_tree_key_t key[] = {
                                     {1, &opck},
                                     {1, &dpck},
                                     {1, &dst_rn},
                                     {0, NULL}
                                     };
-                    assoc = (sua_assoc_info_t *)se_tree_lookup32_array(assocs,key);
+                    assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs,key);
                     /* Should a check be made on pinfo->p2p_dir ??? */
         break;
         }
@@ -1375,7 +1375,7 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
   guint8 number_of_digits;
   char *gt_digits;
 
-  gt_digits = (char *)ep_alloc0(GT_MAX_SIGNALS+1);
+  gt_digits = (char *)wmem_alloc0(wmem_packet_scope(), GT_MAX_SIGNALS+1);
 
   global_title_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) -
                         (PARAMETER_HEADER_LENGTH + RESERVED_3_LENGTH + GTI_LENGTH + NO_OF_DIGITS_LENGTH + TRANSLATION_TYPE_LENGTH + NUMBERING_PLAN_LENGTH + NATURE_OF_ADDRESS_LENGTH);
@@ -2144,8 +2144,8 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   no_sua_assoc.has_bw_key = FALSE;
   no_sua_assoc.has_fw_key = FALSE;
 
-  sua_opc = ep_new0(mtp3_addr_pc_t);
-  sua_dpc = ep_new0(mtp3_addr_pc_t);
+  sua_opc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
+  sua_dpc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
   sua_source_gt = NULL;
   sua_destination_gt = NULL;
 
@@ -2456,7 +2456,7 @@ proto_register_sua(void)
   sua_parameter_table = register_dissector_table("sua.prop.tags", "Proprietary SUA Tags", FT_UINT16, BASE_DEC);
   sua_tap = register_tap("sua");
 
-  assocs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sua_associations");
+  assocs = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 void

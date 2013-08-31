@@ -33,13 +33,12 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/strutil.h>
 #include <epan/garrayfix.h>
-#include <epan/emem.h>
 #include <epan/show_exception.h>
 
 #include "packet-rpc.h"
@@ -385,7 +384,7 @@ rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 	else {
 		/* happens only with strange program versions or
 		   non-existing dissectors */
-		procname = ep_strdup_printf("proc-%u", key.proc);
+		procname = wmem_strdup_printf(wmem_packet_scope(), "proc-%u", key.proc);
 	}
 	return procname;
 }
@@ -486,7 +485,7 @@ rpc_prog_name(guint32 prog)
  * RPC and contains the state we need to maintain for the conversation.
  */
 typedef struct _rpc_conv_info_t {
-        emem_tree_t *xids;
+        wmem_tree_t *xids;
 } rpc_conv_info_t;
 
 
@@ -495,7 +494,7 @@ typedef struct _rpc_conv_info_t {
    a global tree for all contexts should still be unlikely to have collissions
    here.
 */
-emem_tree_t *authgss_contexts = NULL;
+wmem_tree_t *authgss_contexts = NULL;
 
 unsigned int
 rpc_roundup(unsigned int a)
@@ -640,7 +639,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	if (string_data) {
 		string_buffer = tvb_get_ephemeral_string(tvb, data_offset, string_length_copy);
 	} else {
-		string_buffer = (char *)tvb_memcpy(tvb, ep_alloc(string_length_copy+1), data_offset, string_length_copy);
+		string_buffer = (char *)tvb_memcpy(tvb, wmem_alloc(wmem_packet_scope(), string_length_copy+1), data_offset, string_length_copy);
 	}
 	string_buffer[string_length_copy] = '\0';
 	/* calculate a nice printable string */
@@ -651,14 +650,14 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 
 				formatted = format_text(string_buffer, strlen(string_buffer));
 				/* copy over the data and append <TRUNCATED> */
-				string_buffer_print=ep_strdup_printf("%s%s", formatted, RPC_STRING_TRUNCATED);
+				string_buffer_print=wmem_strdup_printf(wmem_packet_scope(), "%s%s", formatted, RPC_STRING_TRUNCATED);
 			} else {
 				string_buffer_print=RPC_STRING_DATA RPC_STRING_TRUNCATED;
 			}
 		} else {
 			if (string_data) {
 				string_buffer_print =
-				    ep_strdup(format_text(string_buffer, strlen(string_buffer)));
+				    wmem_strdup(wmem_packet_scope(), format_text(string_buffer, strlen(string_buffer)));
 			} else {
 				string_buffer_print=RPC_STRING_DATA;
 			}
@@ -912,7 +911,7 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 	int context_offset;
 	guint32 context_length;
 	gssauth_context_info_t *context_info;
-	emem_tree_key_t tkey[2];
+	wmem_tree_key_t tkey[2];
 	guint32 key[4] = {0,0,0,0};
 
 	context_item = proto_tree_add_text(tree, tvb, offset, -1,
@@ -942,7 +941,7 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 	tkey[1].length = 0;
 	tkey[1].key  = NULL;
 
-	context_info = (gssauth_context_info_t *)se_tree_lookup32_array(authgss_contexts, &tkey[0]);
+	context_info = (gssauth_context_info_t *)wmem_tree_lookup32_array(authgss_contexts, &tkey[0]);
 	if(context_info == NULL) {
 		tvb_memcpy(tvb, key, context_offset, context_length);
 		tkey[0].length = 4;
@@ -950,10 +949,10 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 		tkey[1].length = 0;
 		tkey[1].key  = NULL;
 
-	   	context_info = se_new(gssauth_context_info_t);
+	   	context_info = wmem_new(wmem_file_scope(), gssauth_context_info_t);
 		context_info->create_frame  = 0;
 		context_info->destroy_frame = 0;
-		se_tree_insert32_array(authgss_contexts, &tkey[0], context_info);
+		wmem_tree_insert32_array(authgss_contexts, &tkey[0], context_info);
 	}
 	if (is_create) {
 		context_info->create_frame = pinfo->fd->num;
@@ -1603,8 +1602,8 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* No.  Attach that information to the conversation, and add
 			 * it to the list of information structures.
 			 */
-			rpc_conv_info = se_new(rpc_conv_info_t);
-			rpc_conv_info->xids=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rpc_xids");
+			rpc_conv_info = wmem_new(wmem_file_scope(), rpc_conv_info_t);
+			rpc_conv_info->xids=wmem_tree_new(wmem_file_scope());
 
 			conversation_add_proto_data(conversation, proto_rpc, rpc_conv_info);
 		}
@@ -1620,13 +1619,13 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   as such, the XID is at offset 0 in this tvbuff. */
 		/* look up the request */
 		xid = tvb_get_ntohl(tvb, offset);
-		rpc_call = (rpc_call_info_value *)se_tree_lookup32(rpc_conv_info->xids, xid);
+		rpc_call = (rpc_call_info_value *)wmem_tree_lookup32(rpc_conv_info->xids, xid);
 		if (rpc_call == NULL) {
 			/* We didn't find it; create a new entry.
 			   Prepare the value data.
 			   Not all of it is needed for handling indirect
 			   calls, so we set a bunch of items to 0. */
-			rpc_call = se_new(rpc_call_info_value);
+			rpc_call = wmem_new(wmem_file_scope(), rpc_call_info_value);
 			rpc_call->req_num = 0;
 			rpc_call->rep_num = 0;
 			rpc_call->prog = prog;
@@ -1643,7 +1642,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->gss_svc = 0;
 			rpc_call->proc_info = value;
 			/* store it */
-			se_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
+			wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
 		}
 	}
 	else {
@@ -1735,14 +1734,14 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* No.  Attach that information to the conversation, and add
 		 * it to the list of information structures.
 		 */
-		rpc_conv_info = se_new(rpc_conv_info_t);
-		rpc_conv_info->xids=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rpc_xids");
+		rpc_conv_info = wmem_new(wmem_file_scope(), rpc_conv_info_t);
+		rpc_conv_info->xids=wmem_tree_new(wmem_file_scope());
 		conversation_add_proto_data(conversation, proto_rpc, rpc_conv_info);
 	}
 
 	/* The XIDs of the call and reply must match. */
 	xid = tvb_get_ntohl(tvb, 0);
-	rpc_call = (rpc_call_info_value *)se_tree_lookup32(rpc_conv_info->xids, xid);
+	rpc_call = (rpc_call_info_value *)wmem_tree_lookup32(rpc_conv_info->xids, xid);
 	if (rpc_call == NULL) {
 		/* The XID doesn't match a call from that
 		   conversation, so it's probably not an RPC reply.
@@ -1758,14 +1757,14 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			procname = (char *)rpc_call->proc_info->name;
 		}
 		else {
-			procname=ep_strdup_printf("proc-%u", rpc_call->proc);
+			procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", rpc_call->proc);
 		}
 	}
 	else {
 #if 0
 		dissect_function = NULL;
 #endif
-		procname=ep_strdup_printf("proc-%u", rpc_call->proc);
+		procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", rpc_call->proc);
 	}
 
 	if ( tree )
@@ -2037,15 +2036,15 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* No.  Attach that information to the conversation, and add
 			 * it to the list of information structures.
 			 */
-			rpc_conv_info = se_new(rpc_conv_info_t);
-			rpc_conv_info->xids=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rpc_xids");
+			rpc_conv_info = wmem_new(wmem_file_scope(), rpc_conv_info_t);
+			rpc_conv_info->xids=wmem_tree_new(wmem_file_scope());
 
 			conversation_add_proto_data(conversation, proto_rpc, rpc_conv_info);
 		}
 
 		/* The XIDs of the call and reply must match. */
 		xid = tvb_get_ntohl(tvb, offset);
-		rpc_call = (rpc_call_info_value *)se_tree_lookup32(rpc_conv_info->xids, xid);
+		rpc_call = (rpc_call_info_value *)wmem_tree_lookup32(rpc_conv_info->xids, xid);
 		if (rpc_call == NULL) {
 			/* The XID doesn't match a call from that
 			   conversation, so it's probably not an RPC reply. */
@@ -2057,7 +2056,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 
 			/* in parse-partials, so define a dummy conversation for this reply */
-			rpc_call = se_new(rpc_call_info_value);
+			rpc_call = wmem_new(wmem_file_scope(), rpc_call_info_value);
 			rpc_call->req_num = 0;
 			rpc_call->rep_num = pinfo->fd->num;
 			rpc_call->prog = 0;
@@ -2072,7 +2071,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->req_time = pinfo->fd->abs_ts;
 
 			/* store it */
-			se_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
+			wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
 
 			/* and fake up a matching program */
 			rpc_prog_key.prog = rpc_call->prog;
@@ -2184,7 +2183,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #if 0
 			dissect_function = NULL;
 #endif
-			procname=ep_strdup_printf("proc-%u", proc);
+			procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", proc);
 		}
 
 		/* Check for RPCSEC_GSS and AUTH_GSSAPI */
@@ -2315,8 +2314,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* No.  Attach that information to the conversation, and add
 			 * it to the list of information structures.
 			 */
-			rpc_conv_info = se_new(rpc_conv_info_t);
-			rpc_conv_info->xids=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rpc_xids");
+			rpc_conv_info = wmem_new(wmem_file_scope(), rpc_conv_info_t);
+			rpc_conv_info->xids=wmem_tree_new(wmem_file_scope());
 			conversation_add_proto_data(conversation, proto_rpc, rpc_conv_info);
 		}
 
@@ -2327,7 +2326,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			(pinfo->ptype == PT_TCP) ? rpc_tcp_handle : rpc_handle);
 
 		/* look up the request */
-		rpc_call = (rpc_call_info_value *)se_tree_lookup32(rpc_conv_info->xids, xid);
+		rpc_call = (rpc_call_info_value *)wmem_tree_lookup32(rpc_conv_info->xids, xid);
 		if (rpc_call) {
 			/* We've seen a request with this XID, with the same
 			   source and destination, before - but was it
@@ -2352,7 +2351,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   frame numbers are 1-origin, so we use 0
 			   to mean "we don't yet know in which frame
 			   the reply for this call appears". */
-			rpc_call = se_new(rpc_call_info_value);
+			rpc_call = wmem_new(wmem_file_scope(), rpc_call_info_value);
 			rpc_call->req_num = pinfo->fd->num;
 			rpc_call->rep_num = 0;
 			rpc_call->prog = prog;
@@ -2367,7 +2366,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->req_time = pinfo->fd->abs_ts;
 
 			/* store it */
-			se_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
+			wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
 		}
 
 		if(rpc_call->rep_num){
@@ -2414,14 +2413,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				procname = (char *)rpc_call->proc_info->name;
 			}
 			else {
-				procname=ep_strdup_printf("proc-%u", proc);
+				procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", proc);
 			}
 		}
 		else {
 #if 0
 			dissect_function = NULL;
 #endif
-			procname=ep_strdup_printf("proc-%u", proc);
+			procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", proc);
 		}
 
 		/*
@@ -3275,7 +3274,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * We must remember this fragment.
 			 */
 
-			rfk = se_new(rpc_fragment_key);
+			rfk = wmem_new(wmem_file_scope(), rpc_fragment_key);
 			rfk->conv_id = conversation->index;
 			rfk->seq = seq;
 			rfk->port = pinfo->srcport;
@@ -3298,7 +3297,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * set on it.
 			 */
 			if (ipfd_head == NULL) {
-				new_rfk = se_new(rpc_fragment_key);
+				new_rfk = wmem_new(wmem_file_scope(), rpc_fragment_key);
 				new_rfk->conv_id = rfk->conv_id;
 				new_rfk->seq = seq + len;
 				new_rfk->port = pinfo->srcport;
@@ -3364,7 +3363,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * RPC fragments aren't guaranteed to be provided
 			 * in order, either.
 			 */
-			new_rfk = se_new(rpc_fragment_key);
+			new_rfk = wmem_new(wmem_file_scope(), rpc_fragment_key);
 			new_rfk->conv_id = rfk->conv_id;
 			new_rfk->seq = seq + len;
                         new_rfk->port = pinfo->srcport;
@@ -4070,6 +4069,8 @@ proto_register_rpc(void)
 	 */
 	rpc_progs = g_hash_table_new(rpc_prog_hash, rpc_prog_equal);
 	rpc_procs = g_hash_table_new(rpc_proc_hash, rpc_proc_equal);
+
+	authgss_contexts=wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 void
@@ -4093,8 +4094,6 @@ proto_reg_handoff_rpc(void)
 	gssapi_handle = find_dissector("gssapi");
 	spnego_krb5_wrap_handle = find_dissector("spnego-krb5-wrap");
 	data_handle = find_dissector("data");
-
-	authgss_contexts=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gss_contexts");
 }
 
 /*

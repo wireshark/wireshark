@@ -34,7 +34,7 @@
 #include "packet-nfs.h"
 #include <epan/prefs.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>
@@ -762,7 +762,7 @@ typedef struct nfs_fhandle_data {
 /* fhandle displayfilters to match also corresponding request/response
    packet in addition to the one containing the actual filehandle */
 gboolean nfs_fhandle_reqrep_matching = FALSE;
-static emem_tree_t *nfs_fhandle_frame_table = NULL;
+static wmem_tree_t *nfs_fhandle_frame_table = NULL;
 
 
 /* file name snooping */
@@ -789,8 +789,8 @@ static GHashTable *nfs_name_snoop_unmatched = NULL;
 
 static GHashTable *nfs_name_snoop_matched = NULL;
 
-static emem_tree_t *nfs_name_snoop_known = NULL;
-static emem_tree_t *nfs_file_handles = NULL;
+static wmem_tree_t *nfs_name_snoop_known = NULL;
+static wmem_tree_t *nfs_file_handles = NULL;
 
 static gboolean nfs_display_v4_tag = TRUE;
 static gboolean display_major_nfs4_ops = TRUE;
@@ -817,7 +817,7 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 {
 	guint32 fhlen;
 	guint32 *fhdata;
-	emem_tree_key_t fhkey[3];
+	wmem_tree_key_t fhkey[3];
 	nfs_fhandle_data_t *new_nfs_fh;
 
 	fhlen=nfs_fh->len/4;
@@ -829,15 +829,15 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 	fhkey[1].key=fhdata;
 	fhkey[2].length=0;
 
-	new_nfs_fh=(nfs_fhandle_data_t *)se_tree_lookup32_array(nfs_file_handles, &fhkey[0]);
+	new_nfs_fh=(nfs_fhandle_data_t *)wmem_tree_lookup32_array(nfs_file_handles, &fhkey[0]);
 	if(new_nfs_fh){
 		g_free(fhdata);
 		return new_nfs_fh;
 	}
 
-	new_nfs_fh=(nfs_fhandle_data_t *)se_alloc(sizeof(nfs_fhandle_data_t));
+	new_nfs_fh=wmem_new(wmem_file_scope(), nfs_fhandle_data_t);
 	new_nfs_fh->len=nfs_fh->len;
-	new_nfs_fh->fh=(const unsigned char *)se_alloc(sizeof(guint32)*(nfs_fh->len/4));
+	new_nfs_fh->fh=(const unsigned char *)wmem_alloc(wmem_file_scope(), sizeof(guint32)*(nfs_fh->len/4));
 	memcpy((void *)new_nfs_fh->fh, nfs_fh->fh, nfs_fh->len);
 	fhlen=nfs_fh->len/4;
 	fhkey[0].length=1;
@@ -845,7 +845,7 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 	fhkey[1].length=fhlen;
 	fhkey[1].key=fhdata;
 	fhkey[2].length=0;
-	se_tree_insert32_array(nfs_file_handles, &fhkey[0], new_nfs_fh);
+	wmem_tree_insert32_array(nfs_file_handles, &fhkey[0], new_nfs_fh);
 
 	g_free(fhdata);
 	return new_nfs_fh;
@@ -1046,7 +1046,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	nns->fh=fh;
 	nns->fh_length=fh_length;
 
-	key=(nfs_name_snoop_key_t *)se_alloc(sizeof(nfs_name_snoop_key_t));
+	key=wmem_new(wmem_file_scope(), nfs_name_snoop_key_t);
 	key->key=0;
 	key->fh_length=nns->fh_length;
 	key->fh=nns->fh;
@@ -1124,7 +1124,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		if(nns){
 			guint32 fhlen;
 			guint32 *fhdata;
-			emem_tree_key_t fhkey[3];
+			wmem_tree_key_t fhkey[3];
 
 			fhlen=nns->fh_length;
 			/* align it */
@@ -1134,7 +1134,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 			fhkey[1].length=fhlen/4;
 			fhkey[1].key=fhdata;
 			fhkey[2].length=0;
-			se_tree_insert32_array(nfs_name_snoop_known, &fhkey[0], nns);
+			wmem_tree_insert32_array(nfs_name_snoop_known, &fhkey[0], nns);
 			g_free(fhdata);
 
 			if(nfs_file_name_full_snooping){
@@ -1154,7 +1154,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 	if(!nns){
 		guint32 fhlen;
 		guint32 *fhdata;
-		emem_tree_key_t fhkey[3];
+		wmem_tree_key_t fhkey[3];
 
 		fhlen=fh_length;
 		/* align it */
@@ -1165,7 +1165,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		fhkey[1].key=fhdata;
 		fhkey[2].length=0;
 
-		nns=(nfs_name_snoop_t *)se_tree_lookup32_array(nfs_name_snoop_known, &fhkey[0]);
+		nns=(nfs_name_snoop_t *)wmem_tree_lookup32_array(nfs_name_snoop_known, &fhkey[0]);
 		g_free(fhdata);
 	}
 
@@ -1621,7 +1621,7 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 				    " METADATA" };
 		guint16 bit = sizeof(strings) / sizeof(strings[0]);
 
-		flag_string=(char *)ep_alloc(512);
+		flag_string=(char *)wmem_alloc(wmem_packet_scope(), 512);
 		flag_string[0]=0;
 		while (bit--) {
 			if (flags & (1<<bit)) {
@@ -1715,7 +1715,7 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 	guint16 bit = sizeof(strings) / sizeof(strings[0]);
 	proto_tree *flag_tree = NULL;
 
-	flag_string=(char *)ep_alloc(512);
+	flag_string=(char *)wmem_alloc(wmem_packet_scope(), 512);
 	flag_string[0]=0;
 
 	if(tree){
@@ -2344,7 +2344,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		   	   nfs calls. For now, we don't handle this and those calls will
 		   	   not work properly with this feature
 			*/
-			se_tree_insert32(nfs_fhandle_frame_table, pinfo->fd->num, old_fhd);
+			wmem_tree_insert32(nfs_fhandle_frame_table, pinfo->fd->num, old_fhd);
 		}
 	}
 
@@ -2398,7 +2398,7 @@ dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame)
 {
 	nfs_fhandle_data_t *nfd;
 
-	nfd=(nfs_fhandle_data_t *)se_tree_lookup32(nfs_fhandle_frame_table, frame);
+	nfd=(nfs_fhandle_data_t *)wmem_tree_lookup32(nfs_fhandle_frame_table, frame);
 	if(nfd && nfd->len){
 		tvbuff_t *tvb;
 		tvb = tvb_new_real_data(nfd->fh, nfd->len, nfd->len);
@@ -5016,7 +5016,7 @@ dissect_nfs3_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 	/* Get access mask to check and save it for comparison to the access reply. */
 	amask = tvb_get_ntohl(tvb, offset);
-	acc_request = (guint32 *)se_memdup( &amask, sizeof(guint32));
+	acc_request = (guint32 *)wmem_memdup(wmem_file_scope(),  &amask, sizeof(guint32));
 	civ = (rpc_call_info_value *)pinfo->private_data;
 	civ->private_data = acc_request;
 
@@ -6774,7 +6774,7 @@ dissect_nfs4_fattr_fh_expire_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 			/* TODO: this should be replaced with a named field and
 			 * proto_tree_add_item */
-			buf = (char *)ep_alloc(1025);
+			buf = (char *)wmem_alloc(wmem_packet_scope(), 1025);
 			p = decode_bitfield_value(buf, expire_type, 0xFFFFFFFF, 32);
 			g_snprintf(p, (gulong) (1024-(p-buf)), "%s",
 				val_to_str_const(expire_type,
@@ -7034,7 +7034,7 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	tvb_ensure_bytes_exist(tvb, offset, num_bitmaps * 4);
 
 	if(num_bitmaps) {
-		bitmaps = (guint32 *)ep_alloc(num_bitmaps * sizeof(guint32));
+		bitmaps = (guint32 *)wmem_alloc(wmem_packet_scope(), num_bitmaps * sizeof(guint32));
 		attr_mask_offset = offset;
 
 		/* Load the array with the bitmap(s) */
@@ -7864,7 +7864,7 @@ dissect_nfs4_dirlist(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			* Get the entry name and create subtree of field nfs.name
 			*/
-			name = (char *)tvb_memcpy(tvb, ep_alloc(name_len+1), offset + 16, name_len);
+			name = (char *)tvb_memcpy(tvb, wmem_alloc(wmem_packet_scope(), name_len+1), offset + 16, name_len);
 			name[name_len] = '\0';
 
 			eitem = proto_tree_add_string_format(
@@ -8060,7 +8060,7 @@ dissect_nfs4_state_protect_bitmap(tvbuff_t *tvb, int offset,
 	newftree = proto_item_add_subtree(fitem, ett_nfs4_bitmap);
 
 	if(num_bitmaps)
-		bitmap = (guint32 *)ep_alloc(num_bitmaps * sizeof(guint32));
+		bitmap = (guint32 *)wmem_alloc(wmem_packet_scope(), num_bitmaps * sizeof(guint32));
 
 	for (i = 0; i < num_bitmaps; i++) {
 		bitmap[i] = tvb_get_ntohl(tvb, offset);
@@ -8929,7 +8929,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 				/* Get access mask to check and save it for comparison in the reply. */
 				amask = tvb_get_ntohl(tvb, offset);
-				acc_request = (guint32 *)se_memdup( &amask, sizeof(guint32));
+				acc_request = (guint32 *)wmem_memdup(wmem_file_scope(),  &amask, sizeof(guint32));
 				civ = (rpc_call_info_value *)pinfo->private_data;
 				civ->private_data = acc_request;
 
@@ -12644,9 +12644,9 @@ proto_register_nfs(void)
 		nfs_fhandle_types,
 		FALSE);
 
-	nfs_name_snoop_known=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "nfs_name_snoop_known");
-	nfs_file_handles=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "nfs_file_handles");
-	nfs_fhandle_frame_table=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "nfs_fhandle_frame_table");
+	nfs_name_snoop_known    = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+	nfs_file_handles        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+	nfs_fhandle_frame_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 	register_init_routine(nfs_name_snoop_init);
 }
 

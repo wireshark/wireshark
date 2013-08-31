@@ -36,7 +36,7 @@
 #include <wsutil/str_util.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include "packet-alcap.h"
 #include "packet-mtp3.h"
@@ -410,9 +410,9 @@ static expert_field ei_alcap_release_cause_not31 = EI_INIT;
 
 static gboolean keep_persistent_info = TRUE;
 
-static emem_tree_t* legs_by_dsaid = NULL;
-static emem_tree_t* legs_by_osaid = NULL;
-static emem_tree_t* legs_by_bearer = NULL;
+static wmem_tree_t* legs_by_dsaid = NULL;
+static wmem_tree_t* legs_by_osaid = NULL;
+static wmem_tree_t* legs_by_bearer = NULL;
 
 static const gchar* dissect_fields_unknown(packet_info* pinfo, tvbuff_t *tvb, proto_tree *tree, int offset, int len, alcap_message_info_t* msg_info _U_) {
     proto_item* pi = proto_tree_add_item(tree,hf_alcap_unknown,tvb,offset,len,ENC_NA);
@@ -452,7 +452,7 @@ static const gchar* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_
         ret_str = val_to_str(msg_info->release_cause, cause_values_itu, "Unknown(%u)");
     } else {
         proto_tree_add_item(tree, hf_alcap_cau_value_non_itu, tvb, offset+1 , 1, ENC_BIG_ENDIAN);
-        ret_str = ep_strdup_printf("%u", msg_info->release_cause);
+        ret_str = wmem_strdup_printf(wmem_packet_scope(), "%u", msg_info->release_cause);
     }
 
     if (!tree) return ret_str;
@@ -518,9 +518,9 @@ static const gchar* dissect_fields_ceid(packet_info* pinfo _U_, tvbuff_t *tvb, p
 
     if (msg_info->cid == 0) {
         proto_item_append_text(pi," (All CIDs in the Path)");
-        return ep_strdup_printf("Path: %u CID: 0 (Every CID)",msg_info->pathid);
+        return wmem_strdup_printf(wmem_packet_scope(), "Path: %u CID: 0 (Every CID)",msg_info->pathid);
     } else {
-        return ep_strdup_printf("Path: %u CID: %u",msg_info->pathid,msg_info->cid);
+        return wmem_strdup_printf(wmem_packet_scope(), "Path: %u CID: %u",msg_info->pathid,msg_info->cid);
     }
 }
 
@@ -538,7 +538,7 @@ static const gchar* dissect_fields_desea(packet_info* pinfo _U_, tvbuff_t *tvb, 
         return NULL;
     }
 
-    e164 = ep_new(e164_info_t);
+    e164 = wmem_new(wmem_packet_scope(), e164_info_t);
 
     e164->e164_number_type = CALLED_PARTY_NUMBER;
     e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
@@ -564,7 +564,7 @@ static const gchar* dissect_fields_oesea(packet_info* pinfo _U_, tvbuff_t *tvb, 
         return NULL;
     }
 
-    e164 = ep_new(e164_info_t);
+    e164 = wmem_new(wmem_packet_scope(), e164_info_t);
 
     e164->e164_number_type = CALLING_PARTY_NUMBER;
     e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
@@ -1329,7 +1329,7 @@ static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, 
 
 
 extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, const  gchar* key) {
-    alcap_leg_info_t* leg = (alcap_leg_info_t*)se_tree_lookup_string(legs_by_bearer,key,0);
+    alcap_leg_info_t* leg = (alcap_leg_info_t*)wmem_tree_lookup_string(legs_by_bearer,key,0);
 
     if (leg) {
         alcap_leg_tree(tree,tvb,pinfo,leg);
@@ -1340,7 +1340,7 @@ extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, packet_i
 
 static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree *alcap_tree = NULL;
-    alcap_message_info_t* msg_info = ep_new0(alcap_message_info_t);
+    alcap_message_info_t* msg_info = wmem_new0(wmem_packet_scope(), alcap_message_info_t);
     int len = tvb_length(tvb);
     int offset;
     proto_item* pi;
@@ -1408,8 +1408,8 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         alcap_leg_info_t* leg = NULL;
         switch (msg_info->msg_type) {
             case 5: /* ERQ */
-                if( ! ( leg = (alcap_leg_info_t*)se_tree_lookup32(legs_by_osaid,msg_info->osaid) )) {
-                    leg = se_new(alcap_leg_info_t);
+                if( ! ( leg = (alcap_leg_info_t*)wmem_tree_lookup32(legs_by_osaid,msg_info->osaid) )) {
+                    leg = wmem_new(wmem_file_scope(), alcap_leg_info_t);
 
                     leg->dsaid = 0;
                     leg->osaid = msg_info->osaid;
@@ -1420,45 +1420,45 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                     leg->dest_nsap = NULL;
 
                     if (msg_info->orig_nsap) {
-                        gchar* key = se_strdup_printf("%s:%.8X",msg_info->orig_nsap,leg->sugr);
+                        gchar* key = wmem_strdup_printf(wmem_file_scope(), "%s:%.8X",msg_info->orig_nsap,leg->sugr);
                         ascii_strdown_inplace(key);
 
-                        leg->orig_nsap = se_strdup(msg_info->orig_nsap);
+                        leg->orig_nsap = wmem_strdup(wmem_file_scope(), msg_info->orig_nsap);
 
-                        if (!se_tree_lookup_string(legs_by_bearer,key,0)) {
-                            se_tree_insert_string(legs_by_bearer,key,leg,0);
+                        if (!wmem_tree_lookup_string(legs_by_bearer,key,0)) {
+                            wmem_tree_insert_string(legs_by_bearer,key,leg,0);
                         }
                     }
 
                     if (msg_info->dest_nsap) {
-                        gchar* key = se_strdup_printf("%s:%.8X",msg_info->dest_nsap,leg->sugr);
+                        gchar* key = wmem_strdup_printf(wmem_file_scope(), "%s:%.8X",msg_info->dest_nsap,leg->sugr);
                         ascii_strdown_inplace(key);
 
-                        leg->dest_nsap = se_strdup(msg_info->dest_nsap);
+                        leg->dest_nsap = wmem_strdup(wmem_file_scope(), msg_info->dest_nsap);
 
-                        if (!se_tree_lookup_string(legs_by_bearer,key,0)) {
-                            se_tree_insert_string(legs_by_bearer,key,leg,0);
+                        if (!wmem_tree_lookup_string(legs_by_bearer,key,0)) {
+                            wmem_tree_insert_string(legs_by_bearer,key,leg,0);
                         }
                     }
 
                     leg->msgs = NULL;
                     leg->release_cause = 0;
 
-                    se_tree_insert32(legs_by_osaid,leg->osaid,leg);
+                    wmem_tree_insert32(legs_by_osaid,leg->osaid,leg);
                 }
                 break;
             case 4: /* ECF */
-                if(( leg = (alcap_leg_info_t *)se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )) {
+                if(( leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_osaid,msg_info->dsaid) )) {
                     leg->dsaid = msg_info->osaid;
-                    se_tree_insert32(legs_by_dsaid,leg->dsaid,leg);
+                    wmem_tree_insert32(legs_by_dsaid,leg->dsaid,leg);
                 }
                 break;
             case 6: /* RLC */
             case 12:  /* MOA */
             case 13: /* MOR */
             case 14: /* MOD */
-                if( ( leg = (alcap_leg_info_t *)se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )
-                    || ( leg = (alcap_leg_info_t *)se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) ) ) {
+                if( ( leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_osaid,msg_info->dsaid) )
+                    || ( leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_dsaid,msg_info->dsaid) ) ) {
 
                     if(msg_info->release_cause)
                         leg->release_cause =  msg_info->release_cause;
@@ -1466,11 +1466,11 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 }
                 break;
             case 7: /* REL */
-                leg = (alcap_leg_info_t *)se_tree_lookup32(legs_by_osaid,msg_info->dsaid);
+                leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_osaid,msg_info->dsaid);
 
                 if(leg) {
                     leg->release_cause =  msg_info->release_cause;
-                } else if (( leg = (alcap_leg_info_t *)se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) )) {
+                } else if (( leg = (alcap_leg_info_t *)wmem_tree_lookup32(legs_by_dsaid,msg_info->dsaid) )) {
                     leg->release_cause =  msg_info->release_cause;
                 }
                     break;
@@ -1479,7 +1479,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         }
 
         if (leg != NULL && ( (! leg->msgs) || leg->msgs->last->framenum < pinfo->fd->num ) ) {
-            alcap_msg_data_t* msg = se_new(alcap_msg_data_t);
+            alcap_msg_data_t* msg = wmem_new(wmem_file_scope(), alcap_msg_data_t);
             msg->msg_type = msg_info->msg_type;
             msg->framenum = pinfo->fd->num;
             msg->next = NULL;
@@ -2425,9 +2425,9 @@ proto_register_alcap(void)
                                    "Whether persistent call leg information is to be kept",
                                    &keep_persistent_info);
 
-    legs_by_dsaid  = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_dsaid");
-    legs_by_osaid  = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_osaid");
-    legs_by_bearer = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_bearer");
+    legs_by_dsaid  = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    legs_by_osaid  = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    legs_by_bearer = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 
