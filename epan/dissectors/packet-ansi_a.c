@@ -46,6 +46,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/base64.h>
+#include <epan/tfs.h>
 
 #include "packet-rtp.h"
 #include "packet-bssap.h"
@@ -688,7 +689,12 @@ static int hf_ansi_a_so = -1;
 static int hf_ansi_a_cause_1 = -1;      /* 1 octet cause */
 static int hf_ansi_a_cause_2 = -1;      /* 2 octet cause */
 static int hf_ansi_a_meid_configured = -1;
-
+static int hf_ansi_a_ms_info_rec_signal_type = -1;
+static int hf_ansi_a_ms_info_rec_signal_alert_pitch = -1;
+static int hf_ansi_a_ms_info_rec_signal_tone = -1;
+static int hf_ansi_a_ms_info_rec_signal_isdn_alert = -1;
+static int hf_ansi_a_ms_info_rec_signal_is54b_alert = -1;
+static int hf_ansi_a_ms_info_rec_call_waiting_ind = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bsmap = -1;
@@ -6249,6 +6255,68 @@ elem_ptype(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offs
 /*
  * IOS 6.2.2.72
  */
+static const value_string ansi_a_ms_info_rec_signal_type_vals[] = {
+    { 0x0, "Tone signal"},
+    { 0x1, "ISDN Alerting"},
+    { 0x2, "IS-54B Alerting"},
+    { 0x3, "Reserved"},
+    { 0, NULL}
+ };
+ 
+static const value_string ansi_a_ms_info_rec_signal_alert_pitch_vals[] = {
+    { 0x0, "Medium pitch (standard alert)"},
+    { 0x1, "High pitch"},
+    { 0x2, "Low pitch"},
+    { 0x3, "Reserved"},
+    { 0, NULL}
+ };
+
+static const value_string ansi_a_ms_info_rec_signal_tone_vals[] = {
+    { 0x0, "Dial tone on"},
+    { 0x1, "Ring back tone on"},
+    { 0x2, "Intercept tone on"},
+    { 0x3, "Abbreviated intercept"},
+    { 0x4, "Network congestion (reorder) tone on"},
+    { 0x5, "Abbreviated network congestion (reorder)"},
+    { 0x6, "Busy tone on"},
+    { 0x7, "Confirm tone on"},
+    { 0x8, "Answer tone on"},
+    { 0x9, "Call waiting tone on"},
+    { 0xa, "Pip tone on"},
+    { 0xf, "Tones off"},
+    { 0, NULL}
+ };
+
+const value_string ansi_a_ms_info_rec_signal_isdn_alert_vals[] = {
+    { 0x0, "Normal Alerting"},
+    { 0x1, "Intergroup Alerting"},
+    { 0x2, "Special/Priority Alerting"},
+    { 0x3, "Reserved (ISDN Alerting pattern 3)"},
+    { 0x4, "Ping ring"},
+    { 0x5, "Reserved (ISDN Alerting pattern 5)"},
+    { 0x6, "Reserved (ISDN Alerting pattern 6)"},
+    { 0x7, "Reserved (ISDN Alerting pattern 7)"},
+    { 0xf, "Alerting off"},
+    { 0, NULL}
+ };
+
+static const value_string ansi_a_ms_info_rec_signal_is54b_alert_vals[] = {
+    { 0x0, "No Tone"},
+    { 0x1, "Long"},
+    { 0x2, "Short-Short"},
+    { 0x3, "Short-Short-Long"},
+    { 0x4, "Short-Short-2"},
+    { 0x5, "Short-Long-Short"},
+    { 0x6, "Short-Short-Short-Short"},
+    { 0x7, "PBX Long"},
+    { 0x8, "PBX Short-Short"},
+    { 0x9, "PBX Short-Short-Long"},
+    { 0xa, "PBX Short-Long-Short"},
+    { 0xb, "PBX Short-Short-Short-Short"},
+    { 0xc, "Pip-Pip-Pip-Pip"},
+    { 0, NULL}
+ };
+
 static guint8
 elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
@@ -6518,9 +6586,39 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
                 break;
 
             case ANSI_FWD_MS_INFO_REC_SIGNAL:
-                curr_offset += elem_signal(tvb, pinfo, subtree, curr_offset, len, add_string, string_len);
+                oct = tvb_get_guint8(tvb, curr_offset);
+                proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_signal_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_signal_alert_pitch, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                switch (oct & 0xc0) {
+                    case 0x00:
+                        proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_signal_tone, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x40:
+                        proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_signal_isdn_alert, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x80:
+                        proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_signal_is54b_alert, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        break;
+                    default:
+                        break;
+                }
+                oct = tvb_get_guint8(tvb, curr_offset + 1);
+                other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
+                proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                                    "%s: Reserved",
+                                    a_bigbuf);
+                curr_offset += oct_len;
                 break;
 
+            case ANSI_FWD_MS_INFO_REC_CWI:
+                proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_call_waiting_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                oct = tvb_get_guint8(tvb, curr_offset);
+                other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
+                proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                                    "%s: Reserved",
+                                    a_bigbuf);
+                curr_offset += oct_len;
+                break;
             default:
                 proto_tree_add_text(subtree,
                     tvb, curr_offset, oct_len,
@@ -12142,6 +12240,36 @@ proto_register_ansi_a(void)
         { &hf_ansi_a_meid_configured,
             { "Is MEID configured",  "ansi_a_bsmap.meid_configured",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_a_ms_info_rec_signal_type,
+            { "Signal Type",  "ansi_a_bsmap.ms_info_rec.signal.type",
+            FT_UINT8, BASE_HEX, VALS(ansi_a_ms_info_rec_signal_type_vals), 0xc0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_a_ms_info_rec_signal_alert_pitch,
+            { "Alert Type",  "ansi_a_bsmap.ms_info_rec.signal.alert_pitch",
+            FT_UINT8, BASE_HEX, VALS(ansi_a_ms_info_rec_signal_alert_pitch_vals), 0x30,
+            NULL, HFILL }
+        },
+        { &hf_ansi_a_ms_info_rec_signal_tone,
+            { "Signal",  "ansi_a_bsmap.ms_info_rec.signal.tone",
+            FT_UINT16, BASE_HEX, VALS(ansi_a_ms_info_rec_signal_tone_vals), 0x0fc0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_a_ms_info_rec_signal_isdn_alert,
+            { "Signal",  "ansi_a_bsmap.ms_info_rec.signal.isdn_alert",
+            FT_UINT16, BASE_HEX, VALS(ansi_a_ms_info_rec_signal_isdn_alert_vals), 0x0fc0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_a_ms_info_rec_signal_is54b_alert,
+            { "Signal",  "ansi_a_bsmap.ms_info_rec.signal.is54b_alert",
+            FT_UINT16, BASE_HEX, VALS(ansi_a_ms_info_rec_signal_is54b_alert_vals), 0x0fc0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_a_ms_info_rec_call_waiting_ind,
+            { "Call Waiting Indicator",  "ansi_a_bsmap.ms_info_rec.call_waiting_ind",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
             NULL, HFILL }
         }
     };
