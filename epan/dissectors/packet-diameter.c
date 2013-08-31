@@ -103,7 +103,7 @@ static gint exported_pdu_tap = -1;
 
 /* Conversation Info */
 typedef struct _diameter_conv_info_t {
-        emem_tree_t *pdus_tree;
+        wmem_tree_t *pdus_tree;
 } diameter_conv_info_t;
 
 typedef struct _diam_ctx_t {
@@ -918,7 +918,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t *conversation;
 	diameter_conv_info_t *diameter_conv_info;
 	diameter_req_ans_pair_t *diameter_pair = NULL;
-	emem_tree_t *pdus_tree;
+	wmem_tree_t *pdus_tree;
 	proto_item *it;
 	nstime_t ns;
 	void *pd_save;
@@ -1047,27 +1047,26 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	diameter_conv_info = (diameter_conv_info_t *)conversation_get_proto_data(conversation, proto_diameter);
 	if (!diameter_conv_info) {
-		diameter_conv_info = (diameter_conv_info_t *)se_alloc(sizeof(diameter_conv_info_t));
-		diameter_conv_info->pdus_tree = se_tree_create_non_persistent(
-					EMEM_TREE_TYPE_RED_BLACK, "diameter_pdu_trees");
+		diameter_conv_info = wmem_new(wmem_file_scope(), diameter_conv_info_t);
+		diameter_conv_info->pdus_tree = wmem_tree_new(wmem_file_scope());
 
 		conversation_add_proto_data(conversation, proto_diameter, diameter_conv_info);
 	}
 
-	/* pdus_tree is an se_tree keyed by frame number (in order to handle hop-by-hop collisions */
-	pdus_tree = (emem_tree_t *)se_tree_lookup32(diameter_conv_info->pdus_tree, hop_by_hop_id);
+	/* pdus_tree is an wmem_tree keyed by frame number (in order to handle hop-by-hop collisions */
+	pdus_tree = (wmem_tree_t *)wmem_tree_lookup32(diameter_conv_info->pdus_tree, hop_by_hop_id);
 
 	if (pdus_tree == NULL && (flags_bits & DIAM_FLAGS_R)) {
 		/* This is the first request we've seen with this hop-by-hop id */
-		pdus_tree = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "diameter_pdus");
-		se_tree_insert32(diameter_conv_info->pdus_tree, hop_by_hop_id, pdus_tree);
+		pdus_tree = wmem_tree_new(wmem_file_scope());
+		wmem_tree_insert32(diameter_conv_info->pdus_tree, hop_by_hop_id, pdus_tree);
 	}
 
 	if (pdus_tree) {
 		if (!pinfo->fd->flags.visited) {
 			if (flags_bits & DIAM_FLAGS_R) {
 				/* This is a request */
-				diameter_pair = (diameter_req_ans_pair_t *)se_alloc(sizeof(diameter_req_ans_pair_t));
+				diameter_pair = wmem_new(wmem_file_scope(), diameter_req_ans_pair_t);
 				diameter_pair->hop_by_hop_id = hop_by_hop_id;
 				diameter_pair->end_to_end_id = end_to_end_id;
 				diameter_pair->cmd_code = cmd;
@@ -1076,10 +1075,10 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				diameter_pair->req_frame = PINFO_FD_NUM(pinfo);
 				diameter_pair->ans_frame = 0;
 				diameter_pair->req_time = pinfo->fd->abs_ts;
-				se_tree_insert32(pdus_tree, PINFO_FD_NUM(pinfo), (void *)diameter_pair);
+				wmem_tree_insert32(pdus_tree, PINFO_FD_NUM(pinfo), (void *)diameter_pair);
 			} else {
 				/* Look for a request which occurs earlier in the trace than this answer. */
-				diameter_pair = (diameter_req_ans_pair_t *)se_tree_lookup32_le(pdus_tree, PINFO_FD_NUM(pinfo));
+				diameter_pair = (diameter_req_ans_pair_t *)wmem_tree_lookup32_le(pdus_tree, PINFO_FD_NUM(pinfo));
 
 				/* Verify the end-to-end-id matches before declaring a match */
 				if (diameter_pair && diameter_pair->end_to_end_id == end_to_end_id) {
@@ -1088,7 +1087,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		} else {
 			/* Look for a request which occurs earlier in the trace than this answer. */
-			diameter_pair = (diameter_req_ans_pair_t *)se_tree_lookup32_le(pdus_tree, PINFO_FD_NUM(pinfo));
+			diameter_pair = (diameter_req_ans_pair_t *)wmem_tree_lookup32_le(pdus_tree, PINFO_FD_NUM(pinfo));
 
 			/* If the end-to-end ID doesn't match then this is not the request we were
 			 * looking for.

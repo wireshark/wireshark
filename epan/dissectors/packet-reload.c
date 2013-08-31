@@ -40,6 +40,7 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include <epan/uat.h>
+#include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-x509af.h>
 #include <packet-tcp.h>
 #include <packet-ssl-utils.h>
@@ -338,7 +339,7 @@ typedef struct _reload_transaction_t {
 
 /* Structure containing conversation specific information */
 typedef struct _reload_conv_info_t {
-  emem_tree_t *transaction_pdus;
+  wmem_tree_t *transaction_pdus;
 } reload_conv_info_t;
 
 
@@ -3913,7 +3914,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   conversation_t       *conversation;
   reload_conv_info_t   *reload_info;
   reload_transaction_t *reload_trans;
-  emem_tree_key_t       transaction_id_key[2];
+  wmem_tree_key_t       transaction_id_key[2];
   guint32               transaction_id[2];
   guint16               options_length;
   guint16               via_list_length;
@@ -3982,8 +3983,8 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    reload_info = se_new(reload_conv_info_t);
-    reload_info->transaction_pdus = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "reload_transaction_pdus");
+    reload_info = wmem_new(wmem_file_scope(), reload_conv_info_t);
+    reload_info->transaction_pdus = wmem_tree_new(wmem_file_scope());
     conversation_add_proto_data(conversation, proto_reload, reload_info);
   }
 
@@ -4169,12 +4170,12 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!pinfo->fd->flags.visited) {
 
     if ((reload_trans = (reload_transaction_t *)
-           se_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key)) == NULL) {
-      reload_trans = se_new(reload_transaction_t);
+           wmem_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key)) == NULL) {
+      reload_trans = wmem_new(wmem_file_scope(), reload_transaction_t);
       reload_trans->req_frame = 0;
       reload_trans->rep_frame = 0;
       reload_trans->req_time = pinfo->fd->abs_ts;
-      se_tree_insert32_array(reload_info->transaction_pdus, transaction_id_key, (void *)reload_trans);
+      wmem_tree_insert32_array(reload_info->transaction_pdus, transaction_id_key, (void *)reload_trans);
     }
 
     /* check whether the message is a request or a response */
@@ -4193,12 +4194,12 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
   else {
-    reload_trans = (reload_transaction_t *)se_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key);
+    reload_trans = (reload_transaction_t *)wmem_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key);
   }
 
   if (!reload_trans) {
     /* create a "fake" pana_trans structure */
-    reload_trans = ep_new(reload_transaction_t);
+    reload_trans = wmem_new(wmem_packet_scope(), reload_transaction_t);
     reload_trans->req_frame = 0;
     reload_trans->rep_frame = 0;
     reload_trans->req_time = pinfo->fd->abs_ts;

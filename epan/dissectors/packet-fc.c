@@ -39,7 +39,7 @@
 #include "packet-fclctl.h"
 #include "packet-fcbls.h"
 #include <epan/tap.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/crc32-tvb.h>
 #include <epan/expert.h>
 
@@ -148,7 +148,7 @@ static dissector_handle_t data_handle;
 static int fc_tap = -1;
 
 typedef struct _fc_conv_data_t {
-    emem_tree_t *exchanges;
+    wmem_tree_t *exchanges;
 } fc_conv_data_t;
 
 
@@ -771,8 +771,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     conversation=find_or_create_conversation(pinfo);
     fc_conv_data=(fc_conv_data_t *)conversation_get_proto_data(conversation, proto_fc);
     if(!fc_conv_data){
-        fc_conv_data=se_new(fc_conv_data_t);
-        fc_conv_data->exchanges=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "FC Exchanges");
+        fc_conv_data=wmem_new(wmem_file_scope(), fc_conv_data_t);
+        fc_conv_data->exchanges=wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(conversation, proto_fc, fc_conv_data);
     }
 
@@ -780,9 +780,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     /* XXX we should come up with a way to handle when the 16bit oxid wraps
      * so that large traces will work
      */
-    fc_ex=(itlq_nexus_t *)se_tree_lookup32(fc_conv_data->exchanges, fchdr.oxid);
+    fc_ex=(itlq_nexus_t *)wmem_tree_lookup32(fc_conv_data->exchanges, fchdr.oxid);
     if(!fc_ex){
-        fc_ex=se_new(itlq_nexus_t);
+        fc_ex=wmem_new(wmem_file_scope(), itlq_nexus_t);
         fc_ex->first_exchange_frame=0;
         fc_ex->last_exchange_frame=0;
         fc_ex->lun=0xffff;
@@ -794,7 +794,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         fc_ex->flags=0;
         fc_ex->alloc_len=0;
         fc_ex->extra_data=NULL;
-        se_tree_insert32(fc_conv_data->exchanges, fchdr.oxid, fc_ex);
+        wmem_tree_insert32(fc_conv_data->exchanges, fchdr.oxid, fc_ex);
     }
     /* populate the exchange struct */
     if(!pinfo->fd->flags.visited){
@@ -1135,10 +1135,10 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                 cdata->seq_cnt = fchdr.seqcnt;
             }
             else {
-                req_key = se_new(fcseq_conv_key_t);
+                req_key = wmem_new(wmem_file_scope(), fcseq_conv_key_t);
                 req_key->conv_idx = conversation->index;
 
-                cdata = se_new(fcseq_conv_data_t);
+                cdata = wmem_new(wmem_file_scope(), fcseq_conv_data_t);
                 cdata->seq_cnt = fchdr.seqcnt;
 
                 g_hash_table_insert (fcseq_req_hash, req_key, cdata);
