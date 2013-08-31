@@ -39,8 +39,8 @@
  * possible.
  */
 
-#define WMEM_CANARY_SIZE  16
-#define WMEM_CANARY_VALUE 0x8E
+#define WMEM_CANARY_SIZE  4 /* in units of guint32 */
+#define WMEM_CANARY_VALUE 0x8EE8D476
 
 #define WMEM_PREFILL  0xA1
 #define WMEM_POSTFILL 0x1A
@@ -49,9 +49,9 @@ typedef struct _wmem_strict_allocator_block_t {
     /* Just the length of real_data, not counting the canaries */
     gsize   data_len;
 
-    guint8 *leading_canary;
-    guint8 *real_data;
-    guint8 *trailing_canary;
+    guint32 *leading_canary;
+    guint8  *real_data;
+    guint32 *trailing_canary;
 } wmem_strict_allocator_block_t;
 
 typedef struct _wmem_strict_allocator_t {
@@ -100,17 +100,20 @@ static wmem_strict_allocator_block_t *
 wmem_strict_block_new(const size_t size)
 {
     wmem_strict_allocator_block_t *block;
-    
+    guint i;
+
     block = g_slice_new(wmem_strict_allocator_block_t);
 
     block->data_len        = size;
-    block->leading_canary  = (guint8 *)g_malloc(block->data_len + (2 * WMEM_CANARY_SIZE));
-    block->real_data       = block->leading_canary + WMEM_CANARY_SIZE;
-    block->trailing_canary = block->real_data + block->data_len;
+    block->leading_canary  = (guint32 *)g_malloc(block->data_len + (2 * sizeof(guint32) * WMEM_CANARY_SIZE));
+    block->real_data       = (guint8 *)(block->leading_canary + WMEM_CANARY_SIZE);
+    block->trailing_canary = (guint32 *)(block->real_data + block->data_len);
 
-    memset(block->leading_canary,  WMEM_CANARY_VALUE, WMEM_CANARY_SIZE);
     memset(block->real_data,       WMEM_PREFILL,      block->data_len);
-    memset(block->trailing_canary, WMEM_CANARY_VALUE, WMEM_CANARY_SIZE);
+    for (i=0; i<WMEM_CANARY_SIZE; i++) {
+        block->leading_canary[i]  = WMEM_CANARY_VALUE;
+        block->trailing_canary[i] = WMEM_CANARY_VALUE;
+    }
 
     return block;
 }
@@ -123,7 +126,7 @@ wmem_strict_alloc(void *private_data, const size_t size)
 {
     wmem_strict_allocator_t       *allocator;
     wmem_strict_allocator_block_t *block;
-    
+
     allocator = (wmem_strict_allocator_t*) private_data;
 
     block = wmem_strict_block_new(size);
@@ -131,7 +134,7 @@ wmem_strict_alloc(void *private_data, const size_t size)
     /* we store a pointer to our header, keyed by a pointer to the actual
      * block we return to the user */
     g_hash_table_insert(allocator->block_table, block->real_data, block);
-    
+
     return block->real_data;
 }
 
@@ -140,7 +143,7 @@ wmem_strict_free(void *private_data, void *ptr)
 {
     wmem_strict_allocator_t       *allocator;
     wmem_strict_allocator_block_t *block;
-    
+
     allocator = (wmem_strict_allocator_t*) private_data;
 
     block = (wmem_strict_allocator_block_t *)g_hash_table_lookup(allocator->block_table, ptr);
@@ -158,14 +161,14 @@ wmem_strict_realloc(void *private_data, void *ptr, const size_t size)
     gsize                          copy_len;
     wmem_strict_allocator_t       *allocator;
     wmem_strict_allocator_block_t *block, *newblock;
-    
+
     allocator = (wmem_strict_allocator_t*) private_data;
 
     /* retrieve and check the old block */
     block = (wmem_strict_allocator_block_t *)g_hash_table_lookup(allocator->block_table, ptr);
     g_assert(block);
     wmem_strict_block_check_canaries(block);
-    
+
     /* create a new block */
     newblock = wmem_strict_block_new(size);
 
@@ -182,7 +185,7 @@ wmem_strict_realloc(void *private_data, void *ptr, const size_t size)
     /* update the hash table */
     g_hash_table_remove(allocator->block_table, ptr);
     g_hash_table_insert(allocator->block_table, newblock->real_data, newblock);
-    
+
     return newblock->real_data;
 }
 
@@ -194,7 +197,7 @@ wmem_strict_check_canaries(wmem_allocator_t *allocator)
     if (allocator->type != WMEM_ALLOCATOR_STRICT) {
         return;
     }
-    
+
     private_allocator = (wmem_strict_allocator_t*) allocator->private_data;
 
     g_hash_table_foreach(private_allocator->block_table,
@@ -225,7 +228,7 @@ static void
 wmem_strict_allocator_cleanup(void *private_data)
 {
     wmem_strict_allocator_t *allocator;
-    
+
     allocator = (wmem_strict_allocator_t*) private_data;
 
     g_hash_table_destroy(allocator->block_table);
