@@ -34,7 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #if 0
 #define PANA_UDP_PORT 3001
@@ -207,7 +207,7 @@ typedef struct _pana_transaction_t {
 } pana_transaction_t;
 
 typedef struct _pana_conv_info_t {
-        emem_tree_t *pdus;
+        wmem_tree_t *pdus;
 } pana_conv_info_t;
 
 static void
@@ -544,8 +544,8 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                /* No.  Attach that information to the conversation, and add
                 * it to the list of information structures.
                 */
-               pana_info = se_new(pana_conv_info_t);
-               pana_info->pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "pana_pdus");
+               pana_info = wmem_new(wmem_file_scope(), pana_conv_info_t);
+               pana_info->pdus=wmem_tree_new(wmem_file_scope());
 
                conversation_add_proto_data(conversation, proto_pana, pana_info);
        }
@@ -553,24 +553,24 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        if(!pinfo->fd->flags.visited){
                if(flags&PANA_FLAG_R){
                       /* This is a request */
-                      pana_trans=se_new(pana_transaction_t);
+                      pana_trans=wmem_new(wmem_file_scope(), pana_transaction_t);
                       pana_trans->req_frame=pinfo->fd->num;
                       pana_trans->rep_frame=0;
                       pana_trans->req_time=pinfo->fd->abs_ts;
-                      se_tree_insert32(pana_info->pdus, seq_num, (void *)pana_trans);
+                      wmem_tree_insert32(pana_info->pdus, seq_num, (void *)pana_trans);
                } else {
-                      pana_trans=(pana_transaction_t *)se_tree_lookup32(pana_info->pdus, seq_num);
+                      pana_trans=(pana_transaction_t *)wmem_tree_lookup32(pana_info->pdus, seq_num);
                       if(pana_trans){
                               pana_trans->rep_frame=pinfo->fd->num;
                       }
                }
        } else {
-               pana_trans=(pana_transaction_t *)se_tree_lookup32(pana_info->pdus, seq_num);
+               pana_trans=(pana_transaction_t *)wmem_tree_lookup32(pana_info->pdus, seq_num);
        }
 
        if(!pana_trans){
                /* create a "fake" pana_trans structure */
-               pana_trans=ep_new(pana_transaction_t);
+               pana_trans=wmem_new(wmem_packet_scope(), pana_transaction_t);
                pana_trans->req_frame=0;
                pana_trans->rep_frame=0;
                pana_trans->req_time=pinfo->fd->abs_ts;

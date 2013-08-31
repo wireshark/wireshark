@@ -31,7 +31,7 @@
 #include <glib.h>
 #include <epan/strutil.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
@@ -184,14 +184,14 @@ static expert_field ei_osd2_query_values_equal= EI_INIT;
  * there is an OSD session
  */
 typedef struct _scsi_osd_conv_info_t {
-    emem_tree_t *luns;
+    wmem_tree_t *luns;
 } scsi_osd_conv_info_t;
 
 /* there will be one such structure created for each lun for each conversation
  * that is handled by the OSD dissector
  */
 struct _scsi_osd_lun_info_t {
-    emem_tree_t *partitions;
+    wmem_tree_t *partitions;
 };
 
 typedef void (*scsi_osd_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
@@ -1295,22 +1295,22 @@ dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset,
         proto_item_append_text(item, " (ROOT partition)");
     } else {
         partition_info_t *part_info;
-        emem_tree_key_t pikey[2];
+        wmem_tree_key_t pikey[2];
         proto_tree *partition_tree=NULL;
 
         pikey[0].length=2;
         pikey[0].key=partition_id;
         pikey[1].length=0;
-        part_info=(partition_info_t *)se_tree_lookup32_array(lun_info->partitions, &pikey[0]);
+        part_info=(partition_info_t *)wmem_tree_lookup32_array(lun_info->partitions, &pikey[0]);
         if(!part_info){
-            part_info=se_new(partition_info_t);
+            part_info=wmem_new(wmem_file_scope(), partition_info_t);
             part_info->created_in=0;
             part_info->removed_in=0;
 
             pikey[0].length=2;
             pikey[0].key=partition_id;
             pikey[1].length=0;
-            se_tree_insert32_array(lun_info->partitions, &pikey[0], part_info);
+            wmem_tree_insert32_array(lun_info->partitions, &pikey[0], part_info);
         }
         if(is_created){
             part_info->created_in=pinfo->fd->num;
@@ -3356,16 +3356,16 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* make sure we have a conversation info for this */
     conv_info=(scsi_osd_conv_info_t *)conversation_get_proto_data(cdata->itl->conversation, proto_scsi_osd);
     if(!conv_info){
-        conv_info=se_new(scsi_osd_conv_info_t);
-        conv_info->luns=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SCSI OSD luns tree");
+        conv_info=wmem_new(wmem_file_scope(), scsi_osd_conv_info_t);
+        conv_info->luns=wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(cdata->itl->conversation, proto_scsi_osd, conv_info);
     }
     /* make sure we have a lun_info structure for this */
-    lun_info=(scsi_osd_lun_info_t *)se_tree_lookup32(conv_info->luns, cdata->itlq->lun);
+    lun_info=(scsi_osd_lun_info_t *)wmem_tree_lookup32(conv_info->luns, cdata->itlq->lun);
     if(!lun_info){
-        lun_info=se_new(scsi_osd_lun_info_t);
-        lun_info->partitions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SCSI OSD partitions tree");
-        se_tree_insert32(conv_info->luns, cdata->itlq->lun, (void *)lun_info);
+        lun_info=wmem_new(wmem_file_scope(), scsi_osd_lun_info_t);
+        lun_info->partitions=wmem_tree_new(wmem_file_scope());
+        wmem_tree_insert32(conv_info->luns, cdata->itlq->lun, (void *)lun_info);
     }
 
     /* dissecting the CDB */
@@ -3387,7 +3387,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if((!pinfo->fd->flags.visited) || (!cdata->itlq->extra_data)){
                 scsi_osd_extra_data_t *extra_data;
 
-                extra_data=se_new(scsi_osd_extra_data_t);
+                extra_data=wmem_new(wmem_file_scope(), scsi_osd_extra_data_t);
                 extra_data->svcaction=svcaction;
                 extra_data->gsatype=0;
                 extra_data->osd2=0;

@@ -29,7 +29,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 void proto_register_ctdb(void);
 void proto_reg_handoff_ctdb(void);
@@ -81,7 +81,7 @@ static gint ett_ctdb_key = -1;
 static expert_field ei_ctdb_too_many_nodes = EI_INIT;
 
 /* this tree keeps track of caller/reqid for ctdb transactions */
-static emem_tree_t *ctdb_transactions=NULL;
+static wmem_tree_t *ctdb_transactions=NULL;
 typedef struct _ctdb_trans_t {
 	guint32 key_hash;
 	guint32 request_in;
@@ -90,7 +90,7 @@ typedef struct _ctdb_trans_t {
 } ctdb_trans_t;
 
 /* this tree keeps track of CONTROL request/responses */
-static emem_tree_t *ctdb_controls=NULL;
+static wmem_tree_t *ctdb_controls=NULL;
 typedef struct _ctdb_control_t {
 	guint32 opcode;
 	guint32 request_in;
@@ -578,7 +578,7 @@ static int
 dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid, guint32 dst, int endianess)
 {
 	guint32 datalen, keylen;
-	emem_tree_key_t tkey[3];
+	wmem_tree_key_t tkey[3];
 	ctdb_trans_t *ctdb_trans;
 
 	/* dbid */
@@ -621,7 +621,7 @@ dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	tkey[1].length=1;
 	tkey[1].key=&dst;
 	tkey[2].length=0;
-	ctdb_trans=(ctdb_trans_t *)se_tree_lookup32_array(ctdb_transactions, &tkey[0]);
+	ctdb_trans=(ctdb_trans_t *)wmem_tree_lookup32_array(ctdb_transactions, &tkey[0]);
 
 	if(ctdb_trans){
 		ctdb_trans->response_in=pinfo->fd->num;
@@ -635,7 +635,7 @@ static int
 dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid, int endianess)
 {
 	guint32 keylen, datalen, dmaster;
-	emem_tree_key_t tkey[3];
+	wmem_tree_key_t tkey[3];
 	ctdb_trans_t *ctdb_trans;
 
 	/* dbid */
@@ -687,7 +687,7 @@ dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	tkey[1].length=1;
 	tkey[1].key=&dmaster;
 	tkey[2].length=0;
-	ctdb_trans=(ctdb_trans_t *)se_tree_lookup32_array(ctdb_transactions, &tkey[0]);
+	ctdb_trans=(ctdb_trans_t *)wmem_tree_lookup32_array(ctdb_transactions, &tkey[0]);
 
 	if(ctdb_trans){
 		ctdb_display_trans(pinfo, tree, tvb, ctdb_trans);
@@ -751,9 +751,9 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 
 	/* setup request/response matching */
 	if(!pinfo->fd->flags.visited){
-		emem_tree_key_t tkey[4];
+		wmem_tree_key_t tkey[4];
 
-		ctdb_control=se_new(ctdb_control_t);
+		ctdb_control=wmem_new(wmem_file_scope(), ctdb_control_t);
 		ctdb_control->opcode=opcode;
 		ctdb_control->request_in=pinfo->fd->num;
 		ctdb_control->response_in=0;
@@ -766,9 +766,9 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		tkey[2].key=&dst;
 		tkey[3].length=0;
 
-		se_tree_insert32_array(ctdb_controls, &tkey[0], ctdb_control);
+		wmem_tree_insert32_array(ctdb_controls, &tkey[0], ctdb_control);
 	} else {
-		emem_tree_key_t tkey[4];
+		wmem_tree_key_t tkey[4];
 
 		tkey[0].length=1;
 		tkey[0].key=&reqid;
@@ -777,7 +777,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		tkey[2].length=1;
 		tkey[2].key=&dst;
 		tkey[3].length=0;
-		ctdb_control=(ctdb_control_t *)se_tree_lookup32_array(ctdb_controls, &tkey[0]);
+		ctdb_control=(ctdb_control_t *)wmem_tree_lookup32_array(ctdb_controls, &tkey[0]);
 	}
 
 
@@ -795,7 +795,7 @@ static int
 dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid, guint32 src, guint32 dst, int endianess)
 {
 	ctdb_control_t *ctdb_control;
-	emem_tree_key_t tkey[4];
+	wmem_tree_key_t tkey[4];
 	proto_item *item;
 	guint32 datalen, errorlen, status;
 	int data_offset;
@@ -808,7 +808,7 @@ dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	tkey[2].length=1;
 	tkey[2].key=&src;
 	tkey[3].length=0;
-	ctdb_control=(ctdb_control_t *)se_tree_lookup32_array(ctdb_controls, &tkey[0]);
+	ctdb_control=(ctdb_control_t *)wmem_tree_lookup32_array(ctdb_controls, &tkey[0]);
 
 	if(!ctdb_control){
 		return offset;
@@ -941,9 +941,9 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 	/* setup request/response matching */
 	if(!pinfo->fd->flags.visited){
-		emem_tree_key_t tkey[3];
+		wmem_tree_key_t tkey[3];
 
-		ctdb_trans=se_new(ctdb_trans_t);
+		ctdb_trans=wmem_new(wmem_file_scope(), ctdb_trans_t);
 		ctdb_trans->key_hash=keyhash;
 		ctdb_trans->request_in=pinfo->fd->num;
 		ctdb_trans->response_in=0;
@@ -954,16 +954,16 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 		tkey[1].key=&caller;
 		tkey[2].length=0;
 
-		se_tree_insert32_array(ctdb_transactions, &tkey[0], ctdb_trans);
+		wmem_tree_insert32_array(ctdb_transactions, &tkey[0], ctdb_trans);
 	} else {
-		emem_tree_key_t tkey[3];
+		wmem_tree_key_t tkey[3];
 
 		tkey[0].length=1;
 		tkey[0].key=&reqid;
 		tkey[1].length=1;
 		tkey[1].key=&caller;
 		tkey[2].length=0;
-		ctdb_trans=(ctdb_trans_t *)se_tree_lookup32_array(ctdb_transactions, &tkey[0]);
+		ctdb_trans=(ctdb_trans_t *)wmem_tree_lookup32_array(ctdb_transactions, &tkey[0]);
 	}
 
 	if(ctdb_trans){
@@ -1234,6 +1234,9 @@ proto_register_ctdb(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_ctdb = expert_register_protocol(proto_ctdb);
 	expert_register_field_array(expert_ctdb, ei, array_length(ei));
+
+	ctdb_transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+	ctdb_controls     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 
@@ -1246,7 +1249,4 @@ proto_reg_handoff_ctdb(void)
 	dissector_add_handle("tcp.port", ctdb_handle);
 
 	heur_dissector_add("tcp", dissect_ctdb, proto_ctdb);
-
-	ctdb_transactions=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "CTDB transactions tree");
-	ctdb_controls=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "CTDB controls tree");
 }

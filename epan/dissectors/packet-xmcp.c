@@ -40,7 +40,7 @@
 #include <packet-tcp.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 static dissector_table_t media_type_dissector_table;
@@ -60,7 +60,7 @@ typedef struct _xmcp_transaction_t {
 } xmcp_transaction_t;
 
 typedef struct _xmcp_conv_info_t {
-  emem_tree_t *transaction_pdus;
+  wmem_tree_t *transaction_pdus;
 } xmcp_conv_info_t;
 
 static int hf_xmcp_type = -1;
@@ -839,7 +839,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* For request/response association */
   guint32 transaction_id[3];
-  emem_tree_key_t transaction_id_key[2];
+  wmem_tree_key_t transaction_id_key[2];
   conversation_t *conversation;
   xmcp_conv_info_t *xmcp_conv_info;
   xmcp_transaction_t *xmcp_trans;
@@ -883,23 +883,21 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Do we already have XMCP state for this conversation? */
   xmcp_conv_info = (xmcp_conv_info_t *)conversation_get_proto_data(conversation, proto_xmcp);
   if (!xmcp_conv_info) {
-    xmcp_conv_info = se_new(xmcp_conv_info_t);
-    xmcp_conv_info->transaction_pdus =
-      se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-                                    "xmcp_pdus");
+    xmcp_conv_info = wmem_new(wmem_file_scope(), xmcp_conv_info_t);
+    xmcp_conv_info->transaction_pdus = wmem_tree_new(wmem_file_scope());
     conversation_add_proto_data(conversation, proto_xmcp, xmcp_conv_info);
   }
 
   /* Find existing transaction entry or create a new one */
-  xmcp_trans = (xmcp_transaction_t *)se_tree_lookup32_array(xmcp_conv_info->transaction_pdus,
+  xmcp_trans = (xmcp_transaction_t *)wmem_tree_lookup32_array(xmcp_conv_info->transaction_pdus,
                                       transaction_id_key);
   if (!xmcp_trans) {
-      xmcp_trans = se_new(xmcp_transaction_t);
+      xmcp_trans = wmem_new(wmem_file_scope(), xmcp_transaction_t);
       xmcp_trans->request_frame = 0;
       xmcp_trans->response_frame = 0;
       xmcp_trans->request_time = pinfo->fd->abs_ts;
       xmcp_trans->request_is_keepalive = FALSE;
-      se_tree_insert32_array(xmcp_conv_info->transaction_pdus,
+      wmem_tree_insert32_array(xmcp_conv_info->transaction_pdus,
                              transaction_id_key, (void *)xmcp_trans);
   }
 

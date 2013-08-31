@@ -33,6 +33,7 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
+#include <epan/wmem/wmem.h>
 #include <packet-tcp.h>
 
 /* Initialize the protocol and registered fields */
@@ -64,7 +65,7 @@ typedef struct _reload_frame_t {
 
 /* Structure containing conversation specific information */
 typedef struct _reload_frame_conv_info_t {
-  emem_tree_t *transaction_pdus;
+  wmem_tree_t *transaction_pdus;
 } reload_conv_info_t;
 
 
@@ -116,7 +117,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   proto_tree         *reload_framing_tree;
   guint32             relo_token;
   guint32             message_length = 0;
-  emem_tree_key_t     transaction_id_key[4];
+  wmem_tree_key_t     transaction_id_key[4];
   guint32            *key_save, len_save;
   guint32             sequence;
   guint               effective_length;
@@ -195,7 +196,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   transaction_id_key[0].length = 1;
   transaction_id_key[0].key = &sequence; /* sequence number */
 
-  /* When the se_tree_* functions iterate through the keys, they
+  /* When the wmem_tree_* functions iterate through the keys, they
    * perform pointer arithmetic with guint32s, so we have to divide
    * our length fields by that to make things work, but we still want
    * to g_malloc and memcpy the entire amounts, since those both operate
@@ -233,22 +234,21 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    reload_framing_info = se_new(reload_conv_info_t);
-    reload_framing_info->transaction_pdus = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-                                                                          "reload_framing_transaction_pdus");
+    reload_framing_info = wmem_new(wmem_file_scope(), reload_conv_info_t);
+    reload_framing_info->transaction_pdus = wmem_tree_new(wmem_file_scope());
     conversation_add_proto_data(conversation, proto_reload_framing, reload_framing_info);
   }
 
   if (!pinfo->fd->flags.visited) {
     if ((reload_frame = (reload_frame_t *)
-           se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key)) == NULL) {
+           wmem_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key)) == NULL) {
       transaction_id_key[2].key    = key_save;
       transaction_id_key[2].length = len_save;
-      reload_frame = se_new(reload_frame_t);
+      reload_frame = wmem_new(wmem_file_scope(), reload_frame_t);
       reload_frame->data_frame = 0;
       reload_frame->ack_frame  = 0;
       reload_frame->req_time   = pinfo->fd->abs_ts;
-      se_tree_insert32_array(reload_framing_info->transaction_pdus, transaction_id_key, (void *)reload_frame);
+      wmem_tree_insert32_array(reload_framing_info->transaction_pdus, transaction_id_key, (void *)reload_frame);
     }
     transaction_id_key[2].key    = key_save;
     transaction_id_key[2].length = len_save;
@@ -269,7 +269,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
   }
   else {
-    reload_frame=(reload_frame_t *)se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key);
+    reload_frame=(reload_frame_t *)wmem_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key);
     transaction_id_key[2].key    = key_save;
     transaction_id_key[2].length = len_save;
   }
@@ -277,7 +277,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   if (!reload_frame) {
     /* create a "fake" pana_trans structure */
-    reload_frame = ep_new(reload_frame_t);
+    reload_frame = wmem_new(wmem_packet_scope(), reload_frame_t);
     reload_frame->data_frame = (type==DATA) ? pinfo->fd->num : 0;
     reload_frame->ack_frame  = (type!=DATA) ? pinfo->fd->num : 0;
     reload_frame->req_time   = pinfo->fd->abs_ts;

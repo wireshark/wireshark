@@ -41,7 +41,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>
@@ -588,7 +588,7 @@ typedef struct mysql_conn_data {
 	mysql_state_t state;
 	guint16 stmt_num_params;
 	guint16 stmt_num_fields;
-	emem_tree_t* stmts;
+	wmem_tree_t* stmts;
 #ifdef CTDEBUG
 	guint32 generation;
 #endif
@@ -705,12 +705,12 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* get associated state information, create if necessary */
 	conn_data= (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
 	if (!conn_data) {
-		conn_data= se_new(mysql_conn_data_t);
+		conn_data= wmem_new(wmem_file_scope(), mysql_conn_data_t);
 		conn_data->srv_caps= 0;
 		conn_data->clnt_caps= 0;
 		conn_data->clnt_caps_ext= 0;
 		conn_data->state= UNDEFINED;
-		conn_data->stmts= se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "PROTO_mysql_stmts");
+		conn_data->stmts= wmem_tree_new(wmem_file_scope());
 #ifdef CTDEBUG
 		conn_data->generation= 0;
 #endif
@@ -724,7 +724,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 *  conversation now so if/when we dissect the frame again
 		 *  we'll start with the same state.
 		 */
-		mysql_frame_data_p = se_new(struct mysql_frame_data);
+		mysql_frame_data_p = wmem_new(wmem_file_scope(), struct mysql_frame_data);
 		mysql_frame_data_p->state = conn_data->state;
 		p_add_proto_data(pinfo->fd, proto_mysql, 0, mysql_frame_data_p);
 
@@ -1314,7 +1314,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		stmt_id = tvb_get_letohl(tvb, offset);
 		offset += 4;
 
-		stmt_data = (my_stmt_data_t *)se_tree_lookup32(conn_data->stmts, stmt_id);
+		stmt_data = (my_stmt_data_t *)wmem_tree_lookup32(conn_data->stmts, stmt_id);
 		if (stmt_data != NULL) {
 			guint16 data_param = tvb_get_letohs(tvb, offset);
 			if (stmt_data->nparam > data_param) {
@@ -1349,7 +1349,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		proto_tree_add_item(req_tree, hf_mysql_exec_iter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		stmt_data = (my_stmt_data_t *)se_tree_lookup32(conn_data->stmts, stmt_id);
+		stmt_data = (my_stmt_data_t *)wmem_tree_lookup32(conn_data->stmts, stmt_id);
 		if (stmt_data != NULL) {
 			if (stmt_data->nparam != 0) {
 				guint8 stmt_bound;
@@ -1844,12 +1844,12 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree, mysq
 	offset += 2;
 	proto_tree_add_item(tree, hf_mysql_num_params, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	conn_data->stmt_num_params = tvb_get_letohs(tvb, offset);
-	stmt_data = se_new(struct my_stmt_data);
+	stmt_data = wmem_new(wmem_file_scope(), struct my_stmt_data);
 	stmt_data->nparam = conn_data->stmt_num_params;
 	flagsize = (int)(sizeof(guint8) * stmt_data->nparam);
-	stmt_data->param_flags = (guint8 *)se_alloc(flagsize);
+	stmt_data->param_flags = (guint8 *)wmem_alloc(wmem_file_scope(), flagsize);
 	memset(stmt_data->param_flags, 0, flagsize);
-	se_tree_insert32(conn_data->stmts, stmt_id, stmt_data);
+	wmem_tree_insert32(conn_data->stmts, stmt_id, stmt_data);
 	offset += 2;
 	/* Filler */
 	offset += 1;

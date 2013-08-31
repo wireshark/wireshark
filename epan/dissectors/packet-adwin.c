@@ -507,7 +507,7 @@ typedef struct _adwin_transaction_t {
 
 /* response/request tracking */
 typedef struct _adwin_conv_info_t {
-	emem_tree_t *pdus;
+	wmem_tree_t *pdus;
 } adwin_conv_info_t;
 
 typedef enum { ADWIN_REQUEST,
@@ -536,28 +536,27 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 		 * No.  Attach that information to the conversation, and add
 		 * it to the list of information structures.
 		 */
-		adwin_info = se_new(adwin_conv_info_t);
-		adwin_info->pdus = se_tree_create_non_persistent(
-					EMEM_TREE_TYPE_RED_BLACK, "adwin_pdus");
+		adwin_info = wmem_new(wmem_file_scope(), adwin_conv_info_t);
+		adwin_info->pdus = wmem_tree_new(wmem_file_scope());
 
 		conversation_add_proto_data(conversation, proto_adwin, adwin_info);
 	}
 	if (!pinfo->fd->flags.visited) {
 		if (direction == ADWIN_REQUEST) {
 			/* This is a request */
-			adwin_trans = se_new(adwin_transaction_t);
+			adwin_trans = wmem_new(wmem_file_scope(), adwin_transaction_t);
 			adwin_trans->req_frame = pinfo->fd->num;
 			adwin_trans->rep_frame = 0;
 			adwin_trans->req_time = pinfo->fd->abs_ts;
-			se_tree_insert32(adwin_info->pdus, seq_num, (void *)adwin_trans);
+			wmem_tree_insert32(adwin_info->pdus, seq_num, (void *)adwin_trans);
 		} else {
-			adwin_trans = (adwin_transaction_t *)se_tree_lookup32(adwin_info->pdus, seq_num);
+			adwin_trans = (adwin_transaction_t *)wmem_tree_lookup32(adwin_info->pdus, seq_num);
 			if (adwin_trans) {
 				adwin_trans->rep_frame = pinfo->fd->num;
 			}
 		}
 	} else {
-		adwin_trans = (adwin_transaction_t *)se_tree_lookup32(adwin_info->pdus, seq_num);
+		adwin_trans = (adwin_transaction_t *)wmem_tree_lookup32(adwin_info->pdus, seq_num);
 	}
 	if (!adwin_trans) {
 		/* create a "fake" adwin_trans structure */

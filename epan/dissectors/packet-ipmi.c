@@ -31,7 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
@@ -96,7 +96,7 @@ struct ipmi_keyhead {
 };
 
 struct ipmi_keytree {
-	emem_tree_t *heads;
+	wmem_tree_t *heads;
 };
 
 struct ipmi_parse_typelen {
@@ -184,7 +184,7 @@ key_lookup_reqresp(struct ipmi_keyhead *kh, struct ipmi_header *hdr, frame_data 
 	guint8 is_resp = hdr->netfn & 0x01;
 	int i;
 
-	/* Source/target SA/LUN and sequence number are assumed to match; se_tree*
+	/* Source/target SA/LUN and sequence number are assumed to match; wmem_tree*
 	   ensure that. While checking for "being here", we can't rely on flags.visited,
 	   as we may have more than one IPMI message in a single frame. */
 	for (rr = kh->rr; rr; rr = rr->next) {
@@ -349,9 +349,8 @@ maybe_insert_reqresp(packet_info *pinfo, ipmi_dissect_format_t *dfmt, struct ipm
 
 	kt = (struct ipmi_keytree *)conversation_get_proto_data(cnv, proto_ipmi);
 	if (!kt) {
-		kt = se_new(struct ipmi_keytree);
-		kt->heads = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-				"ipmi_key_heads");
+		kt = wmem_new(wmem_file_scope(), struct ipmi_keytree);
+		kt->heads = wmem_tree_new(wmem_file_scope());
 		conversation_add_proto_data(cnv, proto_ipmi, kt);
 	}
 
@@ -362,10 +361,10 @@ maybe_insert_reqresp(packet_info *pinfo, ipmi_dissect_format_t *dfmt, struct ipm
 				hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
 				hdr->netfn, hdr->cmd);
 		key = makekey(hdr);
-		kh = (struct ipmi_keyhead *)se_tree_lookup32(kt->heads, key);
+		kh = (struct ipmi_keyhead *)wmem_tree_lookup32(kt->heads, key);
 		if (!kh) {
-			kh = se_new0(struct ipmi_keyhead);
-			se_tree_insert32(kt->heads, key, kh);
+			kh = wmem_new0(wmem_file_scope(), struct ipmi_keyhead);
+			wmem_tree_insert32(kt->heads, key, kh);
 		}
 		if ((rr = key_lookup_reqresp(kh, hdr, pinfo->fd)) != NULL) {
 			/* Already recorded - set frame number and be done. Look no
@@ -393,9 +392,9 @@ maybe_insert_reqresp(packet_info *pinfo, ipmi_dissect_format_t *dfmt, struct ipm
 		/* Not found; allocate new structures */
 		if (!current_saved_data) {
 			/* One 'ipmi_saved_data' for all 'ipmi_req_resp' allocated */
-			current_saved_data = se_new0(struct ipmi_saved_data);
+			current_saved_data = wmem_new0(wmem_file_scope(), struct ipmi_saved_data);
 		}
-		rr = se_new0(struct ipmi_reqresp);
+		rr = wmem_new0(wmem_file_scope(), struct ipmi_reqresp);
 		rr->whichresponse = dfmt->whichresponse;
 		rr->netfn = hdr->netfn & 0x3e;
 		rr->cmd = hdr->cmd;
@@ -452,7 +451,7 @@ add_reqresp_info(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr, proto_tre
 				hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
 				hdr->netfn, hdr->cmd);
 		key = makekey(hdr);
-		if ((kh = (struct ipmi_keyhead *)se_tree_lookup32(kt->heads, key)) != NULL &&
+		if ((kh = (struct ipmi_keyhead *)wmem_tree_lookup32(kt->heads, key)) != NULL &&
 				(rr = key_lookup_reqresp(kh, hdr, pinfo->fd)) != NULL) {
 			debug_printf("Found [ <%d,%d,%d> (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
 					rr->frames[0].num, rr->frames[1].num, rr->frames[2].num,
@@ -735,7 +734,7 @@ ipmi_add_typelen(proto_tree *tree, const char *desc, tvbuff_t *tvb,
 	len = typelen & msk;
 	ptr->get_len(&clen, &blen, tvb, offs + 1, len, is_fru);
 
-	str = (char *)ep_alloc(clen + 1);
+	str = (char *)wmem_alloc(wmem_packet_scope(), clen + 1);
 	ptr->parse(str, tvb, offs + 1, clen);
 	str[clen] = '\0';
 
@@ -853,7 +852,7 @@ ipmi_getnetfnname(guint32 netfn, ipmi_netfn_t *nf)
 		ipmi_cmd_tab[netfn >> 1].desc : "Reserved";
 	db = nf ? nf->desc : NULL;
 	if (db) {
-		return ep_strdup_printf("%s (%s)", db, dn);
+		return wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", db, dn);
 	} else {
 		return dn;
 	}

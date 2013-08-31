@@ -67,7 +67,7 @@
 #include <epan/tap.h>
 
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 
 /* uncomment this to enable debugging of fragment reassembly */
@@ -94,7 +94,7 @@ typedef struct  _rtp_private_conv_info {
 	/* This tree is indexed by sequence number and keeps track of all
 	 * all pdus spanning multiple segments for this flow.
 	 */
-	emem_tree_t *multisegment_pdus;
+	wmem_tree_t *multisegment_pdus;
 } rtp_private_conv_info;
 
 static reassembly_table rtp_reassembly_table;
@@ -864,15 +864,15 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
 	 */
 	if (! p_conv_data) {
 		/* Create conversation data */
-		p_conv_data = se_new(struct _rtp_conversation_info);
+		p_conv_data = wmem_new(wmem_file_scope(), struct _rtp_conversation_info);
 		p_conv_data->rtp_dyn_payload = NULL;
 
 		/* start this at 0x10000 so that we cope gracefully with the
 		 * first few packets being out of order (hence 0,65535,1,2,...)
 		 */
 		p_conv_data->extended_seqno = 0x10000;
-		p_conv_data->rtp_conv_info = se_new(rtp_private_conv_info);
-		p_conv_data->rtp_conv_info->multisegment_pdus = se_tree_create(EMEM_TREE_TYPE_RED_BLACK,"rtp_ms_pdus");
+		p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
+		p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
 		conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
 	}
 
@@ -1103,7 +1103,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 
 	/* look for a pdu which we might be extending */
-	msp = (rtp_multisegment_pdu *)se_tree_lookup32_le(finfo->multisegment_pdus,seqno-1);
+	msp = (rtp_multisegment_pdu *)wmem_tree_lookup32_le(finfo->multisegment_pdus,seqno-1);
 
 	if(msp && msp->startseq < seqno && msp->endseq >= seqno) {
 		guint32 fid = msp->startseq;
@@ -1203,10 +1203,10 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			deseg_offset);
 #endif
 		/* allocate a new msp for this pdu */
-		msp = se_new(rtp_multisegment_pdu);
+		msp = wmem_new(wmem_file_scope(), rtp_multisegment_pdu);
 		msp->startseq = seqno;
 		msp->endseq = seqno+1;
-		se_tree_insert32(finfo->multisegment_pdus,seqno,msp);
+		wmem_tree_insert32(finfo->multisegment_pdus,seqno,msp);
 
 		/*
 		 * Add the fragment to the fragment table
@@ -1291,7 +1291,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		payload_type_str = NULL;
 
 		/* Allocate and fill in header */
-		hdr_new = ep_new(rfc2198_hdr);
+		hdr_new = wmem_new(wmem_packet_scope(), rfc2198_hdr);
 		hdr_new->next = NULL;
 		octet1 = tvb_get_guint8(tvb, offset);
 		hdr_new->pt = RTP_PAYLOAD_TYPE(octet1);
@@ -2073,7 +2073,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 				guint32 seqno;
 
 				/* Save this conversation info into packet info */
-				p_conv_packet_data = se_new(struct _rtp_conversation_info);
+				p_conv_packet_data = wmem_new(wmem_file_scope(), struct _rtp_conversation_info);
 				g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RTP_SETUP_METHOD_SIZE+1);
 				p_conv_packet_data->frame_number = p_conv_data->frame_number;
 				p_conv_packet_data->is_video = p_conv_data->is_video;

@@ -27,7 +27,7 @@
 
 #include <glib.h>
 
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
@@ -92,7 +92,7 @@ static gint ett_fcp_taskmgmt = -1;
 static gint ett_fcp_rsp_flags = -1;
 
 typedef struct _fcp_conv_data_t {
-    emem_tree_t *luns;
+    wmem_tree_t *luns;
 } fcp_conv_data_t;
 
 typedef struct fcp_request_data {
@@ -429,21 +429,21 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         fchdr->itlq->lun = lun;
 
     if (!pinfo->fd->flags.visited) {
-        proto_data = se_new(fcp_proto_data_t);
+        proto_data = wmem_new(wmem_file_scope(), fcp_proto_data_t);
         proto_data->lun = lun;
         p_add_proto_data(pinfo->fd, proto_fcp, 0, proto_data);
     }
 
-    request_data = (fcp_request_data_t*)se_tree_lookup32(fcp_conv_data->luns, lun);
+    request_data = (fcp_request_data_t*)wmem_tree_lookup32(fcp_conv_data->luns, lun);
     if (!request_data) {
-        request_data = se_new(fcp_request_data_t);
+        request_data = wmem_new(wmem_file_scope(), fcp_request_data_t);
         request_data->request_frame = pinfo->fd->num;
         request_data->response_frame = 0;
         request_data->request_time = pinfo->fd->abs_ts;
-        request_data->itl = se_new(itl_nexus_t);
+        request_data->itl = wmem_new(wmem_file_scope(), itl_nexus_t);
         request_data->itl->cmdset = 0xff;
         request_data->itl->conversation = conversation;
-        se_tree_insert32(fcp_conv_data->luns, lun, request_data);
+        wmem_tree_insert32(fcp_conv_data->luns, lun, request_data);
     }
 
     proto_tree_add_item(tree, hf_fcp_crn, tvb, offset+8, 1, ENC_BIG_ENDIAN);
@@ -703,8 +703,8 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         fcp_conv_data = (fcp_conv_data_t *)conversation_get_proto_data(fc_conv, proto_fcp);
     }
     if (!fcp_conv_data) {
-        fcp_conv_data = se_new(fcp_conv_data_t);
-        fcp_conv_data->luns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "FCP Luns");
+        fcp_conv_data = wmem_new(wmem_file_scope(), fcp_conv_data_t);
+        fcp_conv_data->luns = wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(fc_conv, proto_fcp, fcp_conv_data);
     }
 
@@ -712,7 +712,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        The only way that consistently works is to save the lun on the first pass when packets
        are guaranteed to be parsed consecutively */
     if (!pinfo->fd->flags.visited) {
-        proto_data = se_new(fcp_proto_data_t);
+        proto_data = wmem_new(wmem_file_scope(), fcp_proto_data_t);
         proto_data->lun = fchdr->itlq->lun;
         p_add_proto_data(pinfo->fd, proto_fcp, 0, proto_data);
     } else {
@@ -721,7 +721,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if ((r_ctl != FCP_IU_CMD) && (r_ctl != FCP_IU_UNSOL_CTL)) {
-        request_data = (fcp_request_data_t *)se_tree_lookup32(fcp_conv_data->luns, fchdr->itlq->lun);
+        request_data = (fcp_request_data_t *)wmem_tree_lookup32(fcp_conv_data->luns, fchdr->itlq->lun);
     }
 
     /* put a request_in in all frames except the command frame */
