@@ -846,13 +846,20 @@ wmem_block_realloc_jumbo(wmem_block_allocator_t *allocator,
 
     block = WMEM_CHUNK_TO_BLOCK(chunk);
 
-    wmem_block_remove_from_block_list(allocator, block);
-
     block = (wmem_block_hdr_t *) g_realloc(block, size
             + WMEM_BLOCK_HEADER_SIZE
             + WMEM_CHUNK_HEADER_SIZE);
 
-    wmem_block_add_to_block_list(allocator, block);
+    if (block->next) {
+        block->next->prev = block;
+    }
+
+    if (block->prev) {
+        block->prev->next = block;
+    }
+    else {
+        allocator->block_list = block;
+    }
 
     return WMEM_CHUNK_TO_DATA(WMEM_BLOCK_TO_CHUNK(block));
 }
