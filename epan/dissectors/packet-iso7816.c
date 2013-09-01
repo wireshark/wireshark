@@ -38,13 +38,14 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 static int proto_iso7816 = -1;
 static int proto_iso7816_atr = -1;
 
 static dissector_handle_t iso7816_atr_handle;
 
-static emem_tree_t *transactions = NULL;
+static wmem_tree_t *transactions = NULL;
 
 static int ett_iso7816 = -1;
 static int ett_iso7816_class = -1;
@@ -200,15 +201,6 @@ static const range_string iso7816_sw1[] = {
   { 0x90, 0x90, "Normal processing" },
   { 0,0,  NULL }
 };
-
-
-static void
-iso7816_init(void)
-{
-    transactions = se_tree_create_non_persistent(
-            EMEM_TREE_TYPE_RED_BLACK, "iso7816_transactions");
-}
-
 
 static int
 dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -511,7 +503,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if (PINFO_FD_VISITED(pinfo)) {
-        iso7816_trans = (iso7816_transaction_t *)se_tree_lookup32(
+        iso7816_trans = (iso7816_transaction_t *)wmem_tree_lookup32(
                 transactions, PINFO_FD_NUM(pinfo));
         if (iso7816_trans && iso7816_trans->cmd_frame==PINFO_FD_NUM(pinfo) &&
                 iso7816_trans->resp_frame!=0) {
@@ -523,13 +515,12 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else {
         if (transactions) {
-            iso7816_trans = (iso7816_transaction_t *)se_alloc(
-                    sizeof(iso7816_transaction_t));
+            iso7816_trans = wmem_new(wmem_file_scope(), iso7816_transaction_t);
             iso7816_trans->cmd_frame = PINFO_FD_NUM(pinfo);
             iso7816_trans->resp_frame = 0;
             iso7816_trans->cmd_ins = INS_INVALID;
 
-            se_tree_insert32(transactions,
+            wmem_tree_insert32(transactions,
                     iso7816_trans->cmd_frame, (void *)iso7816_trans);
         }
     }
@@ -597,7 +588,7 @@ dissect_iso7816_resp_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (transactions) {
         /* receive the largest key that is less than or equal to our frame
            number */
-        iso7816_trans = (iso7816_transaction_t *)se_tree_lookup32_le(
+        iso7816_trans = (iso7816_transaction_t *)wmem_tree_lookup32_le(
                 transactions, PINFO_FD_NUM(pinfo));
         if (iso7816_trans) {
             if (iso7816_trans->resp_frame==0) {
@@ -845,7 +836,8 @@ proto_register_iso7816(void)
     expert_register_field_array(expert_iso7816, ei, array_length(ei));
 
     new_register_dissector("iso7816", dissect_iso7816, proto_iso7816);
-    register_init_routine(iso7816_init);
+
+    transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_iso7816_atr = proto_register_protocol(
             "ISO/IEC 7816-3", "ISO 7816-3", "iso7816.atr");

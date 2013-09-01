@@ -28,6 +28,8 @@
 
 #include "ws_symbol_export.h"
 
+#include <epan/wmem/wmem.h>
+
 WS_DLL_PUBLIC gboolean sid_name_snooping;
 
 /* SMB command codes, from the SNIA CIFS spec. With MSVC and a
@@ -290,15 +292,15 @@ typedef struct conv_tables {
         gboolean raw_ntlmssp;   /* Do extended security exc use raw ntlmssp */
 
 	/* track fid to fidstruct (filename/openframe/closeframe */
-	emem_tree_t *fid_tree;
+	wmem_tree_t *fid_tree;
         /* We'll use a GSL list instead */
         GSList  *GSL_fid_info;
 
 	/* track tid to fidstruct (sharename/shareframe/unshareframe */
-	emem_tree_t *tid_tree;
+	wmem_tree_t *tid_tree;
 
 	/* track uid to username mappings */
-	emem_tree_t *uid_tree;
+	wmem_tree_t *uid_tree;
 } conv_tables_t;
 
 typedef struct smb_info {

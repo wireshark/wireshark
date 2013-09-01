@@ -37,12 +37,13 @@
 #include <epan/packet.h>
 #include <epan/ptvcursor.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 #include "packet-hdcp.h"
 
 
 static int proto_hdcp  = -1;
 
-static emem_tree_t *transactions = NULL;
+static wmem_tree_t *transactions = NULL;
 
 static gint ett_hdcp = -1;
 
@@ -115,17 +116,6 @@ sub_check_hdcp(packet_info *pinfo _U_)
    return TRUE;
 }
 
-
-static void
-hdcp_init(void)
-{
-   /* se_...() allocations are automatically cleared when a new capture starts,
-      so we should be safe to create the tree without any previous checks */
-    transactions = se_tree_create_non_persistent(
-            EMEM_TREE_TYPE_RED_BLACK, "hdcp_transactions");
-}
-
-
 static int
 dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -170,7 +160,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
             if (PINFO_FD_VISITED(pinfo)) {
                 /* we've already dissected the receiver's response */
-                hdcp_trans = (hdcp_transaction_t *)se_tree_lookup32(
+                hdcp_trans = (hdcp_transaction_t *)wmem_tree_lookup32(
                         transactions, PINFO_FD_NUM(pinfo));
                 if (hdcp_trans && hdcp_trans->rqst_frame==PINFO_FD_NUM(pinfo) &&
                         hdcp_trans->resp_frame!=0) {
@@ -188,12 +178,11 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             else {
                 /* we've not yet dissected the response */
                 if (transactions) {
-                    hdcp_trans = (hdcp_transaction_t *)se_alloc(
-                            sizeof(hdcp_transaction_t));
+                    hdcp_trans = wmem_new(wmem_file_scope(), hdcp_transaction_t);
                     hdcp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
                     hdcp_trans->resp_frame = 0;
                     hdcp_trans->rqst_type = reg;
-                    se_tree_insert32(transactions,
+                    wmem_tree_insert32(transactions,
                             hdcp_trans->rqst_frame, (void *)hdcp_trans);
                 }
             }
@@ -225,7 +214,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR8_TRX)+1, ADDR8_TRX);
 
        if (transactions) {
-           hdcp_trans = (hdcp_transaction_t *)se_tree_lookup32_le(
+           hdcp_trans = (hdcp_transaction_t *)wmem_tree_lookup32_le(
                    transactions, PINFO_FD_NUM(pinfo));
            if (hdcp_trans) {
                if (hdcp_trans->resp_frame==0) {
@@ -381,7 +370,7 @@ proto_register_hdcp(void)
 
     new_register_dissector("hdcp", dissect_hdcp, proto_hdcp);
 
-    register_init_routine(hdcp_init);
+    transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 /*

@@ -96,10 +96,10 @@ static expert_field ei_h248_context_id64 = EI_INIT;
 
 static dissector_table_t subdissector_table;
 
-static emem_tree_t* msgs = NULL;
-static emem_tree_t* trxs = NULL;
-static emem_tree_t* ctxs_by_trx = NULL;
-static emem_tree_t* ctxs = NULL;
+static wmem_tree_t* msgs = NULL;
+static wmem_tree_t* trxs = NULL;
+static wmem_tree_t* ctxs_by_trx = NULL;
+static wmem_tree_t* ctxs = NULL;
 
 static gboolean keep_persistent_data = FALSE;
 static guint    global_udp_port = 2945;
@@ -1642,10 +1642,10 @@ void proto_register_h248(void) {
                                    "Desegment H.248 messages that span more TCP segments",
                                    &h248_desegment);
 
-    msgs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_msgs");
-    trxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_trxs");
-    ctxs_by_trx = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_ctxs_by_trx");
-    ctxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_ctxs");
+    msgs        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    trxs        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    ctxs_by_trx = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    ctxs        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     h248_tap = register_tap("h248");
 

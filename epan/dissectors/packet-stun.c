@@ -42,6 +42,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/ipproto.h>
+#include <epan/wmem/wmem.h>
 #include <packet-tcp.h>
 #include <packet-udp.h>
 
@@ -119,7 +120,7 @@ typedef struct _stun_transaction_t {
 
 /* Structure containing conversation specific information */
 typedef struct _stun_conv_info_t {
-    emem_tree_t *transaction_pdus;
+    wmem_tree_t *transaction_pdus;
 } stun_conv_info_t;
 
 
@@ -410,7 +411,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     conversation_t     *conversation=NULL;
     stun_conv_info_t   *stun_info;
     stun_transaction_t *stun_trans;
-    emem_tree_key_t transaction_id_key[2];
+    wmem_tree_key_t transaction_id_key[2];
     guint32         transaction_id[3];
 
     /*
@@ -481,14 +482,14 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         /* No.  Attach that information to the conversation, and add
          * it to the list of information structures.
          */
-        stun_info = se_new(stun_conv_info_t);
-        stun_info->transaction_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "stun_transaction_pdus");
+        stun_info = wmem_new(wmem_file_scope(), stun_conv_info_t);
+        stun_info->transaction_pdus=wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(conversation, proto_stun, stun_info);
     }
 
     if (!pinfo->fd->flags.visited) {
         if ((stun_trans = (stun_transaction_t *)
-             se_tree_lookup32_array(stun_info->transaction_pdus,
+             wmem_tree_lookup32_array(stun_info->transaction_pdus,
                                     transaction_id_key)) == NULL) {
 
             transaction_id_key[0].length = 3;
@@ -496,11 +497,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             transaction_id_key[1].length = 0;
             transaction_id_key[1].key = NULL;
 
-            stun_trans=se_new(stun_transaction_t);
+            stun_trans=wmem_new(wmem_file_scope(), stun_transaction_t);
             stun_trans->req_frame=0;
             stun_trans->rep_frame=0;
             stun_trans->req_time=pinfo->fd->abs_ts;
-            se_tree_insert32_array(stun_info->transaction_pdus,
+            wmem_tree_insert32_array(stun_info->transaction_pdus,
                                     transaction_id_key,
                                     (void *)stun_trans);
         }
@@ -519,13 +520,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
         }
     } else {
-        stun_trans=(stun_transaction_t *)se_tree_lookup32_array(stun_info->transaction_pdus,
+        stun_trans=(stun_transaction_t *)wmem_tree_lookup32_array(stun_info->transaction_pdus,
                                             transaction_id_key);
     }
 
     if (!stun_trans) {
         /* create a "fake" pana_trans structure */
-        stun_trans=ep_new(stun_transaction_t);
+        stun_trans=wmem_new(wmem_packet_scope(), stun_transaction_t);
         stun_trans->req_frame=0;
         stun_trans->rep_frame=0;
         stun_trans->req_time=pinfo->fd->abs_ts;
