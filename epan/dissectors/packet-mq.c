@@ -990,7 +990,8 @@ dissect_mq_pmr(tvbuff_t *tvb, proto_tree *tree, gint int_rep, gint offset, gint 
                     +(((recFlags & MQ_PMRF_GROUP_ID) != 0) * 24)
                     +(((recFlags & MQ_PMRF_FEEDBACK) != 0) * 4)
                     +(((recFlags & MQ_PMRF_ACCOUNTING_TOKEN) != 0) * 32));
-    if (offsetPMR != 0)
+
+    if (offsetPMR!=0 && iSizePMR1!=0)
     {
         iSizePMR = iNbrRecords * iSizePMR1;
         if (tvb_length_remaining(tvb, offset) >= iSizePMR)
