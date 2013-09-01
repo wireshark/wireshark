@@ -254,6 +254,8 @@ static gint ett_lisp_loc = -1;
 static gint ett_lisp_loc_flags = -1;
 static gint ett_lisp_elp = -1;
 
+static expert_field ei_lisp_undecoded = EI_INIT;
+
 static dissector_handle_t lisp_handle;
 
 static dissector_handle_t ipv4_handle;
@@ -719,8 +721,7 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
             break;
         default:
             if (lcaf_type < 13)
-                expert_add_undecoded_item(tvb, pinfo, tree, offset,
-                        len, PI_WARN);
+                proto_tree_add_expert(tree, pinfo, &ei_lisp_undecoded, tvb, offset, len);
             else
                 expert_add_info_format(pinfo, tree, PI_PROTOCOL, PI_ERROR,
                         "LCAF type %d is not defined in draft-farinacci-lisp-lcaf-%d",
@@ -2114,6 +2115,12 @@ proto_register_lisp(void)
         &ett_lisp_elp
     };
 
+    static ei_register_info ei[] = {
+        { &ei_lisp_undecoded, { "lisp.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
+    };
+
+    expert_module_t* expert_lisp;
+
     /* Register the protocol name and description */
     proto_lisp = proto_register_protocol("Locator/ID Separation Protocol",
         "LISP Control", "lisp");
@@ -2121,6 +2128,8 @@ proto_register_lisp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_lisp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_lisp = expert_register_protocol(proto_lisp);
+    expert_register_field_array(expert_lisp, ei, array_length(ei));
 
     /* Register dissector so that other dissectors can call it */
     lisp_handle = new_register_dissector("lisp", dissect_lisp, proto_lisp);

@@ -214,20 +214,6 @@ WS_DLL_PUBLIC expert_module_t *expert_register_protocol(int id);
 WS_DLL_PUBLIC void
 expert_register_field_array(expert_module_t* module, ei_register_info *ei, const int num_records);
 
-
-/** Add an expert info about not dissected "item"
- Add an expert info tree to a not dissected protocol item.
- @param tvb The tvb associated with the item.
- @param pinfo Packet info of the currently processed packet. May be NULL.
- @param tree Tree to add the item to
- @param offset Offset in tvb
- @param length The length of the item.
- @param severity The expert severity (like PI_WARN - see: proto.h)
-  */
-
-WS_DLL_PUBLIC void
-expert_add_undecoded_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, const int severity);
-
 #define EXPERT_CHECKSUM_DISABLED    -2
 #define EXPERT_CHECKSUM_UNKNOWN     -1
 #define EXPERT_CHECKSUM_GOOD        0

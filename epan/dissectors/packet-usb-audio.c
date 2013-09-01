@@ -89,6 +89,8 @@ static int hf_sysex_msg_reassembled_data = -1;
 static gint ett_sysex_msg_fragment = -1;
 static gint ett_sysex_msg_fragments = -1;
 
+static expert_field ei_usb_audio_undecoded = EI_INIT;
+
 static const fragment_items sysex_msg_frag_items = {
     /* Fragment subtrees */
     &ett_sysex_msg_fragment,
@@ -258,7 +260,7 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
             break;
         default:
             offset = 0;
-            expert_add_undecoded_item(tvb, pinfo, tree, offset, length - offset, PI_WARN);
+            proto_tree_add_expert(tree, pinfo, &ei_usb_audio_undecoded, tvb, offset, length - offset);
     }
 }
 
@@ -326,9 +328,17 @@ proto_register_usb_audio(void)
         &ett_sysex_msg_fragments
     };
 
+    static ei_register_info ei[] = {
+        { &ei_usb_audio_undecoded, { "usbaudio.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
+    };
+
+    expert_module_t* expert_usb_audio;
+
     proto_usb_audio = proto_register_protocol("USB Audio", "USBAUDIO", "usbaudio");
     proto_register_field_array(proto_usb_audio, hf, array_length(hf));
     proto_register_subtree_array(usb_audio_subtrees, array_length(usb_audio_subtrees));
+    expert_usb_audio = expert_register_protocol(proto_usb_audio);
+    expert_register_field_array(expert_usb_audio, ei, array_length(ei));
     register_init_routine(&midi_data_reassemble_init);
 
     register_dissector("usbaudio", dissect_usb_audio_bulk, proto_usb_audio);

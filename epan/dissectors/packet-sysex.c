@@ -99,6 +99,7 @@ static gint ett_sysex = -1;
 static expert_field ei_sysex_message_start_byte = EI_INIT;
 static expert_field ei_digitech_checksum_bad = EI_INIT;
 static expert_field ei_sysex_message_end_byte = EI_INIT;
+static expert_field ei_sysex_undecoded = EI_INIT;
 
 #define SYSEX_MANUFACTURER_DOD 0x000010
 
@@ -1088,9 +1089,8 @@ dissect_digitech_procedure(guint8 procedure, const gint offset,
 
     if (data_offset < data_len)
     {
-        expert_add_undecoded_item(data_tvb, pinfo, tree,
-                                  data_offset, data_len - data_offset,
-                                  PI_WARN);
+        proto_tree_add_expert(tree, pinfo, &ei_sysex_undecoded,
+                                  data_tvb, data_offset, data_len - data_offset);
     }
 }
 
@@ -1199,9 +1199,8 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 
         if (offset < data_len - 1)
         {
-            expert_add_undecoded_item(tvb, pinfo, tree,
-                                      offset, data_len - offset - 1,
-                                      PI_WARN);
+            proto_tree_add_expert(tree, pinfo, &ei_sysex_undecoded,
+                                      tvb, offset, data_len - offset - 1);
         }
 
         /* Check end byte (EOX - 0xF7) */
@@ -1395,6 +1394,7 @@ proto_register_sysex(void)
         { &ei_sysex_message_start_byte, { "sysex.message_start_byte", PI_PROTOCOL, PI_WARN, "SYSEX Error: Wrong start byte", EXPFILL }},
         { &ei_digitech_checksum_bad, { "sysex.digitech.checksum_bad", PI_CHECKSUM, PI_WARN, "ARP packet storm detected", EXPFILL }},
         { &ei_sysex_message_end_byte, { "sysex.message_end_byte", PI_PROTOCOL, PI_WARN, "SYSEX Error: Wrong end byte", EXPFILL }},
+        { &ei_sysex_undecoded, { "sysex.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
     };
 
     expert_module_t* expert_sysex;
