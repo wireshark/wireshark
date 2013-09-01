@@ -1067,7 +1067,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * at the end of the packet. */
 		if (size < 4)
 		{
-			proto_tree_add_expert_format(pt, pinfo, &ei_collectd_garbage, tvb,
+			proto_tree_add_expert_format(pi, pinfo, &ei_collectd_garbage, tvb,
 						  offset, -1,
 						  "Garbage at end of packet: Length = %i <BAD>",
 						  size);

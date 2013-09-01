@@ -3890,7 +3890,7 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
     pi = proto_tree_add_item(
                 app_tree, hf_dvbci_apdu_tag, tvb, 0, APDU_TAG_SIZE, ENC_BIG_ENDIAN);
     if (tag_str == NULL) {
-        expert_add_info(pinfo, app_tree, &ei_dvbci_apdu_tag);
+        expert_add_info(pinfo, pi, &ei_dvbci_apdu_tag);
         return;
     }
 
