@@ -1368,8 +1368,8 @@ dhcp-failover2    847/tcp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 dhcp-failover2    847/udp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 gdoi              848/tcp # GDOI [RFC3547]
 gdoi              848/udp # GDOI [RFC3547]
-iscsi             860/tcp # iSCSI [RFC3720]
-iscsi             860/udp # iSCSI [RFC3720]
+iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC-ietf-storm-iscsi-cons-10]
+iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC-ietf-storm-iscsi-cons-10]
 owamp-control     861/tcp # OWAMP-Control [RFC4656]
 owamp-control     861/udp # OWAMP-Control [RFC4656]
 twamp-control     862/tcp # Two-way Active Measurement Protocol (TWAMP) Control [RFC5357]
@@ -5931,8 +5931,8 @@ ivecon-port      3258/tcp # Ivecon Server Port [Serguei_Tevs] [Serguei_Tevs] 200
 ivecon-port      3258/udp # Ivecon Server Port [Serguei_Tevs] [Serguei_Tevs] 2002-02
 epncdp2          3259/tcp # Epson Network Common Devi [Oishi_Toshiaki] [Oishi_Toshiaki] 2002-02
 epncdp2          3259/udp # Epson Network Common Devi [Oishi_Toshiaki] [Oishi_Toshiaki] 2002-02
-iscsi-target     3260/tcp # iSCSI port [Julian_Satran] [Julian_Satran]
-iscsi-target     3260/udp # iSCSI port [Julian_Satran] [Julian_Satran]
+iscsi-target     3260/tcp # iSCSI port [IESG] [IETF_Chair] 2013-08-27 [RFC-ietf-storm-iscsi-cons-10]
+iscsi-target     3260/udp # iSCSI port [IESG] [IETF_Chair] 2013-08-27 [RFC-ietf-storm-iscsi-cons-10]
 winshadow        3261/tcp # winShadow [Colin_Barry] [Colin_Barry]
 winshadow        3261/udp # winShadow [Colin_Barry] [Colin_Barry]
 necp             3262/tcp # NECP [Alberto_Cerpa] [Alberto_Cerpa]
