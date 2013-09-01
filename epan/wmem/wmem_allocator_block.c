@@ -786,7 +786,7 @@ wmem_block_new_block(wmem_block_allocator_t *allocator)
     wmem_block_hdr_t *block;
 
     /* allocate the new block and add it to the block list */
-    block = (wmem_block_hdr_t *)g_malloc(WMEM_BLOCK_SIZE);
+    block = (wmem_block_hdr_t *)wmem_alloc(NULL, WMEM_BLOCK_SIZE);
     wmem_block_add_to_block_list(allocator, block);
 
     /* initialize it */
@@ -803,7 +803,7 @@ wmem_block_alloc_jumbo(wmem_block_allocator_t *allocator, const size_t size)
     wmem_block_chunk_t *chunk;
 
     /* allocate a new block of exactly the right size */
-    block = (wmem_block_hdr_t *) g_malloc(size
+    block = (wmem_block_hdr_t *) wmem_alloc(NULL, size
             + WMEM_BLOCK_HEADER_SIZE
             + WMEM_CHUNK_HEADER_SIZE);
 
@@ -833,7 +833,7 @@ wmem_block_free_jumbo(wmem_block_allocator_t *allocator,
 
     wmem_block_remove_from_block_list(allocator, block);
 
-    g_free(block);
+    wmem_free(NULL, block);
 }
 
 /* Reallocs special 'jumbo' blocks of sizes that won't fit normally. */
@@ -846,7 +846,7 @@ wmem_block_realloc_jumbo(wmem_block_allocator_t *allocator,
 
     block = WMEM_CHUNK_TO_BLOCK(chunk);
 
-    block = (wmem_block_hdr_t *) g_realloc(block, size
+    block = (wmem_block_hdr_t *) wmem_realloc(NULL, block, size
             + WMEM_BLOCK_HEADER_SIZE
             + WMEM_CHUNK_HEADER_SIZE);
 
@@ -1048,7 +1048,7 @@ wmem_block_free_all(void *private_data)
         if (chunk->jumbo) {
             wmem_block_remove_from_block_list(allocator, cur);
             cur = cur->next;
-            g_free(WMEM_CHUNK_TO_BLOCK(chunk));
+            wmem_free(NULL, WMEM_CHUNK_TO_BLOCK(chunk));
         }
         else {
             wmem_block_init_block(allocator, cur);
@@ -1096,7 +1096,7 @@ wmem_block_gc(void *private_data)
             else if (allocator->master_head == chunk) {
                 allocator->master_head = free_chunk->next;
             }
-            g_free(cur);
+            wmem_free(NULL, cur);
         }
         else {
             /* part of this block is used, so add it to the new block list */
@@ -1115,7 +1115,7 @@ wmem_block_allocator_cleanup(void *private_data)
     wmem_block_gc(private_data);
 
     /* then just free the allocator structs */
-    g_slice_free(wmem_block_allocator_t, private_data);
+    wmem_free(NULL, private_data);
 }
 
 void
@@ -1123,7 +1123,7 @@ wmem_block_allocator_init(wmem_allocator_t *allocator)
 {
     wmem_block_allocator_t *block_allocator;
 
-    block_allocator = g_slice_new(wmem_block_allocator_t);
+    block_allocator = wmem_new(NULL, wmem_block_allocator_t);
 
     allocator->alloc   = &wmem_block_alloc;
     allocator->realloc = &wmem_block_realloc;

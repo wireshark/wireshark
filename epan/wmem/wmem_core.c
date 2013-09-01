@@ -129,7 +129,7 @@ wmem_destroy_allocator(wmem_allocator_t *allocator)
 
     wmem_free_all_real(allocator, TRUE);
     allocator->cleanup(allocator->private_data);
-    g_slice_free(wmem_allocator_t, allocator);
+    wmem_free(NULL, allocator);
 }
 
 wmem_allocator_t *
@@ -162,7 +162,7 @@ wmem_allocator_new(const wmem_allocator_type_t type)
         real_type = type;
     }
 
-    allocator = g_slice_new(wmem_allocator_t);
+    allocator = wmem_new(NULL, wmem_allocator_t);
     allocator->type      = real_type;
     allocator->callbacks = NULL;
     allocator->in_scope  = TRUE;

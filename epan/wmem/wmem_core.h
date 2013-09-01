@@ -51,8 +51,8 @@ typedef struct _wmem_allocator_t wmem_allocator_t;
 
 /** An enumeration of the different types of available allocators. */
 typedef enum _wmem_allocator_type_t {
-    WMEM_ALLOCATOR_SIMPLE, /**< A trivial allocator that g_allocs requested
-               memory and tracks allocations via a GHashTable. As simple as
+    WMEM_ALLOCATOR_SIMPLE, /**< A trivial allocator that mallocs requested
+               memory and tracks allocations via a hash table. As simple as
                possible, intended more as a demo than for practical usage. Also
                has the benefit of being friendly to tools like valgrind. */
     WMEM_ALLOCATOR_BLOCK, /**< A block allocator that grabs large chunks of

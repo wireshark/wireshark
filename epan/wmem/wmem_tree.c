@@ -472,7 +472,7 @@ pack_string(const gchar *key, guint32 *divx, guint32 flags)
 
     *divx = (len+3)/4 + 1;
 
-    aligned = (guint32 *)g_malloc(*divx * sizeof (guint32));
+    aligned = (guint32 *)wmem_alloc(NULL, *divx * sizeof (guint32));
 
     /* pack the bytes one one by one into guint32s */
     tmp = 0;
@@ -522,7 +522,7 @@ wmem_tree_insert_string(wmem_tree_t* tree, const gchar* k, void* v, guint32 flag
     key[1].key = NULL;
 
     wmem_tree_insert32_array(tree, key, v);
-    g_free(aligned);
+    wmem_free(NULL, aligned);
 }
 
 void *
@@ -541,7 +541,7 @@ wmem_tree_lookup_string(wmem_tree_t* tree, const gchar* k, guint32 flags)
     key[1].key = NULL;
 
     ret = wmem_tree_lookup32_array(tree, key);
-    g_free(aligned);
+    wmem_free(NULL, aligned);
     return ret;
 }
 

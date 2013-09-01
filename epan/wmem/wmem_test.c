@@ -48,7 +48,7 @@ wmem_allocator_force_new(const wmem_allocator_type_t type)
 {
     wmem_allocator_t      *allocator;
 
-    allocator = g_slice_new(wmem_allocator_t);
+    allocator = wmem_new(NULL, wmem_allocator_t);
     allocator->type = type;
     allocator->callbacks = NULL;
     allocator->in_scope = TRUE;

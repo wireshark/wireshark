@@ -85,8 +85,8 @@ wmem_strict_block_free(wmem_strict_allocator_block_t *block)
 {
     memset(block->real_data, WMEM_POSTFILL, block->data_len);
 
-    g_free(block->leading_canary);
-    g_slice_free(wmem_strict_allocator_block_t, block);
+    wmem_free(NULL, block->leading_canary);
+    wmem_free(NULL, block);
 }
 
 /* wrapper for use with g_hash_table_new_full() */
@@ -102,10 +102,10 @@ wmem_strict_block_new(const size_t size)
     wmem_strict_allocator_block_t *block;
     guint i;
 
-    block = g_slice_new(wmem_strict_allocator_block_t);
+    block = wmem_new(NULL, wmem_strict_allocator_block_t);
 
     block->data_len        = size;
-    block->leading_canary  = (guint32 *)g_malloc(block->data_len + (2 * sizeof(guint32) * WMEM_CANARY_SIZE));
+    block->leading_canary  = (guint32 *)wmem_alloc(NULL, block->data_len + (2 * sizeof(guint32) * WMEM_CANARY_SIZE));
     block->real_data       = (guint8 *)(block->leading_canary + WMEM_CANARY_SIZE);
     block->trailing_canary = (guint32 *)(block->real_data + block->data_len);
 
@@ -232,7 +232,7 @@ wmem_strict_allocator_cleanup(void *private_data)
     allocator = (wmem_strict_allocator_t*) private_data;
 
     g_hash_table_destroy(allocator->block_table);
-    g_slice_free(wmem_strict_allocator_t, allocator);
+    wmem_free(NULL, allocator);
 }
 
 void
@@ -240,7 +240,7 @@ wmem_strict_allocator_init(wmem_allocator_t *allocator)
 {
     wmem_strict_allocator_t *strict_allocator;
 
-    strict_allocator = g_slice_new(wmem_strict_allocator_t);
+    strict_allocator = wmem_new(NULL, wmem_strict_allocator_t);
 
     allocator->alloc   = &wmem_strict_alloc;
     allocator->realloc = &wmem_strict_realloc;

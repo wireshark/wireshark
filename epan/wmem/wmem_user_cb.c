@@ -54,7 +54,7 @@ wmem_call_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event)
          * by the final destruction of the allocator, remove the callback */
         if (! again || event == WMEM_CB_DESTROY_EVENT) {
             *prev = cur->next;
-            g_slice_free(wmem_user_cb_container_t, cur);
+            wmem_free(NULL, cur);
             cur = *prev;
         }
         else {
@@ -71,7 +71,7 @@ wmem_register_callback(wmem_allocator_t *allocator,
     wmem_user_cb_container_t *container;
     static guint next_id = 0;
 
-    container = g_slice_new(wmem_user_cb_container_t);
+    container = wmem_new(NULL, wmem_user_cb_container_t);
 
     container->cb        = callback;
     container->user_data = user_data;
@@ -95,7 +95,7 @@ wmem_unregister_callback(wmem_allocator_t *allocator, guint id)
 
         if (cur->id == id) {
             *prev = cur->next;
-            g_slice_free(wmem_user_cb_container_t, cur);
+            wmem_free(NULL, cur);
             return;
         }
 
