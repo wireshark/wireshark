@@ -36,6 +36,8 @@ void proto_reg_handoff_openflow(void);
 
 static int g_openflow_port = 0;
 
+dissector_handle_t eth_withoutfcs_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_openflow = -1;
 static int hf_openflow_version = -1;
@@ -111,6 +113,15 @@ static int hf_openflow_pause_asym = -1;   /* Asymmetric pause. */
 static int hf_openflow_config_flags = -1;
 static int hf_openflow_miss_send_len = -1;
 
+static int hf_openflow_buffer_id = -1;
+static int hf_openflow_total_len = -1;
+static int hf_openflow_in_port = -1;
+static int hf_openflow_reason = -1;
+static int hf_openflow_table_id = -1;
+static int hf_openflow_cookie = -1;
+static int hf_openflow_padd8 = -1;
+static int hf_openflow_padd16 = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_openflow = -1;
 static gint ett_openflow_path_id = -1;
@@ -121,6 +132,10 @@ static gint ett_openflow_port_cnf = -1;
 static gint ett_openflow_port_state = -1;
 static gint ett_port_cf = -1;
 
+#define OFP_VERSION_1_0 1
+#define OFP_VERSION_1_1 2
+#define OFP_VERSION_1_2 3
+#define OFP_VERSION_1_3 4
 
 static const value_string openflow_version_values[] = {
     { 0x01, "1.0" },
@@ -394,7 +409,7 @@ dissect_openflow_features_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(tree, hf_openflow_n_tables, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    if(version<3){
+    if(version < OFP_VERSION_1_2){
         proto_tree_add_item(tree, hf_openflow_pad3, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset+=3;
     }else{
@@ -413,7 +428,7 @@ dissect_openflow_features_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(cap_tree, hf_openflow_port_blocked,   tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    if(version<2){
+    if(version < OFP_VERSION_1_1){
         ti = proto_tree_add_item(tree, hf_openflow_actions, tvb, offset, 4, ENC_BIG_ENDIAN);
         act_tree = proto_item_add_subtree(ti, ett_openflow_act);
         /* Dissect flags */
@@ -457,14 +472,72 @@ static void
 dissect_openflow_switch_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version _U_, guint16 length _U_)
 {
 
-    proto_tree_add_item(tree, hf_openflow_config_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
     /* ofp_config_flags */
+    proto_tree_add_item(tree, hf_openflow_config_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
     /* miss_send_len */
     proto_tree_add_item(tree, hf_openflow_miss_send_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     /*offset+=2;*/
 
 }
+
+#define OFPR_NO_MATCH		0		/* No matching flow (table-miss flow entry). */
+#define OFPR_ACTION			1		/* Action explicitly output to controller. */
+#define OFPR_INVALID_TTL	2		/* Packet has invalid TTL */
+
+static const value_string openflow_reason_values[] = {
+    { OFPR_NO_MATCH,	"No matching flow (table-miss flow entry)" },
+    { OFPR_ACTION,		"Action explicitly output to controller" },
+    { OFPR_INVALID_TTL, "Packet has invalid TTL" },
+    { 0, NULL }
+};
+
+static void
+dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version, guint16 length)
+{
+    tvbuff_t *next_tvb;
+
+    /* uint32_t buffer_id;  ID assigned by datapath. */
+    proto_tree_add_item(tree, hf_openflow_buffer_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+    /* uint16_t total_len;  Full length of frame. */
+    proto_tree_add_item(tree, hf_openflow_total_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+    if(version == OFP_VERSION_1_0){
+        /* uint16_t in_port;  Port on which frame was received. */
+        proto_tree_add_item(tree, hf_openflow_in_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+    }
+    /* uint8_t reason; Reason packet is being sent (one of OFPR_*) */
+    proto_tree_add_item(tree, hf_openflow_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    if(version > OFP_VERSION_1_2){
+        /* uint8_t table_id;  ID of the table that was looked up */
+        proto_tree_add_item(tree, hf_openflow_table_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset++;
+        /* uint64_t cookie; Cookie of the flow entry that was looked up. */
+        proto_tree_add_item(tree, hf_openflow_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset+=8;
+        /* Followed by:
+         * - Exactly 2 all-zero padding bytes, then
+         * - An Ethernet frame whose length is inferred from header.length.
+         * The padding bytes preceding the Ethernet frame ensure that the IP
+         * header (if any) following the Ethernet header is 32-bit aligned.
+         */
+        proto_tree_add_item(tree, hf_openflow_padd16, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+    }else{
+        proto_tree_add_item(tree, hf_openflow_padd8, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset+=1;
+    }
+
+    /*proto_tree_add_text(tree, tvb, offset, length-offset, "Offset=%u, remaining %u", offset, length-offset);*/
+    next_tvb = tvb_new_subset(tvb, offset, length-offset, length-offset);
+    call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+
+}
+
+
 /* Code to actually dissect the packets */
 static int
 dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -490,6 +563,10 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow");
         col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
                   val_to_str_const(type, openflow_type_values, "Unknown Messagetype"));
+    }
+    /* Stop the Ethernet frame from overwriting the columns */
+    if((type == OFPT_PACKET_IN) || (type == OFPT_PACKET_OUT)){
+		col_set_writable(pinfo->cinfo, FALSE);
     }
 
     /* Create display subtree for the protocol */
@@ -538,6 +615,9 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         /* Fall trough */
     case OFPT_SET_CONFIG: /* 9 */
         dissect_openflow_switch_config(tvb, pinfo, openflow_tree, offset, version, length);
+        break;
+    case OFPT_PACKET_IN: /* 10 */
+        dissect_openflow_pkt_in(tvb, pinfo, openflow_tree, offset, version, length);
         break;
     default:
         if(length>8){
@@ -875,6 +955,46 @@ proto_register_openflow(void)
                FT_UINT16, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
+        { &hf_openflow_buffer_id,
+            { "Buffser Id", "openflow.buffer_id",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_total_len,
+            { "Total length", "openflow.total_len",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_in_port,
+            { "In port", "openflow.in_port",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_reason,
+            { "Reason", "openflow.reason",
+               FT_UINT8, BASE_DEC, VALS(openflow_reason_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_table_id,
+            { "Table Id", "openflow.table_id",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_cookie,
+            { "Cookie", "openflow.cookie",
+               FT_UINT64, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_padd8,
+            { "Padding", "openflow.padding",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_padd16,
+            { "Padding", "openflow.padding",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -922,6 +1042,8 @@ proto_reg_handoff_openflow(void)
     currentPort = g_openflow_port;
 
     dissector_add_uint("tcp.port", currentPort, openflow_handle);
+    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+
 }
 
 
