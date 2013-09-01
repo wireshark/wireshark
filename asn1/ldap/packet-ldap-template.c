@@ -777,6 +777,8 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
           lcr.req_frame=0;
           lcr.rep_frame=pinfo->fd->num;
           break;
+        default:
+          return NULL;
       }
       lcrp=(ldap_call_response_t *)g_hash_table_lookup(ldap_info->matched, &lcr);
 
@@ -810,7 +812,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         }
         /* if we cant reuse the old one, grab a new chunk */
         if(!lcrp){
-          lcrp=se_new(ldap_call_response_t);
+          lcrp=se_new0(ldap_call_response_t);
         }
         lcrp->messageId=messageId;
         lcrp->req_frame=pinfo->fd->num;
