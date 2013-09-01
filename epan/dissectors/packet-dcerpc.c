@@ -601,6 +601,15 @@ static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
 static gint ett_dcerpc_krb5_auth_verf = -1;
 
+static expert_field ei_dcerpc_fragment_multiple = EI_INIT;
+static expert_field ei_dcerpc_cn_status = EI_INIT;
+static expert_field ei_dcerpc_fragment_reassembled = EI_INIT;
+static expert_field ei_dcerpc_fragment = EI_INIT;
+static expert_field ei_dcerpc_no_request_found = EI_INIT;
+static expert_field ei_dcerpc_context_change = EI_INIT;
+static expert_field ei_dcerpc_cn_ctx_id_no_bind = EI_INIT;
+static expert_field ei_dcerpc_bind_not_acknowledged = EI_INIT;
+
 static const fragment_items dcerpc_frag_items = {
     &ett_dcerpc_fragments,
     &ett_dcerpc_fragment,
@@ -3386,8 +3395,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
             pinfo, tree, dcerpc_tree, payload_tvb, decrypted_tvb,
             hdr->drep, di, auth_info);
 
-        expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT,
-                               "%s fragment", fragment_type(hdr->flags));
+        expert_add_info_format_text(pinfo, NULL, &ei_dcerpc_fragment, "%s fragment", fragment_type(hdr->flags));
 
         pinfo->fragmented = save_fragmented;
         return;
@@ -3467,9 +3475,7 @@ end_cn_stub:
 
             pinfo->fragmented = FALSE;
 
-            expert_add_info_format(pinfo, frag_tree_item, PI_REASSEMBLE, PI_CHAT,
-                                   "%s fragment, reassembled",
-                                   fragment_type(hdr->flags));
+            expert_add_info_format_text(pinfo, frag_tree_item, &ei_dcerpc_fragment_reassembled, "%s fragment, reassembled", fragment_type(hdr->flags));
 
             dcerpc_try_handoff(pinfo, tree, dcerpc_tree, next_tvb,
                                next_tvb, hdr->drep, di, auth_info);
@@ -3489,14 +3495,12 @@ end_cn_stub:
             }
             col_append_fstr(pinfo->cinfo, COL_INFO,
                             " [DCE/RPC %s fragment, reas: #%u]", fragment_type(hdr->flags), fd_head->reassembled_in);
-            expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT,
-                                   "%s fragment, reassembled in #%u", fragment_type(hdr->flags), fd_head->reassembled_in);
+            expert_add_info_format_text(pinfo, NULL, &ei_dcerpc_fragment_reassembled, "%s fragment, reassembled in #%u", fragment_type(hdr->flags), fd_head->reassembled_in);
         }
     } else {
         /* Reassembly not complete - some fragments
            are missing.  Just show the stub data. */
-        expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT,
-                               "%s fragment", fragment_type(hdr->flags));
+        expert_add_info_format_text(pinfo, NULL, &ei_dcerpc_fragment, "%s fragment", fragment_type(hdr->flags));
 
         if (decrypted_tvb) {
             show_stub_data(decrypted_tvb, 0, tree, auth_info, FALSE);
@@ -3725,10 +3729,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                     value->req_frame);
         } else {
             /* no bind information, simply show stub data */
-            pi = proto_tree_add_text(dcerpc_tree, tvb, offset, 0, "No bind info for this interface Context ID - capture start too late?");
-            PROTO_ITEM_SET_GENERATED(pi);
-            expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u",
-                                   ctx_id);
+            proto_tree_add_expert_format(dcerpc_tree, pinfo, &ei_dcerpc_cn_ctx_id_no_bind, tvb, offset, 0, "No bind info for interface Context ID %u - capture start too late?", ctx_id);
             show_stub_data(tvb, offset, dcerpc_tree, &auth_info, TRUE);
         }
     }
@@ -3852,10 +3853,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
                 PROTO_ITEM_SET_GENERATED(pi);
             } else {
-                pi = proto_tree_add_text(dcerpc_tree,
-                                         tvb, 0, 0, "No request to this DCE/RPC call found");
-                expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE,
-                                       "No request to this DCE/RPC call found");
+                proto_tree_add_expert(dcerpc_tree, pinfo, &ei_dcerpc_no_request_found, tvb, 0, 0);
             }
 
             dissect_dcerpc_cn_stub(tvb, offset, pinfo, dcerpc_tree, tree,
@@ -3863,10 +3861,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    value->rep_frame);
         } else {
             /* no bind information, simply show stub data */
-            pi = proto_tree_add_text(dcerpc_tree, tvb, offset, 0, "No bind info for this interface Context ID - capture start too late?");
-            PROTO_ITEM_SET_GENERATED(pi);
-            expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID:%u",
-                                   ctx_id);
+            proto_tree_add_expert_format(dcerpc_tree, pinfo, &ei_dcerpc_cn_ctx_id_no_bind, tvb, offset, 0, "No bind info for interface Context ID %u - capture start too late?", ctx_id);
             show_stub_data(tvb, offset, dcerpc_tree, &auth_info, TRUE);
         }
     }
@@ -3906,13 +3901,10 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
               ? tvb_get_letohl(tvb, offset)
               : tvb_get_ntohl(tvb, offset));
 
-    if (dcerpc_tree) {
-        pi = proto_tree_add_item(dcerpc_tree, hf_dcerpc_cn_status, tvb, offset, 4, DREP_ENC_INTEGER(hdr->drep));
-    }
+    pi = proto_tree_add_item(dcerpc_tree, hf_dcerpc_cn_status, tvb, offset, 4, DREP_ENC_INTEGER(hdr->drep));
     offset+=4;
 
-    expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, PI_NOTE, "Fault: %s",
-                           val_to_str(status, reject_status_vals, "Unknown (0x%08x)"));
+    expert_add_info_format_text(pinfo, pi, &ei_dcerpc_cn_status, "Fault: %s", val_to_str(status, reject_status_vals, "Unknown (0x%08x)"));
 
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
@@ -3994,10 +3986,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
                 PROTO_ITEM_SET_GENERATED(pi);
             } else {
-                pi = proto_tree_add_text(dcerpc_tree,
-                                         tvb, 0, 0, "No request to this DCE/RPC call found");
-                expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE,
-                                       "No request to this DCE/RPC call found");
+                proto_tree_add_expert(dcerpc_tree, pinfo, &ei_dcerpc_no_request_found, tvb, 0, 0);
             }
 
             length = tvb_length_remaining(tvb, offset);
@@ -4537,7 +4526,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (pinfo->dcectxid != 0) {
         /* this is not the first DCE-RPC request/response in this (TCP?-)PDU */
-        expert_add_info_format(pinfo, NULL, PI_SEQUENCE, PI_CHAT, "Multiple DCE/RPC fragments/PDU's in one packet");
+        expert_add_info(pinfo, NULL, &ei_dcerpc_fragment_multiple);
     }
 
     offset = start_offset;
@@ -4559,11 +4548,10 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
 #if 0  /* XXX - too much "output noise", removed for now  */
        if (hdr.ptype == PDU_BIND || hdr.ptype == PDU_ALTER ||
        hdr.ptype == PDU_BIND_ACK || hdr.ptype == PDU_ALTER_ACK)
-       expert_add_info_format(pinfo, tf, PI_SEQUENCE, PI_CHAT, "Context change: %s",
-       val_to_str(hdr.ptype, pckt_vals, "(0x%x)"));
+       expert_add_info_format_text(pinfo, tf, &ei_dcerpc_context_change, "Context change: %s", val_to_str(hdr.ptype, pckt_vals, "(0x%x)"));
 #endif
     if (hdr.ptype == PDU_BIND_NAK)
-        expert_add_info_format(pinfo, tf, PI_SEQUENCE, PI_WARN, "Bind not acknowledged");
+        expert_add_info(pinfo, tf, &ei_dcerpc_bind_not_acknowledged);
 
     if (tree) {
         proto_item_append_text(ti, " %s, Fragment: %s",
@@ -5252,10 +5240,7 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
         pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
         PROTO_ITEM_SET_GENERATED(pi);
     } else {
-        pi = proto_tree_add_text(dcerpc_tree,
-                                 tvb, 0, 0, "No request to this DCE/RPC call found");
-        expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE,
-                               "No request to this DCE/RPC call found");
+        proto_tree_add_expert(dcerpc_tree, pinfo, &ei_dcerpc_no_request_found, tvb, 0, 0);
     }
     dissect_dcerpc_dg_stub(tvb, offset, pinfo, dcerpc_tree, tree, hdr, di);
 }
@@ -6034,11 +6019,27 @@ proto_register_dcerpc(void)
         &ett_dcerpc_fragment,
         &ett_dcerpc_krb5_auth_verf,
     };
+
+    static ei_register_info ei[] = {
+        { &ei_dcerpc_fragment, { "dcerpc.fragment", PI_REASSEMBLE, PI_CHAT, "%s fragment", EXPFILL }},
+        { &ei_dcerpc_fragment_reassembled, { "dcerpc.fragment_reassembled", PI_REASSEMBLE, PI_CHAT, "%s fragment, reassembled", EXPFILL }},
+        { &ei_dcerpc_cn_ctx_id_no_bind, { "dcerpc.cn_ctx_id.no_bind", PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID %u - capture start too late?", EXPFILL }},
+        { &ei_dcerpc_no_request_found, { "dcerpc.no_request_found", PI_SEQUENCE, PI_NOTE, "No request to this DCE/RPC call found", EXPFILL }},
+        { &ei_dcerpc_cn_status, { "dcerpc.cn_status.expert", PI_RESPONSE_CODE, PI_NOTE, "Fault: %s", EXPFILL }},
+        { &ei_dcerpc_fragment_multiple, { "dcerpc.fragment_multiple", PI_SEQUENCE, PI_CHAT, "Multiple DCE/RPC fragments/PDU's in one packet", EXPFILL }},
+        { &ei_dcerpc_context_change, { "dcerpc.context_change", PI_SEQUENCE, PI_CHAT, "Context change: %s", EXPFILL }},
+        { &ei_dcerpc_bind_not_acknowledged, { "dcerpc.bind_not_acknowledged", PI_SEQUENCE, PI_WARN, "Bind not acknowledged", EXPFILL }},
+    };
+
     module_t *dcerpc_module;
+    expert_module_t* expert_dcerpc;
 
     proto_dcerpc = proto_register_protocol("Distributed Computing Environment / Remote Procedure Call (DCE/RPC)", "DCERPC", "dcerpc");
     proto_register_field_array(proto_dcerpc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_dcerpc = expert_register_protocol(proto_dcerpc);
+    expert_register_field_array(expert_dcerpc, ei, array_length(ei));
+
     register_init_routine(dcerpc_init_protocol);
     dcerpc_module = prefs_register_protocol(proto_dcerpc, NULL);
     prefs_register_bool_preference(dcerpc_module,

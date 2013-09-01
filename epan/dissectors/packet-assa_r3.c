@@ -1679,6 +1679,17 @@ static gint ett_r3debuglogrecord = -1;
 static gint ett_r3setdatetime = -1;
 static gint ett_r3manageuser = -1;
 
+static expert_field ei_r3_response_hasdata_octet_2 = EI_INIT;
+static expert_field ei_r3_mfgfield_too_many_adc_values = EI_INIT;
+static expert_field ei_r3_peekpoke_operation = EI_INIT;
+static expert_field ei_r3_response_hasdata_octet_1 = EI_INIT;
+static expert_field ei_r3_reserved_upstream_command_value = EI_INIT;
+static expert_field ei_r3_firmwaredownload_action = EI_INIT;
+static expert_field ei_r3_malformed_length = EI_INIT;
+static expert_field ei_r3_mfgfield = EI_INIT;
+static expert_field ei_r3_unknown_command_value = EI_INIT;
+static expert_field ei_r3_response_hasdata_octet_3 = EI_INIT;
+static expert_field ei_r3_cmd_downloadfirmwaretimeout = EI_INIT;
 
 /*
  *  Indicates next command to be processed as a manufacturing command
@@ -3540,8 +3551,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
     if (fieldLength < 2)
     {
       dataLength = 0;
-      expert_add_info_format (pinfo, upstreamfield_length, PI_UNDECODED, PI_WARN,
-                              "Malformed length value -- all fields are at least 2 octets.");
+      expert_add_info_format_text(pinfo, upstreamfield_length, &ei_r3_malformed_length, "Malformed length value -- all fields are at least 2 octets.");
     }
 
     offset += 2;
@@ -3598,8 +3608,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
         {
           if (dataLength != 9)
           {
-            expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                                    "Malformed event log field -- expected 9 octets");
+            expert_add_info_format_text(pinfo, upstreamfield_length, &ei_r3_malformed_length, "Malformed event log field -- expected 9 octets");
           }
           else
           {
@@ -3628,8 +3637,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
         {
           if (dataLength != 8)
           {
-            expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                                    "Malformed date/time field -- expected 8 octets");
+            expert_add_info_format_text(pinfo, upstreamfield_length, &ei_r3_malformed_length, "Malformed date/time field -- expected 8 octets");
           }
           else
           {
@@ -3661,8 +3669,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
 
           if (dataLength != 49)
           {
-            expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                                    "Malformed declined log field -- expected 49 octets");
+            expert_add_info_format_text(pinfo, upstreamfield_length, &ei_r3_malformed_length, "Malformed declined log field -- expected 49 octets");
           }
           else
           {
@@ -3700,8 +3707,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
         {
           if (dataLength != 3)
           {
-            expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                                    "Malformed expiration field -- expected 3 octets");
+            expert_add_info_format_text(pinfo, upstreamfield_length, &ei_r3_malformed_length, "Malformed expiration field -- expected 3 octets");
           }
           else
           {
@@ -3726,8 +3732,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
         {
           if (dataLength != 4)
           {
-            expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                                    "Malformed timezone field -- expected 4 octets");
+            expert_add_info_format_text(pinfo, upstreamfield_length, &ei_r3_malformed_length, "Malformed timezone field -- expected 4 octets");
           }
           else
           {
@@ -3753,8 +3758,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
         {
           if (dataLength != 9)
           {
-            expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                                    "Malformed alarm log field -- expected 9 octets");
+            expert_add_info_format_text(pinfo, upstreamfield_length, &ei_r3_malformed_length, "Malformed alarm log field -- expected 9 octets");
           }
           else
           {
@@ -3796,8 +3800,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
 static void
 dissect_r3_upstreamcommand_reserved (tvbuff_t *tvb _U_, guint32 start_offset _U_, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                          "\"Reserved\" Upstream Command value");
+  proto_tree_add_expert(tree, pinfo, &ei_r3_reserved_upstream_command_value, tvb, start_offset, length);
 }
 
 static void
@@ -3844,8 +3847,7 @@ dissect_r3_upstreamcommand_dumpeventlog (tvbuff_t *tvb, guint32 start_offset, gu
 
   if (length != 11)
   {
-    expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                            "Malformed event log record -- expected 10 octets");
+    expert_add_info_format_text(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "Malformed event log record -- expected 10 octets");
   }
   else
   {
@@ -3925,7 +3927,7 @@ dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start_offset, gui
 
     pi = proto_tree_add_item (upstreamfield_tree, hf_r3_configitemlength, tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
     if (item_length == 0) {
-      expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN, "Invalid item length");
+      expert_add_info_format_text(pinfo, pi, &ei_r3_malformed_length, "Invalid item length");
       return;
     }
 
@@ -3998,31 +4000,26 @@ dissect_r3_upstreamcommand_mfg (tvbuff_t *tvb, guint32 start_offset, guint32 len
   proto_tree *mfg_tree = NULL;
   guint8      mfg_fld;
   tvbuff_t   *mfg_tvb;
+  proto_item  *mfg_item;
+  const gchar *cn;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
   mfg_tvb = tvb_new_subset_remaining (tvb, 2);
   mfg_fld = tvb_get_guint8 (tvb, 1);
 
-  if (tree)
-  {
-    proto_item  *mfg_item;
-    const gchar *cn;
+  cn = val_to_str_ext_const (mfg_fld, &r3_mfgfieldnames_ext, "[Unknown Mfg Field]");
 
-    cn = val_to_str_ext_const (mfg_fld, &r3_mfgfieldnames_ext, "[Unknown Mfg Field]");
+  proto_tree_add_item (tree, hf_r3_mfgfield_length, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 
-    proto_tree_add_item (tree, hf_r3_mfgfield_length, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+  mfg_item = proto_tree_add_text (tree, tvb, 1, -1, "Upstream Manufacturing Field: %s (%u)", cn, mfg_fld);
+  mfg_tree = proto_item_add_subtree (mfg_item, ett_r3commandmfg);
 
-    mfg_item = proto_tree_add_text (tree, tvb, 1, -1, "Upstream Manufacturing Field: %s (%u)", cn, mfg_fld);
-    mfg_tree = proto_item_add_subtree (mfg_item, ett_r3commandmfg);
-
-    proto_tree_add_item (mfg_tree, hf_r3_mfgfield, tvb, 1, 1, ENC_LITTLE_ENDIAN);
-  }
+  proto_tree_add_item (mfg_tree, hf_r3_mfgfield, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 
   if (mfg_fld >= MFGFIELD_LAST)
   {
-    expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                            "Unknown manufacturing command value");
+    expert_add_info(pinfo, mfg_item, &ei_r3_mfgfield);
   }
   else if (r3upstreammfgfield_dissect [mfg_fld])
     (*r3upstreammfgfield_dissect [mfg_fld]) (mfg_tvb, 0, length, pinfo, mfg_tree);
@@ -4180,8 +4177,7 @@ dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, guint32 start_offset, guint32
   len = MAX(0, tvb_length_remaining(tvb, start_offset));
   if (len % 3 != 0)
   {
-    expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                            "IOPINS data length not modulo 3 == 0");
+    expert_add_info_format_text(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "IOPINS data length not modulo 3 == 0");
   }
   else
   {
@@ -4225,8 +4221,7 @@ dissect_r3_upstreammfgfield_adcs (tvbuff_t *tvb, guint32 start_offset, guint32 l
 
   if (len > 8)
   {
-    expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                            "MFG Field: too many adc values");
+    expert_add_info(pinfo, proto_tree_get_parent (tree), &ei_r3_mfgfield_too_many_adc_values);
   }
 
 }
@@ -4644,7 +4639,7 @@ dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint
         break;
 
       default :
-        expert_add_info_format (pinfo, peekpoke_op_item, PI_UNDECODED, PI_WARN, "Unknown peekpoke operation value");
+        expert_add_info(pinfo, peekpoke_op_item, &ei_r3_peekpoke_operation);
         return;  /* quit */
     }
   }
@@ -4714,9 +4709,7 @@ dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, g
     octets = tvb_get_guint8 (tvb, i);
     if (!octets)
     {
-      cf_item = proto_tree_add_text (tree, tvb, 0, len, "Capabilities (unknown items)");
-      expert_add_info_format(pinfo, cf_item, PI_MALFORMED, PI_WARN,
-                             "Capabilities could not be decoded because length of 0 encountered");
+      proto_tree_add_expert_format(tree, pinfo, &ei_r3_malformed_length, tvb, 0, len, "Capabilities could not be decoded because length of 0 encountered");
       return;
     }
     i += octets;
@@ -4753,8 +4746,7 @@ dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, guint32 start_offset, gui
 
   if (tvb_length_remaining (tvb, 0) != 20)
   {
-    expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                            "Length of M41T81 RTC register dump not 20 octets");
+    expert_add_info_format_text(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "Length of M41T81 RTC register dump not 20 octets");
   }
   else
   {
@@ -4873,8 +4865,7 @@ dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 start_offset
   len = MAX(0, tvb_length_remaining(tvb, 0));
   if (len % 3 != 0)
   {
-    expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                            "Checksum results data length not modulo 3 == 0");
+    expert_add_info_format_text(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "Checksum results data length not modulo 3 == 0");
   }
   else
   {
@@ -5040,11 +5031,11 @@ dissect_r3_response_hasdata (tvbuff_t *tvb, guint32 start_offset, guint32 length
   upstreamCmd         = tvb_get_guint8 (tvb, 3);
 
   if (tvb_get_guint8 (tvb, 1) != CMD_RESPONSE)
-    expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN, "Octet 1 not CMD_RESPONSE");
+    expert_add_info(pinfo, proto_tree_get_parent (tree), &ei_r3_response_hasdata_octet_1);
   else if (tvb_get_guint8 (tvb, 2) != RESPONSETYPE_HASDATA)
-    expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN, "Octet 2 not RESPONSE_HASDATA");
+    expert_add_info(pinfo, proto_tree_get_parent (tree), &ei_r3_response_hasdata_octet_2);
   else if (upstreamCmd >= UPSTREAMCOMMAND_LAST)
-    expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN, "Octet 3 >= UPSTREAMCOMMAND_LAST");
+    expert_add_info(pinfo, proto_tree_get_parent (tree), &ei_r3_response_hasdata_octet_3);
   else
   {
     proto_tree *upstreamcommand_tree = NULL;
@@ -5097,8 +5088,7 @@ dissect_r3_cmd_response (tvbuff_t *tvb, guint32 start_offset, guint32 length, pa
 
   if (responseType >= RESPONSETYPE_LAST)
   {
-    expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                            "Octet 3 >= UPSTREAMCOMMAND_LAST");
+    expert_add_info(pinfo, proto_tree_get_parent (tree), &ei_r3_response_hasdata_octet_3);
   }
   else if (r3response_dissect [responseType])
     (*r3response_dissect [responseType]) (payload_tvb, 0, length, pinfo, tree);
@@ -5233,7 +5223,7 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
     sc_item = proto_tree_add_item (sc_tree, hf_r3_configitemlength, payload_tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (sc_tree, hf_r3_configitem,       payload_tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
     if (item_length == 0) {
-      expert_add_info_format(pinfo, sc_item, PI_MALFORMED, PI_WARN, "Invalid item length");
+      expert_add_info_format_text(pinfo, sc_item, &ei_r3_malformed_length, "Invalid item length");
       return;
     }
 
@@ -5337,8 +5327,7 @@ dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _
     if (paramLength < 2)
     {
       dataLength = 0;
-      expert_add_info_format (pinfo, len_field, PI_UNDECODED, PI_WARN,
-                              "Malformed length value -- all fields are at least 2 octets.");
+      expert_add_info_format_text(pinfo, len_field, &ei_r3_malformed_length, "Malformed length value -- all fields are at least 2 octets.");
     }
 
     offset += 2;
@@ -5356,8 +5345,7 @@ dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _
       case ADDUSERPARAMTYPE_EXCEPTIONGROUP :
         if (dataLength != 1)
         {
-          expert_add_info_format (pinfo, proto_tree_get_parent (mu_tree), PI_UNDECODED, PI_WARN,
-                                  "Malformed field -- expected 1 octet");
+          expert_add_info_format_text(pinfo, proto_tree_get_parent (mu_tree), &ei_r3_malformed_length, "Malformed field -- expected 1 octet");
         }
         else
           proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, ENC_LITTLE_ENDIAN);
@@ -5366,8 +5354,7 @@ dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _
       case ADDUSERPARAMTYPE_USERNO :
         if (dataLength != 2)
         {
-          expert_add_info_format (pinfo, proto_tree_get_parent (mu_tree), PI_UNDECODED, PI_WARN,
-                                  "Malformed field -- expected 2 octets");
+          expert_add_info_format_text(pinfo, proto_tree_get_parent (mu_tree), &ei_r3_malformed_length, "Malformed field -- expected 2 octets");
         }
         else
           proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, ENC_LITTLE_ENDIAN);
@@ -5382,8 +5369,7 @@ dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _
         {
           if (dataLength != 3)
           {
-            expert_add_info_format (pinfo, proto_tree_get_parent (mu_tree), PI_UNDECODED, PI_WARN,
-                                    "Malformed expiration field -- expected 3 octets");
+            expert_add_info_format_text(pinfo, proto_tree_get_parent (mu_tree), &ei_r3_malformed_length, "Malformed expiration field -- expected 3 octets");
           }
           else
           {
@@ -5411,8 +5397,7 @@ dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _
         {
           if (dataLength != 4)
           {
-            expert_add_info_format (pinfo, proto_tree_get_parent (mu_tree), PI_UNDECODED, PI_WARN,
-                                    "Malformed timezone field -- expected 4 octets");
+            expert_add_info_format_text(pinfo, proto_tree_get_parent (mu_tree), &ei_r3_malformed_length, "Malformed timezone field -- expected 4 octets");
           }
           else
           {
@@ -5728,8 +5713,8 @@ dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, guint32 leng
     alarm_len = tvb_get_guint8 (payload_tvb, offset + 0);
     pi = proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_length, payload_tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
     if (alarm_len == 0) {
-      expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_WARN,
-                              "Alarm length equal to 0; payload could be partially decoded");
+      expert_add_info_format_text (pinfo, pi, &ei_r3_malformed_length,
+                              "Alarm length equal to 0. Payload could be partially decoded");
       break;
     }
 
@@ -5958,7 +5943,7 @@ dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, guint32 start_offset, guint32 le
       break;
 
     default :
-      expert_add_info_format (pinfo, dlfw_action_item, PI_UNDECODED, PI_WARN, "Unknown Firmware download action");
+      expert_add_info(pinfo, dlfw_action_item, &ei_r3_firmwaredownload_action);
       return;  /* quit */
   }
 
@@ -6003,8 +5988,7 @@ dissect_r3_cmd_downloadfirmwaretimeout (tvbuff_t *tvb, guint32 start_offset, gui
 
     proto_tree_add_item (tree, hf_r3_commanddata, payload_tvb, 0, -1, ENC_NA);
   }
-  expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
-                          "[### Need nice warning here]"); /* XXX: ??? */
+  expert_add_info(pinfo, proto_tree_get_parent (tree), &ei_r3_cmd_downloadfirmwaretimeout); /* XXX: ??? */
 }
 
 static void
@@ -6312,8 +6296,7 @@ dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 len
       case 4  : proto_tree_add_item (force_tree, hf_r3_forceoptions_state_32, tvb, start_offset + i + 2, 4, ENC_LITTLE_ENDIAN);
         break;
       default :
-        expert_add_info_format (pinfo, force_item_item, PI_UNDECODED, PI_WARN,
-                                "Invalid length for Forceoptions State entry");
+        expert_add_info_format_text(pinfo, force_item_item, &ei_r3_malformed_length, "Invalid length for Forceoptions State entry");
         return;  /* quit */
         break;
     }
@@ -6487,7 +6470,7 @@ dissect_r3_cmdmfg_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length 
         break;
 
       default :
-        expert_add_info_format (pinfo, peekpoke_op_item, PI_UNDECODED, PI_WARN, "Unknown Mfg peekpoke operation value");
+        expert_add_info_format_text(pinfo, peekpoke_op_item, &ei_r3_peekpoke_operation, "Unknown Mfg peekpoke operation value");
         return;  /* quit */
     }
   }
@@ -6626,7 +6609,7 @@ dissect_r3_command (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_
   if (!mfgCommandFlag)
   {
     if (cmd >= CMD_LAST)
-      expert_add_info_format (pinfo, proto_tree_get_parent (cmd_tree), PI_UNDECODED, PI_WARN, "Unknown command value");
+      expert_add_info(pinfo, proto_tree_get_parent (cmd_tree), &ei_r3_unknown_command_value);
     else if (r3command_dissect [cmd])
       (*r3command_dissect [cmd]) (tvb, start_offset, length, pinfo, cmd_tree);
   }
@@ -6636,8 +6619,7 @@ dissect_r3_command (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_
 
     if (cmd >= CMDMFG_LAST)
     {
-      expert_add_info_format (pinfo, proto_tree_get_parent (cmd_tree), PI_UNDECODED, PI_WARN,
-                              "Unknown manufacturing command value");
+      expert_add_info_format_text(pinfo, proto_tree_get_parent (cmd_tree), &ei_r3_unknown_command_value, "Unknown manufacturing command value");
     }
     else if (r3commandmfg_dissect [cmd])
       (*r3commandmfg_dissect [cmd]) (tvb, start_offset, length, pinfo, cmd_tree);
@@ -6703,8 +6685,8 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
     octConsumed = dissect_r3_command (tvb, offset, 0, pinfo, payload_tree);
     if(octConsumed == 0)
     {
-      expert_add_info_format (pinfo, proto_tree_get_parent (payload_tree), PI_MALFORMED, PI_WARN,
-                              "Command length equal to 0; payload could be partially decoded");
+      expert_add_info_format_text(pinfo, proto_tree_get_parent (payload_tree), &ei_r3_malformed_length,
+                              "Command length equal to 0. Payload could be partially decoded");
       offset = tvb_reported_length (tvb) - 3; /* just do CRC stuff ?? */
       break;
     }
@@ -10069,10 +10051,28 @@ void proto_register_r3 (void)
     &ett_r3manageuser
   };
 
+  static ei_register_info ei[] = {
+      { &ei_r3_malformed_length, { "r3.malformed_length", PI_MALFORMED, PI_ERROR, "Malformed length", EXPFILL }},
+      { &ei_r3_reserved_upstream_command_value, { "r3.reserved_upstream_command_value", PI_UNDECODED, PI_WARN, "\"Reserved\" Upstream Command value", EXPFILL }},
+      { &ei_r3_mfgfield, { "r3.mfgfield.field.unknown", PI_UNDECODED, PI_WARN, "Unknown manufacturing command value", EXPFILL }},
+      { &ei_r3_mfgfield_too_many_adc_values, { "r3.mfgfield.too_many_adc_values", PI_PROTOCOL, PI_WARN, "MFG Field: too many adc values", EXPFILL }},
+      { &ei_r3_peekpoke_operation, { "r3.peekpoke.operation.unknown", PI_UNDECODED, PI_WARN, "Unknown peekpoke operation value", EXPFILL }},
+      { &ei_r3_response_hasdata_octet_1, { "r3.response_hasdata.octet_1_not_cmd_response", PI_PROTOCOL, PI_WARN, "Octet 1 not CMD_RESPONSE", EXPFILL }},
+      { &ei_r3_response_hasdata_octet_2, { "r3.response_hasdata.octet_2_not_response_hasdata", PI_PROTOCOL, PI_WARN, "Octet 2 not RESPONSE_HASDATA", EXPFILL }},
+      { &ei_r3_response_hasdata_octet_3, { "r3.response_hasdata.octet_3_ge_upstreamcommand_last", PI_PROTOCOL, PI_WARN, "Octet 3 >= UPSTREAMCOMMAND_LAST", EXPFILL }},
+      { &ei_r3_firmwaredownload_action, { "r3.firmwaredownload.action.unknown", PI_PROTOCOL, PI_WARN, "Unknown Firmware download action", EXPFILL }},
+      { &ei_r3_cmd_downloadfirmwaretimeout, { "r3.r3.command.downloadfirmwaretimeout", PI_UNDECODED, PI_WARN, "Download Firmware Timeout", EXPFILL }},
+      { &ei_r3_unknown_command_value, { "r3.command.unknown", PI_UNDECODED, PI_WARN, "Unknown command value", EXPFILL }},
+  };
+
+  expert_module_t* expert_r3;
+
   proto_r3 = proto_register_protocol ("Assa Abloy R3", "R3", "r3");
   register_dissector ("r3", dissect_r3, proto_r3);
   proto_register_field_array (proto_r3, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_r3 = expert_register_protocol(proto_r3);
+  expert_register_field_array(expert_r3, ei, array_length(ei));
 }
 
 void proto_reg_handoff_r3 (void)

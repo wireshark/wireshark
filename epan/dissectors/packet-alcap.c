@@ -407,6 +407,8 @@ static int hf_alcap_leg_release_cause = -1;
 static expert_field ei_alcap_parameter_field_bad_length = EI_INIT;
 static expert_field ei_alcap_undecoded = EI_INIT;
 static expert_field ei_alcap_release_cause_not31 = EI_INIT;
+static expert_field ei_alcap_abnormal_release = EI_INIT;
+static expert_field ei_alcap_response = EI_INIT;
 
 static gboolean keep_persistent_info = TRUE;
 
@@ -447,7 +449,7 @@ static const gchar* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_
         pi = proto_tree_add_item(tree, hf_alcap_cau_value_itu, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
         if ( msg_info->release_cause && msg_info->release_cause != 31 )
-            expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, PI_WARN, "Abnormal Release");
+            expert_add_info(pinfo, pi, &ei_alcap_abnormal_release);
 
         ret_str = val_to_str(msg_info->release_cause, cause_values_itu, "Unknown(%u)");
     } else {
@@ -1241,7 +1243,7 @@ static alcap_param_info_t param_infos[]  = {
 
 typedef struct _alcap_msg_type_info_t {
     const gchar* abbr;
-    int severity;
+    int severity; /* XXX - not used */
 } alcap_msg_type_info_t;
 
 static const alcap_msg_type_info_t msg_types[] = {
@@ -1362,7 +1364,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     msg_type = GET_MSG_TYPE(msg_info->msg_type);
 
-    expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, msg_type->severity, " ");
+    expert_add_info(pinfo, pi, &ei_alcap_response);
 
     col_set_str(pinfo->cinfo, COL_INFO, msg_type->abbr);
 
@@ -2407,6 +2409,8 @@ proto_register_alcap(void)
         { &ei_alcap_parameter_field_bad_length, { "alcap.parameter_field_bad_length", PI_MALFORMED, PI_WARN, "Wrong length for parameter fields", EXPFILL }},
         { &ei_alcap_undecoded, { "alcap.undecoded", PI_UNDECODED, PI_WARN, "Undecoded", EXPFILL }},
         { &ei_alcap_release_cause_not31, { "alcap.leg.cause.not31", PI_RESPONSE_CODE, PI_WARN, "Leg Release cause != 31", EXPFILL }},
+        { &ei_alcap_abnormal_release, { "alcap.abnormal_release", PI_RESPONSE_CODE, PI_WARN, "Abnormal Release", EXPFILL }},
+        { &ei_alcap_response, { "alcap.response", PI_RESPONSE_CODE, PI_NOTE, " ", EXPFILL }},
     };
 
     proto_alcap = proto_register_protocol(alcap_proto_name, alcap_proto_name_short, "alcap");

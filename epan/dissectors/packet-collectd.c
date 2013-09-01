@@ -194,6 +194,11 @@ static gint st_collectd_values_hosts   = -1;
 static gint st_collectd_values_plugins = -1;
 static gint st_collectd_values_types   = -1;
 
+static expert_field ei_collectd_type = EI_INIT;
+static expert_field ei_collectd_invalid_length = EI_INIT;
+static expert_field ei_collectd_data_valcnt = EI_INIT;
+static expert_field ei_collectd_garbage = EI_INIT;
+
 /* Prototype for the handoff function */
 void proto_reg_handoff_collectd (void);
 
@@ -381,7 +386,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 					  "collectd %s segment: Length = %i <BAD>",
 					  val_to_str_const (type, part_names, "UNKNOWN"),
 					  length);
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
 					"String part with invalid part length: "
 					"Part is longer than rest of package.");
 		return (-1);
@@ -441,11 +446,9 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 				     type);
 		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 				     length);
-		pi = proto_tree_add_text (pt, tvb, offset + 4, -1,
+		proto_tree_add_expert_format(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4, -1,
 					  "Garbage at end of packet: Length = %i <BAD>",
 					  size - 4);
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
-					"Garbage at end of packet");
 
 		return (-1);
 	}
@@ -461,7 +464,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 				     type);
 		pi = proto_tree_add_uint (pt, hf_collectd_length, tvb,
 					  offset + 2, 2, length);
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
 					"Invalid length field for an integer part.");
 
 		return (-1);
@@ -694,12 +697,9 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 				     length);
-		pi = proto_tree_add_text (pt, tvb, offset + 4, -1,
+		proto_tree_add_expert_format(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4, -1,
 					  "Garbage at end of packet: Length = %i <BAD>",
 					  size - 4);
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
-					"Garbage at end of packet");
-
 		return (-1);
 	}
 
@@ -713,7 +713,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		pi = proto_tree_add_uint (pt, hf_collectd_length, tvb,
 					  offset + 2, 2, length);
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
 					"Invalid length field for a values part.");
 
 		return (-1);
@@ -746,9 +746,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	pi = proto_tree_add_item (pt, hf_collectd_data_valcnt, tvb,
 				  offset + 4, 2, ENC_BIG_ENDIAN);
 	if (values_count != corrected_values_count)
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_WARN,
-					"Number of values and length of part do not match. "
-					"Assuming length is correct.");
+		expert_add_info(pinfo, pi, &ei_collectd_data_valcnt);
 
 	values_count = corrected_values_count;
 
@@ -790,12 +788,9 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 				     length);
-		pi = proto_tree_add_text (pt, tvb, offset + 4, -1,
+		proto_tree_add_expert_format(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4, -1,
 					  "Garbage at end of packet: Length = %i <BAD>",
 					  size - 4);
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
-					"Garbage at end of packet");
-
 		return (-1);
 	}
 
@@ -809,7 +804,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		pi = proto_tree_add_uint (pt, hf_collectd_length, tvb,
 					  offset + 2, 2, length);
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
 					"Invalid length field for a signature part.");
 
 		return (-1);
@@ -861,12 +856,9 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 				     length);
-		pi = proto_tree_add_text (pt, tvb, offset + 4, -1,
+		proto_tree_add_expert_format(pt, pinfo, &ei_collectd_garbage, tvb, offset + 4, -1,
 					  "Garbage at end of packet: Length = %i <BAD>",
 					  size - 4);
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
-					"Garbage at end of packet");
-
 		return (-1);
 	}
 
@@ -880,7 +872,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		pi = proto_tree_add_uint (pt, hf_collectd_length, tvb,
 					  offset + 2, 2, length);
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
 					"Invalid length field for an encryption part.");
 
 		return (-1);
@@ -899,7 +891,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 				     offset + 2, 2, length);
 		pi = proto_tree_add_uint (pt, hf_collectd_data_username_len, tvb,
 					  offset + 4, 2, length);
-		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
 					"Invalid username length field for an encryption part.");
 
 		return (-1);
@@ -1075,13 +1067,10 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * at the end of the packet. */
 		if (size < 4)
 		{
-			pi = proto_tree_add_text (collectd_tree, tvb,
+			proto_tree_add_expert_format(pt, pinfo, &ei_collectd_garbage, tvb,
 						  offset, -1,
 						  "Garbage at end of packet: Length = %i <BAD>",
 						  size);
-			expert_add_info_format (pinfo, pi, PI_MALFORMED,
-						PI_ERROR,
-						"Garbage at end of packet");
 			pkt_errors++;
 			break;
 		}
@@ -1108,13 +1097,11 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					     offset + 2, 2, part_length);
 
 			if (part_length < 4)
-				expert_add_info_format (pinfo, pi,
-							PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
 							"Bad part length: Is %i, expected at least 4",
 							part_length);
 			else
-				expert_add_info_format (pinfo, pi,
-							PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
 							"Bad part length: Larger than remaining packet size.");
 
 			pkt_errors++;
@@ -1349,8 +1336,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item (pt, hf_collectd_data, tvb,
 					     offset + 4, part_length - 4, ENC_NA);
 
-			expert_add_info_format (pinfo, pi,
-						PI_UNDECODED, PI_NOTE,
+			expert_add_info_format_text(pinfo, pi, &ei_collectd_type,
 						"Unknown part type %#x. Cannot decode data.",
 						part_type);
 		}
@@ -1398,6 +1384,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_register_collectd(void)
 {
 	module_t *collectd_module;
+	expert_module_t* expert_collectd;
 
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
@@ -1515,13 +1502,21 @@ void proto_register_collectd(void)
 		&ett_collectd_unknown,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_collectd_invalid_length, { "collectd.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+		{ &ei_collectd_garbage, { "collectd.garbage", PI_MALFORMED, PI_ERROR, "Garbage at end of packet", EXPFILL }},
+		{ &ei_collectd_data_valcnt, { "collectd.data.valcnt.mismatch", PI_MALFORMED, PI_WARN, "Number of values and length of part do not match. Assuming length is correct.", EXPFILL }},
+		{ &ei_collectd_type, { "collectd.type.unknown", PI_UNDECODED, PI_NOTE, "Unknown part type", EXPFILL }},
+	};
+
 	/* Register the protocol name and description */
-	proto_collectd = proto_register_protocol("collectd network data",
-						 "collectd", "collectd");
+	proto_collectd = proto_register_protocol("collectd network data", "collectd", "collectd");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_collectd, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_collectd = expert_register_protocol(proto_collectd);
+	expert_register_field_array(expert_collectd, ei, array_length(ei));
 
 	tap_collectd = register_tap ("collectd");
 

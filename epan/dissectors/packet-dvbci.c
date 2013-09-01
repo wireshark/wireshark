@@ -1045,6 +1045,35 @@ static int hf_dvbci_sas_sess_state = -1;
 static int hf_dvbci_sas_msg_nb = -1;
 static int hf_dvbci_sas_msg_len = -1;
 
+static expert_field ei_dvbci_spdu_tag = EI_INIT;
+static expert_field ei_dvbci_sac_payload_enc = EI_INIT;
+static expert_field ei_dvbci_buf_size = EI_INIT;
+static expert_field ei_dvbci_cicam_nit_table_id = EI_INIT;
+static expert_field ei_dvbci_c_tpdu_tag = EI_INIT;
+static expert_field ei_dvbci_res_class = EI_INIT;
+static expert_field ei_dvbci_bad_length = EI_INIT;
+static expert_field ei_dvbci_apdu_not_supported = EI_INIT;
+static expert_field ei_dvbci_not_text_more_or_text_last = EI_INIT;
+static expert_field ei_dvbci_apu_cam_to_host = EI_INIT;
+static expert_field ei_dvbci_ca_pmt_cmd_id = EI_INIT;
+static expert_field ei_dvbci_ml = EI_INIT;
+static expert_field ei_dvbci_cup_progress = EI_INIT;
+static expert_field ei_dvbci_sb_value = EI_INIT;
+static expert_field ei_dvbci_spdu_cam_to_host = EI_INIT;
+static expert_field ei_dvbci_spdu_host_to_cam = EI_INIT;
+static expert_field ei_dvbci_network_id = EI_INIT;
+static expert_field ei_dvbci_dvbci_char_tbl = EI_INIT;
+static expert_field ei_dvbci_t_c_id = EI_INIT;
+static expert_field ei_dvbci_tpdu_status_tag = EI_INIT;
+static expert_field ei_dvbci_r_tpdu_tag = EI_INIT;
+static expert_field ei_dvbci_cor_addr = EI_INIT;
+static expert_field ei_dvbci_pin_evt_cent = EI_INIT;
+static expert_field ei_dvbci_res_ver = EI_INIT;
+static expert_field ei_dvbci_apdu_tag = EI_INIT;
+static expert_field ei_dvbci_r_tpdu_status_mandatory = EI_INIT;
+static expert_field ei_dvbci_apu_host_to_cam = EI_INIT;
+static expert_field ei_dvbci_sig_qual = EI_INIT;
+
 static dissector_table_t sas_msg_dissector_table;
 
 static reassembly_table tpdu_reassembly_table;
@@ -2161,7 +2190,6 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
 {
     guint8      byte0;
     guint8     *si_str = NULL;
-    proto_item *pi;
 
     if (!title)  /* we always have a title for our strings */
         return;
@@ -2176,10 +2204,7 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
         str_len--;
     }
     else if (byte0>=0x10 && byte0 <= 0x1F) {
-        pi = proto_tree_add_text(tree, tvb, offset, 1,
-                "Invalid/unsupported character table");
-        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                "Character tables with multi-byte encoding are not supported");
+        proto_tree_add_expert(tree, pinfo, &ei_dvbci_dvbci_char_tbl, tvb, offset, 1);
         offset++;
         str_len--;
         proto_tree_add_text(tree, tvb, offset, str_len, "encoded text");
@@ -2234,7 +2259,6 @@ dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree)
 {
     gint        offset_start;
-    proto_item *pi;
     guint8      tag, len_byte;
     proto_item *ti           = NULL;
     proto_tree *ca_desc_tree = NULL;
@@ -2244,9 +2268,7 @@ dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     tag = tvb_get_guint8(tvb,offset);
     if (tag != CA_DESC_TAG) {
         /* we could skip unknown descriptors and make this a warning */
-        pi = proto_tree_add_text(tree, tvb, offset, 1, "Invalid descriptor");
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "The ca_pmt shall only contain ca descriptors (tag 0x9)");
+        proto_tree_add_expert(tree, pinfo, &ei_dvbci_ca_pmt_cmd_id, tvb, offset, 1);
         return 0;
     }
 
@@ -2424,15 +2446,12 @@ dissect_dvbci_payload_rm(guint32 tag, gint len_field,
         packet_info *pinfo, proto_tree *tree)
 {
     const gchar *tag_str;
-    proto_item  *pi;
 
     if (tag==T_PROFILE) {
         if (len_field % RES_ID_LEN) {
             tag_str = val_to_str(tag, dvbci_apdu_tag, "Unknown: %d");
-            pi = proto_tree_add_text(tree, tvb, 0, APDU_TAG_SIZE,
-                   "Invalid APDU length field");
-            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                   "Length field for %s must be a multiple of 4 bytes",
+            proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, 0, APDU_TAG_SIZE,
+                   "Invalid APDU length field, %s must be a multiple of 4 bytes",
                    tag_str);
             return;
         }
@@ -2504,10 +2523,8 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
     if (tag==T_CA_INFO) {
         if (len_field % 2) {
             tag_str = val_to_str(tag, dvbci_apdu_tag, "Unknown: %d");
-            pi = proto_tree_add_text(tree, tvb, 0, APDU_TAG_SIZE,
-                    "Invalid APDU length field");
-            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                    "Length field for %s must be a multiple of 2 bytes",
+            proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, 0, APDU_TAG_SIZE,
+                    "Invalid APDU length field, %s must be a multiple of 2 bytes",
                     tag_str);
             return;
         }
@@ -2643,8 +2660,7 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
             pi = proto_tree_add_item(
                     tree, hf_dvbci_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             if (nid) {
-                expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_NOTE,
-                        "Network ID is usually ignored by hosts");
+                expert_add_info(pinfo, pi, &ei_dvbci_network_id);
             }
             offset += 2;
             onid = tvb_get_ntohs(tvb, offset);
@@ -2757,19 +2773,15 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
     else if (tag==T_DATE_TIME) {
         if (len_field!=5 && len_field!=7) {
             tag_str = val_to_str_const(tag, dvbci_apdu_tag, "unknown");
-            pi = proto_tree_add_text(tree, tvb, APDU_TAG_SIZE, offset-APDU_TAG_SIZE,
-                    "Invalid APDU length field");
-            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                    "Length field for %s must be 5 or 7 bytes", tag_str);
+            proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, APDU_TAG_SIZE, offset-APDU_TAG_SIZE,
+                    "Invalid APDU length field, %s must be 5 or 7 bytes", tag_str);
             return;
         }
 
         time_field_len = read_utc_time(tvb, offset, &utc_time);
         if (time_field_len<0) {
-            pi = proto_tree_add_text(
-                tree, tvb, offset, 5, "Invalid UTC time field");
-            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "2 bytes MJD, 3 bytes BCD time hhmmss");
+            proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, offset, 5,
+                "Invalid UTC time field, 2 bytes MJD, 3 bytes BCD time hhmmss");
             return;
         }
         proto_tree_add_time_format(tree, hf_dvbci_utc_time,
@@ -2800,7 +2812,6 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
         packet_info *pinfo, proto_tree *tree)
 {
     gint         offset_start;
-    proto_item  *pi;
     guint8       close_mmi_cmd_id;
     guint8       disp_ctl_cmd, disp_rep_id;
     const gchar *disp_ctl_cmd_str = NULL, *disp_rep_id_str = NULL;
@@ -2822,10 +2833,8 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             /* apdu layer len field checks are sufficient for "immediate" */
             if (close_mmi_cmd_id == CLOSE_MMI_CMD_ID_DELAY) {
                 if (len_field != 2) {
-                    pi = proto_tree_add_text(tree, tvb,
+                    proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb,
                             APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE,
-                            "Length field mismatch");
-                    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
                             "Length field must be 2");
                     return;
                 }
@@ -2847,10 +2856,8 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
                 proto_tree_add_item(tree, hf_dvbci_mmi_mode, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
                 if (len_field != 2) {
-                    pi = proto_tree_add_text(tree, tvb,
+                    proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb,
                             APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE,
-                            "Length field mismatch");
-                    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
                             "Length field must be 2");
                     return;
                 }
@@ -2937,11 +2944,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
                 text_len = dissect_dvbci_text("Item", tvb, offset, pinfo, tree);
                 /* minimum is apdu tag + 1 byte len field */
                 if (text_len<APDU_TAG_SIZE+1) {
-                    pi = proto_tree_add_text(
-                            tree, tvb, offset, -1, "Invalid item");
-                    expert_add_info_format(
-                            pinfo, pi, PI_MALFORMED, PI_ERROR,
-                            "Items must be text_more() or text_last() objects");
+                    proto_tree_add_expert(tree, pinfo, &ei_dvbci_not_text_more_or_text_last, tvb, offset, -1);
                     return;
                 }
                 offset += text_len;
@@ -3000,7 +3003,6 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
   guint8      upgrade_type;
   guint16     download_time;
   guint8      answer, progress;
-  proto_item *pi;
 
   switch(tag) {
     case T_CAM_FIRMWARE_UPGRADE:
@@ -3031,10 +3033,7 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
     case T_CAM_FIRMWARE_UPGRADE_PROGRESS:
       progress = tvb_get_guint8(tvb, offset);
       if (progress > 100) {
-        pi = proto_tree_add_text(tree, tvb, offset, 1,
-                "Invalid value for progress");
-        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                "progress is in percent, value must be between 0 and 100");
+        proto_tree_add_expert(tree, pinfo, &ei_dvbci_cup_progress, tvb, offset, 1);
       }
       else {
           col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%d%%", progress);
@@ -3084,8 +3083,7 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
     enc_flag_pi = proto_tree_add_item(tree, hf_dvbci_sac_payload_enc,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     if (exported && enc_flag) {
-        expert_add_info_format(pinfo, enc_flag_pi, PI_PROTOCOL, PI_NOTE,
-        "The original PDU was encrypted, this exported PDU is in the clear");
+        expert_add_info(pinfo, enc_flag_pi, &ei_dvbci_sac_payload_enc);
         enc_flag = 0;
     }
     offset++;
@@ -3241,10 +3239,8 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             }
             else {
                 if (read_utc_time(tvb, offset, &utc_time) < 0) {
-                    pi = proto_tree_add_text(tree, tvb, offset, UTC_TIME_LEN,
-                            "Invalid UTC time field");
-                    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                            "2 bytes MJD, 3 bytes BCD time hhmmss");
+                    proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, offset, UTC_TIME_LEN,
+                            "Invalid UTC time field, 2 bytes MJD, 3 bytes BCD time hhmmss");
                     break;
                 }
                 else {
@@ -3275,10 +3271,8 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             dissect_rating(tvb, offset, pinfo, tree);
             offset++;
             if (read_utc_time(tvb, offset, &utc_time) < 0) {
-                pi = proto_tree_add_text(tree, tvb, offset, UTC_TIME_LEN,
-                        "Invalid UTC time field");
-                expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                        "2 bytes MJD, 3 bytes BCD time hhmmss");
+                proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, offset, UTC_TIME_LEN,
+                        "Invalid UTC time field, 2 bytes MJD, 3 bytes BCD time hhmmss");
                 break;
             }
             else {
@@ -3289,14 +3283,11 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             }
             offset += UTC_TIME_LEN;
             evt_cent = tvb_get_guint8(tvb, offset);
-            if (evt_cent > 100) {
-                pi = proto_tree_add_text(tree, tvb, offset, 1,
-                "Invalid value for event time centiseconds");
-                expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                "Value must be between 0 and 100");
-            }
-            proto_tree_add_item(tree, hf_dvbci_pin_evt_cent,
+            pi = proto_tree_add_item(tree, hf_dvbci_pin_evt_cent,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (evt_cent > 100) {
+                expert_add_info(pinfo, pi, &ei_dvbci_pin_evt_cent);
+            }
             offset++;
             /* length field was already checked by the caller */
             proto_tree_add_item(tree, hf_dvbci_cc_priv_data, tvb, offset,
@@ -3526,10 +3517,8 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
                 case COMMS_CMD_ID_ENQUIRE_STATUS:
                     /* len_field == 1 -> only id, no further parameters */
                     if (len_field != 1) {
-                        pi = proto_tree_add_text(tree, tvb,
+                        proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb,
                             APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE,
-                            "Length field mismatch");
-                        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
                             "Length field must be 1");
                     }
                     break;
@@ -3540,11 +3529,9 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
                     else if (param_len == 3)
                         buf_size = tvb_get_ntohs(tvb, offset);
                     else {
-                        pi = proto_tree_add_text(tree, tvb,
-                            APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE,
-                            "Length field mismatch");
                         /* length field == 1 byte id + param_len */
-                        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                        proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb,
+                            APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE, 
                             "Length field must be 3 or 4");
                         break;
                     }
@@ -3680,11 +3667,8 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           do {
               table_id = tvb_get_guint8(nit_loop_tvb, nit_loop_offset);
               if (table_id != TABLE_ID_CICAM_NIT) {
-                  pi = proto_tree_add_text(tree,
-                          nit_loop_tvb, nit_loop_offset, 1,
-                          "Invalid table id for the CICAM NIT");
-                  expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                          "CICAM NIT must have table id 0x40 (NIT actual)");
+                  proto_tree_add_expert(tree, pinfo, &ei_dvbci_cicam_nit_table_id,
+                          nit_loop_tvb, nit_loop_offset, 1);
               }
               nit_loop_partial_tvb =
                   tvb_new_subset_remaining(nit_loop_tvb, nit_loop_offset);
@@ -3792,13 +3776,12 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
           offset++;
           sig_qual = tvb_get_guint8(tvb, offset);
-          proto_tree_add_item(tree, hf_dvbci_sig_qual,
+          pi = proto_tree_add_item(tree, hf_dvbci_sig_qual,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
           if (sig_strength>100 || sig_qual>100) {
               pi = proto_tree_add_text(tree, tvb, offset, 1,
                       "Invalid value for signal strength / signal quality");
-              expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                      "Values are in percent (0 to 100)");
+              expert_add_info(pinfo, pi, &ei_dvbci_sig_qual);
           }
           offset++;
           proto_tree_add_item(tree, hf_dvbci_opp_tune_status,
@@ -3904,25 +3887,18 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
 
     col_set_str(pinfo->cinfo, COL_INFO,
             val_to_str_const(tag, dvbci_apdu_tag, "Unknown/invalid APDU"));
-    if (tag_str) {
-        proto_tree_add_item(
+    pi = proto_tree_add_item(
                 app_tree, hf_dvbci_apdu_tag, tvb, 0, APDU_TAG_SIZE, ENC_BIG_ENDIAN);
-    }
-    else {
-        pi = proto_tree_add_text(app_tree, tvb, 0, APDU_TAG_SIZE,
-                "Invalid or unsupported APDU tag");
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "Invalid or unsupported APDU tag");
+    if (tag_str == NULL) {
+        expert_add_info(pinfo, app_tree, &ei_dvbci_apdu_tag);
         return;
     }
 
     offset = dissect_ber_length(pinfo, app_tree, tvb, offset, &len_field, NULL);
     if ((offset+len_field) != apdu_len) {
-        pi = proto_tree_add_text(app_tree, tvb,
+        proto_tree_add_expert_format(app_tree, pinfo, &ei_dvbci_bad_length, tvb,
                 APDU_TAG_SIZE, offset-APDU_TAG_SIZE,
-                "Length field mismatch");
-        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-            "Length field is different from the number of apdu payload bytes");
+                "Length field is different from the number of apdu payload bytes");
         /* we need len_field bytes of apdu payload to call
            ai->dissect_payload() and continue dissecting */
         if (apdu_len < offset+len_field)
@@ -3932,38 +3908,26 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
     ai = (apdu_info_t *)g_hash_table_lookup(apdu_table,
                                             GUINT_TO_POINTER((guint)tag));
     if (!ai) {
-        pi = proto_tree_add_text(
-                app_tree, tvb, 0, APDU_TAG_SIZE, "Unknown APDU");
-        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                "Dissection of this APDU is not supported");
+        proto_tree_add_expert(app_tree, pinfo, &ei_dvbci_apdu_not_supported, tvb, 0, APDU_TAG_SIZE);
         return;
     }
     if (ai->direction!=DIRECTION_ANY && ai->direction!=direction) {
-        pi = proto_tree_add_text(app_tree, tvb, 0, APDU_TAG_SIZE,
-                "Invalid APDU direction");
         if (ai->direction==DATA_HOST_TO_CAM) {
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                    "This APDU must be sent from host to CAM");
+            proto_tree_add_expert(app_tree, pinfo, &ei_dvbci_apu_host_to_cam, tvb, 0, APDU_TAG_SIZE);
         }
         else {
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                    "This APDU must be sent from CAM to host");
+            proto_tree_add_expert(app_tree, pinfo, &ei_dvbci_apu_cam_to_host, tvb, 0, APDU_TAG_SIZE);
         }
         /* don't return, we can continue dissecting the APDU */
     }
     if (ai->min_len_field!=LEN_FIELD_ANY && len_field<ai->min_len_field) {
-        pi = proto_tree_add_text(app_tree, tvb, 0, APDU_TAG_SIZE,
-                "Invalid APDU length field");
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "Minimum length field for %s is %d",
-                tag_str, ai->min_len_field);
+        proto_tree_add_expert_format(app_tree, pinfo, &ei_dvbci_bad_length, tvb, 0, APDU_TAG_SIZE,
+                "Invalid APDU length field, minimum length field for %s is %d", tag_str, ai->min_len_field);
         return;
     }
     if (ai->len_field!=LEN_FIELD_ANY && len_field!=ai->len_field) {
-        pi = proto_tree_add_text(app_tree, tvb, 0, APDU_TAG_SIZE,
-                "Invalid APDU length field");
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "Length field for %s must be %d", tag_str, ai->len_field);
+        proto_tree_add_expert_format(app_tree, pinfo, &ei_dvbci_bad_length, tvb, 0, APDU_TAG_SIZE,
+                "Invalid APDU length field, length field for %s must be %d", tag_str, ai->len_field);
         return;
     }
     if (circuit) {
@@ -3973,17 +3937,13 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
         ai_res_class_str = val_to_str_const(ai->res_class, dvbci_res_class, "Unknown");
 
         if(RES_CLASS(apdu_res_id) != ai->res_class) {
-            pi = proto_tree_add_text(app_tree, tvb, 0, APDU_TAG_SIZE,
-                    "Invalid resource class for this apdu");
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                    "%s can only be sent on a %s session",
+            proto_tree_add_expert_format(app_tree, pinfo, &ei_dvbci_res_class, tvb, 0, APDU_TAG_SIZE,
+                    "Invalid resource class for this apdu, %s can only be sent on a %s session",
                     tag_str, ai_res_class_str);
         }
         if(RES_VER(apdu_res_id) < ai->res_min_ver) {
-            pi = proto_tree_add_text(app_tree, tvb, 0, APDU_TAG_SIZE,
-                    "Invalid resource version for this apdu");
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                    "%s apdu requires at least %s version %d",
+            proto_tree_add_expert_format(app_tree, pinfo, &ei_dvbci_res_ver, tvb, 0, APDU_TAG_SIZE,
+                    "Invalid resource version for this apdu, %s apdu requires at least %s version %d",
                     tag_str, ai_res_class_str, ai->res_min_ver);
         }
         /* don't return, we can continue dissecting the APDU */
@@ -4030,13 +3990,9 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tag_str = try_val_to_str(tag, dvbci_spdu_tag);
     col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str_const(tag, dvbci_spdu_tag, "Invalid SPDU"));
-    if (tag_str) {
-        proto_tree_add_item(sess_tree, hf_dvbci_spdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    else {
-        pi = proto_tree_add_text(sess_tree, tvb, 0, 1, "Invalid SPDU tag");
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "See table 14 in the DVB-CI specification");
+    pi = proto_tree_add_item(sess_tree, hf_dvbci_spdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
+    if (tag_str == NULL) {
+        expert_add_info(pinfo, pi, &ei_dvbci_spdu_tag);
         return;
     }
 
@@ -4047,23 +4003,17 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!si)
         return;
     if (si->direction!=0 && si->direction!=direction) {
-        pi = proto_tree_add_text(sess_tree, tvb, 0, 1,
-                "Invalid SPDU direction");
         if (si->direction==DATA_HOST_TO_CAM) {
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                    "This SPDU must be sent from host to CAM");
+            proto_tree_add_expert(sess_tree, pinfo, &ei_dvbci_spdu_host_to_cam, tvb, 0, 1);
         }
         else {
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                    "This SPDU must be sent from CAM to host");
+            proto_tree_add_expert(sess_tree, pinfo, &ei_dvbci_spdu_cam_to_host, tvb, 0, 1);
         }
     }
     if (si->len_field != len_field) {
         /* offset points to 1st byte after the length field */
-        pi = proto_tree_add_text(sess_tree, tvb, 1, offset-1,
-                "Invalid SPDU length field");
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "Correct length field for %s is %d", tag_str, si->len_field);
+        proto_tree_add_expert_format(sess_tree, pinfo, &ei_dvbci_bad_length, tvb, 1, offset-1,
+                "Invalid SPDU length field, correct length field for %s is %d", tag_str, si->len_field);
         return;
     }
 
@@ -4175,10 +4125,7 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
 
     tag = tvb_get_guint8(tvb, offset_new);
     if (tag!=T_SB) {
-        pi = proto_tree_add_text(
-                tree, tvb, offset_new, 1, "Invalid status tag");
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "This must always be T_SB (0x80)");
+        proto_tree_add_expert(tree, pinfo, &ei_dvbci_tpdu_status_tag, tvb, offset_new, 1);
         return -1;
     }
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "T_SB");
@@ -4189,17 +4136,14 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
     offset_new = dissect_ber_length(
             pinfo, tree, tvb, offset_new, &len_field, NULL);
     if (len_field != 2) {
-        pi = proto_tree_add_text(
-                tree, tvb, len_start_offset, offset_new-len_start_offset,
-                "Invalid status length field");
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "This must always be 2");
+        proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, len_start_offset, offset_new-len_start_offset,
+                "Invalid status length field, this must always be 2");
 
         return -1;
     }
 
     t_c_id = tvb_get_guint8(tvb, offset_new);
-    proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset_new, 1, ENC_BIG_ENDIAN);
+    pi = proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset_new, 1, ENC_BIG_ENDIAN);
     /* tcid in transport header and link layer must only match for data
      * transmission commands */
     if (t_c_id!=lpdu_tcid) {
@@ -4208,9 +4152,7 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
 
             pi = proto_tree_add_text(tree, tvb, offset_new, 1,
                     "Transport Connection ID mismatch");
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                 "tcid is %d in the transport layer and %d in the link layer",
-                    t_c_id, lpdu_tcid);
+            expert_add_info_format_text(pinfo, pi, &ei_dvbci_t_c_id, "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer", t_c_id, lpdu_tcid);
 
             return -1;
         }
@@ -4219,16 +4161,15 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
 
     sb_value = tvb_get_guint8(tvb, offset_new);
     sb_str = try_val_to_str(sb_value, dvbci_sb_value);
+    pi = proto_tree_add_item(tree, hf_dvbci_sb_value, tvb,
+            offset_new, 1, ENC_BIG_ENDIAN);
     if (sb_str) {
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", sb_str);
-        proto_tree_add_item(tree, hf_dvbci_sb_value, tvb,
-                offset_new, 1, ENC_BIG_ENDIAN);
     }
     else {
-        pi = proto_tree_add_text(tree, tvb, offset_new, 1,
+        proto_tree_add_text(tree, tvb, offset_new, 1,
                 "Invalid SB_value");
-        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                "Must be 0x00 or 0x80");
+        expert_add_info(pinfo, pi, &ei_dvbci_sb_value);
     }
     offset_new++;
 
@@ -4254,17 +4195,14 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         c_tpdu_tag = tvb_get_guint8(tvb, 0);
         tag = &c_tpdu_tag;
         c_tpdu_str = try_val_to_str(c_tpdu_tag, dvbci_c_tpdu);
+        pi = proto_tree_add_item(tree, hf_dvbci_c_tpdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
         if (c_tpdu_str) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", c_tpdu_str);
-            proto_tree_add_item(tree, hf_dvbci_c_tpdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
         }
         else {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                     "Invalid Command-TPDU tag");
-            pi = proto_tree_add_text(
-                    tree, tvb, 0, 1, "Invalid Command-TPDU tag");
-            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                    "see DVB-CI specification, table A.16 for valid values");
+            expert_add_info(pinfo, pi, &ei_dvbci_c_tpdu_tag);
             return -1;
         }
     }
@@ -4272,9 +4210,9 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         r_tpdu_tag = tvb_get_guint8(tvb, 0);
         tag = &r_tpdu_tag;
         r_tpdu_str = try_val_to_str(r_tpdu_tag, dvbci_r_tpdu);
+        pi = proto_tree_add_item(tree, hf_dvbci_r_tpdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
         if (r_tpdu_str) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", r_tpdu_str);
-            proto_tree_add_item(tree, hf_dvbci_r_tpdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
         }
         else {
             if (r_tpdu_tag == T_SB) {
@@ -4289,10 +4227,7 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             else {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                         "Invalid Response-TPDU tag");
-                pi = proto_tree_add_text(
-                        tree, tvb, 0, 1, "Invalid Response-TPDU tag");
-                expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                   "see DVB-CI specification, table A.16 for valid values");
+                expert_add_info(pinfo, pi, &ei_dvbci_r_tpdu_tag);
                 return -1;
             }
         }
@@ -4306,23 +4241,19 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ((direction==DATA_HOST_TO_CAM) && ((offset+len_field)!=tpdu_len)) ||
         ((direction==DATA_CAM_TO_HOST) && ((offset+len_field)>tpdu_len))) {
         /* offset points to 1st byte after the length field */
-        pi = proto_tree_add_text(tree, tvb, 1, offset-1, "Invalid length field");
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                len_field==0 ? "Length field must be at least 1" :
-                               "Length field mismatch");
+        proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, 1, offset-1,
+            len_field==0 ? "Invalid length field, length field must be at least 1" :
+                           "Invalid length field, length field mismatch");
         return -1;
     }
 
     t_c_id = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    pi = proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* tcid in transport header and link layer must only match for
      * data transmission commands */
     if (t_c_id!=lpdu_tcid) {
         if (tag && (*tag==T_RCV || *tag==T_DATA_MORE || *tag==T_DATA_LAST)) {
-            pi = proto_tree_add_text(tree, tvb, offset, 1,
-                    "Transport Connection ID mismatch");
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-               "tcid is %d in the transport layer and %d in the link layer",
+            expert_add_info_format_text(pinfo, pi, &ei_dvbci_t_c_id, "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer",
                     t_c_id, lpdu_tcid);
         }
     }
@@ -4348,7 +4279,6 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint           offset, status_len;
     guint8         hdr_tag                = NO_TAG;
     tvbuff_t      *body_tvb, *payload_tvb = NULL;
-    proto_item    *pi;
     fragment_head *frag_msg               = NULL;
 
 
@@ -4396,10 +4326,7 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (direction==DATA_CAM_TO_HOST) {
         /* minimum length of an rtpdu status is 4 bytes */
         if (tpdu_len-offset < 4) {
-            pi = proto_tree_add_text(trans_tree, tvb, 0, 0,
-                    "Response TPDU's status part is missing");
-            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                    "RTPDU status is mandatory");
+            proto_tree_add_expert(trans_tree, pinfo, &ei_dvbci_r_tpdu_status_mandatory, tvb, 0, 0);
             return;
         }
         status_len = dissect_dvbci_tpdu_status(
@@ -4439,23 +4366,15 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(link_tree, hf_dvbci_tcid, tvb, 0, 1, ENC_BIG_ENDIAN);
 
     more_last = tvb_get_guint8(tvb, 1);
-    if (try_val_to_str(more_last, dvbci_ml)) {
-        proto_tree_add_item(link_tree, hf_dvbci_ml, tvb, 1, 1, ENC_BIG_ENDIAN);
-    }
-    else {
-        pi = proto_tree_add_text(
-                link_tree, tvb, 1, 1, "Invalid More/Last indicator");
-        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                "Second byte of an LPDU must be 0x80 or 0x00");
+    pi = proto_tree_add_item(link_tree, hf_dvbci_ml, tvb, 1, 1, ENC_BIG_ENDIAN);
+    if (try_val_to_str(more_last, dvbci_ml) == NULL) {
+        expert_add_info(pinfo, pi, &ei_dvbci_ml);
     }
 
     /* buf_size_host==0 -> we did not capture the buffer size negotiation */
     if (buf_size_host!=0 && payload_len>buf_size_host) {
-        pi = proto_tree_add_text(
-                link_tree, tvb, 2, payload_len, "Payload too large");
-        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-           "Maximum payload length is the negotiated buffer size (%d bytes)",
-                buf_size_host);
+        proto_tree_add_expert_format(link_tree, pinfo, &ei_dvbci_bad_length, tvb, 2, payload_len,
+                "Payload too large, maximum payload length is the negotiated buffer size (%d bytes)", buf_size_host);
     }
 
     frag_msg = fragment_add_seq_next(&tpdu_reassembly_table,
@@ -4494,7 +4413,7 @@ dissect_dvbci_buf_neg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (direction == DATA_HOST_TO_CAM) {
         buf_size_host = buf_size;
-        proto_tree_add_uint_format(tree, hf_dvbci_buf_size, tvb,
+        pi = proto_tree_add_uint_format(tree, hf_dvbci_buf_size, tvb,
                 0, 2, buf_size,
                 "Negotiated buffer size: %u bytes", buf_size);
         if (buf_size_host > buf_size_cam) {
@@ -4503,10 +4422,7 @@ dissect_dvbci_buf_neg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                if we didn't check the direction, we'd get the error when
                wireshark runs through the initial CAM packet for the 2nd time
              */
-            pi = proto_tree_add_text(tree, tvb, 0, 2,
-                    "Illegal buffer size command");
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                                   "Host shall not request a buffer size larger than the CAM proposal");
+            expert_add_info_format_text(pinfo, pi, &ei_dvbci_buf_size, "Illegal buffer size command. Host shall not request a buffer size larger than the CAM proposal");
         }
     }
     else if (direction == DATA_CAM_TO_HOST) {
@@ -4517,9 +4433,8 @@ dissect_dvbci_buf_neg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (buf_size < 16) {
-        pi = proto_tree_add_text(tree, tvb, 0, 2, "Illegal buffer size");
-        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                "Minimum buffer size is 16 bytes");
+        proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_buf_size, tvb, 0, 2,
+               "Illegal buffer size, minimum buffer size is 16 bytes");
     }
 }
 
@@ -4842,8 +4757,7 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", "unknown address");
         }
         else if (cor_addr > 0xFFE) {
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                "COR address must not be greater than 0xFFE (DVB-CI spec, A.5.6)");
+            expert_add_info(pinfo, pi, &ei_dvbci_cor_addr);
         }
         else {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
@@ -4876,6 +4790,7 @@ proto_register_dvbci(void)
 {
     guint     i;
     module_t *dvbci_module;
+    expert_module_t* expert_dvbci;
 
     static gint *ett[] = {
         &ett_dvbci,
@@ -5810,6 +5725,37 @@ proto_register_dvbci(void)
         }
     };
 
+    static ei_register_info ei[] = {
+        { &ei_dvbci_dvbci_char_tbl, { "dvb-ci.mmi.char_tbl.not_supported", PI_PROTOCOL, PI_WARN, "Character tables with multi-byte encoding are not supported", EXPFILL }},
+        { &ei_dvbci_ca_pmt_cmd_id, { "dvb-ci.ca.ca_pmt_cmd_id.ca_pmt", PI_MALFORMED, PI_ERROR, "The ca_pmt shall only contain ca descriptors (tag 0x9)", EXPFILL }},
+        { &ei_dvbci_bad_length, { "dvb-ci.bad_length", PI_MALFORMED, PI_ERROR, "Invalid APDU length field, %s must be a multiple of 4 bytes", EXPFILL }},
+        { &ei_dvbci_network_id, { "dvb-ci.hc.nid.ignored", PI_PROTOCOL, PI_NOTE, "Network ID is usually ignored by hosts", EXPFILL }},
+        { &ei_dvbci_not_text_more_or_text_last, { "dvb-ci.not_text_more_or_text_last", PI_MALFORMED, PI_ERROR, "Items must be text_more() or text_last() objects", EXPFILL }},
+        { &ei_dvbci_cup_progress, { "dvb-ci.cup.progress.invalid", PI_PROTOCOL, PI_WARN, "progress is in percent, value must be between 0 and 100", EXPFILL }},
+        { &ei_dvbci_sac_payload_enc, { "dvb-ci.cc.sac.payload_enc.clear", PI_PROTOCOL, PI_NOTE, "The original PDU was encrypted, this exported PDU is in the clear", EXPFILL }},
+        { &ei_dvbci_pin_evt_cent, { "dvb-ci.cc.pin_event_time_centi.invalid", PI_PROTOCOL, PI_WARN, "Invalid value for event time centiseconds, Value must be between 0 and 100", EXPFILL }},
+        { &ei_dvbci_cicam_nit_table_id, { "dvb-ci.cicam_nit.table_id.invalid", PI_PROTOCOL, PI_WARN, "CICAM NIT must have table id 0x40 (NIT actual)", EXPFILL }},
+        { &ei_dvbci_sig_qual, { "dvb-ci.opp.sig_qual.invalid", PI_PROTOCOL, PI_WARN, "Invalid value for signal strength / signal quality, values are in percent (0 to 100)", EXPFILL }},
+        { &ei_dvbci_apdu_tag, { "dvb-ci.apdu_tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid or unsupported APDU tag", EXPFILL }},
+        { &ei_dvbci_apdu_not_supported, { "dvb-ci.apdu_not_supported", PI_PROTOCOL, PI_WARN, "Dissection of this APDU is not supported", EXPFILL }},
+        { &ei_dvbci_apu_host_to_cam, { "dvb-ci.apu.host_to_cam", PI_PROTOCOL, PI_WARN, "Invalid APDU direction, this APDU must be sent from host to CAM", EXPFILL }},
+        { &ei_dvbci_apu_cam_to_host, { "dvb-ci.apu.cam_to_host", PI_PROTOCOL, PI_WARN, "Invalid APDU direction, this APDU must be sent from CAM to host", EXPFILL }},
+        { &ei_dvbci_res_class, { "dvb-ci.res.class.invalid", PI_PROTOCOL, PI_WARN, "Invalid resource class for this apdu", EXPFILL }},
+        { &ei_dvbci_res_ver, { "dvb-ci.res.version.old", PI_PROTOCOL, PI_WARN, "Invalid resource version for this apdu", EXPFILL }},
+        { &ei_dvbci_spdu_tag, { "dvb-ci.spdu_tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid SPDU tag, See table 14 in the DVB-CI specification", EXPFILL }},
+        { &ei_dvbci_spdu_host_to_cam, { "dvb-ci.spdu.host_to_cam", PI_PROTOCOL, PI_WARN, "Invalid SPDU direction, this SPDU must be sent from host to CAM", EXPFILL }},
+        { &ei_dvbci_spdu_cam_to_host, { "dvb-ci.spdu.cam_to_host", PI_PROTOCOL, PI_WARN, "Invalid SPDU direction, this SPDU must be sent from CAM to host", EXPFILL }},
+        { &ei_dvbci_tpdu_status_tag, { "dvb-ci.tpdu.status_tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid status tag, this must always be T_SB (0x80)", EXPFILL }},
+        { &ei_dvbci_t_c_id, { "dvb-ci.t_c_id.invalid", PI_PROTOCOL, PI_WARN, "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer", EXPFILL }},
+        { &ei_dvbci_sb_value, { "dvb-ci.sb_value.invalid", PI_PROTOCOL, PI_WARN, "Invalid SB_value, must be 0x00 or 0x80", EXPFILL }},
+        { &ei_dvbci_c_tpdu_tag, { "dvb-ci.c_tpdu_tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid Command-TPDU tag, see DVB-CI specification, table A.16 for valid values", EXPFILL }},
+        { &ei_dvbci_r_tpdu_tag, { "dvb-ci.r_tpdu_tag.invalid", PI_MALFORMED, PI_ERROR, "Invalid Response-TPDU tag, see DVB-CI specification, table A.16 for valid values", EXPFILL }},
+        { &ei_dvbci_r_tpdu_status_mandatory, { "dvb-ci.r_tpdu_status.mandatory", PI_MALFORMED, PI_ERROR, "Response TPDU's status part is missing, RTPDU status is mandatory", EXPFILL }},
+        { &ei_dvbci_ml, { "dvb-ci.more_last.invalid", PI_PROTOCOL, PI_WARN, "Invalid More/Last indicator, second byte of an LPDU must be 0x80 or 0x00", EXPFILL }},
+        { &ei_dvbci_buf_size, { "dvb-ci.buf_size.invalid", PI_PROTOCOL, PI_WARN, "Illegal buffer size command", EXPFILL }},
+        { &ei_dvbci_cor_addr, { "dvb-ci.cor_address.invalid", PI_PROTOCOL, PI_WARN, "COR address must not be greater than 0xFFE (DVB-CI spec, A.5.6)", EXPFILL }},
+    };
+
     spdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
     for(i=0; i<array_length(spdu_info); i++) {
         g_hash_table_insert(spdu_table,
@@ -5824,10 +5770,11 @@ proto_register_dvbci(void)
                             (const gpointer)(&apdu_info[i]));
     }
 
-    proto_dvbci = proto_register_protocol(
-        "DVB Common Interface", "DVB-CI", "dvb-ci");
+    proto_dvbci = proto_register_protocol("DVB Common Interface", "DVB-CI", "dvb-ci");
     proto_register_field_array(proto_dvbci, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_dvbci = expert_register_protocol(proto_dvbci);
+    expert_register_field_array(expert_dvbci, ei, array_length(ei));
 
     dvbci_module = prefs_register_protocol(
         proto_dvbci, proto_reg_handoff_dvbci);

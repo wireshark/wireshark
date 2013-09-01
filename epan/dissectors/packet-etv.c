@@ -44,8 +44,18 @@ static dissector_handle_t dsmcc_handle;
 static int hf_etv_dii_filter_info = -1;
 static int hf_etv_dii_reserved = -1;
 
+static expert_field ei_etv_dii_invalid_section_syntax_indicator = EI_INIT;
+static expert_field ei_etv_dii_invalid_section_length = EI_INIT;
+static expert_field ei_etv_dii_invalid_reserved_bits = EI_INIT;
+static expert_field ei_etv_dii_filter_info = EI_INIT;
+
 static int hf_etv_ddb_filter_info = -1;
 static int hf_etv_ddb_reserved = -1;
+
+static expert_field ei_etv_ddb_invalid_section_syntax_indicator = EI_INIT;
+static expert_field ei_etv_ddb_invalid_section_length = EI_INIT;
+static expert_field ei_etv_ddb_invalid_reserved_bits = EI_INIT;
+static expert_field ei_etv_ddb_filter_info = EI_INIT;
 
 static gint ett_etv = -1;
 static gint ett_etv_payload = -1;
@@ -55,7 +65,9 @@ static gint ett_etv_payload = -1;
 
 static void
 dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int proto,
-	int hf_filter_info, int hf_reserved )
+	int hf_filter_info, int hf_reserved,
+	expert_field* ei_section_syntax_indicator, expert_field* ei_reserved,
+	expert_field* ei_section_length, expert_field* ei_filter_info)
 {
 	tvbuff_t   *sub_tvb;
 	guint       offset = 0;
@@ -80,8 +92,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 		msg_error = items[PACKET_MPEG_SECT_PI__SSI];
 
 		PROTO_ITEM_SET_GENERATED(msg_error);
-		expert_add_info_format(pinfo, msg_error, PI_MALFORMED, PI_ERROR,
-					"Invalid section_syntax_indicator (should be 0)");
+		expert_add_info(pinfo, msg_error, ei_section_syntax_indicator);
 	}
 
 	if (4 != reserved) {
@@ -89,8 +100,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 		msg_error = items[PACKET_MPEG_SECT_PI__RESERVED];
 
 		PROTO_ITEM_SET_GENERATED(msg_error);
-		expert_add_info_format(pinfo, msg_error, PI_MALFORMED, PI_ERROR,
-					"Invalid reserved1 bits (should all be 100)");
+		expert_add_info(pinfo, msg_error, ei_reserved);
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Length: %u", sect_len);
@@ -100,8 +110,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 		msg_error = items[PACKET_MPEG_SECT_PI__LENGTH];
 
 		PROTO_ITEM_SET_GENERATED(msg_error);
-		expert_add_info_format(pinfo, msg_error, PI_MALFORMED, PI_ERROR,
-					"Invalid section_length (must not exceed 1021)");
+		expert_add_info(pinfo, msg_error, ei_section_length);
 	}
 
 	filter_info = tvb_get_ntohs(tvb, offset);
@@ -109,14 +118,12 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 	proto_item_append_text(ti, " Filter=0x%x", filter_info);
 	pi = proto_tree_add_item(etv_tree, hf_filter_info, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if ((proto_etv_dii == proto) && (0xFBFB != filter_info)) {
-		PROTO_ITEM_SET_GENERATED(pi);
-		expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, pi, ei_filter_info,
 					"Invalid filter_info value (must be 0xFBFB)");
 	} else if ((proto_etv_ddb == proto) &&
 			((filter_info < 1) || (0xfbef < filter_info)))
 	{
-		PROTO_ITEM_SET_GENERATED(pi);
-		expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, pi, ei_filter_info,
 					"Invalid filter_info value (must be [0x0001-0xFBEF] inclusive)");
 	}
 	offset += 2;
@@ -124,8 +131,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 	reserved2 = tvb_get_guint8(tvb, offset);
 	pi = proto_tree_add_item(etv_tree, hf_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (0 != reserved2) {
-		PROTO_ITEM_SET_GENERATED(pi);
-		expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, pi, ei_reserved,
 					"Invalid reserved2 bits (should all be 0)");
 	}
 	offset += 1;
@@ -144,8 +150,11 @@ dissect_etv_ddb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ETV-DDB");
 	col_set_str(pinfo->cinfo, COL_INFO, "ETV DDB");
+
 	dissect_etv_common(tvb, pinfo, tree, proto_etv_ddb, hf_etv_ddb_filter_info,
-		hf_etv_ddb_reserved);
+		hf_etv_ddb_reserved, &ei_etv_ddb_invalid_section_syntax_indicator,
+		&ei_etv_ddb_invalid_reserved_bits, &ei_etv_ddb_invalid_section_length,
+		&ei_etv_ddb_filter_info);
 }
 
 
@@ -155,7 +164,9 @@ dissect_etv_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ETV-DII");
 	col_set_str(pinfo->cinfo, COL_INFO, "ETV DII");
 	dissect_etv_common(tvb, pinfo, tree, proto_etv_dii, hf_etv_dii_filter_info,
-		hf_etv_dii_reserved);
+		hf_etv_dii_reserved, &ei_etv_dii_invalid_section_syntax_indicator,
+		&ei_etv_dii_invalid_reserved_bits, &ei_etv_dii_invalid_section_length,
+		&ei_etv_dii_filter_info);
 }
 
 
@@ -191,12 +202,33 @@ proto_register_etv(void)
 		&ett_etv_payload
 	};
 
+	static ei_register_info ei_ddb[] = {
+		{ &ei_etv_ddb_invalid_section_syntax_indicator, { "etv-ddb.invalid_section_syntax_indicator", PI_MALFORMED, PI_ERROR, "Invalid section_syntax_indicator (should be 0)", EXPFILL }},
+		{ &ei_etv_ddb_invalid_reserved_bits, { "etv-ddb.invalid_reserved_bits", PI_MALFORMED, PI_ERROR, "Invalid reserved bits", EXPFILL }},
+		{ &ei_etv_ddb_invalid_section_length, { "etv-ddb.invalid_section_length", PI_MALFORMED, PI_ERROR, "Invalid section_length (must not exceed 1021)", EXPFILL }},
+		{ &ei_etv_ddb_filter_info, { "etv-ddb.filter_info.invalid", PI_MALFORMED, PI_ERROR, "Invalid filter info", EXPFILL }},
+	};
+
+	static ei_register_info ei_dii[] = {
+		{ &ei_etv_dii_invalid_section_syntax_indicator, { "etv-dii.invalid_section_syntax_indicator", PI_MALFORMED, PI_ERROR, "Invalid section_syntax_indicator (should be 0)", EXPFILL }},
+		{ &ei_etv_dii_invalid_reserved_bits, { "etv-dii.invalid_reserved_bits", PI_MALFORMED, PI_ERROR, "Invalid reserved bits", EXPFILL }},
+		{ &ei_etv_dii_invalid_section_length, { "etv-dii.invalid_section_length", PI_MALFORMED, PI_ERROR, "Invalid section_length (must not exceed 1021)", EXPFILL }},
+		{ &ei_etv_dii_filter_info, { "etv-dii.filter_info.invalid", PI_MALFORMED, PI_ERROR, "Invalid filter info", EXPFILL }},
+	};
+
+	expert_module_t* expert_etv_dii;
+	expert_module_t* expert_etv_ddb;
+
 	proto_etv_dii = proto_register_protocol("ETV-AM DII Section", "ETV-AM DII", "etv-dii");
 	proto_etv_ddb = proto_register_protocol("ETV-AM DDB Section", "ETV-AM DDB", "etv-ddb");
 
 	proto_register_field_array(proto_etv_dii, hf_dii, array_length(hf_dii));
 	proto_register_field_array(proto_etv_ddb, hf_ddb, array_length(hf_ddb));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_etv_dii = expert_register_protocol(proto_etv_dii);
+	expert_register_field_array(expert_etv_dii, ei_dii, array_length(ei_dii));
+	expert_etv_ddb = expert_register_protocol(proto_etv_ddb);
+	expert_register_field_array(expert_etv_ddb, ei_ddb, array_length(ei_ddb));
 }
 
 

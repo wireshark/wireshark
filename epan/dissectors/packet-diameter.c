@@ -281,6 +281,14 @@ static gint ett_err = -1;
 
 
 static expert_field ei_diameter_reserved_bit_set = EI_INIT;
+static expert_field ei_diameter_avp_len = EI_INIT;
+static expert_field ei_diameter_avp_no_data = EI_INIT;
+static expert_field ei_diameter_application_id = EI_INIT;
+static expert_field ei_diameter_version = EI_INIT;
+static expert_field ei_diameter_avp_pad = EI_INIT;
+static expert_field ei_diameter_code = EI_INIT;
+static expert_field ei_diameter_avp_code = EI_INIT;
+static expert_field ei_diameter_avp_vendor_id = EI_INIT;
 
 /* Tap for Diameter */
 static int diameter_tap = -1;
@@ -498,12 +506,9 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 	/* Code */
 	if (a == &unknown_avp) {
 		proto_tree *tu = proto_item_add_subtree(pi,ett_unknown);
-		pi = proto_tree_add_text(tu,tvb,offset,4,"Unknown AVP, "
-					 "if you know what this is you can add it to dictionary.xml");
-		expert_add_info_format(c->pinfo, pi, PI_UNDECODED, PI_WARN,
-		                       "Unknown AVP %u (vendor=%s)", code,
-		                       val_to_str_ext_const(vendorid, &sminmpec_values_ext, "Unknown"));
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_tree_add_expert_format(tu, c->pinfo, &ei_diameter_avp_code, tvb, offset, 4,
+			"Unknown AVP %u (vendor=%s), if you know what this is you can add it to dictionary.xml", code,
+			val_to_str_ext_const(vendorid, &sminmpec_values_ext, "Unknown"));
 	}
 
 	offset += 4;
@@ -540,19 +545,14 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 		pi = proto_tree_add_item(avp_tree,hf_diameter_avp_vendor_id,tvb,offset,4,ENC_BIG_ENDIAN);
 		if (vendor == &unknown_vendor) {
 			proto_tree *tu = proto_item_add_subtree(pi,ett_unknown);
-			pi = proto_tree_add_text(tu,tvb,offset,4,"Unknown Vendor, "
-					     "if you know whose this is you can add it to dictionary.xml");
-			expert_add_info_format(c->pinfo, pi, PI_UNDECODED, PI_WARN, "Unknown Vendor");
-			PROTO_ITEM_SET_GENERATED(pi);
+			proto_tree_add_expert(tu, c->pinfo, &ei_diameter_avp_vendor_id, tvb, offset, 4);
 		}
 		offset += 4;
 	}
 
 	if ( len == (guint32)(vendor_flag ? 12 : 8) ) {
 		/* Data is empty so return now */
-		pi = proto_tree_add_text(avp_tree,tvb,offset,0,"No data");
-		expert_add_info_format(c->pinfo, pi, PI_UNDECODED, PI_WARN, "Data is empty");
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_tree_add_expert(avp_tree, c->pinfo, &ei_diameter_avp_no_data, tvb, offset, 0);
 		/* pad_len is always 0 in this case, but kept here for consistency */
 		return len+pad_len;
 	}
@@ -579,7 +579,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 		pi = proto_tree_add_item(avp_tree, hf_diameter_avp_pad, tvb, offset, pad_len, ENC_NA);
 		for (i=0; i < pad_len; i++) {
 			if (tvb_get_guint8(tvb, offset++) != 0) {
-				expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE, "Padding is non-zero");
+				expert_add_info(c->pinfo, pi, &ei_diameter_avp_pad);
 				break;
 			}
 		}
@@ -602,16 +602,14 @@ address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 	switch (addr_type ) {
 		case 1:
 			if (len != 4) {
-				pi = proto_tree_add_text(pt,tvb,2,len,"Wrong length for IPv4 Address: %d instead of 4",len);
-				expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong length for IPv4 Address");
+				proto_tree_add_expert_format(pt, c->pinfo, &ei_diameter_avp_len, tvb, 2, len, "Wrong length for IPv4 Address: %d instead of 4", len);
 				return "[Malformed]";
 			}
 			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,2,4,ENC_BIG_ENDIAN);
 			break;
 		case 2:
 			if (len != 16) {
-				pi = proto_tree_add_text(pt,tvb,2,len,"Wrong length for IPv6 Address: %d instead of 16",len);
-				expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong length for IPv6 Address");
+				proto_tree_add_expert_format(pt, c->pinfo, &ei_diameter_avp_len, tvb, 2, len, "Wrong length for IPv6 Address: %d instead of 16", len);
 				return "[Malformed]";
 			}
 			pi = proto_tree_add_item(pt,t->hf_ipv6,tvb,2,16,ENC_NA);
@@ -657,9 +655,8 @@ time_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 	proto_item *pi;
 
 	if ( len != 4 ) {
-		pi = proto_tree_add_text(c->tree, tvb, 0, 4, "Error! AVP value MUST be 4 bytes");
-		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
-				       "Bad Timestamp Length (%u)", len);
+		proto_tree_add_expert_format(c->tree, c->pinfo, &ei_diameter_avp_len, tvb, 0, 4,
+				"Bad Timestamp Length: %d instead of 4", len);
 		return "[Malformed]";
 	}
 
@@ -687,8 +684,8 @@ address_v16_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 			break;
 		default:
 			pi = proto_tree_add_item(pt,t->hf_other,tvb,0,len,ENC_BIG_ENDIAN);
-			expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
-					       "Bad Address Length (%u)", len);
+			expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+					"Bad Address Length (%u)", len);
 
 			break;
 	}
@@ -736,8 +733,8 @@ integer32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Integer32 Length");
-		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
-				       "Bad Integer32 Length (%u)", length);
+		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+					"Bad Integer32 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
 	}
@@ -762,8 +759,8 @@ integer64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Integer64 Length");
-		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
-				       "Bad Integer64 Length (%u)", length);
+		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+				"Bad Integer64 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
 	}
@@ -788,8 +785,8 @@ unsigned32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Unsigned32 Length");
-		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
-				       "Bad Unsigned32 Length (%u)", length);
+		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+					"Bad Unsigned32 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
 	}
@@ -814,8 +811,8 @@ unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Unsigned64 Length");
-		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
-				       "Bad Unsigned64 Length (%u)", length);
+		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+				"Bad Unsigned64 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
 	}
@@ -840,8 +837,8 @@ float32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Float32 Length");
-		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
-				       "Bad Float32 Length (%u)", length);
+		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+				"Bad Float32 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
 	}
@@ -866,8 +863,8 @@ float64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Float64 Length");
-		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
-				       "Bad Float64 Length (%u)", length);
+		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+				"Bad Float64 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
 	}
@@ -983,11 +980,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if (try_val_to_str(diam_sub_dis_inf->application_id, dictionary.applications) == NULL) {
 				proto_tree *tu = proto_item_add_subtree(app_item,ett_unknown);
-				proto_item *iu = proto_tree_add_text(tu, tvb, 8, 4, "Unknown Application Id, "
-				                                     "if you know what this is you can add it to dictionary.xml");
-				expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN,
-				                       "Unknown Application Id (%u)", diam_sub_dis_inf->application_id);
-				PROTO_ITEM_SET_GENERATED(iu);
+				proto_tree_add_expert_format(tu, c->pinfo, &ei_diameter_application_id, tvb, 8, 4,
+					"Unknown Application Id (%u), if you know what this is you can add it to dictionary.xml", diam_sub_dis_inf->application_id);
 			}
 
 			c->version_rfc = TRUE;
@@ -996,9 +990,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		default:
 		{
 			proto_tree *pt = proto_item_add_subtree(version_item,ett_err);
-			proto_item *pi_local = proto_tree_add_text(pt,tvb,0,1,"Unknown Diameter Version (decoding as RFC 3588)");
-			expert_add_info_format(pinfo, pi_local, PI_UNDECODED, PI_WARN, "Unknown Diameter Version");
-			PROTO_ITEM_SET_GENERATED(pi);
+			proto_tree_add_expert(pt, pinfo, &ei_diameter_version, tvb, 0, 1);
 			c->version_rfc = TRUE;
 			cmd_vs = VND_CMD_VS(&no_vnd);
 			break;
@@ -1025,10 +1017,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item_append_text(cmd_item," %s", cmd_str);
 	if (strcmp(cmd_str, "Unknown") == 0) {
 		proto_tree *tu = proto_item_add_subtree(cmd_item,ett_unknown);
-		proto_item *iu = proto_tree_add_text(tu,tvb, 5 ,3,"Unknown command, "
-		                                     "if you know what this is you can add it to dictionary.xml");
-		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN, "Unknown command (%u)", cmd);
-		PROTO_ITEM_SET_GENERATED(iu);
+		proto_tree_add_expert(tu, c->pinfo, &ei_diameter_code, tvb, 5, 3);
 	}
 
 
@@ -1039,7 +1028,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Conversation tracking stuff */
 	/*
-	 * FIXME: Looking at epan/conversation.c it seems unlike that this will work properly in
+	 * FIXME: Looking at epan/conversation.c it seems unlikely that this will work properly in
 	 * multi-homed SCTP connections. This will probably need to be fixed at some point.
 	 */
 
@@ -1840,6 +1829,14 @@ real_proto_register_diameter(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_diameter_reserved_bit_set, { "diameter.reserved_bit_set", PI_MALFORMED, PI_WARN, "Reserved bit set", EXPFILL }},
+		{ &ei_diameter_avp_code, { "diameter.avp.code.unknown", PI_UNDECODED, PI_WARN, "Unknown AVP, if you know what this is you can add it to dictionary.xml", EXPFILL }},
+		{ &ei_diameter_avp_vendor_id, { "diameter.unknown_vendor", PI_UNDECODED, PI_WARN, "Unknown Vendor, if you know whose this is you can add it to dictionary.xml", EXPFILL }},
+		{ &ei_diameter_avp_no_data, { "diameter.avp.no_data", PI_UNDECODED, PI_WARN, "Data is empty", EXPFILL }},
+		{ &ei_diameter_avp_pad, { "diameter.avp.pad.non_zero", PI_MALFORMED, PI_NOTE, "Padding is non-zero", EXPFILL }},
+		{ &ei_diameter_avp_len, { "diameter.avp.invalid-len", PI_MALFORMED, PI_WARN, "Wrong length", EXPFILL }},
+		{ &ei_diameter_application_id, { "diameter.applicationId.unknown", PI_UNDECODED, PI_WARN, "Unknown Application Id, if you know what this is you can add it to dictionary.xml", EXPFILL }},
+		{ &ei_diameter_version, { "diameter.version.unknown", PI_UNDECODED, PI_WARN, "Unknown Diameter Version (decoding as RFC 3588)", EXPFILL }},
+		{ &ei_diameter_code, { "diameter.cmd.code.unknown", PI_UNDECODED, PI_WARN, "Unknown command, if you know what this is you can add it to dictionary.xml", EXPFILL }},
 	};
 
 	wmem_array_append(build_dict.hf, hf_base, array_length(hf_base));
