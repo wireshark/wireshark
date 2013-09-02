@@ -479,7 +479,13 @@ extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
 
 /*
- * Descriptor types.
+ * Standard descriptor types.
+ * 
+ * all class specific descriptor types were removed from this list
+ * a descriptor type is not globally unique
+ * dissectors for the USB classes should provide their own value string
+ *  and pass it to dissect_usb_descriptor_header()
+ *
  */
 #define USB_DT_DEVICE                          1
 #define USB_DT_CONFIG                          2
@@ -493,17 +499,10 @@ extern value_string_ext ext_usb_products_vals;
 #define USB_DT_OTG                             9
 #define USB_DT_DEBUG                          10
 #define USB_DT_INTERFACE_ASSOCIATION          11
-/* these are from the Wireless USB spec */
-#define USB_DT_SECURITY                       12
-#define USB_DT_KEY                            13
-#define USB_DT_ENCRYPTION_TYPE                14
-#define USB_DT_BOS                            15
-#define USB_DT_DEVICE_CAPABILITY              16
-#define USB_DT_WIRELESS_ENDPOINT_COMP         17
+/* XXX - move into HID dissector */
 #define USB_DT_RPIPE                          34
-#define USB_DT_SUPERSPEED_ENDPOINT_COMPANION  48
 
-static const value_string descriptor_type_vals[] = {
+static const value_string std_descriptor_type_vals[] = {
     {USB_DT_DEVICE,                         "DEVICE"},
     {USB_DT_CONFIG,                         "CONFIGURATION"},
     {USB_DT_STRING,                         "STRING"},
@@ -515,18 +514,10 @@ static const value_string descriptor_type_vals[] = {
     {USB_DT_OTG,                            "OTG"},
     {USB_DT_DEBUG,                          "DEBUG"},
     {USB_DT_INTERFACE_ASSOCIATION,          "INTERFACE ASSOCIATION"},
-    {USB_DT_SECURITY,                       "SECURITY"},
-    {USB_DT_KEY,                            "KEY"},
-    {USB_DT_ENCRYPTION_TYPE,                "ENCRYPTION TYPE"},
-    {USB_DT_BOS,                            "BOS"},
-    {USB_DT_DEVICE_CAPABILITY,              "DEVICE CAPABILITY"},
-    {USB_DT_WIRELESS_ENDPOINT_COMP,         "WIRELESS ENDPOINT COMP"},
-    {USB_DT_HID,                            "HID"},
-    {USB_DT_RPIPE,                          "RPIPE"},
-    {USB_DT_SUPERSPEED_ENDPOINT_COMPANION,  "SUPERSPEED USB ENDPOINT COMPANION"},
     {0,NULL}
 };
-static value_string_ext descriptor_type_vals_ext = VALUE_STRING_EXT_INIT(descriptor_type_vals);
+static value_string_ext std_descriptor_type_vals_ext =
+               VALUE_STRING_EXT_INIT(std_descriptor_type_vals);
 
 /*
  * Feature selectors.
@@ -1901,7 +1892,7 @@ dissect_usb_setup_get_descriptor_request(packet_info *pinfo, proto_tree *tree,
     usb_trans_info->u.get_descriptor.type = tvb_get_guint8(tvb, offset);
     offset += 1;
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-        val_to_str_ext(usb_trans_info->u.get_descriptor.type, &descriptor_type_vals_ext, "Unknown type %u"));
+        val_to_str_ext(usb_trans_info->u.get_descriptor.type, &std_descriptor_type_vals_ext, "Unknown type %u"));
 
     /* language id */
     proto_tree_add_item(tree, hf_usb_language_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1923,7 +1914,7 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
 {
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-        val_to_str_ext(usb_trans_info->u.get_descriptor.type, &descriptor_type_vals_ext, "Unknown type %u"));
+        val_to_str_ext(usb_trans_info->u.get_descriptor.type, &std_descriptor_type_vals_ext, "Unknown type %u"));
 
     switch(usb_trans_info->u.get_descriptor.type) {
     case USB_DT_DEVICE:
@@ -3642,7 +3633,7 @@ proto_register_usb(void)
 
         { &hf_usb_bDescriptorType,
           { "bDescriptorType", "usb.bDescriptorType",
-            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &descriptor_type_vals_ext, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_descriptor_index,
