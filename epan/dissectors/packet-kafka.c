@@ -687,13 +687,13 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (tvb_get_ntohs(tvb, offset) != 0 && !PINFO_FD_VISITED(pinfo)) {
                     wmem_queue_push(match_queue, matcher);
                 }
-                offset = dissect_kafka_produce_request(tvb, pinfo, kafka_tree, offset);
+                /*offset =*/ dissect_kafka_produce_request(tvb, pinfo, kafka_tree, offset);
                 break;
             case KAFKA_OFFSET_FETCH:
-                offset = dissect_kafka_offset_fetch_request(tvb, pinfo, kafka_tree, offset);
+                /*offset =*/ dissect_kafka_offset_fetch_request(tvb, pinfo, kafka_tree, offset);
                 break;
             case KAFKA_METADATA:
-                offset = dissect_kafka_metadata_request(tvb, pinfo, kafka_tree, offset);
+                /*offset =*/ dissect_kafka_metadata_request(tvb, pinfo, kafka_tree, offset);
                 break;
         }
     }
@@ -732,13 +732,13 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         switch (matcher->api_key) {
             /* TODO: decode other response types */
             case KAFKA_PRODUCE:
-                offset = dissect_kafka_produce_response(tvb, pinfo, kafka_tree, offset);
+                /*offset =*/ dissect_kafka_produce_response(tvb, pinfo, kafka_tree, offset);
                 break;
             case KAFKA_OFFSET_FETCH:
-                offset = dissect_kafka_offset_fetch_response(tvb, pinfo, kafka_tree, offset);
+                /*offset =*/ dissect_kafka_offset_fetch_response(tvb, pinfo, kafka_tree, offset);
                 break;
             case KAFKA_METADATA:
-                offset = dissect_kafka_metadata_response(tvb, pinfo, kafka_tree, offset);
+                /*offset =*/ dissect_kafka_metadata_response(tvb, pinfo, kafka_tree, offset);
                 break;
         }
 
