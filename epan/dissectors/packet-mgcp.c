@@ -341,7 +341,6 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/* Initialize variables */
 	tvb_sectionend = 0;
 	tvb_sectionbegin = tvb_sectionend;
-	sectionlen = 0;
 	tvb_len = tvb_length(tvb);
 	num_messages = 0;
 	mgcp_tree = NULL;
@@ -497,9 +496,6 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	mi->hasDigitMap = FALSE;
 
 	/* Initialize variables */
-	tvb_sectionend = 0;
-	tvb_sectionbegin = tvb_sectionend;
-	sectionlen = 0;
 	tvb_len = tvb_length(tvb);
 
 	/*
@@ -530,7 +526,6 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			{
 				dissect_mgcp_params(tvb_new_subset(tvb, tvb_sectionbegin, sectionlen, -1),
 				                                   mgcp_tree);
-				tvb_sectionbegin = tvb_sectionend;
 			}
 		}
 
@@ -1409,7 +1404,6 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	static address null_address = { AT_NONE, -1, 0, NULL };
 	tvb_previous_offset = 0;
 	tvb_len = tvb_length(tvb);
-	tvb_current_len = tvb_len;
 	tvb_current_offset = tvb_previous_offset;
 	mi->is_duplicate = FALSE;
 	mi->request_available = FALSE;
@@ -2205,7 +2199,6 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_o
 {
 	gint tvb_current_offset, tvb_current_len, maxoffset,tvb_len;
 	guint8 tempchar;
-	tvb_current_offset = offset;
 	tvb_current_len = len;
 	tvb_len = tvb_length(tvb);
 
