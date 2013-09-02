@@ -306,7 +306,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_feature_list_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset++;
 
-        offset = bit_offset>>3;
+        /*offset = bit_offset>>3;*/
     }else if(application_id == 16777251){
         /* ApplicationId: 3GPP S6a/S6d */
         if(feature_list_id == 1){
