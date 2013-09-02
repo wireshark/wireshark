@@ -366,7 +366,7 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
     krb_tvb=tvb_new_subset(tvb, offset, (krb_ap_req_length>tvb_length_remaining(tvb, offset))?tvb_length_remaining(tvb, offset):krb_ap_req_length, krb_ap_req_length);
     keytype=kerberos_output_keytype();
     dissect_kerberos_main(krb_tvb, pinfo, payload_kink_ap_req_tree, FALSE, NULL);
-    offset += krb_ap_req_length;
+    /*offset += krb_ap_req_length;*/
   }
 
   /* This part consider padding the padding. Payload_length don't contain the padding. */
@@ -422,7 +422,7 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
     keytype=kerberos_output_keytype();
     dissect_kerberos_main(krb_tvb, pinfo, payload_kink_ap_rep_tree, FALSE, NULL);
 
-    offset += krb_ap_rep_length;
+    /*offset += krb_ap_rep_length;*/
   }
 
   /* This part consider the padding. Payload_length don't contain the padding. */
@@ -474,7 +474,7 @@ dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
     krb_tvb=tvb_new_subset(tvb, offset, (krb_error_length>tvb_length_remaining(tvb, offset))?tvb_length_remaining(tvb, offset):krb_error_length, krb_error_length);
 
     dissect_kerberos_main(krb_tvb, pinfo, payload_kink_krb_error_tree, FALSE, NULL);
-    offset += krb_error_length;
+    /*offset += krb_error_length;*/
   }
 
   /* This part consider the padding. Payload_length don't contain the padding. */
@@ -577,7 +577,7 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   offset += 2;
 
   proto_tree_add_item(payload_kink_tgt_rep_tree, hf_kink_tgt, tvb, offset, tgt_length, ENC_NA|ENC_ASCII);
-  offset += tgt_length;
+  /*offset += tgt_length;*/
 
   /* This part consider the padding. Payload_length don't contain the padding. */
   if(payload_length % PADDING!=0){
@@ -728,7 +728,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
     if(payload_length > PAYLOAD_HEADER){
       inner_payload_length = payload_length - PAYLOAD_HEADER;
       proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, inner_payload_length, "Payload");
-      offset += inner_payload_length;
+      /*offset += inner_payload_length;*/
     }
   }
   /* This part consider the padding. Payload_length don't contain the padding. */
@@ -829,7 +829,6 @@ dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_
     }
     break;
   }
-  offset += 4;
 
   offset = start_payload_offset + KINK_ERROR_LENGTH;
   control_payload(pinfo, tvb, offset, next_payload, tree);  /* Recur control_payload() */
@@ -858,7 +857,6 @@ dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   offset ++;
 
   proto_tree_add_uint(payload_kink_not_defined_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
-  offset += 2;
 
   /* This part consider the padding. Payload_length don't contain the padding. */
   if(payload_length % PADDING != 0){
