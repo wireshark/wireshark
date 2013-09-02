@@ -556,6 +556,9 @@ static gint dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
 static gint dissect_ssl3_hnd_hello_ext_ec_point_formats(tvbuff_t *tvb,
                                                         proto_tree *tree, guint32 offset);
 
+static gint dissect_ssl3_hnd_hello_ext_sig_hash_algs(tvbuff_t *tvb,
+                                            proto_tree *tree, guint32 offset, guint32 ext_len);
+
 static gint dissect_ssl3_hnd_hello_ext_alpn(tvbuff_t *tvb,
                                             proto_tree *tree, guint32 offset, guint32 ext_len);
 
@@ -703,6 +706,10 @@ static gint  ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb,
 static gint  ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb,
                                                 const guint32 offset,
                                                 const guint32 record_length);
+
+static gint  dissect_ssl_hash_alg_list(tvbuff_t *tvb, proto_tree *tree,
+                                       guint32 offset, guint16 len);
+
 /*********************************************************************
  *
  * Main dissector
@@ -2488,6 +2495,9 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
         case SSL_HND_HELLO_EXT_EC_POINT_FORMATS:
             offset = dissect_ssl3_hnd_hello_ext_ec_point_formats(tvb, ext_tree, offset);
             break;
+        case SSL_HND_HELLO_EXT_SIG_HASH_ALGS:
+            offset = dissect_ssl3_hnd_hello_ext_sig_hash_algs(tvb, ext_tree, offset, ext_len);
+            break;
         case SSL_HND_HELLO_EXT_ALPN:
             offset = dissect_ssl3_hnd_hello_ext_alpn(tvb, ext_tree, offset, ext_len);
             break;
@@ -2517,6 +2527,29 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
         left -= 2 + 2 + ext_len;
     }
 
+    return offset;
+}
+
+static gint
+dissect_ssl3_hnd_hello_ext_sig_hash_algs(tvbuff_t *tvb,
+        proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint16  sh_alg_length;
+    gint     ret;
+
+    sh_alg_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(tree, hf_ssl_handshake_sig_hash_alg_len,
+                        tvb, offset, 2, sh_alg_length);
+    offset += 2;
+    if (ext_len<2 || sh_alg_length!=ext_len-2) {
+        /* ERROR: sh_alg_length must be 2 less than ext_len */
+        return offset;
+    }
+
+    ret = dissect_ssl_hash_alg_list(tvb, tree, offset, sh_alg_length);
+    if (ret >=0)
+        offset += ret;
+    
     return offset;
 }
 
@@ -5142,6 +5175,53 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
 
     return ret;
 }
+
+
+/* dissect a list of hash algorithms, return the number of bytes dissected
+   this is used for the signature algorithms extension and for the
+   TLS1.2 certificate request */
+static gint
+dissect_ssl_hash_alg_list(tvbuff_t *tvb, proto_tree *tree,
+                          guint32 offset, guint16 len)
+{
+    guint32     offset_start;
+    proto_tree *subtree, *alg_tree;
+    proto_tree *ti;
+
+    offset_start = offset;
+    if (len==0)
+        return 0;
+
+    ti = proto_tree_add_none_format(tree,
+            hf_ssl_handshake_sig_hash_algs,
+            tvb, offset, len,
+            "Signature Hash Algorithms (%u algorithm%s)",
+            len/2,
+            plurality(len/2, "", "s"));
+    subtree = proto_item_add_subtree(ti, ett_ssl_sig_hash_algs);
+
+    if (len % 2) {
+        proto_tree_add_text(tree, tvb, offset, 2,
+                "Invalid Signature Hash Algorithm length: %d", len);
+        return offset-offset_start;
+    }
+
+    while (len > 0) {
+        ti = proto_tree_add_item(subtree, hf_ssl_handshake_sig_hash_alg,
+                tvb, offset, 2, ENC_BIG_ENDIAN);
+        alg_tree = proto_item_add_subtree(ti, ett_ssl_sig_hash_alg);
+
+        proto_tree_add_item(alg_tree, hf_ssl_handshake_sig_hash_hash,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(alg_tree, hf_ssl_handshake_sig_hash_sig,
+                tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
+        offset += 2;
+        len -= 2;
+    }
+    return offset-offset_start;
+}
+
 
 /* UAT */
 
