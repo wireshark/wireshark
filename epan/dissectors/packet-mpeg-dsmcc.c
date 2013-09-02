@@ -271,7 +271,7 @@ dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                         "Invalid value - should be 0xff");
         }
-        offset +=1;
+        /*offset +=1;*/
         /* TODO: handle the userId */
     } else {
         pi = proto_tree_add_text(tree, tvb, offset, -1, "Unknown Adaptation Header");
@@ -342,7 +342,7 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     if (0 < adaptation_len) {
         sub_tvb = tvb_new_subset(tvb, offset, adaptation_len, adaptation_len);
         dissect_dsmcc_adaptation_header(sub_tvb, pinfo, sub_tree);
-        offset += adaptation_len;
+        /*offset += adaptation_len;*/
     }
 
     return len;
@@ -485,7 +485,7 @@ dissect_dsmcc_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (0 < private_data_len) {
         proto_tree_add_item(tree, hf_etv_dii_authority, tvb, offset, 1,
             ENC_ASCII|ENC_NA);
-        offset += private_data_len;
+        /*offset += private_data_len;*/
     }
 }
 
