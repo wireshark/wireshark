@@ -512,7 +512,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset+=6;
       if (tree)
         proto_tree_add_item(wlan_tree, hf_wlan_padding, tvb, offset, 2, ENC_NA);
-      offset+=2;
+      /*offset+=2;*/
     }
 
 
