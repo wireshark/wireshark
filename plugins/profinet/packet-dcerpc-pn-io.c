@@ -9086,7 +9086,7 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep, pnio_ar_t **ar)
 {
     guint16 u16Index = 0;
-    guint32 u32RecDataLen;
+    guint32 u32RecDataLen = 0;
 
 
     /* IODWriteHeader */
