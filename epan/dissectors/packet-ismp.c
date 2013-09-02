@@ -455,8 +455,6 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				offset += tuple_length;
 
 				tuples_count++;
-				tuple_type = 0;
-				tuple_length = 0;
 			}
 			if (tuples_count != num_tuples)
 			{
