@@ -1245,7 +1245,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     if (parameter_length <= 8) {
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_redirect_parameter_uint, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                     } else {
-                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_redirect_parameter_value, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_redirect_parameter_value, tvb, offset, parameter_length, ENC_NA);
                     }
                     break;
                 }
@@ -1549,7 +1549,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     if (parameter_length <= 8) {
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_uint, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                     } else {
-                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_value, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_value, tvb, offset, parameter_length, ENC_NA);
                     }
                     break;
                 }
