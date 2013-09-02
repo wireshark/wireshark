@@ -506,7 +506,7 @@ write_current_packet (void)
         /* Write DATA chunk header */
         if (hdr_data_chunk) {
             memcpy(&packet_buf[prefix_index], &HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK));
-            prefix_index += (int)sizeof(HDR_DATA_CHUNK);
+            /*prefix_index += (int)sizeof(HDR_DATA_CHUNK);*/
         }
 
         /* Write Ethernet trailer */
