@@ -3116,12 +3116,11 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
      */
     proto_tree *ti;
     proto_tree *subtree;
-    proto_tree *saved_subtree;
     guint8      cert_types_count;
     gint        sh_alg_length;
-    guint16     sig_hash_alg;
     gint        dnames_length;
     asn1_ctx_t  asn1_ctx;
+    gint        ret;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -3158,58 +3157,21 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
         switch (*conv_version) {
         case SSL_VER_TLSv1DOT2:
             sh_alg_length = tvb_get_ntohs(tvb, offset);
+            if (sh_alg_length % 2) {
+                expert_add_info_format_text(pinfo, NULL,
+                        &ei_ssl_handshake_sig_hash_algs_mult2,
+                        "Signature Hash Algorithm length (%d) must be a multiple of 2",
+                        sh_alg_length);
+                return;
+            }
+
             proto_tree_add_uint(tree, hf_ssl_handshake_sig_hash_alg_len,
                                 tvb, offset, 2, sh_alg_length);
             offset += 2;
 
-            if (sh_alg_length > 0)
-            {
-                ti = proto_tree_add_none_format(tree,
-                                                hf_ssl_handshake_sig_hash_algs,
-                                                tvb, offset, sh_alg_length,
-                                                "Signature Hash Algorithms (%u algorithm%s)",
-                                                sh_alg_length/2,
-                                                plurality(sh_alg_length/2, "", "s"));
-                subtree = proto_item_add_subtree(ti, ett_ssl_sig_hash_algs);
-                if (!subtree)
-                {
-                    subtree = tree;
-                }
-
-                if (sh_alg_length % 2) {
-                    proto_tree_add_text(tree, tvb, offset, 2,
-                        "Invalid Signature Hash Algorithm length: %d", sh_alg_length);
-                    expert_add_info_format_text(pinfo, NULL, &ei_ssl_handshake_sig_hash_algs_mult2,
-                        "Signature Hash Algorithm length (%d) must be a multiple of 2",
-                        sh_alg_length);
-                    return;
-                }
-
-
-                while (sh_alg_length > 0)
-                {
-                    saved_subtree = subtree;
-
-                    sig_hash_alg = tvb_get_ntohs(tvb, offset);
-                    ti = proto_tree_add_uint(subtree, hf_ssl_handshake_sig_hash_alg,
-                                        tvb, offset, 2, sig_hash_alg);
-                    subtree = proto_item_add_subtree(ti, ett_ssl_sig_hash_alg);
-                    if (!subtree)
-                    {
-                        subtree = saved_subtree;
-                    }
-
-                    proto_tree_add_item(subtree, hf_ssl_handshake_sig_hash_hash,
-                                    tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(subtree, hf_ssl_handshake_sig_hash_sig,
-                                    tvb, offset+1, 1, ENC_BIG_ENDIAN);
-
-                    subtree = saved_subtree;
-
-                    offset += 2;
-                    sh_alg_length -= 2;
-                }
-            }
+            ret = dissect_ssl_hash_alg_list(tvb, tree, offset, sh_alg_length);
+            if (ret>=0)
+                offset += ret;
             break;
 
         default:
