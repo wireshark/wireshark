@@ -246,7 +246,7 @@ static gint ett_profinet_period = -1;
 static gint ett_cisco_fourwire_tlv = -1;
 
 static const value_string tlv_types[] = {
-	{ END_OF_LLDPDU_TLV_TYPE, 			"End of LLDPDU"},
+	{ END_OF_LLDPDU_TLV_TYPE,			"End of LLDPDU"},
 	{ CHASSIS_ID_TLV_TYPE,				"Chassis Id"},
 	{ PORT_ID_TLV_TYPE,					"Port Id"},
 	{ TIME_TO_LIVE_TLV_TYPE,			"Time to Live"},
@@ -264,7 +264,7 @@ static const value_string chassis_id_subtypes[] = {
 	{ 1,	"Chassis component"},
 	{ 2,	"Interface alias"},
 	{ 3,	"Port component"},
-	{ 4, 	"MAC address"},
+	{ 4,	"MAC address"},
 	{ 5,	"Network address"},
 	{ 6,	"Interface name"},
 	{ 7,	"Locally assigned"},
@@ -275,10 +275,10 @@ static const value_string port_id_subtypes[] = {
 	{ 0,	"Reserved"},
 	{ 1,	"Interface alias"},
 	{ 2,	"Port component"},
-	{ 3, 	"MAC address"},
+	{ 3,	"MAC address"},
 	{ 4,	"Network address"},
 	{ 5,	"Interface name"},
-	{ 6, 	"Agent circuit Id"},
+	{ 6,	"Agent circuit Id"},
 	{ 7,	"Locally assigned"},
 	{ 0, NULL}
 };
@@ -286,7 +286,7 @@ static const value_string port_id_subtypes[] = {
 static const value_string interface_subtype_values[] = {
 	{ 1,	"Unknown"},
 	{ 2,	"ifIndex"},
-	{ 3, 	"System port number"},
+	{ 3,	"System port number"},
 	{ 0, NULL}
 };
 
@@ -311,16 +311,16 @@ static const value_string ieee_802_3_subtypes[] = {
 /* Media Subtypes */
 static const value_string media_subtypes[] = {
 	{ 1,	"Media Capabilities" },
-	{ 2, 	"Network Policy" },
-	{ 3, 	"Location Identification" },
-	{ 4, 	"Extended Power-via-MDI" },
+	{ 2,	"Network Policy" },
+	{ 3,	"Location Identification" },
+	{ 4,	"Extended Power-via-MDI" },
 	{ 5,	"Inventory - Hardware Revision" },
 	{ 6,	"Inventory - Firmware Revision" },
 	{ 7,	"Inventory - Software Revision" },
 	{ 8,	"Inventory - Serial Number" },
 	{ 9,	"Inventory - Manufacturer Name" },
 	{ 10,	"Inventory - Model Name" },
-	{ 11, 	"Inventory - Asset ID" },
+	{ 11,	"Inventory - Asset ID" },
 	{ 0, NULL }
 };
 
@@ -388,7 +388,7 @@ static const value_string media_power_type[] = {
 
 /* Power Priority */
 static const value_string media_power_priority[] = {
-	{ 0, 	"Unknown" },
+	{ 0,	"Unknown" },
 	{ 1,	"Critical" },
 	{ 2,	"High" },
 	{ 3,	"Low" },
@@ -412,10 +412,10 @@ static const value_string media_power_pse_device[] = {
 
 /* Location data format */
 static const value_string location_data_format[] = {
-	{ 0, 	"Invalid " },
+	{ 0,	"Invalid " },
 	{ 1,	"Coordinate-based LCI" },
 	{ 2,	"Civic Address LCI" },
-	{ 3, 	"ECS ELIN" },
+	{ 3,	"ECS ELIN" },
 	{ 0, NULL }
 };
 
@@ -444,7 +444,7 @@ static const value_string civic_address_type_values[] = {
 	{ 21,	"Landmark or vanity address" },
 	{ 22,	"Additional location information" },
 	{ 23,	"Name" },
-	{ 24, 	"Postal/ZIP code" },
+	{ 24,	"Postal/ZIP code" },
 	{ 25,	"Building" },
 	{ 26,	"Unit" },
 	{ 27,	"Floor" },
@@ -518,8 +518,8 @@ static const value_string operational_mau_type_values[] = {
 
 /* Media Capabilities */
 #define MEDIA_CAPABILITY_LLDP				0x0001
-#define MEDIA_CAPABILITY_NETWORK_POLICY		0x0002
-#define MEDIA_CAPABILITY_LOCATION_ID		0x0004
+#define MEDIA_CAPABILITY_NETWORK_POLICY			0x0002
+#define MEDIA_CAPABILITY_LOCATION_ID			0x0004
 #define MEDIA_CAPABILITY_MDI_PSE			0x0008
 #define MEDIA_CAPABILITY_MDI_PD				0x0010
 #define MEDIA_CAPABILITY_INVENTORY			0x0020
@@ -536,17 +536,17 @@ static const value_string operational_mau_type_values[] = {
 #define AUTONEG_10BASET_FD		0x2000 /* b10baseTFD(2),    -- 10BASE-T  full duplex mode */
 #define AUTONEG_100BASE_T4		0x1000 /* b100baseT4(3),    -- 100BASE-T4 */
 #define AUTONEG_100BASE_TX		0x0800 /* b100baseTX(4),    -- 100BASE-TX half duplex mode */
-#define AUTONEG_100BASE_TXFD	0x0400 /* b100baseTXFD(5),  -- 100BASE-TX full duplex mode */
+#define AUTONEG_100BASE_TXFD		0x0400 /* b100baseTXFD(5),  -- 100BASE-TX full duplex mode */
 #define AUTONEG_100BASE_T2		0x0200 /* b100baseT2(6),    -- 100BASE-T2 half duplex mode */
-#define AUTONEG_100BASE_T2FD	0x0100 /* b100baseT2FD(7),  -- 100BASE-T2 full duplex mode */
+#define AUTONEG_100BASE_T2FD		0x0100 /* b100baseT2FD(7),  -- 100BASE-T2 full duplex mode */
 #define AUTONEG_FDX_PAUSE		0x0080 /* bFdxPause(8),     -- PAUSE for full-duplex links */
 #define AUTONEG_FDX_APAUSE		0x0040 /* bFdxAPause(9),    -- Asymmetric PAUSE for full-duplex links */
 #define AUTONEG_FDX_SPAUSE		0x0020 /* bFdxSPause(10),   -- Symmetric PAUSE for full-duplex links */
 #define AUTONEG_FDX_BPAUSE		0x0010 /* bFdxBPause(11),   -- Asymmetric and Symmetric PAUSE for full-duplex links */
 #define AUTONEG_1000BASE_X		0x0008 /* b1000baseX(12),   -- 1000BASE-X, -LX, -SX, -CX half duplex mode */
-#define AUTONEG_1000BASE_XFD	0x0004 /* b1000baseXFD(13), -- 1000BASE-X, -LX, -SX, -CX full duplex mode */
+#define AUTONEG_1000BASE_XFD		0x0004 /* b1000baseXFD(13), -- 1000BASE-X, -LX, -SX, -CX full duplex mode */
 #define AUTONEG_1000BASE_T		0x0002 /* b1000baseT(14),   -- 1000BASE-T half duplex mode */
-#define AUTONEG_1000BASE_TFD	0x0001 /* b1000baseTFD(15)  -- 1000BASE-T full duplex mode */
+#define AUTONEG_1000BASE_TFD		0x0001 /* b1000baseTFD(15)  -- 1000BASE-T full duplex mode */
 
 /* Some vendors interpreted the standard to invert the bitorder:
  * according to a IEEE ruling, this is now officially wrong.
@@ -691,7 +691,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	guint8 addr_family = 0;
 
 	proto_tree	*chassis_tree = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get tlv type */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -732,7 +732,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	{
 		if (tempLen != 7)
 		{
-			incorrectLen = 1; 	/* Invalid length */
+			incorrectLen = 1;	/* Invalid length */
 			break;
 		}
 
@@ -751,7 +751,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 				ip_addr = tvb_get_ipv4(tvb, (offset+4));
 				strPtr = ip_to_str((guint8 *)&ip_addr);
 			}else{
-				incorrectLen = 1; 	/* Invalid length */
+				incorrectLen = 1;	/* Invalid length */
 			}
 			break;
 		case AFNUM_INET6:
@@ -759,7 +759,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 				tvb_get_ipv6(tvb, (offset+4), &ip6_addr);
 				strPtr = ip6_to_str(&ip6_addr);
 			}else{
-				incorrectLen = 1; 	/* Invalid length */
+				incorrectLen = 1;	/* Invalid length */
 			}
 			break;
 		default:
@@ -774,7 +774,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	{
 		if (tempLen > 256)
 		{
-			incorrectLen = 1; 	/* Invalid length */
+			incorrectLen = 1;	/* Invalid length */
 			break;
 		}
 
@@ -787,7 +787,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	{
 		if (tempLen > 256)
 		{
-			incorrectLen = 1; 	/* Invalid length */
+			incorrectLen = 1;	/* Invalid length */
 			break;
 		}
 
@@ -798,7 +798,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	{
 		if (tempLen > 256)
 		{
-			incorrectLen = 1; 	/* Invalid length */
+			incorrectLen = 1;	/* Invalid length */
 			break;
 		}
 
@@ -889,7 +889,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	guint8 addr_family = 0;
 
 	proto_tree	*port_tree = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get tlv type */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -907,7 +907,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	case 3:	/* MAC address */
 	{
 		if (tempLen != 7)
-			return -1; 	/* Invalid port id */
+			return -1;	/* Invalid port id */
 
 		strPtr = tvb_ether_to_str(tvb, offset+3);
 
@@ -928,7 +928,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			}
 			break;
 		case AFNUM_INET6:
-			if  (tempLen == 18){
+			if (tempLen == 18){
 				tvb_get_ipv6(tvb, (offset+4), &ip6_addr);
 				strPtr = ip6_to_str(&ip6_addr);
 			}else{
@@ -968,14 +968,14 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 		/*proto_tree_add_text(port_tree, tvb, (offset+3), (tempLen-1), "Port Id: %s", strPtr);*/
 		switch (tempType)
 		{
-		case 3:	/* MAC address */
+		case 3: /* MAC address */
 			proto_tree_add_item(port_tree, hf_port_id_mac, tvb, (offset+3), 6, ENC_NA);
 			break;
 		case 4: /* Network address */
 			/* Network address
 			 * networkAddress is an octet string that identifies a particular network address family
 			 * and an associated network address that are encoded in network octet order.
- 			 */
+			 */
 			/* Network address family */
 			proto_tree_add_item(port_tree, hf_lldp_network_address_family, tvb, offset+3, 1, ENC_BIG_ENDIAN);
 			switch(addr_family){
@@ -1010,7 +1010,7 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	guint32 tempLen = 0;
 
 	proto_tree	*time_to_live_tree = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get tlv type */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1048,7 +1048,7 @@ dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	guint16 tempShort;
 
 	proto_tree	*end_of_lldpdu_tree = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1078,7 +1078,7 @@ dissect_lldp_port_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	const char *strPtr;
 
 	proto_tree	*port_desc_tree = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1115,7 +1115,7 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	const char *strPtr;
 
 	proto_tree	*system_name_tree = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1157,8 +1157,8 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 	proto_tree	*system_capabilities_tree = NULL;
 	proto_tree	*capabilities_summary_tree = NULL;
-	proto_tree  *capabilities_enabled_tree = NULL;
-	proto_item 	*tf = NULL;
+	proto_tree	*capabilities_enabled_tree = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -1219,7 +1219,7 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	guint32 tempLong;
 
 	proto_tree	*system_mgm_addr = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, tempOffset);
@@ -1309,7 +1309,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	guint32 tempOffset = offset;
 
 	proto_tree	*vlan_flags_tree = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, tempOffset);
@@ -1496,7 +1496,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	proto_tree	*mac_phy_flags = NULL;
 	proto_tree	*autoneg_advertised_subtree = NULL;
 
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, tempOffset);
@@ -1723,7 +1723,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	guint64 temp64bit = 0;
 
 	proto_tree	*media_flags = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, tempOffset);
 	if (tree)
@@ -2198,22 +2198,22 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 static guint32
 dissect_profinet_period(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gchar *name, int hf_valid, int hf_value)
 {
-    guint32 period;
-    proto_tree	*period_tree;
-    proto_item 	*period_item;
+	guint32 period;
+	proto_tree	*period_tree;
+	proto_item	*period_item;
 
 
-    period = tvb_get_ntohl(tvb, offset);
+	period = tvb_get_ntohl(tvb, offset);
 
-    period_item = proto_tree_add_text(tree, tvb, offset, 4, "%s: %s, %uns",
-        name, (period & 0x80000000) ? "Valid" : "Invalid", period & 0x7FFFFFFF);
-    period_tree = proto_item_add_subtree(period_item, ett_profinet_period);
+	period_item = proto_tree_add_text(tree, tvb, offset, 4, "%s: %s, %uns",
+		name, (period & 0x80000000) ? "Valid" : "Invalid", period & 0x7FFFFFFF);
+	period_tree = proto_item_add_subtree(period_item, ett_profinet_period);
 
-    proto_tree_add_uint(period_tree, hf_valid, tvb, offset, 4, period);
-    proto_tree_add_uint(period_tree, hf_value, tvb, offset, 4, period);
-    offset+=4;
+	proto_tree_add_uint(period_tree, hf_valid, tvb, offset, 4, period);
+	proto_tree_add_uint(period_tree, hf_value, tvb, offset, 4, period);
+	offset+=4;
 
-    return offset;
+	return offset;
 }
 
 
@@ -2222,7 +2222,7 @@ static void
 dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 subType;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 	guint16 class2_PortStatus;
 	guint16 class3_PortStatus;
 	guint32 port_rx_delay_local;
@@ -2305,50 +2305,50 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	/*case 3:*/	/* XXX - LLDP_PNIO_ALIAS */
 	case 4:		/* LLDP_PNIO_MRPPORTSTATUS */
 	{
-	    /* DomainUUID */
-	    tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
-	    proto_tree_add_guid(tree, hf_profinet_mrp_domain_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
-	    offset += 16;
+		/* DomainUUID */
+		tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
+		proto_tree_add_guid(tree, hf_profinet_mrp_domain_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
+		offset += 16;
 
-	    /* MRRT PortStatus */
-	    mrrt_PortStatus = tvb_get_ntohs(tvb, offset);
-	    proto_tree_add_uint(tree, hf_profinet_mrrt_port_status, tvb, offset, 2, mrrt_PortStatus);
-	    /*offset+=2;*/
-	    break;
+		/* MRRT PortStatus */
+		mrrt_PortStatus = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_profinet_mrrt_port_status, tvb, offset, 2, mrrt_PortStatus);
+		/*offset+=2;*/
+		break;
 	}
-    case 5:     /* LLDP_PNIO_CHASSIS_MAC */
-    {
+	case 5:		/* LLDP_PNIO_CHASSIS_MAC */
+	{
 	proto_tree_add_item(tree, hf_profinet_cm_mac, tvb, offset, 6, ENC_NA);
-        /*offset += 6;*/
-        break;
-    }
-    case 6:     /* LLDP_PNIO_PTCPSTATUS */
-    {
-	    /* MasterSourceAddress */
-	    proto_tree_add_item(tree, hf_profinet_master_source_address, tvb, offset, 6, ENC_NA);
-	    offset += 6;
-	    /* SubdomainUUID */
-	    tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
-	    proto_tree_add_guid(tree, hf_profinet_subdomain_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
-	    offset += 16;
-        /* IRDataUUID */
-	    tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
-	    proto_tree_add_guid(tree, hf_profinet_ir_data_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
-	    offset += 16;
-        /* LengthOfPeriod */
-        offset = dissect_profinet_period(tvb, tree, offset, "LengthOfPeriod",
-            hf_profinet_length_of_period_valid, hf_profinet_length_of_period_length);
-        /* RedPeriodBegin */
-        offset = dissect_profinet_period(tvb, tree, offset, "RedPeriodBegin",
-            hf_profinet_red_period_begin_valid, hf_profinet_red_period_begin_offset);
-        /* OrangePeriodBegin */
-        offset = dissect_profinet_period(tvb, tree, offset, "OrangePeriodBegin",
-            hf_profinet_orange_period_begin_valid, hf_profinet_orange_period_begin_offset);
-        /* GreenPeriodBegin */
-        /*offset = */dissect_profinet_period(tvb, tree, offset, "GreenPeriodBegin",
-            hf_profinet_green_period_begin_valid, hf_profinet_green_period_begin_offset);
-        break;
-    }
+		/*offset += 6;*/
+		break;
+	}
+	case 6:	/* LLDP_PNIO_PTCPSTATUS */
+	{
+		/* MasterSourceAddress */
+		proto_tree_add_item(tree, hf_profinet_master_source_address, tvb, offset, 6, ENC_NA);
+		offset += 6;
+		/* SubdomainUUID */
+		tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
+		proto_tree_add_guid(tree, hf_profinet_subdomain_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
+		offset += 16;
+		/* IRDataUUID */
+		tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
+		proto_tree_add_guid(tree, hf_profinet_ir_data_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
+		offset += 16;
+		/* LengthOfPeriod */
+		offset = dissect_profinet_period(tvb, tree, offset, "LengthOfPeriod",
+			hf_profinet_length_of_period_valid, hf_profinet_length_of_period_length);
+		/* RedPeriodBegin */
+		offset = dissect_profinet_period(tvb, tree, offset, "RedPeriodBegin",
+			hf_profinet_red_period_begin_valid, hf_profinet_red_period_begin_offset);
+		/* OrangePeriodBegin */
+		offset = dissect_profinet_period(tvb, tree, offset, "OrangePeriodBegin",
+			hf_profinet_orange_period_begin_valid, hf_profinet_orange_period_begin_offset);
+		/* GreenPeriodBegin */
+		/*offset = */dissect_profinet_period(tvb, tree, offset, "GreenPeriodBegin",
+			hf_profinet_green_period_begin_valid, hf_profinet_green_period_begin_offset);
+		break;
+	}
 	default:
 		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, -1, ENC_NA);
 	}
@@ -2402,7 +2402,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	const char *subTypeStr;
 
 	proto_tree	*org_tlv_tree = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
 
@@ -2567,7 +2567,7 @@ dissect_lldp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	guint16 tempShort;
 
 	proto_tree	*unknown_tlv_tree = NULL;
-	proto_item 	*tf = NULL;
+	proto_item	*tf = NULL;
 
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
@@ -3101,7 +3101,7 @@ proto_register_lldp(void)
 		},
 		{ &hf_media_tlv_subtype,
 			{ "Media Subtype",	"lldp.media.subtype", FT_UINT8, BASE_HEX,
-	   		VALS(media_subtypes), 0x0, NULL, HFILL }
+			VALS(media_subtypes), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_tlv_subtype_caps,
 			{ "Capabilities", "lldp.media.subtype.caps", FT_UINT16, BASE_HEX,
@@ -3171,18 +3171,18 @@ proto_register_lldp(void)
 			{ "RTClass3 Port Status",	"lldp.profinet.rtc3_port_status", FT_UINT16, BASE_HEX,
 			VALS(profinet_port3_status_vals), 0x07, NULL, HFILL }
 		},
-        /* class3_port state got some new BITs */
+		/* class3_port state got some new BITs */
 		{ &hf_profinet_class3_port_status_Fragmentation,
 			{ "RTClass3_PortStatus.Fragmentation",	"lldp.profinet.rtc3_port_status.fragmentation", FT_UINT16, BASE_HEX,
-	   		VALS(profinet_port3_status_OnOff), 0x1000, NULL, HFILL }
+			VALS(profinet_port3_status_OnOff), 0x1000, NULL, HFILL }
 		},
 		{ &hf_profinet_class3_port_status_reserved,
 			{ "RTClass3_PortStatus.reserved",	"lldp.profinet.rtc3_port_status.reserved", FT_UINT16, BASE_HEX,
-	   		  NULL, 0x0FF8, "reserved", HFILL }
+			  NULL, 0x0FF8, "reserved", HFILL }
 		},
 		{ &hf_profinet_class3_port_status_PreambleLength,
 			{ "RTClass3_PortStatus.PreambleLength",	"lldp.profinet.rtc3_port_status.preambleLength", FT_UINT16, BASE_HEX,
-	   		VALS(profinet_port3_status_PreambleLength), 0x2000, NULL, HFILL }
+			VALS(profinet_port3_status_PreambleLength), 0x2000, NULL, HFILL }
 		},
 		{ &hf_profinet_mrp_domain_uuid,
 			{ "MRP DomainUUID",	"lldp.profinet.mrp_domain_uuid", FT_GUID, BASE_NONE,
