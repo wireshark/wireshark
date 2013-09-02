@@ -8141,7 +8141,7 @@ dissect_japan_chg_inf_type_crt(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
             if(len>11){
                 /* Spare charge rate (SCR) (Octets J,K,L) IA5 coded in three octets */
                 proto_tree_add_item(parameter_tree, hf_japan_isup_scr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
-                offset+=3;
+                /*offset+=3;*/
             }
         }
     }
