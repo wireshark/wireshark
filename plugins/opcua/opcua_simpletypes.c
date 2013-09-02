@@ -975,7 +975,7 @@ guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset)
     {
     case 0x00: /* two byte node id */
         Numeric = tvb_get_guint8(tvb, iOffset);
-        iOffset+=1;
+        /*iOffset+=1;*/
         break;
     case 0x01: /* four byte node id */
         iOffset+=1;
