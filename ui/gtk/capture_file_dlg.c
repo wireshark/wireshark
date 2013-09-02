@@ -1853,7 +1853,6 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_all_comments,
            formats that don't support comments trimmed from it,
            so run the dialog again, to let the user decide
            whether to save in one of those formats or give up. */
-        discard_comments = FALSE;
         must_support_all_comments = TRUE;
         continue;
 
