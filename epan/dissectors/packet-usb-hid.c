@@ -118,6 +118,17 @@ struct usb_hid_global_state {
     unsigned int usage_page;
 };
 
+
+/* HID class specific descriptor types */
+#define USB_DT_HID 33
+static const value_string hid_descriptor_type_vals[] = {
+    {USB_DT_HID, "HID"},
+    {0,NULL}
+};
+static value_string_ext hid_descriptor_type_vals_ext =
+               VALUE_STRING_EXT_INIT(hid_descriptor_type_vals);
+
+
 #define USBHID_SIZE_MASK  0x03
 #define USBHID_TYPE_MASK  0x0C
 #define USBHID_TAG_MASK   0xF0
@@ -825,7 +836,8 @@ dissect_usb_hid_class_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_,
     ti = proto_tree_add_text(tree, tvb, offset, -1, "HID DESCRIPTOR");
     desc_tree = proto_item_add_subtree(ti, ett_usb_hid_descriptor);
 
-    dissect_usb_descriptor_header(desc_tree, tvb, offset, NULL);
+    dissect_usb_descriptor_header(desc_tree, tvb, offset,
+            &hid_descriptor_type_vals_ext);
     offset += 2;
     proto_tree_add_item(desc_tree, hf_usb_hid_bcdHID,
             tvb, offset, 2, ENC_LITTLE_ENDIAN);
