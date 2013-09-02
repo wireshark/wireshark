@@ -295,7 +295,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
         proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-        foffset += 4;
+        /*foffset += 4;*/
         break;
     case 2:
         proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
@@ -324,11 +324,11 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
             foffset += 4;
             proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-            foffset += 4;
+            /*foffset += 4;*/
             break;
         case 2:             /* Client Put Data */
             proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, ENC_NA);
-            foffset += msg_length;
+            /*foffset += msg_length;*/
             break;
         case 4:             /* Client Get Data */
         case 6:             /* Client Get User NDS Credentials */
@@ -342,7 +342,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
                 request_value->nds_request_verb=msgverb; /* Use nds_request_verb for passed subverb */
             }
             proto_tree_add_item(atree, hf_lsm_verb, tvb, foffset, 1, ENC_LITTLE_ENDIAN);
-            foffset += 4;
+            /*foffset += 4;*/
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                 val_to_str(msgverb, nmas_lsmverb_enum, "Unknown (%u)"));
 
@@ -367,7 +367,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             /* The next two GUINT32 values are reserved and always 0 */
             foffset += 8;
             foffset = nmas_string(tvb, hf_tree, atree, foffset, TRUE);
-            foffset = nmas_string(tvb, hf_user, atree, foffset, TRUE);
+            /*foffset = */nmas_string(tvb, hf_user, atree, foffset, TRUE);
             break;
         case 1242:          /* Message Handler */
             foffset += 4;
@@ -392,7 +392,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
                 proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_BIG_ENDIAN);
                 foffset += 4;
                 proto_tree_add_item(atree, hf_data, tvb, foffset, msg_length, ENC_NA);
-                foffset += msg_length;
+                /*foffset += msg_length;*/
                 break;
             case 3:
                 msg_length = tvb_get_ntohl(tvb, foffset);
@@ -428,7 +428,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             case 5:
                 proto_tree_add_item(atree, hf_opaque, tvb, foffset,
                     tvb_reported_length_remaining(tvb, foffset), ENC_NA);
-                foffset += msg_length;
+                /*foffset += msg_length;*/
                 break;
             case 7:
             case 9:
@@ -482,7 +482,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-        foffset += 4;
+        /*foffset += 4;*/
         break;
     case 2:
         proto_tree_add_text(atree, tvb, foffset, -1, "Verb: %s",
@@ -504,7 +504,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
             switch (subverb) {
             case 0:             /* Fragmented Ping */
                 proto_tree_add_item(atree, hf_session_ident, tvb, foffset, 4, ENC_BIG_ENDIAN);
-                foffset += 4;
+                /*foffset += 4;*/
                 /*proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 foffset += 4;*/
                 break;
@@ -512,11 +512,11 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 proto_tree_add_item(atree, hf_squeue_bytes, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 foffset += 4;
                 proto_tree_add_item(atree, hf_cqueue_bytes, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-                foffset += 4;
+                /*foffset += 4;*/
                 break;
             case 4:             /* Client Get Data */
                 proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, ENC_NA);
-                foffset += msg_length;
+                /*foffset += msg_length;*/
                 break;
             case 6:             /* Client Get User NDS Credentials */
                 proto_tree_add_item(atree, hf_num_creds, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
@@ -527,7 +527,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 foffset += 4;
                 msg_length -= 12;
                 proto_tree_add_item(atree, hf_enc_cred, tvb, foffset, msg_length, ENC_NA);
-                foffset += msg_length;
+                /*foffset += msg_length;*/
                 break;
             case 8:             /* Login Store Management */
                 proto_tree_add_text(atree, tvb, foffset, -1, "Subverb: %s",
@@ -540,7 +540,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 case 7:
                 case 9:
                     proto_tree_add_item(atree, hf_enc_data, tvb, foffset, msg_length, ENC_NA);
-                    foffset += msg_length;
+                    /*foffset += msg_length;*/
                     break;
                 default:
                     break;
@@ -548,7 +548,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 break;
             case 10:            /* Writable Object Check */
                 proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-                foffset += 4;
+                /*foffset += 4;*/
                 break;
             case 1242:          /* Message Handler */
                 proto_tree_add_text(atree, tvb, foffset, -1, "Subverb: %s",
@@ -559,11 +559,11 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                     proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_BIG_ENDIAN);
                     foffset += 4;
                     proto_tree_add_item(atree, hf_data, tvb, foffset, msg_length, ENC_NA);
-                    foffset += msg_length;
+                    /*foffset += msg_length;*/
                     break;
                 case 3:
                     proto_tree_add_item(atree, hf_session_ident, tvb, foffset, 4, ENC_BIG_ENDIAN);
-                    foffset += 4;
+                    /*foffset += 4;*/
                     break;
                 case 5:
                     /* No Op */
@@ -578,7 +578,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                     } else {
                         proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, ENC_NA);
                     }
-                    foffset += msg_length;
+                    /*foffset += msg_length;*/
                     break;
                 case 9:
                     /* No Op */
