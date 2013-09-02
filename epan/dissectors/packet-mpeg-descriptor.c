@@ -2563,10 +2563,10 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
         proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_cb_max, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_lang, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_lang, tvb, offset, 3, ENC_ASCII|ENC_NA);
         offset += 3;
 
-        proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_label, tvb, offset, len-offset, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_label, tvb, offset, len-offset, ENC_ASCII|ENC_NA);
         offset += len-offset;
     }
     else if (tag==CIPLUS_DESC_TAG_SVC) {
