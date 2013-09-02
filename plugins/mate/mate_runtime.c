@@ -814,8 +814,6 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 					range->end = range_fi->start + range_fi->length;
 					g_ptr_array_add(data.ranges,range);
 
-					last_start = range_fi->start;
-
 					dbg_print(dbg_pdu,3,dbg_facility,"new_pdu: payload(%i) range %i-%i",hfid,range->start,range->end);
 				} else {
 					/* we missed a range  */
