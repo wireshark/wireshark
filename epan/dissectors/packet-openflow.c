@@ -313,7 +313,7 @@ static const value_string openflow_type_values[] = {
 #define OFPAT_SET_TP_DST     9 /* TCP/UDP destination port. */
 #define OFPAT_VENDOR         0xffff
 
-
+static int
 dissect_openflow_ofp_match_v_1_0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 
@@ -347,6 +347,7 @@ dissect_openflow_ofp_match_v_1_0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     /* uint16_t tp_dst; TCP/UDP destination port. */
     offset +=20;
 
+	return offset;
 }
 
 
