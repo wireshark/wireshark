@@ -496,6 +496,7 @@ int main(int argc, char *argv[])
 #endif
 
     QString locale = QLocale::system().name();
+    QString *capture_file = NULL;
 
     g_log(NULL, G_LOG_LEVEL_DEBUG, "Translator %s", locale.toStdString().c_str());
     QTranslator translator;
@@ -542,6 +543,11 @@ int main(int argc, char *argv[])
 #endif
 
 #define OPTSTRING "a:b:" OPTSTRING_B "c:C:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:u:vw:X:y:z:"
+
+    struct option     long_options[] = {
+        {(char *)"read-file", required_argument, NULL, (int)'r' },
+        {0, 0, 0, 0 }
+    };
 
     static const char optstring[] = OPTSTRING;
 
@@ -648,20 +654,7 @@ int main(int argc, char *argv[])
                       rf_path, strerror(rf_open_errno));
     }
 
-    /* "pre-scan" the command line parameters, if we have "console only"
-       parameters.  We do this so we don't start GTK+ if we're only showing
-       command-line help or version information.
-
-       XXX - this pre-scan is done before we start GTK+, so we haven't
-       run gtk_init() on the arguments.  That means that GTK+ arguments
-       have not been removed from the argument list; those arguments
-       begin with "--", and will be treated as an error by getopt().
-
-       We thus ignore errors - *and* set "opterr" to 0 to suppress the
-       error messages. */
-    opterr = 0;
-    // optind_initial = optind;
-    while ((opt = getopt(argc, argv, optstring)) != -1) {
+    while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
         case 'C':        /* Configuration Profile */
             if (profile_exists (optarg, FALSE)) {
@@ -728,6 +721,9 @@ int main(int argc, char *argv[])
 #endif
             exit(0);
             break;
+        case 'r':
+            capture_file = new QString(optarg);
+            break;
         case 'X':
             /*
              *  Extension command line options have to be processed before
@@ -736,7 +732,9 @@ int main(int argc, char *argv[])
              */
             ex_opt_add(optarg);
             break;
-        case '?':        /* Ignore errors - the "real" scan will catch them. */
+        case '?':
+            print_usage(TRUE);
+            exit(0);
             break;
         }
     }
@@ -921,6 +919,10 @@ int main(int argc, char *argv[])
 //    w->setEnabled(true);
     wsApp->allSystemsGo();
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
+
+    if (capture_file != NULL) {
+        main_w->openCaptureFile(*capture_file);
+    }
 
     g_main_loop_new(NULL, FALSE);
     return wsApp->exec();
