@@ -119,8 +119,26 @@ static int hf_openflow_in_port = -1;
 static int hf_openflow_reason = -1;
 static int hf_openflow_table_id = -1;
 static int hf_openflow_cookie = -1;
+static int hf_openflow_cookie_mask = -1;
 static int hf_openflow_padd8 = -1;
 static int hf_openflow_padd16 = -1;
+static int hf_openflow_padd48 = -1;
+static int hf_openflow_actions_len = -1;
+static int hf_openflow_action_type = -1;
+static int hf_openflow_action_len = -1;
+static int hf_openflow_output_port = -1;
+static int hf_openflow_max_len = -1;
+static int hf_openflow_wildcards = -1;
+static int hf_openflow_command = -1;
+static int hf_openflow_eth_src = -1;
+static int hf_openflow_eth_dst = -1;
+static int hf_openflow_dl_vlan = -1;
+static int hf_openflow_idle_timeout = -1;
+static int hf_openflow_hard_timeout = -1;
+static int hf_openflow_priority = -1;
+static int hf_openflow_out_port = -1;
+static int hf_openflow_out_group = -1;
+static int hf_openflow_flags = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_openflow = -1;
@@ -282,6 +300,106 @@ static const value_string openflow_type_values[] = {
 #define OFPPF_PAUSE        1<<10 /* Pause. */
 #define OFPPF_PAUSE_ASYM   1<<11 /* Asymmetric pause. */
 
+
+#define OFPAT_OUTPUT         0 /* Output to switch port. */
+#define OFPAT_SET_VLAN_VID	 1 /* Set the 802.1q VLAN id. */
+#define OFPAT_SET_VLAN_PCP   2 /* Set the 802.1q priority. */
+#define OFPAT_STRIP_VLAN     3 /* Strip the 802.1q header. */
+#define OFPAT_SET_DL_SRC     4 /* Ethernet source address. */
+#define OFPAT_SET_DL_DST     5 /* Ethernet destination address. */
+#define OFPAT_SET_NW_SRC     6 /* IP source address. */
+#define OFPAT_SET_NW_DST     7 /* IP destination address. */
+#define OFPAT_SET_TP_SRC     8 /* TCP/UDP source port. */
+#define OFPAT_SET_TP_DST     9 /* TCP/UDP destination port. */
+#define OFPAT_VENDOR         0xffff
+
+
+dissect_openflow_ofp_match_v_1_0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+
+    /* uint32_t wildcards; Wildcard fields. */
+    proto_tree_add_item(tree, hf_openflow_wildcards, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+    /* uint16_t in_port; Input switch port. */
+    proto_tree_add_item(tree, hf_openflow_in_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint8_t dl_src[OFP_ETH_ALEN];  Ethernet source address. */
+    proto_tree_add_item(tree, hf_openflow_eth_src, tvb, offset, 6, ENC_BIG_ENDIAN);
+    offset+=6;
+    /* uint8_t dl_dst[OFP_ETH_ALEN]; Ethernet destination address. */
+    proto_tree_add_item(tree, hf_openflow_eth_dst, tvb, offset, 6, ENC_BIG_ENDIAN);
+    offset+=6;
+    /* uint16_t dl_vlan; Input VLAN id. */
+    proto_tree_add_item(tree, hf_openflow_dl_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+    /* uint8_t dl_vlan_pcp; Input VLAN priority. */
+    /* uint8_t pad1[1]; Align to 64-bits */
+    /* uint16_t dl_type; Ethernet frame type. */
+    /* uint8_t nw_tos; IP ToS (actually DSCP field, 6 bits). */
+    /* uint8_t nw_proto; IP protocol or lower 8 bits of
+     * ARP opcode. 
+     */
+    /* uint8_t pad2[2]; Align to 64-bits */
+    /* uint32_t nw_src; IP source address. */
+    /* uint32_t nw_dst; IP destination address. */
+    /* uint16_t tp_src; TCP/UDP source port. */
+    /* uint16_t tp_dst; TCP/UDP destination port. */
+    offset +=20;
+
+}
+
+
+static const value_string openflow_action_values[] = {
+    { OFPAT_OUTPUT,          "Output to switch port" },
+    { OFPAT_SET_VLAN_VID,    "Set the 802.1q VLAN id" },
+    { OFPAT_SET_VLAN_PCP,    "Set the 802.1q priority" },
+    { OFPAT_STRIP_VLAN,      "Strip the 802.1q header" },
+    { OFPAT_SET_DL_SRC,      "Ethernet source address" },
+    { OFPAT_SET_DL_DST,      "Ethernet destination address" },
+    { OFPAT_SET_NW_SRC,      "IP source address" },
+    { OFPAT_SET_NW_DST,      "IP destination address" },
+    { OFPAT_SET_TP_SRC,      "TCP/UDP source port" },
+    { OFPAT_SET_TP_DST,      "TCP/UDP destination port" },
+    { OFPAT_VENDOR,          "Vendor specific action"},
+    { 0, NULL }
+};
+
+static int
+dissect_openflow_action_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint16 action_type, action_len;
+
+    /* uint16_t type;  One of OFPAT_*. */
+    action_type = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_openflow_action_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+    /* Length of action, including this
+     * header. This is the length of action,
+     * including any padding to make it
+     * 64-bit aligned. 
+     */
+    action_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_openflow_action_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    switch(action_type){
+    case OFPAT_OUTPUT:
+        /* uint16_t port;  Output port. */
+        proto_tree_add_item(tree, hf_openflow_output_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        /* uint16_t max_len;  Max length to send to controller. */
+        proto_tree_add_item(tree, hf_openflow_max_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        break;
+    default:
+        proto_tree_add_text(tree, tvb, offset, action_len-4, "Action not dissected yet");
+        offset+=(action_len-4);
+        break;
+    }
+
+    return offset;
+}
 static void
 dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
@@ -513,7 +631,7 @@ dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     offset++;
     if(version > OFP_VERSION_1_2){
         /* uint8_t table_id;  ID of the table that was looked up */
-        proto_tree_add_item(tree, hf_openflow_table_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_openflow_table_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* uint64_t cookie; Cookie of the flow entry that was looked up. */
         proto_tree_add_item(tree, hf_openflow_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -537,7 +655,149 @@ dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 }
 
+static void
+dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version, guint16 length _U_)
+{
+    tvbuff_t *next_tvb;
+    guint16 actions_len;
+    gint32 buffer_id;
 
+    /* uint32_t buffer_id;  ID assigned by datapath. */
+    buffer_id = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_openflow_buffer_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    /* uint32_t in_port; Packet's input port or OFPP_CONTROLLER. */ 
+    proto_tree_add_item(tree, hf_openflow_in_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint16_t actions_len;  Size of action array in bytes. */
+    actions_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_openflow_actions_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    if(version > OFP_VERSION_1_2){
+    /* uint8_t pad[6]; */
+        proto_tree_add_item(tree, hf_openflow_padd48, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=6;
+    }
+    /* struct ofp_action_header actions[0];  Action list. */
+    offset = dissect_openflow_action_header(tvb, pinfo, tree, offset);
+    /* Packet data. The length is inferred
+       from the length field in the header.
+       (Only meaningful if buffer_id == -1.)
+     */
+    if(buffer_id == -1){
+        /* proto_tree_add_text(tree, tvb, offset, -1, "Packet data"); */
+        next_tvb = tvb_new_subset(tvb, offset, length-offset, length-offset);
+        call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+    }
+}
+
+#define OFPFC_ADD	          0 /* New flow. */
+#define OFPFC_MODIFY          1 /* Modify all matching flows. */
+#define OFPFC_MODIFY_STRICT   2 /* Modify entry strictly matching wildcards */
+#define OFPFC_DELETE          3 /* Delete all matching flows. */
+#define OFPFC_DELETE_STRICT   4 /* Strictly match wildcards and priority. */
+
+static const value_string openflow_command_values[] = {
+    { OFPFC_ADD,			"New flow" },
+    { OFPFC_MODIFY,			"Modify all matching flows" },
+    { OFPFC_MODIFY_STRICT,	"Modify entry strictly matching wildcards" },
+    { OFPFC_DELETE,			"Delete all matching flows" },
+    { OFPFC_DELETE_STRICT,	"Strictly match wildcards and priority" },
+    { 0, NULL }
+};
+
+static void
+dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 version, guint16 length _U_)
+{
+
+    /* struct ofp_match match;  Fields to match */
+    if(version < OFP_VERSION_1_2){
+        offset = dissect_openflow_ofp_match_v_1_0(tvb, pinfo, tree, offset);
+    }
+
+    /* uint64_t cookie; Opaque controller-issued identifier. */
+    proto_tree_add_item(tree, hf_openflow_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset+=8;
+    if(version > OFP_VERSION_1_2){
+        /* uint64_t cookie_mask; Mask used to restrict the cookie bits
+         * that must match when the command is
+         * OFPFC_MODIFY* or OFPFC_DELETE*. A value
+         * of 0 indicates no restriction. 
+         */
+        proto_tree_add_item(tree, hf_openflow_cookie_mask, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset+=8;
+        /* Flow actions. */
+        /* uint8_t table_id; ID of the table to put the flow in.
+           For OFPFC_DELETE_* commands, OFPTT_ALL can also be used to delete matching
+           flows from all tables.
+         */
+        proto_tree_add_item(tree, hf_openflow_table_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
+    if(version > OFP_VERSION_1_2){
+        /* uint8_t command; One of OFPFC_*. */
+        proto_tree_add_item(tree, hf_openflow_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }else{
+        /* uint16_t command;  One of OFPFC_*. */
+        proto_tree_add_item(tree, hf_openflow_command, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+    }
+    /* uint16_t idle_timeout;  Idle time before discarding (seconds). */
+    proto_tree_add_item(tree, hf_openflow_idle_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+    /* uint16_t hard_timeout; Max time before discarding (seconds). */
+    proto_tree_add_item(tree, hf_openflow_hard_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+    /* uint16_t priority; Priority level of flow entry. */
+    proto_tree_add_item(tree, hf_openflow_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+    /* uint32_t buffer_id;  Buffered packet to apply to, or OFP_NO_BUFFER.
+       Not meaningful for OFPFC_DELETE*.
+     */
+    proto_tree_add_item(tree, hf_openflow_buffer_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+    /* uint32_t out_port; For OFPFC_DELETE* commands, require
+       matching entries to include this as an output port. A value of OFPP_ANY
+       indicates no restriction.
+       */
+    if(version > OFP_VERSION_1_2){
+        proto_tree_add_item(tree, hf_openflow_out_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+    }else{
+        proto_tree_add_item(tree, hf_openflow_out_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+    }
+
+    if(version > OFP_VERSION_1_2){
+        /* uint32_t out_group; For OFPFC_DELETE* commands, require
+           matching entries to include this as an
+           output group. A value of OFPG_ANY
+           indicates no restriction.
+         */
+        proto_tree_add_item(tree, hf_openflow_out_group, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+    }
+    /* uint16_t flags; One of OFPFF_*. */
+    proto_tree_add_item(tree, hf_openflow_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+    /* uint8_t pad[2]; */
+    proto_tree_add_item(tree, hf_openflow_padd16, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+#if 0
+	if(version < OFP_VERSION_1_2){
+	    /* The action length is inferred
+	       from the length field in the
+	       header. */
+	    /*struct ofp_action_header actions[0]; */
+	 }else{
+		 /* struct ofp_match match;  Fields to match. Variable size. */
+	 }
+#endif
+}
 /* Code to actually dissect the packets */
 static int
 dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -566,7 +826,7 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
     /* Stop the Ethernet frame from overwriting the columns */
     if((type == OFPT_PACKET_IN) || (type == OFPT_PACKET_OUT)){
-		col_set_writable(pinfo->cinfo, FALSE);
+        col_set_writable(pinfo->cinfo, FALSE);
     }
 
     /* Create display subtree for the protocol */
@@ -618,6 +878,12 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         break;
     case OFPT_PACKET_IN: /* 10 */
         dissect_openflow_pkt_in(tvb, pinfo, openflow_tree, offset, version, length);
+        break;
+    case OFPT_PACKET_OUT: /* 13 */
+        dissect_openflow_pkt_out(tvb, pinfo, openflow_tree, offset, version, length);
+        break;
+    case OFPT_FLOW_MOD: /* 14 */
+        dissect_openflow_flow_mod(tvb, pinfo, openflow_tree, offset, version, length);
         break;
     default:
         if(length>8){
@@ -957,7 +1223,7 @@ proto_register_openflow(void)
         },
         { &hf_openflow_buffer_id,
             { "Buffser Id", "openflow.buffer_id",
-               FT_UINT32, BASE_DEC, NULL, 0x0,
+               FT_UINT32, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_total_len,
@@ -985,13 +1251,103 @@ proto_register_openflow(void)
                FT_UINT64, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
+        { &hf_openflow_cookie_mask,
+            { "Cookie mask", "openflow.cookie",
+               FT_UINT64, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
         { &hf_openflow_padd8,
-            { "Padding", "openflow.padding",
+            { "Padding", "openflow.padding8",
                FT_UINT8, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_padd16,
-            { "Padding", "openflow.padding",
+            { "Padding", "openflow.padding16",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_padd48,
+            { "Padding", "openflow.padding48",
+               FT_UINT64, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_actions_len,
+            { "Actions length", "openflow.actions_len",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_action_type,
+            { "Actions type", "openflow.action_typ",
+               FT_UINT16, BASE_DEC, VALS(openflow_action_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_action_len,
+            { "Action length", "openflow.action_len",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_output_port,
+            { "Output port", "openflow.output_port",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_max_len,
+            { "Max length", "openflow.max_len",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_wildcards,
+            { "Wildcards", "openflow.wildcards",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_command,
+            { "Command", "openflow.command",
+               FT_UINT16, BASE_DEC, VALS(openflow_command_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_eth_src,
+            { "Ethernet source address", "openflow.eth_src",
+               FT_ETHER, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_eth_dst,
+            { "Ethernet destination address", "openflow.eth_src",
+               FT_ETHER, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_dl_vlan,
+            { "Input VLAN id", "openflow.dl_vlan",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_idle_timeout,
+            { "Idle time-out", "openflow.idle_timeout",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_hard_timeout,
+            { "hard time-out", "openflow.hard_timeout",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_priority,
+            { "Priority", "openflow.priority",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_out_port,
+            { "Out port", "openflow.out_port",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_out_group,
+            { "Out group", "openflow.out_group",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_flags,
+            { "Flags", "openflow.flags",
                FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
