@@ -947,10 +947,6 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
     dissect_correlation_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case PROTOCOL_DATA_1_PARAMETER_TAG:
-    if (protocol_data_1_global == PROTOCOL_DATA_1_DRAFT_7)
-    {
-       tag = PROTOCOL_DATA_1_DRAFT_7;
-    }
     dissect_protocol_data_1_parameter(parameter_tvb, pinfo, tree, parameter_item);
     break;
   case PROTOCOL_DATA_2_PARAMETER_TAG:
