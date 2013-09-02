@@ -433,7 +433,6 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 					*/
 
-					dword     = tvb_get_ntohl(linx_tvb, offset);
 					/* how many sequence numbers will be there? */
 					/* this is not implemented due to a lack of documentation with */
 					/* longer seqence numbers. */
@@ -925,40 +924,40 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_name, linx_tcp_tvb, offset, -1, ENC_ASCII|ENC_NA);
-					offset += tvb_strnlen(linx_tcp_tvb, offset, -1);
+					/*offset += tvb_strnlen(linx_tcp_tvb, offset, -1);*/
 					break;
 				case RLNH_PUBLISH:
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_name, linx_tcp_tvb, offset, -1, ENC_ASCII|ENC_NA);
-					offset += tvb_strnlen(linx_tcp_tvb, offset, -1);
+					/*offset += tvb_strnlen(linx_tcp_tvb, offset, -1);*/
 					break;
 				case RLNH_UNPUBLISH:
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
+					/*offset += 4;*/
 					break;
 				case RLNH_UNPUBLISH_ACK:
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
+					/*offset += 4;*/
 					break;
 				case RLNH_INIT:
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_version, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
 					rlnh_version = tvb_get_ntohl(linx_tcp_tvb, offset);
-					offset += 4;
+					/*offset += 4;*/
 					break;
 				case RLNH_INIT_REPLY:
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_status, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					if(rlnh_version > 1) {
 						proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_feat_neg_str, linx_tcp_tvb, offset, -1, ENC_ASCII|ENC_NA);
-						offset += tvb_strnlen(linx_tcp_tvb, offset, -1);
+						/*offset += tvb_strnlen(linx_tcp_tvb, offset, -1);*/
 					}
 					break;
 				case RLNH_PUBLISH_PEER:
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, linx_tcp_tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_peer_linkaddr, linx_tcp_tvb, offset, -1, ENC_BIG_ENDIAN);
-					offset += tvb_strnlen(linx_tcp_tvb, offset, -1);
+					/*offset += tvb_strnlen(linx_tcp_tvb, offset, -1);*/
 					break;
 				default:
 					/* No known Message type */
