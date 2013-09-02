@@ -355,6 +355,14 @@ static const value_string vc_ep_descriptor_subtypes[] = {
         { 0, NULL }
 };
 
+static const value_string vid_descriptor_type_vals[] = {
+        {CS_INTERFACE, "video class interface"},
+        {CS_ENDPOINT, "video class endpoint"},
+        {0,NULL}
+};
+static value_string_ext vid_descriptor_type_vals_ext =
+    VALUE_STRING_EXT_INIT(vid_descriptor_type_vals);
+
 static const value_string vc_if_descriptor_subtypes[] = {
         { VC_HEADER,              "Header" },
         { VC_INPUT_TERMINAL,      "Input Terminal" },
@@ -909,7 +917,7 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
     }
 
     /* Common fields */
-    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
+    dissect_usb_descriptor_header(tree, tvb, offset, &vid_descriptor_type_vals_ext);
     subtype_item = proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_subtype, tvb, offset+2, 1, ENC_NA);
     offset += 3;
 
@@ -1360,7 +1368,7 @@ dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, tvbuff
         tree = proto_item_add_subtree(item, ett_descriptor_video_streaming);
     }
 
-    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
+    dissect_usb_descriptor_header(tree, tvb, offset, &vid_descriptor_type_vals_ext);
     proto_tree_add_item(tree, hf_usb_vid_streaming_ifdesc_subtype, tvb, offset+2, 1, ENC_NA);
     offset += 3;
 
@@ -1434,7 +1442,7 @@ dissect_usb_video_endpoint_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
         tree = proto_item_add_subtree(item, ett_descriptor_video_endpoint);
     }
 
-    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
+    dissect_usb_descriptor_header(tree, tvb, offset, &vid_descriptor_type_vals_ext);
     proto_tree_add_item(tree, hf_usb_vid_epdesc_subtype, tvb, offset+2, 1, ENC_NA);
     offset += 3;
 
