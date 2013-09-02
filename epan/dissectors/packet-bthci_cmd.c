@@ -3309,7 +3309,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tvb_length_remaining(tvb, offset) > 0) {
         proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_parameter_unexpected, tvb, offset, -1);
-        offset += tvb_length_remaining(tvb, offset);
+        /*offset += tvb_length_remaining(tvb, offset);*/
     }
 }
 
