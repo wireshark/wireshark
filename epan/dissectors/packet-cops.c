@@ -1266,7 +1266,6 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 o
             return;
         }
         s_num = tvb_get_guint8(tvb, offset + 2);
-        s_type = tvb_get_guint8(tvb, offset + 3);
 
         ti = proto_tree_add_uint_format(cops_pr_tree, hf_cops_obj_s_num, tvb, offset, object_len, s_num,
                                         "%s", val_to_str_const(s_num, cops_s_num_vals, "Unknown"));
