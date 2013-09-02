@@ -462,13 +462,7 @@ int main(int argc, char *argv[])
     WiresharkApplication ws_app(argc, argv);
     MainWindow *main_w;
 
-//    char                *init_progfile_dir_error;
-//    char                *s;
     int                  opt;
-//    gboolean             arg_error = FALSE;
-
-//    extern int           info_update_freq;  /* Found in about_dlg.c. */
-//    const gchar         *filter;
 
 #ifdef _WIN32
     WSADATA	       wsaData;
@@ -491,17 +485,8 @@ int main(int argc, char *argv[])
 #endif
 #endif
 #endif
-//    gint                 pl_size = 280, tv_size = 95, bv_size = 75;
-//    gchar               *rc_file, *cf_name = NULL, *rfilter = NULL, *jfilter = NULL;
-//    dfilter_t           *rfcode = NULL;
-//    gboolean             rfilter_parse_failed = FALSE;
     e_prefs             *prefs_p;
-//    char                 badopt;
     GLogLevelFlags       log_flags;
-//    guint                go_to_packet = 0;
-//    gboolean             jump_backwards = FALSE;
-//    dfilter_t           *jump_to_filter = NULL;
-//    int                  optind_initial;
     int                  status;
 
     //initialize language !
@@ -860,108 +845,8 @@ int main(int argc, char *argv[])
     timestamp_set_precision(TS_PREC_AUTO_USEC);
     timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
-/////////
-
 #ifdef HAVE_LIBPCAP
     fill_in_local_interfaces(main_window_update);
-//  if (start_capture && list_link_layer_types) {
-//    /* Specifying *both* is bogus. */
-//    cmdarg_err("You can't specify both -L and a live capture.");
-//    exit(1);
-//  }
-
-//  if (list_link_layer_types) {
-//    /* We're supposed to list the link-layer types for an interface;
-//       did the user also specify a capture file to be read? */
-//    if (cf_name) {
-//      /* Yes - that's bogus. */
-//      cmdarg_err("You can't specify -L and a capture file to be read.");
-//      exit(1);
-//    }
-//    /* No - did they specify a ring buffer option? */
-//    if (global_capture_opts.multi_files_on) {
-//      cmdarg_err("Ring buffer requested, but a capture isn't being done.");
-//      exit(1);
-//    }
-//  } else {
-//    /* We're supposed to do a live capture; did the user also specify
-//       a capture file to be read? */
-//    if (start_capture && cf_name) {
-//      /* Yes - that's bogus. */
-//      cmdarg_err("You can't specify both a live capture and a capture file to be read.");
-//      exit(1);
-//    }
-
-//    /* No - was the ring buffer option specified and, if so, does it make
-//       sense? */
-//    if (global_capture_opts.multi_files_on) {
-//      /* Ring buffer works only under certain conditions:
-//      a) ring buffer does not work with temporary files;
-//      b) real_time_mode and multi_files_on are mutually exclusive -
-//         real_time_mode takes precedence;
-//      c) it makes no sense to enable the ring buffer if the maximum
-//         file size is set to "infinite". */
-//      if (global_capture_opts.save_file == NULL) {
-//        cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
-//        global_capture_opts.multi_files_on = FALSE;
-//      }
-//      if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
-//        cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
-//        /* XXX - this must be redesigned as the conditions changed */
-//      }
-//    }
-//  }
-
-//  if (start_capture || list_link_layer_types) {
-//    /* We're supposed to do a live capture or get a list of link-layer
-//       types for a live capture device; if the user didn't specify an
-//       interface to use, pick a default. */
-//    status = capture_opts_default_iface_if_necessary(&global_capture_opts,
-//        (prefs_p->capture_device) ? get_if_name(prefs_p->capture_device) : NULL);
-//    if (status != 0) {
-//      exit(status);
-//    }
-//  }
-
-//  if (list_link_layer_types) {
-//    /* Get the list of link-layer types for the capture devices. */
-//    if_capabilities_t *caps;
-//    guint i;
-//    interface_t device;
-//    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-
-//      device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-//      if (device.selected) {
-//#if defined(HAVE_PCAP_CREATE)
-//        caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str);
-//#else
-//        caps = capture_get_if_capabilities(device.name, FALSE, &err_str);
-//#endif
-//        if (caps == NULL) {
-//          cmdarg_err("%s", err_str);
-//          g_free(err_str);
-//          exit(2);
-//        }
-//        if (caps->data_link_types == NULL) {
-//          cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
-//          exit(2);
-//        }
-//#if defined(HAVE_PCAP_CREATE)
-//#ifdef _WIN32
-//        create_console();
-//#endif /* _WIN32 */
-//        capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
-//#else
-//        capture_opts_print_if_capabilities(caps, device.name, FALSE);
-//#endif
-//#ifdef _WIN32
-//        destroy_console();
-//#endif /* _WIN32 */
-//        free_if_capabilities(caps);
-//      }
-//    }
-//    exit(0);
-//  }
 
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
     capture_opts_trim_ring_num_files(&global_capture_opts);
@@ -998,18 +883,6 @@ int main(int argc, char *argv[])
 
     build_column_format_array(&cfile.cinfo, prefs_p->num_cols, TRUE);
 
-//    /* read in rc file from global and personal configuration paths. */
-//    rc_file = get_datafile_path(RC_FILE);
-//  #if GTK_CHECK_VERSION(3,0,0)
-//    /* XXX resolve later */
-//  #else
-//    gtk_rc_parse(rc_file);
-//    g_free(rc_file);
-//    rc_file = get_persconffile_path(RC_FILE, FALSE);
-//    gtk_rc_parse(rc_file);
-//  #endif
-//    g_free(rc_file);
-
     wsApp->setMonospaceFont(prefs.gui_qt_font_name);
 
 ////////
@@ -1030,25 +903,6 @@ int main(int argc, char *argv[])
 
 ////////
 
-//    switch (user_font_apply()) {
-//    case FA_SUCCESS:
-//        break;
-//    case FA_FONT_NOT_RESIZEABLE:
-//        /* "user_font_apply()" popped up an alert box. */
-//        /* turn off zooming - font can't be resized */
-//    case FA_FONT_NOT_AVAILABLE:
-//        /* XXX - did we successfully load the un-zoomed version earlier?
-//        If so, this *probably* means the font is available, but not at
-//        this particular zoom level, but perhaps some other failure
-//        occurred; I'm not sure you can determine which is the case,
-//        however. */
-//        /* turn off zooming - zoom level is unavailable */
-//    default:
-//        /* in any other case than FA_SUCCESS, turn off zooming */
-////        recent.gui_zoom_level = 0;
-//        /* XXX: would it be a good idea to disable zooming (insensitive GUI)? */
-//        break;
-//    }
 
 ////////
     color_filters_init();
