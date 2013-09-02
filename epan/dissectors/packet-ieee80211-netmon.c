@@ -156,7 +156,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
       offset += 13;
     proto_tree_add_item(wlan_tree, hf_netmon_802_11_timestamp, tvb, offset, 8,
                         ENC_LITTLE_ENDIAN);
-    offset += 8;
+    /*offset += 8;*/
 
   }
 
