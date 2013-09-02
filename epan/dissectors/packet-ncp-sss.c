@@ -514,7 +514,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
         proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         proto_tree_add_item(atree, hf_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-        foffset += 4;
+        /*foffset += 4;*/
         break;
     case 2:
         proto_tree_add_item(ncp_tree, hf_frag_handle, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
@@ -541,7 +541,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             switch (subverb) {
             case 0:
                 foffset += 4;
-                foffset = sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
+                /*foffset =*/ sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
                 break;
             case 1:
                 foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, 0);
@@ -552,7 +552,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                    So check to make sure we still have data in the packet anytime
                    we read a secret. */
                 if (tvb_length_remaining(tvb, foffset) > 4) {
-                    foffset = sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
+                    /*foffset =*/ sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
                 }
                 break;
             case 2:
@@ -572,7 +572,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             case 4:
                 foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, 0);
                 if (tvb_length_remaining(tvb, foffset) > 4) {
-                    foffset = sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
+                    /*foffset =*/ sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
                 }
                 break;
             case 5:
@@ -580,7 +580,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             case 6:
                 foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, 0);
                 if (tvb_length_remaining(tvb, foffset) > 4) {
-                    foffset = sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
+                    /*foffset =*/ sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
                 }
                 break;
             case 7:
@@ -643,7 +643,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
         proto_tree_add_item(atree, hf_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         proto_tree_add_item(atree, hf_sss_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-        foffset += 4;
+        /*foffset += 4;*/
         break;
     case 2:
         if (request_value) {
@@ -655,7 +655,6 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
         }
         proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         msg_length = tvb_get_letohl(tvb, foffset);
-        return_code = tvb_get_ntohl(tvb, foffset+msg_length);
         foffset += 4;
         proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
@@ -668,7 +667,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
                 expert_item = proto_tree_add_item(atree, hf_return_code, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 expert_add_info_format_text(pinfo, expert_item, &ei_return_code, "SSS Error: %s", str);
                 col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", val_to_str(return_code, sss_errors_enum, "Unknown (%d)"));
-                foffset+=4;
+                /*foffset+=4;*/
             } else {
                 proto_tree_add_text(atree, tvb, foffset, 4, "Return Code: Success (0x00000000)");
                 if (tvb_length_remaining(tvb, foffset) > 8) {
