@@ -326,13 +326,13 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 
 	switch(opcode>>1){
 	case AUTH_MSG_KDC_REQUEST:
-		offset = dissect_krb4_kdc_request(pinfo, tree, tvb, offset, opcode&0x01, version);
+		/*offset =*/ dissect_krb4_kdc_request(pinfo, tree, tvb, offset, opcode&0x01, version);
 		break;
 	case AUTH_MSG_KDC_REPLY:
-		offset = dissect_krb4_kdc_reply(pinfo, tree, tvb, offset, opcode&0x01);
+		/*offset =*/ dissect_krb4_kdc_reply(pinfo, tree, tvb, offset, opcode&0x01);
 		break;
 	case AUTH_MSG_APPL_REQUEST:
-		offset = dissect_krb4_appl_request(pinfo, tree, tvb, offset, opcode&0x01);
+		/*offset =*/ dissect_krb4_appl_request(pinfo, tree, tvb, offset, opcode&0x01);
 		break;
 	case AUTH_MSG_APPL_REQUEST_MUTUAL:
 	case AUTH_MSG_ERR_REPLY:
