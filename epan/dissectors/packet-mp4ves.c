@@ -762,11 +762,11 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case 0xb0:
 			/* VS start code */
-			bit_offset = dissect_mp4ves_VisualObjectSequence(tvb, pinfo, mp4ves_tree, 0);
+			/*bit_offset = */dissect_mp4ves_VisualObjectSequence(tvb, pinfo, mp4ves_tree, 0);
 			break;
 		default:
 			proto_tree_add_bits_item(mp4ves_tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, ENC_BIG_ENDIAN);
-			bit_offset = bit_offset+24;
+			/*bit_offset = bit_offset+24;*/
 			break;
 		}
 	}
