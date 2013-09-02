@@ -734,7 +734,6 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 				proto_tree_add_item(stuff_tree, hf_mp2t_stuff_bytes, tvb, offset, stuff_len, ENC_NA);
 				offset += stuff_len;
 				if (stuff_len >= remaining_len) {
-					remaining_len = 0;
 					goto save_state;
 				}
 				remaining_len -= stuff_len;
@@ -747,7 +746,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 			if (frag_tot_len == (guint)-1 || !frag_tot_len) {
 				mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, 0, remaining_len, FALSE, pid_analysis->pload_type);
 				fragmentation = TRUE;
-				offset += remaining_len;
+				/*offset += remaining_len;*/
 				frag_cur_pos += remaining_len;
 				goto save_state;
 			}
