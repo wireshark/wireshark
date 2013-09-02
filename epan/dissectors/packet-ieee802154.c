@@ -285,6 +285,12 @@ static gint ett_ieee802154_gts_direction = -1;
 static gint ett_ieee802154_gts_descriptors = -1;
 static gint ett_ieee802154_pendaddr = -1;
 
+static expert_field ei_ieee802154_invalid_addressing = EI_INIT;
+static expert_field ei_ieee802154_fcs = EI_INIT;
+static expert_field ei_ieee802154_decrypt_error = EI_INIT;
+static expert_field ei_ieee802154_dst = EI_INIT;
+static expert_field ei_ieee802154_src = EI_INIT;
+
 /*  Dissector handles */
 static dissector_handle_t       data_handle;
 static heur_dissector_list_t    ieee802154_heur_subdissector_list;
@@ -357,10 +363,10 @@ static gint ieee802154_sec_suite = SECURITY_LEVEL_ENC_MIC_64;
 static gboolean ieee802154_extend_auth = TRUE;
 
 /* Macro to check addressing, and throw a warning flag if incorrect. */
-#define IEEE802154_CMD_ADDR_CHECK(_pinfo_, _item_, _cmdid_, _x_)    \
-   if (!(_x_))                                                      \
-     expert_add_info_format(_pinfo_, _item_, PI_MALFORMED, PI_WARN, \
-                            "Invalid Addressing for %s",            \
+#define IEEE802154_CMD_ADDR_CHECK(_pinfo_, _item_, _cmdid_, _x_)     \
+   if (!(_x_))                                                       \
+     expert_add_info_format_text(_pinfo_, _item_, &ei_ieee802154_invalid_addressing, \
+                            "Invalid Addressing for %s",             \
                             val_to_str_const(_cmdid_, ieee802154_cmd_names, "Unknown Command"))
 
 /* CRC definitions. IEEE 802.15.4 CRCs vary from CCITT by using an initial value of
@@ -747,7 +753,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
     else if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) {
         /* Invalid Destination Address Mode. Abort Dissection. */
-        expert_add_info_format(pinfo, proto_root, PI_MALFORMED, PI_ERROR, "Invalid Destination Address Mode");
+        expert_add_info(pinfo, proto_root, &ei_ieee802154_dst);
         pinfo->private_data = pd_save;
         return;
     }
@@ -857,7 +863,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
     else if (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) {
         /* Invalid Destination Address Mode. Abort Dissection. */
-        expert_add_info_format(pinfo, proto_root, PI_MALFORMED, PI_ERROR, "Invalid Source Address Mode");
+        expert_add_info(pinfo, proto_root, &ei_ieee802154_src);
         pinfo->private_data = pd_save;
         return;
     }
@@ -1012,33 +1018,32 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         case DECRYPT_VERSION_UNSUPPORTED:
             /* We don't support decryption with that version of the protocol */
-            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "We don't support decryption with protocol version %u",
-                                   packet->version);
+            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "We don't support decryption with protocol version %u", packet->version);
             call_dissector(data_handle, payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_TOO_SMALL:
-            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "Packet was too small to include the CRC and MIC");
+            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Packet was too small to include the CRC and MIC");
             call_dissector(data_handle, payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_NO_EXT_SRC_ADDR:
-            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "No extended source address - can't decrypt");
+            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "No extended source address - can't decrypt");
             call_dissector(data_handle, payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_NO_KEY:
-            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "No encryption key set - can't decrypt");
+            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "No encryption key set - can't decrypt");
             call_dissector(data_handle, payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_DECRYPT_FAILED:
-            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "Decrypt failed");
+            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Decrypt failed");
             call_dissector(data_handle, payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_MIC_CHECK_FAILED:
-            expert_add_info_format(pinfo, proto_root, PI_UNDECODED, PI_WARN, "MIC check failed");
+            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "MIC check failed");
             /*
              * Abort only if the payload was encrypted, in which case we
              * probably didn't decrypt the packet right (eg: wrong key).
@@ -1237,7 +1242,7 @@ dissect_ieee802154_fcs:
         if (tree) proto_item_append_text(proto_root, ", Bad FCS");
 
         /* Flag packet as having a bad crc. */
-        expert_add_info_format(pinfo, proto_root, PI_CHECKSUM, PI_WARN, "Bad FCS");
+        expert_add_info(pinfo, proto_root, &ei_ieee802154_fcs);
     }
     pinfo->private_data = pd_save;
 } /* dissect_ieee802154_common */
@@ -2658,8 +2663,17 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_pendaddr
     };
 
+    static ei_register_info ei[] = {
+        { &ei_ieee802154_invalid_addressing, { "wpan.invalid_addressing", PI_MALFORMED, PI_WARN, "Invalid Addressing", EXPFILL }},
+        { &ei_ieee802154_dst, { "wpan.dst_invalid", PI_MALFORMED, PI_ERROR, "Invalid Destination Address Mode", EXPFILL }},
+        { &ei_ieee802154_src, { "wpan.src_invalid", PI_MALFORMED, PI_ERROR, "Invalid Source Address Mode", EXPFILL }},
+        { &ei_ieee802154_decrypt_error, { "wpan.decrypt_error", PI_UNDECODED, PI_WARN, "Decryption error", EXPFILL }},
+        { &ei_ieee802154_fcs, { "wpan.fcs.bad", PI_CHECKSUM, PI_WARN, "Bad FCS", EXPFILL }},
+    };
+
     /* Preferences. */
     module_t *ieee802154_module;
+    expert_module_t* expert_ieee802154;
 
     static uat_field_t addr_uat_flds[] = {
         UAT_FLD_HEX(addr_uat,addr16,"Short Address",
@@ -2685,6 +2699,9 @@ void proto_register_ieee802154(void)
     proto_register_field_array(proto_ieee802154, hf_phy, array_length(hf_phy));
 
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_ieee802154 = expert_register_protocol(proto_ieee802154);
+    expert_register_field_array(expert_ieee802154, ei, array_length(ei));
 
     /* add a user preference to set the 802.15.4 ethertype */
     ieee802154_module = prefs_register_protocol(proto_ieee802154,

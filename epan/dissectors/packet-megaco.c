@@ -141,6 +141,9 @@ static int ett_megaco_h245                      = -1;
 static gcp_hf_ett_t megaco_ctx_ids = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
 
 static expert_field ei_megaco_errored_command = EI_INIT;
+static expert_field ei_megaco_error_descriptor_transaction_list = EI_INIT;
+static expert_field ei_megaco_parse_error = EI_INIT;
+static expert_field ei_megaco_audit_descriptor = EI_INIT;
 
 static dissector_handle_t megaco_text_handle;
 
@@ -417,7 +420,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_previous_offset = tvb_find_guint8(tvb, 0,
         tvb_len, '/');
     if (tvb_previous_offset == -1) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_megaco_parse_error,
             "Sorry, no \"/\" in the MEGACO header, I can't parse this packet");
         return;
     }
@@ -441,7 +444,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_previous_offset);
 
     if (tvb_previous_offset == tvb_current_offset) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_megaco_parse_error,
             "[ Parse error: missing SEP in MEGACO header ]");
         return;
     }
@@ -460,7 +463,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tvb_current_offset = tvb_pbrk_guint8(tvb, tvb_current_offset, -1, " \t\r\n", &needle);
     if (tvb_current_offset == -1) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_megaco_parse_error,
             "[ Parse error: no body in MEGACO message (missing SEP after mId) ]");
         return;
     }
@@ -689,7 +692,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         default :
             ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, ENC_NA);
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti, &ei_megaco_error_descriptor_transaction_list,
                     "Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",
                         tvb_format_text(tvb,tvb_previous_offset,2),tvb_previous_offset);
             return;
@@ -724,7 +727,7 @@ nextcontext:
             tvb_transaction_end_offset, '=')+1;
         tvb_previous_offset = megaco_tvb_skip_wsp(tvb, tvb_previous_offset);
         if (tvb_current_offset >= tvb_next_offset) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "[ Parse error: Invalid offset ]");
+            expert_add_info_format_text(pinfo, ti, &ei_megaco_parse_error, "Parse error: Invalid offset");
             return;
         }
         tvb_current_offset = tvb_next_offset;
@@ -898,13 +901,13 @@ nextcontext:
                     if ( tempchar == 'P' || tempchar == 'O'){
                         gint tvb_topology_end_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '}');
                         if ( tvb_topology_end_offset == -1 ){
-                            expert_add_info_format(pinfo, sub_ti, PI_MALFORMED, PI_ERROR, "[ Parse error: Missing \"}\" ]");
+                            expert_add_info_format_text(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Missing \"}\"");
                             return;
                         }
 
                         tvb_command_start_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '{');
                         if ( tvb_command_start_offset == -1 ){
-                            expert_add_info_format(pinfo, sub_ti, PI_MALFORMED, PI_ERROR, "[ Parse error: Missing \"{\" ]");
+                            expert_add_info_format_text(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Missing \"{\"");
                             return;
                         }
                         dissect_megaco_topologydescriptor(tvb, megaco_tree_command_line, tvb_topology_end_offset-1, tvb_command_start_offset+1);
@@ -950,7 +953,7 @@ nextcontext:
                 tvb_offset  = tvb_find_guint8(tvb, tvb_command_start_offset,
                     tvb_transaction_end_offset, '=');
                 if (tvb_offset == -1 ) {
-                    expert_add_info_format(pinfo, sub_ti, PI_MALFORMED, PI_ERROR, "[ Parse error: Missing \"=\" ]");
+                    expert_add_info_format_text(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Missing \"=\"");
                     return;
                 }
                 tvb_offset = megaco_tvb_skip_wsp_return(tvb, tvb_offset -1);
@@ -1229,13 +1232,13 @@ nextcontext:
                     tvb_offset  = tvb_find_guint8(tvb, tvb_command_start_offset,
                         tvb_transaction_end_offset, '=');
                     if (tvb_offset == -1 ) {
-                        expert_add_info_format(pinfo, sub_ti, PI_MALFORMED, PI_ERROR, "[ Parse error: Missing \"=\" ]");
+                        expert_add_info_format_text(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Missing \"=\"");
                         return;
                     }
                     tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset+1);
                     tokenlen = tvb_next_offset - tvb_offset;
                     if (tokenlen+1 <= 0) {
-                        expert_add_info_format(pinfo, sub_ti, PI_MALFORMED, PI_ERROR, "[ Parse error: Invalid token length (%d) ]", tokenlen+1);
+                        expert_add_info_format_text(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Invalid token length (%d)", tokenlen+1);
                         return;
                     }
 
@@ -1251,7 +1254,7 @@ nextcontext:
 
                     case 'E':
                         if ((tokenlen+1 > (int) sizeof(TermID))) {
-                            expert_add_info_format(pinfo, sub_ti, PI_MALFORMED, PI_ERROR, "[ Parse error: Invalid TermID length (%d) ]", tokenlen+1);
+                            expert_add_info_format_text(pinfo, sub_ti, &ei_megaco_parse_error, "Parse error: Invalid TermID length (%d)", tokenlen+1);
                             return;
                         }
                         tvb_get_nstringz0(tvb,tvb_offset,tokenlen+1,TermID);
@@ -1448,7 +1451,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, 
 
         }
         if (tvb_current_offset <= tvb_previous_offset) {
-            expert_add_info_format(pinfo, megaco_tree_command_line, PI_MALFORMED, PI_ERROR, "[ Parse error: Invalid offset ]");
+            expert_add_info_format_text(pinfo, megaco_tree_command_line, &ei_megaco_parse_error, "Parse error: Invalid offset");
             return;
         }
 
@@ -2225,7 +2228,7 @@ dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_in
     tvb_next  = tvb_find_guint8(tvb, tvb_offset, tvb_stop, '{');           /* find opening LBRKT - is this already checked by caller?*/
     if( tvb_next == -1 )                                                   /* complain and give up if not there */
     {
-        expert_add_info_format(pinfo, megaco_tree, PI_MALFORMED, PI_ERROR, "Badly constructed audit descriptor (no { )");
+        expert_add_info(pinfo, megaco_tree, &ei_megaco_audit_descriptor);
         return;
     }
     tokenlen = (tvb_stop + 1) - tvb_offset;
@@ -2619,7 +2622,7 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
                 tvb_current_offset = tvb_observedevents_end_offset;
             }
             if (tvb_current_offset < tvb_previous_offset) {
-                expert_add_info_format(pinfo, megaco_observedevent_ti, PI_MALFORMED, PI_ERROR, "[ Parse error: Invalid offset ]");
+                expert_add_info_format_text(pinfo, megaco_observedevent_ti, &ei_megaco_parse_error, "Parse error: Invalid offset");
                 return;
             }
 
@@ -3534,6 +3537,9 @@ proto_register_megaco(void)
 
     static ei_register_info ei[] = {
         { &ei_megaco_errored_command, { "megaco.errored_command", PI_RESPONSE_CODE, PI_WARN, "Errored Command", EXPFILL }},
+        { &ei_megaco_parse_error, { "megaco.parse_error", PI_MALFORMED, PI_ERROR, "Parse error", EXPFILL }},
+        { &ei_megaco_error_descriptor_transaction_list, { "megaco.error_descriptor_transaction_list.invalid", PI_MALFORMED, PI_ERROR, "Sorry, can't understand errorDescriptor / transactionList", EXPFILL }},
+        { &ei_megaco_audit_descriptor, { "megaco.audit.malformed", PI_MALFORMED, PI_ERROR, "Badly constructed audit descriptor (no { )", EXPFILL }},
     };
 
     module_t *megaco_module;

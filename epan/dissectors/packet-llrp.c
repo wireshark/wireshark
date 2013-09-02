@@ -301,6 +301,9 @@ static int hf_llrp_gpo_pulse_dur                  = -1;
 static gint ett_llrp = -1;
 static gint ett_llrp_param = -1;
 
+static expert_field ei_llrp_req_conf = EI_INIT;
+static expert_field ei_llrp_invalid_length = EI_INIT;
+
 /* Message Types */
 #define LLRP_TYPE_GET_READER_CAPABILITIES           1
 #define LLRP_TYPE_GET_READER_CONFIG                 2
@@ -1384,7 +1387,7 @@ static guint dissect_llrp_utf8_parameter(tvbuff_t * const tvb, packet_info *pinf
 
     len = tvb_get_ntohs(tvb, offset);
     if(tvb_reported_length_remaining(tvb, offset) < len) {
-        expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, tree, &ei_llrp_invalid_length,
             "invalid length of string: claimed %u, available %u.",
             len, tvb_reported_length_remaining(tvb, offset));
         return offset + 2;
@@ -1434,7 +1437,7 @@ static guint dissect_llrp_item_array(tvbuff_t * const tvb, packet_info *pinfo,
             offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     if(tvb_reported_length_remaining(tvb, offset) < ((gint)(num*item_size))) {
-        expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, tree, &ei_llrp_invalid_length,
                 "Array longer than message");
         return offset + tvb_reported_length_remaining(tvb, offset);
     }
@@ -1704,7 +1707,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ti = proto_tree_add_item(param_tree, hf_llrp_tlv_len, tvb,
                     offset, 2, ENC_BIG_ENDIAN);
             if (len != real_len)
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_llrp_invalid_length,
                         "Invalid length field: claimed %u, should be %u.",
                         len, real_len);
             offset += 2;
@@ -2201,7 +2204,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Have we decoded exactly the number of bytes declared in the parameter? */
             if(suboffset != param_end) {
                 /* Report problem */
-                expert_add_info_format(pinfo, param_tree, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, param_tree, &ei_llrp_invalid_length,
                         "Incorrect length of parameter: %u bytes decoded, but %u bytes claimed.",
                         suboffset - offset + 4, real_len);
             }
@@ -2527,7 +2530,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     /* Ignore antenna ID */
                     proto_item_append_text(antenna_item, " (Ignored)");
                     /* Tell the user that we are confused */
-                    expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR,
+                    expert_add_info_format_text(pinfo, request_item, &ei_llrp_req_conf,
                             "Unrecognized configuration request: %u",
                             requested_data);
                     /* Ignore both GPI and GPO ports */
@@ -2584,7 +2587,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     if(tvb_reported_length_remaining(tvb, offset) != 0) {
         /* Report problem */
-        expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, tree, &ei_llrp_invalid_length,
                 "Incorrect length of message: %u bytes decoded, but %u bytes available.",
                 offset, tvb_reported_length(tvb));
     }
@@ -2624,7 +2627,7 @@ dissect_llrp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len = tvb_get_ntohl(tvb, offset);
     if (len != tvb_reported_length(tvb))
     {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_llrp_invalid_length,
                                "Incorrect length field: claimed %u, but have %u.",
                                len, tvb_reported_length(tvb));
     }
@@ -3699,6 +3702,13 @@ proto_register_llrp(void)
         &ett_llrp_param
     };
 
+    static ei_register_info ei[] = {
+        { &ei_llrp_invalid_length, { "llrp.invalid_length_of_string__claimed_%u", PI_MALFORMED, PI_ERROR, "invalid length of string: claimed %u, available %u.", EXPFILL }},
+        { &ei_llrp_req_conf, { "llrp.req_conf.invalid", PI_PROTOCOL, PI_ERROR, "Unrecognized configuration request: %u", EXPFILL }},
+    };
+
+    expert_module_t* expert_llrp;
+
     /* Register the protocol name and description */
     proto_llrp = proto_register_protocol("Low Level Reader Protocol",
             "LLRP", "llrp");
@@ -3706,6 +3716,8 @@ proto_register_llrp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_llrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_llrp = expert_register_protocol(proto_llrp);
+    expert_register_field_array(expert_llrp, ei, array_length(ei));
 }
 
 void

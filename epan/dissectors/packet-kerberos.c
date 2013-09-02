@@ -349,6 +349,8 @@ static gint ett_krb_PAC_MIDL_BLOB = -1;
 static gint ett_krb_PAC_DREP = -1;
 static gint ett_krb_PAC_UPN_DNS_INFO = -1;
 
+static expert_field ei_krb_decrypted_keytype = EI_INIT;
+
 static guint32 krb5_errorcode;
 
 
@@ -584,7 +586,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
         if(ret == 0){
             char *user_data;
 
-            expert_add_info_format(pinfo, NULL, PI_SECURITY, PI_CHAT,
+            expert_add_info_format_text(pinfo, NULL, &ei_krb_decrypted_keytype,
                                    "Decrypted keytype %d in frame %u using %s",
                                    ek->keytype, pinfo->fd->num, ek->key_origin);
 
@@ -5400,6 +5402,9 @@ proto_register_kerberos(void)
         &ett_krb_PAC_MIDL_BLOB,
         &ett_krb_PAC_DREP,
         &ett_krb_PAC_UPN_DNS_INFO
+    };
+    static ei_register_info ei[] = {
+        { &ei_krb_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decrypted keytype", EXPFILL }},
     };
     module_t *krb_module;
 

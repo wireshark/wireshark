@@ -67,6 +67,13 @@ static gint ett_irc_request_command = -1;
 static gint ett_irc_response = -1;
 static gint ett_irc_response_command = -1;
 
+static expert_field ei_irc_missing_end_delimiter = EI_INIT;
+static expert_field ei_irc_numeric_request_command = EI_INIT;
+static expert_field ei_irc_response_command = EI_INIT;
+static expert_field ei_irc_prefix_missing_ending_space = EI_INIT;
+static expert_field ei_irc_request_command = EI_INIT;
+static expert_field ei_irc_tag_data_invalid = EI_INIT;
+
 /* This must be a null-terminated string */
 static const guint8 TAG_DELIMITER[] = {0x01, 0x00};
 
@@ -92,14 +99,14 @@ dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offs
     tag_end_offset = tvb_pbrk_guint8(tvb, offset, datalen-offset, TAG_DELIMITER, &found_end_needle);
     if (tag_end_offset == -1)
     {
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
+        expert_add_info(pinfo, item, &ei_irc_missing_end_delimiter);
         return;
     }
 
     if ((strcmp(command, "NOTICE") != 0) &&
        (strcmp(command, "PRIVMSG") != 0))
     {
-        expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Tag data outside of NOTICE or PRIVMSG command");
+        expert_add_info(pinfo, item, &ei_irc_tag_data_invalid);
     }
 
     /* Placeholder to call CTCP dissector, strip out delimiter */
@@ -135,7 +142,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
         eop_offset = tvb_pbrk_guint8(tvb, offset+1, linelen-1, " ", &found_needle);
         if (eop_offset == -1)
         {
-            expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Prefix missing ending <space>");
+            expert_add_info(pinfo, request_item, &ei_irc_prefix_missing_ending_space);
             return;
         }
 
@@ -151,7 +158,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
     }
     if (offset == end_offset)
     {
-        expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Request has no command");
+        expert_add_info(pinfo, request_item, &ei_irc_request_command);
         return;
     }
 
@@ -167,7 +174,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
             (isdigit(tvb_get_guint8(tvb, offset+1))) &&
             (isdigit(tvb_get_guint8(tvb, offset+2))))
         {
-            expert_add_info_format(pinfo, request_item, PI_PROTOCOL, PI_WARN, "Numeric command not allowed in request");
+            expert_add_info(pinfo, request_item, &ei_irc_numeric_request_command);
         }
         return;
     }
@@ -182,7 +189,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
        (isdigit(tvb_get_guint8(tvb, offset+1))) &&
        (isdigit(tvb_get_guint8(tvb, offset+2))))
     {
-        expert_add_info_format(pinfo, request_item, PI_PROTOCOL, PI_WARN, "Numeric command not allowed in request");
+        expert_add_info(pinfo, request_item, &ei_irc_numeric_request_command);
     }
 
     found_needle = 0;
@@ -263,7 +270,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
             tag_end_offset = tvb_pbrk_guint8(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, TAG_DELIMITER, &found_tag_needle);
             if (tag_end_offset == -1)
             {
-                expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
+                expert_add_info(pinfo, request_item, &ei_irc_missing_end_delimiter);
                 return;
             }
 
@@ -303,7 +310,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
         eop_offset = tvb_pbrk_guint8(tvb, offset+1, linelen-1, " ", &found_needle);
         if (eop_offset == -1)
         {
-            expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Prefix missing ending <space>");
+            expert_add_info(pinfo, response_item, &ei_irc_prefix_missing_ending_space);
             return;
         }
 
@@ -319,7 +326,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     }
     if (offset == end_offset)
     {
-        expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Response has no command");
+        expert_add_info(pinfo, response_item, &ei_irc_response_command);
         return;
     }
 
@@ -432,7 +439,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
             tag_end_offset = tvb_pbrk_guint8(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, TAG_DELIMITER, &found_tag_needle);
             if (tag_end_offset == -1)
             {
-                expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
+                expert_add_info(pinfo, response_item, &ei_irc_missing_end_delimiter);
                 return;
             }
 
@@ -543,9 +550,22 @@ proto_register_irc(void)
         &ett_irc_response_command
     };
 
+    static ei_register_info ei[] = {
+        { &ei_irc_missing_end_delimiter, { "irc.missing_end_delimiter", PI_MALFORMED, PI_ERROR, "Missing ending tag delimiter (0x01)", EXPFILL }},
+        { &ei_irc_tag_data_invalid, { "irc.tag_data_invalid", PI_PROTOCOL, PI_WARN, "Tag data outside of NOTICE or PRIVMSG command", EXPFILL }},
+        { &ei_irc_prefix_missing_ending_space, { "irc.prefix_missing_ending_space", PI_MALFORMED, PI_ERROR, "Prefix missing ending <space>", EXPFILL }},
+        { &ei_irc_request_command, { "irc.request.command.missing", PI_MALFORMED, PI_ERROR, "Request has no command", EXPFILL }},
+        { &ei_irc_numeric_request_command, { "irc.request.command.numeric", PI_PROTOCOL, PI_WARN, "Numeric command not allowed in request", EXPFILL }},
+        { &ei_irc_response_command, { "irc.response.command.missing", PI_MALFORMED, PI_ERROR, "Response has no command", EXPFILL }},
+    };
+
+    expert_module_t* expert_irc;
+
     proto_irc = proto_register_protocol("Internet Relay Chat", "IRC", "irc");
     proto_register_field_array(proto_irc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_irc = expert_register_protocol(proto_irc);
+    expert_register_field_array(expert_irc, ei, array_length(ei));
 }
 
 void

@@ -105,6 +105,21 @@ static int hf_icep_reply_status = -1;
 static gint ett_icep = -1;
 static gint ett_icep_msg = -1;
 
+static expert_field ei_icep_params_size = EI_INIT;
+static expert_field ei_icep_context_missing = EI_INIT;
+static expert_field ei_icep_reply_data = EI_INIT;
+static expert_field ei_icep_length = EI_INIT;
+static expert_field ei_icep_facet_max_one_element = EI_INIT;
+static expert_field ei_icep_string_too_long = EI_INIT;
+static expert_field ei_icep_string_malformed = EI_INIT;
+static expert_field ei_icep_message_type = EI_INIT;
+static expert_field ei_icep_mode_missing = EI_INIT;
+static expert_field ei_icep_params_encapsulated = EI_INIT;
+static expert_field ei_icep_params_missing = EI_INIT;
+static expert_field ei_icep_batch_requests = EI_INIT;
+static expert_field ei_icep_facet_missing = EI_INIT;
+static expert_field ei_icep_context_too_long = EI_INIT;
+
 /* Preferences */
 static guint icep_max_batch_requests	= 64;
 static guint icep_max_ice_string_len	= 512;
@@ -172,7 +187,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
 	/* check for first byte */
 	if ( !tvb_bytes_exist(tvb, offset, 1) ) {
 
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "1st byte of Size missing");
+		expert_add_info_format_text(pinfo, item, &ei_icep_string_malformed, "1st byte of Size missing");
 		col_append_str(pinfo->cinfo, COL_INFO, " (1st byte of Size missing)");
 
 		(*consumed) = -1;
@@ -189,7 +204,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
 		/* check for next 4 bytes */
 		if ( !tvb_bytes_exist(tvb, offset, 4) ) {
 
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "second field of Size missing");
+			expert_add_info_format_text(pinfo, item, &ei_icep_string_malformed, "second field of Size missing");
 			col_append_str(pinfo->cinfo, COL_INFO, " (second field of Size missing)");
 
 			(*consumed) = -1;
@@ -207,7 +222,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
 	/* check if the string exists */
 	if ( !tvb_bytes_exist(tvb, offset, Size) ) {
 
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "missing or truncated string");
+		expert_add_info_format_text(pinfo, item, &ei_icep_string_malformed, "missing or truncated string");
 		col_append_str(pinfo->cinfo, COL_INFO, " (missing or truncated string)");
 
 		(*consumed) = -1;
@@ -216,7 +231,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
 
 	if ( Size > icep_max_ice_string_len ) {
 
-		expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "string too long");
+		expert_add_info(pinfo, item, &ei_icep_string_too_long);
 		col_append_str(pinfo->cinfo, COL_INFO, " (string too long)");
 
 		(*consumed) = -1;
@@ -272,7 +287,7 @@ static void dissect_ice_facet(packet_info *pinfo, proto_tree *tree, proto_item *
 	/* check first byte */
 	if ( !tvb_bytes_exist(tvb, offset, 1) ) {
 
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "facet field missing");
+		expert_add_info(pinfo, item, &ei_icep_facet_missing);
 		col_append_str(pinfo->cinfo, COL_INFO, " (facet field missing)");
 
 		(*consumed) = -1;
@@ -309,7 +324,7 @@ static void dissect_ice_facet(packet_info *pinfo, proto_tree *tree, proto_item *
 	/* if here => Size > 1 => not possible */
 
 	/* display the XX Size byte when click here */
-	expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "facet can be max one element");
+	expert_add_info(pinfo, item, &ei_icep_facet_max_one_element);
 
 	col_append_str(pinfo->cinfo, COL_INFO, " (facet can be max one element)");
 
@@ -343,7 +358,7 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
 	/* check first byte */
 	if ( !tvb_bytes_exist(tvb, offset, 1) ) {
 
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "context missing");
+		expert_add_info_format_text(pinfo, item, &ei_icep_context_missing, "context missing");
 		col_append_str(pinfo->cinfo, COL_INFO, " (context missing)");
 
 		(*consumed) = -1;
@@ -360,7 +375,7 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
 		/* check for next 4 bytes */
 		if ( !tvb_bytes_exist(tvb, offset, 4) ) {
 
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "second field of Size missing");
+			expert_add_info_format_text(pinfo, item, &ei_icep_context_missing, "second field of Size missing");
 			col_append_str(pinfo->cinfo, COL_INFO, " (second field of Size missing)");
 
 			(*consumed) = -1;
@@ -378,7 +393,7 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
 	if ( Size > icep_max_ice_context_pairs ) {
 
 		/* display the XX Size byte when click here */
-		expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "too long context");
+		expert_add_info(pinfo, item, &ei_icep_context_too_long);
 
 		col_append_str(pinfo->cinfo, COL_INFO, " (too long context)");
 
@@ -457,7 +472,7 @@ static void dissect_ice_params(packet_info *pinfo, proto_tree *tree, proto_item 
 	/* check first 6 bytes */
 	if ( !tvb_bytes_exist(tvb, offset, ICEP_MIN_PARAMS_SIZE) ) {
 
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "params missing");
+		expert_add_info(pinfo, item, &ei_icep_params_missing);
 		col_append_str(pinfo->cinfo, COL_INFO, " (params missing)");
 
 		(*consumed) = -1;
@@ -471,7 +486,7 @@ static void dissect_ice_params(packet_info *pinfo, proto_tree *tree, proto_item 
 
 	if ( size < ICEP_MIN_PARAMS_SIZE ) {
 
-		expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "params size too small");
+		expert_add_info(pinfo, item, &ei_icep_params_size);
 		col_append_str(pinfo->cinfo, COL_INFO, " (params size too small)");
 
 		(*consumed) = -1;
@@ -506,8 +521,7 @@ static void dissect_ice_params(packet_info *pinfo, proto_tree *tree, proto_item 
 
 	if ( tvb_data_remained < ( size - ICEP_MIN_PARAMS_SIZE ) ) {
 
-		expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "missing encapsulated data (%d bytes)",
-									size - ICEP_MIN_PARAMS_SIZE - tvb_data_remained);
+		expert_add_info_format_text(pinfo, item, &ei_icep_params_encapsulated, "missing encapsulated data (%d bytes)", size - ICEP_MIN_PARAMS_SIZE - tvb_data_remained);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 					" (missing encapsulated data (%d bytes))",
@@ -548,7 +562,7 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 	/* check common header (i.e. the batch request one)*/
 	if ( !tvb_bytes_exist(tvb, offset, ICEP_MIN_COMMON_REQ_HEADER_SIZE) ) {
 
-		expert_add_info_format(pinfo, icep_sub_item, PI_MALFORMED, PI_ERROR, "too short header");
+		expert_add_info_format_text(pinfo, icep_sub_item, &ei_icep_length, "too short header");
 		col_append_str(pinfo->cinfo, COL_INFO, " (too short header)");
 
 		goto error;
@@ -618,7 +632,7 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 	/* check and get mode byte */
 	if ( !tvb_bytes_exist(tvb, offset, 1) ) {
 
-		expert_add_info_format(pinfo, icep_sub_item, PI_MALFORMED, PI_ERROR, "mode field missing");
+		expert_add_info(pinfo, icep_sub_item, &ei_icep_mode_missing);
 
 		col_append_str(pinfo->cinfo, COL_INFO, " (mode field missing)");
 		goto error;
@@ -688,7 +702,7 @@ static void dissect_icep_request(tvbuff_t *tvb, guint32 offset,
 	/* check for req id */
 	if ( !tvb_bytes_exist(tvb, offset, 4) ) {
 
-		expert_add_info_format(pinfo, icep_item, PI_MALFORMED, PI_ERROR, "too short header");
+		expert_add_info_format_text(pinfo, icep_item, &ei_icep_length, "too short header");
 		col_append_str(pinfo->cinfo, COL_INFO, " (too short header)");
 		return;
 	}
@@ -757,7 +771,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 	/* check for first 4 byte */
 	if ( !tvb_bytes_exist(tvb, offset, 4) ) {
 
-		expert_add_info_format(pinfo, icep_item, PI_MALFORMED, PI_ERROR, "counter of batch requests missing");
+		expert_add_info_format_text(pinfo, icep_item, &ei_icep_length, "counter of batch requests missing");
 		col_append_str(pinfo->cinfo, COL_INFO, " (counter of batch requests missing)");
 		return;
 	}
@@ -769,7 +783,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 
 	if ( num_reqs > icep_max_batch_requests ) {
 
-		expert_add_info_format(pinfo, icep_item, PI_PROTOCOL, PI_WARN, "too many batch requests (%d)", num_reqs);
+		expert_add_info_format_text(pinfo, icep_item, &ei_icep_batch_requests, "too many batch requests (%d)", num_reqs);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (too many batch requests, %d)", num_reqs);
 		return;
@@ -842,7 +856,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
 
 	if ( !tvb_bytes_exist(tvb, offset, ICEP_MIN_REPLY_SIZE) ) {
 
-		expert_add_info_format(pinfo, icep_item, PI_MALFORMED, PI_ERROR, "too short header");
+		expert_add_info_format_text(pinfo, icep_item, &ei_icep_length, "too short header");
 
 		col_append_str(pinfo->cinfo, COL_INFO, " (too short header)");
 		return;
@@ -882,9 +896,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
 	/* no */
 	if ( tvb_data_remained < reported_reply_data ) {
 
-		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Reply Data (missing %d bytes out of %d)", 
-									reported_reply_data - tvb_data_remained, 
-									reported_reply_data);
+		expert_add_info_format_text(pinfo, ti, &ei_icep_reply_data, "Reply Data (missing %d bytes out of %d)", reported_reply_data - tvb_data_remained, reported_reply_data);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 					" (missing reply data, %d bytes)",
@@ -924,8 +936,8 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	 *  }
 	 */
 
-	proto_item *ti = NULL;
-	proto_tree *icep_tree = NULL;
+	proto_item *ti, *msg_item = NULL;
+	proto_tree *icep_tree;
 	guint32 offset = 0;
 
 	/* Make entries in Protocol column and Info column on summary display */
@@ -937,16 +949,14 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					icep_msgtype_vals,
 					"Unknown Message Type: 0x%02x"));
 
-	if (tree) {
+	DBG0("got an icep msg, start analysis\n");
 
-		DBG0("got an icep msg, start analysis\n");
+	/* create display subtree for the protocol */
 
-		/* create display subtree for the protocol */
+	ti = proto_tree_add_item(tree, proto_icep, tvb, 0, -1, ENC_NA);
+	icep_tree = proto_item_add_subtree(ti, ett_icep);
 
-		ti = proto_tree_add_item(tree, proto_icep, tvb, 0, -1, ENC_NA);
-
-		icep_tree = proto_item_add_subtree(ti, ett_icep);
-
+	if (icep_tree) {
 		/* add items to the subtree */
 
 		/* message header */
@@ -971,7 +981,7 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(icep_tree, hf_icep_message_type,
+		msg_item = proto_tree_add_item(icep_tree, hf_icep_message_type,
 				    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
@@ -1007,8 +1017,7 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	        /* messages already dissected */
 		break;
 	default:
-		if (tree)
-			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Unknown Message Type: 0x%02x", tvb_get_guint8(tvb, 8));
+		expert_add_info_format_text(pinfo, msg_item, &ei_icep_message_type, "Unknown Message Type: 0x%02x", tvb_get_guint8(tvb, 8));
 		break;
 	}
 }
@@ -1050,6 +1059,7 @@ static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 void proto_register_icep(void)
 {
 	module_t *icep_module;
+	expert_module_t* expert_icep;
 
 	/* Setup list of header fields */
 
@@ -1248,6 +1258,23 @@ void proto_register_icep(void)
 		&ett_icep_msg,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_icep_string_malformed, { "icep.string.malformed", PI_MALFORMED, PI_ERROR, "String malformed", EXPFILL }},
+		{ &ei_icep_string_too_long, { "icep.string.too_long", PI_PROTOCOL, PI_WARN, "string too long", EXPFILL }},
+		{ &ei_icep_facet_missing, { "icep.facet.missing", PI_MALFORMED, PI_ERROR, "facet field missing", EXPFILL }},
+		{ &ei_icep_facet_max_one_element, { "icep.facet.max_one_element", PI_PROTOCOL, PI_WARN, "facet can be max one element", EXPFILL }},
+		{ &ei_icep_context_missing, { "icep.context.missing", PI_MALFORMED, PI_ERROR, "context missing", EXPFILL }},
+		{ &ei_icep_context_too_long, { "icep.context.too_long", PI_PROTOCOL, PI_WARN, "too long context", EXPFILL }},
+		{ &ei_icep_params_missing, { "icep.params.missing", PI_MALFORMED, PI_ERROR, "params missing", EXPFILL }},
+		{ &ei_icep_params_size, { "icep.params.size.invalid", PI_PROTOCOL, PI_WARN, "params size too small", EXPFILL }},
+		{ &ei_icep_params_encapsulated, { "icep.params.encapsulated.missing", PI_PROTOCOL, PI_WARN, "missing encapsulated data (%d bytes)", EXPFILL }},
+		{ &ei_icep_length, { "icep.length_invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+		{ &ei_icep_mode_missing, { "icep.mode.missing", PI_MALFORMED, PI_ERROR, "mode field missing", EXPFILL }},
+		{ &ei_icep_batch_requests, { "icep.batch_requests.invalid", PI_PROTOCOL, PI_WARN, "too many batch requests", EXPFILL }},
+		{ &ei_icep_reply_data, { "icep.params.reply_data.missing", PI_MALFORMED, PI_ERROR, "Reply Data missing", EXPFILL }},
+		{ &ei_icep_message_type, { "icep.message_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Message Type", EXPFILL }},
+	};
+
 	/* Register the protocol name and description */
 
 	proto_icep =
@@ -1258,6 +1285,8 @@ void proto_register_icep(void)
 
 	proto_register_field_array(proto_icep, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_icep = expert_register_protocol(proto_icep);
+	expert_register_field_array(expert_icep, ei, array_length(ei));
 
 	icep_module = prefs_register_protocol(proto_icep, NULL);
 

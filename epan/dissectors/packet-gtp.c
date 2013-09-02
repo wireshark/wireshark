@@ -327,6 +327,10 @@ static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
 static gint ett_gtp_uli_rai = -1;
 
+static expert_field ei_gtp_ext_hdr_pdcpsn = EI_INIT;
+static expert_field ei_gtp_ext_length_mal = EI_INIT;
+static expert_field ei_gtp_ext_length_warn = EI_INIT;
+
 static gboolean g_gtp_etsi_order = FALSE;
 
 static gint dissect_tpdu_as = -1;
@@ -5548,10 +5552,7 @@ decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
 
     /* Restriction Type value */
     if (length != 1) {
-        proto_item *expert_item;
-        expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
-        PROTO_ITEM_SET_GENERATED(expert_item);
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtp_ext_length_mal, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
         return 3 + length;
     }
 
@@ -5583,10 +5584,7 @@ decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
 
     /* RAT Type value */
     if (length != 1) {
-        proto_item *expert_item;
-        expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
-        PROTO_ITEM_SET_GENERATED(expert_item);
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtp_ext_length_mal, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
         return 3 + length;
     }
 
@@ -8044,13 +8042,13 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             if (gtp_hdr->flags & (GTP_E_MASK|GTP_S_MASK|GTP_PN_MASK)) {
                 /* Those fields are only *interpreted* if the
                    particular flag for the field is set. */
-            	if (gtp_hdr->flags & GTP_S_MASK) {
+                if (gtp_hdr->flags & GTP_S_MASK) {
                     seq_no = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
                 }
                 offset += 2;
 
-            	if (gtp_hdr->flags & GTP_PN_MASK) {
+                if (gtp_hdr->flags & GTP_PN_MASK) {
                     pdu_no = tvb_get_guint8(tvb, offset);
                     proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
                 }
@@ -8066,13 +8064,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
                         ext_hdr_len_item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
                         if (ext_hdr_length == 0) {
-                            expert_add_info_format(pinfo, ext_hdr_len_item, PI_MALFORMED,
-                                                   PI_ERROR,
+                            expert_add_info_format_text(pinfo, ext_hdr_len_item, &ei_gtp_ext_length_mal,
                                                    "Extension header length is zero");
                             return tvb_length(tvb);
                         }
                         offset++;
-                
+
                         switch (next_hdr) {
 
                         case GTP_EXT_HDR_PDCP_SN:
@@ -8096,13 +8093,15 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                              */
                             /* First byte is length (should be 1) */
                             if (ext_hdr_length == 1) {
+                                proto_item* ext_item;
+
                                 ext_hdr_pdcpsn = tvb_get_ntohs(tvb, offset);
+                                ext_item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
                                 if (ext_hdr_pdcpsn & 0x700) {
-                                    expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare. The meaning of the spare bits shall be set to zero.");
+                                    expert_add_info(pinfo, ext_item, &ei_gtp_ext_hdr_pdcpsn);
                                 }
-                                proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
                             } else {
-                                expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
+                                expert_add_info_format_text(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the PDCP SN Extension header should be 1.");
                             }
                             break;
 
@@ -8119,8 +8118,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                 /* UDP Port of source */ 
                                 proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
                             } else {
-                            	/* Bad length */
-                                expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the UDP Port Extension header should be 1.");
+                                /* Bad length */
+                                expert_add_info_format_text(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the UDP Port Extension header should be 1.");
                             }
                             break;
 
@@ -8151,7 +8150,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
 
     if (gtp_hdr->message != GTP_MSG_TPDU) {
-    	/* Dissect IEs */
+        /* Dissect IEs */
         mandatory = 0;      /* check order of GTP fields against ETSI */
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             ext_hdr_val = tvb_get_guint8(tvb, offset);
@@ -8269,7 +8268,7 @@ dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     version = tvb_get_guint8(tvb,0)>>5;
     if (version > 2) {
         /* Unknown version - reject the packet */
-    	return 0;
+        return 0;
     }
     if (version == 2) {
         /* GTPv2-C 3GPP TS 29.274 */
@@ -8308,6 +8307,7 @@ void
 proto_register_gtp(void)
 {
     module_t *gtp_module;
+    expert_module_t* expert_gtp;
     guint     i;
     guint     last_offset;
 
@@ -9272,6 +9272,12 @@ proto_register_gtp(void)
         },
     };
 
+    static ei_register_info ei[] = {
+        { &ei_gtp_ext_length_mal, { "gtp.ext_length.invalid", PI_MALFORMED, PI_ERROR, "Malformed length", EXPFILL }},
+        { &ei_gtp_ext_hdr_pdcpsn, { "gtp.ext_hdr.pdcp_sn.non_zero", PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare. The meaning of the spare bits shall be set to zero.", EXPFILL }},
+        { &ei_gtp_ext_length_warn, { "gtp.ext_length.invalid", PI_PROTOCOL, PI_WARN, "Length warning", EXPFILL }},
+    };
+
     /* Setup protocol subtree array */
 #define GTP_NUM_INDIVIDUAL_ELEMS    28
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
@@ -9318,6 +9324,8 @@ proto_register_gtp(void)
     proto_gtp = proto_register_protocol("GPRS Tunneling Protocol", "GTP", "gtp");
     proto_register_field_array(proto_gtp, hf_gtp, array_length(hf_gtp));
     proto_register_subtree_array(ett_gtp_array, array_length(ett_gtp_array));
+    expert_gtp = expert_register_protocol(proto_gtp);
+    expert_register_field_array(expert_gtp, ei, array_length(ei));
 
     gtp_module = prefs_register_protocol(proto_gtp, proto_reg_handoff_gtp);
 

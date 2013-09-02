@@ -211,6 +211,10 @@ static gint ett_radiotap_vht = -1;
 static gint ett_radiotap_vht_known = -1;
 static gint ett_radiotap_vht_user = -1;
 
+static expert_field ei_radiotap_data_past_header = EI_INIT;
+static expert_field ei_radiotap_present_reserved = EI_INIT;
+static expert_field ei_radiotap_present = EI_INIT;
+
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_datapad_handle;
 
@@ -1076,8 +1080,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				     BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE)))
 				== (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
 				    BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))) {
-				expert_add_info_format(pinfo, pt, PI_MALFORMED,
-						       PI_ERROR,
+				expert_add_info_format_text(pinfo, pt, &ei_radiotap_present,
 						       "Both radiotap and vendor namespace specified in bitmask word %u",
 						       i);
 				goto malformed;
@@ -1160,10 +1163,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			/* Check if Reserved/Not Defined is not "zero" */
 			if(bmap & IEEE80211_RADIOTAP_NOTDEFINED)
 			{
-				expert_add_info_format(pinfo, pt, PI_UNDECODED, PI_NOTE,
-				"Unknown Radiotap fields, code not implemented, "
-				"Please check radiotap documentation, "
-				"Contact Wireshark developers if you want this supported" );
+				expert_add_info(pinfo, pt, &ei_radiotap_present_reserved);
 			}
  always_bits:
 			proto_tree_add_item(present_tree,
@@ -1920,9 +1920,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 
 	if (err != -ENOENT && tree) {
-		expert_add_info_format(pinfo, pt, PI_MALFORMED,
-				       PI_ERROR,
-				       "Radiotap data goes past the end of the radiotap header");
+		expert_add_info(pinfo, pt, &ei_radiotap_data_past_header);
  malformed:
 		proto_item_append_text(ti, " (malformed)");
 	}
@@ -2803,13 +2801,21 @@ void proto_register_radiotap(void)
 		&ett_radiotap_vht_known,
 		&ett_radiotap_vht_user
 	};
+	static ei_register_info ei[] = {
+		{ &ei_radiotap_present, { "radiotap.present.radiotap_and_vendor", PI_MALFORMED, PI_ERROR, "Both radiotap and vendor namespace specified in bitmask word", EXPFILL }},
+		{ &ei_radiotap_present_reserved, { "radiotap.present.reserved.unknown", PI_UNDECODED, PI_NOTE, "Unknown Radiotap fields, code not implemented, Please check radiotap documentation, Contact Wireshark developers if you want this supported", EXPFILL }},
+		{ &ei_radiotap_data_past_header, { "radiotap.data_past_header", PI_MALFORMED, PI_ERROR, "Radiotap data goes past the end of the radiotap header", EXPFILL }},
+	};
+
 	module_t *radiotap_module;
+	expert_module_t* expert_radiotap;
 
 	proto_radiotap =
-	    proto_register_protocol("IEEE 802.11 Radiotap Capture header",
-				    "802.11 Radiotap", "radiotap");
+	    proto_register_protocol("IEEE 802.11 Radiotap Capture header", "802.11 Radiotap", "radiotap");
 	proto_register_field_array(proto_radiotap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_radiotap = expert_register_protocol(proto_radiotap);
+	expert_register_field_array(expert_radiotap, ei, array_length(ei));
 	register_dissector("radiotap", dissect_radiotap, proto_radiotap);
 
 	radiotap_tap = register_tap("radiotap");
