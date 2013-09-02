@@ -825,7 +825,7 @@ dissect_usb_hid_class_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_,
     ti = proto_tree_add_text(tree, tvb, offset, -1, "HID DESCRIPTOR");
     desc_tree = proto_item_add_subtree(ti, ett_usb_hid_descriptor);
 
-    dissect_usb_descriptor_header(desc_tree, tvb, offset);
+    dissect_usb_descriptor_header(desc_tree, tvb, offset, NULL);
     offset += 2;
     proto_tree_add_item(desc_tree, hf_usb_hid_bcdHID,
             tvb, offset, 2, ENC_LITTLE_ENDIAN);

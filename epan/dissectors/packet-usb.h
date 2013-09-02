@@ -24,6 +24,7 @@
 #ifndef __PACKET_USB_H__
 #define __PACKET_USB_H__
 
+#include <epan/value_string.h>
 #include <epan/wmem/wmem.h>
 
 typedef struct _usb_address_t {
@@ -186,7 +187,9 @@ typedef struct _usb_data_t {
 
 usb_conv_info_t *get_usb_iface_conv_info(packet_info *pinfo, guint8 interface_num);
 
-void dissect_usb_descriptor_header(proto_tree *tree, tvbuff_t *tvb, int offset);
+void dissect_usb_descriptor_header(proto_tree *tree,
+                                   tvbuff_t *tvb, int offset,
+                                   value_string_ext *type_val_str);
 void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset);
 
 #endif

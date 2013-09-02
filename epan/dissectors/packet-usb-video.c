@@ -909,7 +909,7 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
     }
 
     /* Common fields */
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     subtype_item = proto_tree_add_item(tree, hf_usb_vid_control_ifdesc_subtype, tvb, offset+2, 1, ENC_NA);
     offset += 3;
 
@@ -1360,7 +1360,7 @@ dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, tvbuff
         tree = proto_item_add_subtree(item, ett_descriptor_video_streaming);
     }
 
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     proto_tree_add_item(tree, hf_usb_vid_streaming_ifdesc_subtype, tvb, offset+2, 1, ENC_NA);
     offset += 3;
 
@@ -1434,7 +1434,7 @@ dissect_usb_video_endpoint_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
         tree = proto_item_add_subtree(item, ett_descriptor_video_endpoint);
     }
 
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     proto_tree_add_item(tree, hf_usb_vid_epdesc_subtype, tvb, offset+2, 1, ENC_NA);
     offset += 3;
 

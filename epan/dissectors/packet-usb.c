@@ -1124,15 +1124,26 @@ dissect_usb_setup_get_configuration_response(packet_info *pinfo _U_, proto_tree 
  */
 
 void dissect_usb_descriptor_header(proto_tree *tree,
-                                   tvbuff_t *tvb, int offset)
+                                   tvbuff_t *tvb, int offset,
+                                   value_string_ext *type_val_str)
 {
-    /* bLength */
-    proto_tree_add_item(tree,
-                        hf_usb_bLength,
-                        tvb, offset, 1,  ENC_LITTLE_ENDIAN);
+    guint8      desc_type;
+    proto_item *type_item = NULL;
 
-    /* bDescriptorType */
-    proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+
+    proto_tree_add_item(tree, hf_usb_bLength,
+          tvb, offset, 1,  ENC_LITTLE_ENDIAN);
+    offset++;
+
+    desc_type = tvb_get_guint8(tvb, offset);
+    type_item = proto_tree_add_item(tree, hf_usb_bDescriptorType,
+          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    /* if the caller provided no class specific value string, we're
+     * using the standard descriptor types */
+    if (!type_val_str)
+          type_val_str = &std_descriptor_type_vals_ext;
+    proto_item_append_text(type_item, " (%s)",
+             val_to_str_ext(desc_type, type_val_str, "unknown"));
 }
 
 /* 9.6.2 */
@@ -1155,7 +1166,7 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
         tree = proto_item_add_subtree(item, ett_descriptor_device);
     }
 
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
 
     /* bcdUSB */
@@ -1252,7 +1263,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
     usb_conv_info=(usb_conv_info_t *)pinfo->usb_conv_info;
 
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
 
     /* bcdUSB */
@@ -1397,7 +1408,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
         proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
     }
     else
-       dissect_usb_descriptor_header(tree, tvb, offset);
+       dissect_usb_descriptor_header(tree, tvb, offset, NULL);
 
     offset += 2;
 
@@ -1454,7 +1465,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     }
 
     len = tvb_get_guint8(tvb, offset);
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
 
     /* bInterfaceNumber */
@@ -1564,7 +1575,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     }
 
     len = tvb_get_guint8(tvb, offset);
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
 
     endpoint = tvb_get_guint8(tvb, offset)&0x0f;
@@ -1662,7 +1673,7 @@ dissect_usb_interface_assn_descriptor(packet_info *pinfo _U_, proto_tree *parent
         tree = proto_item_add_subtree(item, ett_descriptor_device);
     }
 
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
 
     /* bFirstInterface */
@@ -1712,7 +1723,7 @@ dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     }
 
     bLength = tvb_get_guint8(tvb, offset);
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += bLength;
 
     if (item) {
@@ -1761,7 +1772,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
         tree = proto_item_add_subtree(item, ett_descriptor_device);
     }
 
-    dissect_usb_descriptor_header(tree, tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
     offset += 2;
 
     /* wTotalLength */
