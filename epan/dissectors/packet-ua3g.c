@@ -1067,8 +1067,8 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         break;
                     }
 
-                    offset += parameter_length;
-                    length -= parameter_length;
+                    /*offset += parameter_length;
+                    length -= parameter_length;*/
                 }
             }
             break;
