@@ -45,6 +45,7 @@ static int hf_kafka_request_api_version = -1;
 static int hf_kafka_correlation_id      = -1;
 static int hf_kafka_client_id           = -1;
 static int hf_kafka_string_len          = -1;
+static int hf_kafka_bytes_len           = -1;
 static int hf_kafka_array_count         = -1;
 static int hf_kafka_required_acks       = -1;
 static int hf_kafka_timeout             = -1;
@@ -54,6 +55,12 @@ static int hf_kafka_replica             = -1;
 static int hf_kafka_isr                 = -1;
 static int hf_kafka_partition_leader    = -1;
 static int hf_kafka_message_set_size    = -1;
+static int hf_kafka_message_size        = -1;
+static int hf_kafka_message_crc         = -1;
+static int hf_kafka_message_magic       = -1;
+static int hf_kafka_message_codec       = -1;
+static int hf_kafka_message_key         = -1;
+static int hf_kafka_message_value       = -1;
 static int hf_kafka_request_frame       = -1;
 static int hf_kafka_response_frame      = -1;
 static int hf_kafka_consumer_group      = -1;
@@ -65,6 +72,8 @@ static int hf_kafka_broker_host         = -1;
 static int hf_kafka_broker_port         = -1;
 
 static gint ett_kafka                    = -1;
+static gint ett_kafka_message            = -1;
+static gint ett_kafka_message_set        = -1;
 static gint ett_kafka_metadata_replicas  = -1;
 static gint ett_kafka_metadata_isr       = -1;
 static gint ett_kafka_metadata_broker    = -1;
@@ -112,6 +121,16 @@ static const value_string kafka_errors[] = {
     { 10, "Message Size Too Large" },
     { 11, "Stale Controller Epoch Code" },
     { 12, "Offset Metadata Too Large" },
+    { 0, NULL }
+};
+
+#define KAFKA_COMPRESSION_NONE   0
+#define KAFKA_COMPRESSION_GZIP   1
+#define KAFKA_COMPRESSION_SNAPPY 2
+static const value_string kafka_codecs[] = {
+    { KAFKA_COMPRESSION_NONE,   "None"   },
+    { KAFKA_COMPRESSION_GZIP,   "Gzip"   },
+    { KAFKA_COMPRESSION_SNAPPY, "Snappy" },
     { 0, NULL }
 };
 
@@ -165,6 +184,81 @@ dissect_kafka_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *
         proto_tree_add_item(tree, hf_item, tvb, offset, len, ENC_BIG_ENDIAN);
         offset += len;
     }
+
+    return offset;
+}
+
+static int
+dissect_kafka_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+    gint32 len;
+
+    len = (gint32) tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_kafka_bytes_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if (len < -1) {
+        /* TODO expert info */
+    }
+    else if (len == -1) {
+        proto_tree_add_bytes(tree, hf_item, tvb, offset, 0, NULL);
+    }
+    else {
+        proto_tree_add_item(tree, hf_item, tvb, offset, len, ENC_BIG_ENDIAN);
+        offset += len;
+    }
+
+    return offset;
+}
+
+static int
+dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int         offset = start_offset;
+
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "Message");
+    subtree = proto_item_add_subtree(ti, ett_kafka_message);
+
+    proto_tree_add_item(subtree, hf_kafka_message_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(subtree, hf_kafka_message_magic, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(subtree, hf_kafka_message_codec, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    offset = dissect_kafka_bytes(subtree, hf_kafka_message_key, tvb, pinfo, offset);
+    offset = dissect_kafka_bytes(subtree, hf_kafka_message_value, tvb, pinfo, offset);
+
+    proto_item_set_len(ti, offset - start_offset);
+
+    return offset;
+}
+
+static int
+dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int         offset = start_offset;
+
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "Message Set");
+    subtree = proto_item_add_subtree(ti, ett_kafka_message_set);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        proto_tree_add_item(subtree, hf_kafka_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+
+        proto_tree_add_item(subtree, hf_kafka_message_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        offset = dissect_kafka_message(tvb, pinfo, subtree, offset);
+    }
+
+    proto_item_set_len(ti, offset - start_offset);
 
     return offset;
 }
@@ -425,6 +519,8 @@ dissect_kafka_produce_request_partition(tvbuff_t *tvb, packet_info *pinfo _U_, p
     proto_tree_add_item(subtree, hf_kafka_message_set_size, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
+    offset = dissect_kafka_message_set(tvb, pinfo, subtree, offset);
+
     return offset;
 }
 
@@ -474,9 +570,13 @@ dissect_kafka_produce_response_partition(tvbuff_t *tvb, packet_info *pinfo _U_, 
     proto_tree_add_item(subtree, hf_kafka_partition_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    /* TODO */
+    proto_tree_add_item(subtree, hf_kafka_error, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-    return offset + 10;
+    proto_tree_add_item(subtree, hf_kafka_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    return offset;
 }
 
 static int
@@ -712,6 +812,11 @@ proto_register_kafka(void)
                FT_INT16, BASE_DEC, 0, 0,
               "Generic length for kafka-encoded string.", HFILL }
         },
+        { &hf_kafka_bytes_len,
+            { "Bytes Length", "kafka.bytes_len",
+               FT_INT32, BASE_DEC, 0, 0,
+              "Generic length for kafka-encoded bytes.", HFILL }
+        },
         { &hf_kafka_array_count,
             { "Array Count", "kafka.array_count",
                FT_INT32, BASE_DEC, 0, 0,
@@ -757,6 +862,36 @@ proto_register_kafka(void)
                FT_INT32, BASE_DEC, 0, 0,
                NULL, HFILL }
         },
+        { &hf_kafka_message_size,
+            { "Message Size", "kafka.message_size",
+               FT_INT32, BASE_DEC, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_message_crc,
+            { "CRC32", "kafka.message_crc",
+               FT_BYTES, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_message_magic,
+            { "Magic Byte", "kafka.message_magic",
+               FT_INT8, BASE_DEC, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_message_codec,
+            { "Compression Codec", "kafka.message_codec",
+               FT_INT8, BASE_DEC, VALS(kafka_codecs), 0x07,
+               NULL, HFILL }
+        },
+        { &hf_kafka_message_key,
+            { "Key", "kafka.message_key",
+               FT_BYTES, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_message_value,
+            { "Value", "kafka.message_value",
+               FT_BYTES, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
         { &hf_kafka_consumer_group,
             { "Consumer Group", "kafka.consumer_group",
                FT_STRING, BASE_NONE, 0, 0,
@@ -791,6 +926,8 @@ proto_register_kafka(void)
 
     static gint *ett[] = {
         &ett_kafka,
+        &ett_kafka_message,
+        &ett_kafka_message_set,
         &ett_kafka_metadata_isr,
         &ett_kafka_metadata_replicas,
         &ett_kafka_metadata_broker,
