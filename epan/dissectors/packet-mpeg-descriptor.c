@@ -2473,7 +2473,7 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
         offset += 3;
 
         proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_rbdc_timeout,      tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+        /*offset += 2;*/
     }
 }
 
