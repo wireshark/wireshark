@@ -74,6 +74,11 @@ static const value_string code_index_vals[] = {
     { 0, NULL }
 };
 
+/* USB audio specification, section A.8 */
+#define CS_INTERFACE       0x24
+#define CS_ENDPOINT        0x25
+
+
 static int hf_sysex_msg_fragments = -1;
 static int hf_sysex_msg_fragment = -1;
 static int hf_sysex_msg_fragment_overlap = -1;
@@ -225,6 +230,33 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
     pinfo->fragmented = save_fragmented;
 }
 
+
+static gint
+dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, void *data _U_)
+{
+    gint    offset = 0;
+    guint8  descriptor_len;
+    guint8  descriptor_type;
+
+    descriptor_len  = tvb_get_guint8(tvb, offset);
+    descriptor_type = tvb_get_guint8(tvb, offset+1);
+
+    if (descriptor_type == CS_INTERFACE) {
+        proto_tree_add_text(tree, tvb, offset, descriptor_len,
+                "AUDIO CONTROL INTERFACE DESCRIPTOR");
+    }
+    else if (descriptor_type == CS_ENDPOINT) {
+        proto_tree_add_text(tree, tvb, offset, descriptor_len,
+                "AUDIO CONTROL ENDPOINT DESCRIPTOR");
+    }
+    else
+        return 0;
+
+    return descriptor_len;
+}
+
+ 
 /* dissector for usb midi bulk data */
 static void
 dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -347,7 +379,11 @@ proto_register_usb_audio(void)
 void
 proto_reg_handoff_usb_audio(void)
 {
-    dissector_handle_t usb_audio_bulk_handle;
+    dissector_handle_t usb_audio_bulk_handle, usb_audio_descr_handle;
+
+    usb_audio_descr_handle = new_create_dissector_handle(
+            dissect_usb_audio_descriptor, proto_usb_audio);
+    dissector_add_uint("usb.descriptor", IF_CLASS_AUDIO, usb_audio_descr_handle);
 
     usb_audio_bulk_handle = find_dissector("usbaudio");
     dissector_add_uint("usb.bulk", IF_CLASS_AUDIO, usb_audio_bulk_handle);
