@@ -3642,7 +3642,7 @@ proto_register_usb(void)
 
         { &hf_usb_bDescriptorType,
           { "bDescriptorType", "usb.bDescriptorType",
-            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &descriptor_type_vals_ext, 0x0,
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &descriptor_type_vals_ext, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_descriptor_index,
