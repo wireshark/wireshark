@@ -325,10 +325,10 @@ dissect_openflow_ofp_match_v_1_0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset+=2;
 
     /* uint8_t dl_src[OFP_ETH_ALEN];  Ethernet source address. */
-    proto_tree_add_item(tree, hf_openflow_eth_src, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_eth_src, tvb, offset, 6, ENC_NA);
     offset+=6;
     /* uint8_t dl_dst[OFP_ETH_ALEN]; Ethernet destination address. */
-    proto_tree_add_item(tree, hf_openflow_eth_dst, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_eth_dst, tvb, offset, 6, ENC_NA);
     offset+=6;
     /* uint16_t dl_vlan; Input VLAN id. */
     proto_tree_add_item(tree, hf_openflow_dl_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -660,7 +660,6 @@ static void
 dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version, guint16 length _U_)
 {
     tvbuff_t *next_tvb;
-    guint16 actions_len;
     gint32 buffer_id;
 
     /* uint32_t buffer_id;  ID assigned by datapath. */
@@ -673,7 +672,6 @@ dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     offset+=2;
 
     /* uint16_t actions_len;  Size of action array in bytes. */
-    actions_len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_openflow_actions_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
