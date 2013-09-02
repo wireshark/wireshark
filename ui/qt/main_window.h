@@ -94,7 +94,8 @@ private:
 
     Ui::MainWindow *main_ui_;
     QMenu *open_recent_menu_;
-    QSplitter *packet_splitter_;
+    QSplitter *master_split_;
+    QSplitter *extra_split_;
     MainWelcome *main_welcome_;
     DisplayFilterCombo *df_combo_box_;
     capture_file *cap_file_;
@@ -103,6 +104,8 @@ private:
     QWidget *previous_focus_;
     FileSetDialog file_set_dialog_;
     SummaryDialog summary_dialog_;
+    ByteViewTab *byte_view_tab_;
+
     bool capture_stopping_;
     bool capture_filter_valid_;
 
@@ -176,6 +179,7 @@ private slots:
     void pipeActivated(int source);
     void pipeNotifierDestroyed();
     void stopCapture();
+    void layoutPanes();
 
     void updateRecentFiles();
     void recentActionTriggered();

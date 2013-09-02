@@ -167,29 +167,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(update_action, SIGNAL(triggered()), this, SLOT(on_actionHelpCheckForUpdates_triggered()));
 #endif
 
-    packet_splitter_ = new QSplitter(main_ui_->mainStack);
-    packet_splitter_->setObjectName(QString::fromUtf8("splitterV"));
-    packet_splitter_->setOrientation(Qt::Vertical);
-
-    packet_list_ = new PacketList(packet_splitter_);
-
-    proto_tree_ = new ProtoTree(packet_splitter_);
-    proto_tree_->setHeaderHidden(true);
-    proto_tree_->installEventFilter(this);
-
-    ByteViewTab *byte_view_tab = new ByteViewTab(packet_splitter_);
-    byte_view_tab->setTabPosition(QTabWidget::South);
-    byte_view_tab->setDocumentMode(true);
-
-    packet_list_->setProtoTree(proto_tree_);
-    packet_list_->setByteViewTab(byte_view_tab);
-    packet_list_->installEventFilter(this);
-
-    packet_splitter_->addWidget(packet_list_);
-    packet_splitter_->addWidget(proto_tree_);
-    packet_splitter_->addWidget(byte_view_tab);
-
-    main_ui_->mainStack->addWidget(packet_splitter_);
+    layoutPanes();
 
     main_welcome_ = main_ui_->welcomePage;
 
@@ -245,7 +223,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             packet_list_, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            byte_view_tab, SLOT(setCaptureFile(capture_file*)));
+            byte_view_tab_, SLOT(setCaptureFile(capture_file*)));
 
     connect(main_ui_->actionGoNextPacket, SIGNAL(triggered()),
             packet_list_, SLOT(goNextPacket()));
@@ -291,6 +269,91 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete main_ui_;
+}
+
+void MainWindow::layoutPanes()
+{
+    QSplitter *parents[3];
+
+    master_split_ = new QSplitter(main_ui_->mainStack);
+    master_split_->setObjectName(QString::fromUtf8("splitterMaster"));
+
+    extra_split_ = new QSplitter(master_split_);
+    extra_split_->setObjectName(QString::fromUtf8("splitterExtra"));
+
+    switch(prefs.gui_layout_type) {
+    case(layout_type_5):
+        master_split_->setOrientation(Qt::Vertical);
+        parents[0] = master_split_;
+        parents[1] = master_split_;
+        parents[2] = master_split_;
+        break;
+    case(layout_type_2):
+        master_split_->setOrientation(Qt::Vertical);
+        extra_split_->setOrientation(Qt::Horizontal);
+        parents[0] = master_split_;
+        parents[1] = extra_split_;
+        parents[2] = extra_split_;
+        break;
+    case(layout_type_1):
+        master_split_->setOrientation(Qt::Vertical);
+        extra_split_->setOrientation(Qt::Horizontal);
+        parents[0] = extra_split_;
+        parents[1] = extra_split_;
+        parents[2] = master_split_;
+        break;
+    case(layout_type_4):
+        master_split_->setOrientation(Qt::Horizontal);
+        extra_split_->setOrientation(Qt::Vertical);
+        parents[0] = master_split_;
+        parents[1] = extra_split_;
+        parents[2] = extra_split_;
+        break;
+    case(layout_type_3):
+        master_split_->setOrientation(Qt::Horizontal);
+        extra_split_->setOrientation(Qt::Vertical);
+        parents[0] = extra_split_;
+        parents[1] = extra_split_;
+        parents[2] = master_split_;
+        break;
+    case(layout_type_6):
+        master_split_->setOrientation(Qt::Horizontal);
+        parents[0] = master_split_;
+        parents[1] = master_split_;
+        parents[2] = master_split_;
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    packet_list_ = new PacketList(parents[0]);
+
+    proto_tree_ = new ProtoTree(parents[1]);
+    proto_tree_->setHeaderHidden(true);
+    proto_tree_->installEventFilter(this);
+
+    byte_view_tab_ = new ByteViewTab(parents[2]);
+    byte_view_tab_->setTabPosition(QTabWidget::South);
+    byte_view_tab_->setDocumentMode(true);
+
+    packet_list_->setProtoTree(proto_tree_);
+    packet_list_->setByteViewTab(byte_view_tab_);
+    packet_list_->installEventFilter(this);
+
+    if (parents[0] == extra_split_) {
+        master_split_->addWidget(extra_split_);
+    }
+
+    parents[0]->addWidget(packet_list_);
+
+    if (parents[2] == extra_split_) {
+        master_split_->addWidget(extra_split_);
+    }
+
+    parents[1]->addWidget(proto_tree_);
+    parents[2]->addWidget(byte_view_tab_);
+
+    main_ui_->mainStack->addWidget(master_split_);
 }
 
 void MainWindow::setPipeInputHandler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)

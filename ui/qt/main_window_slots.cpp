@@ -224,7 +224,7 @@ void MainWindow::captureCapturePrepared(capture_session *cap_session) {
 
 //    /* Don't set up main window for a capture file. */
 //    main_set_for_capture_file(FALSE);
-    main_ui_->mainStack->setCurrentWidget(packet_splitter_);
+    main_ui_->mainStack->setCurrentWidget(master_split_);
     cap_file_ = (capture_file *) cap_session->cf;
 }
 void MainWindow::captureCaptureUpdateStarted(capture_session *cap_session) {
@@ -306,7 +306,7 @@ void MainWindow::captureFileReadStarted(const capture_file *cf) {
     main_ui_->statusBar->popFileStatus();
     QString msg = QString(tr("Loading: %1")).arg(get_basename(cf->filename));
     main_ui_->statusBar->pushFileStatus(msg);
-    main_ui_->mainStack->setCurrentWidget(packet_splitter_);
+    main_ui_->mainStack->setCurrentWidget(master_split_);
     WiresharkApplication::processEvents();
 }
 
@@ -1767,7 +1767,7 @@ void MainWindow::on_actionStartCapture_triggered()
 //      return;   /* error in options dialog */
 //  }
 
-    main_ui_->mainStack->setCurrentWidget(packet_splitter_);
+    main_ui_->mainStack->setCurrentWidget(master_split_);
 
     if (global_capture_opts.num_selected == 0) {
         QString err_msg = tr("No Interface Selected");
