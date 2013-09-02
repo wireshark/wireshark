@@ -348,7 +348,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     megaco_tree                 = NULL;
     ti                          = NULL;
     tvb_offset                  = 0;
-    tvb_next_offset             = 0;
     RBRKT_counter               = 0;
     LBRKT_counter               = 0;
 
@@ -921,7 +920,7 @@ nextcontext:
                         } else {
                             /* Try to find the first char of the command */
                             tvb_command_start_offset =  megaco_tvb_skip_wsp(tvb, tvb_command_start_offset + 1);
-                            tvb_next_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '{');
+                            /*tvb_next_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_transaction_end_offset, '{');*/
                             continue;
                         }
 
