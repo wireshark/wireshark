@@ -399,7 +399,7 @@ dissect_hello_mt_port_cap_spb_mcid_clv(tvbuff_t   *tvb,
         proto_tree_add_text( subtree, tvb, offset, 3,
                              "  %02x %02x %02x",
                              aux_mcid[i+0], aux_mcid[i+1], aux_mcid[i+2]);
-        offset += 3;
+        /*offset += 3;*/
     }
 }
 
