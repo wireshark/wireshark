@@ -37,7 +37,8 @@ static int hf_midi_event = -1;
 
 static reassembly_table midi_data_reassembly_table;
 
-static gint ett_usb_audio = -1;
+static gint ett_usb_audio      = -1;
+static gint ett_usb_audio_desc = -1;
 
 static dissector_handle_t sysex_handle;
 
@@ -78,6 +79,13 @@ static const value_string code_index_vals[] = {
 #define CS_INTERFACE       0x24
 #define CS_ENDPOINT        0x25
 
+static const value_string aud_descriptor_type_vals[] = {
+        {CS_INTERFACE, "audio class interface"},
+        {CS_ENDPOINT, "audio class endpoint"},
+        {0,NULL}
+};
+static value_string_ext aud_descriptor_type_vals_ext =
+    VALUE_STRING_EXT_INIT(aud_descriptor_type_vals);
 
 static int hf_sysex_msg_fragments = -1;
 static int hf_sysex_msg_fragment = -1;
@@ -235,23 +243,30 @@ static gint
 dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, void *data _U_)
 {
-    gint    offset = 0;
-    guint8  descriptor_len;
-    guint8  descriptor_type;
+    gint        offset = 0;
+    guint8      descriptor_len;
+    guint8      descriptor_type;
+    proto_item *item = NULL;
+    proto_tree *desc_tree;
 
     descriptor_len  = tvb_get_guint8(tvb, offset);
     descriptor_type = tvb_get_guint8(tvb, offset+1);
 
     if (descriptor_type == CS_INTERFACE) {
-        proto_tree_add_text(tree, tvb, offset, descriptor_len,
+        item = proto_tree_add_text(tree, tvb, offset, descriptor_len,
                 "AUDIO CONTROL INTERFACE DESCRIPTOR");
     }
     else if (descriptor_type == CS_ENDPOINT) {
-        proto_tree_add_text(tree, tvb, offset, descriptor_len,
+        item = proto_tree_add_text(tree, tvb, offset, descriptor_len,
                 "AUDIO CONTROL ENDPOINT DESCRIPTOR");
     }
     else
         return 0;
+
+    desc_tree = proto_item_add_subtree(item, ett_usb_audio_desc);
+
+    dissect_usb_descriptor_header(desc_tree, tvb, offset,
+            &aud_descriptor_type_vals_ext);
 
     return descriptor_len;
 }
@@ -356,6 +371,7 @@ proto_register_usb_audio(void)
 
     static gint *usb_audio_subtrees[] = {
         &ett_usb_audio,
+        &ett_usb_audio_desc,
         &ett_sysex_msg_fragment,
         &ett_sysex_msg_fragments
     };
