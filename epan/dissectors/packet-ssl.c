@@ -3122,39 +3122,34 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
     asn1_ctx_t  asn1_ctx;
     gint        ret;
 
+    if (!tree)
+        return;
+
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    if (tree)
-    {
-        cert_types_count = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(tree, hf_ssl_handshake_cert_types_count,
-                            tvb, offset, 1, cert_types_count);
-        offset += 1;
+    cert_types_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(tree, hf_ssl_handshake_cert_types_count,
+            tvb, offset, 1, cert_types_count);
+    offset++;
 
-        if (cert_types_count > 0)
-        {
-            ti = proto_tree_add_none_format(tree,
-                                            hf_ssl_handshake_cert_types,
-                                            tvb, offset, cert_types_count,
-                                            "Certificate types (%u type%s)",
-                                            cert_types_count,
-                                            plurality(cert_types_count, "", "s"));
-            subtree = proto_item_add_subtree(ti, ett_ssl_cert_types);
-            if (!subtree)
-            {
-                subtree = tree;
-            }
+    if (cert_types_count > 0) {
+        ti = proto_tree_add_none_format(tree,
+                hf_ssl_handshake_cert_types,
+                tvb, offset, cert_types_count,
+                "Certificate types (%u type%s)",
+                cert_types_count,
+                plurality(cert_types_count, "", "s"));
+        subtree = proto_item_add_subtree(ti, ett_ssl_cert_types);
 
-            while (cert_types_count > 0)
-            {
-                proto_tree_add_item(subtree, hf_ssl_handshake_cert_type,
-                                    tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-                cert_types_count--;
-            }
+        while (cert_types_count > 0) {
+            proto_tree_add_item(subtree, hf_ssl_handshake_cert_type,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            cert_types_count--;
         }
+    }
 
-        switch (*conv_version) {
+    switch (*conv_version) {
         case SSL_VER_TLSv1DOT2:
             sh_alg_length = tvb_get_ntohs(tvb, offset);
             if (sh_alg_length % 2) {
@@ -3166,7 +3161,7 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
             }
 
             proto_tree_add_uint(tree, hf_ssl_handshake_sig_hash_alg_len,
-                                tvb, offset, 2, sh_alg_length);
+                    tvb, offset, 2, sh_alg_length);
             offset += 2;
 
             ret = dissect_ssl_hash_alg_list(tvb, tree, offset, sh_alg_length);
@@ -3176,48 +3171,37 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
 
         default:
             break;
-        }
-
-        dnames_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(tree, hf_ssl_handshake_dnames_len,
-                            tvb, offset, 2, dnames_length);
-        offset += 2;
-
-        if (dnames_length > 0)
-        {
-            tvb_ensure_bytes_exist(tvb, offset, dnames_length);
-            ti = proto_tree_add_none_format(tree,
-                                            hf_ssl_handshake_dnames,
-                                            tvb, offset, dnames_length,
-                                            "Distinguished Names (%d byte%s)",
-                                            dnames_length,
-                                            plurality(dnames_length, "", "s"));
-            subtree = proto_item_add_subtree(ti, ett_ssl_dnames);
-            if (!subtree)
-            {
-                subtree = tree;
-            }
-
-            while (dnames_length > 0)
-            {
-                /* get the length of the current certificate */
-                guint16 name_length;
-                name_length = tvb_get_ntohs(tvb, offset);
-                dnames_length -= 2 + name_length;
-
-                proto_tree_add_item(subtree, hf_ssl_handshake_dname_len,
-                                    tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-
-                tvb_ensure_bytes_exist(tvb, offset, name_length);
-
-                (void)dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx, subtree, hf_ssl_handshake_dname);
-
-                offset += name_length;
-            }
-        }
     }
 
+    dnames_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(tree, hf_ssl_handshake_dnames_len,
+            tvb, offset, 2, dnames_length);
+    offset += 2;
+
+    if (dnames_length > 0) {
+        ti = proto_tree_add_none_format(tree,
+                hf_ssl_handshake_dnames,
+                tvb, offset, dnames_length,
+                "Distinguished Names (%d byte%s)",
+                dnames_length,
+                plurality(dnames_length, "", "s"));
+        subtree = proto_item_add_subtree(ti, ett_ssl_dnames);
+
+        while (dnames_length > 0) {
+            /* get the length of the current certificate */
+            guint16 name_length;
+            name_length = tvb_get_ntohs(tvb, offset);
+            dnames_length -= 2 + name_length;
+
+            proto_tree_add_item(subtree, hf_ssl_handshake_dname_len,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            (void)dissect_x509if_DistinguishedName(FALSE, tvb, offset,
+                    &asn1_ctx, subtree, hf_ssl_handshake_dname);
+            offset += name_length;
+        }
+    }
 }
 
 static void
