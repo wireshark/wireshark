@@ -1511,7 +1511,6 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	case 0x01:	/* MAC/PHY Configuration/Status */
 	{
 		/* Get auto-negotiation info */
-		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 		{
 			tf = proto_tree_add_item(tree, hf_ieee_802_3_mac_phy_auto_neg_status, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
@@ -1576,7 +1575,6 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 							val_to_str_const(tempShort,operational_mau_type_values,"Unknown"),
 							tempShort);
 
-		tempOffset += 2;
 
 		break;
 	}
@@ -1673,8 +1671,6 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "PSE Allocated Power Value: %u.%u Watt", tempShort/10, tempShort%10);
 
-		tempOffset+=2;
-
 		break;
 	}
 	case 0x03:	/* Link Aggregation */
@@ -1695,8 +1691,6 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 4, "Aggregated Port Id: %u", tempLong);
 
-		tempOffset += 4;
-
 		break;
 	}
 	case 0x04:	/* Maximum Frame Size */
@@ -1705,8 +1699,6 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "Maximum Frame Size: %u", tempShort);
-
-		tempOffset += 2;
 
 		break;
 	}
@@ -2291,7 +2283,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		} else {
 			proto_item_append_text(tf, " (unknown)");
 		}
-		offset+=4;
+		/*offset+=4;*/
 		break;
 	}
 	case 2:		/* LLDP_PNIO_PORTSTATUS */
@@ -2307,7 +2299,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 
 		class3_PortStatus = class3_PortStatus & 0x7;
 		col_append_fstr(pinfo->cinfo, COL_INFO,"RTClass3 Port Status = %s", val_to_str(class3_PortStatus, profinet_port3_status_vals, "Unknown %d"));
-		offset+=2;
+		/*offset+=2;*/
 		break;
 	}
 	/*case 3:*/	/* XXX - LLDP_PNIO_ALIAS */
@@ -2321,13 +2313,13 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	    /* MRRT PortStatus */
 	    mrrt_PortStatus = tvb_get_ntohs(tvb, offset);
 	    proto_tree_add_uint(tree, hf_profinet_mrrt_port_status, tvb, offset, 2, mrrt_PortStatus);
-	    offset+=2;
+	    /*offset+=2;*/
 	    break;
 	}
     case 5:     /* LLDP_PNIO_CHASSIS_MAC */
     {
 	proto_tree_add_item(tree, hf_profinet_cm_mac, tvb, offset, 6, ENC_NA);
-        offset += 6;
+        /*offset += 6;*/
         break;
     }
     case 6:     /* LLDP_PNIO_PTCPSTATUS */
@@ -2353,7 +2345,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
         offset = dissect_profinet_period(tvb, tree, offset, "OrangePeriodBegin",
             hf_profinet_orange_period_begin_valid, hf_profinet_orange_period_begin_offset);
         /* GreenPeriodBegin */
-        offset = dissect_profinet_period(tvb, tree, offset, "GreenPeriodBegin",
+        /*offset = */dissect_profinet_period(tvb, tree, offset, "GreenPeriodBegin",
             hf_profinet_green_period_begin_valid, hf_profinet_green_period_begin_offset);
         break;
     }
@@ -2663,17 +2655,17 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (tempType)
 		{
 		case CHASSIS_ID_TLV_TYPE:
-			rtnValue = dissect_lldp_chassis_id(new_tvb, pinfo, lldp_tree, 0);
+			dissect_lldp_chassis_id(new_tvb, pinfo, lldp_tree, 0);
 			rtnValue = -1;	/* Duplicate chassis id tlv */
 			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Chassis ID TLV");
 			break;
 		case PORT_ID_TLV_TYPE:
-			rtnValue = dissect_lldp_port_id(new_tvb, pinfo, lldp_tree, 0);
+			dissect_lldp_port_id(new_tvb, pinfo, lldp_tree, 0);
 			rtnValue = -1;	/* Duplicate port id tlv */
 			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Port ID TLV");
 			break;
 		case TIME_TO_LIVE_TLV_TYPE:
-			rtnValue = dissect_lldp_time_to_live(new_tvb, pinfo, lldp_tree, 0);
+			dissect_lldp_time_to_live(new_tvb, pinfo, lldp_tree, 0);
 			rtnValue = -1;	/* Duplicate time-to-live tlv */
 			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Time-To-Live TLV");
 			break;
