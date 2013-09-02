@@ -48,6 +48,11 @@ static int hf_ccid_bClockStatus = -1;
 static int hf_ccid_bProtocolNum = -1;
 static int hf_ccid_bBWI = -1;
 static int hf_ccid_wLevelParameter = -1;
+static int hf_ccid_bMaxSlotIndex = -1;
+
+/* smart card descriptor, as defined in section 5.1
+   of the USB CCID specification */
+#define USB_DESC_TYPE_SMARTCARD 0x21
 
 /* Standardised Bulk Out message types */
 #define PC_RDR_SET_PARAMS      0x61
@@ -71,6 +76,15 @@ static int hf_ccid_wLevelParameter = -1;
 #define RDR_PC_PARAMS          0x82
 #define RDR_PC_ESCAPE          0x83
 #define RDR_PC_DATA_CLOCK      0x84
+
+
+static const value_string ccid_descriptor_type_vals[] = {
+        {USB_DESC_TYPE_SMARTCARD, "smart card"},
+        {0,NULL}
+};
+static value_string_ext ccid_descriptor_type_vals_ext =
+    VALUE_STRING_EXT_INIT(ccid_descriptor_type_vals);
+
 
 static const value_string ccid_opcode_vals[] = {
     /* Standardised Bulk Out message types */
@@ -167,7 +181,8 @@ static const value_string ccid_proto_structs_vals[] = {
 static dissector_table_t  ccid_dissector_table;
 
 /* Subtree handles: set by register_subtree_array */
-static gint ett_ccid = -1;
+static gint ett_ccid      = -1;
+static gint ett_ccid_desc = -1;
 
 /* Table of payload types - adapted from the I2C dissector */
 enum {
@@ -184,6 +199,39 @@ typedef gboolean (*sub_checkfunc_t)(packet_info *);
 
 static dissector_handle_t sub_handles[SUB_MAX];
 static gint sub_selected = SUB_DATA;
+
+
+static gint
+dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, void *data _U_)
+{
+    gint        offset = 0;
+    guint8      descriptor_type;
+    guint8      descriptor_len;
+    proto_item *item;
+    proto_tree *desc_tree;
+
+    descriptor_len  = tvb_get_guint8(tvb, offset);
+    descriptor_type = tvb_get_guint8(tvb, offset+1);
+    if (descriptor_type!=USB_DESC_TYPE_SMARTCARD)
+        return 0;
+
+    item = proto_tree_add_text(tree, tvb, offset, descriptor_len,
+                "SMART CARD DEVICE CLASS DESCRIPTOR");
+    desc_tree = proto_item_add_subtree(item, ett_ccid_desc);
+
+    dissect_usb_descriptor_header(desc_tree, tvb, offset,
+            &ccid_descriptor_type_vals_ext);
+    offset += 2;
+
+    offset += 2; /* skip bcdCCID */
+
+    proto_tree_add_item(desc_tree, hf_ccid_bMaxSlotIndex, tvb,
+            offset, 1, ENC_LITTLE_ENDIAN);
+
+    return descriptor_len;
+}
+
 
 static void
 dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -394,12 +442,15 @@ proto_register_ccid(void)
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_wLevelParameter,
          { "Level Parameter", "usbccid.wLevelParameter", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bMaxSlotIndex,
+         { "max slot index", "usbccid.bMaxSlotIndex", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }}
-
     };
 
     static gint *ett[] = {
-        &ett_ccid
+        &ett_ccid,
+        &ett_ccid_desc
     };
 
     static const enum_val_t sub_enum_vals[] = {
@@ -430,7 +481,11 @@ proto_register_ccid(void)
 void
 proto_reg_handoff_ccid(void)
 {
-    dissector_handle_t usb_ccid_bulk_handle;
+    dissector_handle_t usb_ccid_bulk_handle, usb_ccid_descr_handle;
+
+    usb_ccid_descr_handle = new_create_dissector_handle(
+            dissect_usb_ccid_descriptor, proto_ccid);
+    dissector_add_uint("usb.descriptor", IF_CLASS_SMART_CARD, usb_ccid_descr_handle);
 
     usb_ccid_bulk_handle = find_dissector("usbccid");
     dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_bulk_handle);
