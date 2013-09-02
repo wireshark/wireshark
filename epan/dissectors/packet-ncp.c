@@ -410,7 +410,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  * request packet, so look up the
                  * request value and check the task number
                  */
-                request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
+                /*request_value = mncp_hash_lookup(conversation, nw_connection, header.task);*/
             }
         } else {
             /* Get request value data */
