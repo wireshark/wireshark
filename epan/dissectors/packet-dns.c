@@ -269,6 +269,12 @@ static int hf_dns_rp_mailbox = -1;
 static int hf_dns_rp_txt_rr = -1;
 static int hf_dns_afsdb_subtype = -1;
 static int hf_dns_afsdb_hostname = -1;
+static int hf_dns_x25_length = -1;
+static int hf_dns_x25_psdn_address = -1;
+static int hf_dns_isdn_length = -1;
+static int hf_dns_isdn_address = -1;
+static int hf_dns_isdn_sa_length = -1;
+static int hf_dns_isdn_sa = -1;
 static int hf_dns_rt_preference = -1;
 static int hf_dns_rt_intermediate_host = -1;
 static int hf_dns_nsap_rdata = -1;
@@ -3295,7 +3301,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_X25:
+    case T_X25: /* X.25 address (19) */
     {
       guint8 x25_len;
 
@@ -3305,14 +3311,18 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (data_len < 1) {
         goto bad_rr;
       }
+
+      proto_tree_add_item(rr_tree, hf_dns_x25_length, tvb, cur_offset, 1, ENC_NA);
       x25_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, x25_len + 1,
-                          "PSDN-Address: %.*s", x25_len,
-                          tvb_get_ephemeral_string(tvb, cur_offset +1, x25_len));
+      cur_offset += 1;
+
+      proto_tree_add_item(rr_tree, hf_dns_x25_psdn_address, tvb, cur_offset, x25_len, ENC_ASCII|ENC_NA);
+      /*cur_offset += x25_len;*/
+
     }
     break;
 
-    case T_ISDN:
+    case T_ISDN: /* ISDN address (20) */
     {
       guint8 isdn_address_len, isdn_sa_len;
       int    rr_len = data_len;
@@ -3323,18 +3333,21 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (rr_len < 1) {
         goto bad_rr;
       }
+
+      proto_tree_add_item(rr_tree, hf_dns_isdn_length, tvb, cur_offset, 1, ENC_NA);
       isdn_address_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, isdn_address_len + 1,
-                          "ISDN Address: %.*s", isdn_address_len,
-                          tvb_get_ephemeral_string(tvb, cur_offset +1, isdn_address_len));
-      cur_offset += 1 + isdn_address_len;
-      rr_len     -= 1 + isdn_address_len;
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      proto_tree_add_item(rr_tree, hf_dns_isdn_address, tvb, cur_offset, isdn_address_len, ENC_ASCII|ENC_NA);
+      cur_offset += isdn_address_len;
+      rr_len     -= isdn_address_len;
 
       if (rr_len > 1)   /* ISDN SA is optional */ {
+        proto_tree_add_item(rr_tree, hf_dns_isdn_sa_length, tvb, cur_offset, 1, ENC_NA);
         isdn_sa_len = tvb_get_guint8(tvb, cur_offset);
-        proto_tree_add_text(rr_tree, tvb, cur_offset, isdn_sa_len + 1,
-                            "Subaddress: %.*s", isdn_sa_len,
-                            tvb_get_ephemeral_string(tvb, cur_offset +1, isdn_sa_len));
+
+        proto_tree_add_item(rr_tree, hf_dns_isdn_sa, tvb, cur_offset, isdn_sa_len, ENC_ASCII|ENC_NA);
       }
     }
     break;
@@ -5011,6 +5024,36 @@ proto_register_dns(void)
 
     { &hf_dns_afsdb_hostname,
       { "Hostname","dns.afsdb.hostname",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_x25_length,
+      { "Length","dns.x25.length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_x25_psdn_address,
+      { "PSDN-Address","dns.x25.psdn_address",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_isdn_length,
+      { "Length","dns.idsn.length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_isdn_address,
+      { "ISDN Address","dns.idsn.address",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_isdn_sa_length,
+      { "Length","dns.idsn.sa.length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_isdn_sa,
+      { "Sub Address","dns.idsn.sa.address",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
