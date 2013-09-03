@@ -164,6 +164,9 @@ static int hf_dns_key_protocol = -1;
 static int hf_dns_key_algorithm = -1;
 static int hf_dns_key_key_id = -1;
 static int hf_dns_key_public_key = -1;
+static int hf_dns_px_preference = -1;
+static int hf_dns_px_map822 = -1;
+static int hf_dns_px_mapx400 = -1;
 static int hf_dns_tkey_algo_name = -1;
 static int hf_dns_tkey_signature_expiration = -1;
 static int hf_dns_tkey_signature_inception = -1;
@@ -3352,7 +3355,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_PX:
+    case T_PX: /* Pointer to X.400/RFC822 mapping info (26)*/
     {
       int           px_map822_len, px_mapx400_len;
       const guchar *px_map822_dnsname, *px_mapx400_dnsname;
@@ -3363,15 +3366,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (data_len < 1) {
         goto bad_rr;
       }
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Preference: %u", tvb_get_ntohs(tvb, cur_offset));
+      proto_tree_add_item(rr_tree, hf_dns_px_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
+
       px_map822_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &px_map822_dnsname);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, px_map822_len,
-                          "MAP822: %s", format_text(px_map822_dnsname, strlen(px_map822_dnsname)));
+      proto_tree_add_string(rr_tree, hf_dns_px_map822, tvb, cur_offset, px_map822_len, px_map822_dnsname);
       cur_offset += px_map822_len;
+
       px_mapx400_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &px_mapx400_dnsname);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, px_mapx400_len,
-                          "MAPX400: %s", format_text(px_mapx400_dnsname, strlen(px_mapx400_dnsname)) );
+      proto_tree_add_string(rr_tree, hf_dns_px_mapx400, tvb, cur_offset, px_mapx400_len, px_mapx400_dnsname);
       /*cur_offset += px_mapx400_len;*/
     }
     break;
@@ -4461,6 +4464,21 @@ proto_register_dns(void)
     { &hf_dns_key_public_key,
       { "Public Key", "dns.key.public_key",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_px_preference,
+      { "Preference", "dns.px.preference",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_px_map822,
+      { "MAP822", "dns.px.map822",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_px_mapx400,
+      { "MAPX400", "dns.px.map400",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_tkey_algo_name,
