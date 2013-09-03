@@ -1695,7 +1695,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   switch (dns_type) {
 
-    case T_A:
+    case T_A: /* a host Address (1) */
     {
       const char *addr;
 
@@ -1715,7 +1715,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_NS:
+    case T_NS: /* an authoritative Name Server (2) */
     {
       const guchar *ns_name;
       int ns_name_len;
@@ -1731,7 +1731,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_CNAME:
+    case T_CNAME: /* the Canonical NAME for an alias (5) */ 
     {
       const guchar *cname;
       int cname_len;
@@ -1792,7 +1792,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_PTR:  /* Domain Name Pointer (12) */
+    case T_PTR: /* Domain Name Pointer (12) */
     {
       const guchar *pname;
       int           pname_len;
@@ -1809,7 +1809,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_WKS: /* well known service (11) */
+    case T_WKS: /* Well Known Service (11) */
     {
       int            rr_len   = data_len;
       const char    *wks_addr;
@@ -1919,7 +1919,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_MX: /* Mail Exchange (15) */
+    case T_MX: /* Mail eXchange (15) */
     {
       guint16       preference = 0;
       const guchar *mx_name;
@@ -1942,7 +1942,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_TXT: /* Text Strings (16) */
+    case T_TXT: /* TeXT strings (16) */
     {
       int rr_len = data_len;
       int txt_offset;
@@ -1985,7 +1985,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     break;
 
     case T_RRSIG: /* RRSIG (46) */
-    case T_SIG: /* Security Signature (24) */
+    case T_SIG: /* Security SIgnature (24) */
     {
       int           rr_len = data_len;
       const guchar *signer_name;
@@ -2354,7 +2354,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_NSEC: /* NSEC (43) */
+    case T_NSEC: /* NSEC (47) */
     {
       int           rr_len = data_len;
       const guchar *next_domain_name;
@@ -2377,7 +2377,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     break;
 
 
-    case T_NSEC3:
+    case T_NSEC3: /* NSEC3 (50) */
     {
       int         rr_len, initial_offset = cur_offset;
       guint8      salt_len, hash_len;
@@ -2406,7 +2406,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_NSEC3PARAM:
+    case T_NSEC3PARAM: /* NSEC3PARAM (51) */
     {
       int salt_len;
       if (cinfo != NULL) {
@@ -2513,7 +2513,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
     break;
 
-    case T_OPT:
+    case T_OPT: /* Option (41) */
     {
       int rropt_len = data_len;
       guint16 optcode, optlen;
@@ -2571,7 +2571,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             optlen -= 1;
           }
           break;
-          case O_CLIENT_SUBNET_EXP:
+          case O_CLIENT_SUBNET_EXP: /* draft-vandergaast-edns-client-subnet */
              expert_add_info_format_text(pinfo, rropt, &ei_dns_depr_opc,
                 "Deprecated opcode. Client subnet OPT assigned as %d.", O_CLIENT_SUBNET);
             /* Intentional fall-through */
@@ -3511,7 +3511,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_CAA:
+    case T_CAA: /* Certification Authority Restriction (257) */
     {
       proto_item *caa_item;
       proto_tree *caa_tree;
