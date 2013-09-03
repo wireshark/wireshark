@@ -91,6 +91,16 @@ static int hf_dns_srv_priority = -1;
 static int hf_dns_srv_weight = -1;
 static int hf_dns_srv_port = -1;
 static int hf_dns_srv_target = -1;
+static int hf_dns_naptr_order = -1;
+static int hf_dns_naptr_preference = -1;
+static int hf_dns_naptr_flags_length = -1;
+static int hf_dns_naptr_flags = -1;
+static int hf_dns_naptr_service_length = -1;
+static int hf_dns_naptr_service = -1;
+static int hf_dns_naptr_regex_length = -1;
+static int hf_dns_naptr_regex = -1;
+static int hf_dns_naptr_replacement_length = -1;
+static int hf_dns_naptr_replacement = -1;
 static int hf_dns_rr_name = -1;
 static int hf_dns_rr_type = -1;
 static int hf_dns_rr_class = -1;
@@ -2915,38 +2925,58 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_NAPTR:
+    case T_NAPTR: /*  Naming Authority PoinTeR (35) */
     {
       int           offset = cur_offset;
       guint16       order;
       guint16       preference;
       gchar        *flags;
       guint8        flags_len;
-      guchar       *service;
       guint8        service_len;
-      guchar       *regex;
       guint8        regex_len;
       const guchar *replacement;
       int           replacement_len;
 
+
+      /* Order */
+      proto_tree_add_item(rr_tree, hf_dns_naptr_order, tvb, offset, 2, ENC_BIG_ENDIAN);
       order = tvb_get_ntohs(tvb, offset);
       offset += 2;
+
+      /* Preference */
+      proto_tree_add_item(rr_tree, hf_dns_naptr_preference, tvb, offset, 2, ENC_BIG_ENDIAN);
       preference = tvb_get_ntohs(tvb, offset);
       offset += 2;
+
+       /* Flags */
+      proto_tree_add_item(rr_tree, hf_dns_naptr_flags_length, tvb, offset, 1, ENC_BIG_ENDIAN);
       flags_len = tvb_get_guint8(tvb, offset);
-      offset++;
+      offset += 1;
+      proto_tree_add_item(rr_tree, hf_dns_naptr_flags, tvb, offset, flags_len, ENC_ASCII|ENC_NA);
       flags = tvb_get_ephemeral_string(tvb, offset, flags_len);
       offset += flags_len;
+
+      /* Service */
+      proto_tree_add_item(rr_tree, hf_dns_naptr_service_length, tvb, offset, 1, ENC_BIG_ENDIAN);
       service_len = tvb_get_guint8(tvb, offset);
-      offset++;
-      service = tvb_get_ephemeral_string(tvb, offset, service_len);
+      offset += 1;
+      proto_tree_add_item(rr_tree, hf_dns_naptr_service, tvb, offset, service_len, ENC_ASCII|ENC_NA);
       offset += service_len;
+
+      /* Regex */
+      proto_tree_add_item(rr_tree, hf_dns_naptr_regex_length, tvb, offset, 1, ENC_BIG_ENDIAN);
       regex_len = tvb_get_guint8(tvb, offset);
-      offset++;
-      regex = tvb_get_ephemeral_string(tvb, offset, regex_len);
+      offset += 1;
+      proto_tree_add_item(rr_tree, hf_dns_naptr_regex, tvb, offset, regex_len, ENC_ASCII|ENC_NA);
       offset += regex_len;
+
+      /* Replacement */
       replacement_len = get_dns_name(tvb, offset, 0, dns_data_offset, &replacement);
       name_out = format_text(replacement, strlen(replacement));
+      proto_tree_add_item(rr_tree, hf_dns_naptr_replacement_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset += 1;
+
+      proto_tree_add_string(rr_tree, hf_dns_naptr_replacement, tvb, offset, replacement_len, name_out);
 
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %u %u %s", order, preference, flags);
@@ -2954,26 +2984,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       proto_item_append_text(trr, ", order %u, preference %u, flags %s",
                              order, preference, flags);
-      offset = cur_offset;
-      proto_tree_add_text(rr_tree, tvb, offset, 2, "Order: %u", order);
-      offset += 2;
-      proto_tree_add_text(rr_tree, tvb, offset, 2, "Preference: %u", preference);
-      offset += 2;
-      proto_tree_add_text(rr_tree, tvb, offset, 1, "Flags length: %u", flags_len);
-      offset++;
-      proto_tree_add_text(rr_tree, tvb, offset, flags_len, "Flags: \"%s\"", flags);
-      offset += flags_len;
-      proto_tree_add_text(rr_tree, tvb, offset, 1, "Service length: %u", service_len);
-      offset++;
-      proto_tree_add_text(rr_tree, tvb, offset, service_len, "Service: \"%s\"", service);
-      offset += service_len;
-      proto_tree_add_text(rr_tree, tvb, offset, 1, "Regex length: %u", regex_len);
-      offset++;
-      proto_tree_add_text(rr_tree, tvb, offset, regex_len, "Regex: \"%s\"", regex);
-      offset += regex_len;
-      proto_tree_add_text(rr_tree, tvb, offset, 1, "Replacement length: %u", replacement_len);
-      offset++;
-      proto_tree_add_text(rr_tree, tvb, offset, replacement_len, "Replacement: %s", name_out);
 
     }
     break;
@@ -4051,6 +4061,56 @@ proto_register_dns(void)
 
     { &hf_dns_srv_target,
       { "Target", "dns.srv.target",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_naptr_order,
+      { "Order", "dns.naptr.order",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_naptr_preference,
+      { "Preference", "dns.naptr.preference",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_naptr_flags_length,
+      { "Flags Length", "dns.naptr.flags_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_naptr_flags,
+      { "Flags", "dns.naptr.flags",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_naptr_service_length,
+      { "Service Length", "dns.naptr.service_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_naptr_service,
+      { "Service", "dns.naptr.service",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_naptr_regex_length,
+      { "Regex Length", "dns.naptr.regex_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_naptr_regex,
+      { "Regex", "dns.naptr.regex",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_naptr_replacement_length,
+      { "rReplacement Length", "dns.naptr.replacement_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_naptr_replacement,
+      { "Replacement", "dns.naptr.replacement",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
