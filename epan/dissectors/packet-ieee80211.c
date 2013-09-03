@@ -8383,7 +8383,6 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
     break;
   case AIRONET_IE_CLIENT_MFP:
     proto_tree_add_item (ietree, hf_ieee80211_aironet_ie_clientmfp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
     break;
   default:
     proto_tree_add_item(ietree, hf_ieee80211_aironet_ie_data, tvb, offset,
