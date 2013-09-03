@@ -1164,7 +1164,6 @@ void MainWindow::captureStop() {
 void MainWindow::setTitlebarForCaptureFile()
 {
     if (cap_file_ && cap_file_->filename) {
-        setWindowModified(cf_has_unsaved_data(cap_file_));
         //
         // Qt *REALLY* doesn't like windows that sometimes have a
         // title set with setWindowTitle() and other times have a
@@ -1197,7 +1196,7 @@ void MainWindow::setTitlebarForCaptureFile()
             //
             gchar *window_name;
             setWindowFilePath(NULL);
-            window_name = g_strdup_printf("Capturing from %s", cf_get_tempfile_source(cap_file_)); //TODO : Fix Translate
+            window_name = g_strdup_printf("Capturing from %s[*]", cf_get_tempfile_source(cap_file_)); //TODO : Fix Translate
             setWindowTitle(window_name);
             g_free(window_name);
         } else {
@@ -1226,6 +1225,7 @@ void MainWindow::setTitlebarForCaptureFile()
                 g_free(utf8_filename);
             }
         }
+        setWindowModified(cf_has_unsaved_data(cap_file_));
     } else {
         /* We have no capture file. */
         setWindowFilePath(NULL);
