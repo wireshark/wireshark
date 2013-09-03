@@ -241,8 +241,12 @@ static int hf_dns_time = -1;
 static int hf_dns_sshfp_algorithm = -1;
 static int hf_dns_sshfp_fingerprint_type = -1;
 static int hf_dns_sshfp_fingerprint = -1;
+static int hf_dns_hip_hit_length = -1;
+static int hf_dns_hip_pk_algo = -1;
+static int hf_dns_hip_pk_length = -1;
 static int hf_dns_hip_hit = -1;
 static int hf_dns_hip_pk = -1;
+static int hf_dns_hip_rendezvous_server = -1;
 static int hf_dns_dhcid_rdata = -1;
 static int hf_dns_ds_key_id = -1;
 static int hf_dns_ds_algorithm = -1;
@@ -624,9 +628,17 @@ static const value_string sshfp_fingertype_vals[] = {
 };
 
 /* HIP PK ALGO RFC 5205 */
+#define THIP_ALGO_RESERVED     (0)
 #define THIP_ALGO_DSA          (1)
 #define THIP_ALGO_RSA          (2)
-#define THIP_ALGO_RESERVED     (0)
+
+
+static const value_string hip_algo_vals[] = {
+  { THIP_ALGO_DSA,       "DSA" },
+  { THIP_ALGO_RSA,       "RSA" },
+  { THIP_ALGO_RESERVED,  "Reserved" },
+  { 0,                   NULL }
+};
 
 /* RFC 3123 */
 #define TAPL_ADDR_FAMILY_IPV4   (AFNUM_INET)
@@ -3032,20 +3044,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_HIP:
+    case T_HIP: /* Host Identity Protocol (55) */
     {
-      guint8        hit_len, algo;
+      guint8        hit_len;
       guint16       pk_len;
       int           rr_len = data_len;
       int           rendezvous_len;
       const guchar *rend_server_dns_name;
-
-      static const value_string hip_algo_vals[] = {
-        { THIP_ALGO_DSA,       "DSA" },
-        { THIP_ALGO_RSA,       "RSA" },
-        { THIP_ALGO_RESERVED,  "Reserved" },
-        { 0,                   NULL }
-      };
 
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
@@ -3055,16 +3060,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         goto bad_rr;
       }
       hit_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "HIT length: %u", hit_len);
+      proto_tree_add_item(rr_tree, hf_dns_hip_hit_length, tvb, cur_offset, 1, ENC_NA);
       cur_offset += 1;
       rr_len     -= 1;
 
       if (rr_len < 1) {
         goto bad_rr;
       }
-      algo = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-                          "PK algorithm: %s", val_to_str(algo, hip_algo_vals, "Unknown (0x%02X)"));
+      proto_tree_add_item(rr_tree, hf_dns_hip_pk_algo, tvb, cur_offset, 1, ENC_NA);
       cur_offset += 1;
       rr_len     -= 1;
 
@@ -3072,7 +3075,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         goto bad_rr;
       }
       pk_len = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "PK length: %u", pk_len);
+      proto_tree_add_item(rr_tree, hf_dns_hip_pk_length, tvb, cur_offset, 2, ENC_NA);
       cur_offset += 2;
       rr_len     -= 2;
 
@@ -3095,8 +3098,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
       while (rr_len > 1) {
         rendezvous_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rend_server_dns_name);
-        proto_tree_add_text(rr_tree, tvb, cur_offset, rendezvous_len, "Rendezvous Server: %s",
-                            format_text(rend_server_dns_name, strlen(rend_server_dns_name)));
+        proto_tree_add_string(rr_tree, hf_dns_hip_rendezvous_server, tvb, cur_offset, rendezvous_len, rend_server_dns_name);
         cur_offset += rendezvous_len;
         rr_len     -= rendezvous_len;
       }
@@ -4831,6 +4833,21 @@ proto_register_dns(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
+    { &hf_dns_hip_hit_length,
+      { "HIT length", "dns.hip.hit.length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_hip_pk_algo,
+      { "HIT length", "dns.hip.hit.pk.algo",
+        FT_UINT8, BASE_DEC, VALS(hip_algo_vals), 0,
+        NULL, HFILL }},
+
+    { &hf_dns_hip_pk_length,
+      { "PK length", "dns.hip.pk.length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
     { &hf_dns_hip_hit,
       { "Host Identity Tag", "dns.hip.hit",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -4839,6 +4856,11 @@ proto_register_dns(void)
     { &hf_dns_hip_pk,
       { "HIP Public Key", "dns.hip.pk",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_hip_rendezvous_server,
+      { "Rendezvous Server", "dns.hip.rendezvous_server",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
     { &hf_dns_dhcid_rdata,
