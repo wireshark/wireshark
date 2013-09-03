@@ -281,6 +281,7 @@ static int hf_dns_isdn_sa = -1;
 static int hf_dns_rt_preference = -1;
 static int hf_dns_rt_intermediate_host = -1;
 static int hf_dns_nsap_rdata = -1;
+static int hf_dns_nsap_ptr_owner = -1;
 static int hf_dns_caa_flags = -1;
 static int hf_dns_caa_flag_issuer_critical = -1;
 static int hf_dns_caa_issue = -1;
@@ -3379,7 +3380,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_NSAP:
+    case T_NSAP: /* for NSAP address, NSAP style A record (22) */
     {
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
@@ -3391,7 +3392,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_NSAP_PTR:
+    case T_NSAP_PTR: /* for domain name pointer, NSAP style (23) */
     {
       int           nsap_ptr_owner_len;
       const guchar *nsap_ptr_owner;
@@ -3402,9 +3403,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (data_len < 1) {
         goto bad_rr;
       }
+
       nsap_ptr_owner_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &nsap_ptr_owner);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, nsap_ptr_owner_len,
-                          "Owner: %s", format_text(nsap_ptr_owner, strlen(nsap_ptr_owner)) );
+      proto_tree_add_string(rr_tree, hf_dns_nsap_ptr_owner, tvb, cur_offset, nsap_ptr_owner_len, nsap_ptr_owner);
     }
     break;
 
@@ -5088,6 +5089,11 @@ proto_register_dns(void)
     { &hf_dns_nsap_rdata,
       { "NSAP Data", "dns.nsap.rdata",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_nsap_ptr_owner,
+      { "Owner", "dns.nsap_ptr.owner",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
     { &hf_dns_caa_flags,
