@@ -253,8 +253,12 @@ static int hf_dns_ds_algorithm = -1;
 static int hf_dns_apl_coded_prefix = -1;
 static int hf_dns_ds_digest_type = -1;
 static int hf_dns_ds_digest = -1;
+static int hf_dns_apl_address_family = -1;
 static int hf_dns_apl_negation = -1;
 static int hf_dns_apl_afdlength = -1;
+static int hf_dns_apl_afdpart_ipv4 = -1;
+static int hf_dns_apl_afdpart_ipv6 = -1;
+static int hf_dns_apl_afdpart_data = -1;
 static int hf_dns_nsap_rdata = -1;
 static int hf_dns_caa_flags = -1;
 static int hf_dns_caa_flag_issuer_critical = -1;
@@ -3106,7 +3110,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_DHCID:
+    case T_DHCID: /* DHCID (49) */
     {
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
@@ -3121,7 +3125,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_APL:
+    case T_APL: /* Lists of Address Prefixes (42) */
     {
       int      rr_len = data_len;
       guint16  afamily;
@@ -3139,8 +3143,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           goto bad_rr;
         }
         afamily = tvb_get_ntohs(tvb, cur_offset);
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 2,
-                            "Address Family: %s", val_to_str(afamily, afamily_vals, "Unknown (0x%02X)"));
+        proto_tree_add_item(rr_tree, hf_dns_apl_address_family, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
         cur_offset += 2;
         rr_len     -= 2;
 
@@ -3163,18 +3166,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         if (rr_len < 1) {
           goto bad_rr;
         }
-        if (afamily == 1 && afdpart_len <= 4) {
+        if (afamily == 1 && afdpart_len <= 4) { /* IPv4 */
           addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 4);
-        } else if (afamily == 2 && afdpart_len <= 16) {
+          tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
+          proto_tree_add_ipv4(rr_tree, hf_dns_apl_afdpart_ipv4, tvb, cur_offset, afdpart_len, *addr_copy);
+        } else if (afamily == 2 && afdpart_len <= 16) { /* IPv6 */
           addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 16);
-        } else {
-          goto bad_rr;
+          tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
+          proto_tree_add_ipv6(rr_tree, hf_dns_apl_afdpart_ipv6, tvb, cur_offset, afdpart_len, addr_copy);
+        } else { /* Other... */
+           proto_tree_add_item(rr_tree, hf_dns_apl_afdpart_data, tvb, cur_offset, afdpart_len, ENC_NA);
         }
-        tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
-        proto_tree_add_text(rr_tree, tvb, cur_offset, afdpart_len,
-                            "%s address: %s", val_to_str_const(afamily, afamily_vals, "Unknown"),
-                            (afamily == 0x02) ? ip6_to_str((const struct e_in6_addr *)addr_copy)
-                            : ip_to_str(addr_copy) );
         cur_offset += afdpart_len;
         rr_len     -= afdpart_len;
       }
@@ -4888,8 +4890,13 @@ proto_register_dns(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
+    { &hf_dns_apl_address_family,
+      { "Address Family", "dns.apl.address_family",
+        FT_UINT16, BASE_DEC, VALS(afamily_vals), 0,
+        NULL, HFILL }},
+
     { &hf_dns_apl_coded_prefix,
-      { "Prefix Length", "dns.apl.coded.prefix",
+      { "Prefix Length", "dns.apl.coded_prefix",
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }},
 
@@ -4899,8 +4906,23 @@ proto_register_dns(void)
         NULL, HFILL }},
 
     { &hf_dns_apl_afdlength,
-      { "Address Length, in octets","dns.apl.afdlength",
+      { "Address Length","dns.apl.afdlength",
         FT_UINT8, BASE_DEC, NULL, DNS_APL_AFDLENGTH,
+        "in octets", HFILL }},
+
+    { &hf_dns_apl_afdpart_ipv4,
+      { "Address","dns.apl.afdpart.ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_apl_afdpart_ipv6,
+      { "Address","dns.apl.afdpart.ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_apl_afdpart_data,
+      { "Address","dns.apl.afdpart.data",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
     { &hf_dns_nsap_rdata,
