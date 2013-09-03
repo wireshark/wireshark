@@ -2281,6 +2281,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+
     case T_NSEC3:
     {
       int         rr_len, initial_offset = cur_offset;
@@ -2888,7 +2889,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_SRV:
+    case T_SRV: /* Service Location (33) */
     {
       guint16       priority = 0;
       guint16       weight   = 0;
@@ -2896,23 +2897,31 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const guchar *target;
       int           target_len;
 
+      proto_tree_add_item(rr_tree, hf_dns_srv_priority, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       priority = tvb_get_ntohs(tvb, cur_offset);
-      weight = tvb_get_ntohs(tvb, cur_offset+2);
-      port = tvb_get_ntohs(tvb, cur_offset+4);
+      cur_offset += 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_srv_weight, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      weight = tvb_get_ntohs(tvb, cur_offset);
+      cur_offset += 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_srv_port, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      port = tvb_get_ntohs(tvb, cur_offset);
+      cur_offset += 2;
 
       /* XXX Fix data length */
-      target_len = get_dns_name(tvb, cur_offset + 6, 0, dns_data_offset, &target);
+      target_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &target);
       name_out = format_text(target, strlen(target));
+
+      proto_tree_add_string(rr_tree, hf_dns_srv_target, tvb, cur_offset, target_len, name_out);
+
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %u %u %u %s", priority, weight, port, name_out);
       }
       proto_item_append_text(trr,
                              ", priority %u, weight %u, port %u, target %s",
                              priority, weight, port, name_out);
-      proto_tree_add_uint(rr_tree, hf_dns_srv_priority, tvb, cur_offset, 2, priority);
-      proto_tree_add_uint(rr_tree, hf_dns_srv_weight, tvb, cur_offset + 2, 2, weight);
-      proto_tree_add_uint(rr_tree, hf_dns_srv_port, tvb, cur_offset + 4, 2, port);
-      proto_tree_add_string(rr_tree, hf_dns_srv_target, tvb, cur_offset + 6, target_len, name_out);
+
     }
     break;
 
