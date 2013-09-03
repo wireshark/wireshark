@@ -6272,18 +6272,18 @@ static const value_string ansi_a_ms_info_rec_signal_alert_pitch_vals[] = {
  };
 
 static const value_string ansi_a_ms_info_rec_signal_tone_vals[] = {
-    { 0x0, "Dial tone on"},
-    { 0x1, "Ring back tone on"},
-    { 0x2, "Intercept tone on"},
-    { 0x3, "Abbreviated intercept"},
-    { 0x4, "Network congestion (reorder) tone on"},
-    { 0x5, "Abbreviated network congestion (reorder)"},
-    { 0x6, "Busy tone on"},
-    { 0x7, "Confirm tone on"},
-    { 0x8, "Answer tone on"},
-    { 0x9, "Call waiting tone on"},
-    { 0xa, "Pip tone on"},
-    { 0xf, "Tones off"},
+    { 0x00, "Dial tone on"},
+    { 0x01, "Ring back tone on"},
+    { 0x02, "Intercept tone on"},
+    { 0x03, "Abbreviated intercept"},
+    { 0x04, "Network congestion (reorder) tone on"},
+    { 0x05, "Abbreviated network congestion (reorder)"},
+    { 0x06, "Busy tone on"},
+    { 0x07, "Confirm tone on"},
+    { 0x08, "Answer tone on"},
+    { 0x09, "Call waiting tone on"},
+    { 0x0a, "Pip tone on"},
+    { 0x3f, "Tones off"},
     { 0, NULL}
  };
 
