@@ -268,7 +268,7 @@ dissect_diameter_3gpp_uar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     offset = bit_offset>>3;
 
-    return 4;
+    return offset;
 }
 
 /* AVP Code: 630 Feature-List
