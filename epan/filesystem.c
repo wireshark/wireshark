@@ -417,7 +417,7 @@ get_executable_path(void)
      * those versions.
      */
     int mib[4];
-    char executable_path*;
+    char *executable_path;
     size_t path_buf_size;
 
     mib[0] = CTL_KERN;
