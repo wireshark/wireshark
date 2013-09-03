@@ -167,7 +167,22 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(update_action, SIGNAL(triggered()), this, SLOT(on_actionHelpCheckForUpdates_triggered()));
 #endif
 
-    layoutPanes();
+    packet_list_ = new PacketList(main_ui_->mainStack);
+
+    proto_tree_ = new ProtoTree(main_ui_->mainStack);
+    proto_tree_->setHeaderHidden(true);
+    proto_tree_->installEventFilter(this);
+
+    byte_view_tab_ = new ByteViewTab(main_ui_->mainStack);
+    byte_view_tab_->setTabPosition(QTabWidget::South);
+    byte_view_tab_->setDocumentMode(true);
+
+    packet_list_->setProtoTree(proto_tree_);
+    packet_list_->setByteViewTab(byte_view_tab_);
+    packet_list_->installEventFilter(this);
+
+    master_split_ = NULL;
+    extra_split_ = NULL;
 
     main_welcome_ = main_ui_->welcomePage;
 
@@ -275,6 +290,12 @@ void MainWindow::layoutPanes()
 {
     QSplitter *parents[3];
 
+    if (master_split_ != NULL) {
+        main_ui_->mainStack->removeWidget(master_split_);
+    }
+    delete master_split_;
+    delete extra_split_;
+
     master_split_ = new QSplitter(main_ui_->mainStack);
     master_split_->setObjectName(QString::fromUtf8("splitterMaster"));
 
@@ -325,20 +346,6 @@ void MainWindow::layoutPanes()
     default:
         g_assert_not_reached();
     }
-
-    packet_list_ = new PacketList(main_ui_->mainStack);
-
-    proto_tree_ = new ProtoTree(main_ui_->mainStack);
-    proto_tree_->setHeaderHidden(true);
-    proto_tree_->installEventFilter(this);
-
-    byte_view_tab_ = new ByteViewTab(main_ui_->mainStack);
-    byte_view_tab_->setTabPosition(QTabWidget::South);
-    byte_view_tab_->setDocumentMode(true);
-
-    packet_list_->setProtoTree(proto_tree_);
-    packet_list_->setByteViewTab(byte_view_tab_);
-    packet_list_->installEventFilter(this);
 
     if (parents[0] == extra_split_) {
         master_split_->addWidget(extra_split_);

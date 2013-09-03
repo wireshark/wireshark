@@ -70,6 +70,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void setPipeInputHandler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb);
+    void layoutPanes();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -179,7 +180,6 @@ private slots:
     void pipeActivated(int source);
     void pipeNotifierDestroyed();
     void stopCapture();
-    void layoutPanes();
 
     void updateRecentFiles();
     void recentActionTriggered();

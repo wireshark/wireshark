@@ -517,6 +517,14 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForTr(utf8codec);
 #endif
 
+    // Init the main window (and splash)
+    main_w = new(MainWindow);
+    main_w->show();
+    // We may not need a queued connection here but it would seem to make sense
+    // to force the issue.
+    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&)),
+            main_w, SLOT(openCaptureFile(QString&)));
+
     // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
 #ifdef HAVE_LIBPCAP
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
@@ -810,15 +818,6 @@ int main(int argc, char *argv[])
     splash_update(RA_PREFERENCES, NULL, NULL);
     prefs_p = ws_app.readConfigurationFiles (&gdp_path, &dp_path);
 
-    main_w = new(MainWindow);
-//    w->setEnabled(false);
-    main_w->show();
-    // We may not need a queued connection here but it would seem to make sense
-    // to force the issue.
-    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&)),
-            main_w, SLOT(openCaptureFile(QString&)));
-
-
     splash_update(RA_LISTENERS, NULL, NULL);
 
     /* Register all tap listeners; we do this before we parse the arguments,
@@ -918,6 +917,7 @@ int main(int argc, char *argv[])
 #endif /* HAVE_LIBPCAP */
 
 //    w->setEnabled(true);
+    main_w->layoutPanes();
     wsApp->allSystemsGo();
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 
