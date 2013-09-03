@@ -561,7 +561,7 @@ dissect_mojito_find_value_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	}
 
 	proto_tree_add_item(tree, hf_mojito_dhtvaluetype, tvb, offset, 4, ENC_ASCII|ENC_NA);
-	offset += 4;
+	/*offset += 4;*/
 }
 
 static void
@@ -676,7 +676,6 @@ dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	case MOJITO_FIND_NODE_REQUEST: /* FIND NODE REQUEST */
 		proto_tree_add_item(opcode_tree, hf_mojito_target_kuid, tvb, offset, 20, ENC_NA);
-		offset += 20;
 		break;
 
 	case MOJITO_FIND_NODE_RESPONSE: /* FIND NODE RESPONSE */
