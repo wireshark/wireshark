@@ -72,10 +72,11 @@ different compilers; here are some rules for writing code that will work
 on multiple platforms.
 
 Don't use C++-style comments (comments beginning with "//" and running
-to the end of the line); Wireshark's dissectors are written in C, and
-thus run through C rather than C++ compilers, and not all C compilers
-support C++-style comments (GCC does, but IBM's C compiler for AIX, for
-example, doesn't do so by default).
+to the end of the line) in C code. Wireshark's dissectors are written in
+C, and thus run through C rather than C++ compilers, and not all C
+compilers support C++-style comments (GCC does, but IBM's C compiler for
+AIX, for example, doesn't do so by default). C++-style comments can be
+used in C++ code, of course.
 
 In general, don't use C99 features since some C compilers used to compile
 Wireshark don't support C99 (E.G. Microsoft C).

@@ -149,7 +149,25 @@ DO NOT simply port things over. Every feature, window, and element should be
 re-thought. For example, should the user have to navigate two dialogs to get
 HTTP request statistics?
 
-2.1 Changes
+2.1 Coding guidelines
+
+2.1.1 Name conventions
+
+Most of the code in the ui/qt directory uses three APIs: Qt (which uses
+InterCapConvention), GLib (which uses underscore_convention), and the Wireshark
+API (which also uses underscore_convention). As a general rule Wireshark's Qt
+code uses InterCapConvention for class names and methods and
+underscore_convention for variables, with a trailing underscore for member
+variables.
+
+2.1.2 Mixing C and C++
+
+Sometimes we have to call C++ functions from one of Wireshark's C callbacks and
+pass C++ objects to or from C. The C++ FAQ describes how to do this safely:
+
+http://www.parashift.com/c++-faq/mixing-c-and-cpp.html
+
+2.2 Changes
 
 - The display filter entry has been significantly reworked.
 
