@@ -259,6 +259,12 @@ static int hf_dns_apl_afdlength = -1;
 static int hf_dns_apl_afdpart_ipv4 = -1;
 static int hf_dns_apl_afdpart_ipv6 = -1;
 static int hf_dns_apl_afdpart_data = -1;
+static int hf_dns_gpos_longitude_length = -1;
+static int hf_dns_gpos_longitude = -1;
+static int hf_dns_gpos_latitude_length = -1;
+static int hf_dns_gpos_latitude = -1;
+static int hf_dns_gpos_altitude_length = -1;
+static int hf_dns_gpos_altitude = -1;
 static int hf_dns_nsap_rdata = -1;
 static int hf_dns_caa_flags = -1;
 static int hf_dns_caa_flag_issuer_critical = -1;
@@ -3183,7 +3189,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_GPOS:
+    case T_GPOS: /* Geographical POSition (27) */
     {
       guint8 long_len, lat_len, alt_len;
 
@@ -3193,19 +3199,29 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (data_len < 1) {
         goto bad_rr;
       }
+      proto_tree_add_item(rr_tree, hf_dns_gpos_longitude_length, tvb, cur_offset, 1, ENC_NA);
       long_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset + 1, long_len,
-                          "Longitude: %.*s", long_len, tvb_get_ephemeral_string(tvb, cur_offset +1 , long_len));
-      cur_offset += 1 + long_len;
+      cur_offset += 1;
 
+      proto_tree_add_item(rr_tree, hf_dns_gpos_longitude, tvb, cur_offset, long_len, ENC_ASCII|ENC_NA);
+      cur_offset += long_len;
+
+
+      proto_tree_add_item(rr_tree, hf_dns_gpos_latitude_length, tvb, cur_offset, 1, ENC_NA);
       lat_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset + 1, lat_len,
-                          "Latitude: %.*s", lat_len, tvb_get_ephemeral_string(tvb, cur_offset + 1, lat_len));
-      cur_offset += 1 + lat_len;
+      cur_offset += 1;
 
+      proto_tree_add_item(rr_tree, hf_dns_gpos_latitude, tvb, cur_offset, lat_len, ENC_ASCII|ENC_NA);
+      cur_offset += lat_len;
+
+
+      proto_tree_add_item(rr_tree, hf_dns_gpos_altitude_length, tvb, cur_offset, 1, ENC_NA);
       alt_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset + 1, alt_len,
-                          "Altitude: %.*s", alt_len, tvb_get_ephemeral_string(tvb, cur_offset + 1, alt_len));
+      cur_offset += 1;
+
+      proto_tree_add_item(rr_tree, hf_dns_gpos_altitude, tvb, cur_offset, alt_len, ENC_ASCII|ENC_NA);
+      /*cur_offset += alt_len;*/
+
     }
     break;
 
@@ -4923,6 +4939,36 @@ proto_register_dns(void)
     { &hf_dns_apl_afdpart_data,
       { "Address","dns.apl.afdpart.data",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_gpos_longitude_length,
+      { "Longitude length","dns.gpos.longitude_length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_gpos_longitude,
+      { "Longitude","dns.gpos.longitude",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_gpos_latitude_length,
+      { "Latitude length","dns.gpos.latitude_length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_gpos_latitude,
+      { "Latitude","dns.gpos.latitude",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_gpos_altitude_length,
+      { "Altitude length","dns.gpos.altitude_length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_gpos_altitude,
+      { "Altitude","dns.gpos.altitude",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
     { &hf_dns_nsap_rdata,
