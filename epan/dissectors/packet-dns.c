@@ -108,7 +108,7 @@ static int hf_dns_rr_class_mdns = -1;
 static int hf_dns_rr_cache_flush = -1;
 static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
-static int hf_dns_rr_addr = -1;
+static int hf_dns_a = -1;
 static int hf_dns_md = -1;
 static int hf_dns_mf = -1;
 static int hf_dns_mb = -1;
@@ -116,7 +116,7 @@ static int hf_dns_mg = -1;
 static int hf_dns_mr = -1;
 static int hf_dns_null = -1;
 static int hf_dns_aaaa = -1;
-static int hf_dns_rr_primaryname = -1;
+static int hf_dns_cname = -1;
 static int hf_dns_rr_udp_payload_size = -1;
 static int hf_dns_soa_mname = -1;
 static int hf_dns_soa_rname = -1;
@@ -211,20 +211,20 @@ static int hf_dns_cert_key_tag = -1;
 static int hf_dns_cert_algorithm = -1;
 static int hf_dns_cert_certificate = -1;
 static int hf_dns_nsec_next_domain_name = -1;
-static int hf_dns_rr_ns = -1;
-static int hf_dns_rr_opt = -1;
-static int hf_dns_rr_opt_code = -1;
-static int hf_dns_rr_opt_len = -1;
-static int hf_dns_rr_opt_data = -1;
-static int hf_dns_rr_opt_dau = -1;
-static int hf_dns_rr_opt_dhu = -1;
-static int hf_dns_rr_opt_n3u = -1;
-static int hf_dns_rr_opt_client_family = -1;
-static int hf_dns_rr_opt_client_netmask = -1;
-static int hf_dns_rr_opt_client_scope = -1;
-static int hf_dns_rr_opt_client_addr = -1;
-static int hf_dns_rr_opt_client_addr4 = -1;
-static int hf_dns_rr_opt_client_addr6 = -1;
+static int hf_dns_ns = -1;
+static int hf_dns_opt = -1;
+static int hf_dns_opt_code = -1;
+static int hf_dns_opt_len = -1;
+static int hf_dns_opt_data = -1;
+static int hf_dns_opt_dau = -1;
+static int hf_dns_opt_dhu = -1;
+static int hf_dns_opt_n3u = -1;
+static int hf_dns_opt_client_family = -1;
+static int hf_dns_opt_client_netmask = -1;
+static int hf_dns_opt_client_scope = -1;
+static int hf_dns_opt_client_addr = -1;
+static int hf_dns_opt_client_addr4 = -1;
+static int hf_dns_opt_client_addr6 = -1;
 static int hf_dns_nsec3_algo = -1;
 static int hf_dns_nsec3_flags = -1;
 static int hf_dns_nsec3_flag_optout = -1;
@@ -327,7 +327,7 @@ static gint ett_dns_mac = -1;
 static gint ett_caa_flags = -1;
 static gint ett_caa_data = -1;
 
-static expert_field ei_dns_rr_opt_bad_length = EI_INIT;
+static expert_field ei_dns_opt_bad_length = EI_INIT;
 static expert_field ei_dns_depr_opc = EI_INIT;
 static expert_field ei_ttl_negative = EI_INIT;
 static expert_field ei_dns_tsig_alg = EI_INIT;
@@ -1705,7 +1705,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
 
       proto_item_append_text(trr, ", addr %s", addr);
-      proto_tree_add_item(rr_tree, hf_dns_rr_addr, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(rr_tree, hf_dns_a, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
 
       if (dns_use_for_addr_resolution && (dns_class & 0x7f) == C_IN) {
         guint32 addr_int;
@@ -1726,12 +1726,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       }
       proto_item_append_text(trr, ", ns %s", name_out);
-      proto_tree_add_string(rr_tree, hf_dns_rr_ns, tvb, cur_offset, ns_name_len, name_out);
+      proto_tree_add_string(rr_tree, hf_dns_ns, tvb, cur_offset, ns_name_len, name_out);
 
     }
     break;
 
-    case T_CNAME: /* the Canonical NAME for an alias (5) */ 
+    case T_CNAME: /* the Canonical NAME for an alias (5) */
     {
       const guchar *cname;
       int cname_len;
@@ -1742,7 +1742,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       }
       proto_item_append_text(trr, ", cname %s", name_out);
-      proto_tree_add_string(rr_tree, hf_dns_rr_primaryname, tvb, cur_offset, cname_len, name_out);
+      proto_tree_add_string(rr_tree, hf_dns_cname, tvb, cur_offset, cname_len, name_out);
 
     }
     break;
@@ -2537,19 +2537,19 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           goto bad_rr;
         }
 
-        rropt = proto_tree_add_item(rr_tree, hf_dns_rr_opt, tvb, cur_offset, 4 + optlen, ENC_NA);
+        rropt = proto_tree_add_item(rr_tree, hf_dns_opt, tvb, cur_offset, 4 + optlen, ENC_NA);
         proto_item_append_text(rropt, ": %s", val_to_str(optcode, edns0_opt_code_vals, "Unknown (%d)"));
         rropt_tree = proto_item_add_subtree(rropt, ett_dns_opts);
-        rropt = proto_tree_add_item(rropt_tree, hf_dns_rr_opt_code, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        rropt = proto_tree_add_item(rropt_tree, hf_dns_opt_code, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
         cur_offset += 2;
-        rroptlen = proto_tree_add_item(rropt_tree, hf_dns_rr_opt_len, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        rroptlen = proto_tree_add_item(rropt_tree, hf_dns_opt_len, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
         cur_offset += 2;
 
-        proto_tree_add_item(rropt_tree, hf_dns_rr_opt_data, tvb, cur_offset, optlen, ENC_NA);
+        proto_tree_add_item(rropt_tree, hf_dns_opt_data, tvb, cur_offset, optlen, ENC_NA);
         switch(optcode) {
           case O_DAU: /* DNSSEC Algorithm Understood (RFC6975) */
           while(optlen != 0 ) {
-            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_dau, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rropt_tree, hf_dns_opt_dau, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
             cur_offset += 1;
             rropt_len  -= 1;
             optlen -= 1;
@@ -2557,7 +2557,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           break;
           case O_DHU: /* DS Hash Understood (RFC6975) */
           while(optlen != 0 ) {
-            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_dhu, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rropt_tree, hf_dns_opt_dhu, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
             cur_offset += 1;
             rropt_len  -= 1;
             optlen -= 1;
@@ -2565,7 +2565,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           break;
           case O_N3U: /* N3SEC Hash Understood (RFC6975) */
           while(optlen != 0 ) {
-            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_n3u, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rropt_tree, hf_dns_opt_n3u, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
             cur_offset += 1;
             rropt_len  -= 1;
             optlen -= 1;
@@ -2583,15 +2583,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             } ip_addr = {0};
 
             family = tvb_get_ntohs(tvb, cur_offset);
-            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_client_family, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rropt_tree, hf_dns_opt_client_family, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
             cur_offset += 2;
-            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_client_netmask, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rropt_tree, hf_dns_opt_client_netmask, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
             cur_offset += 1;
-            proto_tree_add_item(rropt_tree, hf_dns_rr_opt_client_scope, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rropt_tree, hf_dns_opt_client_scope, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
             cur_offset += 1;
 
             if (optlen-4 > 16) {
-              expert_add_info(pinfo, rroptlen, &ei_dns_rr_opt_bad_length);
+              expert_add_info(pinfo, rroptlen, &ei_dns_opt_bad_length);
               /* Avoid stack-smashing which occurs otherwise with the
                * following tvb_memcpy. */
               optlen = 20;
@@ -2599,15 +2599,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             tvb_memcpy(tvb, ip_addr.bytes, cur_offset, (optlen - 4));
             switch(family) {
               case AFNUM_INET:
-              proto_tree_add_ipv4(rropt_tree, hf_dns_rr_opt_client_addr4, tvb,
+              proto_tree_add_ipv4(rropt_tree, hf_dns_opt_client_addr4, tvb,
                                   cur_offset, (optlen - 4), ip_addr.addr);
               break;
               case AFNUM_INET6:
-              proto_tree_add_ipv6(rropt_tree, hf_dns_rr_opt_client_addr6, tvb,
+              proto_tree_add_ipv6(rropt_tree, hf_dns_opt_client_addr6, tvb,
                                   cur_offset, (optlen - 4), ip_addr.bytes);
               break;
               default:
-              proto_tree_add_item(rropt_tree, hf_dns_rr_opt_client_addr, tvb, cur_offset, (optlen - 4),
+              proto_tree_add_item(rropt_tree, hf_dns_opt_client_addr, tvb, cur_offset, (optlen - 4),
                                   ENC_NA);
 
               break;
@@ -4252,8 +4252,8 @@ proto_register_dns(void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "Response Length", HFILL }},
 
-    { &hf_dns_rr_addr,
-      { "Addr", "dns.resp.addr",
+    { &hf_dns_a,
+      { "Address", "dns.a",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         "Response Address", HFILL }},
 
@@ -4292,13 +4292,13 @@ proto_register_dns(void)
         FT_IPv6, BASE_NONE, NULL, 0x0,
         "AAAA Response Address", HFILL }},
 
-    { &hf_dns_rr_primaryname,
-      { "Primaryname", "dns.resp.primaryname",
+    { &hf_dns_cname,
+      { "CNAME", "dns.cname",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Response Primary Name", HFILL }},
 
     { &hf_dns_rr_udp_payload_size,
-      { "UDP payload size", "dns.resp.udp_payload_size",
+      { "UDP payload size", "dns.rr.udp_payload_size",
         FT_UINT16, BASE_HEX, NULL, 0x7FFF,
         NULL, HFILL }},
 
@@ -4767,76 +4767,76 @@ proto_register_dns(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_ns,
-      { "Name Server", "dns.resp.ns",
+    { &hf_dns_ns,
+      { "Name Server", "dns.ns",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_opt,
-     { "Option", "dns.rr.opt",
+    { &hf_dns_opt,
+     { "Option", "dns.opt",
         FT_NONE, BASE_NONE,
         NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_opt_code,
-      { "Option Code", "dns.rr.opt.code",
+    { &hf_dns_opt_code,
+      { "Option Code", "dns.opt.code",
         FT_UINT16, BASE_DEC,
         VALS(edns0_opt_code_vals), 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_opt_len,
-      { "Option Length", "dns.rr.opt.len",
+    { &hf_dns_opt_len,
+      { "Option Length", "dns.opt.len",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_opt_data,
-      { "Option Data", "dns.rr.opt.data",
+    { &hf_dns_opt_data,
+      { "Option Data", "dns.opt.data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_opt_dau,
-      { "DAU", "dns.rr.opt.dau",
+    { &hf_dns_opt_dau,
+      { "DAU", "dns.opt.dau",
         FT_UINT8, BASE_DEC, VALS(dnssec_algo_vals), 0x0,
         "DNSSEC Algorithm Understood", HFILL }},
 
-    { &hf_dns_rr_opt_dhu,
-      { "DHU", "dns.rr.opt.dhu",
+    { &hf_dns_opt_dhu,
+      { "DHU", "dns.opt.dhu",
         FT_UINT8, BASE_DEC, VALS(dns_ds_digest_vals), 0x0,
         "DS Hash Understood", HFILL }},
 
-    { &hf_dns_rr_opt_n3u,
-      { "N3U", "dns.rr.opt.n3u",
+    { &hf_dns_opt_n3u,
+      { "N3U", "dns.opt.n3u",
         FT_UINT8, BASE_DEC, VALS(hash_algorithms), 0x0,
         "NSEC3 Hash Understood", HFILL }},
 
-    { &hf_dns_rr_opt_client_family,
-      { "Family", "dns.rr.opt.client.family",
+    { &hf_dns_opt_client_family,
+      { "Family", "dns.opt.client.family",
         FT_UINT16, BASE_DEC,
         VALS(afamily_vals), 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_opt_client_netmask,
-      { "Source Netmask", "dns.rr.opt.client.netmask",
+    { &hf_dns_opt_client_netmask,
+      { "Source Netmask", "dns.opt.client.netmask",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_opt_client_scope,
-      { "Scope Netmask", "dns.rr.opt.client.scope",
+    { &hf_dns_opt_client_scope,
+      { "Scope Netmask", "dns.opt.client.scope",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_opt_client_addr,
-      { "Client Subnet", "dns.rr.opt.client.addr",
+    { &hf_dns_opt_client_addr,
+      { "Client Subnet", "dns.opt.client.addr",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_opt_client_addr4,
-      { "Client Subnet", "dns.rr.opt.client.addr4",
+    { &hf_dns_opt_client_addr4,
+      { "Client Subnet", "dns.opt.client.addr4",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_rr_opt_client_addr6,
-      { "Client Subnet", "dns.rr.opt.client.addr6",
+    { &hf_dns_opt_client_addr6,
+      { "Client Subnet", "dns.opt.client.addr6",
         FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
@@ -5298,7 +5298,7 @@ proto_register_dns(void)
   };
 
   static ei_register_info ei[] = {
-     { &ei_dns_rr_opt_bad_length, { "dns.rr.opt.bad_length", PI_MALFORMED, PI_ERROR, "Length too long for any type of IP address.", EXPFILL }},
+     { &ei_dns_opt_bad_length, { "dns.rr.opt.bad_length", PI_MALFORMED, PI_ERROR, "Length too long for any type of IP address.", EXPFILL }},
      { &ei_dns_undecoded_option, { "dns.undecoded.type", PI_UNDECODED, PI_NOTE, "Undecoded option", EXPFILL }},
      { &ei_dns_depr_opc, { "dns.depr.opc", PI_PROTOCOL, PI_WARN, "Deprecated opcode", EXPFILL }},
      { &ei_ttl_negative, { "dns.ttl.negative", PI_PROTOCOL, PI_WARN, "TTL can't be negative", EXPFILL }},
