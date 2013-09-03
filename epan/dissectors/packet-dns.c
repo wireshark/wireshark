@@ -311,6 +311,8 @@ static int hf_dns_winsr_lookup_timeout = -1;
 static int hf_dns_winsr_cache_timeout = -1;
 static int hf_dns_winsr_name_result_domain = -1;
 
+static int hf_dns_data = -1;
+
 static gint ett_dns = -1;
 static gint ett_dns_qd = -1;
 static gint ett_dns_rr = -1;
@@ -329,6 +331,7 @@ static expert_field ei_dns_rr_opt_bad_length = EI_INIT;
 static expert_field ei_dns_depr_opc = EI_INIT;
 static expert_field ei_ttl_negative = EI_INIT;
 static expert_field ei_dns_tsig_alg = EI_INIT;
+static expert_field ei_dns_undecoded_option = EI_INIT;
 
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
@@ -1617,7 +1620,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   const guchar *name;
   gchar        *name_out;
   int           name_len;
-  int           type;
+  int           dns_type;
   int           dns_class;
   int           flush;
   const char   *class_name;
@@ -1634,7 +1637,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   cur_offset = offsetx;
 
   len = get_dns_name_type_class(tvb, offsetx, dns_data_offset, &name, &name_len,
-                                &type, &dns_class);
+                                &dns_type, &dns_class);
   data_offset += len;
   cur_offset += len;
   if (is_mdns) {
@@ -1644,7 +1647,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   } else {
     flush = 0;
   }
-  type_name = dns_type_name(type);
+  type_name = dns_type_name(dns_type);
   class_name = dns_class_name(dns_class);
 
   ttl = tvb_get_ntohl(tvb, data_offset);
@@ -1667,19 +1670,19 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
      * format it for display.
      */
     name_out = format_text(name, strlen(name));
-    if (type != T_OPT) {
+    if (dns_type != T_OPT) {
       trr = proto_tree_add_text(dns_tree, tvb, offsetx,
                                 (data_offset - data_start) + data_len,
                                 "%s: type %s, class %s",
                                 name_out, type_name, class_name);
       rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offsetx, name, name_len,
-                               type, dns_class, flush, ttl, data_len, pinfo, is_mdns);
+                               dns_type, dns_class, flush, ttl, data_len, pinfo, is_mdns);
     } else  {
       trr = proto_tree_add_text(dns_tree, tvb, offsetx,
                                 (data_offset - data_start) + data_len,
                                 "%s: type %s", name_out, type_name);
       rr_tree = add_opt_rr_to_tree(trr, ett_dns_rr, tvb, offsetx, name, name_len,
-                                   type, dns_class, flush, ttl, data_len, is_mdns);
+                                   dns_type, dns_class, flush, ttl, data_len, is_mdns);
     }
     if (is_mdns && flush) {
       proto_item_append_text(trr, ", cache flush");
@@ -1690,7 +1693,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     return data_offset - data_start;
   }
 
-  switch (type) {
+  switch (dns_type) {
 
     case T_A:
     {
@@ -3563,7 +3566,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
     default:
 
-      proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
+      expert_add_info_format_text(pinfo, trr, &ei_dns_undecoded_option,
+                                 "Dissector for DNS Type (%d)"
+                                 " code not implemented, Contact Wireshark developers"
+                                 " if you want this supported", dns_type);
+      proto_tree_add_item(rr_tree, hf_dns_data, tvb, cur_offset, data_len, ENC_NA);
       break;
   }
 
@@ -5283,10 +5290,16 @@ proto_register_dns(void)
       { "Name Result Domain", "dns.winsr.name_result_domain",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_dns_data,
+      { "Data", "dns.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
   };
 
   static ei_register_info ei[] = {
      { &ei_dns_rr_opt_bad_length, { "dns.rr.opt.bad_length", PI_MALFORMED, PI_ERROR, "Length too long for any type of IP address.", EXPFILL }},
+     { &ei_dns_undecoded_option, { "dns.undecoded.type", PI_UNDECODED, PI_NOTE, "Undecoded option", EXPFILL }},
      { &ei_dns_depr_opc, { "dns.depr.opc", PI_PROTOCOL, PI_WARN, "Deprecated opcode", EXPFILL }},
      { &ei_ttl_negative, { "dns.ttl.negative", PI_PROTOCOL, PI_WARN, "TTL can't be negative", EXPFILL }},
      { &ei_dns_tsig_alg, { "dns.tsig.noalg", PI_UNDECODED, PI_WARN, "No dissector for algorithm", EXPFILL }},
