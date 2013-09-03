@@ -3776,7 +3776,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
           offset++;
           sig_qual = tvb_get_guint8(tvb, offset);
-          pi = proto_tree_add_item(tree, hf_dvbci_sig_qual,
+          proto_tree_add_item(tree, hf_dvbci_sig_qual,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
           if (sig_strength>100 || sig_qual>100) {
               pi = proto_tree_add_text(tree, tvb, offset, 1,
@@ -4143,7 +4143,7 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
     }
 
     t_c_id = tvb_get_guint8(tvb, offset_new);
-    pi = proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset_new, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset_new, 1, ENC_BIG_ENDIAN);
     /* tcid in transport header and link layer must only match for data
      * transmission commands */
     if (t_c_id!=lpdu_tcid) {
