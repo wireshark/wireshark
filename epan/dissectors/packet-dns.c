@@ -2092,7 +2092,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       host_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &host_name);
 
       proto_tree_add_item(rr_tree, hf_dns_afsdb_subtype, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset =+ 2;
+      cur_offset += 2;
 
       proto_tree_add_string(rr_tree, hf_dns_afsdb_hostname, tvb, cur_offset, host_name_len, host_name);
 
@@ -2159,7 +2159,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       host_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &host_name);
 
       proto_tree_add_item(rr_tree, hf_dns_rt_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset =+ 2;
+      cur_offset += 2;
 
       proto_tree_add_string(rr_tree, hf_dns_rt_intermediate_host, tvb, cur_offset, host_name_len, host_name);
 
