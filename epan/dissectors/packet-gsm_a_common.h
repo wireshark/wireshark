@@ -235,7 +235,6 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
         proto_tree_add_expert(tree, pinfo, ei, tvb, curr_offset, (edc_len) - (edc_max_len)); \
         curr_offset += ((edc_len) - (edc_max_len)); \
     }
-/*            curr_offset, (edc_len) - (edc_max_len), "Extraneous Data, dissector bug or later version spec(report to wireshark.org)"); \ */
 
 #define SHORT_DATA_CHECK(sdc_len, sdc_min_len) \
     if ((sdc_len) < (sdc_min_len)) \
