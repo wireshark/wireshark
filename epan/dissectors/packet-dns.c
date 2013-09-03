@@ -114,6 +114,7 @@ static int hf_dns_mf = -1;
 static int hf_dns_mb = -1;
 static int hf_dns_mg = -1;
 static int hf_dns_mr = -1;
+static int hf_dns_null = -1;
 static int hf_dns_aaaa = -1;
 static int hf_dns_rr_primaryname = -1;
 static int hf_dns_rr_udp_payload_size = -1;
@@ -3549,12 +3550,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_NULL:
+    case T_NULL: /* Null (10) */
     {
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
-      proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
+      proto_tree_add_item(rr_tree, hf_dns_null, tvb, cur_offset, data_len, ENC_NA);
     }
     break;
 
@@ -4272,6 +4273,11 @@ proto_register_dns(void)
     { &hf_dns_mr,
       { "Mail Rename domaine", "dns.mr",
         FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_null,
+      { "Null (data)", "dns.null",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_aaaa,
