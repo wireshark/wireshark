@@ -3,6 +3,7 @@
  * Copyright 2007, Keith Mercer <keith.mercer@alcatel-lucent.com>
  * Copyright 2011, Peter Nahas <pnahas@mrv.com>
  * Copyright 2012, Wim Leflere <wim.leflere-ext@oneaccess-net.com>
+ * Copyright 2013, Andreas Urke <arurke@gmail.com>
  *
  * $Id$
  *
@@ -27,8 +28,9 @@
 
 /* This code is based on the IEEE P802.1ag/D8.1 document,
  * the ITU-T Rec. G.8031/Y.1342 (06/2011) - Ethernet linear protection switching document,
+ * the ITU-T Rec. G.8032/Y.1344 (02/2012) - Ethernet ring protection switching document,
  * and on the ITU-T Y.1731 recommendation (05/2006,) which is not formally released
- * at the time of this dissector development. 
+ * at the time of this dissector development.
  * Any updates to these documents may require additional modifications to this code.
  */
 
@@ -76,6 +78,12 @@
 #define LTR_EGR_ID_TLV	0x08
 #define ORG_SPEC_TLV	0x1F
 #define TEST_TLV        0x20
+
+/* Offsets of fields within CFM PDU */
+#define CFM_VERSION				0
+#define CFM_OPCODE				1
+
+#define RAPS_REQUESTSTATE_EVENT 14
 
 void proto_register_cfm(void);
 void proto_reg_handoff_cfm(void);
@@ -222,25 +230,21 @@ static const value_string aps_request_state_values[] = {
 	{ 15, "Lockout" },
 	{ 0,  NULL }
 };
-static const value_string aps_protection_type_A_values[] = {
-	{ 0, "No APS channel" },
-	{ 1, "APS channel" },
-	{ 0,  NULL }
+static const true_false_string aps_protection_type_A_values = {
+	"APS channel",
+	"No APS channel"
 };
-static const value_string aps_protection_type_B_values[] = {
-	{ 0, "1+1 (permanent bridge)" },
-	{ 1, "1:1 (no permanent bridge)" },
-	{ 0,  NULL }
+static const true_false_string aps_protection_type_B_values = {
+	"1:1 (no permanent bridge)",
+	"1+1 (permanent bridge)"
 };
-static const value_string aps_protection_type_D_values[] = {
-	{ 0, "Unidirectional switching " },
-	{ 1, "Bidirectional switching" },
-	{ 0,  NULL }
+static const true_false_string aps_protection_type_D_values = {
+	"Bidirectional switching",
+	"Unidirectional switching"
 };
-static const value_string aps_protection_type_R_values[] = {
-	{ 0, "Non-revertive operation " },
-	{ 1, "Revertive operation " },
-	{ 0,  NULL }
+static const true_false_string aps_protection_type_R_values = {
+	"Revertive operation",
+	"Non-revertive operation"
 };
 static const value_string aps_requested_signal_values[] = {
 	{ 0, "Null" },
@@ -259,18 +263,27 @@ static const value_string  aps_bridge_type_values[] = {
 };
 static const value_string rapsrequeststatevalues[] = {
 	{ 0,  "No Request" },
+	{ 7,  "Manual Switch"},
 	{ 11, "Signal Failure" },
+	{ 13, "Forced Switch"},
+	{ 14, "Event"},
 	{ 0,  NULL }
 };
-static const value_string rapsrplblockedvalues[] = {
-	{ 0, "Not Blocked" },
-	{ 1, "Blocked" },
-	{ 0, NULL }
+static const value_string rapseventsubcode[] = {
+	{ 0,  "Flush Request" },
+	{ 0,  NULL }
 };
-static const value_string rapsdnfvalues[] = {
-	{ 0, "Flush DB" },
-	{ 1, "Do Not Flush DB" },
-	{ 0, NULL }
+static const true_false_string rapsrplblockedvalues = {
+	"Blocked",
+	"Not Blocked"
+};
+static const true_false_string rapsdnfvalues = {
+	"Do Not Flush DB",
+	"May Flush DB"
+};
+static const true_false_string rapsbprvalues = {
+	"Ring link 1",
+	"Ring link 0"
 };
 
 
@@ -346,9 +359,11 @@ static int hf_cfm_aps_bridge_type = -1;
 
 static int hf_cfm_raps_pdu = -1;
 static int hf_cfm_raps_req_st = -1;
+static int hf_cfm_raps_event_subcode = -1;
 static int hf_cfm_raps_flags = -1;
 static int hf_cfm_raps_flags_rb = -1;
 static int hf_cfm_raps_flags_dnf = -1;
+static int hf_cfm_raps_flags_bpr = -1;
 static int hf_cfm_raps_node_id = -1;
 static int hf_cfm_raps_reserved = -1;
 
@@ -724,13 +739,13 @@ static int dissect_cfm_aps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_protection_type_D, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_protection_type_R, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	
+
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_requested_signal, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	
+
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_bridged_signal, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	
+
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_bridge_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -745,6 +760,11 @@ static int dissect_cfm_raps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	proto_tree *cfm_pdu_tree;
 	proto_tree *cfm_flag_tree;
 	proto_tree *raps_flag_tree;
+	guint8 raps_version;
+	guint8 raps_requeststate;
+
+	raps_version = tvb_get_guint8(tvb, CFM_VERSION);
+	raps_version &= 0x1F;
 
 	ti = proto_tree_add_item(tree, hf_cfm_raps_pdu, tvb, offset, -1, ENC_NA);
 	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
@@ -758,12 +778,27 @@ static int dissect_cfm_raps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += 1;
 
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_req_st, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	raps_requeststate = tvb_get_guint8(tvb, offset);
+	raps_requeststate >>= 4;
+
+	/* R-APS(G.8032) v2 & Request/state "Event" only */
+	if(raps_version == 1 && raps_requeststate == RAPS_REQUESTSTATE_EVENT){
+		proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_event_subcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+	}
+
 	offset += 1;
 
 	ri = proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	raps_flag_tree = proto_item_add_subtree(ri, ett_cfm_raps_flags);
 	proto_tree_add_item(raps_flag_tree, hf_cfm_raps_flags_rb, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(raps_flag_tree, hf_cfm_raps_flags_dnf, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	/* R-APS(G.8032) v2 only */
+	if(raps_version == 1){
+		proto_tree_add_item(raps_flag_tree, hf_cfm_raps_flags_bpr, tvb, offset, 1, ENC_BIG_ENDIAN);
+	}
+
 	offset += 1;
 
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_node_id, tvb, offset, 6, ENC_NA);
@@ -1185,7 +1220,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* provide info column with CFM packet type (opcode)*/
-	cfm_pdu_type = tvb_get_guint8(tvb, 1);
+	cfm_pdu_type = tvb_get_guint8(tvb, CFM_OPCODE);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
 	val_to_str(cfm_pdu_type, opcodetypenames, "Unknown (0x%02x)"));
@@ -1755,20 +1790,20 @@ void proto_register_cfm(void)
 			BASE_DEC, VALS(aps_request_state_values), 0xf0, NULL, HFILL }
 		},
 		{ &hf_cfm_aps_protection_type_A,
-			{ "Protection type A", "cfm.aps.protec.type.A", FT_UINT8,
-			BASE_DEC, VALS(aps_protection_type_A_values), 0x08, NULL, HFILL }
+			{ "Protection type A", "cfm.aps.protec.type.A", FT_BOOLEAN,
+			8, TFS(&aps_protection_type_A_values), 0x08, NULL, HFILL }
 		},
 		{ &hf_cfm_aps_protection_type_B,
-			{ "Protection type B", "cfm.aps.protec.type.B", FT_UINT8,
-			BASE_DEC, VALS(aps_protection_type_B_values), 0x04, NULL, HFILL }
+			{ "Protection type B", "cfm.aps.protec.type.B", FT_BOOLEAN,
+			8, TFS(&aps_protection_type_B_values), 0x04, NULL, HFILL }
 		},
 		{ &hf_cfm_aps_protection_type_D,
-			{ "Protection type D", "cfm.aps.protec.type.D", FT_UINT8,
-			BASE_DEC, VALS(aps_protection_type_D_values), 0x02, NULL, HFILL }
+			{ "Protection type D", "cfm.aps.protec.type.D", FT_BOOLEAN,
+			8, TFS(&aps_protection_type_D_values), 0x02, NULL, HFILL }
 		},
 		{ &hf_cfm_aps_protection_type_R,
-			{ "Protection type R", "cfm.aps.protec.type.R", FT_UINT8,
-			BASE_DEC, VALS(aps_protection_type_R_values), 0x01, NULL, HFILL }
+			{ "Protection type R", "cfm.aps.protec.type.R", FT_BOOLEAN,
+			8, TFS(&aps_protection_type_R_values), 0x01, NULL, HFILL }
 		},
 		{ &hf_cfm_aps_requested_signal,
 			{ "Requested signal", "cfm.aps.req.sgnl", FT_UINT8,
@@ -1776,11 +1811,11 @@ void proto_register_cfm(void)
 		},
 		{ &hf_cfm_aps_bridged_signal,
 			{ "Bridged signal", "cfm.aps.brdgd.sgnl", FT_UINT8,
-			BASE_HEX, VALS( aps_bridged_signal_values), 0x0, NULL, HFILL }
+			BASE_HEX, VALS(aps_bridged_signal_values), 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_aps_bridge_type,
 			{ "Bridge type", "cfm.aps.bridge.type", FT_UINT8,
-			BASE_HEX, VALS( aps_bridge_type_values), 0x80, NULL, HFILL }
+			BASE_HEX, VALS(aps_bridge_type_values), 0x80, NULL, HFILL }
 		},
 
 		/* CFM R-APS */
@@ -1792,17 +1827,25 @@ void proto_register_cfm(void)
 			{ "Request/State", "cfm.raps.req.st", FT_UINT8,
 			BASE_HEX, VALS(rapsrequeststatevalues), 0xF0, NULL, HFILL }
 		},
+		{ &hf_cfm_raps_event_subcode,
+			{ "Sub-code", "cfm.raps.event.subcode", FT_UINT8,
+			BASE_HEX, VALS(rapseventsubcode), 0x0F, NULL, HFILL }
+		},
 		{ &hf_cfm_raps_flags,
 			{ "R-APS Flags", "cfm.raps.flags", FT_UINT8,
 			BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_raps_flags_rb,
-			{ "RPL Blocked", "cfm.raps.flags.rb", FT_UINT8,
-			BASE_HEX, VALS(rapsrplblockedvalues), 0x80, NULL, HFILL }
+			{ "RPL Blocked", "cfm.raps.flags.rb", FT_BOOLEAN,
+			8, TFS(&rapsrplblockedvalues), 0x80, NULL, HFILL }
 		},
 		{ &hf_cfm_raps_flags_dnf,
-			{ "Do Not Flush", "cfm.raps.flags.dnf", FT_UINT8,
-			BASE_HEX, VALS(rapsdnfvalues), 0x40, NULL, HFILL }
+			{ "Do Not Flush", "cfm.raps.flags.dnf", FT_BOOLEAN,
+			8, TFS(&rapsdnfvalues), 0x40, NULL, HFILL }
+		},
+		{ &hf_cfm_raps_flags_bpr,
+			{ "Blocked Port Reference", "cfm.raps.flags.bpr", FT_BOOLEAN,
+			8, TFS(&rapsbprvalues), 0x20, NULL, HFILL }
 		},
 		{ &hf_cfm_raps_node_id,
 			{ "R-APS Node ID", "cfm.raps.node.id", FT_ETHER,
