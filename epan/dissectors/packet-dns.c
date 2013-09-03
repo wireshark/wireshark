@@ -1887,9 +1887,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item     *ti_wks;
       wmem_strbuf_t *bitnames = wmem_strbuf_new_label(wmem_packet_scope());
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
       wks_addr = tvb_ip_to_str(tvb, cur_offset);
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", wks_addr);
@@ -1899,9 +1896,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 4;
       rr_len     -= 4;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_wks_protocol, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       protocol = tvb_get_guint8(tvb, cur_offset);
       cur_offset += 1;
@@ -2011,9 +2005,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
+
       rmailbx_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rmailbx_str);
       proto_tree_add_string(rr_tree, hf_dns_minfo_r_mailbox, tvb, cur_offset, rmailbx_len, rmailbx_str);
       cur_offset += rmailbx_len;
@@ -2078,9 +2070,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
       mbox_dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &mbox_dname);
       proto_tree_add_string(rr_tree, hf_dns_rp_mailbox, tvb, cur_offset, mbox_dname_len, mbox_dname);
       cur_offset += mbox_dname_len;
@@ -2102,9 +2091,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       host_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &host_name);
 
-      if (data_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_afsdb_subtype, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset =+ 2;
 
@@ -2120,9 +2106,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (data_len < 1) {
-        goto bad_rr;
       }
 
       proto_tree_add_item(rr_tree, hf_dns_x25_length, tvb, cur_offset, 1, ENC_NA);
@@ -2143,9 +2126,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (rr_len < 1) {
-        goto bad_rr;
       }
 
       proto_tree_add_item(rr_tree, hf_dns_isdn_length, tvb, cur_offset, 1, ENC_NA);
@@ -2178,10 +2158,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       host_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &host_name);
 
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-
       proto_tree_add_item(rr_tree, hf_dns_rt_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset =+ 2;
 
@@ -2196,9 +2172,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_nsap_rdata, tvb, cur_offset, data_len, ENC_NA);
     }
     break;
@@ -2211,9 +2184,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (data_len < 1) {
-        goto bad_rr;
       }
 
       nsap_ptr_owner_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &nsap_ptr_owner);
@@ -2232,9 +2202,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       guint16     key_id;
 
 
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
       tf = proto_tree_add_item(rr_tree, hf_dns_key_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       flags_tree = proto_item_add_subtree(tf, ett_key_flags);
       flags = tvb_get_ntohs(tvb, cur_offset);
@@ -2254,16 +2221,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 2;
       rr_len     -= 2;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_key_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_key_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       algo = tvb_get_guint8(tvb, cur_offset);
       cur_offset += 1;
@@ -2289,9 +2250,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_px_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
 
@@ -2312,9 +2270,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (data_len < 1) {
-        goto bad_rr;
       }
       proto_tree_add_item(rr_tree, hf_dns_gpos_longitude_length, tvb, cur_offset, 1, ENC_NA);
       long_len = tvb_get_guint8(tvb, cur_offset);
@@ -2661,21 +2616,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree *rropt_tree;
 
       while (rropt_len > 0) {
-        if (rropt_len < 2) {
-          goto bad_rr;
-        }
         optcode = tvb_get_ntohs(tvb, cur_offset);
         rropt_len -= 2;
 
-        if (rropt_len < 2) {
-          goto bad_rr;
-        }
         optlen = tvb_get_ntohs(tvb, cur_offset + 2);
         rropt_len -= 2;
-
-        if (rropt_len < optlen) {
-          goto bad_rr;
-        }
 
         rropt = proto_tree_add_item(rr_tree, hf_dns_opt, tvb, cur_offset, 4 + optlen, ENC_NA);
         proto_item_append_text(rropt, ": %s", val_to_str(optcode, edns0_opt_code_vals, "Unknown (%d)"));
@@ -2781,33 +2726,21 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       while (rr_len > 1) {
 
-        if (rr_len < 1) {
-          goto bad_rr;
-        }
         afamily = tvb_get_ntohs(tvb, cur_offset);
         proto_tree_add_item(rr_tree, hf_dns_apl_address_family, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
         cur_offset += 2;
         rr_len     -= 2;
 
-        if (rr_len < 1) {
-          goto bad_rr;
-        }
         proto_tree_add_item(rr_tree, hf_dns_apl_coded_prefix, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
         cur_offset += 1;
         rr_len     -= 1;
 
-        if (rr_len < 1) {
-          goto bad_rr;
-        }
         afdpart_len = tvb_get_guint8(tvb, cur_offset) & DNS_APL_AFDLENGTH;
         proto_tree_add_item(rr_tree, hf_dns_apl_negation, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rr_tree, hf_dns_apl_afdlength, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
         cur_offset += 1;
         rr_len     -= 1;
 
-        if (rr_len < 1) {
-          goto bad_rr;
-        }
         if (afamily == 1 && afdpart_len <= 4) { /* IPv4 */
           addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 4);
           tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
@@ -2854,23 +2787,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int    rr_len = data_len;
 
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_sshfp_algorithm, tvb, cur_offset, 1, ENC_NA);
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_sshfp_fingerprint_type, tvb, cur_offset, 1, ENC_NA);
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
 
       if (rr_len != 0) {
         proto_tree_add_item(rr_tree, hf_dns_sshfp_fingerprint, tvb, cur_offset, rr_len, ENC_NA);
@@ -2886,9 +2810,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const guchar *gw;
       int           gw_name_len;
 
-      if (rr_len < 3) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_precedence, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
@@ -2943,9 +2864,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int           signer_name_len;
       proto_item    *ti;
 
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_rrsig_type_covered, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
@@ -2954,38 +2872,23 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_rrsig_labels, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
       ti = proto_tree_add_item(rr_tree, hf_dns_rrsig_original_ttl, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       proto_item_append_text(ti, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
       cur_offset += 4;
       rr_len     -= 4;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_rrsig_signature_expiration, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_rrsig_signature_inception, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_rrsig_key_tag, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
@@ -3016,10 +2919,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       }
+
       proto_item_append_text(trr, ", next domain name %s", name_out);
       proto_tree_add_string(rr_tree, hf_dns_nsec_next_domain_name, tvb, cur_offset, next_domain_name_len, name_out);
       cur_offset += next_domain_name_len;
       rr_len     -= next_domain_name_len;
+
       dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
 
     }
@@ -3034,12 +2939,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       guint16     key_id;
       guint8 algo;
 
-
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
-
-
       tf = proto_tree_add_item(rr_tree, hf_dns_dnskey_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       flags_tree = proto_item_add_subtree(tf, ett_key_flags);
       proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_zone_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
@@ -3050,17 +2949,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 2;
       rr_len     -= 2;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       /* Must have value 3, Add check ? */
       proto_tree_add_item(flags_tree, hf_dns_dnskey_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(flags_tree, hf_dns_dnskey_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       algo = tvb_get_guint8(tvb, cur_offset);
 
@@ -3083,9 +2976,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
 
-      if (data_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_dhcid_rdata, tvb, cur_offset, data_len, ENC_NA);
 
 
@@ -3196,46 +3086,28 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       hit_len = tvb_get_guint8(tvb, cur_offset);
       proto_tree_add_item(rr_tree, hf_dns_hip_hit_length, tvb, cur_offset, 1, ENC_NA);
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_hip_pk_algo, tvb, cur_offset, 1, ENC_NA);
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       pk_len = tvb_get_ntohs(tvb, cur_offset);
       proto_tree_add_item(rr_tree, hf_dns_hip_pk_length, tvb, cur_offset, 2, ENC_NA);
       cur_offset += 2;
       rr_len     -= 2;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_hip_hit, tvb, cur_offset, hit_len, ENC_NA);
       cur_offset += hit_len;
       rr_len     -= hit_len;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_hip_pk, tvb, cur_offset, pk_len, ENC_NA);
       cur_offset += pk_len;
       rr_len     -= pk_len;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
       while (rr_len > 1) {
         rendezvous_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rend_server_dns_name);
         proto_tree_add_string(rr_tree, hf_dns_hip_rendezvous_server, tvb, cur_offset, rendezvous_len, rend_server_dns_name);
@@ -3359,33 +3231,18 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += tkey_algname_len;
       rr_len     -= tkey_algname_len;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
-
       proto_tree_add_item(rr_tree, hf_dns_tkey_signature_inception, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_tkey_signature_expiration, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
-
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
 
       proto_tree_add_item(rr_tree, hf_dns_tkey_mode, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       tkey_mode = tvb_get_ntohs(tvb, cur_offset);
       cur_offset += 2;
       rr_len     -= 2;
-
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
 
       proto_tree_add_item(rr_tree, hf_dns_tkey_error, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
@@ -3441,19 +3298,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         rr_len     -= tkey_keylen;
       }
 
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_tkey_other_size, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       tkey_otherlen = tvb_get_ntohs(tvb, cur_offset);;
       cur_offset += 2;
       rr_len     -= 2;
 
       if (tkey_otherlen != 0) {
-        if (rr_len < tkey_otherlen) {
-          goto bad_rr;
-          }
-        proto_tree_add_item(rr_tree, hf_dns_tkey_other_data, tvb, cur_offset,  tkey_otherlen, ENC_NA);
+        proto_tree_add_item(rr_tree, hf_dns_tkey_other_data, tvb, cur_offset, tkey_otherlen, ENC_NA);
       }
 
     }
@@ -3474,10 +3325,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += tsig_algname_len;
       rr_len     -= tsig_algname_len;
 
-      if (rr_len < 6) {
-        goto bad_rr;
-      }
-
       ti = proto_tree_add_item(rr_tree, hf_dns_tsig_time_signed ,tvb, cur_offset, 6, ENC_NA);
       if(tvb_get_ntohs(tvb, cur_offset)) /* Time High */
       {
@@ -3486,16 +3333,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 6;
       rr_len     -= 6;
 
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_tsig_fudge, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
       tsig_siglen = tvb_get_ntohs(tvb, cur_offset);
       proto_tree_add_item(rr_tree, hf_dns_tsig_mac_size, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
@@ -3506,9 +3347,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         proto_tree *mac_tree;
         tvbuff_t   *sub_tvb;
 
-        if (rr_len < tsig_siglen) {
-          goto bad_rr;
-        }
         mac_item = proto_tree_add_item(rr_tree, hf_dns_tsig_mac, tvb, cur_offset, tsig_siglen, ENC_NA);
         mac_tree = proto_item_add_subtree(mac_item, ett_dns_mac);
 
@@ -3523,32 +3361,20 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         rr_len     -= tsig_siglen;
       }
 
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_tsig_original_id, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
       proto_tree_add_item(rr_tree, hf_dns_tsig_error, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
       tsig_otherlen = tvb_get_ntohs(tvb, cur_offset);
       proto_tree_add_item(rr_tree, hf_dns_tsig_other_len, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
       if (tsig_otherlen != 0) {
-        if (rr_len < tsig_otherlen) {
-          goto bad_rr;
-        }
         proto_tree_add_item(rr_tree, hf_dns_tsig_other_data, tvb, cur_offset, tsig_otherlen, ENC_NA);
       }
 
@@ -3604,33 +3430,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int     rr_len = data_len;
       guint32 nservers;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
-
       proto_tree_add_item(rr_tree, hf_dns_wins_local_flag, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
-
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
 
       proto_tree_add_item(rr_tree, hf_dns_wins_lookup_timeout, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
-
       proto_tree_add_item(rr_tree, hf_dns_wins_cache_timeout, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
-
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
 
       proto_tree_add_item(rr_tree, hf_dns_wins_nb_wins_servers, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       nservers = tvb_get_ntohl(tvb, cur_offset);
@@ -3638,9 +3448,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 4;
 
       while (rr_len != 0 && nservers != 0) {
-        if (rr_len < 4) {
-          goto bad_rr;
-        }
         proto_tree_add_item(rr_tree, hf_dns_wins_server, tvb, cur_offset, 4, ENC_NA);
 
         cur_offset += 4;
@@ -3658,25 +3465,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const guchar *dname;
       int           dname_len;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
-
       proto_tree_add_item(rr_tree, hf_dns_winsr_local_flag, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
-
       proto_tree_add_item(rr_tree, hf_dns_winsr_lookup_timeout, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
-
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
 
       proto_tree_add_item(rr_tree, hf_dns_winsr_cache_timeout, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
@@ -3712,15 +3507,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   return data_offset - data_start;
 
-bad_rr:
-
-  proto_item_append_text(trr, ", bad RR length %d, too short",
-                         data_len);
-
-
-  data_offset += data_len;
-
-  return data_offset - data_start;
 }
 
 static int
