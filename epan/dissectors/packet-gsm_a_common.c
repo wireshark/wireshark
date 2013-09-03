@@ -2101,13 +2101,13 @@ de_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
  */
 
 static const value_string gsm_a_key_seq_vals[] = {
-    { 0, "Cipering key sequence number"},
-    { 1, "Cipering key sequence number"},
-    { 2, "Cipering key sequence number"},
-    { 3, "Cipering key sequence number"},
-    { 4, "Cipering key sequence number"},
-    { 5, "Cipering key sequence number"},
-    { 6, "Cipering key sequence number"},
+    { 0, "Ciphering key sequence number"},
+    { 1, "Ciphering key sequence number"},
+    { 2, "Ciphering key sequence number"},
+    { 3, "Ciphering key sequence number"},
+    { 4, "Ciphering key sequence number"},
+    { 5, "Ciphering key sequence number"},
+    { 6, "Ciphering key sequence number"},
     { 7, "No key is available (MS to network)"},
     { 0,    NULL }
 };
@@ -2115,12 +2115,17 @@ static const value_string gsm_a_key_seq_vals[] = {
 static guint16
 de_ciph_key_seq_num( tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
+    guint32 curr_offset, bit_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gsm_a_key_seq, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    if (RIGHT_NIBBLE == len)
+        bit_offset = 4;
+    else
+        bit_offset = 0;
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gsm_a_key_seq, tvb, (curr_offset<<3)+bit_offset+1, 3, ENC_BIG_ENDIAN);
     curr_offset++;
 
     return(curr_offset - offset);
@@ -4448,7 +4453,7 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_key_seq,
         { "key sequence", "gsm_a.key_seq",
-        FT_UINT8, BASE_DEC, VALS(gsm_a_key_seq_vals), 0x07,
+        FT_UINT8, BASE_DEC, VALS(gsm_a_key_seq_vals), 0x00,
         NULL, HFILL }
     },
     { &hf_gsm_a_lac,
