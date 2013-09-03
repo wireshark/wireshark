@@ -265,6 +265,8 @@ static int hf_dns_gpos_latitude_length = -1;
 static int hf_dns_gpos_latitude = -1;
 static int hf_dns_gpos_altitude_length = -1;
 static int hf_dns_gpos_altitude = -1;
+static int hf_dns_rp_mailbox = -1;
+static int hf_dns_rp_txt_rr = -1;
 static int hf_dns_nsap_rdata = -1;
 static int hf_dns_caa_flags = -1;
 static int hf_dns_caa_flag_issuer_critical = -1;
@@ -3225,7 +3227,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_RP:
+    case T_RP: /* Responsible Person (17) */
     {
       int           mbox_dname_len, txt_dname_len;
       const guchar *mbox_dname, *txt_dname;
@@ -3237,12 +3239,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         goto bad_rr;
       }
       mbox_dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &mbox_dname);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, mbox_dname_len,
-                          "Mailbox: %s", format_text(mbox_dname, strlen(mbox_dname)));
+      proto_tree_add_string(rr_tree, hf_dns_rp_mailbox, tvb, cur_offset, mbox_dname_len, mbox_dname);
       cur_offset += mbox_dname_len;
+
       txt_dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &txt_dname);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, txt_dname_len,
-                          "TXT RR: %s", format_text(txt_dname, strlen(txt_dname)));
+      proto_tree_add_string(rr_tree, hf_dns_rp_txt_rr, tvb, cur_offset, txt_dname_len, txt_dname);
     }
     break;
 
@@ -4968,6 +4969,16 @@ proto_register_dns(void)
 
     { &hf_dns_gpos_altitude,
       { "Altitude","dns.gpos.altitude",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_rp_mailbox,
+      { "Mailbox","dns.rp.mailbox",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_rp_txt_rr,
+      { "TXT RR","dns.rp.txt_rr",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
