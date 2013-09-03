@@ -447,6 +447,16 @@ typedef struct _dns_conv_info_t {
 #define T_TALINK        58              /* Trust Anchor LINK */
 #define T_CDS           59              /* Child DS */
 #define T_SPF           99              /* SPF RR (RFC 4408) section 3 */
+#define T_UINFO        100              /* [IANA-Reserved] */
+#define T_UID          101              /* [IANA-Reserved] */
+#define T_GID          102              /* [IANA-Reserved] */
+#define T_UNSPEC       103              /* [IANA-Reserved] */
+#define T_NID          104              /* ILNP [RFC6742] */
+#define T_L32          105              /* ILNP [RFC6742] */
+#define T_L64          106              /* ILNP [RFC6742] */
+#define T_LP           107              /* ILNP [RFC6742] */
+#define T_EUI48        108              /*[draft-jabley-dnsext-eui48-eui64-rrtypes] */
+#define T_EUI64        109              /*[draft-jabley-dnsext-eui48-eui64-rrtypes] */
 #define T_TKEY         249              /* Transaction Key (RFC 2930) */
 #define T_TSIG         250              /* Transaction Signature (RFC 2845) */
 #define T_IXFR         251              /* incremental transfer (RFC 1995) */
@@ -454,7 +464,9 @@ typedef struct _dns_conv_info_t {
 #define T_MAILB        253              /* mailbox-related RRs (MB, MG or MR) (RFC 1035) */
 #define T_MAILA        254              /* mail agent RRs (OBSOLETE - see MX) (RFC 1035) */
 #define T_ANY          255              /* A request for all records (RFC 1035) */
+#define T_URI          256              /* URI */
 #define T_CAA          257              /* Certification Authority Authorization (RFC 6844) */
+#define T_TA         32768              /* DNSSEC Trust Authorities */
 #define T_DLV        32769              /* DNSSEC Lookaside Validation (DLV) DNS Resource Record (RFC 4431) */
 #define T_WINS       65281              /* Microsoft's WINS RR */
 #define T_WINS_R     65282              /* Microsoft's WINS-R RR */
@@ -708,7 +720,7 @@ http://www.windows.com/windows2000/en/server/help/sag_DNS_imp_UsingWinsLookup.ht
 http://www.microsoft.com/windows2000/library/resources/reskit/samplechapters/cncf/cncf_imp_wwaw.asp
 
    which discuss them to some extent. */
-/* http://www.iana.org/assignments/dns-parameters */
+/* http://www.iana.org/assignments/dns-parameters (last updated 2013-07-24)*/
 
 static const value_string dns_types_vals[] = {
   { 0,            "Unused"     },
@@ -769,11 +781,16 @@ static const value_string dns_types_vals[] = {
   { T_TALINK,     "TALINK"     },
   { T_CDS,        "CDS"        },
   { T_SPF,        "SPF"        }, /* RFC 4408 */
-  { 100,          "UINFO"      }, /* IANA reserved */
-  { 101,          "UID"        }, /* IANA reserved */
-  { 102,          "GID"        }, /* IANA reserved */
-  { 103,          "UNSPEC"     }, /* IANA reserved */
-
+  { T_UINFO,      "UINFO"      }, /* IANA reserved */
+  { T_UID,        "UID"        }, /* IANA reserved */
+  { T_GID,        "GID"        }, /* IANA reserved */
+  { T_UNSPEC,     "UNSPEC"     }, /* IANA reserved */
+  { T_NID,        "NID"        }, /* RFC6742 */
+  { T_L32,        "L32"        }, /* RFC6742 */
+  { T_L64,        "L64"        }, /* RFC6742 */
+  { T_LP,         "LP"         }, /* RFC6742 */
+  { T_EUI48,      "EUI48"      }, /* draft-jabley-dnsext-eui48-eui64-rrtypes6742 */
+  { T_EUI64,      "EUI64"      }, /* draft-jabley-dnsext-eui48-eui64-rrtypes6742 */
   { T_TKEY,       "TKEY"       },
   { T_TSIG,       "TSIG"       },
   { T_IXFR,       "IXFR"       },
@@ -781,9 +798,10 @@ static const value_string dns_types_vals[] = {
   { T_MAILB,      "MAILA"      },
   { T_MAILA,      "MAILB"      },
   { T_ANY,        "ANY"        },
-
+  { T_URI,        "URI"        },
   { T_CAA,        "CAA"        }, /* RFC 6844 */
 
+  { T_TA,         "TA"         },
   { T_DLV,        "DLV"        }, /* RFC 4431 */
 
   { T_WINS,       "WINS"       },
@@ -853,10 +871,16 @@ static const value_string dns_types_description_vals[] = {
   { T_TALINK,     "TALINK (Trust Anchor LINK)" },
   { T_CDS,        "CDS (Child DS)" },
   { T_SPF,        "SPF" }, /* RFC 4408 */
-  { 100,          "UINFO" }, /* IANA reserved */
-  { 101,          "UID" }, /* IANA reserved */
-  { 102,          "GID" }, /* IANA reserved */
-  { 103,          "UNSPEC" }, /* IANA reserved */
+  { T_UINFO,      "UINFO" }, /* IANA reserved */
+  { T_UID,        "UID" }, /* IANA reserved */
+  { T_GID,        "GID" }, /* IANA reserved */
+  { T_UNSPEC,     "UNSPEC" }, /* IANA reserved */
+  { T_NID,        "NID (NodeID)" },
+  { T_L32,        "L32 (Locator32)" },
+  { T_L64,        "L64 (Locator64)" },
+  { T_LP,         "LP (Locator FQDN)" },
+  { T_EUI48,      "EUI48" },
+  { T_EUI64,      "EUI64" },
 
   { T_TKEY,       "TKEY (Transaction Key)"  },
   { T_TSIG,       "TSIG (Transaction Signature)" },
@@ -865,9 +889,9 @@ static const value_string dns_types_description_vals[] = {
   { T_MAILB,      "MAILB (mailbox-related RRs)" },
   { T_MAILA,      "MAILA (mail agent RRs)" },
   { T_ANY,        "* (A request for all records the server/cache has available)" },
-
+  { T_URI,        "URI" },
   { T_CAA,        "CAA (Certification Authority Restriction)" }, /* RFC 6844 */
-
+  { T_TA,         "TA (DNSSEC Trust Authorities)" },
   { T_DLV,        "DLV (DNSSEC Lookaside Validation)" }, /* RFC 4431 */
 
   { T_WINS,       "WINS" },
