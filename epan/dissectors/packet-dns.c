@@ -109,6 +109,11 @@ static int hf_dns_rr_cache_flush = -1;
 static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
 static int hf_dns_rr_addr = -1;
+static int hf_dns_md = -1;
+static int hf_dns_mf = -1;
+static int hf_dns_mb = -1;
+static int hf_dns_mg = -1;
+static int hf_dns_mr = -1;
 static int hf_dns_aaaa = -1;
 static int hf_dns_rr_primaryname = -1;
 static int hf_dns_rr_udp_payload_size = -1;
@@ -127,6 +132,8 @@ static int hf_dns_hinfo_cpu_length = -1;
 static int hf_dns_hinfo_cpu = -1;
 static int hf_dns_hinfo_os_length = -1;
 static int hf_dns_hinfo_os = -1;
+static int hf_dns_minfo_r_mailbox = -1;
+static int hf_dns_minfo_e_mailbox = -1;
 static int hf_dns_mx_preference = -1;
 static int hf_dns_mx_mail_exchange = -1;
 static int hf_dns_txt_length = -1;
@@ -3409,11 +3416,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_MB:
-    case T_MF:
-    case T_MD:
-    case T_MG:
-    case T_MR:
+
+    case T_MD: /* Mail Destination  (3) */
     {
       int           hostname_len;
       const guchar *hostname_str;
@@ -3421,15 +3425,69 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
+
       hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, hostname_len, "Host: %s", format_text(hostname_str, strlen(hostname_str)));
+      proto_tree_add_string(rr_tree, hf_dns_md, tvb, cur_offset, hostname_len, hostname_str);
     }
     break;
 
-    case T_MINFO:
+    case T_MF: /* Mail Forwader  (4) */
+    {
+      int           hostname_len;
+      const guchar *hostname_str;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
+      proto_tree_add_string(rr_tree, hf_dns_mf, tvb, cur_offset, hostname_len, hostname_str);
+    }
+    break;
+
+    case T_MB: /* MailBox domain (7) */
+    {
+      int           hostname_len;
+      const guchar *hostname_str;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
+      proto_tree_add_string(rr_tree, hf_dns_mb, tvb, cur_offset, hostname_len, hostname_str);
+    }
+    break;
+
+    case T_MG: /* Mail Group member (8) */
+    {
+      int           hostname_len;
+      const guchar *hostname_str;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
+      proto_tree_add_string(rr_tree, hf_dns_mg, tvb, cur_offset, hostname_len, hostname_str);
+    }
+    break;
+
+    case T_MR: /* Mail Rename domain (9) */
+    {
+      int           hostname_len;
+      const guchar *hostname_str;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
+      proto_tree_add_string(rr_tree, hf_dns_mr, tvb, cur_offset, hostname_len, hostname_str);
+    }
+    break;
+
+    case T_MINFO: /* Mailbox or Mail list INFOrmation (14) */
     {
       int rmailbx_len, emailbx_len;
       const guchar *rmailbx_str, *emailbx_str;
@@ -3441,12 +3499,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         goto bad_rr;
       }
       rmailbx_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rmailbx_str);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, rmailbx_len,
-                          "Responsible Mailbox: %s", format_text(rmailbx_str, strlen(rmailbx_str)));
+      proto_tree_add_string(rr_tree, hf_dns_minfo_r_mailbox, tvb, cur_offset, rmailbx_len, rmailbx_str);
       cur_offset += rmailbx_len;
+
       emailbx_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &emailbx_str);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, emailbx_len,
-                          "Error Mailbox: %s", format_text(emailbx_str, strlen(emailbx_str)));
+      proto_tree_add_string(rr_tree, hf_dns_minfo_e_mailbox, tvb, cur_offset, emailbx_len, emailbx_str);
     }
     break;
 
@@ -4192,6 +4249,31 @@ proto_register_dns(void)
         FT_IPv4, BASE_NONE, NULL, 0x0,
         "Response Address", HFILL }},
 
+    { &hf_dns_md,
+      { "Mail Destination", "dns.md",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_mf,
+      { "Mail Forwarder", "dns.mf",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_mb,
+      { "MailBox Domaine", "dns.mb",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_mg,
+      { "Mail Group member", "dns.mg",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_mr,
+      { "Mail Rename domaine", "dns.mr",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
     { &hf_dns_aaaa,
       { "AAAA Address", "dns.aaaa",
         FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -4279,6 +4361,16 @@ proto_register_dns(void)
 
     { &hf_dns_hinfo_os,
       { "OS", "dns.hinfo.os",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { & hf_dns_minfo_r_mailbox,
+      { "Responsible Mailbox", "dns.minfo.r",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { & hf_dns_minfo_e_mailbox,
+      { "Error Mailbox", "dns.minfo.e",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
