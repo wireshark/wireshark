@@ -3101,21 +3101,31 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree *flags_tree;
 
 
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_algo, tvb, cur_offset++, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_algo, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+
       flags_item = proto_tree_add_item(rr_tree, hf_dns_nsec3_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       flags_tree = proto_item_add_subtree(flags_item, ett_nsec3_flags);
       proto_tree_add_item(flags_tree, hf_dns_nsec3_flag_optout, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset++;
+      cur_offset += 1;
+
       proto_tree_add_item(rr_tree, hf_dns_nsec3_iterations, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       salt_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset++, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+
       proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
       cur_offset += salt_len;
+
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       hash_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_length, tvb, cur_offset++, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+
       proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, ENC_NA);
       cur_offset += hash_len;
+
       rr_len = data_len - (cur_offset - initial_offset);
       dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
 
@@ -3131,14 +3141,18 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
 
       proto_tree_add_item(rr_tree, hf_dns_nsec3_algo, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset ++;
+      cur_offset +=1;
+
       proto_tree_add_item(rr_tree, hf_dns_nsec3_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset ++;
+      cur_offset +=1;
+
       proto_tree_add_item(rr_tree, hf_dns_nsec3_iterations, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
-      salt_len = tvb_get_guint8(tvb, cur_offset);
+
       proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset ++;
+      salt_len = tvb_get_guint8(tvb, cur_offset);
+      cur_offset +=1;
+
       proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
 
     }
@@ -3155,12 +3169,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(rr_tree, hf_dns_tlsa_certificate_usage, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset ++;
       rr_len --;
+
       proto_tree_add_item(rr_tree, hf_dns_tlsa_selector, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset ++;
       rr_len --;
+
       proto_tree_add_item(rr_tree, hf_dns_tlsa_matching_type, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset ++;
       rr_len --;
+
       proto_tree_add_item(rr_tree, hf_dns_tlsa_certificate_association_data, tvb, cur_offset, rr_len, ENC_NA);
 
     }
