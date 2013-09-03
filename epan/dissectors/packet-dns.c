@@ -1675,6 +1675,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+
     case T_NS: /* an authoritative Name Server (2) */
     {
       const guchar *ns_name;
@@ -1691,6 +1692,37 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+
+    case T_MD: /* Mail Destination  (3) */
+    {
+      int           hostname_len;
+      const guchar *hostname_str;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
+      proto_tree_add_string(rr_tree, hf_dns_md, tvb, cur_offset, hostname_len, hostname_str);
+    }
+    break;
+
+
+    case T_MF: /* Mail Forwader  (4) */
+    {
+      int           hostname_len;
+      const guchar *hostname_str;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
+      proto_tree_add_string(rr_tree, hf_dns_mf, tvb, cur_offset, hostname_len, hostname_str);
+    }
+    break;
+
+
     case T_CNAME: /* the Canonical NAME for an alias (5) */
     {
       const guchar *cname;
@@ -1706,6 +1738,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
     }
     break;
+
 
     case T_SOA: /* Start Of Authority zone (6) */
     {
@@ -1752,22 +1785,61 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_PTR: /* Domain Name Pointer (12) */
+
+    case T_MB: /* MailBox domain (7) */
     {
-      const guchar *pname;
-      int           pname_len;
+      int           hostname_len;
+      const guchar *hostname_str;
 
-      /* XXX Fix data length */
-      pname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &pname);
-      name_out = format_text(pname, strlen(pname));
       if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name_out);
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
-      proto_item_append_text(trr, ", %s", name_out);
-      proto_tree_add_string(rr_tree, hf_dns_ptr_domain_name, tvb, cur_offset, pname_len, name_out);
 
+      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
+      proto_tree_add_string(rr_tree, hf_dns_mb, tvb, cur_offset, hostname_len, hostname_str);
     }
     break;
+
+
+    case T_MG: /* Mail Group member (8) */
+    {
+      int           hostname_len;
+      const guchar *hostname_str;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
+      proto_tree_add_string(rr_tree, hf_dns_mg, tvb, cur_offset, hostname_len, hostname_str);
+    }
+    break;
+
+
+    case T_MR: /* Mail Rename domain (9) */
+    {
+      int           hostname_len;
+      const guchar *hostname_str;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
+      proto_tree_add_string(rr_tree, hf_dns_mr, tvb, cur_offset, hostname_len, hostname_str);
+    }
+    break;
+
+
+    case T_NULL: /* Null (10) */
+    {
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+      proto_tree_add_item(rr_tree, hf_dns_null, tvb, cur_offset, data_len, ENC_NA);
+    }
+    break;
+
 
     case T_WKS: /* Well Known Service (11) */
     {
@@ -1843,6 +1915,25 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+
+    case T_PTR: /* Domain Name Pointer (12) */
+    {
+      const guchar *pname;
+      int           pname_len;
+
+      /* XXX Fix data length */
+      pname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &pname);
+      name_out = format_text(pname, strlen(pname));
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name_out);
+      }
+      proto_item_append_text(trr, ", %s", name_out);
+      proto_tree_add_string(rr_tree, hf_dns_ptr_domain_name, tvb, cur_offset, pname_len, name_out);
+
+    }
+    break;
+
+
     case T_HINFO: /* Host Information (13) */
     {
       int         cpu_offset;
@@ -1874,10 +1965,30 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 1;
       proto_tree_add_item(rr_tree, hf_dns_hinfo_os, tvb, cur_offset, os_len, ENC_ASCII|ENC_NA);
       /* cur_offset += os_len;*/
-
-
     }
     break;
+
+
+    case T_MINFO: /* Mailbox or Mail list INFOrmation (14) */
+    {
+      int rmailbx_len, emailbx_len;
+      const guchar *rmailbx_str, *emailbx_str;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+      if (data_len < 1) {
+        goto bad_rr;
+      }
+      rmailbx_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rmailbx_str);
+      proto_tree_add_string(rr_tree, hf_dns_minfo_r_mailbox, tvb, cur_offset, rmailbx_len, rmailbx_str);
+      cur_offset += rmailbx_len;
+
+      emailbx_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &emailbx_str);
+      proto_tree_add_string(rr_tree, hf_dns_minfo_e_mailbox, tvb, cur_offset, emailbx_len, emailbx_str);
+    }
+    break;
+
 
     case T_MX: /* Mail eXchange (15) */
     {
@@ -1902,6 +2013,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+
     case T_TXT: /* TeXT strings (16) */
     {
       int rr_len = data_len;
@@ -1923,143 +2035,158 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_SPF: /* Sender Policy Framework (99) */
+
+    case T_RP: /* Responsible Person (17) */
     {
-      int rr_len = data_len;
-      int spf_offset;
-      int spf_len;
+      int           mbox_dname_len, txt_dname_len;
+      const guchar *mbox_dname, *txt_dname;
 
-
-      spf_offset = cur_offset;
-      while (rr_len != 0) {
-        spf_len = tvb_get_guint8(tvb, spf_offset);
-        proto_tree_add_item(rr_tree, hf_dns_spf_length, tvb, spf_offset, 1, ENC_BIG_ENDIAN);
-        spf_offset += 1;
-        rr_len     -= 1;
-        proto_tree_add_item(rr_tree, hf_dns_spf, tvb, spf_offset, spf_len, ENC_ASCII|ENC_NA);
-        spf_offset +=  spf_len;
-        rr_len     -= spf_len;
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
+      if (data_len < 1) {
+        goto bad_rr;
+      }
+      mbox_dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &mbox_dname);
+      proto_tree_add_string(rr_tree, hf_dns_rp_mailbox, tvb, cur_offset, mbox_dname_len, mbox_dname);
+      cur_offset += mbox_dname_len;
+
+      txt_dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &txt_dname);
+      proto_tree_add_string(rr_tree, hf_dns_rp_txt_rr, tvb, cur_offset, txt_dname_len, txt_dname);
+    }
+    break;
+
+
+    case T_AFSDB: /* AFS data base location (18) */
+    {
+      const guchar *host_name;
+      int           host_name_len;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      host_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &host_name);
+
+      if (data_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_afsdb_subtype, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset =+ 2;
+
+      proto_tree_add_string(rr_tree, hf_dns_afsdb_hostname, tvb, cur_offset, host_name_len, host_name);
 
     }
     break;
 
-    case T_RRSIG: /* RRSIG (46) */
-    case T_SIG: /* Security SIgnature (24) */
-    {
-      int           rr_len = data_len;
-      const guchar *signer_name;
-      int           signer_name_len;
-      proto_item    *ti;
 
-      if (rr_len < 2) {
+    case T_X25: /* X.25 address (19) */
+    {
+      guint8 x25_len;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+      if (data_len < 1) {
         goto bad_rr;
       }
-      proto_tree_add_item(rr_tree, hf_dns_rrsig_type_covered, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset += 2;
-      rr_len     -= 2;
 
-      proto_tree_add_item(rr_tree, hf_dns_rrsig_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(rr_tree, hf_dns_x25_length, tvb, cur_offset, 1, ENC_NA);
+      x25_len = tvb_get_guint8(tvb, cur_offset);
       cur_offset += 1;
-      rr_len     -= 1;
 
+      proto_tree_add_item(rr_tree, hf_dns_x25_psdn_address, tvb, cur_offset, x25_len, ENC_ASCII|ENC_NA);
+      /*cur_offset += x25_len;*/
+
+    }
+    break;
+
+
+    case T_ISDN: /* ISDN address (20) */
+    {
+      guint8 isdn_address_len, isdn_sa_len;
+      int    rr_len = data_len;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
       if (rr_len < 1) {
         goto bad_rr;
       }
-      proto_tree_add_item(rr_tree, hf_dns_rrsig_labels, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+
+      proto_tree_add_item(rr_tree, hf_dns_isdn_length, tvb, cur_offset, 1, ENC_NA);
+      isdn_address_len = tvb_get_guint8(tvb, cur_offset);
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
-      ti = proto_tree_add_item(rr_tree, hf_dns_rrsig_original_ttl, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
-      cur_offset += 4;
-      rr_len     -= 4;
+      proto_tree_add_item(rr_tree, hf_dns_isdn_address, tvb, cur_offset, isdn_address_len, ENC_ASCII|ENC_NA);
+      cur_offset += isdn_address_len;
+      rr_len     -= isdn_address_len;
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_rrsig_signature_expiration, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      cur_offset += 4;
-      rr_len     -= 4;
+      if (rr_len > 1)   /* ISDN SA is optional */ {
+        proto_tree_add_item(rr_tree, hf_dns_isdn_sa_length, tvb, cur_offset, 1, ENC_NA);
+        isdn_sa_len = tvb_get_guint8(tvb, cur_offset);
 
-      if (rr_len < 4) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_rrsig_signature_inception, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-      cur_offset += 4;
-      rr_len     -= 4;
-
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_rrsig_key_tag, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset += 2;
-      rr_len     -= 2;
-
-      /* XXX Fix data length */
-      signer_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &signer_name);
-      proto_tree_add_string(rr_tree, hf_dns_rrsig_signers_name, tvb, cur_offset, signer_name_len, signer_name);
-      cur_offset += signer_name_len;
-      rr_len     -= signer_name_len;
-
-      if (rr_len != 0) {
-        proto_tree_add_item(rr_tree, hf_dns_rrsig_signature, tvb, cur_offset, rr_len, ENC_NA);
+        proto_tree_add_item(rr_tree, hf_dns_isdn_sa, tvb, cur_offset, isdn_sa_len, ENC_ASCII|ENC_NA);
       }
     }
     break;
 
-    case T_DNSKEY: /* DNSKEY (48) */
+
+    case T_RT: /* Route-Through (21) */
     {
-      int         rr_len = data_len;
-      proto_item *tf, *ti_gen;
-      proto_tree *flags_tree;
-      guint16     key_id;
-      guint8 algo;
+      const guchar *host_name;
+      int           host_name_len;
 
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
 
-      if (rr_len < 2) {
+      host_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &host_name);
+
+      if (data_len < 1) {
         goto bad_rr;
       }
 
+      proto_tree_add_item(rr_tree, hf_dns_rt_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset =+ 2;
 
-      tf = proto_tree_add_item(rr_tree, hf_dns_dnskey_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      flags_tree = proto_item_add_subtree(tf, ett_key_flags);
-      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_zone_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_key_revoked, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_secure_entry_point, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_reserved, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-
-      cur_offset += 2;
-      rr_len     -= 2;
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      /* Must have value 3, Add check ? */
-      proto_tree_add_item(flags_tree, hf_dns_dnskey_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset += 1;
-      rr_len     -= 1;
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(flags_tree, hf_dns_dnskey_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      algo = tvb_get_guint8(tvb, cur_offset);
-
-      cur_offset += 1;
-      rr_len     -= 1;
-
-      key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
-      ti_gen = proto_tree_add_uint(rr_tree, hf_dns_dnskey_key_id, tvb, 0, 0, key_id);
-      PROTO_ITEM_SET_GENERATED(ti_gen);
-
-      proto_tree_add_item(rr_tree, hf_dns_dnskey_public_key, tvb, cur_offset, rr_len, ENC_NA);
+      proto_tree_add_string(rr_tree, hf_dns_rt_intermediate_host, tvb, cur_offset, host_name_len, host_name);
 
     }
     break;
+
+
+    case T_NSAP: /* for NSAP address, NSAP style A record (22) */
+    {
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+      if (data_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_nsap_rdata, tvb, cur_offset, data_len, ENC_NA);
+    }
+    break;
+
+
+    case T_NSAP_PTR: /* for domain name pointer, NSAP style (23) */
+    {
+      int           nsap_ptr_owner_len;
+      const guchar *nsap_ptr_owner;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+      if (data_len < 1) {
+        goto bad_rr;
+      }
+
+      nsap_ptr_owner_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &nsap_ptr_owner);
+      proto_tree_add_string(rr_tree, hf_dns_nsap_ptr_owner, tvb, cur_offset, nsap_ptr_owner_len, nsap_ptr_owner);
+    }
+    break;
+
 
     case T_KEY: /* Public Key (25) */
     {
@@ -2119,60 +2246,68 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_IPSECKEY: /* IPsec Key (45) */
-    {
-      int           rr_len = data_len;
-      guint8        gw_type;
-      const guchar *gw;
-      int           gw_name_len;
 
-      if (rr_len < 3) {
+    case T_PX: /* Pointer to X.400/RFC822 mapping info (26)*/
+    {
+      int           px_map822_len, px_mapx400_len;
+      const guchar *px_map822_dnsname, *px_mapx400_dnsname;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+      if (data_len < 1) {
         goto bad_rr;
       }
-      proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_precedence, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset += 1;
-      rr_len     -= 1;
+      proto_tree_add_item(rr_tree, hf_dns_px_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset += 2;
 
-      proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_type, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      gw_type = tvb_get_guint8(tvb, cur_offset);
-      cur_offset += 1;
-      rr_len     -= 1;
+      px_map822_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &px_map822_dnsname);
+      proto_tree_add_string(rr_tree, hf_dns_px_map822, tvb, cur_offset, px_map822_len, px_map822_dnsname);
+      cur_offset += px_map822_len;
 
-
-      proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset += 1;
-      rr_len     -= 1;
-
-      switch( gw_type ) {
-        case 0:
-          /* No Gateway */
-          break;
-        case 1:
-          proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_ipv4, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-          cur_offset += 4;
-          rr_len     -= 4;
-          break;
-        case 2:
-          proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_ipv6, tvb, cur_offset, 16, ENC_NA);
-          cur_offset += 16;
-          rr_len     -= 16;
-          break;
-        case 3:
-          /* XXX Fix data length */
-          gw_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &gw);
-          proto_tree_add_string(rr_tree, hf_dns_ipseckey_gateway_dns, tvb, cur_offset, gw_name_len, gw);
-
-          cur_offset += gw_name_len;
-          rr_len     -= gw_name_len;
-          break;
-        default:
-          break;
-      }
-      if (rr_len != 0) {
-        proto_tree_add_item(rr_tree, hf_dns_ipseckey_public_key, tvb, cur_offset, rr_len, ENC_NA);
-      }
+      px_mapx400_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &px_mapx400_dnsname);
+      proto_tree_add_string(rr_tree, hf_dns_px_mapx400, tvb, cur_offset, px_mapx400_len, px_mapx400_dnsname);
+      /*cur_offset += px_mapx400_len;*/
     }
     break;
+
+
+    case T_GPOS: /* Geographical POSition (27) */
+    {
+      guint8 long_len, lat_len, alt_len;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+      if (data_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_gpos_longitude_length, tvb, cur_offset, 1, ENC_NA);
+      long_len = tvb_get_guint8(tvb, cur_offset);
+      cur_offset += 1;
+
+      proto_tree_add_item(rr_tree, hf_dns_gpos_longitude, tvb, cur_offset, long_len, ENC_ASCII|ENC_NA);
+      cur_offset += long_len;
+
+
+      proto_tree_add_item(rr_tree, hf_dns_gpos_latitude_length, tvb, cur_offset, 1, ENC_NA);
+      lat_len = tvb_get_guint8(tvb, cur_offset);
+      cur_offset += 1;
+
+      proto_tree_add_item(rr_tree, hf_dns_gpos_latitude, tvb, cur_offset, lat_len, ENC_ASCII|ENC_NA);
+      cur_offset += lat_len;
+
+
+      proto_tree_add_item(rr_tree, hf_dns_gpos_altitude_length, tvb, cur_offset, 1, ENC_NA);
+      alt_len = tvb_get_guint8(tvb, cur_offset);
+      cur_offset += 1;
+
+      proto_tree_add_item(rr_tree, hf_dns_gpos_altitude, tvb, cur_offset, alt_len, ENC_ASCII|ENC_NA);
+      /*cur_offset += alt_len;*/
+
+    }
+    break;
+
 
     case T_AAAA: /* IPv6 Address (28) */
     {
@@ -2194,6 +2329,216 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
     }
     break;
+
+
+    case T_LOC: /* Geographical Location (29) */
+    {
+      guint8 version;
+      proto_item *ti;
+
+
+      version = tvb_get_guint8(tvb, cur_offset);
+      proto_tree_add_item(rr_tree, hf_dns_loc_version, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      if (version == 0) {
+        /* Version 0, the only version RFC 1876 discusses. */
+        cur_offset++;
+
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_size, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%g m)", rfc1867_size(tvb, cur_offset));
+        cur_offset++;
+
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_horizontal_precision, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%g)", rfc1867_size(tvb, cur_offset));
+        cur_offset++;
+
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_vertical_precision, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%g)", rfc1867_size(tvb, cur_offset));
+        cur_offset++;
+
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_latitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%s)", rfc1867_angle(tvb, cur_offset, "NS"));
+        cur_offset += 4;
+
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_longitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%s)", rfc1867_angle(tvb, cur_offset, "EW"));
+        cur_offset += 4;
+
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_altitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%g m)", ((gint32)tvb_get_ntohl(tvb, cur_offset) - 10000000)/100.0);
+      } else {
+        proto_tree_add_item(rr_tree, hf_dns_loc_unknown_data, tvb, cur_offset, data_len, ENC_NA);
+      }
+    }
+    break;
+
+
+    case T_NXT: /* Next name (30) */
+    {
+      int           rr_len = data_len;
+      const guchar *next_domain_name;
+      int           next_domain_name_len;
+
+
+      /* XXX Fix data length */
+      next_domain_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
+                                          &next_domain_name);
+      name_out = format_text(next_domain_name, strlen(next_domain_name));
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name_out);
+      }
+      proto_item_append_text(trr, ", next domain name %s", name_out);
+      proto_tree_add_string(rr_tree, hf_dns_nxt_next_domain_name, tvb, cur_offset, next_domain_name_len, name_out);
+      cur_offset += next_domain_name_len;
+      rr_len     -= next_domain_name_len;
+      dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
+
+    }
+    break;
+
+
+    case T_SRV: /* Service Location (33) */
+    {
+      guint16       priority = 0;
+      guint16       weight   = 0;
+      guint16       port     = 0;
+      const guchar *target;
+      int           target_len;
+
+      proto_tree_add_item(rr_tree, hf_dns_srv_priority, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      priority = tvb_get_ntohs(tvb, cur_offset);
+      cur_offset += 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_srv_weight, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      weight = tvb_get_ntohs(tvb, cur_offset);
+      cur_offset += 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_srv_port, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      port = tvb_get_ntohs(tvb, cur_offset);
+      cur_offset += 2;
+
+      /* XXX Fix data length */
+      target_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &target);
+      name_out = format_text(target, strlen(target));
+
+      proto_tree_add_string(rr_tree, hf_dns_srv_target, tvb, cur_offset, target_len, name_out);
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %u %u %u %s", priority, weight, port, name_out);
+      }
+      proto_item_append_text(trr,
+                             ", priority %u, weight %u, port %u, target %s",
+                             priority, weight, port, name_out);
+
+    }
+    break;
+
+
+    case T_NAPTR: /*  Naming Authority PoinTeR (35) */
+    {
+      int           offset = cur_offset;
+      guint16       order;
+      guint16       preference;
+      gchar        *flags;
+      guint8        flags_len;
+      guint8        service_len;
+      guint8        regex_len;
+      const guchar *replacement;
+      int           replacement_len;
+
+
+      /* Order */
+      proto_tree_add_item(rr_tree, hf_dns_naptr_order, tvb, offset, 2, ENC_BIG_ENDIAN);
+      order = tvb_get_ntohs(tvb, offset);
+      offset += 2;
+
+      /* Preference */
+      proto_tree_add_item(rr_tree, hf_dns_naptr_preference, tvb, offset, 2, ENC_BIG_ENDIAN);
+      preference = tvb_get_ntohs(tvb, offset);
+      offset += 2;
+
+       /* Flags */
+      proto_tree_add_item(rr_tree, hf_dns_naptr_flags_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+      flags_len = tvb_get_guint8(tvb, offset);
+      offset += 1;
+      proto_tree_add_item(rr_tree, hf_dns_naptr_flags, tvb, offset, flags_len, ENC_ASCII|ENC_NA);
+      flags = tvb_get_ephemeral_string(tvb, offset, flags_len);
+      offset += flags_len;
+
+      /* Service */
+      proto_tree_add_item(rr_tree, hf_dns_naptr_service_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+      service_len = tvb_get_guint8(tvb, offset);
+      offset += 1;
+      proto_tree_add_item(rr_tree, hf_dns_naptr_service, tvb, offset, service_len, ENC_ASCII|ENC_NA);
+      offset += service_len;
+
+      /* Regex */
+      proto_tree_add_item(rr_tree, hf_dns_naptr_regex_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+      regex_len = tvb_get_guint8(tvb, offset);
+      offset += 1;
+      proto_tree_add_item(rr_tree, hf_dns_naptr_regex, tvb, offset, regex_len, ENC_ASCII|ENC_NA);
+      offset += regex_len;
+
+      /* Replacement */
+      replacement_len = get_dns_name(tvb, offset, 0, dns_data_offset, &replacement);
+      name_out = format_text(replacement, strlen(replacement));
+      proto_tree_add_item(rr_tree, hf_dns_naptr_replacement_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset += 1;
+
+      proto_tree_add_string(rr_tree, hf_dns_naptr_replacement, tvb, offset, replacement_len, name_out);
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %u %u %s", order, preference, flags);
+      }
+
+      proto_item_append_text(trr, ", order %u, preference %u, flags %s",
+                             order, preference, flags);
+
+    }
+    break;
+
+
+    case T_KX: /* Key Exchange (36) */
+    {
+      const guchar *kx_name;
+      int           kx_name_len;
+
+      /* XXX Fix data length */
+      kx_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &kx_name);
+      name_out = format_text(kx_name, strlen(kx_name));
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %u %s", tvb_get_ntohs(tvb, cur_offset), name_out);
+      }
+      proto_item_append_text(trr, ", preference %u, kx %s",
+                             tvb_get_ntohs(tvb, cur_offset), name_out);
+      proto_tree_add_item(rr_tree, hf_dns_kx_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_string(rr_tree, hf_dns_kx_key_exchange, tvb, cur_offset + 2, kx_name_len, name_out);
+
+    }
+    break;
+
+
+    case T_CERT: /* Certificate (37) */
+    {
+      int     rr_len = data_len;
+
+      proto_tree_add_item(rr_tree, hf_dns_cert_type, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset += 2;
+      rr_len     -= 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_cert_key_tag, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset += 2;
+      rr_len     -= 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_cert_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      if (rr_len != 0) {
+        proto_tree_add_item(rr_tree, hf_dns_cert_certificate, tvb, cur_offset, rr_len, ENC_NA);
+      }
+    }
+    break;
+
 
     case T_A6: /* IPv6 address with indirection (38) Obso */
     {
@@ -2254,6 +2599,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+
     case T_DNAME: /* Non-terminal DNS name redirection (39) */
     {
       const guchar *dname;
@@ -2272,204 +2618,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_LOC: /* Geographical Location (29) */
-    {
-      guint8 version;
-      proto_item *ti;
-
-
-      version = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_item(rr_tree, hf_dns_loc_version, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      if (version == 0) {
-        /* Version 0, the only version RFC 1876 discusses. */
-        cur_offset++;
-
-        ti = proto_tree_add_item(rr_tree, hf_dns_loc_size, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%g m)", rfc1867_size(tvb, cur_offset));
-        cur_offset++;
-
-        ti = proto_tree_add_item(rr_tree, hf_dns_loc_horizontal_precision, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%g)", rfc1867_size(tvb, cur_offset));
-        cur_offset++;
-
-        ti = proto_tree_add_item(rr_tree, hf_dns_loc_vertical_precision, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%g)", rfc1867_size(tvb, cur_offset));
-        cur_offset++;
-
-        ti = proto_tree_add_item(rr_tree, hf_dns_loc_latitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%s)", rfc1867_angle(tvb, cur_offset, "NS"));
-        cur_offset += 4;
-
-        ti = proto_tree_add_item(rr_tree, hf_dns_loc_longitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%s)", rfc1867_angle(tvb, cur_offset, "EW"));
-        cur_offset += 4;
-
-        ti = proto_tree_add_item(rr_tree, hf_dns_loc_altitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%g m)", ((gint32)tvb_get_ntohl(tvb, cur_offset) - 10000000)/100.0);
-      } else {
-        proto_tree_add_item(rr_tree, hf_dns_loc_unknown_data, tvb, cur_offset, data_len, ENC_NA);
-      }
-    }
-    break;
-
-    case T_NSEC: /* NSEC (47) */
-    {
-      int           rr_len = data_len;
-      const guchar *next_domain_name;
-      int           next_domain_name_len;
-
-      /* XXX Fix data length */
-      next_domain_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
-                                          &next_domain_name);
-      name_out = format_text(next_domain_name, strlen(next_domain_name));
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name_out);
-      }
-      proto_item_append_text(trr, ", next domain name %s", name_out);
-      proto_tree_add_string(rr_tree, hf_dns_nsec_next_domain_name, tvb, cur_offset, next_domain_name_len, name_out);
-      cur_offset += next_domain_name_len;
-      rr_len     -= next_domain_name_len;
-      dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
-
-    }
-    break;
-
-
-    case T_NSEC3: /* NSEC3 (50) */
-    {
-      int         rr_len, initial_offset = cur_offset;
-      guint8      salt_len, hash_len;
-      proto_item *flags_item;
-      proto_tree *flags_tree;
-
-
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_algo, tvb, cur_offset++, 1, ENC_BIG_ENDIAN);
-      flags_item = proto_tree_add_item(rr_tree, hf_dns_nsec3_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      flags_tree = proto_item_add_subtree(flags_item, ett_nsec3_flags);
-      proto_tree_add_item(flags_tree, hf_dns_nsec3_flag_optout, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset++;
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_iterations, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset += 2;
-      salt_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset++, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
-      cur_offset += salt_len;
-      hash_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_length, tvb, cur_offset++, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, ENC_NA);
-      cur_offset += hash_len;
-      rr_len = data_len - (cur_offset - initial_offset);
-      dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
-
-    }
-    break;
-
-    case T_NSEC3PARAM: /* NSEC3PARAM (51) */
-    {
-      int salt_len;
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_algo, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset ++;
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset ++;
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_iterations, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset += 2;
-      salt_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset ++;
-      proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
-
-    }
-    break;
-
-    case T_TLSA: /* DNS-Based Authentication of Named Entities (52) */
-    {
-      int     rr_len = data_len;
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      proto_tree_add_item(rr_tree, hf_dns_tlsa_certificate_usage, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset ++;
-      rr_len --;
-      proto_tree_add_item(rr_tree, hf_dns_tlsa_selector, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset ++;
-      rr_len --;
-      proto_tree_add_item(rr_tree, hf_dns_tlsa_matching_type, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset ++;
-      rr_len --;
-      proto_tree_add_item(rr_tree, hf_dns_tlsa_certificate_association_data, tvb, cur_offset, rr_len, ENC_NA);
-
-    }
-    break;
-
-    case T_NXT: /* Next name (30) */
-    {
-      int           rr_len = data_len;
-      const guchar *next_domain_name;
-      int           next_domain_name_len;
-
-
-      /* XXX Fix data length */
-      next_domain_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
-                                          &next_domain_name);
-      name_out = format_text(next_domain_name, strlen(next_domain_name));
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name_out);
-      }
-      proto_item_append_text(trr, ", next domain name %s", name_out);
-      proto_tree_add_string(rr_tree, hf_dns_nxt_next_domain_name, tvb, cur_offset, next_domain_name_len, name_out);
-      cur_offset += next_domain_name_len;
-      rr_len     -= next_domain_name_len;
-      dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
-
-    }
-    break;
-
-    case T_KX: /* Key Exchange (36) */
-    {
-      const guchar *kx_name;
-      int           kx_name_len;
-
-      /* XXX Fix data length */
-      kx_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &kx_name);
-      name_out = format_text(kx_name, strlen(kx_name));
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %u %s", tvb_get_ntohs(tvb, cur_offset), name_out);
-      }
-      proto_item_append_text(trr, ", preference %u, kx %s",
-                             tvb_get_ntohs(tvb, cur_offset), name_out);
-      proto_tree_add_item(rr_tree, hf_dns_kx_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_string(rr_tree, hf_dns_kx_key_exchange, tvb, cur_offset + 2, kx_name_len, name_out);
-
-    }
-    break;
-
-    case T_CERT: /* Certificate (37) */
-    {
-      int     rr_len = data_len;
-
-      proto_tree_add_item(rr_tree, hf_dns_cert_type, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset += 2;
-      rr_len     -= 2;
-
-      proto_tree_add_item(rr_tree, hf_dns_cert_key_tag, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset += 2;
-      rr_len     -= 2;
-
-      proto_tree_add_item(rr_tree, hf_dns_cert_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset += 1;
-      rr_len     -= 1;
-
-      if (rr_len != 0) {
-        proto_tree_add_item(rr_tree, hf_dns_cert_certificate, tvb, cur_offset, rr_len, ENC_NA);
-      }
-    }
-
-    break;
 
     case T_OPT: /* Option (41) */
     {
@@ -2584,6 +2732,66 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+
+    case T_APL: /* Lists of Address Prefixes (42) */
+    {
+      int      rr_len = data_len;
+      guint16  afamily;
+      guint8   afdpart_len;
+      guint8  *addr_copy;
+
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      while (rr_len > 1) {
+
+        if (rr_len < 1) {
+          goto bad_rr;
+        }
+        afamily = tvb_get_ntohs(tvb, cur_offset);
+        proto_tree_add_item(rr_tree, hf_dns_apl_address_family, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        cur_offset += 2;
+        rr_len     -= 2;
+
+        if (rr_len < 1) {
+          goto bad_rr;
+        }
+        proto_tree_add_item(rr_tree, hf_dns_apl_coded_prefix, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        cur_offset += 1;
+        rr_len     -= 1;
+
+        if (rr_len < 1) {
+          goto bad_rr;
+        }
+        afdpart_len = tvb_get_guint8(tvb, cur_offset) & DNS_APL_AFDLENGTH;
+        proto_tree_add_item(rr_tree, hf_dns_apl_negation, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rr_tree, hf_dns_apl_afdlength, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        cur_offset += 1;
+        rr_len     -= 1;
+
+        if (rr_len < 1) {
+          goto bad_rr;
+        }
+        if (afamily == 1 && afdpart_len <= 4) { /* IPv4 */
+          addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 4);
+          tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
+          proto_tree_add_ipv4(rr_tree, hf_dns_apl_afdpart_ipv4, tvb, cur_offset, afdpart_len, *addr_copy);
+        } else if (afamily == 2 && afdpart_len <= 16) { /* IPv6 */
+          addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 16);
+          tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
+          proto_tree_add_ipv6(rr_tree, hf_dns_apl_afdpart_ipv6, tvb, cur_offset, afdpart_len, addr_copy);
+        } else { /* Other... */
+           proto_tree_add_item(rr_tree, hf_dns_apl_afdpart_data, tvb, cur_offset, afdpart_len, ENC_NA);
+        }
+        cur_offset += afdpart_len;
+        rr_len     -= afdpart_len;
+      }
+    }
+    break;
+
+
     case T_DS: /* Delegation Signature (43) */
     case T_DLV:
     {
@@ -2605,6 +2813,410 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
     }
     break;
+
+
+    case T_SSHFP: /* Securely Publish SSH Key Fingerprints (44) */
+    {
+      int    rr_len = data_len;
+
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_sshfp_algorithm, tvb, cur_offset, 1, ENC_NA);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_sshfp_fingerprint_type, tvb, cur_offset, 1, ENC_NA);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+
+      if (rr_len != 0) {
+        proto_tree_add_item(rr_tree, hf_dns_sshfp_fingerprint, tvb, cur_offset, rr_len, ENC_NA);
+      }
+
+    }
+    break;
+
+    case T_IPSECKEY: /* IPsec Key (45) */
+    {
+      int           rr_len = data_len;
+      guint8        gw_type;
+      const guchar *gw;
+      int           gw_name_len;
+
+      if (rr_len < 3) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_precedence, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_type, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      gw_type = tvb_get_guint8(tvb, cur_offset);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+
+      proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      switch( gw_type ) {
+        case 0:
+          /* No Gateway */
+          break;
+        case 1:
+          proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_ipv4, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+          cur_offset += 4;
+          rr_len     -= 4;
+          break;
+        case 2:
+          proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_ipv6, tvb, cur_offset, 16, ENC_NA);
+          cur_offset += 16;
+          rr_len     -= 16;
+          break;
+        case 3:
+          /* XXX Fix data length */
+          gw_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &gw);
+          proto_tree_add_string(rr_tree, hf_dns_ipseckey_gateway_dns, tvb, cur_offset, gw_name_len, gw);
+
+          cur_offset += gw_name_len;
+          rr_len     -= gw_name_len;
+          break;
+        default:
+          break;
+      }
+      if (rr_len != 0) {
+        proto_tree_add_item(rr_tree, hf_dns_ipseckey_public_key, tvb, cur_offset, rr_len, ENC_NA);
+      }
+    }
+    break;
+
+
+    case T_RRSIG: /* RRSIG (46) */
+    case T_SIG: /* Security SIgnature (24) */
+    {
+      int           rr_len = data_len;
+      const guchar *signer_name;
+      int           signer_name_len;
+      proto_item    *ti;
+
+      if (rr_len < 2) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_type_covered, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset += 2;
+      rr_len     -= 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_labels, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      if (rr_len < 4) {
+        goto bad_rr;
+      }
+      ti = proto_tree_add_item(rr_tree, hf_dns_rrsig_original_ttl, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(ti, " (%s)", time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
+      cur_offset += 4;
+      rr_len     -= 4;
+
+      if (rr_len < 4) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_signature_expiration, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+      cur_offset += 4;
+      rr_len     -= 4;
+
+      if (rr_len < 4) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_signature_inception, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+      cur_offset += 4;
+      rr_len     -= 4;
+
+      if (rr_len < 2) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_key_tag, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset += 2;
+      rr_len     -= 2;
+
+      /* XXX Fix data length */
+      signer_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &signer_name);
+      proto_tree_add_string(rr_tree, hf_dns_rrsig_signers_name, tvb, cur_offset, signer_name_len, signer_name);
+      cur_offset += signer_name_len;
+      rr_len     -= signer_name_len;
+
+      if (rr_len != 0) {
+        proto_tree_add_item(rr_tree, hf_dns_rrsig_signature, tvb, cur_offset, rr_len, ENC_NA);
+      }
+    }
+    break;
+
+
+    case T_NSEC: /* NSEC (47) */
+    {
+      int           rr_len = data_len;
+      const guchar *next_domain_name;
+      int           next_domain_name_len;
+
+      /* XXX Fix data length */
+      next_domain_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
+                                          &next_domain_name);
+      name_out = format_text(next_domain_name, strlen(next_domain_name));
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name_out);
+      }
+      proto_item_append_text(trr, ", next domain name %s", name_out);
+      proto_tree_add_string(rr_tree, hf_dns_nsec_next_domain_name, tvb, cur_offset, next_domain_name_len, name_out);
+      cur_offset += next_domain_name_len;
+      rr_len     -= next_domain_name_len;
+      dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
+
+    }
+    break;
+
+
+    case T_DNSKEY: /* DNSKEY (48) */
+    {
+      int         rr_len = data_len;
+      proto_item *tf, *ti_gen;
+      proto_tree *flags_tree;
+      guint16     key_id;
+      guint8 algo;
+
+
+      if (rr_len < 2) {
+        goto bad_rr;
+      }
+
+
+      tf = proto_tree_add_item(rr_tree, hf_dns_dnskey_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      flags_tree = proto_item_add_subtree(tf, ett_key_flags);
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_zone_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_key_revoked, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_secure_entry_point, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_reserved, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+
+      cur_offset += 2;
+      rr_len     -= 2;
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      /* Must have value 3, Add check ? */
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(flags_tree, hf_dns_dnskey_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      algo = tvb_get_guint8(tvb, cur_offset);
+
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
+      ti_gen = proto_tree_add_uint(rr_tree, hf_dns_dnskey_key_id, tvb, 0, 0, key_id);
+      PROTO_ITEM_SET_GENERATED(ti_gen);
+
+      proto_tree_add_item(rr_tree, hf_dns_dnskey_public_key, tvb, cur_offset, rr_len, ENC_NA);
+
+    }
+    break;
+
+
+    case T_DHCID: /* DHCID (49) */
+    {
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      if (data_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_dhcid_rdata, tvb, cur_offset, data_len, ENC_NA);
+
+
+    }
+    break;
+
+
+    case T_NSEC3: /* NSEC3 (50) */
+    {
+      int         rr_len, initial_offset = cur_offset;
+      guint8      salt_len, hash_len;
+      proto_item *flags_item;
+      proto_tree *flags_tree;
+
+
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_algo, tvb, cur_offset++, 1, ENC_BIG_ENDIAN);
+      flags_item = proto_tree_add_item(rr_tree, hf_dns_nsec3_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      flags_tree = proto_item_add_subtree(flags_item, ett_nsec3_flags);
+      proto_tree_add_item(flags_tree, hf_dns_nsec3_flag_optout, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset++;
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_iterations, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset += 2;
+      salt_len = tvb_get_guint8(tvb, cur_offset);
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset++, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
+      cur_offset += salt_len;
+      hash_len = tvb_get_guint8(tvb, cur_offset);
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_length, tvb, cur_offset++, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, ENC_NA);
+      cur_offset += hash_len;
+      rr_len = data_len - (cur_offset - initial_offset);
+      dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
+
+    }
+    break;
+
+
+    case T_NSEC3PARAM: /* NSEC3PARAM (51) */
+    {
+      int salt_len;
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_algo, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_iterations, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset += 2;
+      salt_len = tvb_get_guint8(tvb, cur_offset);
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
+
+    }
+    break;
+
+
+    case T_TLSA: /* DNS-Based Authentication of Named Entities (52) */
+    {
+      int     rr_len = data_len;
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      proto_tree_add_item(rr_tree, hf_dns_tlsa_certificate_usage, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      rr_len --;
+      proto_tree_add_item(rr_tree, hf_dns_tlsa_selector, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      rr_len --;
+      proto_tree_add_item(rr_tree, hf_dns_tlsa_matching_type, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      rr_len --;
+      proto_tree_add_item(rr_tree, hf_dns_tlsa_certificate_association_data, tvb, cur_offset, rr_len, ENC_NA);
+
+    }
+    break;
+
+
+    case T_HIP: /* Host Identity Protocol (55) */
+    {
+      guint8        hit_len;
+      guint16       pk_len;
+      int           rr_len = data_len;
+      int           rendezvous_len;
+      const guchar *rend_server_dns_name;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      hit_len = tvb_get_guint8(tvb, cur_offset);
+      proto_tree_add_item(rr_tree, hf_dns_hip_hit_length, tvb, cur_offset, 1, ENC_NA);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_hip_pk_algo, tvb, cur_offset, 1, ENC_NA);
+      cur_offset += 1;
+      rr_len     -= 1;
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      pk_len = tvb_get_ntohs(tvb, cur_offset);
+      proto_tree_add_item(rr_tree, hf_dns_hip_pk_length, tvb, cur_offset, 2, ENC_NA);
+      cur_offset += 2;
+      rr_len     -= 2;
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_hip_hit, tvb, cur_offset, hit_len, ENC_NA);
+      cur_offset += hit_len;
+      rr_len     -= hit_len;
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      proto_tree_add_item(rr_tree, hf_dns_hip_pk, tvb, cur_offset, pk_len, ENC_NA);
+      cur_offset += pk_len;
+      rr_len     -= pk_len;
+
+      if (rr_len < 1) {
+        goto bad_rr;
+      }
+      while (rr_len > 1) {
+        rendezvous_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rend_server_dns_name);
+        proto_tree_add_string(rr_tree, hf_dns_hip_rendezvous_server, tvb, cur_offset, rendezvous_len, rend_server_dns_name);
+        cur_offset += rendezvous_len;
+        rr_len     -= rendezvous_len;
+      }
+
+    }
+    break;
+
+
+    case T_SPF: /* Sender Policy Framework (99) */
+    {
+      int rr_len = data_len;
+      int spf_offset;
+      int spf_len;
+
+
+      spf_offset = cur_offset;
+      while (rr_len != 0) {
+        spf_len = tvb_get_guint8(tvb, spf_offset);
+        proto_tree_add_item(rr_tree, hf_dns_spf_length, tvb, spf_offset, 1, ENC_BIG_ENDIAN);
+        spf_offset += 1;
+        rr_len     -= 1;
+        proto_tree_add_item(rr_tree, hf_dns_spf, tvb, spf_offset, spf_len, ENC_ASCII|ENC_NA);
+        spf_offset +=  spf_len;
+        rr_len     -= spf_len;
+      }
+
+    }
+    break;
+
 
     case T_TKEY: /* Transaction Key (249) */
     {
@@ -2723,6 +3335,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+
     case T_TSIG: /* Transaction Signature (250) */
     {
       guint16       tsig_siglen, tsig_otherlen;
@@ -2818,8 +3431,51 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_WINS:  /* Microsoft's WINS (65281)*/
 
+    case T_CAA: /* Certification Authority Restriction (257) */
+    {
+      proto_item *caa_item;
+      proto_tree *caa_tree;
+      guint8 tag_len;
+      const char *tag;
+      gushort value_len;
+      const guchar *value;
+      int cur_hf = -1;
+
+      caa_item = proto_tree_add_item(rr_tree, hf_dns_caa_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      caa_tree = proto_item_add_subtree(caa_item, ett_caa_flags);
+      proto_tree_add_item(caa_tree, hf_dns_caa_flag_issuer_critical, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset++;
+
+      tag_len = tvb_get_guint8(tvb, cur_offset);
+      tag = tvb_get_ephemeral_string(tvb, cur_offset + 1, tag_len);
+
+      value_len = data_len - (tag_len + 2);
+      value = tvb_get_ephemeral_string(tvb, cur_offset + 1 + tag_len, value_len);
+
+      value = format_text(value, value_len);
+
+      if (strncmp(tag, "issue", tag_len) == 0) {
+        cur_hf = hf_dns_caa_issue;
+      } else if (strncmp(tag, "issuewild", tag_len) == 0) {
+        cur_hf = hf_dns_caa_issuewild;
+      } else if (strncmp(tag, "iodef", tag_len) == 0) {
+        cur_hf = hf_dns_caa_iodef;
+      } else {
+        cur_hf = hf_dns_caa_unknown;
+      }
+
+      caa_item = proto_tree_add_string(rr_tree, cur_hf, tvb, cur_offset, 1 + tag_len + value_len, value);
+      caa_tree = proto_item_add_subtree(caa_item, ett_caa_data);
+
+      proto_tree_add_uint(caa_tree, hf_dns_caa_tag_length, tvb, cur_offset, 1, tag_len);
+      proto_tree_add_string(caa_tree, hf_dns_caa_tag, tvb, cur_offset + 1, tag_len, tag);
+      proto_tree_add_string(caa_tree, hf_dns_caa_value, tvb, cur_offset + 1 + tag_len, value_len, value);
+    }
+    break;
+
+
+    case T_WINS:  /* Microsoft's WINS (65281)*/
     {
       int     rr_len = data_len;
       guint32 nservers;
@@ -2871,6 +3527,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+
     case T_WINS_R: /* Microsoft's WINS-R (65282)*/
     {
       int           rr_len = data_len;
@@ -2912,613 +3569,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_SRV: /* Service Location (33) */
-    {
-      guint16       priority = 0;
-      guint16       weight   = 0;
-      guint16       port     = 0;
-      const guchar *target;
-      int           target_len;
 
-      proto_tree_add_item(rr_tree, hf_dns_srv_priority, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      priority = tvb_get_ntohs(tvb, cur_offset);
-      cur_offset += 2;
 
-      proto_tree_add_item(rr_tree, hf_dns_srv_weight, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      weight = tvb_get_ntohs(tvb, cur_offset);
-      cur_offset += 2;
-
-      proto_tree_add_item(rr_tree, hf_dns_srv_port, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      port = tvb_get_ntohs(tvb, cur_offset);
-      cur_offset += 2;
-
-      /* XXX Fix data length */
-      target_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &target);
-      name_out = format_text(target, strlen(target));
-
-      proto_tree_add_string(rr_tree, hf_dns_srv_target, tvb, cur_offset, target_len, name_out);
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %u %u %u %s", priority, weight, port, name_out);
-      }
-      proto_item_append_text(trr,
-                             ", priority %u, weight %u, port %u, target %s",
-                             priority, weight, port, name_out);
-
-    }
-    break;
-
-    case T_NAPTR: /*  Naming Authority PoinTeR (35) */
-    {
-      int           offset = cur_offset;
-      guint16       order;
-      guint16       preference;
-      gchar        *flags;
-      guint8        flags_len;
-      guint8        service_len;
-      guint8        regex_len;
-      const guchar *replacement;
-      int           replacement_len;
-
-
-      /* Order */
-      proto_tree_add_item(rr_tree, hf_dns_naptr_order, tvb, offset, 2, ENC_BIG_ENDIAN);
-      order = tvb_get_ntohs(tvb, offset);
-      offset += 2;
-
-      /* Preference */
-      proto_tree_add_item(rr_tree, hf_dns_naptr_preference, tvb, offset, 2, ENC_BIG_ENDIAN);
-      preference = tvb_get_ntohs(tvb, offset);
-      offset += 2;
-
-       /* Flags */
-      proto_tree_add_item(rr_tree, hf_dns_naptr_flags_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-      flags_len = tvb_get_guint8(tvb, offset);
-      offset += 1;
-      proto_tree_add_item(rr_tree, hf_dns_naptr_flags, tvb, offset, flags_len, ENC_ASCII|ENC_NA);
-      flags = tvb_get_ephemeral_string(tvb, offset, flags_len);
-      offset += flags_len;
-
-      /* Service */
-      proto_tree_add_item(rr_tree, hf_dns_naptr_service_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-      service_len = tvb_get_guint8(tvb, offset);
-      offset += 1;
-      proto_tree_add_item(rr_tree, hf_dns_naptr_service, tvb, offset, service_len, ENC_ASCII|ENC_NA);
-      offset += service_len;
-
-      /* Regex */
-      proto_tree_add_item(rr_tree, hf_dns_naptr_regex_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-      regex_len = tvb_get_guint8(tvb, offset);
-      offset += 1;
-      proto_tree_add_item(rr_tree, hf_dns_naptr_regex, tvb, offset, regex_len, ENC_ASCII|ENC_NA);
-      offset += regex_len;
-
-      /* Replacement */
-      replacement_len = get_dns_name(tvb, offset, 0, dns_data_offset, &replacement);
-      name_out = format_text(replacement, strlen(replacement));
-      proto_tree_add_item(rr_tree, hf_dns_naptr_replacement_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset += 1;
-
-      proto_tree_add_string(rr_tree, hf_dns_naptr_replacement, tvb, offset, replacement_len, name_out);
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %u %u %s", order, preference, flags);
-      }
-
-      proto_item_append_text(trr, ", order %u, preference %u, flags %s",
-                             order, preference, flags);
-
-    }
-    break;
-
-    case T_SSHFP: /* Securely Publish SSH Key Fingerprints (44) */
-    {
-      int    rr_len = data_len;
-
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_sshfp_algorithm, tvb, cur_offset, 1, ENC_NA);
-      cur_offset += 1;
-      rr_len     -= 1;
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_sshfp_fingerprint_type, tvb, cur_offset, 1, ENC_NA);
-      cur_offset += 1;
-      rr_len     -= 1;
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      if (rr_len != 0) {
-        proto_tree_add_item(rr_tree, hf_dns_sshfp_fingerprint, tvb, cur_offset, rr_len, ENC_NA);
-      }
-    }
-    break;
-
-    case T_HIP: /* Host Identity Protocol (55) */
-    {
-      guint8        hit_len;
-      guint16       pk_len;
-      int           rr_len = data_len;
-      int           rendezvous_len;
-      const guchar *rend_server_dns_name;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      hit_len = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_item(rr_tree, hf_dns_hip_hit_length, tvb, cur_offset, 1, ENC_NA);
-      cur_offset += 1;
-      rr_len     -= 1;
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_hip_pk_algo, tvb, cur_offset, 1, ENC_NA);
-      cur_offset += 1;
-      rr_len     -= 1;
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      pk_len = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_item(rr_tree, hf_dns_hip_pk_length, tvb, cur_offset, 2, ENC_NA);
-      cur_offset += 2;
-      rr_len     -= 2;
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_hip_hit, tvb, cur_offset, hit_len, ENC_NA);
-      cur_offset += hit_len;
-      rr_len     -= hit_len;
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_hip_pk, tvb, cur_offset, pk_len, ENC_NA);
-      cur_offset += pk_len;
-      rr_len     -= pk_len;
-
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      while (rr_len > 1) {
-        rendezvous_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rend_server_dns_name);
-        proto_tree_add_string(rr_tree, hf_dns_hip_rendezvous_server, tvb, cur_offset, rendezvous_len, rend_server_dns_name);
-        cur_offset += rendezvous_len;
-        rr_len     -= rendezvous_len;
-      }
-
-    }
-    break;
-
-    case T_DHCID: /* DHCID (49) */
-    {
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_dhcid_rdata, tvb, cur_offset, data_len, ENC_NA);
-
-
-    }
-    break;
-
-    case T_APL: /* Lists of Address Prefixes (42) */
-    {
-      int      rr_len = data_len;
-      guint16  afamily;
-      guint8   afdpart_len;
-      guint8  *addr_copy;
-
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      while (rr_len > 1) {
-
-        if (rr_len < 1) {
-          goto bad_rr;
-        }
-        afamily = tvb_get_ntohs(tvb, cur_offset);
-        proto_tree_add_item(rr_tree, hf_dns_apl_address_family, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-        cur_offset += 2;
-        rr_len     -= 2;
-
-        if (rr_len < 1) {
-          goto bad_rr;
-        }
-        proto_tree_add_item(rr_tree, hf_dns_apl_coded_prefix, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        cur_offset += 1;
-        rr_len     -= 1;
-
-        if (rr_len < 1) {
-          goto bad_rr;
-        }
-        afdpart_len = tvb_get_guint8(tvb, cur_offset) & DNS_APL_AFDLENGTH;
-        proto_tree_add_item(rr_tree, hf_dns_apl_negation, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rr_tree, hf_dns_apl_afdlength, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        cur_offset += 1;
-        rr_len     -= 1;
-
-        if (rr_len < 1) {
-          goto bad_rr;
-        }
-        if (afamily == 1 && afdpart_len <= 4) { /* IPv4 */
-          addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 4);
-          tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
-          proto_tree_add_ipv4(rr_tree, hf_dns_apl_afdpart_ipv4, tvb, cur_offset, afdpart_len, *addr_copy);
-        } else if (afamily == 2 && afdpart_len <= 16) { /* IPv6 */
-          addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 16);
-          tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
-          proto_tree_add_ipv6(rr_tree, hf_dns_apl_afdpart_ipv6, tvb, cur_offset, afdpart_len, addr_copy);
-        } else { /* Other... */
-           proto_tree_add_item(rr_tree, hf_dns_apl_afdpart_data, tvb, cur_offset, afdpart_len, ENC_NA);
-        }
-        cur_offset += afdpart_len;
-        rr_len     -= afdpart_len;
-      }
-    }
-    break;
-
-    case T_GPOS: /* Geographical POSition (27) */
-    {
-      guint8 long_len, lat_len, alt_len;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_gpos_longitude_length, tvb, cur_offset, 1, ENC_NA);
-      long_len = tvb_get_guint8(tvb, cur_offset);
-      cur_offset += 1;
-
-      proto_tree_add_item(rr_tree, hf_dns_gpos_longitude, tvb, cur_offset, long_len, ENC_ASCII|ENC_NA);
-      cur_offset += long_len;
-
-
-      proto_tree_add_item(rr_tree, hf_dns_gpos_latitude_length, tvb, cur_offset, 1, ENC_NA);
-      lat_len = tvb_get_guint8(tvb, cur_offset);
-      cur_offset += 1;
-
-      proto_tree_add_item(rr_tree, hf_dns_gpos_latitude, tvb, cur_offset, lat_len, ENC_ASCII|ENC_NA);
-      cur_offset += lat_len;
-
-
-      proto_tree_add_item(rr_tree, hf_dns_gpos_altitude_length, tvb, cur_offset, 1, ENC_NA);
-      alt_len = tvb_get_guint8(tvb, cur_offset);
-      cur_offset += 1;
-
-      proto_tree_add_item(rr_tree, hf_dns_gpos_altitude, tvb, cur_offset, alt_len, ENC_ASCII|ENC_NA);
-      /*cur_offset += alt_len;*/
-
-    }
-    break;
-
-    case T_RP: /* Responsible Person (17) */
-    {
-      int           mbox_dname_len, txt_dname_len;
-      const guchar *mbox_dname, *txt_dname;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-      mbox_dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &mbox_dname);
-      proto_tree_add_string(rr_tree, hf_dns_rp_mailbox, tvb, cur_offset, mbox_dname_len, mbox_dname);
-      cur_offset += mbox_dname_len;
-
-      txt_dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &txt_dname);
-      proto_tree_add_string(rr_tree, hf_dns_rp_txt_rr, tvb, cur_offset, txt_dname_len, txt_dname);
-    }
-    break;
-
-    case T_AFSDB: /* AFS data base location (18) */
-    {
-      const guchar *host_name;
-      int           host_name_len;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      host_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &host_name);
-
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_afsdb_subtype, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset =+ 2;
-
-      proto_tree_add_string(rr_tree, hf_dns_afsdb_hostname, tvb, cur_offset, host_name_len, host_name);
-
-
-    }
-    case T_RT: /* Route-Through (21) */
-    {
-      const guchar *host_name;
-      int           host_name_len;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      host_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &host_name);
-
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-
-      proto_tree_add_item(rr_tree, hf_dns_rt_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset =+ 2;
-
-      proto_tree_add_string(rr_tree, hf_dns_rt_intermediate_host, tvb, cur_offset, host_name_len, host_name);
-
-    }
-    break;
-
-    case T_X25: /* X.25 address (19) */
-    {
-      guint8 x25_len;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-
-      proto_tree_add_item(rr_tree, hf_dns_x25_length, tvb, cur_offset, 1, ENC_NA);
-      x25_len = tvb_get_guint8(tvb, cur_offset);
-      cur_offset += 1;
-
-      proto_tree_add_item(rr_tree, hf_dns_x25_psdn_address, tvb, cur_offset, x25_len, ENC_ASCII|ENC_NA);
-      /*cur_offset += x25_len;*/
-
-    }
-    break;
-
-    case T_ISDN: /* ISDN address (20) */
-    {
-      guint8 isdn_address_len, isdn_sa_len;
-      int    rr_len = data_len;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-
-      proto_tree_add_item(rr_tree, hf_dns_isdn_length, tvb, cur_offset, 1, ENC_NA);
-      isdn_address_len = tvb_get_guint8(tvb, cur_offset);
-      cur_offset += 1;
-      rr_len     -= 1;
-
-      proto_tree_add_item(rr_tree, hf_dns_isdn_address, tvb, cur_offset, isdn_address_len, ENC_ASCII|ENC_NA);
-      cur_offset += isdn_address_len;
-      rr_len     -= isdn_address_len;
-
-      if (rr_len > 1)   /* ISDN SA is optional */ {
-        proto_tree_add_item(rr_tree, hf_dns_isdn_sa_length, tvb, cur_offset, 1, ENC_NA);
-        isdn_sa_len = tvb_get_guint8(tvb, cur_offset);
-
-        proto_tree_add_item(rr_tree, hf_dns_isdn_sa, tvb, cur_offset, isdn_sa_len, ENC_ASCII|ENC_NA);
-      }
-    }
-    break;
-
-    case T_PX: /* Pointer to X.400/RFC822 mapping info (26)*/
-    {
-      int           px_map822_len, px_mapx400_len;
-      const guchar *px_map822_dnsname, *px_mapx400_dnsname;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_px_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      cur_offset += 2;
-
-      px_map822_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &px_map822_dnsname);
-      proto_tree_add_string(rr_tree, hf_dns_px_map822, tvb, cur_offset, px_map822_len, px_map822_dnsname);
-      cur_offset += px_map822_len;
-
-      px_mapx400_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &px_mapx400_dnsname);
-      proto_tree_add_string(rr_tree, hf_dns_px_mapx400, tvb, cur_offset, px_mapx400_len, px_mapx400_dnsname);
-      /*cur_offset += px_mapx400_len;*/
-    }
-    break;
-
-    case T_NSAP: /* for NSAP address, NSAP style A record (22) */
-    {
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-      proto_tree_add_item(rr_tree, hf_dns_nsap_rdata, tvb, cur_offset, data_len, ENC_NA);
-    }
-    break;
-
-    case T_NSAP_PTR: /* for domain name pointer, NSAP style (23) */
-    {
-      int           nsap_ptr_owner_len;
-      const guchar *nsap_ptr_owner;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-
-      nsap_ptr_owner_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &nsap_ptr_owner);
-      proto_tree_add_string(rr_tree, hf_dns_nsap_ptr_owner, tvb, cur_offset, nsap_ptr_owner_len, nsap_ptr_owner);
-    }
-    break;
-
-
-    case T_MD: /* Mail Destination  (3) */
-    {
-      int           hostname_len;
-      const guchar *hostname_str;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
-      proto_tree_add_string(rr_tree, hf_dns_md, tvb, cur_offset, hostname_len, hostname_str);
-    }
-    break;
-
-    case T_MF: /* Mail Forwader  (4) */
-    {
-      int           hostname_len;
-      const guchar *hostname_str;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
-      proto_tree_add_string(rr_tree, hf_dns_mf, tvb, cur_offset, hostname_len, hostname_str);
-    }
-    break;
-
-    case T_MB: /* MailBox domain (7) */
-    {
-      int           hostname_len;
-      const guchar *hostname_str;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
-      proto_tree_add_string(rr_tree, hf_dns_mb, tvb, cur_offset, hostname_len, hostname_str);
-    }
-    break;
-
-    case T_MG: /* Mail Group member (8) */
-    {
-      int           hostname_len;
-      const guchar *hostname_str;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
-      proto_tree_add_string(rr_tree, hf_dns_mg, tvb, cur_offset, hostname_len, hostname_str);
-    }
-    break;
-
-    case T_MR: /* Mail Rename domain (9) */
-    {
-      int           hostname_len;
-      const guchar *hostname_str;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-
-      hostname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &hostname_str);
-      proto_tree_add_string(rr_tree, hf_dns_mr, tvb, cur_offset, hostname_len, hostname_str);
-    }
-    break;
-
-    case T_MINFO: /* Mailbox or Mail list INFOrmation (14) */
-    {
-      int rmailbx_len, emailbx_len;
-      const guchar *rmailbx_str, *emailbx_str;
-
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      if (data_len < 1) {
-        goto bad_rr;
-      }
-      rmailbx_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rmailbx_str);
-      proto_tree_add_string(rr_tree, hf_dns_minfo_r_mailbox, tvb, cur_offset, rmailbx_len, rmailbx_str);
-      cur_offset += rmailbx_len;
-
-      emailbx_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &emailbx_str);
-      proto_tree_add_string(rr_tree, hf_dns_minfo_e_mailbox, tvb, cur_offset, emailbx_len, emailbx_str);
-    }
-    break;
-
-    case T_CAA: /* Certification Authority Restriction (257) */
-    {
-      proto_item *caa_item;
-      proto_tree *caa_tree;
-      guint8 tag_len;
-      const char *tag;
-      gushort value_len;
-      const guchar *value;
-      int cur_hf = -1;
-
-      caa_item = proto_tree_add_item(rr_tree, hf_dns_caa_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      caa_tree = proto_item_add_subtree(caa_item, ett_caa_flags);
-      proto_tree_add_item(caa_tree, hf_dns_caa_flag_issuer_critical, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      cur_offset++;
-
-      tag_len = tvb_get_guint8(tvb, cur_offset);
-      tag = tvb_get_ephemeral_string(tvb, cur_offset + 1, tag_len);
-
-      value_len = data_len - (tag_len + 2);
-      value = tvb_get_ephemeral_string(tvb, cur_offset + 1 + tag_len, value_len);
-
-      value = format_text(value, value_len);
-
-      if (strncmp(tag, "issue", tag_len) == 0) {
-        cur_hf = hf_dns_caa_issue;
-      } else if (strncmp(tag, "issuewild", tag_len) == 0) {
-        cur_hf = hf_dns_caa_issuewild;
-      } else if (strncmp(tag, "iodef", tag_len) == 0) {
-        cur_hf = hf_dns_caa_iodef;
-      } else {
-        cur_hf = hf_dns_caa_unknown;
-      }
-
-      caa_item = proto_tree_add_string(rr_tree, cur_hf, tvb, cur_offset, 1 + tag_len + value_len, value);
-      caa_tree = proto_item_add_subtree(caa_item, ett_caa_data);
-
-      proto_tree_add_uint(caa_tree, hf_dns_caa_tag_length, tvb, cur_offset, 1, tag_len);
-      proto_tree_add_string(caa_tree, hf_dns_caa_tag, tvb, cur_offset + 1, tag_len, tag);
-      proto_tree_add_string(caa_tree, hf_dns_caa_value, tvb, cur_offset + 1 + tag_len, value_len, value);
-    }
-    break;
-
-    case T_NULL: /* Null (10) */
-    {
-      if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %s", name);
-      }
-      proto_tree_add_item(rr_tree, hf_dns_null, tvb, cur_offset, data_len, ENC_NA);
-    }
-    break;
 
     /* TODO: parse more record types */
 
