@@ -70,7 +70,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void setPipeInputHandler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb);
-    void layoutPanes();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -153,6 +152,7 @@ public slots:
     void openCaptureFile(QString& cf_path = *new QString(), QString &display_filter = *new QString());
     void filterPackets(QString& new_filter = *new QString(), bool force = false);
     void updateForUnsavedChanges();
+    void layoutPanes();
 
 #ifdef HAVE_LIBPCAP
     void captureCapturePrepared(capture_session *cap_session);

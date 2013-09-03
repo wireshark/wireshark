@@ -917,7 +917,6 @@ int main(int argc, char *argv[])
 #endif /* HAVE_LIBPCAP */
 
 //    w->setEnabled(true);
-    main_w->layoutPanes();
     wsApp->allSystemsGo();
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 

@@ -205,6 +205,90 @@ void MainWindow::filterPackets(QString& new_filter, bool force)
     }
 }
 
+void MainWindow::layoutPanes()
+{
+    QSplitter *parents[3];
+    QWidget   *oldMaster = master_split_;
+    QWidget   *current = main_ui_->mainStack->currentWidget();
+
+    master_split_ = new QSplitter(main_ui_->mainStack);
+    master_split_->setObjectName(QString::fromUtf8("splitterMaster"));
+
+    extra_split_ = new QSplitter(master_split_);
+    extra_split_->setObjectName(QString::fromUtf8("splitterExtra"));
+
+    switch(prefs.gui_layout_type) {
+    case(layout_type_5):
+        master_split_->setOrientation(Qt::Vertical);
+        parents[0] = master_split_;
+        parents[1] = master_split_;
+        parents[2] = master_split_;
+        break;
+    case(layout_type_2):
+        master_split_->setOrientation(Qt::Vertical);
+        extra_split_->setOrientation(Qt::Horizontal);
+        parents[0] = master_split_;
+        parents[1] = extra_split_;
+        parents[2] = extra_split_;
+        break;
+    case(layout_type_1):
+        master_split_->setOrientation(Qt::Vertical);
+        extra_split_->setOrientation(Qt::Horizontal);
+        parents[0] = extra_split_;
+        parents[1] = extra_split_;
+        parents[2] = master_split_;
+        break;
+    case(layout_type_4):
+        master_split_->setOrientation(Qt::Horizontal);
+        extra_split_->setOrientation(Qt::Vertical);
+        parents[0] = master_split_;
+        parents[1] = extra_split_;
+        parents[2] = extra_split_;
+        break;
+    case(layout_type_3):
+        master_split_->setOrientation(Qt::Horizontal);
+        extra_split_->setOrientation(Qt::Vertical);
+        parents[0] = extra_split_;
+        parents[1] = extra_split_;
+        parents[2] = master_split_;
+        break;
+    case(layout_type_6):
+        master_split_->setOrientation(Qt::Horizontal);
+        parents[0] = master_split_;
+        parents[1] = master_split_;
+        parents[2] = master_split_;
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    if (parents[0] == extra_split_) {
+        master_split_->addWidget(extra_split_);
+    }
+
+    parents[0]->addWidget(packet_list_);
+
+    if (parents[2] == extra_split_) {
+        master_split_->addWidget(extra_split_);
+    }
+
+    parents[1]->addWidget(proto_tree_);
+    parents[2]->addWidget(byte_view_tab_);
+
+    // We must do this near the end to avoid reparenting signals going to
+    // already-deleted widgets.
+    if (oldMaster != NULL) {
+        main_ui_->mainStack->removeWidget(oldMaster);
+        delete oldMaster;
+    }
+
+    main_ui_->mainStack->addWidget(master_split_);
+
+    if (current == oldMaster) {
+        main_ui_->mainStack->setCurrentWidget(master_split_);
+    }
+}
+
 // Capture callbacks
 
 #ifdef HAVE_LIBPCAP
