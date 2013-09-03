@@ -956,6 +956,8 @@ static int hf_si6_restoctet_vbs_vgcs_options = -1;
 static int hf_si6_restoctet_max_lapdm = -1;
 static int hf_si6_restoctet_bandindicator = -1;
 
+static expert_field ei_li = EI_INIT;
+
 static dissector_handle_t data_handle;
 
 /* Payload type as defined in TS 44.060 / 10.4.7 */
@@ -6756,7 +6758,7 @@ static guint8 construct_gprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tr
         }
         else
         {
-           expert_add_info_format(pinfo, item, PI_UNDECODED, PI_ERROR, "Too many LIs, corresponding blocks will not be decoded");
+           expert_add_info(pinfo, item, &ei_li);
         }
         proto_tree_add_bits_item(tree, hf_me, tvb, (offset * 8) + 6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bits_ret_val(tree, hf_e, tvb, (offset * 8) + 7, 1, e, ENC_BIG_ENDIAN);
@@ -6785,7 +6787,7 @@ static guint8 construct_egprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *t
         }
         else
         {
-           expert_add_info_format(pinfo, item, PI_UNDECODED, PI_ERROR, "Too many LIs, corresponding blocks will not be decoded");
+           expert_add_info(pinfo, item, &ei_li);
         }
         offset++;
     }
@@ -12150,6 +12152,11 @@ proto_register_gsm_rlcmac(void)
 
   };
 
+  static ei_register_info ei[] = {
+     { &ei_li, { "gsm_rlcmac.li.too_many", PI_UNDECODED, PI_ERROR, "Too many LIs, corresponding blocks will not be decoded", EXPFILL }},
+  };
+
+  expert_module_t* expert_gsm_rlcmac;
 
   /* Register the protocol name and description */
   proto_gsm_rlcmac = proto_register_protocol("Radio Link Control, Medium Access Control, 3GPP TS44.060",
@@ -12158,6 +12165,8 @@ proto_register_gsm_rlcmac(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_gsm_rlcmac, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_gsm_rlcmac = expert_register_protocol(proto_gsm_rlcmac);
+  expert_register_field_array(expert_gsm_rlcmac, ei, array_length(ei));
   register_dissector("gsm_rlcmac_ul", dissect_gsm_rlcmac_uplink, proto_gsm_rlcmac);
   register_dissector("gsm_rlcmac_dl", dissect_gsm_rlcmac_downlink, proto_gsm_rlcmac);
 }

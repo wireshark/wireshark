@@ -468,6 +468,8 @@ static gint ett_gmm_gprs_timer = -1;
 static gint ett_sm_tft = -1;
 static gint ett_sm_pco = -1;
 
+static expert_field ei_gsm_a_gm_extraneous_data = EI_INIT;
+
 static dissector_handle_t data_handle;
 static dissector_handle_t rrc_irat_ho_info_handle;
 static dissector_handle_t lte_rrc_ue_eutra_cap_handle;
@@ -895,7 +897,7 @@ de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 	proto_item_append_text(curr_item, "%s", add_string ? add_string : "");
 	curr_offset += 3;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -993,7 +995,7 @@ de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	} while (curr_len > 1);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -1166,7 +1168,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 	proto_tree_add_item(tree, hf_gsm_a_gmm_net_geran_net_sharing, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -2981,7 +2983,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	curr_offset += curr_len;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -3304,7 +3306,7 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -3556,7 +3558,7 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -3925,7 +3927,7 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	proto_tree_add_string(tree, hf_gsm_a_gm_apn, tvb, curr_offset, len, str+1);
 	curr_offset +=  len;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -4164,7 +4166,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	}
 	curr_offset += curr_len;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -4263,7 +4265,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 			curr_offset += 4;
 	}
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -4772,7 +4774,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 	curr_offset += 1;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -4919,7 +4921,7 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 	}
 
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -4992,7 +4994,7 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 	if (add_string)
 		g_snprintf(add_string, string_len, " - %s", rval_to_str(value, gsm_a_sm_packet_flow_id_vals, "Unknown"));
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -5339,7 +5341,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 		}
 	}
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (len);
 }
@@ -5360,7 +5362,7 @@ de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	NO_MORE_DATA_CHECK(len);
 	curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, TRUE);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -5409,7 +5411,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 	curr_offset += 1;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -5426,7 +5428,7 @@ de_sm_mbms_prot_conf_opt(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 8, ENC_BIG_ENDIAN);
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
 	return (curr_offset - offset);
 }
@@ -5663,7 +5665,7 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT, " - TMSI based NRI container");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -5727,7 +5729,7 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x66, GSM_A_PDU_TYPE_GM, DE_ADD_NET_FEAT_SUP, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -5750,7 +5752,7 @@ dtap_gmm_attach_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV( 0x2B, GSM_A_PDU_TYPE_GM, DE_EUTRAN_IRAT_INFO_CONTAINER, " - E-UTRAN inter RAT handover information");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -5774,7 +5776,7 @@ dtap_gmm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x3A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -5803,7 +5805,7 @@ dtap_gmm_detach_req_MT(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	ELEM_OPT_TV( 0x25, GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 static void
@@ -5831,7 +5833,7 @@ dtap_gmm_detach_req_MO(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	ELEM_OPT_TLV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG_2, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 static void
@@ -5880,7 +5882,7 @@ dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 		return;
 	}
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -5910,7 +5912,7 @@ dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
 	ELEM_OPT_TV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, " - P-TMSI Signature" );
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -5928,7 +5930,7 @@ dtap_gmm_ptmsi_realloc_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -5983,13 +5985,13 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	if (curr_len == 0  )
 	{
-		EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+		EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 	return;
 	}
 
 	ELEM_OPT_TLV( 0x28, GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6019,7 +6021,7 @@ dtap_gmm_auth_ciph_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV( 0x29, GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM_EXT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6036,7 +6038,7 @@ dtap_gmm_auth_ciph_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6058,7 +6060,7 @@ dtap_gmm_auth_ciph_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV( 0x30, GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6093,7 +6095,7 @@ dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 		return;
 	}
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6113,7 +6115,7 @@ dtap_gmm_ident_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
 	ELEM_MAND_LV( GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6187,7 +6189,7 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT, " - TMSI based NRI container");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6251,7 +6253,7 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	ELEM_OPT_TLV(0x66, GSM_A_PDU_TYPE_GM, DE_ADD_NET_FEAT_SUP, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6275,7 +6277,7 @@ dtap_gmm_rau_com(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	ELEM_OPT_TLV( 0x2B, GSM_A_PDU_TYPE_GM, DE_EUTRAN_IRAT_INFO_CONTAINER, " - E-UTRAN inter RAT handover information");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6305,7 +6307,7 @@ dtap_gmm_rau_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	ELEM_OPT_TLV(0x3A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6325,7 +6327,7 @@ dtap_gmm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 
 	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6355,7 +6357,7 @@ dtap_gmm_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	ELEM_OPT_TLV( 0x49, GSM_A_PDU_TYPE_DTAP, DE_DAY_SAVING_TIME, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6393,7 +6395,7 @@ dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6416,7 +6418,7 @@ dtap_gmm_service_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6438,7 +6440,7 @@ dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	ELEM_OPT_TLV(0x3A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6475,7 +6477,7 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6519,7 +6521,7 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TV_SHORT(0xB0 , GSM_A_PDU_TYPE_GM, DE_SM_CONNECTIVITY_TYPE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6546,7 +6548,7 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6582,7 +6584,7 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6620,7 +6622,7 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6647,7 +6649,7 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6674,7 +6676,7 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6699,7 +6701,7 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6740,7 +6742,7 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV( 0x36, GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6771,7 +6773,7 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6794,7 +6796,7 @@ dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6825,7 +6827,7 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6853,7 +6855,7 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6883,7 +6885,7 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6907,7 +6909,7 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6939,7 +6941,7 @@ dtap_sm_req_sec_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 - 253 */
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6965,7 +6967,7 @@ dtap_sm_req_sec_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 - 253 */
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -6987,7 +6989,7 @@ dtap_sm_notif(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
 
 	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_SM_NOTIF_IND, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -7009,7 +7011,7 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 
 	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -7048,7 +7050,7 @@ dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -7073,7 +7075,7 @@ dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -7098,7 +7100,7 @@ dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -7125,7 +7127,7 @@ dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 /*
@@ -7148,7 +7150,7 @@ dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
 
-	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
 #define	NUM_GSM_DTAP_MSG_GMM (sizeof(gsm_a_dtap_msg_gmm_strings)/sizeof(value_string))
@@ -8328,6 +8330,12 @@ proto_register_gsm_a_gm(void)
 		  NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SM +
 		  NUM_GSM_GM_ELEM];
 
+    static ei_register_info ei[] = {
+        { &ei_gsm_a_gm_extraneous_data, { "gsm_a.gm.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+    };
+
+    expert_module_t* expert_gsm_a_gm;
+
 	ett[0]  = &ett_tc_component;
 	ett[1]  = &ett_tc_invoke_id;
 	ett[2]  = &ett_tc_linked_id;
@@ -8372,6 +8380,8 @@ proto_register_gsm_a_gm(void)
 	proto_register_field_array(proto_a_gm, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
+    expert_gsm_a_gm = expert_register_protocol(proto_a_gm);
+    expert_register_field_array(expert_gsm_a_gm, ei, array_length(ei));
 
 	/* subdissector code */
 	gprs_sm_pco_subdissector_table = register_dissector_table("sm_pco.protocol",

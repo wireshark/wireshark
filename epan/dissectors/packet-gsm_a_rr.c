@@ -799,6 +799,9 @@ static gint ett_ccch_msg = -1;
 static gint ett_ccch_oct_1 = -1;
 static gint ett_sacch_msg = -1;
 
+static expert_field ei_gsm_a_rr_ie_overrun = EI_INIT;
+static expert_field ei_gsm_a_rr_ie_underrun = EI_INIT;
+
 static char a_bigbuf[1024];
 
 static dissector_handle_t data_handle;
@@ -1315,11 +1318,11 @@ de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
     if (((bit_offset + 7) >> 3) > (offset + len))
     {
-       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
+       expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_gsm_a_rr_ie_overrun);
     }
     else if ((bit_offset >> 3) < (offset + len))
     {
-       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
+       expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_gsm_a_rr_ie_underrun);
     }
     return len;
 }
@@ -1353,11 +1356,11 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
     if (((bit_offset + 7) >> 3) > (offset + len))
     {
-       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
+       expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_gsm_a_rr_ie_overrun);
     }
     else if ((bit_offset >> 3) < (offset + len))
     {
-       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
+       expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_gsm_a_rr_ie_underrun);
     }
     return (len);
 }
@@ -2388,11 +2391,11 @@ de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
     if (((bit_offset + 7) >> 3) > (offset + len))
     {
-       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_MALFORMED, PI_ERROR, "IE over-runs stated length");
+       expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_gsm_a_rr_ie_overrun);
     }
     else if ((bit_offset >> 3) < (offset + len))
     {
-       expert_add_info_format(pinfo, proto_tree_get_parent(tree), PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length");
+       expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_gsm_a_rr_ie_underrun);
     }
     return(len);
 }
@@ -12636,6 +12639,13 @@ proto_register_gsm_a_rr(void)
               NUM_GSM_RR_REST_OCTETS_ELEM +
               NUM_GSM_SACCH_MSG_RR];
 
+    static ei_register_info ei[] = {
+        { &ei_gsm_a_rr_ie_overrun, { "gsm_a.rr.ie_overrun", PI_MALFORMED, PI_ERROR, "IE over-runs stated length", EXPFILL }},
+        { &ei_gsm_a_rr_ie_underrun, { "gsm_a.rr.ie_underrun", PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length", EXPFILL }},
+    };
+
+    expert_module_t* expert_a_rr;
+
     ett[0] = &ett_ccch_msg;
     ett[1] = &ett_ccch_oct_1;
     ett[2] = &ett_sacch_msg;
@@ -12671,6 +12681,8 @@ proto_register_gsm_a_rr(void)
         proto_register_protocol("GSM A-I/F Radio Resource Management", "GSM RR", "gsm_a.rr");
 
     proto_register_field_array(proto_a_rr, hf, array_length(hf));
+    expert_a_rr = expert_register_protocol(proto_a_rr);
+    expert_register_field_array(expert_a_rr, ei, array_length(ei));
 
     /* Register the protocol name and description */
     proto_a_ccch =

@@ -536,6 +536,13 @@ static gint ett_bc_oct_7 = -1;
 static gint ett_epc_ue_tl_a_lb_setup = -1;
 static gint ett_mm_timer = -1;
 
+static expert_field ei_gsm_a_dtap_keypad_info_not_dtmf_digit = EI_INIT;
+static expert_field ei_gsm_a_dtap_text_string_not_multiple_of_7 = EI_INIT;
+static expert_field ei_gsm_a_dtap_autn = EI_INIT;
+static expert_field ei_gsm_a_dtap_invalid_ia5_character = EI_INIT;
+static expert_field ei_gsm_a_dtap_auts = EI_INIT;
+static expert_field ei_gsm_a_dtap_end_mark_unexpected = EI_INIT;
+
 static char a_bigbuf[1024];
 
 static dissector_handle_t data_handle;
@@ -592,8 +599,7 @@ de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 		proto_tree_add_item(subtree, hf_gsm_a_dtap_autn_mac, tvb, offset + 8, 8, ENC_NA);
 	}
 	else
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
-			"AUTN length not equal to 16");
+		expert_add_info(pinfo, item, &ei_gsm_a_dtap_autn);
 
 	return(len);
 }
@@ -641,8 +647,7 @@ de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 		proto_tree_add_item(subtree, hf_gsm_a_dtap_auts_mac_s, tvb, offset + 6, 8, ENC_NA);
 	}
 	else
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
-			"AUTS length not equal to 14");
+		expert_add_info(pinfo, item, &ei_gsm_a_dtap_auts);
 
 	return(len);
 }
@@ -742,7 +747,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 		num_text_bits = ((len - 1) << 3) - num_spare_bits;
 		if (num_spare_bits && (num_text_bits % 7))
 		{
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Value leads to a Text String whose length is not a multiple of 7 bits");
+			expert_add_info(pinfo, item, &ei_gsm_a_dtap_text_string_not_multiple_of_7);
 		}
 		/*
 		 * If the number of spare bits is 7, then we have unpacked one extra
@@ -1088,7 +1093,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 			malformed_number = TRUE;
 
 		if(malformed_number)
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");
+			expert_add_info(pinfo, item, &ei_gsm_a_dtap_end_mark_unexpected);
 
 		curr_offset = curr_offset + en_len;
 		count++;
@@ -2534,7 +2539,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 		malformed_number = TRUE;
 
 	if(malformed_number)
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");
+		expert_add_info(pinfo, item, &ei_gsm_a_dtap_end_mark_unexpected);
 
 	return(len);
 }
@@ -2609,7 +2614,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 				"Subaddress: %s", a_bigbuf);
 
 			if(invalid_ia5_char)
-				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Invalid IA5 character(s) in string (value > 127)");
+				expert_add_info(pinfo, item, &ei_gsm_a_dtap_invalid_ia5_character);
 
 			return(len);
 		}
@@ -3032,7 +3037,7 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 	if (((keypad_char < '0') || (keypad_char > '9')) &&
 		((keypad_char < 'A') || (keypad_char > 'D')) &&
 		(keypad_char != '*') && (keypad_char != '#'))
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Keypad information contains character that is not a DTMF digit");
+		expert_add_info(pinfo, item, &ei_gsm_a_dtap_keypad_info_not_dtmf_digit);
 	curr_offset++;
 
 	if (add_string)
@@ -7156,6 +7161,17 @@ proto_register_gsm_a_dtap(void)
 		  NUM_GSM_DTAP_MSG_SMS + NUM_GSM_DTAP_MSG_SS + NUM_GSM_DTAP_MSG_TP +
 		  NUM_GSM_DTAP_ELEM];
 
+	static ei_register_info ei[] = {
+		{ &ei_gsm_a_dtap_autn, { "gsm_a.dtap.autn.invalid", PI_MALFORMED, PI_WARN, "AUTN length not equal to 16", EXPFILL }},
+		{ &ei_gsm_a_dtap_auts, { "gsm_a.dtap.auts.invalid", PI_MALFORMED, PI_WARN, "AUTS length not equal to 14", EXPFILL }},
+		{ &ei_gsm_a_dtap_text_string_not_multiple_of_7, { "gsm_a.dtap.text_string_not_multiple_of_7", PI_MALFORMED, PI_WARN, "Value leads to a Text String whose length is not a multiple of 7 bits", EXPFILL }},
+		{ &ei_gsm_a_dtap_end_mark_unexpected, { "gsm_a.dtap.end_mark_unexpected", PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position", EXPFILL }},
+		{ &ei_gsm_a_dtap_invalid_ia5_character, { "gsm_a.dtap.invalid_ia5_character", PI_MALFORMED, PI_WARN, "Invalid IA5 character(s) in string (value > 127)", EXPFILL }},
+		{ &ei_gsm_a_dtap_keypad_info_not_dtmf_digit, { "gsm_a.dtap.keypad_info_not_dtmf_digit", PI_MALFORMED, PI_WARN, "Keypad information contains character that is not a DTMF digit", EXPFILL }},
+ 	};
+
+	expert_module_t* expert_a_dtap;
+
 	ett[0]  = &ett_dtap_msg;
 	ett[1]  = &ett_dtap_oct_1;
 	ett[2]  = &ett_cm_srvc_type;
@@ -7224,6 +7240,9 @@ proto_register_gsm_a_dtap(void)
 	proto_register_field_array(proto_a_dtap, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_a_dtap = expert_register_protocol(proto_a_dtap);
+	expert_register_field_array(expert_a_dtap, ei, array_length(ei));
+
 
 	/* subdissector code */
 	register_dissector("gsm_a_dtap", dissect_dtap, proto_a_dtap);

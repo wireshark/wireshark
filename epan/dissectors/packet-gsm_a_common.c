@@ -732,6 +732,8 @@ static int hf_gsm_a_geo_loc_uncertainty_radius = -1;
 static int hf_gsm_a_geo_loc_offset_angle = -1;
 static int hf_gsm_a_geo_loc_included_angle = -1;
 
+static expert_field ei_gsm_a_extraneous_data = EI_INIT;
+
 static char a_bigbuf[1024];
 
 sccp_msg_info_t* sccp_msg;
@@ -2359,7 +2361,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         break;
     }
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return(curr_offset - offset);
 }
@@ -2462,7 +2464,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     curr_offset++;
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset,pinfo);
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return(curr_offset - offset);
 }
@@ -3208,7 +3210,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     /* translate to byte offset (we already know that we are on an octet boundary) */
     curr_offset = bit_offset >> 3;
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return(len);
 }
@@ -3397,7 +3399,7 @@ de_cn_common_gsm_map_nas_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *
     proto_tree_add_item(tree, hf_gsm_a_lac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset += 2;
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return(curr_offset - offset);
 }
@@ -3423,7 +3425,7 @@ de_cs_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     proto_tree_add_item(tree, hf_gsm_a_att, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return(curr_offset - offset);
 }
@@ -3455,7 +3457,7 @@ de_ps_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     proto_tree_add_item(tree, hf_gsm_a_nmo, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return(curr_offset - offset);
 }
@@ -3499,7 +3501,7 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
     g_snprintf(add_string, string_len, " - %u PLMN%s",
         num_plmn, plurality(num_plmn, "", "s"));
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return(curr_offset - offset);
 }
@@ -3535,7 +3537,7 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     proto_tree_add_item(tree, hf_gsm_a_iov_ui, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     curr_offset += 4;
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return(curr_offset - offset);
 }
@@ -4466,6 +4468,12 @@ proto_register_gsm_a_common(void)
     static gint *ett[NUM_INDIVIDUAL_ELEMS +
             NUM_GSM_COMMON_ELEM];
 
+    static ei_register_info ei[] = {
+        { &ei_gsm_a_extraneous_data, { "gsm_a.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+    };
+
+    expert_module_t* expert_a_common;
+
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
     for (i=0; i < NUM_GSM_COMMON_ELEM; i++, last_offset++)
@@ -4482,6 +4490,9 @@ proto_register_gsm_a_common(void)
     proto_register_field_array(proto_a_common, hf, array_length(hf));
 
     proto_register_subtree_array(ett, array_length(ett));
+    expert_a_common = expert_register_protocol(proto_a_common);
+    expert_register_field_array(expert_a_common, ei, array_length(ei));
+
 
     gsm_a_tap = register_tap("gsm_a");
 }
