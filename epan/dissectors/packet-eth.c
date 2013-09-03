@@ -59,11 +59,14 @@ static gboolean ccsds_heuristic_bit = FALSE;
 /* protocols and header fields */
 static int proto_eth = -1;
 static int hf_eth_dst = -1;
+static int hf_eth_dst_resolved = -1;
 static int hf_eth_src = -1;
+static int hf_eth_src_resolved = -1;
 static int hf_eth_len = -1;
 static int hf_eth_type = -1;
 static int hf_eth_invalid_lentype = -1;
 static int hf_eth_addr = -1;
+static int hf_eth_addr_resolved = -1;
 static int hf_eth_lg = -1;
 static int hf_eth_ig = -1;
 static int hf_eth_padding = -1;
@@ -304,14 +307,30 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     addr_item = proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst_addr);
     if (addr_item)
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_dst_resolved, tvb, 0, 6,
+        get_ether_name(dst_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 0, 6,
+        get_ether_name(dst_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
     addr_item = proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     if (addr_item)
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_src_resolved, tvb, 6, 6,
+        get_ether_name(src_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 6, 6,
+        get_ether_name(src_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
@@ -349,7 +368,15 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     if(addr_item){
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     }
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_dst_resolved, tvb, 0, 6,
+        get_ether_name(dst_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 0, 6,
+        get_ether_name(dst_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
@@ -357,7 +384,15 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     if(addr_item){
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     }
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_src_resolved, tvb, 6, 6,
+        get_ether_name(src_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 6, 6,
+        get_ether_name(src_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
@@ -390,7 +425,15 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     if(addr_item){
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     }
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_dst_resolved, tvb, 0, 6,
+        get_ether_name(dst_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 0, 6,
+        get_ether_name(dst_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
@@ -401,7 +444,15 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
             expert_add_info(pinfo, addr_item, &ei_eth_src_not_group);
         }
     }
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_src_resolved, tvb, 6, 6,
+        get_ether_name(src_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
+    addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 6, 6,
+        get_ether_name(src_addr));
+    PROTO_ITEM_SET_GENERATED(addr_item);
+    PROTO_ITEM_SET_HIDDEN(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
@@ -509,7 +560,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
        if fcs_len is 4, we know it's present; if fcs_len is -1, we
        need some heuristics to determine whether it's present)
      - information inserted by TAPs or other network monitoring equipment.
-    
+
      If we don't know whether the FCS is present, then, if we don't have a
      network monitoring trailer, and if the Ethernet frame was claimed to
      have had 64 or more bytes - i.e., it was at least an FCS worth of data
@@ -527,15 +578,15 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     trailer_length = tvb_length(trailer_tvb);
     trailer_reported_length = tvb_reported_length(trailer_tvb);
 
-    /* There can not have been padding when the length of the frame (including the 
+    /* There can not have been padding when the length of the frame (including the
        trailer) is less than 60 bytes. */
     if (eth_assume_padding && pinfo->fd->pkt_len>=60) {
         /* Calculate the amount of padding needed for a minimum sized frame */
         if ( (pinfo->fd->pkt_len - trailer_reported_length) < 60 )
             padding_length = 60 - (pinfo->fd->pkt_len - trailer_reported_length);
 
-        /* Add the padding to the tree, unless it should be treated as 
-           part of the trailer and therefor be handed over to (one of) 
+        /* Add the padding to the tree, unless it should be treated as
+           part of the trailer and therefor be handed over to (one of)
            the ethernet-trailer dissectors */
         if (padding_length > 0) {
             tvb_ensure_bytes_exist(tvb, 0, padding_length);
@@ -585,7 +636,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     }
 
     /* Create a new tvb without the padding and/or the (assumed) fcs */
-    if (fcs_len==4) 
+    if (fcs_len==4)
       real_trailer_tvb = tvb_new_subset(trailer_tvb, padding_length,
                                 trailer_length, trailer_reported_length);
     else
@@ -594,12 +645,12 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     /* Call all ethernet trailer dissectors to dissect the trailer if
        we actually have a trailer.  */
     if (tvb_reported_length(real_trailer_tvb) != 0) {
-      if (dissector_try_heuristic(eth_trailer_subdissector_list, 
+      if (dissector_try_heuristic(eth_trailer_subdissector_list,
                                    real_trailer_tvb, pinfo, tree, NULL) ) {
         /* If we're not sure that there is a FCS, all trailer data
-           has been given to the ethernet-trailer dissector, so 
+           has been given to the ethernet-trailer dissector, so
            stop dissecting here */
-        if (fcs_len!=4) 
+        if (fcs_len!=4)
             return;
       } else {
         /* No luck with the trailer dissectors, so just display the
@@ -668,7 +719,7 @@ dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree        *fh_tree;
 
   /* Some devices slice the packet and add their own trailer before
-     putting the frame on the network. Make sure these packets get 
+     putting the frame on the network. Make sure these packets get
 	 a proper trailer (even though the sliced frame might not
 	 properly dissect. */
   if ( (eth_trailer_length > 0) && (eth_trailer_length < tvb_length(tvb)) ) {
@@ -716,9 +767,17 @@ proto_register_eth(void)
         { "Destination", "eth.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
             "Destination Hardware Address", HFILL }},
 
+        { &hf_eth_dst_resolved,
+        { "Destination (resolved)", "eth.dst_resolved", FT_STRING, BASE_NONE,
+            NULL, 0x0, "Destination Hardware Address (resolved)", HFILL }},
+
         { &hf_eth_src,
         { "Source", "eth.src", FT_ETHER, BASE_NONE, NULL, 0x0,
             "Source Hardware Address", HFILL }},
+
+        { &hf_eth_src_resolved,
+        { "Source (resolved)", "eth.src_resolved", FT_STRING, BASE_NONE,
+            NULL, 0x0, "Source Hardware Address (resolved)", HFILL }},
 
         { &hf_eth_len,
         { "Length", "eth.len", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -736,6 +795,11 @@ proto_register_eth(void)
         { &hf_eth_addr,
         { "Address", "eth.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
             "Source or Destination Hardware Address", HFILL }},
+
+        { &hf_eth_addr_resolved,
+        { "Address (resolved)", "eth.addr_resolved", FT_STRING, BASE_NONE,
+            NULL, 0x0, "Source or Destination Hardware Address (resolved)",
+            HFILL }},
 
         { &hf_eth_padding,
         { "Padding", "eth.padding", FT_BYTES, BASE_NONE, NULL, 0x0,

@@ -2644,13 +2644,18 @@ static int hf_ieee80211_assoc_id = -1;
 /*         Header values for different address-fields (all 4 of them)        */
 /* ************************************************************************* */
 static int hf_ieee80211_addr_da = -1;  /* Destination address subfield */
+static int hf_ieee80211_addr_da_resolved = -1;  /* Dst addr subfield resolved*/
 static int hf_ieee80211_addr_sa = -1;  /* Source address subfield */
+static int hf_ieee80211_addr_sa_resolved = -1;  /* Src addr subfield resolved*/
 static int hf_ieee80211_addr_ra = -1;  /* Receiver address subfield */
+static int hf_ieee80211_addr_ra_resolved = -1;  /* Rcv addr subfield resolved*/
 static int hf_ieee80211_addr_ta = -1;  /* Transmitter address subfield */
+static int hf_ieee80211_addr_ta_resolved = -1;  /* Txm addr subfield resolved*/
 static int hf_ieee80211_addr_bssid = -1;  /* address is bssid */
+static int hf_ieee80211_addr_bssid_resolved = -1;  /* bssid resolved*/
 
 static int hf_ieee80211_addr = -1;  /* Source or destination address subfield */
-
+static int hf_ieee80211_addr_resolved = -1;/*Src/dst address subfield resolved*/
 
 /* ************************************************************************* */
 /*                Header values for QoS control field                        */
@@ -13367,7 +13372,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   gint             is_iv_bad;
   guchar           iv_buff[4];
   const char      *addr1_str   = NULL;
-  int              addr1_hf    = -1;
+  int              addr1_hf    = -1, addr1_hf_resolved = -1;
   guint            offset;
   const gchar     *fts_str;
   gchar            flag_str[]  = "opmPRMFTC";
@@ -13498,20 +13503,41 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       if (tree)
       {
         proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ra, tvb, 4, 6, ENC_NA);
+        hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ra_resolved, tvb, 4, 6,
+          get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_item (hdr_tree, hf_ieee80211_addr_da, tvb, 4, 6, ENC_NA);
-
+        hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_da_resolved, tvb, 4, 6,
+          get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ta, tvb, 10, 6, ENC_NA);
+        hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, 10, 6,
+          get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_item (hdr_tree, hf_ieee80211_addr_sa, tvb, 10, 6, ENC_NA);
-
+        hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, 10, 6,
+          get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_item (hdr_tree, hf_ieee80211_addr_bssid, tvb, 16, 6, ENC_NA);
+        hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, 16, 6,
+          get_ether_name(tvb_get_ptr(tvb, 16, 6)));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         /* add items for wlan.addr filter */
         hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 4, 6,
+          get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 10, 6, ENC_NA);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-
+        hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 10, 6,
+          get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 16, 6, ENC_NA);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 16, 6,
+          get_ether_name(tvb_get_ptr(tvb, 16, 6)));
         PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2, frag_number);
@@ -13540,6 +13566,8 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         case CTRL_PS_POLL:
           addr1_str = "BSSID";
           addr1_hf = hf_ieee80211_addr_bssid;
+          addr1_hf_resolved = hf_ieee80211_addr_bssid_resolved;
+
           break;
         case CTRL_RTS:
         case CTRL_CTS:
@@ -13550,6 +13578,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         case CTRL_BLOCK_ACK:
           addr1_str = "RA";
           addr1_hf = hf_ieee80211_addr_ra;
+          addr1_hf_resolved = hf_ieee80211_addr_ra_resolved;
           break;
         default:
           break;
@@ -13563,7 +13592,13 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       set_dst_addr_cols(pinfo, dst, addr1_str);
       if (tree) {
         proto_tree_add_item(hdr_tree, addr1_hf, tvb, 4, 6, ENC_BIG_ENDIAN);
+        hidden_item = proto_tree_add_string (hdr_tree, addr1_hf_resolved, tvb, 4, 6,
+          get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 4, 6,
+          get_ether_name(dst));
         PROTO_ITEM_SET_HIDDEN(hidden_item);
       }
 
@@ -13593,7 +13628,13 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           set_src_addr_cols(pinfo, src, "BSSID");
           if (tree) {
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6,
+              get_ether_name(tvb_get_ptr(tvb, offset, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6,
+              get_ether_name(src));
             PROTO_ITEM_SET_HIDDEN(hidden_item);
           }
           break;
@@ -13605,7 +13646,13 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           set_src_addr_cols(pinfo, src, "TA");
           if (tree) {
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6,
+              get_ether_name(tvb_get_ptr(tvb, offset, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6,
+             get_ether_name(src));
             PROTO_ITEM_SET_HIDDEN(hidden_item);
           }
           break;
@@ -13630,7 +13677,13 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             proto_tree *bar_sub_tree;
 
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6,
+              get_ether_name(tvb_get_ptr(tvb, offset, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6,
+              get_ether_name(src));
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             offset += 6;
 
@@ -13716,7 +13769,13 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             proto_tree *ba_sub_tree;
 
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6,
+              get_ether_name(tvb_get_ptr(tvb, offset, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6,
+              get_ether_name(src));
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             offset += 6;
 
@@ -13878,74 +13937,170 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           /* XXX - using the offsets set above, could all of these cases be collapsed into one? */
           case DATA_ADDR_T1:
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ra, tvb, 4, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ra_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_da, tvb, 4, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_da_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ta, tvb, 10, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_sa, tvb, 10, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_bssid, tvb, 16, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, 16, 6,
+              get_ether_name(tvb_get_ptr(tvb, 16, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2, frag_number);
             proto_tree_add_uint (hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2, seq_number);
 
             /* add items for wlan.addr filter */
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 10, 6, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 16, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 16, 6,
+              get_ether_name(tvb_get_ptr(tvb, 16, 6)));
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             break;
 
           case DATA_ADDR_T2:
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ra, tvb, 4, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ra_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_da, tvb, 4, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_da_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ta, tvb, 10, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_bssid, tvb, 10, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_sa, tvb, 16, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, 16, 6,
+              get_ether_name(tvb_get_ptr(tvb, 16, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2, frag_number);
             proto_tree_add_uint (hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2, seq_number);
 
             /* add items for wlan.addr filter */
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 10, 6, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 16, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 16, 6,
+              get_ether_name(tvb_get_ptr(tvb, 16, 6)));
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             break;
 
           case DATA_ADDR_T3:
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ra, tvb, 4, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ra_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_bssid, tvb, 4, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ta, tvb, 10, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_sa, tvb, 10, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_da, tvb, 16, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_da_resolved, tvb, 16, 6,
+              get_ether_name(tvb_get_ptr(tvb, 16, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2, frag_number);
             proto_tree_add_uint (hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2, seq_number);
 
             /* add items for wlan.addr filter */
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 10, 6, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 16, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 16, 6,
+              get_ether_name(tvb_get_ptr(tvb, 16, 6)));
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             break;
 
           case DATA_ADDR_T4:
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ra, tvb, 4, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ra_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ta, tvb, 10, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_da, tvb, 16, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_da_resolved, tvb, 16, 6,
+              get_ether_name(tvb_get_ptr(tvb, 16, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2, frag_number);
             proto_tree_add_uint (hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2, seq_number);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_sa, tvb, 24, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, 24, 6,
+              get_ether_name(tvb_get_ptr(tvb, 24, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
 
             /* add items for wlan.addr filter */
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 4, 6,
+              get_ether_name(tvb_get_ptr(tvb, 4, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 10, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 10, 6,
+              get_ether_name(tvb_get_ptr(tvb, 10, 6)));
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 16, 6, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 16, 6,
+              get_ether_name(tvb_get_ptr(tvb, 16, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 24, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, 24, 6,
+              get_ether_name(tvb_get_ptr(tvb, 24, 6)));
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             break;
         }
@@ -14669,7 +14824,13 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           i += 1;
 
           proto_tree_add_item(subframe_tree, hf_ieee80211_addr_da, next_tvb, msdu_offset, 6, ENC_NA);
+          hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_da_resolved, tvb, msdu_offset, 6,
+            get_ether_name(tvb_get_ptr(tvb, msdu_offset, 6)));
+          PROTO_ITEM_SET_HIDDEN(hidden_item);
           proto_tree_add_item(subframe_tree, hf_ieee80211_addr_sa, next_tvb, msdu_offset+6, 6, ENC_NA);
+          hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, msdu_offset+6, 6,
+            get_ether_name(tvb_get_ptr(tvb, msdu_offset+6, 6)));
+          PROTO_ITEM_SET_HIDDEN(hidden_item);
           proto_tree_add_item(subframe_tree, hf_ieee80211_amsdu_length, next_tvb, msdu_offset+12, 2, ENC_BIG_ENDIAN);
 
           msdu_offset += 14;
@@ -15204,30 +15365,57 @@ proto_register_ieee80211 (void)
       FT_ETHER, BASE_NONE, NULL, 0,
       "Destination Hardware Address", HFILL }},
 
+    { &hf_ieee80211_addr_da_resolved,
+      {"Destination address (resolved)", "wlan.da_resolved", FT_STRING,
+        BASE_NONE, NULL, 0x0, "Destination Hardware Address (resolved)",
+        HFILL }},
+
     {&hf_ieee80211_addr_sa,
      {"Source address", "wlan.sa",
       FT_ETHER, BASE_NONE, NULL, 0,
       "Source Hardware Address", HFILL }},
+
+    { &hf_ieee80211_addr_sa_resolved,
+      {"Source address (resolved)", "wlan.sa_resolved", FT_STRING, BASE_NONE,
+        NULL, 0x0, "Source Hardware Address (resolved)", HFILL }},
 
     { &hf_ieee80211_addr,
       {"Hardware address", "wlan.addr",
        FT_ETHER, BASE_NONE, NULL, 0,
        "SA, DA, BSSID, RA or TA Hardware Address", HFILL }},
 
+    { &hf_ieee80211_addr_resolved,
+      { "Hardware address (resolved)", "wlan.addr_resolved", FT_STRING,
+        BASE_NONE, NULL, 0x0,
+        "SA, DA, BSSID, RA or TA Hardware Address (resolved)", HFILL }},
+
     {&hf_ieee80211_addr_ra,
      {"Receiver address", "wlan.ra",
       FT_ETHER, BASE_NONE, NULL, 0,
       "Receiving Station Hardware Address", HFILL }},
+
+    { &hf_ieee80211_addr_ra_resolved,
+      {"Receiver address (resolved)", "wlan.ra_resolved", FT_STRING, BASE_NONE,
+        NULL, 0x0, "Receiving Station Hardware Address (resolved)", HFILL }},
 
     {&hf_ieee80211_addr_ta,
      {"Transmitter address", "wlan.ta",
       FT_ETHER, BASE_NONE, NULL, 0,
       "Transmitting Station Hardware Address", HFILL }},
 
+    { &hf_ieee80211_addr_ta_resolved,
+      {"Transmitter address (resolved)", "wlan.ta_resolved", FT_STRING,
+        BASE_NONE, NULL, 0x0,
+        "Transmitting Station Hardware Address (resolved)", HFILL }},
+
     {&hf_ieee80211_addr_bssid,
      {"BSS Id", "wlan.bssid",
       FT_ETHER, BASE_NONE, NULL, 0,
       "Basic Service Set ID", HFILL }},
+
+    { &hf_ieee80211_addr_bssid_resolved,
+      {"BSS Id (resolved)", "wlan.bssid_resolved", FT_STRING, BASE_NONE, NULL,
+        0x0, "Basic Service Set ID (resolved)", HFILL }},
 
     {&hf_ieee80211_frag_number,
      {"Fragment number", "wlan.frag",
