@@ -267,6 +267,10 @@ static int hf_dns_gpos_altitude_length = -1;
 static int hf_dns_gpos_altitude = -1;
 static int hf_dns_rp_mailbox = -1;
 static int hf_dns_rp_txt_rr = -1;
+static int hf_dns_afsdb_subtype = -1;
+static int hf_dns_afsdb_hostname = -1;
+static int hf_dns_rt_preference = -1;
+static int hf_dns_rt_intermediate_host = -1;
 static int hf_dns_nsap_rdata = -1;
 static int hf_dns_caa_flags = -1;
 static int hf_dns_caa_flag_issuer_critical = -1;
@@ -3247,28 +3251,46 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_AFSDB:
-    case T_RT:
+    case T_AFSDB: /* AFS data base location (18) */
     {
-      guint16       subtype = 0;
       const guchar *host_name;
       int           host_name_len;
 
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name);
       }
-      subtype = tvb_get_ntohs(tvb, cur_offset);
+
       host_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &host_name);
 
       if (data_len < 1) {
         goto bad_rr;
       }
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2,
-                          (type == T_AFSDB) ? "Subtype: %u" : "Preference: %u", subtype);
-      proto_tree_add_text(rr_tree, tvb, cur_offset + 2, host_name_len,
-                          (type == T_AFSDB) ? "Hostname: %s" : "Intermediate-Host: %s",
-                          format_text(host_name, strlen(host_name)));
+      proto_tree_add_item(rr_tree, hf_dns_afsdb_subtype, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset =+ 2;
 
+      proto_tree_add_string(rr_tree, hf_dns_afsdb_hostname, tvb, cur_offset, host_name_len, host_name);
+
+
+    }
+    case T_RT: /* Route-Through (21) */
+    {
+      const guchar *host_name;
+      int           host_name_len;
+
+      if (cinfo != NULL) {
+        col_append_fstr(cinfo, COL_INFO, " %s", name);
+      }
+
+      host_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &host_name);
+
+      if (data_len < 1) {
+        goto bad_rr;
+      }
+
+      proto_tree_add_item(rr_tree, hf_dns_rt_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      cur_offset =+ 2;
+
+      proto_tree_add_string(rr_tree, hf_dns_rt_intermediate_host, tvb, cur_offset, host_name_len, host_name);
 
     }
     break;
@@ -4979,6 +5001,26 @@ proto_register_dns(void)
 
     { &hf_dns_rp_txt_rr,
       { "TXT RR","dns.rp.txt_rr",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_afsdb_subtype,
+      { "Subtype","dns.afsdb.subtype",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_afsdb_hostname,
+      { "Hostname","dns.afsdb.hostname",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_rt_preference,
+      { "Preference","dns.rt.subtype",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_rt_intermediate_host,
+      { "Intermediate Hostname","dns.rt.intermediate_host",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
