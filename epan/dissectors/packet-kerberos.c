@@ -5407,10 +5407,13 @@ proto_register_kerberos(void)
         { &ei_krb_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decrypted keytype", EXPFILL }},
     };
     module_t *krb_module;
+    expert_module_t *expert_krb;
 
     proto_kerberos = proto_register_protocol("Kerberos", "KRB5", "kerberos");
     proto_register_field_array(proto_kerberos, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_krb = expert_register_protocol(proto_kerberos);
+    expert_register_field_array(expert_krb, ei, array_length(ei));
 
     /* Register preferences */
     krb_module = prefs_register_protocol(proto_kerberos, kerberos_prefs_apply_cb);
