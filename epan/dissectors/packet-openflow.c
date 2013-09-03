@@ -133,6 +133,7 @@ static int hf_openflow_command = -1;
 static int hf_openflow_eth_src = -1;
 static int hf_openflow_eth_dst = -1;
 static int hf_openflow_dl_vlan = -1;
+static int hf_openflow_dl_vlan_pcp = -1;
 static int hf_openflow_idle_timeout = -1;
 static int hf_openflow_hard_timeout = -1;
 static int hf_openflow_priority = -1;
@@ -334,7 +335,11 @@ dissect_openflow_ofp_match_v_1_0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_item(tree, hf_openflow_dl_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
     /* uint8_t dl_vlan_pcp; Input VLAN priority. */
+    proto_tree_add_item(tree, hf_openflow_dl_vlan_pcp, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
     /* uint8_t pad1[1]; Align to 64-bits */
+    proto_tree_add_item(tree, hf_openflow_padd8, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
     /* uint16_t dl_type; Ethernet frame type. */
     /* uint8_t nw_tos; IP ToS (actually DSCP field, 6 bits). */
     /* uint8_t nw_proto; IP protocol or lower 8 bits of
@@ -345,7 +350,8 @@ dissect_openflow_ofp_match_v_1_0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     /* uint32_t nw_dst; IP destination address. */
     /* uint16_t tp_src; TCP/UDP source port. */
     /* uint16_t tp_dst; TCP/UDP destination port. */
-    offset +=20;
+    proto_tree_add_text(tree, tvb, offset, 18, "Data not dissected yet");
+    offset +=18;
 
 	return offset;
 }
@@ -783,8 +789,10 @@ dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     /* uint16_t flags; One of OFPFF_*. */
     proto_tree_add_item(tree, hf_openflow_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
-    /* uint8_t pad[2]; */
-    proto_tree_add_item(tree, hf_openflow_padd16, tvb, offset, 2, ENC_BIG_ENDIAN);
+    if(version > OFP_VERSION_1_2){
+        /* uint8_t pad[2]; */
+        proto_tree_add_item(tree, hf_openflow_padd16, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
 
 #if 0
     offset+=2;
@@ -1319,6 +1327,11 @@ proto_register_openflow(void)
         { &hf_openflow_dl_vlan,
             { "Input VLAN id", "openflow.dl_vlan",
                FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_dl_vlan_pcp,
+            { "Input VLAN priority", "openflow.dl_vlan_pcp",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_idle_timeout,
