@@ -34,6 +34,8 @@
 
 #include "ui/ui_util.h"
 
+#include <epan/prefs.h>
+
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
 #include "capture_session.h"
@@ -105,6 +107,7 @@ private:
     FileSetDialog file_set_dialog_;
     SummaryDialog summary_dialog_;
     ByteViewTab *byte_view_tab_;
+    QWidget *empty_pane_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -120,6 +123,7 @@ private:
     QSocketNotifier *pipe_notifier_;
 #endif
 
+    QWidget* getLayoutWidget(layout_pane_content_e type);
     void mergeCaptureFile();
     void importCaptureFile();
     void saveCaptureFile(capture_file *cf, bool stay_closed);

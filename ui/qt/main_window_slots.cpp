@@ -262,18 +262,26 @@ void MainWindow::layoutPanes()
         g_assert_not_reached();
     }
 
+    // We reparent all widgets immediately, because if one of them is left
+    // unused then it would be deleted when we delete oldMaster, which would
+    // lead to a crash next time we tried to use it.
+    packet_list_->setParent(main_ui_->mainStack);
+    proto_tree_->setParent(main_ui_->mainStack);
+    byte_view_tab_->setParent(main_ui_->mainStack);
+    empty_pane_->setParent(main_ui_->mainStack);
+
     if (parents[0] == extra_split_) {
         master_split_->addWidget(extra_split_);
     }
 
-    parents[0]->addWidget(packet_list_);
+    parents[0]->addWidget(getLayoutWidget(prefs.gui_layout_content_1));
 
     if (parents[2] == extra_split_) {
         master_split_->addWidget(extra_split_);
     }
 
-    parents[1]->addWidget(proto_tree_);
-    parents[2]->addWidget(byte_view_tab_);
+    parents[1]->addWidget(getLayoutWidget(prefs.gui_layout_content_2));
+    parents[2]->addWidget(getLayoutWidget(prefs.gui_layout_content_3));
 
     // We must do this near the end to avoid reparenting signals going to
     // already-deleted widgets.

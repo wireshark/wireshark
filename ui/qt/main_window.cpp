@@ -168,6 +168,7 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->menuHelp->insertAction(update_sep, update_action);
     connect(update_action, SIGNAL(triggered()), this, SLOT(on_actionHelpCheckForUpdates_triggered()));
 #endif
+    empty_pane_ = new QWidget(main_ui_->mainStack);
 
     packet_list_ = new PacketList(main_ui_->mainStack);
 
@@ -397,6 +398,21 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 }
 
+QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {
+    switch (type) {
+        case layout_pane_content_none:
+            return empty_pane_;
+        case layout_pane_content_plist:
+            return packet_list_;
+        case layout_pane_content_pdetails:
+            return proto_tree_;
+        case layout_pane_content_pbytes:
+            return byte_view_tab_;
+        default:
+            g_assert_not_reached();
+            return NULL;
+    }
+}
 
 void MainWindow::mergeCaptureFile()
 {
