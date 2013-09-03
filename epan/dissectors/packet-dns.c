@@ -710,7 +710,7 @@ http://www.microsoft.com/windows2000/library/resources/reskit/samplechapters/cnc
    which discuss them to some extent. */
 /* http://www.iana.org/assignments/dns-parameters */
 
-static const value_string dns_types[] = {
+static const value_string dns_types_vals[] = {
   { 0,            "Unused"     },
   { T_A,          "A"          },
   { T_NS,         "NS"         },
@@ -778,8 +778,8 @@ static const value_string dns_types[] = {
   { T_TSIG,       "TSIG"       },
   { T_IXFR,       "IXFR"       },
   { T_AXFR,       "AXFR"       },
-  { T_MAILA,      "MAILB"      },
   { T_MAILB,      "MAILA"      },
+  { T_MAILA,      "MAILB"      },
   { T_ANY,        "ANY"        },
 
   { T_CAA,        "CAA"        }, /* RFC 6844 */
@@ -792,128 +792,91 @@ static const value_string dns_types[] = {
   {0,             NULL}
 };
 
-static const char *
-dns_type_name (guint type)
-{
-  return val_to_str(type, dns_types, "Unknown (%u)");
-}
+static value_string_ext dns_types_vals_ext = VALUE_STRING_EXT_INIT(dns_types_vals);
 
-static const char *
-dns_type_description (guint type)
-{
-  static const char *type_names[] = {
-    "unused",
-    "Host address",
-    "Authoritative name server",
-    "Mail destination",
-    "Mail forwarder",
-    "Canonical name for an alias",
-    "Start of zone of authority",
-    "Mailbox domain name",
-    "Mail group member",
-    "Mail rename domain name",
-    "Null resource record",
-    "Well-known service description",
-    "Domain name pointer",
-    "Host information",
-    "Mailbox or mail list information",
-    "Mail exchange",
-    "Text strings",
-    "Responsible person",                   /* RFC 1183 */
-    "AFS data base location",               /* RFC 1183 */
-    "X.25 address",                         /* RFC 1183 */
-    "ISDN number",                          /* RFC 1183 */
-    "Route through",                        /* RFC 1183 */
-    "OSI NSAP",                             /* RFC 1706 */
-    "OSI NSAP name pointer",                /* RFC 1348 */
-    "Signature",                            /* RFC 2535 */
-    "Public key",                           /* RFC 2535 */
-    "Pointer to X.400/RFC822 mapping info", /* RFC 1664 */
-    "Geographical position",                /* RFC 1712 */
-    "IPv6 address",                         /* RFC 1886 */
-    "Location",                             /* RFC 1876 */
-    "Next",                                 /* RFC 2535 */
-    "Endpoint identifier",
-    "Nimrod locator",
-    "Service location",                     /* RFC 2052 */
-    "ATM address",
-    "Naming authority pointer",             /* RFC 2168 */
-    "Key Exchange",                         /* RFC 2230 */
-    "Certificate",                          /* RFC 4398 */
-    "IPv6 address with indirection",        /* RFC 2874 */
-    "Non-terminal DNS name redirection",    /* RFC 2672 */
-    "SINK",
-    "EDNS0 option",                         /* RFC 2671 */
-    "Lists of Address Prefixes",            /* RFC 3123 */
-    "Delegation Signer",                    /* RFC 4034 */
-    "SSH public host key fingerprint",      /* RFC 4255 */
-    "Key to use with IPSEC",                /* draft-ietf-ipseckey-rr */
-    "RR signature",                         /* future RFC 2535bis */
-    "Next secured",                         /* future RFC 2535bis */
-    "DNS public key",                       /* future RFC 2535bis */
-    "DHCP Information",                     /* RFC 4701 */
-    "Next secured hash",                    /* RFC 5155 */
-    "NSEC3 parameters",                     /* RFC 5155 */
-    "TLSA",                                 /* RFC 6698 */
-    NULL,
-    NULL,
-    "Host Identity Protocol",               /* RFC 5205 */
-    "NINFO",
-    "RKEY",
-    "Trust Anchor LINK",
-    "Child DS"
-  };
-  const char *short_name;
-  const char *long_name;
+static const value_string dns_types_description_vals[] = {
+  { 0,            "Unused" },
+  { T_A,          "A (Host Address)" },
+  { T_NS,         "NS (authoritative Name Server)" },
+  { T_MD,         "MD (Mail Destination)" },
+  { T_MF,         "MF (Mail Forwarder)" },
+  { T_CNAME,      "CNAME (Canonical NAME for an alias)" },
+  { T_SOA,        "SOA (Start Of a zone of Authority)" },
+  { T_MB,         "MB (MailBox domain name)"},
+  { T_MG,         "MG (Mail Group member)" },
+  { T_MR,         "MR (Mail Rename domain)" },
+  { T_NULL,       "NULL RR" },
+  { T_WKS,        "WKS (Well Known Service)" },
+  { T_PTR,        "PTR (domain name PoinTeR)" },
+  { T_HINFO,      "HINFO (host information)" },
+  { T_MINFO,      "MINFO (Mailbox or mail list information)" },
+  { T_MX,         "MX (Mail eXchange)" },
+  { T_TXT,        "TXT (Text strings)" },
+  { T_RP,         "RP (Responsible Person)" }, /* RFC 1183 */
+  { T_AFSDB,      "AFSDB (AFS Data Base location)" }, /* RFC 1183 */
+  { T_X25,        "X25 (XX.25 PSDN address)" }, /* RFC 1183 */
+  { T_ISDN,       "ISDN (ISDN address)" }, /* RFC 1183 */
+  { T_RT,         "RT (Route Through)" }, /* RFC 1183 */
+  { T_NSAP,       "NSAP (NSAP address)" },
+  { T_NSAP_PTR,   "NSAP-PTR (NSAP domain name pointer)" },
+  { T_SIG,        "SIG (security signature)" },
+  { T_KEY,        "KEY (security key)" },
+  { T_PX,         "PX (X.400 mail mapping information)" },
+  { T_GPOS,       "GPOS (Geographical Position)" },
+  { T_AAAA,       "AAAA (IPv6 Address)" },
+  { T_LOC,        "LOC (Location Information)" },
+  { T_NXT,        "NXT (Next Domain)" },
+  { T_EID,        "EID (Endpoint Identifier)" },
+  { T_NIMLOC,     "NIMLOC (Nimrod Locator)" },
+  { T_SRV,        "SRV (Server Selection)" },
+  { T_ATMA,       "ATMA (ATM Address)" },
+  { T_NAPTR,      "NAPTR (Naming Authority Pointer)" },
+  { T_KX,         "KX (Key Exchanger)" },
+  { T_CERT,       "CERT" },
+  { T_A6,         "A6 (OBSOLETE - use AAAA)" },
+  { T_DNAME,      "DNAME" },
+  { T_SINK,       "SINK" },
+  { T_OPT,        "OPT" },
+  { T_APL,        "APL" },
+  { T_DS,         "DS(Delegation Signer)" },
+  { T_SSHFP,      "SSHFP (SSH Key Fingerprint)" },
+  { T_IPSECKEY,   "IPSECKEY" },
+  { T_RRSIG,      "RRSIG" },
+  { T_NSEC,       "NSEC" },
+  { T_DNSKEY,     "DNSKEY" },
+  { T_DHCID,      "DHCID" },
+  { T_NSEC3,      "NSEC3" },
+  { T_NSEC3PARAM, "NSEC3PARAM" },
+  { T_TLSA,       "TLSA" },
+  { T_HIP,        "HIP (Host Identity Protocol)" }, /* RFC 5205 */
+  { T_RKEY,       "RKEY" },
+  { T_TALINK,     "TALINK (Trust Anchor LINK)" },
+  { T_CDS,        "CDS (Child DS)" },
+  { T_SPF,        "SPF" }, /* RFC 4408 */
+  { 100,          "UINFO" }, /* IANA reserved */
+  { 101,          "UID" }, /* IANA reserved */
+  { 102,          "GID" }, /* IANA reserved */
+  { 103,          "UNSPEC" }, /* IANA reserved */
 
-  short_name = dns_type_name(type);
-  if (short_name == NULL) {
-    return wmem_strdup_printf(wmem_packet_scope(), "Unknown (%u)", type);
-  }
-  if (type < array_length(type_names)) {
-    long_name = type_names[type];
-  } else {
-    /* special cases */
-    switch (type) {
-        /* meta */
-      case T_TKEY:
-        long_name = "Transaction Key";
-        break;
-      case T_TSIG:
-        long_name = "Transaction Signature";
-        break;
+  { T_TKEY,       "TKEY (Transaction Key)"  },
+  { T_TSIG,       "TSIG (Transaction Signature)" },
+  { T_IXFR,       "IXFR (incremental transfer)" },
+  { T_AXFR,       "AXFR (transfer of an entire zone)" },
+  { T_MAILB,      "MAILB (mailbox-related RRs)" },
+  { T_MAILA,      "MAILA (mail agent RRs)" },
+  { T_ANY,        "* (A request for all records the server/cache has available)" },
 
-        /* queries  */
-      case T_IXFR:
-        long_name = "Request for incremental zone transfer";   /* RFC 1995 */
-        break;
-      case T_AXFR:
-        long_name = "Request for full zone transfer";
-        break;
-      case T_MAILB:
-        long_name = "Request for mailbox-related records";
-        break;
-      case T_MAILA:
-        long_name = "Request for mail agent resource records";
-        break;
-      case T_ANY:
-        long_name = "Request for all records";
-        break;
-      case T_CAA:
-        long_name = "Certification Authority Authorization";
-        break;
-      default:
-        long_name = NULL;
-        break;
-      }
-  }
+  { T_CAA,        "CAA (Certification Authority Restriction)" }, /* RFC 6844 */
 
-  if (long_name != NULL) {
-    return wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", short_name, long_name);
-  } else {
-    return wmem_strdup(wmem_packet_scope(), short_name);
-  }
-}
+  { T_DLV,        "DLV (DNSSEC Lookaside Validation)" }, /* RFC 4431 */
+
+  { T_WINS,       "WINS" },
+  { T_WINS_R,     "WINS-R" },
+
+  {0,             NULL}
+};
+
+static value_string_ext dns_types_description_vals_ext = VALUE_STRING_EXT_INIT(dns_types_description_vals);
 
 static const value_string edns0_opt_code_vals[] = {
   {0,            "Reserved"},
@@ -1297,7 +1260,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     qu = 0;
   }
 
-  type_name = dns_type_name(type);
+  type_name = val_to_str_ext(type, &dns_types_vals_ext, "Unknown (%d)");
 
   /*
    * The name might contain octets that aren't printable characters,
@@ -1337,8 +1300,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
     offset += name_len;
 
-    proto_tree_add_uint_format(q_tree, hf_dns_qry_type, tvb, offset, 2, type,
-                               "Type: %s", dns_type_description(type));
+    proto_tree_add_item(q_tree, hf_dns_qry_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     if (is_mdns) {
@@ -1394,8 +1356,7 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 
   offset += namelen;
 
-  proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, offset, 2, type,
-                             "Type: %s", dns_type_description(type));
+  proto_tree_add_item(rr_tree, hf_dns_rr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   if (is_mdns) {
     proto_tree_add_uint(rr_tree, hf_dns_rr_class_mdns, tvb, offset, 2, dns_class);
@@ -1418,7 +1379,7 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 
 static proto_tree *
 add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-  const char *name, int namelen, int type, int dns_class, int flush,
+  const char *name, int namelen, int type _U_, int dns_class, int flush,
   guint ttl, gushort data_len, gboolean is_mdns)
 {
   proto_tree *rr_tree, *Z_tree;
@@ -1427,8 +1388,7 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   rr_tree = proto_item_add_subtree(trr, rr_type);
   proto_tree_add_string(rr_tree, hf_dns_rr_name, tvb, offset, namelen, name);
   offset += namelen;
-  proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, offset, 2, type,
-                             "Type: %s", dns_type_description(type));
+  proto_tree_add_item(rr_tree, hf_dns_rr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   if (is_mdns) {
     proto_tree_add_uint(rr_tree, hf_dns_rr_udp_payload_size, tvb, offset, 2, dns_class);
@@ -1476,7 +1436,7 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
         if (bits & mask) {
           proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
             "RR type in bit map: %s",
-            dns_type_description(rr_type));
+            val_to_str_ext(rr_type, &dns_types_description_vals_ext, "Unknown (%d)"));
         }
         mask >>= 1;
         rr_type++;
@@ -1647,7 +1607,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   } else {
     flush = 0;
   }
-  type_name = dns_type_name(dns_type);
+  type_name = val_to_str_ext(dns_type, &dns_types_vals_ext, "Unknown (%d)");
   class_name = dns_class_name(dns_class);
 
   ttl = tvb_get_ntohl(tvb, data_offset);
@@ -1995,9 +1955,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (rr_len < 2) {
         goto bad_rr;
       }
-      ti = proto_tree_add_item(rr_tree, hf_dns_rrsig_type_covered, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      /* Fix me : need to remove dns_type_description and replace by value_string */
-      proto_item_append_text(ti, " (%s)", dns_type_description(tvb_get_ntohs(tvb, cur_offset)));
+      proto_tree_add_item(rr_tree, hf_dns_rrsig_type_covered, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
@@ -4099,7 +4057,7 @@ proto_register_dns(void)
 
     { &hf_dns_qry_type,
       { "Type", "dns.qry.type",
-        FT_UINT16, BASE_HEX, VALS(dns_types), 0x0,
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &dns_types_description_vals_ext, 0,
         "Query Type", HFILL }},
 
     { &hf_dns_qry_class,
@@ -4134,7 +4092,7 @@ proto_register_dns(void)
 
     { &hf_dns_rr_type,
       { "Type", "dns.resp.type",
-        FT_UINT16, BASE_HEX, VALS(dns_types), 0x0,
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &dns_types_description_vals_ext, 0x0,
         "Response Type", HFILL }},
 
     { &hf_dns_rr_class,
@@ -4419,7 +4377,7 @@ proto_register_dns(void)
 
     { &hf_dns_rrsig_type_covered,
       { "Type Covered", "dns.rrsig.type_covered",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &dns_types_description_vals_ext, 0x0,
         "Identifies the type of the RRset that is covered by this RRSIG record", HFILL }},
 
     { &hf_dns_rrsig_algorithm,
