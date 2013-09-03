@@ -785,8 +785,9 @@ dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     offset+=2;
     /* uint8_t pad[2]; */
     proto_tree_add_item(tree, hf_openflow_padd16, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset+=2;
+
 #if 0
+    offset+=2;
 	if(version < OFP_VERSION_1_2){
 	    /* The action length is inferred
 	       from the length field in the
