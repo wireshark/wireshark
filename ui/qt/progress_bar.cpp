@@ -88,7 +88,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 {
     Q_UNUSED(status);
 
-    dlg->progressBar->setValue(percentage * 100);
+    dlg->progress_bar->setValue(percentage * 100);
 
     /*
      * Flush out the update and process any input events.
@@ -102,17 +102,17 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 void
 destroy_progress_dlg(progdlg_t *dlg)
 {
-    dlg->progressBar->hide();
+    dlg->progress_bar->hide();
 }
 
 // XXX - Add a "stop what you're doing this instant" button.
 // XXX - We need to show the task and item titles. Maybe as a tooltip or popped
 //       into our sibling status message?
 ProgressBar::ProgressBar(QWidget *parent) :
-    QProgressBar(parent), m_terminate_is_stop(false), m_stop_flag(NULL)
+    QProgressBar(parent), terminate_is_stop_(false), stop_flag_(NULL)
 {
-    m_dlg.progressBar = this;
-    m_dlg.topLevelWindow = window();
+    progress_dialog_.progress_bar = this;
+    progress_dialog_.top_level_window = window();
 
 //#ifdef Q_OS_MAC
 //    // https://bugreports.qt-project.org/browse/QTBUG-11569
@@ -133,8 +133,8 @@ ProgressBar::ProgressBar(QWidget *parent) :
 
 progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value) {
 
-    m_terminate_is_stop = terminate_is_stop;
-    m_stop_flag = stop_flag;
+    terminate_is_stop_ = terminate_is_stop;
+    stop_flag_ = stop_flag;
 
     setValue(value);
 
@@ -155,7 +155,7 @@ progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *st
 #endif
 
     QProgressBar::show();
-    return &m_dlg;
+    return &progress_dialog_;
 }
 
 /*
