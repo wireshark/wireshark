@@ -149,6 +149,8 @@ static int hf_dns_ilnp_locator64_preference = -1;
 static int hf_dns_ilnp_locator64 = -1;
 static int hf_dns_ilnp_locatorfqdn_preference = -1;
 static int hf_dns_ilnp_locatorfqdn = -1;
+static int hf_dns_eui48 = -1;
+static int hf_dns_eui64 = -1;
 static int hf_dns_rrsig_type_covered = -1;
 static int hf_dns_rrsig_algorithm = -1;
 static int hf_dns_rrsig_labels = -1;
@@ -3303,6 +3305,26 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     break;
 
 
+    case T_EUI48: /* EUI48 (108) */
+    {
+
+      proto_tree_add_item(rr_tree, hf_dns_eui48, tvb, cur_offset, 6, ENC_NA);
+      /*cur_offset += 6;*/
+
+    }
+    break;
+
+
+    case T_EUI64: /* EUI64 (109) */
+    {
+
+      proto_tree_add_item(rr_tree, hf_dns_eui64, tvb, cur_offset, 8, ENC_NA);
+      /*cur_offset += 6;*/
+
+    }
+    break;
+
+
     case T_TKEY: /* Transaction Key (249) */
     {
       const guchar *tkey_algname;
@@ -4550,6 +4572,16 @@ proto_register_dns(void)
     { &hf_dns_ilnp_locatorfqdn,
       { "Locator FQDN", "dns.ilnp.lp",
         FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_eui48,
+      { "EUI48 Address", "dns.eui48",
+        FT_ETHER, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_eui64,
+      { "EUI48 Address", "dns.eui48",
+        FT_EUI64, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_rrsig_type_covered,
