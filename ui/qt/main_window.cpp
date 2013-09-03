@@ -278,7 +278,7 @@ void MainWindow::layoutPanes()
     master_split_ = new QSplitter(main_ui_->mainStack);
     master_split_->setObjectName(QString::fromUtf8("splitterMaster"));
 
-    extra_split_ = new QSplitter(master_split_);
+    extra_split_ = new QSplitter(main_ui_->mainStack);
     extra_split_->setObjectName(QString::fromUtf8("splitterExtra"));
 
     switch(prefs.gui_layout_type) {
@@ -326,13 +326,13 @@ void MainWindow::layoutPanes()
         g_assert_not_reached();
     }
 
-    packet_list_ = new PacketList(parents[0]);
+    packet_list_ = new PacketList(main_ui_->mainStack);
 
-    proto_tree_ = new ProtoTree(parents[1]);
+    proto_tree_ = new ProtoTree(main_ui_->mainStack);
     proto_tree_->setHeaderHidden(true);
     proto_tree_->installEventFilter(this);
 
-    byte_view_tab_ = new ByteViewTab(parents[2]);
+    byte_view_tab_ = new ByteViewTab(main_ui_->mainStack);
     byte_view_tab_->setTabPosition(QTabWidget::South);
     byte_view_tab_->setDocumentMode(true);
 
