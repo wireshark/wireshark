@@ -240,6 +240,17 @@ static int hf_dns_caa_tag_length = -1;
 static int hf_dns_caa_tag = -1;
 static int hf_dns_caa_value = -1;
 
+static int hf_dns_wins_local_flag = -1;
+static int hf_dns_wins_lookup_timeout = -1;
+static int hf_dns_wins_cache_timeout = -1;
+static int hf_dns_wins_nb_wins_servers = -1;
+static int hf_dns_wins_server = -1;
+
+static int hf_dns_winsr_local_flag = -1;
+static int hf_dns_winsr_lookup_timeout = -1;
+static int hf_dns_winsr_cache_timeout = -1;
+static int hf_dns_winsr_name_result_domain = -1;
+
 static gint ett_dns = -1;
 static gint ett_dns_qd = -1;
 static gint ett_dns_rr = -1;
@@ -2783,56 +2794,42 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_WINS:
+    case T_WINS:  /* Microsoft's WINS (65281)*/
+
     {
       int     rr_len = data_len;
-      guint32 local_flag;
-      guint32 lookup_timeout;
-      guint32 cache_timeout;
       guint32 nservers;
 
-
       if (rr_len < 4) {
         goto bad_rr;
       }
-      local_flag = tvb_get_ntohl(tvb, cur_offset);
 
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Local flag: %s",
-                          local_flag ? "true" : "false");
-
+      proto_tree_add_item(rr_tree, hf_dns_wins_local_flag, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
-      lookup_timeout = tvb_get_ntohl(tvb, cur_offset);
 
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Lookup timeout: %u seconds",
-                          lookup_timeout);
-
+      proto_tree_add_item(rr_tree, hf_dns_wins_lookup_timeout, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
-      cache_timeout = tvb_get_ntohl(tvb, cur_offset);
 
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Cache timeout: %u seconds",
-                          cache_timeout);
-
+      proto_tree_add_item(rr_tree, hf_dns_wins_cache_timeout, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
+
+      proto_tree_add_item(rr_tree, hf_dns_wins_nb_wins_servers, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       nservers = tvb_get_ntohl(tvb, cur_offset);
-
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Number of WINS servers: %u",
-                          nservers);
-
       cur_offset += 4;
       rr_len     -= 4;
 
@@ -2840,8 +2837,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         if (rr_len < 4) {
           goto bad_rr;
         }
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "WINS server address: %s",
-                            tvb_ip_to_str(tvb, cur_offset));
+        proto_tree_add_item(rr_tree, hf_dns_wins_server, tvb, cur_offset, 4, ENC_NA);
 
         cur_offset += 4;
         rr_len     -= 4;
@@ -2851,57 +2847,44 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_WINS_R:
+    case T_WINS_R: /* Microsoft's WINS-R (65282)*/
     {
       int           rr_len = data_len;
-      guint32       local_flag;
-      guint32       lookup_timeout;
-      guint32       cache_timeout;
       const guchar *dname;
       int           dname_len;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
-      local_flag = tvb_get_ntohl(tvb, cur_offset);
 
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Local flag: %s",
-                          local_flag ? "true" : "false");
-
+      proto_tree_add_item(rr_tree, hf_dns_winsr_local_flag, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
-      lookup_timeout = tvb_get_ntohl(tvb, cur_offset);
 
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Lookup timeout: %u seconds",
-                          lookup_timeout);
-
+      proto_tree_add_item(rr_tree, hf_dns_winsr_lookup_timeout, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
-      cache_timeout = tvb_get_ntohl(tvb, cur_offset);
 
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Cache timeout: %u seconds",
-                          cache_timeout);
-
+      proto_tree_add_item(rr_tree, hf_dns_winsr_cache_timeout, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       /* rr_len     -= 4; */
 
       /* XXX Fix data length */
       dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &dname);
       name_out = format_text(dname, strlen(dname));
+      proto_tree_add_string(rr_tree, hf_dns_winsr_name_result_domain, tvb, cur_offset, dname_len, name_out);
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       }
       proto_item_append_text(trr, ", name result domain %s", name_out);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, dname_len, "Name result domain: %s",
-                          name_out);
     }
     break;
 
@@ -4828,7 +4811,52 @@ proto_register_dns(void)
     { &hf_dns_caa_value,
       { "Value", "dns.caa.value",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }}
+        NULL, HFILL }},
+
+    { &hf_dns_wins_local_flag,
+      { "Local Flag", "dns.wins.local_flag",
+        FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x1,
+        NULL, HFILL }},
+
+    { &hf_dns_wins_lookup_timeout,
+      { "Lookup timeout", "dns.wins.lookup_timeout",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "In seconds", HFILL }},
+
+    { &hf_dns_wins_cache_timeout,
+      { "Cache timeout", "dns.wins.cache_timeout",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "In seconds", HFILL }},
+
+    { &hf_dns_wins_nb_wins_servers,
+      { "Number of WINS servers", "dns.wins.nb_wins_servers",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_wins_server,
+      { "WINS Server Address", "dns.wins.wins_server",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_winsr_local_flag,
+      { "Local Flag", "dns.winsr.local_flag",
+        FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x1,
+        NULL, HFILL }},
+
+    { &hf_dns_winsr_lookup_timeout,
+      { "Lookup timeout", "dns.winsr.lookup_timeout",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "In seconds", HFILL }},
+
+    { &hf_dns_winsr_cache_timeout,
+      { "Cache timeout", "dns.winsr.cache_timeout",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "In seconds", HFILL }},
+
+    { &hf_dns_winsr_name_result_domain,
+      { "Name Result Domain", "dns.winsr.name_result_domain",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
   };
 
   static ei_register_info ei[] = {
