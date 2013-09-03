@@ -3206,8 +3206,6 @@ nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
     /* GUTI or IMSI EPS mobile identity 9.9.3.12    M   LV  5-12 */
     ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, NULL);
-
-    return;
 }
 /*
  * 8.2.11.2 Detach request (UE terminated detach)
@@ -3246,22 +3244,10 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     ELEM_OPT_TV(0x53, NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
-
-    return;
 }
 static void
 nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
-#if 0
-    guint32 curr_offset;
-#endif
-    /*guint curr_len;*/
-
-#if 0
-    curr_offset = offset;
-#endif
-    /*curr_len = len;*/
-
     if (pinfo) {
         if (pinfo->link_dir == P2P_DIR_UL) {
             nas_emm_detach_req_UL(tvb, tree, pinfo, offset, len);
@@ -3271,21 +3257,11 @@ nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
             return;
         }
     }
-#if 0
-    proto_tree_add_text(tree, tvb, curr_offset, len,"UL/DL not known, can't properly dissect");
-    proto_tree_add_text(tree, tvb, curr_offset, len,"Trying to dissect as UE terminated detach");
-    nas_emm_detach_req_DL(tvb, tree, pinfo, offset, len);
-    proto_tree_add_text(tree, tvb, curr_offset, len,"Trying to dissect as UE originating detach");
-    nas_emm_detach_req_UL(tvb, tree, pinfo, offset, len);
-#else
     if (len >= 8) {
         nas_emm_detach_req_UL(tvb, tree, pinfo, offset, len);
     } else {
         nas_emm_detach_req_DL(tvb, tree, pinfo, offset, len);
     }
-#endif
-
-    return;
 }
 
 /*
