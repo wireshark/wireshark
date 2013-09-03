@@ -238,6 +238,8 @@ static int hf_dns_tsig_other_data = -1;
 static int hf_dns_response_in = -1;
 static int hf_dns_response_to = -1;
 static int hf_dns_time = -1;
+static int hf_dns_sshfp_algorithm = -1;
+static int hf_dns_sshfp_fingerprint_type = -1;
 static int hf_dns_sshfp_fingerprint = -1;
 static int hf_dns_hip_hit = -1;
 static int hf_dns_hip_pk = -1;
@@ -604,8 +606,22 @@ static const value_string tkey_mode_vals[] = {
 #define TSSHFP_ALGO_RESERVED   (0)
 #define TSSHFP_ALGO_RSA        (1)
 #define TSSHFP_ALGO_DSA        (2)
+
 #define TSSHFP_FTYPE_RESERVED  (0)
 #define TSSHFP_FTYPE_SHA1      (1)
+
+static const value_string sshfp_algo_vals[] = {
+  { TSSHFP_ALGO_RESERVED, "Reserved" },
+  { TSSHFP_ALGO_RSA,      "RSA" },
+  { TSSHFP_ALGO_DSA,      "DSA" },
+  { 0, NULL }
+};
+
+static const value_string sshfp_fingertype_vals[] = {
+  { TSSHFP_FTYPE_RESERVED,  "Reserved" },
+  { TSSHFP_FTYPE_SHA1,      "SHA1" },
+  { 0, NULL }
+};
 
 /* HIP PK ALGO RFC 5205 */
 #define THIP_ALGO_DSA          (1)
@@ -2988,40 +3004,22 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_SSHFP:
+    case T_SSHFP: /* Securely Publish SSH Key Fingerprints (44) */
     {
-      guint8 sshfp_algorithm, sshfp_type;
       int    rr_len = data_len;
-
-      static const value_string sshfp_algo[] = {
-        { TSSHFP_ALGO_RESERVED, "Reserved" },
-        { TSSHFP_ALGO_RSA,      "RSA" },
-        { TSSHFP_ALGO_DSA,      "DSA" },
-        { 0, NULL }
-      };
-
-      static const value_string sshfp_fingertype[] = {
-        { TSSHFP_FTYPE_RESERVED,  "Reserved" },
-        { TSSHFP_FTYPE_SHA1,      "SHA1" },
-        { 0, NULL }
-      };
 
 
       if (rr_len < 1) {
         goto bad_rr;
       }
-      sshfp_algorithm = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-                          "Algorithm: %s", val_to_str(sshfp_algorithm, sshfp_algo, "Unknown (0x%02X)"));
+      proto_tree_add_item(rr_tree, hf_dns_sshfp_algorithm, tvb, cur_offset, 1, ENC_NA);
       cur_offset += 1;
       rr_len     -= 1;
 
       if (rr_len < 1) {
         goto bad_rr;
       }
-      sshfp_type = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-                          "Fingerprint type: %s", val_to_str(sshfp_type, sshfp_fingertype, "Unknown (0x%02X)"));
+      proto_tree_add_item(rr_tree, hf_dns_sshfp_fingerprint_type, tvb, cur_offset, 1, ENC_NA);
       cur_offset += 1;
       rr_len     -= 1;
 
@@ -4817,6 +4815,16 @@ proto_register_dns(void)
       { "Additional RRs", "dns.count.add_rr",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Number of additional records in packet", HFILL }},
+
+    { &hf_dns_sshfp_algorithm,
+      { "Algorithm", "dns.sshfp.algorithm",
+        FT_UINT8, BASE_DEC, VALS(sshfp_algo_vals), 0,
+        NULL, HFILL }},
+
+    { &hf_dns_sshfp_fingerprint_type,
+      { "Fingerprint type", "dns.sshfp.fingerprint.type",
+        FT_UINT8, BASE_DEC, VALS(sshfp_fingertype_vals), 0,
+        NULL, HFILL }},
 
     { &hf_dns_sshfp_fingerprint,
       { "Fingerprint", "dns.sshfp.fingerprint",
