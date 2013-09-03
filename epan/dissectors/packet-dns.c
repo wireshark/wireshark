@@ -154,6 +154,15 @@ static int hf_dns_key_protocol = -1;
 static int hf_dns_key_algorithm = -1;
 static int hf_dns_key_key_id = -1;
 static int hf_dns_key_public_key = -1;
+static int hf_dns_tkey_algo_name = -1;
+static int hf_dns_tkey_signature_expiration = -1;
+static int hf_dns_tkey_signature_inception = -1;
+static int hf_dns_tkey_mode = -1;
+static int hf_dns_tkey_error = -1;
+static int hf_dns_tkey_key_size = -1;
+static int hf_dns_tkey_key_data = -1;
+static int hf_dns_tkey_other_size = -1;
+static int hf_dns_tkey_other_data = -1;
 static int hf_dns_ipseckey_gateway_precedence = -1;
 static int hf_dns_ipseckey_gateway_type = -1;
 static int hf_dns_ipseckey_gateway_algorithm = -1;
@@ -207,12 +216,13 @@ static int hf_dns_tlsa_certificate_usage = -1;
 static int hf_dns_tlsa_selector = -1;
 static int hf_dns_tlsa_matching_type = -1;
 static int hf_dns_tlsa_certificate_association_data = -1;
+static int hf_dns_tsig_algorithm_name = -1;
+static int hf_dns_tsig_time_signed = -1;
 static int hf_dns_tsig_error = -1;
 static int hf_dns_tsig_fudge = -1;
 static int hf_dns_tsig_mac_size = -1;
 static int hf_dns_tsig_mac = -1;
 static int hf_dns_tsig_original_id = -1;
-static int hf_dns_tsig_algorithm_name = -1;
 static int hf_dns_tsig_other_len = -1;
 static int hf_dns_tsig_other_data = -1;
 static int hf_dns_response_in = -1;
@@ -268,6 +278,7 @@ static gint ett_caa_data = -1;
 static expert_field ei_dns_rr_opt_bad_length = EI_INIT;
 static expert_field ei_dns_depr_opc = EI_INIT;
 static expert_field ei_ttl_negative = EI_INIT;
+static expert_field ei_dns_tsig_alg = EI_INIT;
 
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
@@ -515,19 +526,36 @@ static const value_string opcode_vals[] = {
 #define RCODE_NOTAUTH    9
 #define RCODE_NOTZONE   10
 
+#define RCODE_BAD       16
+#define RCODE_BADKEY    17
+#define RCODE_BADTIME   18
+#define RCODE_BADMODE   19
+#define RCODE_BADNAME   20
+#define RCODE_BADALG    21
+#define RCODE_BADTRUNC  22
+
 static const value_string rcode_vals[] = {
-  { RCODE_NOERROR,   "No error"             },
-  { RCODE_FORMERR,   "Format error"         },
-  { RCODE_SERVFAIL,  "Server failure"       },
-  { RCODE_NXDOMAIN,  "No such name"         },
-  { RCODE_NOTIMPL,   "Not implemented"      },
-  { RCODE_REFUSED,   "Refused"              },
-  { RCODE_YXDOMAIN,  "Name exists"          },
-  { RCODE_YXRRSET,   "RRset exists"         },
-  { RCODE_NXRRSET,   "RRset does not exist" },
-  { RCODE_NOTAUTH,   "Not authoritative"    },
-  { RCODE_NOTZONE,   "Name out of zone"     },
-  { 0,               NULL                   } };
+  { RCODE_NOERROR,    "No error"             },
+  { RCODE_FORMERR,    "Format error"         },
+  { RCODE_SERVFAIL,   "Server failure"       },
+  { RCODE_NXDOMAIN,   "No such name"         },
+  { RCODE_NOTIMPL,    "Not implemented"      },
+  { RCODE_REFUSED,    "Refused"              },
+  { RCODE_YXDOMAIN,   "Name exists"          },
+  { RCODE_YXRRSET,    "RRset exists"         },
+  { RCODE_NXRRSET,    "RRset does not exist" },
+  { RCODE_NOTAUTH,    "Not authoritative"    },
+  { RCODE_NOTZONE,    "Name out of zone"     },
+  /* 11-15          Unassigned */
+  { RCODE_BAD,        "Bad OPT Version or TSIG Signature Failure" },
+  { RCODE_BADKEY,     "Key not recognized" },
+  { RCODE_BADTIME,    "Signature out of time window" },
+  { RCODE_BADMODE,    "Bad TKEY Mode" },
+  { RCODE_BADNAME,    "Duplicate key name" },
+  { RCODE_BADALG,     "Algorithm not supported" },
+  { RCODE_BADTRUNC,   "Bad Truncation"    },
+  { 0,                NULL }
+ };
 
 #define NSEC3_HASH_RESERVED  0
 #define NSEC3_HASH_SHA1      1
@@ -545,28 +573,20 @@ static const true_false_string tfs_flags_nsec3_optout = {
 };
 static const true_false_string tfs_required_experimental = { "Experimental or optional", "Required" };
 
-/* TSIG/TKEY extended errors */
-#define TSIGERROR_BADSIG   (16)
-#define TSIGERROR_BADKEY   (17)
-#define TSIGERROR_BADTIME  (18)
-#define TSIGERROR_BADMODE  (19)
-#define TSIGERROR_BADNAME  (20)
-#define TSIGERROR_BADALG   (21)
-
-static const value_string tsigerror_vals[] = {
-  { TSIGERROR_BADSIG,   "Bad signature"        },
-  { TSIGERROR_BADKEY,   "Bad key"              },
-  { TSIGERROR_BADTIME,  "Bad time failure"     },
-  { TSIGERROR_BADMODE,  "Bad mode such name"   },
-  { TSIGERROR_BADNAME,  "Bad name implemented" },
-  { TSIGERROR_BADALG,   "Bad algorithm"        },
-  { 0,                  NULL                   } };
-
 #define TKEYMODE_SERVERASSIGNED             (1)
 #define TKEYMODE_DIFFIEHELLMAN              (2)
 #define TKEYMODE_GSSAPI                     (3)
 #define TKEYMODE_RESOLVERASSIGNED           (4)
 #define TKEYMODE_DELETE                     (5)
+
+static const value_string tkey_mode_vals[] = {
+  { TKEYMODE_SERVERASSIGNED,   "Server assigned"   },
+  { TKEYMODE_DIFFIEHELLMAN,    "Diffie Hellman"    },
+  { TKEYMODE_GSSAPI,           "GSSAPI"            },
+  { TKEYMODE_RESOLVERASSIGNED, "Resolver assigned" },
+  { TKEYMODE_DELETE,           "Delete"            },
+  { 0,                         NULL                }
+ };
 
 /*
  * SSHFP (RFC 4255) algorithm number and fingerprint types
@@ -2553,21 +2573,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_TKEY:
+    case T_TKEY: /* Transaction Key (249) */
     {
       const guchar *tkey_algname;
       int           tkey_algname_len;
-      guint16       tkey_mode, tkey_error, tkey_keylen, tkey_otherlen;
+      guint16       tkey_mode, tkey_keylen, tkey_otherlen;
       int           rr_len = data_len;
-      nstime_t      nstime;
-
-      static const value_string tkey_modes[] = {
-        { TKEYMODE_SERVERASSIGNED,   "Server assigned"   },
-        { TKEYMODE_DIFFIEHELLMAN,    "Diffie Hellman"    },
-        { TKEYMODE_GSSAPI,           "GSSAPI"            },
-        { TKEYMODE_RESOLVERASSIGNED, "Resolver assigned" },
-        { TKEYMODE_DELETE,           "Delete"            },
-        { 0,                         NULL                } };
 
 
       proto_tree *key_tree;
@@ -2575,61 +2586,49 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       /* XXX Fix data length */
       tkey_algname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &tkey_algname);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_algname_len,
-                          "Algorithm name: %s",
-                          format_text(tkey_algname, strlen(tkey_algname)));
+      proto_tree_add_string(rr_tree, hf_dns_tkey_algo_name, tvb, cur_offset, tkey_algname_len, tkey_algname);
       cur_offset += tkey_algname_len;
       rr_len     -= tkey_algname_len;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
-      nstime.secs = tvb_get_ntohl(tvb, cur_offset);
-      nstime.nsecs = 0;
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature inception: %s",
-                          abs_time_to_str(&nstime, ABSOLUTE_TIME_LOCAL, TRUE));
+
+      proto_tree_add_item(rr_tree, hf_dns_tkey_signature_inception, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 4) {
         goto bad_rr;
       }
-      nstime.secs = tvb_get_ntohl(tvb, cur_offset);
-      nstime.nsecs = 0;
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature expiration: %s",
-                          abs_time_to_str(&nstime, ABSOLUTE_TIME_LOCAL, TRUE));
+      proto_tree_add_item(rr_tree, hf_dns_tkey_signature_expiration, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
       rr_len     -= 4;
 
       if (rr_len < 2) {
         goto bad_rr;
       }
+
+      proto_tree_add_item(rr_tree, hf_dns_tkey_mode, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       tkey_mode = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Mode: %s",
-                          val_to_str(tkey_mode, tkey_modes,
-                                     "Unknown (0x%04X)"));
       cur_offset += 2;
       rr_len     -= 2;
 
       if (rr_len < 2) {
         goto bad_rr;
       }
-      tkey_error = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Error: %s",
-                          val_to_str(tkey_error, rcode_vals,
-                                     val_to_str(tkey_error, tsigerror_vals, "Unknown error (%x)")));
+
+      proto_tree_add_item(rr_tree, hf_dns_tkey_error, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
+      proto_tree_add_item(rr_tree, hf_dns_tkey_key_size, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       tkey_keylen = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key Size: %u",
-                          tkey_keylen);
       cur_offset += 2;
       rr_len     -= 2;
 
       if (tkey_keylen != 0) {
-        key_item = proto_tree_add_text(
-          rr_tree, tvb, cur_offset, tkey_keylen, "Key Data");
+        key_item = proto_tree_add_item(rr_tree, hf_dns_tkey_key_data, tvb, cur_offset, tkey_keylen, ENC_NA);
 
         key_tree = proto_item_add_subtree(key_item, ett_t_key);
 
@@ -2676,9 +2675,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (rr_len < 2) {
         goto bad_rr;
       }
-      tkey_otherlen = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Other Size: %u",
-                          tkey_otherlen);
+      proto_tree_add_item(rr_tree, hf_dns_tkey_other_size, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      tkey_otherlen = tvb_get_ntohs(tvb, cur_offset);;
       cur_offset += 2;
       rr_len     -= 2;
 
@@ -2686,25 +2684,22 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         if (rr_len < tkey_otherlen) {
           goto bad_rr;
           }
-        proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_otherlen, "Other Data");
+        proto_tree_add_item(rr_tree, hf_dns_tkey_other_data, tvb, cur_offset,  tkey_otherlen, ENC_NA);
       }
 
     }
     break;
 
-    case T_TSIG:
+    case T_TSIG: /* Transaction Signature (250) */
     {
-      guint16       tsig_error, tsig_timehi, tsig_siglen, tsig_otherlen;
-      guint32       tsig_timelo;
-      const guchar *tsig_raw_algname;
-      char         *tsig_algname;
+      guint16       tsig_siglen, tsig_otherlen;
+      const guchar  *tsig_algname;
       int           tsig_algname_len;
-      nstime_t      nstime;
       int           rr_len = data_len;
+      proto_item    *ti;
 
       /* XXX Fix data length */
-      tsig_algname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &tsig_raw_algname);
-      tsig_algname=format_text(tsig_raw_algname, strlen(tsig_raw_algname));
+      tsig_algname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &tsig_algname);
       proto_tree_add_string(rr_tree, hf_dns_tsig_algorithm_name, tvb, cur_offset, tsig_algname_len, tsig_algname);
       cur_offset += tsig_algname_len;
       rr_len     -= tsig_algname_len;
@@ -2712,13 +2707,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (rr_len < 6) {
         goto bad_rr;
       }
-      tsig_timehi = tvb_get_ntohs(tvb, cur_offset);
-      tsig_timelo = tvb_get_ntohl(tvb, cur_offset + 2);
-      nstime.secs = tsig_timelo;
-      nstime.nsecs = 0;
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 6, "Time signed: %s%s",
-                          abs_time_to_str(&nstime, ABSOLUTE_TIME_LOCAL, TRUE),
-                          tsig_timehi == 0 ? "" : "(high bits set)");
+
+      ti = proto_tree_add_item(rr_tree, hf_dns_tsig_time_signed ,tvb, cur_offset, 6, ENC_NA);
+      if(tvb_get_ntohs(tvb, cur_offset)) /* Time High */
+      {
+        proto_item_append_text(ti, " (high bits set)");
+      }
       cur_offset += 6;
       rr_len     -= 6;
 
@@ -2751,8 +2745,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         sub_tvb=tvb_new_subset(tvb, cur_offset, tsig_siglen, tsig_siglen);
 
         if (!dissector_try_string(dns_tsig_dissector_table, tsig_algname, sub_tvb, pinfo, mac_tree)) {
-          proto_tree_add_text(mac_tree, sub_tvb, 0, tvb_length(sub_tvb),
-                              "No dissector for algorithm:%s", tsig_algname);
+          expert_add_info_format_text(pinfo, mac_item, &ei_dns_tsig_alg,
+                "No dissector for algorithm:%s", tsig_algname);
         }
 
         cur_offset += tsig_siglen;
@@ -2769,11 +2763,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (rr_len < 2) {
         goto bad_rr;
       }
-      tsig_error = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_uint_format(rr_tree, hf_dns_tsig_error, tvb, cur_offset, 2, tsig_error, "Error: %s (%d)",
-                                 val_to_str_const(tsig_error, rcode_vals,
-                                            val_to_str_const(tsig_error, tsigerror_vals, "Unknown error")),
-                                 tsig_error);
+      proto_tree_add_item(rr_tree, hf_dns_tsig_error, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
@@ -4359,6 +4349,51 @@ proto_register_dns(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_dns_tkey_algo_name,
+      { "Algorithm name", "dns.tkey.algo_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_tkey_signature_expiration,
+      { "Signature Expiration", "dns.tkey.signature_expiration",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+        "Specify a validity period for the signature", HFILL }},
+
+    { &hf_dns_tkey_signature_inception,
+      { "Signature Inception", "dns.tkey.signature_inception",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+        "Specify a validity period for the signature", HFILL }},
+
+    { &hf_dns_tkey_mode,
+      { "Mode", "dns.tkey.mode",
+        FT_UINT16, BASE_DEC, VALS(tkey_mode_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_tkey_error,
+      { "Error", "dns.tkey.error",
+        FT_UINT16, BASE_DEC, VALS(rcode_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_tkey_key_size,
+      { "Key Size", "dns.tkey.key_size",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_tkey_key_data,
+      { "Key Data", "dns.tkey.key_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_tkey_other_size,
+      { "Other Size", "dns.tkey.other_size",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_tkey_other_data,
+      { "Other Data", "dns.tkey.other_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
     { &hf_dns_ipseckey_gateway_precedence,
       { "Gateway Precedence", "dns.ipseckey.gateway_precedence",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -4657,6 +4692,17 @@ proto_register_dns(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         "The data refers to the certificate in the association", HFILL }},
 
+    { &hf_dns_tsig_algorithm_name,
+      { "Algorithm Name", "dns.tsig.algorithm_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Name of algorithm used for the MAC", HFILL }},
+
+    { &hf_dns_tsig_time_signed,
+      { "Time Signed", "dns.tsig.time_signed",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+        NULL, HFILL }},
+
+
     { &hf_dns_tsig_original_id,
       { "Original Id", "dns.tsig.original_id",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -4664,7 +4710,7 @@ proto_register_dns(void)
 
     { &hf_dns_tsig_error,
       { "Error", "dns.tsig.error",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_DEC, VALS(rcode_vals), 0x0,
         "Expanded RCODE for TSIG", HFILL }},
 
     { &hf_dns_tsig_fudge,
@@ -4691,11 +4737,6 @@ proto_register_dns(void)
       { "Other Data", "dns.tsig.other_data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
-
-    { &hf_dns_tsig_algorithm_name,
-      { "Algorithm Name", "dns.tsig.algorithm_name",
-        FT_STRING, BASE_NONE, NULL, 0x0,
-        "Name of algorithm used for the MAC", HFILL }},
 
     { &hf_dns_response_in,
       { "Response In", "dns.response_in",
@@ -4871,7 +4912,8 @@ proto_register_dns(void)
   static ei_register_info ei[] = {
      { &ei_dns_rr_opt_bad_length, { "dns.rr.opt.bad_length", PI_MALFORMED, PI_ERROR, "Length too long for any type of IP address.", EXPFILL }},
      { &ei_dns_depr_opc, { "dns.depr.opc", PI_PROTOCOL, PI_WARN, "Deprecated opcode", EXPFILL }},
-     { &ei_ttl_negative, { "dns.ttl.negative", PI_PROTOCOL, PI_WARN, "TTL can't be negative", EXPFILL }}
+     { &ei_ttl_negative, { "dns.ttl.negative", PI_PROTOCOL, PI_WARN, "TTL can't be negative", EXPFILL }},
+     { &ei_dns_tsig_alg, { "dns.tsig.noalg", PI_UNDECODED, PI_WARN, "No dissector for algorithm", EXPFILL }},
   };
 
   static gint *ett[] = {
