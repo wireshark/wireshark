@@ -30,6 +30,10 @@
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 
+// XXX We should probably call ITaskbarList3::SetProgressState and
+// ::SetProgressState on Windows and add an NSProgressIndicator to the
+// dock icon on OS X.
+
 static progdlg_t *
 common_create_progress_dlg(bool animate, const gpointer top_level_window,
                            gboolean terminate_is_stop, gboolean *stop_flag,
