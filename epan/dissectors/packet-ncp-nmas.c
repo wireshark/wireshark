@@ -382,7 +382,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             }
             proto_tree_add_item(atree, hf_msg_verb, tvb, foffset, 1, ENC_BIG_ENDIAN);
             foffset += 1;
-            msg_length -= 12;
+            /*msg_length -= 12;*/
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                 val_to_str(msgverb, nmas_msgverb_enum, "Unknown (%u)"));
 
