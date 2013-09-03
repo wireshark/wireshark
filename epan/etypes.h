@@ -446,6 +446,10 @@ extern "C" {
 #define ETHERTYPE_MRP			0x88E3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
 #endif
 
+#ifndef ETHERTYPE_MACSEC
+#define ETHERTYPE_MACSEC			0x88E5  /* IEEE 802.1ae Media access control security (MACSEC) */
+#endif
+
 #ifndef ETHERTYPE_IEEE_802_1AH
 #define ETHERTYPE_IEEE_802_1AH		0x88E7  /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
 #endif

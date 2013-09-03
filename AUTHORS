@@ -3529,6 +3529,9 @@ Vaibhav Katkade		<katkade_v[AT]yahoo.com> {
 	Support for Cisco MetaData (CMD) ethertype
 }
 
+Allan W. Nielsen		<anielsen[AT]vitesse.com> {
+	Support for MACSEC ethertype/dissector
+}
 
 and by:
 

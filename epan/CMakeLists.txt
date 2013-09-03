@@ -860,6 +860,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mac-lte-framed.c
 	dissectors/packet-mac-lte.c
 	dissectors/packet-maccontrol.c
+	dissectors/packet-macsec.c
 	dissectors/packet-mactelnet.c
 	dissectors/packet-manolito.c
 	dissectors/packet-mbtcp.c

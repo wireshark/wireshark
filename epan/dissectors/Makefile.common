@@ -793,6 +793,7 @@ DISSECTOR_SRC = \
 	packet-mac-lte-framed.c	\
 	packet-mac-lte.c	\
 	packet-maccontrol.c	\
+	packet-macsec.c		\
 	packet-mactelnet.c	\
 	packet-manolito.c	\
 	packet-mbtcp.c		\
