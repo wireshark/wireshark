@@ -141,6 +141,14 @@ static int hf_dns_txt_length = -1;
 static int hf_dns_txt = -1;
 static int hf_dns_spf_length = -1;
 static int hf_dns_spf = -1;
+static int hf_dns_ilnp_nodeid_preference = -1;
+static int hf_dns_ilnp_nodeid = -1;
+static int hf_dns_ilnp_locator32_preference = -1;
+static int hf_dns_ilnp_locator32 = -1;
+static int hf_dns_ilnp_locator64_preference = -1;
+static int hf_dns_ilnp_locator64 = -1;
+static int hf_dns_ilnp_locatorfqdn_preference = -1;
+static int hf_dns_ilnp_locatorfqdn = -1;
 static int hf_dns_rrsig_type_covered = -1;
 static int hf_dns_rrsig_algorithm = -1;
 static int hf_dns_rrsig_labels = -1;
@@ -3242,6 +3250,59 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     break;
 
 
+    case T_NID: /* NodeID (104) */
+    {
+
+      proto_tree_add_item(rr_tree, hf_dns_ilnp_nodeid_preference, tvb, cur_offset, 2, ENC_NA);
+      cur_offset += 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_ilnp_nodeid, tvb, cur_offset, 8, ENC_NA);
+      /*cur_offset += 8;*/
+
+    }
+    break;
+
+    case T_L32: /* Locator (105) */
+    {
+
+      proto_tree_add_item(rr_tree, hf_dns_ilnp_locator32_preference, tvb, cur_offset, 2, ENC_NA);
+      cur_offset += 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_ilnp_locator32, tvb, cur_offset, 4, ENC_NA);
+      /*cur_offset += 4;*/
+
+    }
+    break;
+
+    case T_L64: /* Locator64 (106) */
+    {
+
+      proto_tree_add_item(rr_tree, hf_dns_ilnp_locator64_preference, tvb, cur_offset, 2, ENC_NA);
+      cur_offset += 2;
+
+      proto_tree_add_item(rr_tree, hf_dns_ilnp_locator64, tvb, cur_offset, 8, ENC_NA);
+      /*cur_offset += 8;*/
+
+    }
+    break;
+
+    case T_LP: /* Locator FQDN (107) */
+    {
+      int           lp_len;
+      const guchar *lp_str;
+
+      proto_tree_add_item(rr_tree, hf_dns_ilnp_locatorfqdn_preference, tvb, cur_offset, 2, ENC_NA);
+      cur_offset += 2;
+
+      /* XXX Fix data length */
+      lp_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &lp_str);
+      proto_tree_add_string(rr_tree, hf_dns_ilnp_locatorfqdn, tvb, cur_offset, lp_len, lp_str);
+      /*cur_offset += lp_len;*/
+
+    }
+    break;
+
+
     case T_TKEY: /* Transaction Key (249) */
     {
       const guchar *tkey_algname;
@@ -4448,6 +4509,46 @@ proto_register_dns(void)
 
     { &hf_dns_spf,
       { "SPF", "dns.spf",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ilnp_nodeid_preference,
+      { "Preference", "dns.ilnp.nid.preference",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ilnp_nodeid,
+      { "NodeID", "dns.ilnp.nid",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ilnp_locator32_preference,
+      { "Preference", "dns.ilnp.l32.preference",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ilnp_locator32,
+      { "Locator32", "dns.ilnp.l32",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ilnp_locator64_preference,
+      { "Preference", "dns.ilnp.l64.preference",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ilnp_locator64,
+      { "Locator64", "dns.ilnp.l64",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ilnp_locatorfqdn_preference,
+      { "Preference", "dns.ilnp.lp.preference",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ilnp_locatorfqdn,
+      { "Locator FQDN", "dns.ilnp.lp",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
