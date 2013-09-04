@@ -29,6 +29,7 @@
 
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include "ws_symbol_export.h"
 
 /**
@@ -100,7 +101,7 @@ typedef struct _oid_info_t {
 	guint32 subid;
 	char* name;
 	oid_kind_t kind;
-	void* children; /**< an emem_tree_t* */
+	wmem_tree_t* children;
 	const oid_value_type_t* value_type;
 	int value_hfid;
 	oid_key_t* key;

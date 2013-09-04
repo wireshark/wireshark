@@ -98,7 +98,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 
 		debuglevel = debug_env ? (int)strtoul(debug_env,NULL,10) : 0;
 
-		oid_root.children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_root");
+		oid_root.children = wmem_tree_new(wmem_epan_scope());
 
 		/*
 		 * make sure we got strings at least in the three root-children oids
@@ -112,7 +112,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 	oid_len--;
 
 	do {
-		oid_info_t* n = (oid_info_t *)emem_tree_lookup32((emem_tree_t *)c->children,subids[i]);
+		oid_info_t* n = (oid_info_t *)wmem_tree_lookup32(c->children,subids[i]);
 
 		if(n) {
 			if (i == oid_len) {
@@ -142,13 +142,13 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 			n = (oid_info_t *)g_malloc(sizeof(oid_info_t));
 			n->subid = subids[i];
 			n->kind = kind;
-			n->children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_children");
+			n->children = wmem_tree_new(wmem_epan_scope());
 			n->value_hfid = -2;
 			n->key = key;
 			n->parent = c;
 			n->bits = NULL;
 
-			emem_tree_insert32((emem_tree_t *)c->children,n->subid,n);
+			wmem_tree_insert32(c->children,n->subid,n);
 
 			if (i == oid_len) {
 				n->name = g_strdup(name);
@@ -995,7 +995,7 @@ oid_info_t* oid_get(guint len, guint32* subids, guint* matched, guint* left) {
 	}
 
 	for( i=0; i < len; i++) {
-		oid_info_t* next_oid = (oid_info_t *)emem_tree_lookup32((emem_tree_t *)curr_oid->children,subids[i]);
+		oid_info_t* next_oid = (oid_info_t *)wmem_tree_lookup32(curr_oid->children,subids[i]);
 		if (next_oid) {
 			curr_oid = next_oid;
 		} else {

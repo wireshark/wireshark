@@ -31,6 +31,7 @@
 #include <epan/epan.h>
 #include <wsutil/unicode-utils.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "guid-utils.h"
 
 #ifdef _WIN32
@@ -38,7 +39,7 @@
 #include <windows.h>
 #endif
 
-static emem_tree_t *guid_to_name_tree = NULL;
+static wmem_tree_t *guid_to_name_tree = NULL;
 
 
 #ifdef _WIN32
@@ -83,7 +84,7 @@ ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
 void
 guids_add_guid(e_guid_t *guid, const gchar *name)
 {
-	emem_tree_key_t guidkey[2];
+	wmem_tree_key_t guidkey[2];
 	guint32 g[4];
 
 	g[0]=guid->data1;
@@ -112,7 +113,7 @@ guids_add_guid(e_guid_t *guid, const gchar *name)
 	guidkey[0].length=4;
 	guidkey[1].length=0;
 
-	pe_tree_insert32_array(guid_to_name_tree, &guidkey[0], (gchar *) name);
+	wmem_tree_insert32_array(guid_to_name_tree, &guidkey[0], (gchar *) name);
 }
 
 
@@ -120,7 +121,7 @@ guids_add_guid(e_guid_t *guid, const gchar *name)
 const gchar *
 guids_get_guid_name(e_guid_t *guid)
 {
-	emem_tree_key_t guidkey[2];
+	wmem_tree_key_t guidkey[2];
 	guint32 g[4];
 	char *name;
 #ifdef _WIN32
@@ -153,7 +154,7 @@ guids_get_guid_name(e_guid_t *guid)
 	guidkey[0].length=4;
 	guidkey[1].length=0;
 
-	if((name = (char *)pe_tree_lookup32_array(guid_to_name_tree, &guidkey[0]))){
+	if((name = (char *)wmem_tree_lookup32_array(guid_to_name_tree, &guidkey[0]))){
 		return name;
 	}
 
@@ -173,7 +174,7 @@ guids_get_guid_name(e_guid_t *guid)
 void
 guids_init(void)
 {
-	guid_to_name_tree=pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "guid_to_name");
+	guid_to_name_tree=wmem_tree_new(wmem_epan_scope());
 	/* XXX here is a good place to read a config file with wellknown guids */
 }
 
