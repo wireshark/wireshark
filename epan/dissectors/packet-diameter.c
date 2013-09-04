@@ -109,7 +109,7 @@ typedef struct _diameter_conv_info_t {
 typedef struct _diam_ctx_t {
 	proto_tree *tree;
 	packet_info *pinfo;
-	emem_tree_t *avps;
+	wmem_tree_t *avps;
 	gboolean version_rfc;
 } diam_ctx_t;
 
@@ -142,8 +142,8 @@ struct _diam_avp_t {
 #define VND_CMD_VS(v)      ((value_string *)(void *)((v)->vs_cmds->data))
 
 typedef struct _diam_dictionary_t {
-	emem_tree_t *avps;
-	emem_tree_t *vnds;
+	wmem_tree_t *avps;
+	wmem_tree_t *vnds;
 	value_string *applications;
 	value_string *commands;
 } diam_dictionary_t;
@@ -449,12 +449,12 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 	guint32 flags_bits_idx = (len & 0xE0000000) >> 29;
 	guint32 flags_bits     = (len & 0xFF000000) >> 24;
 	guint32 vendorid       = vendor_flag ? tvb_get_ntohl(tvb,offset+8) : 0 ;
-	emem_tree_key_t k[]    = {
+	wmem_tree_key_t k[]    = {
 		{1,&code},
 		{1,&vendorid},
 		{0,NULL}
 	};
-	diam_avp_t *a          = (diam_avp_t *)emem_tree_lookup32_array(dictionary.avps,k);
+	diam_avp_t *a          = (diam_avp_t *)wmem_tree_lookup32_array(dictionary.avps,k);
 	proto_item *pi, *avp_item;
 	proto_tree *avp_tree, *save_tree;
 	tvbuff_t *subtvb;
@@ -470,7 +470,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 		a = &unknown_avp;
 
 		if (vendor_flag) {
-			if (! (vendor = (diam_vnd_t *)emem_tree_lookup32(dictionary.vnds,vendorid) ))
+			if (! (vendor = (diam_vnd_t *)wmem_tree_lookup32(dictionary.vnds,vendorid) ))
 				vendor = &unknown_vendor;
 		} else {
 			vendor = &no_vnd;
@@ -960,7 +960,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			guint32 vendorid = tvb_get_ntohl(tvb,8);
 			diam_vnd_t *vendor;
 
-			if (! ( vendor = (diam_vnd_t *)emem_tree_lookup32(dictionary.vnds,vendorid) ) ) {
+			if (! ( vendor = (diam_vnd_t *)wmem_tree_lookup32(dictionary.vnds,vendorid) ) ) {
 				vendor = &unknown_vendor;
 			}
 
@@ -1266,8 +1266,8 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
 		  const diam_vnd_t *vendor, const char *name,
 		  const value_string *vs _U_, void *data _U_)
 {
-	diam_avp_t *a = (diam_avp_t *)g_malloc0(sizeof(diam_avp_t));
-	address_avp_t *t = (address_avp_t *)g_malloc(sizeof(address_avp_t));
+	diam_avp_t *a = wmem_new0(wmem_epan_scope(), diam_avp_t);
+	address_avp_t *t = wmem_new(wmem_epan_scope(), address_avp_t);
 	gint *ettp = &(t->ett);
 
 	a->code = code;
@@ -1504,8 +1504,8 @@ dictionary_load(void)
 	build_dict.types = g_hash_table_new(strcase_hash,strcase_equal);
 	build_dict.avps = g_hash_table_new(strcase_hash,strcase_equal);
 
-	dictionary.vnds = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"diameter_vnds");
-	dictionary.avps = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"diameter_avps");
+	dictionary.vnds = wmem_tree_new(wmem_epan_scope());
+	dictionary.avps = wmem_tree_new(wmem_epan_scope());
 
 	unknown_vendor.vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 	unknown_vendor.vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
@@ -1514,7 +1514,7 @@ dictionary_load(void)
 
 	all_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 
-	pe_tree_insert32(dictionary.vnds,0,&no_vnd);
+	wmem_tree_insert32(dictionary.vnds,0,&no_vnd);
 	g_hash_table_insert(vendors,(gchar *)"None",&no_vnd);
 
 	/* initialize the types hash with the known basic types */
@@ -1582,12 +1582,12 @@ dictionary_load(void)
 
 			g_array_append_val(vnd_shrt_arr,item);
 
-			vnd = (diam_vnd_t *)g_malloc(sizeof(diam_vnd_t));
+			vnd = wmem_new(wmem_epan_scope(), diam_vnd_t);
 			vnd->code = v->code;
 			vnd->vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 			vnd->vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
 			vnd->vs_avps_ext = NULL;
-			pe_tree_insert32(dictionary.vnds,vnd->code,vnd);
+			wmem_tree_insert32(dictionary.vnds,vnd->code,vnd);
 			g_hash_table_insert(vendors,v->name,vnd);
 		}
 	}
@@ -1672,12 +1672,12 @@ dictionary_load(void)
 			g_hash_table_insert(build_dict.avps, a->name, avp);
 
 			{
-				emem_tree_key_t k[] = {
+				wmem_tree_key_t k[] = {
 					{ 1, &(a->code) },
 					{ 1, &(vnd->code) },
 					{ 0 , NULL }
 				};
-				pe_tree_insert32_array(dictionary.avps,k,avp);
+				wmem_tree_insert32_array(dictionary.avps,k,avp);
 			}
 		}
 	}
