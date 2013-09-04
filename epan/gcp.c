@@ -33,10 +33,10 @@
 
 #include "gcp.h"
 
-static emem_tree_t* msgs = NULL;
-static emem_tree_t* trxs = NULL;
-static emem_tree_t* ctxs_by_trx = NULL;
-static emem_tree_t* ctxs = NULL;
+static wmem_tree_t* msgs = NULL;
+static wmem_tree_t* trxs = NULL;
+static wmem_tree_t* ctxs_by_trx = NULL;
+static wmem_tree_t* ctxs = NULL;
 
 const value_string gcp_cmd_type[] = {
     { GCP_CMD_NONE, "NoCommand"},
@@ -78,10 +78,10 @@ void gcp_init(void) {
     if (gcp_initialized)
         return;
 
-    msgs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_msgs");
-    trxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_trxs");
-    ctxs_by_trx = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_ctxs_by_trx");
-    ctxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_ctxs");
+    msgs = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    trxs = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    ctxs_by_trx = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    ctxs = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     gcp_initialized = TRUE;
 }
 
@@ -95,26 +95,26 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
     address* hi_addr;
 
     if (keep_persistent_data) {
-        emem_tree_key_t key[] = {
+        wmem_tree_key_t key[] = {
             {1,&(framenum)},
             {1,&offset},
             {0,NULL}
         };
 
-        if (( m = (gcp_msg_t *)se_tree_lookup32_array(msgs,key) )) {
+        if (( m = (gcp_msg_t *)wmem_tree_lookup32_array(msgs,key) )) {
             m->commited = TRUE;
             return m;
         } else {
-            m = se_new(gcp_msg_t);
+            m = wmem_new(wmem_file_scope(), gcp_msg_t);
             m->framenum = framenum;
             m->time = pinfo->fd->abs_ts;
             m->trxs = NULL;
             m->commited = FALSE;
 
-            se_tree_insert32_array(msgs,key,m);
+            wmem_tree_insert32_array(msgs,key,m);
         }
     } else {
-        m = ep_new0(gcp_msg_t);
+        m = wmem_new0(wmem_packet_scope(), gcp_msg_t);
         m->framenum = framenum;
         m->trxs = NULL;
         m->commited = FALSE;
@@ -167,18 +167,18 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
             }
             DISSECTOR_ASSERT_NOT_REACHED();
         } else {
-            emem_tree_key_t key[] = {
+            wmem_tree_key_t key[] = {
                 {1,&(m->hi_addr)},
                 {1,&(m->lo_addr)},
                 {1,&(t_id)},
                 {0,NULL}
             };
 
-            trxmsg = se_new(gcp_trx_msg_t);
-            t = (gcp_trx_t *)se_tree_lookup32_array(trxs,key);
+            trxmsg = wmem_new(wmem_file_scope(), gcp_trx_msg_t);
+            t = (gcp_trx_t *)wmem_tree_lookup32_array(trxs,key);
 
             if (!t) {
-                t = se_new(gcp_trx_t);
+                t = wmem_new(wmem_file_scope(), gcp_trx_t);
                 t->initial = m;
                 t->id = t_id;
                 t->type = type;
@@ -186,7 +186,7 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
                 t->error = 0;
                 t->cmds = NULL;
 
-                se_tree_insert32_array(trxs,key,t);
+                wmem_tree_insert32_array(trxs,key,t);
             }
 
             /* XXX: request, reply and ack + point to frames where they are */
@@ -200,8 +200,8 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
 
         }
     } else {
-        t = ep_new(gcp_trx_t);
-        trxmsg = ep_new(gcp_trx_msg_t);
+        t = wmem_new(wmem_packet_scope(), gcp_trx_t);
+        trxmsg = wmem_new(wmem_packet_scope(), gcp_trx_msg_t);
         t->initial = NULL;
         t->id = t_id;
         t->type = type;
@@ -234,14 +234,14 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
 
     if (persistent) {
 
-        emem_tree_key_t ctx_key[] = {
+        wmem_tree_key_t ctx_key[] = {
             {1,&(m->hi_addr)},
             {1,&(m->lo_addr)},
             {1,&(c_id)},
             {0,NULL}
         };
 
-        emem_tree_key_t trx_key[] = {
+        wmem_tree_key_t trx_key[] = {
             {1,&(m->hi_addr)},
             {1,&(m->lo_addr)},
             {1,&(t->id)},
@@ -249,9 +249,9 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
         };
 
         if (m->commited) {
-            if (( context = (gcp_ctx_t *)se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
+            if (( context = (gcp_ctx_t *)wmem_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
                 return context;
-            } if ((context_p = (gcp_ctx_t **)se_tree_lookup32_array(ctxs,ctx_key))) {
+            } if ((context_p = (gcp_ctx_t **)wmem_tree_lookup32_array(ctxs,ctx_key))) {
                 context = *context_p;
 
                 do {
@@ -264,8 +264,8 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
             }
         } else {
             if (c_id == CHOOSE_CONTEXT) {
-                if (! ( context = (gcp_ctx_t *)se_tree_lookup32_array(ctxs_by_trx,trx_key))) {
-                    context = se_new(gcp_ctx_t);
+                if (! ( context = (gcp_ctx_t *)wmem_tree_lookup32_array(ctxs_by_trx,trx_key))) {
+                    context = wmem_new(wmem_file_scope(), gcp_ctx_t);
                     context->initial = m;
                     context->cmds = NULL;
                     context->id = c_id;
@@ -273,14 +273,14 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
                     context->terms.next = NULL;
                     context->terms.term = NULL;
 
-                    se_tree_insert32_array(ctxs_by_trx,trx_key,context);
+                    wmem_tree_insert32_array(ctxs_by_trx,trx_key,context);
                 }
             } else {
-                if (( context = (gcp_ctx_t *)se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
-                    if (( context_p = (gcp_ctx_t **)se_tree_lookup32_array(ctxs,ctx_key) )) {
+                if (( context = (gcp_ctx_t *)wmem_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
+                    if (( context_p = (gcp_ctx_t **)wmem_tree_lookup32_array(ctxs,ctx_key) )) {
                         if (context != *context_p) {
                             if(context->id != CHOOSE_CONTEXT) {
-                                context = se_new(gcp_ctx_t);
+                                context = wmem_new(wmem_file_scope(), gcp_ctx_t);
                             }
                             context->initial = m;
                             context->id = c_id;
@@ -293,14 +293,14 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
                             *context_p = context;
                         }
                     } else {
-                        context_p = se_new(gcp_ctx_t*);
+                        context_p = wmem_new(wmem_file_scope(), gcp_ctx_t*);
                         *context_p = context;
                         context->initial = m;
                         context->id = c_id;
-                        se_tree_insert32_array(ctxs,ctx_key,context_p);
+                        wmem_tree_insert32_array(ctxs,ctx_key,context_p);
                     }
-                } else if (! ( context_p = (gcp_ctx_t**)se_tree_lookup32_array(ctxs,ctx_key) )) {
-                    context = se_new(gcp_ctx_t);
+                } else if (! ( context_p = (gcp_ctx_t**)wmem_tree_lookup32_array(ctxs,ctx_key) )) {
+                    context = wmem_new(wmem_file_scope(), gcp_ctx_t);
                     context->initial = m;
                     context->id = c_id;
                     context->cmds = NULL;
@@ -308,16 +308,16 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
                     context->terms.next = NULL;
                     context->terms.term = NULL;
 
-                    context_p = se_new(gcp_ctx_t*);
+                    context_p = wmem_new(wmem_file_scope(), gcp_ctx_t*);
                     *context_p = context;
-                    se_tree_insert32_array(ctxs,ctx_key,context_p);
+                    wmem_tree_insert32_array(ctxs,ctx_key,context_p);
                 } else {
                     context = *context_p;
                 }
             }
         }
     } else {
-        context = ep_new(gcp_ctx_t);
+        context = wmem_new(wmem_packet_scope(), gcp_ctx_t);
         context->initial = m;
         context->cmds = NULL;
         context->id = c_id;
@@ -351,14 +351,14 @@ gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type
 
             return NULL;
         } else {
-            cmd = se_new(gcp_cmd_t);
-            cmdtrx = se_new(gcp_cmd_msg_t);
-            cmdctx = se_new(gcp_cmd_msg_t);
+            cmd = wmem_new(wmem_file_scope(), gcp_cmd_t);
+            cmdtrx = wmem_new(wmem_file_scope(), gcp_cmd_msg_t);
+            cmdctx = wmem_new(wmem_file_scope(), gcp_cmd_msg_t);
         }
     } else {
-        cmd = ep_new(gcp_cmd_t);
-        cmdtrx = ep_new(gcp_cmd_msg_t);
-        cmdctx = ep_new(gcp_cmd_msg_t);
+        cmd = wmem_new(wmem_packet_scope(), gcp_cmd_t);
+        cmdtrx = wmem_new(wmem_packet_scope(), gcp_cmd_msg_t);
+        cmdctx = wmem_new(wmem_packet_scope(), gcp_cmd_msg_t);
     }
 
     cmd->type = type;
@@ -437,9 +437,9 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
             if ( ! ct ) {
 
                 if (wildcard == GCP_WILDCARD_ALL) {
-                    ct = se_new(gcp_terms_t);
+                    ct = wmem_new(wmem_file_scope(), gcp_terms_t);
                     ct->next = NULL;
-                    ct->term = se_new0(gcp_term_t);
+                    ct->term = wmem_new0(wmem_file_scope(), gcp_term_t);
 
                     ct->term->start = m;
                     ct->term->str = "*";
@@ -448,7 +448,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
 
                     c->terms.last = c->terms.last->next = ct;
 
-                    ct2 = se_new0(gcp_terms_t);
+                    ct2 = wmem_new0(wmem_file_scope(), gcp_terms_t);
                     ct2->term = ct->term;
 
                     c->ctx->terms.last->next = ct2;
@@ -459,11 +459,11 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
                     for (ct = c->ctx->terms.next; ct; ct = ct->next) {
                         /* XXX not handling more wilcards in one msg */
                         if ( ct->term->buffer == NULL && tr->cmds->cmd->msg == ct->term->start ) {
-                            ct->term->str = se_strdup(t->str);
-                            ct->term->buffer = (const guint8 *)se_memdup(t->buffer,t->len);
+                            ct->term->str = wmem_strdup(wmem_file_scope(), t->str);
+                            ct->term->buffer = (const guint8 *)wmem_memdup(wmem_file_scope(), t->buffer,t->len);
                             ct->term->len = t->len;
 
-                            ct2 = se_new0(gcp_terms_t);
+                            ct2 = wmem_new0(wmem_file_scope(), gcp_terms_t);
                             ct2->term = ct->term;
 
                             c->terms.last = c->terms.last->next = ct2;
@@ -472,7 +472,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
                         }
 
                         if  ( g_str_equal(ct->term->str,t->str) ) {
-                            ct2 = se_new0(gcp_terms_t);
+                            ct2 = wmem_new0(wmem_file_scope(), gcp_terms_t);
                             ct2->term = ct->term;
 
                             c->terms.last = c->terms.last->next = ct2;
@@ -481,21 +481,21 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
                         }
                     }
 
-                    ct = se_new(gcp_terms_t);
+                    ct = wmem_new(wmem_file_scope(), gcp_terms_t);
                     ct->next = NULL;
-                    ct->term = se_new0(gcp_term_t);
+                    ct->term = wmem_new0(wmem_file_scope(), gcp_term_t);
 
                     ct->term->start = m;
-                    ct->term->str = se_strdup(t->str);
-                    ct->term->buffer = (const guint8 *)se_memdup(t->buffer,t->len);
+                    ct->term->str = wmem_strdup(wmem_file_scope(), t->str);
+                    ct->term->buffer = (const guint8 *)wmem_memdup(wmem_file_scope(), t->buffer,t->len);
                     ct->term->len = t->len;
 
-                    ct2 = se_new0(gcp_terms_t);
+                    ct2 = wmem_new0(wmem_file_scope(), gcp_terms_t);
                     ct2->term = ct->term;
 
                     c->terms.last = c->terms.last->next = ct2;
 
-                    ct2 = se_new0(gcp_terms_t);
+                    ct2 = wmem_new0(wmem_file_scope(), gcp_terms_t);
                     ct2->term = ct->term;
 
                     c->ctx->terms.last = c->ctx->terms.last->next = ct2;
@@ -503,7 +503,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
                     return ct->term;
                 }
             } else {
-                ct2 = se_new0(gcp_terms_t);
+                ct2 = wmem_new0(wmem_file_scope(), gcp_terms_t);
                 ct2->term = ct->term;
 
                 c->terms.last = c->terms.last->next = ct2;
@@ -513,7 +513,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
             DISSECTOR_ASSERT_NOT_REACHED();
         }
     } else {
-        ct = ep_new(gcp_terms_t);
+        ct = wmem_new(wmem_packet_scope(), gcp_terms_t);
         ct->term = t;
         ct->next = NULL;
         c->terms.last = c->terms.last->next = ct;
@@ -602,17 +602,17 @@ const gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
     }
 
     for (term = c->terms.next; term; term = term->next) {
-        s = ep_strdup_printf("%s %s",s,term->term->str);
+        s = wmem_strdup_printf(wmem_packet_scope(), "%s %s",s,term->term->str);
     }
 
     if (c->error) {
-        s = ep_strdup_printf("%s Error=%i",s,c->error);
+        s = wmem_strdup_printf(wmem_packet_scope(), "%s Error=%i",s,c->error);
     }
 
-    s = ep_strdup_printf("%s }", s);
+    s = wmem_strdup_printf(wmem_packet_scope(), "%s }", s);
 
     if (persistent) {
-        if (! c->str) c->str = se_strdup(s);
+        if (! c->str) c->str = wmem_strdup(wmem_file_scope(), s);
     } else {
         c->str = s;
     }
@@ -626,27 +626,27 @@ static const gchar* gcp_trx_to_str(gcp_msg_t* m, gcp_trx_t* t, gboolean persiste
 
     if ( !m || !t ) return "-";
 
-    s = ep_strdup_printf("T %x { ",t->id);
+    s = wmem_strdup_printf(wmem_packet_scope(), "T %x { ",t->id);
 
     if (t->cmds) {
         if (t->cmds->cmd->ctx) {
-            s = ep_strdup_printf("%s C %x {",s,t->cmds->cmd->ctx->id);
+            s = wmem_strdup_printf(wmem_packet_scope(), "%s C %x {",s,t->cmds->cmd->ctx->id);
 
             for (c = t->cmds; c; c = c->next) {
                 if (c->cmd->msg == m) {
-                    s = ep_strdup_printf("%s %s",s,gcp_cmd_to_str(c->cmd,persistent));
+                    s = wmem_strdup_printf(wmem_packet_scope(), "%s %s",s,gcp_cmd_to_str(c->cmd,persistent));
                 }
             }
 
-            s = ep_strdup_printf("%s %s",s,"}");
+            s = wmem_strdup_printf(wmem_packet_scope(), "%s %s",s,"}");
         }
     }
 
     if (t->error) {
-        s = ep_strdup_printf("%s Error=%i",s,t->error);
+        s = wmem_strdup_printf(wmem_packet_scope(), "%s Error=%i",s,t->error);
     }
 
-    return ep_strdup_printf("%s %s",s,"}");
+    return wmem_strdup_printf(wmem_packet_scope(), "%s %s",s,"}");
 }
 
 const gchar* gcp_msg_to_str(gcp_msg_t* m, gboolean persistent) {
@@ -656,7 +656,7 @@ const gchar* gcp_msg_to_str(gcp_msg_t* m, gboolean persistent) {
     if ( !m ) return "-";
 
     for (t = m->trxs; t; t = t->next) {
-        s = ep_strdup_printf("%s %s",s,gcp_trx_to_str(m,t->trx, persistent));
+        s = wmem_strdup_printf(wmem_packet_scope(), "%s %s",s,gcp_trx_to_str(m,t->trx, persistent));
     }
 
     return s;
@@ -687,7 +687,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
             }
 
             if (! ctx_node) {
-                ctx_node = ep_new(gcp_ctxs_t);
+                ctx_node = wmem_new(wmem_packet_scope(), gcp_ctxs_t);
                 ctx_node->ctx = ctx;
                 ctx_node->next = contexts.next;
                 contexts.next = ctx_node;
@@ -744,7 +744,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
                     }
 
                     if (ctx_term->term->bir && ctx_term->term->nsap) {
-                        gchar* tmp_key = ep_strdup_printf("%s:%s",ctx_term->term->nsap,ctx_term->term->bir);
+                        gchar* tmp_key = wmem_strdup_printf(wmem_packet_scope(), "%s:%s",ctx_term->term->nsap,ctx_term->term->bir);
                         gchar* key = g_ascii_strdown(tmp_key, -1);
                         alcap_tree_from_bearer_key(term_tree, gcp_tvb, pinfo, key);
                         g_free(key);
