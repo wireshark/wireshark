@@ -1754,41 +1754,6 @@ lookup_or_insert32(emem_tree_t *se_tree, guint32 key, void*(*func)(void*),void* 
 	return node->data;
 }
 
-/* When the se data is released, this entire tree will dissapear as if it
- * never existed including all metadata associated with the tree.
- */
-emem_tree_t *
-se_tree_create_non_persistent(int type, const char *name)
-{
-	emem_tree_t *tree_list;
-
-	tree_list=(emem_tree_t *)se_alloc(sizeof(emem_tree_t));
-	tree_list->next=NULL;
-	tree_list->type=type;
-	tree_list->tree=NULL;
-	tree_list->name=name;
-	tree_list->malloc=se_alloc;
-
-	return tree_list;
-}
-
-/* This tree is PErmanent and will never be released
- */
-emem_tree_t *
-pe_tree_create(int type, const char *name)
-{
-	emem_tree_t *tree_list;
-
-	tree_list=g_new(emem_tree_t, 1);
-	tree_list->next=NULL;
-	tree_list->type=type;
-	tree_list->tree=NULL;
-	tree_list->name=name;
-	tree_list->malloc=(void *(*)(size_t)) g_malloc;
-
-	return tree_list;
-}
-
 /* create another (sub)tree using the same memory allocation scope
  * as the parent tree.
  */

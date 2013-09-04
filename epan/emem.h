@@ -247,18 +247,6 @@ typedef struct _emem_tree_t {
 WS_DLL_PUBLIC
 emem_tree_t *se_tree_create(int type, const char *name) G_GNUC_MALLOC;
 
-/** This function is similar to the se_tree_create() call but with the
- * difference that when the se memory is released everything including the
- * pointer to the tree itself will be released.
- * This tree will not be just reset to zero, it will be completely forgotten
- * by the allocator.
- * Use this function for when you want to store the pointer to a tree inside
- * another structure that is also se allocated so that when the structure is
- * released, the tree will be completely released as well.
- */
-WS_DLL_PUBLIC
-emem_tree_t *se_tree_create_non_persistent(int type, const char *name) G_GNUC_MALLOC;
-
 /** se_tree_insert32
  * Insert data into the tree and key it by a 32bit integer value
  */
@@ -290,37 +278,6 @@ emem_tree_t *se_tree_create_non_persistent(int type, const char *name) G_GNUC_MA
  * to the search key.
  */
 #define se_tree_lookup32_array_le emem_tree_lookup32_array_le
-
-/** Create a new string based hash table */
-#define se_tree_create_string() se_tree_create(SE_TREE_TYPE_RED_BLACK)
-
-/** Insert a new value under a string key */
-#define se_tree_insert_string emem_tree_insert_string
-
-/** Lookup the value under a string key */
-#define se_tree_lookup_string emem_tree_lookup_string
-
-/** Traverse a tree */
-#define se_tree_foreach emem_tree_foreach
-
-
-/* *******************************************************************
- * Tree functions for PE memory allocation scope
- * ******************************************************************* */
-/* These trees have PErmanent allocation scope and will never be released
- */
-WS_DLL_PUBLIC
-emem_tree_t *pe_tree_create(int type, const char *name) G_GNUC_MALLOC;
-#define pe_tree_insert32 emem_tree_insert32
-#define pe_tree_lookup32 emem_tree_lookup32
-#define pe_tree_lookup32_le emem_tree_lookup32_le
-#define pe_tree_insert32_array emem_tree_insert32_array
-#define pe_tree_lookup32_array emem_tree_lookup32_array
-#define pe_tree_insert_string emem_tree_insert_string
-#define pe_tree_lookup_string emem_tree_lookup_string
-#define pe_tree_foreach emem_tree_foreach
-
-
 
 /* ******************************************************************
  * Real tree functions
