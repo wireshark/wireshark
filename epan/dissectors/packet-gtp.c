@@ -4405,7 +4405,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         max_ul_ext    = 0;
         guar_ul_ext   = 0;
 
-        if (length > 13) {
+        if (length > 13 ||((type == 2) && (length == 13))) {
             src_stat_desc = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SRC_STAT_DESC_MASK;
             sig_ind       = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SIG_IND_MASK;
         }
@@ -4503,10 +4503,11 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
                                        "Guaranteed bit rate for downlink: %u kbps", gd);
         }
 
-        if(length > 13) {
+        if(length > 13 ||((type == 2) && (length == 13))) {
             proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_src_stat_desc, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, src_stat_desc);
             proto_tree_add_boolean(ext_tree_qos, hf_gtp_qos_sig_ind, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, sig_ind);
-        }
+        } 
+		
         if(length > 14) {
             /* Octet 15 */
             if ((max_dl_ext > 0) && (max_dl_ext <= 0x4a)) {
