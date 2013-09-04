@@ -3039,6 +3039,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         goto out;
       }
     }
+    g_free(idb_inf);
+    idb_inf = NULL;
     pdh = NULL;
   }
 
