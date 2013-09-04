@@ -454,6 +454,16 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
             /* Add the Protocol Info */
             proto_tree_add_item(pn532_tree, hf_pn532_14443b_proto_info, tvb, 13, 3, ENC_BIG_ENDIAN);
         }
+               
+        /* InnoVision Jewel/Topaz (ISO 14443-A/proprietary) */
+        if (tvb_reported_length(tvb) == 12) {
+
+            /* Add the ATQA/SENS_RES (0x0C00)*/
+            proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
+
+            /* Add the UID (4 bytes) */
+            proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 6, 4, ENC_BIG_ENDIAN);
+        }
 
         /* Probably one of:
          * a MiFare DESFire card (23 bytes),
