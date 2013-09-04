@@ -1231,14 +1231,20 @@ dissect_random_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 }
 
 static void
-dissect_chunks_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_chunks_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 number_of_chunks;
   guint16 chunk_number, offset;
 
+  proto_item_append_text(parameter_item, " (Chunk types to be authenticated: ");
   number_of_chunks = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  for(chunk_number = 0, offset = PARAMETER_VALUE_OFFSET; chunk_number < number_of_chunks; chunk_number++, offset +=  CHUNK_TYPE_LENGTH)
+  for(chunk_number = 0, offset = PARAMETER_VALUE_OFFSET; chunk_number < number_of_chunks; chunk_number++, offset +=  CHUNK_TYPE_LENGTH) {
     proto_tree_add_item(parameter_tree, hf_chunks_to_auth, parameter_tvb, offset, CHUNK_TYPE_LENGTH, ENC_BIG_ENDIAN);
+    proto_item_append_text(parameter_item, "%s", val_to_str_const(tvb_get_guint8(parameter_tvb, offset), chunk_type_values, "Unknown"));
+    if (chunk_number < (number_of_chunks - 1))
+      proto_item_append_text(parameter_item, ", ");
+  }
+  proto_item_append_text(parameter_item, ")");
 }
 
 static const value_string hmac_id_values[] = {
@@ -1246,22 +1252,25 @@ static const value_string hmac_id_values[] = {
   { 0x0001,         "SHA-1"    },
   { 0x0002,         "Reserved" },
   { 0x0003,         "SHA-256"  },
-  { 0x8001,         "SHA_224"  },
-  { 0x8002,         "SHA_384"  },
-  { 0x8003,         "SHA_512"  },
   { 0,              NULL       } };
 
 #define HMAC_ID_LENGTH 2
 
 static void
-dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 number_of_ids;
   guint16 id_number, offset;
 
+  proto_item_append_text(parameter_item, " (Supported HMACs: ");
   number_of_ids = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / HMAC_ID_LENGTH;
-  for(id_number = 0, offset = PARAMETER_VALUE_OFFSET; id_number < number_of_ids; id_number++, offset +=  HMAC_ID_LENGTH)
+  for(id_number = 0, offset = PARAMETER_VALUE_OFFSET; id_number < number_of_ids; id_number++, offset +=  HMAC_ID_LENGTH) {
     proto_tree_add_item(parameter_tree, hf_hmac_id, parameter_tvb, offset, HMAC_ID_LENGTH, ENC_BIG_ENDIAN);
+    proto_item_append_text(parameter_item, "%s", val_to_str_const(tvb_get_ntohs(parameter_tvb, offset), hmac_id_values, "Unknown"));
+    if (id_number < (number_of_ids - 1))
+      proto_item_append_text(parameter_item, ", ");
+  }
+  proto_item_append_text(parameter_item, ")");
 }
 
 static void
@@ -1275,9 +1284,8 @@ dissect_supported_extensions_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   for(type_number = 0, offset = PARAMETER_VALUE_OFFSET; type_number < number_of_types; type_number++, offset +=  CHUNK_TYPE_LENGTH) {
     proto_tree_add_item(parameter_tree, hf_supported_chunk_type, parameter_tvb, offset, CHUNK_TYPE_LENGTH, ENC_BIG_ENDIAN);
     proto_item_append_text(parameter_item, "%s", val_to_str_const(tvb_get_guint8(parameter_tvb, offset), chunk_type_values, "Unknown"));
-    if (type_number < (number_of_types-1))
+    if (type_number < (number_of_types - 1))
       proto_item_append_text(parameter_item, ", ");
-
   }
   proto_item_append_text(parameter_item, ")");
 }
@@ -1555,10 +1563,10 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
     dissect_random_parameter(parameter_tvb, parameter_tree);
     break;
   case CHUNKS_PARAMETER_ID:
-    dissect_chunks_parameter(parameter_tvb, parameter_tree);
+    dissect_chunks_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case HMAC_ALGO_PARAMETER_ID:
-    dissect_hmac_algo_parameter(parameter_tvb, parameter_tree);
+    dissect_hmac_algo_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case SUPPORTED_EXTENSIONS_PARAMETER_ID:
     dissect_supported_extensions_parameter(parameter_tvb, parameter_tree, parameter_item);
