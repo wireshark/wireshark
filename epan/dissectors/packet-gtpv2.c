@@ -6883,17 +6883,17 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_node_features_prn,
           {"PGW Restart Notification (PRN)", "gtpv2.node_features_prn",
-          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
           NULL, HFILL}
         },
         { &hf_gtpv2_node_features_mabr,
           {"Modify Access Bearers Request (MABR)", "gtpv2.node_features_mabr",
-          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x02,
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
           NULL, HFILL}
         },
         { &hf_gtpv2_node_features_ntsr,
           {"Network Triggered Service Restoration (NTSR)", "gtpv2.node_features_ntsr",
-          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x04,
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
           NULL, HFILL}
         },
         { &hf_gtpv2_time_to_data_xfer,
