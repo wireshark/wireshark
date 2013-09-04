@@ -3891,6 +3891,11 @@ dissect_nfs3_fh(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 		offset += fh3_len_full;
 	}
+	else if (hash) {
+		/* Make sure hash is set regardless, as our caller expects it
+		 * to be initialized */
+		*hash = 0;
+	}
 
 	offset += 4;
 
