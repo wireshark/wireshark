@@ -64,13 +64,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="graphTypeComboBox">
-       <item>
-        <property name="text">
-         <string>Time / Sequence (Stevens)</string>
-        </property>
-       </item>
-      </widget>
+      <widget class="QComboBox" name="graphTypeComboBox"/>
      </item>
      <item>
       <spacer name="horizontalSpacer">

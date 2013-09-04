@@ -176,6 +176,44 @@ compare_headers(address *saddr1, address *daddr1, guint16 sport1, guint16 dport1
     }
 }
 
+int
+get_num_dsegs(struct tcp_graph *tg)
+{
+    int count;
+    struct segment *tmp;
+
+    for (tmp=tg->segments, count=0; tmp; tmp=tmp->next) {
+        if (compare_headers(&tg->src_address, &tg->dst_address,
+                            tg->src_port, tg->dst_port,
+                            &tmp->ip_src, &tmp->ip_dst,
+                            tmp->th_sport, tmp->th_dport,
+                            COMPARE_CURR_DIR)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int
+get_num_acks(struct tcp_graph *tg, int *num_sack_ranges)
+{
+    int count;
+    struct segment *tmp;
+
+    for (tmp = tg->segments, count=0; tmp; tmp = tmp->next) {
+        if (!compare_headers(&tg->src_address, &tg->dst_address,
+                             tg->src_port, tg->dst_port,
+                             &tmp->ip_src, &tmp->ip_dst,
+                             tmp->th_sport, tmp->th_dport,
+                             COMPARE_CURR_DIR)) {
+            count++;
+            *num_sack_ranges += tmp->num_sack_ranges;
+        }
+    }
+    return count;
+}
+
+
 
 typedef struct _th_t {
     int num_hdrs;

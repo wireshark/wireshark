@@ -298,7 +298,9 @@ private slots:
     void on_actionStopCapture_triggered();
 
     void on_actionSummary_triggered();
+    void openTcpStreamDialog(int graph_type);
     void on_actionStatisticsTcpStreamStevens_triggered();
+    void on_actionStatisticsTcpStreamThroughput_triggered();
 };
 
 

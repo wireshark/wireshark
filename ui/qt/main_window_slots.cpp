@@ -1689,14 +1689,26 @@ void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 
 // Statistics Menu
 
-void MainWindow::on_actionStatisticsTcpStreamStevens_triggered()
+
+void MainWindow::openTcpStreamDialog(int graph_type)
 {
-    TCPStreamDialog stream_dialog(this, cap_file_, GRAPH_TSEQ_STEVENS);
+    TCPStreamDialog stream_dialog(this, cap_file_, (tcp_graph_type)graph_type);
     connect(&stream_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            &stream_dialog, SLOT(setCaptureFile(capture_file*)));
     stream_dialog.exec();
 }
 
+void MainWindow::on_actionStatisticsTcpStreamStevens_triggered()
+{
+    openTcpStreamDialog(GRAPH_TSEQ_STEVENS);
+}
+
+void MainWindow::on_actionStatisticsTcpStreamThroughput_triggered()
+{
+    openTcpStreamDialog(GRAPH_THROUGHPUT);
+}
 
 // Help Menu
 void MainWindow::on_actionHelpContents_triggered() {

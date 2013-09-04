@@ -84,7 +84,11 @@ void graph_segment_list_free(struct tcp_graph * );
 
 int compare_headers(address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, const address *saddr2, const address *daddr2, guint16 sport2, guint16 dport2, int dir);
 
+int get_num_dsegs(struct tcp_graph * );
+int get_num_acks(struct tcp_graph *, int * );
+
 struct tcpheader *select_tcpip_session(capture_file *, struct segment * );
+
 
 #ifdef __cplusplus
 }

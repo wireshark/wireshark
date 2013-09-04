@@ -52,6 +52,9 @@ public:
 signals:
     void goToPacket(int packet_num);
 
+public slots:
+    void setCaptureFile(capture_file *cf);
+
 protected:
     void keyPressEvent(QKeyEvent *event);
 
@@ -60,18 +63,29 @@ private:
     capture_file *cap_file_;
     QMap<double, struct segment *> segment_map_;
     struct tcp_graph graph_;
-    QRectF data_range_;
+    QCPPlotTitle *title_;
     QCPItemTracer *tracer_;
     guint32 packet_num_;
+    double y_translate_mul_;
 
+    int num_dsegs_;
+    int num_acks_;
+    int num_sack_ranges_;
 
+    void fillGraph();
+    void resetAxes();
+    void initializeStevens();
+    void initializeThroughput();
+    QString streamDescription();
     bool compareHeaders(struct segment *seg);
     void toggleTracerStyle(bool force_default = false);
 
 private slots:
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
+    void translateYRange(const QCPRange &y_range1);
     void on_buttonBox_accepted();
+    void on_graphTypeComboBox_currentIndexChanged(int index);
 };
 
 #endif // TCP_STREAM_DIALOG_H

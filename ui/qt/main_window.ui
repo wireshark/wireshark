@@ -320,6 +320,7 @@
       <string>TCP Stream Graphs</string>
      </property>
      <addaction name="actionStatisticsTcpStreamStevens"/>
+     <addaction name="actionStatisticsTcpStreamThroughput"/>
     </widget>
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
@@ -1254,6 +1255,14 @@
    </property>
    <property name="toolTip">
     <string>TCP time sequence graph (Stevens)</string>
+   </property>
+  </action>
+  <action name="actionStatisticsTcpStreamThroughput">
+   <property name="text">
+    <string>Throughput</string>
+   </property>
+   <property name="toolTip">
+    <string>TCP througput</string>
    </property>
   </action>
  </widget>

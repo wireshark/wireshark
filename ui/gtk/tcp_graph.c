@@ -168,7 +168,7 @@ struct style_tseq_stevens {
 
 struct style_tput {
     int width, height;
-    int nsegs;
+    int ma_size;
     int flags;
 };
 
@@ -387,8 +387,6 @@ static void callback_graph_init_on_typechg(GtkWidget * , gpointer );
 static void callback_create_help(GtkWidget * , gpointer );
 static void get_mouse_position(GtkWidget *, int *pointer_x, int *pointer_y, GdkModifierType *mask);
 static void update_zoom_spins(struct gtk_graph * );
-static int get_num_dsegs(struct gtk_graph * );
-static int get_num_acks(struct gtk_graph *, int * );
 static void graph_type_dependent_initialize(struct gtk_graph * );
 static struct gtk_graph *graph_new(void);
 static void graph_destroy(struct gtk_graph * );
@@ -3615,41 +3613,6 @@ static void restore_initial_graph_view(struct gtk_graph *g)
     }
 }
 
-static int get_num_dsegs(struct gtk_graph *g)
-{
-    int count;
-    struct segment *tmp;
-
-    for (tmp=g->tg.segments, count=0; tmp; tmp=tmp->next) {
-        if (compare_headers(&g->tg.src_address, &g->tg.dst_address,
-                            g->tg.src_port, g->tg.dst_port,
-                            &tmp->ip_src, &tmp->ip_dst,
-                            tmp->th_sport, tmp->th_dport,
-                            COMPARE_CURR_DIR)) {
-            count++;
-        }
-    }
-    return count;
-}
-
-static int get_num_acks(struct gtk_graph *g, int *num_sack_ranges)
-{
-    int count;
-    struct segment *tmp;
-
-    for (tmp = g->tg.segments, count=0; tmp; tmp = tmp->next) {
-        if (!compare_headers(&g->tg.src_address, &g->tg.dst_address,
-                             g->tg.src_port, g->tg.dst_port,
-                             &tmp->ip_src, &tmp->ip_dst,
-                             tmp->th_sport, tmp->th_dport,
-                             COMPARE_CURR_DIR)) {
-            count++;
-            *num_sack_ranges += tmp->num_sack_ranges;
-        }
-    }
-    return count;
-}
-
 /*
  * Stevens-style time-sequence grapH
  */
@@ -3810,7 +3773,7 @@ static void tseq_stevens_make_elmtlist(struct gtk_graph *g)
 
     debug(DBS_FENTRY) puts("tseq_stevens_make_elmtlist()");
     if (g->elists->elements == NULL) {
-        int n = 1 + get_num_dsegs(g);
+        int n = 1 + get_num_dsegs(&g->tg);
         e = elements = (struct element * )g_malloc(n*sizeof(struct element));
     } else
         e = elements = g->elists->elements;
@@ -3936,7 +3899,7 @@ static void tseq_tcptrace_make_elmtlist(struct gtk_graph *g)
 
     if (g->elists->elements == NULL ) {
         /* 3 elements per data segment */
-        int n = 1 + 3*get_num_dsegs(g);
+        int n = 1 + 3*get_num_dsegs(&g->tg);
         e0 = elements0 = (struct element * )g_malloc(n * sizeof(struct element));
     } else {
         /* Existing array */
@@ -3945,7 +3908,7 @@ static void tseq_tcptrace_make_elmtlist(struct gtk_graph *g)
 
     if (g->elists->next->elements == NULL) {
         /* 4 elements per ACK, but only one for each SACK range */
-        int n = 1 + 4*get_num_acks(g, &num_sack_ranges);
+        int n = 1 + 4*get_num_acks(&g->tg, &num_sack_ranges);
         n  += num_sack_ranges;
         e1  = elements1 = (struct element * )g_malloc(n * sizeof(struct element));
     } else {
@@ -4140,18 +4103,18 @@ static void tput_make_elmtlist(struct gtk_graph *g)
     int    num_sack_ranges;
 
     if (g->elists->elements == NULL) {
-        int n = 1 + get_num_dsegs(g) + get_num_acks(g, &num_sack_ranges);
+        int n = 1 + get_num_dsegs(&g->tg) + get_num_acks(&g->tg, &num_sack_ranges);
         e = elements = (struct element * )g_malloc(n * sizeof(struct element));
     } else
         e = elements = g->elists->elements;
 
-    for (oldest=g->tg.segments, tmp=g->tg.segments->next, i=0; tmp; tmp=tmp->next, i++) {
+    for (oldest=g->tg.segments, tmp=g->tg.segments->next, i=1; tmp; tmp=tmp->next, i++) {
         double time_val = tmp->rel_secs + tmp->rel_usecs/1000000.0;
-        dtime = time_val - (oldest->rel_secs + oldest->rel_usecs/1000000.0);
-        if (i>g->s.tput.nsegs) {
-            sum    -= oldest->th_seglen;
+        if (i>g->s.tput.ma_size) {
             oldest  = oldest->next;
+            sum    -= oldest->th_seglen;
         }
+        dtime = time_val - (oldest->rel_secs + oldest->rel_usecs/1000000.0);
         sum  += tmp->th_seglen;
         tput  = sum / dtime;
         /* debug(DBS_TPUT_ELMTS) printf("tput=%f\n", tput); */
@@ -4173,8 +4136,8 @@ static void tput_make_elmtlist(struct gtk_graph *g)
  * - call setup routine for style struct */
 static void tput_initialize(struct gtk_graph *g)
 {
-    struct segment *tmp, *oldest/*, *last*/;
-    int    i, sum = 0;
+    struct segment *tmp, *oldest = g->tg.segments/*, *last*/;
+    int    i, sum = oldest->th_seglen;
     double dtime, tput, tputmax = 0;
     double t, t0, tmax = 0, yy0, ymax;
 
@@ -4182,16 +4145,13 @@ static void tput_initialize(struct gtk_graph *g)
 
     tput_read_config(g);
 
-#if 0
-    for (last=g->tg.segments; last->next; last=last->next);   /* XXX: does nothing useful ? */
-#endif
-    for (oldest=g->tg.segments, tmp=g->tg.segments->next, i=0; tmp; tmp=tmp->next, i++) {
+    for (tmp=g->tg.segments->next, i=1; tmp; tmp=tmp->next, i++) {
+        if (i > g->s.tput.ma_size) {
+            oldest  = oldest->next;
+            sum    -= oldest->th_seglen;
+        }
         dtime = tmp->rel_secs + tmp->rel_usecs/1000000.0 -
             (oldest->rel_secs + oldest->rel_usecs/1000000.0);
-        if (i > g->s.tput.nsegs) {
-            sum    -= oldest->th_seglen;
-            oldest  = oldest->next;
-        }
         sum  += tmp->th_seglen;
         tput  = sum / dtime;
         debug(DBS_TPUT_ELMTS) printf("tput=%f\n", tput);
@@ -4220,10 +4180,10 @@ static void tput_read_config(struct gtk_graph *g)
 
     g->s.tput.width  = 4;
     g->s.tput.height = 4;
-    g->s.tput.nsegs  = 20;
+    g->s.tput.ma_size  = 20;
 
     g->title = (const char ** )g_malloc(2 * sizeof(char *));
-    g->title[0] = "Throughput Graph";
+    g->title[0] = "Throughput (20 segment MA)";
     g->title[1] = NULL;
     g->y_axis->label    = (const char ** )g_malloc(3 * sizeof(char * ));
     g->y_axis->label[0] = "[B/s]";
@@ -4400,7 +4360,7 @@ static void rtt_make_elmtlist(struct gtk_graph *g)
     debug(DBS_FENTRY) puts("rtt_make_elmtlist()");
 
     if (g->elists->elements == NULL) {
-        int n = 1 + get_num_dsegs(g);
+        int n = 1 + get_num_dsegs(&g->tg);
         e = elements = (struct element * )g_malloc(n * sizeof(struct element));
     } else {
         e = elements = g->elists->elements;
@@ -4548,7 +4508,7 @@ static void wscale_make_elmtlist(struct gtk_graph *g)
     /* Allocate memory for elements if not already done */
     if (g->elists->elements == NULL)
     {
-        int n = 1 + get_num_dsegs(g);
+        int n = 1 + get_num_dsegs(&g->tg);
         e = elements = (struct element*)g_malloc(n*sizeof(struct element));
     }
     else
