@@ -48,7 +48,24 @@ static int hf_ccid_bClockStatus = -1;
 static int hf_ccid_bProtocolNum = -1;
 static int hf_ccid_bBWI = -1;
 static int hf_ccid_wLevelParameter = -1;
+static int hf_ccid_bcdCCID = -1;
 static int hf_ccid_bMaxSlotIndex = -1;
+static int hf_ccid_bVoltageSupport = -1;
+static int hf_ccid_bVoltageSupport50 = -1;
+static int hf_ccid_bVoltageSupport30 = -1;
+static int hf_ccid_bVoltageSupport18 = -1;
+static int hf_ccid_dwProtocols = -1;
+static int hf_ccid_dwDefaultClock = -1;
+static int hf_ccid_dwMaximumClock = -1;
+static int hf_ccid_bNumClockSupported = -1;
+
+static const int *bVoltageLevel_fields[] = {
+    &hf_ccid_bVoltageSupport50,
+    &hf_ccid_bVoltageSupport30,
+    &hf_ccid_bVoltageSupport18,
+    NULL
+};
+
 
 /* smart card descriptor, as defined in section 5.1
    of the USB CCID specification */
@@ -84,7 +101,6 @@ static const value_string ccid_descriptor_type_vals[] = {
 };
 static value_string_ext ccid_descriptor_type_vals_ext =
     VALUE_STRING_EXT_INIT(ccid_descriptor_type_vals);
-
 
 static const value_string ccid_opcode_vals[] = {
     /* Standardised Bulk Out message types */
@@ -183,6 +199,7 @@ static dissector_table_t  ccid_dissector_table;
 /* Subtree handles: set by register_subtree_array */
 static gint ett_ccid      = -1;
 static gint ett_ccid_desc = -1;
+static gint ett_ccid_voltage_level = -1;
 
 /* Table of payload types - adapted from the I2C dissector */
 enum {
@@ -208,8 +225,9 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
     gint        offset = 0;
     guint8      descriptor_type;
     guint8      descriptor_len;
-    proto_item *item;
+    proto_item *item, *freq_item;
     proto_tree *desc_tree;
+    guint8      num_clock_supp;
 
     descriptor_len  = tvb_get_guint8(tvb, offset);
     descriptor_type = tvb_get_guint8(tvb, offset+1);
@@ -224,11 +242,37 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
             &ccid_descriptor_type_vals_ext);
     offset += 2;
 
-    offset += 2; /* skip bcdCCID */
+    proto_tree_add_item(desc_tree, hf_ccid_bcdCCID, tvb,
+            offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
 
     proto_tree_add_item(desc_tree, hf_ccid_bMaxSlotIndex, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_bitmask(desc_tree, tvb, offset,
+            hf_ccid_bVoltageSupport, ett_ccid_voltage_level, bVoltageLevel_fields,
+            ENC_LITTLE_ENDIAN);
+    offset++;
 
+    /* XXX - convert into a bitmask */
+    proto_tree_add_item(desc_tree, hf_ccid_dwProtocols, tvb,
+            offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    freq_item = proto_tree_add_item(desc_tree, hf_ccid_dwDefaultClock, tvb,
+            offset, 4, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(freq_item, " kHz");
+    offset += 4;
+    freq_item = proto_tree_add_item(desc_tree, hf_ccid_dwMaximumClock, tvb,
+            offset, 4, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(freq_item, " kHz");
+    offset += 4;
+    num_clock_supp = tvb_get_guint8(tvb, offset);
+    freq_item = proto_tree_add_item(desc_tree, hf_ccid_bNumClockSupported, tvb,
+            offset, 1, ENC_LITTLE_ENDIAN);
+    if (num_clock_supp==0)
+        proto_item_append_text(freq_item, " (only default and maximum)");
+    
     return descriptor_len;
 }
 
@@ -443,14 +487,42 @@ proto_register_ccid(void)
         {&hf_ccid_wLevelParameter,
          { "Level Parameter", "usbccid.wLevelParameter", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bcdCCID,
+         { "bcdCCID", "usbccid.bcdCCID", FT_UINT16, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bMaxSlotIndex,
          { "max slot index", "usbccid.bMaxSlotIndex", FT_UINT8, BASE_HEX,
-           NULL, 0x0, NULL, HFILL }}
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bVoltageSupport,
+         { "voltage support", "usbccid.bVoltageSupport", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bVoltageSupport50,
+         { "supports 5.0V", "usbccid.bVoltageSupport.50", FT_BOOLEAN, 8,
+            TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
+        {&hf_ccid_bVoltageSupport30,
+         { "supports 3.0V", "usbccid.bVoltageSupport.30", FT_BOOLEAN, 8,
+            TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
+        {&hf_ccid_bVoltageSupport18,
+         { "supports 1.8V", "usbccid.bVoltageSupport.18", FT_BOOLEAN, 8,
+            TFS(&tfs_set_notset), 0x04, NULL, HFILL }},
+        {&hf_ccid_dwProtocols,
+         { "dwProtocols", "usbccid.dwProtocols", FT_UINT32, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_dwDefaultClock,
+         { "default clock frequency", "usbccid.dwDefaultClock",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_dwMaximumClock,
+         { "maximum clock frequency", "usbccid.dwMaximumClock",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bNumClockSupported,
+         { "number of supported clock frequencies", "usbccid.bNumClockSupported",
+             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }}
     };
 
     static gint *ett[] = {
         &ett_ccid,
-        &ett_ccid_desc
+        &ett_ccid_desc,
+        &ett_ccid_voltage_level
     };
 
     static const enum_val_t sub_enum_vals[] = {
