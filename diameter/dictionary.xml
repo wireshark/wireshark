@@ -4634,13 +4634,18 @@
 			<grouped>
 				<gavp name="Subscriber-Status"/>
 				<gavp name="MSISDN"/>
+				<gavp name="A-MSISDN"/>
 				<gavp name="STN-SR"/>
+				<gavp name="ICS-Indicator"/>
 				<gavp name="Network-Access-Mode"/>
 				<gavp name="Operator-Determined-Barring"/>
 				<gavp name="HPLMN-ODB"/>
 				<gavp name="Regional-Subscription-Zone-Code"/>
 				<gavp name="Access-Restriction-Data"/>
 				<gavp name="APN-OI-Replacement"/>
+				<gavp name="LCS-Info"/>
+				<gavp name="Teleservice-List"/>
+				<gavp name="Call-Barring-Infor-List"/>
 				<gavp name="3GPP-Charging-Characteristics"/>
 				<gavp name="AMBR"/>
 				<gavp name="APN-Configuration-Profile"/>
@@ -4649,6 +4654,13 @@
 				<gavp name="GPRS-Subscription-Data"/>
 				<gavp name="CSG-Subscription-Data"/>
 				<gavp name="Roaming-Restricted-Due-To-Unsupported-Feature"/>
+				<gavp name="Subscribed-Periodic-RAU-TAU-Timer"/>
+				<gavp name="MPS-Priority"/>
+				<gavp name="VPLMN-LIPA-Allowed"/>
+				<gavp name="Relay-Node-Indicator"/>
+				<gavp name="MDT-User-Consent"/>
+				<gavp name="Subscribed-VSRVCC"/>
+				<gavp name="Subscription-Data-Flags"/>
 			</grouped>
 		</avp>
 		<avp name="Terminal-Information" code="1401" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -4968,6 +4980,7 @@
 				<gavp name="VPLMN-Dynamic-Address-Allowed"/>
 				<gavp name="Service-Selection"/>
 				<gavp name="3GPP-Charging-Characteristics"/>
+				<gavp name="APN-OI-Replacement"/>
 			</grouped>
 		</avp>
 		<avp name="PDP-Type" code="1470" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -5867,8 +5880,8 @@
 		</avp>
 		<avp name="SGW-Change" code="2065" mandatory="must" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="ARC_Start_NOT_due_to_SGW_Change" code="0"/>
-			<enum name="ARC_Start_due_to_SGW_Change" code="1"/>
+			<enum name="ACR_Start_NOT_due_to_SGW_Change" code="0"/>
+			<enum name="ACR_Start_due_to_SGW_Change" code="1"/>
 		</avp>
 		<avp name="Charging-Characteristics-Selection-Mode" code="2066" mandatory="must" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
