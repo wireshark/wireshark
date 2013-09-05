@@ -1184,19 +1184,27 @@ static GHashTable *mac_lte_sr_request_hash = NULL;
 /* Store config for each configured UE                                    */
 /* TODO: Keep track of cycles/timer state                                 */
 
+typedef struct drx_config_timing_t {
+    drx_config_t config;
 
+    /* Need time reference point to work out timers, as SFN may wrap */
+    gboolean     firstCycleStartSet;
+    nstime_t     firstCycleStart;
+} drx_config_timing_t;
+    
 /* Entries in this table are maintained during the first pass
    It maps (UEId -> drx_config_t) */
-static GHashTable *mac_lte_drx_config = NULL;
+static GHashTable *mac_lte_drx_config_timing = NULL;
 
 typedef struct drx_state_t {
     drx_config_t config;
 
-    gboolean     firstCycleStartSet;
-    nstime_t     firstCycleStart;
-
-    /* Current cycle timer information */
+    /* Cycle information */
     gboolean     inShortCycle;
+
+    /* Timers */
+    guint64      currentTime;
+
     guint64      inactivityTimer;
     guint64      RTT[8];
     guint64      retransmissionTimer[8];
@@ -1216,7 +1224,6 @@ static void init_drx_state_info(drx_state_t *drx_state)
         drx_state->RTT[i] = G_GUINT64_CONSTANT(0);
         drx_state->retransmissionTimer[i] = G_GUINT64_CONSTANT(0);
     }
-    drx_state->firstCycleStartSet = FALSE;
 }
 
 /*******************************************************************/
@@ -1234,12 +1241,12 @@ static void init_drx_state_info(drx_state_t *drx_state)
 static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
 {
     /* Look up state of this UE */
-    drx_config_t *drx_config_entry = (drx_config_t *)g_hash_table_lookup(mac_lte_drx_config,
-                                                                         GUINT_TO_POINTER((guint)p_mac_lte_info->ueid));
+    drx_config_timing_t *drx_config_entry = (drx_config_timing_t *)g_hash_table_lookup(mac_lte_drx_config_timing,
+                                                                                       GUINT_TO_POINTER((guint)p_mac_lte_info->ueid));
     if (drx_config_entry != NULL) {
         /* Copy config into separate struct just for this frame, and add to result table */
         drx_state_t *frame_config = wmem_new(wmem_file_scope(), drx_state_t);
-        frame_config->config = *drx_config_entry;
+        frame_config->config = drx_config_entry->config;
         /* Initialise state part */
         init_drx_state_info(frame_config);
         /* Add to table */
@@ -4888,8 +4895,8 @@ static void mac_lte_init_protocol(void)
     if (mac_lte_ue_channels_hash) {
         g_hash_table_destroy(mac_lte_ue_channels_hash);
     }
-    if (mac_lte_drx_config) {
-        g_hash_table_destroy(mac_lte_drx_config);
+    if (mac_lte_drx_config_timing) {
+        g_hash_table_destroy(mac_lte_drx_config_timing);
     }
     if (mac_lte_drx_config_result) {
         g_hash_table_destroy(mac_lte_drx_config_result);
@@ -4919,7 +4926,7 @@ static void mac_lte_init_protocol(void)
 
     mac_lte_ue_channels_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
 
-    mac_lte_drx_config = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
+    mac_lte_drx_config_timing = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
     mac_lte_drx_config_result = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
 }
 
@@ -5035,24 +5042,19 @@ static guint8 get_mac_lte_channel_priority(guint16 ueid, guint8 lcid,
 void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info *pinfo)
 {
     if (global_mac_lte_show_drx && !pinfo->fd->flags.visited) {
-        drx_config_t *drx_config_entry;
-        drx_config_t *result_entry;
+        drx_config_timing_t *drx_config_entry;
 
-        /* Find or create config struct for table entry */
-        drx_config_entry = (drx_config_t *)g_hash_table_lookup(mac_lte_drx_config, GUINT_TO_POINTER((guint)ueid));
+        /* Find or create config/timing struct for this UE */
+        drx_config_entry = (drx_config_timing_t *)g_hash_table_lookup(mac_lte_drx_config_timing, GUINT_TO_POINTER((guint)ueid));
         if (drx_config_entry == NULL) {
-            drx_config_entry = (drx_config_t *)wmem_new(wmem_file_scope(), drx_config_t);
+            drx_config_entry = (drx_config_timing_t *)wmem_new(wmem_file_scope(), drx_config_timing_t);
+            g_hash_table_insert(mac_lte_drx_config_timing, GUINT_TO_POINTER((guint)ueid), drx_config_entry);
         }
         /* Copy in new config */
-        *drx_config_entry = *drx_config;
+        drx_config_entry->config = *drx_config;
         /* Remember frame when last changed */
-        drx_config_entry->frameNum = pinfo->fd->num;
-        /* TODO: remember previous config (if any?) */
-
-        /* Store this snapshot into the result info table */
-        result_entry = (drx_config_t *)wmem_new(wmem_file_scope(), drx_config_t);
-        *result_entry = *drx_config_entry;
-        g_hash_table_insert(mac_lte_drx_config, GUINT_TO_POINTER((guint)ueid), result_entry);
+        drx_config_entry->config.frameNum = pinfo->fd->num;
+        /* TODO: remember previous config frame number (if any?) */
     }
 }
 
@@ -5060,9 +5062,9 @@ void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info 
 void set_mac_lte_drx_config_release(guint16 ueid, packet_info *pinfo _U_)
 {
     /* Find or create config struct for table entry */
-    drx_config_t *drx_config_entry = (drx_config_t *)g_hash_table_lookup(mac_lte_drx_config, GUINT_TO_POINTER((guint)ueid));
+    drx_config_timing_t *drx_config_entry = (drx_config_timing_t *)g_hash_table_lookup(mac_lte_drx_config_timing, GUINT_TO_POINTER((guint)ueid));
     if (drx_config_entry != NULL) {
-        g_hash_table_remove(mac_lte_drx_config, GUINT_TO_POINTER((guint)ueid));
+        g_hash_table_remove(mac_lte_drx_config_timing, GUINT_TO_POINTER((guint)ueid));
         /* TODO: free entry? */
     }
 }
