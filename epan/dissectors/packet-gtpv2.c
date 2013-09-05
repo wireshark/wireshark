@@ -6284,7 +6284,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_f_teid_gre_key,
          {"TEID/GRE Key", "gtpv2.f_teid_gre_key",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_HEX, NULL, 0x0,
           NULL , HFILL}
         },
         { &hf_gtpv2_f_teid_ipv4,
