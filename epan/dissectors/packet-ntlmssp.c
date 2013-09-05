@@ -972,7 +972,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
     result->length = blob_length;
     if (blob_length < MAX_BLOB_SIZE)
     {
-      result->contents = wmem_alloc(wmem_file_scope(), blob_length);
+      result->contents = (guint8 *)wmem_alloc(wmem_file_scope(), blob_length);
       tvb_memcpy(tvb, result->contents, blob_offset, blob_length);
       if (blob_hf == hf_ntlmssp_auth_lmresponse &&
           !(tvb_memeql(tvb, blob_offset+8, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", NTLMSSP_KEY_LEN)))
@@ -1534,8 +1534,8 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     {
       conv_ntlmssp_info->rc4_state_initialized = 0;
       /* XXX - Make sure there is 24 bytes for the key */
-      conv_ntlmssp_info->ntlm_response.contents = wmem_alloc0(wmem_file_scope(), 24);
-      conv_ntlmssp_info->lm_response.contents = wmem_alloc0(wmem_file_scope(), 24);
+      conv_ntlmssp_info->ntlm_response.contents = (guint8 *)wmem_alloc0(wmem_file_scope(), 24);
+      conv_ntlmssp_info->lm_response.contents = (guint8 *)wmem_alloc0(wmem_file_scope(), 24);
 
       create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge, NULL, sspkey, NULL, conv_ntlmssp_info->flags, conv_ntlmssp_info->ntlm_response.contents, conv_ntlmssp_info->lm_response.contents, ntlmssph);
       if (memcmp(sspkey, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
