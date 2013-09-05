@@ -7361,11 +7361,8 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 				if (upwlen > 24) {
 					proto_tree *subtree;
-
 					subtree = proto_item_add_subtree(item, ett_smb_unicode_password);
-
-					dissect_ntlmv2_response(
-						tvb, subtree, offset, upwlen);
+					dissect_ntlmv2_response(tvb, pinfo, subtree, offset, upwlen);
 				}
 
 				COUNT_BYTES(upwlen);

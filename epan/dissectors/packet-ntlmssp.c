@@ -929,8 +929,8 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
   but the 'end' parameter returns the offset of the end of the blob itself
 */
 static int
-dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
-                      proto_tree *ntlmssp_tree,
+dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
+                      proto_tree *ntlmssp_tree, int offset,
                       int blob_hf, int *end, ntlmssp_blob *result)
 {
   proto_item *tf          = NULL;
@@ -978,7 +978,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
                              tvb, blob_offset, 8, ENC_NA);
       }
     } else {
-      expert_add_info_format(NULL, tf, PI_WARN, PI_UNDECODED,
+      expert_add_info_format(pinfo, tf, PI_WARN, PI_UNDECODED,
                              "NTLM v2 key is %d bytes long, too big for our %d buffer", blob_length, MAX_BLOB_SIZE);
     }
   }
@@ -991,7 +991,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
     proto_tree_add_item (ntlmssp_tree,
                          hf_ntlmssp_ntlm_client_challenge,
                          tvb, blob_offset+32, 8, ENC_NA);
-    dissect_ntlmv2_response(tvb, tree, blob_offset, blob_length);
+    dissect_ntlmv2_response(tvb, pinfo, tree, blob_offset, blob_length);
   }
 
   return offset;
@@ -1238,7 +1238,7 @@ static tif_t ntlmssp_ntlmv2_response_tif = {
 
 /** See [MS-NLMP] 2.2.2.1 */
 static int
-dissect_ntlmssp_target_info_list(tvbuff_t *tvb, proto_tree *tree,
+dissect_ntlmssp_target_info_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  guint32 target_info_offset, guint16 target_info_length,
                                  tif_t *tif_p)
 {
@@ -1256,6 +1256,8 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, proto_tree *tree,
     guint16     content_length;
     guint32     type_offset;
     guint32     len_offset;
+    const gchar *text = NULL;
+    proto_item *pi;
 
     int **hf_array_p = tif_p->hf_attr_array_p;
 
@@ -1278,40 +1280,37 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_item (target_info_tree, *tif_p->hf_item_type,    tvb, type_offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (target_info_tree, *tif_p->hf_item_length,  tvb, len_offset,  2, ENC_LITTLE_ENDIAN);
 
-    switch (item_type) {
-    case NTLM_TARGET_INFO_NB_COMPUTER_NAME:
-    case NTLM_TARGET_INFO_NB_DOMAIN_NAME:
-    case NTLM_TARGET_INFO_DNS_COMPUTER_NAME:
-    case NTLM_TARGET_INFO_DNS_DOMAIN_NAME:
-    case NTLM_TARGET_INFO_DNS_TREE_NAME:
-    case NTLM_TARGET_INFO_TARGET_NAME:
-      if (content_length > 0) {
-        const gchar *text;
-
+    if (content_length > 0) {
+      switch (item_type) {
+      case NTLM_TARGET_INFO_NB_COMPUTER_NAME:
+      case NTLM_TARGET_INFO_NB_DOMAIN_NAME:
+      case NTLM_TARGET_INFO_DNS_COMPUTER_NAME:
+      case NTLM_TARGET_INFO_DNS_DOMAIN_NAME:
+      case NTLM_TARGET_INFO_DNS_TREE_NAME:
+      case NTLM_TARGET_INFO_TARGET_NAME:
         text = tvb_get_ephemeral_unicode_string(tvb, content_offset, content_length, ENC_LITTLE_ENDIAN);
-        proto_tree_add_string(target_info_tree, *hf_array_p[item_type],
-                              tvb, content_offset, content_length, text);
+        proto_tree_add_string(target_info_tree, *hf_array_p[item_type], tvb, content_offset, content_length, text);
         proto_item_append_text(target_info_tf, ": %s", text);
+        break;
+
+      case NTLM_TARGET_INFO_FLAGS:
+        proto_tree_add_item(target_info_tree, *hf_array_p[item_type], tvb, content_offset, content_length, ENC_LITTLE_ENDIAN);
+      break;
+
+      case NTLM_TARGET_INFO_TIMESTAMP:
+        dissect_nt_64bit_time(tvb, target_info_tree, content_offset, *hf_array_p[item_type]);
+        break;
+
+      case NTLM_TARGET_INFO_RESTRICTIONS:
+      case NTLM_TARGET_INFO_CHANNEL_BINDINGS:
+        proto_tree_add_item(target_info_tree, *hf_array_p[item_type], tvb, content_offset, content_length, ENC_NA);
+        break;
+
+      default:
+        pi = proto_tree_add_text(target_info_tree, tvb, content_offset, content_length, "unknown content");
+        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_WARN, "unknown NTLMSSP Target Info Attribute");
+        break;
       }
-      break;
-
-    case NTLM_TARGET_INFO_FLAGS:
-      proto_tree_add_item(target_info_tree, *hf_array_p[item_type],
-                          tvb, content_offset, content_length, ENC_LITTLE_ENDIAN);
-      break;
-
-    case NTLM_TARGET_INFO_TIMESTAMP:
-      dissect_nt_64bit_time(tvb, target_info_tree, content_offset, *hf_array_p[item_type]);
-      break;
-
-    case NTLM_TARGET_INFO_RESTRICTIONS:
-    case NTLM_TARGET_INFO_CHANNEL_BINDINGS:
-      proto_tree_add_item(target_info_tree, *hf_array_p[item_type],
-                          tvb, content_offset, content_length, ENC_NA);
-      break;
-
-    default:
-      break;
     }
 
     item_offset += item_length;
@@ -1322,7 +1321,7 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, proto_tree *tree,
 
 /** See [MS-NLMP] 3.3.2 */
 int
-dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
+dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
 {
   proto_item *ntlmv2_item = NULL;
   proto_tree *ntlmv2_tree = NULL;
@@ -1360,7 +1359,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
   proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_z, tvb, offset, 4, ENC_NA);
   offset += 4;
 
-  offset = dissect_ntlmssp_target_info_list(tvb, ntlmv2_tree, offset, len - (offset - orig_offset), &ntlmssp_ntlmv2_response_tif);
+  offset = dissect_ntlmssp_target_info_list(tvb, pinfo, ntlmv2_tree, offset, len - (offset - orig_offset), &ntlmssp_ntlmv2_response_tif);
 
   if ((offset - orig_offset) < len) {
     proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_z, tvb, offset, 4, ENC_NA);
@@ -1415,7 +1414,7 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
 
 
 static int
-dissect_ntlmssp_challenge_target_info_blob (tvbuff_t *tvb, int offset,
+dissect_ntlmssp_challenge_target_info_blob (packet_info *pinfo, tvbuff_t *tvb, int offset,
                                             proto_tree *ntlmssp_tree,
                                             int *end)
 {
@@ -1449,7 +1448,7 @@ dissect_ntlmssp_challenge_target_info_blob (tvbuff_t *tvb, int offset,
                       tvb, offset, 4, challenge_target_info_offset);
   offset += 4;
 
-  dissect_ntlmssp_target_info_list(tvb, challenge_target_info_tree,
+  dissect_ntlmssp_target_info_list(tvb, pinfo, challenge_target_info_tree,
                                    challenge_target_info_offset, challenge_target_info_length,
                                    &ntlmssp_challenge_target_info_tif);
 
@@ -1579,7 +1578,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * address list).
    */
   if (offset < data_start) {
-    offset = dissect_ntlmssp_challenge_target_info_blob(tvb, offset, ntlmssp_tree, &item_end);
+    offset = dissect_ntlmssp_challenge_target_info_blob(pinfo, tvb, offset, ntlmssp_tree, &item_end);
     /* XXX: This code assumes that the address list in the data block */
     /*      is always after the target name. Is this OK ?             */
     data_end = MAX(data_end, item_end);
@@ -1690,7 +1689,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /* Lan Manager response */
   data_start = tvb_get_letohl(tvb, offset+4);
-  offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
+  offset = dissect_ntlmssp_blob(tvb, pinfo, ntlmssp_tree, offset,
                                 hf_ntlmssp_auth_lmresponse,
                                 &item_end,
                                 conv_ntlmssp_info == NULL ? NULL :
@@ -1699,7 +1698,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /* NTLM response */
   item_start = tvb_get_letohl(tvb, offset+4);
-  offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
+  offset = dissect_ntlmssp_blob(tvb, pinfo, ntlmssp_tree, offset,
                                 hf_ntlmssp_auth_ntresponse,
                                 &item_end,
                                 conv_ntlmssp_info == NULL ? NULL :
@@ -1757,7 +1756,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   sessionblob.length = 0;
   if (offset < data_start) {
     /* Session Key */
-    offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
+    offset = dissect_ntlmssp_blob(tvb, pinfo, ntlmssp_tree, offset,
                                   hf_ntlmssp_auth_sesskey,
                                   &item_end, &sessionblob);
     data_end = MAX(data_end, item_end);
