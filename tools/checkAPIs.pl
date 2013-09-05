@@ -123,6 +123,66 @@ my %APIs = (
                 '_snwprintf'    # use StringCchPrintf
                 ] },
 
+        ### Deprecated emem functions (use wmem instead!)
+        # These will become errors once they've been removed from all the
+        # existing dissectors
+        'emem' => { 'count_errors' => 0, 'functions' => [
+                'ep_alloc',
+                'ep_new',
+                'ep_alloc0',
+                'ep_new0',
+                'ep_strdup',
+                'ep_strndup',
+                'ep_memdup',
+                'ep_strdup_vprintf',
+                'ep_strdup_printf',
+                'ep_strconcat',
+                'ep_alloc_array',
+                'ep_alloc_array0',
+                'ep_strsplit',
+                'ep_stack_new',
+                'ep_stack_push',
+                'ep_stack_pop',
+                'ep_stack_peek',
+                'se_alloc',
+                'se_new',
+                'se_alloc0',
+                'se_new0',
+                'se_strdup',
+                'se_strndup',
+                'se_memdup',
+                'se_strdup_vprintf',
+                'se_strdup_printf',
+                'se_alloc_array',
+                'se_tree_create',
+                'se_tree_insert32',
+                'se_tree_lookup32',
+                'se_tree_lookup32_le',
+                'se_tree_insert32_array',
+                'se_tree_lookup32_array',
+                'se_tree_lookup32_array_le',
+                'emem_tree_insert32',
+                'emem_tree_lookup32',
+                'emem_tree_lookup32_le',
+                'emem_tree_insert32_array',
+                'emem_tree_lookup32_array',
+                'emem_tree_lookup32_array_le',
+                'emem_tree_insert_string',
+                'emem_tree_lookup_string',
+                'emem_tree_foreach',
+                'ep_strbuf_new',
+                'ep_strbuf_new_label',
+                'ep_strbuf_sized_new',
+                'ep_strbuf_append_vprintf',
+                'ep_strbuf_printf',
+                'ep_strbuf_append_printf',
+                'ep_strbuf_append',
+                'ep_strbuf_append_c',
+                'ep_strbuf_append_unichar',
+                'ep_strbuf_truncate',
+                'emem_print_tree'
+            ] },
+
         # APIs that SHOULD NOT be used in Wireshark (any more)
         'deprecated' => { 'count_errors' => 1, 'functions' => [
                 'perror',                                       # Use g_strerror() and report messages in whatever
@@ -1801,7 +1861,7 @@ my $EnumValRegex        = qr/ $Static_andor_ConstRegex enum_val_t \ + [^;*]+ = [
 #
 my $errorCount = 0;
 # The default list, which can be expanded.
-my @apiGroups = qw(prohibited deprecated);
+my @apiGroups = qw(prohibited deprecated emem);
 my @apiSummaryGroups = ();
 my $check_value_string_array_null_termination = 1;      # default: enabled
 my $machine_readable_output = 0;                        # default: disabled
