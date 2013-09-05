@@ -172,6 +172,47 @@ static gint diameter_3gpp_idr_flags_ett = -1;
 /* Dissector handles */
 static dissector_handle_t xml_handle;
 
+/* AVP Code: 23 3GPP-MS-TimeZone 
+ * 3GPP TS 29.061
+ */
+static const value_string daylight_saving_time_vals[] = {
+    {0, "No adjustment"},
+    {1, "+1 hour adjustment for Daylight Saving Time"},
+    {2, "+2 hours adjustment for Daylight Saving Time"},
+    {3, "Reserved"},
+    {0, NULL}
+};
+
+static int
+dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+    guint8      oct;
+    char        sign;
+
+    /* 3GPP TS 23.040 version 6.6.0 Release 6
+     * 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
+     * :
+     * The Time Zone indicates the difference, expressed in quarters of an hour,
+     * between the local time and GMT. In the first of the two semi-octets,
+     * the first bit (bit 3 of the seventh octet of the TP-Service-Centre-Time-Stamp field)
+     * represents the algebraic sign of this difference (0: positive, 1: negative).
+     */
+
+    oct = tvb_get_guint8(tvb, offset);
+    sign = (oct & 0x08) ? '-' : '+';
+    oct = (oct >> 4) + (oct & 0x07) * 10;
+
+    proto_tree_add_text(tree, tvb, offset, 1, "Timezone: GMT %c %d hours %d minutes", sign, oct / 4, oct % 4 * 15);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset) & 0x3;
+    proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_const(oct, daylight_saving_time_vals, "Unknown"));
+    offset++;
+
+    return offset;
+}
+
 /* AVP Code: 917 MBMS-GGSN-IPv6-Address */
 static int
 dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -872,7 +913,10 @@ proto_reg_handoff_diameter_3gpp(void)
      * Registered by packet-gtpv2.c
      */
 
-    /* AVP Code: 600 Visited-Network-Identifier */
+    /* AVP Code: 23 3GPP-MS-TimeZone */
+    dissector_add_uint("diameter.3gpp", 23, new_create_dissector_handle(dissect_diameter_3gpp_ms_timezone, proto_diameter_3gpp));
+
+	/* AVP Code: 600 Visited-Network-Identifier */
     dissector_add_uint("diameter.3gpp", 600, new_create_dissector_handle(dissect_diameter_3gpp_visited_nw_id, proto_diameter_3gpp));
 
     /* AVP Code: 606 User-Data */

@@ -495,6 +495,45 @@ static const gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb, packet_
 	return ep_strdup_printf("%u/%u",vpi,vci);
 }
 
+static const value_string daylight_saving_time_vals[] = {
+    {0, "No adjustment"},
+    {1, "+1 hour adjustment for Daylight Saving Time"},
+    {2, "+2 hours adjustment for Daylight Saving Time"},
+    {3, "Reserved"},
+    {0, NULL}
+};
+
+static const gchar*
+dissect_radius_3gpp_ms_tmime_zone(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
+
+    int offset = 0;
+    guint8      oct, daylight_saving_time;
+    char        sign;
+
+    /* 3GPP TS 23.040 version 6.6.0 Release 6
+     * 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
+     * :
+     * The Time Zone indicates the difference, expressed in quarters of an hour,
+     * between the local time and GMT. In the first of the two semi-octets,
+     * the first bit (bit 3 of the seventh octet of the TP-Service-Centre-Time-Stamp field)
+     * represents the algebraic sign of this difference (0: positive, 1: negative).
+     */
+
+    oct = tvb_get_guint8(tvb, offset);
+    sign = (oct & 0x08) ? '-' : '+';
+    oct = (oct >> 4) + (oct & 0x07) * 10;
+
+    proto_tree_add_text(tree, tvb, offset, 1, "Timezone: GMT %c%d hours %d minutes", sign, oct / 4, oct % 4 * 15);
+    offset++;
+
+    daylight_saving_time = tvb_get_guint8(tvb, offset) & 0x3;
+    proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
+
+	return ep_strdup_printf( "Timezone: GMT %c%d hours %d minutes %s ", 
+		sign, oct / 4, oct % 4 * 15, val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
+
+}
+
 static void
 radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
 {
@@ -2049,6 +2088,7 @@ static void register_radius_fields(const char* unused _U_) {
 	 * XXX - we should special-case Cisco attribute 252; see the comment in
 	 * dictionary.cisco.
 	 */
+	radius_register_avp_dissector(VENDOR_THE3GPP,23,dissect_radius_3gpp_ms_tmime_zone);
 }
 
 
