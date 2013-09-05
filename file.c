@@ -2216,6 +2216,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
   range_process_e  process_this;
   struct wtap_pkthdr phdr;
 
+  memset(&phdr, 0, sizeof(struct wtap_pkthdr));
   buffer_init(&buf, 1500);
 
   /* Update the progress bar when it gets to this value. */
