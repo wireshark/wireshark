@@ -50,7 +50,6 @@
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-ber.h>
 #include <epan/dissectors/packet-per.h>
-#include <epan/emem.h>
 #include <epan/conversation.h>
 
 #include <stdio.h>

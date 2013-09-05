@@ -121,7 +121,7 @@ which ATN standard is supported ?
 #include <epan/packet.h>
 #include <epan/dissectors/packet-ber.h>
 #include <epan/dissectors/packet-per.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/address.h>
 #include <epan/conversation.h>
 
@@ -144,8 +144,8 @@ static int proto_atn_ulcs          = -1;
 static guint32 ulcs_context_value = 0;
 static const char *object_identifier_id;
 
-static emem_tree_t *aarq_data_tree = NULL;
-static emem_tree_t *atn_conversation_tree = NULL;
+static wmem_tree_t *aarq_data_tree = NULL;
+static wmem_tree_t *atn_conversation_tree = NULL;
 
 
 static proto_tree *root_tree = NULL;
@@ -454,7 +454,7 @@ int check_heur_msg_type(packet_info *pinfo  _U_)
 		int t = no_msg;
 		guint8* addr = NULL;
 		guint32 adr_prefix =0;
-	
+
 		/* check NSAP address type*/
 		if( (pinfo->src.type != AT_OSI) || (pinfo->dst.type != AT_OSI)) {
 				return t; }
@@ -462,7 +462,7 @@ int check_heur_msg_type(packet_info *pinfo  _U_)
 		/* check NSAP address length; 20 octets address length required */
 		if( (pinfo->src.len != 20) || (pinfo->dst.len != 20)) {
 				return t; }
-	
+
 		addr = (guint8*) pinfo->src.data;
 
 		/* convert address to 32-bit integer  */
@@ -475,7 +475,7 @@ int check_heur_msg_type(packet_info *pinfo  _U_)
 		if((adr_prefix == 0x470027c1) || (adr_prefix == 0x47002741)) {
 				t = dm; /* source is an aircraft: it's a downlink PDU */
 		}
-		
+
 		addr = (guint8*) pinfo->dst.data;
 
 		/* convert address to 32-bit integer  */
@@ -487,13 +487,13 @@ int check_heur_msg_type(packet_info *pinfo  _U_)
 		/* 0xc1 ("all Mobile ATSC") for mobile stations (aka aircraft).*/
 		if((adr_prefix == 0x470027c1) || (adr_prefix == 0x47002741)) {
 				t = um; /* destination is aircraft: uplink PDU */
-		}		
+		}
 
 		return t;
 }
 
 /* conversation may be used by other dissectors  */
-emem_tree_t *get_atn_conversation_tree(void){
+wmem_tree_t *get_atn_conversation_tree(void){
 		return atn_conversation_tree;
 }
 
@@ -520,8 +520,8 @@ atn_conversation_t * find_atn_conversation(
 
 		/* search for atn conversation */
 		cv = (atn_conversation_t *)
-				se_tree_lookup32(get_atn_conversation_tree(),key);
-	
+				wmem_tree_lookup32(get_atn_conversation_tree(),key);
+
 		return cv;
 }
 
@@ -546,16 +546,16 @@ atn_conversation_t * create_atn_conversation(
 
 		/* search for aircraft entry */
 		cv = (atn_conversation_t *)
-		se_tree_lookup32(
+		wmem_tree_lookup32(
 				get_atn_conversation_tree(),
 				key);
 
 		/* tree node  already present  */
 		if(cv) {
 			return NULL; }
-			
+
 		/* insert conversation data in tree*/
-		se_tree_insert32(
+		wmem_tree_insert32(
 				get_atn_conversation_tree(),
 				key,
 				(void*)conversation);
@@ -854,7 +854,7 @@ void proto_register_atn_ulcs (void)
 					NULL,
 					HFILL}},
 		};
-		
+
 		static gint *ett[] = {
 				#include "packet-atn-ulcs-ettarr.c"
 				&ett_atn_ses,
@@ -862,12 +862,12 @@ void proto_register_atn_ulcs (void)
 				&ett_atn_acse,
 				&ett_atn_ulcs
     };
-		
+
 		proto_atn_ulcs = proto_register_protocol (
 				ATN_ULCS_PROTO ,
 				"ATN-ULCS",
 				"atn-ulcs");
-			
+
 		proto_register_field_array (
 				proto_atn_ulcs,
 				hf_atn_ulcs,
@@ -884,22 +884,16 @@ void proto_register_atn_ulcs (void)
 
 		atn_cm_handle = find_dissector("atn-cm");
 		atn_cpdlc_handle = find_dissector("atn-cpdlc");
-		
+
 		/* initiate sub dissector list */
 		register_heur_dissector_list(
 				"atn-ulcs",
 				&atn_ulcs_heur_subdissector_list);
 
 		/* init aare/aare data */
-		if(!aarq_data_tree) {
-				aarq_data_tree =  se_tree_create(
-						EMEM_TREE_TYPE_RED_BLACK,
-						"aarq-data"); }
+		aarq_data_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-		if(!atn_conversation_tree) {
-				atn_conversation_tree =  se_tree_create(
-						EMEM_TREE_TYPE_RED_BLACK,
-						"atn-conversations"); }
+		atn_conversation_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 void proto_reg_handoff_atn_ulcs(void)

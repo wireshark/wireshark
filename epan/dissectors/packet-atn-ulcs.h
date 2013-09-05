@@ -41,6 +41,8 @@
 
 #include "packet.h"
 
+#include <epan/wmem/wmem.h>
+
 /* IA5 charset (7-bit) for PER IA5 decoding */
 static const gchar ia5alpha[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, \
@@ -53,7 +55,7 @@ static const gchar ia5alpha[] = {
 		0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,	\
 		0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f, '\0'
 };
-	
+
 enum msg_type {
 		um,
 		dm,
@@ -86,7 +88,7 @@ atn_conversation_t * find_atn_conversation(
 		address*,
 		guint16,
 		address*);
-	
+
 /* struct for conversation data reconstruction used in AARQ and AARE */
 /* if transport data is larger than 32 octets AARQ/AARE is contained */
 /* within DT frames which have only dest_ref, but no src_ref */
@@ -99,8 +101,8 @@ typedef struct aarq_data_t {
 													 /* i.e. GND facility initialises cpcstart and cmcontact at the same time */
 		atn_conversation_t* cv; /* pointer to AARQ conversation */
 } aarq_data_t;
-	
-emem_tree_t *get_atn_conversation_tree(void);
+
+wmem_tree_t *get_atn_conversation_tree(void);
 
 guint32 get_aircraft_24_bit_address_from_nsap(packet_info *);
 int check_heur_msg_type(packet_info *);
@@ -119,4 +121,3 @@ int check_heur_msg_type(packet_info *);
  * vi: set shiftwidth=2 tabstop=2 noexpandtab:
  * :indentSize=2:tabSize=2:noTabs=false:
  */
-

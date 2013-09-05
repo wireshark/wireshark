@@ -219,8 +219,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 						pinfo->clnp_dstref,
 						&pinfo->src );
 				if(!atn_cv){
-						atn_cv = (atn_conversation_t*)
-								se_alloc(sizeof(atn_conversation_t));
+						atn_cv = wmem_new(wmem_file_scope(), atn_conversation_t);
 						atn_cv->ae_qualifier = unknown;
 						create_atn_conversation(&pinfo->dst,
 								pinfo->clnp_dstref,
@@ -235,8 +234,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 						pinfo->clnp_srcref,
 						&pinfo->dst );
 				if(!atn_cv){
-						atn_cv = (atn_conversation_t*)
-								se_alloc(sizeof(atn_conversation_t));
+						atn_cv = wmem_new(wmem_file_scope(), atn_conversation_t);
 						atn_cv->ae_qualifier = unknown;
 						create_atn_conversation(&pinfo->src,
 								pinfo->clnp_srcref,
@@ -268,18 +266,18 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 				get_aircraft_24_bit_address_from_nsap(pinfo);
 
 		/* search for aarq entry */
-		aarq_data = (aarq_data_t *) se_tree_lookup32(
+		aarq_data = (aarq_data_t *) wmem_tree_lookup32(
 				aarq_data_tree,
 				aircraft_24_bit_address);
 
 		if(!aarq_data){  /* aarq data not found, create new record */
 
 				/* alloc aarq data */
-				aarq_data = (aarq_data_t*) se_alloc(sizeof(aarq_data_t));
+				aarq_data = wmem_new(wmem_file_scope(), aarq_data_t);
 				aarq_data-> aarq_pending = FALSE;
 
 				/* insert aarq data */
-				se_tree_insert32(aarq_data_tree ,aircraft_24_bit_address,(void*)aarq_data);
+				wmem_tree_insert32(aarq_data_tree ,aircraft_24_bit_address,(void*)aarq_data);
 		}
 
 		/* check for pending AARQ/AARE sequences */
@@ -302,7 +300,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 	guint32 aircraft_24_bit_address = 0 ;
 	atn_conversation_t *atn_cv = NULL;
 	aarq_data_t *aarq_data = NULL;
-	
+
 	/* get AARQ data and use it to create a new conversation, */
 	/* the conversation is used along with  */
 	/* AARQ's "calling ae qualifier" to determine the */
@@ -314,9 +312,9 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 
 	/* get 24-bit icao address */
 	aircraft_24_bit_address = get_aircraft_24_bit_address_from_nsap(pinfo);
-	
+
 	/* search for aarq entry */
-	aarq_data = (aarq_data_t *) se_tree_lookup32(
+	aarq_data = (aarq_data_t *) wmem_tree_lookup32(
 			aarq_data_tree,
 			aircraft_24_bit_address);
 
