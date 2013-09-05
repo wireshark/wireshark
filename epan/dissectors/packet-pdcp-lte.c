@@ -112,6 +112,10 @@ static int ett_pdcp_packet = -1;
 static int ett_pdcp_lte_sequence_analysis = -1;
 static int ett_pdcp_report_bitmap = -1;
 
+static expert_field ei_pdcp_lte_sequence_analysis_wrong_sequence_number = EI_INIT;
+static expert_field ei_pdcp_lte_reserved_bits_not_zero = EI_INIT;
+static expert_field ei_pdcp_lte_sequence_analysis_sn_repeated = EI_INIT;
+static expert_field ei_pdcp_lte_sequence_analysis_sn_missing = EI_INIT;
 
 static const value_string direction_vals[] =
 {
@@ -433,7 +437,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                         tvb, 0, 0, TRUE);
             PROTO_ITEM_SET_GENERATED(ti);
             if (p->lastSN != p->firstSN) {
-                expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_missing,
                                        "PDCP SNs (%u to %u) missing for %s on UE %u (%s-%u)",
                                        p->firstSN, p->lastSN,
                                        val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
@@ -444,7 +448,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                        p->firstSN, p->lastSN);
             }
             else {
-                expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_missing,
                                        "PDCP SN (%u) missing for %s on UE %u (%s-%u)",
                                        p->firstSN,
                                        val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
@@ -463,7 +467,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_lte_sequence_analysis_repeated,
                                         tvb, 0, 0, TRUE);
             PROTO_ITEM_SET_GENERATED(ti);
-            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+            expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_repeated,
                                    "PDCP SN (%u) repeated for %s for UE %u (%s-%u)",
                                    p->firstSN,
                                    val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
@@ -476,7 +480,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
 
         default:
             /* Incorrect sequence number */
-            expert_add_info_format(pinfo, ti_expected_sn, PI_SEQUENCE, PI_WARN,
+            expert_add_info_format_text(pinfo, ti_expected_sn, &ei_pdcp_lte_sequence_analysis_wrong_sequence_number,
                                    "Wrong Sequence Number for %s on UE %u (%s-%u) - got %u, expected %u",
                                    val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
                                    p_pdcp_lte_info->ueid,
@@ -1056,7 +1060,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_item *ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_control_plane_reserved,
                                                  tvb, offset, 1, ENC_BIG_ENDIAN);
             if (reserved != 0) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
                                        "PDCP signalling header reserved bits not zero");
             }
 
@@ -1149,7 +1153,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                             /* Complain if not 0 */
                             if (reserved_value != 0) {
-                                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
                                                        "Reserved bits have value 0x%x - should be 0x0",
                                                        reserved_value);
                             }
@@ -1213,7 +1217,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                                 /* Complain if not 0 */
                                 if (reserved_value != 0) {
-                                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                    expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
                                                            "Reserved bits have value 0x%x - should be 0x0",
                                                            reserved_value);
                                 }
@@ -1687,6 +1691,13 @@ void proto_register_pdcp(void)
         &ett_pdcp_report_bitmap
     };
 
+    static ei_register_info ei[] = {
+        { &ei_pdcp_lte_sequence_analysis_sn_missing, { "pdcp-lte.sequence-analysis.sn_missing", PI_SEQUENCE, PI_WARN, "PDCP SN missing", EXPFILL }},
+        { &ei_pdcp_lte_sequence_analysis_sn_repeated, { "pdcp-lte.sequence-analysis.sn_repeated", PI_SEQUENCE, PI_WARN, "PDCP SN repeated", EXPFILL }},
+        { &ei_pdcp_lte_sequence_analysis_wrong_sequence_number, { "pdcp-lte.sequence-analysis.wrong_sequence_number", PI_SEQUENCE, PI_WARN, "Wrong Sequence Number", EXPFILL }},
+        { &ei_pdcp_lte_reserved_bits_not_zero, { "pdcp_lte.reserved_bits_not_zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
+    };
+
     static const enum_val_t sequence_analysis_vals[] = {
         {"no-analysis", "No-Analysis",      FALSE},
         {"rlc-only",    "Only-RLC-frames",  SEQUENCE_ANALYSIS_RLC_ONLY},
@@ -1702,12 +1713,14 @@ void proto_register_pdcp(void)
     };
 
     module_t *pdcp_lte_module;
-
+    expert_module_t* expert_pdcp_lte;
 
     /* Register protocol. */
     proto_pdcp_lte = proto_register_protocol("PDCP-LTE", "PDCP-LTE", "pdcp-lte");
     proto_register_field_array(proto_pdcp_lte, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_pdcp_lte = expert_register_protocol(proto_pdcp_lte);
+    expert_register_field_array(expert_pdcp_lte, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("pdcp-lte", dissect_pdcp_lte, proto_pdcp_lte);
