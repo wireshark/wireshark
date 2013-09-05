@@ -2915,12 +2915,9 @@ class EthOut:
         out += '\n'
         # Make Windows path separator look like Unix path separator
         out = out.replace('\\', '/')
-        # Change abolute paths from cmake builds to relative paths as used
-        # in autotools for identical output of both build systems.
-        out = re.sub(r'( [^ ]*/tools/)', ' ../../tools/', out)
-        out = re.sub(r'( [^ ]*/epan/)', ' ../../epan/', out)
-        out = re.sub(r'( [^ ]*/asn1/[^\s/]*)', ' .', out)
-        out = re.sub(r'( [^ ]*/asn1/[^\s]/)', ' ./', out)
+        # Change abolute paths to paths relative to asn1/<proto> subdir
+        out = re.sub(r'(\s)/\S*(/tools/|/epan/)', r'\1../..\2', out)
+        out = re.sub(r'(\s)/\S*/asn1/\S*?([\s/])', r'\1.\2', out)
         return out
 
     #--- dbg_print -------------------------------------------------------
