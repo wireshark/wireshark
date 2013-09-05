@@ -33,7 +33,7 @@ set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-	GenericChargingDataTypesV8e0.asn
+	GenericChargingDataTypesV9f0.asn
 	GPRSChargingDataTypesV641.asn
 	GPRSChargingDataTypesV8e0.asn
 )
