@@ -66,11 +66,6 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
   if (length > reported_length) {
     length = reported_length;
     expert_add_info(pinfo, length_it, ei_len);
-/*
-    expert_add_info_format(pinfo, length_it, PI_MALFORMED, PI_ERROR,
-        "Length field value goes past the end of the payload");
-        
-*/
   }
 
   /* Give the next dissector only 'length' number of bytes. */
