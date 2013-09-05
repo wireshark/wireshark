@@ -2914,7 +2914,14 @@ class EthOut:
         out += self.outcomment(' '.join(sys.argv), comment)
         out += '\n'
         # Make Windows path separator look like Unix path separator
-        return out.replace('\\', '/')
+        out = out.replace('\\', '/')
+	# Change abolute paths from cmake builds to relative paths as used
+	# in autotools for identical output of both build systems.
+	out = re.sub(r'(/[^ ]*/tools/)', '../../tools/', out)
+	out = re.sub(r'(/[^ ]*/epan/)', '../../epan/', out)
+	out = re.sub(r'(/[^ ]*/asn1/[^\s/]*)', '.', out)
+	out = re.sub(r'(/[^ ]*/asn1/[^\s]/)', './', out)
+	return out
 
     #--- dbg_print -------------------------------------------------------
     def dbg_print(self):
