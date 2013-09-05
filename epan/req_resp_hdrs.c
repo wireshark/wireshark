@@ -228,44 +228,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	 * and next_offset points to after the end of the headers.
 	 */
 	if (desegment_body) {
-		if (content_length_found) {
-			if (content_length >= 128*1024) { /* MS-RPCH stipulate that the content-length must be between 128K and 2G */
-				gchar *tmp;
-				if (content_type_found &&
-				strncmp(content_type, "application/rpc", 15) == 0) {
-					/* It looks like a RPC_IN_DATA request or a RPC_OUT_DATA response
-					 * in which the content-length is meaningless
-					 */
-					return TRUE;
-				}
-				/* Following sizeof will return the length of the string + \0 we need to not count it*/
-				tmp = tvb_get_ephemeral_string(tvb, 0, sizeof("RPC_OUT_DATA") - 1);
-				if ((strncmp(tmp, "RPC_IN_DATA", sizeof("RPC_IN_DATA") - 1) == 0) ||
-				    (strncmp(tmp, "RPC_OUT_DATA", sizeof("RPC_OUT_DATA") - 1) == 0)) {
-					return TRUE;
-				}
-			}
-			/* next_offset has been set to the end of the headers */
-			if (!tvb_bytes_exist(tvb, next_offset, content_length)) {
-				length_remaining = tvb_length_remaining(tvb,
-				    next_offset);
-				reported_length_remaining =
-				    tvb_reported_length_remaining(tvb, next_offset);
-				if (length_remaining < reported_length_remaining) {
-					/*
-					 * It's a waste of time asking for more
-					 * data, because that data wasn't captured.
-					 */
-					return TRUE;
-				}
-				if (length_remaining == -1)
-					length_remaining = 0;
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len =
-				    content_length - length_remaining;
-				return FALSE;
-			}
-		} else if (chunked_encoding) {
+		if (chunked_encoding) {
 			/*
 			 * This data is chunked, so we need to keep pulling
 			 * data until we reach the end of the stream, or a
@@ -373,6 +336,43 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					}
 				}
 
+			}
+		} else if (content_length_found) {
+			if (content_length >= 128*1024) { /* MS-RPCH stipulate that the content-length must be between 128K and 2G */
+				gchar *tmp;
+				if (content_type_found &&
+				strncmp(content_type, "application/rpc", 15) == 0) {
+					/* It looks like a RPC_IN_DATA request or a RPC_OUT_DATA response
+					 * in which the content-length is meaningless
+					 */
+					return TRUE;
+				}
+				/* Following sizeof will return the length of the string + \0 we need to not count it*/
+				tmp = tvb_get_ephemeral_string(tvb, 0, sizeof("RPC_OUT_DATA") - 1);
+				if ((strncmp(tmp, "RPC_IN_DATA", sizeof("RPC_IN_DATA") - 1) == 0) ||
+				    (strncmp(tmp, "RPC_OUT_DATA", sizeof("RPC_OUT_DATA") - 1) == 0)) {
+					return TRUE;
+				}
+			}
+			/* next_offset has been set to the end of the headers */
+			if (!tvb_bytes_exist(tvb, next_offset, content_length)) {
+				length_remaining = tvb_length_remaining(tvb,
+				    next_offset);
+				reported_length_remaining =
+				    tvb_reported_length_remaining(tvb, next_offset);
+				if (length_remaining < reported_length_remaining) {
+					/*
+					 * It's a waste of time asking for more
+					 * data, because that data wasn't captured.
+					 */
+					return TRUE;
+				}
+				if (length_remaining == -1)
+					length_remaining = 0;
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len =
+				    content_length - length_remaining;
+				return FALSE;
 			}
 		} else if (content_type_found && pinfo->can_desegment) {
 			/* We found a content-type but no content-length.
