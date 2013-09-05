@@ -100,6 +100,9 @@ ASN1_DISSECTOR_SRC = \
 	packet-acp133.c \
 	packet-acse.c \
 	packet-ansi_tcap.c \
+	packet-atn-ulcs.c\
+	packet-atn-cm.c	\
+	packet-atn-cpdlc.c	\
 	packet-c1222.c \
 	packet-camel.c \
 	packet-cdt.c \
@@ -1268,6 +1271,7 @@ DISSECTOR_INCLUDES =	\
 	packet-arp.h	\
 	packet-atalk.h	\
 	packet-atm.h	\
+	packet-atn-ulcs.h	\
 	packet-ax25.h	\
 	packet-ax25-kiss.h	\
 	packet-bacapp.h	\
