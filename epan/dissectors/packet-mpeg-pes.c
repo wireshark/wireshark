@@ -932,7 +932,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			 * XXX Some one with access to the spec should check this
 			 */
 			 if(length !=0 && stream != STREAM_VIDEO){
-				 length -= 5 * 8;
+				 length -= 5;
 			 }
 
 			header_length = tvb_get_guint8(tvb, 8);
@@ -944,7 +944,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				offset += header_length * 8;
 				 /* length may be zero for Video stream */
 				if(length !=0 && stream != STREAM_VIDEO){
-					length -= header_length * 8;
+					length -= header_length;
 				}
 			}
 
@@ -954,7 +954,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				return TRUE;
 			}
 
-			es = tvb_new_subset(tvb, offset / 8, -1, length / 8);
+			es = tvb_new_subset(tvb, offset / 8, -1, length);
 			if (tvb_get_ntoh24(es, 0) == PES_PREFIX)
 				dissect_mpeg_pes(es, pinfo, tree, NULL);
 			else if (tvb_get_guint8(es, 0) == 0xff)
