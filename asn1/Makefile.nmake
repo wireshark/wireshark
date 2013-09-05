@@ -47,6 +47,9 @@ BER_LIST= \
 	acse			\
 	ansi_map		\
 	ansi_tcap		\
+	atn-cm		\
+	atn-cpdlc	\
+	atn-ulcs	\
 	camel			\
 	cdt			\
 	charging_ase		\
