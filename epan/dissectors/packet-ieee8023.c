@@ -38,7 +38,7 @@ static dissector_handle_t ccsds_handle;
 void
 dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
 	      int offset_after_length, packet_info *pinfo, proto_tree *tree,
-	      proto_tree *fh_tree, int length_id, int trailer_id,
+	      proto_tree *fh_tree, int length_id, int trailer_id, expert_field* ei_len,
 	      int fcs_len)
 {
   proto_item		*length_it;
@@ -65,8 +65,12 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
      the payload. */
   if (length > reported_length) {
     length = reported_length;
+    expert_add_info(pinfo, length_it, ei_len);
+/*
     expert_add_info_format(pinfo, length_it, PI_MALFORMED, PI_ERROR,
         "Length field value goes past the end of the payload");
+        
+*/
   }
 
   /* Give the next dissector only 'length' number of bytes. */

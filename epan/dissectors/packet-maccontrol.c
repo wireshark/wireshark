@@ -31,7 +31,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-ieee8023.h"
 #include "packet-llc.h"
 #include <epan/etypes.h>
 

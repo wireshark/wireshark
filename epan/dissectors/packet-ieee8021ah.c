@@ -27,7 +27,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "packet-ieee8023.h"
+
 #include "packet-ieee8021ah.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"

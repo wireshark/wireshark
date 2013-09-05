@@ -29,6 +29,7 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
+#include <epan/expert.h>
 #include "packet-eth.h"
 #include "packet-ieee8023.h"
 #include "packet-ipx.h"
@@ -38,7 +39,6 @@
 #include "packet-usb.h"
 #include <epan/crc32-tvb.h>
 #include <epan/tap.h>
-#include <epan/expert.h>
 
 void proto_register_eth(void);
 void proto_reg_handoff_eth(void);
@@ -84,6 +84,7 @@ static gint ett_eth_fcs = -1;
 static expert_field ei_eth_invalid_lentype = EI_INIT;
 static expert_field ei_eth_src_not_group = EI_INIT;
 static expert_field ei_eth_fcs_bad = EI_INIT;
+static expert_field ei_eth_len = EI_INIT;
 
 static dissector_handle_t fw1_handle;
 static dissector_handle_t data_handle;
@@ -397,7 +398,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
     dissect_802_3(ehdr->type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo,
-        parent_tree, fh_tree, hf_eth_len, hf_eth_trailer, fcs_len);
+        parent_tree, fh_tree, hf_eth_len, hf_eth_trailer, &ei_eth_len, fcs_len);
   } else {
     if (eth_interpret_as_fw1_monitor) {
         if ((dst_addr[0] == 'i') || (dst_addr[0] == 'I') ||
@@ -843,6 +844,7 @@ proto_register_eth(void)
         { &ei_eth_invalid_lentype, { "eth.invalid_lentype", PI_PROTOCOL, PI_WARN, "Invalid length/type", EXPFILL }},
         { &ei_eth_src_not_group, { "eth.src_not_group", PI_PROTOCOL, PI_WARN, "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)", EXPFILL }},
         { &ei_eth_fcs_bad, { "eth.fcs_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_eth_len, { "eth.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
     };
 
     module_t *eth_module;

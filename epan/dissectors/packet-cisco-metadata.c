@@ -28,7 +28,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#if 0
 #include "packet-ieee8023.h"
+#endif
 
 static int proto_cmd = -1;
 

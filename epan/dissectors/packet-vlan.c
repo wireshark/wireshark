@@ -26,6 +26,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-ieee8023.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
@@ -48,6 +49,8 @@ static int hf_vlan_len = -1;
 static int hf_vlan_trailer = -1;
 
 static gint ett_vlan = -1;
+
+static expert_field ei_vlan_len = EI_INIT;
 
 /* From Table G-2 of IEEE standard 802.1D-2004 */
 static const value_string pri_vals[] = {
@@ -142,7 +145,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     dissect_802_3(encap_proto, is_802_2, tvb, 4, pinfo, tree, vlan_tree,
-                  hf_vlan_len, hf_vlan_trailer, 0);
+                  hf_vlan_len, hf_vlan_trailer, &ei_vlan_len, 0);
   } else {
     ethertype(encap_proto, tvb, 4, pinfo, tree, vlan_tree,
               hf_vlan_etype, hf_vlan_trailer, 0);
@@ -175,11 +178,17 @@ proto_register_vlan(void)
   static gint *ett[] = {
     &ett_vlan
   };
+  static ei_register_info ei[] = {
+     { &ei_vlan_len, { "vlan.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
+  };
   module_t *vlan_module;
+  expert_module_t* expert_vlan;
 
   proto_vlan = proto_register_protocol("802.1Q Virtual LAN", "VLAN", "vlan");
   proto_register_field_array(proto_vlan, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_vlan = expert_register_protocol(proto_vlan);
+  expert_register_field_array(expert_vlan, ei, array_length(ei));
 
   vlan_module = prefs_register_protocol(proto_vlan, proto_reg_handoff_vlan);
   prefs_register_bool_preference(vlan_module, "summary_in_tree",

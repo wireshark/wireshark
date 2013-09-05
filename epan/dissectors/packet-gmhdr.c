@@ -121,6 +121,7 @@ static gint ett_srcport = -1;
 static gint ett_gmtrailer = -1;
 
 static expert_field ei_gmhdr_field_length_invalid = EI_INIT;
+static expert_field ei_gmhdr_len = EI_INIT;
 
 static void
 dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, guint offset, guint16 length)
@@ -256,7 +257,7 @@ dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     dissect_802_3(encap_proto, is_802_2, tvb, offset, pinfo, tree, gmhdr_tree,
-                  hf_gmhdr_len, hf_gmhdr_trailer, 0);
+                  hf_gmhdr_len, hf_gmhdr_trailer, &ei_gmhdr_len, 0);
   } else {
     ethertype(encap_proto, tvb, offset, pinfo, tree, gmhdr_tree,
               hf_gmhdr_etype, hf_gmhdr_trailer, 0);
@@ -461,6 +462,7 @@ proto_register_gmhdr(void)
   };
   static ei_register_info ei[] = {
      { &ei_gmhdr_field_length_invalid, { "gmhdr.field_length_invalid", PI_MALFORMED, PI_ERROR, "Field length invalid", EXPFILL }},
+     { &ei_gmhdr_len, { "gmhdr.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
   };
 
   module_t *gmhdr_module;
