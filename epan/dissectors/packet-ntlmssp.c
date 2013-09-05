@@ -44,7 +44,7 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
@@ -266,13 +266,17 @@ static gint ett_ntlmssp_challenge_target_info_item = -1;
 static gint ett_ntlmssp_ntlmv2_response = -1;
 static gint ett_ntlmssp_ntlmv2_response_item = -1;
 
+static expert_field ei_ntlmssp_v2_key_too_long = EI_INIT;
+static expert_field ei_ntlmssp_blob_len_too_long = EI_INIT;
+static expert_field ei_ntlmssp_target_info_attr = EI_INIT;
+
 /* Configuration variables */
 const char *gbl_nt_password = NULL;
 
 #define MAX_BLOB_SIZE 10240
 typedef struct _ntlmssp_blob {
   guint16 length;
-  guint8  contents[MAX_BLOB_SIZE];
+  guint8* contents;
 } ntlmssp_blob;
 
 #define NTLMSSP_CONV_INFO_KEY 0
@@ -966,9 +970,9 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
 
   if (result != NULL) {
     result->length = blob_length;
-    memset(result->contents, 0, MAX_BLOB_SIZE);
     if (blob_length < MAX_BLOB_SIZE)
     {
+      result->contents = wmem_alloc(wmem_file_scope(), blob_length);
       tvb_memcpy(tvb, result->contents, blob_offset, blob_length);
       if (blob_hf == hf_ntlmssp_auth_lmresponse &&
           !(tvb_memeql(tvb, blob_offset+8, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", NTLMSSP_KEY_LEN)))
@@ -978,7 +982,9 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
                              tvb, blob_offset, 8, ENC_NA);
       }
     } else {
-      expert_add_info_format(pinfo, tf, PI_WARN, PI_UNDECODED,
+      result->length = 0;
+      result->contents = NULL;
+      expert_add_info_format_text(pinfo, tf, &ei_ntlmssp_v2_key_too_long,
                              "NTLM v2 key is %d bytes long, too big for our %d buffer", blob_length, MAX_BLOB_SIZE);
     }
   }
@@ -1257,7 +1263,6 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint32     type_offset;
     guint32     len_offset;
     const gchar *text = NULL;
-    proto_item *pi;
 
     int **hf_array_p = tif_p->hf_attr_array_p;
 
@@ -1307,8 +1312,8 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         break;
 
       default:
-        pi = proto_tree_add_text(target_info_tree, tvb, content_offset, content_length, "unknown content");
-        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_WARN, "unknown NTLMSSP Target Info Attribute");
+        proto_tree_add_expert(target_info_tree, pinfo, &ei_ntlmssp_target_info_attr,
+                                   tvb, content_offset, content_length);
         break;
       }
     }
@@ -1528,6 +1533,10 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     if (!(conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY))
     {
       conv_ntlmssp_info->rc4_state_initialized = 0;
+      /* XXX - Make sure there is 24 bytes for the key */
+      conv_ntlmssp_info->ntlm_response.contents = wmem_alloc0(wmem_file_scope(), 24);
+      conv_ntlmssp_info->lm_response.contents = wmem_alloc0(wmem_file_scope(), 24);
+
       create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge, NULL, sspkey, NULL, conv_ntlmssp_info->flags, conv_ntlmssp_info->ntlm_response.contents, conv_ntlmssp_info->lm_response.contents, ntlmssph);
       if (memcmp(sspkey, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
         get_sealing_rc4key(sspkey, conv_ntlmssp_info->flags, &ssp_key_len, clientkey, serverkey);
@@ -1752,7 +1761,6 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
-  memset(sessionblob.contents, 0, MAX_BLOB_SIZE);
   sessionblob.length = 0;
   if (offset < data_start) {
     /* Session Key */
@@ -1791,7 +1799,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   }
 
   if (sessionblob.length > NTLMSSP_KEY_LEN) {
-    expert_add_info_format(pinfo, NULL, PI_WARN, PI_UNDECODED, "Session blob length too long: %u", sessionblob.length);
+    expert_add_info_format_text(pinfo, NULL, &ei_ntlmssp_blob_len_too_long, "Session blob length too long: %u", sessionblob.length);
   } else if (sessionblob.length != 0) {
     memcpy(encryptedsessionkey, sessionblob.contents, sessionblob.length);
     /* Try to attach to an existing conversation if not then it's useless to try to do so
@@ -1807,7 +1815,11 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
         }
         else
         {
-          memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->lm_response.contents, 8);
+          if (conv_ntlmssp_info->lm_response.contents == NULL) {
+            memset(conv_ntlmssp_info->client_challenge, 0, 8);
+          } else {
+            memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->lm_response.contents, 8);
+          }
           create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge, conv_ntlmssp_info->client_challenge, sspkey, encryptedsessionkey, conv_ntlmssp_info->flags, conv_ntlmssp_info->ntlm_response.contents, conv_ntlmssp_info->lm_response.contents, ntlmssph);
         }
         /* ssp is the exported session key */
@@ -3291,7 +3303,13 @@ proto_register_ntlmssp(void)
     &ett_ntlmssp_ntlmv2_response,
     &ett_ntlmssp_ntlmv2_response_item,
   };
+  static ei_register_info ei[] = {
+     { &ei_ntlmssp_v2_key_too_long, { "ntlmssp.v2_key_too_long", PI_UNDECODED, PI_WARN, "NTLM v2 key is too long", EXPFILL }},
+     { &ei_ntlmssp_blob_len_too_long, { "ntlmssp.blob.length.too_long", PI_UNDECODED, PI_WARN, "Session blob length too long", EXPFILL }},
+     { &ei_ntlmssp_target_info_attr, { "ntlmssp.target_info_attr.unknown", PI_UNDECODED, PI_WARN, "unknown NTLMSSP Target Info Attribute", EXPFILL }},
+  };
   module_t *ntlmssp_module;
+  expert_module_t* expert_ntlmssp;
 
   proto_ntlmssp = proto_register_protocol (
     "NTLM Secure Service Provider", /* name */
@@ -3300,6 +3318,8 @@ proto_register_ntlmssp(void)
     );
   proto_register_field_array (proto_ntlmssp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_ntlmssp = expert_register_protocol(proto_ntlmssp);
+  expert_register_field_array(expert_ntlmssp, ei, array_length(ei));
   register_init_routine(&ntlmssp_init_protocol);
 
   ntlmssp_module = prefs_register_protocol(proto_ntlmssp, NULL);
