@@ -54,7 +54,6 @@ static int hf_h248_pkg_bcp_BNCChar_PDU  = -1;
 
 
 static int hf_h248_context_id = -1;
-static int hf_h248_error_code = -1;
 static int hf_h248_term_wild_type = -1;
 static int hf_h248_term_wild_level = -1;
 static int hf_h248_term_wild_position = -1;
@@ -1522,11 +1521,6 @@ void proto_register_h248(void) {
           { "BNCChar", "h248.package_bcp.BNCChar",
             FT_UINT32, BASE_DEC, VALS(gcp_term_types), 0,
             NULL, HFILL }},
-
-        { &hf_h248_error_code,
-          { "errorCode", "h248.errorCode",
-            FT_UINT32, BASE_DEC|BASE_EXT_STRING, &h248_reasons_ext, 0,
-            "ErrorDescriptor/errorCode", HFILL }},
         { &hf_h248_context_id,
           { "contextId", "h248.contextId",
             FT_UINT32, BASE_HEX, NULL, 0,

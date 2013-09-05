@@ -62,7 +62,6 @@ static int hf_h248_pkg_bcp_BNCChar_PDU  = -1;
 
 
 static int hf_h248_context_id = -1;
-static int hf_h248_error_code = -1;
 static int hf_h248_term_wild_type = -1;
 static int hf_h248_term_wild_level = -1;
 static int hf_h248_term_wild_position = -1;
@@ -398,7 +397,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
 /*--- End of included file: packet-h248-hf.c ---*/
-#line 75 "../../asn1/h248/packet-h248-template.c"
+#line 74 "../../asn1/h248/packet-h248-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
@@ -563,7 +562,7 @@ static gint ett_h248_EventParameterV1 = -1;
 static gint ett_h248_SigParameterV1 = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
-#line 92 "../../asn1/h248/packet-h248-template.c"
+#line 91 "../../asn1/h248/packet-h248-template.c"
 
 static expert_field ei_h248_errored_command = EI_INIT;
 static expert_field ei_h248_transactionId64 = EI_INIT;
@@ -2084,7 +2083,7 @@ dissect_h248_MId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 302 "../../asn1/h248/h248.cnf"
-    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_h248_error_code, &error_code);
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, &error_code);
     expert_add_info(actx->pinfo, actx->created_item, &ei_h248_errored_command);
     
     if (curr_info.cmd) {
@@ -5370,7 +5369,7 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1413 "../../asn1/h248/packet-h248-template.c"
+#line 1412 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -5483,11 +5482,6 @@ void proto_register_h248(void) {
           { "BNCChar", "h248.package_bcp.BNCChar",
             FT_UINT32, BASE_DEC, VALS(gcp_term_types), 0,
             NULL, HFILL }},
-
-        { &hf_h248_error_code,
-          { "errorCode", "h248.errorCode",
-            FT_UINT32, BASE_DEC|BASE_EXT_STRING, &h248_reasons_ext, 0,
-            "ErrorDescriptor/errorCode", HFILL }},
         { &hf_h248_context_id,
           { "contextId", "h248.contextId",
             FT_UINT32, BASE_HEX, NULL, 0,
@@ -5709,7 +5703,7 @@ void proto_register_h248(void) {
         "TransactionId", HFILL }},
     { &hf_h248_errorCode,
       { "errorCode", "h248.errorCode",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &h248_reasons_ext, 0,
         NULL, HFILL }},
     { &hf_h248_errorText,
       { "errorText", "h248.errorText",
@@ -6797,7 +6791,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1583 "../../asn1/h248/packet-h248-template.c"
+#line 1577 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6963,7 +6957,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1601 "../../asn1/h248/packet-h248-template.c"
+#line 1595 "../../asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {

@@ -299,7 +299,7 @@ AuditReplyV1/auditResult	audit_result
 #.END
 
 #.FN_BODY ErrorDescriptor/errorCode
-    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_h248_error_code, &error_code);
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, &error_code);
     expert_add_info(actx->pinfo, actx->created_item, &ei_h248_errored_command);
     
     if (curr_info.cmd) {
@@ -433,3 +433,4 @@ IP4Address/address  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 IP6Address/address  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
 ActionRequest/contextId TYPE = FT_UINT32 DISPLAY = BASE_HEX STRINGS = NULL
 ActionReply/contextId TYPE = FT_UINT32 DISPLAY = BASE_HEX STRINGS = NULL
+ErrorDescriptor/errorCode TYPE = FT_UINT32 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &h248_reasons_ext
