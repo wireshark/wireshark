@@ -984,7 +984,7 @@ void proto_register_pppoed(void)
 			}
 		},
 		{ &hf_pppoed_tag_max_payload,
-			{ "PPP Max Palyload", "pppoed.tags.max_payload", FT_BYTES, BASE_NONE,
+			{ "PPP-Max-Payload", "pppoed.tags.max_payload", FT_BYTES, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
