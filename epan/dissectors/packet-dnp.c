@@ -235,6 +235,16 @@
 /***************************************************************************/
 /* Application Layer Data Object Definitions                               */
 /***************************************************************************/
+/* Device Attributes */
+#define AL_OBJ_DA_SWVER    0x00F2   /* 00 242 Device Attributes - Device Manufacturers SW Version */
+#define AL_OBJ_DA_HWVER    0x00F3   /* 00 243 Device Attributes - Device Manufacturers HW Version */
+#define AL_OBJ_DA_ID       0x00F6   /* 00 246 Device Attributes - User-Assigned ID code/number    */
+#define AL_OBJ_DA_SERNUM   0x00F8   /* 00 248 Device Attributes - Device Serial Number            */
+#define AL_OBJ_DA_PROD     0x00FA   /* 00 250 Device Attributes - Device Product Name and Model   */
+#define AL_OBJ_DA_MFG      0x00FC   /* 00 252 Device Attributes - Device Manufacturers Name       */
+#define AL_OBJ_DA_ALL      0x00FE   /* 00 254 Device Attributes - Non-specific All-attributes Req */
+#define AL_OBJ_DA_LVAR     0x00FF   /* 00 255 Device Attributes - List of Attribute Variations    */
+
 /* Binary Input Objects */
 #define AL_OBJ_BI_ALL      0x0100   /* 01 00 Binary Input Default Variation */
 #define AL_OBJ_BI_1BIT     0x0101   /* 01 01 Single-bit Binary Input */
@@ -248,6 +258,7 @@
 #define AL_OBJ_2BI_ALL     0x0300   /* 03 00 Double-bit Input Default Variation */
 #define AL_OBJ_2BI_NF      0x0301   /* 03 01 Double-bit Input No Flags */
 #define AL_OBJ_2BI_STAT    0x0302   /* 03 02 Double-bit Input With Status */
+#define AL_OBJ_2BIC_ALL    0x0400   /* 04 00 Double-bit Input Change Default Variation */
 #define AL_OBJ_2BIC_NOTIME 0x0401   /* 04 01 Double-bit Input Change Without Time */
 #define AL_OBJ_2BIC_TIME   0x0402   /* 04 02 Double-bit Input Change With Time */
 #define AL_OBJ_2BIC_RTIME  0x0403   /* 04 03 Double-bit Input Change With Relative Time */
@@ -488,9 +499,23 @@
 #define AL_OBJ_IIN         0x5001   /* 80 01 Internal Indications */
 
 /***************************************************************************/
+/* Data Sets */
+#define AL_OBJ_DS_PROTO    0x5501   /* 85 01 Data-Set Prototype, with UUID  */
+#define AL_OBJ_DSD_CONT    0x5601   /* 86 01 Data-Set Descriptor, Data-Set Contents  */
+#define AL_OBJ_DSD_CHAR    0x5602   /* 86 02 Data-Set Descriptor, Characteristics  */
+#define AL_OBJ_DSD_PIDX    0x5603   /* 86 03 Data-Set Descriptor, Point Index Attributes  */
+#define AL_OBJ_DS_PV       0x5701   /* 87 01 Data-Set, Present Value  */
+#define AL_OBJ_DS_SS       0x5801   /* 88 01 Data-Set, Snapshot  */
+
+/***************************************************************************/
 /* Octet String Objects */
 #define AL_OBJ_OCT         0x6E00   /* 110 xx Octet string */
 #define AL_OBJ_OCT_EVT     0x6F00   /* 110 xx Octet string event */
+
+/***************************************************************************/
+/* Virtual Terminal Objects */
+#define AL_OBJ_VT_OBLK     0x7000   /* 112 xx Virtual Terminal Output Block */
+#define AL_OBJ_VT_EVTD     0x7100   /* 113 xx Virtual Terminal Event Data */
 
 /***************************************************************************/
 /* End of Application Layer Data Object Definitions */
@@ -804,6 +829,14 @@ static value_string_ext dnp3_al_objq_code_vals_ext = VALUE_STRING_EXT_INIT(dnp3_
 
 /* Application Layer Data Object Values */
 static const value_string dnp3_al_obj_vals[] = {
+  { AL_OBJ_DA_SWVER,   "Device Attributes - Device Manufacturers SW Version (Obj:00, Var:242)" },
+  { AL_OBJ_DA_HWVER,   "Device Attributes - Device Manufacturers HW Version (Obj:00, Var:243)" },
+  { AL_OBJ_DA_ID,      "Device Attributes - User-Assigned ID code/number (Obj:00, Var:246)" },
+  { AL_OBJ_DA_SERNUM,  "Device Attributes - Device Serial Number (Obj:00, Var:248)" },
+  { AL_OBJ_DA_PROD,    "Device Attributes - Device Product Name and Model (Obj:00, Var:250)" },
+  { AL_OBJ_DA_MFG,     "Device Attributes - Device Manufacturers Name (Obj:00, Var:252)" },
+  { AL_OBJ_DA_ALL,     "Device Attributes - Non-specific All-attributes Request (Obj:00, Var:254)" },
+  { AL_OBJ_DA_LVAR,    "Device Attributes - List of Attribute Variations (Obj:00, Var:255)" },
   { AL_OBJ_BI_ALL,     "Binary Input Default Variation (Obj:01, Var:Default)" },
   { AL_OBJ_BI_1BIT,    "Single-Bit Binary Input (Obj:01, Var:01)" },
   { AL_OBJ_BI_STAT,    "Binary Input With Status (Obj:01, Var:02)" },
@@ -814,6 +847,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_2BI_ALL,    "Double-bit Input Default Variation (Obj:03, Var:Default)" },
   { AL_OBJ_2BI_NF,     "Double-bit Input No Flags (Obj:03, Var:01)" },
   { AL_OBJ_2BI_STAT,   "Double-bit Input With Status (Obj:03, Var:02)" },
+  { AL_OBJ_2BIC_ALL,   "Double-bit Input Change Default Variation (Obj:04, Var:Default)" },
   { AL_OBJ_2BIC_NOTIME, "Double-bit Input Change Without Time (Obj:04, Var:01)" },
   { AL_OBJ_2BIC_TIME,  "Double-bit Input Change With Time (Obj:04, Var:02)" },
   { AL_OBJ_2BIC_RTIME, "Double-bit Input Change With Relative Time (Obj:04, Var:03)" },
@@ -923,8 +957,16 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_FILE_TRANS, "File Control - File Transport (Obj:70, Var:05)" },
   { AL_OBJ_FILE_TRAN_ST, "File Control - File Transport Status (Obj:70, Var:06)" },
   { AL_OBJ_IIN,        "Internal Indications (Obj:80, Var:01)" },
+  { AL_OBJ_DS_PROTO,   "Data-Set Prototype, with UUID (Obj:85, Var:01)" },
+  { AL_OBJ_DSD_CONT,   "Data-Set Descriptor, Data-Set Contents (Obj:86, Var:01)" },
+  { AL_OBJ_DSD_CHAR,   "Data-Set Descriptor, Characteristics (Obj:86, Var:02)" },
+  { AL_OBJ_DSD_PIDX,   "Data-Set Descriptor, Point Index Attributes (Obj:86, Var:03)" },
+  { AL_OBJ_DS_PV,      "Data-Set, Present Value (Obj:87, Var:01)" },
+  { AL_OBJ_DS_SS,      "Data-Set, Snapshot (Obj:88, Var:01)" },
   { AL_OBJ_OCT,        "Octet String (Obj:110)" },
   { AL_OBJ_OCT_EVT,    "Octet String Event (Obj:111)" },
+  { AL_OBJ_VT_OBLK,    "Virtual Terminal Output Block (Obj:112)" },
+  { AL_OBJ_VT_EVTD,    "Virtual Terminal Event Data (Obj:113)" },
   { 0, NULL }
 };
 static value_string_ext dnp3_al_obj_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_obj_vals);
@@ -1068,6 +1110,7 @@ static gint ett_dnp3_al_obj_point_perms = -1;
 
 static expert_field ei_dnp_num_items_neg = EI_INIT;
 static expert_field ei_dnp_invalid_length = EI_INIT;
+static expert_field ei_dnp_iin_abnormal = EI_INIT;
 
 /* Tables for reassembly of fragments. */
 static reassembly_table al_reassembly_table;
@@ -1257,7 +1300,7 @@ add_item_text(proto_item *item, const gchar *text, gboolean comma_needed)
 /*  Application Layer Process Internal Indications (IIN)         */
 /*****************************************************************/
 static void
-dnp3_al_process_iin(tvbuff_t *tvb, int offset, proto_tree *al_tree)
+dnp3_al_process_iin(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *al_tree)
 {
 
   guint16     al_iin;
@@ -1284,6 +1327,12 @@ dnp3_al_process_iin(tvbuff_t *tvb, int offset, proto_tree *al_tree)
   if (al_iin & AL_IIN_OBJU)   comma_needed = add_item_text(tiin, "Requested Objects Unknown",          comma_needed);
   if (al_iin & AL_IIN_FCNI)   /*comma_needed = */add_item_text(tiin, "Function code not implemented",     comma_needed);
   proto_item_append_text(tiin, " (0x%04x)", al_iin);
+
+  /* If IIN indicates an abnormal condition, add expert info */
+  if ((al_iin & AL_IIN_DT) || (al_iin & AL_IIN_CC) || (al_iin & AL_IIN_OAE) || (al_iin & AL_IIN_EBO) ||
+      (al_iin & AL_IIN_PIOOR) || (al_iin & AL_IIN_OBJU) || (al_iin & AL_IIN_FCNI)) {
+      expert_add_info(pinfo, tiin, &ei_dnp_iin_abnormal);
+  }
 
   iin_tree = proto_item_add_subtree(tiin, ett_dnp3_al_iin);
   proto_tree_add_item(iin_tree, hf_dnp3_al_iin_rst,   tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1686,6 +1735,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
           case AL_OBJ_BIC_ALL:     /* Binary Input Change Default Variation (Obj:02, Var:Default) */
           case AL_OBJ_BOC_ALL:     /* Binary Output Event Default Variation (Obj:11, Var:Default) */
           case AL_OBJ_2BI_ALL:     /* Double-bit Input Default Variation (Obj:03, Var:Default) */
+          case AL_OBJ_2BIC_ALL:    /* Double-bit Input Change Default Variation (Obj:04, Var:Default) */
           case AL_OBJ_CTR_ALL:     /* Binary Counter Default Variation (Obj:20, Var:Default) */
           case AL_OBJ_CTRC_ALL:    /* Binary Counter Change Default Variation (Obj:22 Var:Default) */
           case AL_OBJ_AI_ALL:      /* Analog Input Default Variation (Obj:30, Var:Default) */
@@ -2651,18 +2701,26 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* For reads for specific object types, bit-mask out the first byte and use that to determine the column info to add */
       switch(obj_type & 0xFF00) {
-        case AL_OBJ_BI_ALL:    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Input");          break;
-        case AL_OBJ_BIC_ALL:   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Input Change");   break;
-        case AL_OBJ_2BI_ALL:   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Double-bit Input");      break;
-        case AL_OBJ_BO_ALL:    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Output");         break;
-        case AL_OBJ_CTR_ALL:   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Counter");               break;
-        case AL_OBJ_FCTR_ALL:  col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Frozen Counter");        break;
-        case AL_OBJ_CTRC_ALL:  col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Counter Change");        break;
-        case AL_OBJ_FCTRC_ALL: col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Frozen Counter Change"); break;
-        case AL_OBJ_AI_ALL:    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Input");          break;
-        case AL_OBJ_AIC_ALL:   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Input Change");   break;
-        case AL_OBJ_AO_ALL:    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Output");         break;
-        case AL_OBJ_AOC_ALL:   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Output Change");  break;
+        case (AL_OBJ_BI_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Input");                break;
+        case (AL_OBJ_BIC_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Input Change");         break;
+        case (AL_OBJ_2BI_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Double-bit Input");            break;
+        case (AL_OBJ_2BIC_ALL  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Double-bit Input Change");     break;
+        case (AL_OBJ_BO_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Output");               break;
+        case (AL_OBJ_CTR_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Counter");                     break;
+        case (AL_OBJ_FCTR_ALL  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Frozen Counter");              break;
+        case (AL_OBJ_CTRC_ALL  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Counter Change");              break;
+        case (AL_OBJ_FCTRC_ALL & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Frozen Counter Change");       break;
+        case (AL_OBJ_AI_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Input");                break;
+        case (AL_OBJ_AIC_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Input Change");         break;
+        case (AL_OBJ_AO_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Output");               break;
+        case (AL_OBJ_AOC_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Output Change");        break;
+        case (AL_OBJ_TD_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Time and Date");               break;
+        case (AL_OBJ_FILE_CMD  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "File Control");                break;
+        case (AL_OBJ_IIN       & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Internal Indications");        break;
+        case (AL_OBJ_OCT       & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Octet String");                break;
+        case (AL_OBJ_OCT_EVT   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Octet String Event");          break;
+        case (AL_OBJ_VT_EVTD   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Virtual Terminal Event Data"); break;
+
         default: break;
       }
 
@@ -2678,6 +2736,19 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
         offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
       }
+
+      /* For writes of specific object types, bit-mask out the first byte and use that to determine the column info to add */
+      switch(obj_type & 0xFF00) {
+        case (AL_OBJ_TD_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Time and Date");                 break;
+        case (AL_OBJ_FILE_CMD & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "File Control");                  break;
+        case (AL_OBJ_IIN      & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Internal Indications");          break;
+        case (AL_OBJ_OCT      & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Octet String");                  break;
+        case (AL_OBJ_OCT_EVT  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Octet String Event");            break;
+        case (AL_OBJ_VT_OBLK  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Virtual Terminal Output Block"); break;
+
+        default: break;
+      }
+
 
       break;
 
@@ -2771,7 +2842,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case AL_FUNC_UNSOLI:   /* Unsolicited Response Function Code 0x82 */
 
       /* Application Layer IIN bits req'd if message is a response */
-      dnp3_al_process_iin(tvb, offset, al_tree);
+      dnp3_al_process_iin(tvb, pinfo, offset, al_tree);
       offset += 2;
 
       /* Ensure there is actual data remaining in the message.
@@ -3105,10 +3176,10 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_text(dnp3_tree, tvb, 11, -1, "CRC failed, %u chunks", i);
     }
 
-    /* Dissect any completed AL message */
-    if (next_tvb)
+    /* Dissect any completed Application Layer message */
+    if (next_tvb && tr_fin)
     {
-      /* As a complete AL message will have cleared the info column, 
+      /* As a complete AL message will have cleared the info column,
          make sure source and dest are always in the info column */
       col_append_fstr(pinfo->cinfo, COL_INFO, "from %u to %u", dl_src, dl_dst);
       col_set_fence(pinfo->cinfo, COL_INFO);
@@ -4121,6 +4192,7 @@ proto_register_dnp3(void)
   static ei_register_info ei[] = {
      { &ei_dnp_num_items_neg, { "dnp3.num_items_neg", PI_MALFORMED, PI_ERROR, "Negative number of items", EXPFILL }},
      { &ei_dnp_invalid_length, { "dnp3.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+     { &ei_dnp_iin_abnormal, { "dnp3.iin_abnormal", PI_PROTOCOL, PI_WARN, "IIN Abnormality", EXPFILL }},
   };
   module_t *dnp3_module;
   expert_module_t* expert_dnp3;
