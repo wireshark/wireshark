@@ -128,6 +128,7 @@ static gint ett_http_encoded_entity = -1;
 static gint ett_http_header_item = -1;
 
 static expert_field ei_http_chat = EI_INIT;
+static expert_field ei_http_chunked_and_length = EI_INIT;
 static expert_field ei_http_subdissector_failed = EI_INIT;
 
 static dissector_handle_t http_handle;
@@ -2484,6 +2485,10 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				tree_item = proto_tree_add_uint64(header_tree, hf_http_content_length,
 					tvb, offset, len, eh_ptr->content_length);
 				PROTO_ITEM_SET_GENERATED(tree_item);
+				if (eh_ptr->transfer_encoding != NULL &&
+						g_ascii_strncasecmp(eh_ptr->transfer_encoding, "chunked", 7) == 0) {
+					expert_add_info(pinfo, hdr_item, &ei_http_chunked_and_length);
+				}
 			}
 			break;
 
@@ -2493,6 +2498,10 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 		case HDR_TRANSFER_ENCODING:
 			eh_ptr->transfer_encoding = ep_strndup(value, value_len);
+			if (eh_ptr->have_content_length &&
+					g_ascii_strncasecmp(eh_ptr->transfer_encoding, "chunked", 7) == 0) {
+				expert_add_info(pinfo, hdr_item, &ei_http_chunked_and_length);
+			}
 			break;
 
 		case HDR_HOST:
@@ -2938,6 +2947,7 @@ proto_register_http(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_http_chat, { "http.chat", PI_SEQUENCE, PI_CHAT, "Formatted text", EXPFILL }},
+		{ &ei_http_chunked_and_length, { "http.chunkd_and_length", PI_MALFORMED, PI_WARN, "It is incorrect to specify a content-length header and chunked encoding together.", EXPFILL }},
 		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
 	};
 
@@ -3187,6 +3197,6 @@ proto_reg_handoff_message_http(void)
  * indent-tabs-mode: true
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8:
- * :indentSize=8:tabSize=8:
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
  */
