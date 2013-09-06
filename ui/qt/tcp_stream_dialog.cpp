@@ -152,19 +152,19 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
     // XXX Use pixel sizes instead
     case Qt::Key_Right:
     case Qt::Key_L:
-        h_pan = sp->xAxis->range().size() * 0.1;
+        h_pan = sp->xAxis->range().size() * 10.0 / sp->xAxis->axisRect()->width();
         break;
     case Qt::Key_Left:
     case Qt::Key_H:
-        h_pan = sp->xAxis->range().size() * -0.1;
+        h_pan = sp->xAxis->range().size() * -10.0 / sp->xAxis->axisRect()->width();
         break;
     case Qt::Key_Up:
     case Qt::Key_K:
-        v_pan = sp->yAxis->range().size() * 0.1;
+        v_pan = sp->yAxis->range().size() * 10.0 / sp->yAxis->axisRect()->height();
         break;
     case Qt::Key_Down:
     case Qt::Key_J:
-        v_pan = sp->yAxis->range().size() * -0.1;
+        v_pan = sp->yAxis->range().size() * -10.0 / sp->yAxis->axisRect()->height();
         break;
 
     case Qt::Key_Space:
