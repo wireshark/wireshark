@@ -74,8 +74,12 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     graph_.type = graph_type;
 
     QCustomPlot *sp = ui->streamPlot;
+    QCPPlotTitle *file_title = new QCPPlotTitle(sp, cf_get_display_name(cap_file_));
+    file_title->setFont(sp->xAxis->labelFont());
     title_ = new QCPPlotTitle(sp);
     tracer_ = new QCPItemTracer(sp);
+    sp->plotLayout()->insertRow(0);
+    sp->plotLayout()->addElement(0, 0, file_title);
     sp->plotLayout()->insertRow(0);
     sp->plotLayout()->addElement(0, 0, title_);
     sp->addGraph(); // 0 - All: Selectable segments
@@ -94,6 +98,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     sp->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 5));
 
     sp->xAxis->setLabel(tr("Time (s)"));
+    sp->yAxis->setLabelColor(QColor(graph_color_1));
     sp->yAxis->setTickLabelColor(QColor(graph_color_1));
 
     tracer_->setVisible(false);
@@ -289,7 +294,7 @@ void TCPStreamDialog::resetAxes()
 
 void TCPStreamDialog::initializeStevens()
 {
-    QString dlg_title = QString(tr("TCP Graph ")) + streamDescription();
+    QString dlg_title = QString(tr("Sequence numbers")) + streamDescription();
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
 
@@ -313,7 +318,7 @@ void TCPStreamDialog::initializeStevens()
 
 void TCPStreamDialog::initializeThroughput()
 {
-    QString dlg_title = QString(tr("Throughput "))
+    QString dlg_title = QString(tr("Throughput"))
             + streamDescription()
             + QString(tr(" (%1 segment MA)")).arg(moving_avg_period_);
     setWindowTitle(dlg_title);
@@ -366,14 +371,14 @@ void TCPStreamDialog::initializeThroughput()
     sp->yAxis->setLabel(tr("Segment length (B)"));
 
     sp->yAxis2->setLabel(tr("Avg througput (bits/s)"));
+    sp->yAxis2->setLabelColor(QColor(graph_color_2));
     sp->yAxis2->setTickLabelColor(QColor(graph_color_2));
     sp->yAxis2->setVisible(true);
 }
 
 QString TCPStreamDialog::streamDescription()
 {
-    return QString(tr("%1 %2:%3 %4 %5:%6"))
-            .arg(cf_get_display_name(cap_file_))
+    return QString(tr(" for %1:%2 %3 %4:%5"))
             .arg(ep_address_to_str(&graph_.src_address))
             .arg(graph_.src_port)
             .arg(UTF8_RIGHTWARDS_ARROW)
