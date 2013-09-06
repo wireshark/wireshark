@@ -5048,7 +5048,7 @@ fDevice_Instance (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
     tag_len = fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
 
-    if (lvt > 4)
+    if (lvt > 4 || lvt == 0)
         safe_lvt = 4;
     else
         safe_lvt = lvt;
