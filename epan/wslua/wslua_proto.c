@@ -1382,22 +1382,12 @@ static int Proto_set_init(lua_State* L) {
     Proto proto = toProto(L,1);
 
     if (lua_isfunction(L,3)) {
-        /* insert the dissector into the dissectors table */
-        lua_pushstring(L, WSLUA_INIT_ROUTINES);
-#if LUA_VERSION_NUM >= 502
-        lua_pushglobaltable(L);
-#else
-        lua_gettable(L, LUA_GLOBALSINDEX);
-#endif
+        /* insert the init routine into the init_routines table */
+        lua_getglobal(L, WSLUA_INIT_ROUTINES);
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
         lua_replace(L, 2);
         lua_settable(L,1);
-
-#if LUA_VERSION_NUM >= 502
-        /* remove the global environment table from the stack */
-        lua_pop(L,1);
-#endif
 
         return 0;
     }  else {
