@@ -500,7 +500,7 @@ get_md4pass_list(md4_pass** p_pass_list, const char* nt_password)
     return 0;
   }
   i = 0;
-  *p_pass_list = (md4_pass *)ep_alloc(nb_pass*sizeof(md4_pass));
+  *p_pass_list = (md4_pass *)wmem_alloc(wmem_packet_scope(), nb_pass*sizeof(md4_pass));
   pass_list = *p_pass_list;
 
   if (memcmp(nt_password_hash, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
@@ -1520,7 +1520,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    *      handled well depending on the order that frames are visited after the initial dissection.
    */
   if (!conv_ntlmssp_info || memcmp(tmp, conv_ntlmssp_info->server_challenge, 8) != 0) {
-    conv_ntlmssp_info = se_new(ntlmssp_info);
+    conv_ntlmssp_info = wmem_new0(wmem_file_scope(), ntlmssp_info);
     /* Insert the flags into the conversation */
     conv_ntlmssp_info->flags = negotiate_flags;
     /* Insert the RC4 state information into the conversation */
@@ -1658,7 +1658,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     conversation = find_or_create_conversation(pinfo);
     conv_ntlmssp_info = (ntlmssp_info *)conversation_get_proto_data(conversation, proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
-      conv_ntlmssp_info = se_new0(ntlmssp_info);
+      conv_ntlmssp_info = wmem_new0(wmem_file_scope(), ntlmssp_info);
       conversation_add_proto_data(conversation, proto_ntlmssp, conv_ntlmssp_info);
     }
     /* XXX: The *conv_ntlmssp_info struct attached to the frame is the
@@ -2019,7 +2019,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   packet_ntlmssp_info = (ntlmssp_packet_info *)p_get_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have any packet state, so create one */
-    packet_ntlmssp_info = se_new0(ntlmssp_packet_info);
+    packet_ntlmssp_info = wmem_new0(wmem_file_scope(), ntlmssp_packet_info);
     p_add_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY, packet_ntlmssp_info);
   }
   if (!packet_ntlmssp_info->payload_decrypted) {
@@ -2098,7 +2098,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
          in case of KEY_EXCH we have independent key so this is not needed*/
       if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
         guint8 *peer_block;
-        peer_block = (guint8 *)ep_memdup(packet_ntlmssp_info->decrypted_payload, encrypted_block_length);
+        peer_block = (guint8 *)wmem_memdup(wmem_packet_scope(), packet_ntlmssp_info->decrypted_payload, encrypted_block_length);
         crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
       }
 
@@ -2125,7 +2125,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ntlmssp_header_t     *ntlmssph;
   void                 *pd_save;
 
-  ntlmssph = ep_new(ntlmssp_header_t);
+  ntlmssph = wmem_new(wmem_packet_scope(), ntlmssp_header_t);
   ntlmssph->type = 0;
   ntlmssph->domain_name = NULL;
   ntlmssph->acct_name = NULL;
@@ -2309,7 +2309,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
          * Some analysis need to be done ...
          */
         if (sign_key != NULL) {
-          check_buf = (guint8 *)ep_alloc(packet_ntlmssp_info->payload_len+4);
+          check_buf = (guint8 *)wmem_alloc(wmem_packet_scope(), packet_ntlmssp_info->payload_len+4);
           tvb_memcpy(tvb, &sequence, offset+8, 4);
           memcpy(check_buf, &sequence, 4);
           memcpy(check_buf+4, packet_ntlmssp_info->decrypted_payload, packet_ntlmssp_info->payload_len);
@@ -2334,7 +2334,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
          This is not needed when we just have EXTENDED SECURITY because the signature is not crypted
          and it's also not needed when we have key exchange because server and client have independent keys */
       if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags) && !(NTLMSSP_NEGOTIATE_EXTENDED_SECURITY & conv_ntlmssp_info->flags)) {
-        peer_block = (guint8 *)ep_memdup(packet_ntlmssp_info->verifier, encrypted_block_length);
+        peer_block = (guint8 *)wmem_memdup(wmem_packet_scope(), packet_ntlmssp_info->verifier, encrypted_block_length);
         crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
       }
 
@@ -2550,7 +2550,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
   packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have any packet state, so create one */
-    packet_ntlmssp_info = se_new0(ntlmssp_packet_info);
+    packet_ntlmssp_info = wmem_new0(wmem_file_scope(), ntlmssp_packet_info);
     p_add_proto_data(pinfo->fd, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY, packet_ntlmssp_info);
   }
 
@@ -2599,7 +2599,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 
     /* We setup a temporary buffer so we can re-encrypt the payload after
        decryption.  This is to update the opposite peer's RC4 state */
-    peer_block = ep_memdup(packet_ntlmssp_info->decrypted_payload, encrypted_block_length);
+    peer_block = wmem_memdup(wmem_packet_scope(), packet_ntlmssp_info->decrypted_payload, encrypted_block_length);
     crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
 
     packet_ntlmssp_info->payload_decrypted = TRUE;
