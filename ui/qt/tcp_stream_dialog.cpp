@@ -37,7 +37,13 @@
 
 #include <QDebug>
 
+// The GTK+ version computes a 20 (or 21!) segment moving average. Comment
+// out the line below to use that. By default we use a 1 second MA.
+#define MA_1_SECOND
+
+#ifndef MA_1_SECOND
 const int moving_avg_period_ = 20;
+#endif
 const QRgb graph_color_1 = tango_sky_blue_5;
 const QRgb graph_color_2 = tango_butter_6;
 
@@ -318,9 +324,12 @@ void TCPStreamDialog::initializeStevens()
 
 void TCPStreamDialog::initializeThroughput()
 {
-    QString dlg_title = QString(tr("Throughput"))
-            + streamDescription()
-            + QString(tr(" (%1 segment MA)")).arg(moving_avg_period_);
+    QString dlg_title = QString(tr("Throughput")) + streamDescription();
+#ifdef MA_1_SECOND
+    dlg_title.append(tr(" (1 s MA)"));
+#else
+    dlg_title.append(QString(tr(" (%1 segment MA)")).arg(moving_avg_period_));
+#endif
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
 
@@ -337,7 +346,10 @@ void TCPStreamDialog::initializeThroughput()
 
     QVector<double> rel_time, seg_len, tput;
     struct segment *oldest_seg = graph_.segments;
-    int i = 1, sum = 0;
+#ifndef MA_1_SECOND
+    int i = 1;
+#endif
+    int sum = 0;
     // Financial charts don't show MA data until a full period has elapsed.
     // The Rosetta Code MA examples start spitting out values immediately.
     // For now use not-really-correct initial values just to keep our vector
@@ -345,12 +357,18 @@ void TCPStreamDialog::initializeThroughput()
     for (struct segment *seg = graph_.segments->next; seg != NULL; seg = seg->next) {
         double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
 
-        // XXX Skip zero-length segments?
+#ifdef MA_1_SECOND
+        while (rt_val - (oldest_seg->rel_secs + oldest_seg->rel_usecs / 1000000.0) > 1.0) {
+            oldest_seg = oldest_seg->next;
+            sum -= oldest_seg->th_seglen;
+        }
+#else
         if (i > moving_avg_period_) {
             oldest_seg = oldest_seg->next;
             sum -= oldest_seg->th_seglen;
         }
         i++;
+#endif
 
         double dtime = rt_val - (oldest_seg->rel_secs + oldest_seg->rel_usecs / 1000000.0);
         double av_tput;

@@ -715,6 +715,7 @@ void PacketList::goLastPacket(void) {
     setCurrentIndex(moveCursor(MoveEnd, Qt::NoModifier));
 }
 
+// XXX We can jump to the wrong packet if a display filter is applied
 void PacketList::goToPacket(int packet) {
     if (packet > 0 && packet <= packet_list_model_->rowCount()) {
         setCurrentIndex(packet_list_model_->index(packet - 1, 0));
