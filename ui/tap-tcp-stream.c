@@ -111,7 +111,7 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
     if (!cf || !tg) return;
 
     if (!stream_known) {
-        select_tcpip_session(cf, &current);
+        if (!select_tcpip_session(cf, &current)) return;
         if (tg->type == GRAPH_THROUGHPUT)
             ts.direction = COMPARE_CURR_DIR;
         else

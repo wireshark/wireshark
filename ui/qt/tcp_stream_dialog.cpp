@@ -107,7 +107,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
     connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(graphClicked(QMouseEvent*)));
     connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
-    connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(translateYRange(QCPRange)));
+    connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(transformYRange(QCPRange)));
     disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
 
     mouseMoved(NULL);
@@ -116,6 +116,12 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 TCPStreamDialog::~TCPStreamDialog()
 {
     delete ui;
+}
+
+void TCPStreamDialog::showEvent(QShowEvent *event)
+{
+    Q_UNUSED(event)
+    resetAxes();
 }
 
 void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
@@ -143,6 +149,7 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
         scale_range = true;
         break;
 
+    // XXX Use pixel sizes instead
     case Qt::Key_Right:
     case Qt::Key_L:
         h_pan = sp->xAxis->range().size() * 0.1;
@@ -202,16 +209,6 @@ void TCPStreamDialog::fillGraph()
 
     segment_map_.clear();
     graph_segment_list_free(&graph_);
-    graph_segment_list_get(cap_file_, &graph_, FALSE);
-
-    for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
-        if (!compareHeaders(seg)) {
-            continue;
-        }
-        double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
-        segment_map_.insertMulti(rt_val, seg);
-    }
-
     tracer_->setGraph(NULL);
     // We need at least one graph, so don't bother deleting the first one.
     for (int i = 0; i < sp->graphCount(); i++) {
@@ -226,19 +223,36 @@ void TCPStreamDialog::fillGraph()
         setWindowTitle(dlg_title);
         title_->setText(dlg_title);
         sp->setEnabled(false);
-    } else {
-        switch (graph_.type) {
-        case GRAPH_TSEQ_STEVENS:
-            initializeStevens();
-            break;
-        case GRAPH_THROUGHPUT:
-            initializeThroughput();
-            break;
-        default:
-            break;
-        }
-        sp->setEnabled(true);
+        sp->yAxis->setLabel(QString());
+        sp->replot();
+        return;
     }
+
+    // XXX graph_segment_list_get returns a different list for throughput
+    // graphs. If the throughput list used the same list we could call this
+    // above in our ctor.
+    graph_segment_list_get(cap_file_, &graph_, FALSE);
+
+    for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
+        if (!compareHeaders(seg)) {
+            continue;
+        }
+        double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
+        segment_map_.insertMulti(rt_val, seg);
+    }
+
+    switch (graph_.type) {
+    case GRAPH_TSEQ_STEVENS:
+        initializeStevens();
+        break;
+    case GRAPH_THROUGHPUT:
+        initializeThroughput();
+        break;
+    default:
+        break;
+    }
+    sp->setEnabled(true);
+
     resetAxes();
     tracer_->setGraph(sp->graph(0));
 }
@@ -247,27 +261,28 @@ void TCPStreamDialog::resetAxes()
 {
     QCustomPlot *sp = ui->streamPlot;
 
-    y_translate_mul_ = 0.0;
+    y_axis_xfrm_.reset();
+    double pixel_pad = 10.0; // per side
 
     sp->graph(0)->rescaleAxes(false, true);
     for (int i = 1; i < sp->graphCount(); i++) {
         sp->graph(i)->rescaleValueAxis(false, true);
     }
 
-    double range_pad = (sp->xAxis->range().upper - sp->xAxis->range().lower) * 0.05;
-    sp->xAxis->setRange(sp->xAxis->range().lower - range_pad,
-                        sp->xAxis->range().upper + range_pad);
+    double axis_pixels = sp->xAxis->axisRect()->width();
+    sp->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->xAxis->range().center());
 
-    range_pad = (sp->yAxis->range().upper - sp->yAxis->range().lower) * 0.05;
-    sp->yAxis->setRange(sp->yAxis->range().lower - range_pad,
-                        sp->yAxis->range().upper + range_pad);
+    axis_pixels = sp->yAxis->axisRect()->height();
+    sp->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->yAxis->range().center());
 
-    range_pad = (sp->yAxis2->range().upper - sp->yAxis2->range().lower) * 0.05;
-    sp->yAxis2->setRange(sp->yAxis2->range().lower - range_pad,
-                         sp->yAxis2->range().upper + range_pad);
+    if (sp->graph(1)->visible()) {
+        axis_pixels = sp->yAxis2->axisRect()->height();
+        sp->yAxis2->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->yAxis2->range().center());
 
-    y_translate_mul_ = (sp->yAxis2->range().upper - sp->yAxis2->range().lower)
-            / (sp->yAxis->range().upper - sp->yAxis->range().lower);
+        double ratio = sp->yAxis2->range().size() / sp->yAxis->range().size();
+        y_axis_xfrm_.translate(0.0, sp->yAxis2->range().lower - (sp->yAxis->range().lower * ratio));
+        y_axis_xfrm_.scale(1.0, ratio);
+    }
 
     sp->replot();
 }
@@ -325,6 +340,7 @@ void TCPStreamDialog::initializeThroughput()
     for (struct segment *seg = graph_.segments->next; seg != NULL; seg = seg->next) {
         double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
 
+        // XXX Skip zero-length segments?
         if (i > moving_avg_period_) {
             oldest_seg = oldest_seg->next;
             sum -= oldest_seg->th_seglen;
@@ -404,7 +420,7 @@ void TCPStreamDialog::graphClicked(QMouseEvent *event)
     Q_UNUSED(event)
 //    QRect spr = ui->streamPlot->axisRect()->rect();
 
-    if (tracer_->visible() && packet_num_ > 0) {
+    if (tracer_->visible() && cap_file_ && packet_num_ > 0) {
         emit goToPacket(packet_num_);
     }
 }
@@ -431,7 +447,8 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
 
     tracer_->setVisible(true);
     packet_num_ = packet_seg->num;
-    QString hint = QString(tr("<small><i>Click to select packet %1 (len %2 seq %3 ack %4 win %5)</i></small>"))
+    QString hint = QString(tr("<small><i>%1 %2 (len %3 seq %4 ack %5 win %6)</i></small>"))
+            .arg(cap_file_ ? tr("Click to select packet") : tr("Packet"))
             .arg(packet_num_)
             .arg(packet_seg->th_seglen)
             .arg(packet_seg->th_seq)
@@ -442,14 +459,16 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
     ui->streamPlot->replot();
 }
 
-void TCPStreamDialog::translateYRange(const QCPRange &y_range1)
+void TCPStreamDialog::transformYRange(const QCPRange &y_range1)
 {
-    if (y_translate_mul_ <= 0.0) return;
+    if (y_axis_xfrm_.isIdentity()) return;
 
     QCustomPlot *sp = ui->streamPlot;
+    QLineF yp1 = QLineF(1.0, y_range1.lower, 1.0, y_range1.upper);
+    QLineF yp2 = y_axis_xfrm_.map(yp1);
 
-    sp->yAxis2->setRangeUpper(y_range1.upper * y_translate_mul_);
-    sp->yAxis2->setRangeLower(y_range1.lower * y_translate_mul_);
+    sp->yAxis2->setRangeUpper(yp2.y2());
+    sp->yAxis2->setRangeLower(yp2.y1());
 }
 
 void TCPStreamDialog::on_buttonBox_accepted()
@@ -498,8 +517,9 @@ void TCPStreamDialog::on_graphTypeComboBox_currentIndexChanged(int index)
 
 void TCPStreamDialog::setCaptureFile(capture_file *cf)
 {
-    cap_file_ = cf;
-    fillGraph();
+    if (!cf) { // We only want to know when the file closes.
+        cap_file_ = NULL;
+    }
 }
 
 /*

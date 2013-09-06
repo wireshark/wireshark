@@ -426,6 +426,7 @@ void MainWindow::captureFileReadFinished(const capture_file *cf) {
     main_ui_->statusBar->popFileStatus();
     QString msg = QString().sprintf("%s", get_basename(cf->filename));
     main_ui_->statusBar->pushFileStatus(msg);
+    emit setDissectedCaptureFile(cap_file_);
 }
 
 void MainWindow::captureFileClosing(const capture_file *cf) {
@@ -441,6 +442,7 @@ void MainWindow::captureFileClosing(const capture_file *cf) {
     main_ui_->searchFrame->animatedHide();
 //    gtk_widget_show(expert_info_none);
     emit setCaptureFile(NULL);
+    emit setDissectedCaptureFile(NULL);
 }
 
 void MainWindow::captureFileClosed(const capture_file *cf) {
@@ -1692,12 +1694,12 @@ void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 
 void MainWindow::openTcpStreamDialog(int graph_type)
 {
-    TCPStreamDialog stream_dialog(this, cap_file_, (tcp_graph_type)graph_type);
-    connect(&stream_dialog, SIGNAL(goToPacket(int)),
+    TCPStreamDialog *stream_dialog = new TCPStreamDialog(this, cap_file_, (tcp_graph_type)graph_type);
+    connect(stream_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            &stream_dialog, SLOT(setCaptureFile(capture_file*)));
-    stream_dialog.exec();
+            stream_dialog, SLOT(setCaptureFile(capture_file*)));
+    stream_dialog->show();
 }
 
 void MainWindow::on_actionStatisticsTcpStreamStevens_triggered()

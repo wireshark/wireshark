@@ -56,6 +56,7 @@ public slots:
     void setCaptureFile(capture_file *cf);
 
 protected:
+    void showEvent(QShowEvent *event);
     void keyPressEvent(QKeyEvent *event);
 
 private:
@@ -66,7 +67,7 @@ private:
     QCPPlotTitle *title_;
     QCPItemTracer *tracer_;
     guint32 packet_num_;
-    double y_translate_mul_;
+    QTransform y_axis_xfrm_;
 
     int num_dsegs_;
     int num_acks_;
@@ -83,7 +84,7 @@ private:
 private slots:
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
-    void translateYRange(const QCPRange &y_range1);
+    void transformYRange(const QCPRange &y_range1);
     void on_buttonBox_accepted();
     void on_graphTypeComboBox_currentIndexChanged(int index);
 };
