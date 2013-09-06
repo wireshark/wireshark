@@ -1480,7 +1480,7 @@ parse_options (int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "Ddhqe:i:l:m:no:u:s:S:t:T:a:4:6:")) != -1) {
+    while ((c = getopt(argc, argv, "aDdhqe:i:l:m:no:u:s:S:t:T:4:6:")) != -1) {
         switch(c) {
         case '?': usage(); break;
         case 'h': usage(); break;
