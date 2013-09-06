@@ -948,6 +948,8 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
     if (ntlmssp_tree)
       proto_tree_add_text(ntlmssp_tree, tvb, offset, 8, "%s: Empty",
                           proto_registrar_get_name(blob_hf));
+    result->length = 0;
+    result->contents = NULL;
     return offset+8;
   }
 
