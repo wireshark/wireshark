@@ -204,16 +204,16 @@ static int hf_isdn_sup_CalledFreephoneNrArg_PDU = -1;  /* CalledFreephoneNrArg *
 static int hf_isdn_sup_Monitor_T_FPHArg_PDU = -1;  /* Monitor_T_FPHArg */
 static int hf_isdn_sup_Free_T_FPHArg_PDU = -1;    /* Free_T_FPHArg */
 static int hf_isdn_sup_Call_T_FPHArg_PDU = -1;    /* Call_T_FPHArg */
-static int hf_isdn_sup_presentationAllowedAddress = -1;  /* AddressScreened */
+static int hf_isdn_sup_presentationallowedaddressscreened = -1;  /* AddressScreened */
 static int hf_isdn_sup_presentationRestricted = -1;  /* NULL */
 static int hf_isdn_sup_numberNotAvailableDueToInterworking = -1;  /* NULL */
-static int hf_isdn_sup_presentationRestrictedAddress = -1;  /* AddressScreened */
-static int hf_isdn_sup_presentationAllowedAddress_01 = -1;  /* Address */
-static int hf_isdn_sup_presentationRestrictedAddress_01 = -1;  /* Address */
-static int hf_isdn_sup_presentationAllowedNumber = -1;  /* NumberScreened */
-static int hf_isdn_sup_presentationRestrictedNumber = -1;  /* NumberScreened */
-static int hf_isdn_sup_presentationAllowedNumber_01 = -1;  /* PartyNumber */
-static int hf_isdn_sup_presentationRestrictedNumber_01 = -1;  /* PartyNumber */
+static int hf_isdn_sup_presentationrestrictedaddressscreened = -1;  /* AddressScreened */
+static int hf_isdn_sup_presentationAllowedAddress = -1;  /* Address */
+static int hf_isdn_sup_presentationRestrictedAddress = -1;  /* Address */
+static int hf_isdn_sup_presentationallowednumberscreened = -1;  /* NumberScreened */
+static int hf_isdn_sup_presentationrestrictednumberscreened = -1;  /* NumberScreened */
+static int hf_isdn_sup_presentationAllowedNumber = -1;  /* PartyNumber */
+static int hf_isdn_sup_presentationRestrictedNumber = -1;  /* PartyNumber */
 static int hf_isdn_sup_partyNumber = -1;          /* PartyNumber */
 static int hf_isdn_sup_screeningIndicator = -1;   /* ScreeningIndicator */
 static int hf_isdn_sup_partySubaddress = -1;      /* PartySubaddress */
@@ -243,7 +243,7 @@ static int hf_isdn_sup_aOCEChargingUnitInfo = -1;  /* AOCEChargingUnitInfo */
 static int hf_isdn_sup_AOCSCurrencyInfoList_item = -1;  /* AOCSCurrencyInfo */
 static int hf_isdn_sup_chargedItem = -1;          /* ChargedItem */
 static int hf_isdn_sup_chargingtype = -1;         /* T_chargingtype */
-static int hf_isdn_sup_specificCurrency = -1;     /* T_specificCurrency */
+static int hf_isdn_sup_aocschargingtypespecificCurrency = -1;  /* AOCSChargingTypeSpecificCurrency */
 static int hf_isdn_sup_durationCurrency = -1;     /* DurationCurrency */
 static int hf_isdn_sup_flatRateCurrency = -1;     /* FlatRateCurrency */
 static int hf_isdn_sup_volumeRateCurrency = -1;   /* VolumeRateCurrency */
@@ -260,25 +260,25 @@ static int hf_isdn_sup_fRAmount = -1;             /* Amount */
 static int hf_isdn_sup_vRCurrency = -1;           /* Currency */
 static int hf_isdn_sup_vRAmount = -1;             /* Amount */
 static int hf_isdn_sup_vRVolumeUnit = -1;         /* VolumeUnit */
-static int hf_isdn_sup_specificCurrency_01 = -1;  /* T_specificCurrency_01 */
+static int hf_isdn_sup_aocdspecificCurrency = -1;  /* AOCDSpecificCurrency */
 static int hf_isdn_sup_recordedCurrency = -1;     /* RecordedCurrency */
 static int hf_isdn_sup_typeOfChargingInfo = -1;   /* TypeOfChargingInfo */
 static int hf_isdn_sup_aOCDBillingId = -1;        /* AOCDBillingId */
-static int hf_isdn_sup_specificChargingUnits = -1;  /* T_specificChargingUnits */
+static int hf_isdn_sup_aocdspecificchargingunits = -1;  /* AOCDSpecificChargingUnits */
 static int hf_isdn_sup_recordedUnitsList = -1;    /* RecordedUnitsList */
 static int hf_isdn_sup_rCurrency = -1;            /* Currency */
 static int hf_isdn_sup_rAmount = -1;              /* Amount */
 static int hf_isdn_sup_RecordedUnitsList_item = -1;  /* RecordedUnits */
-static int hf_isdn_sup_cc = -1;                   /* T_cc */
+static int hf_isdn_sup_recoredunitscc = -1;       /* RecoredUnitsCc */
 static int hf_isdn_sup_recordedNumberOfUnits = -1;  /* NumberOfUnits */
 static int hf_isdn_sup_notAvailable = -1;         /* NULL */
 static int hf_isdn_sup_recordedTypeOfUnits = -1;  /* TypeOfUnit */
-static int hf_isdn_sup_cc_01 = -1;                /* T_cc_01 */
-static int hf_isdn_sup_specificCurrency_02 = -1;  /* T_specificCurrency_02 */
+static int hf_isdn_sup_aocecurrencycc = -1;       /* AOCECurrencyCc */
+static int hf_isdn_sup_aoceccspecificCurrency = -1;  /* AOCECcSpecificCurrency */
 static int hf_isdn_sup_aOCEBillingId = -1;        /* AOCEBillingId */
 static int hf_isdn_sup_chargingAssociation = -1;  /* ChargingAssociation */
-static int hf_isdn_sup_cc_02 = -1;                /* T_cc_02 */
-static int hf_isdn_sup_specificChargingUnits_01 = -1;  /* T_specificChargingUnits_01 */
+static int hf_isdn_sup_aocechargingunitcc = -1;   /* AOCEChargingUnitCc */
+static int hf_isdn_sup_aoceccspecificchargingunits = -1;  /* AOCECcSpecificChargingUnits */
 static int hf_isdn_sup_currencyAmount = -1;       /* CurrencyAmount */
 static int hf_isdn_sup_multiplier = -1;           /* Multiplier */
 static int hf_isdn_sup_lengthOfTimeUnit = -1;     /* LengthOfTimeUnit */
@@ -357,24 +357,24 @@ static gint ett_isdn_sup_AOCEChargingUnitArg = -1;
 static gint ett_isdn_sup_AOCSCurrencyInfoList = -1;
 static gint ett_isdn_sup_AOCSCurrencyInfo = -1;
 static gint ett_isdn_sup_T_chargingtype = -1;
-static gint ett_isdn_sup_T_specificCurrency = -1;
+static gint ett_isdn_sup_AOCSChargingTypeSpecificCurrency = -1;
 static gint ett_isdn_sup_DurationCurrency = -1;
 static gint ett_isdn_sup_FlatRateCurrency = -1;
 static gint ett_isdn_sup_VolumeRateCurrency = -1;
 static gint ett_isdn_sup_AOCDCurrencyInfo = -1;
-static gint ett_isdn_sup_T_specificCurrency_01 = -1;
+static gint ett_isdn_sup_AOCDSpecificCurrency = -1;
 static gint ett_isdn_sup_AOCDChargingUnitInfo = -1;
-static gint ett_isdn_sup_T_specificChargingUnits = -1;
+static gint ett_isdn_sup_AOCDSpecificChargingUnits = -1;
 static gint ett_isdn_sup_RecordedCurrency = -1;
 static gint ett_isdn_sup_RecordedUnitsList = -1;
 static gint ett_isdn_sup_RecordedUnits = -1;
-static gint ett_isdn_sup_T_cc = -1;
+static gint ett_isdn_sup_RecoredUnitsCc = -1;
 static gint ett_isdn_sup_AOCECurrencyInfo = -1;
-static gint ett_isdn_sup_T_cc_01 = -1;
-static gint ett_isdn_sup_T_specificCurrency_02 = -1;
+static gint ett_isdn_sup_AOCECurrencyCc = -1;
+static gint ett_isdn_sup_AOCECcSpecificCurrency = -1;
 static gint ett_isdn_sup_AOCEChargingUnitInfo = -1;
-static gint ett_isdn_sup_T_cc_02 = -1;
-static gint ett_isdn_sup_T_specificChargingUnits_01 = -1;
+static gint ett_isdn_sup_AOCEChargingUnitCc = -1;
+static gint ett_isdn_sup_AOCECcSpecificChargingUnits = -1;
 static gint ett_isdn_sup_Amount = -1;
 static gint ett_isdn_sup_Time = -1;
 static gint ett_isdn_sup_ChargingAssociation = -1;
@@ -653,10 +653,10 @@ static const value_string isdn_sup_PresentedAddressScreened_vals[] = {
 };
 
 static const ber_choice_t PresentedAddressScreened_choice[] = {
-  {   0, &hf_isdn_sup_presentationAllowedAddress, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_isdn_sup_AddressScreened },
+  {   0, &hf_isdn_sup_presentationallowedaddressscreened, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_isdn_sup_AddressScreened },
   {   1, &hf_isdn_sup_presentationRestricted, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
   {   2, &hf_isdn_sup_numberNotAvailableDueToInterworking, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
-  {   3, &hf_isdn_sup_presentationRestrictedAddress, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_isdn_sup_AddressScreened },
+  {   3, &hf_isdn_sup_presentationrestrictedaddressscreened, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_isdn_sup_AddressScreened },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -697,10 +697,10 @@ static const value_string isdn_sup_PresentedNumberUnscreened_vals[] = {
 };
 
 static const ber_choice_t PresentedNumberUnscreened_choice[] = {
-  {   0, &hf_isdn_sup_presentationAllowedNumber_01, BER_CLASS_CON, 0, 0, dissect_isdn_sup_PartyNumber },
+  {   0, &hf_isdn_sup_presentationAllowedNumber, BER_CLASS_CON, 0, 0, dissect_isdn_sup_PartyNumber },
   {   1, &hf_isdn_sup_presentationRestricted, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
   {   2, &hf_isdn_sup_numberNotAvailableDueToInterworking, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
-  {   3, &hf_isdn_sup_presentationRestrictedNumber_01, BER_CLASS_CON, 3, 0, dissect_isdn_sup_PartyNumber },
+  {   3, &hf_isdn_sup_presentationRestrictedNumber, BER_CLASS_CON, 3, 0, dissect_isdn_sup_PartyNumber },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1004,14 +1004,14 @@ dissect_isdn_sup_VolumeRateCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const value_string isdn_sup_T_specificCurrency_vals[] = {
+static const value_string isdn_sup_AOCSChargingTypeSpecificCurrency_vals[] = {
   {   1, "durationCurrency" },
   {   2, "flatRateCurrency" },
   {   3, "volumeRateCurrency" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_specificCurrency_choice[] = {
+static const ber_choice_t AOCSChargingTypeSpecificCurrency_choice[] = {
   {   1, &hf_isdn_sup_durationCurrency, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_DurationCurrency },
   {   2, &hf_isdn_sup_flatRateCurrency, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_FlatRateCurrency },
   {   3, &hf_isdn_sup_volumeRateCurrency, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_isdn_sup_VolumeRateCurrency },
@@ -1019,9 +1019,9 @@ static const ber_choice_t T_specificCurrency_choice[] = {
 };
 
 static int
-dissect_isdn_sup_T_specificCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_isdn_sup_AOCSChargingTypeSpecificCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_specificCurrency_choice, hf_index, ett_isdn_sup_T_specificCurrency,
+                                 AOCSChargingTypeSpecificCurrency_choice, hf_index, ett_isdn_sup_AOCSChargingTypeSpecificCurrency,
                                  NULL);
 
   return offset;
@@ -1047,7 +1047,7 @@ static const value_string isdn_sup_T_chargingtype_vals[] = {
 };
 
 static const ber_choice_t T_chargingtype_choice[] = {
-  {   0, &hf_isdn_sup_specificCurrency, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_T_specificCurrency },
+  {   0, &hf_isdn_sup_aocschargingtypespecificCurrency, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCSChargingTypeSpecificCurrency },
   {   1, &hf_isdn_sup_specialChargingCode, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_SpecialChargingCode },
   {   2, &hf_isdn_sup_freeOfCharge, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
   {   3, &hf_isdn_sup_currencyInfoNotAvailable, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
@@ -1218,7 +1218,7 @@ dissect_isdn_sup_AOCDBillingId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t T_specificCurrency_01_sequence[] = {
+static const ber_sequence_t AOCDSpecificCurrency_sequence[] = {
   { &hf_isdn_sup_recordedCurrency, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_RecordedCurrency },
   { &hf_isdn_sup_typeOfChargingInfo, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_TypeOfChargingInfo },
   { &hf_isdn_sup_aOCDBillingId, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_isdn_sup_AOCDBillingId },
@@ -1226,9 +1226,9 @@ static const ber_sequence_t T_specificCurrency_01_sequence[] = {
 };
 
 static int
-dissect_isdn_sup_T_specificCurrency_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_isdn_sup_AOCDSpecificCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   T_specificCurrency_01_sequence, hf_index, ett_isdn_sup_T_specificCurrency_01);
+                                   AOCDSpecificCurrency_sequence, hf_index, ett_isdn_sup_AOCDSpecificCurrency);
 
   return offset;
 }
@@ -1241,7 +1241,7 @@ static const value_string isdn_sup_AOCDCurrencyInfo_vals[] = {
 };
 
 static const ber_choice_t AOCDCurrencyInfo_choice[] = {
-  {   0, &hf_isdn_sup_specificCurrency_01, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_T_specificCurrency_01 },
+  {   0, &hf_isdn_sup_aocdspecificCurrency, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCDSpecificCurrency },
   {   1, &hf_isdn_sup_freeOfCharge, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -1288,22 +1288,22 @@ dissect_isdn_sup_NumberOfUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const value_string isdn_sup_T_cc_vals[] = {
+static const value_string isdn_sup_RecoredUnitsCc_vals[] = {
   {   0, "recordedNumberOfUnits" },
   {   1, "notAvailable" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_cc_choice[] = {
+static const ber_choice_t RecoredUnitsCc_choice[] = {
   {   0, &hf_isdn_sup_recordedNumberOfUnits, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NumberOfUnits },
   {   1, &hf_isdn_sup_notAvailable, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NULL },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_isdn_sup_T_cc(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_isdn_sup_RecoredUnitsCc(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_cc_choice, hf_index, ett_isdn_sup_T_cc,
+                                 RecoredUnitsCc_choice, hf_index, ett_isdn_sup_RecoredUnitsCc,
                                  NULL);
 
   return offset;
@@ -1321,7 +1321,7 @@ dissect_isdn_sup_TypeOfUnit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static const ber_sequence_t RecordedUnits_sequence[] = {
-  { &hf_isdn_sup_cc         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_T_cc },
+  { &hf_isdn_sup_recoredunitscc, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_RecoredUnitsCc },
   { &hf_isdn_sup_recordedTypeOfUnits, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_isdn_sup_TypeOfUnit },
   { NULL, 0, 0, 0, NULL }
 };
@@ -1348,7 +1348,7 @@ dissect_isdn_sup_RecordedUnitsList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t T_specificChargingUnits_sequence[] = {
+static const ber_sequence_t AOCDSpecificChargingUnits_sequence[] = {
   { &hf_isdn_sup_recordedUnitsList, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_RecordedUnitsList },
   { &hf_isdn_sup_typeOfChargingInfo, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_TypeOfChargingInfo },
   { &hf_isdn_sup_aOCDBillingId, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_isdn_sup_AOCDBillingId },
@@ -1356,9 +1356,9 @@ static const ber_sequence_t T_specificChargingUnits_sequence[] = {
 };
 
 static int
-dissect_isdn_sup_T_specificChargingUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_isdn_sup_AOCDSpecificChargingUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   T_specificChargingUnits_sequence, hf_index, ett_isdn_sup_T_specificChargingUnits);
+                                   AOCDSpecificChargingUnits_sequence, hf_index, ett_isdn_sup_AOCDSpecificChargingUnits);
 
   return offset;
 }
@@ -1371,7 +1371,7 @@ static const value_string isdn_sup_AOCDChargingUnitInfo_vals[] = {
 };
 
 static const ber_choice_t AOCDChargingUnitInfo_choice[] = {
-  {   0, &hf_isdn_sup_specificChargingUnits, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_T_specificChargingUnits },
+  {   0, &hf_isdn_sup_aocdspecificchargingunits, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCDSpecificChargingUnits },
   {   1, &hf_isdn_sup_freeOfCharge, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -1430,37 +1430,37 @@ dissect_isdn_sup_AOCEBillingId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t T_specificCurrency_02_sequence[] = {
+static const ber_sequence_t AOCECcSpecificCurrency_sequence[] = {
   { &hf_isdn_sup_recordedCurrency, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_RecordedCurrency },
   { &hf_isdn_sup_aOCEBillingId, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_isdn_sup_AOCEBillingId },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_isdn_sup_T_specificCurrency_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_isdn_sup_AOCECcSpecificCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   T_specificCurrency_02_sequence, hf_index, ett_isdn_sup_T_specificCurrency_02);
+                                   AOCECcSpecificCurrency_sequence, hf_index, ett_isdn_sup_AOCECcSpecificCurrency);
 
   return offset;
 }
 
 
-static const value_string isdn_sup_T_cc_01_vals[] = {
+static const value_string isdn_sup_AOCECurrencyCc_vals[] = {
   {   0, "specificCurrency" },
   {   1, "freeOfCharge" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_cc_01_choice[] = {
-  {   0, &hf_isdn_sup_specificCurrency_02, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_T_specificCurrency_02 },
+static const ber_choice_t AOCECurrencyCc_choice[] = {
+  {   0, &hf_isdn_sup_aoceccspecificCurrency, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCECcSpecificCurrency },
   {   1, &hf_isdn_sup_freeOfCharge, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_isdn_sup_T_cc_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_isdn_sup_AOCECurrencyCc(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_cc_01_choice, hf_index, ett_isdn_sup_T_cc_01,
+                                 AOCECurrencyCc_choice, hf_index, ett_isdn_sup_AOCECurrencyCc,
                                  NULL);
 
   return offset;
@@ -1500,7 +1500,7 @@ dissect_isdn_sup_ChargingAssociation(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const ber_sequence_t AOCECurrencyInfo_sequence[] = {
-  { &hf_isdn_sup_cc_01      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_T_cc_01 },
+  { &hf_isdn_sup_aocecurrencycc, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_AOCECurrencyCc },
   { &hf_isdn_sup_chargingAssociation, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_ChargingAssociation },
   { NULL, 0, 0, 0, NULL }
 };
@@ -1536,37 +1536,37 @@ dissect_isdn_sup_AOCECurrencyArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t T_specificChargingUnits_01_sequence[] = {
+static const ber_sequence_t AOCECcSpecificChargingUnits_sequence[] = {
   { &hf_isdn_sup_recordedUnitsList, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_RecordedUnitsList },
   { &hf_isdn_sup_aOCEBillingId, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_isdn_sup_AOCEBillingId },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_isdn_sup_T_specificChargingUnits_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_isdn_sup_AOCECcSpecificChargingUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   T_specificChargingUnits_01_sequence, hf_index, ett_isdn_sup_T_specificChargingUnits_01);
+                                   AOCECcSpecificChargingUnits_sequence, hf_index, ett_isdn_sup_AOCECcSpecificChargingUnits);
 
   return offset;
 }
 
 
-static const value_string isdn_sup_T_cc_02_vals[] = {
+static const value_string isdn_sup_AOCEChargingUnitCc_vals[] = {
   {   0, "specificChargingUnits" },
   {   1, "freeOfCharge" },
   { 0, NULL }
 };
 
-static const ber_choice_t T_cc_02_choice[] = {
-  {   0, &hf_isdn_sup_specificChargingUnits_01, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_T_specificChargingUnits_01 },
+static const ber_choice_t AOCEChargingUnitCc_choice[] = {
+  {   0, &hf_isdn_sup_aoceccspecificchargingunits, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCECcSpecificChargingUnits },
   {   1, &hf_isdn_sup_freeOfCharge, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_isdn_sup_T_cc_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_isdn_sup_AOCEChargingUnitCc(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_cc_02_choice, hf_index, ett_isdn_sup_T_cc_02,
+                                 AOCEChargingUnitCc_choice, hf_index, ett_isdn_sup_AOCEChargingUnitCc,
                                  NULL);
 
   return offset;
@@ -1574,7 +1574,7 @@ dissect_isdn_sup_T_cc_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static const ber_sequence_t AOCEChargingUnitInfo_sequence[] = {
-  { &hf_isdn_sup_cc_02      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_T_cc_02 },
+  { &hf_isdn_sup_aocechargingunitcc, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_AOCEChargingUnitCc },
   { &hf_isdn_sup_chargingAssociation, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_ChargingAssociation },
   { NULL, 0, 0, 0, NULL }
 };
@@ -2959,7 +2959,7 @@ void proto_register_isdn_sup(void) {
       { "Call-T-FPHArg", "isdn-sup.Call_T_FPHArg_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_isdn_sup_presentationAllowedAddress,
+    { &hf_isdn_sup_presentationallowedaddressscreened,
       { "presentationAllowedAddress", "isdn-sup.presentationAllowedAddress_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "AddressScreened", HFILL }},
@@ -2971,31 +2971,31 @@ void proto_register_isdn_sup(void) {
       { "numberNotAvailableDueToInterworking", "isdn-sup.numberNotAvailableDueToInterworking_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_isdn_sup_presentationRestrictedAddress,
+    { &hf_isdn_sup_presentationrestrictedaddressscreened,
       { "presentationRestrictedAddress", "isdn-sup.presentationRestrictedAddress_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "AddressScreened", HFILL }},
-    { &hf_isdn_sup_presentationAllowedAddress_01,
+    { &hf_isdn_sup_presentationAllowedAddress,
       { "presentationAllowedAddress", "isdn-sup.presentationAllowedAddress_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Address", HFILL }},
-    { &hf_isdn_sup_presentationRestrictedAddress_01,
+    { &hf_isdn_sup_presentationRestrictedAddress,
       { "presentationRestrictedAddress", "isdn-sup.presentationRestrictedAddress_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Address", HFILL }},
-    { &hf_isdn_sup_presentationAllowedNumber,
+    { &hf_isdn_sup_presentationallowednumberscreened,
       { "presentationAllowedNumber", "isdn-sup.presentationAllowedNumber_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "NumberScreened", HFILL }},
-    { &hf_isdn_sup_presentationRestrictedNumber,
+    { &hf_isdn_sup_presentationrestrictednumberscreened,
       { "presentationRestrictedNumber", "isdn-sup.presentationRestrictedNumber_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "NumberScreened", HFILL }},
-    { &hf_isdn_sup_presentationAllowedNumber_01,
+    { &hf_isdn_sup_presentationAllowedNumber,
       { "presentationAllowedNumber", "isdn-sup.presentationAllowedNumber",
         FT_UINT32, BASE_DEC, VALS(isdn_sup_PartyNumber_vals), 0,
         "PartyNumber", HFILL }},
-    { &hf_isdn_sup_presentationRestrictedNumber_01,
+    { &hf_isdn_sup_presentationRestrictedNumber,
       { "presentationRestrictedNumber", "isdn-sup.presentationRestrictedNumber",
         FT_UINT32, BASE_DEC, VALS(isdn_sup_PartyNumber_vals), 0,
         "PartyNumber", HFILL }},
@@ -3115,10 +3115,10 @@ void proto_register_isdn_sup(void) {
       { "chargingtype", "isdn-sup.chargingtype",
         FT_UINT32, BASE_DEC, VALS(isdn_sup_T_chargingtype_vals), 0,
         NULL, HFILL }},
-    { &hf_isdn_sup_specificCurrency,
+    { &hf_isdn_sup_aocschargingtypespecificCurrency,
       { "specificCurrency", "isdn-sup.specificCurrency",
-        FT_UINT32, BASE_DEC, VALS(isdn_sup_T_specificCurrency_vals), 0,
-        NULL, HFILL }},
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCSChargingTypeSpecificCurrency_vals), 0,
+        "AOCSChargingTypeSpecificCurrency", HFILL }},
     { &hf_isdn_sup_durationCurrency,
       { "durationCurrency", "isdn-sup.durationCurrency_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3183,10 +3183,10 @@ void proto_register_isdn_sup(void) {
       { "vRVolumeUnit", "isdn-sup.vRVolumeUnit",
         FT_UINT32, BASE_DEC, VALS(isdn_sup_VolumeUnit_vals), 0,
         "VolumeUnit", HFILL }},
-    { &hf_isdn_sup_specificCurrency_01,
+    { &hf_isdn_sup_aocdspecificCurrency,
       { "specificCurrency", "isdn-sup.specificCurrency_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_specificCurrency_01", HFILL }},
+        "AOCDSpecificCurrency", HFILL }},
     { &hf_isdn_sup_recordedCurrency,
       { "recordedCurrency", "isdn-sup.recordedCurrency_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3199,10 +3199,10 @@ void proto_register_isdn_sup(void) {
       { "aOCDBillingId", "isdn-sup.aOCDBillingId",
         FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCDBillingId_vals), 0,
         NULL, HFILL }},
-    { &hf_isdn_sup_specificChargingUnits,
+    { &hf_isdn_sup_aocdspecificchargingunits,
       { "specificChargingUnits", "isdn-sup.specificChargingUnits_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "AOCDSpecificChargingUnits", HFILL }},
     { &hf_isdn_sup_recordedUnitsList,
       { "recordedUnitsList", "isdn-sup.recordedUnitsList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3219,10 +3219,10 @@ void proto_register_isdn_sup(void) {
       { "RecordedUnits", "isdn-sup.RecordedUnits_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_isdn_sup_cc,
+    { &hf_isdn_sup_recoredunitscc,
       { "cc", "isdn-sup.cc",
-        FT_UINT32, BASE_DEC, VALS(isdn_sup_T_cc_vals), 0,
-        NULL, HFILL }},
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_RecoredUnitsCc_vals), 0,
+        "RecoredUnitsCc", HFILL }},
     { &hf_isdn_sup_recordedNumberOfUnits,
       { "recordedNumberOfUnits", "isdn-sup.recordedNumberOfUnits",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3235,14 +3235,14 @@ void proto_register_isdn_sup(void) {
       { "recordedTypeOfUnits", "isdn-sup.recordedTypeOfUnits",
         FT_UINT32, BASE_DEC, NULL, 0,
         "TypeOfUnit", HFILL }},
-    { &hf_isdn_sup_cc_01,
+    { &hf_isdn_sup_aocecurrencycc,
       { "cc", "isdn-sup.cc",
-        FT_UINT32, BASE_DEC, VALS(isdn_sup_T_cc_01_vals), 0,
-        "T_cc_01", HFILL }},
-    { &hf_isdn_sup_specificCurrency_02,
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCECurrencyCc_vals), 0,
+        "AOCECurrencyCc", HFILL }},
+    { &hf_isdn_sup_aoceccspecificCurrency,
       { "specificCurrency", "isdn-sup.specificCurrency_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_specificCurrency_02", HFILL }},
+        "AOCECcSpecificCurrency", HFILL }},
     { &hf_isdn_sup_aOCEBillingId,
       { "aOCEBillingId", "isdn-sup.aOCEBillingId",
         FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCEBillingId_vals), 0,
@@ -3251,14 +3251,14 @@ void proto_register_isdn_sup(void) {
       { "chargingAssociation", "isdn-sup.chargingAssociation",
         FT_UINT32, BASE_DEC, VALS(isdn_sup_ChargingAssociation_vals), 0,
         NULL, HFILL }},
-    { &hf_isdn_sup_cc_02,
+    { &hf_isdn_sup_aocechargingunitcc,
       { "cc", "isdn-sup.cc",
-        FT_UINT32, BASE_DEC, VALS(isdn_sup_T_cc_02_vals), 0,
-        "T_cc_02", HFILL }},
-    { &hf_isdn_sup_specificChargingUnits_01,
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCEChargingUnitCc_vals), 0,
+        "AOCEChargingUnitCc", HFILL }},
+    { &hf_isdn_sup_aoceccspecificchargingunits,
       { "specificChargingUnits", "isdn-sup.specificChargingUnits_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_specificChargingUnits_01", HFILL }},
+        "AOCECcSpecificChargingUnits", HFILL }},
     { &hf_isdn_sup_currencyAmount,
       { "currencyAmount", "isdn-sup.currencyAmount",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3473,24 +3473,24 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_AOCSCurrencyInfoList,
     &ett_isdn_sup_AOCSCurrencyInfo,
     &ett_isdn_sup_T_chargingtype,
-    &ett_isdn_sup_T_specificCurrency,
+    &ett_isdn_sup_AOCSChargingTypeSpecificCurrency,
     &ett_isdn_sup_DurationCurrency,
     &ett_isdn_sup_FlatRateCurrency,
     &ett_isdn_sup_VolumeRateCurrency,
     &ett_isdn_sup_AOCDCurrencyInfo,
-    &ett_isdn_sup_T_specificCurrency_01,
+    &ett_isdn_sup_AOCDSpecificCurrency,
     &ett_isdn_sup_AOCDChargingUnitInfo,
-    &ett_isdn_sup_T_specificChargingUnits,
+    &ett_isdn_sup_AOCDSpecificChargingUnits,
     &ett_isdn_sup_RecordedCurrency,
     &ett_isdn_sup_RecordedUnitsList,
     &ett_isdn_sup_RecordedUnits,
-    &ett_isdn_sup_T_cc,
+    &ett_isdn_sup_RecoredUnitsCc,
     &ett_isdn_sup_AOCECurrencyInfo,
-    &ett_isdn_sup_T_cc_01,
-    &ett_isdn_sup_T_specificCurrency_02,
+    &ett_isdn_sup_AOCECurrencyCc,
+    &ett_isdn_sup_AOCECcSpecificCurrency,
     &ett_isdn_sup_AOCEChargingUnitInfo,
-    &ett_isdn_sup_T_cc_02,
-    &ett_isdn_sup_T_specificChargingUnits_01,
+    &ett_isdn_sup_AOCEChargingUnitCc,
+    &ett_isdn_sup_AOCECcSpecificChargingUnits,
     &ett_isdn_sup_Amount,
     &ett_isdn_sup_Time,
     &ett_isdn_sup_ChargingAssociation,

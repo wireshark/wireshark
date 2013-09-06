@@ -22,7 +22,6 @@ Advice-of-Charge-Operations					 isdn-sup
 
 OPERATION.&ArgumentType
 OPERATION.&ResultType
-ERROR.&ParameterType
 
 #.END
 
@@ -33,9 +32,29 @@ NumberScreened
 #.END
 
 #.TYPE_RENAME
+AOCDChargingUnitInfo/specificChargingUnits    AOCDSpecificChargingUnits
+AOCDCurrencyInfo/specificCurrency    AOCDSpecificCurrency
+AOCEChargingUnitInfo/cc    AOCEChargingUnitCc
+AOCEChargingUnitInfo/cc/specificChargingUnits    AOCECcSpecificChargingUnits
+AOCECurrencyInfo/cc  AOCECurrencyCc
+AOCECurrencyInfo/cc/specificCurrency    AOCECcSpecificCurrency
+AOCSCurrencyInfo/chargingtype/specificCurrency    AOCSChargingTypeSpecificCurrency
+RecordedUnits/cc    RecoredUnitsCc
 #.END                           
 
 #.FIELD_RENAME
+AOCDChargingUnitInfo/specificChargingUnits    aocdspecificchargingunits
+AOCDCurrencyInfo/specificCurrency aocdspecificCurrency
+AOCEChargingUnitInfo/cc aocechargingunitcc
+AOCEChargingUnitInfo/cc/specificChargingUnits    aoceccspecificchargingunits
+AOCECurrencyInfo/cc  aocecurrencycc
+AOCECurrencyInfo/cc/specificCurrency aoceccspecificCurrency
+AOCSCurrencyInfo/chargingtype/specificCurrency aocschargingtypespecificCurrency
+PresentedAddressScreened/presentationAllowedAddress  presentationallowedaddressscreened
+PresentedAddressScreened/presentationRestrictedAddress  presentationrestrictedaddressscreened
+PresentedNumberScreened/presentationAllowedNumber  presentationallowednumberscreened
+PresentedNumberScreened/presentationRestrictedNumber  presentationrestrictednumberscreened
+RecordedUnits/cc    recoredunitscc
 #.END                                
 
 #.TABLE10_BODY OPERATION.#&operationCode.local
