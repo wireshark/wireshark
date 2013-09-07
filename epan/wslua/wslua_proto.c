@@ -37,12 +37,7 @@
 
 WSLUA_CLASS_DEFINE(Pref,NOP,NOP); /* A preference of a Protocol. */
 
-static range_t* get_range(lua_State *L, int idx_r, int idx_m)
-{
-    static range_t *ret;
-    range_convert_str(&ret,g_strdup(luaL_checkstring(L, idx_r)),(guint32)lua_tonumber(L, idx_m));
-    return ret;
-}
+static range_t* get_range(lua_State *L, int idx_r, int idx_m);
 
 static enum_val_t* get_enum(lua_State *L, int idx)
 {
@@ -211,6 +206,28 @@ WSLUA_CONSTRUCTOR Pref_statictext(lua_State* L) {
     return new_pref(L,PREF_STATIC_TEXT);
 }
 
+static range_t* get_range(lua_State *L, int idx_r, int idx_m)
+{
+    static range_t *ret = NULL;
+    gchar *pattern = g_strdup(luaL_checkstring(L, idx_r));
+
+    switch (range_convert_str(&ret, pattern, (guint32)lua_tonumber(L, idx_m))) {
+    case CVT_NO_ERROR:
+      break;
+    case CVT_SYNTAX_ERROR:
+      WSLUA_ARG_ERROR(Pref_range,DEFAULT,"syntax error in default range");
+      break;
+    case CVT_NUMBER_TOO_BIG:
+      WSLUA_ARG_ERROR(Pref_range,DEFAULT,"value too large in default range");
+      break;
+    default:
+      WSLUA_ARG_ERROR(Pref_range,DEFAULT,"unknown error in default range");
+      break;
+    }
+
+    g_free (pattern);
+    return ret;
+}
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Pref__gc(lua_State* L) {
     Pref pref = checkPref(L,1);
@@ -1768,6 +1785,7 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
     if (type == FT_STRING) {
         gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_add_PATTERN));
         dissector_add_string(dt->name, pattern,handle);
+        g_free (pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_add_PATTERN);
         dissector_add_uint(dt->name, port, handle);
@@ -1798,13 +1816,14 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
     } else if ( isDissector(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR) ) {
         handle = toDissector(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR);
     } else
-        WSLUA_ARG_ERROR(DissectorTable_add,DISSECTOR,"must be either Proto or Dissector");
+        WSLUA_ARG_ERROR(DissectorTable_remove,DISSECTOR,"must be either Proto or Dissector");
 
     type = get_dissector_table_selector_type(dt->name);
 
     if (type == FT_STRING) {
         gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_remove_PATTERN));
         dissector_delete_string(dt->name, pattern,handle);
+        g_free (pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
         dissector_delete_uint(dt->name, port, handle);
