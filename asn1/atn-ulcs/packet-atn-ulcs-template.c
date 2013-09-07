@@ -23,7 +23,7 @@
  * details see:
  * http://en.wikipedia.org/wiki/CPDLC
  * http://members.optusnet.com.au/~cjr/introduction.htm
- 
+
  * standards:
  * http://legacy.icao.int/anb/panels/acp/repository.cfm
 
@@ -31,10 +31,6 @@
  * We are dealing with ATN/ULCS aka ICAO Doc 9705 Ed2 here
  * (don't think there is an ULCS equivalent for "FANS-1/A ").
 
- * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
- * Copyright 1998 Gerald Combs
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

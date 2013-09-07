@@ -31,7 +31,7 @@
  * details see:
  * http://en.wikipedia.org/wiki/CPDLC
  * http://members.optusnet.com.au/~cjr/introduction.htm
- 
+
  * standards:
  * http://legacy.icao.int/anb/panels/acp/repository.cfm
 
@@ -39,10 +39,6 @@
  * We are dealing with ATN/ULCS aka ICAO Doc 9705 Ed2 here
  * (don't think there is an ULCS equivalent for "FANS-1/A ").
 
- * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
- * Copyright 1998 Gerald Combs
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -278,7 +274,7 @@ static int hf_atn_ulcs_ACSE_requirements_authentication = -1;
 static int hf_atn_ulcs_ACSE_requirements_application_context_negotiation = -1;
 
 /*--- End of included file: packet-atn-ulcs-hf.c ---*/
-#line 196 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 192 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
 
 /*--- Included file: packet-atn-ulcs-ett.c ---*/
@@ -310,7 +306,7 @@ static gint ett_atn_ulcs_RelativeDistinguishedName = -1;
 static gint ett_atn_ulcs_AttributeTypeAndValue = -1;
 
 /*--- End of included file: packet-atn-ulcs-ett.c ---*/
-#line 198 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 194 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 static gint ett_atn_ulcs = -1;
 static gint ett_atn_acse = -1;
 
@@ -1588,7 +1584,7 @@ static void dissect_ACSE_apdu_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-atn-ulcs-fn.c ---*/
-#line 202 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 198 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
 /* re-implementing external data: packet-per.c */
 static const value_string per_External_encoding_vals[] = {
@@ -2489,7 +2485,7 @@ void proto_register_atn_ulcs (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-ulcs-hfarr.c ---*/
-#line 810 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 806 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				{&hf_atn_ses_type,
 				{ "SPDU Type",
 					"atn-ulcs.ses.type",
@@ -2569,7 +2565,7 @@ void proto_register_atn_ulcs (void)
     &ett_atn_ulcs_AttributeTypeAndValue,
 
 /*--- End of included file: packet-atn-ulcs-ettarr.c ---*/
-#line 860 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 856 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				&ett_atn_ses,
 				&ett_atn_pres,
 				&ett_atn_acse,

@@ -19,7 +19,7 @@
  * note:
  * We are dealing with ATN/CPDLC aka ICAO Doc 9705 Ed2 here
  * (CPDLC may also be transmitted via ACARS/AOA aka "FANS-1/A ").
- 
+
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -37,7 +37,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*
