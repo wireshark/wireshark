@@ -43,7 +43,7 @@
    0x28 == data transfer from host to CI module
 
    using these transaction types, we can identify and assemble data transfers
-   form the host to the CAM and vice versa
+   from the host to the CAM and vice versa
 
    a host->module data transfer will use the following transactions
       one 0x2A and one 0x2B transaction to write the 16bit size
