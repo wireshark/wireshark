@@ -54,6 +54,27 @@ AC_DEFUN([AC_PROVIDE_AC_LIBTOOL_DLOPEN], )
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 AC_PATH_PROG(PERL, perl)
+
+# Check for Python.
+AC_PATH_PROG(PYTHON, python)
+if test ! -z "$PYTHON"; then
+	#
+	# OK, we found Python; is it Python 2.5 or later?
+	# Note: we don't use named components for sys.version_info to get
+	# the major version number, as named components for version_info
+	# were apparently introduced in Python 2.7.
+	#
+	AC_MSG_CHECKING([whether $PYTHON is Python 2.5 or later])
+	python_major_version=`$PYTHON -c 'import sys; print (sys.version_info[[0]])'`
+	python_minor_version=`$PYTHON -c 'import sys; print (sys.version_info[[1]])'`
+	if test "$python_major_version" -eq 2 -a "$python_minor_version" -lt 5 ; then
+		AC_MSG_RESULT(no)
+		AC_MSG_WARN([Building with Python $python_major_version.$python_minor_version may not work])
+	else
+		AC_MSG_RESULT(yes)
+	fi
+fi
+
 #
 # XXX - should autogen.sh check for YACC/Bison and Flex?  A user building
 # from a distribution tarball shouldn't have to have YACC/Bison or Flex,
@@ -610,8 +631,6 @@ AM_CONDITIONAL(HAVE_FOP, test x$HAVE_FOP = xyes)
 AC_PATH_PROG(LYNX, lynx)
 AC_CHECK_PROG(HAVE_LYNX, lynx, "yes", "no")
 AM_CONDITIONAL(HAVE_LYNX, test x$HAVE_LYNX = xyes)
-
-AC_PATH_PROG(PYTHON, python)
 
 # Check for w3m (html -> text)
 AC_PATH_PROG(W3M, w3m)
