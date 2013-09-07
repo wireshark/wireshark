@@ -1494,7 +1494,7 @@ typedef struct {
 } proto_actions_t;
 
 static const proto_actions_t proto_actions[] = {
-    /* WSLUA_ATTRIBUTE Proto_dissector RW The protocol's dissector, a function you define. 
+    /* WSLUA_ATTRIBUTE Proto_dissector RW The protocol's dissector, a function you define.
        The called dissector function will be given three arguments of (1) a Tvb object, (2) a Pinfo object, and (3) a TreeItem object. */
     {"dissector", Proto_get_dissector, Proto_set_dissector},
 
@@ -1504,7 +1504,7 @@ static const proto_actions_t proto_actions[] = {
     /* WSLUA_ATTRIBUTE Proto_prefs RO The preferences of this dissector */
     {"prefs", Proto_get_prefs, NULL},
 
-    /* WSLUA_ATTRIBUTE Proto_prefs WO The preferences changed routine of this dissector, a function you define. */
+    /* WSLUA_ATTRIBUTE Proto_prefs_changed WO The preferences changed routine of this dissector, a function you define. */
     {"prefs_changed", NULL, Proto_set_prefs_changed},
 
     /* WSLUA_ATTRIBUTE Proto_init WO The init routine of this dissector, a function you define.
