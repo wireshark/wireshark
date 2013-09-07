@@ -2063,9 +2063,15 @@ dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
+	/* Start with something because callers expect value_tvb to be non-NULL,
+	 * so we need a non-NULL empty tvb for error cases. */
+	out_tvb = tvb_new_subset(tvb, offset, 0, 0);
+
 DEBUG_ENTRY("dissect_per_bit_string");
 	/* 15.8 if the length is 0 bytes there will be no encoding */
 	if(max_len==0) {
+		if (value_tvb)
+			*value_tvb = out_tvb;
 		return offset;
 	}
 
@@ -2638,3 +2644,15 @@ proto_reg_handoff_per(void)
 {
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
