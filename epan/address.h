@@ -38,43 +38,44 @@ extern "C" {
 /* also be included in address_to_str_buf defined in to_str.c, for presentation purposes */
 
 typedef enum {
-  AT_NONE,               /* no link-layer address */
-  AT_ETHER,              /* MAC (Ethernet, 802.x, FDDI) address */
-  AT_IPv4,               /* IPv4 */
-  AT_IPv6,               /* IPv6 */
-  AT_IPX,                /* IPX */
-  AT_SNA,                /* SNA */
-  AT_ATALK,              /* Appletalk DDP */
-  AT_VINES,              /* Banyan Vines */
-  AT_OSI,                /* OSI NSAP */
-  AT_ARCNET,             /* ARCNET */
-  AT_FC,                 /* Fibre Channel */
-  AT_SS7PC,              /* SS7 Point Code */
-  AT_STRINGZ,            /* null-terminated string */
-  AT_EUI64,              /* IEEE EUI-64 */
-  AT_URI,                /* URI/URL/URN */
-  AT_TIPC,               /* TIPC Address Zone,Subnetwork,Processor */
-  AT_IB,                 /* Infiniband GID/LID */
-  AT_USB,                /* USB Device address
-                          * (0xffffffff represents the host) */
-  AT_AX25,               /* AX.25 */
-  AT_IEEE_802_15_4_SHORT /* IEEE 802.15.4 16-bit short address */
-                         /* (the long addresses are EUI-64's */
+    AT_NONE,               /* no link-layer address */
+    AT_ETHER,              /* MAC (Ethernet, 802.x, FDDI) address */
+    AT_IPv4,               /* IPv4 */
+    AT_IPv6,               /* IPv6 */
+    AT_IPX,                /* IPX */
+    AT_SNA,                /* SNA */
+    AT_ATALK,              /* Appletalk DDP */
+    AT_VINES,              /* Banyan Vines */
+    AT_OSI,                /* OSI NSAP */
+    AT_ARCNET,             /* ARCNET */
+    AT_FC,                 /* Fibre Channel */
+    AT_SS7PC,              /* SS7 Point Code */
+    AT_STRINGZ,            /* null-terminated string */
+    AT_EUI64,              /* IEEE EUI-64 */
+    AT_URI,                /* URI/URL/URN */
+    AT_TIPC,               /* TIPC Address Zone,Subnetwork,Processor */
+    AT_IB,                 /* Infiniband GID/LID */
+    AT_USB,                /* USB Device address
+                            * (0xffffffff represents the host) */
+    AT_AX25,               /* AX.25 */
+    AT_IEEE_802_15_4_SHORT /* IEEE 802.15.4 16-bit short address */
+                           /* (the long addresses are EUI-64's */
 } address_type;
 
 typedef struct _address {
-  address_type  type;		/* type of address */
-  int           hf;		/* the specific field that this addr is */
-  int           len;		/* length of address, in bytes */
-  const void	*data;		/* pointer to address data */
+    address_type  type;		/* type of address */
+    int           hf;		/* the specific field that this addr is */
+    int           len;		/* length of address, in bytes */
+    const void	*data;		/* pointer to address data */
 } address;
 
-#define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) { \
-	(addr)->data = (addr_data); \
-	(addr)->type = (addr_type); \
-	(addr)->hf   = -1;          \
-	(addr)->len  = (addr_len);  \
-	}
+#define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) \
+    do {                            \
+        (addr)->data = (addr_data); \
+        (addr)->type = (addr_type); \
+        (addr)->hf   = -1;          \
+        (addr)->len  = (addr_len);  \
+    } while (0)
 
 /* Same as SET_ADDRESS but it takes a TVB and an offset instead of
  * (frequently) a pointer into a TVB.  This allow us to get the tvb_get_ptr()
@@ -83,19 +84,21 @@ typedef struct _address {
  * Call tvb_get_ptr() first in case it throws an exception: then we won't
  * modify the address at all.
  */
-#define	TVB_SET_ADDRESS(addr, addr_type, tvb, offset, addr_len) { \
-	(addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
-	(addr)->type = (addr_type); \
-	(addr)->hf   = -1;          \
-	(addr)->len  = (addr_len);  \
-	}
+#define	TVB_SET_ADDRESS(addr, addr_type, tvb, offset, addr_len) \
+    do {                            \
+        (addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
+        (addr)->type = (addr_type); \
+        (addr)->hf   = -1;          \
+        (addr)->len  = (addr_len);  \
+    } while (0)
 
-#define	SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) { \
-	(addr)->data = (addr_data); \
-	(addr)->type = (addr_type); \
-	(addr)->hf   = (addr_hf);   \
-	(addr)->len  = (addr_len);  \
-	}
+#define	SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) \
+    do {                            \
+        (addr)->data = (addr_data); \
+        (addr)->type = (addr_type); \
+        (addr)->hf   = (addr_hf);   \
+        (addr)->len  = (addr_len);  \
+    } while (0)
 
 /* Same as SET_ADDRESS_HF but it takes a TVB and an offset instead of
  * (frequently) a pointer into a TVB.  This allow us to get the tvb_get_ptr()
@@ -104,12 +107,13 @@ typedef struct _address {
  * Call tvb_get_ptr() first in case it throws an exception: then we won't
  * modify the address at all.
  */
-#define	TVB_SET_ADDRESS_HF(addr, addr_type, tvb, offset, addr_len, addr_hf) { \
-	(addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
-	(addr)->type = (addr_type); \
-	(addr)->hf   = (addr_hf);   \
-	(addr)->len  = (addr_len);  \
-	}
+#define	TVB_SET_ADDRESS_HF(addr, addr_type, tvb, offset, addr_len, addr_hf) \
+    do {                            \
+        (addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
+        (addr)->type = (addr_type); \
+        (addr)->hf   = (addr_hf);   \
+        (addr)->len  = (addr_len);  \
+    } while (0)
 
 /*
  * Given two addresses, return
@@ -117,13 +121,13 @@ typedef struct _address {
  *  a positive number if addr1>addr2 in some nondefined metric,
  *  a negative number if addr1<addr2 in some nondefined metric
  */
-#define CMP_ADDRESS(addr1, addr2) \
-	(	((addr1)->type > (addr2)->type)?1:	\
-		((addr1)->type < (addr2)->type)?-1:	\
-		((addr1)->len  > (addr2)->len) ?1:	\
-		((addr1)->len  < (addr2)->len) ?-1:	\
-		memcmp((addr1)->data, (addr2)->data, (addr1)->len)\
-	)
+#define CMP_ADDRESS(addr1, addr2) ( \
+        ((addr1)->type > (addr2)->type)?1:	\
+        ((addr1)->type < (addr2)->type)?-1:	\
+        ((addr1)->len  > (addr2)->len) ?1:	\
+        ((addr1)->len  < (addr2)->len) ?-1:	\
+        memcmp((addr1)->data, (addr2)->data, (addr1)->len) \
+        )
 
 /*
  * Given two addresses, return "true" if they're equal, "false" otherwise.
@@ -131,95 +135,101 @@ typedef struct _address {
  * AT_NONE, they are then equal, otherwise they must have the same
  * amount of data and the data must be the same.
  */
-#define ADDRESSES_EQUAL(addr1, addr2)					\
-	(								\
-	 (addr1)->type == (addr2)->type &&				\
-	 (								\
-	  (addr1)->type == AT_NONE ||					\
-	  (								\
-	   (addr1)->len == (addr2)->len &&				\
-	   memcmp((addr1)->data, (addr2)->data, (addr1)->len) == 0	\
-	  )								\
-	 )								\
-	)
+#define ADDRESSES_EQUAL(addr1, addr2)	   \
+    (                                      \
+     (addr1)->type == (addr2)->type &&     \
+     (                                     \
+      (addr1)->type == AT_NONE ||          \
+      (                                    \
+       (addr1)->len == (addr2)->len &&     \
+       memcmp((addr1)->data, (addr2)->data, (addr1)->len) == 0    \
+      )                                    \
+     )                                     \
+    )
 
 /*
  * Copy an address, allocating a new buffer for the address data.
  */
-#define COPY_ADDRESS(to, from) { \
-	guint8 *COPY_ADDRESS_data; \
-	(to)->type = (from)->type; \
-	(to)->len = (from)->len; \
-	(to)->hf = (from)->hf; \
-	COPY_ADDRESS_data = (guint8 *)g_malloc((from)->len); \
-	memcpy(COPY_ADDRESS_data, (from)->data, (from)->len); \
-	(to)->data = COPY_ADDRESS_data; \
-	}
+#define COPY_ADDRESS(to, from) \
+    do {                           \
+        guint8 *COPY_ADDRESS_data; \
+        (to)->type = (from)->type; \
+        (to)->len = (from)->len;   \
+        (to)->hf = (from)->hf;     \
+        COPY_ADDRESS_data = (guint8 *)g_malloc((from)->len);  \
+        memcpy(COPY_ADDRESS_data, (from)->data, (from)->len); \
+        (to)->data = COPY_ADDRESS_data; \
+    } while (0)
 
 /* Perform a shallow copy of the address (both addresses point to the same
  * memory location).
  */
 #define COPY_ADDRESS_SHALLOW(to, from) \
-	(to)->type = (from)->type; \
-	(to)->len = (from)->len; \
-	(to)->hf = (from)->hf; \
-	(to)->data = (from)->data;
+    do {                           \
+        (to)->type = (from)->type; \
+        (to)->len = (from)->len;   \
+        (to)->hf = (from)->hf;     \
+        (to)->data = (from)->data; \
+    } while (0)
 
-#define SE_COPY_ADDRESS(to, from) { \
-	guint8 *SE_COPY_ADDRESS_data; \
-	(to)->type = (from)->type; \
-	(to)->len = (from)->len; \
-	(to)->hf = (from)->hf; \
-	SE_COPY_ADDRESS_data = (guint8 *)se_alloc((from)->len); \
-	memcpy(SE_COPY_ADDRESS_data, (from)->data, (from)->len); \
-	(to)->data = SE_COPY_ADDRESS_data; \
-	}
+#define SE_COPY_ADDRESS(to, from)     \
+    do {                              \
+        guint8 *SE_COPY_ADDRESS_data; \
+        (to)->type = (from)->type;    \
+        (to)->len = (from)->len;      \
+        (to)->hf = (from)->hf;        \
+        SE_COPY_ADDRESS_data = (guint8 *)se_alloc((from)->len); \
+        memcpy(SE_COPY_ADDRESS_data, (from)->data, (from)->len); \
+        (to)->data = SE_COPY_ADDRESS_data; \
+    } while (0)
 
 /*
  * Hash an address into a hash value (which must already have been set).
  */
-#define ADD_ADDRESS_TO_HASH(hash_val, addr) { \
-	const guint8 *ADD_ADDRESS_TO_HASH_data; \
-	int ADD_ADDRESS_TO_HASH_index; \
-	ADD_ADDRESS_TO_HASH_data = (const guint8 *)(addr)->data; \
-	for (ADD_ADDRESS_TO_HASH_index = 0; \
-	     ADD_ADDRESS_TO_HASH_index < (addr)->len; \
-	     ADD_ADDRESS_TO_HASH_index++) \
-	     hash_val += ADD_ADDRESS_TO_HASH_data[ADD_ADDRESS_TO_HASH_index]; \
-	}
+#define ADD_ADDRESS_TO_HASH(hash_val, addr) \
+    do { \
+        const guint8 *ADD_ADDRESS_TO_HASH_data; \
+        int ADD_ADDRESS_TO_HASH_index; \
+        ADD_ADDRESS_TO_HASH_data = (const guint8 *)(addr)->data; \
+        for (ADD_ADDRESS_TO_HASH_index = 0; \
+                ADD_ADDRESS_TO_HASH_index < (addr)->len; \
+                ADD_ADDRESS_TO_HASH_index++) { \
+            hash_val += ADD_ADDRESS_TO_HASH_data[ADD_ADDRESS_TO_HASH_index]; \
+        } \
+    } while (0)
 
 /* Types of port numbers Wireshark knows about. */
 typedef enum {
-  PT_NONE,		/* no port number */
-  PT_SCTP,		/* SCTP */
-  PT_TCP,		/* TCP */
-  PT_UDP,		/* UDP */
-  PT_DCCP,		/* DCCP */
-  PT_IPX,		/* IPX sockets */
-  PT_NCP,		/* NCP connection */
-  PT_EXCHG,		/* Fibre Channel exchange */
-  PT_DDP,		/* DDP AppleTalk connection */
-  PT_SBCCS,		/* FICON */
-  PT_IDP,		/* XNS IDP sockets */
-  PT_TIPC,		/* TIPC PORT */
-  PT_USB,		/* USB endpoint 0xffff means the host */
-  PT_I2C,
-  PT_IBQP,		/* Infiniband QP number */
-  PT_BLUETOOTH
+    PT_NONE,		/* no port number */
+    PT_SCTP,		/* SCTP */
+    PT_TCP,		/* TCP */
+    PT_UDP,		/* UDP */
+    PT_DCCP,		/* DCCP */
+    PT_IPX,		/* IPX sockets */
+    PT_NCP,		/* NCP connection */
+    PT_EXCHG,		/* Fibre Channel exchange */
+    PT_DDP,		/* DDP AppleTalk connection */
+    PT_SBCCS,		/* FICON */
+    PT_IDP,		/* XNS IDP sockets */
+    PT_TIPC,		/* TIPC PORT */
+    PT_USB,		/* USB endpoint 0xffff means the host */
+    PT_I2C,
+    PT_IBQP,		/* Infiniband QP number */
+    PT_BLUETOOTH
 } port_type;
 
 /* Types of circuit IDs Wireshark knows about. */
 typedef enum {
-  CT_NONE,		/* no circuit type */
-  CT_DLCI,		/* Frame Relay DLCI */
-  CT_ISDN,		/* ISDN channel number */
-  CT_X25,		/* X.25 logical channel number */
-  CT_ISUP,		/* ISDN User Part CIC */
-  CT_IAX2,		/* IAX2 call id */
-  CT_H223,		/* H.223 logical channel number */
-  CT_BICC,		/* BICC Circuit identifier */
-  CT_DVBCI		/* DVB-CI session number|transport connection id */
-  /* Could also have ATM VPI/VCI pairs */
+    CT_NONE,		/* no circuit type */
+    CT_DLCI,		/* Frame Relay DLCI */
+    CT_ISDN,		/* ISDN channel number */
+    CT_X25,		/* X.25 logical channel number */
+    CT_ISUP,		/* ISDN User Part CIC */
+    CT_IAX2,		/* IAX2 call id */
+    CT_H223,		/* H.223 logical channel number */
+    CT_BICC,		/* BICC Circuit identifier */
+    CT_DVBCI		/* DVB-CI session number|transport connection id */
+    /* Could also have ATM VPI/VCI pairs */
 } circuit_type;
 
 #ifdef __cplusplus
@@ -227,3 +237,16 @@ typedef enum {
 #endif /* __cplusplus */
 
 #endif /* __ADDRESS_H__ */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
