@@ -285,7 +285,12 @@ gulong register_count(void)
 
 # Compare current and new content and update the file if anything has changed.
 
-new_hash = hashlib.sha1(bytes(reg_code.encode('utf-8'))).hexdigest()
+try:	# Python >= 2.6, >= 3.0
+	reg_code_bytes = bytes(reg_code.encode('utf-8'))
+except:
+	reg_code_bytes = reg_code
+
+new_hash = hashlib.sha1(reg_code_bytes).hexdigest()
 
 try:
 	fh = open(final_filename, 'rb')
