@@ -3742,14 +3742,14 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	}
 
 	/* ok, it is a IAX2 frame, so let's get the ip and port values */
-	COPY_ADDRESS(&(ip_src_fwd), &(edt.pi.src))
-	COPY_ADDRESS(&(ip_dst_fwd), &(edt.pi.dst))
+	COPY_ADDRESS(&(ip_src_fwd), &(edt.pi.src));
+	COPY_ADDRESS(&(ip_dst_fwd), &(edt.pi.dst));
 	port_src_fwd = edt.pi.srcport;
 	port_dst_fwd = edt.pi.destport;
 
 	/* assume the inverse ip/port combination for the reverse direction */
-	COPY_ADDRESS(&(ip_src_rev), &(edt.pi.dst))
-	COPY_ADDRESS(&(ip_dst_rev), &(edt.pi.src))
+	COPY_ADDRESS(&(ip_src_rev), &(edt.pi.dst));
+	COPY_ADDRESS(&(ip_dst_rev), &(edt.pi.src));
 	port_src_rev = edt.pi.destport;
 	port_dst_rev = edt.pi.srcport;
 
