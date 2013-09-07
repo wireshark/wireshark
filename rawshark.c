@@ -900,8 +900,9 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
     guchar *ptr = (guchar*) &disk_hdr;
     static gchar err_str[100];
 
+    memset(&mem_hdr, 0, sizeof(mem_hdr));
+
     if (want_pcap_pkthdr) {
-        bytes_needed = sizeof(mem_hdr);
         ptr = (guchar*) &mem_hdr;
     }
 
@@ -937,10 +938,11 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
     phdr->pkt_encap = encap;
 
 #if 0
-    printf("tv_sec: %d (%04x)\n", hdr.ts.tv_sec, hdr.ts.tv_sec);
-    printf("tv_usec: %d (%04x)\n", hdr.ts.tv_usec, hdr.ts.tv_usec);
-    printf("caplen: %d (%04x)\n", hdr.caplen, hdr.caplen);
-    printf("len: %d (%04x)\n", hdr.len, hdr.len);
+    printf("mem_hdr: %lu disk_hdr: %lu\n", sizeof(mem_hdr), sizeof(disk_hdr));
+    printf("tv_sec: %u (%04x)\n", (unsigned int) phdr->ts.secs, (unsigned int) phdr->ts.secs);
+    printf("tv_nsec: %d (%04x)\n", phdr->ts.nsecs, phdr->ts.nsecs);
+    printf("caplen: %d (%04x)\n", phdr->caplen, phdr->caplen);
+    printf("len: %d (%04x)\n", phdr->len, phdr->len);
 #endif
     if (bytes_needed > WTAP_MAX_PACKET_SIZE) {
         *err = WTAP_ERR_BAD_FILE;

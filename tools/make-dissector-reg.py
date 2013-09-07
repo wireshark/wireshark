@@ -285,7 +285,7 @@ gulong register_count(void)
 
 # Compare current and new content and update the file if anything has changed.
 
-new_hash = hashlib.sha1(reg_code).hexdigest()
+new_hash = hashlib.sha1(bytes(reg_code.encode('utf-8'))).hexdigest()
 
 try:
 	fh = open(final_filename, 'rb')
@@ -296,12 +296,12 @@ except:
 
 try:
 	if new_hash != cur_hash:
-		print ('Updating ' + final_filename)
+		print(('Updating ' + final_filename))
 		fh = open(final_filename, 'w')
 		fh.write(reg_code)
 		fh.close()
 	else:
-		print(final_filename + ' unchanged.')
+		print((final_filename + ' unchanged.'))
 		os.utime(final_filename, None)
 except OSError:
 	sys.exit('Unable to write ' + final_filename + '.\n')

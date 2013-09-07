@@ -1048,6 +1048,8 @@ static int      hf_cflow_octets                              = -1;
 static int      hf_cflow_octets64                            = -1;
 static int      hf_cflow_length_min                          = -1;
 static int      hf_cflow_length_max                          = -1;
+static int      hf_cflow_length_min64                        = -1;
+static int      hf_cflow_length_max64                        = -1;
 static int      hf_cflow_timedelta                           = -1;
 static int      hf_cflow_sys_init_time                       = -1;
 static int      hf_cflow_timestart                           = -1;
@@ -2775,13 +2777,31 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 25: /* length_min */
-            ti = proto_tree_add_item(pdutree, hf_cflow_length_min,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            if (length == 2) {
+                ti = proto_tree_add_item(pdutree, hf_cflow_length_min,
+                        tvb, offset, length, ENC_BIG_ENDIAN);
+            } else if (length == 8) {
+                ti = proto_tree_add_item(pdutree, hf_cflow_length_min64,
+                        tvb, offset, length, ENC_BIG_ENDIAN);
+            } else {
+                ti = proto_tree_add_text(pdutree,
+                                         tvb, offset, length,
+                                         "MinLength: length %u", length);
+            }
             break;
 
         case 26: /* length_max */
-            ti = proto_tree_add_item(pdutree, hf_cflow_length_max,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            if (length == 2) {
+                ti = proto_tree_add_item(pdutree, hf_cflow_length_max,
+                        tvb, offset, length, ENC_BIG_ENDIAN);
+            } else if (length == 8) {
+                ti = proto_tree_add_item(pdutree, hf_cflow_length_max64,
+                        tvb, offset, length, ENC_BIG_ENDIAN);
+            } else {
+                ti = proto_tree_add_text(pdutree,
+                                         tvb, offset, length,
+                                         "MaxLength: length %u", length);
+            }
             break;
 
         case 27: /* IPv6 src addr */
@@ -5927,6 +5947,16 @@ proto_register_netflow(void)
         {&hf_cflow_length_max,
          {"MaxLength", "cflow.length_max",
           FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Packet Length Max", HFILL}
+        },
+        {&hf_cflow_length_min64,
+         {"MinLength", "cflow.length_min",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Packet Length Min", HFILL}
+        },
+        {&hf_cflow_length_max64,
+         {"MaxLength", "cflow.length_max",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
           "Packet Length Max", HFILL}
         },
         {&hf_cflow_timedelta,

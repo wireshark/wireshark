@@ -63,6 +63,7 @@ static int hf_per_open_type_length = -1;
 static int hf_per_real_length = -1;
 static int hf_per_octet_string_length = -1;
 static int hf_per_bit_string_length = -1;
+static int hf_per_normally_small_nonnegative_whole_number_length = -1;
 static int hf_per_const_int_len = -1;
 static int hf_per_direct_reference = -1;          /* T_direct_reference */
 static int hf_per_indirect_reference = -1;        /* T_indirect_reference */
@@ -403,7 +404,7 @@ static guint32
 dissect_per_normally_small_nonnegative_whole_number(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length)
 {
 	gboolean small_number, length_bit;
-	guint32 len;
+	guint32 len, length_determinant;
 	proto_item *pi;
 
 DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
@@ -432,7 +433,37 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 	}
 
 	/* 10.6.2 */
-	offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_index, length);
+	offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_normally_small_nonnegative_whole_number_length, &length_determinant);
+	switch (length_determinant) {
+		case 0:
+			*length = 0;
+			break;
+		case 1:
+			*length = tvb_get_bits8(tvb, offset, 8);
+			offset += 8;
+			break;
+		case 2:
+			*length = tvb_get_bits16(tvb, offset, 16, ENC_BIG_ENDIAN);
+			offset += 16;
+			break;
+		case 3:
+			*length = tvb_get_bits32(tvb, offset, 24, ENC_BIG_ENDIAN);
+			offset += 24;
+			break;
+		case 4:
+			*length = tvb_get_bits32(tvb, offset, 32, ENC_BIG_ENDIAN);
+			offset += 32;
+			break;
+		default:
+			PER_NOT_DECODED_YET("too long integer(per_normally_small_nonnegative_whole_number)");
+			offset += 8*length_determinant;
+			*length = 0;
+			return offset;
+	}
+	if(hf_index!=-1){
+		pi = proto_tree_add_uint(tree, hf_index, tvb, (offset-(8*length_determinant))>>3, length_determinant, *length);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+	}
 
 	return offset;
 }
@@ -1072,7 +1103,7 @@ dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	/* gassert here? */
 	if(length>8){
 PER_NOT_DECODED_YET("too long integer (64b)");
-		length=4;
+		length=8;
 	}
 
 	val=0;
@@ -2522,6 +2553,9 @@ proto_register_per(void)
 	{ &hf_per_bit_string_length,
 		{ "Bit String Length", "per.bit_string_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bits in the Bit String", HFILL }},
+	{ &hf_per_normally_small_nonnegative_whole_number_length,
+		{ "Normally Small Non-negative Whole Number Length", "per.normally_small_nonnegative_whole_number_length", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of bytes in the Normally Small Non-negative Whole Number", HFILL }},
 	{ &hf_per_const_int_len,
 		{ "Constrained Integer Length", "per.const_int_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes in the Constrained Integer", HFILL }},
