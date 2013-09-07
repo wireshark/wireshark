@@ -6214,7 +6214,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_uli_cgi_lac,
           {"Location Area Code", "gtpv2.uli_cgi_lac",
-           FT_UINT16, BASE_DEC, NULL, 0x0,
+           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_cgi_ci,
@@ -6224,27 +6224,27 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_uli_sai_lac,
           {"Location Area Code", "gtpv2.uli_sai_lac",
-           FT_UINT16, BASE_DEC, NULL, 0x0,
+           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_sai_sac,
           {"Service Area Code", "gtpv2.uli_sai_sac",
-           FT_UINT16, BASE_DEC, NULL, 0x0,
+           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_rai_lac,
           {"Location Area Code", "gtpv2.uli_rai_lac",
-           FT_UINT16, BASE_DEC, NULL, 0x0,
+           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_rai_rac,
           {"Routing Area Code", "gtpv2.uli_rai_rac",
-           FT_UINT16, BASE_DEC, NULL, 0x0,
+           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_tai_tac,
           {"Tracking Area Code", "gtpv2.uli_tai_tac",
-           FT_UINT16, BASE_DEC, NULL, 0x0,
+           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_gtpv2_uli_ecgi_eci,
@@ -6254,7 +6254,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_uli_lai_lac,
          {"Location Area Code (LAC)", "gtpv2.uli_lai_lac",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
+          FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_uli_ecgi_eci_spare,
