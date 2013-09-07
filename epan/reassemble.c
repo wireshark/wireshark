@@ -862,7 +862,6 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	fragment_data *fd;
 	fragment_data *fd_i;
 	guint32 max, dfpos, fraglen;
-	unsigned char *old_data;
 
 	/* create new fd describing this fragment */
 	fd = g_slice_new(fragment_data);
@@ -1055,8 +1054,12 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	/* we have received an entire packet, defragment it and
 	 * free all fragments
 	 */
-	/* store old data just in case */
-	old_data=fd_head->data;
+	/* We can't free the old data because of
+	 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9027
+	 * This is a leak, but there's too much other architectural junk
+	 * involved to make a real backport possible, and a leak is better than
+	 * a crash.
+	 */
 	fd_head->data = (unsigned char *)g_malloc(fd_head->datalen);
 
 	/* add all data fragments */
@@ -1173,7 +1176,6 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 		}
 	}
 
-	g_free(old_data);
 	/* mark this packet as defragmented.
 	   allows us to skip any trailing fragments */
 	fd_head->flags |= FD_DEFRAGMENTED;
