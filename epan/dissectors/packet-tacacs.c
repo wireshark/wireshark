@@ -95,6 +95,8 @@ static gboolean tacplus_preference_desegment = TRUE;
 static const char *tacplus_opt_key;
 static GSList *tacplus_keys = NULL;
 
+#define ADDR_INVLD "invalid"
+
 #define VERSION_TACACS	0x00
 #define VERSION_XTACACS	0x80
 
@@ -814,12 +816,19 @@ find_key( address *srv, address *cln )
 static void
 mkipv4_address( address **addr, const char *str_addr )
 {
+	int   ret;
 	char *addr_data;
 
 	*addr=(address *)g_malloc( sizeof(address) );
 	addr_data=(char *)g_malloc( 4 );
-	inet_pton( AF_INET, str_addr, addr_data );
-	SET_ADDRESS(*addr, AT_IPv4, 4, addr_data);
+	ret = inet_pton( AF_INET, str_addr, addr_data );
+	/* brackets are required here, otherwise the semicolon would terminate
+	   the if-else */
+	if (ret==1) {
+		SET_ADDRESS(*addr, AT_IPv4, 4, addr_data);
+	}
+	else
+		SET_ADDRESS(*addr, AT_STRINGZ, (int)strlen(ADDR_INVLD)+1, ADDR_INVLD);
 }
 static void
 parse_tuple( char *key_from_option )
