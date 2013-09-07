@@ -344,7 +344,7 @@ void TCPStreamDialog::initializeThroughput()
         return;
     }
 
-    QVector<double> rel_time, seg_len, tput;
+    QVector<double> rel_time, seg_len, tput_time, tput;
     struct segment *oldest_seg = graph_.segments;
 #ifndef MA_1_SECOND
     int i = 1;
@@ -381,10 +381,19 @@ void TCPStreamDialog::initializeThroughput()
 
         rel_time.append(rt_val);
         seg_len.append(seg->th_seglen);
-        tput.append(av_tput);
+
+        // Add a data point only if our time window has advanced. Otherwise
+        // update the most recent point. (We might want to show a warning
+        // for out-of-order packets.)
+        if (tput_time.size() > 0 && rt_val <= tput_time.last()) {
+            tput[tput.size() - 1] = av_tput;
+        } else {
+            tput.append(av_tput);
+            tput_time.append(rt_val);
+        }
     }
     sp->graph(0)->setData(rel_time, seg_len);
-    sp->graph(1)->setData(rel_time, tput);
+    sp->graph(1)->setData(tput_time, tput);
 
     sp->yAxis->setLabel(tr("Segment length (B)"));
 
@@ -536,6 +545,11 @@ void TCPStreamDialog::on_graphTypeComboBox_currentIndexChanged(int index)
     if (index < 0) return;
     graph_.type = ui->graphTypeComboBox->itemData(index).value<tcp_graph_type>();
     fillGraph();
+}
+
+void TCPStreamDialog::on_resetButton_clicked()
+{
+    resetAxes();
 }
 
 void TCPStreamDialog::setCaptureFile(capture_file *cf)

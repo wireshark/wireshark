@@ -87,6 +87,7 @@ private slots:
     void transformYRange(const QCPRange &y_range1);
     void on_buttonBox_accepted();
     void on_graphTypeComboBox_currentIndexChanged(int index);
+    void on_resetButton_clicked();
 };
 
 #endif // TCP_STREAM_DIALOG_H

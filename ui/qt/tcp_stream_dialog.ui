@@ -79,6 +79,16 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QPushButton" name="resetButton">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
