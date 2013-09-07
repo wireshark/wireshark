@@ -54,6 +54,7 @@ static int hf_pn532_fw_support = -1;
 static int hf_pn532_14443a_sak = -1;
 static int hf_pn532_14443a_atqa = -1;
 static int hf_pn532_14443a_uid = -1;
+static int hf_pn532_14443a_ats_length = -1;
 static int hf_pn532_14443a_uid_length = -1;
 static int hf_pn532_14443a_ats = -1;
 static int hf_pn532_14443b_pupi = -1;
@@ -71,7 +72,9 @@ static int hf_pn532_sam_mode = -1;
 #define GET_FIRMWARE_VERSION_REQ   0x02
 #define GET_FIRMWARE_VERSION_RSP   0x03
 
-#define GET_GENERAL_STATUS         0x04
+/* Get General Status */
+#define GET_GENERAL_STATUS_REQ         0x04
+#define GET_GENERAL_STATUS_RSP         0x05
 
 /* Read from a chipset register */
 #define READ_REGISTER_REQ          0x06
@@ -83,18 +86,29 @@ static int hf_pn532_sam_mode = -1;
 
 #define READ_GPIO                  0x0C
 #define WRITE_GPIO                 0x0E
-#define SET_SERIAL_BAUD_RATE       0x10
+
+/* Set Serial Baud Rate */
+#define SET_SERIAL_BAUD_RATE_REQ       0x10
+#define SET_SERIAL_BAUD_RATE_RSP       0x11
+
+/* Set Parameters */
 #define SET_PARAMETERS_REQ         0x12
 #define SET_PARAMETERS_RSP         0x13
+
+/* SAM Configuration */ 
 #define SAM_CONFIGURATION_REQ      0x14
 #define SAM_CONFIGURATION_RSP      0x15
-#define POWER_DOWN                 0x16
+
+/* Power Down */
+#define POWER_DOWN_REQ                 0x16
+#define POWER_DOWN_RSP                 0x17
 
 /* RF Communication Commands */
 #define RF_CONFIGURATION_REQ       0x32
 #define RF_CONFIGURATION_RSP       0x33
 
-#define RF_REGULATION_TEST         0x58
+/* Regulation Test */
+#define RF_REGULATION_TEST_REQ         0x58
 
 /* - Initiator Commands - */
 #define IN_JUMP_FOR_PSL            0x46
@@ -104,7 +118,10 @@ static int hf_pn532_sam_mode = -1;
 #define IN_LIST_PASSIVE_TARGET_REQ 0x4A
 #define IN_LIST_PASSIVE_TARGET_RSP 0x4B
 
-#define IN_ATR                     0x50
+/* InATR */
+#define IN_ATR_REQ                     0x50
+#define IN_ATR_RSP                     0x51
+
 #define IN_PSL                     0x4E
 
 /* Data Exchange */
@@ -141,6 +158,7 @@ static int hf_pn532_sam_mode = -1;
 #define TG_SET_GENERAL_BYTES       0x92
 #define TG_SET_METADATA            0x94
 
+/* -- End of commands  -- */
 
 /* TFI (Frame Identifier) Directions */
 #define HOST_TO_PN532              0xD4
@@ -184,9 +202,11 @@ static const value_string pn532_commands[] = {
     /* Discover the device's firmware version */
     {GET_FIRMWARE_VERSION_REQ,   "GetFirmwareVersion"},
     {GET_FIRMWARE_VERSION_RSP,   "GetFirmwareVersion (Response)"},
-
-    {GET_GENERAL_STATUS,         "GetGeneralStatus"},
-
+    
+    /* Get General Status */
+    {GET_GENERAL_STATUS_REQ,         "GetGeneralStatus"},
+    {GET_GENERAL_STATUS_RSP,         "GetGeneralStatus (Response)"},
+    
     /* Read from a chipset register */
     {READ_REGISTER_REQ,          "ReadRegister"},
     {READ_REGISTER_RSP,          "ReadRegister (Response)"},
@@ -197,7 +217,10 @@ static const value_string pn532_commands[] = {
 
     {READ_GPIO,                  "ReadGPIO"},
     {WRITE_GPIO,                 "WriteGPIO"},
-    {SET_SERIAL_BAUD_RATE,       "SetSerialBaudRate"},
+    
+    /* Set Serial Baud Rate */
+    {SET_SERIAL_BAUD_RATE_REQ,       "SetSerialBaudRate"},
+    {SET_SERIAL_BAUD_RATE_RSP,       "SetSerialBaudRate (Response)"},    
     
     /* Set Parameters */
     {SET_PARAMETERS_REQ,         "SetParameters"},
@@ -207,8 +230,10 @@ static const value_string pn532_commands[] = {
     {SAM_CONFIGURATION_REQ,          "SAMConfiguration"},
     {SAM_CONFIGURATION_RSP,          "SAMConfiguration (Response)"},
     
-    {POWER_DOWN,                 "PowerDown"},
-
+    /* Power Management Commands */
+    {POWER_DOWN_REQ,                 "PowerDown"},
+    {POWER_DOWN_RSP,                 "PowerDown (Response)"},
+    
     /* RF Configuration */
     {RF_CONFIGURATION_REQ,       "RFConfiguration"},
     {RF_CONFIGURATION_RSP,       "RFConfiguration (Response)"},
@@ -233,8 +258,11 @@ static const value_string pn532_commands[] = {
     {IN_LIST_PASSIVE_TARGET_RSP, "InListPassiveTarget (Response)"},
 
     {IN_PSL,                     "InPSL"},
-    {IN_ATR,                     "InATR"},
-
+    
+    /* InATR */
+    {IN_ATR_REQ,                     "InATR"},
+    {IN_ATR_RSP,                     "InATR (Response)"},
+    
     /* Release the target token */
     {IN_RELEASE_REQ,             "InRelease"},
     {IN_RELEASE_RSP,             "InRelease (Response)"},
@@ -247,7 +275,7 @@ static const value_string pn532_commands[] = {
     {IN_JUMP_FOR_DEP,            "InJumpForDEP"},
 
     /* RF Communication Commands */
-    {RF_REGULATION_TEST,         "RFRegulationTest"},
+    {RF_REGULATION_TEST_REQ,         "RFRegulationTest"},
 
     /* Automatic/long-time polling */
     {IN_AUTO_POLL_REQ,           "InAutoPoll"},
@@ -359,9 +387,12 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         proto_tree_add_item(pn532_tree, hf_pn532_fw_support,  tvb, 5, 1, ENC_NA);
         break;
 
-    case GET_GENERAL_STATUS:
+    case GET_GENERAL_STATUS_REQ:
         break;
 
+    case GET_GENERAL_STATUS_RSP:
+        break;
+	
     case READ_REGISTER_REQ:
         break;
 
@@ -380,7 +411,10 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
     case WRITE_GPIO:
         break;
 
-    case SET_SERIAL_BAUD_RATE:
+    case SET_SERIAL_BAUD_RATE_REQ:
+        break;
+
+    case SET_SERIAL_BAUD_RATE_RSP:
         break;
 
     case SET_PARAMETERS_REQ:
@@ -402,7 +436,7 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
     case SAM_CONFIGURATION_RSP:
         break;
         
-    case POWER_DOWN:
+    case POWER_DOWN_REQ:
         break;
 
     case RF_CONFIGURATION_REQ:
@@ -411,9 +445,9 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
     case RF_CONFIGURATION_RSP:
         break;
 
-    case RF_REGULATION_TEST:
+    case RF_REGULATION_TEST_REQ:
         break;
-
+	
     case IN_JUMP_FOR_DEP:
         break;
 
@@ -443,7 +477,7 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, 2, 1, ENC_BIG_ENDIAN);
 
         /* Probably an ISO/IEC 14443-B tag */
-        if (tvb_reported_length(tvb) == 20) {
+        if (tvb_reported_length(tvb) == 18) {
 
             /* Add the PUPI */
             proto_tree_add_item(pn532_tree, hf_pn532_14443b_pupi, tvb, 5, 4, ENC_BIG_ENDIAN);
@@ -456,7 +490,7 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         }
                
         /* InnoVision Jewel/Topaz (ISO 14443-A/proprietary) */
-        if (tvb_reported_length(tvb) == 12) {
+        if (tvb_reported_length(tvb) == 10) {
 
             /* Add the ATQA/SENS_RES (0x0C00)*/
             proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
@@ -466,11 +500,11 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         }
 
         /* Probably one of:
-         * a MiFare DESFire card (23 bytes),
-         * an MF UltraLight tag (17 bytes)
-         * an MF Classic card with a 4 byte UID (14 bytes) */
+         * a MiFare DESFire card (21 bytes),
+         * an MF UltraLight tag (15 bytes)
+         * an MF Classic card with a 4 byte UID (12 bytes) */
 
-        if ((tvb_reported_length(tvb) == 23) || (tvb_reported_length(tvb) == 17) || (tvb_reported_length(tvb) == 14)) {
+        if ((tvb_reported_length(tvb) == 21) || (tvb_reported_length(tvb) == 15) || (tvb_reported_length(tvb) == 12)) {
 
             /* Add the ATQA/SENS_RES */
             proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
@@ -482,11 +516,11 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
             proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid_length, tvb, 7, 1, ENC_BIG_ENDIAN);
             
             /* Add the UID */
-            if (tvb_reported_length(tvb) != 14) {
+            if (tvb_reported_length(tvb) != 12) {
                 proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 7, ENC_BIG_ENDIAN);
 
                 /* Probably MiFare DESFire, or some other 14443-A card with an ATS value/7 byte UID */
-                if (tvb_reported_length(tvb) == 23) {
+                if (tvb_reported_length(tvb) == 21) {
 
                     /* Add the ATS value */
                     proto_tree_add_item(pn532_tree, hf_pn532_14443a_ats, tvb, 16, 5, ENC_BIG_ENDIAN);
@@ -499,13 +533,13 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
 
         }
 
-        /* Probably an EMV/ISO 14443-A (VISA - 30 bytes payload/MC - 33 bytes payload)
+        /* Probably an EMV/ISO 14443-A (VISA - 28 bytes payload/MC - 31 bytes payload)
                  card with a 4 byte UID
 
-           MTCOS-based contactless passports also have a 4 byte (randomised) UID (28 bytes payload)
+           MTCOS-based contactless passports also have a 4 byte (randomised) UID (26 bytes payload)
         */
 
-        if (tvb_reported_length(tvb) == 28 || tvb_reported_length(tvb) == 30 || tvb_reported_length(tvb) == 33) {
+        if (tvb_reported_length(tvb) == 26 || tvb_reported_length(tvb) == 28 || tvb_reported_length(tvb) == 31) {
 
         /* Check to see if there's a plausible ATQA value (0x0004 for my MC/VISA cards, and 0x0008 for MTCOS) */
 
@@ -523,7 +557,8 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
                 /* Add the UID */
                 proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
 
-                /* ATS length is probably prepended to the ATS data... */
+                /* Dissect the ATS length for certainty... */
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_ats_length, tvb, 12, 1, ENC_BIG_ENDIAN);
 
                 /* Pass the ATS value to the Data dissector, since it's too long to handle normally
                     Don't care about the "status word" at the end, right now */
@@ -533,7 +568,7 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         }
 
         /* See if we've got a FeliCa payload with a System Code */
-        if (tvb_reported_length(tvb) == 26) {
+        if (tvb_reported_length(tvb) == 24) {
 
             /* For FeliCa, this is at position 4. This doesn't exist for other payload types. */
             proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 4, 1, ENC_BIG_ENDIAN);
@@ -545,7 +580,7 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
 
         break;
 
-    case IN_ATR:
+    case IN_ATR_REQ:
         break;
 
     case IN_PSL:
@@ -746,6 +781,9 @@ void proto_register_pn532(void)
         {&hf_pn532_14443a_uid_length,
          {"ISO/IEC 14443-A UID Length", "pn532.iso.14443a.uid.length", FT_INT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_14443a_ats_length,
+         {"ISO/IEC 14443-A ATS Length", "pn532.iso.14443a.ats.length", FT_INT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},	  
         {&hf_pn532_14443a_ats,
          {"ISO/IEC 14443-A ATS", "pn532.iso.14443a.ats", FT_UINT64, BASE_HEX,
           NULL, 0x0, NULL, HFILL}},
