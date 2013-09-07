@@ -133,7 +133,10 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     ],
     'wiretap/ascend.h': [
         'GPL (v3 or later)',
-    ]
+    ],
+    'packaging/macosx': [
+        'UNKNOWN',
+    ],
 }
 
 
