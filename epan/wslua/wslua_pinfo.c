@@ -1027,6 +1027,7 @@ PINFO_GET_NUMBER(Pinfo_delta_ts,lua_delta_nstime_to_sec(pinfo, pinfo->ws_pinfo->
 PINFO_GET_NUMBER(Pinfo_delta_dis_ts,lua_delta_nstime_to_sec(pinfo, pinfo->ws_pinfo->fd, pinfo->ws_pinfo->fd->prev_dis_num))
 PINFO_GET_NUMBER(Pinfo_ipproto,pinfo->ws_pinfo->ipproto)
 PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->ws_pinfo->circuit_id)
+PINFO_GET_NUMBER(Pinfo_can_desegment,pinfo->ws_pinfo->can_desegment)
 PINFO_GET_NUMBER(Pinfo_desegment_len,pinfo->ws_pinfo->desegment_len)
 PINFO_GET_NUMBER(Pinfo_desegment_offset,pinfo->ws_pinfo->desegment_offset)
 PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ws_pinfo->ptype)
@@ -1135,6 +1136,7 @@ typedef enum {
     PARAM_PORT_SRC,
     PARAM_PORT_DST,
     PARAM_CIRCUIT_ID,
+    PARAM_CAN_DESEGMENT,
     PARAM_DESEGMENT_LEN,
     PARAM_DESEGMENT_OFFSET,
     PARAM_PORT_TYPE,
@@ -1205,6 +1207,9 @@ static int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt
             return 0;
         case PARAM_CIRCUIT_ID:
             pinfo->circuit_id = (guint32)v;
+            return 0;
+        case PARAM_CAN_DESEGMENT:
+            pinfo->can_desegment = (guint16)v;
             return 0;
         case PARAM_DESEGMENT_LEN:
             pinfo->desegment_len = (guint32)v;
@@ -1348,6 +1353,9 @@ static const pinfo_method_t Pinfo_methods[] = {
 
 	/* WSLUA_ATTRIBUTE Pinfo_cols RO Accesss to the packet list columns (equivalent to pinfo.columns) */
     {"cols", Pinfo_columns, pushnil_param, PARAM_NONE },
+
+	/* WSLUA_ATTRIBUTE Pinfo_can_desegment RW Set if this segment could be desegmented */
+    {"can_desegment", Pinfo_can_desegment, Pinfo_set_int,  PARAM_CAN_DESEGMENT },
 
 	/* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Estimated number of additional bytes required for completing the PDU */
     {"desegment_len", Pinfo_desegment_len, Pinfo_set_int,  PARAM_DESEGMENT_LEN },
