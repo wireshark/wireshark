@@ -1758,7 +1758,7 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
     /*
      Add a dissector to a table.
      */
-#define WSLUA_ARG_DissectorTable_add_PATTERN 2 /* The pattern to match (either an integer or a string depending on the table's type). */
+#define WSLUA_ARG_DissectorTable_add_PATTERN 2 /* The pattern to match (either an integer, a integer range or a string depending on the table's type). */
 #define WSLUA_ARG_DissectorTable_add_DISSECTOR 3 /* The dissector to add (either an Proto or a Dissector). */
 
     DissectorTable dt = checkDissectorTable(L,1);
@@ -1787,8 +1787,19 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
         dissector_add_string(dt->name, pattern,handle);
         g_free (pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_add_PATTERN);
-        dissector_add_uint(dt->name, port, handle);
+        if (lua_isnumber(L, WSLUA_ARG_DissectorTable_add_PATTERN)) {
+            int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_add_PATTERN);
+            dissector_add_uint(dt->name, port, handle);
+        } else {
+            /* Not a number, try as range */
+	    gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_add_PATTERN));
+            range_t *range;
+            if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR)
+	        dissector_add_uint_range(dt->name, range, handle);
+	    else
+	        WSLUA_ARG_ERROR(DissectorTable_add,PATTERN,"invalid integer or range");
+	    g_free (pattern);
+        }
     } else {
         luaL_error(L,"Strange type %d for a DissectorTable",type);
     }
@@ -1800,7 +1811,7 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
     /*
      Remove a dissector from a table
      */
-#define WSLUA_ARG_DissectorTable_remove_PATTERN 2 /* The pattern to match (either an integer or a string depending on the table's type). */
+#define WSLUA_ARG_DissectorTable_remove_PATTERN 2 /* The pattern to match (either an integer, a integer range or a string depending on the table's type). */
 #define WSLUA_ARG_DissectorTable_remove_DISSECTOR 3 /* The dissector to remove (either an Proto or a Dissector). */
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
@@ -1825,8 +1836,19 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
         dissector_delete_string(dt->name, pattern,handle);
         g_free (pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
-        dissector_delete_uint(dt->name, port, handle);
+        if (lua_isnumber(L, WSLUA_ARG_DissectorTable_remove_PATTERN)) {
+	  int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
+	  dissector_delete_uint(dt->name, port, handle);
+        } else {
+            /* Not a number, try as range */
+	    gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_remove_PATTERN));
+            range_t *range;
+            if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR)
+	        dissector_delete_uint_range(dt->name, range, handle);
+	    else
+	        WSLUA_ARG_ERROR(DissectorTable_remove,PATTERN,"invalid integer or range");
+	    g_free (pattern);
+	}
     }
 
     return 0;
