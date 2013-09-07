@@ -63,6 +63,7 @@
  */
 
 #define WSLUA_INIT_ROUTINES "init_routines"
+#define WSLUA_PREFS_CHANGED "prefs_changed"
 #define LOG_DOMAIN_LUA "wslua"
 
 struct _wslua_tvb {
@@ -433,7 +434,7 @@ extern gboolean wslua_optbool(lua_State* L, int n, gboolean def);
 extern const gchar* lua_shiftstring(lua_State* L,int idx);
 extern void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup);
 extern int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
-
+extern void wslua_prefs_changed(void);
 extern void proto_register_lua(void);
 extern GString* lua_register_all_taps(void);
 extern void wslua_prime_dfilter(epan_dissect_t *edt);

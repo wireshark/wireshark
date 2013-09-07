@@ -184,6 +184,17 @@ static void wslua_init_routine(void) {
 
 }
 
+static int prefs_changed_error_handler(lua_State* LS) {
+    const gchar* error =  lua_tostring(LS,1);
+    report_failure("Lua: Error During execution of prefs apply callback:\n %s",error);
+    return 0;
+}
+
+void wslua_prefs_changed(void) {
+    if (L) {
+        iter_table_and_call(L, WSLUA_PREFS_CHANGED,prefs_changed_error_handler);
+    }
+}
 
 static const char *getF(lua_State *LS _U_, void *ud, size_t *size)
 {
@@ -380,6 +391,10 @@ int wslua_init(register_cb cb, gpointer client_data) {
     /* the dissectors table goes in the registry (not accessible) */
     lua_newtable (L);
     lua_dissectors_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    /* the preferences apply_cb table (accessible by the user) */
+    lua_newtable (L);
+    lua_setglobal(L, WSLUA_PREFS_CHANGED);
 
     /* set running_superuser variable to its proper value */
     WSLUA_REG_GLOBAL_BOOL(L,"running_superuser",started_with_special_privs());

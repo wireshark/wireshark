@@ -318,7 +318,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                 pref->label = g_strdup(name);
 
             if (!prefs_p->proto->prefs_module) {
-                prefs_p->proto->prefs_module = prefs_register_protocol(prefs_p->proto->hfid, NULL);
+                prefs_p->proto->prefs_module = prefs_register_protocol(prefs_p->proto->hfid, wslua_prefs_changed);
             }
 
             switch(pref->type) {
@@ -1395,6 +1395,23 @@ static int Proto_get_prefs(lua_State* L) {
     return 1;
 }
 
+static int Proto_set_prefs_changed(lua_State* L) {
+    Proto proto = toProto(L,1);
+
+    if (lua_isfunction(L,3)) {
+        /* insert the prefs changed callback into the prefs_changed table */
+        lua_getglobal(L, WSLUA_PREFS_CHANGED);
+        lua_replace(L, 1);
+        lua_pushstring(L,proto->name);
+        lua_replace(L, 2);
+        lua_settable(L,1);
+
+    }  else {
+        luaL_argerror(L,3,"The prefs of a protocol must be a function");
+    }
+    return 0;
+}
+
 static int Proto_set_init(lua_State* L) {
     Proto proto = toProto(L,1);
 
@@ -1479,23 +1496,26 @@ typedef struct {
 static const proto_actions_t proto_actions[] = {
     /* WSLUA_ATTRIBUTE Proto_dissector RW The protocol's dissector, a function you define. 
        The called dissector function will be given three arguments of (1) a Tvb object, (2) a Pinfo object, and (3) a TreeItem object. */
-    {"dissector",Proto_get_dissector, Proto_set_dissector},
+    {"dissector", Proto_get_dissector, Proto_set_dissector},
 
     /* WSLUA_ATTRIBUTE Proto_fields RO The Fields Table of this dissector */
-    {"fields" ,Proto_get_fields, Proto_set_fields},
+    {"fields", Proto_get_fields, Proto_set_fields},
 
     /* WSLUA_ATTRIBUTE Proto_prefs RO The preferences of this dissector */
-    {"prefs",Proto_get_prefs,NULL},
+    {"prefs", Proto_get_prefs, NULL},
+
+    /* WSLUA_ATTRIBUTE Proto_prefs WO The preferences changed routine of this dissector, a function you define. */
+    {"prefs_changed", NULL, Proto_set_prefs_changed},
 
     /* WSLUA_ATTRIBUTE Proto_init WO The init routine of this dissector, a function you define.
        The called init function is passed no arguments. */
-    {"init",NULL,Proto_set_init},
+    {"init", NULL, Proto_set_init},
 
     /* WSLUA_ATTRIBUTE Proto_name RO The name given to this dissector */
-    {"name",Proto_get_name,NULL},
+    {"name", Proto_get_name, NULL},
 
     /* WSLUA_ATTRIBUTE Proto_description RO The description given to this dissector */
-    {"description",Proto_get_description,NULL},
+    {"description", Proto_get_description, NULL},
 
     {NULL,NULL,NULL}
 };
