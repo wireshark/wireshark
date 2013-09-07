@@ -331,6 +331,21 @@ static gint ett_dcm_data_tag = -1;
 static gint ett_dcm_data_seq = -1;
 static gint ett_dcm_data_item = -1;
 
+static expert_field ei_dcm_data_tag = EI_INIT;
+static expert_field ei_dcm_multiple_transfer_syntax = EI_INIT;
+static expert_field ei_dcm_pdv_len = EI_INIT;
+static expert_field ei_dcm_pdv_flags = EI_INIT;
+static expert_field ei_dcm_pdv_ctx = EI_INIT;
+static expert_field ei_dcm_no_abstract_syntax = EI_INIT;
+static expert_field ei_dcm_no_abstract_syntax_uid = EI_INIT;
+static expert_field ei_dcm_status_msg = EI_INIT;
+static expert_field ei_dcm_no_transfer_syntax = EI_INIT;
+static expert_field ei_dcm_multiple_abstract_syntax = EI_INIT;
+static expert_field ei_dcm_invalid_pdu_length = EI_INIT;
+static expert_field ei_dcm_assoc_item_len = EI_INIT;
+static expert_field ei_dcm_assoc_rejected = EI_INIT;
+static expert_field ei_dcm_assoc_aborted = EI_INIT;
+
 static dissector_handle_t dcm_handle;
 
 static const value_string dcm_pdu_ids[] = {
@@ -4788,8 +4803,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	buf_desc = ep_strdup_printf("A-ASSOCIATE reject  %s <-- %s (%s)",
 	    g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called), reject_reason_desc);
 
-	expert_add_info_format(pinfo, assoc_header_pitem,
-	    PI_RESPONSE_CODE, PI_WARN, "Association rejected");
+	expert_add_info(pinfo, assoc_header_pitem, &ei_dcm_assoc_rejected);
 
 	break;
     case 5:					/* RELEASE Request */
@@ -4852,8 +4866,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 		g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called), abort_reason_desc);
 	}
 
-	expert_add_info_format(pinfo, assoc_header_pitem,
-	    PI_RESPONSE_CODE, PI_WARN, "Association aborted");
+	expert_add_info(pinfo, assoc_header_pitem, &ei_dcm_assoc_aborted);
 
 	break;
     }
@@ -5272,25 +5285,21 @@ dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (is_assoc_request) {
 
 	if (cnt_abbs<1) {
-	    expert_add_info_format(pinfo, pctx_pitem, PI_MALFORMED, PI_ERROR,
-		"No Abstract Syntax provided for this Presentation Context");
+	    expert_add_info(pinfo, pctx_pitem, &ei_dcm_no_abstract_syntax);
 	    return;
 	}
 	else if (cnt_abbs>1) {
-	    expert_add_info_format(pinfo, pctx_pitem, PI_MALFORMED, PI_ERROR,
-		"More than one Abstract Syntax provided for this Presentation Context");
+	    expert_add_info(pinfo, pctx_pitem, &ei_dcm_multiple_abstract_syntax);
 	    return;
 	}
 
 	if (cnt_xfer==0) {
-	    expert_add_info_format(pinfo, pctx_pitem, PI_MALFORMED, PI_ERROR,
-		"No Transfer Syntax provided for this Presentation Context");
+	    expert_add_info(pinfo, pctx_pitem, &ei_dcm_no_transfer_syntax);
 	    return;
 	}
 
 	if (pctx_abss_uid==NULL) {
-	    expert_add_info_format(pinfo, pctx_pitem, PI_MALFORMED, PI_ERROR,
-		"No Abstract Syntax UID found for this Presentation Context");
+	    expert_add_info(pinfo, pctx_pitem, &ei_dcm_no_abstract_syntax_uid);
 	    return;
 	}
 
@@ -5298,8 +5307,7 @@ dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else {
 
 	if (cnt_xfer>1) {
-	    expert_add_info_format(pinfo, pctx_pitem, PI_MALFORMED, PI_ERROR,
-		"Only one Transfer Syntax allowed in a Association Response");
+	    expert_add_info(pinfo, pctx_pitem, &ei_dcm_multiple_transfer_syntax);
     	    return;
 	}
     }
@@ -5485,7 +5493,7 @@ dissect_dcm_assoc_detail(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti,
 	item_len  = tvb_get_ntohs(tvb, 2 + offset);
 
 	if (item_len == 0) {
-	    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid Association Item Length");
+	    expert_add_info(pinfo, ti, &ei_dcm_assoc_item_len);
 	    return endpos;
 	}
 
@@ -5559,7 +5567,7 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	pdv_ctx_pitem=proto_tree_add_uint_format(tree, hf_dcm_pdv_ctx, tvb,  offset, 1,
 	    pctx_id, "Context: 0x%02x not found. A-ASSOCIATE request not found in capture.", pctx_id);
 
-	expert_add_info_format(pinfo, pdv_ctx_pitem, PI_MALFORMED, PI_ERROR, "Invalid Presentation Context ID");
+	expert_add_info(pinfo, pdv_ctx_pitem, &ei_dcm_pdv_ctx);
 
 	if (pctx == NULL) {
 	    /* only create presentation context, if it does not yet exist */
@@ -5676,7 +5684,7 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	flags, "Flags: 0x%02x (%s)", flags, desc_flag);
 
     if (flags>3) {
-	expert_add_info_format(pinfo, pdv_flags_pitem, PI_MALFORMED, PI_ERROR, "Invalid Flags");
+	expert_add_info(pinfo, pdv_flags_pitem, &ei_dcm_pdv_flags);
     }
     offset +=1;
 
@@ -5935,7 +5943,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 		    val16, "%-8.8s%s", "Value:", *tag_value);
 
 	if (pdv->is_warning && status_message) {
-	    expert_add_info_format(pinfo, pitem, PI_RESPONSE_CODE, PI_WARN, "%s", status_message);
+	    expert_add_info(pinfo, pitem, &ei_dcm_status_msg);
 	}
     }
     /* Invalid VR, can only occur with Explicit syntax */
@@ -6521,8 +6529,7 @@ dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset, tag_value_fragment_len, NULL,
 		"%s <incomplete>", pdv->prev->open_tag.desc);
 
-	    expert_add_info_format(pinfo, pitem, PI_MALFORMED, PI_ERROR,
-		"Early termination of tag. Data is missing");
+	    expert_add_info(pinfo, pitem, &ei_dcm_data_tag);
 
 	}
 	else {
@@ -6770,8 +6777,8 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	      0x02 if set, contains last fragment
     */
 
-    proto_tree *pdv_ptree = NULL;	/* Tree for item details */
-    proto_item *pdv_pitem = NULL;
+    proto_tree *pdv_ptree;	/* Tree for item details */
+    proto_item *pdv_pitem, *pdvlen_item;
 
     gchar  *buf_desc = NULL;		/* PDU description */
     gchar  *pdv_description = NULL;
@@ -6793,24 +6800,21 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	pdv_pitem = proto_tree_add_text(tree, tvb, offset, pdv_len+4, "PDV");
 	pdv_ptree = proto_item_add_subtree(pdv_pitem, ett_dcm_data_pdv);
 
+	pdvlen_item = proto_tree_add_item(pdv_ptree, hf_dcm_pdv_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
 	if (pdv_len + 4 > pdu_len) {
-	    expert_add_info_format(pinfo, pdv_pitem, PI_MALFORMED, PI_ERROR,
-		"Invalid PDV length (too large)");
+	    expert_add_info_format_text(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (too large)");
 	    return endpos;
 	}
 	else if (pdv_len <= 2) {
-	    expert_add_info_format(pinfo, pdv_pitem, PI_MALFORMED, PI_ERROR,
-		"Invalid PDV length (too small)");
+	    expert_add_info_format_text(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (too small)");
 	    return endpos;
 	}
 	else if (((pdv_len >> 1) << 1) != pdv_len) {
-	    expert_add_info_format(pinfo, pdv_pitem, PI_MALFORMED, PI_ERROR,
-		"Invalid PDV length (not even)");
+	    expert_add_info_format_text(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (not even)");
 	    return endpos;
 	}
-
-	proto_tree_add_item(pdv_ptree, hf_dcm_pdv_len, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
 
 	offset = dissect_dcm_pdv_fragmented(tvb, pinfo, pdv_ptree, assoc, offset, pdv_len, &pdv_description);
 
@@ -6969,8 +6973,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	old_pdu_start = pdu_start;
 	pdu_start =  pdu_start + pdu_len + 6;
 	if (pdu_start <= old_pdu_start) {
-	    expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
-		"Invalid PDU length (%u)", pdu_len);
+	    expert_add_info_format_text(pinfo, NULL, &ei_dcm_invalid_pdu_length, "Invalid PDU length (%u)", pdu_len);
 	    THROW(ReportedBoundsError);
 	}
 
@@ -7264,7 +7267,25 @@ proto_register_dcm(void)
 	    &ett_dcm_pdv_fragments
     };
 
+    static ei_register_info ei[] = {
+        { &ei_dcm_assoc_rejected, { "dicom.assoc.reject", PI_RESPONSE_CODE, PI_WARN, "Association rejected", EXPFILL }},
+        { &ei_dcm_assoc_aborted, { "dicom.assoc.abort", PI_RESPONSE_CODE, PI_WARN, "Association aborted", EXPFILL }},
+        { &ei_dcm_no_abstract_syntax, { "dicom.no_abstract_syntax", PI_MALFORMED, PI_ERROR, "No Abstract Syntax provided for this Presentation Context", EXPFILL }},
+        { &ei_dcm_multiple_abstract_syntax, { "dicom.multiple_abstract_syntax", PI_MALFORMED, PI_ERROR, "More than one Abstract Syntax provided for this Presentation Context", EXPFILL }},
+        { &ei_dcm_no_transfer_syntax, { "dicom.no_transfer_syntax", PI_MALFORMED, PI_ERROR, "No Transfer Syntax provided for this Presentation Context", EXPFILL }},
+        { &ei_dcm_no_abstract_syntax_uid, { "dicom.no_abstract_syntax_uid", PI_MALFORMED, PI_ERROR, "No Abstract Syntax UID found for this Presentation Context", EXPFILL }},
+        { &ei_dcm_multiple_transfer_syntax, { "dicom.multiple_transfer_syntax", PI_MALFORMED, PI_ERROR, "Only one Transfer Syntax allowed in a Association Response", EXPFILL }},
+        { &ei_dcm_assoc_item_len, { "dicom.assoc.item.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid Association Item Length", EXPFILL }},
+        { &ei_dcm_pdv_ctx, { "dicom.pdv.ctx.invalid", PI_MALFORMED, PI_ERROR, "Invalid Presentation Context ID", EXPFILL }},
+        { &ei_dcm_pdv_flags, { "dicom.pdv.flags.invalid", PI_MALFORMED, PI_ERROR, "Invalid Flags", EXPFILL }},
+        { &ei_dcm_status_msg, { "dicom.status_msg", PI_RESPONSE_CODE, PI_WARN, "%s", EXPFILL }},
+        { &ei_dcm_data_tag, { "dicom.data.tag.missing", PI_MALFORMED, PI_ERROR, "Early termination of tag. Data is missing", EXPFILL }},
+        { &ei_dcm_pdv_len, { "dicom.pdv.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid PDV length", EXPFILL }},
+        { &ei_dcm_invalid_pdu_length, { "dicom.pdu_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid PDU length", EXPFILL }},
+    };
+
     module_t *dcm_module;
+    expert_module_t* expert_dcm;
 
     /* Register the protocol name and description */
     proto_dcm = proto_register_protocol("DICOM", "DICOM", "dicom");
@@ -7272,6 +7293,8 @@ proto_register_dcm(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_dcm, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_dcm = expert_register_protocol(proto_dcm);
+    expert_register_field_array(expert_dcm, ei, array_length(ei));
 
     dcm_module = prefs_register_protocol(proto_dcm, dcm_apply_settings);
 

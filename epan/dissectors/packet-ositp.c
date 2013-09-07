@@ -79,10 +79,11 @@ static int hf_cotp_segment_count = -1;
 static int hf_cotp_reassembled_in = -1;
 static int hf_cotp_reassembled_length = -1;
 
-static const true_false_string fragment_descriptions = {
-  "Yes",
-  "No"
-};
+static expert_field ei_cotp_disconnect_confirm = EI_INIT;
+static expert_field ei_cotp_multiple_tpdus = EI_INIT;
+static expert_field ei_cotp_reject = EI_INIT;
+static expert_field ei_cotp_connection = EI_INIT;
+static expert_field ei_cotp_disconnect_request = EI_INIT;
 
 static int  proto_cltp         = -1;
 static gint ett_cltp           = -1;
@@ -914,9 +915,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ositp_decode_var_part(tvb, offset, li, 4, tpdu_len, pinfo, cotp_tree);
   offset += li;
 
-  expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_CHAT,
-                         "Disconnect Request(DR): 0x%x -> 0x%x",
-                         src_ref, dst_ref);
+  expert_add_info_format_text(pinfo, ti, &ei_cotp_disconnect_request, "Disconnect Request(DR): 0x%x -> 0x%x", src_ref, dst_ref);
 
   /* User data */
   call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
@@ -1532,8 +1531,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   offset += li + 1;
 
-  expert_add_info_format(pinfo, item, PI_SEQUENCE, PI_NOTE,
-                         "Reject(RJ): -> 0x%x", dst_ref);
+  expert_add_info_format_text(pinfo, item, &ei_cotp_reject, "Reject(RJ): -> 0x%x", dst_ref);
 
   return offset;
 
@@ -1602,10 +1600,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   /* expert info, but only if not encapsulated in TCP/SMB */
   /* XXX - the best way to detect seems to be if we have a port set */
   if (pinfo->destport == 0) {
-    expert_add_info_format(pinfo, item, PI_SEQUENCE, PI_CHAT,
-                           "Connection %s: 0x%x -> 0x%x",
-                           tpdu == CR_TPDU ? "Request(CR)" : "Confirm(CC)",
-                           src_ref, dst_ref);
+    expert_add_info_format_text(pinfo, item, &ei_cotp_connection, "Connection %s: 0x%x -> 0x%x", tpdu == CR_TPDU ? "Request(CR)" : "Confirm(CC)", src_ref, dst_ref);
   }
 
   if (tree) {
@@ -1728,9 +1723,7 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ositp_decode_var_part(tvb, offset, li, 4, tpdu_len, pinfo, cotp_tree);
   offset += li;
 
-  expert_add_info_format(pinfo, item, PI_SEQUENCE, PI_CHAT,
-                         "Disconnect Confirm(DC): 0x%x -> 0x%x",
-                         src_ref, dst_ref);
+  expert_add_info_format_text(pinfo, item, &ei_cotp_disconnect_confirm, "Disconnect Confirm(DC): 0x%x -> 0x%x", src_ref, dst_ref);
 
   return offset;
 
@@ -2186,8 +2179,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
   while (tvb_offset_exists(tvb, offset)) {
     if (!first_tpdu) {
       col_append_str(pinfo->cinfo, COL_INFO, ", ");
-      expert_add_info_format(pinfo, NULL, PI_SEQUENCE, PI_NOTE,
-                             "Multiple TPDUs in one packet");
+      expert_add_info(pinfo, NULL, &ei_cotp_multiple_tpdus);
       /* adjust tvb and offset to the start of the current PDU */
       tvb = tvb_new_subset_remaining(tvb, offset);
       offset = 0 ;
@@ -2338,12 +2330,12 @@ void proto_register_cotp(void)
         NULL, 0x0, NULL, HFILL}},
     { &hf_cotp_eot,
       { "Last data unit", "cotp.eot", FT_BOOLEAN, 8,
-        TFS(&fragment_descriptions),  0x80,
+        TFS(&tfs_yes_no),  0x80,
         "Is current TPDU the last data unit of a complete DT TPDU sequence "
         "(End of TSDU)?", HFILL}},
     { &hf_cotp_eot_extended,
       { "Last data unit", "cotp.eot", FT_BOOLEAN, 32,
-        TFS(&fragment_descriptions),  0x80000000,
+        TFS(&tfs_yes_no),  0x80000000,
         "Is current TPDU the last data unit of a complete DT TPDU sequence "
         "(End of TSDU)?", HFILL}},
     { &hf_cotp_segment_overlap,
@@ -2404,12 +2396,22 @@ void proto_register_cotp(void)
     &ett_cotp_segment,
     &ett_cotp_segments
   };
+  static ei_register_info ei[] = {
+      { &ei_cotp_disconnect_request, { "cotp.disconnect_request", PI_SEQUENCE, PI_CHAT, "Disconnect Request(DR): 0x%x -> 0x%x", EXPFILL }},
+      { &ei_cotp_reject, { "cotp.reject", PI_SEQUENCE, PI_NOTE, "Reject(RJ): -> 0x%x", EXPFILL }},
+      { &ei_cotp_connection, { "cotp.connection", PI_SEQUENCE, PI_CHAT, "Connection %s: 0x%x -> 0x%x", EXPFILL }},
+      { &ei_cotp_disconnect_confirm, { "cotp.disconnect_confirm", PI_SEQUENCE, PI_CHAT, "Disconnect Confirm(DC): 0x%x -> 0x%x", EXPFILL }},
+      { &ei_cotp_multiple_tpdus, { "cotp.multiple_tpdus", PI_SEQUENCE, PI_NOTE, "Multiple TPDUs in one packet", EXPFILL }},
+  };
 
   module_t *cotp_module;
+  expert_module_t* expert_cotp;
 
   proto_cotp = proto_register_protocol(PROTO_STRING_COTP, "COTP", "cotp");
   proto_register_field_array(proto_cotp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_cotp = expert_register_protocol(proto_cotp);
+  expert_register_field_array(expert_cotp, ei, array_length(ei));
   cotp_module = prefs_register_protocol(proto_cotp, NULL);
 
   prefs_register_bool_preference(cotp_module, "reassemble",

@@ -134,10 +134,8 @@ static int hf_analysis_total_retrans_time = -1;
 static int hf_analysis_last_pdu_num = -1;
 static int hf_analysis_addr_pdu_num = -1;
 static int hf_analysis_addr_pdu_time = -1;
-static int hf_analysis_addr_pdu_missing = -1;
 static int hf_analysis_prev_pdu_num = -1;
 static int hf_analysis_prev_pdu_time = -1;
-static int hf_analysis_prev_pdu_missing = -1;
 static int hf_analysis_retrans_no = -1;
 static int hf_analysis_ack_num = -1;
 static int hf_analysis_ack_missing = -1;
@@ -157,6 +155,20 @@ static gint ett_ack_analysis = -1;
 static gint ett_seq_ack_analysis = -1;
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
+
+static expert_field ei_more_data = EI_INIT;
+static expert_field ei_checksum_bad = EI_INIT;
+static expert_field ei_tot_miss_seq_no = EI_INIT;
+static expert_field ei_miss_seq_no = EI_INIT;
+static expert_field ei_analysis_ack_missing = EI_INIT;
+static expert_field ei_miss_seq_range = EI_INIT;
+static expert_field ei_address_pdu_missing = EI_INIT;
+static expert_field ei_analysis_ack_dup_no = EI_INIT;
+static expert_field ei_length = EI_INIT;
+static expert_field ei_analysis_prev_pdu_missing = EI_INIT;
+static expert_field ei_message_discarded = EI_INIT;
+static expert_field ei_ack_length = EI_INIT;
+static expert_field ei_analysis_retrans_no = EI_INIT;
 
 static dissector_handle_t p_mul_handle = NULL;
 
@@ -559,12 +571,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
                                   tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED (en);
       } else {
-        en = proto_tree_add_item (analysis_tree,
-                                  hf_analysis_addr_pdu_missing,
-                                  tvb, offset, 0, ENC_NA);
-        expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                                "Address PDU missing");
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_tree_add_expert(analysis_tree, pinfo, &ei_address_pdu_missing, tvb, offset, 0);
       }
       item_added = TRUE;
     } else {
@@ -586,8 +593,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
         if (pinfo->fd->flags.visited) {
           /* We do not know this on first visit and we do not want to
              add a entry in the "Expert Severity Info" for this note */
-          expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                                  "Ack PDU missing");
+          expert_add_info(pinfo, en, &ei_analysis_ack_missing);
           PROTO_ITEM_SET_GENERATED (en);
         }
         item_added = TRUE;
@@ -625,12 +631,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
         PROTO_ITEM_SET_GENERATED (en);
       }
     } else {
-      en = proto_tree_add_item (analysis_tree,
-                                hf_analysis_addr_pdu_missing,
-                                tvb, offset, 0, ENC_NA);
-      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                              "Address PDU missing");
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_tree_add_expert(analysis_tree, pinfo, &ei_address_pdu_missing, tvb, offset, 0);
     }
 
     if (pkg_data->msg_type != Ack_PDU && pkg_data->prev_pdu_id) {
@@ -651,8 +652,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
                                 tvb, 0, 0, ack_data->ack_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
 
-      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                              "Dup ACK #%d", ack_data->ack_resend_count);
+      expert_add_info_format_text(pinfo, en, &ei_analysis_ack_dup_no, "Dup ACK #%d", ack_data->ack_resend_count);
 
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_resend_from,
                                 tvb, 0, 0, ack_data->ack_id);
@@ -708,12 +708,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
       }
       item_added = TRUE;
     } else if (!pkg_data->msg_resend_count) {
-      en = proto_tree_add_item (analysis_tree,
-                                hf_analysis_addr_pdu_missing,
-                                tvb, offset, 0, ENC_NA);
-      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                              "Address PDU missing");
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_tree_add_expert(analysis_tree, pinfo, &ei_address_pdu_missing, tvb, offset, 0);
       item_added = TRUE;
     }
   }
@@ -731,12 +726,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
       PROTO_ITEM_SET_GENERATED (en);
       item_added = TRUE;
     } else if (!pkg_data->msg_resend_count) {
-      en = proto_tree_add_item (analysis_tree,
-                                hf_analysis_prev_pdu_missing,
-                                tvb, offset, 0, ENC_NA);
-      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                              "Previous PDU missing");
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_tree_add_expert(analysis_tree, pinfo, &ei_analysis_prev_pdu_missing, tvb, offset, 0);
       item_added = TRUE;
     }
   }
@@ -753,9 +743,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                 tvb, 0, 0, pkg_data->pdu_id);
       PROTO_ITEM_SET_GENERATED (en);
 
-      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                              "Retransmission #%d",
-                              pkg_data->msg_resend_count);
+      expert_add_info_format_text(pinfo, en, &ei_analysis_retrans_no, "Retransmission #%d", pkg_data->msg_resend_count);
 
       nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->prev_msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_retrans_time,
@@ -860,8 +848,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   field_tree = proto_item_add_subtree (en, ett_pdu_type);
 
   if (pdu_type == Discard_Message_PDU) {
-    expert_add_info_format (pinfo, en, PI_RESPONSE_CODE, PI_NOTE,
-                            "Message discarded");
+    expert_add_info(pinfo, en, &ei_message_discarded);
   }
 
   switch (pdu_type) {
@@ -940,7 +927,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     PROTO_ITEM_SET_GENERATED (en);
   } else {
     proto_item_append_text (en, " (incorrect, should be 0x%04x)", checksum1);
-    expert_add_info_format (pinfo, en, PI_CHECKSUM, PI_WARN, "Bad checksum");
+    expert_add_info(pinfo, en, &ei_checksum_bad);
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
                                  offset, 2, FALSE);
     PROTO_ITEM_SET_GENERATED (en);
@@ -1098,8 +1085,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (len < 10) {
         proto_item_append_text (en, "    (invalid length)");
-        expert_add_info_format (pinfo, en, PI_MALFORMED, PI_WARN,
-                                "Invalid ack info length");
+        expert_add_info(pinfo, en, &ei_ack_length);
       }
 
       /* Source Id */
@@ -1146,8 +1132,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                              ack_seq_no, end_seq_no);
             if (ack_seq_no >= end_seq_no) {
               proto_item_append_text (en, "    (invalid)");
-              expert_add_info_format (pinfo, en, PI_UNDECODED, PI_WARN,
-                                      "Invalid missing sequence range");
+              expert_add_info(pinfo, en, &ei_miss_seq_range);
             } else {
               proto_tree *missing_tree;
               guint16 sno;
@@ -1173,8 +1158,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if (ack_seq_no == 0) {
               proto_item_append_text (en, "    (invalid)");
-              expert_add_info_format (pinfo, en, PI_UNDECODED, PI_WARN,
-                                      "Invalid missing seq number");
+              expert_add_info(pinfo, en, &ei_miss_seq_no);
             } else if (ack_seq_no <= prev_ack_seq_no) {
               proto_item_append_text (en, "    (end of list indicator)");
             } else {
@@ -1210,8 +1194,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       en = proto_tree_add_uint (p_mul_tree, hf_tot_miss_seq_no, tvb, 0, 0,
                                 tot_no_missing);
       PROTO_ITEM_SET_GENERATED (en);
-      expert_add_info_format (pinfo, en, PI_RESPONSE_CODE, PI_NOTE,
-                              "Missing seq numbers: %d", tot_no_missing);
+      expert_add_info_format_text(pinfo, en, &ei_tot_miss_seq_no, "Missing seq numbers: %d", tot_no_missing);
     }
     break;
 
@@ -1321,12 +1304,10 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (pdu_length != (offset + data_len)) {
     proto_item_append_text (len_en, " (incorrect, should be: %d)",
                             offset + data_len);
-    expert_add_info_format (pinfo, len_en, PI_MALFORMED, PI_WARN,
-                            "Incorrect length field");
+    expert_add_info(pinfo, len_en, &ei_length);
   } else if ((len = tvb_length_remaining (tvb, pdu_length)) > 0) {
     proto_item_append_text (len_en, " (more data in packet: %d)", len);
-    expert_add_info_format (pinfo, len_en, PI_MALFORMED, PI_WARN,
-                            "More data in packet");
+    expert_add_info(pinfo, len_en, &ei_more_data);
   }
 }
 
@@ -1533,12 +1514,6 @@ void proto_register_p_mul (void)
     { &hf_analysis_ack_num,
       { "Ack PDU in", "p_mul.analysis.ack_in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This packet has an Ack in this frame", HFILL } },
-    { &hf_analysis_addr_pdu_missing,
-      { "Address PDU missing", "p_mul.analysis.addr_pdu_missing", FT_NONE, BASE_NONE,
-        NULL, 0x0, "The Address PDU for this packet is missing", HFILL } },
-    { &hf_analysis_prev_pdu_missing,
-      { "Previous PDU missing", "p_mul.analysis.prev_pdu_missing", FT_NONE, BASE_NONE,
-        NULL, 0x0, "The previous PDU for this packet is missing", HFILL } },
     { &hf_analysis_ack_missing,
       { "Ack PDU missing", "p_mul.analysis.ack_missing", FT_NONE, BASE_NONE,
         NULL, 0x0, "The acknowledgement for this packet is missing", HFILL } },
@@ -1574,8 +1549,24 @@ void proto_register_p_mul (void)
     &ett_msg_fragment,
     &ett_msg_fragments
   };
+  static ei_register_info ei[] = {
+      { &ei_address_pdu_missing, { "p_mul.analysis.addr_pdu_missing", PI_SEQUENCE, PI_NOTE, "Address PDU missing", EXPFILL }},
+      { &ei_analysis_ack_missing, { "p_mul.analysis.ack_missing.expert", PI_SEQUENCE, PI_NOTE, "Ack PDU missing", EXPFILL }},
+      { &ei_analysis_ack_dup_no, { "p_mul.analysis.dup_ack_no.expert", PI_SEQUENCE, PI_NOTE, "Dup ACK #", EXPFILL }},
+      { &ei_analysis_prev_pdu_missing, { "p_mul.analysis.prev_pdu_missing", PI_SEQUENCE, PI_NOTE, "Previous PDU missing", EXPFILL }},
+      { &ei_analysis_retrans_no, { "p_mul.analysis.retrans_no.expert", PI_SEQUENCE, PI_NOTE, "Retransmission #", EXPFILL }},
+      { &ei_message_discarded, { "p_mul.message_discarded", PI_RESPONSE_CODE, PI_NOTE, "Message discarded", EXPFILL }},
+      { &ei_checksum_bad, { "p_mul.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+      { &ei_ack_length, { "p_mul.ack_length.invalid", PI_MALFORMED, PI_WARN, "Invalid ack info length", EXPFILL }},
+      { &ei_miss_seq_range, { "p_mul.missing_seq_range.invalid", PI_UNDECODED, PI_WARN, "Invalid missing sequence range", EXPFILL }},
+      { &ei_miss_seq_no, { "p_mul.missing_seq_no.invalid", PI_UNDECODED, PI_WARN, "Invalid missing seq number", EXPFILL }},
+      { &ei_tot_miss_seq_no, { "p_mul.no_missing_seq_no.expert", PI_RESPONSE_CODE, PI_NOTE, "Missing seq numbers", EXPFILL }},
+      { &ei_length, { "p_mul.length.invalid", PI_MALFORMED, PI_WARN, "Incorrect length field", EXPFILL }},
+      { &ei_more_data, { "p_mul.more_data", PI_MALFORMED, PI_WARN, "More data in packet", EXPFILL }},
+  };
 
   module_t *p_mul_module;
+  expert_module_t* expert_p_mul;
 
   proto_p_mul = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
@@ -1583,6 +1574,8 @@ void proto_register_p_mul (void)
 
   proto_register_field_array (proto_p_mul, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_p_mul = expert_register_protocol(proto_p_mul);
+  expert_register_field_array(expert_p_mul, ei, array_length(ei));
   register_init_routine (&p_mul_init_routine);
 
   /* Set default UDP ports */

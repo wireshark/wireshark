@@ -367,7 +367,6 @@ static int hf_analysis_total_time = -1;
 static int hf_analysis_retrans_time = -1;
 static int hf_analysis_total_retrans_time = -1;
 static int hf_analysis_msg_num = -1;
-static int hf_analysis_msg_missing = -1;
 static int hf_analysis_retrans_no = -1;
 static int hf_analysis_ack_num = -1;
 static int hf_analysis_ack_missing = -1;
@@ -481,6 +480,19 @@ static gint ett_analysis = -1;
 
 static expert_field ei_reserved_value = EI_INIT;
 static expert_field ei_message_sic_illegal = EI_INIT;
+static expert_field ei_envelope_version_value = EI_INIT;
+static expert_field ei_message_compr = EI_INIT;
+static expert_field ei_ack_reason = EI_INIT;
+static expert_field ei_addr_dir_rec_no_generated = EI_INIT;
+static expert_field ei_checksum_bad = EI_INIT;
+static expert_field ei_message_body_uncompressed = EI_INIT;
+static expert_field ei_addr_ext_rec_no_generated = EI_INIT;
+static expert_field ei_envelope_msg_id = EI_INIT;
+static expert_field ei_analysis_ack_missing = EI_INIT;
+static expert_field ei_analysis_ack_dup_no = EI_INIT;
+static expert_field ei_analysis_ack_unexpected = EI_INIT;
+static expert_field ei_analysis_msg_missing = EI_INIT;
+static expert_field ei_analysis_retrans_no = EI_INIT;
 
 static dissector_handle_t dmp_handle;
 
@@ -1512,16 +1524,14 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
       PROTO_ITEM_SET_GENERATED (en);
       if (!dmp.checksum) {
         proto_item_append_text (en, " (unexpected)");
-        expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                                "Unexpected ACK");
+        expert_add_info(pinfo, en, &ei_analysis_ack_unexpected);
       }
     } else if (dmp.checksum && !dmp.id_val->msg_resend_count) {
       en = proto_tree_add_item (analysis_tree, hf_analysis_ack_missing, tvb, offset, 0, ENC_NA);
       if (pinfo->fd->flags.visited) {
         /* We do not know this on first visit and we do not want to
            add a entry in the "Expert Severity Info" for this note */
-        expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                                "Acknowledgement missing");
+        expert_add_info(pinfo, en, &ei_analysis_ack_missing);
         PROTO_ITEM_SET_GENERATED (en);
       }
     }
@@ -1537,11 +1547,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                   tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED (en);
       } else {
-        en = proto_tree_add_item (analysis_tree, hf_analysis_msg_missing, tvb, 0, 0, ENC_NA);
-        PROTO_ITEM_SET_GENERATED (en);
-
-        expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                                "Message missing");
+        proto_tree_add_expert(analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
       }
     } else if (dmp.msg_type == NOTIF) {
       if (dmp.id_val->msg_id) {
@@ -1554,11 +1560,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                   tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED (en);
       } else {
-        en = proto_tree_add_item (analysis_tree, hf_analysis_msg_missing, tvb, 0, 0, ENC_NA);
-        PROTO_ITEM_SET_GENERATED (en);
-
-        expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                                "Message missing");
+        proto_tree_add_expert(analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
       }
     }
 
@@ -1567,9 +1569,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                 tvb, 0, 0, dmp.id_val->msg_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
 
-      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                              "Retransmission #%d",
-                              dmp.id_val->msg_resend_count);
+      expert_add_info_format_text(pinfo, en, &ei_analysis_retrans_no, "Retransmission #%d", dmp.id_val->msg_resend_count);
 
       if (dmp.msg_type == REPORT) {
         en = proto_tree_add_uint (analysis_tree, hf_analysis_rep_resend_from,
@@ -1633,11 +1633,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                 dmp.id_val->prev_msg_id);
       }
     } else {
-      en = proto_tree_add_item (analysis_tree, hf_analysis_msg_missing, tvb, 0, 0, ENC_NA);
-      PROTO_ITEM_SET_GENERATED (en);
-
-      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                              "Message missing");
+      proto_tree_add_expert(analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
     }
 
     if (dmp.id_val->ack_resend_count) {
@@ -1645,8 +1641,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                 tvb, 0, 0, dmp.id_val->ack_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
 
-      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                              "Dup ACK #%d", dmp.id_val->ack_resend_count);
+      expert_add_info_format_text(pinfo, en, &ei_analysis_ack_dup_no, "Dup ACK #%d", dmp.id_val->ack_resend_count);
 
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_resend_from,
                                 tvb, 0, 0, dmp.id_val->ack_id);
@@ -2425,8 +2420,7 @@ static gint dissect_dmp_direct_encoding (tvbuff_t *tvb, packet_info *pinfo,
                                    "Recipient Number: %d", rec_no);
   if (rec_no > 32767) {
     proto_item_append_text (en, " (maximum 32767)");
-    expert_add_info_format (pinfo, en, PI_MALFORMED, PI_WARN,
-                            "Recipient number too big");
+    expert_add_info(pinfo, en, &ei_addr_dir_rec_no_generated);
   }
   PROTO_ITEM_SET_GENERATED (en);
 
@@ -2546,8 +2540,7 @@ static gint dissect_dmp_ext_encoding (tvbuff_t *tvb, packet_info *pinfo,
                                    "Recipient Number: %d", rec_no);
   if (rec_no > 32767) {
     proto_item_append_text (en, " (maximum 32767)");
-    expert_add_info_format (pinfo, en, PI_MALFORMED, PI_WARN,
-                            "Recipient number too big");
+    expert_add_info(pinfo, en, &ei_addr_ext_rec_no_generated);
   }
   PROTO_ITEM_SET_GENERATED (en);
 
@@ -2643,8 +2636,7 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
 
   rt = proto_tree_add_item (ack_tree, hf_ack_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
   if (dmp.ack_reason != 0) {
-    expert_add_info_format (pinfo, rt, PI_RESPONSE_CODE, PI_NOTE, "ACK reason: %s",
-                            val_to_str_const (dmp.ack_reason, ack_reason, "Reserved"));
+    expert_add_info_format_text(pinfo, rt, &ei_ack_reason, "ACK reason: %s", val_to_str_const (dmp.ack_reason, ack_reason, "Reserved"));
   }
   offset += 1;
 
@@ -2813,8 +2805,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     /* Unsupported DMP Version */
     proto_item_append_text (vf, " (unsupported)");
     proto_item_append_text (tf, " (unsupported)");
-    expert_add_info_format (pinfo, vf, PI_UNDECODED, PI_ERROR,
-                            "Unsupported DMP Version: %d", dmp.version);
+    expert_add_info_format_text(pinfo, vf, &ei_envelope_version_value, "Unsupported DMP Version: %d", dmp.version);
     return offset;
   }
 
@@ -2945,7 +2936,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     field_tree = proto_item_add_subtree (tf, ett_envelope_msg_id);
     proto_tree_add_item (field_tree, hf_envelope_msg_id_12bit, tvb, offset, 2, ENC_BIG_ENDIAN);
   } else if (dmp.version >= DMP_VERSION_2 && dmp.msg_id_type == ONLY_DMP_ID && dmp.msg_id < 4096) {
-    expert_add_info_format (pinfo, tf, PI_PROTOCOL, PI_NOTE, "Id < 4096 - should use ShortId");
+    expert_add_info(pinfo, tf, &ei_envelope_msg_id);
   }
   PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += 2;
@@ -3154,8 +3145,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
     if (compr_alg == ALGORITHM_ZLIB) {
       proto_item_append_text (en, " (compressed)");
     } else if (compr_alg != ALGORITHM_NONE) {
-      expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN,
-                              "Unknown compression algorithm");
+      expert_add_info(pinfo, tr, &ei_message_compr);
     }
 
     if (message & 0x07) {
@@ -3200,10 +3190,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
                 field_tree = proto_item_add_subtree (tf, ett_message_body_uncompr);
                 proto_tree_add_item (field_tree, hf_message_body_uncompressed, next_tvb, 0, -1, ENC_ASCII|ENC_NA);
       } else {
-                tf = proto_tree_add_text (message_tree, tvb, offset, -1,
-                                          "Error: Unable to uncompress content");
-                expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_WARN,
-                                        "Unable to uncompress content");
+                proto_tree_add_expert(message_tree, pinfo, &ei_message_body_uncompressed, tvb, offset, -1);
       }
     } else if (eit != EIT_BILATERAL) {
       proto_tree_add_item (field_tree, hf_message_body_plain, tvb, offset, len, ENC_ASCII|ENC_NA);
@@ -4008,7 +3995,7 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
     } else {
       proto_item_append_text (en, " (incorrect, should be 0x%04x)",
                               checksum1);
-      expert_add_info_format (pinfo, en, PI_CHECKSUM, PI_WARN, "Bad checksum");
+      expert_add_info(pinfo, en, &ei_checksum_bad);
       en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
                                    offset, 2, FALSE);
       PROTO_ITEM_SET_GENERATED (en);
@@ -4802,9 +4789,6 @@ void proto_register_dmp (void)
     { &hf_analysis_not_num,
       { "Notification in", "dmp.analysis.notif_in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This packet has a Notification in this frame", HFILL } },
-    { &hf_analysis_msg_missing,
-      { "Message missing", "dmp.analysis.msg_missing", FT_NONE, BASE_NONE,
-        NULL, 0x0, "The Message for this packet is missing", HFILL } },
     { &hf_analysis_ack_missing,
       { "Acknowledgement missing", "dmp.analysis.ack_missing", FT_NONE, BASE_NONE,
         NULL, 0x0, "The acknowledgement for this packet is missing", HFILL } },
@@ -4953,6 +4937,19 @@ void proto_register_dmp (void)
   static ei_register_info ei[] = {
      { &ei_reserved_value, { "dmp.reserved.expert", PI_UNDECODED, PI_WARN, "Reserved value", EXPFILL }},
      { &ei_message_sic_illegal, { "dmp.sic.illegal", PI_UNDECODED, PI_NOTE, "Illegal SIC", EXPFILL }},
+     { &ei_analysis_ack_unexpected, { "dmp.analysis.ack_unexpected", PI_SEQUENCE, PI_NOTE, "Unexpected ACK", EXPFILL }},
+     { &ei_analysis_ack_missing, { "dmp.analysis.ack_missing.expert", PI_SEQUENCE, PI_NOTE, "Acknowledgement missing", EXPFILL }},
+     { &ei_analysis_msg_missing, { "dmp.analysis.msg_missing", PI_SEQUENCE, PI_NOTE, "Message missing", EXPFILL }},
+     { &ei_analysis_retrans_no, { "dmp.analysis.retrans_no.expert", PI_SEQUENCE, PI_NOTE, "Retransmission #", EXPFILL }},
+     { &ei_analysis_ack_dup_no, { "dmp.analysis.dup_ack_no.expert", PI_SEQUENCE, PI_NOTE, "Dup ACK #", EXPFILL }},
+     { &ei_addr_dir_rec_no_generated, { "dmp.rec_no.expert", PI_MALFORMED, PI_WARN, "Recipient number too big", EXPFILL }},
+     { &ei_addr_ext_rec_no_generated, { "dmp.rec_no.expert", PI_MALFORMED, PI_WARN, "Recipient number too big", EXPFILL }},
+     { &ei_ack_reason, { "dmp.ack_reason.expert", PI_RESPONSE_CODE, PI_NOTE, "ACK reason: %s", EXPFILL }},
+     { &ei_envelope_version_value, { "dmp.version_value.unsupported", PI_UNDECODED, PI_ERROR, "Unsupported DMP Version", EXPFILL }},
+     { &ei_envelope_msg_id, { "dmp.msg_id.short_id", PI_PROTOCOL, PI_NOTE, "Id < 4096 - should use ShortId", EXPFILL }},
+     { &ei_message_compr, { "dmp.body.compression.unknown", PI_UNDECODED, PI_WARN, "Unknown compression algorithm", EXPFILL }},
+     { &ei_message_body_uncompressed, { "dmp.body.uncompressed.fail", PI_UNDECODED, PI_WARN, "Error: Unable to uncompress content", EXPFILL }},
+     { &ei_checksum_bad, { "dmp.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
   };
 
   static uat_field_t attributes_flds[] = {

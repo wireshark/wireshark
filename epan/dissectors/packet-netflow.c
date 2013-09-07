@@ -1485,6 +1485,13 @@ static int      hf_pie_plixer_date_time               = -1;
 static int      hf_string_len_short     = -1;
 static int      hf_string_len_long = -1;
 
+static expert_field ei_cflow_entries = EI_INIT;
+static expert_field ei_cflow_options = EI_INIT;
+static expert_field ei_cflow_flowset_length = EI_INIT;
+static expert_field ei_cflow_scopes = EI_INIT;
+static expert_field ei_cflow_template_ipfix_scope_field_count_too_many = EI_INIT;
+static expert_field ei_cflow_template_ipfix_scope_field_count = EI_INIT;
+static expert_field ei_cflow_no_flow_information = EI_INIT;
 
 static const value_string special_mpls_top_label_type[] = {
     {0, "Unknown"},
@@ -2192,7 +2199,7 @@ dissect_v9_v10_flowset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, i
     length = tvb_get_ntohs(tvb, offset + 2);
 
     if (length < 4) {
-        expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN,
+        expert_add_info_format_text(pinfo, NULL, &ei_cflow_flowset_length,
                                "Length (%u) too short", length);
         return tvb_reported_length_remaining(tvb, offset);
     }
@@ -2233,8 +2240,7 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
     guint           pdu_len;
 
     if (length == 0) {
-        expert_add_info_format(pinfo, pdutree, PI_MALFORMED,
-                               PI_WARN, "No flow information");
+        expert_add_info(pinfo, pdutree, &ei_cflow_no_flow_information);
     }
 
     v9_v10_tmplt_build_key(&tmplt_key, pinfo, hdrinfo_p->src_id, id);
@@ -5361,12 +5367,11 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
             option_field_count = option_total_field_count - option_scope_field_count;
 
             if (option_scope_field_count == 0) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-                                       "No scope fields");
+                expert_add_info(pinfo, ti, &ei_cflow_template_ipfix_scope_field_count);
                 return 0;
             }
             if (option_scope_field_count > option_total_field_count) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+                expert_add_info_format_text(pinfo, ti, &ei_cflow_template_ipfix_scope_field_count_too_many,
                                        "More scope fields (%u) than fields (%u)",
                                        option_scope_field_count, option_total_field_count);
                 return 0;
@@ -5380,7 +5385,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 
         if (v9_tmplt_max_fields &&
             (option_field_count > v9_tmplt_max_fields)) {
-            expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
+            expert_add_info_format_text(pinfo, ti, &ei_cflow_options,
                                    "More options (%u) than we can handle."
                                    " Maximum value can be adjusted in the protocol preferences.",
                                    option_field_count);
@@ -5388,7 +5393,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 
         if (v9_tmplt_max_fields &&
             (option_scope_field_count > v9_tmplt_max_fields)) {
-            expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
+            expert_add_info_format_text(pinfo, ti, &ei_cflow_scopes,
                                    "More scopes (%u) than we can handle [template won't be used]."
                                    " Maximum value can be adjusted in the protocol preferences.",
                                    option_scope_field_count);
@@ -5486,7 +5491,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         offset += 2;
 
         if (v9_tmplt_max_fields && (count > v9_tmplt_max_fields)) {
-            expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
+            expert_add_info_format_text(pinfo, ti, &ei_cflow_entries,
                                    "More entries (%u) than we can handle [template won't be used]."
                                    " Maximum value can be adjusted in the protocol preferences.",
                                    count);
@@ -8248,12 +8253,25 @@ proto_register_netflow(void)
         &ett_fwdstat
     };
 
+    static ei_register_info ei[] = {
+        { &ei_cflow_flowset_length, { "cflow.flowset_length.invalid", PI_MALFORMED, PI_WARN, "Length invalid", EXPFILL }},
+        { &ei_cflow_no_flow_information, { "cflow.no_flow_information", PI_MALFORMED, PI_WARN, "No flow information", EXPFILL }},
+        { &ei_cflow_template_ipfix_scope_field_count, { "cflow.template_ipfix_scope_field_count.none", PI_MALFORMED, PI_WARN, "No scope fields", EXPFILL }},
+        { &ei_cflow_template_ipfix_scope_field_count_too_many, { "cflow.template_ipfix_scope_field_count.too_many", PI_MALFORMED, PI_WARN, "More scope fields than fields", EXPFILL }},
+        { &ei_cflow_options, { "cflow.options.too_many", PI_UNDECODED, PI_WARN, "More options than we can handle.", EXPFILL }},
+        { &ei_cflow_scopes, { "cflow.scopes.too_many", PI_UNDECODED, PI_WARN, "More scopes than we can handle [template won't be used].", EXPFILL }},
+        { &ei_cflow_entries, { "cflow.entries.too_many", PI_UNDECODED, PI_WARN, "More entries than we can handle [template won't be used]", EXPFILL }},
+    };
+
     module_t *netflow_module;
+    expert_module_t* expert_netflow;
 
     proto_netflow = proto_register_protocol("Cisco NetFlow/IPFIX", "CFLOW", "cflow");
 
     proto_register_field_array(proto_netflow, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_netflow = expert_register_protocol(proto_netflow);
+    expert_register_field_array(expert_netflow, ei, array_length(ei));
 
     /* Register our configuration options for NetFlow */
     netflow_module = prefs_register_protocol(proto_netflow, proto_reg_handoff_netflow);

@@ -516,6 +516,13 @@ static int hf_mysql_exec_field_time_length = -1;
 static int hf_mysql_exec_field_time_sign = -1;
 static int hf_mysql_exec_field_time_days = -1;
 
+static expert_field ei_mysql_eof = EI_INIT;
+static expert_field ei_mysql_dissector_incomplete = EI_INIT;
+static expert_field ei_mysql_streamed_param = EI_INIT;
+static expert_field ei_mysql_prepare_response_needed = EI_INIT;
+static expert_field ei_mysql_unknown_response = EI_INIT;
+static expert_field ei_mysql_command = EI_INIT;
+
 /* type constants */
 static const value_string type_constants[] = {
 	{0x00, "FIELD_TYPE_DECIMAL"    },
@@ -816,7 +823,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* remaining payload indicates an error */
 	if (tree && tvb_reported_length_remaining(tvb, offset) > 0) {
 		ti = proto_tree_add_item(mysql_tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
-		expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "FIXME - dissector is incomplete");
+		expert_add_info(pinfo, ti, &ei_mysql_dissector_incomplete);
 	}
 }
 
@@ -1141,9 +1148,7 @@ mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 	param_unsigned = tvb_get_guint8(tvb, *offset);
 	*offset += 1; /* signedness */
 	if ((param_flags & MYSQL_PARAM_FLAG_STREAMED) == MYSQL_PARAM_FLAG_STREAMED) {
-		expert_add_info_format(pinfo, field_tree, PI_SEQUENCE, PI_CHAT,
-				       "This parameter was streamed, its value "
-				       "can be found in Send BLOB packets");
+		expert_add_info(pinfo, field_tree, &ei_mysql_streamed_param);
 		return 1;
 	}
 	while (mysql_exec_dissectors[dissector_index].dissector != NULL) {
@@ -1371,8 +1376,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 			lenstr = tvb_reported_length_remaining(tvb, offset);
 			if (tree &&  lenstr > 0) {
 				ti = proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, lenstr, ENC_NA);
-				expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
-						       "PREPARE Response packet is needed to dissect the payload");
+				expert_add_info(pinfo, ti, &ei_mysql_prepare_response_needed);
 			}
 			offset += lenstr;
 		}
@@ -1382,7 +1386,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		lenstr = tvb_reported_length_remaining(tvb, offset);
 		if (tree &&  lenstr > 0) {
 			ti = proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, lenstr, ENC_NA);
-			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "FIXME: execute dissector incomplete");
+			expert_add_info_format_text(pinfo, ti, &ei_mysql_dissector_incomplete, "FIXME: execute dissector incomplete");
 		}
 		offset += lenstr;
 #endif
@@ -1413,14 +1417,14 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 	case MYSQL_CONNECT_OUT:
 	case MYSQL_REGISTER_SLAVE:
 		ti = proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
-		expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "FIXME: implement replication packets");
+		expert_add_info_format_text(pinfo, ti, &ei_mysql_dissector_incomplete, "FIXME: implement replication packets");
 		offset += tvb_reported_length_remaining(tvb, offset);
 		conn_data->state = REQUEST;
 		break;
 
 	default:
 		ti = proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
-		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Unknown/invalid command code");
+		expert_add_info(pinfo, ti, &ei_mysql_command);
 		offset += tvb_reported_length_remaining(tvb, offset);
 		conn_data->state = UNDEFINED;
 	}
@@ -1477,8 +1481,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		} else {
 			/* This should be an unreachable case */
 			conn_data->state= REQUEST;
-			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-				"EOF Marker found while connection in wrong state.");
+			expert_add_info(pinfo, ti, &ei_mysql_eof);
 		}
 	}
 
@@ -1523,7 +1526,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		default:
 			ti = proto_tree_add_item(tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
-			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "unknown/invalid response");
+			expert_add_info(pinfo, ti, &ei_mysql_unknown_response);
 			offset += tvb_reported_length_remaining(tvb, offset);
 			conn_data->state = UNDEFINED;
 		}
@@ -2629,11 +2632,23 @@ void proto_register_mysql(void)
 		&ett_exec_param
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_mysql_dissector_incomplete, { "mysql.dissector_incomplete", PI_UNDECODED, PI_WARN, "FIXME - dissector is incomplete", EXPFILL }},
+		{ &ei_mysql_streamed_param, { "mysql.streamed_param", PI_SEQUENCE, PI_CHAT, "This parameter was streamed, its value can be found in Send BLOB packets", EXPFILL }},
+		{ &ei_mysql_prepare_response_needed, { "mysql.prepare_response_needed", PI_UNDECODED, PI_WARN, "PREPARE Response packet is needed to dissect the payload", EXPFILL }},
+		{ &ei_mysql_command, { "mysql.command.invalid", PI_PROTOCOL, PI_WARN, "Unknown/invalid command code", EXPFILL }},
+		{ &ei_mysql_eof, { "mysql.eof.wrong_state", PI_PROTOCOL, PI_WARN, "EOF Marker found while connection in wrong state.", EXPFILL }},
+		{ &ei_mysql_unknown_response, { "mysql.unknown_response", PI_UNDECODED, PI_WARN, "unknown/invalid response", EXPFILL }},
+	};
+
 	module_t *mysql_module;
+	expert_module_t* expert_mysql;
 
 	proto_mysql = proto_register_protocol("MySQL Protocol", "MySQL", "mysql");
 	proto_register_field_array(proto_mysql, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_mysql = expert_register_protocol(proto_mysql);
+	expert_register_field_array(expert_mysql, ei, array_length(ei));
 
 	mysql_module = prefs_register_protocol(proto_mysql, NULL);
 	prefs_register_bool_preference(mysql_module, "desegment_buffers",

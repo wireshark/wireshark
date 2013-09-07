@@ -139,6 +139,11 @@ static gint ett_nhrp_devcap_ext = -1;
 static gint ett_nhrp_devcap_ext_srccap = -1;
 static gint ett_nhrp_devcap_ext_dstcap = -1;
 
+static expert_field ei_nhrp_ext_not_allowed = EI_INIT;
+static expert_field ei_nhrp_hdr_extoff = EI_INIT;
+static expert_field ei_nhrp_ext_malformed = EI_INIT;
+static expert_field ei_nhrp_ext_extra = EI_INIT;
+
 /* NHRP Packet Types */
 #define NHRP_RESOLUTION_REQ     1
 #define NHRP_RESOLUTION_REPLY   2
@@ -392,8 +397,7 @@ void dissect_nhrp_hdr(tvbuff_t     *tvb,
     hdr->ar_extoff = tvb_get_ntohs(tvb, offset);
     ti = proto_tree_add_item(nhrp_tree, hf_nhrp_hdr_extoff, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (hdr->ar_extoff != 0 && hdr->ar_extoff < 20) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-            "Extension offset is less than the fixed header length");
+        expert_add_info(pinfo, ti, &ei_nhrp_hdr_extoff);
     }
     offset += 2;
 
@@ -808,8 +812,7 @@ void dissect_nhrp_mand(tvbuff_t    *tvb,
     /* According to RFC 2332, section 5.2.7, there shouldn't be any extensions
      * in the Error Indication packet. */
     if (isErr && tvb_reported_length_remaining(tvb, offset)) {
-        expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-            "Extensions not allowed per RFC2332 section 5.2.7");
+        expert_add_info(pinfo, tree, &ei_nhrp_ext_not_allowed);
     }
 
     dissect_cie_list(tvb, pinfo, nhrp_tree, offset, mandEnd, hdr, isReq, codeinfo);
@@ -900,8 +903,7 @@ void dissect_nhrp_ext(tvbuff_t    *tvb,
                     ti = proto_tree_add_text(nhrp_tree, tvb, offset, len,
                         "Malformed Extension: %s",
                         tvb_bytes_to_str(tvb, offset, len));
-                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                        "Incomplete Authentication Extension");
+                    expert_add_info_format_text(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Authentication Extension");
                 }
                 else {
                     proto_item *auth_item;
@@ -932,8 +934,7 @@ void dissect_nhrp_ext(tvbuff_t    *tvb,
                     ti = proto_tree_add_text(nhrp_tree, tvb, offset, len,
                         "Malformed Extension: %s",
                         tvb_bytes_to_str(tvb, offset, len));
-                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                        "Incomplete Vendor-Private Extension");
+                    expert_add_info_format_text(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Vendor-Private Extension");
                 }
                 else {
                     proto_item *vendor_item;
@@ -968,8 +969,7 @@ skip_switch:
             if ((extType == NHRP_EXT_NULL) && len) {
                 ti = proto_tree_add_text(tree, tvb, offset, len,
                     "Unknown Data (%d bytes)", len);
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                    "Superfluous data follows End Extension");
+                expert_add_info(pinfo, ti, &ei_nhrp_ext_extra);
                 break;
             }
         }
@@ -1384,12 +1384,20 @@ proto_register_nhrp(void)
         &ett_nhrp_devcap_ext_dstcap
     };
 
-    proto_nhrp = proto_register_protocol(
-        "NBMA Next Hop Resolution Protocol",
-        "NHRP",
-        "nhrp");
+    static ei_register_info ei[] = {
+        { &ei_nhrp_hdr_extoff, { "nhrp.hdr.extoff.invalid", PI_MALFORMED, PI_ERROR, "Extension offset is less than the fixed header length", EXPFILL }},
+        { &ei_nhrp_ext_not_allowed, { "nhrp.ext.not_allowed", PI_MALFORMED, PI_ERROR, "Extensions not allowed per RFC2332 section 5.2.7", EXPFILL }},
+        { &ei_nhrp_ext_malformed, { "nhrp.ext.malformed", PI_MALFORMED, PI_ERROR, "Incomplete Authentication Extension", EXPFILL }},
+        { &ei_nhrp_ext_extra, { "nhrp.ext.extra", PI_MALFORMED, PI_ERROR, "Superfluous data follows End Extension", EXPFILL }},
+    };
+
+    expert_module_t* expert_nhrp;
+
+    proto_nhrp = proto_register_protocol("NBMA Next Hop Resolution Protocol", "NHRP", "nhrp");
     proto_register_field_array(proto_nhrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_nhrp = expert_register_protocol(proto_nhrp);
+    expert_register_field_array(expert_nhrp, ei, array_length(ei));
 }
 
 void

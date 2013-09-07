@@ -137,6 +137,23 @@ static int ett_rlc_bitmap = -1;
 static int ett_rlc_rlist = -1;
 static int ett_rlc_channel = -1;
 
+static expert_field ei_rlc_li_reserved = EI_INIT;
+static expert_field ei_rlc_he = EI_INIT;
+static expert_field ei_rlc_li_incorrect_mal = EI_INIT;
+static expert_field ei_rlc_sufi_cw = EI_INIT;
+static expert_field ei_rlc_kasumi_implementation_missing = EI_INIT;
+static expert_field ei_rlc_reassembly_unknown_error = EI_INIT;
+static expert_field ei_rlc_reassembly_lingering_endpoint = EI_INIT;
+static expert_field ei_rlc_sufi_len = EI_INIT;
+static expert_field ei_rlc_reassembly_fail_unfinished_sequence = EI_INIT;
+static expert_field ei_rlc_reassembly_fail_flag_set = EI_INIT;
+static expert_field ei_rlc_sufi_type = EI_INIT;
+static expert_field ei_rlc_reserved_bits_not_zero = EI_INIT;
+static expert_field ei_rlc_ctrl_type = EI_INIT;
+static expert_field ei_rlc_li_incorrect_warn = EI_INIT;
+static expert_field ei_rlc_li_too_many = EI_INIT;
+static expert_field ei_rlc_header_only = EI_INIT;
+
 static dissector_handle_t ip_handle;
 static dissector_handle_t rrc_handle;
 static dissector_handle_t bmc_handle;
@@ -1023,27 +1040,26 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
                     reassemble_sequence(frags, endlist, &ch_lookup, start, end);
                 } else {
                     if (end >= 0 && end < 4096 && frags[end]) {
-                        proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence (%d->%d [packet %u]), could not find %d.", start, end, frags[end]->frame_num, missing);
+                        proto_tree_add_expert_format(tree, pinfo, &ei_rlc_reassembly_fail_unfinished_sequence, tvb, 0, 0,
+                                        "Did not perform reassembly because of unfinished sequence (%d->%d [packet %u]), could not find %d.", start, end, frags[end]->frame_num, missing);
                     } else {
-                        proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence (%d->%d [could not determine packet]), could not find %d.", start, end, missing);
+                        proto_tree_add_expert_format(tree, pinfo, &ei_rlc_reassembly_fail_unfinished_sequence, tvb, 0, 0,
+                                        "Did not perform reassembly because of unfinished sequence (%d->%d [could not determine packet]), could not find %d.", start, end, missing);
                     }
-                    expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because of previous unfinished sequence.");
                 }
             } else if (endlist->list) {
                 if (endlist->fail_packet != 0 && endlist->fail_packet <= pinfo->fd->num) {
-                    proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because fail flag was set in packet %u.", endlist->fail_packet);
-                    expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because fail flag was set previously.");
+                    proto_tree_add_expert_format(tree, pinfo, &ei_rlc_reassembly_fail_flag_set, tvb, 0, 0, "Did not perform reassembly because fail flag was set in packet %u.", endlist->fail_packet);
                 } else {
                     gint16 end = GPOINTER_TO_INT(endlist->list->data);
                     if (end >= 0 && end < 4096 && frags[end]) {
-                        proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [packet %d]).", end, frags[end]->frame_num);
+                        proto_tree_add_expert_format(tree, pinfo, &ei_rlc_reassembly_lingering_endpoint, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [packet %d]).", end, frags[end]->frame_num);
                     } else {
-                        proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [could not determine packet]).", end);
+                        proto_tree_add_expert_format(tree, pinfo, &ei_rlc_reassembly_lingering_endpoint, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [could not determine packet]).", end);
                     }
-                    expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Lingering endpoint.");
                 }
             } else {
-                expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Unknown error.");
+                expert_add_info(pinfo, NULL, &ei_rlc_reassembly_unknown_error);
             }
         }
         return NULL; /* If already done reassembly and no SDU found, too bad */
@@ -1380,7 +1396,7 @@ static tvbuff_t *
 rlc_decipher_tvb(tvbuff_t *tvb _U_, packet_info *pinfo, guint32 counter _U_,
                  guint8 rbid _U_, gboolean dir _U_, guint8 header_size _U_) {
     /*Check if we have a KASUMI implementation*/
-    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.");
+    expert_add_info(pinfo, NULL, &ei_rlc_kasumi_implementation_missing);
     return NULL;
 #else
 rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid, gboolean dir, guint8 header_size) {
@@ -1727,8 +1743,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     /*invalid for AM */
                     /* add malformed LI for investigation */
                     malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
-                    expert_add_info_format(pinfo, malformed, PI_PROTOCOL, PI_WARN,
-                        "Uses reserved LI");
+                    expert_add_info(pinfo, malformed, &ei_rlc_li_reserved);
                     return -1; /* just give up on this */
                 default:
                     /* since the LI is an offset (from the end of the header), it
@@ -1739,8 +1754,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                         || (li[num_li].li < prev_li)) {
                         /* add malformed LI for investigation */
                         malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
-                        expert_add_info_format(pinfo, malformed, PI_PROTOCOL, PI_WARN,
-                            "Incorrect LI value");
+                        expert_add_info(pinfo, malformed, &ei_rlc_li_incorrect_warn);
                         return -1; /* just give up on this */
                     }
                     li[num_li].len = li[num_li].li - prev_li;
@@ -1763,8 +1777,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     /*invalid for AM */
                     /* add malformed LI for investigation */
                     malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
-                    expert_add_info_format(pinfo, malformed, PI_PROTOCOL, PI_WARN,
-                        "Uses reserved LI");
+                    expert_add_info(pinfo, malformed, &ei_rlc_li_reserved);
                     return -1; /* just give up on this */
                 default:
                     /* since the LI is an offset (from the end of the header), it
@@ -1775,8 +1788,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                         || (li[num_li].li < prev_li)) {
                         /* add malformed LI for investigation */
                         malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
-                        expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-                            "Incorrect LI value 0x%x", li[num_li].li);
+                        expert_add_info_format_text(pinfo, malformed, &ei_rlc_li_incorrect_mal, "Incorrect LI value 0x%x", li[num_li].li);
                         return -1; /* just give up on this */
                     }
                     li[num_li].len = li[num_li].li - prev_li;
@@ -1789,8 +1801,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         if (num_li > max_li) {
             /* OK, so this is not really a malformed packet, but for now,
             * we will treat it as such, so that it is marked in some way */
-            expert_add_info_format(pinfo, li[num_li-1].tree, PI_MALFORMED, PI_ERROR,
-                "Too many LI entries");
+            expert_add_info(pinfo, li[num_li-1].tree, &ei_rlc_li_too_many);
             return -1;
         }
     }
@@ -1870,8 +1881,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
                                               is_truncated);
         if (is_truncated) {
             PROTO_ITEM_SET_GENERATED(truncated_ti);
-            expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
-                                   "RLC PDU SDUs have been omitted");
+            expert_add_info(pinfo, truncated_ti, &ei_rlc_header_only);
             return;
         } else {
             PROTO_ITEM_SET_HIDDEN(truncated_ti);
@@ -1956,8 +1966,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                         len--;
                     }
                 } else {
-                    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
-                        "Invalid length");
+                    expert_add_info(pinfo, tree, &ei_rlc_sufi_len);
                 }
                 break;
             case RLC_SUFI_BITMAP:
@@ -2006,8 +2015,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                     cw[i] = (guint8)l;
                 }
                 if (len && (((cw[len-1] & 0x01) == 0) || (cw[len-1] == 0x01))) {
-                    expert_add_info_format(pinfo, tree, PI_PROTOCOL, PI_WARN,
-                        "Invalid last codeword");
+                    expert_add_info(pinfo, tree, &ei_rlc_sufi_cw);
                 } else {
                     ti = proto_tree_add_text(sufi_tree, tvb, previous_bit_offset/8, (bit_offset-previous_bit_offset)/8, "Decoded list:");
                     rlist_tree = proto_item_add_subtree(ti, ett_rlc_rlist);
@@ -2077,8 +2085,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                 break;
 
             default:
-                expert_add_info_format(pinfo, tree, PI_PROTOCOL, PI_WARN,
-                    "Invalid SUFI type");
+                expert_add_info(pinfo, tree, &ei_rlc_sufi_type);
                 return; /* invalid value, ignore the rest */
         }
 
@@ -2109,16 +2116,14 @@ dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_bits_ret_val(tree, hf_rlc_rsn, tvb, 4, 1, &rsn, ENC_BIG_ENDIAN);
             proto_tree_add_bits_ret_val(tree, hf_rlc_r1, tvb, 5, 3, &r1, ENC_BIG_ENDIAN);
             if (r1) {
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                    "reserved bits not zero");
+                expert_add_info(pinfo, ti, &ei_rlc_reserved_bits_not_zero);
                 return;
             }
             proto_tree_add_bits_ret_val(tree, hf_rlc_hfni, tvb, 8, 20, &hfn, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO, " RSN=%u HFN=%u", (guint16)rsn, (guint32)hfn);
             break;
         default:
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                "Invalid RLC AM control type %u", type);
+            expert_add_info(pinfo, ti, &ei_rlc_ctrl_type);
             return; /* invalid */
     }
 }
@@ -2246,8 +2251,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
     /* header extension may only be 00, 01 or 10 */
     if (ext > 2) {
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-            "Incorrect HE value");
+        expert_add_info(pinfo, ti, &ei_rlc_he);
         return;
     }
 
@@ -2293,8 +2297,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
                                               is_truncated);
         if (is_truncated) {
             PROTO_ITEM_SET_GENERATED(truncated_ti);
-            expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
-                                   "RLC PDU SDUs have been omitted");
+            expert_add_info(pinfo, truncated_ti, &ei_rlc_header_only);
             return;
         } else {
             PROTO_ITEM_SET_HIDDEN(truncated_ti);
@@ -2724,6 +2727,7 @@ void
 proto_register_rlc(void)
 {
     module_t *rlc_module;
+    expert_module_t* expert_rlc;
 	static hf_register_info hf[] = {
 		{ &hf_rlc_dc,
 		  { "D/C Bit", "rlc.dc",
@@ -2891,6 +2895,25 @@ proto_register_rlc(void)
 		&ett_rlc_rlist,
 		&ett_rlc_channel
 	};
+	static ei_register_info ei[] = {
+		{ &ei_rlc_reassembly_fail_unfinished_sequence, { "rlc.reassembly.fail.unfinished_sequence", PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because of previous unfinished sequence.", EXPFILL }},
+		{ &ei_rlc_reassembly_fail_flag_set, { "rlc.reassembly.fail.flag_set", PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because fail flag was set previously.", EXPFILL }},
+		{ &ei_rlc_reassembly_lingering_endpoint, { "rlc.lingering_endpoint", PI_REASSEMBLE, PI_ERROR, "Lingering endpoint.", EXPFILL }},
+		{ &ei_rlc_reassembly_unknown_error, { "rlc.reassembly.unknown_error", PI_REASSEMBLE, PI_ERROR, "Unknown error.", EXPFILL }},
+		{ &ei_rlc_kasumi_implementation_missing, { "rlc.kasumi_implementation_missing", PI_UNDECODED, PI_WARN, "Unable to decipher packet since KASUMI implementation is missing.", EXPFILL }},
+		{ &ei_rlc_li_reserved, { "rlc.li.reserved", PI_PROTOCOL, PI_WARN, "Uses reserved LI", EXPFILL }},
+		{ &ei_rlc_li_incorrect_warn, { "rlc.li.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect LI value", EXPFILL }},
+		{ &ei_rlc_li_incorrect_mal, { "rlc.li.incorrect", PI_MALFORMED, PI_ERROR, "Incorrect LI value 0x%x", EXPFILL }},
+		{ &ei_rlc_li_too_many, { "rlc.li.too_many", PI_MALFORMED, PI_ERROR, "Too many LI entries", EXPFILL }},
+		{ &ei_rlc_header_only, { "rlc.header_only.expert", PI_SEQUENCE, PI_NOTE, "RLC PDU SDUs have been omitted", EXPFILL }},
+		{ &ei_rlc_sufi_len, { "rlc.sufi.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+		{ &ei_rlc_sufi_cw, { "rlc.sufi.cw.invalid", PI_PROTOCOL, PI_WARN, "Invalid last codeword", EXPFILL }},
+		{ &ei_rlc_sufi_type, { "rlc.sufi.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid SUFI type", EXPFILL }},
+		{ &ei_rlc_reserved_bits_not_zero, { "rlc.reserved_bits_not_zero", PI_PROTOCOL, PI_WARN, "reserved bits not zero", EXPFILL }},
+		{ &ei_rlc_ctrl_type, { "rlc.ctrl_pdu_type.invalid", PI_PROTOCOL, PI_WARN, "Invalid RLC AM control type %u", EXPFILL }},
+		{ &ei_rlc_he, { "rlc.he.invalid", PI_PROTOCOL, PI_WARN, "Incorrect HE value", EXPFILL }},
+	};
+
 	proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
 	register_dissector("rlc.bcch",        dissect_rlc_bcch,        proto_rlc);
 	register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
@@ -2902,6 +2925,8 @@ proto_register_rlc(void)
 
     proto_register_field_array(proto_rlc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_rlc = expert_register_protocol(proto_rlc);
+    expert_register_field_array(expert_rlc, ei, array_length(ei));
 
     /* Preferences */
     rlc_module = prefs_register_protocol(proto_rlc, NULL);
