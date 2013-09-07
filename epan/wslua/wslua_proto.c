@@ -1801,7 +1801,7 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
      Remove a dissector from a table
      */
 #define WSLUA_ARG_DissectorTable_remove_PATTERN 2 /* The pattern to match (either an integer or a string depending on the table's type). */
-#define WSLUA_ARG_DissectorTable_remove_DISSECTOR 3 /* The dissector to add (either an Proto or a Dissector). */
+#define WSLUA_ARG_DissectorTable_remove_DISSECTOR 3 /* The dissector to remove (either an Proto or a Dissector). */
     DissectorTable dt = checkDissectorTable(L,1);
     ftenum_t type;
     Dissector handle;
