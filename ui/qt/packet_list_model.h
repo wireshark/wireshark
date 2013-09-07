@@ -49,6 +49,7 @@ public:
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
+    int packetNumberToRow(int packet_num) const;
     guint recreateVisibleRows();
     void setColorEnabled(bool enable_color);
     void clear();
@@ -73,6 +74,7 @@ private:
     QList<QString> col_names_;
     QVector<PacketListRecord *> visible_rows_;
     QVector<PacketListRecord *> physical_rows_;
+    QMap<int, int> number_to_row_;
     QFont pl_font_;
 
     int header_height_;

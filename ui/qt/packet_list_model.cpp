@@ -72,6 +72,11 @@ QModelIndex PacketListModel::parent(const QModelIndex &index) const
     return QModelIndex();
 }
 
+int PacketListModel::packetNumberToRow(int packet_num) const
+{
+    return number_to_row_.value(packet_num, -1);
+}
+
 guint PacketListModel::recreateVisibleRows()
 {
     int pos = visible_rows_.count() + 1;
@@ -79,11 +84,13 @@ guint PacketListModel::recreateVisibleRows()
 
     beginResetModel();
     visible_rows_.clear();
+    number_to_row_.clear();
     endResetModel();
     beginInsertRows(QModelIndex(), pos, pos);
     foreach (record, physical_rows_) {
         if (record->getFdata()->flags.passed_dfilter || record->getFdata()->flags.ref_time) {
             visible_rows_ << record;
+            number_to_row_[record->getFdata()->num] = visible_rows_.count() - 1;
         }
     }
     endInsertRows();
@@ -98,6 +105,7 @@ void PacketListModel::clear() {
     beginResetModel();
     physical_rows_.clear();
     visible_rows_.clear();
+    number_to_row_.clear();
     endResetModel();
 }
 
@@ -316,6 +324,7 @@ gint PacketListModel::appendPacket(frame_data *fdata)
     if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
         beginInsertRows(QModelIndex(), pos, pos);
         visible_rows_ << record;
+        number_to_row_[fdata->num] = visible_rows_.count() - 1;
         endInsertRows();
     } else {
         pos = -1;

@@ -326,7 +326,7 @@ void TCPStreamDialog::initializeThroughput()
 {
     QString dlg_title = QString(tr("Throughput")) + streamDescription();
 #ifdef MA_1_SECOND
-    dlg_title.append(tr(" (1 s MA)"));
+    dlg_title.append(tr(" (1s MA)"));
 #else
     dlg_title.append(QString(tr(" (%1 segment MA)")).arg(moving_avg_period_));
 #endif
@@ -426,7 +426,6 @@ void TCPStreamDialog::toggleTracerStyle(bool force_default)
         tstyle = QCPItemTracer::tsCircle;
         tr_color.setAlphaF(1.0);
         tr_pen.setWidthF(1.5);
-        tr_pen.color().setAlphaF(1.0);
     } else {
         tr_color.setAlphaF(0.5);
         tr_pen.setWidthF(1.0);
@@ -453,11 +452,11 @@ void TCPStreamDialog::graphClicked(QMouseEvent *event)
 // using a QTimer instead.
 void TCPStreamDialog::mouseMoved(QMouseEvent *event)
 {
+    double ts = tracer_->position->key();
     struct segment *packet_seg = NULL;
     packet_num_ = 0;
 
     if (event && tracer_->graph() && tracer_->position->axisRect()->rect().contains(event->pos())) {
-        double ts = tracer_->position->key();
         packet_seg = segment_map_.value(ts, NULL);
     }
 
@@ -470,9 +469,10 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
 
     tracer_->setVisible(true);
     packet_num_ = packet_seg->num;
-    QString hint = QString(tr("<small><i>%1 %2 (len %3 seq %4 ack %5 win %6)</i></small>"))
+    QString hint = QString(tr("<small><i>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</i></small>"))
             .arg(cap_file_ ? tr("Click to select packet") : tr("Packet"))
             .arg(packet_num_)
+            .arg(QString::number(ts, 'g', 4))
             .arg(packet_seg->th_seglen)
             .arg(packet_seg->th_seq)
             .arg(packet_seg->th_ack)
