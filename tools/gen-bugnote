@@ -40,6 +40,9 @@ shift $(($OPTIND - 1))
 bz_url_pfx="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id="
 bug_id="$1"
 
+recode_cmd="cat"
+hash recode > /dev/null 2>&1 && recode_cmd="recode html..utf8"
+
 case "$OSTYPE" in
     darwin*)
         clipboard_cmd="pbcopy -Pascii"
@@ -72,7 +75,9 @@ bug_title=`
 
 case "$output_fmt" in
     asciidoc)
-        echo -n "* $bug_title (ws-buglink:$bug_id[])" | $clipboard_cmd
+        echo -n "* $bug_title (ws-buglink:$bug_id[])" \
+                | $recode_cmd \
+                | $clipboard_cmd
     ;;
     docbook)
 $clipboard_cmd <<Fin
