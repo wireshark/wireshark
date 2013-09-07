@@ -30,6 +30,8 @@
 
 #include <epan/reassemble.h>
 
+#include <epan/tvbuff-int.h>
+
 /*
  * Functions for reassembly tables where the endpoint addresses, and a
  * fragment ID, are used as the key.
@@ -1183,7 +1185,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	}
 
 	if (old_tvb_data)
-		tvb_free(old_tvb_data);
+		tvb_add_to_chain(tvb, old_tvb_data);
 	/* mark this packet as defragmented.
 	   allows us to skip any trailing fragments */
 	fd_head->flags |= FD_DEFRAGMENTED;

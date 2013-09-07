@@ -64,7 +64,6 @@ tvb_new(const struct tvb_ops *ops)
 
 	tvb = (tvbuff_t *) g_slice_alloc(size);
 
-	tvb->previous	     = NULL;
 	tvb->next	     = NULL;
 	tvb->ops	     = ops;
 	tvb->initialized     = FALSE;
@@ -109,10 +108,8 @@ tvb_free_chain(tvbuff_t  *tvb)
 {
 	tvbuff_t *next_tvb;
 	DISSECTOR_ASSERT(tvb);
-	DISSECTOR_ASSERT_HINT(tvb->previous==NULL, "tvb_free_chain(): tvb must be initial tvb in chain");
 	while (tvb) {
 		next_tvb=tvb->next;
-		DISSECTOR_ASSERT_HINT((next_tvb==NULL) || (tvb==next_tvb->previous), "tvb_free_chain(): corrupt tvb chain ?");
 		tvb_free_internal(tvb);
 		tvb  = next_tvb;
 	}
@@ -130,15 +127,18 @@ tvb_new_chain(tvbuff_t *parent, tvbuff_t *backing)
 void
 tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 {
+	tvbuff_t *tmp = child;
+
 	DISSECTOR_ASSERT(parent);
 	DISSECTOR_ASSERT(child);
-	DISSECTOR_ASSERT(!child->next);
-	DISSECTOR_ASSERT(!child->previous);
-	child->next	= parent->next;
-	child->previous = parent;
-	if (parent->next)
-		parent->next->previous = child;
-	parent->next    = child;
+
+	while (child) {
+		tmp   = child;
+		child = child->next;
+
+		tmp->next    = parent->next;
+		parent->next = tmp;
+        }
 }
 
 /*
@@ -3261,3 +3261,15 @@ tvb_get_ds_tvb(tvbuff_t *tvb)
 	return(tvb->ds_tvb);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

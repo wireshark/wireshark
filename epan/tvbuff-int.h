@@ -49,7 +49,6 @@ struct tvb_ops {
 struct tvbuff {
 	/* Doubly linked list pointers */
 	tvbuff_t                *next;
-	tvbuff_t                *previous;
 
 	/* Record-keeping */
 	const struct tvb_ops   *ops;
