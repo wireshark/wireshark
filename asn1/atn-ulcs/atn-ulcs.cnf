@@ -469,72 +469,74 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 		FALSE,
 		&tvb_usr);
 
-	/* DT: dstref present, srcref is always zero */
-	if((pinfo->clnp_dstref) && (!pinfo->clnp_srcref)){
+	if (tvb_usr) {
+		/* DT: dstref present, srcref is always zero */
+		if((pinfo->clnp_dstref) && (!pinfo->clnp_srcref)){
 
-		atn_cv = find_atn_conversation(
-				&pinfo->dst,
-				pinfo->clnp_dstref, 
-        &pinfo->src);
-	}
-	/* CR: srcref present, dstref always zero */
-	if((pinfo->clnp_srcref) && (!pinfo->clnp_dstref)){
+			atn_cv = find_atn_conversation(
+					&pinfo->dst,
+					pinfo->clnp_dstref, 
+					&pinfo->src);
+		}
+		/* CR: srcref present, dstref always zero */
+		if((pinfo->clnp_srcref) && (!pinfo->clnp_dstref)){
 
-		atn_cv = find_atn_conversation(
-				&pinfo->src,
-				pinfo->clnp_srcref,
-        &pinfo->dst);
-	}
-	/* CC: srcref and dstref present */
-	if((pinfo->clnp_srcref) && (pinfo->clnp_dstref)){
+			atn_cv = find_atn_conversation(
+					&pinfo->src,
+					pinfo->clnp_srcref,
+					&pinfo->dst);
+		}
+		/* CC: srcref and dstref present */
+		if((pinfo->clnp_srcref) && (pinfo->clnp_dstref)){
 
-		atn_cv = find_atn_conversation(
-				&pinfo->src,
-				pinfo->clnp_srcref,
-        &pinfo->dst);
-	}
+			atn_cv = find_atn_conversation(
+					&pinfo->src,
+					pinfo->clnp_srcref,
+					&pinfo->dst);
+		}
 
-	if(atn_cv) {
-			switch(atn_cv->ae_qualifier){
-				case cma: /* contact management */
+		if(atn_cv) {
+				switch(atn_cv->ae_qualifier){
+					case cma: /* contact management */
 
-						call_dissector_with_data(
-									atn_cm_handle,
-									tvb_new_subset_remaining(tvb_usr, 0),
-									pinfo,
-									root_tree,
-									NULL);
-						break;
-				case cpdlc: /* plain old cpdlc */
-				case pmcpdlc: /* protected mode cpdlc */
-
-						call_dissector_with_data(
-									atn_cpdlc_handle,
-									tvb_new_subset_remaining(tvb_usr, 0),
-									pinfo,
-									root_tree,
-									NULL);
-						break;
-				default: /* unknown or unhandled datalink application */
-
-						dissector_try_heuristic(
-								atn_ulcs_heur_subdissector_list,
-								tvb_new_subset_remaining(tvb_usr,0),
-								actx->pinfo,
-								root_tree,
-								NULL);
+							call_dissector_with_data(
+										atn_cm_handle,
+										tvb_new_subset_remaining(tvb_usr, 0),
+										pinfo,
+										root_tree,
+										NULL);
 							break;
-				}
-	}else {
+					case cpdlc: /* plain old cpdlc */
+					case pmcpdlc: /* protected mode cpdlc */
 
-		dissector_try_heuristic(
-						atn_ulcs_heur_subdissector_list,
-						tvb_new_subset_remaining(tvb_usr,0),
-						actx->pinfo,
-						root_tree,
-						NULL);
+							call_dissector_with_data(
+										atn_cpdlc_handle,
+										tvb_new_subset_remaining(tvb_usr, 0),
+										pinfo,
+										root_tree,
+										NULL);
+							break;
+					default: /* unknown or unhandled datalink application */
+
+							dissector_try_heuristic(
+									atn_ulcs_heur_subdissector_list,
+									tvb_new_subset_remaining(tvb_usr,0),
+									actx->pinfo,
+									root_tree,
+									NULL);
+								break;
+					}
+		}else {
+
+			dissector_try_heuristic(
+							atn_ulcs_heur_subdissector_list,
+							tvb_new_subset_remaining(tvb_usr,0),
+							actx->pinfo,
+							root_tree,
+							NULL);
+		}
 	}
-
+    
 	offset += tvb_length_remaining(tvb, offset);
 
 #.END
