@@ -9484,6 +9484,7 @@ arcp             7070/tcp # ARCP [Jude_George] [Jude_George]
 arcp             7070/udp # ARCP [Jude_George] [Jude_George]
 iwg1             7071/tcp # IWGADTS Aircraft Housekeeping Message [Don_Sullivan] [Don_Sullivan] 2010-02-16
 iwg1             7071/udp # IWGADTS Aircraft Housekeeping Message [Don_Sullivan] [Don_Sullivan] 2010-02-16
+martalk          7073/tcp # MarTalk protocol [Mahr_GmbH_Göttingen] [Kevin_Bube] 2013-09-02
 empowerid        7080/tcp # EmpowerID Communication [Matthew_Whited] [Matthew_Whited] 2008-01-16
 empowerid        7080/udp # EmpowerID Communication [Matthew_Whited] [Matthew_Whited] 2008-01-16
 jdp-disc         7095/udp # Java Discovery Protocol [OpenJDK] [Florian_Weimer] 2013-03-12
@@ -9736,6 +9737,7 @@ apc-7845         7845/tcp # APC 7845 [American_Power_Conve] [American_Power_Conv
 apc-7845         7845/udp # APC 7845 [American_Power_Conve] [American_Power_Conve]
 apc-7846         7846/tcp # APC 7846 [American_Power_Conve] [American_Power_Conve]
 apc-7846         7846/udp # APC 7846 [American_Power_Conve] [American_Power_Conve]
+csoauth          7847/tcp # A product key authentication protocol made by CSO [Jeff_Wamsley] [Jacob_Kiesel] 2013-09-04
 mobileanalyzer   7869/tcp # MobileAnalyzer& MobileMonitor [Jonas_Gyllensvaan] [Jonas_Gyllensvaan] 2009-04-27
 rbt-smc          7870/tcp # Riverbed Steelhead Mobile Service [Gabriel_Levy] [Gabriel_Levy] 2008-08-29
 mdm              7871/tcp # Mobile Device Management [Dan_Harkins] [Dan_Harkins] 2011-08-15
