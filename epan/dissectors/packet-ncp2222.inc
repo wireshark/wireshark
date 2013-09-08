@@ -2871,7 +2871,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 build_expert_data(ncp_tree, "ncp.cc_function",
                                   cc_function, sizeof cc_function, 0, FALSE);
 
-                expert_add_info_format_text(pinfo, NULL, &ei_ncp_op_lock_handle, "Op-lock on handle %s - %s",
+                expert_add_info_format_text(pinfo, NULL, &ei_ncp_op_lock_handle, "Op-lock on handle %s - %s", p_filehandle,
                                        val_to_str(atoi(cc_function), ncp_cc_function_vals, "Unknown: %d"));
             }
             /* The following allows for Update file handle rights echoed to expert tap. */
@@ -2932,7 +2932,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                                   p_filehandle, sizeof p_filehandle, 0, FALSE);
                 build_expert_data(ncp_tree, "ncp.effective_rights",
                                   p_rights, sizeof p_rights, 0, FALSE);
-                expert_add_info_format_text(pinfo, NULL, &ei_ncp_effective_rights, "Handle %s effective rights:(%s)",
+                expert_add_info_format_text(pinfo, NULL, &ei_ncp_effective_rights, "Handle %s effective rights:(%s)", p_filehandle,
                                        val_to_str((atoi(p_rights) & 0x1ff), access_rights_vals, "Unknown: %d"));
             }
         }
@@ -2962,7 +2962,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
             build_expert_data(ncp_tree, "ncp.oeslinux_or_netware",
                               p_kernel, sizeof p_kernel, 0, FALSE);
 
-            expert_add_info_format_text(pinfo, NULL, &ei_ncp_server, "Server %s, version %s.%s, support pack %s, language %s, server type %s, kernel %s",
+            expert_add_info_format_text(pinfo, NULL, &ei_ncp_server, "Server %s, version %s.%s, support pack %s, language %s, server type %s, kernel %s", fsname,
                                    p_maj_ver, p_min_ver, p_rev, p_lang, val_to_str((atoi(p_serv_type) & 0x01), serv_type_vals, "Unknown: %d"), val_to_str((atoi(p_kernel) & 0x01), kernel_type_vals, "Unknown: %d") );
         }
     }
