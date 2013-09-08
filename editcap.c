@@ -734,9 +734,9 @@ usage(gboolean is_error)
   fprintf(output, "                         chop at the packet beginning, negative values at the\n");
   fprintf(output, "                         packet end. If an optional offset precedes the length,\n");
   fprintf(output, "                         then the bytes chopped will be offset from that value.\n");
-  fprintf(output, "                         Positve offsets are from the packet beginning,\n");
-  fprintf(output, "                         negative offsets are from the packet end. You can use\n");
-  fprintf(output, "                         this option more than once.\n");
+  fprintf(output, "                         Offsets are expected to be positive values, regardless\n");
+  fprintf(output, "                         of chopping from packet beginning or packet end. You\n");
+  fprintf(output, "                         can use this option more than once.\n");
   fprintf(output, "  -L                     adjust the frame length when chopping and/or snapping\n");
   fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
   fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
@@ -976,12 +976,14 @@ main(int argc, char *argv[])
           chopoff = 0;
           break;
         case 2: /* both an offset and chop length was specified */
-          /* While the following would technically not be a problem, it's
-           * probably not what the user wanted, so treat it as an error */
-          if ((choplen > 0 && chopoff < 0) || (choplen < 0 && chopoff > 0)) {
+          if (chopoff < 0) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid chop offset:length\n",
               optarg);
             exit(1);
+          }
+
+          if (choplen < 0) {
+            chopoff = -chopoff;
           }
           break;
         default:
