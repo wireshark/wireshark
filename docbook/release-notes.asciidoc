@@ -35,6 +35,9 @@ since version 1.10:
 * You can now pass the -C <choplen> option to editcap multiple times, which
   allows you to chop bytes from the beginning of a packet as well as at the end
   of a packet in a single step.
+* You can now specify an optional offset to the -C option for editcap, which
+  allows you to start chopping from that offset instead of from the absolute
+  packet beginning or end.
 
 === New Protocol Support
 

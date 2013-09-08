@@ -730,9 +730,13 @@ usage(gboolean is_error)
   fprintf(output, "\n");
   fprintf(output, "Packet manipulation:\n");
   fprintf(output, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.\n");
-  fprintf(output, "  -C <choplen>           chop each packet by <choplen> bytes. Positive values\n");
+  fprintf(output, "  -C [offset:]<choplen>  chop each packet by <choplen> bytes. Positive values\n");
   fprintf(output, "                         chop at the packet beginning, negative values at the\n");
-  fprintf(output, "                         packet end. You can use this option more than once.\n");
+  fprintf(output, "                         packet end. If an optional offset precedes the length,\n");
+  fprintf(output, "                         then the bytes chopped will be offset from that value.\n");
+  fprintf(output, "                         Positve offsets are from the packet beginning,\n");
+  fprintf(output, "                         negative offsets are from the packet end. You can use\n");
+  fprintf(output, "                         this option more than once.\n");
   fprintf(output, "  -L                     adjust the frame length when chopping and/or snapping\n");
   fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
   fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
@@ -861,6 +865,8 @@ main(int argc, char *argv[])
   guint32 snaplen = 0;                  /* No limit               */
   int choplen_begin = 0;                /* No chop at beginning   */
   int choplen_end = 0;                  /* No chop at end         */
+  int chopoff_begin = 0;                /* Offset when chop from beginning */
+  int chopoff_end = 0;                  /* Offset when chop from end */
   gboolean adjlen = FALSE;
   wtap_dumper *pdh = NULL;
   unsigned int count = 1;
@@ -962,18 +968,37 @@ main(int argc, char *argv[])
 
     case 'C':
     {
-      int choplen;
+      int choplen = 0, chopoff = 0;
 
-      choplen = (int)strtol(optarg, &p, 10);
-      if (p == optarg || *p != '\0') {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
+      switch (sscanf(optarg, "%d:%d", &chopoff, &choplen)) {
+        case 1: /* only the chop length was specififed */
+          choplen = chopoff;
+          chopoff = 0;
+          break;
+        case 2: /* both an offset and chop length was specified */
+          /* While the following would technically not be a problem, it's
+           * probably not what the user wanted, so treat it as an error */
+          if ((choplen > 0 && chopoff < 0) || (choplen < 0 && chopoff > 0)) {
+            fprintf(stderr, "editcap: \"%s\" isn't a valid chop offset:length\n",
+              optarg);
+            exit(1);
+          }
+          break;
+        default:
+          fprintf(stderr, "editcap: \"%s\" isn't a valid chop length or offset:length\n",
             optarg);
-        exit(1);
+          exit(1);
+          break;
       }
+
       if (choplen > 0)
         choplen_begin += choplen;
       else if (choplen < 0)
         choplen_end += choplen;
+      if (chopoff > 0)
+        chopoff_begin += chopoff;
+      else if (chopoff < 0)
+        chopoff_end += chopoff;
       break;
     }
 
@@ -1302,33 +1327,66 @@ main(int argc, char *argv[])
           }
         }
 
-        if (choplen_end < 0) {
+        /* CHOP */
+        /* If we're not chopping anything from one side, then the offset for
+         * that side is meaningless. */
+        if (choplen_begin == 0)
+          chopoff_begin = 0;
+        if (choplen_end == 0)
+          chopoff_end = 0;
+
+        /* Make sure we don't chop off more than we have available */
+        if (phdr->caplen < (guint32)(chopoff_begin - chopoff_end)) {
+          choplen_begin = 0;
+          choplen_end = 0;
+        }
+        if ((guint32)(choplen_begin - choplen_end) >
+            (phdr->caplen - (guint32)(chopoff_begin - chopoff_end))) {
+          choplen_begin = phdr->caplen - (chopoff_begin - chopoff_end);
+          choplen_end = 0;
+        }
+
+        /* Handle chopping from the beginning.  Note that if a beginning offset
+         * was specified, we need to keep that piece */
+        if (choplen_begin > 0) {
           snap_phdr = *phdr;
-          if (((signed int) phdr->caplen + choplen_end) > 0)
-            snap_phdr.caplen += choplen_end;
-          else
-            snap_phdr.caplen = 0;
+
+          if (chopoff_begin > 0) {
+            memmove(&buf[chopoff_begin], &buf[chopoff_begin + choplen_begin],
+                    snap_phdr.caplen - choplen_begin);
+          }
+          else {
+            buf += choplen_begin;
+          }
+          snap_phdr.caplen -= choplen_begin;
+
           if (adjlen) {
-            if (((signed int) phdr->len + choplen_end) > 0)
-              snap_phdr.len += choplen_end;
-            else
+            if (phdr->len > (guint32)choplen_begin) {
+              snap_phdr.len -= choplen_begin;
+            } else {
               snap_phdr.len = 0;
+            }
           }
           phdr = &snap_phdr;
         }
 
-        if (choplen_begin > 0) {
+        /* Handle chopping from the end.  Note that if an ending offset
+         * was specified, we need to keep that piece */
+        if (choplen_end < 0) {
           snap_phdr = *phdr;
-          if (phdr->caplen > (unsigned int) choplen_begin) {
-            snap_phdr.caplen -= choplen_begin;
-            buf += choplen_begin;
-          } else
-            snap_phdr.caplen = 0;
+
+          if (chopoff_end < 0) {
+            memmove(&buf[(gint)snap_phdr.caplen + (choplen_end + chopoff_end)],
+                    &buf[(gint)snap_phdr.caplen + chopoff_end], -chopoff_end);
+          }
+          snap_phdr.caplen += choplen_end;
+
           if (adjlen) {
-            if (phdr->len > (unsigned int) choplen_begin) {
-              snap_phdr.len -= choplen_begin;
-            } else
+            if (((signed int) phdr->len + choplen_end) > 0) {
+              snap_phdr.len += choplen_end;
+            } else {
               snap_phdr.len = 0;
+            }
           }
           phdr = &snap_phdr;
         }
