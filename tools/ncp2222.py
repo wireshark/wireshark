@@ -6283,6 +6283,22 @@ static int hf_iter_search = -1;
 static int hf_iter_other = -1;
 static int hf_nds_oid = -1;
 
+static expert_field ei_ncp_file_rights_change = EI_INIT;
+static expert_field ei_ncp_completion_code = EI_INIT;
+static expert_field ei_nds_reply_error = EI_INIT;
+static expert_field ei_ncp_destroy_connection = EI_INIT;
+static expert_field ei_nds_iteration = EI_INIT;
+static expert_field ei_ncp_eid = EI_INIT;
+static expert_field ei_ncp_file_handle = EI_INIT;
+static expert_field ei_ncp_connection_destroyed = EI_INIT;
+static expert_field ei_ncp_no_request_record_found = EI_INIT;
+static expert_field ei_ncp_file_rights = EI_INIT;
+static expert_field ei_iter_verb_completion_code = EI_INIT;
+static expert_field ei_ncp_connection_request = EI_INIT;
+static expert_field ei_ncp_connection_status = EI_INIT;
+static expert_field ei_ncp_op_lock_handle = EI_INIT;
+static expert_field ei_ncp_effective_rights = EI_INIT;
+static expert_field ei_ncp_server = EI_INIT;
 """)
 
     # Look at all packet types in the packets collection, and cull information
@@ -8297,6 +8313,27 @@ proto_register_ncp2222(void)
         print("\t};\n")
 
     print("""
+	static ei_register_info ei[] = {
+		{ &ei_ncp_file_handle, { "ncp.file_handle.expert", PI_REQUEST_CODE, PI_CHAT, "Close file handle", EXPFILL }},
+		{ &ei_ncp_file_rights, { "ncp.file_rights", PI_REQUEST_CODE, PI_CHAT, "File rights", EXPFILL }},
+		{ &ei_ncp_op_lock_handle, { "ncp.op_lock_handle", PI_REQUEST_CODE, PI_CHAT, "Op-lock on handle", EXPFILL }},
+		{ &ei_ncp_file_rights_change, { "ncp.file_rights.change", PI_REQUEST_CODE, PI_CHAT, "Change handle rights", EXPFILL }},
+		{ &ei_ncp_effective_rights, { "ncp.effective_rights.expert", PI_RESPONSE_CODE, PI_CHAT, "Handle effective rights", EXPFILL }},
+		{ &ei_ncp_server, { "ncp.server", PI_RESPONSE_CODE, PI_CHAT, "Server info", EXPFILL }},
+		{ &ei_iter_verb_completion_code, { "ncp.iter_verb_completion_code.expert", PI_RESPONSE_CODE, PI_ERROR, "Iteration Verb Error", EXPFILL }},
+		{ &ei_ncp_connection_request, { "ncp.connection_request", PI_RESPONSE_CODE, PI_CHAT, "Connection Request", EXPFILL }},
+		{ &ei_ncp_destroy_connection, { "ncp.destroy_connection", PI_RESPONSE_CODE, PI_CHAT, "Destroy Connection Request", EXPFILL }},
+		{ &ei_nds_reply_error, { "ncp.ndsreplyerror.expert", PI_RESPONSE_CODE, PI_ERROR, "NDS Error", EXPFILL }},
+		{ &ei_nds_iteration, { "ncp.nds_iteration.error", PI_RESPONSE_CODE, PI_ERROR, "NDS Iteration Error", EXPFILL }},
+		{ &ei_ncp_eid, { "ncp.eid", PI_RESPONSE_CODE, PI_CHAT, "EID", EXPFILL }},
+		{ &ei_ncp_completion_code, { "ncp.completion_code.expert", PI_RESPONSE_CODE, PI_ERROR, "Code Completion Error", EXPFILL }},
+		{ &ei_ncp_connection_status, { "ncp.connection_status.bad", PI_RESPONSE_CODE, PI_ERROR, "Error: Bad Connection Status", EXPFILL }},
+		{ &ei_ncp_connection_destroyed, { "ncp.connection_destroyed", PI_RESPONSE_CODE, PI_CHAT, "Connection Destroyed", EXPFILL }},
+		{ &ei_ncp_no_request_record_found, { "ncp.no_request_record_found", PI_SEQUENCE, PI_NOTE, "No request record found.", EXPFILL }},
+	};
+
+	expert_module_t* expert_ncp;
+
     proto_register_field_array(proto_ncp, hf, array_length(hf));""")
 
     if ett_list:
@@ -8304,6 +8341,8 @@ proto_register_ncp2222(void)
 proto_register_subtree_array(ett, array_length(ett));""")
 
     print("""
+	expert_ncp = expert_register_protocol(proto_ncp);
+	expert_register_field_array(expert_ncp, ei, array_length(ei));
     register_init_routine(&ncp_init_protocol);
     register_postseq_cleanup_routine(&ncp_postseq_cleanup);""")
 
