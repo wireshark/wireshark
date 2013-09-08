@@ -47,6 +47,12 @@ const int moving_avg_period_ = 20;
 const QRgb graph_color_1 = tango_sky_blue_5;
 const QRgb graph_color_2 = tango_butter_6;
 
+const QString average_throughput_label_ = QObject::tr("Avgerage Througput (bits/s)");
+const QString round_trip_time_ms_label_ = QObject::tr("Round Trip Time (ms)");
+const QString segment_length_label_ = QObject::tr("Segment Length (B)");
+const QString sequence_number_label_ = QObject::tr("Relative Sequence Number (B)");
+const QString time_s_label_ = QObject::tr("Time (s)");
+
 Q_DECLARE_METATYPE(tcp_graph_type)
 
 TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_type graph_type) :
@@ -73,11 +79,16 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ui->graphTypeComboBox->setUpdatesEnabled(false);
     ui->graphTypeComboBox->addItem(tr("Time / Sequence (Stevens)"), qVariantFromValue(GRAPH_TSEQ_STEVENS));
     ui->graphTypeComboBox->addItem(tr("Throughput"), qVariantFromValue(GRAPH_THROUGHPUT));
+    ui->graphTypeComboBox->addItem(tr("Round Trip Time"), qVariantFromValue(GRAPH_RTT));
     ui->graphTypeComboBox->setCurrentIndex(-1);
     ui->graphTypeComboBox->setUpdatesEnabled(true);
 
     memset (&graph_, 0, sizeof(graph_));
     graph_.type = graph_type;
+    COPY_ADDRESS(&graph_.src_address, &current.ip_src);
+    graph_.src_port = current.th_sport;
+    COPY_ADDRESS(&graph_.dst_address, &current.ip_dst);
+    graph_.dst_port = current.th_dport;
 
     QCustomPlot *sp = ui->streamPlot;
     QCPPlotTitle *file_title = new QCPPlotTitle(sp, cf_get_display_name(cap_file_));
@@ -103,7 +114,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     sp->graph(0)->setPen(QPen(QBrush(graph_color_1), 0.25));
     sp->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 5));
 
-    sp->xAxis->setLabel(tr("Time (s)"));
     sp->yAxis->setLabelColor(QColor(graph_color_1));
     sp->yAxis->setTickLabelColor(QColor(graph_color_1));
 
@@ -189,6 +199,9 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Home:
         resetAxes();
         break;
+    case Qt::Key_S:
+        on_otherDirectionButton_clicked();
+        break;
     // Alas, there is no Blade Runner-style Qt::Key_Ehance
     }
 
@@ -218,7 +231,8 @@ void TCPStreamDialog::fillGraph()
 
     if (sp->graphCount() < 1) return;
 
-    segment_map_.clear();
+    rel_time_map_.clear();
+    sequence_num_map_.clear();
     graph_segment_list_free(&graph_);
     tracer_->setGraph(NULL);
     // We need at least one graph, so don't bother deleting the first one.
@@ -226,11 +240,15 @@ void TCPStreamDialog::fillGraph()
         sp->graph(i)->clearData();
         sp->graph(i)->setVisible(i == 0 ? true : false);
     }
+
+    sp->xAxis->setLabel(time_s_label_);
+    sp->xAxis->setNumberFormat("gb");
+    sp->xAxis->setNumberPrecision(6);
     sp->yAxis2->setVisible(false);
     sp->yAxis2->setLabel(QString());
 
     if (!cap_file_) {
-        QString dlg_title = QString(tr("No capture file"));
+        QString dlg_title = QString(tr("No Capture Data"));
         setWindowTitle(dlg_title);
         title_->setText(dlg_title);
         sp->setEnabled(false);
@@ -242,14 +260,14 @@ void TCPStreamDialog::fillGraph()
     // XXX graph_segment_list_get returns a different list for throughput
     // graphs. If the throughput list used the same list we could call this
     // above in our ctor.
-    graph_segment_list_get(cap_file_, &graph_, FALSE);
+    graph_segment_list_get(cap_file_, &graph_, TRUE);
 
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         if (!compareHeaders(seg)) {
             continue;
         }
         double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
-        segment_map_.insertMulti(rt_val, seg);
+        rel_time_map_.insertMulti(rt_val, seg);
     }
 
     switch (graph_.type) {
@@ -258,6 +276,9 @@ void TCPStreamDialog::fillGraph()
         break;
     case GRAPH_THROUGHPUT:
         initializeThroughput();
+        break;
+    case GRAPH_RTT:
+        initializeRoundTripTime();
         break;
     default:
         break;
@@ -300,7 +321,7 @@ void TCPStreamDialog::resetAxes()
 
 void TCPStreamDialog::initializeStevens()
 {
-    QString dlg_title = QString(tr("Sequence numbers")) + streamDescription();
+    QString dlg_title = QString(tr("Sequence Numbers")) + streamDescription();
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
 
@@ -319,7 +340,7 @@ void TCPStreamDialog::initializeStevens()
         seq.append(seg->th_seq);
     }
     sp->graph(0)->setData(rel_time, seq);
-    sp->yAxis->setLabel(tr("Sequence number (B)"));
+    sp->yAxis->setLabel(sequence_number_label_);
 }
 
 void TCPStreamDialog::initializeThroughput()
@@ -328,7 +349,7 @@ void TCPStreamDialog::initializeThroughput()
 #ifdef MA_1_SECOND
     dlg_title.append(tr(" (1s MA)"));
 #else
-    dlg_title.append(QString(tr(" (%1 segment MA)")).arg(moving_avg_period_));
+    dlg_title.append(QString(tr(" (%1 Segment MA)")).arg(moving_avg_period_));
 #endif
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
@@ -395,12 +416,56 @@ void TCPStreamDialog::initializeThroughput()
     sp->graph(0)->setData(rel_time, seg_len);
     sp->graph(1)->setData(tput_time, tput);
 
-    sp->yAxis->setLabel(tr("Segment length (B)"));
+    sp->yAxis->setLabel(segment_length_label_);
 
-    sp->yAxis2->setLabel(tr("Avg througput (bits/s)"));
+    sp->yAxis2->setLabel(average_throughput_label_);
     sp->yAxis2->setLabelColor(QColor(graph_color_2));
     sp->yAxis2->setTickLabelColor(QColor(graph_color_2));
     sp->yAxis2->setVisible(true);
+}
+
+void TCPStreamDialog::initializeRoundTripTime()
+{
+    QString dlg_title = QString(tr("Round Trip Time")) + streamDescription();
+    setWindowTitle(dlg_title);
+    title_->setText(dlg_title);
+
+    QCustomPlot *sp = ui->streamPlot;
+    sp->graph(0)->setLineStyle(QCPGraph::lsLine);
+
+    QVector<double> seq_no, rtt;
+    guint32 seq_base;
+    struct unack *unack = NULL, *u;
+    for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
+        if (seg == graph_.segments) {
+            seq_base = seg->th_seq;
+        }
+        if (compareHeaders(seg)) {
+            if (seg->th_seglen && !rtt_is_retrans(unack, seg->th_seq)) {
+                double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
+                rtt_put_unack_on_list(&unack, rtt_get_new_unack(rt_val, seg->th_seq));
+            }
+        } else {
+            guint32 ack_no = seg->th_ack - seq_base;
+            double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
+            struct unack *v;
+
+            for (u = unack; u; u = v) {
+                if (ack_no > u->seqno) {
+                    seq_no.append(u->seqno);
+                    rtt.append((rt_val - u->time) * 1000.0);
+                    sequence_num_map_.insert(u->seqno, seg);
+                    rtt_delete_unack_from_list(&unack, u);
+                }
+                v = u->next;
+            }
+        }
+    }
+    sp->graph(0)->setData(seq_no, rtt);
+    sp->xAxis->setLabel(sequence_number_label_);
+    sp->xAxis->setNumberFormat("f");
+    sp->xAxis->setNumberPrecision(0);
+    sp->yAxis->setLabel(round_trip_time_ms_label_);
 }
 
 QString TCPStreamDialog::streamDescription()
@@ -461,12 +526,21 @@ void TCPStreamDialog::graphClicked(QMouseEvent *event)
 // using a QTimer instead.
 void TCPStreamDialog::mouseMoved(QMouseEvent *event)
 {
-    double ts = tracer_->position->key();
+    double tr_key = tracer_->position->key();
     struct segment *packet_seg = NULL;
     packet_num_ = 0;
 
     if (event && tracer_->graph() && tracer_->position->axisRect()->rect().contains(event->pos())) {
-        packet_seg = segment_map_.value(ts, NULL);
+        switch (graph_.type) {
+        case GRAPH_TSEQ_STEVENS:
+        case GRAPH_THROUGHPUT:
+            packet_seg = rel_time_map_.value(tr_key, NULL);
+            break;
+        case GRAPH_RTT:
+            packet_seg = sequence_num_map_.value(tr_key, NULL);
+        default:
+            break;
+        }
     }
 
     if (!packet_seg) {
@@ -481,7 +555,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
     QString hint = QString(tr("<small><i>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</i></small>"))
             .arg(cap_file_ ? tr("Click to select packet") : tr("Packet"))
             .arg(packet_num_)
-            .arg(QString::number(ts, 'g', 4))
+            .arg(QString::number(packet_seg->rel_secs + packet_seg->rel_usecs / 1000000.0, 'g', 4))
             .arg(packet_seg->th_seglen)
             .arg(packet_seg->th_seq)
             .arg(packet_seg->th_ack)
@@ -557,6 +631,21 @@ void TCPStreamDialog::setCaptureFile(capture_file *cf)
     if (!cf) { // We only want to know when the file closes.
         cap_file_ = NULL;
     }
+}
+
+void TCPStreamDialog::on_otherDirectionButton_clicked()
+{
+    address tmp_addr;
+    guint16 tmp_port;
+
+    COPY_ADDRESS(&tmp_addr, &graph_.src_address);
+    tmp_port = graph_.src_port;
+    COPY_ADDRESS(&graph_.src_address, &graph_.dst_address);
+    graph_.src_port = graph_.dst_port;
+    COPY_ADDRESS(&graph_.dst_address, &tmp_addr);
+    graph_.dst_port = tmp_port;
+
+    fillGraph();
 }
 
 /*

@@ -343,6 +343,63 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
 
 }
 
+int rtt_is_retrans(struct unack *list, unsigned int seqno)
+{
+    struct unack *u;
+
+    for (u=list; u; u=u->next) {
+        if (u->seqno == seqno)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+struct unack *rtt_get_new_unack(double time_val, unsigned int seqno)
+{
+    struct unack *u;
+
+    u = (struct unack * )g_malloc(sizeof(struct unack));
+    u->next  = NULL;
+    u->time  = time_val;
+    u->seqno = seqno;
+    return u;
+}
+
+void rtt_put_unack_on_list(struct unack **l, struct unack *new_unack)
+{
+    struct unack *u, *list = *l;
+
+    for (u=list; u; u=u->next) {
+        if (!u->next)
+            break;
+    }
+    if (u)
+        u->next = new_unack;
+    else
+        *l = new_unack;
+}
+
+void rtt_delete_unack_from_list(struct unack **l, struct unack *dead)
+{
+    struct unack *u, *list = *l;
+
+    if (!dead || !list)
+        return;
+
+    if (dead == list) {
+        *l = list->next;
+        g_free(list);
+    } else {
+        for (u=list; u; u=u->next) {
+            if (u->next == dead) {
+                u->next = u->next->next;
+                g_free(dead);
+                break;
+            }
+        }
+    }
+}
+
 /*
  * Editor modelines
  *

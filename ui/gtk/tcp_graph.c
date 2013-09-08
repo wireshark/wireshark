@@ -194,13 +194,6 @@ struct style_wscale {
 #define TIME_ORIGIN_CAP     0x10
 #define TIME_ORIGIN_CONN    0x0
 
-/* this is used by rtt module only */
-struct unack {
-    struct unack *next;
-    double        time;
-    unsigned int  seqno;
-};
-
 struct cross {
     int x, y;
     int draw;           /* indicates whether we should draw cross at all */
@@ -462,10 +455,6 @@ static void tput_make_elmtlist(struct gtk_graph * );
 static void tput_toggle_time_origin(struct gtk_graph * );
 static void rtt_read_config(struct gtk_graph * );
 static void rtt_initialize(struct gtk_graph * );
-static int rtt_is_retrans(struct unack * , unsigned int );
-static struct unack *rtt_get_new_unack(double , unsigned int );
-static void rtt_put_unack_on_list(struct unack ** , struct unack * );
-static void rtt_delete_unack_from_list(struct unack ** , struct unack * );
 static void rtt_make_elmtlist(struct gtk_graph * );
 static void rtt_toggle_seq_origin(struct gtk_graph * );
 static void wscale_initialize(struct gtk_graph *);
@@ -4289,65 +4278,6 @@ static void rtt_initialize(struct gtk_graph *g)
     g->bounds.height = ymax - yy0;
     g->zoom.x = g->geom.width  / g->bounds.width;
     g->zoom.y = g->geom.height / g->bounds.height;
-}
-
-static int rtt_is_retrans(struct unack *list, unsigned int seqno)
-{
-    struct unack *u;
-
-    for (u=list; u; u=u->next) {
-        if (u->seqno == seqno)
-            return TRUE;
-    }
-    return FALSE;
-}
-
-static struct unack *rtt_get_new_unack(double time_val, unsigned int seqno)
-{
-    struct unack *u;
-
-    u = (struct unack * )g_malloc(sizeof(struct unack));
-    if (!u)
-        return NULL;
-    u->next  = NULL;
-    u->time  = time_val;
-    u->seqno = seqno;
-    return u;
-}
-
-static void rtt_put_unack_on_list(struct unack **l, struct unack *new_unack)
-{
-    struct unack *u, *list = *l;
-
-    for (u=list; u; u=u->next) {
-        if (!u->next)
-            break;
-    }
-    if (u)
-        u->next = new_unack;
-    else
-        *l = new_unack;
-}
-
-static void rtt_delete_unack_from_list(struct unack **l, struct unack *dead)
-{
-    struct unack *u, *list = *l;
-
-    if (!dead || !list)
-        return;
-
-    if (dead == list) {
-        *l = list->next;
-        g_free(list);
-    } else {
-        for (u=list; u; u=u->next) {
-            if (u->next == dead) {
-                u->next = u->next->next;
-                g_free(dead);
-                break;
-            }
-        }
-    }
 }
 
 static void rtt_make_elmtlist(struct gtk_graph *g)

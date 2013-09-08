@@ -89,6 +89,18 @@ int get_num_acks(struct tcp_graph *, int * );
 
 struct tcpheader *select_tcpip_session(capture_file *, struct segment * );
 
+/* This is used by rtt module only */
+struct unack {
+    struct unack *next;
+    double        time;
+    unsigned int  seqno;
+};
+
+int rtt_is_retrans(struct unack * , unsigned int );
+struct unack *rtt_get_new_unack(double , unsigned int );
+void rtt_put_unack_on_list(struct unack ** , struct unack * );
+void rtt_delete_unack_from_list(struct unack ** , struct unack * );
+
 
 #ifdef __cplusplus
 }

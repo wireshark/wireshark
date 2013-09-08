@@ -62,7 +62,8 @@ protected:
 private:
     Ui::TCPStreamDialog *ui;
     capture_file *cap_file_;
-    QMap<double, struct segment *> segment_map_;
+    QMap<double, struct segment *> rel_time_map_;
+    QMap<double, struct segment *> sequence_num_map_;
     struct tcp_graph graph_;
     QCPPlotTitle *title_;
     QCPItemTracer *tracer_;
@@ -77,6 +78,7 @@ private:
     void resetAxes();
     void initializeStevens();
     void initializeThroughput();
+    void initializeRoundTripTime();
     QString streamDescription();
     bool compareHeaders(struct segment *seg);
     void toggleTracerStyle(bool force_default = false);
@@ -88,6 +90,7 @@ private slots:
     void on_buttonBox_accepted();
     void on_graphTypeComboBox_currentIndexChanged(int index);
     void on_resetButton_clicked();
+    void on_otherDirectionButton_clicked();
 };
 
 #endif // TCP_STREAM_DIALOG_H

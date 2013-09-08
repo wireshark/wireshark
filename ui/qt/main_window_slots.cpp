@@ -1712,6 +1712,11 @@ void MainWindow::on_actionStatisticsTcpStreamThroughput_triggered()
     openTcpStreamDialog(GRAPH_THROUGHPUT);
 }
 
+void MainWindow::on_actionStatisticsTcpStreamRoundTripTime_triggered()
+{
+    openTcpStreamDialog(GRAPH_RTT);
+}
+
 // Help Menu
 void MainWindow::on_actionHelpContents_triggered() {
 

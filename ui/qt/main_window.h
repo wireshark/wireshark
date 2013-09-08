@@ -302,6 +302,7 @@ private slots:
     void openTcpStreamDialog(int graph_type);
     void on_actionStatisticsTcpStreamStevens_triggered();
     void on_actionStatisticsTcpStreamThroughput_triggered();
+    void on_actionStatisticsTcpStreamRoundTripTime_triggered();
 };
 
 

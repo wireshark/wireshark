@@ -321,6 +321,7 @@
      </property>
      <addaction name="actionStatisticsTcpStreamStevens"/>
      <addaction name="actionStatisticsTcpStreamThroughput"/>
+     <addaction name="actionStatisticsTcpStreamRoundTripTime"/>
     </widget>
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
@@ -1263,6 +1264,14 @@
    </property>
    <property name="toolTip">
     <string>TCP througput</string>
+   </property>
+  </action>
+  <action name="actionStatisticsTcpStreamRoundTripTime">
+   <property name="text">
+    <string>Round Trip Time</string>
+   </property>
+   <property name="toolTip">
+    <string>TCP round trip time</string>
    </property>
   </action>
  </widget>
