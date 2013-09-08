@@ -376,6 +376,10 @@ wmem_block_cycle_recycler(wmem_block_allocator_t *allocator)
 
     chunk = allocator->recycler_head;
 
+    if (chunk == NULL) {
+        return;
+    }
+
     free_chunk = WMEM_GET_FREE(chunk);
 
     if (free_chunk->next->len < chunk->len) {
@@ -915,9 +919,7 @@ wmem_block_alloc(void *private_data, const size_t size)
     g_assert(chunk != allocator->recycler_head);
 
     /* Now cycle the recycler */
-    if (allocator->recycler_head) {
-        wmem_block_cycle_recycler(allocator);
-    }
+    wmem_block_cycle_recycler(allocator);
 
     /* mark it as used */
     chunk->used = TRUE;
@@ -947,6 +949,9 @@ wmem_block_free(void *private_data, void *ptr)
     /* merge it with any other free chunks adjacent to it, so that contiguous
      * free space doesn't get fragmented */
     wmem_block_merge_free(allocator, chunk);
+
+    /* Now cycle the recycler */
+    wmem_block_cycle_recycler(allocator);
 }
 
 static void *
@@ -1004,6 +1009,9 @@ wmem_block_realloc(void *private_data, void *ptr, const size_t size)
                 tmp->prev = chunk->len;
             }
 
+            /* Now cycle the recycler */
+            wmem_block_cycle_recycler(allocator);
+
             /* And return the same old pointer */
             return ptr;
         }
@@ -1015,12 +1023,18 @@ wmem_block_realloc(void *private_data, void *ptr, const size_t size)
             memcpy(newptr, ptr, WMEM_CHUNK_DATA_LEN(chunk));
             wmem_block_free(private_data, ptr);
 
+            /* No need to cycle the recycler, alloc and free both did that
+             * already */
+
             return newptr;
         }
     }
     else if (size < WMEM_CHUNK_DATA_LEN(chunk)) {
         /* shrink */
         wmem_block_split_used_chunk(allocator, chunk, size);
+
+        /* Now cycle the recycler */
+        wmem_block_cycle_recycler(allocator);
 
         return ptr;
     }
