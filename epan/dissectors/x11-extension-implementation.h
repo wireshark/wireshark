@@ -3719,7 +3719,7 @@ static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
 	*offsetp += 2;
 
 	if (len < 4) {
-	    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid Length");
+	    expert_add_info(pinfo, ti, &ei_x11_request_length);
 	    /* Eat the rest of the packet, mark it undecoded */
 	    len = length;
 	    op = -1;

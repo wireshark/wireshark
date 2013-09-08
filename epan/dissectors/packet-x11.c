@@ -202,6 +202,7 @@ static gint ett_x11_same_screen_focus = -1;
 static gint ett_x11_event = -1;
 
 static expert_field ei_x11_invalid_format = EI_INIT;
+static expert_field ei_x11_request_length = EI_INIT;
 
 /* desegmentation of X11 messages */
 static gboolean x11_desegment = TRUE;
@@ -5603,6 +5604,7 @@ void proto_register_x11(void)
 
       static ei_register_info ei[] = {
             { &ei_x11_invalid_format, { "x11.invalid_format", PI_PROTOCOL, PI_WARN, "Invalid Format", EXPFILL }},
+            { &ei_x11_request_length, { "x11.request-length.invalid", PI_PROTOCOL, PI_WARN, "Invalid Length", EXPFILL }},
       };
 
       module_t *x11_module;
