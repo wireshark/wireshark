@@ -2078,7 +2078,7 @@ switch(header->message_type) {"""
     template_helper_switch_msgtype_default_start = """\
 default:
     /* Unknown GIOP Message */
-    expert_add_info_format_text(pinfo, item, &ei_@dissector_name@_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);"""
+    expert_add_info_format(pinfo, item, &ei_@dissector_name@_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);"""
     
     template_helper_switch_msgtype_default_end = """\
 break;"""
@@ -2110,7 +2110,7 @@ break;"""
     template_helper_switch_msgtype_reply_default_start = """\
 default:
     /* Unknown Exception */
-    expert_add_info_format_text(pinfo, item, &ei_@dissector_name@_unknown_exception, "Unknown exception %d", header->rep_status);"""
+    expert_add_info_format(pinfo, item, &ei_@dissector_name@_unknown_exception, "Unknown exception %d", header->rep_status);"""
     
     template_helper_switch_msgtype_reply_default_end = """\
     break;"""
@@ -2121,7 +2121,7 @@ break;"""
     template_helper_switch_msgtype_default_start = """\
 default:
     /* Unknown GIOP Message */
-    expert_add_info_format_text(pinfo, item, &ei_@dissector_name@_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);"""
+    expert_add_info_format(pinfo, item, &ei_@dissector_name@_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);"""
     
     template_helper_switch_msgtype_default_end = """\
     break;"""
@@ -2132,7 +2132,7 @@ switch(header->rep_status) {"""
     template_helper_switch_rep_status_default_start = """\
 default:
     /* Unknown Reply Status */
-    expert_add_info_format_text(pinfo, item, &ei_@dissector_name@_unknown_reply_status, "Unknown reply status %d", header->rep_status);"""
+    expert_add_info_format(pinfo, item, &ei_@dissector_name@_unknown_reply_status, "Unknown reply status %d", header->rep_status);"""
     
     template_helper_switch_rep_status_default_end = """\
     break;"""

@@ -623,14 +623,14 @@ decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -682,14 +682,14 @@ decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -731,14 +731,14 @@ decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -790,14 +790,14 @@ decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -839,14 +839,14 @@ decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -870,14 +870,14 @@ decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -918,14 +918,14 @@ decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -950,14 +950,14 @@ decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -997,14 +997,14 @@ decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1031,14 +1031,14 @@ decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1076,14 +1076,14 @@ decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1140,14 +1140,14 @@ decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1199,14 +1199,14 @@ decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1246,14 +1246,14 @@ decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet_info *pinfo
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1280,14 +1280,14 @@ decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1331,14 +1331,14 @@ decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1382,14 +1382,14 @@ decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1446,14 +1446,14 @@ decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1495,14 +1495,14 @@ decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1546,14 +1546,14 @@ decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1578,14 +1578,14 @@ decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1637,14 +1637,14 @@ decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -1686,14 +1686,14 @@ decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_tango_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_tango_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }

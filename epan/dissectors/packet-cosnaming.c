@@ -272,14 +272,14 @@ decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -323,14 +323,14 @@ decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -374,14 +374,14 @@ decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -425,14 +425,14 @@ decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -474,14 +474,14 @@ decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -523,14 +523,14 @@ decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -554,14 +554,14 @@ decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet_info *pinfo
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -603,14 +603,14 @@ decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -634,14 +634,14 @@ decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -687,14 +687,14 @@ decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -721,14 +721,14 @@ decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_info *pinfo 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -772,14 +772,14 @@ decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -803,14 +803,14 @@ decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_cosnaming_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }

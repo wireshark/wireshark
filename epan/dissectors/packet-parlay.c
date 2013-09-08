@@ -8551,14 +8551,14 @@ decode_org_csapi_IpService_setCallback(tvbuff_t *tvb _U_, packet_info *pinfo _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8586,14 +8586,14 @@ decode_org_csapi_IpService_setCallbackWithSessionID(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8623,14 +8623,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpInitial_initiateAuthenticatio
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8662,14 +8662,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpInitial_initiateAuthenticatio
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8697,14 +8697,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAuthentication_requestAccess(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8749,14 +8749,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8782,14 +8782,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_obtainInterface(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8817,14 +8817,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_obtainInterfaceWithCal
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8866,14 +8866,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_endAccess(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8912,14 +8912,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8945,14 +8945,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_releaseInterface(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -8978,14 +8978,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_selectSigningAlgorithm
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9028,14 +9028,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9080,14 +9080,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9138,14 +9138,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9169,14 +9169,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9200,14 +9200,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9258,14 +9258,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9291,14 +9291,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_select
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9349,14 +9349,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authen
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9380,14 +9380,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_abortA
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9411,14 +9411,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authen
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9444,14 +9444,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_select
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9502,14 +9502,14 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9540,14 +9540,14 @@ decode_org_csapi_fw_fw_application_notification_IpAppEventNotification_reportNot
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9571,14 +9571,14 @@ decode_org_csapi_fw_fw_application_notification_IpAppEventNotification_notificat
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9607,14 +9607,14 @@ decode_org_csapi_fw_fw_application_notification_IpEventNotification_createNotifi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9640,14 +9640,14 @@ decode_org_csapi_fw_fw_application_notification_IpEventNotification_destroyNotif
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9675,14 +9675,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestRes(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9708,14 +9708,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_appActivityTestRe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9749,14 +9749,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwFaultReportInd(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9790,14 +9790,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwFaultRecoveryIn
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9833,14 +9833,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcUnavailableInd
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9884,14 +9884,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsReco
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9925,14 +9925,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwUnavailableInd(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -9958,14 +9958,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestErr(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10011,14 +10011,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsReco
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10044,14 +10044,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_appUnavailableInd
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10078,14 +10078,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsReco
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10121,14 +10121,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcAvailStatusInd
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10174,14 +10174,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10239,14 +10239,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10275,14 +10275,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10316,14 +10316,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwAvailStatusInd(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10350,14 +10350,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryAppLoadReq(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10399,14 +10399,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadRes(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10440,14 +10440,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadErr(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10489,14 +10489,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_loadLevelNotificat
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10520,14 +10520,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_resumeNotification
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10551,14 +10551,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_suspendNotificatio
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10582,14 +10582,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_createLoadLevelNot
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10613,14 +10613,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_destroyLoadLevelNo
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10649,14 +10649,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryAppLoadStatsR
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10700,14 +10700,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10743,14 +10743,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsErr(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10784,14 +10784,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_reportLoad(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10835,14 +10835,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10884,14 +10884,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadRes(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10925,14 +10925,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadErr(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -10973,14 +10973,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotifi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11021,14 +11021,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotif
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11069,14 +11069,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11117,14 +11117,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11170,14 +11170,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11221,14 +11221,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11264,14 +11264,14 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsErr(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11297,14 +11297,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppOAM_systemDateTimeQuery(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11330,14 +11330,14 @@ decode_org_csapi_fw_fw_application_integrity_IpOAM_systemDateTimeQuery(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11365,14 +11365,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_activityTestReq(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11400,14 +11400,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestRes(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11433,14 +11433,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_svcUnavailableInd(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11484,14 +11484,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordR
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11517,14 +11517,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestErr(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11550,14 +11550,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appUnavailableInd(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11584,14 +11584,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordR
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11625,14 +11625,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordE
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11666,14 +11666,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appAvailStatusInd(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11719,14 +11719,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatist
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11755,14 +11755,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatist
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11798,14 +11798,14 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatist
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11833,14 +11833,14 @@ decode_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_enableHeartBeat(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11864,14 +11864,14 @@ decode_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_disableHeartBeat(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11897,14 +11897,14 @@ decode_org_csapi_fw_fw_application_integrity_IpHeartBeatMgmt_changeInterval(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11928,14 +11928,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppHeartBeat_pulse(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11959,14 +11959,14 @@ decode_org_csapi_fw_fw_application_integrity_IpHeartBeat_pulse(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -11994,14 +11994,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_enableAppHeartBe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12025,14 +12025,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_disableAppHeartB
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12058,14 +12058,14 @@ decode_org_csapi_fw_fw_application_integrity_IpAppHeartBeatMgmt_changeInterval(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12104,14 +12104,14 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12138,14 +12138,14 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_describeServiceT
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12202,14 +12202,14 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12249,14 +12249,14 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listSubscribedSe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12301,14 +12301,14 @@ decode_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManage
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12353,14 +12353,14 @@ decode_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManage
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12391,14 +12391,14 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12443,14 +12443,14 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12476,14 +12476,14 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12509,14 +12509,14 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12543,14 +12543,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12577,14 +12577,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12610,14 +12610,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12645,14 +12645,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12680,14 +12680,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12727,14 +12727,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12773,14 +12773,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12807,14 +12807,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12855,14 +12855,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12889,14 +12889,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12923,14 +12923,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12956,14 +12956,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -12990,14 +12990,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13036,14 +13036,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13084,14 +13084,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13133,14 +13133,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountMa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13164,14 +13164,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountMa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13196,14 +13196,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountIn
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13230,14 +13230,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13264,14 +13264,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13297,14 +13297,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13348,14 +13348,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13382,14 +13382,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13415,14 +13415,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13465,14 +13465,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13515,14 +13515,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13562,14 +13562,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13596,14 +13596,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13642,14 +13642,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13675,14 +13675,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13721,14 +13721,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13769,14 +13769,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13817,14 +13817,14 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13855,14 +13855,14 @@ decode_org_csapi_fw_fw_enterprise_operator_notification_IpClientEventNotificatio
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13886,14 +13886,14 @@ decode_org_csapi_fw_fw_enterprise_operator_notification_IpClientEventNotificatio
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13922,14 +13922,14 @@ decode_org_csapi_fw_fw_enterprise_operator_notification_IpEventNotification_crea
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -13955,14 +13955,14 @@ decode_org_csapi_fw_fw_enterprise_operator_notification_IpEventNotification_dest
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14001,14 +14001,14 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14035,14 +14035,14 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_describeServiceTyp
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14099,14 +14099,14 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14146,14 +14146,14 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listRegisteredServ
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14199,14 +14199,14 @@ decode_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14232,14 +14232,14 @@ decode_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManag
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14283,14 +14283,14 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14318,14 +14318,14 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_anno
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14351,14 +14351,14 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_unre
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14385,14 +14385,14 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_desc
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14418,14 +14418,14 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_unan
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14482,14 +14482,14 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14516,14 +14516,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_querySvcLoadReq(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14565,14 +14565,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadRes(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14606,14 +14606,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadErr(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14655,14 +14655,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_loadLevelNotification(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14686,14 +14686,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_suspendNotification(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14717,14 +14717,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_resumeNotification(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14748,14 +14748,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_createLoadLevelNotific
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14779,14 +14779,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_destroyLoadLevelNotifi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14815,14 +14815,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_querySvcLoadStatsReq(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14866,14 +14866,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14909,14 +14909,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsErr(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14950,14 +14950,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_reportLoad(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -14994,14 +14994,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadReq(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15043,14 +15043,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadRes(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15084,14 +15084,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadErr(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15125,14 +15125,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_createLoadLevelNotifica
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15166,14 +15166,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_destroyLoadLevelNotific
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15207,14 +15207,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_suspendNotification(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15248,14 +15248,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_resumeNotification(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15294,14 +15294,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadStatsReq(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15345,14 +15345,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15388,14 +15388,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsErr(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15423,14 +15423,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestRes(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15456,14 +15456,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_svcActivityTestReq(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15497,14 +15497,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwFaultReportInd(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15538,14 +15538,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwFaultRecoveryInd(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15579,14 +15579,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwUnavailableInd(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15610,14 +15610,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_svcUnavailableInd(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15641,14 +15641,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_appUnavailableInd(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15685,14 +15685,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordRe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15718,14 +15718,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestErr(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15763,14 +15763,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordEr
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15814,14 +15814,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordRe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15848,14 +15848,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatsRec
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15889,14 +15889,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_appAvailStatusInd(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15935,14 +15935,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisti
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -15982,14 +15982,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisti
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16018,14 +16018,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisti
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16059,14 +16059,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwAvailStatusInd(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16102,14 +16102,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_activityTestReq(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16137,14 +16137,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestRes(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16168,14 +16168,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_appUnavailableInd(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16212,14 +16212,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordReq
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16253,14 +16253,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcUnavailableInd(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16286,14 +16286,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestErr(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16337,14 +16337,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16390,14 +16390,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16424,14 +16424,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatsReco
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16465,14 +16465,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatsReco
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16506,14 +16506,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcAvailStatusInd(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16552,14 +16552,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatistic
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16588,14 +16588,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatistic
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16631,14 +16631,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatistic
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16664,14 +16664,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcOAM_systemDateTimeQuery(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16697,14 +16697,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwOAM_systemDateTimeQuery(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16732,14 +16732,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_enableHeartBeat(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16763,14 +16763,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_disableHeartBeat(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16796,14 +16796,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwHeartBeatMgmt_changeInterval(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16827,14 +16827,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcHeartBeat_pulse(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16858,14 +16858,14 @@ decode_org_csapi_fw_fw_service_integrity_IpFwHeartBeat_pulse(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16893,14 +16893,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_enableSvcHeartBeat(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16924,14 +16924,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_disableSvcHeartBeat(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16957,14 +16957,14 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcHeartBeatMgmt_changeInterval(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -16993,14 +16993,14 @@ decode_org_csapi_fw_fw_service_notification_IpFwEventNotification_createNotifica
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17026,14 +17026,14 @@ decode_org_csapi_fw_fw_service_notification_IpFwEventNotification_destroyNotific
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17064,14 +17064,14 @@ decode_org_csapi_fw_fw_service_notification_IpSvcEventNotification_reportNotific
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17095,14 +17095,14 @@ decode_org_csapi_fw_fw_service_notification_IpSvcEventNotification_notificationT
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17133,14 +17133,14 @@ decode_org_csapi_cc_gccs_IpAppCall_routeRes(tvbuff_t *tvb _U_, packet_info *pinf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17171,14 +17171,14 @@ decode_org_csapi_cc_gccs_IpAppCall_routeErr(tvbuff_t *tvb _U_, packet_info *pinf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17207,14 +17207,14 @@ decode_org_csapi_cc_gccs_IpAppCall_getCallInfoRes(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17243,14 +17243,14 @@ decode_org_csapi_cc_gccs_IpAppCall_getCallInfoErr(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17280,14 +17280,14 @@ decode_org_csapi_cc_gccs_IpAppCall_superviseCallRes(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17316,14 +17316,14 @@ decode_org_csapi_cc_gccs_IpAppCall_superviseCallErr(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17359,14 +17359,14 @@ decode_org_csapi_cc_gccs_IpAppCall_callFaultDetected(tvbuff_t *tvb _U_, packet_i
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17394,14 +17394,14 @@ decode_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsRes(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17430,14 +17430,14 @@ decode_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsErr(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17466,14 +17466,14 @@ decode_org_csapi_cc_gccs_IpAppCall_callEnded(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17544,14 +17544,14 @@ decode_org_csapi_cc_gccs_IpCall_routeReq(tvbuff_t *tvb _U_, packet_info *pinfo _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17580,14 +17580,14 @@ decode_org_csapi_cc_gccs_IpCall_release(tvbuff_t *tvb _U_, packet_info *pinfo _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17613,14 +17613,14 @@ decode_org_csapi_cc_gccs_IpCall_deassignCall(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17648,14 +17648,14 @@ decode_org_csapi_cc_gccs_IpCall_getCallInfoReq(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17684,14 +17684,14 @@ decode_org_csapi_cc_gccs_IpCall_setCallChargePlan(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17722,14 +17722,14 @@ decode_org_csapi_cc_gccs_IpCall_setAdviceOfCharge(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17757,14 +17757,14 @@ decode_org_csapi_cc_gccs_IpCall_getMoreDialledDigitsReq(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17794,14 +17794,14 @@ decode_org_csapi_cc_gccs_IpCall_superviseCallReq(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17827,14 +17827,14 @@ decode_org_csapi_cc_gccs_IpCall_continueProcessing(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17860,14 +17860,14 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_callAborted(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17899,14 +17899,14 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_callEventNotify(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17930,14 +17930,14 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_callNotificationInterrupted(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17961,14 +17961,14 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_callNotificationContinued(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -17994,14 +17994,14 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_callOverloadEncountered(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18027,14 +18027,14 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_callOverloadCeased(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18075,14 +18075,14 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18109,14 +18109,14 @@ decode_org_csapi_cc_gccs_IpCallControlManager_createCall(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18145,14 +18145,14 @@ decode_org_csapi_cc_gccs_IpCallControlManager_enableCallNotification(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18178,14 +18178,14 @@ decode_org_csapi_cc_gccs_IpCallControlManager_disableCallNotification(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18222,14 +18222,14 @@ decode_org_csapi_cc_gccs_IpCallControlManager_setCallLoadControl(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18258,14 +18258,14 @@ decode_org_csapi_cc_gccs_IpCallControlManager_changeCallNotification(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18305,14 +18305,14 @@ decode_org_csapi_cc_gccs_IpCallControlManager_getCriteria(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18341,14 +18341,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_eventReportRes(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18377,14 +18377,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_eventReportErr(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18410,14 +18410,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_attachMediaRes(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18446,14 +18446,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_attachMediaErr(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18479,14 +18479,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_detachMediaRes(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18515,14 +18515,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_detachMediaErr(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18551,14 +18551,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_getInfoRes(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18587,14 +18587,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_getInfoErr(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18623,14 +18623,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_routeErr(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18660,14 +18660,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_superviseRes(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18696,14 +18696,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_superviseErr(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18739,14 +18739,14 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_callLegEnded(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18773,14 +18773,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_createCall(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18809,14 +18809,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_createNotification(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18842,14 +18842,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_destroyNotification(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18878,14 +18878,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_changeNotification(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18925,14 +18925,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNotification(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -18969,14 +18969,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_setCallLoadControl(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19002,14 +19002,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_enableNotifications(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19033,14 +19033,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_disableNotifications(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19067,14 +19067,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNextNotification(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19129,14 +19129,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_routeReq(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19180,14 +19180,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_eventReportReq(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19223,14 +19223,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_release(tvbuff_t *tvb _U_, packet_info *pinf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19258,14 +19258,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getInfoReq(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19292,14 +19292,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getCall(tvbuff_t *tvb _U_, packet_info *pinf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19325,14 +19325,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_attachMediaReq(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19358,14 +19358,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_detachMediaReq(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19392,14 +19392,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getCurrentDestinationAddress(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19425,14 +19425,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_continueProcessing(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19461,14 +19461,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_setChargePlan(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19499,14 +19499,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_setAdviceOfCharge(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19536,14 +19536,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_superviseReq(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19569,14 +19569,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_deassign(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19630,14 +19630,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getProperties(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19681,14 +19681,14 @@ decode_org_csapi_cc_mpccs_IpCallLeg_setProperties(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19717,14 +19717,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_getInfoRes(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19753,14 +19753,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_getInfoErr(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19790,14 +19790,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseRes(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19826,14 +19826,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_superviseErr(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19862,14 +19862,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_callEnded(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19901,14 +19901,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCall_createAndRouteCallLegErr(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19950,14 +19950,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -19986,14 +19986,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_createCallLeg(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20061,14 +20061,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20104,14 +20104,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_release(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20137,14 +20137,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_deassignCall(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20172,14 +20172,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_getInfoReq(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20208,14 +20208,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_setChargePlan(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20246,14 +20246,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_setAdviceOfCharge(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20283,14 +20283,14 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_superviseReq(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20343,14 +20343,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20376,14 +20376,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callAborted(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20407,14 +20407,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_managerInterrupted(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20438,14 +20438,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_managerResumed(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20471,14 +20471,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callOverloadEncounte
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20504,14 +20504,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_callOverloadCeased(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20552,14 +20552,14 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20600,14 +20600,14 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeRes(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20636,14 +20636,14 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeErr(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20692,14 +20692,14 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20725,14 +20725,14 @@ decode_org_csapi_cc_mmccs_IpMultiMediaStream_subtract(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20775,14 +20775,14 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20826,14 +20826,14 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20875,14 +20875,14 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20913,14 +20913,14 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCall_superviseVolumeReq(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -20992,14 +20992,14 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotificat
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21028,14 +21028,14 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_createMediaNotification
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21061,14 +21061,14 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_destroyMediaNotificatio
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21097,14 +21097,14 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_changeMediaNotification
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21144,14 +21144,14 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_getMediaNotification(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21179,14 +21179,14 @@ decode_org_csapi_cc_cccs_IpAppSubConfCall_chairSelection(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21214,14 +21214,14 @@ decode_org_csapi_cc_cccs_IpAppSubConfCall_floorRequest(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21253,14 +21253,14 @@ decode_org_csapi_cc_cccs_IpAppConfCall_partyJoined(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21288,14 +21288,14 @@ decode_org_csapi_cc_cccs_IpAppConfCall_leaveMonitorRes(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21333,14 +21333,14 @@ decode_org_csapi_cc_cccs_IpConfCallControlManager_createConference(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21368,14 +21368,14 @@ decode_org_csapi_cc_cccs_IpConfCallControlManager_checkResources(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21413,14 +21413,14 @@ decode_org_csapi_cc_cccs_IpConfCallControlManager_reserveResources(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21447,14 +21447,14 @@ decode_org_csapi_cc_cccs_IpConfCallControlManager_freeResources(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21481,14 +21481,14 @@ decode_org_csapi_cc_cccs_IpAppConfCallControlManager_conferenceCreated(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21534,14 +21534,14 @@ decode_org_csapi_cc_cccs_IpSubConfCall_splitSubConference(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21569,14 +21569,14 @@ decode_org_csapi_cc_cccs_IpSubConfCall_mergeSubConference(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21606,14 +21606,14 @@ decode_org_csapi_cc_cccs_IpSubConfCall_moveCallLeg(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21641,14 +21641,14 @@ decode_org_csapi_cc_cccs_IpSubConfCall_inspectVideo(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21674,14 +21674,14 @@ decode_org_csapi_cc_cccs_IpSubConfCall_inspectVideoCancel(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21709,14 +21709,14 @@ decode_org_csapi_cc_cccs_IpSubConfCall_appointSpeaker(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21744,14 +21744,14 @@ decode_org_csapi_cc_cccs_IpSubConfCall_chairSelection(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21782,14 +21782,14 @@ decode_org_csapi_cc_cccs_IpSubConfCall_changeConferencePolicy(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21831,14 +21831,14 @@ decode_org_csapi_cc_cccs_IpConfCall_getSubConferences(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21872,14 +21872,14 @@ decode_org_csapi_cc_cccs_IpConfCall_createSubConference(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21905,14 +21905,14 @@ decode_org_csapi_cc_cccs_IpConfCall_leaveMonitorReq(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21939,14 +21939,14 @@ decode_org_csapi_cc_cccs_IpConfCall_getConferenceAddress(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -21984,14 +21984,14 @@ decode_org_csapi_ui_IpAppUI_sendInfoRes(tvbuff_t *tvb _U_, packet_info *pinfo _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22029,14 +22029,14 @@ decode_org_csapi_ui_IpAppUI_sendInfoErr(tvbuff_t *tvb _U_, packet_info *pinfo _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22076,14 +22076,14 @@ decode_org_csapi_ui_IpAppUI_sendInfoAndCollectRes(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22121,14 +22121,14 @@ decode_org_csapi_ui_IpAppUI_sendInfoAndCollectErr(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22164,14 +22164,14 @@ decode_org_csapi_ui_IpAppUI_userInteractionFaultDetected(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22211,14 +22211,14 @@ decode_org_csapi_ui_IpAppUICall_recordMessageRes(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22256,14 +22256,14 @@ decode_org_csapi_ui_IpAppUICall_recordMessageErr(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22301,14 +22301,14 @@ decode_org_csapi_ui_IpAppUICall_deleteMessageRes(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22346,14 +22346,14 @@ decode_org_csapi_ui_IpAppUICall_deleteMessageErr(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22381,14 +22381,14 @@ decode_org_csapi_ui_IpAppUICall_abortActionRes(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22426,14 +22426,14 @@ decode_org_csapi_ui_IpAppUICall_abortActionErr(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22466,14 +22466,14 @@ decode_org_csapi_ui_IpAppUICall_getMessageRes(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22511,14 +22511,14 @@ decode_org_csapi_ui_IpAppUICall_getMessageErr(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22545,14 +22545,14 @@ decode_org_csapi_ui_IpAppUIManager_userInteractionAborted(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22576,14 +22576,14 @@ decode_org_csapi_ui_IpAppUIManager_userInteractionNotificationInterrupted(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22607,14 +22607,14 @@ decode_org_csapi_ui_IpAppUIManager_userInteractionNotificationContinued(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22646,14 +22646,14 @@ decode_org_csapi_ui_IpAppUIManager_reportEventNotification(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22695,14 +22695,14 @@ decode_org_csapi_ui_IpAppUIManager_abortMultipleUserInteractions(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22759,14 +22759,14 @@ decode_org_csapi_ui_IpUI_sendInfoReq(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22824,14 +22824,14 @@ decode_org_csapi_ui_IpUI_sendInfoAndCollectReq(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22857,14 +22857,14 @@ decode_org_csapi_ui_IpUI_release(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22892,14 +22892,14 @@ decode_org_csapi_ui_IpUI_setOriginatingAddress(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22925,14 +22925,14 @@ decode_org_csapi_ui_IpUI_getOriginatingAddress(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -22966,14 +22966,14 @@ decode_org_csapi_ui_IpUICall_recordMessageReq(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23001,14 +23001,14 @@ decode_org_csapi_ui_IpUICall_deleteMessageReq(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23036,14 +23036,14 @@ decode_org_csapi_ui_IpUICall_abortActionReq(tvbuff_t *tvb _U_, packet_info *pinf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23071,14 +23071,14 @@ decode_org_csapi_ui_IpUICall_getMessageReq(tvbuff_t *tvb _U_, packet_info *pinfo
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23108,14 +23108,14 @@ decode_org_csapi_ui_IpUIManager_createUI(tvbuff_t *tvb _U_, packet_info *pinfo _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23147,14 +23147,14 @@ decode_org_csapi_ui_IpUIManager_createUICall(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23183,14 +23183,14 @@ decode_org_csapi_ui_IpUIManager_createNotification(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23216,14 +23216,14 @@ decode_org_csapi_ui_IpUIManager_destroyNotification(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23252,14 +23252,14 @@ decode_org_csapi_ui_IpUIManager_changeNotification(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23299,14 +23299,14 @@ decode_org_csapi_ui_IpUIManager_getNotification(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23332,14 +23332,14 @@ decode_org_csapi_ui_IpUIManager_enableNotifications(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23363,14 +23363,14 @@ decode_org_csapi_ui_IpUIManager_disableNotifications(tvbuff_t *tvb _U_, packet_i
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23403,14 +23403,14 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageRes(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23448,14 +23448,14 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageErr(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23493,14 +23493,14 @@ decode_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23538,14 +23538,14 @@ decode_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23575,14 +23575,14 @@ decode_org_csapi_ui_IpAppUIAdminManager_putMessageRes(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23620,14 +23620,14 @@ decode_org_csapi_ui_IpAppUIAdminManager_putMessageErr(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23674,14 +23674,14 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageListRes(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23719,14 +23719,14 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageListErr(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23754,14 +23754,14 @@ decode_org_csapi_ui_IpUIAdminManager_getMessageReq(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23792,14 +23792,14 @@ decode_org_csapi_ui_IpUIAdminManager_putMessageReq(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23827,14 +23827,14 @@ decode_org_csapi_ui_IpUIAdminManager_deleteMessageReq(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23862,14 +23862,14 @@ decode_org_csapi_ui_IpUIAdminManager_getMessageListReq(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23913,14 +23913,14 @@ decode_org_csapi_mm_ul_IpAppUserLocation_locationReportRes(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -23960,14 +23960,14 @@ decode_org_csapi_mm_ul_IpAppUserLocation_locationReportErr(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24011,14 +24011,14 @@ decode_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24058,14 +24058,14 @@ decode_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportErr(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24109,14 +24109,14 @@ decode_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24156,14 +24156,14 @@ decode_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReportErr(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24207,14 +24207,14 @@ decode_org_csapi_mm_ul_IpUserLocation_locationReportReq(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24261,14 +24261,14 @@ decode_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24317,14 +24317,14 @@ decode_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24351,14 +24351,14 @@ decode_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStop(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24385,14 +24385,14 @@ decode_org_csapi_mm_ul_IpUserLocation_getNextPeriodicLocationRequest(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24431,14 +24431,14 @@ decode_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReport(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24478,14 +24478,14 @@ decode_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReportErr(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24545,14 +24545,14 @@ decode_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartRe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24579,14 +24579,14 @@ decode_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStop(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24613,14 +24613,14 @@ decode_org_csapi_mm_ul_IpTriggeredUserLocation_getNextTriggeredLocationRequest(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24664,14 +24664,14 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24711,14 +24711,14 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportErr(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24762,14 +24762,14 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24809,14 +24809,14 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReportErr(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24848,14 +24848,14 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReport(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24895,14 +24895,14 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReportErr(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24946,14 +24946,14 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -24999,14 +24999,14 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25033,14 +25033,14 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStop(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25087,14 +25087,14 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25121,14 +25121,14 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStop(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25155,14 +25155,14 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_getNextPeriodicLocationRequest(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25189,14 +25189,14 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_getNextTriggeredLocationRequest(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25225,14 +25225,14 @@ decode_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReport(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25272,14 +25272,14 @@ decode_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReportErr(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25308,14 +25308,14 @@ decode_org_csapi_mm_ule_IpUserLocationEmergency_emergencyLocationReportReq(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25341,14 +25341,14 @@ decode_org_csapi_mm_ule_IpUserLocationEmergency_subscribeEmergencyLocationReport
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25374,14 +25374,14 @@ decode_org_csapi_mm_ule_IpUserLocationEmergency_unSubscribeEmergencyLocationRepo
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25425,14 +25425,14 @@ decode_org_csapi_mm_us_IpAppUserStatus_statusReportRes(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25472,14 +25472,14 @@ decode_org_csapi_mm_us_IpAppUserStatus_statusReportErr(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25508,14 +25508,14 @@ decode_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReport(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25555,14 +25555,14 @@ decode_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReportErr(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25606,14 +25606,14 @@ decode_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25653,14 +25653,14 @@ decode_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportErr(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25689,14 +25689,14 @@ decode_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReport(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25736,14 +25736,14 @@ decode_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReportErr(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25787,14 +25787,14 @@ decode_org_csapi_mm_us_IpUserStatus_statusReportReq(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25838,14 +25838,14 @@ decode_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25872,14 +25872,14 @@ decode_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStop(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25906,14 +25906,14 @@ decode_org_csapi_mm_us_IpUserStatus_getNextTriggeredStatusRequest(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -25957,14 +25957,14 @@ decode_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26008,14 +26008,14 @@ decode_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26042,14 +26042,14 @@ decode_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStop(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26127,14 +26127,14 @@ decode_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26174,14 +26174,14 @@ decode_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotificationStart
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26238,14 +26238,14 @@ decode_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26271,14 +26271,14 @@ decode_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStop(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26305,14 +26305,14 @@ decode_org_csapi_termcap_IpTerminalCapabilities_getTerminalCapabilities(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26361,14 +26361,14 @@ decode_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26417,14 +26417,14 @@ decode_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26473,14 +26473,14 @@ decode_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabil
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26506,14 +26506,14 @@ decode_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabil
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26544,14 +26544,14 @@ decode_org_csapi_dsc_IpAppDataSession_connectRes(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26582,14 +26582,14 @@ decode_org_csapi_dsc_IpAppDataSession_connectErr(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26630,14 +26630,14 @@ decode_org_csapi_dsc_IpAppDataSession_superviseDataSessionRes(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26666,14 +26666,14 @@ decode_org_csapi_dsc_IpAppDataSession_superviseDataSessionErr(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26709,14 +26709,14 @@ decode_org_csapi_dsc_IpAppDataSession_dataSessionFaultDetected(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26742,14 +26742,14 @@ decode_org_csapi_dsc_IpAppDataSessionControlManager_dataSessionAborted(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26781,14 +26781,14 @@ decode_org_csapi_dsc_IpAppDataSessionControlManager_reportNotification(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26812,14 +26812,14 @@ decode_org_csapi_dsc_IpAppDataSessionControlManager_dataSessionNotificationConti
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26843,14 +26843,14 @@ decode_org_csapi_dsc_IpAppDataSessionControlManager_dataSessionNotificationInter
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26891,14 +26891,14 @@ decode_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26945,14 +26945,14 @@ decode_org_csapi_dsc_IpDataSession_connectReq(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -26981,14 +26981,14 @@ decode_org_csapi_dsc_IpDataSession_release(tvbuff_t *tvb _U_, packet_info *pinfo
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27019,14 +27019,14 @@ decode_org_csapi_dsc_IpDataSession_superviseDataSessionReq(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27055,14 +27055,14 @@ decode_org_csapi_dsc_IpDataSession_setDataSessionChargePlan(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27093,14 +27093,14 @@ decode_org_csapi_dsc_IpDataSession_setAdviceOfCharge(tvbuff_t *tvb _U_, packet_i
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27126,14 +27126,14 @@ decode_org_csapi_dsc_IpDataSession_deassignDataSession(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27159,14 +27159,14 @@ decode_org_csapi_dsc_IpDataSession_continueProcessing(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27195,14 +27195,14 @@ decode_org_csapi_dsc_IpDataSessionControlManager_createNotification(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27228,14 +27228,14 @@ decode_org_csapi_dsc_IpDataSessionControlManager_destroyNotification(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27264,14 +27264,14 @@ decode_org_csapi_dsc_IpDataSessionControlManager_changeNotification(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27297,14 +27297,14 @@ decode_org_csapi_dsc_IpDataSessionControlManager_enableNotifications(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27328,14 +27328,14 @@ decode_org_csapi_dsc_IpDataSessionControlManager_disableNotifications(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27375,14 +27375,14 @@ decode_org_csapi_dsc_IpDataSessionControlManager_getNotifications(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27411,14 +27411,14 @@ decode_org_csapi_dsc_IpDataSessionControlManager_createNotifications(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27448,14 +27448,14 @@ decode_org_csapi_gms_IpMessagingManager_openMailbox(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27486,14 +27486,14 @@ decode_org_csapi_gms_IpMessagingManager_enableMessagingNotification(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27519,14 +27519,14 @@ decode_org_csapi_gms_IpMessagingManager_disableMessagingNotification(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27554,14 +27554,14 @@ decode_org_csapi_gms_IpAppMessagingManager_mailboxTerminated(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27599,14 +27599,14 @@ decode_org_csapi_gms_IpAppMessagingManager_mailboxFaultDetected(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27639,14 +27639,14 @@ decode_org_csapi_gms_IpAppMessagingManager_messagingEventNotify(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27670,14 +27670,14 @@ decode_org_csapi_gms_IpAppMessagingManager_messagingNotificationTerminated(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27703,14 +27703,14 @@ decode_org_csapi_gms_IpMailbox_close(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27736,14 +27736,14 @@ decode_org_csapi_gms_IpMailbox_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27769,14 +27769,14 @@ decode_org_csapi_gms_IpMailbox_unlock(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27802,14 +27802,14 @@ decode_org_csapi_gms_IpMailbox_getInfoAmount(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27857,14 +27857,14 @@ decode_org_csapi_gms_IpMailbox_getInfoProperties(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27912,14 +27912,14 @@ decode_org_csapi_gms_IpMailbox_setInfoProperties(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27948,14 +27948,14 @@ decode_org_csapi_gms_IpMailbox_openFolder(tvbuff_t *tvb _U_, packet_info *pinfo 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -27983,14 +27983,14 @@ decode_org_csapi_gms_IpMailbox_createFolder(tvbuff_t *tvb _U_, packet_info *pinf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28019,14 +28019,14 @@ decode_org_csapi_gms_IpMailbox_remove(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28054,14 +28054,14 @@ decode_org_csapi_gms_IpMessage_getInfoAmount(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28111,14 +28111,14 @@ decode_org_csapi_gms_IpMessage_getInfoProperties(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28168,14 +28168,14 @@ decode_org_csapi_gms_IpMessage_setInfoProperties(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28203,14 +28203,14 @@ decode_org_csapi_gms_IpMessage_remove(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28238,14 +28238,14 @@ decode_org_csapi_gms_IpMessage_getContent(tvbuff_t *tvb _U_, packet_info *pinfo 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28271,14 +28271,14 @@ decode_org_csapi_gms_IpMailboxFolder_getInfoAmount(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28326,14 +28326,14 @@ decode_org_csapi_gms_IpMailboxFolder_getInfoProperties(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28381,14 +28381,14 @@ decode_org_csapi_gms_IpMailboxFolder_setInfoProperties(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28436,14 +28436,14 @@ decode_org_csapi_gms_IpMailboxFolder_putMessage(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28471,14 +28471,14 @@ decode_org_csapi_gms_IpMailboxFolder_getMessage(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28506,14 +28506,14 @@ decode_org_csapi_gms_IpMailboxFolder_close(tvbuff_t *tvb _U_, packet_info *pinfo
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28541,14 +28541,14 @@ decode_org_csapi_gms_IpMailboxFolder_remove(tvbuff_t *tvb _U_, packet_info *pinf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28572,14 +28572,14 @@ decode_org_csapi_cm_IpVPrP_getVPrPID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28603,14 +28603,14 @@ decode_org_csapi_cm_IpVPrP_getSlaID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28642,14 +28642,14 @@ decode_org_csapi_cm_IpVPrP_getStatus(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28674,14 +28674,14 @@ decode_org_csapi_cm_IpVPrP_getProvisionedQoSInfo(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28706,14 +28706,14 @@ decode_org_csapi_cm_IpVPrP_getValidityInfo(tvbuff_t *tvb _U_, packet_info *pinfo
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28738,14 +28738,14 @@ decode_org_csapi_cm_IpVPrP_getPipeQoSInfo(tvbuff_t *tvb _U_, packet_info *pinfo 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28770,14 +28770,14 @@ decode_org_csapi_cm_IpVPrP_getDsCodepoint(tvbuff_t *tvb _U_, packet_info *pinfo 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28816,14 +28816,14 @@ decode_org_csapi_cm_IpVPrN_getVPrPList(tvbuff_t *tvb _U_, packet_info *pinfo _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28849,14 +28849,14 @@ decode_org_csapi_cm_IpVPrN_getVPrP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28882,14 +28882,14 @@ decode_org_csapi_cm_IpVPrN_createVPrP(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28915,14 +28915,14 @@ decode_org_csapi_cm_IpVPrN_deleteVPrP(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28948,14 +28948,14 @@ decode_org_csapi_cm_IpQoSMenu_getTemplate(tvbuff_t *tvb _U_, packet_info *pinfo 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -28994,14 +28994,14 @@ decode_org_csapi_cm_IpQoSMenu_getTemplateList(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29025,14 +29025,14 @@ decode_org_csapi_cm_IpConnectivityManager_getQoSMenu(tvbuff_t *tvb _U_, packet_i
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29056,14 +29056,14 @@ decode_org_csapi_cm_IpConnectivityManager_getEnterpriseNetwork(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29087,14 +29087,14 @@ decode_org_csapi_cm_IpQoSTemplate_getTemplateType(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29118,14 +29118,14 @@ decode_org_csapi_cm_IpQoSTemplate_getDescription(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29151,14 +29151,14 @@ decode_org_csapi_cm_IpQoSTemplate_setSlaID(tvbuff_t *tvb _U_, packet_info *pinfo
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29183,14 +29183,14 @@ decode_org_csapi_cm_IpQoSTemplate_getPipeQoSInfo(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29217,14 +29217,14 @@ decode_org_csapi_cm_IpQoSTemplate_setPipeQoSInfo(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29249,14 +29249,14 @@ decode_org_csapi_cm_IpQoSTemplate_getValidityInfo(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29283,14 +29283,14 @@ decode_org_csapi_cm_IpQoSTemplate_setValidityInfo(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29317,14 +29317,14 @@ decode_org_csapi_cm_IpQoSTemplate_setProvisionedQoSInfo(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29349,14 +29349,14 @@ decode_org_csapi_cm_IpQoSTemplate_getProvisionedQoSInfo(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29381,14 +29381,14 @@ decode_org_csapi_cm_IpQoSTemplate_getDsCodepoint(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29427,14 +29427,14 @@ decode_org_csapi_cm_IpEnterpriseNetwork_getSiteList(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29458,14 +29458,14 @@ decode_org_csapi_cm_IpEnterpriseNetwork_getVPrN(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29491,14 +29491,14 @@ decode_org_csapi_cm_IpEnterpriseNetwork_getSite(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29537,14 +29537,14 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29568,14 +29568,14 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteID(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29599,14 +29599,14 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteLocation(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29630,14 +29630,14 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteDescription(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29662,14 +29662,14 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getIPSubnet(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29696,14 +29696,14 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSAPIPSubnet(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29732,14 +29732,14 @@ decode_org_csapi_am_IpAppAccountManager_reportNotification(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29783,14 +29783,14 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceRes(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29826,14 +29826,14 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceErr(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29877,14 +29877,14 @@ decode_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29920,14 +29920,14 @@ decode_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryErr(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -29971,14 +29971,14 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30014,14 +30014,14 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateErr(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30050,14 +30050,14 @@ decode_org_csapi_am_IpAppAccountManager_updateBalanceRes(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30093,14 +30093,14 @@ decode_org_csapi_am_IpAppAccountManager_updateBalanceErr(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30128,14 +30128,14 @@ decode_org_csapi_am_IpAppAccountManager_createVoucherRes(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30171,14 +30171,14 @@ decode_org_csapi_am_IpAppAccountManager_createVoucherErr(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30206,14 +30206,14 @@ decode_org_csapi_am_IpAppAccountManager_destroyVoucherRes(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30251,14 +30251,14 @@ decode_org_csapi_am_IpAppAccountManager_destroyVoucherErr(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30287,14 +30287,14 @@ decode_org_csapi_am_IpAppAccountManager_queryVoucherRes(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30332,14 +30332,14 @@ decode_org_csapi_am_IpAppAccountManager_queryVoucherErr(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30383,14 +30383,14 @@ decode_org_csapi_am_IpAppAccountManager_queryUserVouchersRes(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30426,14 +30426,14 @@ decode_org_csapi_am_IpAppAccountManager_queryUserVouchersErr(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30462,14 +30462,14 @@ decode_org_csapi_am_IpAccountManager_createNotification(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30495,14 +30495,14 @@ decode_org_csapi_am_IpAccountManager_destroyNotification(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30544,14 +30544,14 @@ decode_org_csapi_am_IpAccountManager_queryBalanceReq(tvbuff_t *tvb _U_, packet_i
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30580,14 +30580,14 @@ decode_org_csapi_am_IpAccountManager_changeNotification(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30627,14 +30627,14 @@ decode_org_csapi_am_IpAccountManager_getNotification(tvbuff_t *tvb _U_, packet_i
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30664,14 +30664,14 @@ decode_org_csapi_am_IpAccountManager_retrieveTransactionHistoryReq(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30697,14 +30697,14 @@ decode_org_csapi_am_IpAccountManager_enableNotifications(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30728,14 +30728,14 @@ decode_org_csapi_am_IpAccountManager_disableNotifications(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30777,14 +30777,14 @@ decode_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30818,14 +30818,14 @@ decode_org_csapi_am_IpAccountManager_updateBalanceReq(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30855,14 +30855,14 @@ decode_org_csapi_am_IpAccountManager_createVoucherReq(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30888,14 +30888,14 @@ decode_org_csapi_am_IpAccountManager_destroyVoucherReq(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30921,14 +30921,14 @@ decode_org_csapi_am_IpAccountManager_queryVoucherReq(tvbuff_t *tvb _U_, packet_i
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -30955,14 +30955,14 @@ decode_org_csapi_am_IpAccountManager_queryUserVouchersReq(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31002,14 +31002,14 @@ decode_org_csapi_cs_IpAppChargingSession_creditAmountErr(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31045,14 +31045,14 @@ decode_org_csapi_cs_IpAppChargingSession_creditAmountRes(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31092,14 +31092,14 @@ decode_org_csapi_cs_IpAppChargingSession_creditUnitErr(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31160,14 +31160,14 @@ decode_org_csapi_cs_IpAppChargingSession_creditUnitRes(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31207,14 +31207,14 @@ decode_org_csapi_cs_IpAppChargingSession_debitAmountErr(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31250,14 +31250,14 @@ decode_org_csapi_cs_IpAppChargingSession_debitAmountRes(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31297,14 +31297,14 @@ decode_org_csapi_cs_IpAppChargingSession_debitUnitErr(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31365,14 +31365,14 @@ decode_org_csapi_cs_IpAppChargingSession_debitUnitRes(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31412,14 +31412,14 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditAmountErr(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31452,14 +31452,14 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditAmountRes(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31499,14 +31499,14 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditUnitErr(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31554,14 +31554,14 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditUnitRes(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31601,14 +31601,14 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitAmountErr(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31641,14 +31641,14 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitAmountRes(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31688,14 +31688,14 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitUnitErr(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31743,14 +31743,14 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitUnitRes(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31786,14 +31786,14 @@ decode_org_csapi_cs_IpAppChargingSession_extendLifeTimeErr(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31821,14 +31821,14 @@ decode_org_csapi_cs_IpAppChargingSession_extendLifeTimeRes(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31864,14 +31864,14 @@ decode_org_csapi_cs_IpAppChargingSession_rateErr(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31917,14 +31917,14 @@ decode_org_csapi_cs_IpAppChargingSession_rateRes(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -31964,14 +31964,14 @@ decode_org_csapi_cs_IpAppChargingSession_reserveAmountErr(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32006,14 +32006,14 @@ decode_org_csapi_cs_IpAppChargingSession_reserveAmountRes(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32053,14 +32053,14 @@ decode_org_csapi_cs_IpAppChargingSession_reserveUnitErr(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32110,14 +32110,14 @@ decode_org_csapi_cs_IpAppChargingSession_reserveUnitRes(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32153,14 +32153,14 @@ decode_org_csapi_cs_IpAppChargingSession_sessionEnded(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32196,14 +32196,14 @@ decode_org_csapi_cs_IpChargingSession_creditAmountReq(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32254,14 +32254,14 @@ decode_org_csapi_cs_IpChargingSession_creditUnitReq(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32297,14 +32297,14 @@ decode_org_csapi_cs_IpChargingSession_debitAmountReq(tvbuff_t *tvb _U_, packet_i
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32355,14 +32355,14 @@ decode_org_csapi_cs_IpChargingSession_debitUnitReq(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32414,14 +32414,14 @@ decode_org_csapi_cs_IpChargingSession_directCreditAmountReq(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32483,14 +32483,14 @@ decode_org_csapi_cs_IpChargingSession_directCreditUnitReq(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32542,14 +32542,14 @@ decode_org_csapi_cs_IpChargingSession_directDebitAmountReq(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32611,14 +32611,14 @@ decode_org_csapi_cs_IpChargingSession_directDebitUnitReq(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32644,14 +32644,14 @@ decode_org_csapi_cs_IpChargingSession_extendLifeTimeReq(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32678,14 +32678,14 @@ decode_org_csapi_cs_IpChargingSession_getAmountLeft(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32711,14 +32711,14 @@ decode_org_csapi_cs_IpChargingSession_getLifeTimeLeft(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32760,14 +32760,14 @@ decode_org_csapi_cs_IpChargingSession_getUnitLeft(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32811,14 +32811,14 @@ decode_org_csapi_cs_IpChargingSession_rateReq(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32846,14 +32846,14 @@ decode_org_csapi_cs_IpChargingSession_release(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32908,14 +32908,14 @@ decode_org_csapi_cs_IpChargingSession_reserveAmountReq(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -32977,14 +32977,14 @@ decode_org_csapi_cs_IpChargingSession_reserveUnitReq(tvbuff_t *tvb _U_, packet_i
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33010,14 +33010,14 @@ decode_org_csapi_cs_IpAppChargingManager_sessionAborted(tvbuff_t *tvb _U_, packe
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33058,14 +33058,14 @@ decode_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33103,14 +33103,14 @@ decode_org_csapi_cs_IpChargingManager_createChargingSession(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33163,14 +33163,14 @@ decode_org_csapi_cs_IpChargingManager_createSplitChargingSession(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33199,14 +33199,14 @@ decode_org_csapi_policy_evaluation_IpAppPolicyDomain_reportNotification(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33250,14 +33250,14 @@ decode_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33285,14 +33285,14 @@ decode_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyErr(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33349,14 +33349,14 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33404,14 +33404,14 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33439,14 +33439,14 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_abortEvalPolicyReq(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33492,14 +33492,14 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33544,14 +33544,14 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33594,14 +33594,14 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33628,14 +33628,14 @@ decode_org_csapi_policy_provisioning_IpPolicy_getAttribute(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33662,14 +33662,14 @@ decode_org_csapi_policy_provisioning_IpPolicy_setAttribute(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33721,14 +33721,14 @@ decode_org_csapi_policy_provisioning_IpPolicy_getAttributes(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33770,14 +33770,14 @@ decode_org_csapi_policy_provisioning_IpPolicy_setAttributes(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33820,14 +33820,14 @@ decode_org_csapi_policy_provisioning_IpPolicyIterator_getList(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33851,14 +33851,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getParentRepository(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33884,14 +33884,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createRepository(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33917,14 +33917,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getRepository(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33950,14 +33950,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_removeRepository(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -33981,14 +33981,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getRepositoryCount(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34012,14 +34012,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getRepositoryIterator(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34068,14 +34068,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createCondition(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34101,14 +34101,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getCondition(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34134,14 +34134,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_removeCondition(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34165,14 +34165,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getConditionCount(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34196,14 +34196,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getConditionIterator(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34252,14 +34252,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createAction(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34285,14 +34285,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getAction(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34318,14 +34318,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_removeAction(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34349,14 +34349,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getActionCount(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34380,14 +34380,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getActionIterator(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34411,14 +34411,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getParentGroup(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34442,14 +34442,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getParentDomain(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34498,14 +34498,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_createCondition(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34531,14 +34531,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getCondition(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34564,14 +34564,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_removeCondition(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34595,14 +34595,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getConditionCount(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34626,14 +34626,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getConditionIterator(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34682,14 +34682,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_createAction(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34715,14 +34715,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getAction(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34748,14 +34748,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_removeAction(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34779,14 +34779,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getActionCount(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34810,14 +34810,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getActionIterator(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34843,14 +34843,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_setValidityPeriodConditionByNa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34876,14 +34876,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_setValidityPeriodCondition(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34907,14 +34907,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getValidityPeriodCondition(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34938,14 +34938,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_unsetValidityPeriodCondition(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -34987,14 +34987,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_setConditionList(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35034,14 +35034,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getConditionList(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35083,14 +35083,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_setActionList(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35130,14 +35130,14 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getActionList(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35163,14 +35163,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_createDomain(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35196,14 +35196,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getDomain(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35229,14 +35229,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_removeDomain(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35260,14 +35260,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getDomainCount(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35291,14 +35291,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getDomainIterator(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35350,14 +35350,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35383,14 +35383,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_createRepository(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35416,14 +35416,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getRepository(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35449,14 +35449,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_removeRepository(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35480,14 +35480,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getRepositoryCount(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35511,14 +35511,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getRepositoryIterator(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35542,14 +35542,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_startTransaction(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35573,14 +35573,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_commitTransaction(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35604,14 +35604,14 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_abortTransaction(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35635,14 +35635,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getParentDomain(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35666,14 +35666,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getParentGroup(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35699,14 +35699,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_createGroup(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35732,14 +35732,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getGroup(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35765,14 +35765,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_removeGroup(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35796,14 +35796,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getGroupCount(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35827,14 +35827,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getGroupIterator(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35860,14 +35860,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_createRule(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35893,14 +35893,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getRule(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35926,14 +35926,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_removeRule(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35957,14 +35957,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getRuleCount(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -35988,14 +35988,14 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getRuleIterator(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36037,14 +36037,14 @@ decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_setRequiredAttribut
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36086,14 +36086,14 @@ decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_setOptionalAttribut
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36133,14 +36133,14 @@ decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_getRequiredAttribut
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36180,14 +36180,14 @@ decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_getOptionalAttribut
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36211,14 +36211,14 @@ decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_getParentDomain(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36242,14 +36242,14 @@ decode_org_csapi_policy_provisioning_IpPolicyCondition_getParentRepository(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36273,14 +36273,14 @@ decode_org_csapi_policy_provisioning_IpPolicyCondition_getParentRule(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36304,14 +36304,14 @@ decode_org_csapi_policy_provisioning_IpPolicyAction_getParentRepository(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36335,14 +36335,14 @@ decode_org_csapi_policy_provisioning_IpPolicyAction_getParentRule(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36383,14 +36383,14 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36431,14 +36431,14 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36477,14 +36477,14 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36523,14 +36523,14 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36571,14 +36571,14 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36619,14 +36619,14 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36665,14 +36665,14 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36711,14 +36711,14 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36742,14 +36742,14 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getParentDomain(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36773,14 +36773,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getParentDomain(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36806,14 +36806,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createDomain(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36839,14 +36839,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getDomain(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36872,14 +36872,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeDomain(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36903,14 +36903,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getDomainCount(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36934,14 +36934,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getDomainIterator(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -36967,14 +36967,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createGroup(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37000,14 +37000,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getGroup(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37033,14 +37033,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeGroup(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37064,14 +37064,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getGroupCount(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37095,14 +37095,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getGroupIterator(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37128,14 +37128,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createRule(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37161,14 +37161,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getRule(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37194,14 +37194,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeRule(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37225,14 +37225,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getRuleCount(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37256,14 +37256,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getRuleIterator(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37318,14 +37318,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37351,14 +37351,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinition(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37384,14 +37384,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeEventDefinition(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37415,14 +37415,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinitionCount(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37446,14 +37446,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinitionIterator(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37479,14 +37479,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createVariableSet(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37528,14 +37528,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37561,14 +37561,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeVariableSet(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37592,14 +37592,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSetCount(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37623,14 +37623,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSetIterator(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37663,14 +37663,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createVariable(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37700,14 +37700,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_setVariableValue(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37738,14 +37738,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableType(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37773,14 +37773,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableValue(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37809,14 +37809,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariable(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37844,14 +37844,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeVariable(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37877,14 +37877,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createSignature(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37910,14 +37910,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getSignature(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37943,14 +37943,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeSignature(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -37974,14 +37974,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getSignatureCount(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38005,14 +38005,14 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getSignatureIterator(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38067,14 +38067,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38117,14 +38117,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38167,14 +38167,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38229,14 +38229,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38279,14 +38279,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38331,14 +38331,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38383,14 +38383,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38443,14 +38443,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38493,14 +38493,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38553,14 +38553,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38605,14 +38605,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38657,14 +38657,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38717,14 +38717,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38767,14 +38767,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38829,14 +38829,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38891,14 +38891,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -38951,14 +38951,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39003,14 +39003,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39078,14 +39078,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39143,14 +39143,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39205,14 +39205,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39255,14 +39255,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39305,14 +39305,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39367,14 +39367,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39429,14 +39429,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39489,14 +39489,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39549,14 +39549,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39601,14 +39601,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39663,14 +39663,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39725,14 +39725,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes(tvbuff_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39785,14 +39785,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39837,14 +39837,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39912,14 +39912,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -39977,14 +39977,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40029,14 +40029,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent(tvbuff_t *tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40081,14 +40081,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40141,14 +40141,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40201,14 +40201,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesO
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40263,14 +40263,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapab
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40323,14 +40323,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentit
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40375,14 +40375,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40426,14 +40426,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityAttr
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40476,14 +40476,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttr
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40527,14 +40527,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttribu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40585,14 +40585,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAtt
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40647,14 +40647,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40697,14 +40697,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40755,14 +40755,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40817,14 +40817,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAtt
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40879,14 +40879,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityType
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40939,14 +40939,14 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAt
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -40990,14 +40990,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentAttribute(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41040,14 +41040,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41091,14 +41091,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41149,14 +41149,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttribute
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41211,14 +41211,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41261,14 +41261,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41319,14 +41319,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41381,14 +41381,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttribute
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41443,14 +41443,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttrib
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41503,14 +41503,14 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttribut
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41554,14 +41554,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapabilityAttr
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41604,14 +41604,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttr
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41655,14 +41655,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttribu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41713,14 +41713,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAtt
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41775,14 +41775,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41825,14 +41825,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41883,14 +41883,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -41945,14 +41945,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttribu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42007,14 +42007,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttr
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42067,14 +42067,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttrib
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42129,14 +42129,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesTo
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42191,14 +42191,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilities
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42251,14 +42251,14 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfTy
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42310,14 +42310,14 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42343,14 +42343,14 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_obtainInterface(tvbuf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42394,14 +42394,14 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42449,14 +42449,14 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl(tvbu
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42514,14 +42514,14 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42580,14 +42580,14 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42655,14 +42655,14 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42720,14 +42720,14 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42785,14 +42785,14 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42851,14 +42851,14 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42917,14 +42917,14 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -42992,14 +42992,14 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence(tvbuff_t *tvb _U
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43067,14 +43067,14 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43143,14 +43143,14 @@ decode_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43219,14 +43219,14 @@ decode_org_csapi_pam_access_IpPAMAvailability_getAvailability(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43275,14 +43275,14 @@ decode_org_csapi_pam_access_IpPAMAvailability_getPreference(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43335,14 +43335,14 @@ decode_org_csapi_pam_access_IpPAMAvailability_setPreference(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43394,14 +43394,14 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43427,14 +43427,14 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_obtainInterface(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43478,14 +43478,14 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43533,14 +43533,14 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43583,14 +43583,14 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService(tvb
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43633,14 +43633,14 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService(t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43683,14 +43683,14 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43736,14 +43736,14 @@ decode_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43772,14 +43772,14 @@ decode_org_csapi_pam_event_IpAppPAMEventHandler_eventNotifyErr(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43822,14 +43822,14 @@ decode_org_csapi_pam_event_IpPAMEventHandler_isRegistered(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43872,14 +43872,14 @@ decode_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43939,14 +43939,14 @@ decode_org_csapi_pam_event_IpPAMEventHandler_registerForEvent(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -43989,14 +43989,14 @@ decode_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface(tvbuff_t *tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44039,14 +44039,14 @@ decode_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent(tvbuff_t *tvb _
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44098,14 +44098,14 @@ decode_org_csapi_pam_event_IpPAMEventManager_getAuthToken(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44131,14 +44131,14 @@ decode_org_csapi_pam_event_IpPAMEventManager_obtainInterface(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44182,14 +44182,14 @@ decode_org_csapi_pam_event_IpPAMEventManager_getAccessControl(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44237,14 +44237,14 @@ decode_org_csapi_pam_event_IpPAMEventManager_setAccessControl(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44287,14 +44287,14 @@ decode_org_csapi_pam_event_IpPAMEventManager_activateService(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44337,14 +44337,14 @@ decode_org_csapi_pam_event_IpPAMEventManager_deactivateService(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44387,14 +44387,14 @@ decode_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44421,14 +44421,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_mailboxTerminated(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44474,14 +44474,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification(tvbuff_t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44505,14 +44505,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_notificationsInterrupted(tv
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44536,14 +44536,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_notificationsResumed(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44570,14 +44570,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_multiMediaMessagingTerminat
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44619,14 +44619,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMailboxes(
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44668,14 +44668,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMultiMedia
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44706,14 +44706,14 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_openMailbox(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44746,14 +44746,14 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_openMultiMediaMessaging(tvbuff
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44799,14 +44799,14 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44832,14 +44832,14 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_destroyNotification(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44885,14 +44885,14 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification(tvbuff_t *t
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44919,14 +44919,14 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_getNextNotification(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44952,14 +44952,14 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_enableNotifications(tvbuff_t *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -44983,14 +44983,14 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_disableNotifications(tvbuff_t 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45020,14 +45020,14 @@ decode_org_csapi_mmm_IpAppMailbox_createFolderRes(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45067,14 +45067,14 @@ decode_org_csapi_mmm_IpAppMailbox_createFolderErr(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45121,14 +45121,14 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersRes(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45170,14 +45170,14 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersErr(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45205,14 +45205,14 @@ decode_org_csapi_mmm_IpAppMailbox_deleteFolderRes(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45252,14 +45252,14 @@ decode_org_csapi_mmm_IpAppMailbox_deleteFolderErr(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45287,14 +45287,14 @@ decode_org_csapi_mmm_IpAppMailbox_copyFolderRes(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45334,14 +45334,14 @@ decode_org_csapi_mmm_IpAppMailbox_copyFolderErr(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45369,14 +45369,14 @@ decode_org_csapi_mmm_IpAppMailbox_moveFolderRes(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45416,14 +45416,14 @@ decode_org_csapi_mmm_IpAppMailbox_moveFolderErr(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45453,14 +45453,14 @@ decode_org_csapi_mmm_IpAppMailbox_putMessageRes(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45500,14 +45500,14 @@ decode_org_csapi_mmm_IpAppMailbox_putMessageErr(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45535,14 +45535,14 @@ decode_org_csapi_mmm_IpAppMailbox_copyMessageRes(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45582,14 +45582,14 @@ decode_org_csapi_mmm_IpAppMailbox_copyMessageErr(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45617,14 +45617,14 @@ decode_org_csapi_mmm_IpAppMailbox_moveMessageRes(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45664,14 +45664,14 @@ decode_org_csapi_mmm_IpAppMailbox_moveMessageErr(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45699,14 +45699,14 @@ decode_org_csapi_mmm_IpAppMailbox_deleteMessageRes(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45746,14 +45746,14 @@ decode_org_csapi_mmm_IpAppMailbox_deleteMessageErr(tvbuff_t *tvb _U_, packet_inf
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45804,14 +45804,14 @@ decode_org_csapi_mmm_IpAppMailbox_listMessagesRes(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45851,14 +45851,14 @@ decode_org_csapi_mmm_IpAppMailbox_listMessagesErr(tvbuff_t *tvb _U_, packet_info
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45904,14 +45904,14 @@ decode_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -45951,14 +45951,14 @@ decode_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46004,14 +46004,14 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46051,14 +46051,14 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr(tvbuff_t *tvb _U_, pack
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46106,14 +46106,14 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46153,14 +46153,14 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46209,14 +46209,14 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageContentRes(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46256,14 +46256,14 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageContentErr(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46308,14 +46308,14 @@ decode_org_csapi_mmm_IpAppMailbox_getFullMessageRes(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46355,14 +46355,14 @@ decode_org_csapi_mmm_IpAppMailbox_getFullMessageErr(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46410,14 +46410,14 @@ decode_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46467,14 +46467,14 @@ decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46524,14 +46524,14 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46581,14 +46581,14 @@ decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46636,14 +46636,14 @@ decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46683,14 +46683,14 @@ decode_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46730,14 +46730,14 @@ decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46777,14 +46777,14 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46810,14 +46810,14 @@ decode_org_csapi_mmm_IpMailbox_close(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46845,14 +46845,14 @@ decode_org_csapi_mmm_IpMailbox_createFolderReq(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46880,14 +46880,14 @@ decode_org_csapi_mmm_IpMailbox_getFoldersReq(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46915,14 +46915,14 @@ decode_org_csapi_mmm_IpMailbox_deleteFolderReq(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46952,14 +46952,14 @@ decode_org_csapi_mmm_IpMailbox_copyFolderReq(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -46989,14 +46989,14 @@ decode_org_csapi_mmm_IpMailbox_moveFolderReq(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47041,14 +47041,14 @@ decode_org_csapi_mmm_IpMailbox_putMessageReq(tvbuff_t *tvb _U_, packet_info *pin
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47080,14 +47080,14 @@ decode_org_csapi_mmm_IpMailbox_copyMessageReq(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47119,14 +47119,14 @@ decode_org_csapi_mmm_IpMailbox_moveMessageReq(tvbuff_t *tvb _U_, packet_info *pi
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47156,14 +47156,14 @@ decode_org_csapi_mmm_IpMailbox_deleteMessageReq(tvbuff_t *tvb _U_, packet_info *
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47196,14 +47196,14 @@ decode_org_csapi_mmm_IpMailbox_listMessagesReq(tvbuff_t *tvb _U_, packet_info *p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47235,14 +47235,14 @@ decode_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq(tvbuff_t *tvb _U_, packet
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47289,14 +47289,14 @@ decode_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq(tvbuff_t *tvb _U_, packet_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47326,14 +47326,14 @@ decode_org_csapi_mmm_IpMailbox_getMessageHeadersReq(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47363,14 +47363,14 @@ decode_org_csapi_mmm_IpMailbox_getMessageContentReq(tvbuff_t *tvb _U_, packet_in
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47400,14 +47400,14 @@ decode_org_csapi_mmm_IpMailbox_getFullMessageReq(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47433,14 +47433,14 @@ decode_org_csapi_mmm_IpMailbox_getMailboxInfoPropertiesReq(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47468,14 +47468,14 @@ decode_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47503,14 +47503,14 @@ decode_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47558,14 +47558,14 @@ decode_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47593,14 +47593,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageRes(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47640,14 +47640,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47675,14 +47675,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageRes(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47722,14 +47722,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr(tvbuff_t *tvb _U_
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47775,14 +47775,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47822,14 +47822,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr(tvbuff_t *tvb _U_, 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47864,14 +47864,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport(tvbuff_t *tvb 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -47929,14 +47929,14 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived(tvbuff_t *tvb _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -48017,14 +48017,14 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -48052,14 +48052,14 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_cancelMessageReq(tvbuff_t *tvb _U_, p
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -48087,14 +48087,14 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_queryStatusReq(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -48120,14 +48120,14 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_close(tvbuff_t *tvb _U_, packet_info 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
+            expert_add_info_format(pinfo, item, &ei_parlay_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format_text(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format(pinfo, item, &ei_parlay_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
