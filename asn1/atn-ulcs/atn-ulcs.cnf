@@ -62,71 +62,73 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 				FALSE,
 				&tvb_usr);
 
-		/* call appropiate dissector for bitstring data */
-		switch(ulcs_context_value){
-				case  1: /* ACSE PDU*/
-						ti = proto_tree_add_text(
-								root_tree,
-								tvb,
-								offset,
-								0,
-								ATN_ACSE_PROTO );
-						atn_ulcs_tree = proto_item_add_subtree(ti, ett_atn_acse);
+		if (tvb_usr) {
+			/* call appropiate dissector for bitstring data */
+			switch(ulcs_context_value){
+					case  1: /* ACSE PDU*/
+							ti = proto_tree_add_text(
+									root_tree,
+									tvb,
+									offset,
+									0,
+									ATN_ACSE_PROTO );
+							atn_ulcs_tree = proto_item_add_subtree(ti, ett_atn_acse);
 
-						dissect_ACSE_apdu_PDU(
-								tvb_new_subset_remaining(tvb_usr, 0),
-								pinfo,
-								atn_ulcs_tree);
-						break;
-					case  3: /* USER data; call subdissector for CM, CPDLC ...  */
-
-							/* using dstref for PDV-list only occurrs in DT */
-							atn_cv = find_atn_conversation(
-									&pinfo->dst,
-									pinfo->clnp_dstref,
-									&pinfo->src);
-
-							if(atn_cv) {
-									switch(atn_cv->ae_qualifier){
-											case cma: /* contact management */
-													call_dissector_with_data(
-															atn_cm_handle,
-															tvb_new_subset_remaining(tvb_usr, 0),
-															pinfo,
-															root_tree,
-															NULL);
-													break;
-											case cpdlc: /* plain old cpdlc */
-											case pmcpdlc: /* protected mode cpdlc */
-													call_dissector_with_data(
-															atn_cpdlc_handle,
-															tvb_new_subset_remaining(tvb_usr, 0),
-															pinfo,
-															root_tree,
-															NULL);
-													break;
-											default: /* unknown or unhandled datalink application */
-													dissector_try_heuristic(
-															atn_ulcs_heur_subdissector_list,
-															tvb_new_subset_remaining(tvb_usr,0),
-															actx->pinfo,
-															root_tree,
-															NULL);
-													break;
-									}
-							}
-							else{
-									dissector_try_heuristic(
-											atn_ulcs_heur_subdissector_list,
-											tvb_new_subset_remaining(tvb_usr,0),
-											actx->pinfo,
-											root_tree,
-											NULL);
-							}
+							dissect_ACSE_apdu_PDU(
+									tvb_new_subset_remaining(tvb_usr, 0),
+									pinfo,
+									atn_ulcs_tree);
 							break;
-					default:
-							break;
-		} /* switch(ulcs_context_value) */
+						case  3: /* USER data; call subdissector for CM, CPDLC ...  */
+
+								/* using dstref for PDV-list only occurrs in DT */
+								atn_cv = find_atn_conversation(
+										&pinfo->dst,
+										pinfo->clnp_dstref,
+										&pinfo->src);
+
+								if(atn_cv) {
+										switch(atn_cv->ae_qualifier){
+												case cma: /* contact management */
+														call_dissector_with_data(
+																atn_cm_handle,
+																tvb_new_subset_remaining(tvb_usr, 0),
+																pinfo,
+																root_tree,
+																NULL);
+														break;
+												case cpdlc: /* plain old cpdlc */
+												case pmcpdlc: /* protected mode cpdlc */
+														call_dissector_with_data(
+																atn_cpdlc_handle,
+																tvb_new_subset_remaining(tvb_usr, 0),
+																pinfo,
+																root_tree,
+																NULL);
+														break;
+												default: /* unknown or unhandled datalink application */
+														dissector_try_heuristic(
+																atn_ulcs_heur_subdissector_list,
+																tvb_new_subset_remaining(tvb_usr,0),
+																actx->pinfo,
+																root_tree,
+																NULL);
+														break;
+										}
+								}
+								else{
+										dissector_try_heuristic(
+												atn_ulcs_heur_subdissector_list,
+												tvb_new_subset_remaining(tvb_usr,0),
+												actx->pinfo,
+												root_tree,
+												NULL);
+								}
+								break;
+						default:
+								break;
+			} /* switch(ulcs_context_value) */
+		}
 
 #.END
 

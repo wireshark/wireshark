@@ -5123,15 +5123,17 @@ dissect_atn_cpdlc_CPDLCMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 		offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, FALSE, &tvb_usr);
 
-		switch(check_heur_msg_type(actx->pinfo)){
-				case dm:
-						dissect_atn_cpdlc_ATCDownlinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx, tree, hf_index);
-						break;
-				case um: 
-						dissect_atn_cpdlc_ATCUplinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx , tree, hf_index); 
-						break;
-				default:
-						break;
+		if (tvb_usr) {
+			switch(check_heur_msg_type(actx->pinfo)){
+					case dm:
+							dissect_atn_cpdlc_ATCDownlinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx, tree, hf_index);
+							break;
+					case um: 
+							dissect_atn_cpdlc_ATCUplinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx , tree, hf_index); 
+							break;
+					default:
+							break;
+			}
 		}
 
 

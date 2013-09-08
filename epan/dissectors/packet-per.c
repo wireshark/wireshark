@@ -2063,10 +2063,6 @@ dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
-	/* Start with something because callers expect value_tvb to be non-NULL,
-	 * so we need a non-NULL empty tvb for error cases. */
-	out_tvb = tvb_new_subset(tvb, offset, 0, 0);
-
 DEBUG_ENTRY("dissect_per_bit_string");
 	/* 15.8 if the length is 0 bytes there will be no encoding */
 	if(max_len==0) {
@@ -2429,11 +2425,13 @@ dissect_per_T_octet_aligned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_t
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &actx->external.octet_aligned);
 
-  if (actx->external.u.per.type_cb) {
-    actx->external.u.per.type_cb(actx->external.octet_aligned, 0, actx, tree, actx->external.hf_index);
+  if (actx->external.octet_aligned) {
+    if (actx->external.u.per.type_cb) {
+      actx->external.u.per.type_cb(actx->external.octet_aligned, 0, actx, tree, actx->external.hf_index);
     } else {
-        actx->created_item = proto_tree_add_text(tree, actx->external.octet_aligned, 0, -1, "Unknown EXTERNAL Type");
+      actx->created_item = proto_tree_add_text(tree, actx->external.octet_aligned, 0, -1, "Unknown EXTERNAL Type");
     }
+  }
   return offset;
 }
 
@@ -2444,11 +2442,13 @@ dissect_per_T_arbitrary(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      NO_BOUND, NO_BOUND, FALSE, &actx->external.arbitrary);
 
-  if (actx->external.u.per.type_cb) {
-    actx->external.u.per.type_cb(actx->external.arbitrary, 0, actx, tree, actx->external.hf_index);
+  if (actx->external.arbitrary) {
+    if (actx->external.u.per.type_cb) {
+      actx->external.u.per.type_cb(actx->external.arbitrary, 0, actx, tree, actx->external.hf_index);
     } else {
-        actx->created_item = proto_tree_add_text(tree, actx->external.arbitrary, 0, -1, "Unknown EXTERNAL Type");
+      actx->created_item = proto_tree_add_text(tree, actx->external.arbitrary, 0, -1, "Unknown EXTERNAL Type");
     }
+  }
   return offset;
 }
 
