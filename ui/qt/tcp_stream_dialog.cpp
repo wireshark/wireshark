@@ -434,7 +434,7 @@ void TCPStreamDialog::initializeRoundTripTime()
     sp->graph(0)->setLineStyle(QCPGraph::lsLine);
 
     QVector<double> seq_no, rtt;
-    guint32 seq_base;
+    guint32 seq_base = 0;
     struct unack *unack = NULL, *u;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         if (seg == graph_.segments) {
