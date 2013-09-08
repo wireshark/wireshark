@@ -79,6 +79,8 @@ static int hf_cba_pbaddress_address = -1;
 static int hf_cba_save_ldev_name = -1;
 static int hf_cba_save_result = -1;
 
+static expert_field ei_cba_acco_interface_pointer_unresolved = EI_INIT;
+
 static e_uuid_t uuid_coclass_CBAPhysicalDevice = { 0xcba00000, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 
 
@@ -786,8 +788,7 @@ dissect_ICBALogicalDevice_get_ACCO_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &acco_interf);
     if (acco_interf == NULL) {
-        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN,
-            "LDev_get_ACCO: can't resolve ACCO interface pointer");
+        expert_add_info(pinfo, NULL, &ei_cba_acco_interface_pointer_unresolved);
     }
 
     ldev = cba_ldev_find(pinfo, pinfo->net_src.data, &info->call_data->object_uuid);
@@ -1582,10 +1583,20 @@ proto_register_dcom_cba (void)
         &ett_PBAddress
     };
 
+    static ei_register_info ei[] = {
+        { &ei_cba_acco_interface_pointer_unresolved, { "cba.acco.interface_pointer_unresolved", PI_UNDECODED, PI_WARN, "LDev_get_ACCO: can't resolve ACCO interface pointer", EXPFILL }},
+    };
+
+    expert_module_t* expert_cba_acco;
+
     proto_register_subtree_array (ett_cba, array_length (ett_cba));
 
     proto_ICBAPhysicalDevice = proto_register_protocol ("ICBAPhysicalDevice", "ICBAPDev", "cba_pdev");
     proto_register_field_array(proto_ICBAPhysicalDevice, hf_cba_pdev_array, array_length(hf_cba_pdev_array));
+
+    /* XXX - just pick a protocol to register the expert info in */
+    expert_cba_acco = expert_register_protocol(proto_ICBAPhysicalDevice);
+    expert_register_field_array(expert_cba_acco, ei, array_length(ei));
 
     proto_ICBAPhysicalDevice2 = proto_register_protocol ("ICBAPhysicalDevice2", "ICBAPDev2", "cba_pdev2");
 
