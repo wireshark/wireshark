@@ -1052,7 +1052,7 @@ report_type_length_mismatch(proto_tree *tree, const gchar *descr, int length, gb
 		/* Keep the current item from getting freed by proto_tree_new_item. */
 		tree_data->fi_tmp = NULL;
 
-		expert_add_info_format(NULL, tree, PI_MALFORMED, is_error ? PI_ERROR : PI_WARN, "Trying to fetch %s with length %d", descr, length);
+		expert_add_info_format_internal(NULL, tree, PI_MALFORMED, is_error ? PI_ERROR : PI_WARN, "Trying to fetch %s with length %d", descr, length);
 
 		tree_data->fi_tmp = fi_save;
 	}
@@ -6917,7 +6917,7 @@ proto_tree_add_bitmask_len(proto_tree *parent_tree, tvbuff_t *tvb,
 
 		if (decodable_len < len) {
 			/* Dissector likely requires updating for new protocol revision */
-			expert_add_info_format(NULL, item, PI_UNDECODED, PI_WARN,
+			expert_add_info_format_internal(NULL, item, PI_UNDECODED, PI_WARN,
 					       "Only least-significant %d of %d bytes decoded",
 					       decodable_len, len);
 		}

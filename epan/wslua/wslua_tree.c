@@ -336,7 +336,7 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
             luaL_error(L,"expired TreeItem");
             return 0;
         }
-        expert_add_info_format(lua_pinfo, ti->item, group, severity, "%s", str);
+        expert_add_info_format_internal(lua_pinfo, ti->item, group, severity, "%s", str);
     }
 
     return 0;

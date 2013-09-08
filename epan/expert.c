@@ -357,7 +357,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 
 
 void
-expert_add_info_format(packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, ...)
+expert_add_info_format_internal(packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, ...)
 {
 	va_list ap;
 
@@ -378,7 +378,7 @@ expert_add_info(packet_info *pinfo, proto_item *pi, expert_field *expindex)
 }
 
 void
-expert_add_info_format_text(packet_info *pinfo, proto_item *pi, expert_field *expindex, const char *format, ...)
+expert_add_info_format(packet_info *pinfo, proto_item *pi, expert_field *expindex, const char *format, ...)
 {
 	va_list ap;
 	expert_field_info* eiinfo;
