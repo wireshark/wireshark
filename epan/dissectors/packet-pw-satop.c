@@ -55,6 +55,13 @@ static int hf_cw_seq = -1;
 static int hf_payload = -1;
 static int hf_payload_l = -1;
 
+static expert_field ei_cw_rsv = EI_INIT;
+static expert_field ei_payload_size_invalid_undecoded = EI_INIT;
+static expert_field ei_payload_size_invalid = EI_INIT;
+static expert_field ei_cw_frg = EI_INIT;
+static expert_field ei_cw_bits03 = EI_INIT;
+static expert_field ei_cw_packet_size_too_small = EI_INIT;
+
 static dissector_handle_t data_handle;
 static dissector_handle_t pw_padding_handle;
 
@@ -92,7 +99,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 	{
 		proto_item  *item;
 		item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, ENC_NA);
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, item, &ei_cw_packet_size_too_small,
 				       "PW packet size (%d) is too small to carry sensible information"
 				       ,(int)packet_size);
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
@@ -263,8 +270,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 						if (properties & PWC_CW_BAD_BITS03) /*display only if value is wrong*/
 						{
 							item3 = proto_tree_add_item(tree3, hf_cw_bits03, tvb, 0, 1, ENC_BIG_ENDIAN);
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"Bits 0..3 of Control Word must be 0");
+							expert_add_info(pinfo, item3, &ei_cw_bits03);
 						}
 
 						proto_tree_add_item(tree3, hf_cw_l  , tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -273,35 +279,33 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 						item3 = proto_tree_add_item(tree3, hf_cw_rsv, tvb, 0, 1, ENC_BIG_ENDIAN);
 						if (properties & PWC_CW_BAD_RSV)
 						{
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"RSV bits of Control Word must be 0");
+							expert_add_info(pinfo, item3, &ei_cw_rsv);
 						}
 
 						item3 = proto_tree_add_item(tree3, hf_cw_frg, tvb, 1, 1, ENC_BIG_ENDIAN);
 						if (properties & PWC_CW_BAD_FRAG)
 						{
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"Fragmentation of payload is not allowed for SAToP");
+							expert_add_info(pinfo, item3, &ei_cw_frg);
 						}
 
 						item3 = proto_tree_add_item(tree3, hf_cw_len, tvb, 1, 1, ENC_BIG_ENDIAN);
 						if (properties & PWC_CW_BAD_PAYLEN_LT_0)
 						{
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"Bad Length: too small, must be > %d"
-								,(int)encaps_size);
+							expert_add_info_format_text(pinfo, item3, &ei_payload_size_invalid,
+								"Bad Length: too small, must be > %d",
+								(int)encaps_size);
 						}
 						if (properties & PWC_CW_BAD_PAYLEN_GT_PACKET)
 						{
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"Bad Length: must be <= than PSN packet size (%d)"
-								,(int)packet_size);
+							expert_add_info_format_text(pinfo, item3, &ei_payload_size_invalid,
+								"Bad Length: must be <= than PSN packet size (%d)",
+								(int)packet_size);
 						}
 						if (properties & PWC_CW_BAD_LEN_MUST_BE_0)
 						{
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"Bad Length: must be 0 if SAToP packet size (%d) is > 64"
-								,(int)packet_size);
+							expert_add_info_format_text(pinfo, item3, &ei_payload_size_invalid,
+								"Bad Length: must be 0 if SAToP packet size (%d) is > 64",
+								(int)packet_size);
 						}
 
 						proto_tree_add_item(tree3, hf_cw_seq, tvb, 2, 2, ENC_BIG_ENDIAN);
@@ -313,13 +317,12 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 		/* payload */
 		if (properties & PWC_PAY_SIZE_BAD)
 		{
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+			expert_add_info_format_text(pinfo, item, &ei_payload_size_invalid,
 				"SAToP payload: none found. Size of payload must be <> 0");
 		}
 		else if (payload_size == 0)
 		{
-			expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE,
-				"SAToP payload: omitted to conserve bandwidth");
+			expert_add_info(pinfo, item, &ei_payload_size_invalid_undecoded);
 		}
 		else
 		{
@@ -443,10 +446,21 @@ void proto_register_pw_satop(void)
 	static gint *ett_array[] = {
 		&ett
 	};
+	static ei_register_info ei[] = {
+		{ &ei_cw_packet_size_too_small, { "pwsatop.packet_size_too_small", PI_MALFORMED, PI_ERROR, "PW packet size (%d) is too small to carry sensible information", EXPFILL }},
+		{ &ei_cw_bits03, { "pwsatop.cw.bits03.not_zero", PI_MALFORMED, PI_ERROR, "Bits 0..3 of Control Word must be 0", EXPFILL }},
+		{ &ei_cw_rsv, { "pwsatop.cw.rsv.not_zero", PI_MALFORMED, PI_ERROR, "RSV bits of Control Word must be 0", EXPFILL }},
+		{ &ei_cw_frg, { "pwsatop.cw.frag.not_allowed", PI_MALFORMED, PI_ERROR, "Fragmentation of payload is not allowed for SAToP", EXPFILL }},
+		{ &ei_payload_size_invalid, { "pwsatop.payload.size_invalid", PI_MALFORMED, PI_ERROR, "Bad Length: too small", EXPFILL }},
+		{ &ei_payload_size_invalid_undecoded, { "pwsatop.payload.undecoded", PI_UNDECODED, PI_NOTE, "SAToP payload: omitted to conserve bandwidth", EXPFILL }},
+	};
+	expert_module_t* expert_pwsatop;
 
 	proto = proto_register_protocol(pwc_longname_pw_satop, shortname, "pwsatopcw");
 	proto_register_field_array(proto, hf, array_length(hf));
 	proto_register_subtree_array(ett_array, array_length(ett_array));
+	expert_pwsatop = expert_register_protocol(proto);
+	expert_register_field_array(expert_pwsatop, ei, array_length(ei));
 	register_dissector("pw_satop_mpls", dissect_pw_satop_mpls, proto);
 	register_dissector("pw_satop_udp", dissect_pw_satop_udp, proto);
 	return;

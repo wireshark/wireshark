@@ -55,6 +55,14 @@ static int hf_cw_seq = -1;
 static int hf_payload = -1;
 static int hf_payload_l = -1;
 
+static expert_field ei_payload_size_invalid_undecoded = EI_INIT;
+static expert_field ei_cw_frg = EI_INIT;
+static expert_field ei_payload_size_invalid_error = EI_INIT;
+static expert_field ei_cw_bits03 = EI_INIT;
+static expert_field ei_pref_cw_len = EI_INIT;
+static expert_field ei_cw_lm = EI_INIT;
+static expert_field ei_packet_size_too_small = EI_INIT;
+
 static dissector_handle_t data_handle;
 static dissector_handle_t pw_padding_handle;
 
@@ -99,7 +107,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 	{
 		proto_item  *item;
 		item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, ENC_NA);
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, item, &ei_packet_size_too_small,
 				       "PW packet size (%d) is too small to carry sensible information"
 				       ,(int)packet_size);
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
@@ -265,15 +273,13 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 						if (properties & PWC_CW_BAD_BITS03) /*display only if value is wrong*/
 						{
 							item3 = proto_tree_add_item(tree3, hf_cw_bits03, tvb, 0, 1, ENC_BIG_ENDIAN);
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"Bits 0..3 of Control Word must be 0");
+							expert_add_info(pinfo, item3, &ei_cw_bits03);
 						}
 
 						item3 = proto_tree_add_item(tree3, hf_cw_lm,  tvb, 0, 1, ENC_BIG_ENDIAN);
 						if (properties & PWC_CW_SUSPECT_LM)
 						{
-							expert_add_info_format(pinfo, item3, PI_UNDECODED, PI_WARN
-								,"Reserved combination of L and Modifier bits");
+							expert_add_info(pinfo, item3, &ei_cw_lm);
 						}
 
 						proto_tree_add_item(tree3, hf_cw_r, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -281,29 +287,27 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 						item3 = proto_tree_add_item(tree3, hf_cw_frg, tvb, 1, 1, ENC_BIG_ENDIAN);
 						if (properties & PWC_CW_BAD_FRAG)
 						{
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"Fragmentation of payload is not allowed"
-								" for basic CESoPSN mode");
+							expert_add_info(pinfo, item3, &ei_cw_frg);
 						}
 
 						item3 = proto_tree_add_item(tree3, hf_cw_len, tvb, 1, 1, ENC_BIG_ENDIAN);
 						if (properties & PWC_CW_BAD_PAYLEN_LT_0)
 						{
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"Bad Length: too small, must be > %d"
-								,(int)encaps_size);
+							expert_add_info_format_text(pinfo, item3, &ei_pref_cw_len,
+								"Bad Length: too small, must be > %d",
+								(int)encaps_size);
 						}
 						if (properties & PWC_CW_BAD_PAYLEN_GT_PACKET)
 						{
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"Bad Length: must be <= than PSN packet size (%d)"
-								,(int)packet_size);
+							expert_add_info_format_text(pinfo, item3, &ei_pref_cw_len,
+								"Bad Length: must be <= than PSN packet size (%d)",
+								(int)packet_size);
 						}
 						if (properties & PWC_CW_BAD_LEN_MUST_BE_0)
 						{
-							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
-								,"Bad Length: must be 0 if CESoPSN packet size (%d) is > 64"
-								,(int)packet_size);
+							expert_add_info_format_text(pinfo, item3, &ei_pref_cw_len,
+								"Bad Length: must be 0 if CESoPSN packet size (%d) is > 64",
+								(int)packet_size);
 						}
 
 						proto_tree_add_item(tree3, hf_cw_seq, tvb, 2, 2, ENC_BIG_ENDIAN);
@@ -318,13 +322,13 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 		{
 			if (properties & PWC_PAY_SIZE_BAD)
 			{
-				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
-					,"CESoPSN payload: none found. Size of payload must be <> 0");
+				expert_add_info_format_text(pinfo, item, &ei_payload_size_invalid_error,
+					"CESoPSN payload: none found. Size of payload must be <> 0");
 			}
 			else
 			{
-				expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE
-					,"CESoPSN payload: omitted to conserve bandwidth");
+				expert_add_info_format_text(pinfo, item, &ei_payload_size_invalid_undecoded,
+					"CESoPSN payload: omitted to conserve bandwidth");
 			}
 		}
 		else
@@ -339,8 +343,8 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 				pwc_item_append_text_n_items(item2,(int)payload_size,"octet");
 				if (properties & PWC_PAY_SIZE_BAD)
 				{
-					expert_add_info_format(pinfo, item2, PI_MALFORMED, PI_ERROR
-						,"CESoPSN packet payload size must be multiple of 8");
+					expert_add_info_format_text(pinfo, item2, &ei_payload_size_invalid_error,
+						"CESoPSN packet payload size must be multiple of 8");
 				}
 				tree2 = proto_item_add_subtree(item2, ett);
 				call_dissector(data_handle, tvb, pinfo, tree2);
@@ -425,10 +429,22 @@ void proto_register_pw_cesopsn(void)
 	static gint *ett_array[] = {
 		&ett
 	};
+	static ei_register_info ei[] = {
+		{ &ei_packet_size_too_small, { "pwcesopsn.packet_size_too_small", PI_MALFORMED, PI_ERROR, "PW packet size is too small to carry sensible information", EXPFILL }},
+		{ &ei_cw_bits03, { "pwcesopsn.cw.bits03.not_zero", PI_MALFORMED, PI_ERROR, "Bits 0..3 of Control Word must be 0", EXPFILL }},
+		{ &ei_cw_lm, { "pwcesopsn.cw.lm.reserved", PI_UNDECODED, PI_WARN, "Reserved combination of L and Modifier bits", EXPFILL }},
+		{ &ei_cw_frg, { "pwcesopsn.cw.frag.not_allowed", PI_MALFORMED, PI_ERROR, "Fragmentation of payload is not allowed for basic CESoPSN mode", EXPFILL }},
+		{ &ei_pref_cw_len, { "pwcesopsn.cw.length.invalid", PI_MALFORMED, PI_ERROR, "Bad Length: too small", EXPFILL }},
+		{ &ei_payload_size_invalid_error, { "pwcesopsn.payload.size_invalid", PI_MALFORMED, PI_ERROR, "CESoPSN payload size invalid", EXPFILL }},
+		{ &ei_payload_size_invalid_undecoded, { "pwcesopsn.payload.undecoded", PI_UNDECODED, PI_NOTE, "CESoPSN payload: omitted to conserve bandwidth", EXPFILL }},
+	};
+	expert_module_t* expert_pwcesopsn;
 
 	proto = proto_register_protocol(pwc_longname_pw_cesopsn, shortname, "pwcesopsn");
 	proto_register_field_array(proto, hf, array_length(hf));
 	proto_register_subtree_array(ett_array, array_length(ett_array));
+	expert_pwcesopsn = expert_register_protocol(proto);
+	expert_register_field_array(expert_pwcesopsn, ei, array_length(ei));
 	register_dissector("pw_cesopsn_mpls", dissect_pw_cesopsn_mpls, proto);
 	register_dissector("pw_cesopsn_udp", dissect_pw_cesopsn_udp, proto);
 	return;
