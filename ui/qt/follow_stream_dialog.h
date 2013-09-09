@@ -31,9 +31,11 @@
 #include <QPrintDialog>
 #include <QInputDialog>
 
-#include <unistd.h>
-
 #include "config.h"
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #include "qt_ui_utils.h"
 
