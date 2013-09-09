@@ -31,6 +31,11 @@ extern "C" {
 #ifdef HAVE_PYTHON
 void register_all_py_protocols_func(void);
 void register_all_py_handoffs_func(void);
+
+WS_DLL_PUBLIC
+dissector_handle_t py_create_dissector_handle(const int proto);
+WS_DLL_PUBLIC
+void py_dissector_args(tvbuff_t ** tvb, packet_info ** pinfo, proto_tree ** tree);
 #endif
 
 #ifdef __cplusplus

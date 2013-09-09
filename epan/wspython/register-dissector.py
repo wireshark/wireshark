@@ -81,8 +81,8 @@ def register_dissectors(wspython_dir,  plugins_pers_dir=None):
               registered_protocol = d.register_protocol()
               if registered_protocol:
                 registered_protocols.append(registered_protocol)
-          except Exception, e:
-              print 'register dissector %s exception %s' % (dissector, e)
+          except Exception as e:
+              print('register dissector %s exception %s' % (dissector, e))
   return registered_protocols
 
 if False:
@@ -98,9 +98,9 @@ if False:
                 filename = filename[:-1]
             name = frame.f_globals["__name__"]
             line = linecache.getline(filename, lineno)
-            print "%s:%s: %s" % (name, lineno, line.rstrip())
+            print("%s:%s: %s" % (name, lineno, line.rstrip()))
         if event == "exception":
-            print "exception", arg
+            print("exception", arg)
         return tracer
 
     sys.settrace(tracer)

@@ -22,7 +22,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from ctypes import cdll, c_void_p, c_int, POINTER
+from ctypes import cdll, c_char_p, c_void_p, c_int, c_uint, POINTER
 import platform
 
 __libwireshark = None
@@ -46,10 +46,10 @@ def get_libws_handle():
       __libwireshark.py_create_dissector_handle.restype = c_void_p
       __libwireshark.py_create_dissector_handle.argtypes = [c_int]
       __libwireshark.py_dissector_args.argtypes = [POINTER(c_void_p),POINTER(c_void_p),POINTER(c_void_p)]
-      __libwireshark.proto_tree_add_item.argtypes = [c_void_p,
-        c_int, c_void_p, c_int, c_int, c_int]
+      __libwireshark.dissector_add_uint.argtypes = [c_char_p, c_uint, c_void_p]
+      __libwireshark.proto_tree_add_item.argtypes = [c_void_p, c_int, c_void_p, c_int, c_int, c_int]
 
     return __libwireshark
-  except Exception, e:
-    print e
+  except Exception as e:
+    print(e)
     return None

@@ -80,7 +80,11 @@ char * py_dissector_name(PyObject * py_dissector)
   assert(py_dissector);
   py_object_name = PyObject_Str(py_dissector);
 
+#if PY_MAJOR_VERSION == 2
   return PyString_AS_STRING(py_object_name);
+#else
+  return PyUnicode_AsString(py_object_name);
+#endif
 }
 
 /**
@@ -206,7 +210,7 @@ void py_dissect(tvbuff_t * tvb, packet_info * pinfo,
 
 dissector_handle_t py_create_dissector_handle(const int proto)
 {
-		return create_dissector_handle(&py_dissect, proto);
+  return create_dissector_handle(&py_dissect, proto);
 }
 
 static void register_all_py_handoffs_foreach(gpointer key _U_, gpointer value, gpointer user_data _U_)

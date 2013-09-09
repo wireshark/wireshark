@@ -33,7 +33,7 @@ BASE_HEX,
 BASE_OCT,
 BASE_DEC_HEX,
 BASE_HEX_DEC,
-BASE_CUSTOM) = map(int, xrange(7))
+BASE_CUSTOM) = map(int, range(7))
 
 # field types, see epan/ftypes/ftypes.h
 (FT_NONE,
@@ -66,7 +66,7 @@ FT_IPXNET,
 FT_FRAMENUM,
 FT_PCRE,
 FT_GUID,
-FT_OID) = map(int, xrange(31))
+FT_OID) = map(int, range(31))
 
 # hf_register_info from usual dissectors
 class register_info(object):
@@ -96,7 +96,7 @@ class register_info(object):
     if not self.__hf_register:
       return None
 
-    for i in xrange(lr):
+    for i in range(lr):
       n, sd, t, d, st, bm, ld = hf[i]
       sdn = sd.replace('.', '_')
       self.__dict__[sdn] = ct.c_int(-1)
@@ -145,7 +145,7 @@ class Subtree(object):
     CSubtrees = ct.POINTER(ct.c_int) * ls
     p_sts = CSubtrees()
     k = self.__st.keys()
-    for i in xrange(ls):
+    for i in range(ls):
       p_sts[i] = ct.pointer(self.__st[k[i]])
 
     self.__wsl.proto_register_subtree_array(p_sts, ls)
@@ -198,7 +198,7 @@ class Dissector(object):
   tree = property(_tree)
 
   def display(self):
-    print self.__short
+    print(self.__short)
 
   def _libhandle(self):
     '''libhandle property : return a handle to the libwireshark lib. You don't
@@ -276,7 +276,7 @@ class Dissector(object):
         p_tree = self.tree.add_item(self.protocol())
         self.__Tree = p_tree.add_subtree(self.subtrees)
     except:
-      print 'pre_dissect error',e
+      print('pre_dissect error',e)
     self.dissect()
 
   def protocol_ids(self):
@@ -308,8 +308,8 @@ class Dissector(object):
         ct_type = ct.create_string_buffer(type)
         ct_protocol_id = ct.c_uint(protocol_id)
         self.__wsl.dissector_add_uint(ct_type, ct_protocol_id, handle)
-    except Exception, e:
-      print "creating dissector failed", e
+    except Exception as e:
+      print("creating dissector \"%s\" failed %s" % (self.__protocol_name, e))
       raise
 
   def advance(self, step):
@@ -327,7 +327,7 @@ class Dissector(object):
 class Tree(object):
   def __init__(self, tree, dissector):
     self.__dissector = dissector
-    self.__tree = tree
+    self.__tree = ct.c_void_p(tree)
     self.__wsl = dissector.libhandle
     self.__tvb = dissector.raw_tvb
 
@@ -341,8 +341,8 @@ class Tree(object):
       tree = self.__wsl.proto_tree_add_item(self.__tree,
         field, self.__tvb, self.__dissector.offset, length,
         little_endian)
-    except Exception, e:
-      print e
+    except Exception as e:
+      print(e)
     else:
       if length > 0 and adv:
         self.__dissector.advance(length)
@@ -352,8 +352,8 @@ class Tree(object):
     '''add unsigned integer to the tree'''
     try:
       tree = self.__wsl.proto_tree_add_uint(self.__tree, field, self.__tvb, self.__dissector.offset, length, value)
-    except Exception, e:
-      print e
+    except Exception as e:
+      print(e)
     else:
       if adv:
         self.__dissector.advance(length)
@@ -363,8 +363,8 @@ class Tree(object):
     '''add text to the tree'''
     try:
       tree = self.__wsl.proto_tree_add_text(self.__tree, self.__tvb, self.__dissector.offset, length, string)
-    except Exception, e:
-      print e
+    except Exception as e:
+      print(e)
     else:
       if length > 0 and adv:
         self.__dissector.advance(length)
@@ -374,8 +374,8 @@ class Tree(object):
     '''add a subtree to the tree'''
     try:
       tree = self.__wsl.proto_item_add_subtree(self.__tree, subtree)
-    except Exception, e:
-      print e
+    except Exception as e:
+      print(e)
     else:
       return Tree(tree, self.__dissector)
 
@@ -451,9 +451,9 @@ if False:
                 filename = filename[:-1]
             name = frame.f_globals["__name__"]
             line = linecache.getline(filename, lineno)
-            print "%s:%s: %s" % (name, lineno, line.rstrip())
+            print("%s:%s: %s" % (name, lineno, line.rstrip()))
         if event == "exception":
-            print "exception", arg
+            print("exception", arg)
         return tracer
 
     sys.settrace(tracer)
