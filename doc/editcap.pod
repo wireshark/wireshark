@@ -105,8 +105,10 @@ file formats leaves some random bytes at the end of each packet. Another use is
 for removing vlan tags.
 
 NOTE: This option can be used more than once, effectively allowing you to chop
-bytes from the beginning of a packet as well as from the end of a packet in a
-single step.
+bytes from two different areas of a packet in a single pass provided that
+you specify at least one chop length as a postive value and at least one as a
+negative value.  All positive chop lengths are added together as are all
+negative chop lengths.
 
 =item -d
 
@@ -189,7 +191,7 @@ packets were used).
 
 =item -S  E<lt>strict time adjustmentE<gt>
 
-Time adjust selected packets to insure strict chronological order.
+Time adjust selected packets to ensure strict chronological order.
 
 The <strict time adjustment> value represents relative seconds
 specified as [-]I<seconds>[I<.fractional seconds>].
@@ -205,7 +207,7 @@ will adjusted.  The adjusted timestamp value will be set to be
 equal to the timestamp value of the previous packet plus the value
 of the <strict time adjustment> value.  A <strict time adjustment>
 value of 0 will adjust the minimum number of timestamp values
-necessary to insure that the resulting capture file is in
+necessary to ensure that the resulting capture file is in
 strict chronological order.
 
 If <strict time adjustment> value is specified as a
@@ -344,7 +346,7 @@ To advance the timestamps of each packet forward by 3.0827 seconds:
 
     editcap -t 3.0827 capture.pcap adjusted.pcap
 
-To insure all timestamps are in strict chronological order:
+To ensure all timestamps are in strict chronological order:
 
     editcap -S 0 capture.pcap adjusted.pcap
 
@@ -352,9 +354,15 @@ To introduce 5% random errors in a capture file use:
 
     editcap -E 0.05 capture.pcap capture_error.pcap
 
-To remove vlan tags from an Ethernet-encapsulated capture file use:
+To remove vlan tags from all packets within an Ethernet-encapsulated capture
+file, use:
 
     editcap -L -C 12:4 capture_vlan.pcap capture_no_vlan.pcap
+
+To remove the IP header as well as the last 4 bytes from all packets within an
+Ethernet-encapsulated capture file, use:
+
+    editcap -C 14:20 -C -4 capture.pcap chopped.pcap
 
 =head1 SEE ALSO
 

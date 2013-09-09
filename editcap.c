@@ -143,6 +143,15 @@ struct time_adjustment {
     int is_negative;
 };
 
+typedef struct _chop_t {
+    int len_begin;
+    int off_begin_pos;
+    int off_begin_neg;
+    int len_end;
+    int off_end_pos;
+    int off_end_neg;
+} chop_t;
+
 #define MAX_SELECTIONS  512
 static struct select_item selectfrm[MAX_SELECTIONS];
 static int max_selected = -1;
@@ -168,6 +177,9 @@ static struct time_adjustment strict_time_adj = {{0, 0}, 0}; /* strict time adju
 static nstime_t previous_time = {0, 0}; /* previous time */
 
 static int find_dct2000_real_data(guint8 *buf);
+static void handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
+                            const struct wtap_pkthdr *in_phdr, guint8 *buf,
+                            gboolean adjlen);
 
 static gchar *
 abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
@@ -721,7 +733,9 @@ usage(gboolean is_error)
     fprintf(output, "                         then the bytes chopped will be offset from that value.\n");
     fprintf(output, "                         Positive offsets are from the packet beginning,\n");
     fprintf(output, "                         negative offsets are from the packet end. You can use\n");
-    fprintf(output, "                         this option more than once.\n");
+    fprintf(output, "                         this option more than once, allowing up to 2 chopping\n");
+    fprintf(output, "                         regions within a packet provided that at least 1\n");
+    fprintf(output, "                         choplen is positive and at least 1 is negative.\n");
     fprintf(output, "  -L                     adjust the frame length when chopping and/or snapping\n");
     fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
     fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
@@ -847,10 +861,7 @@ main(int argc, char *argv[])
 
     char *p;
     guint32 snaplen = 0;                /* No limit               */
-    int choplen_begin = 0;              /* No chop at beginning   */
-    int choplen_end = 0;                /* No chop at end         */
-    int chopoff_begin_pos = 0, chopoff_begin_neg = 0;/* Offsets for chopping from beginning */
-    int chopoff_end_pos = 0, chopoff_end_neg = 0;    /* Offset for chopping from end */
+    chop_t chop = {0, 0, 0, 0, 0, 0};   /* No chop */
     gboolean adjlen = FALSE;
     wtap_dumper *pdh = NULL;
     unsigned int count = 1;
@@ -955,7 +966,12 @@ main(int argc, char *argv[])
         case 'C':
         {
             int choplen = 0, chopoff = 0;
-
+#if 0
+    int choplen_begin = 0;              /* No chop at beginning   */
+    int choplen_end = 0;                /* No chop at end         */
+    int chopoff_begin_pos = 0, chopoff_begin_neg = 0;/* Offsets for chopping from beginning */
+    int chopoff_end_pos = 0, chopoff_end_neg = 0;    /* Offset for chopping from end */
+#endif
             switch (sscanf(optarg, "%d:%d", &chopoff, &choplen)) {
             case 1: /* only the chop length was specififed */
                 choplen = chopoff;
@@ -973,17 +989,17 @@ main(int argc, char *argv[])
             }
 
             if (choplen > 0) {
-                choplen_begin += choplen;
+                chop.len_begin += choplen;
                 if (chopoff > 0)
-                    chopoff_begin_pos += chopoff;
+                    chop.off_begin_pos += chopoff;
                 else
-                    chopoff_begin_neg += chopoff;
+                    chop.off_begin_neg += chopoff;
             } else if (choplen < 0) {
-                choplen_end += choplen;
+                chop.len_end += choplen;
                 if (chopoff > 0)
-                    chopoff_end_pos += chopoff;
+                    chop.off_end_pos += chopoff;
                 else
-                    chopoff_end_neg += chopoff;
+                    chop.off_end_neg += chopoff;
             }
             break;
         }
@@ -1310,76 +1326,9 @@ main(int argc, char *argv[])
                 }
 
                 /* CHOP */
-                /* If we're not chopping anything from one side, then the
-                 * offset for that side is meaningless. */
-                if (choplen_begin == 0)
-                    chopoff_begin_pos = chopoff_begin_neg = 0;
-                if (choplen_end == 0)
-                    chopoff_end_pos = chopoff_end_neg = 0;
-
-                if (chopoff_begin_neg < 0) {
-                    chopoff_begin_pos += phdr->caplen + chopoff_begin_neg;
-                    chopoff_begin_neg = 0;
-                }
-                if (chopoff_end_pos > 0) {
-                    chopoff_end_neg += chopoff_end_pos - phdr->caplen;
-                    chopoff_end_pos = 0;
-                }
-
-                /* Make sure we don't chop off more than we have available */
-                if (phdr->caplen < (guint32)(chopoff_begin_pos - chopoff_end_neg)) {
-                    choplen_begin = 0;
-                    choplen_end = 0;
-                }
-                if ((guint32)(choplen_begin - choplen_end) >
-                    (phdr->caplen - (guint32)(chopoff_begin_pos - chopoff_end_neg))) {
-                    choplen_begin = phdr->caplen - (chopoff_begin_pos - chopoff_end_neg);
-                    choplen_end = 0;
-                }
-
-                /* Handle chopping from the beginning.  Note that if a
-                 * beginning offset was specified, we need to keep that piece */
-                if (choplen_begin > 0) {
-                    snap_phdr = *phdr;
-
-                    if (chopoff_begin_pos > 0) {
-                        memmove(&buf[chopoff_begin_pos],
-                                &buf[chopoff_begin_pos + choplen_begin],
-                                snap_phdr.caplen - choplen_begin);
-                    } else {
-                        buf += choplen_begin;
-                    }
-                    snap_phdr.caplen -= choplen_begin;
-
-                    if (adjlen) {
-                        if (phdr->len > (guint32)choplen_begin)
-                            snap_phdr.len -= choplen_begin;
-                        else
-                            snap_phdr.len = 0;
-                    }
-                    phdr = &snap_phdr;
-                }
-
-                /* Handle chopping from the end.  Note that if an ending offset
-                 * was specified, we need to keep that piece */
-                if (choplen_end < 0) {
-                    snap_phdr = *phdr;
-
-                    if (chopoff_end_neg < 0) {
-                        memmove(&buf[(gint)snap_phdr.caplen + (choplen_end + chopoff_end_neg)],
-                                &buf[(gint)snap_phdr.caplen + chopoff_end_neg], -
-                                chopoff_end_neg);
-                    }
-                    snap_phdr.caplen += choplen_end;
-
-                    if (adjlen) {
-                        if (((signed int) phdr->len + choplen_end) > 0)
-                            snap_phdr.len += choplen_end;
-                        else
-                            snap_phdr.len = 0;
-                    }
-                    phdr = &snap_phdr;
-                }
+                snap_phdr = *phdr;
+                handle_chopping(chop, &snap_phdr, phdr, buf, adjlen);
+                phdr = &snap_phdr;
 
                 /* Do we adjust timestamps to ensure strict chronological
                  * order? */
@@ -1685,6 +1634,103 @@ find_dct2000_real_data(guint8 *buf)
     n += 2;                             /* Direction & encap */
 
     return n;
+}
+
+/*
+ * We support up to 2 chopping regions in a single pas, one specified by the
+ * positive chop length, and one by the negative chop length.
+ */
+static void
+handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
+                const struct wtap_pkthdr *in_phdr, guint8 *buf,
+                gboolean adjlen)
+{
+    /* If we're not chopping anything from one side, then the offset for that
+     * side is meaningless. */
+    if (chop.len_begin == 0)
+        chop.off_begin_pos = chop.off_begin_neg = 0;
+    if (chop.len_end == 0)
+        chop.off_end_pos = chop.off_end_neg = 0;
+
+    if (chop.off_begin_neg < 0) {
+        chop.off_begin_pos += in_phdr->caplen + chop.off_begin_neg;
+        chop.off_begin_neg = 0;
+    }
+    if (chop.off_end_pos > 0) {
+        chop.off_end_neg += chop.off_end_pos - in_phdr->caplen;
+        chop.off_end_pos = 0;
+    }
+
+    /* If we've crossed chopping regions, swap them */
+    if (chop.len_begin && chop.len_end) {
+        if (chop.off_begin_pos > ((int)in_phdr->caplen + chop.off_end_neg)) {
+            int tmp_len, tmp_off;
+
+            tmp_off = in_phdr->caplen + chop.off_end_neg + chop.len_end;
+            tmp_len = -chop.len_end;
+
+            chop.off_end_neg = chop.len_begin + chop.off_begin_pos - in_phdr->caplen;
+            chop.len_end = -chop.len_begin;
+
+            chop.len_begin = tmp_len;
+            chop.off_begin_pos = tmp_off;
+        }
+    }
+
+    /* Make sure we don't chop off more than we have available */
+    if (in_phdr->caplen < (guint32)(chop.off_begin_pos - chop.off_end_neg)) {
+        chop.len_begin = 0;
+        chop.len_end = 0;
+    }
+    if ((guint32)(chop.len_begin - chop.len_end) >
+        (in_phdr->caplen - (guint32)(chop.off_begin_pos - chop.off_end_neg))) {
+        chop.len_begin = in_phdr->caplen - (chop.off_begin_pos - chop.off_end_neg);
+        chop.len_end = 0;
+    }
+
+    /* Handle chopping from the beginning.  Note that if a beginning offset
+     * was specified, we need to keep that piece */
+    if (chop.len_begin > 0) {
+        *out_phdr = *in_phdr;
+
+        if (chop.off_begin_pos > 0) {
+            memmove(&buf[chop.off_begin_pos],
+                    &buf[chop.off_begin_pos + chop.len_begin],
+                    out_phdr->caplen - chop.len_begin);
+        } else {
+            buf += chop.len_begin;
+        }
+        out_phdr->caplen -= chop.len_begin;
+
+        if (adjlen) {
+            if (in_phdr->len > (guint32)chop.len_begin)
+                out_phdr->len -= chop.len_begin;
+            else
+                out_phdr->len = 0;
+        }
+        in_phdr = out_phdr;
+    }
+
+    /* Handle chopping from the end.  Note that if an ending offset was
+     * specified, we need to keep that piece */
+    if (chop.len_end < 0) {
+        *out_phdr = *in_phdr;
+
+        if (chop.off_end_neg < 0) {
+            memmove(&buf[(gint)out_phdr->caplen + (chop.len_end + chop.off_end_neg)],
+                    &buf[(gint)out_phdr->caplen + chop.off_end_neg],
+                    -chop.off_end_neg);
+        }
+        out_phdr->caplen += chop.len_end;
+
+        if (adjlen) {
+            if (((signed int) in_phdr->len + chop.len_end) > 0)
+                out_phdr->len += chop.len_end;
+            else
+                out_phdr->len = 0;
+        }
+        in_phdr = out_phdr;
+    }
 }
 
 /*
