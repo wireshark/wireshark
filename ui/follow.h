@@ -26,24 +26,6 @@
 #ifndef __FOLLOW__H__
 #define __FOLLOW__H__
 
-#include "glib.h"
-
-#include <epan/follow.h>
-#include <epan/dissectors/packet-ipv6.h>
-#include <epan/prefs.h>
-#include <epan/addr_resolv.h>
-#include <epan/charsets.h>
-#include <epan/epan_dissect.h>
-#include <epan/filesystem.h>
-#include <epan/ipproto.h>
-#include <epan/charsets.h>
-
-#include "config.h"
-#include "globals.h"
-#include "file.h"
-
-#include "version_info.h"
-
 #ifdef SSL_PLUGIN
 #include "packet-ssl-utils.h"
 #else
