@@ -1717,6 +1717,11 @@ void MainWindow::on_actionStatisticsTcpStreamRoundTripTime_triggered()
     openTcpStreamDialog(GRAPH_RTT);
 }
 
+void MainWindow::on_actionStatisticsTcpStreamWindowScaling_triggered()
+{
+    openTcpStreamDialog(GRAPH_WSCALE);
+}
+
 // Help Menu
 void MainWindow::on_actionHelpContents_triggered() {
 

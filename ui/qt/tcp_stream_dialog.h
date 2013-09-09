@@ -36,6 +36,7 @@
 
 #include "qcustomplot.h"
 #include <QDialog>
+#include <QRubberBand>
 
 namespace Ui {
 class TCPStreamDialog;
@@ -58,17 +59,26 @@ public slots:
 protected:
     void showEvent(QShowEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     Ui::TCPStreamDialog *ui;
     capture_file *cap_file_;
-    QMap<double, struct segment *> rel_time_map_;
+    QMap<double, struct segment *> time_stamp_map_;
+    double ts_offset_;
+    bool ts_origin_conn_;
     QMap<double, struct segment *> sequence_num_map_;
+    double seq_offset_;
+    bool seq_origin_zero_;
     struct tcp_graph graph_;
     QCPPlotTitle *title_;
     QCPItemTracer *tracer_;
+    QRectF axis_bounds_;
     guint32 packet_num_;
     QTransform y_axis_xfrm_;
+    bool mouse_drags_;
+    QRubberBand *rubber_band_;
+    QPoint rb_origin_;
 
     int num_dsegs_;
     int num_acks_;
@@ -76,21 +86,27 @@ private:
 
     void fillGraph();
     void resetAxes();
-    void initializeStevens();
-    void initializeThroughput();
-    void initializeRoundTripTime();
+    void fillStevens();
+    void fillThroughput();
+    void fillRoundTripTime();
+    void fillWindowScale();
     QString streamDescription();
     bool compareHeaders(struct segment *seg);
     void toggleTracerStyle(bool force_default = false);
+    QRectF getZoomRanges(QRect zoom_rect);
 
 private slots:
     void graphClicked(QMouseEvent *event);
+    void axisClicked(QCPAxis *axis, QCPAxis::SelectablePart part, QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
+    void mouseReleased(QMouseEvent *event);
     void transformYRange(const QCPRange &y_range1);
     void on_buttonBox_accepted();
     void on_graphTypeComboBox_currentIndexChanged(int index);
     void on_resetButton_clicked();
     void on_otherDirectionButton_clicked();
+    void on_dragToolButton_toggled(bool checked);
+    void on_selectToolButton_toggled(bool checked);
 };
 
 #endif // TCP_STREAM_DIALOG_H

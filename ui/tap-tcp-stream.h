@@ -44,8 +44,10 @@ struct segment {
     guint32 num;
     guint32 rel_secs;
     guint32 rel_usecs;
+    /* Currently unused.
     guint32 abs_secs;
     guint32 abs_usecs;
+    */
 
     guint32 th_seq;
     guint32 th_ack;
@@ -70,6 +72,7 @@ struct tcp_graph {
     guint16          src_port;
     address          dst_address;
     guint16          dst_port;
+    guint32          stream;
     /* Should this be a map or tree instead? */
     struct segment  *segments;
 };

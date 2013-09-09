@@ -61,15 +61,18 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
                         tg->src_port, tg->dst_port,
                         &tcphdr->ip_src, &tcphdr->ip_dst,
                         tcphdr->th_sport, tcphdr->th_dport,
-                        ts->direction))
+                        ts->direction)
+        && tg->stream == tcphdr->th_stream)
     {
         struct segment *segment = (struct segment *)g_malloc(sizeof(struct segment));
         segment->next      = NULL;
         segment->num       = pinfo->fd->num;
         segment->rel_secs  = (guint32)pinfo->rel_ts.secs;
         segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
+        /* Currently unused
         segment->abs_secs  = (guint32)pinfo->fd->abs_ts.secs;
         segment->abs_usecs = pinfo->fd->abs_ts.nsecs/1000;
+        */
         segment->th_seq    = tcphdr->th_seq;
         segment->th_ack    = tcphdr->th_ack;
         segment->th_win    = tcphdr->th_win;
@@ -111,7 +114,8 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
     if (!cf || !tg) return;
 
     if (!stream_known) {
-        if (!select_tcpip_session(cf, &current)) return;
+        struct tcpheader *header = select_tcpip_session(cf, &current);
+        if (!header) return;
         if (tg->type == GRAPH_THROUGHPUT)
             ts.direction = COMPARE_CURR_DIR;
         else
@@ -122,6 +126,7 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
         tg->src_port = current.th_sport;
         COPY_ADDRESS(&tg->dst_address, &current.ip_dst);
         tg->dst_port = current.th_dport;
+        tg->stream = header->th_stream;
     }
 
     /* rescan all the packets and pick up all interesting tcp headers.
@@ -328,8 +333,10 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     hdrs->num   = fdata->num;
     hdrs->rel_secs  = (guint32) rel_ts.secs;
     hdrs->rel_usecs = rel_ts.nsecs/1000;
+    /* Currently unused
     hdrs->abs_secs  = (guint32) fdata->abs_ts.secs;
     hdrs->abs_usecs = fdata->abs_ts.nsecs/1000;
+    */
     hdrs->th_seq    = th.tcphdrs[0]->th_seq;
     hdrs->th_ack    = th.tcphdrs[0]->th_ack;
     hdrs->th_win    = th.tcphdrs[0]->th_win;

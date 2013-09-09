@@ -15,4 +15,8 @@
         <file>plus-8.png</file>
         <file>copy-8.png</file>
     </qresource>
+    <qresource prefix="/graph">
+        <file>openhand-16.png</file>
+        <file>rubberband-16.png</file>
+    </qresource>
 </RCC>

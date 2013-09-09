@@ -322,6 +322,7 @@
      <addaction name="actionStatisticsTcpStreamStevens"/>
      <addaction name="actionStatisticsTcpStreamThroughput"/>
      <addaction name="actionStatisticsTcpStreamRoundTripTime"/>
+     <addaction name="actionStatisticsTcpStreamWindowScaling"/>
     </widget>
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
@@ -1272,6 +1273,14 @@
    </property>
    <property name="toolTip">
     <string>TCP round trip time</string>
+   </property>
+  </action>
+  <action name="actionStatisticsTcpStreamWindowScaling">
+   <property name="text">
+    <string>Window Scaling</string>
+   </property>
+   <property name="toolTip">
+    <string>TCP window scaling</string>
    </property>
   </action>
  </widget>
