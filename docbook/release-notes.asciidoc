@@ -120,6 +120,18 @@ The following bugs have been fixed:
 
 * Build fails if system Python is version 3+. (ws-buglink:8995[])
 
+* SCSI dissector does not parse PERSISTENT RESERVE commands correctly. (ws-buglink:9012[])
+
+* SDP messages throws an assert. (ws-buglink:9022[])
+
+* Wireshark fails to decode single-line, multiple Contact: URIs in SIP responses. (ws-buglink:9031[])
+
+* PN_MRP LinkUp Message is shown as LinkDown in info. (ws-buglink:9035[])
+
+* Dissector for EtherCAT: ADS highlighting in the Packet Bytes Pane is incorrect. (ws-buglink:9036[])
+
+* 802.11 HT Extended Capabilities B10 decode incorrect. (ws-buglink:9038[])
+
 * Warning for attempting to install 64-bit Wireshark on a 32-bit machine has an embedded "\n". (ws-buglink:9103[])
 
 === New and Updated Features
@@ -137,11 +149,16 @@ There are no new protocols in this release.
 ASN.1 PER
 ASSA R3
 Bluetooth HCI ACL
+EtherCAT AMS
+IEEE 802.11
 IPFIX
 LDAP
 MQ
 NBAP
+PROFINET MRP
 RTPS
+SCSI
+SIP
 
 --sort-and-group--
 

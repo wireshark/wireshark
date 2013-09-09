@@ -148,6 +148,9 @@ static int hf_scsi_persresvout_reskey           = -1;
 static int hf_scsi_persresvout_sareskey         = -1;
 static int hf_scsi_persresvout_obsolete         = -1;
 static int hf_scsi_persresvout_control          = -1;
+static int hf_scsi_persresvout_rel_tpi          = -1;
+static int hf_scsi_persresvout_transportid_len  = -1;
+static int hf_scsi_persresvout_transportid      = -1;
 static int hf_scsi_persresv_control_rsvd        = -1;
 static int hf_scsi_persresv_control_rsvd1       = -1;
 static int hf_scsi_persresv_control_rsvd2       = -1;
@@ -1070,6 +1073,8 @@ static const value_string scsi_persresvout_svcaction_val[] = {
     {4, "Preempt"},
     {5, "Preempt & Abort"},
     {6, "Register & Ignore Existing Key"},
+    {7, "Register & Move"},
+    {8, "Replace Lost Reservation"},
     {0, NULL},
 };
 
@@ -4089,14 +4094,14 @@ dissect_spc_persistentreservein(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
                 offset += 8;
             }
         }
-        else if ((flags & 0x1F) == SCSI_SPC_RESVIN_SVCA_RDRESV) {
+        else if ((flags & 0x1F) == SCSI_SPC_RESVIN_SVCA_RDRESV && len) {
             proto_tree_add_item(tree, hf_scsi_persresv_key, tvb, offset+8,
                                 8, ENC_NA);
             proto_tree_add_item(tree, hf_scsi_persresv_scopeaddr, tvb,
-                                offset+8, 4, ENC_NA);
-            proto_tree_add_item(tree, hf_scsi_persresv_scope, tvb, offset+13,
+                                offset+16, 4, ENC_NA);
+            proto_tree_add_item(tree, hf_scsi_persresv_scope, tvb, offset+21,
                                 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_scsi_persresv_type, tvb, offset+13,
+            proto_tree_add_item(tree, hf_scsi_persresv_type, tvb, offset+21,
                                 1, ENC_BIG_ENDIAN);
         }
     }
@@ -4114,7 +4119,7 @@ dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         proto_tree_add_item(tree, hf_scsi_persresvout_svcaction, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_persresv_scope, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_persresv_type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_scsi_paramlen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_paramlen16, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
                                ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
         /* We store the service action since we want to interpret the params */
@@ -4126,19 +4131,29 @@ dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         proto_tree_add_item(tree, hf_scsi_persresvout_sareskey, tvb,
                             offset +8, 8, ENC_NA);
         if (cdata->itlq->flags == 0x07) {
+            /* Service action REGISTER AND MOVE */
             const int *persresv_fields[] = {
                 &hf_scsi_persresv_control_rsvd,
                 &hf_scsi_persresv_control_unreg,
                 &hf_scsi_persresv_control_aptpl,
                 NULL
             };
+            guint32 tid_len = tvb_get_ntohl(tvb, offset+20);
+
             proto_tree_add_item(tree, hf_scsi_persresvout_obsolete, tvb,
                                 offset+16, 1, ENC_NA);
             proto_tree_add_bitmask(tree, tvb, offset+17,
                                    hf_scsi_persresvout_control, ett_persresv_control,
                                    persresv_fields, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_scsi_persresvout_rel_tpi, tvb,
+                                offset+18, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_scsi_persresvout_transportid_len, tvb,
+                                offset+20, 4, ENC_NA);
+            proto_tree_add_item(tree, hf_scsi_persresvout_transportid, tvb,
+                                offset+24, tid_len, ENC_NA);
         }
         else {
+            /* Other service actions than REGISTER AND MOVE. */
             const int *persresv_fields[] = {
                 &hf_scsi_persresv_control_rsvd1,
                 &hf_scsi_persresv_control_spec_i_pt,
@@ -5296,7 +5311,7 @@ proto_register_scsi(void)
            VALS(scsi_persresvin_svcaction_val), 0x1F, NULL, HFILL}},
         { &hf_scsi_persresvout_svcaction,
           {"Service Action", "scsi.persresvout.svcaction", FT_UINT8, BASE_HEX,
-           VALS(scsi_persresvout_svcaction_val), 0x0F, NULL, HFILL}},
+           VALS(scsi_persresvout_svcaction_val), 0x1F, NULL, HFILL}},
         { &hf_scsi_persresv_scope,
           {"Reservation Scope", "scsi.persresv.scope", FT_UINT8, BASE_HEX,
            VALS(scsi_persresv_scope_val), 0xF0, NULL, HFILL}},
@@ -5315,9 +5330,14 @@ proto_register_scsi(void)
         { &hf_scsi_persresvout_control,
           {"Control", "scsi.presresv.control", FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
+        /* Service action REGISTER AND MOVE */
         { &hf_scsi_persresv_control_rsvd,
           {"Reserved", "scsi.persresv.control.reserved", FT_UINT8, BASE_HEX,
            NULL, 0xFC, NULL, HFILL}},
+        { &hf_scsi_persresv_control_unreg,
+          {"unreg", "scsi.persresv.control.unreg", FT_BOOLEAN, 8,
+           NULL, 0x02, NULL, HFILL}},
+        /* Other service actions than REGISTER AND MOVE */
         { &hf_scsi_persresv_control_rsvd1,
           {"Reserved", "scsi.persresv.control.reserved1", FT_UINT8, BASE_HEX,
            NULL, 0xF0, NULL, HFILL}},
@@ -5333,9 +5353,15 @@ proto_register_scsi(void)
         { &hf_scsi_persresv_control_aptpl,
           {"aptpl", "scsi.persresv.control.aptpl", FT_BOOLEAN, 8,
            TFS(&scsi_aptpl_tfs), 0x01, NULL, HFILL}},
-        { &hf_scsi_persresv_control_unreg,                             /* XXX: originally missing; OK ? */
-            {"unreg", "scsi.persresv.control.unreg", FT_BOOLEAN, 8,
-           NULL, 0x02, NULL, HFILL}},
+        { &hf_scsi_persresvout_rel_tpi,
+          {"rel_tpi", "scsi.persresv.rel_tpi", FT_UINT16, BASE_DEC,
+           NULL, 0x0, NULL, HFILL}},
+        { &hf_scsi_persresvout_transportid_len,
+          {"transportid_len", "scsi.persresv.transportid_len",
+           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        { &hf_scsi_persresvout_transportid,
+          {"transportid_len", "scsi.persresv.transportid",
+           FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_scsi_release_flags,
           {"Release Flags", "scsi.release.flags", FT_UINT8, BASE_HEX, NULL,
            0x0, NULL, HFILL}},

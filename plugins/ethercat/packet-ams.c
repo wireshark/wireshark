@@ -414,7 +414,6 @@ static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
    {
       if( TcpAdsParserHDR_Len > ams_length )
          return offset;
-      ams_length -= TcpAdsParserHDR_Len;
 
       offset = TcpAdsParserHDR_Len;
    }

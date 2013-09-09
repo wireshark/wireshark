@@ -188,7 +188,7 @@ dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item)
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 type)
 {
     guint8      mac[6];
     guint16     port_role;
@@ -225,9 +225,13 @@ dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    col_append_str(pinfo->cinfo, COL_INFO, "LinkDown");
-
-    proto_item_append_text(item, "LinkDown");
+    if (type == 0x04) {
+        col_append_str(pinfo->cinfo, COL_INFO, "LinkDown");
+        proto_item_append_text(item, "LinkDown");
+    } else {
+        col_append_str(pinfo->cinfo, COL_INFO, "LinkUp");
+        proto_item_append_text(item, "LinkUp");
+    }
 
     return offset;
 }
@@ -420,6 +424,8 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             col_append_str(pinfo->cinfo, COL_INFO, ", ");
 
             proto_item_append_text(item, ", ");
+        } else {
+            proto_item_append_text(item, " ");
         }
 
         switch(type) {
@@ -440,7 +446,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             break;
         case 0x04:
         case 0x05: /* dissection of up and down is identical! */
-            offset = dissect_PNMRP_LinkDown(new_tvb, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_LinkDown(new_tvb, offset, pinfo, tree, item, type);
             break;
         case 0x7f:
             offset = dissect_PNMRP_Option(new_tvb, offset, pinfo, tree, item, length);
