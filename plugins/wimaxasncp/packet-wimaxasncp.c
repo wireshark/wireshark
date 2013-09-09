@@ -1902,7 +1902,7 @@ static guint dissect_wimaxasncp_tlvs(
 
             if (tlv_info->decoder == WIMAXASNCP_TLV_UNKNOWN)
             {
-                expert_add_info_format_text(pinfo, type_item, &ei_wimaxasncp_tlv_type,
+                expert_add_info_format(pinfo, type_item, &ei_wimaxasncp_tlv_type,
                                        "Unknown TLV type (%u)",
                                        type);
             }
@@ -2327,7 +2327,7 @@ dissect_wimaxasncp(
             tvb, offset, 1, function_type,
             "Unknown (%u)", function_type);
 
-        expert_add_info_format_text(pinfo, function_type_item,
+        expert_add_info_format(pinfo, function_type_item,
                                &ei_wimaxasncp_function_type,
                                "Unknown function type (%u)",
                                function_type);
@@ -2388,7 +2388,7 @@ dissect_wimaxasncp(
     /* Add expert item if not matched */
     if (strcmp(message_name, unknown) == 0)
     {
-        expert_add_info_format_text(pinfo, item, &ei_wimaxasncp_op_id,
+        expert_add_info_format(pinfo, item, &ei_wimaxasncp_op_id,
                                "Unknown message op (%u)",
                                0x1f & ui8);
     }

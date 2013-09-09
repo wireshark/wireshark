@@ -699,7 +699,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         offset += 1;
         if (block_error != 0) {
-            expert_add_info_format_text(pinfo, item, &ei_pn_dcp_block_error_unknown, "%s",
+            expert_add_info_format(pinfo, item, &ei_pn_dcp_block_error_unknown, "%s",
                                     val_to_str(block_error, pn_dcp_block_error, "Unknown"));
         }
         info_str = ep_strdup_printf(", Response(%s)",

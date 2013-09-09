@@ -424,11 +424,11 @@ cba_pdev_find(packet_info *pinfo, const guint8 *ip, e_uuid_t *ipid)
     if (interf != NULL) {
         pdev = (cba_pdev_t *)interf->parent->private_data;
         if (pdev == NULL) {
-            expert_add_info_format_text(pinfo, NULL, &ei_cba_acco_pdev_find, "pdev_find: no pdev for IP:%s IPID:%s",
+            expert_add_info_format(pinfo, NULL, &ei_cba_acco_pdev_find, "pdev_find: no pdev for IP:%s IPID:%s",
                 ip_to_str(ip), guids_resolve_uuid_to_str(ipid));
         }
     } else {
-        expert_add_info_format_text(pinfo, NULL, &ei_cba_acco_pdev_find_unknown_interface, "pdev_find: unknown interface of IP:%s IPID:%s",
+        expert_add_info_format(pinfo, NULL, &ei_cba_acco_pdev_find_unknown_interface, "pdev_find: unknown interface of IP:%s IPID:%s",
             ip_to_str(ip), guids_resolve_uuid_to_str(ipid));
         pdev = NULL;
     }
@@ -552,11 +552,11 @@ cba_ldev_find(packet_info *pinfo, const void *ip, e_uuid_t *ipid) {
             ldev = (cba_ldev_t *)interf->parent->private_data;
         }
         if (ldev == NULL) {
-            expert_add_info_format_text(pinfo, NULL, &ei_cba_acco_ldev_unknown, "Unknown LDev of %s",
+            expert_add_info_format(pinfo, NULL, &ei_cba_acco_ldev_unknown, "Unknown LDev of %s",
                 ip_to_str((const guint8 *)ip));
         }
     } else {
-        expert_add_info_format_text(pinfo, NULL, &ei_cba_acco_ipid_unknown, "Unknown IPID of %s",
+        expert_add_info_format(pinfo, NULL, &ei_cba_acco_ipid_unknown, "Unknown IPID of %s",
             ip_to_str((const guint8 *)ip));
         ldev = NULL;
     }
@@ -1270,7 +1270,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &cons_interf);
     if (cons_interf == NULL) {
-        expert_add_info_format_text(pinfo, NULL, &ei_cba_acco_conn_consumer,
+        expert_add_info_format(pinfo, NULL, &ei_cba_acco_conn_consumer,
             "Server_Connect: consumer interface invalid");
     }
 
@@ -1426,7 +1426,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
     if (u32Pointer) {
         offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &cons_interf);
         if (cons_interf == NULL) {
-            expert_add_info_format_text(pinfo, NULL, &ei_cba_acco_conn_consumer,
+            expert_add_info_format(pinfo, NULL, &ei_cba_acco_conn_consumer,
                 "Server2_Connect2: consumer interface invalid");
         }
     } else {
@@ -2140,7 +2140,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &cons_interf);
     if (cons_interf == NULL) {
-        expert_add_info_format_text(pinfo, NULL, &ei_cba_acco_conn_consumer,
+        expert_add_info_format(pinfo, NULL, &ei_cba_acco_conn_consumer,
             "ServerSRT_ConnectCR: consumer interface invalid");
     }
 
@@ -3071,7 +3071,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
         if ( u8QC != 0x80 && /* GoodNonCascOk */
             u8QC != 0x1C && /* BadOutOfService (usually permanent, so don't report for every frame) */
             qc_reported == 0) {
-            expert_add_info_format_text(pinfo, item, &ei_cba_acco_qc, "%s QC: %s",
+            expert_add_info_format(pinfo, item, &ei_cba_acco_qc, "%s QC: %s",
                 u8Version == CBA_MRSH_VERSION_DCOM ? "DCOM" : "SRT",
                 val_to_str(u8QC, cba_acco_qc_vals, "Unknown (0x%02x)"));
             qc_reported = 0;

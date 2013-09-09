@@ -204,7 +204,7 @@ dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     item = proto_tree_add_string_format(tree, hf_pn_undecoded_data, tvb, offset, length, "data",
         "Undecoded Data: %d bytes", length);
 
-    expert_add_info_format_text(pinfo, item, &ei_pn_undecoded_data,
+    expert_add_info_format(pinfo, item, &ei_pn_undecoded_data,
                            "Undecoded Data, %u bytes", length);
 
     return offset + length;
