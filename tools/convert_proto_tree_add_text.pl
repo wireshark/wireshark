@@ -24,7 +24,7 @@
 # 0  - no conversions
 # 1  - proto_tree_add_item
 # 10 - expert_add_info
-# 11 - expert_add_info_format_text
+# 11 - expert_add_info_format
 # 12 - proto_tree_add_expert
 # 13 - proto_tree_add_expert_format
 #
@@ -555,7 +555,7 @@ sub patsub {
 		$item_str = sprintf("expert_add_info(pinfo, %s, &%s);",
 						 $proto_tree_list[$_[0]][2], $proto_tree_list[$_[0]][3]);
 	} elsif ($proto_tree_list[$_[0]][0] eq "11") {
-		$item_str = sprintf("expert_add_info_format_text(pinfo, %s, &%s, \"%s\"",
+		$item_str = sprintf("expert_add_info_format(pinfo, %s, &%s, \"%s\"",
 						 $proto_tree_list[$_[0]][2], $proto_tree_list[$_[0]][3],
 						 $proto_tree_list[$_[0]][8]);
 		if ($proto_tree_list[$_[0]][11] ne "") {

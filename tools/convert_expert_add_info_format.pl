@@ -2,7 +2,7 @@
 #
 # Copyright 2013 Michael Mann (see AUTHORS file)
 #
-# A program to help convert expert_add_info_format calls into filterable "items" that
+# A program to help convert the "old" expert_add_info_format API calls into filterable "items" that
 # use the other expert API calls.  The program requires 2 passes.  "Pass 1" (generate) collects 
 # the eligible expert_add_info_format calls and outputs the necessary data into a delimited
 # file.  "Pass 2" (fix-all) takes the data from the delimited file and replaces the
@@ -20,7 +20,7 @@
 #
 # convert proto_tree_add_text_call enumerations:
 # 1  - expert_add_info
-# 2  - expert_add_info_format_text
+# 2  - expert_add_info_format
 # 3  - proto_tree_add_expert
 # 4  - proto_tree_add_expert_format
 #
@@ -276,6 +276,7 @@ sub generate_eis {
 
 		#XXX - conditional?
 		$expert_item[5] =~ s/\"\s*\)\s*;$//;
+		$expert_item[5] =~ s/\"$//;
 
 		#params
 		$expert_item[12] = "";
@@ -343,7 +344,7 @@ sub patsub {
 		$item_str = sprintf("expert_add_info(%s, %s, &%s);",
 						 $expert_list[$_[0]][7], $expert_list[$_[0]][8], $expert_list[$_[0]][2]);
 	} elsif ($expert_list[$_[0]][0] eq "2") {
-		$item_str = sprintf("expert_add_info_format_text(%s, %s, &%s, \"%s\"",
+		$item_str = sprintf("expert_add_info_format(%s, %s, &%s, \"%s\"",
 						 $expert_list[$_[0]][7], $expert_list[$_[0]][8],
 						 $expert_list[$_[0]][2], $expert_list[$_[0]][5]);
 		if (($#{$expert_list[$_[0]]}+1 > 12 ) && ($expert_list[$_[0]][12] ne "")) {
