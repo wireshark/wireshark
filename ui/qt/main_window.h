@@ -111,7 +111,7 @@ private:
     SummaryDialog summary_dialog_;
     ByteViewTab *byte_view_tab_;
     QWidget *empty_pane_;
-    FollowStreamDialog follow_stream_dialog
+    FollowStreamDialog follow_stream_dialog;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
