@@ -56,6 +56,7 @@ protected:
     void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
     void contextMenuEvent(QContextMenuEvent *event);
 
+
 private:
     PacketListModel *packet_list_model_;
     ProtoTree *proto_tree_;
@@ -74,6 +75,7 @@ private:
 
 signals:
     void packetDissectionChanged();
+    void setMenusFollowStream();
 
 public slots:
     void setCaptureFile(capture_file *cf);

@@ -35,6 +35,7 @@
 #include "packet_list.h"
 #include "proto_tree.h"
 #include "wireshark_application.h"
+#include <epan/ipproto.h>
 
 #include "qt_ui_utils.h"
 
@@ -247,6 +248,17 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditPacketComment"));
 
     ctx_menu_.addSeparator();
+    submenu = new QMenu(tr("Follow..."));
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSSLStream"));
+    filter_actions_ << submenu->actions();
+    //    "     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
+    //    "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
+    //    "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
+
+    ctx_menu_.addSeparator();
 //    "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
     ctx_menu_.addSeparator();
     submenu = new QMenu(tr("Apply as Filter"));
@@ -414,6 +426,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     int row = selected.first().top();
     cf_select_packet(cap_file_, row);
     related_packet_delegate_.clear();
+    emit setMenusFollowStream();
 
     if (!cap_file_->edt) return;
 
@@ -447,8 +460,50 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     bool fa_enabled = filter_actions_[0]->isEnabled();
     QAction *act;
 
-    foreach (act, filter_actions_) {
+
+    foreach (act, filter_actions_)
+    {
         act->setEnabled(true);
+
+
+        // check follow stream
+        if (act->text().contains("TCP"))
+        {
+            if (cap_file_->edt->pi.ipproto == IP_PROTO_TCP)
+            {
+                act->setEnabled(true);
+            }
+            else
+            {
+                act->setEnabled(false);
+            }
+        }
+
+
+        if (act->text().contains("UDP"))
+        {
+            if (cap_file_->edt->pi.ipproto == IP_PROTO_UDP)
+            {
+                act->setEnabled(true);
+            }
+            else
+            {
+                act->setEnabled(false);
+            }
+        }
+
+
+        if (act->text().contains("SSL"))
+        {
+            if (epan_dissect_packet_contains_field(cap_file_->edt, "ssl"))
+            {
+                act->setEnabled(true);
+            }
+            else
+            {
+                act->setEnabled(false);
+            }
+        }
     }
     ctx_column_ = columnAt(event->x());
     ctx_menu_.exec(event->globalPos());

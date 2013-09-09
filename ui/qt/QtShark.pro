@@ -210,6 +210,7 @@ FORMS += \
     export_object_dialog.ui \
     file_set_dialog.ui \
     filter_expressions_preferences_frame.ui \
+    follow_stream_dialog.ui \
     font_color_preferences_frame.ui \
     import_text_dialog.ui \
     layout_preferences_frame.ui \
@@ -229,7 +230,6 @@ FORMS += \
     time_shift_dialog.ui \
     uat_dialog.ui \
     tcp_stream_dialog.ui
-
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -260,6 +260,7 @@ HEADERS += $$HEADERS_WS_C \
     export_dissection_dialog.h \
     export_object_dialog.h \
     filter_expressions_preferences_frame.h \
+    follow_stream_dialog.h \
     font_color_preferences_frame.h \
     layout_preferences_frame.h \
     main_window_preferences_frame.h \
@@ -551,6 +552,7 @@ SOURCES += \
     export_object_dialog.cpp \
     file_set_dialog.cpp \
     filter_expressions_preferences_frame.cpp \
+    follow_stream_dialog.cpp \
     font_color_preferences_frame.cpp \
     import_text_dialog.cpp \
     interface_tree.cpp \

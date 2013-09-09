@@ -57,6 +57,7 @@
 #include "ui/gtk/keys.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/font_utils.h"
+#include "ui/follow.h"
 #include "ui/gtk/follow_ssl.h"
 #include "ui/gtk/follow_stream.h"
 
@@ -65,12 +66,6 @@
 #else
 #include <epan/dissectors/packet-ssl-utils.h>
 #endif
-
-
-typedef struct {
-    gboolean   is_from_server;
-    StringInfo data;
-} SslDecryptedRecord;
 
 static int
 ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl)
@@ -130,7 +125,6 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
 
     return 0;
 }
-
 /* Follow the SSL stream, if any, to which the last packet that we called
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */

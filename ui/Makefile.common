@@ -49,6 +49,7 @@ WIRESHARK_UI_SRC = \
 	export_object_dicom.c	\
 	export_object_http.c	\
 	export_object_smb.c	\
+	follow.c		\
 	iface_lists.c		\
 	help_url.c		\
 	packet_list_utils.c	\
@@ -70,6 +71,7 @@ noinst_HEADERS = \
 	export_object.h		\
 	last_open_dir.h		\
 	file_dialog.h		\
+	follow.h		\
 	help_url.h		\
 	packet_list_utils.h	\
 	iface_lists.h		\

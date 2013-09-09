@@ -199,8 +199,13 @@ void MainWindow::filterPackets(QString& new_filter, bool force)
     if (cf_status == CF_OK) {
         emit displayFilterSuccess(true);
         if (new_filter.length() > 0) {
-            if (df_combo_box_->findText(new_filter) < 0) {
+            int index = df_combo_box_->findText(new_filter);
+            if (index == -1) {
                 df_combo_box_->insertItem(0, new_filter);
+                df_combo_box_->setCurrentIndex(0);
+            }
+            else {
+                df_combo_box_->setCurrentIndex(index);
             }
         }
     } else {
@@ -462,6 +467,12 @@ void MainWindow::captureFileClosed(const capture_file *cf) {
     cap_file_ = NULL;
 
     summary_dialog_.close();
+
+    if (df_combo_box_)
+    {
+        df_combo_box_->lineEdit()->setText("");
+        df_combo_box_->applyDisplayFilter();
+    }
 
     setTitlebarForSelectedTreeRow();
     setMenusForSelectedTreeRow();
@@ -1688,6 +1699,57 @@ void MainWindow::on_actionAnalyzePAFAndNotSelected_triggered()
 void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 {
     matchSelectedFilter(MatchSelectedOrNot, false, false);
+}
+
+void MainWindow::on_actionAnalyzeFollowTCPStream_triggered()
+{
+    follow_stream_dialog_.Follow(getFilter(), FOLLOW_TCP);
+
+    if (follow_stream_dialog_.isMinimized() == true)
+    {
+        follow_stream_dialog_.showNormal();
+    }
+    else
+    {
+        follow_stream_dialog_.show();
+    }
+
+    follow_stream_dialog_.raise();
+    follow_stream_dialog_.activateWindow();
+}
+
+void MainWindow::on_actionAnalyzeFollowUDPStream_triggered()
+{
+    follow_stream_dialog_.Follow(getFilter(), FOLLOW_UDP);
+
+    if (follow_stream_dialog_.isMinimized() == true)
+    {
+        follow_stream_dialog_.showNormal();
+    }
+    else
+    {
+        follow_stream_dialog_.show();
+    }
+
+    follow_stream_dialog_.raise();
+    follow_stream_dialog_.activateWindow();
+}
+
+void MainWindow::on_actionAnalyzeFollowSSLStream_triggered()
+{
+    follow_stream_dialog_.Follow(getFilter(), FOLLOW_SSL);
+
+    if (follow_stream_dialog_.isMinimized() == true)
+    {
+        follow_stream_dialog_.showNormal();
+    }
+    else
+    {
+        follow_stream_dialog_.show();
+    }
+
+    follow_stream_dialog_.raise();
+    follow_stream_dialog_.activateWindow();
 }
 
 // Next / previous / first / last slots in packet_list

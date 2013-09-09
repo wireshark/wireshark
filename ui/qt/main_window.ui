@@ -219,6 +219,7 @@
     <addaction name="actionCaptureRestart"/>
     <addaction name="actionCaptureCaptureFilters"/>
     <addaction name="actionCaptureRefreshInterfaces"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -307,6 +308,10 @@
     <addaction name="actionApplyAsColumn"/>
     <addaction name="menuApplyAsFilter"/>
     <addaction name="menuPrepareAFilter"/>
+    <addaction name="separator"/>
+    <addaction name="actionAnalyzeFollowTCPStream"/>
+    <addaction name="actionAnalyzeFollowUDPStream"/>
+    <addaction name="actionAnalyzeFollowSSLStream"/>
    </widget>
    <widget class="QMenu" name="menuStatistics">
     <property name="enabled">
@@ -1281,6 +1286,30 @@
    </property>
    <property name="toolTip">
     <string>TCP window scaling</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeFollowTCPStream">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Follow TCP Stream</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeFollowUDPStream">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Follow UDP Stream</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeFollowSSLStream">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Follow SSL Stream</string>
    </property>
   </action>
  </widget>

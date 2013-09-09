@@ -44,6 +44,7 @@ set(QTSHARK_H_SRC
 	export_object_dialog.h
 	file_set_dialog.h
 	filter_expressions_preferences_frame.h
+	follow_stream_dialog.h
 	font_color_preferences_frame.h
 	import_text_dialog.h
 	interface_tree.h
@@ -104,6 +105,7 @@ set(CLEAN_FILES
 	export_object_dialog.cpp
 	file_set_dialog.cpp
 	filter_expressions_preferences_frame.cpp
+	follow_stream_dialog.cpp
 	font_color_preferences_frame.cpp
 	import_text_dialog.cpp
 	interface_tree.cpp
@@ -152,6 +154,7 @@ set(QTSHARK_UI
 	export_object_dialog.ui
 	file_set_dialog.ui
 	filter_expressions_preferences_frame.ui
+	follow_stream_dialog.ui
 	font_color_preferences_frame.ui
 	import_text_dialog.ui
 	layout_preferences_frame.ui

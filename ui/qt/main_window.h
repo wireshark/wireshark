@@ -57,6 +57,7 @@
 #include "file_set_dialog.h"
 #include "capture_file_dialog.h"
 #include "summary_dialog.h"
+#include "follow_stream_dialog.h"
 
 class QAction;
 
@@ -72,6 +73,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void setPipeInputHandler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb);
+
+    QString getFilter();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -108,6 +111,7 @@ private:
     SummaryDialog summary_dialog_;
     ByteViewTab *byte_view_tab_;
     QWidget *empty_pane_;
+    FollowStreamDialog follow_stream_dialog
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -188,6 +192,7 @@ private slots:
 
     void updateRecentFiles();
     void recentActionTriggered();
+    void setMenusForFollowStream();
     void setMenusForSelectedPacket();
     void setMenusForSelectedTreeRow(field_info *fi = NULL);
     void interfaceSelectionChanged();
@@ -269,6 +274,9 @@ private slots:
     void on_actionAnalyzePAFOrSelected_triggered();
     void on_actionAnalyzePAFAndNotSelected_triggered();
     void on_actionAnalyzePAFOrNotSelected_triggered();
+    void on_actionAnalyzeFollowTCPStream_triggered();
+    void on_actionAnalyzeFollowUDPStream_triggered();
+    void on_actionAnalyzeFollowSSLStream_triggered();
 
     void on_actionHelpContents_triggered();
     void on_actionHelpMPWireshark_triggered();

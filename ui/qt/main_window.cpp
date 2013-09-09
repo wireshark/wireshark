@@ -111,6 +111,7 @@ MainWindow::MainWindow(QWidget *parent) :
     updateRecentFiles();
 
     connect(&summary_dialog_, SIGNAL(captureCommentChanged()), this, SLOT(updateForUnsavedChanges()));
+    connect(&follow_stream_dialog_, SIGNAL(updateFilter(QString&, bool)), this, SLOT(filterPackets(QString&, bool)));
 
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     connect(df_edit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
@@ -263,6 +264,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(setMenusForSelectedPacket()));
     connect(packet_list_, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
+    connect(packet_list_, SIGNAL(setMenusFollowStream()),
+            this, SLOT(setMenusForFollowStream()));
 
     connect(proto_tree_, SIGNAL(protoItemSelected(QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));
@@ -287,6 +290,11 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete main_ui_;
+}
+
+QString MainWindow::getFilter()
+{
+    return df_combo_box_->itemText(df_combo_box_->count());
 }
 
 void MainWindow::setPipeInputHandler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
@@ -1271,6 +1279,34 @@ void MainWindow::setTitlebarForCaptureInProgress()
 }
 
 // Menu state
+
+void MainWindow::setMenusForFollowStream()
+{
+    if (!cap_file_)
+        return;
+
+    if (!cap_file_->edt)
+        return;
+
+    main_ui_->actionAnalyzeFollowTCPStream->setEnabled(false);
+    main_ui_->actionAnalyzeFollowUDPStream->setEnabled(false);
+    main_ui_->actionAnalyzeFollowSSLStream->setEnabled(false);
+
+    if (cap_file_->edt->pi.ipproto == IP_PROTO_TCP)
+    {
+        main_ui_->actionAnalyzeFollowTCPStream->setEnabled(true);
+    }
+
+    if (cap_file_->edt->pi.ipproto == IP_PROTO_UDP)
+    {
+        main_ui_->actionAnalyzeFollowUDPStream->setEnabled(true);
+    }
+
+    if ( epan_dissect_packet_contains_field(cap_file_->edt, "ssl") )
+    {
+        main_ui_->actionAnalyzeFollowSSLStream->setEnabled(true);
+    }
+}
 
 /* Enable or disable menu items based on whether you have a capture file
    you've finished reading and, if you have one, whether it's been saved

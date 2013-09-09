@@ -27,41 +27,7 @@
 #define __FOLLOW_STREAM_H__
 
 #include <gtk/gtk.h>
-
-/* Type of follow we are doing */
-typedef enum {
-    FOLLOW_TCP,
-    FOLLOW_SSL,
-    FOLLOW_UDP
-} follow_type_t;
-
-/* Show Stream */
-typedef enum {
-    FROM_CLIENT,
-    FROM_SERVER,
-    BOTH_HOSTS
-} show_stream_t;
-
-/* Show Type */
-typedef enum {
-    SHOW_ASCII,
-    SHOW_EBCDIC,
-    SHOW_HEXDUMP,
-    SHOW_CARRAY,
-    SHOW_RAW
-} show_type_t;
-
-typedef enum {
-    FRS_OK,
-    FRS_OPEN_ERROR,
-    FRS_READ_ERROR,
-    FRS_PRINT_ERROR
-} frs_return_t;
-
-typedef struct {
-    gboolean is_server;
-    GByteArray *data;
-} follow_record_t;
+#include <ui/follow.h>
 
 typedef struct {
     follow_type_t   follow_type;

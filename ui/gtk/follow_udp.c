@@ -39,6 +39,7 @@
 #include <ui/utf8_entities.h>
 
 #include "gtkglobals.h"
+#include "ui/follow.h"
 #include "ui/gtk/follow_stream.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/main.h"
@@ -75,7 +76,6 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
     follow_info->payload = g_list_append(follow_info->payload, follow_record);
     return 0;
 }
-
 
 /* Follow the UDP stream, if any, to which the last packet that we called
    a dissection routine on belongs (this might be the most recently
