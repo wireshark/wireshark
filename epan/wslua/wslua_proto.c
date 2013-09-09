@@ -1776,7 +1776,7 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
 
 WSLUA_METHOD DissectorTable_add (lua_State *L) {
     /*
-     Add a dissector to a table.
+     Add a dissector or a range of dissectors to a table.
      */
 #define WSLUA_ARG_DissectorTable_add_PATTERN 2 /* The pattern to match (either an integer, a integer range or a string depending on the table's type). */
 #define WSLUA_ARG_DissectorTable_add_DISSECTOR 3 /* The dissector to add (either an Proto or a Dissector). */
@@ -1827,9 +1827,66 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
     return 0;
 }
 
+WSLUA_METHOD DissectorTable_set (lua_State *L) {
+    /*
+     Remove existing dissectors from a table and add a new or a range of new dissectors.
+     */
+#define WSLUA_ARG_DissectorTable_set_PATTERN 2 /* The pattern to match (either an integer, a integer range or a string depending on the table's type). */
+#define WSLUA_ARG_DissectorTable_set_DISSECTOR 3 /* The dissector to add (either an Proto or a Dissector). */
+
+    DissectorTable dt = checkDissectorTable(L,1);
+    ftenum_t type;
+    Dissector handle;
+
+    if (!dt) return 0;
+
+    if( isProto(L,WSLUA_ARG_DissectorTable_set_DISSECTOR) ) {
+        Proto p;
+        p = toProto(L,WSLUA_ARG_DissectorTable_set_DISSECTOR);
+        handle = p->handle;
+
+        if (! handle)
+            WSLUA_ARG_ERROR(DissectorTable_set,DISSECTOR,"a Protocol that does not have a dissector cannot be set to a table");
+
+    } else if ( isDissector(L,WSLUA_ARG_DissectorTable_set_DISSECTOR) ) {
+        handle = toDissector(L,WSLUA_ARG_DissectorTable_set_DISSECTOR);
+    } else
+        WSLUA_ARG_ERROR(DissectorTable_set,DISSECTOR,"must be either Proto or Dissector");
+
+    type = get_dissector_table_selector_type(dt->name);
+
+    if (type == FT_STRING) {
+        gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_set_PATTERN));
+        dissector_delete_all(dt->name, handle);
+        dissector_add_string(dt->name, pattern,handle);
+        g_free (pattern);
+    } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
+        if (lua_isnumber(L, WSLUA_ARG_DissectorTable_set_PATTERN)) {
+            int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_set_PATTERN);
+            dissector_delete_all(dt->name, handle);
+            dissector_add_uint(dt->name, port, handle);
+        } else {
+            /* Not a number, try as range */
+            gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_set_PATTERN));
+            range_t *range;
+            if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR) {
+                dissector_delete_all(dt->name, handle);
+                dissector_add_uint_range(dt->name, range, handle);
+            } else {
+                WSLUA_ARG_ERROR(DissectorTable_set,PATTERN,"invalid integer or range");
+            }
+            g_free (pattern);
+        }
+    } else {
+        luaL_error(L,"Strange type %d for a DissectorTable",type);
+    }
+
+    return 0;
+}
+
 WSLUA_METHOD DissectorTable_remove (lua_State *L) {
     /*
-     Remove a dissector from a table
+     Remove a dissector or a range of dissectors from a table
      */
 #define WSLUA_ARG_DissectorTable_remove_PATTERN 2 /* The pattern to match (either an integer, a integer range or a string depending on the table's type). */
 #define WSLUA_ARG_DissectorTable_remove_DISSECTOR 3 /* The dissector to remove (either an Proto or a Dissector). */
@@ -1857,19 +1914,44 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
         g_free (pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         if (lua_isnumber(L, WSLUA_ARG_DissectorTable_remove_PATTERN)) {
-	  int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
-	  dissector_delete_uint(dt->name, port, handle);
+          int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
+          dissector_delete_uint(dt->name, port, handle);
         } else {
             /* Not a number, try as range */
-	    gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_remove_PATTERN));
+            gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_remove_PATTERN));
             range_t *range;
             if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR)
-	        dissector_delete_uint_range(dt->name, range, handle);
-	    else
-	        WSLUA_ARG_ERROR(DissectorTable_remove,PATTERN,"invalid integer or range");
-	    g_free (pattern);
-	}
+                dissector_delete_uint_range(dt->name, range, handle);
+            else
+                WSLUA_ARG_ERROR(DissectorTable_remove,PATTERN,"invalid integer or range");
+            g_free (pattern);
+        }
     }
+
+    return 0;
+}
+
+WSLUA_METHOD DissectorTable_remove_all (lua_State *L) {
+    /*
+     Remove all dissectors from a table
+     */
+#define WSLUA_ARG_DissectorTable_remove_all_DISSECTOR 2 /* The dissector to add (either an Proto or a Dissector). */
+    DissectorTable dt = checkDissectorTable(L,1);
+    Dissector handle;
+
+    if (!dt) return 0;
+
+    if( isProto(L,WSLUA_ARG_DissectorTable_remove_all_DISSECTOR) ) {
+        Proto p;
+        p = toProto(L,WSLUA_ARG_DissectorTable_remove_all_DISSECTOR);
+        handle = p->handle;
+
+    } else if ( isDissector(L,WSLUA_ARG_DissectorTable_remove_all_DISSECTOR) ) {
+        handle = toDissector(L,WSLUA_ARG_DissectorTable_remove_all_DISSECTOR);
+    } else
+        WSLUA_ARG_ERROR(DissectorTable_remove_all,DISSECTOR,"must be either Proto or Dissector");
+
+    dissector_delete_all (dt->name, handle);
 
     return 0;
 }
@@ -2009,7 +2091,9 @@ static const luaL_Reg DissectorTable_methods[] = {
     {"new", DissectorTable_new },
     {"get", DissectorTable_get },
     {"add", DissectorTable_add },
+    {"set", DissectorTable_set },
     {"remove", DissectorTable_remove },
+    {"remove_all", DissectorTable_remove_all },
     {"try", DissectorTable_try },
     {"get_dissector", DissectorTable_get_dissector },
     { NULL, NULL }
