@@ -35,6 +35,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 
 #if 0
@@ -54,6 +55,7 @@ void proto_reg_handoff_PROTOABBREV(void);
 /* Initialize the protocol and registered fields */
 static int proto_PROTOABBREV = -1;
 static int hf_PROTOABBREV_FIELDABBREV = -1;
+static expert_field ei_PROTOABBREV_EXPERTABBREV = EI_INIT;
 
 /* Global sample preference ("controls" display of numbers) */
 static gboolean gPREF_HEX = FALSE;
@@ -76,7 +78,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
+    proto_item *ti, *expert_ti;
     proto_tree *PROTOABBREV_tree;
     /* Other misc. local variables. */
     guint offset = 0;
@@ -126,7 +128,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * string of "%s" - just use "col_add_str()" or "col_set_str()", as it's
      * more efficient than "col_add_fstr()".
      *
-     * For full details see section 1.5 of README.developer.
+     * For full details see section 1.4 of README.dissector.
      */
 
     /* Set the Protocol column to the constant string of PROTOABBREV */
@@ -161,16 +163,20 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     PROTOABBREV_tree = proto_item_add_subtree(ti, ett_PROTOABBREV);
 
-    /* Add an item to the subtree, see section 1.6 of README.developer for more
+    /* Add an item to the subtree, see section 1.5 of README.dissector for more
      * information. */
-    proto_tree_add_item(PROTOABBREV_tree, hf_PROTOABBREV_FIELDABBREV, tvb,
+    expert_ti = proto_tree_add_item(PROTOABBREV_tree, hf_PROTOABBREV_FIELDABBREV, tvb,
             offset, len, ENC_xxx);
     offset += len;
+    /* Some fields or situations may require "expert" analysis that can be
+     * specifically highlighted. */
+    if ( /* value of hf_PROTOABBREV_FIELDABBREV isn't what's expected */ )
+        expert_add_info(pinfo, expert_ti, &ei_PROTOABBREV_EXPERTABBREV);
 
     /* Continue adding tree items to process the packet here... */
 
     /* If this protocol has a sub-dissector call it here, see section 1.8 of
-     * README.developer for more information. */
+     * README.dissector for more information. */
 
     /* Return the amount of data this dissector was able to dissect (which may
      * or may not be the entire packet as we return here). */
@@ -186,8 +192,9 @@ void
 proto_register_PROTOABBREV(void)
 {
     module_t *PROTOABBREV_module;
+    expert_module_t* expert_PROTOABBREV;
 
-    /* Setup list of header fields  See Section 1.6.1 of README.developer for
+    /* Setup list of header fields  See Section 1.5 of README.dissector for
      * details. */
     static hf_register_info hf[] = {
         { &hf_PROTOABBREV_FIELDABBREV,
@@ -202,6 +209,11 @@ proto_register_PROTOABBREV(void)
         &ett_PROTOABBREV
     };
 
+    /* Setup protocol expert items */
+    static ei_register_info ei[] = {
+        { &ei_PROTOABBREV_EXPERTABBREV, { "PROTOABBREV.EXPERTABBREV", PI_SEVERITY, PI_GROUP, "EXPERTDESCR", EXPFILL }},
+    };
+
     /* Register the protocol name and description */
     proto_PROTOABBREV = proto_register_protocol("PROTONAME",
             "PROTOSHORTNAME", "PROTOABBREV");
@@ -209,8 +221,11 @@ proto_register_PROTOABBREV(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_PROTOABBREV, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    /* Required function calls to register expert items */
+    expert_PROTOABBREV = expert_register_protocol(proto_PROTOABBREV);
+    expert_register_field_array(expert_PROTOABBREV, ei, array_length(ei));
 
-    /* Register a preferences module (see section 2.6 of README.developer
+    /* Register a preferences module (see section 2.6 of README.dissector
      * for more details). Registration of a prefs callback is not required
      * if there are no preferences that affect protocol registration (an example
      * of a preference that would affect registration is a port preference).
