@@ -1929,7 +1929,7 @@ dissect_lte_rrc_warningMessageSegment(tvbuff_t *warning_msg_seg_tvb, proto_tree 
   nb_of_pages = tvb_get_guint8(warning_msg_seg_tvb, 0);
   ti = proto_tree_add_uint(tree, hf_lte_rrc_warningMessageSegment_nb_pages, warning_msg_seg_tvb, 0, 1, nb_of_pages);
   if (nb_of_pages > 15) {
-    expert_add_info_format_text(pinfo, ti, &ei_lte_rrc_number_pages_le15,
+    expert_add_info_format(pinfo, ti, &ei_lte_rrc_number_pages_le15,
                            "Number of pages should be <=15 (found %u)", nb_of_pages);
     nb_of_pages = 15;
   }
@@ -2141,7 +2141,7 @@ static void drx_check_config_sane(drx_config_t *config, asn1_ctx_t *actx)
 {
   /* OnDuration must be shorter than long cycle */
   if (config->onDurationTimer >= config->longCycle) {
-      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+      expert_add_info_format(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
                                   "OnDurationTimer (%u) should be less than long cycle (%u)",
                                   config->onDurationTimer, config->longCycle);
   }
@@ -2149,20 +2149,20 @@ static void drx_check_config_sane(drx_config_t *config, asn1_ctx_t *actx)
   if (config->shortCycleConfigured) {
     /* Short cycle must be < long, and be a multiple of it */
     if (config->shortCycle >= config->longCycle) {
-      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+      expert_add_info_format(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
                                   "Short DRX cycle (%u) must be shorter than long cycle (%u)",
                                   config->shortCycle, config->longCycle);
     }
     /* Long cycle needs to be an exact multiple of the short cycle */
     else if (config->shortCycle && ((config->longCycle % config->shortCycle) != 0)) {
-      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+      expert_add_info_format(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
                                   "Short DRX cycle (%u) must divide the long cycle (%u) exactly",
                                   config->shortCycle, config->longCycle);
 
     }
     /* OnDuration shouldn't be longer than the short cycle */
     if (config->onDurationTimer >= config->shortCycle) {
-      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
+      expert_add_info_format(actx->pinfo, actx->created_item, &ei_lte_rrc_invalid_drx_config,
                                   "OnDurationTimer (%u) should not be longer than the short cycle (%u)",
                                   config->onDurationTimer, config->shortCycle);
     }

@@ -395,7 +395,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	    proto_item_set_text(tree, "C12.22 EPSEM: %s (id %d, user \"%s\")",
 		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), user_id, user_name);
 	} else {
-	    expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 LOGON command truncated");
+	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 LOGON command truncated");
 	}
 	break;
     case C1222_CMD_SECURITY:
@@ -416,7 +416,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		      val_to_str(cmd,commandnames,"Unknown (0x%02x)"), password);
 	    }
 	} else {
-	    expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 SECURITY command truncated");
+	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 SECURITY command truncated");
 	}
 	break;
     case C1222_CMD_AUTHENTICATE:
@@ -432,10 +432,10 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		proto_item_set_text(tree, "C12.22 EPSEM: %s (%d bytes: %s)",
 		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), auth_len, auth_req);
 	    } else {
-		expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 AUTHENTICATE command truncated");
+		expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 AUTHENTICATE command truncated");
 	    }
 	} else {
-	    expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 AUTHENTICATE command truncated");
+	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 AUTHENTICATE command truncated");
 	}
 	break;
     case C1222_CMD_FULL_READ:
@@ -448,7 +448,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	    *offset += 2;
 	    *length -= 2;
 	} else {
-	    expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 READ command truncated");
+	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 READ command truncated");
 	}
 	break;
     case C1222_CMD_PARTIAL_READ_OFFSET:
@@ -467,7 +467,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
 		    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
 	} else {
-	    expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 READ command truncated");
+	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 READ command truncated");
 	}
 	break;
     case C1222_CMD_FULL_WRITE:
@@ -499,7 +499,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		    calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
 		}
 		if (chksum != calcsum) {
-		  expert_add_info_format_text(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
+		  expert_add_info_format(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
 		}
 		if (table == 7) {/* is it a procedure call? */
 		    proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d, %s-%d)",
@@ -514,10 +514,10 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		*offset += 1;
 		*length -= 1;
 	    } else {
-		expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
+		expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
 	    }
 	} else {
-	    expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
+	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
 	}
 	break;
     case C1222_CMD_PARTIAL_WRITE_OFFSET:
@@ -541,7 +541,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		item = proto_tree_add_uint(tree, hf_c1222_write_chksum, tvb, *offset, 1, chksum);
 		calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
 		if (chksum != calcsum) {
-		  expert_add_info_format_text(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
+		  expert_add_info_format(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
 		}
 		proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
 			val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
@@ -549,10 +549,10 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		*offset += 1;
 		*length -= 1;
 	    } else {
-		expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
+		expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
 	    }
 	} else {
-	    expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
+	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
 	}
 	break;
     case C1222_CMD_WAIT:
@@ -564,7 +564,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	    proto_item_set_text(tree, "C12.22 EPSEM: %s (%d seconds)",
 		val_to_str(cmd,commandnames,"Unknown (0x%02x)"), wait_seconds);
 	} else {
-	    expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WAIT command truncated");
+	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WAIT command truncated");
 	}
 	break;
     case C1222_CMD_NEGOTIATE:
@@ -580,7 +580,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	    proto_item_set_text(tree, "C12.22 EPSEM: %s (pkt size %d, num pkts %d, with %d baud rates)",
 		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), packet_size, nbr_packet, numrates);
 	} else {
-	    expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 NEGOTIATE command truncated");
+	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 NEGOTIATE command truncated");
 	}
 	break;
     case C1222_CMD_TIMING_SETUP:
@@ -604,7 +604,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	    proto_item_set_text(tree, "C12.22 EPSEM: %s (traffic to %d s, inter-char to %d s, response to %d s, %d retries)",
 		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), traffic, inter_char, resp_to, nbr_retries);
 	} else {
-	    expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 NEGOTIATE command truncated");
+	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 NEGOTIATE command truncated");
 	}
 	break;
 

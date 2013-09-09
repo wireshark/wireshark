@@ -720,7 +720,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 		repr = oid_encoded2string(oid_bytes, name_len);
 		pi = proto_tree_add_text(pt_name,tvb, 0, 0, "invalid oid: %s", repr);
 		pt = proto_item_add_subtree(pi, ett_decoding_error);
-		expert_add_info_format_text(actx->pinfo, pi, &ei_snmp_invalid_oid, "invalid oid: %s", repr);
+		expert_add_info_format(actx->pinfo, pi, &ei_snmp_invalid_oid, "invalid oid: %s", repr);
 		return dissect_unknown_ber(actx->pinfo, tvb, name_offset, pt);
 	}
 
@@ -760,7 +760,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 		}
 
 		pi = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
-		expert_add_info_format_text(actx->pinfo, pi, &ei_snmp_varbind_response, "%s",note);
+		expert_add_info_format(actx->pinfo, pi, &ei_snmp_varbind_response, "%s",note);
 		g_strlcpy (label, note, ITEM_LABEL_LENGTH);
 		goto set_label;
 	}
