@@ -6416,6 +6416,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                             offset++;
                             /* Items length (17 + 3)*/
                             pf_cont_len-=20;
+                            break;
 
                         default:
                             proto_tree_add_text(flow_tree, tvb, offset, pf_cont_len-2, "Not dissected Packet filter component");
