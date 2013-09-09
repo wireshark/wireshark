@@ -29,6 +29,10 @@
 
 #include "ui/follow.h"
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
+
 FollowStreamDialog::FollowStreamDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FollowStreamDialog)
