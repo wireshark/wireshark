@@ -822,11 +822,8 @@ mkipv4_address( address **addr, const char *str_addr )
 	*addr=(address *)g_malloc( sizeof(address) );
 	addr_data=(char *)g_malloc( 4 );
 	ret = inet_pton( AF_INET, str_addr, addr_data );
-	/* brackets are required here, otherwise the semicolon would terminate
-	   the if-else */
-	if (ret==1) {
+	if (ret==1)
 		SET_ADDRESS(*addr, AT_IPv4, 4, addr_data);
-	}
 	else
 		SET_ADDRESS(*addr, AT_STRINGZ, (int)strlen(ADDR_INVLD)+1, ADDR_INVLD);
 }
