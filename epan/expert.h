@@ -166,9 +166,6 @@ WS_DLL_PUBLIC void
 expert_add_info_format(packet_info *pinfo, proto_item *pi, expert_field *eiindex,
 	const char *format, ...) G_GNUC_PRINTF(4, 5);
 
-/* XXX - TEMPORARY WHILE SEARCH/REPLACE OF expert_add_info_format_text IS DONE */
-#define expert_add_info_format_text expert_add_info_format
-
 /** Add an expert info associated with some byte data
  Add an expert info tree to a protocol item using registered expert info item.
  This function is intended to replace places where 

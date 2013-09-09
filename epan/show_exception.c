@@ -128,7 +128,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    pinfo->current_proto, pinfo->fd->num,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
-		expert_add_info_format_text(pinfo, item, &ei_malformed_dissector_bug, "%s",
+		expert_add_info_format(pinfo, item, &ei_malformed_dissector_bug, "%s",
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
 		break;
@@ -144,7 +144,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    pinfo->current_proto,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
-		expert_add_info_format_text(pinfo, item, &ei_malformed_reassembly, "%s",
+		expert_add_info_format(pinfo, item, &ei_malformed_reassembly, "%s",
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
 		break;
