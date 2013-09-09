@@ -8065,7 +8065,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
                         ext_hdr_len_item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
                         if (ext_hdr_length == 0) {
-                            expert_add_info_format_text(pinfo, ext_hdr_len_item, &ei_gtp_ext_length_mal,
+                            expert_add_info_format(pinfo, ext_hdr_len_item, &ei_gtp_ext_length_mal,
                                                    "Extension header length is zero");
                             return tvb_length(tvb);
                         }
@@ -8102,7 +8102,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                     expert_add_info(pinfo, ext_item, &ei_gtp_ext_hdr_pdcpsn);
                                 }
                             } else {
-                                expert_add_info_format_text(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the PDCP SN Extension header should be 1.");
+                                expert_add_info_format(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the PDCP SN Extension header should be 1.");
                             }
                             break;
 
@@ -8120,7 +8120,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                 proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
                             } else {
                                 /* Bad length */
-                                expert_add_info_format_text(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the UDP Port Extension header should be 1.");
+                                expert_add_info_format(pinfo, ext_tree, &ei_gtp_ext_length_warn, "The length field for the UDP Port Extension header should be 1.");
                             }
                             break;
 

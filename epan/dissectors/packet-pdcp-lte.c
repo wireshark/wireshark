@@ -437,7 +437,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                         tvb, 0, 0, TRUE);
             PROTO_ITEM_SET_GENERATED(ti);
             if (p->lastSN != p->firstSN) {
-                expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_missing,
+                expert_add_info_format(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_missing,
                                        "PDCP SNs (%u to %u) missing for %s on UE %u (%s-%u)",
                                        p->firstSN, p->lastSN,
                                        val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
@@ -448,7 +448,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                        p->firstSN, p->lastSN);
             }
             else {
-                expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_missing,
+                expert_add_info_format(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_missing,
                                        "PDCP SN (%u) missing for %s on UE %u (%s-%u)",
                                        p->firstSN,
                                        val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
@@ -467,7 +467,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_lte_sequence_analysis_repeated,
                                         tvb, 0, 0, TRUE);
             PROTO_ITEM_SET_GENERATED(ti);
-            expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_repeated,
+            expert_add_info_format(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_repeated,
                                    "PDCP SN (%u) repeated for %s for UE %u (%s-%u)",
                                    p->firstSN,
                                    val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
@@ -480,7 +480,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
 
         default:
             /* Incorrect sequence number */
-            expert_add_info_format_text(pinfo, ti_expected_sn, &ei_pdcp_lte_sequence_analysis_wrong_sequence_number,
+            expert_add_info_format(pinfo, ti_expected_sn, &ei_pdcp_lte_sequence_analysis_wrong_sequence_number,
                                    "Wrong Sequence Number for %s on UE %u (%s-%u) - got %u, expected %u",
                                    val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
                                    p_pdcp_lte_info->ueid,
@@ -1060,7 +1060,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_item *ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_control_plane_reserved,
                                                  tvb, offset, 1, ENC_BIG_ENDIAN);
             if (reserved != 0) {
-                expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
                                        "PDCP signalling header reserved bits not zero");
             }
 
@@ -1153,7 +1153,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                             /* Complain if not 0 */
                             if (reserved_value != 0) {
-                                expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
                                                        "Reserved bits have value 0x%x - should be 0x0",
                                                        reserved_value);
                             }
@@ -1217,7 +1217,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                                 /* Complain if not 0 */
                                 if (reserved_value != 0) {
-                                    expert_add_info_format_text(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                    expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
                                                            "Reserved bits have value 0x%x - should be 0x0",
                                                            reserved_value);
                                 }

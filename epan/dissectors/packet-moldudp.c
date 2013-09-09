@@ -106,7 +106,7 @@ dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvb, offset, MOLDUDP_MSGLEN_LEN, ENC_LITTLE_ENDIAN);
 
     if (msglen != real_msglen)
-        expert_add_info_format_text(pinfo, ti, &ei_moldudp_msglen_invalid,
+        expert_add_info_format(pinfo, ti, &ei_moldudp_msglen_invalid,
                 "Invalid Message Length (claimed %u, found %u)",
                 msglen, real_msglen);
 
@@ -176,7 +176,7 @@ dissect_moldudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     if (real_count != count)
     {
-        expert_add_info_format_text(pinfo, ti, &ei_moldudp_count_invalid,
+        expert_add_info_format(pinfo, ti, &ei_moldudp_count_invalid,
                                "Invalid Message Count (claimed %u, found %u)",
                                count, real_count);
     }

@@ -500,7 +500,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
         case 477: /* Already Registered */
         case 499: /* Miscellaneous Request Error */
         case 500: /* Responder Error */
-          expert_add_info_format_text(pinfo, it, &ei_xmcp_attr_error_code_unusual, "Unusual error code (%u, %s)", error_code, val_to_str_const(error_code, error_codes, "Unknown"));
+          expert_add_info_format(pinfo, it, &ei_xmcp_attr_error_code_unusual, "Unusual error code (%u, %s)", error_code, val_to_str_const(error_code, error_codes, "Unknown"));
           break;
         default:
           break;
@@ -642,7 +642,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     switch (tvb_get_guint8(tvb, (offset+1))) {
     case 0x01: /* IPv4 */
       if (attr_length != 8) {
-        expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv4 address");
+        expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv4 address");
       } else {
         guint32 ip;
         proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv4, tvb,
@@ -654,7 +654,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       break;
     case 0x02: /* IPv6 */
       if (attr_length != 20) {
-        expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv6 address");
+        expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv6 address");
       } else {
         struct e_in6_addr ipv6;
         proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv6, tvb,
@@ -688,7 +688,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_FLAGS:
     /* Flags is a series of type-value pairs */
     if (attr_length % 4 != 0) {
-      expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed Flags - length not divisible by 4");
+      expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed Flags - length not divisible by 4");
     }
     {
       guint16 flag_type, flag_value, current_offset = offset;
@@ -823,9 +823,9 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                         (4 - (attr_length % 4)), ENC_NA);
   }
   if (attr_length < get_xmcp_attr_min_len(attr_type)) {
-    expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Length less than minimum for this attribute type");
+    expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Length less than minimum for this attribute type");
   } else if (attr_length > get_xmcp_attr_max_len(attr_type)) {
-    expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Length exceeds maximum for this attribute type");
+    expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Length exceeds maximum for this attribute type");
   }
 }
 
@@ -946,7 +946,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item(xmcp_tree, hf_xmcp_length, tvb, 2, 2, ENC_BIG_ENDIAN);
   msg_length = tvb_get_ntohs(tvb, 2);
   if ((guint)(msg_length + XMCP_HDR_LEN) > tvb_reported_length(tvb)) {
-    expert_add_info_format_text(pinfo, ti, &ei_xmcp_length_bad, "XMCP message length (%u-byte header + %u) exceeds packet length (%u)", XMCP_HDR_LEN, msg_length, tvb_reported_length(tvb));
+    expert_add_info_format(pinfo, ti, &ei_xmcp_length_bad, "XMCP message length (%u-byte header + %u) exceeds packet length (%u)", XMCP_HDR_LEN, msg_length, tvb_reported_length(tvb));
     return;
   }
 
@@ -1019,7 +1019,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if ((offset + attr_length) > (XMCP_HDR_LEN + msg_length)) {
         proto_item_append_text(ti, " (bogus, exceeds message length)");
-        expert_add_info_format_text(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Attribute length exceeds message length");
+        expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Attribute length exceeds message length");
         break;
       }
 
@@ -1047,10 +1047,10 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } else if (xmcp_msg_type_class == XMCP_CLASS_REQUEST ||
              xmcp_msg_type_class == XMCP_CLASS_RESPONSE_SUCCESS) {
     if (xmcp_msg_type_method == XMCP_METHOD_REGISTER) {
-      expert_add_info_format_text(pinfo, xmcp_tree, &ei_xmcp_new_session, "New session - Register %s", val_to_str_const(xmcp_msg_type_class, classes, ""));
+      expert_add_info_format(pinfo, xmcp_tree, &ei_xmcp_new_session, "New session - Register %s", val_to_str_const(xmcp_msg_type_class, classes, ""));
     } else if (xmcp_msg_type_method == XMCP_METHOD_UNREGISTER ||
                xmcp_msg_type_method == XMCP_METHOD_REG_REVOKE) {
-      expert_add_info_format_text(pinfo, xmcp_tree, &ei_xmcp_session_termination, "Session termination - %s %s", val_to_str_const(xmcp_msg_type_method, methods, ""), val_to_str_const(xmcp_msg_type_class, classes, ""));
+      expert_add_info_format(pinfo, xmcp_tree, &ei_xmcp_session_termination, "Session termination - %s %s", val_to_str_const(xmcp_msg_type_method, methods, ""), val_to_str_const(xmcp_msg_type_class, classes, ""));
     }
   }
 }

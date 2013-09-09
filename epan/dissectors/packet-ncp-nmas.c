@@ -574,7 +574,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                     if (str) {
                         col_add_fstr(pinfo->cinfo, COL_INFO, "R Payload Error - %s", str);
                         expert_item = proto_tree_add_item(atree, hf_encrypt_error, tvb, foffset, 4, ENC_BIG_ENDIAN);
-                        expert_add_info_format_text(pinfo, expert_item, &ei_encrypt_error, "NMAS Payload Error: %s", str);
+                        expert_add_info_format(pinfo, expert_item, &ei_encrypt_error, "NMAS Payload Error: %s", str);
                     } else {
                         proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, ENC_NA);
                     }
@@ -594,12 +594,12 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         str = try_val_to_str(return_code, nmas_errors_enum);
         if (str) {
             expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, ENC_LITTLE_ENDIAN);
-            expert_add_info_format_text(pinfo, expert_item, &ei_return_error, "NMAS Error: 0x%08x %s", return_code, str);
+            expert_add_info_format(pinfo, expert_item, &ei_return_error, "NMAS Error: 0x%08x %s", return_code, str);
             col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", str);
         } else {
             if (return_code!=0) {
                 expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, ENC_LITTLE_ENDIAN);
-                expert_add_info_format_text(pinfo, expert_item, &ei_return_error, "NMAS Error: 0x%08x is unknown", return_code);
+                expert_add_info_format(pinfo, expert_item, &ei_return_error, "NMAS Error: 0x%08x is unknown", return_code);
                 col_add_fstr(pinfo->cinfo, COL_INFO, "R Unknown NMAS Error - 0x%08x", return_code);
             }
         }

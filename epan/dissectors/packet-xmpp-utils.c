@@ -249,7 +249,7 @@ xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 
             xmpp_unknown_items(unknown_tree, tvb, pinfo, child, 1);
             proto_item_append_text(unknown_item, " [UNKNOWN]");
-            expert_add_info_format_text(pinfo, unknown_item, &ei_xmpp_unknown_element, "Unknown element: %s", child->name);
+            expert_add_info_format(pinfo, unknown_item, &ei_xmpp_unknown_element, "Unknown element: %s", child->name);
         }
         childs = childs->next;
     }
@@ -296,7 +296,7 @@ xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp
                             hf_xmpp_unknown_attr, tvb, attr->offset, attr->length,
                             attr->name, "%s: %s", attr->name, attr->value);
                     proto_item_append_text(unknown_attr_item, " [UNKNOWN ATTR]");
-                    expert_add_info_format_text(pinfo, unknown_attr_item, &ei_xmpp_unknown_attribute, "Unknown attribute %s", attr->name);
+                    expert_add_info_format(pinfo, unknown_attr_item, &ei_xmpp_unknown_attribute, "Unknown attribute %s", attr->name);
                 }
             }
         }
@@ -842,7 +842,7 @@ xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo
 
         } else if(attrs[i].is_required)
         {
-            expert_add_info_format_text(pinfo, item, &ei_xmpp_required_attribute, "Required attribute \"%s\" doesn't appear in \"%s\".", attrs[i].name, element->name);
+            expert_add_info_format(pinfo, item, &ei_xmpp_required_attribute, "Required attribute \"%s\" doesn't appear in \"%s\".", attrs[i].name, element->name);
         }
 
         if(attrs[i].val_func)
@@ -904,7 +904,7 @@ xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *p
                     }
 
                 } else if (attrs[i].info.is_required) {
-                    expert_add_info_format_text(pinfo, item, &ei_xmpp_required_attribute, "Required attribute \"%s\" doesn't appear in \"%s\".", attrs[i].info.name, element->name);
+                    expert_add_info_format(pinfo, item, &ei_xmpp_required_attribute, "Required attribute \"%s\" doesn't appear in \"%s\".", attrs[i].info.name, element->name);
                 }
 
                 if (attrs[i].info.val_func) {
@@ -1032,7 +1032,7 @@ xmpp_val_enum_list(packet_info *pinfo, proto_item *item, const gchar *name, cons
             }
         }
         if (!value_in_enums) {
-            expert_add_info_format_text(pinfo, item, &ei_xmpp_field_unexpected_value, "Field \"%s\" has unexpected value \"%s\"", name, value);
+            expert_add_info_format(pinfo, item, &ei_xmpp_field_unexpected_value, "Field \"%s\" has unexpected value \"%s\"", name, value);
         }
     }
 }

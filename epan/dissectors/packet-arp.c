@@ -707,7 +707,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_uint(duplicate_tree, hf_arp_duplicate_ip_address_earlier_frame,
                              tvb, 0, 0, result->frame_num);
     PROTO_ITEM_SET_GENERATED(ti);
-    expert_add_info_format_text(pinfo, ti,
+    expert_add_info_format(pinfo, ti,
                            &ei_seq_arp_dup_ip,
                            "Duplicate IP address configured (%s)",
                            arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP));
@@ -814,7 +814,7 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                 global_arp_detect_request_storm_packets,
                                                 global_arp_detect_request_storm_period);
     PROTO_ITEM_SET_GENERATED(ti);
-    expert_add_info_format_text(pinfo, ti,
+    expert_add_info_format(pinfo, ti,
                            &ei_seq_arp_storm,
                            "ARP packet storm detected (%u packets in < %u ms)",
                            global_arp_detect_request_storm_packets,

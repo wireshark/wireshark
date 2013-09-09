@@ -1080,7 +1080,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				     BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE)))
 				== (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
 				    BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))) {
-				expert_add_info_format_text(pinfo, pt, &ei_radiotap_present,
+				expert_add_info_format(pinfo, pt, &ei_radiotap_present,
 						       "Both radiotap and vendor namespace specified in bitmask word %u",
 						       i);
 				goto malformed;

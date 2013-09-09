@@ -967,7 +967,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		tmp_pi = proto_tree_add_uint(tacplus_tree, hf_tacplus_packet_len, tvb, 8, 4, len);
 		if ((gint)len < 1) {
-			expert_add_info_format_text(pinfo, tmp_pi, &ei_tacplus_packet_len_invalid, "Invalid length: %u", len);
+			expert_add_info_format(pinfo, tmp_pi, &ei_tacplus_packet_len_invalid, "Invalid length: %u", len);
 		}
 
 		tmp_pi = proto_tree_add_text(tacplus_tree, tvb, TAC_PLUS_HDR_SIZE, len, "%s%s",

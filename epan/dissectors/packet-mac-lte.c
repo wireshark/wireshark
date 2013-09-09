@@ -1789,7 +1789,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     reserved = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
     ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (reserved != 0) {
-            expert_add_info_format_text(pinfo, ti, &ei_mac_lte_reserved_not_zero, "RAR body Reserved bit not zero (found 0x%x)", reserved);
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero, "RAR body Reserved bit not zero (found 0x%x)", reserved);
     }
 
     /* Timing Advance */
@@ -1797,10 +1797,10 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ta, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (timing_advance != 0) {
         if (timing_advance <= 31) {
-            expert_add_info_format_text(pinfo, ti, &ei_mac_lte_rar_timing_advance_not_zero_note,
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_rar_timing_advance_not_zero_note,
                                "RAR Timing advance not zero (%u)", timing_advance);
         } else {
-            expert_add_info_format_text(pinfo, ti, &ei_mac_lte_rar_timing_advance_not_zero_warn,
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_rar_timing_advance_not_zero_warn,
                                "RAR Timing advance not zero (%u)", timing_advance);
         }
     }
@@ -1921,7 +1921,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             reserved = (tvb_get_guint8(tvb, offset) & 0x30) >> 4;
             tii = proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
             if (reserved != 0) {
-                expert_add_info_format_text(pinfo, tii, &ei_mac_lte_reserved_not_zero,
+                expert_add_info_format(pinfo, tii, &ei_mac_lte_reserved_not_zero,
                                        "RAR header Reserved bits not zero (found 0x%x)", reserved);
             }
 
@@ -2457,7 +2457,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
             }
         }
         else {
-            expert_add_info_format_text(pinfo, retx_ti, &ei_mac_lte_orig_tx_ul_frame_not_found,
+            expert_add_info_format(pinfo, retx_ti, &ei_mac_lte_orig_tx_ul_frame_not_found,
                                    "Original Tx of UL frame not found (UE %u) !!", p_mac_lte_info->ueid);
         }
     }
@@ -2468,7 +2468,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
 
         next_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_next_frame,
                                           tvb, 0, 0, result->nextFrameNum);
-        expert_add_info_format_text(pinfo, next_ti, &ei_mac_lte_ul_harq_resend_next_frame,
+        expert_add_info_format(pinfo, next_ti, &ei_mac_lte_ul_harq_resend_next_frame,
                                "UL MAC PDU (UE %u) needed to be retransmitted", p_mac_lte_info->ueid);
 
         PROTO_ITEM_SET_GENERATED(next_ti);
@@ -2655,7 +2655,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
         /* For an SR frame, there should always be either a PDCCH grant or indication
            that the SR has failed */
         if (event == SR_Request) {
-            expert_add_info_format_text(pinfo, event_ti, &ei_mac_lte_sr_results_not_grant_or_failure_indication,
+            expert_add_info_format(pinfo, event_ti, &ei_mac_lte_sr_results_not_grant_or_failure_indication,
                                    "UE %u: SR results in neither a grant nor a failure indication",
                                    ueid);
         }
@@ -2999,7 +2999,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_sch_reserved,
                                  tvb, offset, 1, ENC_BIG_ENDIAN);
         if (reserved != 0) {
-            expert_add_info_format_text(pinfo, ti, &ei_mac_lte_reserved_not_zero,
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                    "%cL-SCH header Reserved bits not zero",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D');
         }
@@ -3030,7 +3030,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                       dlsch_lcid_vals, "(Unknown LCID)"));
 
             if (lcids[number_of_headers] == DRX_COMMAND_LCID) {
-                expert_add_info_format_text(pinfo, lcid_ti, &ei_mac_lte_dlsch_lcid,
+                expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_dlsch_lcid,
                                        "DRX command received for UE %u (RNTI %u)",
                                        p_mac_lte_info->ueid, p_mac_lte_info->rnti);
             }
@@ -3047,7 +3047,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
            *after* a data PDU */
         if (have_seen_data_header &&
             (lcids[number_of_headers] > 10) && (lcids[number_of_headers] != PADDING_LCID)) {
-            expert_add_info_format_text(pinfo, lcid_ti, &ei_mac_lte_control_subheader_after_data_subheader,
+            expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_control_subheader_after_data_subheader,
                                    "%cL-SCH Control subheaders should not appear after data subheaders",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D');
             return;
@@ -3190,7 +3190,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Flag unknown lcid values in expert info */
         if (try_val_to_str(lcids[number_of_headers],
                          (direction == DIRECTION_UPLINK) ? ulsch_lcid_vals : dlsch_lcid_vals) == NULL) {
-            expert_add_info_format_text(pinfo, pdu_subheader_ti, &ei_mac_lte_lcid_unexpected,
+            expert_add_info_format(pinfo, pdu_subheader_ti, &ei_mac_lte_lcid_unexpected,
                                    "%cL-SCH: Unexpected LCID received (%u)",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D',
                                    lcids[number_of_headers]);
@@ -3281,7 +3281,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                  tvb, offset, 1, ENC_BIG_ENDIAN);
                         reserved = tvb_get_guint8(tvb, offset) & 0x01;
                         if (reserved != 0) {
-                            expert_add_info_format_text(pinfo, ti, &ei_mac_lte_reserved_not_zero,
+                            expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                                    "Activation/Deactivation Reserved bit not zero");
                         }
                         offset++;
@@ -3378,7 +3378,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                                 ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
                                                              tvb, 0, 0, FALSE);
-                                expert_add_info_format_text(pinfo, ti, &ei_mac_lte_control_ue_contention_resolution_msg3_matched,
+                                expert_add_info_format(pinfo, ti, &ei_mac_lte_control_ue_contention_resolution_msg3_matched,
                                                        "CR body in Msg4 doesn't match Msg3 CCCH in frame %u",
                                                        crResult->msg3FrameNum);
                                 PROTO_ITEM_SET_GENERATED(ti);
@@ -3418,7 +3418,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             expert_add_info(pinfo, ta_value_ti, &ei_mac_lte_control_timing_advance_command_no_correction);
                         }
                         else {
-                            expert_add_info_format_text(pinfo, ta_value_ti, &ei_mac_lte_control_timing_advance_command_correction_needed,
+                            expert_add_info_format(pinfo, ta_value_ti, &ei_mac_lte_control_timing_advance_command_correction_needed,
                                                    "Timing Advance control element received (%u) %s correction needed",
                                                    ta_value,
                                                    (ta_value < 31) ? "-ve" : "+ve");
@@ -3489,7 +3489,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         ti = proto_tree_add_item(ephr_tree, hf_mac_lte_control_ext_power_headroom_reserved,
                                                  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                         if (scell_bitmap & 0x01) {
-                            expert_add_info_format_text(pinfo, ti, &ei_mac_lte_reserved_not_zero,
+                            expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                                    "Extended Power Headroom Reserved bit not zero");
                         }
                         curr_offset++;
@@ -3517,7 +3517,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             }
                             computed_header_offset++;
                             if ((gint16)(computed_header_offset + 1 - curr_offset) != pdu_lengths[n]) {
-                                expert_add_info_format_text(pinfo, ephr_ti, &ei_mac_lte_control_element_size_invalid,
+                                expert_add_info_format(pinfo, ephr_ti, &ei_mac_lte_control_element_size_invalid,
                                     "Control Element has an unexpected size (computed=%d, actual=%d)",
                                     computed_header_offset + 1 - curr_offset, pdu_lengths[n]);
                                 offset += pdu_lengths[n];
@@ -3542,7 +3542,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 ti = proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_reserved2,
                                                          tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                                 if (byte & 0xc0) {
-                                    expert_add_info_format_text(pinfo, ti, &ei_mac_lte_reserved_not_zero,
+                                    expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                                            "Extended Power Headroom Reserved bits not zero (found 0x%x)",
                                                            (byte & 0xc0) >> 6);
                                 }
@@ -3554,7 +3554,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             }
                         } else {
                             if ((gint16)(computed_header_offset + 1 - curr_offset) != pdu_lengths[n]) {
-                                expert_add_info_format_text(pinfo, ephr_ti, &ei_mac_lte_control_element_size_invalid,
+                                expert_add_info_format(pinfo, ephr_ti, &ei_mac_lte_control_element_size_invalid,
                                     "Control Element has an unexpected size (computed=%d, actual=%d)",
                                     computed_header_offset + 1 - curr_offset, pdu_lengths[n]);
                                 offset += pdu_lengths[n];
@@ -3582,7 +3582,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                     ti = proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_reserved2,
                                                              tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                                     if (byte & 0xc0) {
-                                        expert_add_info_format_text(pinfo, ti, &ei_mac_lte_reserved_not_zero,
+                                        expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                                                "Extended Power Headroom Reserved bits not zero (found 0x%x)",
                                                                (byte & 0xc0) >> 6);
                                     }
@@ -3618,7 +3618,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         ti = proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_reserved,
                                                  tvb, offset, 1, ENC_BIG_ENDIAN);
                         if (reserved != 0) {
-                            expert_add_info_format_text(pinfo, ti, &ei_mac_lte_reserved_not_zero,
+                            expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                                    "Power Headroom Reserved bits not zero (found 0x%x)", reserved);
                         }
 
@@ -3676,7 +3676,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         if (buffer_size >= global_mac_lte_bsr_warn_threshold) {
-                            expert_add_info_format_text(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
+                            expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG %u exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
                                                    lcgid,
@@ -3725,7 +3725,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                         buffer_size[0] = (tvb_get_guint8(tvb, offset) & 0xfc) >> 2;
                         if (buffer_size[0] >= global_mac_lte_bsr_warn_threshold) {
-                            expert_add_info_format_text(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
+                            expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 0 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
                                                    buffer_size[0],
@@ -3738,7 +3738,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         buffer_size[1] = ((tvb_get_guint8(tvb, offset) & 0x03) << 4) | ((tvb_get_guint8(tvb, offset+1) & 0xf0) >> 4);
                         offset++;
                         if (buffer_size[1] >= global_mac_lte_bsr_warn_threshold) {
-                            expert_add_info_format_text(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
+                            expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 1 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
                                                    buffer_size[1],
@@ -3752,7 +3752,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         buffer_size[2] = ((tvb_get_guint8(tvb, offset) & 0x0f) << 2) | ((tvb_get_guint8(tvb, offset+1) & 0xc0) >> 6);
                         offset++;
                         if (buffer_size[2] >= global_mac_lte_bsr_warn_threshold) {
-                            expert_add_info_format_text(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
+                            expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 2 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
                                                    buffer_size[2],
@@ -3765,7 +3765,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         buffer_size[3] = tvb_get_guint8(tvb, offset) & 0x3f;
                         offset++;
                         if (buffer_size[3] >= global_mac_lte_bsr_warn_threshold) {
-                            expert_add_info_format_text(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
+                            expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 3 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
                                                    buffer_size[3],
@@ -3983,7 +3983,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Make sure the PDU isn't bigger than reported! */
         if (offset > p_mac_lte_info->length) {
-            expert_add_info_format_text(pinfo, padding_length_ti, &ei_mac_lte_context_length,
+            expert_add_info_format(pinfo, padding_length_ti, &ei_mac_lte_context_length,
                                    "%s MAC PDU is longer than reported length (reported=%u, actual=%u)",
                                    (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
                                    p_mac_lte_info->length, offset);
@@ -3993,7 +3993,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* There is no padding at the end of the frame */
         if (!is_truncated && (offset < p_mac_lte_info->length)) {
             /* There is a problem if we haven't used all of the PDU */
-            expert_add_info_format_text(pinfo, pdu_ti, &ei_mac_lte_context_length,
+            expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
                                    "%s PDU for UE %u is shorter than reported length (reported=%u, actual=%u)",
                                    (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
                                    p_mac_lte_info->ueid, p_mac_lte_info->length, offset);
@@ -4001,7 +4001,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         if (!is_truncated && (offset > p_mac_lte_info->length)) {
             /* There is a problem if the PDU is longer than rpeported */
-            expert_add_info_format_text(pinfo, pdu_ti, &ei_mac_lte_context_length,
+            expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
                                    "%s PDU for UE %u is longer than reported length (reported=%u, actual=%u)",
                                    (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
                                    p_mac_lte_info->ueid, p_mac_lte_info->length, offset);
@@ -4074,7 +4074,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_mch_reserved,
                                  tvb, offset, 1, ENC_BIG_ENDIAN);
         if (reserved != 0) {
-            expert_add_info_format_text(pinfo, ti, &ei_mac_lte_reserved_not_zero,
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                    "MCH header Reserved bits not zero");
         }
 
@@ -4106,7 +4106,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
            *after* a data PDU */
         if (have_seen_data_header &&
             (lcids[number_of_headers] > 28) && (lcids[number_of_headers] != PADDING_LCID)) {
-            expert_add_info_format_text(pinfo, lcid_ti, &ei_mac_lte_control_subheader_after_data_subheader,
+            expert_add_info_format(pinfo, lcid_ti, &ei_mac_lte_control_subheader_after_data_subheader,
                                    "MCH Control subheaders should not appear after data subheaders");
             return;
         }
@@ -4222,7 +4222,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
         /* Flag unknown lcid values in expert info */
         if (try_val_to_str(lcids[number_of_headers],mch_lcid_vals) == NULL) {
-            expert_add_info_format_text(pinfo, pdu_subheader_ti, &ei_mac_lte_lcid_unexpected,
+            expert_add_info_format(pinfo, pdu_subheader_ti, &ei_mac_lte_lcid_unexpected,
                                    "MCH: Unexpected LCID received (%u)",
                                    lcids[number_of_headers]);
         }
@@ -4277,7 +4277,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                         pdu_lengths[n] = (gint16)tvb_length_remaining(tvb, curr_offset);
                     }
                     if (pdu_lengths[n] & 0x01) {
-                        expert_add_info_format_text(pinfo, sched_info_ti, &ei_mac_lte_context_length,
+                        expert_add_info_format(pinfo, sched_info_ti, &ei_mac_lte_context_length,
                                                "MCH Scheduling Information MAC Control Element should have an even size");
                     }
 
@@ -4394,7 +4394,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
         /* Make sure the PDU isn't bigger than reported! */
         if (offset > p_mac_lte_info->length) {
-            expert_add_info_format_text(pinfo, padding_length_ti, &ei_mac_lte_context_length,
+            expert_add_info_format(pinfo, padding_length_ti, &ei_mac_lte_context_length,
                                    "MAC PDU is longer than reported length (reported=%u, actual=%u)",
                                    p_mac_lte_info->length, offset);
         }
@@ -4403,14 +4403,14 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         /* There is no padding at the end of the frame */
         if (!is_truncated && (offset < p_mac_lte_info->length)) {
             /* There is a problem if we haven't used all of the PDU */
-            expert_add_info_format_text(pinfo, pdu_ti, &ei_mac_lte_context_length,
+            expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
                                    "PDU is shorter than reported length (reported=%u, actual=%u)",
                                    p_mac_lte_info->length, offset);
         }
 
         if (!is_truncated && (offset > p_mac_lte_info->length)) {
             /* There is a problem if the PDU is longer than rpeported */
-            expert_add_info_format_text(pinfo, pdu_ti, &ei_mac_lte_context_length,
+            expert_add_info_format(pinfo, pdu_ti, &ei_mac_lte_context_length,
                                    "PDU is longer than reported length (reported=%u, actual=%u)",
                                    p_mac_lte_info->length, offset);
         }
@@ -4510,7 +4510,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          p_mac_lte_info->rach_attempt_number);
 
                 /* Add expert info (a note, unless attempt > 1) */
-                expert_add_info_format_text(pinfo, ti,
+                expert_add_info_format(pinfo, ti,
                     (p_mac_lte_info->rach_attempt_number > 1) ? &ei_mac_lte_rach_preamble_sent_warn : &ei_mac_lte_rach_preamble_sent_note,
                                        "RACH Preamble sent for UE %u (RAPID=%u, attempt=%u)",
                                        p_mac_lte_info->ueid, p_mac_lte_info->rapid,
@@ -4603,7 +4603,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              tvb, 0, 0, p_mac_lte_info->sysframeNumber);
     PROTO_ITEM_SET_GENERATED(ti);
     if (p_mac_lte_info->sysframeNumber > 1023) {
-        expert_add_info_format_text(pinfo, ti, &ei_mac_lte_context_sysframe_number,
+        expert_add_info_format(pinfo, ti, &ei_mac_lte_context_sysframe_number,
                                "Sysframe number (%u) out of range - valid range is 0-1023",
                                p_mac_lte_info->sysframeNumber);
     }
@@ -4614,7 +4614,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (p_mac_lte_info->subframeNumber > 9) {
         /* N.B. if we set it to valid value, it won't trigger when we rescan
            (at least with DCT2000 files where the context struct isn't re-read). */
-        expert_add_info_format_text(pinfo, ti, &ei_mac_lte_context_sysframe_number,
+        expert_add_info_format(pinfo, ti, &ei_mac_lte_context_sysframe_number,
                                "Subframe number (%u) out of range - valid range is 0-9",
                                p_mac_lte_info->subframeNumber);
     }
@@ -4641,7 +4641,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (p_mac_lte_info->rntiType) {
         case M_RNTI:
             if (p_mac_lte_info->rnti != 0xFFFD) {
-                expert_add_info_format_text(pinfo, ti, &ei_mac_lte_context_rnti_type,
+                expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "M-RNTI indicated, but value is %u (0x%x) (must be 0x%x)",
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFD);
                 return;
@@ -4649,7 +4649,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case P_RNTI:
             if (p_mac_lte_info->rnti != 0xFFFE) {
-                expert_add_info_format_text(pinfo, ti, &ei_mac_lte_context_rnti_type,
+                expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "P-RNTI indicated, but value is %u (0x%x) (must be 0x%x)",
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFE);
                 return;
@@ -4657,7 +4657,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case SI_RNTI:
             if (p_mac_lte_info->rnti != 0xFFFF) {
-                expert_add_info_format_text(pinfo, ti, &ei_mac_lte_context_rnti_type,
+                expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "SI-RNTI indicated, but value is %u (0x%x) (must be 0x%x)",
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFE);
                 return;
@@ -4665,7 +4665,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case RA_RNTI:
             if ((p_mac_lte_info->rnti < 0x0001) || (p_mac_lte_info->rnti > 0x003C)) {
-                expert_add_info_format_text(pinfo, ti, &ei_mac_lte_context_rnti_type,
+                expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "RA_RNTI indicated, but given value %u (0x%x)is out of range",
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti);
                 return;
@@ -4674,7 +4674,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case C_RNTI:
         case SPS_RNTI:
             if ((p_mac_lte_info->rnti < 0x0001) || (p_mac_lte_info->rnti > 0xFFF3)) {
-                expert_add_info_format_text(pinfo, ti, &ei_mac_lte_context_rnti_type,
+                expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "%s indicated, but given value %u (0x%x)is out of range",
                       val_to_str_const(p_mac_lte_info->rntiType,  rnti_type_vals, "Unknown"),
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti);
@@ -4713,7 +4713,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(retx_ti);
 
         if (p_mac_lte_info->reTxCount >= global_mac_lte_retx_counter_trigger) {
-            expert_add_info_format_text(pinfo, retx_ti, &ei_mac_lte_ul_mac_frame_retx,
+            expert_add_info_format(pinfo, retx_ti, &ei_mac_lte_ul_mac_frame_retx,
                                    "UE %u: UL MAC frame ReTX no. %u",
                                    p_mac_lte_info->ueid, p_mac_lte_info->reTxCount);
         }
@@ -4731,7 +4731,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Report non-success */
         if (p_mac_lte_info->detailed_phy_info.dl_info.crc_status != crc_success) {
-            expert_add_info_format_text(pinfo, ti, &ei_mac_lte_context_crc_status,
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_context_crc_status,
                                    "%s Frame has CRC error problem (%s)",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL",
                                    val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.crc_status,

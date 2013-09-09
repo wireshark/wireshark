@@ -198,7 +198,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             hidden_item = proto_tree_add_boolean(vrrp_tree, hf_vrrp_checksum_bad, tvb, offset, 2, TRUE);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
-            expert_add_info_format_text(pinfo, checksum_item, &ei_vrrp_checksum,
+            expert_add_info_format(pinfo, checksum_item, &ei_vrrp_checksum,
                                    "VRRP Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));
         }
 

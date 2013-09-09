@@ -173,7 +173,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 	/* Check the SV length; it must be at least 2, to include
 	   the subvector length and indicator. */
 	if (sv_length < 2) {
-		expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+		expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 			"Invalid subvector: length < 2");
 		return 0;	/* tells our caller to give up */
 	}
@@ -185,7 +185,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 	switch(sv_id) {
 		case 0x01: /* Beacon Type */
 			if (sv_length != 4) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -198,7 +198,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x02: /* Upstream Neighbor's Address */
 			if (sv_length != 8) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 8");
 				break;
 			}
@@ -209,7 +209,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x03: /* Local Ring Number */
 			if (sv_length != 4) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -221,7 +221,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x04: /* Assign Physical Drop Number */
 			if (sv_length != 6) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 6");
 				break;
 			}
@@ -232,7 +232,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x05: /* Error Report Timer Value */
 			if (sv_length != 4) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -246,7 +246,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x06: /* Authorized Function Classes */
 			if (sv_length != 4) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -257,7 +257,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x07: /* Authorized Access Priority */
 			if (sv_length != 4) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -268,7 +268,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x09: /* Correlator */
 			if (sv_length != 4) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -279,7 +279,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x0A: /* SA of Last AMP or SMP Frame */
 			if (sv_length != 8) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 8");
 				break;
 			}
@@ -291,7 +291,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x0B: /* Physical Drop Number */
 			if (sv_length != 6) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 6");
 				break;
 			}
@@ -302,7 +302,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x20: /* Response Code */
 			if (sv_length != 4 && sv_length != 6) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4 and != 6");
 				break;
 			}
@@ -333,7 +333,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x21: /* Individual Address Count */
 			if (sv_length != 4) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -364,7 +364,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x28: /* Station Identifier */
 			if (sv_length != 8) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 8");
 				break;
 			}
@@ -381,7 +381,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x2A: /* Transmit Status Code */
 			if (sv_length != 4) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -392,7 +392,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x2B: /* Group Address */
 			if (sv_length != 6 && sv_length != 8) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 6 and != 8");
 				break;
 			}
@@ -410,7 +410,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x2C: /* Functional Addresses */
 			if (sv_length != 6) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 6");
 				break;
 			}
@@ -421,7 +421,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x2D: /* Isolating Error Counts */
 			if (sv_length != 8) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 8");
 				break;
 			}
@@ -440,7 +440,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x2E: /* Non-Isolating Error Counts */
 			if (sv_length != 8) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 8");
 				break;
 			}
@@ -458,7 +458,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x30: /* Error Code */
 			if (sv_length != 4) {
-				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
+				expert_add_info_format(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}

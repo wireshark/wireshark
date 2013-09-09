@@ -258,7 +258,7 @@ xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
         error_info = wmem_strdup_printf(wmem_packet_scope(), "%s Text: %s", error_info, text_element->data?text_element->data->value:"");
     }
 
-    expert_add_info_format_text(pinfo, error_item, &ei_xmpp_response, "%s", error_info);
+    expert_add_info_format(pinfo, error_item, &ei_xmpp_response, "%s", error_info);
 
     xmpp_unknown(error_tree, tvb, pinfo, element);
 }
@@ -714,7 +714,7 @@ xmpp_starttls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     tls_tree = proto_item_add_subtree(tls_item, ett_xmpp_starttls);
 
     if (xmpp_info->ssl_start && xmpp_info->ssl_start != pinfo->fd->num) {
-        expert_add_info_format_text(pinfo, tls_item, &ei_xmpp_starttls_already_in_frame, "Already saw STARTTLS in frame %u", xmpp_info->ssl_start);
+        expert_add_info_format(pinfo, tls_item, &ei_xmpp_starttls_already_in_frame, "Already saw STARTTLS in frame %u", xmpp_info->ssl_start);
     }
     else {
         xmpp_info->ssl_start = pinfo->fd->num;
@@ -745,7 +745,7 @@ xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (xmpp_info->ssl_proceed && xmpp_info->ssl_proceed != pinfo->fd->num) {
-        expert_add_info_format_text(pinfo, proceed_item, &ei_xmpp_proceed_already_in_frame, "Already saw PROCEED in frame %u", xmpp_info->ssl_proceed);
+        expert_add_info_format(pinfo, proceed_item, &ei_xmpp_proceed_already_in_frame, "Already saw PROCEED in frame %u", xmpp_info->ssl_proceed);
     }
     else {
         xmpp_info->ssl_proceed = pinfo->fd->num;

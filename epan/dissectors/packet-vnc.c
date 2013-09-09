@@ -1877,7 +1877,7 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	ti = proto_tree_add_item(tree, hf_vnc_rectangle_num, tvb, *offset, 2, ENC_BIG_ENDIAN);
 
 	if (num_rects > 5000) {
-		expert_add_info_format_text(pinfo, ti, &ei_vnc_too_many_rectangles,
+		expert_add_info_format(pinfo, ti, &ei_vnc_too_many_rectangles,
 				"Too many rectangles (%d), aborting dissection", num_rects);
 		return(0);
 	}
@@ -2139,7 +2139,7 @@ vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 4;
 
 	if (num_subrects > 10000) {
-		expert_add_info_format_text(pinfo, ti, &ei_vnc_too_many_sub_rectangles,
+		expert_add_info_format(pinfo, ti, &ei_vnc_too_many_sub_rectangles,
 				"Too many sub-rectangles (%d), aborting dissection", num_subrects);
 		return(0);
 	}
@@ -3190,7 +3190,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 				 *offset, 2, ENC_BIG_ENDIAN);
 
 	if (number_of_colors > 10000) {
-		expert_add_info_format_text(pinfo, ti, &ei_vnc_too_many_colors,"Too many colors (%d), aborting dissection",
+		expert_add_info_format(pinfo, ti, &ei_vnc_too_many_colors,"Too many colors (%d), aborting dissection",
 				       number_of_colors);
 		return(0);
 	}
@@ -3257,7 +3257,7 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 4;
 
 	if (text_len > 100000) {
-		expert_add_info_format_text(pinfo, pi, &ei_vnc_too_many_cut_text,
+		expert_add_info_format(pinfo, pi, &ei_vnc_too_many_cut_text,
 				"Too much cut text (%d), aborting dissection", text_len);
 		return(0);
 	}

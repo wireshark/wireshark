@@ -197,7 +197,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         if ((int) auth_data_len - pad_len - 1 < 0) {
-            expert_add_info_format_text(pinfo, sai, &ei_sap_bogus_authentication_or_pad_length,
+            expert_add_info_format(pinfo, sai, &ei_sap_bogus_authentication_or_pad_length,
                                         "Bogus authentication length (%d) or pad length (%d)", auth_len, pad_len);
             return;
         }

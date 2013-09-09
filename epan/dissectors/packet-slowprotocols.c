@@ -1671,7 +1671,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             if ((tvb_get_guint8(tvb, offset) >> 4) != ESMC_VERSION_1)
             {
                 malformed = TRUE;
-                expert_add_info_format_text(pinfo, item_b, &ei_esmc_version_compliance, "Version must be 0x%.1x claim compliance with Version 1 of this protocol", ESMC_VERSION_1);
+                expert_add_info_format(pinfo, item_b, &ei_esmc_version_compliance, "Version must be 0x%.1x claim compliance with Version 1 of this protocol", ESMC_VERSION_1);
             }
             /*stay at the same octet in tvb*/
         }
@@ -1696,7 +1696,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             if (reserved != 0x0)
             {
                 malformed = TRUE;
-                expert_add_info_format_text(pinfo, item_b, &ei_esmc_reserved_not_zero, "Reserved bits must be set to all zero on transmitter");
+                expert_add_info_format(pinfo, item_b, &ei_esmc_reserved_not_zero, "Reserved bits must be set to all zero on transmitter");
             }
             offset += 4;
         }
@@ -1724,7 +1724,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     if (type != ESMC_QL_TLV_TYPE)
                     {
                         malformed = TRUE;
-                        expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_type_ql_type_not_first, "TLV Type must be == 0x%.2x (QL) because QL TLV must be first in the ESMC PDU", ESMC_QL_TLV_TYPE);
+                        expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_type_ql_type_not_first, "TLV Type must be == 0x%.2x (QL) because QL TLV must be first in the ESMC PDU", ESMC_QL_TLV_TYPE);
                         expert_add_info(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_ql_type);
                     }
                     offset += 1;
@@ -1735,8 +1735,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     if (length != ESMC_QL_TLV_LENGTH)
                     {
                         malformed = TRUE;
-                        expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_length_bad, "QL TLV Length must be == 0x%.4x", ESMC_QL_TLV_LENGTH);
-                        expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_ql_type, "Let's decode this TLV as if Length has valid value");
+                        expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_length_bad, "QL TLV Length must be == 0x%.4x", ESMC_QL_TLV_LENGTH);
+                        expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_ql_type, "Let's decode this TLV as if Length has valid value");
                     }
                     offset += 2;
 
@@ -1795,7 +1795,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         if (type != ESMC_TIMESTAMP_TLV_TYPE)
                         {
                             malformed = TRUE;
-                            expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_type_not_timestamp, "TLV Type must be == 0x%.2x (Timestamp) because Timestamp Valid Flag is set", ESMC_TIMESTAMP_TLV_TYPE);
+                            expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_type_not_timestamp, "TLV Type must be == 0x%.2x (Timestamp) because Timestamp Valid Flag is set", ESMC_TIMESTAMP_TLV_TYPE);
                             expert_add_info(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_timestamp);
                         }
                         offset += 1;
@@ -1806,8 +1806,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         if (length != ESMC_TIMESTAMP_TLV_LENGTH)
                         {
                             malformed = TRUE;
-                            expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_length_bad, "Timestamp TLV Length must be == 0x%.4x", ESMC_TIMESTAMP_TLV_LENGTH);
-                            expert_add_info_format_text(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_timestamp, "Let's decode this TLV as if Length has valid value");
+                            expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_length_bad, "Timestamp TLV Length must be == 0x%.4x", ESMC_TIMESTAMP_TLV_LENGTH);
+                            expert_add_info_format(pinfo, item_c, &ei_esmc_tlv_type_decoded_as_timestamp, "Let's decode this TLV as if Length has valid value");
                         }
                         offset += 2;
 
@@ -2526,7 +2526,7 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
                 if (raw_octet < 2)
                 {
-                    expert_add_info_format_text(pinfo, event_item, &ei_oampdu_event_length_bad, "Event length should be at least 2");
+                    expert_add_info_format(pinfo, event_item, &ei_oampdu_event_length_bad, "Event length should be at least 2");
                 }
                 else
                 {

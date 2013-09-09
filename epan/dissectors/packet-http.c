@@ -979,7 +979,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				hdr_item = proto_tree_add_text(http_tree, tvb,
 				    offset, next_offset - offset, "%s", text);
 			}
-			expert_add_info_format_text(pinfo, hdr_item, &ei_http_chat, "%s", text);
+			expert_add_info_format(pinfo, hdr_item, &ei_http_chat, "%s", text);
 			if (reqresp_dissector) {
 				if (tree) req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
 				else req_tree = NULL;

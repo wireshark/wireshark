@@ -586,7 +586,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
         if(ret == 0){
             char *user_data;
 
-            expert_add_info_format_text(pinfo, NULL, &ei_krb_decrypted_keytype,
+            expert_add_info_format(pinfo, NULL, &ei_krb_decrypted_keytype,
                                    "Decrypted keytype %d in frame %u using %s",
                                    ek->keytype, pinfo->fd->num, ek->key_origin);
 

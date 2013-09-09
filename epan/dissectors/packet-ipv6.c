@@ -689,14 +689,14 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 
             /* from RFC6554: when CmprI and CmprE are both 0, Pad MUST carry a value of 0 */
             if(g_ipv6_rpl_srh_strict_rfc_checking && (cmprI == 0 && cmprE == 0 && pad != 0)){
-                expert_add_info_format_text(pinfo, ti, &ei_ipv6_cmpri_cmpre_pad, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was %d", pad);
+                expert_add_info_format(pinfo, ti, &ei_ipv6_cmpri_cmpre_pad, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was %d", pad);
             }
 
             proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
             reserved = tvb_get_bits32(tvb, ((offset + 1) * 8) + 4, 20, ENC_BIG_ENDIAN);
 
             if(g_ipv6_rpl_srh_strict_rfc_checking && reserved != 0){
-                expert_add_info_format_text(pinfo, ti, &ei_ipv6_routing_hdr_rpl_reserved, "Reserved field must equal 0 but instead was %d", reserved);
+                expert_add_info_format(pinfo, ti, &ei_ipv6_routing_hdr_rpl_reserved, "Reserved field must equal 0 but instead was %d", reserved);
             }
 
             /* from RFC6554:
@@ -707,7 +707,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 
             if (segments < 0) {
                 /* This error should always be reported */
-                expert_add_info_format_text(pinfo, ti, &ei_ipv6_routing_hdr_rpl_segments_ge0, "Calculated total segments must be greater than or equal to 0, instead was %d", segments);
+                expert_add_info_format(pinfo, ti, &ei_ipv6_routing_hdr_rpl_segments_ge0, "Calculated total segments must be greater than or equal to 0, instead was %d", segments);
             } else {
 
                 offset += 4;
@@ -952,7 +952,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 break;
             case IP6OPT_TEL:
                 if (opt_len != 1) {
-                    expert_add_info_format_text(pinfo, ti_opt_len, &ei_ipv6_opt_tel_invalid_len,
+                    expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_opt_tel_invalid_len,
                         "Tunnel Encapsulation Limit: Invalid length (%u bytes)", opt_len);
                 }
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_tel, tvb,
@@ -961,7 +961,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 break;
             case IP6OPT_JUMBO:
                 if (opt_len != 4) {
-                    expert_add_info_format_text(pinfo, ti_opt_len, &ei_ipv6_opt_jumbo_invalid_len,
+                    expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_opt_jumbo_invalid_len,
                         "Jumbo payload: Invalid length (%u bytes)", opt_len);
                 }
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_jumbo, tvb,
@@ -971,7 +971,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
             case IP6OPT_RTALERT:
               {
                 if (opt_len != 2) {
-                    expert_add_info_format_text(pinfo, ti_opt_len, &ei_ipv6_opt_rtalert_invalid_len,
+                    expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_opt_rtalert_invalid_len,
                             "Router alert: Invalid Length (%u bytes)",
                             opt_len + 2);
                 }
@@ -982,7 +982,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
               }
             case IP6OPT_HOME_ADDRESS:
                 if (opt_len != 16) {
-                    expert_add_info_format_text(pinfo, ti_opt_len, &ei_ipv6_mipv6_home_address_invalid_len,
+                    expert_add_info_format(pinfo, ti_opt_len, &ei_ipv6_mipv6_home_address_invalid_len,
                         "Home Address: Invalid length (%u bytes)", opt_len);
                 }
                 proto_tree_add_item(opt_tree, hf_ipv6_mipv6_home_address, tvb,

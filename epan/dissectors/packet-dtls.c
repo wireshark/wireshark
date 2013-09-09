@@ -2246,7 +2246,7 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
               subtree = proto_item_add_subtree(ti, ett_dtls_sig_hash_algs);
 
               if (sh_alg_length % 2) {
-                  expert_add_info_format_text(pinfo, ti2, &ei_dtls_handshake_sig_hash_alg_len_bad,
+                  expert_add_info_format(pinfo, ti2, &ei_dtls_handshake_sig_hash_alg_len_bad,
                       "Signature Hash Algorithm length (%d) must be a multiple of 2",
                       sh_alg_length);
                   return;

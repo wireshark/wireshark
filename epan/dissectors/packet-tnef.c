@@ -526,7 +526,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* check the signature */
   if(signature != TNEF_SIGNATURE) {
 
-    expert_add_info_format_text(pinfo, item, &ei_tnef_incorrect_signature, 
+    expert_add_info_format(pinfo, item, &ei_tnef_incorrect_signature, 
                " [Incorrect, should be 0x%x. No further dissection possible. Check any Content-Transfer-Encoding has been removed.]", TNEF_SIGNATURE);
     return;
 

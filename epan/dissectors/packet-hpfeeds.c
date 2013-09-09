@@ -273,7 +273,7 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
 
     if (opcode >= array_length(opcode_vals) - 1) {
-        expert_add_info_format_text(pinfo, ti, &ei_hpfeeds_opcode_unknown,
+        expert_add_info_format(pinfo, ti, &ei_hpfeeds_opcode_unknown,
                 "Unknown value %02x for opcode field", opcode);
     }
 

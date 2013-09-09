@@ -665,7 +665,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
             str = try_val_to_str(return_code, sss_errors_enum);
             if (str) {
                 expert_item = proto_tree_add_item(atree, hf_return_code, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-                expert_add_info_format_text(pinfo, expert_item, &ei_return_code, "SSS Error: %s", str);
+                expert_add_info_format(pinfo, expert_item, &ei_return_code, "SSS Error: %s", str);
                 col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", val_to_str(return_code, sss_errors_enum, "Unknown (%d)"));
                 /*foffset+=4;*/
             } else {

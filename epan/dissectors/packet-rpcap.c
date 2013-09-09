@@ -395,7 +395,7 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
 		     tvb_format_text_wsp (tvb, offset, len));
 
   ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, ENC_ASCII|ENC_NA);
-  expert_add_info_format_text(pinfo, ti, &ei_error,
+  expert_add_info_format(pinfo, ti, &ei_error,
 			  "Error: %s", tvb_format_text_wsp (tvb, offset, len));
 }
 
@@ -436,7 +436,7 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
   } else {
     ti = proto_tree_add_item (tree, hf_if_unknown, tvb, offset, 126, ENC_NA);
     if (af != AF_UNSPEC) {
-      expert_add_info_format_text(pinfo, ti, &ei_if_unknown,
+      expert_add_info_format(pinfo, ti, &ei_if_unknown,
 			      "Unknown address family: %d", af);
     }
     offset += 126;

@@ -722,7 +722,7 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     ti = proto_tree_add_int(primary_tree, hf_bundle_primary_header_len, tvb, offset, sdnv_length, bundle_header_length);
     if(bundle_header_length < 0) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "Bundle Header Length Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Bundle Header Length Error");
         return 0;
     }
 
@@ -797,7 +797,7 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     dict_data.bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     ti = proto_tree_add_int(primary_tree, hf_bundle_primary_dictionary_len, tvb, offset, sdnv_length, dict_data.bundle_header_dict_length);
     if(dict_data.bundle_header_dict_length < 0) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "Dictionary Header Length Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Dictionary Header Length Error");
         return 0;
     }
     offset += sdnv_length;
@@ -833,7 +833,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     *pri_hdr_procflags = (guint8) (bundle_processing_control_flags & 0x7f);
 
     if (sdnv_length < 1 || sdnv_length > 8) {
-        expert_add_info_format_text(pinfo, primary_tree, &ei_bundle_control_flags_length,
+        expert_add_info_format(pinfo, primary_tree, &ei_bundle_control_flags_length,
                                "Wrong bundle control flag length: %d", sdnv_length);
         return 0;
     }
@@ -888,7 +888,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     ti = proto_tree_add_int(primary_tree, hf_bundle_primary_header_len, tvb, offset, sdnv_length, bundle_header_length);
     if(bundle_header_length < 0) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "Bundle Header Length Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Bundle Header Length Error");
         return 0;
     }
 
@@ -909,7 +909,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     ti = proto_tree_add_int(primary_tree, hf_bundle_dest_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.dest_scheme_offset);
     if((dict_data.dest_scheme_offset < 0) || (dict_data.dest_scheme_offset > bundle_header_length)) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Destination Scheme Offset Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Destination Scheme Offset Error");
     }
     offset += sdnv_length;
 
@@ -919,7 +919,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     ti = proto_tree_add_int(primary_tree, hf_bundle_dest_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.dest_ssp_offset);
     if((dict_data.dest_ssp_offset < 0) || (dict_data.dest_ssp_offset > bundle_header_length)) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Destination SSP Offset Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Destination SSP Offset Error");
     }
     offset += sdnv_length;
 
@@ -930,7 +930,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     ti = proto_tree_add_int(primary_tree, hf_bundle_source_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.source_scheme_offset);
     if((dict_data.source_scheme_offset < 0) || (dict_data.source_scheme_offset > bundle_header_length)) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Source Scheme Offset Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Source Scheme Offset Error");
     }
     offset += sdnv_length;
 
@@ -940,7 +940,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     ti = proto_tree_add_int(primary_tree, hf_bundle_source_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.source_ssp_offset);
     if((dict_data.source_ssp_offset < 0) || (dict_data.source_ssp_offset > bundle_header_length)) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Source SSP Offset Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Source SSP Offset Error");
     }
     offset += sdnv_length;
 
@@ -951,7 +951,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     ti = proto_tree_add_int(primary_tree, hf_bundle_report_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.report_scheme_offset);
     if((dict_data.report_scheme_offset < 0) || (dict_data.report_scheme_offset > bundle_header_length)) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Report Scheme Offset Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Report Scheme Offset Error");
     }
     offset += sdnv_length;
 
@@ -961,7 +961,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     ti = proto_tree_add_int(primary_tree, hf_bundle_report_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.report_ssp_offset);
     if((dict_data.report_ssp_offset < 0) || (dict_data.report_ssp_offset > bundle_header_length)) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Report SSP Offset Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Report SSP Offset Error");
     }
     offset += sdnv_length;
 
@@ -973,7 +973,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     ti = proto_tree_add_int(primary_tree, hf_bundle_cust_scheme_offset_i32, tvb, offset, sdnv_length, dict_data.cust_scheme_offset);
     if((dict_data.cust_scheme_offset < 0) || (dict_data.cust_scheme_offset > bundle_header_length)) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Custodian Scheme Offset Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Custodian Scheme Offset Error");
     }
     offset += sdnv_length;
 
@@ -983,7 +983,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
 
     ti = proto_tree_add_int(primary_tree, hf_bundle_cust_ssp_offset_i32, tvb, offset, sdnv_length, dict_data.cust_ssp_offset);
     if((dict_data.cust_ssp_offset < 0) || (dict_data.cust_ssp_offset > bundle_header_length)) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Custodian SSP Offset Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Custodian SSP Offset Error");
     }
     offset += sdnv_length;
 
@@ -1019,7 +1019,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     dict_data.bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     ti = proto_tree_add_int(primary_tree, hf_bundle_primary_dictionary_len, tvb, offset, sdnv_length, dict_data.bundle_header_dict_length);
     if(dict_data.bundle_header_dict_length < 0) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "Dictionary Header Length Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Dictionary Header Length Error");
         return 0;
     }
     offset += sdnv_length;
@@ -1376,14 +1376,14 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         fill_start = evaluate_sdnv(tvb, offset, &sdnv_length_start);
         ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_start, tvb, offset, sdnv_length_start, fill_start);
         if (fill_start < 0 || sdnv_length_start < 0) {
-            expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range start SDNV");
+            expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range start SDNV");
             return offset;
         }
         fill_length = evaluate_sdnv(tvb, offset + sdnv_length_start, &sdnv_length_length);
         ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_end, tvb, offset,
                                 sdnv_length_start + sdnv_length_length, fill_start + fill_length - 1);
         if (fill_length < 0 || sdnv_length_length < 0) {
-            expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range length SDNV");
+            expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range length SDNV");
             return offset;
         }
 
@@ -1397,14 +1397,14 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
             fill_gap = evaluate_sdnv(tvb, offset, &sdnv_length_gap);
             ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_start, tvb, offset, sdnv_length_gap, fill_gap);
             if (fill_gap < 0 || sdnv_length_gap < 0) {
-                expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range gap SDNV");
+                expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range gap SDNV");
                 return offset;
             }
             fill_length = evaluate_sdnv(tvb, offset + sdnv_length_gap, &sdnv_length_length);
             ti = proto_tree_add_int(admin_record_tree, hf_bundle_custody_id_range_end, tvb, offset,
                                     sdnv_length_gap + sdnv_length_length, right_edge + fill_gap + fill_length - 1);
             if (fill_length < 0 || sdnv_length_length < 0) {
-                expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range length SDNV");
+                expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range length SDNV");
                 return offset;
             }
 
@@ -1414,7 +1414,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         }
 
         if (payload_bytes_processed > payload_length) {
-            expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "ACS: CTEB Custody ID Range data extends past payload length");
+            expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "ACS: CTEB Custody ID Range data extends past payload length");
             return offset;
         }
 
@@ -1495,7 +1495,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     block_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     ti = proto_tree_add_int(block_tree, hf_block_control_block_length, tvb, offset, sdnv_length, block_length);
     if(block_length < 0) {
-        expert_add_info_format_text(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
+        expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
         /* Force quitting */
         *lastheader = TRUE;
         return offset;
@@ -1525,10 +1525,10 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
         /* check requirements for Block Processing Control Flags */
         if ((control_flags & BLOCK_CONTROL_REPLICATE) != 0) {
-            expert_add_info_format_text(pinfo, block_flag_replicate_item, &ei_bundle_block_control_flags, "ERROR: Replicate must be clear for CTEB");
+            expert_add_info_format(pinfo, block_flag_replicate_item, &ei_bundle_block_control_flags, "ERROR: Replicate must be clear for CTEB");
         }
         if ((control_flags & BLOCK_CONTROL_EID_REFERENCE) != 0) {
-            expert_add_info_format_text(pinfo, block_flag_eid_reference_item, &ei_bundle_block_control_flags, "ERROR: EID-Reference must be clear for CTEB");
+            expert_add_info_format(pinfo, block_flag_eid_reference_item, &ei_bundle_block_control_flags, "ERROR: EID-Reference must be clear for CTEB");
         }
 
         /* there are two elements in a CTEB, first is the custody ID */
@@ -1544,16 +1544,16 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
         /* also check if CTEB is valid, i.e. custodians match */
         if (bundle_custodian == NULL) {
-            expert_add_info_format_text(pinfo, ti, &ei_block_control_block_cteb_invalid,
+            expert_add_info_format(pinfo, ti, &ei_block_control_block_cteb_invalid,
                                 "CTEB Is NOT Valid (Bundle Custodian NULL)");
         }
         else if (strlen(cteb_creator_custodian_eid) != strlen(bundle_custodian)) {
-            expert_add_info_format_text(pinfo, ti, &ei_block_control_block_cteb_invalid,
+            expert_add_info_format(pinfo, ti, &ei_block_control_block_cteb_invalid,
                                 "CTEB Is NOT Valid (Bundle Custodian [%s] != CTEB Custodian [%s])",
                                 bundle_custodian, cteb_creator_custodian_eid);
         }
         else if (memcmp(cteb_creator_custodian_eid, bundle_custodian, strlen(bundle_custodian)) != 0) {
-            expert_add_info_format_text(pinfo, ti, &ei_block_control_block_cteb_invalid,
+            expert_add_info_format(pinfo, ti, &ei_block_control_block_cteb_invalid,
                                 "CTEB Is NOT Valid (Bundle Custodian [%s] != CTEB Custodian [%s])",
                                 bundle_custodian, cteb_creator_custodian_eid);
         }
@@ -1572,10 +1572,10 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
         /* check requirements for Block Processing Control Flags */
         if ((control_flags & BLOCK_CONTROL_REPLICATE) == 0) {
-            expert_add_info_format_text(pinfo, block_flag_replicate_item, &ei_bundle_block_control_flags, "ERROR: Replicate must be set for ECOS");
+            expert_add_info_format(pinfo, block_flag_replicate_item, &ei_bundle_block_control_flags, "ERROR: Replicate must be set for ECOS");
         }
         if ((control_flags & BLOCK_CONTROL_EID_REFERENCE) != 0) {
-            expert_add_info_format_text(pinfo, block_flag_eid_reference_item, &ei_bundle_block_control_flags, "ERROR: EID-Reference must be clear for ECOS");
+            expert_add_info_format(pinfo, block_flag_eid_reference_item, &ei_bundle_block_control_flags, "ERROR: EID-Reference must be clear for ECOS");
         }
 
         /* flags byte */
@@ -1596,7 +1596,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
             flow_label = evaluate_sdnv(tvb, offset, &sdnv_length);
             ti = proto_tree_add_int(block_tree, hf_ecos_flow_label, tvb, offset, sdnv_length, flow_label);
             if(flow_label < 0) {
-                expert_add_info_format_text(pinfo, ti, &ei_bundle_sdnv_length, "ECOS Flow Label Error");
+                expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ECOS Flow Label Error");
                 /* Force quitting */
                 *lastheader = TRUE;
                 return offset;

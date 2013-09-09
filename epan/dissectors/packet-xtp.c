@@ -770,12 +770,12 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	spans_len = 16 * ecntl->nspan;
 
 	if (len != spans_len) {
-		expert_add_info_format_text(pinfo, top_ti, &ei_xtp_spans_bad, "Number of spans (%u) incorrect. Should be %u.", ecntl->nspan, len);
+		expert_add_info_format(pinfo, top_ti, &ei_xtp_spans_bad, "Number of spans (%u) incorrect. Should be %u.", ecntl->nspan, len);
 		THROW(ReportedBoundsError);
 	}
 
 	if (ecntl->nspan > XTP_MAX_NSPANS) {
-		expert_add_info_format_text(pinfo, top_ti, &ei_xtp_spans_bad, "Too many spans: %u", ecntl->nspan);
+		expert_add_info_format(pinfo, top_ti, &ei_xtp_spans_bad, "Too many spans: %u", ecntl->nspan);
 		THROW(ReportedBoundsError);
 	}
 

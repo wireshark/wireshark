@@ -358,7 +358,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item(dlsw_header_tree, hf_dlsw_dlc_header_length, tvb, 42, 2, ENC_BIG_ENDIAN);
         if ( dlchlen > mlen )
         {
-          expert_add_info_format_text(pinfo, ti, &ei_dlsw_dlc_header_length,
+          expert_add_info_format(pinfo, ti, &ei_dlsw_dlc_header_length,
               "DLC Header Length = %u (bogus, must be <= message length %u)",dlchlen, mlen) ;
           return;
         }

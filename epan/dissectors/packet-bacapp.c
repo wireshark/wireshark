@@ -5128,7 +5128,7 @@ fTagHeaderTree (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } /* if (tree) */
 
     if (*lvt > tvb_length(tvb)) {
-        expert_add_info_format_text(pinfo, ti, &ei_bacapp_bad_length,
+        expert_add_info_format(pinfo, ti, &ei_bacapp_bad_length,
                                "LVT length too long: %d > %d", *lvt,
                                tvb_length(tvb));
         *lvt = 1;
@@ -5225,7 +5225,7 @@ fDevice_Instance (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     ti = proto_tree_add_item(tree, hf, tvb, offset+tag_len, safe_lvt, ENC_BIG_ENDIAN);
 
     if (lvt != safe_lvt)
-        expert_add_info_format_text(pinfo, ti, &ei_bacapp_bad_length,
+        expert_add_info_format(pinfo, ti, &ei_bacapp_bad_length,
                 "This field claims to be an impossible %u bytes, while the max is %u", lvt, safe_lvt);
 
     subtree = proto_item_add_subtree(ti, ett_bacapp_tag);

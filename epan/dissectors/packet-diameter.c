@@ -684,7 +684,7 @@ address_v16_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 			break;
 		default:
 			pi = proto_tree_add_item(pt,t->hf_other,tvb,0,len,ENC_BIG_ENDIAN);
-			expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+			expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 					"Bad Address Length (%u)", len);
 
 			break;
@@ -733,7 +733,7 @@ integer32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Integer32 Length");
-		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 					"Bad Integer32 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
@@ -759,7 +759,7 @@ integer64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Integer64 Length");
-		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 				"Bad Integer64 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
@@ -785,7 +785,7 @@ unsigned32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Unsigned32 Length");
-		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 					"Bad Unsigned32 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
@@ -811,7 +811,7 @@ unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Unsigned64 Length");
-		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 				"Bad Unsigned64 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
@@ -837,7 +837,7 @@ float32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Float32 Length");
-		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 				"Bad Float32 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;
@@ -863,7 +863,7 @@ float64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
 						 tvb, 0, length, NULL,
 						"Error!  Bad Float64 Length");
-		expert_add_info_format_text(c->pinfo, pi, &ei_diameter_avp_len,
+		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 				"Bad Float64 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 		label = NULL;

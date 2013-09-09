@@ -986,7 +986,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
     } else {
       result->length = 0;
       result->contents = NULL;
-      expert_add_info_format_text(pinfo, tf, &ei_ntlmssp_v2_key_too_long,
+      expert_add_info_format(pinfo, tf, &ei_ntlmssp_v2_key_too_long,
                              "NTLM v2 key is %d bytes long, too big for our %d buffer", blob_length, MAX_BLOB_SIZE);
     }
   }
@@ -1801,7 +1801,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   }
 
   if (sessionblob.length > NTLMSSP_KEY_LEN) {
-    expert_add_info_format_text(pinfo, NULL, &ei_ntlmssp_blob_len_too_long, "Session blob length too long: %u", sessionblob.length);
+    expert_add_info_format(pinfo, NULL, &ei_ntlmssp_blob_len_too_long, "Session blob length too long: %u", sessionblob.length);
   } else if (sessionblob.length != 0) {
     memcpy(encryptedsessionkey, sessionblob.contents, sessionblob.length);
     /* Try to attach to an existing conversation if not then it's useless to try to do so

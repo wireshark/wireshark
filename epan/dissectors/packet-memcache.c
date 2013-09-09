@@ -370,7 +370,7 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (illegal) {
     ti = proto_tree_add_item (extras_tree, hf_extras_unknown, tvb, offset, extras_len, ENC_NA);
-    expert_add_info_format_text(pinfo, ti, &ei_extras_unknown, "%s %s shall not have Extras",
+    expert_add_info_format(pinfo, ti, &ei_extras_unknown, "%s %s shall not have Extras",
                     val_to_str (opcode, opcode_vals, "Opcode %d"),
                     request ? "Request" : "Response");
     offset += extras_len;
@@ -381,7 +381,7 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if ((offset - save_offset) != extras_len) {
-    expert_add_info_format_text(pinfo, extras_item, &ei_extras_unknown, "Illegal Extras length, should be %d", offset - save_offset);
+    expert_add_info_format(pinfo, extras_item, &ei_extras_unknown, "Illegal Extras length, should be %d", offset - save_offset);
   }
 }
 
@@ -428,7 +428,7 @@ dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if (illegal) {
-    expert_add_info_format_text(pinfo, ti, &ei_key_unknown, "%s %s shall not have Key",
+    expert_add_info_format(pinfo, ti, &ei_key_unknown, "%s %s shall not have Key",
             val_to_str (opcode, opcode_vals, "Opcode %d"),
             request ? "Request" : "Response");
   } else if (missing) {
@@ -450,7 +450,7 @@ dissect_value (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!request && ((opcode == OP_INCREMENT) || (opcode == OP_DECREMENT))) {
       ti = proto_tree_add_item (tree, hf_uint64_response, tvb, offset, 8, ENC_BIG_ENDIAN);
       if (value_len != 8) {
-        expert_add_info_format_text(pinfo, ti, &ei_value_length, "Illegal Value length, should be 8");
+        expert_add_info_format(pinfo, ti, &ei_value_length, "Illegal Value length, should be 8");
       }
     } else {
       ti = proto_tree_add_item (tree, hf_value, tvb, offset, value_len, ENC_ASCII|ENC_NA);
@@ -497,7 +497,7 @@ dissect_value (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if (illegal) {
-    expert_add_info_format_text(pinfo, ti, &ei_value_unknown, "%s %s shall not have Value",
+    expert_add_info_format(pinfo, ti, &ei_value_unknown, "%s %s shall not have Value",
             val_to_str (opcode, opcode_vals, "Opcode %d"),
             request ? "Request" : "Response");
   } else if (missing) {
@@ -529,7 +529,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += 1;
 
   if (try_val_to_str (magic, magic_vals) == NULL) {
-    expert_add_info_format_text(pinfo, ti, &ei_magic_unknown, "Unknown magic byte: %d", magic);
+    expert_add_info_format(pinfo, ti, &ei_magic_unknown, "Unknown magic byte: %d", magic);
   }
 
   opcode = tvb_get_guint8 (tvb, offset);
@@ -537,7 +537,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += 1;
 
   if (try_val_to_str (opcode, opcode_vals) == NULL) {
-    expert_add_info_format_text(pinfo, ti, &ei_opcode_unknown, "Unknown opcode: %d", opcode);
+    expert_add_info_format(pinfo, ti, &ei_opcode_unknown, "Unknown opcode: %d", opcode);
   }
 
   proto_item_append_text (memcache_item, ", %s %s", val_to_str (opcode, opcode_vals, "Unknown opcode (%d)"),
@@ -563,7 +563,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     request = FALSE;
     ti = proto_tree_add_item (memcache_tree, hf_status, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (status != 0) {
-      expert_add_info_format_text(pinfo, ti, &ei_status_response, "%s: %s",
+      expert_add_info_format(pinfo, ti, &ei_status_response, "%s: %s",
                               val_to_str (opcode, opcode_vals, "Unknown opcode (%d)"),
                               val_to_str (status, status_vals, "Status: %d"));
     }
@@ -571,7 +571,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     request = TRUE;
     ti = proto_tree_add_item (memcache_tree, hf_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (status != 0) {
-      expert_add_info_format_text(pinfo, ti, &ei_reserved_value, "Reserved value: %d", status);
+      expert_add_info_format(pinfo, ti, &ei_reserved_value, "Reserved value: %d", status);
     }
   }
   offset += 2;

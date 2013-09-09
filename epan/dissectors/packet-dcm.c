@@ -6804,15 +6804,15 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 
 	if (pdv_len + 4 > pdu_len) {
-	    expert_add_info_format_text(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (too large)");
+	    expert_add_info_format(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (too large)");
 	    return endpos;
 	}
 	else if (pdv_len <= 2) {
-	    expert_add_info_format_text(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (too small)");
+	    expert_add_info_format(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (too small)");
 	    return endpos;
 	}
 	else if (((pdv_len >> 1) << 1) != pdv_len) {
-	    expert_add_info_format_text(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (not even)");
+	    expert_add_info_format(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (not even)");
 	    return endpos;
 	}
 
@@ -6973,7 +6973,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	old_pdu_start = pdu_start;
 	pdu_start =  pdu_start + pdu_len + 6;
 	if (pdu_start <= old_pdu_start) {
-	    expert_add_info_format_text(pinfo, NULL, &ei_dcm_invalid_pdu_length, "Invalid PDU length (%u)", pdu_len);
+	    expert_add_info_format(pinfo, NULL, &ei_dcm_invalid_pdu_length, "Invalid PDU length (%u)", pdu_len);
 	    THROW(ReportedBoundsError);
 	}
 

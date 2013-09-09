@@ -1806,23 +1806,23 @@ static gboolean validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, int 
     switch (block_type) {
         case RTCP_XR_REF_TIME:
             if (block_len != 2)
-                expert_add_info_format_text(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 2");
+                expert_add_info_format(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 2");
             return FALSE;
 
         case RTCP_XR_STATS_SUMRY:
             if (block_len != 9)
-                expert_add_info_format_text(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 9");
+                expert_add_info_format(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 9");
             return FALSE;
 
         case RTCP_XR_VOIP_METRCS:
         case RTCP_XR_BT_XNQ:
             if (block_len != 8)
-                expert_add_info_format_text(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 8");
+                expert_add_info_format(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 8");
             return FALSE;
 
         case RTCP_XR_IDMS:
             if (block_len != 7)
-                expert_add_info_format_text(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 7");
+                expert_add_info_format(pinfo, ti, &ei_rtcp_xr_block_length_bad, "Invalid block length, should be 7");
             return FALSE;
 
         default:
@@ -2780,11 +2780,11 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     /* Add to expert info */
     if (delay >= 0)
     {
-        expert_add_info_format_text(pinfo, item, &ei_rtcp_roundtrip_delay, "RTCP round-trip delay detected (%d ms)", delay);
+        expert_add_info_format(pinfo, item, &ei_rtcp_roundtrip_delay, "RTCP round-trip delay detected (%d ms)", delay);
     }
     else
     {
-        expert_add_info_format_text(pinfo, item, &ei_rtcp_roundtrip_delay_negative, "Negative RTCP round-trip delay detected (%d ms)", delay);
+        expert_add_info_format(pinfo, item, &ei_rtcp_roundtrip_delay_negative, "Negative RTCP round-trip delay detected (%d ms)", delay);
     }
 
     /* Report delay in INFO column */
@@ -3105,7 +3105,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                                             total_packet_length, offset);
         PROTO_ITEM_SET_GENERATED(ti);
 
-        expert_add_info_format_text(pinfo, ti, &ei_rtcp_length_check, "Incorrect RTCP packet length information (expected %u bytes, found %d)", total_packet_length, offset);
+        expert_add_info_format(pinfo, ti, &ei_rtcp_length_check, "Incorrect RTCP packet length information (expected %u bytes, found %d)", total_packet_length, offset);
     }
 }
 

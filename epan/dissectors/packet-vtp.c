@@ -424,7 +424,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_vtp_vlan_src_route_ring_num, tvb, offset, 2, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Source-Routing Ring Number: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Source-Routing Ring Number: Bad length %u", length);
 		}
 		break;
 
@@ -432,7 +432,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_vtp_vlan_src_route_bridge_num, tvb, offset, 2, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Source-Routing Bridge Number: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Source-Routing Bridge Number: Bad length %u", length);
 		}
 		break;
 
@@ -440,7 +440,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_vtp_vlan_stp_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Spanning-Tree Protocol Type: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Spanning-Tree Protocol Type: Bad length %u", length);
 		}
 		break;
 
@@ -448,7 +448,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_vtp_vlan_parent_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Parent VLAN: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Parent VLAN: Bad length %u", length);
 		}
 		break;
 
@@ -456,7 +456,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_vtp_vlan_translationally_bridged_vlans, tvb, offset, 2, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Translationally Bridged VLANs: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Translationally Bridged VLANs: Bad length %u", length);
 		}
 		break;
 
@@ -464,7 +464,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_vtp_vlan_pruning, tvb, offset, 2, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Pruning: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Pruning: Bad length %u", length);
 		}
 		break;
 
@@ -472,7 +472,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_vtp_vlan_bridge_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Bridge Type: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Bridge Type: Bad length %u", length);
 		}
 		break;
 
@@ -480,7 +480,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_vtp_vlan_max_are_hop_count, tvb, offset, 2, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Max ARE Hop Count: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Max ARE Hop Count: Bad length %u", length);
 		}
 		break;
 
@@ -488,7 +488,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_vtp_vlan_max_ste_hop_count, tvb, offset, 2, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Max STE Hop Count: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Max STE Hop Count: Bad length %u", length);
 		}
 		break;
 
@@ -496,7 +496,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_vtp_vlan_backup_crf_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Backup CRF Mode: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_vtp_vlan_tlvlength_bad, "Backup CRF Mode: Bad length %u", length);
 		}
 		break;
 

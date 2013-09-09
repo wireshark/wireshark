@@ -223,7 +223,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                               "CRC: %8.8x "
                                               "[error: should be %8.8x]",
                                               crc, crc_computed);
-            expert_add_info_format_text(pinfo, item, &ei_fcoe_crc,
+            expert_add_info_format(pinfo, item, &ei_fcoe_crc,
                                    "Bad FC CRC %8.8x %8.x",
                                    crc, crc_computed);
         }

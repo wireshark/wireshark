@@ -1004,7 +1004,7 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
         }
         else 
         {
-            expert_add_info_format_text(pinfo, subtype_item, &ei_usb_vid_subtype_unknown,
+            expert_add_info_format(pinfo, subtype_item, &ei_usb_vid_subtype_unknown,
                                    "Unknown VC subtype %u", subtype);
         }
     }

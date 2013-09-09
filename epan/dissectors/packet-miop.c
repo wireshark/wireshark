@@ -216,7 +216,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
       ti = proto_tree_add_item(miop_tree, hf_miop_unique_id_len, tvb, offset, 4, byte_order);
 
       if (unique_id_len >= MIOP_MAX_UNIQUE_ID_LENGTH) {
-        expert_add_info_format_text(pinfo, ti, &ei_miop_unique_id_len_exceed_max_value,
+        expert_add_info_format(pinfo, ti, &ei_miop_unique_id_len_exceed_max_value,
                        "Unique Id length (%u) exceeds max value (%u)",
                        unique_id_len, MIOP_MAX_UNIQUE_ID_LENGTH);
         return;

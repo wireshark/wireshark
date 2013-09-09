@@ -274,7 +274,7 @@ mncp_hash_insert(conversation_t *conversation, guint32 nwconnection, guint8 nwta
     g_hash_table_insert(mncp_rhash, key, value);
 
     if (ncp_echo_conn && nwconnection != 65535) {
-        expert_add_info_format_text(pinfo, NULL, &ei_ncp_new_server_session, "Detected New Server Session. Connection %d, Task %d", nwconnection, nwtask);
+        expert_add_info_format(pinfo, NULL, &ei_ncp_new_server_session, "Detected New Server Session. Connection %d, Task %d", nwconnection, nwtask);
         value->session_start_packet_num = pinfo->fd->num;
     }
 
@@ -421,7 +421,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
             if (request_value) {
                 if ((request_value->session_start_packet_num == pinfo->fd->num) && ncp_echo_conn) {
-                    expert_add_info_format_text(pinfo, NULL, &ei_ncp_new_server_session, "Detected New Server Session. Connection %d, Task %d", nw_connection, header.task);
+                    expert_add_info_format(pinfo, NULL, &ei_ncp_new_server_session, "Detected New Server Session. Connection %d, Task %d", nw_connection, header.task);
                 }
             }
         }
@@ -454,7 +454,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
             if (request_value) {
                 if ((request_value->session_start_packet_num == pinfo->fd->num) && ncp_echo_conn) {
-                    expert_add_info_format_text(pinfo, NULL, &ei_ncp_new_server_session, "Detected New Server Session. Connection %d, Task %d", nw_connection, header.task);
+                    expert_add_info_format(pinfo, NULL, &ei_ncp_new_server_session, "Detected New Server Session. Connection %d, Task %d", nw_connection, header.task);
                 }
             }
         }
@@ -477,7 +477,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, tvb_get_guint8(tvb, commhdr+9));
         proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, ENC_BIG_ENDIAN);
         if ((tvb_get_guint8(tvb, commhdr+9)==0x24) && ncp_echo_file) {
-            expert_add_info_format_text(pinfo, NULL, &ei_ncp_oplock_handle, "Server requesting station to clear oplock on handle - %08x", tvb_get_ntohl(tvb, commhdr+10));
+            expert_add_info_format(pinfo, NULL, &ei_ncp_oplock_handle, "Server requesting station to clear oplock on handle - %08x", tvb_get_ntohl(tvb, commhdr+10));
         }
         break;
 
@@ -823,7 +823,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             val_to_str(header.type, ncp_type_vals,
                 "Unknown type (0x%04x)"));
         if (ncp_echo_err) {
-            expert_add_info_format_text(pinfo, expert_item, &ei_ncp_type, "%s packets not supported yet", val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
+            expert_add_info_format(pinfo, expert_item, &ei_ncp_type, "%s packets not supported yet", val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
         }
         break;
     }

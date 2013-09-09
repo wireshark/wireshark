@@ -202,7 +202,7 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
   switch (addrtype) {
     case 1:
     if (addrlen != 4) {
-      expert_add_info_format_text(pinfo, NULL, &ei_glbp_ipv4_wrong_length,
+      expert_add_info_format(pinfo, NULL, &ei_glbp_ipv4_wrong_length,
         "Wrong IPv4 address length: %u", addrlen);
       return offset + addrlen;
     }
@@ -210,7 +210,7 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
     break;
   case 2:
     if (addrlen != 16) {
-      expert_add_info_format_text(pinfo, NULL, &ei_glbp_ipv6_wrong_length,
+      expert_add_info_format(pinfo, NULL, &ei_glbp_ipv6_wrong_length,
         "Wrong IPv6 address length: %u", addrlen);
       return offset + addrlen;
     }
@@ -333,7 +333,7 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     type = tvb_get_guint8(tvb, offset);
     length = tvb_get_guint8(tvb, offset+1);
     if (length < 2) {
-      expert_add_info_format_text(pinfo, NULL, &ei_glbp_tlv_length_too_small,
+      expert_add_info_format(pinfo, NULL, &ei_glbp_tlv_length_too_small,
         "Length %u too small", length);
       return offset;
     }

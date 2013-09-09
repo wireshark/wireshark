@@ -1788,7 +1788,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                         || (li[num_li].li < prev_li)) {
                         /* add malformed LI for investigation */
                         malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
-                        expert_add_info_format_text(pinfo, malformed, &ei_rlc_li_incorrect_mal, "Incorrect LI value 0x%x", li[num_li].li);
+                        expert_add_info_format(pinfo, malformed, &ei_rlc_li_incorrect_mal, "Incorrect LI value 0x%x", li[num_li].li);
                         return -1; /* just give up on this */
                     }
                     li[num_li].len = li[num_li].li - prev_li;

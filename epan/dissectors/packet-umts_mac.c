@@ -349,12 +349,12 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                     break;
                 default:
                     proto_item_append_text(ti, " (Unknown RACH DCCH/DTCH Content)");
-                    expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, "Unknown RACH DCCH/DTCH Content");
+                    expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, "Unknown RACH DCCH/DTCH Content");
             }
             break;
         default:
             proto_item_append_text(ti, " (Unknown RACH TCTF)");
-            expert_add_info_format_text(pinfo, NULL, &ei_mac_rach_tctf_unknown, "Unknown RACH TCTF");
+            expert_add_info_format(pinfo, NULL, &ei_mac_rach_tctf_unknown, "Unknown RACH TCTF");
     }
 }
 
@@ -442,7 +442,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                     break;
                 default:
                     proto_item_append_text(ti, " (Unknown FACH Content");
-                    expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, "Unknown FACH Content for this transportblock");
+                    expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, "Unknown FACH Content for this transportblock");
             }
             break;
         case TCTF_CTCH_FACH_FDD:
@@ -481,7 +481,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             break;
         default:
             proto_item_append_text(ti, " (Unknown FACH Content)");
-            expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, " Unknown FACH Content");
+            expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, " Unknown FACH Content");
             break;
     }
 }
@@ -598,7 +598,7 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             break;
         default:
             proto_item_append_text(ti, " (Unknown DCH Content)");
-            expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, "Unknown DCH Content");
+            expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, "Unknown DCH Content");
     }
 }
 
@@ -928,7 +928,7 @@ static void call_rlc(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pro
             break;
         default:
             proto_item_append_text(ti, " (Unknown EDCH Content)");
-            expert_add_info_format_text(pinfo, ti, &ei_mac_unknown_content, "Unknown EDCH Content");
+            expert_add_info_format(pinfo, ti, &ei_mac_unknown_content, "Unknown EDCH Content");
             break;
     }
 }
@@ -1056,7 +1056,7 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             break;
         default:
             proto_item_append_text(ti, " (Unknown EDCH Content)");
-            expert_add_info_format_text(pinfo, ti, &ei_mac_unknown_content, "Unknown EDCH Content");
+            expert_add_info_format(pinfo, ti, &ei_mac_unknown_content, "Unknown EDCH Content");
             break;
     }
 }
@@ -1117,7 +1117,7 @@ static void dissect_mac_fdd_hsdsch_common(tvbuff_t *tvb, packet_info *pinfo, pro
 		default:
 
 			proto_item_append_text(ti, " (Unknown HSDSCH-Common Content)");
-			expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, "Unknown HSDSCH-Common Content");
+			expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, "Unknown HSDSCH-Common Content");
 		break;
 	}
 
@@ -1265,7 +1265,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             break;
         default:
             proto_item_append_text(ti, " (Unknown HSDSCH Content)");
-           expert_add_info_format_text(pinfo, NULL, &ei_mac_unknown_content, "Unknown HSDSCH Content");
+           expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, "Unknown HSDSCH Content");
     }
 }
 

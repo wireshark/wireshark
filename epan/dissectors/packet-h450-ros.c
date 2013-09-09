@@ -247,7 +247,7 @@ dissect_h450_ros_Invoke(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
   if (!arg_handle) {
-    expert_add_info_format_text(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
+    expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
 
   return offset;
@@ -331,7 +331,7 @@ dissect_h450_ros_ReturnResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
     actx->pinfo->private_data = actx->rose_ctx;
     call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
     if (!res_handle) {
-      expert_add_info_format_text(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
+      expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
     }
   }
 
@@ -400,7 +400,7 @@ dissect_h450_ros_ReturnError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
   if (!err_handle) {
-    expert_add_info_format_text(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
+    expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
 
   return offset;

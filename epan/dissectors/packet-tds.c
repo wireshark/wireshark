@@ -943,7 +943,7 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
         header_sub_tree = proto_item_add_subtree(item, ett_tds_all_headers_header);
         length_item = proto_tree_add_item(header_sub_tree, hf_tds_all_headers_header_length, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         if(header_length == 0 ) {
-            expert_add_info_format_text(pinfo, length_item, &ei_tds_invalid_length, "Empty header");
+            expert_add_info_format(pinfo, length_item, &ei_tds_invalid_length, "Empty header");
             break;
         }
 
@@ -955,7 +955,7 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
                 break;
             case TDS_HEADER_TRANS_DESCR:
                 if(header_length != 18)
-                    expert_add_info_format_text(pinfo, length_item, &ei_tds_invalid_length, "Length should equal 18");
+                    expert_add_info_format(pinfo, length_item, &ei_tds_invalid_length, "Length should equal 18");
                 proto_tree_add_item(header_sub_tree, hf_tds_all_headers_trans_descr, tvb, *offset + 6, 8, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(header_sub_tree, hf_tds_all_headers_request_cnt, tvb, *offset + 14, 4, ENC_LITTLE_ENDIAN);
                 break;
@@ -966,7 +966,7 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
         *offset += header_length;
     } while(*offset < final_offset);
     if(*offset != final_offset) {
-        expert_add_info_format_text(pinfo, total_length_item, &ei_tds_invalid_length, "Sum of headers' lengths (%d) differs from total headers length (%d)", total_length + *offset - final_offset, total_length);
+        expert_add_info_format(pinfo, total_length_item, &ei_tds_invalid_length, "Sum of headers' lengths (%d) differs from total headers length (%d)", total_length + *offset - final_offset, total_length);
         return;
     }
 }
@@ -2231,7 +2231,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
 
         if ((int) token_sz < 0) {
             token_item = proto_tree_add_text(tree, tvb, pos, 0, "Token");
-            expert_add_info_format_text(pinfo, token_item, &ei_tds_token_length_invalid, "Bogus token size: %u", token_sz);
+            expert_add_info_format(pinfo, token_item, &ei_tds_token_length_invalid, "Bogus token size: %u", token_sz);
             break;
         }
         token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
@@ -2239,7 +2239,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
                                          val_to_str_const(token, token_names, "Unknown Token Type"));
 
         if ((int) token_len_field_size < 0) {
-            expert_add_info_format_text(pinfo, token_item, &ei_tds_token_length_invalid, "Bogus token length field size: %u", token_len_field_size);
+            expert_add_info_format(pinfo, token_item, &ei_tds_token_length_invalid, "Bogus token length field size: %u", token_len_field_size);
             break;
         }
 
@@ -2503,7 +2503,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(tds_tree, hf_tds_status,
                                     tvb, offset + 1, 1, ENC_BIG_ENDIAN);
                 tds_item = proto_tree_add_uint(tds_tree, hf_tds_length, tvb, offset + 2, 2, plen);
-                expert_add_info_format_text(pinfo, tds_item, &ei_tds_invalid_length, "bogus, should be >= 8");
+                expert_add_info_format(pinfo, tds_item, &ei_tds_invalid_length, "bogus, should be >= 8");
             }
 
             /*

@@ -1569,7 +1569,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                 tvb, 0, 0, dmp.id_val->msg_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
 
-      expert_add_info_format_text(pinfo, en, &ei_analysis_retrans_no, "Retransmission #%d", dmp.id_val->msg_resend_count);
+      expert_add_info_format(pinfo, en, &ei_analysis_retrans_no, "Retransmission #%d", dmp.id_val->msg_resend_count);
 
       if (dmp.msg_type == REPORT) {
         en = proto_tree_add_uint (analysis_tree, hf_analysis_rep_resend_from,
@@ -1641,7 +1641,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                 tvb, 0, 0, dmp.id_val->ack_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
 
-      expert_add_info_format_text(pinfo, en, &ei_analysis_ack_dup_no, "Dup ACK #%d", dmp.id_val->ack_resend_count);
+      expert_add_info_format(pinfo, en, &ei_analysis_ack_dup_no, "Dup ACK #%d", dmp.id_val->ack_resend_count);
 
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_resend_from,
                                 tvb, 0, 0, dmp.id_val->ack_id);
@@ -2636,7 +2636,7 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
 
   rt = proto_tree_add_item (ack_tree, hf_ack_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
   if (dmp.ack_reason != 0) {
-    expert_add_info_format_text(pinfo, rt, &ei_ack_reason, "ACK reason: %s", val_to_str_const (dmp.ack_reason, ack_reason, "Reserved"));
+    expert_add_info_format(pinfo, rt, &ei_ack_reason, "ACK reason: %s", val_to_str_const (dmp.ack_reason, ack_reason, "Reserved"));
   }
   offset += 1;
 
@@ -2805,7 +2805,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     /* Unsupported DMP Version */
     proto_item_append_text (vf, " (unsupported)");
     proto_item_append_text (tf, " (unsupported)");
-    expert_add_info_format_text(pinfo, vf, &ei_envelope_version_value, "Unsupported DMP Version: %d", dmp.version);
+    expert_add_info_format(pinfo, vf, &ei_envelope_version_value, "Unsupported DMP Version: %d", dmp.version);
     return offset;
   }
 

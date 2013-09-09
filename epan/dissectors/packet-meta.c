@@ -498,7 +498,7 @@ static gint32 evaluate_meta_items(guint16 schema, tvbuff_t *tvb, packet_info *pi
                 item_len = skip_item(meta_tree, tvb, pinfo, offs + total_len);
         }
         if (item_len < 4) { /* 4 is the minimum length of an item: id + type + length field */
-            expert_add_info_format_text(pinfo, meta_tree, &ei_meta_malformed,
+            expert_add_info_format(pinfo, meta_tree, &ei_meta_malformed,
                 "Malformed Packet %s (wrong item encoding)", pinfo->current_proto);
             return -1;
         }

@@ -4152,7 +4152,7 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
 
             pi = proto_tree_add_text(tree, tvb, offset_new, 1,
                     "Transport Connection ID mismatch");
-            expert_add_info_format_text(pinfo, pi, &ei_dvbci_t_c_id, "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer", t_c_id, lpdu_tcid);
+            expert_add_info_format(pinfo, pi, &ei_dvbci_t_c_id, "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer", t_c_id, lpdu_tcid);
 
             return -1;
         }
@@ -4253,7 +4253,7 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * data transmission commands */
     if (t_c_id!=lpdu_tcid) {
         if (tag && (*tag==T_RCV || *tag==T_DATA_MORE || *tag==T_DATA_LAST)) {
-            expert_add_info_format_text(pinfo, pi, &ei_dvbci_t_c_id, "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer",
+            expert_add_info_format(pinfo, pi, &ei_dvbci_t_c_id, "Transport Connection ID mismatch, tcid is %d in the transport layer and %d in the link layer",
                     t_c_id, lpdu_tcid);
         }
     }
@@ -4422,7 +4422,7 @@ dissect_dvbci_buf_neg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                if we didn't check the direction, we'd get the error when
                wireshark runs through the initial CAM packet for the 2nd time
              */
-            expert_add_info_format_text(pinfo, pi, &ei_dvbci_buf_size, "Illegal buffer size command. Host shall not request a buffer size larger than the CAM proposal");
+            expert_add_info_format(pinfo, pi, &ei_dvbci_buf_size, "Illegal buffer size command. Host shall not request a buffer size larger than the CAM proposal");
         }
     }
     else if (direction == DATA_CAM_TO_HOST) {

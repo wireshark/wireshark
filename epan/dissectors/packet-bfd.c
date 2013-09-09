@@ -362,7 +362,7 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                              "Length of authentication is invalid (%d)", auth_len);
                     proto_item_append_text(auth_item, ": Invalid Authentication Section");
                 }
-                expert_add_info_format_text(pinfo, ti, &ei_bfd_auth_len_invalid,
+                expert_add_info_format(pinfo, ti, &ei_bfd_auth_len_invalid,
                         "Length of authentication section is invalid for Authentication Type: %s",
                         val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
             }

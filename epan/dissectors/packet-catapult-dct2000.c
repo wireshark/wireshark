@@ -2482,7 +2482,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_item *error_ti = proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_error_comment, tvb,
                                                                offset, -1, ENC_NA);
                     PROTO_ITEM_SET_GENERATED(error_ti);
-                    expert_add_info_format_text(pinfo, string_ti, &ei_catapult_dct2000_error_comment_expert,
+                    expert_add_info_format(pinfo, string_ti, &ei_catapult_dct2000_error_comment_expert,
                                           "%s", string);
                 }
 

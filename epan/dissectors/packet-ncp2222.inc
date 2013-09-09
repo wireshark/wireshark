@@ -2828,7 +2828,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle,
                                   sizeof p_filehandle, 0, FALSE);
 
-                expert_add_info_format_text(pinfo, NULL, &ei_ncp_file_handle, "Close file handle %s", p_filehandle);
+                expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "Close file handle %s", p_filehandle);
             }
             /* The following allows for oplock level 1 file opens echoed to expert tap. */
             if ((ncp_rec->func == 89 || ncp_rec->func == 87) && (ncp_rec->subfunc == 1 || ncp_rec->subfunc == 30 || ncp_rec->subfunc == 32 || ncp_rec->subfunc == 33)) {
@@ -2856,7 +2856,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                                       FALSE);
                 }
 
-                expert_add_info_format_text(pinfo, NULL, &ei_ncp_file_rights,
+                expert_add_info_format(pinfo, NULL, &ei_ncp_file_rights,
                                        val_to_str((guint32)(strtoul(oaction, NULL, 16) & 0xeb), open_create_mode_vals, "Unknown: %d"),
                                        p_filename,
                                        val_to_str((atoi(p_rights) & 0x5f), ncp_rights_vals, "Unknown: %d"));
@@ -2871,7 +2871,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 build_expert_data(ncp_tree, "ncp.cc_function",
                                   cc_function, sizeof cc_function, 0, FALSE);
 
-                expert_add_info_format_text(pinfo, NULL, &ei_ncp_op_lock_handle, "Op-lock on handle %s - %s", p_filehandle,
+                expert_add_info_format(pinfo, NULL, &ei_ncp_op_lock_handle, "Op-lock on handle %s - %s", p_filehandle,
                                        val_to_str(atoi(cc_function), ncp_cc_function_vals, "Unknown: %d"));
             }
             /* The following allows for Update file handle rights echoed to expert tap. */
@@ -2886,7 +2886,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                                   p_rights, sizeof p_rights, 0, FALSE);
                 build_expert_data(ncp_tree, "ncp.new_access_rights_mask",
                                   n_rights, sizeof n_rights, 0, FALSE);
-                expert_add_info_format_text(pinfo, NULL, &ei_ncp_file_rights_change, "Change handle %s rights from:(%s) to:(%s)",
+                expert_add_info_format(pinfo, NULL, &ei_ncp_file_rights_change, "Change handle %s rights from:(%s) to:(%s)",
                                        p_filehandle,
                                        val_to_str((atoi(p_rights) & 0x1ff), access_rights_vals, "Unknown: %d"),
                                        val_to_str((atoi(n_rights) & 0x1ff), access_rights_vals, "Unknown: %d"));
@@ -2909,7 +2909,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                                   p_filehandle, sizeof p_filehandle, 0, FALSE);
 
                 if (ncp_rec->subfunc == 1) {
-                    expert_add_info_format_text(pinfo, NULL, &ei_ncp_file_handle, "%s - File handle %s",
+                    expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "%s - File handle %s",
                                            val_to_str((atoi(oaction) & 0x8f), open_create_action_vals, "Unknown: %d"),
                                            p_filehandle);
                 }
@@ -2917,7 +2917,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 {
                     build_expert_data(ncp_tree, "ncp.o_c_ret_flags",
                                       oplockflg, sizeof oplockflg, 0, FALSE);
-                    expert_add_info_format_text(pinfo, NULL, &ei_ncp_file_handle, "%s - File handle %s, %s",
+                    expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "%s - File handle %s, %s",
                                            val_to_str((atoi(oaction) & 0x8f), open_create_action_vals, "Unknown: %d"),
                                            p_filehandle,
                                            val_to_str(atoi(oplockflg), ncp_o_c_ret_flags_vals, "Unknown: %d"));
@@ -2932,7 +2932,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                                   p_filehandle, sizeof p_filehandle, 0, FALSE);
                 build_expert_data(ncp_tree, "ncp.effective_rights",
                                   p_rights, sizeof p_rights, 0, FALSE);
-                expert_add_info_format_text(pinfo, NULL, &ei_ncp_effective_rights, "Handle %s effective rights:(%s)", p_filehandle,
+                expert_add_info_format(pinfo, NULL, &ei_ncp_effective_rights, "Handle %s effective rights:(%s)", p_filehandle,
                                        val_to_str((atoi(p_rights) & 0x1ff), access_rights_vals, "Unknown: %d"));
             }
         }
@@ -2962,7 +2962,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
             build_expert_data(ncp_tree, "ncp.oeslinux_or_netware",
                               p_kernel, sizeof p_kernel, 0, FALSE);
 
-            expert_add_info_format_text(pinfo, NULL, &ei_ncp_server, "Server %s, version %s.%s, support pack %s, language %s, server type %s, kernel %s", fsname,
+            expert_add_info_format(pinfo, NULL, &ei_ncp_server, "Server %s, version %s.%s, support pack %s, language %s, server type %s, kernel %s", fsname,
                                    p_maj_ver, p_min_ver, p_rev, p_lang, val_to_str((atoi(p_serv_type) & 0x01), serv_type_vals, "Unknown: %d"), val_to_str((atoi(p_kernel) & 0x01), kernel_type_vals, "Unknown: %d") );
         }
     }
@@ -4824,7 +4824,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
                     rcode, error_string );
 
             if (rcode != 0 && ncp_echo_err) {
-                expert_add_info_format_text(pinfo, expert_item, &ei_iter_verb_completion_code, "Iteration Verb Error: 0x%08x %s", rcode, error_string);
+                expert_add_info_format(pinfo, expert_item, &ei_iter_verb_completion_code, "Iteration Verb Error: 0x%08x %s", rcode, error_string);
             }
             ioffset += 4;
 
@@ -7474,7 +7474,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     case NCP_DEALLOCATE_SLOT:
         ncp_rec = &ncp5555_request;
         if (ncp_echo_conn) {
-            expert_add_info_format_text(pinfo, NULL, &ei_ncp_destroy_connection, "Destroy Connection %u Request", nw_connection);
+            expert_add_info_format(pinfo, NULL, &ei_ncp_destroy_connection, "Destroy Connection %u Request", nw_connection);
         }
         break;
     case NCP_BROADCAST_SLOT:
@@ -8213,7 +8213,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                  nds_error_code, nds_error_string);
 
         if (nds_error_code != 0 && ncp_echo_err) {
-            expert_add_info_format_text(pinfo, expert_item, &ei_nds_reply_error, "NDS Error: 0x%08x %s", nds_error_code, nds_error_string);
+            expert_add_info_format(pinfo, expert_item, &ei_nds_reply_error, "NDS Error: 0x%08x %s", nds_error_code, nds_error_string);
         }
     }
     if (request_value && nds_error_code == 0x00000000)
@@ -8725,7 +8725,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                      pvalues[1].vvalue, val_to_str(pvalues[1].vvalue, nds_reply_errors, "Unknown: %d"));
 
             if (pvalues[1].vvalue != 0 && ncp_echo_err) {
-                expert_add_info_format_text(pinfo, expert_item, &ei_nds_iteration, "NDS Iteration Error: 0x%08x %s",
+                expert_add_info_format(pinfo, expert_item, &ei_nds_iteration, "NDS Iteration Error: 0x%08x %s",
                                        pvalues[1].vvalue, val_to_str(pvalues[1].vvalue, nds_reply_errors, "Unknown: %d"));
             }
             nds_offset = nds_offset+pvalues[1].vlength;
@@ -8765,7 +8765,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
         }
         /* Echo EID data to expert Chat window */
         if (add_eid && nds_echo_eid) {
-            expert_add_info_format_text(pinfo, NULL, &ei_ncp_eid,
+            expert_add_info_format(pinfo, NULL, &ei_ncp_eid,
                                    "EID (%08x) = %s", global_eid, global_object_name);
         }
         /* For NDS requests with just an EID, resolve name
@@ -9025,7 +9025,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                              completion_code, "Completion Code: %d (0x89%02x), %s",
                                              completion_code, completion_code, error_string);
     if ((completion_code != 0 || type == NCP_POSITIVE_ACK) && ncp_echo_err) {
-        expert_add_info_format_text(pinfo, expert_item, &ei_ncp_completion_code,
+        expert_add_info_format(pinfo, expert_item, &ei_ncp_completion_code,
                                "Error: %d (0x89%02x) %s", completion_code,
                                completion_code, error_string);
     }
@@ -9135,7 +9135,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
                 /* Echo EID data to expert Chat window */
                 if (nds_echo_eid) {
-                    expert_add_info_format_text(pinfo, NULL, &ei_ncp_eid,
+                    expert_add_info_format(pinfo, NULL, &ei_ncp_eid,
                                            "EID (%s) = %s", eid_string, global_object_name);
                 }
             }

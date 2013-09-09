@@ -4066,7 +4066,7 @@ spotlight_date(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 	offset += 8;
 
 	if (count > SUBQ_SAFETY_LIM) {
-		expert_add_info_format_text(pinfo, tree, &ei_afp_subquery_count_over_safety_limit,
+		expert_add_info_format(pinfo, tree, &ei_afp_subquery_count_over_safety_limit,
 							   "Subquery count (%d) > safety limit (%d)", count, SUBQ_SAFETY_LIM);
 		return -1;
 	}
@@ -4297,12 +4297,12 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			subquery_count = (gint)(query_data64 >> 32);
 			if (subquery_count > count) {
 				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "null");
-				expert_add_info_format_text(pinfo, item_query, &ei_afp_subquery_count_over_query_count,
+				expert_add_info_format(pinfo, item_query, &ei_afp_subquery_count_over_query_count,
 					"Subquery count (%d) > query count (%d)", subquery_count, count);
 				count = 0;
 			} else if (subquery_count > 20) {
 				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "null");
-				expert_add_info_format_text(pinfo, item_query, &ei_afp_abnormal_num_subqueries,
+				expert_add_info_format(pinfo, item_query, &ei_afp_abnormal_num_subqueries,
 					"Abnormal number of subqueries (%d)", subquery_count);
 				count -= subquery_count;
 			} else {
@@ -4689,7 +4689,7 @@ decode_kauth_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
 	offset += 4;
 
 	if (entries > AFP_MAX_ACL_ENTRIES) {
-		expert_add_info_format_text(pinfo, item, &ei_afp_too_many_acl_entries, "Too many ACL entries (%u). Stopping dissection.", entries);
+		expert_add_info_format(pinfo, item, &ei_afp_too_many_acl_entries, "Too many ACL entries (%u). Stopping dissection.", entries);
 		THROW(ReportedBoundsError);
 	}
 

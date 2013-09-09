@@ -1380,7 +1380,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			
 			len = tvb_get_guint8(tvb, Off + 1);
 			if (len < APDU_MIN_LEN) {
-				expert_add_info_format_text(pinfo, ti, &ei_iec104_apdu_min_len, "APDU less than %d bytes", APDU_MIN_LEN);
+				expert_add_info_format(pinfo, ti, &ei_iec104_apdu_min_len, "APDU less than %d bytes", APDU_MIN_LEN);
 				ep_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", len);
 				return;
 			}

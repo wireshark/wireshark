@@ -683,7 +683,7 @@ dissect_bpp_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
         if (parameter_length != 4) {
                 proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
-                expert_add_info_format_text(pinfo, item, &ei_application_parameter_length_bad,
+                expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
                         "According to the specification this parameter length should be 4, but there is %i", parameter_length);
         } else switch (parameter_id) {
             case 0x01:
@@ -738,7 +738,7 @@ dissect_bip_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
        if (parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
                 required_length_map[parameter_id] != parameter_length) {
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
-            expert_add_info_format_text(pinfo, item, &ei_application_parameter_length_bad,
+            expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
         } else switch (parameter_id) {
@@ -813,7 +813,7 @@ dissect_pbap_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
                 required_length_map[parameter_id] != -1 &&
                 required_length_map[parameter_id] != parameter_length) {
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
-            expert_add_info_format_text(pinfo, item, &ei_application_parameter_length_bad,
+            expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
         } else switch (parameter_id) {
@@ -918,7 +918,7 @@ dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
                 required_length_map[parameter_id] != -1 &&
                 required_length_map[parameter_id] != parameter_length) {
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
-            expert_add_info_format_text(pinfo, item, &ei_application_parameter_length_bad,
+            expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
         } else switch (parameter_id) {

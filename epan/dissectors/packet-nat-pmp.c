@@ -276,7 +276,7 @@ dissect_nat_pmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
   default:
     /* Unknown OP */
-    expert_add_info_format_text(pinfo, op_ti, &ei_natpmp_opcode_unknown, "Unknown opcode: %d", opcode);
+    expert_add_info_format(pinfo, op_ti, &ei_natpmp_opcode_unknown, "Unknown opcode: %d", opcode);
     break;
   }
 
@@ -431,7 +431,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     break;
   default:
     /* Unknown OP */
-    expert_add_info_format_text(pinfo, opcode_ti, &ei_pcp_opcode_unknown, "Unknown opcode: %d", ropcode);
+    expert_add_info_format(pinfo, opcode_ti, &ei_pcp_opcode_unknown, "Unknown opcode: %d", ropcode);
     break;
   }
 
@@ -477,7 +477,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
         default:
           /* Unknown option */
-          expert_add_info_format_text(pinfo, option_ti, &ei_pcp_option_unknown, "Unknown option: %d", option);
+          expert_add_info_format(pinfo, option_ti, &ei_pcp_option_unknown, "Unknown option: %d", option);
           break;
         }
       }

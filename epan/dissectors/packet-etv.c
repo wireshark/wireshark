@@ -118,12 +118,12 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 	proto_item_append_text(ti, " Filter=0x%x", filter_info);
 	pi = proto_tree_add_item(etv_tree, hf_filter_info, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if ((proto_etv_dii == proto) && (0xFBFB != filter_info)) {
-		expert_add_info_format_text(pinfo, pi, ei_filter_info,
+		expert_add_info_format(pinfo, pi, ei_filter_info,
 					"Invalid filter_info value (must be 0xFBFB)");
 	} else if ((proto_etv_ddb == proto) &&
 			((filter_info < 1) || (0xfbef < filter_info)))
 	{
-		expert_add_info_format_text(pinfo, pi, ei_filter_info,
+		expert_add_info_format(pinfo, pi, ei_filter_info,
 					"Invalid filter_info value (must be [0x0001-0xFBEF] inclusive)");
 	}
 	offset += 2;
@@ -131,7 +131,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 	reserved2 = tvb_get_guint8(tvb, offset);
 	pi = proto_tree_add_item(etv_tree, hf_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (0 != reserved2) {
-		expert_add_info_format_text(pinfo, pi, ei_reserved,
+		expert_add_info_format(pinfo, pi, ei_reserved,
 					"Invalid reserved2 bits (should all be 0)");
 	}
 	offset += 1;

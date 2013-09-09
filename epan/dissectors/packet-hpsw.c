@@ -103,7 +103,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length > 0) {
 			proto_tree_add_item(tree, hf_hpsw_device_name, tvb, offset, length, ENC_NA|ENC_ASCII);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Device Name: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Device Name: Bad length %u", length);
 		}
 		break;
 
@@ -111,7 +111,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length > 0) {
 			proto_tree_add_item(tree, hf_hpsw_device_version, tvb, offset, length, ENC_NA|ENC_ASCII);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Version: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Version: Bad length %u", length);
 		}
 		break;
 
@@ -119,7 +119,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length > 0) {
 			proto_tree_add_item(tree, hf_hpsw_config_name, tvb, offset, length, ENC_NA|ENC_ASCII);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Config Name: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Config Name: Bad length %u", length);
 		}
 		break;
 
@@ -127,7 +127,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 6) {
 			proto_tree_add_item(tree, hf_hpsw_root_mac_addr, tvb, offset, length, ENC_NA);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Root MAC Addr: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Root MAC Addr: Bad length %u", length);
 		}
 		break;
 
@@ -135,7 +135,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 4) {
 			proto_tree_add_item(tree, hf_hpsw_ip_addr, tvb, offset, length, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "IP Addr: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "IP Addr: Bad length %u", length);
 		}
 		break;
 
@@ -143,7 +143,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_hpsw_field_6, tvb, offset, length, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 6: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 6: Bad length %u", length);
 		}
 		break;
 
@@ -151,7 +151,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length > 0) {
 			proto_tree_add_item(tree, hf_hpsw_domain, tvb, offset, length, ENC_NA|ENC_ASCII);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Domain: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Domain: Bad length %u", length);
 		}
 		break;
 
@@ -159,7 +159,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_hpsw_field_8, tvb, offset, length, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 8: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 8: Bad length %u", length);
 		}
 		break;
 
@@ -167,7 +167,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 2) {
 			proto_tree_add_item(tree, hf_hpsw_field_9, tvb, offset, length, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 9: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 9: Bad length %u", length);
 		}
 		break;
 
@@ -175,7 +175,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 4) {
 			proto_tree_add_item(tree, hf_hpsw_field_10, tvb, offset, length, ENC_BIG_ENDIAN);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 10: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 10: Bad length %u", length);
 		}
 		break;
 
@@ -189,7 +189,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 				offset += 6;
 			}
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Neighbors: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Neighbors: Bad length %u", length);
 		}
 		break;
 
@@ -197,7 +197,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 1) {
 			proto_tree_add_item(tree, hf_hpsw_field_12, tvb, offset, length, ENC_NA);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 12: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 12: Bad length %u", length);
 		}
 		break;
 
@@ -206,7 +206,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 			proto_tree_add_item(tree, hf_hpsw_device_id, tvb, offset, 6, ENC_NA);
 			proto_tree_add_item(tree, hf_hpsw_device_id_data, tvb, offset+6, length-6, ENC_NA);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Device ID: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Device ID: Bad length %u", length);
 		}
 		break;
 
@@ -214,7 +214,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 		if (length == 6) {
 			proto_tree_add_item(tree, hf_hpsw_own_mac_addr, tvb, offset, length, ENC_NA);
 		} else {
-			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Own MAC Addr: Bad length %u", length);
+			expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Own MAC Addr: Bad length %u", length);
 		}
 		break;
 

@@ -912,7 +912,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
       tf = proto_tree_add_text(wccp_tree, tvb, offset, length,
                                "Invalid WCCP Type/Length values");
 
-      expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
+      expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The packet only has %d bytes left. That is not enough for a WCCP item type and length.",
                              length);
       break;
@@ -925,7 +925,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
     if (item_length > tvb_length_remaining(tvb, offset)) {
       tf = proto_tree_add_text(wccp_tree, tvb, offset, length,
                                "Excessive WCCP Length values");
-      expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
+      expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The length of the item is %d but there are only %d bytes remaining in the packet, I counted %d remaining",
                              item_length, tvb_length_remaining(tvb, offset), length);
       break;
@@ -1030,7 +1030,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
     length -= 4;
 
     if (length < item_length) {
-      expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
+      expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The item has length %d but the remaining WCCP data is only %d long",
                              item_length,
                              length);
@@ -1041,13 +1041,13 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
 
       /* warn if we left bytes */
       if (remaining_item_length > 0)
-        expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
+        expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                                "The dissector left %d bytes undecoded",
                                remaining_item_length);
 
       /* error if we needed more bytes */
       if (remaining_item_length < 0)
-        expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
+        expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                                "The dissector needed %d more bytes to decode the packet, but the item is not that long",
                                remaining_item_length);
 
@@ -1919,7 +1919,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
       wccp_wccp_address_table.table_ipv4 = (guint32 *)
         ep_alloc( wccp_wccp_address_table.table_length * 4);
     if ((address_length != 4) && (pinfo && info_tree)) {
-      expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
+      expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The Address length must be 4, but I found  %d for IPv4 addresses. Correcting this.",
                              address_length);
       address_length = 4;
@@ -1930,7 +1930,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
       wccp_wccp_address_table.table_ipv6 = (struct e_in6_addr *)
         ep_alloc( wccp_wccp_address_table.table_length * sizeof(struct e_in6_addr));
     if ((address_length != 16) && (pinfo && info_tree)) {
-      expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
+      expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The Address length must be 16, but I found %d for IPv6 addresses.  Correcting this",
                              address_length);
       address_length=16;
@@ -1938,7 +1938,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
     break;
   default:
     if (pinfo && info_tree) {
-      expert_add_info_format_text(pinfo, tf, &ei_wccp_address_table_family_unknown,
+      expert_add_info_format(pinfo, tf, &ei_wccp_address_table_family_unknown,
                     "Unknown address family: %d", wccp_wccp_address_table.family);
     }
   };
@@ -1951,7 +1951,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
     /* do we have space? */
     if (length < address_length) {
       if (pinfo && tf)
-        expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad, "Ran out of space to decode");
+        expert_add_info_format(pinfo, tf, &ei_wccp_length_bad, "Ran out of space to decode");
 
       /* first clean up: */
       wccp_wccp_address_table.in_use = FALSE;
@@ -2078,12 +2078,12 @@ dissect_wccp2r1_alt_assignment_map_info(tvbuff_t *tvb, int offset,
   EAT(2);
 
   if (length < assignment_length)
-    expert_add_info_format_text(pinfo, tf, &ei_wccp_assignment_length_bad,
+    expert_add_info_format(pinfo, tf, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but only %d remain in the packet. Ignoring this for now",
                            assignment_length, length);
 
   if (length > assignment_length)  {
-    expert_add_info_format_text(pinfo, tf, &ei_wccp_assignment_length_bad,
+    expert_add_info_format(pinfo, tf, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but %d remain in the packet. Assuming that the assignment length is wrong and setting it to %d.",
                            assignment_length, length, length);
     assignment_length = length;
@@ -2255,7 +2255,7 @@ dissect_wccp2_extended_assignment_data_element(tvbuff_t *tvb, int offset, gint l
   EAT(2);
 
   if (length < assignment_length)
-    expert_add_info_format_text(pinfo, element_item, &ei_wccp_assignment_length_bad,
+    expert_add_info_format(pinfo, element_item, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but only %d remain in the packet. Ignoring this for now",
                            assignment_length, length);
 
@@ -2264,7 +2264,7 @@ dissect_wccp2_extended_assignment_data_element(tvbuff_t *tvb, int offset, gint l
   if ((length > assignment_length) &&
       (length == (assignment_length + 4)))
     {
-      expert_add_info_format_text(pinfo, element_item, &ei_wccp_assignment_length_bad,
+      expert_add_info_format(pinfo, element_item, &ei_wccp_assignment_length_bad,
                              "Assignment length is %d but %d remain in the packet. Assuming that this is wrong as this is only 4 bytes to small, proceding with the assumption it is %d",
                              assignment_length, length, length);
       assignment_length = length;
@@ -2324,7 +2324,7 @@ dissect_wccp2_capability_element(tvbuff_t *tvb, int offset, gint length,
                       val_to_str(capability_type,
                                  capability_type_vals, "Unknown (0x%08X)"));
   if (capability_val_len < 4) {
-    expert_add_info_format_text(pinfo, tf, &ei_wccp_capability_element_length, 
+    expert_add_info_format(pinfo, tf, &ei_wccp_capability_element_length, 
                 "Value Length: %u (illegal, must be >= 4)", capability_val_len);
     return -length;
   }
@@ -2785,12 +2785,12 @@ dissect_wccp2_alternate_assignment_info(tvbuff_t *tvb, int offset, gint length,
   EAT(2);
 
   if (length < assignment_length)
-    expert_add_info_format_text(pinfo, tf, &ei_wccp_assignment_length_bad,
+    expert_add_info_format(pinfo, tf, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but only %d remain in the packet. Ignoring this for now",
                            assignment_length, length);
 
   if (length > assignment_length)  {
-    expert_add_info_format_text(pinfo, tf, &ei_wccp_assignment_length_bad,
+    expert_add_info_format(pinfo, tf, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but %d remain in the packet. Assuming that the assignment length is wrong and setting it to %d.",
                            assignment_length, length, length);
     assignment_length = length;

@@ -365,7 +365,7 @@ static gboolean ieee802154_extend_auth = TRUE;
 /* Macro to check addressing, and throw a warning flag if incorrect. */
 #define IEEE802154_CMD_ADDR_CHECK(_pinfo_, _item_, _cmdid_, _x_)     \
    if (!(_x_))                                                       \
-     expert_add_info_format_text(_pinfo_, _item_, &ei_ieee802154_invalid_addressing, \
+     expert_add_info_format(_pinfo_, _item_, &ei_ieee802154_invalid_addressing, \
                             "Invalid Addressing for %s",             \
                             val_to_str_const(_cmdid_, ieee802154_cmd_names, "Unknown Command"))
 
@@ -1018,32 +1018,32 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         case DECRYPT_VERSION_UNSUPPORTED:
             /* We don't support decryption with that version of the protocol */
-            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "We don't support decryption with protocol version %u", packet->version);
+            expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "We don't support decryption with protocol version %u", packet->version);
             call_dissector(data_handle, payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_TOO_SMALL:
-            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Packet was too small to include the CRC and MIC");
+            expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Packet was too small to include the CRC and MIC");
             call_dissector(data_handle, payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_NO_EXT_SRC_ADDR:
-            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "No extended source address - can't decrypt");
+            expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "No extended source address - can't decrypt");
             call_dissector(data_handle, payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_NO_KEY:
-            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "No encryption key set - can't decrypt");
+            expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "No encryption key set - can't decrypt");
             call_dissector(data_handle, payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_DECRYPT_FAILED:
-            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Decrypt failed");
+            expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Decrypt failed");
             call_dissector(data_handle, payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_MIC_CHECK_FAILED:
-            expert_add_info_format_text(pinfo, proto_root, &ei_ieee802154_decrypt_error, "MIC check failed");
+            expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "MIC check failed");
             /*
              * Abort only if the payload was encrypted, in which case we
              * probably didn't decrypt the packet right (eg: wrong key).

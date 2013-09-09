@@ -1211,7 +1211,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             /* command data length > 0 is NG;  response data lengths are > 0  */
             if (is_command) {
                 if (reported_length_remaining != 0) {
-                    expert_add_info_format_text(pinfo, omron_tree, &ei_omron_bad_length, "Unexpected Length (Should be 0)");
+                    expert_add_info_format(pinfo, omron_tree, &ei_omron_bad_length, "Unexpected Length (Should be 0)");
                 }
                 return tvb_length(tvb);
             }
@@ -1221,13 +1221,13 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             /* command data length should be 0 */
             if (is_command) {
                 if(reported_length_remaining != 0) {
-                    expert_add_info_format_text(pinfo, omron_tree, &ei_omron_bad_length, "Unexpected Length (Should be 0)");
+                    expert_add_info_format(pinfo, omron_tree, &ei_omron_bad_length, "Unexpected Length (Should be 0)");
                 }
             }
             /* There's no response */
             if (is_response)
             {
-                expert_add_info_format_text(pinfo, ti, &ei_omron_command_code, "Unknown Response Command-Code");
+                expert_add_info_format(pinfo, ti, &ei_omron_command_code, "Unknown Response Command-Code");
             }
             return tvb_length(tvb);
             break;
@@ -1249,7 +1249,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             /* There's no response */
             if (is_response)
             {
-                expert_add_info_format_text(pinfo, ti, &ei_omron_command_code, "Unknown Response Command-Code");
+                expert_add_info_format(pinfo, ti, &ei_omron_command_code, "Unknown Response Command-Code");
                 return tvb_length(tvb);
             }
             break;
@@ -1479,7 +1479,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         reported_length_remaining = reported_length_remaining - 1;
 
                         if(memory_code_len == 0) {
-                            expert_add_info_format_text(pinfo, ti, &ei_oomron_command_memory_area_code, "Unknown Memory-Area-Code (%u)", memory_area_code);
+                            expert_add_info_format(pinfo, ti, &ei_oomron_command_memory_area_code, "Unknown Memory-Area-Code (%u)", memory_area_code);
                             return tvb_length(tvb); /* Bail out .... */
                         }
                         proto_tree_add_item(command_tree, hf_omron_data, tvb, offset, memory_code_len, ENC_NA);

@@ -147,15 +147,15 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     if (!is_client_message && parameter_length < 2) {
-        expert_add_info_format_text(pinfo, pitem, &ei_bthcrp_control_parameter_length,
+        expert_add_info_format(pinfo, pitem, &ei_bthcrp_control_parameter_length,
                 "Parameter length is shorter than 2 in response");
     }
 
     if (parameter_length < tvb_length_remaining(tvb, offset)) {
-        expert_add_info_format_text(pinfo, pitem, &ei_bthcrp_control_parameter_length,
+        expert_add_info_format(pinfo, pitem, &ei_bthcrp_control_parameter_length,
                 "Parameter length is shorter than payload length");
     } else if (parameter_length > tvb_length_remaining(tvb, offset)) {
-        expert_add_info_format_text(pinfo, pitem, &ei_bthcrp_control_parameter_length,
+        expert_add_info_format(pinfo, pitem, &ei_bthcrp_control_parameter_length,
                 "Parameter length is larger than payload length");
     }
 

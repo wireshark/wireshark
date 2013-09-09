@@ -853,27 +853,27 @@ dissect_mc_hdlc_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res2, tvb, 0, 0,  mc_hdlc->byte2);
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_fcse, tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_FCSE_MASK)
-      expert_add_info_format_text(pinfo, pi, &ei_erf_checksum_error, "ERF MC FCS Error");
+      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC FCS Error");
 
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_sre,  tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_SRE_MASK)
-      expert_add_info_format_text(pinfo, pi, &ei_erf_checksum_error, "ERF MC Short Record Error, <5 bytes");
+      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Short Record Error, <5 bytes");
 
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lre,  tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_LRE_MASK)
-      expert_add_info_format_text(pinfo, pi, &ei_erf_checksum_error, "ERF MC Long Record Error, >2047 bytes");
+      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Long Record Error, >2047 bytes");
 
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_afe,  tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_AFE_MASK)
-      expert_add_info_format_text(pinfo, pi, &ei_erf_checksum_error, "ERF MC Aborted Frame Error");
+      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Aborted Frame Error");
 
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_oe,   tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_OE_MASK)
-      expert_add_info_format_text(pinfo, pi, &ei_erf_checksum_error, "ERF MC Octet Error, the closing flag was not octet aligned after bit unstuffing");
+      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Octet Error, the closing flag was not octet aligned after bit unstuffing");
 
     pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lbe,  tvb, 0, 0,  mc_hdlc->byte3);
     if (mc_hdlc->byte3 & MC_HDLC_LBE_MASK)
-      expert_add_info_format_text(pinfo, pi, &ei_erf_checksum_error, "ERF MC Lost Byte Error");
+      expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Lost Byte Error");
 
     proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_first, tvb, 0, 0,  mc_hdlc->byte3);
     proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res3,  tvb, 0, 0,  mc_hdlc->byte3);
@@ -1085,19 +1085,19 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_trunc, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_TRUNC_MASK) {
     proto_item_append_text(flags_item, "; ERF Truncation Error");
-    expert_add_info_format_text(pinfo, pi, &ei_erf_checksum_error, "ERF Truncation Error");
+    expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF Truncation Error");
   }
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_rxe, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_RXE_MASK) {
     proto_item_append_text(flags_item, "; ERF Rx Error");
-    expert_add_info_format_text(pinfo, pi, &ei_erf_checksum_error, "ERF Rx Error");
+    expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF Rx Error");
   }
 
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_dse, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   if (pinfo->pseudo_header->erf.phdr.flags & ERF_HDR_DSE_MASK) {
     proto_item_append_text(flags_item, "; ERF DS Error");
-    expert_add_info_format_text(pinfo, pi, &ei_erf_checksum_error, "ERF DS Error");
+    expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF DS Error");
   }
   proto_item_append_text(flags_item, ")");
 

@@ -886,7 +886,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
             case ROHC_PROFILE_UNCOMPRESSED: /* 0 */
                 ti = proto_tree_add_item(tree, hf_rohc_profile_spec_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
                 if (oct) {
-                    expert_add_info_format_text(pinfo, ti, &ei_rohc_profile_spec_octet, "Invalid profile-specific octet value (0x%02X)", oct);
+                    expert_add_info_format(pinfo, ti, &ei_rohc_profile_spec_octet, "Invalid profile-specific octet value (0x%02X)", oct);
                 }
                 break;
             case ROHC_PROFILE_RTP: /* 1 */

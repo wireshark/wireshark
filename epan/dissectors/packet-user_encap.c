@@ -98,7 +98,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
                                      "check your Preferences->Protocols->DLT_USER",
                          pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
         proto_item_set_text(item,"%s",msg);
-        expert_add_info_format_text(pinfo, item, &ei_user_encap_not_handled, "%s", msg);
+        expert_add_info_format(pinfo, item, &ei_user_encap_not_handled, "%s", msg);
 
         call_dissector(data_handle, tvb, pinfo, tree);
         return;
@@ -109,7 +109,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
                                      encap->payload_proto_name,
                                      pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
         proto_item_set_text(item,"%s",msg);
-        expert_add_info_format_text(pinfo, item, &ei_user_encap_not_handled, "%s", msg);
+        expert_add_info_format(pinfo, item, &ei_user_encap_not_handled, "%s", msg);
 
         call_dissector(data_handle, tvb, pinfo, tree);
         return;

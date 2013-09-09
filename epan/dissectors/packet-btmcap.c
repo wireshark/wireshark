@@ -296,12 +296,12 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             if ((op_code == 0x03 || op_code == 0x05 || op_code == 0x07) && tvb_length_remaining(tvb, offset)) {
-                    expert_add_info_format_text(pinfo, pitem, &ei_btmcap_response_parameters_bad,
+                    expert_add_info_format(pinfo, pitem, &ei_btmcap_response_parameters_bad,
                             "The Response Parameters for MD_RECONNECT_MDL_RSP shall have length zero.");
             } else if (tvb_length_remaining(tvb, offset)) {
                 pitem = proto_tree_add_item(main_tree, hf_btmcap_response_parameters, tvb, offset, -1, ENC_NA);
                 if (response_code != 0x00) {
-                    expert_add_info_format_text(pinfo, pitem, &ei_btmcap_response_parameters_bad,
+                    expert_add_info_format(pinfo, pitem, &ei_btmcap_response_parameters_bad,
                             "When the Response Code is not Success, the Response Parameters shall have length zero.");
                 }
                 offset += tvb_length_remaining(tvb, offset);

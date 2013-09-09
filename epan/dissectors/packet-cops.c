@@ -1205,7 +1205,7 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code
     if (object_len < COPS_OBJECT_HDR_SIZE) {
         /* Bogus! */
         ti = proto_tree_add_uint(tree, hf_cops_obj_len, tvb, offset, 2, object_len);
-        expert_add_info_format_text(pinfo, ti, &ei_cops_bad_cops_object_length,
+        expert_add_info_format(pinfo, ti, &ei_cops_bad_cops_object_length,
                                     "Bad COPS object length: %u, should be at least %u",
                                     object_len, COPS_OBJECT_HDR_SIZE);
         return -1;
@@ -1260,7 +1260,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 o
         if (object_len < COPS_OBJECT_HDR_SIZE) {
             /* Bogus! */
             ti = proto_tree_add_uint(cops_pr_tree, hf_cops_obj_len, tvb, offset, 2, object_len);
-            expert_add_info_format_text(pinfo, ti, &ei_cops_bad_cops_pr_object_length,
+            expert_add_info_format(pinfo, ti, &ei_cops_bad_cops_pr_object_length,
                                         "Bad COPS-PR object length: %u, should be at least %u",
                                         object_len, COPS_OBJECT_HDR_SIZE);
             return;

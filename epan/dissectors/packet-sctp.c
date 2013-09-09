@@ -1491,7 +1491,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
     }
   } else {
     if (reported_length % 4) {
-      expert_add_info_format_text(pinfo, parameter_item, &ei_sctp_parameter_length, "Parameter length is not padded to a multiple of 4 bytes (length=%d)", reported_length);
+      expert_add_info_format(pinfo, parameter_item, &ei_sctp_parameter_length, "Parameter length is not padded to a multiple of 4 bytes (length=%d)", reported_length);
     }
   }
 
@@ -3716,7 +3716,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length, "%s chunk", val_to_str_const(type, chunk_type_values, "RESERVED"));
   chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
   if (reported_length % 4)
-    expert_add_info_format_text(pinfo, chunk_item, &ei_sctp_chunk_length_bad, "Chunk length is not padded to a multiple of 4 bytes (length=%d).", reported_length);
+    expert_add_info_format(pinfo, chunk_item, &ei_sctp_chunk_length_bad, "Chunk length is not padded to a multiple of 4 bytes (length=%d).", reported_length);
 
   if (tree) {
     /* then insert the chunk header components into the protocol tree */
@@ -3745,7 +3745,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
 
   length_item = proto_tree_add_uint(chunk_tree, hf_chunk_length, chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH, length);
   if (length > reported_length) {
-    expert_add_info_format_text(pinfo, length_item, &ei_sctp_chunk_length_bad, "Chunk length (%d) is longer than remaining data (%d) in the packet.", length, reported_length);
+    expert_add_info_format(pinfo, length_item, &ei_sctp_chunk_length_bad, "Chunk length (%d) is longer than remaining data (%d) in the packet.", length, reported_length);
     /* We'll almost certainly throw an exception shortly... */
   }
 

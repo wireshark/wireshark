@@ -187,7 +187,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
 	/* check for first byte */
 	if ( !tvb_bytes_exist(tvb, offset, 1) ) {
 
-		expert_add_info_format_text(pinfo, item, &ei_icep_string_malformed, "1st byte of Size missing");
+		expert_add_info_format(pinfo, item, &ei_icep_string_malformed, "1st byte of Size missing");
 		col_append_str(pinfo->cinfo, COL_INFO, " (1st byte of Size missing)");
 
 		(*consumed) = -1;
@@ -204,7 +204,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
 		/* check for next 4 bytes */
 		if ( !tvb_bytes_exist(tvb, offset, 4) ) {
 
-			expert_add_info_format_text(pinfo, item, &ei_icep_string_malformed, "second field of Size missing");
+			expert_add_info_format(pinfo, item, &ei_icep_string_malformed, "second field of Size missing");
 			col_append_str(pinfo->cinfo, COL_INFO, " (second field of Size missing)");
 
 			(*consumed) = -1;
@@ -222,7 +222,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
 	/* check if the string exists */
 	if ( !tvb_bytes_exist(tvb, offset, Size) ) {
 
-		expert_add_info_format_text(pinfo, item, &ei_icep_string_malformed, "missing or truncated string");
+		expert_add_info_format(pinfo, item, &ei_icep_string_malformed, "missing or truncated string");
 		col_append_str(pinfo->cinfo, COL_INFO, " (missing or truncated string)");
 
 		(*consumed) = -1;
@@ -358,7 +358,7 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
 	/* check first byte */
 	if ( !tvb_bytes_exist(tvb, offset, 1) ) {
 
-		expert_add_info_format_text(pinfo, item, &ei_icep_context_missing, "context missing");
+		expert_add_info_format(pinfo, item, &ei_icep_context_missing, "context missing");
 		col_append_str(pinfo->cinfo, COL_INFO, " (context missing)");
 
 		(*consumed) = -1;
@@ -375,7 +375,7 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
 		/* check for next 4 bytes */
 		if ( !tvb_bytes_exist(tvb, offset, 4) ) {
 
-			expert_add_info_format_text(pinfo, item, &ei_icep_context_missing, "second field of Size missing");
+			expert_add_info_format(pinfo, item, &ei_icep_context_missing, "second field of Size missing");
 			col_append_str(pinfo->cinfo, COL_INFO, " (second field of Size missing)");
 
 			(*consumed) = -1;
@@ -521,7 +521,7 @@ static void dissect_ice_params(packet_info *pinfo, proto_tree *tree, proto_item 
 
 	if ( tvb_data_remained < ( size - ICEP_MIN_PARAMS_SIZE ) ) {
 
-		expert_add_info_format_text(pinfo, item, &ei_icep_params_encapsulated, "missing encapsulated data (%d bytes)", size - ICEP_MIN_PARAMS_SIZE - tvb_data_remained);
+		expert_add_info_format(pinfo, item, &ei_icep_params_encapsulated, "missing encapsulated data (%d bytes)", size - ICEP_MIN_PARAMS_SIZE - tvb_data_remained);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 					" (missing encapsulated data (%d bytes))",
@@ -562,7 +562,7 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 	/* check common header (i.e. the batch request one)*/
 	if ( !tvb_bytes_exist(tvb, offset, ICEP_MIN_COMMON_REQ_HEADER_SIZE) ) {
 
-		expert_add_info_format_text(pinfo, icep_sub_item, &ei_icep_length, "too short header");
+		expert_add_info_format(pinfo, icep_sub_item, &ei_icep_length, "too short header");
 		col_append_str(pinfo->cinfo, COL_INFO, " (too short header)");
 
 		goto error;
@@ -702,7 +702,7 @@ static void dissect_icep_request(tvbuff_t *tvb, guint32 offset,
 	/* check for req id */
 	if ( !tvb_bytes_exist(tvb, offset, 4) ) {
 
-		expert_add_info_format_text(pinfo, icep_item, &ei_icep_length, "too short header");
+		expert_add_info_format(pinfo, icep_item, &ei_icep_length, "too short header");
 		col_append_str(pinfo->cinfo, COL_INFO, " (too short header)");
 		return;
 	}
@@ -771,7 +771,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 	/* check for first 4 byte */
 	if ( !tvb_bytes_exist(tvb, offset, 4) ) {
 
-		expert_add_info_format_text(pinfo, icep_item, &ei_icep_length, "counter of batch requests missing");
+		expert_add_info_format(pinfo, icep_item, &ei_icep_length, "counter of batch requests missing");
 		col_append_str(pinfo->cinfo, COL_INFO, " (counter of batch requests missing)");
 		return;
 	}
@@ -783,7 +783,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 
 	if ( num_reqs > icep_max_batch_requests ) {
 
-		expert_add_info_format_text(pinfo, icep_item, &ei_icep_batch_requests, "too many batch requests (%d)", num_reqs);
+		expert_add_info_format(pinfo, icep_item, &ei_icep_batch_requests, "too many batch requests (%d)", num_reqs);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (too many batch requests, %d)", num_reqs);
 		return;
@@ -856,7 +856,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
 
 	if ( !tvb_bytes_exist(tvb, offset, ICEP_MIN_REPLY_SIZE) ) {
 
-		expert_add_info_format_text(pinfo, icep_item, &ei_icep_length, "too short header");
+		expert_add_info_format(pinfo, icep_item, &ei_icep_length, "too short header");
 
 		col_append_str(pinfo->cinfo, COL_INFO, " (too short header)");
 		return;
@@ -896,7 +896,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
 	/* no */
 	if ( tvb_data_remained < reported_reply_data ) {
 
-		expert_add_info_format_text(pinfo, ti, &ei_icep_reply_data, "Reply Data (missing %d bytes out of %d)", reported_reply_data - tvb_data_remained, reported_reply_data);
+		expert_add_info_format(pinfo, ti, &ei_icep_reply_data, "Reply Data (missing %d bytes out of %d)", reported_reply_data - tvb_data_remained, reported_reply_data);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 					" (missing reply data, %d bytes)",
@@ -1017,7 +1017,7 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	        /* messages already dissected */
 		break;
 	default:
-		expert_add_info_format_text(pinfo, msg_item, &ei_icep_message_type, "Unknown Message Type: 0x%02x", tvb_get_guint8(tvb, 8));
+		expert_add_info_format(pinfo, msg_item, &ei_icep_message_type, "Unknown Message Type: 0x%02x", tvb_get_guint8(tvb, 8));
 		break;
 	}
 }

@@ -903,7 +903,7 @@ void dissect_nhrp_ext(tvbuff_t    *tvb,
                     ti = proto_tree_add_text(nhrp_tree, tvb, offset, len,
                         "Malformed Extension: %s",
                         tvb_bytes_to_str(tvb, offset, len));
-                    expert_add_info_format_text(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Authentication Extension");
+                    expert_add_info_format(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Authentication Extension");
                 }
                 else {
                     proto_item *auth_item;
@@ -934,7 +934,7 @@ void dissect_nhrp_ext(tvbuff_t    *tvb,
                     ti = proto_tree_add_text(nhrp_tree, tvb, offset, len,
                         "Malformed Extension: %s",
                         tvb_bytes_to_str(tvb, offset, len));
-                    expert_add_info_format_text(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Vendor-Private Extension");
+                    expert_add_info_format(pinfo, ti, &ei_nhrp_ext_malformed, "Incomplete Vendor-Private Extension");
                 }
                 else {
                     proto_item *vendor_item;

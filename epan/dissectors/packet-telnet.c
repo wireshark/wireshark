@@ -271,7 +271,7 @@ dissect_string_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, in
     break;
 
   default:
-    expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_subcommand, "Invalid %s subcommand %u", optname, cmd);
+    expert_add_info_format(pinfo, item, &ei_telnet_invalid_subcommand, "Invalid %s subcommand %u", optname, cmd);
 
     offset++;
     len--;
@@ -305,7 +305,7 @@ dissect_tn3270_regime_subopt(packet_info *pinfo, const char *optname _U_, tvbuff
       len -= len;
       return;
     default:
-      expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_subcommand, "Bogus value: %u", cmd);
+      expert_add_info_format(pinfo, item, &ei_telnet_invalid_subcommand, "Bogus value: %u", cmd);
       break;
     }
     offset++;
@@ -501,7 +501,7 @@ dissect_htstops_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
     break;
 
   default:
-    expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_subcommand, "Invalid %s subcommand %u", optname, cmd);
+    expert_add_info_format(pinfo, item, &ei_telnet_invalid_subcommand, "Invalid %s subcommand %u", optname, cmd);
     offset++;
     len--;
     if (len > 0)
@@ -677,7 +677,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
         proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_baud_rate, tvb, offset, 5, baud, "%s Baud Rate: %d",source,baud);
       }
     } else {
-      expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_baud_rate, "%s <Invalid Baud Rate Packet>", source);
+      expert_add_info_format(pinfo, item, &ei_telnet_invalid_baud_rate, "%s <Invalid Baud Rate Packet>", source);
     }
     break;
 
@@ -689,7 +689,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
       proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_data_size, tvb, offset, 2, datasize, 
                                        "%s Data Size: %s",source,ds);
     } else {
-      expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_data_size, "%s <Invalid Data Size Packet>", source);
+      expert_add_info_format(pinfo, item, &ei_telnet_invalid_data_size, "%s <Invalid Data Size Packet>", source);
     }
     break;
 
@@ -701,7 +701,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
       proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_parity, tvb, offset, 2, parity, 
                                        "%s Parity: %s",source,pr);
     } else {
-      expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_parity, "%s <Invalid Parity Packet>", source);
+      expert_add_info_format(pinfo, item, &ei_telnet_invalid_parity, "%s <Invalid Parity Packet>", source);
     }
     break;
   case TNCOMPORT_SETSTOPSIZE:
@@ -712,7 +712,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
       proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_stop, tvb, offset, 2, stop, 
                                        "%s Stop: %s",source,st);
     } else {
-      expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_stop, "%s <Invalid Stop Packet>", source);
+      expert_add_info_format(pinfo, item, &ei_telnet_invalid_stop, "%s <Invalid Stop Packet>", source);
     }
     break;
 
@@ -724,7 +724,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
       proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_control, tvb, offset, 2, crt, 
                                        "%s Stop: %s",source,c);
     } else {
-      expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_control, "%s <Invalid Control Packet>", source);
+      expert_add_info_format(pinfo, item, &ei_telnet_invalid_control, "%s <Invalid Control Packet>", source);
     }
     break;
 
@@ -754,7 +754,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
     } else {
       const char *print_pattern = (cmd == TNCOMPORT_SETLINESTATEMASK) ?
         "%s <Invalid Linestate Mask>" : "%s <Invalid Linestate Packet>";
-      expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_linestate, print_pattern, source);
+      expert_add_info_format(pinfo, item, &ei_telnet_invalid_linestate, print_pattern, source);
     }
     break;
 
@@ -784,7 +784,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
     } else {
       const char *print_pattern = (cmd == TNCOMPORT_SETMODEMSTATEMASK) ?
         "%s <Invalid Modemstate Mask>" : "%s <Invalid Modemstate Packet>";
-      expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_modemstate, print_pattern, source);
+      expert_add_info_format(pinfo, item, &ei_telnet_invalid_modemstate, print_pattern, source);
     }
     break;
 
@@ -806,12 +806,12 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
       proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_purge, tvb, offset, 2, purge, 
                                        "%s %s",source,p);
     } else {
-      expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_purge, "%s <Invalid Purge Packet>", source);
+      expert_add_info_format(pinfo, item, &ei_telnet_invalid_purge, "%s <Invalid Purge Packet>", source);
     }
     break;
 
   default:
-    expert_add_info_format_text(pinfo, item, &ei_telnet_invalid_subcommand, "Invalid %s subcommand %u", optname, cmd);
+    expert_add_info_format(pinfo, item, &ei_telnet_invalid_subcommand, "Invalid %s subcommand %u", optname, cmd);
     offset++;
     len--;
     if (len > 0)
@@ -1044,7 +1044,7 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
       if(krb5_tvb)
         dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
       else
-        expert_add_info_format_text(pinfo, ti, &ei_telnet_kerberos_blob_too_long, "Kerberos blob (too long to dissect - length %u > %u)", len, MAX_KRB5_BLOB_LEN);                            
+        expert_add_info_format(pinfo, ti, &ei_telnet_kerberos_blob_too_long, "Kerberos blob (too long to dissect - length %u > %u)", len, MAX_KRB5_BLOB_LEN);                            
     }
   }
 
@@ -1584,13 +1584,13 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
 
       case NO_LENGTH:
         /* There isn't supposed to *be* sub-option negotiation for this. */
-        expert_add_info_format_text(pinfo, option_item, &ei_telnet_suboption_length, "Bogus suboption data");
+        expert_add_info_format(pinfo, option_item, &ei_telnet_suboption_length, "Bogus suboption data");
         return offset;
 
       case FIXED_LENGTH:
         /* Make sure the length is what it's supposed to be. */
         if (subneg_len - iac_data != options[opt_byte].optlen) {
-          expert_add_info_format_text(pinfo, option_item, &ei_telnet_suboption_length, "Suboption parameter length is %d, should be %d", subneg_len, options[opt_byte].optlen);
+          expert_add_info_format(pinfo, option_item, &ei_telnet_suboption_length, "Suboption parameter length is %d, should be %d", subneg_len, options[opt_byte].optlen);
           return offset;
         }
         break;
@@ -1598,7 +1598,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
       case VARIABLE_LENGTH:
         /* Make sure the length is greater than the minimum. */
         if (subneg_len - iac_data < options[opt_byte].optlen) {
-          expert_add_info_format_text(pinfo, option_item, &ei_telnet_suboption_length, "Suboption parameter length is %d, should be at least %d", subneg_len, options[opt_byte].optlen);
+          expert_add_info_format(pinfo, option_item, &ei_telnet_suboption_length, "Suboption parameter length is %d, should be at least %d", subneg_len, options[opt_byte].optlen);
           return offset;
         }
         break;

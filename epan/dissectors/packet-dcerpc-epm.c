@@ -459,7 +459,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 
         default:
             if(len){
-                expert_add_info_format_text(pinfo, pi, &ei_epm_proto_undecoded, "RightHandSide not decoded yet for proto_id 0x%x",
+                expert_add_info_format(pinfo, pi, &ei_epm_proto_undecoded, "RightHandSide not decoded yet for proto_id 0x%x",
                     proto_id);
             }
         }

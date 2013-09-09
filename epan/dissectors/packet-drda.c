@@ -701,7 +701,7 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         iCommand = tvb_get_ntohs(tvb, offset + 8);
         iLength = tvb_get_ntohs(tvb, offset + 0);
         if (iLength < 10) {
-            expert_add_info_format_text(pinfo, NULL, &ei_drda_opcode_invalid_length, "Invalid length detected (%u): should be at least 10 bytes long", iLength);
+            expert_add_info_format(pinfo, NULL, &ei_drda_opcode_invalid_length, "Invalid length detected (%u): should be at least 10 bytes long", iLength);
             break;
         }
         /* iCommandEnd is the length of the packet up to the end of the current command */

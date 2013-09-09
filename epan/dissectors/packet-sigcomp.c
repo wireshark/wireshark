@@ -822,7 +822,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             offset++;
 
             /* Add expert item for NACK */
-            expert_add_info_format_text(pinfo, reason_ti, &ei_sigcomp_nack_failed_op_code,
+            expert_add_info_format(pinfo, reason_ti, &ei_sigcomp_nack_failed_op_code,
                                    "SigComp NACK (reason=%s, opcode=%s)",
                                    val_to_str_const(octet, sigcomp_nack_reason_code_vals, "Unknown"),
                                    val_to_str_const(opcode, udvm_instruction_code_vals, "Unknown"));

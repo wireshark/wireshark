@@ -1202,7 +1202,7 @@ static void child_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *insert_tre
 			child = proto_tree_add_text(insert_tree, tvb, *offset, -1, "Child List with %d %s", *length + *data, plurality(*length + *data, "element", "elements"));
 			child_list = proto_item_add_subtree(child, ett_sml_child);
 			if (repeat <= 0){
-				expert_add_info_format_text(pinfo, child, &ei_sml_invalid_count, "invalid loop count");
+				expert_add_info_format(pinfo, child, &ei_sml_invalid_count, "invalid loop count");
 				return;
 			}
 			*offset+=*length;
@@ -1212,7 +1212,7 @@ static void child_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *insert_tre
 				tree_Entry_list = proto_item_add_subtree(tree_Entry, ett_sml_tree_Entry);
 
 				if (tvb_get_guint8(tvb, *offset) != 0x73){
-					expert_add_info_format_text(pinfo, tree_Entry, &ei_sml_invalid_count, "invalid count of elements in tree_Entry");
+					expert_add_info_format(pinfo, tree_Entry, &ei_sml_invalid_count, "invalid count of elements in tree_Entry");
 					return;
 				}
 				*offset+=1;
@@ -1224,7 +1224,7 @@ static void child_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *insert_tre
 		}
 	}
 	else {
-		expert_add_info_format_text(pinfo, NULL, &ei_sml_invalid_count, "invalid count of elements in child List");
+		expert_add_info_format(pinfo, NULL, &ei_sml_invalid_count, "invalid count of elements in child List");
 	}
 }
 
@@ -1411,11 +1411,11 @@ static gboolean decode_GetProfile_List_Pack_Req (tvbuff_t *tvb, packet_info *pin
 	treepath_list = proto_item_add_subtree(treepath, ett_sml_treepath);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in Treepath");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in Treepath");
 		return TRUE;
 	}
 	else if (repeat <= 0){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
 		return TRUE;
 	}
 	*offset+=length;
@@ -1437,11 +1437,11 @@ static gboolean decode_GetProfile_List_Pack_Req (tvbuff_t *tvb, packet_info *pin
 		object_list_list = proto_item_add_subtree(object_list, ett_sml_object_list);
 
 		if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-			expert_add_info_format_text(pinfo, object_list, &ei_sml_invalid_count, "invalid count of elements in object_List");
+			expert_add_info_format(pinfo, object_list, &ei_sml_invalid_count, "invalid count of elements in object_List");
 			return TRUE;
 		}
 		else if (repeat <= 0){
-			expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
+			expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
 			return TRUE;
 		}
 
@@ -1470,7 +1470,7 @@ static gboolean decode_GetProfile_List_Pack_Req (tvbuff_t *tvb, packet_info *pin
 		proto_item_set_end(dasDetails, tvb, *offset);
 	}
 	else {
-		expert_add_info_format_text(pinfo, NULL, &ei_sml_invalid_count, "invalid count of elements in dasDetails");
+		expert_add_info_format(pinfo, NULL, &ei_sml_invalid_count, "invalid count of elements in dasDetails");
 		return TRUE;
 	}
 	return FALSE;
@@ -1526,11 +1526,11 @@ static gboolean decode_GetProfilePackRes(tvbuff_t *tvb, packet_info *pinfo, prot
 	treepath_list = proto_item_add_subtree(treepath, ett_sml_treepath);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in Treepath");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in Treepath");
 		return TRUE;
 	}
 	else if (repeat <= 0){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
 		return TRUE;
 	}
 
@@ -1548,11 +1548,11 @@ static gboolean decode_GetProfilePackRes(tvbuff_t *tvb, packet_info *pinfo, prot
 	headerList_subtree = proto_item_add_subtree(headerList, ett_sml_headerList);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, headerList, &ei_sml_invalid_count, "invalid count of elements in headerlist");
+		expert_add_info_format(pinfo, headerList, &ei_sml_invalid_count, "invalid count of elements in headerlist");
 		return TRUE;
 	}
 	else if (repeat <= 0){
-		expert_add_info_format_text(pinfo, headerList, &ei_sml_invalid_count, "invalid loop count");
+		expert_add_info_format(pinfo, headerList, &ei_sml_invalid_count, "invalid loop count");
 		return TRUE;
 	}
 
@@ -1584,11 +1584,11 @@ static gboolean decode_GetProfilePackRes(tvbuff_t *tvb, packet_info *pinfo, prot
 	periodList_list = proto_item_add_subtree(periodList, ett_sml_periodList);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, periodList, &ei_sml_invalid_count, "invalid count of elements in periodList");
+		expert_add_info_format(pinfo, periodList, &ei_sml_invalid_count, "invalid count of elements in periodList");
 		return TRUE;
 	}
 	else if (repeat <= 0){
-		expert_add_info_format_text(pinfo, periodList, &ei_sml_invalid_count, "invalid loop count");
+		expert_add_info_format(pinfo, periodList, &ei_sml_invalid_count, "invalid loop count");
 		return TRUE;
 	}
 
@@ -1619,11 +1619,11 @@ static gboolean decode_GetProfilePackRes(tvbuff_t *tvb, packet_info *pinfo, prot
 		valuelist_list = proto_item_add_subtree(valuelist, ett_sml_valuelist);
 
 		if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-			expert_add_info_format_text(pinfo, valuelist, &ei_sml_invalid_count, "invalid count of elements in valueList");
+			expert_add_info_format(pinfo, valuelist, &ei_sml_invalid_count, "invalid count of elements in valueList");
 			return TRUE;
 		}
 		else if (repeat2 <= 0){
-			expert_add_info_format_text(pinfo, valuelist, &ei_sml_invalid_count, "invalid loop count");
+			expert_add_info_format(pinfo, valuelist, &ei_sml_invalid_count, "invalid loop count");
 			return TRUE;
 		}
 
@@ -1710,11 +1710,11 @@ static gboolean decode_GetProfileListRes(tvbuff_t *tvb, packet_info *pinfo, prot
 	treepath_list = proto_item_add_subtree(treepath, ett_sml_treepath);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in parameterTreePath");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in parameterTreePath");
 		return TRUE;
 	}
 	else if (repeat <= 0){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
 		return TRUE;
 	}
 
@@ -1753,11 +1753,11 @@ static gboolean decode_GetProfileListRes(tvbuff_t *tvb, packet_info *pinfo, prot
 	periodList_list = proto_item_add_subtree(periodList, ett_sml_periodList);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, periodList, &ei_sml_invalid_count, "invalid count of elements in periodList");
+		expert_add_info_format(pinfo, periodList, &ei_sml_invalid_count, "invalid count of elements in periodList");
 		return TRUE;
 	}
 	else if (repeat <= 0){
-		expert_add_info_format_text(pinfo, periodList, &ei_sml_invalid_count, "invalid loop count");
+		expert_add_info_format(pinfo, periodList, &ei_sml_invalid_count, "invalid loop count");
 		return TRUE;
 	}
 
@@ -1879,11 +1879,11 @@ static gboolean decode_GetListRes (tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	valtree_list = proto_item_add_subtree (valtree, ett_sml_valtree);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, valtree, &ei_sml_invalid_count, "invalid count of elements in valList");
+		expert_add_info_format(pinfo, valtree, &ei_sml_invalid_count, "invalid count of elements in valList");
 		return TRUE;
 	}
 	else if (repeat <= 0){
-		expert_add_info_format_text(pinfo, valtree, &ei_sml_invalid_count, "invalid loop count");
+		expert_add_info_format(pinfo, valtree, &ei_sml_invalid_count, "invalid loop count");
 		return TRUE;
 	}
 
@@ -2004,11 +2004,11 @@ static gboolean decode_GetProcParameterReq(tvbuff_t *tvb, packet_info *pinfo, pr
 	treepath_list = proto_item_add_subtree(treepath, ett_sml_treepath);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in ParameterTreePath");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in ParameterTreePath");
 		return TRUE;
 	}
 	else if (repeat <= 0){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
 		return TRUE;
 	}
 
@@ -2058,11 +2058,11 @@ static gboolean decode_GetProcParameterRes(tvbuff_t *tvb, packet_info *pinfo, pr
 	treepath_list = proto_item_add_subtree(treepath, ett_sml_treepath);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in ParameterTreePath");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in ParameterTreePath");
 		return TRUE;
 	}
 	else if (repeat <= 0){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
 		return TRUE;
 	}
 
@@ -2079,7 +2079,7 @@ static gboolean decode_GetProcParameterRes(tvbuff_t *tvb, packet_info *pinfo, pr
 	parameterTree_list = proto_item_add_subtree(parameterTree, ett_sml_parameterTree);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, parameterTree, &ei_sml_invalid_count, "invalid count of elements in parameterTree");
+		expert_add_info_format(pinfo, parameterTree, &ei_sml_invalid_count, "invalid count of elements in parameterTree");
 		return TRUE;
 	}
 
@@ -2119,11 +2119,11 @@ static gboolean decode_SetProcParameterReq(tvbuff_t *tvb, packet_info *pinfo,pro
 	treepath_list = proto_item_add_subtree(treepath, ett_sml_treepath);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in ParameterTreePath");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid count of elements in ParameterTreePath");
 		return TRUE;
 	}
 	else if (repeat <= 0){
-		expert_add_info_format_text(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
+		expert_add_info_format(pinfo, treepath, &ei_sml_invalid_count, "invalid loop count");
 		return TRUE;
 	}
 
@@ -2140,7 +2140,7 @@ static gboolean decode_SetProcParameterReq(tvbuff_t *tvb, packet_info *pinfo,pro
 	parameterTree_list = proto_item_add_subtree(parameterTree, ett_sml_parameterTree);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format_text(pinfo, parameterTree, &ei_sml_invalid_count, "invalid count of elements in parameterTree");
+		expert_add_info_format(pinfo, parameterTree, &ei_sml_invalid_count, "invalid count of elements in parameterTree");
 		return TRUE;
 	}
 
@@ -2209,7 +2209,7 @@ static gboolean decode_AttentionRes(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		attentionDetails_list = proto_item_add_subtree(attentionDetails, ett_sml_attentionDetails);
 
 		if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-			expert_add_info_format_text(pinfo, attentionDetails, &ei_sml_invalid_count, "invalid count of elements in attentionDetails");
+			expert_add_info_format(pinfo, attentionDetails, &ei_sml_invalid_count, "invalid count of elements in attentionDetails");
 			return TRUE;
 		}
 
@@ -2317,7 +2317,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 
 			mainlist_list = proto_item_add_subtree (mainlist, ett_sml_mainlist);
 			if (tvb_get_guint8(tvb, *offset) != LIST_6_ELEMENTS) {
-				expert_add_info_format_text(pinfo, mainlist, &ei_sml_invalid_count, "invalid count of elements");
+				expert_add_info_format(pinfo, mainlist, &ei_sml_invalid_count, "invalid count of elements");
 				return;
 			}
 			*offset+=1;
@@ -2575,7 +2575,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 				/*(little to big endian convert) to display in correct order*/
 				crc_check = ((crc_check >> 8) & 0xFF) + ((crc_check << 8) & 0xFF00);
 				proto_tree_add_text (msgend_tree, tvb, *offset, 0, "[CRC Bad 0x%X]", crc_check);
-				expert_add_info_format_text(pinfo, msgend, &ei_sml_crc_error, "CRC error (messages not reassembled ?)");
+				expert_add_info_format(pinfo, msgend, &ei_sml_crc_error, "CRC error (messages not reassembled ?)");
 			}
 		}
 		else {

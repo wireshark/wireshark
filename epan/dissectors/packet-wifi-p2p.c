@@ -583,7 +583,7 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
                              tvb, s_offset, 2, ENC_BIG_ENDIAN);
   attr_type = tvb_get_ntohs(tvb, s_offset);
   if (attr_type != 0x1011) {
-    expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_dev_info_dev_name_type, "Incorrect Device Name attribute type");
+    expert_add_info_format(pinfo, item, &ei_wifi_p2p_attr_dev_info_dev_name_type, "Incorrect Device Name attribute type");
   }
   s_offset += 2;
   item = proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_dev_name_len,
@@ -591,7 +591,7 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
   attr_len = tvb_get_ntohs(tvb, s_offset);
   s_offset += 2;
   if (attr_len > offset + 3 + slen - s_offset) {
-    expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute length");
+    expert_add_info_format(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute length");
     return;
   }
   nlen = offset + 3 + slen - s_offset;
@@ -601,7 +601,7 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
                                nlen > attr_len ? attr_len : nlen,
                                ENC_ASCII|ENC_NA);
   if (nlen != attr_len) {
-    expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute");
+    expert_add_info_format(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute");
   }
 }
 
@@ -670,7 +670,7 @@ static void dissect_wifi_p2p_group_bssid(packet_info *pinfo,
   guint8 addr[6];
 
   if (slen != 6) {
-    expert_add_info_format_text(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Invalid ethernet address");
+    expert_add_info_format(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Invalid ethernet address");
     return;
   }
 
@@ -688,7 +688,7 @@ static void dissect_notice_of_absence(packet_info *pinfo, proto_item *tlv_root,
   int s_offset = offset + 3;
 
   if (slen < 2) {
-    expert_add_info_format_text(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Too short NoA");
+    expert_add_info_format(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Too short NoA");
     return;
   }
 
@@ -732,7 +732,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
 
   while (offset + 3 + slen > s_offset) {
     if (offset + 3 + slen - s_offset < 25) {
-      expert_add_info_format_text(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Too short P2P Client Info Descriptor");
+      expert_add_info_format(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Too short P2P Client Info Descriptor");
       break;
     }
 
@@ -744,7 +744,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     item = proto_tree_add_item(tree, hf_p2p_attr_gi_length, tvb, s_offset,
                                1, ENC_BIG_ENDIAN);
     if (ci_len < 24 || s_offset + ci_len > offset + 3 + slen) {
-      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid P2P Client Info Descriptor Length");
+      expert_add_info_format(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid P2P Client Info Descriptor Length");
       break;
     }
     s_offset++;
@@ -799,7 +799,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     s_offset++;
     left = offset + 3 + slen - s_offset;
     if (left < 8 * num_sec) {
-      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Secondary Device Type List");
+      expert_add_info_format(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Secondary Device Type List");
       break;
     }
     while (num_sec > 0) {
@@ -813,7 +813,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
                                tvb, s_offset, 2, ENC_BIG_ENDIAN);
     attr_type = tvb_get_ntohs(tvb, s_offset);
     if (attr_type != 0x1011) {
-      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_dev_info_dev_name_type, "Incorrect Device Name attribute type");
+      expert_add_info_format(pinfo, item, &ei_wifi_p2p_attr_dev_info_dev_name_type, "Incorrect Device Name attribute type");
     }
     s_offset += 2;
     item = proto_tree_add_item(tree, hf_p2p_attr_gi_dev_name_len,
@@ -821,7 +821,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     attr_len = tvb_get_ntohs(tvb, s_offset);
     s_offset += 2;
     if (attr_len > offset + 3 + slen - s_offset) {
-      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute length");
+      expert_add_info_format(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute length");
       break;
     }
     nlen = next_offset - s_offset;
@@ -831,7 +831,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
                                  nlen > attr_len ? attr_len : nlen,
                                  ENC_ASCII|ENC_NA);
     if (nlen != attr_len) {
-      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute");
+      expert_add_info_format(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute");
     }
 
     s_offset = next_offset;
@@ -888,7 +888,7 @@ void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
   while (size > 0) {
     if (size < 3) {
-      expert_add_info_format_text(pinfo, NULL, &ei_wifi_p2p_attr_len, "Packet too short for P2P IE");
+      expert_add_info_format(pinfo, NULL, &ei_wifi_p2p_attr_len, "Packet too short for P2P IE");
       break;
     }
 
@@ -1011,11 +1011,11 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
     len = tvb_get_letohs(tvb, offset);
     if (len < 2) {
-      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_anqp_length, "Too short Service TLV field");
+      expert_add_info_format(pinfo, item, &ei_wifi_p2p_anqp_length, "Too short Service TLV field");
       return;
     }
     if (len > tvb_length_remaining(tvb, offset + 2)) {
-      expert_add_info_format_text(pinfo, item, &ei_wifi_p2p_anqp_length, "Too short frame for Service TLV field");
+      expert_add_info_format(pinfo, item, &ei_wifi_p2p_anqp_length, "Too short frame for Service TLV field");
       return;
     }
 

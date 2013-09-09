@@ -915,7 +915,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ositp_decode_var_part(tvb, offset, li, 4, tpdu_len, pinfo, cotp_tree);
   offset += li;
 
-  expert_add_info_format_text(pinfo, ti, &ei_cotp_disconnect_request, "Disconnect Request(DR): 0x%x -> 0x%x", src_ref, dst_ref);
+  expert_add_info_format(pinfo, ti, &ei_cotp_disconnect_request, "Disconnect Request(DR): 0x%x -> 0x%x", src_ref, dst_ref);
 
   /* User data */
   call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
@@ -1531,7 +1531,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   offset += li + 1;
 
-  expert_add_info_format_text(pinfo, item, &ei_cotp_reject, "Reject(RJ): -> 0x%x", dst_ref);
+  expert_add_info_format(pinfo, item, &ei_cotp_reject, "Reject(RJ): -> 0x%x", dst_ref);
 
   return offset;
 
@@ -1600,7 +1600,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   /* expert info, but only if not encapsulated in TCP/SMB */
   /* XXX - the best way to detect seems to be if we have a port set */
   if (pinfo->destport == 0) {
-    expert_add_info_format_text(pinfo, item, &ei_cotp_connection, "Connection %s: 0x%x -> 0x%x", tpdu == CR_TPDU ? "Request(CR)" : "Confirm(CC)", src_ref, dst_ref);
+    expert_add_info_format(pinfo, item, &ei_cotp_connection, "Connection %s: 0x%x -> 0x%x", tpdu == CR_TPDU ? "Request(CR)" : "Confirm(CC)", src_ref, dst_ref);
   }
 
   if (tree) {
@@ -1723,7 +1723,7 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ositp_decode_var_part(tvb, offset, li, 4, tpdu_len, pinfo, cotp_tree);
   offset += li;
 
-  expert_add_info_format_text(pinfo, item, &ei_cotp_disconnect_confirm, "Disconnect Confirm(DC): 0x%x -> 0x%x", src_ref, dst_ref);
+  expert_add_info_format(pinfo, item, &ei_cotp_disconnect_confirm, "Disconnect Confirm(DC): 0x%x -> 0x%x", src_ref, dst_ref);
 
   return offset;
 

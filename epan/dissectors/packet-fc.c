@@ -1301,7 +1301,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                        "[error: should be %8.8x]",
                                        crc, crc_computed);
 
-        expert_add_info_format_text(pinfo, it, &ei_fccrc,
+        expert_add_info_format(pinfo, it, &ei_fccrc,
                                    "Bad FC CRC %8.8x %8.x",
                                    crc, crc_computed);
     }

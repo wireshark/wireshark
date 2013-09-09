@@ -511,7 +511,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 	case 0xffff:           /* Field unknown */
 	break;
 	default:
-		expert_add_info_format_text(pinfo, msg_item, &ei_icq_unknown_command,
+		expert_add_info_format(pinfo, msg_item, &ei_icq_unknown_command,
 				   "Unknown msgType: %u (0x%x)", msgType, msgType);
 		break;
 	case MSG_TEXT:
@@ -993,7 +993,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	}
 	default:
 		/* This information is already printed in the tree */
-		expert_add_info_format_text(pinfo, ti, &ei_icq_unknown_meta_subcmd,
+		expert_add_info_format(pinfo, ti, &ei_icq_unknown_meta_subcmd,
 				   "Unknown Meta subcmd: 0x%x", subcmd);
 		break;
 	}

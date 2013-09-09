@@ -215,7 +215,7 @@ lapd_log_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
 	proto_item *ti;
 
 	ti = proto_tree_add_item(tree, proto_lapd, tvb, offset, 1, ENC_NA);
-	expert_add_info_format_text(pinfo, ti, &ei_lapd_abort, "%s", msg);
+	expert_add_info_format(pinfo, ti, &ei_lapd_abort, "%s", msg);
 }
 
 static void

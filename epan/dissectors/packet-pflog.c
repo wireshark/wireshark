@@ -178,7 +178,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti_len = proto_tree_add_item(pflog_tree, hf_pflog_length, tvb, offset, 1, ENC_BIG_ENDIAN);
   if(length < LEN_PFLOG_BSD34)
   {
-    expert_add_info_format_text(pinfo, ti_len, &ei_pflog_invalid_header_length, "Invalid header length %u", length);
+    expert_add_info_format(pinfo, ti_len, &ei_pflog_invalid_header_length, "Invalid header length %u", length);
   }
 
   offset += 1;

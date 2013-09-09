@@ -490,7 +490,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	    src_tvb, offset, cnt - offset, ENC_NA);
 	cd_tree = proto_item_add_subtree(cd_item, ett_wcp_comp_data);
 	if (cnt - offset > MAX_WCP_BUF_LEN) {
-		expert_add_info_format_text(pinfo, cd_item, &ei_wcp_compressed_data_exceeds,
+		expert_add_info_format(pinfo, cd_item, &ei_wcp_compressed_data_exceeds,
 			"Compressed data exceeds maximum buffer length (%d > %d)",
 			cnt - offset, MAX_WCP_BUF_LEN);
 		return NULL;
@@ -509,7 +509,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 				if ( !pinfo->fd->flags.visited){	/* if first pass */
 					dst = decompressed_entry( src, dst, &len, buf_start, buf_end);
 					if (dst == NULL){
-						expert_add_info_format_text(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
+						expert_add_info_format(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
 							"Uncompressed data exceeds maximum buffer length (%d > %d)",
 							len, MAX_WCP_BUF_LEN);
 						return NULL;
@@ -543,7 +543,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 				}
 			}else {
 				if ( ++len >MAX_WCP_BUF_LEN){
-					expert_add_info_format_text(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
+					expert_add_info_format(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
 						"Uncompressed data exceeds maximum buffer length (%d > %d)",
 						len, MAX_WCP_BUF_LEN);
 					return NULL;

@@ -138,7 +138,7 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
         case IXIATRAILER_FTYPE_TIMESTAMP_1588:
         case IXIATRAILER_FTYPE_TIMESTAMP_HOLDOVER:
             if (time_length != 8) {
-                expert_add_info_format_text(pinfo, ti, &ei_ixiatrailer_field_length_invalid, "Field length %u invalid", time_length);
+                expert_add_info_format(pinfo, ti, &ei_ixiatrailer_field_length_invalid, "Field length %u invalid", time_length);
                 break;
             }
             /* Timestamp */

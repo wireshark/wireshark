@@ -336,7 +336,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
     ti = proto_tree_add_item(fh_tree, hf_eth_invalid_lentype, tvb, 12, 2, ENC_BIG_ENDIAN);
-    expert_add_info_format_text(pinfo, ti, &ei_eth_invalid_lentype,
+    expert_add_info_format(pinfo, ti, &ei_eth_invalid_lentype,
         "Invalid length/type: 0x%04x (%d)", ehdr->type, ehdr->type);
     next_tvb = tvb_new_subset_remaining(tvb, 14);
     call_dissector(data_handle, next_tvb, pinfo, parent_tree);

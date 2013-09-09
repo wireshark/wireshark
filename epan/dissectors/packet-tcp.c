@@ -1444,7 +1444,7 @@ tcp_sequence_number_analysis_print_duplicate(packet_info * pinfo,
         flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_frame,
                                        tvb, 0, 0, ta->dupack_frame);
         PROTO_ITEM_SET_GENERATED(flags_item);
-        expert_add_info_format_text(pinfo, flags_item, &ei_tcp_analysis_duplicate_ack, "Duplicate ACK (#%u)", ta->dupack_num);
+        expert_add_info_format(pinfo, flags_item, &ei_tcp_analysis_duplicate_ack, "Duplicate ACK (#%u)", ta->dupack_num);
     }
 }
 
@@ -3143,7 +3143,7 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
         tcp_info_append_uint(pinfo, "SNLE", hole_start);
         tcp_info_append_uint(pinfo, "SNRE", hole_end);
 
-        expert_add_info_format_text(pinfo, NULL, &ei_tcp_option_snack_sequence, "SNACK Sequence %u - %u %s", hole_start, hole_end, modifier);
+        expert_add_info_format(pinfo, NULL, &ei_tcp_option_snack_sequence, "SNACK Sequence %u - %u %s", hole_start, hole_end, modifier);
     }
 }
 
@@ -4365,12 +4365,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(tcph->th_flags & TH_SYN) {
         if(tcph->th_flags & TH_ACK) {
-           expert_add_info_format_text(pinfo, tf_syn, &ei_tcp_connection_sack, "Connection establish acknowledge (SYN+ACK): server port %s", get_tcp_port(tcph->th_sport));
+           expert_add_info_format(pinfo, tf_syn, &ei_tcp_connection_sack, "Connection establish acknowledge (SYN+ACK): server port %s", get_tcp_port(tcph->th_sport));
            /* Save the server port to help determine dissector used */
            tcpd->server_port = tcph->th_sport;
         }
         else {
-           expert_add_info_format_text(pinfo, tf_syn, &ei_tcp_connection_syn, "Connection establish request (SYN): server port %s",
+           expert_add_info_format(pinfo, tf_syn, &ei_tcp_connection_syn, "Connection establish request (SYN): server port %s",
                                    get_tcp_port(tcph->th_dport));
            /* Save the server port to help determine dissector used */
            tcpd->server_port = tcph->th_dport;

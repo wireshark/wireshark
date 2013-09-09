@@ -378,7 +378,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			break;
 		}
 		if (length < (offset - attr_start_offset)){
-			expert_add_info_format_text(pinfo, item, &ei_bfcp_attribute_length_too_small,
+			expert_add_info_format(pinfo, item, &ei_bfcp_attribute_length_too_small,
 							"Attribute length is too small (%d bytes)", length);
 			break;
 		}

@@ -621,7 +621,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 		remaining_len--;
 		if (pointer > remaining_len) {
 			/* Bogus pointer */
-			expert_add_info_format_text(pinfo, pi, &ei_mp2t_pointer,
+			expert_add_info_format(pinfo, pi, &ei_mp2t_pointer,
 			    "Pointer value is too large (> remaining data length %u)",
 			    remaining_len);
 		}
@@ -920,7 +920,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
 	/* Add info to the proto tree about drops */
 	if (detected_drop) {
-		expert_add_info_format_text(pinfo, tree, &ei_mp2t_cc_drop,
+		expert_add_info_format(pinfo, tree, &ei_mp2t_cc_drop,
 				"Detected %d missing TS frames before this (last_cc:%d total skips:%d discontinuity:%d)",
 				skips, cc_prev,
 				mp2t_data->total_skips,

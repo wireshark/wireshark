@@ -543,7 +543,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             xmpp_proceed(xmpp_tree, tvb, pinfo, packet, xmpp_info);
         }else {
             xmpp_proto_tree_show_first_child(xmpp_tree);
-            expert_add_info_format_text(pinfo, xmpp_tree, &ei_xmpp_packet_unknown, "Unknown packet: %s", packet->name);
+            expert_add_info_format(pinfo, xmpp_tree, &ei_xmpp_packet_unknown, "Unknown packet: %s", packet->name);
             col_clear(pinfo->cinfo, COL_INFO);
             col_append_fstr(pinfo->cinfo, COL_INFO, "UNKNOWN PACKET ");
         }

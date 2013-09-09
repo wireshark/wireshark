@@ -1409,7 +1409,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         /* Detect malformed data */
 
         if (length <= 6) {
-            expert_add_info_format_text(pinfo, pi, &ei_btl2cap_sdulength_bad,
+            expert_add_info_format(pinfo, pi, &ei_btl2cap_sdulength_bad,
                     "SDU length too short: %u", length);
             THROW(ReportedBoundsError);
         }
@@ -1418,7 +1418,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
         if (sdulen < length) {
             sdulen = length;
-            expert_add_info_format_text(pinfo, pi, &ei_btl2cap_sdulength_bad,
+            expert_add_info_format(pinfo, pi, &ei_btl2cap_sdulength_bad,
                     "SDU length less than length of first packet (%u < %u)", sdulen, length);
         }
 
@@ -1442,7 +1442,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
     } else {
         if (length <= 4) {
-            expert_add_info_format_text(pinfo, btl2cap_tree, &ei_btl2cap_length_bad,
+            expert_add_info_format(pinfo, btl2cap_tree, &ei_btl2cap_length_bad,
                     "Control / FCS length too short: %u", length);
             THROW(ReportedBoundsError);
         }

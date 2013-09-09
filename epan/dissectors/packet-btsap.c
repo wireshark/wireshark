@@ -364,7 +364,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 
     if (length != parameter_length || padding_length != parameter_padding_length) {
         /* Malformed frame */
-        expert_add_info_format_text(pinfo, pitem, &ei_btsap_parameter_error,
+        expert_add_info_format(pinfo, pitem, &ei_btsap_parameter_error,
             "Parameter Length does not meet content length");
     }
 

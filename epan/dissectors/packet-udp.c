@@ -404,7 +404,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     /* The beginning port number, 32768 + 666 (33434), is from LBL's traceroute.c source code and this code
      * further assumes that 3 attempts are made per hop */
     if(udph->uh_sport > 32768 + 666 && udph->uh_sport <= 32768 + 666 + 30)
-	    expert_add_info_format_text(pinfo, port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
+	    expert_add_info_format(pinfo, port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
 				   ((udph->uh_sport - 32768 - 666 - 1) / 3) + 1,
 				   ((udph->uh_sport - 32768 - 666 - 1) % 3) + 1
 				   );
@@ -412,7 +412,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     port_item = proto_tree_add_uint_format(udp_tree, hfi_udp_dstport.id, tvb, offset + 2, 2, udph->uh_dport,
 	"Destination port: %s (%u)", get_udp_port(udph->uh_dport), udph->uh_dport);
     if(udph->uh_dport > 32768 + 666 && udph->uh_dport <= 32768 + 666 + 30)
-	    expert_add_info_format_text(pinfo, port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
+	    expert_add_info_format(pinfo, port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
 				   ((udph->uh_dport - 32768 - 666 - 1) / 3) + 1,
 				   ((udph->uh_dport - 32768 - 666 - 1) % 3) + 1
 				   );
@@ -430,7 +430,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       /* XXX - should handle IPv6 UDP jumbograms (RFC 2675), where the length is zero */
       item = proto_tree_add_uint_format(udp_tree, hfi_udp_length.id, tvb, offset + 4, 2,
           udph->uh_ulen, "Length: %u (bogus, must be >= 8)", udph->uh_ulen);
-      expert_add_info_format_text(pinfo, item, &ei_udp_length, "Bad length value %u < 8", udph->uh_ulen);
+      expert_add_info_format(pinfo, item, &ei_udp_length, "Bad length value %u < 8", udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u < 8]", udph->uh_ulen);
       return;
     }
@@ -438,7 +438,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       /* Bogus length - it goes past the end of the IP payload */
       item = proto_tree_add_uint_format(udp_tree, hfi_udp_length.id, tvb, offset + 4, 2,
           udph->uh_ulen, "Length: %u (bogus, payload length %u)", udph->uh_ulen, tvb_reported_length(tvb));
-      expert_add_info_format_text(pinfo, item, &ei_udp_length, "Bad length value %u > IP payload length", udph->uh_ulen);
+      expert_add_info_format(pinfo, item, &ei_udp_length, "Bad length value %u > IP payload length", udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u > IP PAYLOAD LENGTH]", udph->uh_ulen);
     } else {
       if (tree) {
@@ -463,7 +463,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       item = proto_tree_add_uint_format(udp_tree, hfi_udplite_checksum_coverage.id, tvb, offset + 4, 2,
           udph->uh_sum_cov, "Checksum coverage: %u (bogus, must be >= 8 and <= %u (ip.len-ip.hdr_len))",
           udph->uh_sum_cov, udph->uh_ulen);
-      expert_add_info_format_text(pinfo, item, &ei_udplite_checksum_coverage, "Bad checksum coverage length value %u < 8 or > %u",
+      expert_add_info_format(pinfo, item, &ei_udplite_checksum_coverage, "Bad checksum coverage length value %u < 8 or > %u",
                              udph->uh_sum_cov, udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD LIGHTWEIGHT UDP CHECKSUM COVERAGE LENGTH %u < 8 or > %u]",
                         udph->uh_sum_cov, udph->uh_ulen);

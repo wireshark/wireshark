@@ -148,7 +148,7 @@ static void dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          return;
    }
    else {
-      expert_add_info_format_text(pinfo, cnip_tree, &ei_cnip_type_unknown,
+      expert_add_info_format(pinfo, cnip_tree, &ei_cnip_type_unknown,
             "This dissector doesn't yet decode packets of type %s (0x%x)",
             val_to_str_const(type, type_tuple, "Unknown"), type);
    }

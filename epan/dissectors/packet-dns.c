@@ -2657,7 +2657,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           }
           break;
           case O_CLIENT_SUBNET_EXP: /* draft-vandergaast-edns-client-subnet */
-             expert_add_info_format_text(pinfo, rropt, &ei_dns_depr_opc,
+             expert_add_info_format(pinfo, rropt, &ei_dns_depr_opc,
                 "Deprecated opcode. Client subnet OPT assigned as %d.", O_CLIENT_SUBNET);
             /* Intentional fall-through */
           case O_CLIENT_SUBNET:{
@@ -3339,7 +3339,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         sub_tvb=tvb_new_subset(tvb, cur_offset, tsig_siglen, tsig_siglen);
 
         if (!dissector_try_string(dns_tsig_dissector_table, tsig_algname, sub_tvb, pinfo, mac_tree)) {
-          expert_add_info_format_text(pinfo, mac_item, &ei_dns_tsig_alg,
+          expert_add_info_format(pinfo, mac_item, &ei_dns_tsig_alg,
                 "No dissector for algorithm:%s", tsig_algname);
         }
 
@@ -3473,7 +3473,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
     default:
 
-      expert_add_info_format_text(pinfo, trr, &ei_dns_undecoded_option,
+      expert_add_info_format(pinfo, trr, &ei_dns_undecoded_option,
                                  "Dissector for DNS Type (%d)"
                                  " code not implemented, Contact Wireshark developers"
                                  " if you want this supported", dns_type);

@@ -42,6 +42,6 @@
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
   if (!err_handle) {
-    expert_add_info_format_text(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
+    expert_add_info_format(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
 #.END

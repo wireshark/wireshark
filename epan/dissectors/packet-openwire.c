@@ -1081,7 +1081,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         }
         else if (tvb_length_remaining(tvb, offset) > 0)
         {
-            expert_add_info_format_text(pinfo, object_tree, &ei_openwire_type_not_supported, "OpenWire type not supported by Wireshark : %d", type);
+            expert_add_info_format(pinfo, object_tree, &ei_openwire_type_not_supported, "OpenWire type not supported by Wireshark : %d", type);
             offset += tvb_length_remaining(tvb, offset);
         }
         proto_item_set_len(ti, offset - startOffset);
@@ -1302,7 +1302,7 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
             }
             else if (tvb_length_remaining(tvb, offset) > 0)
             {
-                expert_add_info_format_text(pinfo, tree, &ei_openwire_command_not_supported, "OpenWire command not supported by Wireshark: %d", iCommand);
+                expert_add_info_format(pinfo, tree, &ei_openwire_command_not_supported, "OpenWire command not supported by Wireshark: %d", iCommand);
             }
         }
     }
@@ -1356,7 +1356,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += dissect_openwire_command(tvb, pinfo, openwireroot_tree, offset, iCommand);
         if (tvb_length_remaining(tvb, offset) > 0)
         {
-            expert_add_info_format_text(pinfo, tree, &ei_openwire_command_not_supported, "OpenWire command fields unknown to Wireshark: %d", iCommand);
+            expert_add_info_format(pinfo, tree, &ei_openwire_command_not_supported, "OpenWire command fields unknown to Wireshark: %d", iCommand);
         }
     }
 }

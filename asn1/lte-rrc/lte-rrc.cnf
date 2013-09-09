@@ -143,12 +143,12 @@ if(ue_cap_tvb){
     subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
     byte = tvb_get_guint8(ue_cap_tvb, 0);
     if (byte != 0x33) {
-      expert_add_info_format_text(actx->pinfo, item, &ei_lte_rrc_unexpected_type_value,
+      expert_add_info_format(actx->pinfo, item, &ei_lte_rrc_unexpected_type_value,
                              "Unexpected type value (found 0x%02X)", byte);
     }
     byte = tvb_get_guint8(ue_cap_tvb, 1);
     if (byte != 0x03) {
-      expert_add_info_format_text(actx->pinfo, item, &ei_lte_rrc_unexpected_length_value,
+      expert_add_info_format(actx->pinfo, item, &ei_lte_rrc_unexpected_length_value,
                              "Unexpected length value (found %d)", byte);
     }
     de_ms_cm_2(ue_cap_tvb, subtree2, actx->pinfo, 2, 3, NULL, 0);
@@ -1181,7 +1181,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     if (p_previous != NULL) {
       /* Subtract one from stored result to get previous value */
       guint32 previous = GPOINTER_TO_UINT(p_previous) - 1;
-      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_si_info_value_changed,
+      expert_add_info_format(actx->pinfo, actx->created_item, &ei_lte_rrc_si_info_value_changed,
                              "SI Info Value changed (now %%u, was %%u)", value, previous);
     }
   }
@@ -1310,7 +1310,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   ra_value = private_data_get_ra_preambles(actx);
   if (value > ra_value) {
     /* Something is wrong if A has more RAPIDs than A & B combined! */
-    expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_too_many_group_a_rapids,
+    expert_add_info_format(actx->pinfo, actx->created_item, &ei_lte_rrc_too_many_group_a_rapids,
                                 "Group A size (%%s) > Total RA size (%%s)!",
                                 val_to_str_const(value, lte_rrc_T_sizeOfRA_PreamblesGroupA_vals, "Unknown"),
                                 val_to_str_const(ra_value, lte_rrc_T_numberOfRA_Preambles_vals, "Unknown"));

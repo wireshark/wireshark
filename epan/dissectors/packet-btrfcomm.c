@@ -681,7 +681,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = get_le_multi_byte_value(tvb, offset, ctrl_tree, &length, hf_mcc_len);
 
         if (length > (guint32) tvb_length_remaining(tvb, offset)) {
-            expert_add_info_format_text(pinfo, ctrl_tree, &ei_btrfcomm_mcc_length_bad, "Huge MCC length: %u", length);
+            expert_add_info_format(pinfo, ctrl_tree, &ei_btrfcomm_mcc_length_bad, "Huge MCC length: %u", length);
             return;
         }
 

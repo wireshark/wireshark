@@ -1829,7 +1829,7 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*  Minimal frame size is 8 bytes - smaller frames are malformed  */
     if (tvb_reported_length (tvb) < 8) {
-        expert_add_info_format_text(pinfo, NULL, &ei_amqp_bad_length, "Require frame at least 8 bytes long");
+        expert_add_info_format(pinfo, NULL, &ei_amqp_bad_length, "Require frame at least 8 bytes long");
         return;
     }
 
@@ -3080,7 +3080,7 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
                 proto_tree_add_item(args_tree, class_hf,
                                     tvb, offset, 1, ENC_BIG_ENDIAN);
             else
-                expert_add_info_format_text(pinfo, args_tree, &ei_amqp_invalid_class_code, "Invalid class code %x", amqp_class);
+                expert_add_info_format(pinfo, args_tree, &ei_amqp_invalid_class_code, "Invalid class code %x", amqp_class);
             AMQP_INCREMENT(offset, 1, length);
         }
         if (flag1 & 0x10) {
@@ -5671,7 +5671,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                      offset, length);
             break;
         default:
-            expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_command_class, "Unknown command/control class %d", tvb_get_guint8(tvb, offset + 0));
+            expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_command_class, "Unknown command/control class %d", tvb_get_guint8(tvb, offset + 0));
         }
         break;
 
@@ -5701,7 +5701,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     default:
-        expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %d", frame_type);
+        expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %d", frame_type);
     }
 }
 
@@ -5822,7 +5822,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                             11, args_tree);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_connection_method, "Unknown connection method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_connection_method, "Unknown connection method %u", method_id);
             }
             break;
         case AMQP_0_9_CLASS_CHANNEL:
@@ -5879,7 +5879,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                    11, args_tree);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_channel_method, "Unknown channel method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_channel_method, "Unknown channel method %u", method_id);
             }
             break;
         case AMQP_0_9_CLASS_ACCESS:
@@ -5905,7 +5905,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_set_fence(pinfo->cinfo, COL_INFO);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_access_method, "Unknown access method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_access_method, "Unknown access method %u", method_id);
             }
             break;
         case AMQP_0_9_CLASS_EXCHANGE:
@@ -5944,7 +5944,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                            11, args_tree);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_exchange_method, "Unknown exchange method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_exchange_method, "Unknown exchange method %u", method_id);
             }
             break;
         case AMQP_0_9_CLASS_QUEUE:
@@ -6000,7 +6000,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                         11, args_tree);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_queue_method, "Unknown queue method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_queue_method, "Unknown queue method %u", method_id);
             }
             break;
         case AMQP_0_9_CLASS_BASIC:
@@ -6077,7 +6077,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                       11, args_tree);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_basic_method, "Unknown basic method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_basic_method, "Unknown basic method %u", method_id);
             }
             break;
         case AMQP_0_9_CLASS_FILE:
@@ -6150,7 +6150,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                     11, args_tree);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_file_method, "Unknown file method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_file_method, "Unknown file method %u", method_id);
             }
             break;
         case AMQP_0_9_CLASS_STREAM:
@@ -6203,7 +6203,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        11, args_tree);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_stream_method, "Unknown stream method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_stream_method, "Unknown stream method %u", method_id);
             }
             break;
         case AMQP_0_9_CLASS_TX:
@@ -6244,7 +6244,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        11, args_tree);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_tx_method, "Unknown tx method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_tx_method, "Unknown tx method %u", method_id);
             }
             break;
         case AMQP_0_9_CLASS_DTX:
@@ -6277,7 +6277,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                      11, args_tree);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_dtx_method, "Unknown dtx method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_dtx_method, "Unknown dtx method %u", method_id);
             }
             break;
         case AMQP_0_9_CLASS_TUNNEL:
@@ -6296,11 +6296,11 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_set_fence(pinfo->cinfo, COL_INFO);
                 break;
             default:
-                expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_tunnel_method, "Unknown tunnel method %u", method_id);
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_tunnel_method, "Unknown tunnel method %u", method_id);
             }
             break;
         default:
-            expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_method_class, "Unknown method class %u", class_id);
+            expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_method_class, "Unknown method class %u", class_id);
         }
         break;
     case AMQP_0_9_FRAME_TYPE_CONTENT_HEADER:
@@ -6334,7 +6334,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                    pinfo, 21, prop_tree);
             break;
         default:
-            expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_header_class, "Unknown header class %u", class_id);
+            expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_header_class, "Unknown header class %u", class_id);
         }
         col_append_str(pinfo->cinfo, COL_INFO, "Content-Header ");
         col_set_fence(pinfo->cinfo, COL_INFO);
@@ -6346,7 +6346,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_fence(pinfo->cinfo, COL_INFO);
         break;
     default:
-        expert_add_info_format_text(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %u", frame_type);
+        expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %u", frame_type);
     }
 }
 

@@ -1386,7 +1386,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		lenstr = tvb_reported_length_remaining(tvb, offset);
 		if (tree &&  lenstr > 0) {
 			ti = proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, lenstr, ENC_NA);
-			expert_add_info_format_text(pinfo, ti, &ei_mysql_dissector_incomplete, "FIXME: execute dissector incomplete");
+			expert_add_info_format(pinfo, ti, &ei_mysql_dissector_incomplete, "FIXME: execute dissector incomplete");
 		}
 		offset += lenstr;
 #endif
@@ -1417,7 +1417,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 	case MYSQL_CONNECT_OUT:
 	case MYSQL_REGISTER_SLAVE:
 		ti = proto_tree_add_item(req_tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
-		expert_add_info_format_text(pinfo, ti, &ei_mysql_dissector_incomplete, "FIXME: implement replication packets");
+		expert_add_info_format(pinfo, ti, &ei_mysql_dissector_incomplete, "FIXME: implement replication packets");
 		offset += tvb_reported_length_remaining(tvb, offset);
 		conn_data->state = REQUEST;
 		break;

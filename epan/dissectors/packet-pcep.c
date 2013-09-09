@@ -831,7 +831,7 @@ dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 	pcep_subobj_ipv4 = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 8) {
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad IPv4 subobject: length %u != 8", length);
+		expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad IPv4 subobject: length %u != 8", length);
 		return;
 	}
 
@@ -880,7 +880,7 @@ dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 		break;
 
 	default:
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
+		expert_add_info_format(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
 		break;
 	}
 }
@@ -897,7 +897,7 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 	pcep_subobj_ipv6 = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 20) {
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad IPv6 subobject: length %u != 20", length);
+		expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad IPv6 subobject: length %u != 20", length);
 		return;
 	}
 
@@ -945,7 +945,7 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 		break;
 
 	default:
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
+		expert_add_info_format(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
 		break;
 	}
 }
@@ -962,7 +962,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, 
 	pcep_subobj_label_control = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length < 5) {
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad label control subobject: length %u < 5", length);
+		expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad label control subobject: length %u < 5", length);
 		return;
 	}
 
@@ -991,7 +991,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, 
 		break;
 
 	default:
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
+		expert_add_info_format(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
 		break;
 	}
 }
@@ -1010,7 +1010,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
 	pcep_subobj_unnumb_interfaceID = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 12) {
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad unnumbered interface ID subobject: length %u != 12", length);
+		expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad unnumbered interface ID subobject: length %u != 12", length);
 		return;
 	}
 
@@ -1056,7 +1056,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
 		break;
 
 	default:
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
+		expert_add_info_format(pinfo, ti, &ei_pcep_non_defined_subobject, "Non defined subobject for this object");
 		break;
 	}
 
@@ -1074,7 +1074,7 @@ dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, packet_info *pin
 		ti = proto_tree_add_item(pcep_subobj_tree, hf_PCEPF_SUBOBJ_AUTONOMOUS_SYS_NUM, tvb, offset, length, ENC_NA);
 		pcep_subobj_autonomous_sys_num = proto_item_add_subtree(ti, ett_pcep_obj);
 		if (length != 8) {
-			expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad autonomous system number subobject: length %u != 8", length);
+			expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad autonomous system number subobject: length %u != 8", length);
 			return;
 		}
 
@@ -1091,7 +1091,7 @@ dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, packet_info *pin
 		pcep_subobj_autonomous_sys_num = proto_item_add_subtree(ti, ett_pcep_obj);
 
 		if (length != 4) {
-			expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad autonomous system number subobject: length %u != 4", length);
+			expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad autonomous system number subobject: length %u != 4", length);
 			return;
 		}
 
@@ -1115,7 +1115,7 @@ dissect_subobj_srlg(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 	pcep_subobj_srlg = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 8) {
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad SRLG subobject: length %u != 8", length);
+		expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad SRLG subobject: length %u != 8", length);
 		return;
 	}
 
@@ -1142,7 +1142,7 @@ dissect_subobj_exrs(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 	pcep_subobj_exrs = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length < 4) {
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad EXRS subobject: length %u < 4", length);
+		expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad EXRS subobject: length %u < 4", length);
 		return;
 	}
 
@@ -1160,7 +1160,7 @@ dissect_subobj_exrs(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
 		length2 = tvb_get_guint8(tvb, offset+1);
 
 		if (length2 < 2) {
-			expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad packet: subobject length %u < 2", length2);
+			expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad packet: subobject length %u < 2", length2);
 			break;
 		}
 
@@ -1206,7 +1206,7 @@ dissect_subobj_pksv4(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t 
 	pcep_subobj_pksv4 = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 8) {
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad path key subobject: length %u != 8", length);
+		expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad path key subobject: length %u != 8", length);
 		return;
 	}
 
@@ -1230,7 +1230,7 @@ dissect_subobj_pksv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t 
 	pcep_subobj_pksv6 = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 20) {
-		expert_add_info_format_text(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad path key subobject: length %u != 20", length);
+		expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length, "Bad path key subobject: length %u != 20", length);
 		return;
 	}
 
@@ -1451,7 +1451,7 @@ dissect_pcep_explicit_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo
 
 	while(body_obj_len){
 		if (body_obj_len < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad ERO object: subobject goes past end of object");
+			expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad ERO object: subobject goes past end of object");
 			break;
 		}
 
@@ -1459,7 +1459,7 @@ dissect_pcep_explicit_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo
 		length = tvb_get_guint8(tvb, offset2+1);
 
 		if (length < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad ERO object: subobject length %u < 2", length);
+			expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad ERO object: subobject length %u < 2", length);
 			break;
 		}
 
@@ -1512,7 +1512,7 @@ dissect_pcep_record_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo, 
 
 	while(body_obj_len){
 		if (body_obj_len < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad RRO object: subobject goes past end of object");
+			expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad RRO object: subobject goes past end of object");
 			break;
 		}
 
@@ -1520,7 +1520,7 @@ dissect_pcep_record_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo, 
 		length = tvb_get_guint8(tvb, offset2+1);
 
 		if (length < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad RRO object: subobject length %u < 2", length);
+			expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad RRO object: subobject length %u < 2", length);
 			break;
 		}
 
@@ -1602,7 +1602,7 @@ dissect_pcep_iro_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 
 	while(body_obj_len){
 		if (body_obj_len < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad IRO object: subobject goes past end of object");
+			expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad IRO object: subobject goes past end of object");
 			break;
 		}
 
@@ -1610,7 +1610,7 @@ dissect_pcep_iro_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 		length = tvb_get_guint8(tvb, offset2+1);
 
 		if (length < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad IRO object: subobject length %u < 2", length);
+			expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad IRO object: subobject length %u < 2", length);
 			break;
 		}
 
@@ -1869,7 +1869,7 @@ dissect_pcep_path_key_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 
 	while(body_obj_len){
 		if (body_obj_len < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad PATH-KEY object: subobject goes past end of object");
+			expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad PATH-KEY object: subobject goes past end of object");
 			break;
 		}
 
@@ -1877,7 +1877,7 @@ dissect_pcep_path_key_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 		length = tvb_get_guint8(tvb, offset2+1);
 
 		if (length < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad PATH-KEY object: subobject length %u < 2", length);
+			expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad PATH-KEY object: subobject length %u < 2", length);
 			break;
 		}
 
@@ -1933,7 +1933,7 @@ dissect_pcep_xro_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
 
 	while(body_obj_len >= 2){
 		if (body_obj_len < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad XRO object: subobject goes past end of object");
+			expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad XRO object: subobject goes past end of object");
 			break;
 		}
 
@@ -1941,7 +1941,7 @@ dissect_pcep_xro_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
 		length = tvb_get_guint8(tvb, offset2+1);
 
 		if (length < 2) {
-			expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad XRO object: object length %u < 2", length);
+			expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_subobject_bad_length, "Bad XRO object: object length %u < 2", length);
 			break;
 		}
 
@@ -2307,7 +2307,7 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
 	obj_length = tvb_get_ntohs(tvb, offset+2);
 	proto_item_set_len(pcep_object_item, obj_length);
 	if (obj_length < 4) {
-		expert_add_info_format_text(pinfo, pcep_object_tree, &ei_pcep_object_length, "Object Length: %u (bogus, must be >= 4)", obj_length);
+		expert_add_info_format(pinfo, pcep_object_tree, &ei_pcep_object_length, "Object Length: %u (bogus, must be >= 4)", obj_length);
 		break;
 	}
 

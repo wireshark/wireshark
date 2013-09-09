@@ -2297,7 +2297,7 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     else if (tvb_get_bits8(frag_tvb, 0, LOWPAN_PATTERN_HC1_BITS) == LOWPAN_PATTERN_HC1) {
         /* Check if the datagram size is sane. */
         if (dgram_size < (gint)sizeof(struct ip6_hdr)) {
-            expert_add_info_format_text(pinfo, length_item, &ei_6lowpan_bad_ipv6_header_length,
+            expert_add_info_format(pinfo, length_item, &ei_6lowpan_bad_ipv6_header_length,
                 "Length is less than IPv6 header length %u", (guint)sizeof(struct ip6_hdr));
         }
         frag_tvb = dissect_6lowpan_hc1(frag_tvb, pinfo, tree, dgram_size, siid, diid);
@@ -2305,7 +2305,7 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     else if (tvb_get_bits8(frag_tvb, 0, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) {
         /* Check if the datagram size is sane. */
         if (dgram_size < (gint)sizeof(struct ip6_hdr)) {
-            expert_add_info_format_text(pinfo, length_item, &ei_6lowpan_bad_ipv6_header_length,
+            expert_add_info_format(pinfo, length_item, &ei_6lowpan_bad_ipv6_header_length,
                 "Length is less than IPv6 header length %u", (guint)sizeof(struct ip6_hdr));
         }
         frag_tvb = dissect_6lowpan_iphc(frag_tvb, pinfo, tree, dgram_size, siid, diid);

@@ -363,7 +363,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
 			break;
 		default:
-			expert_add_info_format_text(pinfo, lon_tree, &ei_lon_tpdu_tpdu_type_unknown, "Unexpected TPDU type %i", pdutype);
+			expert_add_info_format(pinfo, lon_tree, &ei_lon_tpdu_tpdu_type_unknown, "Unexpected TPDU type %i", pdutype);
 			break;
 		}
 		}
@@ -405,7 +405,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
 			break;
 		default:
-			expert_add_info_format_text(pinfo, lon_tree, &ei_lon_tpdu_spdu_type_unknown, "Unexpected SPDU type %i", pdutype);
+			expert_add_info_format(pinfo, lon_tree, &ei_lon_tpdu_spdu_type_unknown, "Unexpected SPDU type %i", pdutype);
 			break;
 		}
 		}
@@ -430,7 +430,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			offset += 9;
 			break;
 		default:
-			expert_add_info_format_text(pinfo, lon_tree, &ei_lon_tpdu_authpdu_type_unknown, "Unexpected AuthPDU type %i", pdutype);
+			expert_add_info_format(pinfo, lon_tree, &ei_lon_tpdu_authpdu_type_unknown, "Unexpected AuthPDU type %i", pdutype);
 			break;
 		}
 		}
@@ -503,7 +503,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 					ett_ff, ff_fields, ENC_BIG_ENDIAN);
 		offset++;
 	} else { /* Shouldn't get here */
-		expert_add_info_format_text(pinfo, tree, &ei_lon_tpdu_apdu_dest_type, "Malformed APDU destin&type %i", dest_type);
+		expert_add_info_format(pinfo, tree, &ei_lon_tpdu_apdu_dest_type, "Malformed APDU destin&type %i", dest_type);
 	}
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);

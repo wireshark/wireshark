@@ -298,7 +298,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		msg_error = items[PACKET_MPEG_SECT_PI__RESERVED];
 
 		PROTO_ITEM_SET_GENERATED(msg_error);
-		expert_add_info_format_text(pinfo, msg_error, &ei_eiss_invalid_reserved_bits, "Invalid reserved1 bits (should all be 0)");
+		expert_add_info_format(pinfo, msg_error, &ei_eiss_invalid_reserved_bits, "Invalid reserved1 bits (should all be 0)");
 	}
 
 	if (1021 < sect_len) {
@@ -312,7 +312,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	reserved2 = tvb_get_guint8(tvb, offset);
 	pi = proto_tree_add_item(eiss_tree, hf_eiss_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (0 != reserved2) {
-		expert_add_info_format_text(pinfo, pi, &ei_eiss_invalid_reserved_bits, "Invalid reserved2 bits (should all be 0)");
+		expert_add_info_format(pinfo, pi, &ei_eiss_invalid_reserved_bits, "Invalid reserved2 bits (should all be 0)");
 	}
 	offset++;
 

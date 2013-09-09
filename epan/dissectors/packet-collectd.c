@@ -386,7 +386,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 					  "collectd %s segment: Length = %i <BAD>",
 					  val_to_str_const (type, part_names, "UNKNOWN"),
 					  length);
-		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
+		expert_add_info_format(pinfo, pi, &ei_collectd_invalid_length,
 					"String part with invalid part length: "
 					"Part is longer than rest of package.");
 		return (-1);
@@ -464,7 +464,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 				     type);
 		pi = proto_tree_add_uint (pt, hf_collectd_length, tvb,
 					  offset + 2, 2, length);
-		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
+		expert_add_info_format(pinfo, pi, &ei_collectd_invalid_length,
 					"Invalid length field for an integer part.");
 
 		return (-1);
@@ -713,7 +713,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		pi = proto_tree_add_uint (pt, hf_collectd_length, tvb,
 					  offset + 2, 2, length);
-		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
+		expert_add_info_format(pinfo, pi, &ei_collectd_invalid_length,
 					"Invalid length field for a values part.");
 
 		return (-1);
@@ -804,7 +804,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		pi = proto_tree_add_uint (pt, hf_collectd_length, tvb,
 					  offset + 2, 2, length);
-		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
+		expert_add_info_format(pinfo, pi, &ei_collectd_invalid_length,
 					"Invalid length field for a signature part.");
 
 		return (-1);
@@ -872,7 +872,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		pi = proto_tree_add_uint (pt, hf_collectd_length, tvb,
 					  offset + 2, 2, length);
-		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
+		expert_add_info_format(pinfo, pi, &ei_collectd_invalid_length,
 					"Invalid length field for an encryption part.");
 
 		return (-1);
@@ -891,7 +891,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 				     offset + 2, 2, length);
 		pi = proto_tree_add_uint (pt, hf_collectd_data_username_len, tvb,
 					  offset + 4, 2, length);
-		expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
+		expert_add_info_format(pinfo, pi, &ei_collectd_invalid_length,
 					"Invalid username length field for an encryption part.");
 
 		return (-1);
@@ -1097,11 +1097,11 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					     offset + 2, 2, part_length);
 
 			if (part_length < 4)
-				expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
+				expert_add_info_format(pinfo, pi, &ei_collectd_invalid_length,
 							"Bad part length: Is %i, expected at least 4",
 							part_length);
 			else
-				expert_add_info_format_text(pinfo, pi, &ei_collectd_invalid_length,
+				expert_add_info_format(pinfo, pi, &ei_collectd_invalid_length,
 							"Bad part length: Larger than remaining packet size.");
 
 			pkt_errors++;
@@ -1336,7 +1336,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item (pt, hf_collectd_data, tvb,
 					     offset + 4, part_length - 4, ENC_NA);
 
-			expert_add_info_format_text(pinfo, pi, &ei_collectd_type,
+			expert_add_info_format(pinfo, pi, &ei_collectd_type,
 						"Unknown part type %#x. Cannot decode data.",
 						part_type);
 		}

@@ -316,7 +316,7 @@ dissect_path_data_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
                             tvb, offset+2, 2, ENC_BIG_ENDIAN);
         if (length_TLV < TLV_TL_LENGTH)
         {
-            expert_add_info_format_text(pinfo, ti, &ei_forces_lfbselect_tlv_type_operation_path_length, "Bogus TLV length: %u", length_TLV);
+            expert_add_info_format(pinfo, ti, &ei_forces_lfbselect_tlv_type_operation_path_length, "Bogus TLV length: %u", length_TLV);
             break;
         }
         proto_item_set_len(ti, length_TLV);
@@ -373,7 +373,7 @@ dissect_operation_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
         ti = proto_tree_add_item(oper_tree, hf_forces_lfbselect_tlv_type_operation_type,
                                  tvb, offset, 2, ENC_BIG_ENDIAN);
         if (try_val_to_str(type, operation_type_vals) == NULL)
-            expert_add_info_format_text(pinfo, ti, &ei_forces_lfbselect_tlv_type_operation_type,
+            expert_add_info_format(pinfo, ti, &ei_forces_lfbselect_tlv_type_operation_type,
                 "Bogus: ForCES Operation TLV (Type:0x%04x) is not supported", type);
 
         length = tvb_get_ntohs(tvb, offset+2);
@@ -459,11 +459,11 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 
         if (tvb_reported_length_remaining(tvb, offset) < length_redirect)
         {
-            expert_add_info_format_text(pinfo, ti, &ei_forces_redirect_tlv_redirect_data_tlv_length, "Bogus: Redirect Data TLV length (%u bytes) is wrong", length_redirect);
+            expert_add_info_format(pinfo, ti, &ei_forces_redirect_tlv_redirect_data_tlv_length, "Bogus: Redirect Data TLV length (%u bytes) is wrong", length_redirect);
         }
         else if (length_redirect < TLV_TL_LENGTH + MIN_IP_HEADER_LENGTH)
         {
-            expert_add_info_format_text(pinfo, ti, &ei_forces_redirect_tlv_redirect_data_tlv_length, "Bogus: Redirect Data TLV length (%u bytes) not big enough for IP layer", length_redirect);
+            expert_add_info_format(pinfo, ti, &ei_forces_redirect_tlv_redirect_data_tlv_length, "Bogus: Redirect Data TLV length (%u bytes) not big enough for IP layer", length_redirect);
         }
         else
         {
@@ -513,10 +513,10 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     ti = proto_tree_add_uint_format( forces_main_header_tree, hf_forces_length,
                                      tvb, offset+2, 2, length_count, "Length: %u Bytes", length_count);
     if (length_count != tvb_reported_length_remaining(tvb, offset))
-        expert_add_info_format_text(pinfo, ti, &ei_forces_length, "Bogus: ForCES Header length (%u bytes) is wrong),should be (%u bytes)",
+        expert_add_info_format(pinfo, ti, &ei_forces_length, "Bogus: ForCES Header length (%u bytes) is wrong),should be (%u bytes)",
             length_count, tvb_reported_length_remaining(tvb, offset));
     if (length_count < 24)
-        expert_add_info_format_text(pinfo, ti, &ei_forces_length, "Bogus: ForCES Header length (%u bytes) is less than 24bytes)", length_count);
+        expert_add_info_format(pinfo, ti, &ei_forces_length, "Bogus: ForCES Header length (%u bytes) is less than 24bytes)", length_count);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %s, Total Length:  %u Bytes",
             val_to_str(message_type, message_type_vals, "Unknown messagetype 0x%x"), length_count);
@@ -550,11 +550,11 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
         ti = proto_tree_add_uint_format(forces_tlv_tree, hf_forces_tlv_length,
                                         tvb, offset+2, 2, length_count, "Length: %u Bytes", length_count);
         if (tvb_reported_length_remaining(tvb, offset) < length_count)
-            expert_add_info_format_text(pinfo, ti, &ei_forces_tlv_length, "Bogus: Main TLV length (%u bytes) is wrong", length_count);
+            expert_add_info_format(pinfo, ti, &ei_forces_tlv_length, "Bogus: Main TLV length (%u bytes) is wrong", length_count);
 
         if (length_count < TLV_TL_LENGTH)
         {
-            expert_add_info_format_text(pinfo, ti, &ei_forces_tlv_length, "Bogus TLV length: %u", length_count);
+            expert_add_info_format(pinfo, ti, &ei_forces_tlv_length, "Bogus TLV length: %u", length_count);
             break;
         }
 

@@ -237,7 +237,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, -1,
 							                   pinfo->pkt_comment, "%s",
 							                   pinfo->pkt_comment);
-		expert_add_info_format_text(pinfo, comment_item, &ei_comments_text,
+		expert_add_info_format(pinfo, comment_item, &ei_comments_text,
 					                       "%s",  pinfo->pkt_comment);
 
 
@@ -325,7 +325,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
 					    0, 0, &(pinfo->fd->abs_ts));
 			if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
-				expert_add_info_format_text(pinfo, ti, &ei_arrive_time_out_of_range,
+				expert_add_info_format(pinfo, ti, &ei_arrive_time_out_of_range,
 								  "Arrival Time: Fractional second %09ld is invalid,"
 								  " the valid range is 0-1000000000",
 								  (long) pinfo->fd->abs_ts.nsecs);

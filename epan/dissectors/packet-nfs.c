@@ -2303,7 +2303,7 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 		}
 	} else {
 		/* This is not a Celerra|VNX file handle.  Display a warning. */
-		expert_add_info_format_text(pinfo, tree, &ei_nfs_not_vnx_file,
+		expert_add_info_format(pinfo, tree, &ei_nfs_not_vnx_file,
 			"Celerra|VNX file handles are 32 (NFSv3) or 40 (NFSv4) but the length is %u.\n"
 			"Change the 'Decode NFS file handles as' pref to the correct type or 'Unknown'.",
 			fhlen);

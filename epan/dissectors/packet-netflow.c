@@ -2199,7 +2199,7 @@ dissect_v9_v10_flowset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, i
     length = tvb_get_ntohs(tvb, offset + 2);
 
     if (length < 4) {
-        expert_add_info_format_text(pinfo, NULL, &ei_cflow_flowset_length,
+        expert_add_info_format(pinfo, NULL, &ei_cflow_flowset_length,
                                "Length (%u) too short", length);
         return tvb_reported_length_remaining(tvb, offset);
     }
@@ -5371,7 +5371,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
                 return 0;
             }
             if (option_scope_field_count > option_total_field_count) {
-                expert_add_info_format_text(pinfo, ti, &ei_cflow_template_ipfix_scope_field_count_too_many,
+                expert_add_info_format(pinfo, ti, &ei_cflow_template_ipfix_scope_field_count_too_many,
                                        "More scope fields (%u) than fields (%u)",
                                        option_scope_field_count, option_total_field_count);
                 return 0;
@@ -5385,7 +5385,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 
         if (v9_tmplt_max_fields &&
             (option_field_count > v9_tmplt_max_fields)) {
-            expert_add_info_format_text(pinfo, ti, &ei_cflow_options,
+            expert_add_info_format(pinfo, ti, &ei_cflow_options,
                                    "More options (%u) than we can handle."
                                    " Maximum value can be adjusted in the protocol preferences.",
                                    option_field_count);
@@ -5393,7 +5393,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 
         if (v9_tmplt_max_fields &&
             (option_scope_field_count > v9_tmplt_max_fields)) {
-            expert_add_info_format_text(pinfo, ti, &ei_cflow_scopes,
+            expert_add_info_format(pinfo, ti, &ei_cflow_scopes,
                                    "More scopes (%u) than we can handle [template won't be used]."
                                    " Maximum value can be adjusted in the protocol preferences.",
                                    option_scope_field_count);
@@ -5491,7 +5491,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         offset += 2;
 
         if (v9_tmplt_max_fields && (count > v9_tmplt_max_fields)) {
-            expert_add_info_format_text(pinfo, ti, &ei_cflow_entries,
+            expert_add_info_format(pinfo, ti, &ei_cflow_entries,
                                    "More entries (%u) than we can handle [template won't be used]."
                                    " Maximum value can be adjusted in the protocol preferences.",
                                    count);

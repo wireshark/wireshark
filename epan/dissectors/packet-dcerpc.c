@@ -3395,7 +3395,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
             pinfo, tree, dcerpc_tree, payload_tvb, decrypted_tvb,
             hdr->drep, di, auth_info);
 
-        expert_add_info_format_text(pinfo, NULL, &ei_dcerpc_fragment, "%s fragment", fragment_type(hdr->flags));
+        expert_add_info_format(pinfo, NULL, &ei_dcerpc_fragment, "%s fragment", fragment_type(hdr->flags));
 
         pinfo->fragmented = save_fragmented;
         return;
@@ -3475,7 +3475,7 @@ end_cn_stub:
 
             pinfo->fragmented = FALSE;
 
-            expert_add_info_format_text(pinfo, frag_tree_item, &ei_dcerpc_fragment_reassembled, "%s fragment, reassembled", fragment_type(hdr->flags));
+            expert_add_info_format(pinfo, frag_tree_item, &ei_dcerpc_fragment_reassembled, "%s fragment, reassembled", fragment_type(hdr->flags));
 
             dcerpc_try_handoff(pinfo, tree, dcerpc_tree, next_tvb,
                                next_tvb, hdr->drep, di, auth_info);
@@ -3495,12 +3495,12 @@ end_cn_stub:
             }
             col_append_fstr(pinfo->cinfo, COL_INFO,
                             " [DCE/RPC %s fragment, reas: #%u]", fragment_type(hdr->flags), fd_head->reassembled_in);
-            expert_add_info_format_text(pinfo, NULL, &ei_dcerpc_fragment_reassembled, "%s fragment, reassembled in #%u", fragment_type(hdr->flags), fd_head->reassembled_in);
+            expert_add_info_format(pinfo, NULL, &ei_dcerpc_fragment_reassembled, "%s fragment, reassembled in #%u", fragment_type(hdr->flags), fd_head->reassembled_in);
         }
     } else {
         /* Reassembly not complete - some fragments
            are missing.  Just show the stub data. */
-        expert_add_info_format_text(pinfo, NULL, &ei_dcerpc_fragment, "%s fragment", fragment_type(hdr->flags));
+        expert_add_info_format(pinfo, NULL, &ei_dcerpc_fragment, "%s fragment", fragment_type(hdr->flags));
 
         if (decrypted_tvb) {
             show_stub_data(decrypted_tvb, 0, tree, auth_info, FALSE);
@@ -3904,7 +3904,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     pi = proto_tree_add_item(dcerpc_tree, hf_dcerpc_cn_status, tvb, offset, 4, DREP_ENC_INTEGER(hdr->drep));
     offset+=4;
 
-    expert_add_info_format_text(pinfo, pi, &ei_dcerpc_cn_status, "Fault: %s", val_to_str(status, reject_status_vals, "Unknown (0x%08x)"));
+    expert_add_info_format(pinfo, pi, &ei_dcerpc_cn_status, "Fault: %s", val_to_str(status, reject_status_vals, "Unknown (0x%08x)"));
 
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
@@ -4548,7 +4548,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
 #if 0  /* XXX - too much "output noise", removed for now  */
        if (hdr.ptype == PDU_BIND || hdr.ptype == PDU_ALTER ||
        hdr.ptype == PDU_BIND_ACK || hdr.ptype == PDU_ALTER_ACK)
-       expert_add_info_format_text(pinfo, tf, &ei_dcerpc_context_change, "Context change: %s", val_to_str(hdr.ptype, pckt_vals, "(0x%x)"));
+       expert_add_info_format(pinfo, tf, &ei_dcerpc_context_change, "Context change: %s", val_to_str(hdr.ptype, pckt_vals, "(0x%x)"));
 #endif
     if (hdr.ptype == PDU_BIND_NAK)
         expert_add_info(pinfo, tf, &ei_dcerpc_bind_not_acknowledged);

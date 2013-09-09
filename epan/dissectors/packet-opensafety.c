@@ -1349,7 +1349,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
                 {
                     proto_tree_add_item(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, calcDataLength, ENC_NA );
                 } else {
-                    expert_add_info_format_text(pinfo, item, &ei_payload_length_not_positive,
+                    expert_add_info_format(pinfo, item, &ei_payload_length_not_positive,
                                                 "Calculation for payload length yielded non-positive result [%d]", (guint) calcDataLength );
                 }
             }
@@ -1508,7 +1508,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
                 {
                     local_scm_udid = (char *)se_alloc0(18 * sizeof(char));
                     g_snprintf(local_scm_udid, 18, "%s", tempString );
-                    expert_add_info_format_text(pinfo, item, &ei_scmudid_autodetected, "Auto detected payload as SCM UDID [%s].", tempString);
+                    expert_add_info_format(pinfo, item, &ei_scmudid_autodetected, "Auto detected payload as SCM UDID [%s].", tempString);
                 }
             }
 
@@ -1539,7 +1539,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
                 {
                     local_scm_udid = (char *)se_alloc0(18 * sizeof(char));
                     g_snprintf(local_scm_udid, 18, "%s", tempString );
-                    expert_add_info_format_text(pinfo, item, &ei_scmudid_autodetected, "Auto detected payload as SCM UDID [%s].", tempString);
+                    expert_add_info_format(pinfo, item, &ei_scmudid_autodetected, "Auto detected payload as SCM UDID [%s].", tempString);
                 }
             }
 

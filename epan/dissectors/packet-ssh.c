@@ -686,7 +686,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	ti = proto_tree_add_uint(tree, hf_ssh_packet_length, tvb,
 					offset, 4, plen);
 	if (plen >= 0xffff) {
-		expert_add_info_format_text(pinfo, ti, &ei_ssh_packet_length, "Overly large number %d", plen);
+		expert_add_info_format(pinfo, ti, &ei_ssh_packet_length, "Overly large number %d", plen);
 		plen = remain_length-4;
 	}
 	offset+=4;

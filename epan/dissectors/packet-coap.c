@@ -285,12 +285,12 @@ coap_opt_check(packet_info *pinfo, proto_tree *subtree, guint opt_num, gint opt_
 			break;
 	}
 	if (i == (int)(array_length(coi))) {
-		expert_add_info_format_text(pinfo, subtree, &ei_coap_invalid_option_number,
+		expert_add_info_format(pinfo, subtree, &ei_coap_invalid_option_number,
 			"Invalid Option Number %d", opt_num);
 		return -1;
 	}
 	if (opt_length < coi[i].min || opt_length > coi[i].max) {
-		expert_add_info_format_text(pinfo, subtree, &ei_coap_invalid_option_range,
+		expert_add_info_format(pinfo, subtree, &ei_coap_invalid_option_range,
 			"Invalid Option Range: %d (%d < x < %d)", opt_length, coi[i].min, coi[i].max);
 	}
 
@@ -578,7 +578,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		opt_delta += opt_delta_ext;
 		break;
 	case 0xf0:
-		expert_add_info_format_text(pinfo, coap_tree, &ei_coap_option_length_bad,
+		expert_add_info_format(pinfo, coap_tree, &ei_coap_option_length_bad,
 				"end-of-options marker found, but option length isn't 15");
 		return -1;
 	default:
@@ -622,7 +622,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		opt_length += opt_length_ext;
 		break;
 	case 0x0f:
-		expert_add_info_format_text(pinfo, coap_tree, &ei_coap_option_length_bad,
+		expert_add_info_format(pinfo, coap_tree, &ei_coap_option_length_bad,
 			"end-of-options marker found, but option delta isn't 15");
 		return -1;
 	default:
@@ -630,7 +630,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		break;
 	}
 	if (offset + opt_length > coap_length) {
-		expert_add_info_format_text(pinfo, coap_tree, &ei_coap_option_length_bad,
+		expert_add_info_format(pinfo, coap_tree, &ei_coap_option_length_bad,
 			"option longer than the package");
 		return -1;
 	}

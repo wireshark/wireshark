@@ -852,7 +852,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
       g_debug("++ done");
 #endif
     } else if (!is_reverse_circuit(src_circuit_id, iax_call)) {
-      expert_add_info_format_text(pinfo, item, &ei_iax_circuit_id_conflict, 
+      expert_add_info_format(pinfo, item, &ei_iax_circuit_id_conflict, 
                 "IAX Packet %u from circuit ids %u->%u conflicts with earlier call with circuit ids %u->%u",
                 framenum,
                 src_circuit_id, dst_circuit_id,
@@ -868,7 +868,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
 
     reversed = FALSE;
     if (!is_forward_circuit(src_circuit_id, iax_call)) {
-      expert_add_info_format_text(pinfo, item, &ei_iax_circuit_id_conflict, 
+      expert_add_info_format(pinfo, item, &ei_iax_circuit_id_conflict, 
                 "IAX Packet %u from circuit ids %u->%u conflicts with earlier call with circuit ids %u->%u",
                 framenum,
                 src_circuit_id, dst_circuit_id,
@@ -1274,7 +1274,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
             break;
 
           default:
-            expert_add_info_format_text(pinfo, iax_item, &ei_iax_peer_address_unsupported,
+            expert_add_info_format(pinfo, iax_item, &ei_iax_peer_address_unsupported,
                 "Not supported in IAX dissector: peer address family of %u", apparent_addr_family);
             break;
         }

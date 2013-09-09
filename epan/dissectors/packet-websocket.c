@@ -291,7 +291,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
 
     default: /* Unknown */
       ti = proto_tree_add_item(pl_tree, hf_ws_payload_unknown, tvb, offset, payload_length, ENC_NA);
-      expert_add_info_format_text(pinfo, ti, &ei_ws_payload_unknown, "Dissector for Websocket Opcode (%d)"
+      expert_add_info_format(pinfo, ti, &ei_ws_payload_unknown, "Dissector for Websocket Opcode (%d)"
         " code not implemented, Contact Wireshark developers"
         " if you want this supported", opcode);
     break;

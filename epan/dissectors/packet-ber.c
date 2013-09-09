@@ -502,12 +502,12 @@ static void
 ber_check_length (guint32 length, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item, gboolean bit)
 {
     if ((min_len != -1) && (length < (guint32)min_len)) {
-        expert_add_info_format_text(
+        expert_add_info_format(
             actx->pinfo, item, &ei_ber_size_constraint_string,
             "Size constraint: %sstring too short: %d (%d .. %d)",
             bit ? "bit " : "", length, min_len, max_len);
     } else if ((max_len != -1) && (length > (guint32)max_len)) {
-        expert_add_info_format_text(
+        expert_add_info_format(
             actx->pinfo, item, &ei_ber_size_constraint_string,
             "Size constraint: %sstring too long: %d (%d .. %d)",
             bit ? "bit " : "", length, min_len, max_len);
@@ -518,12 +518,12 @@ static void
 ber_check_value64 (gint64 value, gint64 min_len, gint64 max_len, asn1_ctx_t *actx, proto_item *item)
 {
     if ((min_len != -1) && (value < min_len)) {
-        expert_add_info_format_text(
+        expert_add_info_format(
             actx->pinfo, item, &ei_ber_size_constraint_value,
             "Size constraint: value too small: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)",
             value, min_len, max_len);
     } else if ((max_len != -1) && (value > max_len)) {
-        expert_add_info_format_text(
+        expert_add_info_format(
             actx->pinfo, item, &ei_ber_size_constraint_value,
             "Size constraint: value too big: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)",
             value, min_len, max_len);
@@ -534,12 +534,12 @@ static void
 ber_check_value (guint32 value, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item)
 {
     if ((min_len != -1) && (value < (guint32)min_len)) {
-        expert_add_info_format_text(
+        expert_add_info_format(
             actx->pinfo, item, &ei_ber_size_constraint_value,
             "Size constraint: value too small: %d (%d .. %d)",
             value, min_len, max_len);
     } else if ((max_len != -1) && (value > (guint32)max_len)) {
-        expert_add_info_format_text(
+        expert_add_info_format(
             actx->pinfo, item, &ei_ber_size_constraint_value,
             "Size constraint: value too big: %d (%d .. %d)",
             value, min_len, max_len);
@@ -550,12 +550,12 @@ static void
 ber_check_items (int cnt, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item)
 {
     if ((min_len != -1) && (cnt < min_len)) {
-        expert_add_info_format_text(
+        expert_add_info_format(
             actx->pinfo, item, &ei_ber_size_constraint_items,
             "Size constraint: too few items: %d (%d .. %d)",
             cnt, min_len, max_len);
     } else if ((max_len != -1) && (cnt > max_len)) {
-        expert_add_info_format_text(
+        expert_add_info_format(
             actx->pinfo, item, &ei_ber_size_constraint_items,
             "Size constraint: too many items: %d (%d .. %d)",
             cnt, min_len, max_len);
@@ -641,7 +641,7 @@ ber_add_bad_length_error(packet_info *pinfo, proto_tree *tree,
         tree, hf_ber_error, tvb, start, length, "illegal_length",
         "%s: length of item (%d) is not valid",
         name, length);
-    expert_add_info_format_text(
+    expert_add_info_format(
         pinfo, ti, &ei_ber_error_length,
         "Length of item (%d) is not valid", length);
     return ti;
@@ -1755,7 +1755,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
               tree, hf_ber_error, tvb, offset-len, len, "invalid length",
               "BER Error: Can't handle integer length: %u",
               len);
-          expert_add_info_format_text(actx->pinfo, pi, &ei_ber_error_length,
+          expert_add_info_format(actx->pinfo, pi, &ei_ber_error_length,
               "BER Error: Illegal integer length: %u", len);
         } else {
             header_field_info* hfi;
@@ -1785,7 +1785,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
             }
 
             if (used_too_many_bytes) {
-                expert_add_info_format_text(
+                expert_add_info_format(
                     actx->pinfo, actx->created_item, &ei_ber_value_too_many_bytes,
                     "Value is encoded with too many bytes(9 leading zero or one bits), hf_abbr: %s",
                     hfi->abbrev);
@@ -2269,7 +2269,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n", name, co
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "BER Error: Sequence ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format_text(actx->pinfo, cause, &ei_ber_error_length,
+        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length,
             "BER Error: too many bytes in Sequence");
     }
     if (ind) {
@@ -2628,7 +2628,7 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) subdissector ate %d bytes\n", name
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "BER Error: Sequence ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format_text(actx->pinfo, cause, &ei_ber_error_length, 
+        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length, 
             "BER Error: too many bytes in Sequence");
     }
     if (ind) {
@@ -2907,7 +2907,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n", name);
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "BER Error: SET ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format_text(actx->pinfo, cause, &ei_ber_error_length, 
+        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length, 
             "BER Error: too many bytes in SET");
     }
 
@@ -3181,7 +3181,7 @@ printf("SET dissect_old_ber_set(%s) calling subdissector\n", name);
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "BER Error: SET ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format_text(actx->pinfo, cause, &ei_ber_error_length, 
+        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length, 
             "BER Error: too many bytes in SET");
     }
 
@@ -4000,11 +4000,11 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
                     classx, pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                     tagx);
                 if (type == BER_UNI_TAG_SEQUENCE) {
-                    expert_add_info_format_text(
+                    expert_add_info_format(
                         actx->pinfo, causex, &ei_ber_expected_set,
                         "BER Error: Set Of expected");
                 } else {
-                    expert_add_info_format_text(
+                    expert_add_info_format(
                         actx->pinfo, causex, &ei_ber_expected_sequence,
                         "BER Error: Sequence Of expected");
                 }
@@ -4119,7 +4119,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
                     "BER Error: Wrong field in SQ OF(tag %u expected %u)",
                     tag,
                     seq->tag);
-                expert_add_info_format_text(
+                expert_add_info_format(
                     actx->pinfo, cause, &ei_ber_sequence_field_wrong,
                     "BER Error: Wrong field in Sequence Of");
                 if (decode_unexpected) {
@@ -4171,7 +4171,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
             "BER Error: %s Of ate %d too many bytes",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence",
             offset - end_offset);
-        expert_add_info_format_text(actx->pinfo, causex, &ei_ber_error_length, 
+        expert_add_info_format(actx->pinfo, causex, &ei_ber_error_length, 
             "BER Error:too many byte in %s",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence");
     }
@@ -4241,11 +4241,11 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n", name);
                     pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                     tagx);
                 if (type == BER_UNI_TAG_SEQUENCE) {
-                    expert_add_info_format_text(
+                    expert_add_info_format(
                         actx->pinfo, causex, &ei_ber_expected_set,
                         "BER Error: Set Of expected");
                 } else {
-                    expert_add_info_format_text(
+                    expert_add_info_format(
                         actx->pinfo, causex, &ei_ber_expected_sequence,
                         "BER Error: Sequence Of expected");
                 }
@@ -4354,7 +4354,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n", name);
                     cause = proto_tree_add_string_format(
                         tree, hf_ber_error, tvb, offset, len, "wrong_field",
                         "BER Error: Wrong field in SQ OF");
-                    expert_add_info_format_text(
+                    expert_add_info_format(
                         actx->pinfo, cause, &ei_ber_sequence_field_wrong,
                         "BER Error: Wrong field in Sequence Of");
                     if (decode_unexpected) {
@@ -4402,7 +4402,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n", name);
             "BER Error: %s Of ate %d too many bytes",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence",
             offset-end_offset);
-        expert_add_info_format_text(actx->pinfo, causex, &ei_ber_error_length, 
+        expert_add_info_format(actx->pinfo, causex, &ei_ber_error_length, 
             "BER Error:too many byte in %s",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence");
     }
@@ -4494,7 +4494,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
             tree, hf_ber_error, tvb, offset, len, "illegal_length",
             "BER Error: GeneralizedTime invalid length: %u",
             len);
-        expert_add_info_format_text(actx->pinfo, cause, &ei_ber_error_length,
+        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length,
             "BER Error: GeneralizedTime invalid length");
         if (decode_unexpected) {
             proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -4786,7 +4786,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
             /* padding */
             proto_item *pad_item = proto_tree_add_item(parent_tree, hf_ber_bitstring_padding, tvb, offset, 1, ENC_BIG_ENDIAN);
             if (pad > 7) {
-                expert_add_info_format_text(
+                expert_add_info_format(
                     actx->pinfo, pad_item, &ei_ber_illegal_padding,
                     "Illegal padding (0 .. 7): %d", pad);
             }
@@ -4849,7 +4849,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
 
         for (byteno = 0; byteno < len; byteno++) {
             if (bitstring[byteno]) {
-                expert_add_info_format_text(
+                expert_add_info_format(
                     actx->pinfo, item, &ei_ber_bits_unknown,
                     "Unknown bit(s): 0x%s", bytes_to_str(bitstring, len));
                 break;
@@ -4860,7 +4860,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
     if ((pad > 0) && (pad < 8) && (len > 0)) {
         guint8 bits_in_pad = tvb_get_guint8(tvb, offset + len - 1) & (0xFF >> (8-pad));
         if (bits_in_pad) {
-            expert_add_info_format_text(
+            expert_add_info_format(
                 actx->pinfo, item, &ei_ber_bits_set_padded,
                 "Bits set in padded area: 0x%02x", bits_in_pad);
         }

@@ -478,7 +478,7 @@ dissect_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa
     proto_item *pi;
 
     pi = proto_tree_add_item(m2pa_tree, hf_undecode_data, message_tvb, length, (actual_length - length), ENC_NA);
-    expert_add_info_format_text(pinfo, pi, &ei_undecode_data,
+    expert_add_info_format(pinfo, pi, &ei_undecode_data,
 			   "There are %d bytes of data which is greater than M2PA's length parameter (%d)",
 			   actual_length, length);
   }

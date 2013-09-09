@@ -91,7 +91,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		{
 			proto_item  *item;
 			item = proto_tree_add_item(tree, proto_encaps, tvb, 0, -1, ENC_NA);
-			expert_add_info_format_text(pinfo, item, &ei_cw_packet_size_too_small,
+			expert_add_info_format(pinfo, item, &ei_cw_packet_size_too_small,
 				"PW packet (%d) is smaller than PW encapsulation header (%d)",
 				(int)packet_size,(int)encaps_size);
 		}
@@ -203,19 +203,19 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		item = proto_tree_add_item( subtree, hf_cw_len, tvb, 1, 1, ENC_BIG_ENDIAN );
 		if (packet_quality & PQ_CW_BAD_LEN_GT_PACKET)
 		{
-			expert_add_info_format_text(pinfo, item, &ei_payload_size_invalid,
+			expert_add_info_format(pinfo, item, &ei_payload_size_invalid,
 				"Bad Length: greater than FR payload size (%d)",
 				(int)payload_size);
 		}
 		if (packet_quality & PQ_CW_BAD_LEN_MUST_BE_NONZERO)
 		{
-			expert_add_info_format_text(pinfo, item, &ei_payload_size_invalid,
+			expert_add_info_format(pinfo, item, &ei_payload_size_invalid,
 				"Bad Length: must be non-zero if FR PW packet size (%d) is < 64",
 				(int)(payload_size+encaps_size));
 		}
 		if (packet_quality & PQ_CW_BAD_LEN_MUST_BE_ZERO)
 		{
-			expert_add_info_format_text(pinfo, item, &ei_payload_size_invalid,
+			expert_add_info_format(pinfo, item, &ei_payload_size_invalid,
 				"Bad Length: must be 0 if FR PW packet size (%d) is >= 64",
 				(int)(payload_size+encaps_size));
 		}
@@ -231,7 +231,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 
 		if (packet_quality & PQ_PAYLOAD_SIZE_ZERO)
 		{
-			expert_add_info_format_text(pinfo, item_headline, &ei_payload_size_invalid,
+			expert_add_info_format(pinfo, item_headline, &ei_payload_size_invalid,
 				"FR payload size must be non-zero");
 		}
 

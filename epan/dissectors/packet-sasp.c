@@ -361,7 +361,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		"Type: %s", (hdr_type == SASP_HDR_TYPE) ? "SASP" : "[Invalid]");
 	if (hdr_type != SASP_HDR_TYPE)
 	{
-		expert_add_info_format_text(pinfo, hti, &ei_msg_type_invalid,
+		expert_add_info_format(pinfo, hti, &ei_msg_type_invalid,
 			"Invalid SASP Header Type [0x%04x]", hdr_type);
 		/* XXX: The folowing should actually happen automatically ? */
 		col_set_str(pinfo->cinfo, COL_INFO, "[Malformed: Invalid SASP Header Type]");
@@ -466,7 +466,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Unknown SASP Message Type */
 			col_add_fstr(pinfo->cinfo, COL_INFO,
 				"[Malformed: Unknown Message Type [0x%04x]", msg_type);
-			expert_add_info_format_text(pinfo, mti, &ei_msg_type_invalid,
+			expert_add_info_format(pinfo, mti, &ei_msg_type_invalid,
 				"Unknown SASP Message Type: 0x%4x", msg_type);
 			return;
 	}

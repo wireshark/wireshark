@@ -107,7 +107,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 	{
 		proto_item  *item;
 		item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, ENC_NA);
-		expert_add_info_format_text(pinfo, item, &ei_packet_size_too_small,
+		expert_add_info_format(pinfo, item, &ei_packet_size_too_small,
 				       "PW packet size (%d) is too small to carry sensible information"
 				       ,(int)packet_size);
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
@@ -293,19 +293,19 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 						item3 = proto_tree_add_item(tree3, hf_cw_len, tvb, 1, 1, ENC_BIG_ENDIAN);
 						if (properties & PWC_CW_BAD_PAYLEN_LT_0)
 						{
-							expert_add_info_format_text(pinfo, item3, &ei_pref_cw_len,
+							expert_add_info_format(pinfo, item3, &ei_pref_cw_len,
 								"Bad Length: too small, must be > %d",
 								(int)encaps_size);
 						}
 						if (properties & PWC_CW_BAD_PAYLEN_GT_PACKET)
 						{
-							expert_add_info_format_text(pinfo, item3, &ei_pref_cw_len,
+							expert_add_info_format(pinfo, item3, &ei_pref_cw_len,
 								"Bad Length: must be <= than PSN packet size (%d)",
 								(int)packet_size);
 						}
 						if (properties & PWC_CW_BAD_LEN_MUST_BE_0)
 						{
-							expert_add_info_format_text(pinfo, item3, &ei_pref_cw_len,
+							expert_add_info_format(pinfo, item3, &ei_pref_cw_len,
 								"Bad Length: must be 0 if CESoPSN packet size (%d) is > 64",
 								(int)packet_size);
 						}
@@ -322,12 +322,12 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 		{
 			if (properties & PWC_PAY_SIZE_BAD)
 			{
-				expert_add_info_format_text(pinfo, item, &ei_payload_size_invalid_error,
+				expert_add_info_format(pinfo, item, &ei_payload_size_invalid_error,
 					"CESoPSN payload: none found. Size of payload must be <> 0");
 			}
 			else
 			{
-				expert_add_info_format_text(pinfo, item, &ei_payload_size_invalid_undecoded,
+				expert_add_info_format(pinfo, item, &ei_payload_size_invalid_undecoded,
 					"CESoPSN payload: omitted to conserve bandwidth");
 			}
 		}
@@ -343,7 +343,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 				pwc_item_append_text_n_items(item2,(int)payload_size,"octet");
 				if (properties & PWC_PAY_SIZE_BAD)
 				{
-					expert_add_info_format_text(pinfo, item2, &ei_payload_size_invalid_error,
+					expert_add_info_format(pinfo, item2, &ei_payload_size_invalid_error,
 						"CESoPSN packet payload size must be multiple of 8");
 				}
 				tree2 = proto_item_add_subtree(item2, ett);

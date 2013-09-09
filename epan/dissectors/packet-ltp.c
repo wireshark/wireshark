@@ -440,7 +440,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	rcpt_clm_cnt = evaluate_sdnv(tvb, frame_offset + segment_offset, &rcpt_clm_cnt_size);
 	if (rcpt_clm_cnt < 0){
 		proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
-		expert_add_info_format_text(pinfo, ltp_tree, &ei_ltp_neg_reception_claim_count,
+		expert_add_info_format(pinfo, ltp_tree, &ei_ltp_neg_reception_claim_count,
 				"Negative reception claim count: %d", rcpt_clm_cnt);
 		return 0;
 	}
@@ -450,7 +450,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
      */
 	if (rcpt_clm_cnt > tvb_length_remaining(tvb, frame_offset + segment_offset) / 2) {
 		proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
-		expert_add_info_format_text(pinfo, ltp_tree, &ei_ltp_mal_reception_claim,
+		expert_add_info_format(pinfo, ltp_tree, &ei_ltp_mal_reception_claim,
 				"Reception claim count impossibly large: %d > %d", rcpt_clm_cnt,
 				tvb_length_remaining(tvb, frame_offset + segment_offset) / 2);
 		return 0;

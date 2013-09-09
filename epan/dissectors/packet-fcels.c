@@ -1864,7 +1864,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /* Check that the source address is, in fact, an FC address */
             if (pinfo->src.type != AT_FC) {
-                expert_add_info_format_text(pinfo, ti, &ei_fcels_src_unknown,
+                expert_add_info_format(pinfo, ti, &ei_fcels_src_unknown,
                                        "Unknown source address type: %u",
                                        pinfo->src.type);
                 return;
@@ -1928,7 +1928,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /* Check that the source address is, in fact, an FC address */
             if (pinfo->dst.type != AT_FC) {
-                expert_add_info_format_text(pinfo, ti, &ei_fcels_dst_unknown,
+                expert_add_info_format(pinfo, ti, &ei_fcels_dst_unknown,
                                        "Unknown destination address type: %u",
                                        pinfo->dst.type);
                 return;

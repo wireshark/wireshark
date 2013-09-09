@@ -197,7 +197,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_ROUTING_TYPE:
 				if (option_data_len != 1) {
-					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
+					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 1", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
@@ -208,7 +208,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_RIP_SAP_INFO_EXCHANGE:
 				if (option_data_len != 54) {
-					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
+					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 54", option_data_len);
 				} else {
 					wan_link_delay = tvb_get_ntohs(tvb,
@@ -229,7 +229,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_NLSP_INFORMATION:
 				if (option_data_len != 8) {
-					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
+					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 8", option_data_len);
 				} else {
 					delay = tvb_get_ntohl(tvb, offset);
@@ -248,7 +248,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_NLSP_RAW_THROUGHPUT_DATA:
 				if (option_data_len != 8) {
-					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
+					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 8", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
@@ -265,7 +265,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_EXTENDED_NODE_ID:
 				if (option_data_len != 4) {
-					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
+					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 4", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
@@ -276,7 +276,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_NODE_NUMBER:
 				if (option_data_len != 6) {
-					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
+					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 6", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
@@ -287,7 +287,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_COMPRESSION:
 				if (option_data_len < 1) {
-					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
+					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be >= 1", option_data_len);
 				} else {
 					compression_type = tvb_get_guint8(tvb,
@@ -299,7 +299,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					case COMP_TYPE_TELEBIT:
 						if (option_data_len < 3) {
-							expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
+							expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
 								"Bogus length: %u, should be >= 3", option_data_len);
 						} else {
 							proto_tree_add_item(option_tree, hf_ipxwan_compression_options, 

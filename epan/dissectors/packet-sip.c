@@ -2389,7 +2389,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					next_tvb2 = tvb_new_subset(tvb, value_offset, value_len, value_len);
 					dissector_try_string(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, proto_item_add_subtree(ti_c, ett_sip_ext_hdr));
  				} else {
-					expert_add_info_format_text(pinfo, ti_c, &ei_sip_unrecognized_header,
+					expert_add_info_format(pinfo, ti_c, &ei_sip_unrecognized_header,
 					                       "Unrecognised SIP header (%s)",
 					                       tvb_format_text(tvb, offset, header_len));
 				}

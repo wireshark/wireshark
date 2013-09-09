@@ -186,7 +186,7 @@ dissect_wfd_subelem_associated_bssid(packet_info *pinfo, proto_tree *tree,
                                      tvbuff_t *tvb, int offset, int len)
 {
   if (len < 6) {
-    expert_add_info_format_text(pinfo, tree, &ei_wfd_subelem_len_invalid, "Too short Wi-Fi Display Associated BSSID");
+    expert_add_info_format(pinfo, tree, &ei_wfd_subelem_len_invalid, "Too short Wi-Fi Display Associated BSSID");
     return;
   }
   proto_tree_add_item(tree, hf_wfd_subelem_assoc_bssid, tvb, offset, 6, ENC_NA);
@@ -197,7 +197,7 @@ dissect_wfd_subelem_coupled_sink(packet_info *pinfo, proto_tree *tree,
                                  tvbuff_t *tvb, int offset, int len)
 {
   if (len < 1) {
-    expert_add_info_format_text(pinfo, tree, &ei_wfd_subelem_len_invalid, "Too short Wi-Fi Display Coupled Sink");
+    expert_add_info_format(pinfo, tree, &ei_wfd_subelem_len_invalid, "Too short Wi-Fi Display Coupled Sink");
     return;
   }
   proto_tree_add_item(tree, hf_wfd_subelem_coupled_sink_status_bitmap,
@@ -205,7 +205,7 @@ dissect_wfd_subelem_coupled_sink(packet_info *pinfo, proto_tree *tree,
   proto_tree_add_item(tree, hf_wfd_subelem_coupled_sink_reserved,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
   if (len < 1 + 6) {
-    expert_add_info_format_text(pinfo, tree, &ei_wfd_subelem_len_invalid, "Too short Wi-Fi Display Coupled Sink");
+    expert_add_info_format(pinfo, tree, &ei_wfd_subelem_len_invalid, "Too short Wi-Fi Display Coupled Sink");
     return;
   }
   proto_tree_add_item(tree, hf_wfd_subelem_coupled_sink_mac_addr, tvb,
@@ -317,7 +317,7 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
 
   while (offset < end) {
     if (end - offset < 2) {
-      expert_add_info_format_text(pinfo, tree, &ei_wfd_subelem_len_invalid, "Packet too short for Wi-Fi Display subelement");
+      expert_add_info_format(pinfo, tree, &ei_wfd_subelem_len_invalid, "Packet too short for Wi-Fi Display subelement");
       break;
     }
 
@@ -327,7 +327,7 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
                                   val_to_str(id, wfd_subelem_ids,
                                              "Unknown subelement ID (%u)"));
     if (offset + 3 + len > end) {
-      expert_add_info_format_text(pinfo, subelem, &ei_wfd_subelem_len_invalid, "Packet too short for Wi-Fi Display subelement payload");
+      expert_add_info_format(pinfo, subelem, &ei_wfd_subelem_len_invalid, "Packet too short for Wi-Fi Display subelement payload");
     }
 
     wfd_tree = proto_item_add_subtree(subelem, ett_wfd_subelem);

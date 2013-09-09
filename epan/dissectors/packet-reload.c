@@ -1189,7 +1189,7 @@ static int dissect_resourceid(int anchor, tvbuff_t *tvb, packet_info *pinfo, pro
   /* We don't know the node ID. Just assume that all the data is part of it */
   if (length < local_length+1) {
     ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_local, &ei_reload_truncated_field, "Truncated ResourceId");
+    expert_add_info_format(pinfo, ti_local, &ei_reload_truncated_field, "Truncated ResourceId");
     return length;
   }
 
@@ -1220,7 +1220,7 @@ static int dissect_nodeid(int anchor, tvbuff_t *tvb, packet_info *pinfo, proto_t
   /* We don't know the node ID. Just assume that all the data is part of it */
   if (length < reload_nodeid_length) {
     ti_nodeid = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_nodeid, &ei_reload_truncated_field, "Truncated NodeId");
+    expert_add_info_format(pinfo, ti_nodeid, &ei_reload_truncated_field, "Truncated NodeId");
     return length;
   }
 
@@ -1295,7 +1295,7 @@ dissect_destination(int anchor, tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(destination_tree, hf_reload_destination_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_uint(destination_tree, hf_reload_length_uint8, tvb, offset+1, 1, destination_length);
     if (2 + destination_length > length) {
-      expert_add_info_format_text(pinfo, ti_destination, &ei_reload_truncated_field, "Truncated Destination");
+      expert_add_info_format(pinfo, ti_destination, &ei_reload_truncated_field, "Truncated Destination");
       return length;
     }
     switch(destination_type) {
@@ -1348,7 +1348,7 @@ dissect_probe_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
   if (probe_length + 2 > length) {
     ti_probe_information = proto_tree_add_item(tree, hf_reload_probe_information, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_probe_information, &ei_reload_truncated_field, "Truncated probe information");
+    expert_add_info_format(pinfo, ti_probe_information, &ei_reload_truncated_field, "Truncated probe information");
     return length;
   }
   ti_probe_information = proto_tree_add_item(tree, hf_reload_probe_information, tvb, offset, 2 + probe_length, ENC_NA);
@@ -1367,21 +1367,21 @@ dissect_probe_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     switch(type) {
     case PROBEINFORMATIONTYPE_RESPONSIBLESET:
       if (probe_length < 4) {
-        expert_add_info_format_text(pinfo, ti_probe_information_data, &ei_reload_truncated_field, "Truncated responsible set");
+        expert_add_info_format(pinfo, ti_probe_information_data, &ei_reload_truncated_field, "Truncated responsible set");
         return 2 + probe_length;
       }
       proto_tree_add_item(probe_information_data_tree, hf_reload_responsible_set, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
       break;
     case PROBEINFORMATIONTYPE_NUMRESOURCES:
       if (probe_length < 4) {
-        expert_add_info_format_text(pinfo, ti_probe_information_data, &ei_reload_truncated_field, "Truncated num resource info");
+        expert_add_info_format(pinfo, ti_probe_information_data, &ei_reload_truncated_field, "Truncated num resource info");
         return 2 + probe_length;
       }
       proto_tree_add_item(probe_information_data_tree, hf_reload_num_resources, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
       break;
     case PROBEINFORMATIONTYPE_UPTIME:
       if (probe_length < 4) {
-        expert_add_info_format_text(pinfo, ti_probe_information_data, &ei_reload_truncated_field, "Truncated uptime info");
+        expert_add_info_format(pinfo, ti_probe_information_data, &ei_reload_truncated_field, "Truncated uptime info");
         return 2 + probe_length;
       }
       proto_tree_add_item(probe_information_data_tree, hf_reload_uptime, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
@@ -1471,7 +1471,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   /* Precalculate the length of the icecandidate list */
   if (2+icecandidates_length > length) {
     ti_icecandidates = proto_tree_add_item(tree, hf_reload_icecandidates, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_icecandidates, &ei_reload_truncated_field, "Truncated ice candidates");
+    expert_add_info_format(pinfo, ti_icecandidates, &ei_reload_truncated_field, "Truncated ice candidates");
     return length;
   }
 
@@ -1518,7 +1518,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     /* icecandidate_offset is now equal to the length of this icecandicate */
     if (icecandidates_offset + icecandidate_offset > icecandidates_length) {
-      expert_add_info_format_text(pinfo, ti_icecandidates, &ei_reload_truncated_field, "Truncated IceCandidate");
+      expert_add_info_format(pinfo, ti_icecandidates, &ei_reload_truncated_field, "Truncated IceCandidate");
       break;
     }
     ti_icecandidate = proto_tree_add_item(icecandidates_tree, hf_reload_icecandidate, tvb, offset+local_offset+ icecandidates_offset, icecandidate_offset, ENC_NA);
@@ -1590,7 +1590,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         iceextension_value_length =
           tvb_get_ntohs(tvb, offset+local_offset+icecandidates_offset+icecandidate_offset+iceextensions_offset+iceextension_name_length + 2);
         if ((iceextensions_offset + 4 + iceextension_name_length + iceextension_value_length) > iceextensions_length) {
-          expert_add_info_format_text(pinfo, ti_extensions, &ei_reload_truncated_field, "Truncated extensions");
+          expert_add_info_format(pinfo, ti_extensions, &ei_reload_truncated_field, "Truncated extensions");
           break;
         }
         ti_iceextension =
@@ -1632,7 +1632,7 @@ dissect_attachreqans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
   local_offset += 1;
   if (local_offset + ufrag_length > length) {
     ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_attachreqans, &ei_reload_truncated_field, "Truncated attach_reqans");
+    expert_add_info_format(pinfo, ti_attachreqans, &ei_reload_truncated_field, "Truncated attach_reqans");
     return length;
   }
   local_offset += ufrag_length;
@@ -1640,7 +1640,7 @@ dissect_attachreqans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
   local_offset += 1;
   if (local_offset + password_length > length) {
     ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_attachreqans, &ei_reload_truncated_field, "Truncated attach_reqans");
+    expert_add_info_format(pinfo, ti_attachreqans, &ei_reload_truncated_field, "Truncated attach_reqans");
     return length;
   }
   local_offset += password_length;
@@ -1648,7 +1648,7 @@ dissect_attachreqans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
   local_offset += 1;
   if (local_offset + role_length > length) {
     ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_attachreqans, &ei_reload_truncated_field, "Truncated attach_reqans");
+    expert_add_info_format(pinfo, ti_attachreqans, &ei_reload_truncated_field, "Truncated attach_reqans");
     return length;
   }
   local_offset += role_length;
@@ -1656,7 +1656,7 @@ dissect_attachreqans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
   local_offset += 2;
   if (local_offset +icecandidates_length > length) {
     ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_attachreqans, &ei_reload_truncated_field, "Truncated attach_reqans");
+    expert_add_info_format(pinfo, ti_attachreqans, &ei_reload_truncated_field, "Truncated attach_reqans");
     return length;
   }
   local_offset += icecandidates_length;
@@ -1777,7 +1777,7 @@ static int dissect_redirserviceprovider(tvbuff_t *tvb, packet_info *pinfo, proto
 
   if (2+length_field>length) {
     ti_local = proto_tree_add_item(tree, hf_reload_redirserviceprovider, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_local, &ei_reload_truncated_field, "Truncated RedirServiceProvider");
+    expert_add_info_format(pinfo, ti_local, &ei_reload_truncated_field, "Truncated RedirServiceProvider");
     return length;
   }
 
@@ -1806,7 +1806,7 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
 
     if (1+4+value_length > length) {
       ti_datavalue = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-      expert_add_info_format_text(pinfo, ti_datavalue, &ei_reload_truncated_field, "Truncated DataValue");
+      expert_add_info_format(pinfo, ti_datavalue, &ei_reload_truncated_field, "Truncated DataValue");
       return length;
     }
 
@@ -1886,7 +1886,7 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
 
     if (1+4+1+1+hash_length > length) {
       ti_datavalue = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-      expert_add_info_format_text(pinfo, ti_datavalue, &ei_reload_truncated_field, "Truncated MetaData");
+      expert_add_info_format(pinfo, ti_datavalue, &ei_reload_truncated_field, "Truncated MetaData");
       return length;
     }
 
@@ -1930,7 +1930,7 @@ static int dissect_arrayentry(int anchor, tvbuff_t *tvb, packet_info *pinfo, pro
 
   if (4+data_length > length) {
     ti_arrayentry = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_arrayentry, &ei_reload_truncated_field, "Truncated ArrayEntry");
+    expert_add_info_format(pinfo, ti_arrayentry, &ei_reload_truncated_field, "Truncated ArrayEntry");
     return length;
   }
 
@@ -1962,7 +1962,7 @@ static int dissect_dictionaryentry(int anchor, tvbuff_t *tvb, packet_info *pinfo
 
   if (length < 2) {
     ti_dictionaryentry = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_dictionaryentry, &ei_reload_truncated_field, "Truncated ArrayEntry");
+    expert_add_info_format(pinfo, ti_dictionaryentry, &ei_reload_truncated_field, "Truncated ArrayEntry");
     return length;
   }
   key_length = get_opaque_length(tvb,offset,2);
@@ -1970,7 +1970,7 @@ static int dissect_dictionaryentry(int anchor, tvbuff_t *tvb, packet_info *pinfo
 
   if (length < (key_length +2)) {
     ti_dictionaryentry = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_dictionaryentry, &ei_reload_truncated_field, "Truncated ArrayEntry");
+    expert_add_info_format(pinfo, ti_dictionaryentry, &ei_reload_truncated_field, "Truncated ArrayEntry");
     return length;
   }
 
@@ -2088,7 +2088,7 @@ dissect_signature(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 o
 
           certificate_hash_length = tvb_get_guint8(tvb, offset + local_offset + 1);
           if (1 + 1 + certificate_hash_length > signeridentityvalue_length) {
-            expert_add_info_format_text(pinfo, ti_signeridentity, &ei_reload_truncated_field, "Truncated signature identity value");
+            expert_add_info_format(pinfo, ti_signeridentity, &ei_reload_truncated_field, "Truncated signature identity value");
           }
           else {
             ti_signeridentityvalue= proto_tree_add_item(signeridentity_identity_tree,
@@ -2138,7 +2138,7 @@ dissect_storeddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 
 
   if (storeddata_length + 4 > length) {
     ti_storeddata = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_storeddata, &ei_reload_truncated_field, "Truncated StoredData");
+    expert_add_info_format(pinfo, ti_storeddata, &ei_reload_truncated_field, "Truncated StoredData");
     return length;
   }
 
@@ -2231,7 +2231,7 @@ dissect_kinddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   values_length = tvb_get_ntohl(tvb, offset + 4 + 8);
   if (12 + values_length > length) {
     ti_kinddata = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_kinddata, &ei_reload_truncated_field, "Truncated kind data");
+    expert_add_info_format(pinfo, ti_kinddata, &ei_reload_truncated_field, "Truncated kind data");
     return length;
   }
   ti_kinddata = proto_tree_add_item(tree, hf, tvb, offset, 16+values_length, ENC_NA);
@@ -2287,7 +2287,7 @@ static int dissect_nodeid_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   if (list_length+length_size>length) {
     ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_local, &ei_reload_truncated_field, "Truncated NodeId list");
+    expert_add_info_format(pinfo, ti_local, &ei_reload_truncated_field, "Truncated NodeId list");
   }
   ti_local = proto_tree_add_item(tree, hf, tvb, offset,  list_length+length_size, ENC_NA);
   proto_item_append_text(ti_local, " (NodeId<%d>)", list_length);
@@ -2323,7 +2323,7 @@ dissect_storekindresponse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
   if (length < local_length) {
     ti_local = proto_tree_add_item(tree, hf_reload_storekindresponse, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_local, &ei_reload_truncated_field, "Truncated StoreKindResponse");
+    expert_add_info_format(pinfo, ti_local, &ei_reload_truncated_field, "Truncated StoreKindResponse");
     return length;
   }
   ti_local = proto_tree_add_item(tree, hf_reload_storekindresponse, tvb, offset,  4+8+2+replicas_length, ENC_NA);
@@ -2380,14 +2380,14 @@ dissect_storereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   local_offset += get_opaque_length(tvb, offset, 1) + 1; /* resource id length */
   if (local_offset > length) {
     ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_storereq, &ei_reload_truncated_field, "Truncated StoreReq: resource too long");
+    expert_add_info_format(pinfo, ti_storereq, &ei_reload_truncated_field, "Truncated StoreReq: resource too long");
     return length;
   }
 
   local_offset += 1; /* replica_num */
   if (local_offset > length) {
     ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_storereq, &ei_reload_truncated_field, "Truncated StoreReq: no room for replica_number");
+    expert_add_info_format(pinfo, ti_storereq, &ei_reload_truncated_field, "Truncated StoreReq: no room for replica_number");
     return length;
   }
 
@@ -2395,7 +2395,7 @@ dissect_storereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   local_offset += 4;
   if (local_offset + kind_data_length > length) {
     ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_storereq, &ei_reload_truncated_field, "Truncated StoreReq: kind_data too long");
+    expert_add_info_format(pinfo, ti_storereq, &ei_reload_truncated_field, "Truncated StoreReq: kind_data too long");
     return length;
   }
   local_offset += kind_data_length;
@@ -2470,7 +2470,7 @@ dissect_storeddataspecifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   length_field = tvb_get_ntohs(tvb, offset+4+8);
   if ((length_field + 4 + 8 + 2) > length) {
     ti_storeddataspecifier = proto_tree_add_item(tree, hf_reload_storeddataspecifier, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_storeddataspecifier, &ei_reload_truncated_field, "Truncated StoredDataSpecifier");
+    expert_add_info_format(pinfo, ti_storeddataspecifier, &ei_reload_truncated_field, "Truncated StoredDataSpecifier");
     return length;
   }
 
@@ -2559,7 +2559,7 @@ dissect_fetchreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
 
   if (1+ resourceid_length+ 2 + specifiers_length > length) {
     ti_fetchreq = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_fetchreq, &ei_reload_truncated_field, "Truncated FetchReq");
+    expert_add_info_format(pinfo, ti_fetchreq, &ei_reload_truncated_field, "Truncated FetchReq");
     return length;
   }
   local_length =  1+ resourceid_length+ 2 + specifiers_length;
@@ -2601,7 +2601,7 @@ dissect_fetchans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   kind_responses_length = tvb_get_ntohl(tvb, offset);
   if (4 + kind_responses_length > length) {
     ti_fetchans = proto_tree_add_item(tree, hf_reload_fetchans, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_fetchans, &ei_reload_truncated_field, "Truncated FetchAns");
+    expert_add_info_format(pinfo, ti_fetchans, &ei_reload_truncated_field, "Truncated FetchAns");
     return length;
   }
   ti_fetchans = proto_tree_add_item(tree, hf_reload_fetchans, tvb, offset, 4 + kind_responses_length, ENC_NA);
@@ -2635,7 +2635,7 @@ dissect_statans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 off
 
   if (4 + kind_responses_length > length) {
     ti_statans = proto_tree_add_item(tree, hf_reload_statans, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_statans, &ei_reload_truncated_field, "Truncated StatAns");
+    expert_add_info_format(pinfo, ti_statans, &ei_reload_truncated_field, "Truncated StatAns");
     return length;
   }
   ti_statans = proto_tree_add_item(tree, hf_reload_statans, tvb, offset, 4 + kind_responses_length, ENC_NA);
@@ -2752,7 +2752,7 @@ static int dissect_kindid_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   if ((guint16)length<kinds_length+length_size) {
     ti_local = proto_tree_add_item(tree, hf_reload_kindid_list, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_local, &ei_reload_truncated_field, "Truncated kinds list");
+    expert_add_info_format(pinfo, ti_local, &ei_reload_truncated_field, "Truncated kinds list");
   }
   ti_local = proto_tree_add_item(tree, hf_reload_kindid_list, tvb, offset, length, ENC_NA);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_kindid_list);
@@ -2796,7 +2796,7 @@ static int dissect_findans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   results_length = tvb_get_ntohs(tvb, offset);
   proto_item_append_text(ti_local, " (FindKindData<%d>)", results_length);
   if (results_length + 2 > length) {
-    expert_add_info_format_text(pinfo, ti_local, &ei_reload_truncated_field, "Truncated FindAns");
+    expert_add_info_format(pinfo, ti_local, &ei_reload_truncated_field, "Truncated FindAns");
   }
   proto_tree_add_uint(local_tree, hf_reload_length_uint16, tvb, offset, 2, results_length);
 
@@ -2811,7 +2811,7 @@ static int dissect_findans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       findkinddata_length = 4/*kind id */ + 1 + get_opaque_length(tvb,offset + 2 + results_offset + 4, 1)/* resourceId */;
       if (results_offset + findkinddata_length > results_length) {
         ti_findkinddata = proto_tree_add_item(local_tree, hf_reload_findkinddata, tvb, offset + results_offset, results_length - results_offset, ENC_NA);
-        expert_add_info_format_text(pinfo, ti_findkinddata, &ei_reload_truncated_field, "Truncated FindKindData");
+        expert_add_info_format(pinfo, ti_findkinddata, &ei_reload_truncated_field, "Truncated FindKindData");
         break;
       }
 
@@ -2866,7 +2866,7 @@ static int dissect_extensiveroutingmodeoption(tvbuff_t *tvb, packet_info *pinfo,
     int         nDestinations = 0;
     destination_length = tvb_get_guint8(tvb, offset+local_offset);
     if (destination_length+1+local_offset>length) {
-      expert_add_info_format_text(pinfo, ti_local, &ei_reload_truncated_field, "Truncated ExtensiveRoutingModeOption");
+      expert_add_info_format(pinfo, ti_local, &ei_reload_truncated_field, "Truncated ExtensiveRoutingModeOption");
       destination_length = length -1-local_offset;
     }
     ti_destination = proto_tree_add_item(local_tree, hf_reload_extensiveroutingmode_destination, tvb,offset+local_offset, 1+destination_length, ENC_NA);
@@ -2910,7 +2910,7 @@ static int dissect_forwardingoption(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   proto_tree_add_uint(option_tree, hf_reload_length_uint16, tvb, offset+local_offset+2, 2, option_length);
   local_offset += 4;
   if (local_offset + option_length > length) {
-    expert_add_info_format_text(pinfo, ti_option, &ei_reload_truncated_field, "Truncated ForwardingOption");
+    expert_add_info_format(pinfo, ti_option, &ei_reload_truncated_field, "Truncated ForwardingOption");
     return length;
   }
 
@@ -2988,7 +2988,7 @@ static int dissect_diagnosticrequest(int anchor, tvbuff_t *tvb, packet_info *pin
   local_offset += 4;
 
   if (local_offset+local_length > length) {
-    expert_add_info_format_text(pinfo, ti_local, &ei_reload_truncated_field, "Truncated DiagnosticRequest");
+    expert_add_info_format(pinfo, ti_local, &ei_reload_truncated_field, "Truncated DiagnosticRequest");
     local_length = length-local_offset;
   }
   if (local_length>0) {
@@ -3002,7 +3002,7 @@ static int dissect_diagnosticrequest(int anchor, tvbuff_t *tvb, packet_info *pin
     extensions_tree = proto_item_add_subtree(ti_extensions, ett_reload_diagnosticrequest_extensions);
     extensions_length = tvb_get_ntohl(tvb, offset+local_offset);
     if (extensions_length+4 > local_length) {
-      expert_add_info_format_text(pinfo, ti_extensions, &ei_reload_truncated_field, "Truncated Diagnostic extensions");
+      expert_add_info_format(pinfo, ti_extensions, &ei_reload_truncated_field, "Truncated Diagnostic extensions");
       extensions_length = local_length-4;
     }
     proto_item_append_text(ti_extensions, " (DiagnosticExtension<%d>)",extensions_length);
@@ -3229,7 +3229,7 @@ static int dissect_diagnosticresponse(int anchor, tvbuff_t *tvb, packet_info *pi
 
     diagnostics_length = tvb_get_ntohl(tvb, offset+local_offset);
     if (diagnostics_length+local_offset+4>length) {
-      expert_add_info_format_text(pinfo, ti_local, &ei_reload_truncated_field, "Truncated Diagnostic Response");
+      expert_add_info_format(pinfo, ti_local, &ei_reload_truncated_field, "Truncated Diagnostic Response");
       diagnostics_length = length -4 -local_offset;
     }
     ti_diagnostics = proto_tree_add_item(local_tree, hf_reload_diagnosticresponse_diagnostic_info_list, tvb, offset+local_offset, diagnostics_length, ENC_NA);
@@ -3342,7 +3342,7 @@ static int dissect_probereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_uint(requested_info_tree, hf_reload_length_uint8, tvb, offset, 1, info_list_length);
 
   if ((info_list_length+1) > length) {
-    expert_add_info_format_text(pinfo, ti_requested_info, &ei_reload_truncated_field, "Truncated requested_info");
+    expert_add_info_format(pinfo, ti_requested_info, &ei_reload_truncated_field, "Truncated requested_info");
     info_list_length = length - 1;
   }
   {
@@ -3371,7 +3371,7 @@ static int dissect_probeans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   info_list_length = tvb_get_ntohs(tvb, offset);
   if (info_list_length+2 >length) {
-    expert_add_info_format_text(pinfo, ti_local, &ei_reload_truncated_field, "Truncated ProbeAns");
+    expert_add_info_format(pinfo, ti_local, &ei_reload_truncated_field, "Truncated ProbeAns");
     info_list_length = length - 2;
   }
   ti_infos = proto_tree_add_item(local_tree, hf_reload_probeans_probe_info, tvb, offset, info_list_length, ENC_NA);
@@ -3407,7 +3407,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
 
   if (2 + 4 + message_body_length + 4 + extensions_length > length) {
     ti_message_contents = proto_tree_add_item(tree, hf_reload_message_contents, tvb, offset, length, ENC_NA);
-    expert_add_info_format_text(pinfo, ti_message_contents, &ei_reload_truncated_field, "Truncated MessageContents");
+    expert_add_info_format(pinfo, ti_message_contents, &ei_reload_truncated_field, "Truncated MessageContents");
     return length;
   }
 
@@ -3525,7 +3525,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
         else {
           message_type_str = "PingAns";
           if (message_body_length < 16) {
-            expert_add_info_format_text(pinfo, ti_message_contents, &ei_reload_truncated_field, "Truncated ping answer");
+            expert_add_info_format(pinfo, ti_message_contents, &ei_reload_truncated_field, "Truncated ping answer");
           }
           else {
             proto_item *ti_local;
@@ -3572,7 +3572,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
           configupdate_length = tvb_get_ntohl(tvb, offset + local_offset);
           proto_tree_add_uint(configupdate_tree, hf_reload_length_uint32, tvb,  offset + local_offset, 4, configupdate_length);
           if (5 + configupdate_length > message_body_length) {
-            expert_add_info_format_text(pinfo, ti_configupdate, &ei_reload_truncated_field, "Truncated ConfigUpdateReq");
+            expert_add_info_format(pinfo, ti_configupdate, &ei_reload_truncated_field, "Truncated ConfigUpdateReq");
             break;
           }
           local_offset += 4;
@@ -3790,7 +3790,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
 
     error_code = tvb_get_ntohs(tvb, offset);
     if (2 + 2 + error_length >length) {
-      expert_add_info_format_text(pinfo, ti_message_body, &ei_reload_truncated_field, "Truncated error message");
+      expert_add_info_format(pinfo, ti_message_body, &ei_reload_truncated_field, "Truncated error message");
       return length;
     }
 
@@ -3852,7 +3852,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
       proto_item *ti_extension;
       guint32 extension_content_length = tvb_get_ntohl(tvb, offset + extension_offset + 3);
       if ((extension_offset + 3 + 4 + extension_content_length) > extensions_length) {
-        expert_add_info_format_text(pinfo, ti_extensions, &ei_reload_truncated_field, "Truncated message extensions");
+        expert_add_info_format(pinfo, ti_extensions, &ei_reload_truncated_field, "Truncated message extensions");
         break;
       }
       ti_extension = proto_tree_add_item(extensions_tree, hf_reload_message_extension, tvb, offset+ extension_offset, 3 + 4 + extension_content_length, ENC_NA);
@@ -4304,7 +4304,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         certificate_length = tvb_get_ntohs(tvb, offset + security_block_offset + certificate_offset + 1);
         if (certificate_offset + 1 + 2 + certificate_length > certificates_length) {
-          expert_add_info_format_text(pinfo, ti_security_block, &ei_reload_truncated_field, "Truncated certificate");
+          expert_add_info_format(pinfo, ti_security_block, &ei_reload_truncated_field, "Truncated certificate");
           break;
         }
         ti_genericcertificate =

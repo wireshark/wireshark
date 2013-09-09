@@ -261,17 +261,17 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
   proto_tree_add_item(doc_tree, hf_mongo_document_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   if (nest_level > BSON_MAX_NESTING) {
-      expert_add_info_format_text(pinfo, ti, &ei_mongo_document_recursion_exceeded, "BSON document recursion exceeds %u", BSON_MAX_NESTING);
+      expert_add_info_format(pinfo, ti, &ei_mongo_document_recursion_exceeded, "BSON document recursion exceeds %u", BSON_MAX_NESTING);
       THROW(ReportedBoundsError);
   }
 
   if (document_length < 5) {
-      expert_add_info_format_text(pinfo, ti, &ei_mongo_document_length_bad, "BSON document length too short: %u", document_length);
+      expert_add_info_format(pinfo, ti, &ei_mongo_document_length_bad, "BSON document length too short: %u", document_length);
       THROW(ReportedBoundsError);
   }
 
   if (document_length > BSON_MAX_DOC_SIZE) {
-      expert_add_info_format_text(pinfo, ti, &ei_mongo_document_length_bad, "BSON document length too long: %u", document_length);
+      expert_add_info_format(pinfo, ti, &ei_mongo_document_length_bad, "BSON document length too long: %u", document_length);
       THROW(ReportedBoundsError);
   }
 

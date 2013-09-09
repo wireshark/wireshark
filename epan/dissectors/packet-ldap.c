@@ -2242,12 +2242,12 @@ dissect_ldap_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 	attributedesc_string=NULL;
 
 	if (Filter_length++ > MAX_FILTER_LEN) {
-		expert_add_info_format_text(actx->pinfo, tree, &ei_ldap_exceeded_filter_length, "Filter length exceeds %u. Giving up.", MAX_FILTER_LEN);
+		expert_add_info_format(actx->pinfo, tree, &ei_ldap_exceeded_filter_length, "Filter length exceeds %u. Giving up.", MAX_FILTER_LEN);
 		THROW(ReportedBoundsError);
 	}
 
 	if (Filter_elements++ > MAX_FILTER_ELEMENTS) {
-		expert_add_info_format_text(actx->pinfo, tree, &ei_ldap_too_many_filter_elements, "Found more than %u filter elements. Giving up.", MAX_FILTER_ELEMENTS);
+		expert_add_info_format(actx->pinfo, tree, &ei_ldap_too_many_filter_elements, "Found more than %u filter elements. Giving up.", MAX_FILTER_ELEMENTS);
 		THROW(ReportedBoundsError);
 	}
 

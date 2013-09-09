@@ -483,7 +483,7 @@ too_small_packet_or_notpw(tvbuff_t * tvb
 	{
 		proto_item  * item;
 		item = proto_tree_add_item(tree, proto_handler, tvb, 0, -1, ENC_NA);
-		expert_add_info_format_text(pinfo, item, &ei_pw_packet_size_too_small,
+		expert_add_info_format(pinfo, item, &ei_pw_packet_size_too_small,
 				       "PW packet size (%d) is too small to carry sensible information"
 				       ,(int)packet_size);
 		/* represent problems in the Packet List pane */
@@ -645,12 +645,12 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 		if (pd.props & PWC_PAY_SIZE_BAD)
 		{
-			expert_add_info_format_text(pinfo, item, &ei_pw_payload_size_invalid_error,
+			expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
 				"PW payload size (%d) must be <> 0 and multiple of %d",
 				(int)payload_size, pw_cell_size(pd.mode, pd.submode));
 			if ((payload_size != 0) && MODE_11(pd.mode))
 			{
-				expert_add_info_format_text(pinfo, item, &ei_cell_broken,
+				expert_add_info_format(pinfo, item, &ei_cell_broken,
 					"PW ATM cell [%.3d] is broken", (int)cells);
 			}
 		}
@@ -860,7 +860,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		if (pd.props & PWC_PAY_SIZE_BAD)
 		{
 			DISSECTOR_ASSERT(PWATM_SUBMODE_ADMIN_CELL == pd.submode);
-			expert_add_info_format_text(pinfo, item, &ei_pw_payload_size_invalid_error,
+			expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
 				"In ATM admin cell mode,"
 				" PW payload size (%d) must be == %d (exactly 1 admin cell)",
 				(int)payload_size, (int)SIZEOF_N1_PW_CELL);
@@ -1039,15 +1039,15 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		{
 			if (payload_size != 0)
 			{
-				expert_add_info_format_text(pinfo, item, &ei_cell_broken,
+				expert_add_info_format(pinfo, item, &ei_cell_broken,
 					"PW ATM cell [%.3d] is broken", (int)cells);
-				expert_add_info_format_text(pinfo, item, &ei_pw_payload_size_invalid_note,
+				expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_note,
 					"PW payload size (%d) must be <>0 and multiple of %d",
 					(int)payload_size, (int)SIZEOF_N1_PW_CELL);
 			}
 			else
 			{
-				expert_add_info_format_text(pinfo, item, &ei_pw_payload_size_invalid_error,
+				expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
 					"PW payload size (%d) must be <>0 and multiple of %d",
 					(int)payload_size, (int)SIZEOF_N1_PW_CELL);
 			}
@@ -1120,15 +1120,15 @@ dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		{
 			if (payload_size != 0)
 			{
-				expert_add_info_format_text(pinfo, item, &ei_cell_broken,
+				expert_add_info_format(pinfo, item, &ei_cell_broken,
 					"Last PW ATM cell [%.3d] is broken", (int)cells);
-				expert_add_info_format_text(pinfo, item, &ei_pw_payload_size_invalid_note,
+				expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_note,
 					"PW payload size (%d) must be <>0 and multiple of %d",
 					(int)payload_size, (int)SIZEOF_N1_PW_CELL);
 			}
 			else
 			{
-				expert_add_info_format_text(pinfo, item, &ei_pw_payload_size_invalid_error,
+				expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
 					"PW payload size (%d) must be <>0 and multiple of %d",
 					(int)payload_size, (int)SIZEOF_N1_PW_CELL);
 			}
@@ -1188,7 +1188,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		{
 			proto_item  *item;
 			item = proto_tree_add_item(tree, proto_control_word, tvb, 0, -1, ENC_NA);
-			expert_add_info_format_text(pinfo, item, &ei_pw_payload_size_invalid_error,
+			expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
 					       "Packet (size: %d) is too small to carry MPLS PW Control Word"
 					       ,(int)size);
 			return;
@@ -1295,24 +1295,24 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			}
 			if (pd->props & PWC_CW_BAD_LEN_MUST_BE_0)
 			{
-				expert_add_info_format_text(pinfo, item, &ei_pref_cw_len,
+				expert_add_info_format(pinfo, item, &ei_pref_cw_len,
 						       "Bad Length: must be 0 for this encapsulation");
 			}
 			if (pd->props & PWC_CW_BAD_PAYLEN_LE_0)
 			{
-				expert_add_info_format_text(pinfo, item, &ei_pref_cw_len,
+				expert_add_info_format(pinfo, item, &ei_pref_cw_len,
 						       "Bad Length: too small, must be >= %d",
 						       (int)(PWC_SIZEOF_CW+SIZEOF_N1_PW_CELL));
 			}
 			if (pd->props & PWC_CW_BAD_PAYLEN_GT_PACKET)
 			{
-				expert_add_info_format_text(pinfo, item, &ei_pref_cw_len,
+				expert_add_info_format(pinfo, item, &ei_pref_cw_len,
 						       "Bad Length: must be <= than PSN packet size (%d)",
 						       (int)pd->packet_size);
 			}
 			if (pd->props & PWC_CW_BAD_PADDING_NE_0)
 			{
-				expert_add_info_format_text(pinfo, item, &ei_pref_cw_len,
+				expert_add_info_format(pinfo, item, &ei_pref_cw_len,
 						       "Bad Length: must be == PSN packet size (%d), no padding allowed",
 						       (int)pd->packet_size);
 			}
@@ -1509,13 +1509,13 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 					item2 = proto_tree_add_item(tree2, hf_cell_h_pti, tvb, 3, 1, ENC_BIG_ENDIAN);
 					if (NULL == try_val_to_str(pd->pti, atm_pt_vals))
 					{
-						expert_add_info_format_text(pinfo, item2, &ei_cell_h_pti_undecoded,
+						expert_add_info_format(pinfo, item2, &ei_cell_h_pti_undecoded,
 							"Unknown value of PTI field (%d) in the ATM cell header",
 							pd->pti);
 					}
 					else if ((pd->mode == PWATM_MODE_AAL5_SDU) && !PTI_IS_ADMIN(pd->pti))
 					{
-						expert_add_info_format_text(pinfo, item2, &ei_cell_h_pti_malformed,
+						expert_add_info_format(pinfo, item2, &ei_cell_h_pti_malformed,
 							"ATM admin cell is transerred;"
 							" PTI field (%d) should be 4, 5 or 6.",
 							pd->pti);
@@ -1538,13 +1538,13 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 					}
 					if ((0 != pd->cwb3.v) && (PWATM_MODE_11_VCC == pd->mode))
 					{
-						expert_add_info_format_text(pinfo, item2, &ei_cell_h_v_not_one,
+						expert_add_info_format(pinfo, item2, &ei_cell_h_v_not_one,
 							"1:1 VCC mode:"
 							" V bit must be 0 to indicate that VCI is absent");
 					}
 					if ((0 != pd->cwb3.v) && (PWATM_MODE_AAL5_PDU == pd->mode))
 					{
-						expert_add_info_format_text(pinfo, item2, &ei_cell_h_v_not_one,
+						expert_add_info_format(pinfo, item2, &ei_cell_h_v_not_one,
 							"AAL5 PDU mode:"
 							" V bit must be 0 to indicate that VCI is absent");
 					}
@@ -1568,7 +1568,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 						item2 = proto_tree_add_item(tree2, hf_cell_h_pti, tvb, 0, 1, ENC_BIG_ENDIAN);
 						if (NULL == try_val_to_str(pd->pti, atm_pt_vals))
 						{
-							expert_add_info_format_text(pinfo, item2, &ei_cell_h_pti_undecoded,
+							expert_add_info_format(pinfo, item2, &ei_cell_h_pti_undecoded,
 								"Unknown value of PTI field (%d) in the atm-specific byte"
 								,pd->pti);
 						}
@@ -1594,7 +1594,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 			}
 			else
 			{
-				expert_add_info_format_text(pinfo, item, &ei_pw_payload_size_invalid_error,
+				expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
 					"Not enough data (size: %d), impossible to decode",
 					(int)dissect_size);
 			}
@@ -1644,7 +1644,7 @@ dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data
 		pwc_item_append_text_n_items(item, dissect_size, "byte");
 		if (!is_enough_data)
 		{
-			expert_add_info_format_text(pinfo, item, &ei_pw_payload_size_invalid_error,
+			expert_add_info_format(pinfo, item, &ei_pw_payload_size_invalid_error,
 				"Bad length of cell payload: must be == %d",
 				(int)SIZEOF_ATM_CELL_PAYLOAD);
 		}

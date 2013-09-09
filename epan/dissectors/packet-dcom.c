@@ -1093,7 +1093,7 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 	/* expert info only if severity is set */
 	/* XXX - move this to the callers of this function, to provide a more detailed error output */
 	if(u32HResult & 0x80000000) {
-		expert_add_info_format_text(pinfo, item, &ei_dcom_hresult_expert, "Hresult: %s",
+		expert_add_info_format(pinfo, item, &ei_dcom_hresult_expert, "Hresult: %s",
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
 	}
 	if (pu32HResult)
@@ -1127,7 +1127,7 @@ dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 	/* expert info only if severity flag is set */
 	/* XXX - move this to the callers of this function, to provide a more detailed error output */
 	if(u32HResult & 0x80000000) {
-		expert_add_info_format_text(pinfo, item, &ei_dcom_hresult_expert, "Hresult: %s",
+		expert_add_info_format(pinfo, item, &ei_dcom_hresult_expert, "Hresult: %s",
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
 	}
 	if (pu32HResult)
@@ -1825,7 +1825,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 					first_ip = curr_ip;
 				} else {
 					if(first_ip != curr_ip) {
-						expert_add_info_format_text(pinfo, pi, &ei_dcom_dualstringarray_mult_ip,
+						expert_add_info_format(pinfo, pi, &ei_dcom_dualstringarray_mult_ip,
 								       "DUALSTRINGARRAY: multiple IP's %s %s",
 								       ip_to_str( (guint8 *) &first_ip), ip_to_str( (guint8 *) &curr_ip));
 					}

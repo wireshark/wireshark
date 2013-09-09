@@ -737,7 +737,7 @@ dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
     switch (auth_type) {
     case EIGRP_AUTH_TYPE_MD5:
         if (EIGRP_AUTH_TYPE_MD5_LEN != auth_len) {
-            expert_add_info_format_text(pinfo, ti_auth_len, &ei_eigrp_auth_len, "Invalid auth len %u", auth_len);
+            expert_add_info_format(pinfo, ti_auth_len, &ei_eigrp_auth_len, "Invalid auth len %u", auth_len);
         } else {
             proto_tree_add_item(tree, hf_eigrp_auth_digest, tvb, offset,
                                 EIGRP_AUTH_TYPE_MD5_LEN, ENC_NA);
@@ -746,7 +746,7 @@ dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
 
     case EIGRP_AUTH_TYPE_SHA256:
         if (EIGRP_AUTH_TYPE_SHA256_LEN != auth_len) {
-            expert_add_info_format_text(pinfo, ti_auth_len, &ei_eigrp_auth_len, "Invalid auth len %u", auth_len);
+            expert_add_info_format(pinfo, ti_auth_len, &ei_eigrp_auth_len, "Invalid auth len %u", auth_len);
 
         } else {
             proto_tree_add_item(tree, hf_eigrp_auth_digest, tvb, offset,
@@ -757,7 +757,7 @@ dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
     case EIGRP_AUTH_TYPE_NONE:
     case EIGRP_AUTH_TYPE_TEXT:
     default:
-        expert_add_info_format_text(pinfo, ti_auth_type, &ei_eigrp_auth_type, "Invalid auth type %u", auth_type);
+        expert_add_info_format(pinfo, ti_auth_type, &ei_eigrp_auth_type, "Invalid auth type %u", auth_type);
         break;
     }
 }
@@ -1069,7 +1069,7 @@ dissect_eigrp_ipv4_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
         if (addr_len < 0) {
             ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ipv4_prefixlen,
                                                tvb, offset, 1, ENC_BIG_ENDIAN);
-            expert_add_info_format_text(pinfo, ti_prefixlen, &ei_eigrp_prefixlen, "Invalid prefix length %u, must be <= 32", length);
+            expert_add_info_format(pinfo, ti_prefixlen, &ei_eigrp_prefixlen, "Invalid prefix length %u, must be <= 32", length);
             addr_len = 4; /* assure we can exit the loop */
 
         } else {
@@ -1123,7 +1123,7 @@ dissect_eigrp_ipv6_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
         if (addr_len < 0) {
             ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ipv6_prefixlen,
                                                tvb, offset, 1, ENC_BIG_ENDIAN);
-            expert_add_info_format_text(pinfo, ti_prefixlen, &ei_eigrp_prefixlen, "Invalid prefix length %u, must be <= 128", length);
+            expert_add_info_format(pinfo, ti_prefixlen, &ei_eigrp_prefixlen, "Invalid prefix length %u, must be <= 128", length);
             addr_len = 16; /* assure we can exit the loop */
         } else {
             proto_tree_add_item(tree, hf_eigrp_ipv6_prefixlen, tvb, offset, 1,
@@ -1642,7 +1642,7 @@ dissect_eigrp_general_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
         dissect_eigrp_peer_tidlist(tree, tvb);
         break;
     default:
-        expert_add_info_format_text(pinfo, ti, &ei_eigrp_tlv_type, "Unknown Generic TLV (0x%04x)", tlv);
+        expert_add_info_format(pinfo, ti, &ei_eigrp_tlv_type, "Unknown Generic TLV (0x%04x)", tlv);
         break;
     }
 }
@@ -2557,7 +2557,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 break;
 
             default:
-                expert_add_info_format_text(pinfo, ti, &ei_eigrp_tlv_type, "Unknown TLV Group (0x%04x)", tlv);
+                expert_add_info_format(pinfo, ti, &ei_eigrp_tlv_type, "Unknown TLV Group (0x%04x)", tlv);
             }
 
             offset += size;

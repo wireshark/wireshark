@@ -1326,7 +1326,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
         proto_item_append_text(ti_opt_len, " (%i bytes)", opt_len);
 
         if(opt_len == 0){
-            expert_add_info_format_text(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "Invalid option length (Zero)");
+            expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "Invalid option length (Zero)");
             return opt_offset;
         }
 
@@ -2202,7 +2202,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             break;
 
             default :
-                expert_add_info_format_text(pinfo, ti, &ei_icmpv6_undecoded_option,
+                expert_add_info_format(pinfo, ti, &ei_icmpv6_undecoded_option,
                                        "Dissector for ICMPv6 Option (%d)"
                                        " code not implemented, Contact Wireshark developers"
                                        " if you want this supported", opt_type);
@@ -2531,7 +2531,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 break;
             }
             default :
-                expert_add_info_format_text(pinfo, ti, &ei_icmpv6_undecoded_rpl_option,
+                expert_add_info_format(pinfo, ti, &ei_icmpv6_undecoded_rpl_option,
                                        "Dissector for ICMPv6 RPL Option"
                                        " (%d) code not implemented, Contact"
                                        " Wireshark developers if you want this supported", opt_type);
@@ -3286,7 +3286,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 hidden_item = proto_tree_add_boolean(icmp6_tree, hf_icmpv6_checksum_bad, tvb, offset, 2, TRUE);
                 PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
-                expert_add_info_format_text(pinfo, checksum_item, &ei_icmpv6_checksum,
+                expert_add_info_format(pinfo, checksum_item, &ei_icmpv6_checksum,
                                        "ICMPv6 Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));
             }
         }
@@ -3806,7 +3806,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 break;
             }
             default:
-                expert_add_info_format_text(pinfo, ti, &ei_icmpv6_undecoded_type,
+                expert_add_info_format(pinfo, ti, &ei_icmpv6_undecoded_type,
                                        "Dissector for ICMPv6 Type (%d)"
                                        " code not implemented, Contact Wireshark"
                                        " developers if you want this supported", icmp6_type);
