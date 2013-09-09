@@ -44,10 +44,6 @@
 
 #include "version_info.h"
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
-
 #ifdef SSL_PLUGIN
 #include "packet-ssl-utils.h"
 #else
@@ -98,11 +94,10 @@ typedef struct {
     GByteArray *data;
 } follow_record_t;
 
-char *
-sgetline(char *str, int *next);
-
+#ifdef HAVE_LIBZ
 gboolean
 parse_http_header(char *data, size_t len, size_t *content_start);
+#endif
 
 #ifdef __cplusplus
 }
