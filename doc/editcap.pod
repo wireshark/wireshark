@@ -105,8 +105,8 @@ file formats leaves some random bytes at the end of each packet. Another use is
 for removing vlan tags.
 
 NOTE: This option can be used more than once, effectively allowing you to chop
-bytes from two different areas of a packet in a single pass provided that
-you specify at least one chop length as a postive value and at least one as a
+bytes from up to two different areas of a packet in a single pass provided that
+you specify at least one chop length as a positive value and at least one as a
 negative value.  All positive chop lengths are added together as are all
 negative chop lengths.
 
