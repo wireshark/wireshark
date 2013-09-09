@@ -188,6 +188,9 @@ WS_DLL_PUBLIC void dissector_delete_uint(const char *name, const guint32 pattern
 WS_DLL_PUBLIC void dissector_delete_uint_range(const char *abbrev, range_t *range,
     dissector_handle_t handle);
 
+/* Delete all entries from a dissector table. */
+WS_DLL_PUBLIC void dissector_delete_all(const char *name, dissector_handle_t handle);
+
 /* Change the entry for a dissector in a uint dissector table
    with a particular pattern to use a new dissector handle. */
 WS_DLL_PUBLIC void dissector_change_uint(const char *abbrev, const guint32 pattern,

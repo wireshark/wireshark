@@ -894,6 +894,24 @@ void dissector_delete_uint_range(const char *abbrev, range_t *range,
 	}
 }
 
+static gboolean
+dissector_delete_all_check (gpointer key _U_, gpointer value, gpointer user_data)
+{
+	dtbl_entry_t *dtbl_entry = value;
+	dissector_handle_t handle = user_data;
+
+	return (proto_get_id (dtbl_entry->current->protocol) == proto_get_id (handle->protocol));
+}
+
+/* Delete all entries from a dissector table. */
+void dissector_delete_all(const char *name, dissector_handle_t handle)
+{
+	dissector_table_t sub_dissectors = find_dissector_table(name);
+	g_assert (sub_dissectors);
+
+	g_hash_table_foreach_remove (sub_dissectors->hash_table, dissector_delete_all_check, handle);
+}
+
 /* Change the entry for a dissector in a uint dissector table
    with a particular pattern to use a new dissector handle. */
 void
