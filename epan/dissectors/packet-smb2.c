@@ -36,6 +36,7 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/aftypes.h>
 
 #include "packet-smb2.h"
@@ -612,6 +613,24 @@ smb2_sesid_info_hash(gconstpointer k)
 
 	hash = (guint32)( ((key->sesid>>32)&0xffffffff)+((key->sesid)&0xffffffff) );
 	return hash;
+}
+
+/* Callback for destroying the glib hash tables associated with a conversation
+ * struct. */
+static gboolean
+smb2_conv_destroy(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
+	          void *user_data)
+{
+	smb2_conv_info_t *conv = (smb2_conv_info_t *)user_data;
+
+	g_hash_table_destroy(conv->matched);
+	g_hash_table_destroy(conv->unmatched);
+	g_hash_table_destroy(conv->sesids);
+	g_hash_table_destroy(conv->files);
+
+	/* This conversation is gone, return FALSE to indicate we don't
+	 * want to be called again for this conversation. */
+	return FALSE;
 }
 
 static void smb2_key_derivation(const guint8 *KI _U_, guint32 KI_len _U_,
@@ -6799,7 +6818,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		/* no smb2_into_t structure for this conversation yet,
 		 * create it.
 		 */
-		si->conv = se_new(smb2_conv_info_t);
+		si->conv = wmem_new(wmem_file_scope(), smb2_conv_info_t);
 		/* qqq this leaks memory for now since we never free
 		   the hashtables */
 		si->conv->matched = g_hash_table_new(smb2_saved_info_hash_matched,
@@ -6809,6 +6828,12 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		si->conv->sesids = g_hash_table_new(smb2_sesid_info_hash,
 			smb2_sesid_info_equal);
 		si->conv->files = g_hash_table_new(smb2_eo_files_hash,smb2_eo_files_equal);
+
+		/* Bit of a hack to avoid leaking the hash tables - register a
+		 * callback to free them. Ideally wmem would implement a simple
+		 * hash table so we wouldn't have to do this. */
+		wmem_register_callback(wmem_file_scope(), smb2_conv_destroy,
+				si->conv);
 
 		conversation_add_proto_data(conversation, proto_smb2, si->conv);
 	}
