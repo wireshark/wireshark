@@ -54,10 +54,6 @@
 #include <epan/dissectors/packet-ssl-utils.h>
 #endif
 
-#ifndef QT_CORE_LIB
-#include <gtk/gtk.h>
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
