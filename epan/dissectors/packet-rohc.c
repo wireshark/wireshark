@@ -310,7 +310,6 @@ get_self_describing_var_len_val(tvbuff_t *tvb, proto_tree *tree, int offset, int
     proto_tree_add_bits_item(tree, hf_index, tvb, bit_offset, num_bits, ENC_BIG_ENDIAN);
 
     return val;
-
 }
 
 /* 5.7.1. Packet type 0: UO-0, R-0, R-0-CRC */
@@ -487,6 +486,7 @@ dissect_rohc_ext_format(tvbuff_t *tvb, proto_tree *tree, int offset, guint8 t, r
         offset++;
     } else {
         proto_tree_add_text(tree, tvb, offset, -1, "extension 3[Not dissected yet]");
+        if (tvb_length_remaining(tvb, offset) > 0)
         offset += tvb_length_remaining(tvb, offset);
     }
     return offset;
@@ -1757,7 +1757,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     int                 ir_item_start;
     int                 x_bit_offset;
     gboolean            d = FALSE;
-    guint8              oct, profile, val_len;
+    guint8              oct, profile, val_len = 0;
     gint16              feedback_data_len = 0;
     tvbuff_t           *next_tvb;
     rohc_cid_context_t *rohc_cid_context = NULL;
@@ -1880,7 +1880,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     switch(profile){
         case ROHC_PROFILE_UNCOMPRESSED:
-            if (tvb_length_remaining(tvb, offset)) {
+            if (tvb_length_remaining(tvb, offset) > 0) {
                 oct = tvb_get_guint8(tvb, offset);
                 if ( (oct&0xf0) == 0x60 ) {
                     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1923,7 +1923,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     proto_item         *ir_item, *item;
     proto_tree         *ir_tree;
     gint                ir_item_start;
-    guint8              profile, val_len;
+    guint8              profile, val_len = 0;
     gint16              feedback_data_len = 0;
     rohc_cid_context_t *rohc_cid_context;
 
@@ -2024,7 +2024,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item         *ti, *item, *conf_item;
     proto_tree         *rohc_tree, *sub_tree = NULL, *conf_tree;
     int                 offset               = 0, length;
-    guint8              oct, code, size, val_len;
+    guint8              oct, code, size, val_len = 0;
     gint16              feedback_data_len    = 0, cid = 0;
     gboolean            is_add_cid           = FALSE;
     rohc_info          *p_rohc_info          = NULL;
@@ -2273,13 +2273,16 @@ start_over:
             guint8 *data;
             gint len;
             get_self_describing_var_len_val(tvb, rohc_tree, offset+1, hf_rohc_large_cid, &val_len);
-            len = tvb_length_remaining(tvb, offset) - val_len;
-            data = (guint8 *)g_malloc(len);
-            tvb_memcpy(tvb, data, offset, 1);
-            tvb_memcpy(tvb, &data[1], offset+1+val_len, len-1);
-            next_tvb = tvb_new_child_real_data(tvb, data, len, len);
-            tvb_set_free_cb(next_tvb, g_free);
-            add_new_data_source(pinfo, next_tvb, "Payload");
+            len = tvb_length_remaining(tvb, offset);
+            if (len >= val_len) {
+                len -= val_len;
+                data = (guint8 *)g_malloc(len);
+                tvb_memcpy(tvb, data, offset, 1);
+                tvb_memcpy(tvb, &data[1], offset+1+val_len, len-1);
+                next_tvb = tvb_new_child_real_data(tvb, data, len, len);
+                tvb_set_free_cb(next_tvb, g_free);
+                add_new_data_source(pinfo, next_tvb, "Payload");
+            }
         }
         else {
             next_tvb = tvb_new_subset_remaining(tvb, offset);

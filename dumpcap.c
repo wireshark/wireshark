@@ -3524,9 +3524,13 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     /* initialize capture stop (and alike) conditions */
     init_capture_stop_conditions();
     /* create stop conditions */
-    if (capture_opts->has_autostop_filesize)
+    if (capture_opts->has_autostop_filesize) {
+        if (capture_opts->autostop_filesize > (((guint32)INT_MAX + 1) / 1024)) {
+            capture_opts->autostop_filesize = ((guint32)INT_MAX + 1) / 1024;
+        }
         cnd_autostop_size =
-            cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts->autostop_filesize * 1024);
+            cnd_new(CND_CLASS_CAPTURESIZE, (guint64)capture_opts->autostop_filesize * 1024);
+    }
     if (capture_opts->has_autostop_duration)
         cnd_autostop_duration =
             cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts->autostop_duration);
@@ -3627,7 +3631,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
             /* check capture size condition */
             if (cnd_autostop_size != NULL &&
-                cnd_eval(cnd_autostop_size, (guint32)global_ld.bytes_written)) {
+                cnd_eval(cnd_autostop_size, global_ld.bytes_written)) {
                 /* Capture size limit reached, do we have another file? */
                 if (!do_file_switch_or_stop(capture_opts, cnd_autostop_files,
                                             cnd_autostop_size, cnd_file_duration))

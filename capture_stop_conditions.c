@@ -145,7 +145,7 @@ const char* CND_CLASS_CAPTURESIZE = "cnd_class_capturesize";
 
 /* structure that contains user supplied data for this condition */
 typedef struct _cnd_capturesize_dat{
-  long max_capture_size;
+  guint64 max_capture_size;
 }cnd_capturesize_dat;
 
 /*
@@ -164,7 +164,9 @@ static condition* _cnd_constr_capturesize(condition* cnd, va_list ap){
   if((data = (cnd_capturesize_dat*)g_malloc(sizeof(cnd_capturesize_dat))) == NULL)
     return NULL;
   /* initialize user data */
-  data->max_capture_size = va_arg(ap, long);
+  data->max_capture_size = va_arg(ap, guint64);
+  if (data->max_capture_size > ((guint64)INT_MAX + 1))
+    data->max_capture_size = (guint64)INT_MAX + 1;
   cnd_set_user_data(cnd, (void*)data);
   return cnd;
 } /* END _cnd_constr_capturesize() */
@@ -194,7 +196,7 @@ static gboolean _cnd_eval_capturesize(condition* cnd, va_list ap){
   cnd_capturesize_dat* data = (cnd_capturesize_dat*)cnd_get_user_data(cnd);
   /* check capturesize here */
   if(data->max_capture_size == 0) return FALSE; /* 0 == infinite */
-  if(va_arg(ap, long) >= data->max_capture_size){
+  if(va_arg(ap, guint64) >= data->max_capture_size){
     return TRUE;
   }
   return FALSE;

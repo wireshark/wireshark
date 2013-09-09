@@ -118,6 +118,10 @@ The following bugs have been fixed:
 
 * pod2man error on reordercap.pod. (ws-buglink:8982[])
 
+* SGI Nsym disambiguation is unconditionally displayed when dissecting VHT. (ws-buglink:8989[])
+
+* The Wireshark icon doesn't show up in OS X 10.5. (ws-buglink:8993[])
+
 * Build fails if system Python is version 3+. (ws-buglink:8995[])
 
 * SCSI dissector does not parse PERSISTENT RESERVE commands correctly. (ws-buglink:9012[])
@@ -131,6 +135,8 @@ The following bugs have been fixed:
 * Dissector for EtherCAT: ADS highlighting in the Packet Bytes Pane is incorrect. (ws-buglink:9036[])
 
 * 802.11 HT Extended Capabilities B10 decode incorrect. (ws-buglink:9038[])
+
+* Wrong dissection of MSTI Root Identifiers for all MSTIs. (ws-buglink:9088[])
 
 * Warning for attempting to install 64-bit Wireshark on a 32-bit machine has an embedded "\n". (ws-buglink:9103[])
 
@@ -155,10 +161,14 @@ IPFIX
 LDAP
 MQ
 NBAP
+Novell SSS
 PROFINET MRP
+Radiotap
+ROHC
 RTPS
 SCSI
 SIP
+STP
 
 --sort-and-group--
 

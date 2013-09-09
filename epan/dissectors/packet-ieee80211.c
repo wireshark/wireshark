@@ -10617,20 +10617,21 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
                         ENC_ASCII|ENC_NA);
   } else {
     emem_strbuf_t *ssid_sb = ep_strbuf_new(ssid);
+    ssid_len = (gint)(ssid_end - ssid);
     ep_strbuf_append(ssid_sb, " [truncated]");
     proto_tree_add_string_format_value(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
                         ssid, "%s", ssid_sb->str);
     ssid = ssid_sb->str;
   }
 
-  if (tag_len > 0) {
+  if (ssid_len > 0) {
     proto_item_append_text(ti, ": %s", ssid);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", ssid);
 
     /* Wlan Stats */
-    memcpy(wlan_stats.ssid, ssid, MIN(tag_len, MAX_SSID_LEN));
-    wlan_stats.ssid_len = tag_len;
+    memcpy(wlan_stats.ssid, ssid, MIN(ssid_len, MAX_SSID_LEN));
+    wlan_stats.ssid_len = ssid_len;
   } else {
     proto_item_append_text(ti, ": Broadcast");
 
