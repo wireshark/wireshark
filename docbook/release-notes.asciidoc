@@ -138,6 +138,8 @@ The following bugs have been fixed:
 
 * Wrong dissection of MSTI Root Identifiers for all MSTIs. (ws-buglink:9088[])
 
+* Weird malformed HTTP error. (ws-buglink:9101[])
+
 * Warning for attempting to install 64-bit Wireshark on a 32-bit machine has an embedded "\n". (ws-buglink:9103[])
 
 === New and Updated Features
@@ -156,8 +158,10 @@ ASN.1 PER
 ASSA R3
 Bluetooth HCI ACL
 EtherCAT AMS
+GTPv2
 IEEE 802.11
 IPFIX
+ISDN SUP
 LDAP
 MQ
 NBAP
