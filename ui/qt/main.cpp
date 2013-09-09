@@ -492,8 +492,9 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
     create_app_running_mutex();
 #endif
+
     QString locale;
-    QString *capture_file = NULL;
+    QString *cf_name = NULL;
 
     // In Qt 5, C strings are treated always as UTF-8 when converted to
     // QStrings; in Qt 4, the codec must be set to make that happen
@@ -710,7 +711,7 @@ int main(int argc, char *argv[])
             exit(0);
             break;
         case 'r':
-            capture_file = new QString(optarg);
+            cf_name = new QString(optarg);
             break;
         case 'X':
             /*
@@ -937,8 +938,8 @@ int main(int argc, char *argv[])
     wsApp->allSystemsGo();
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 
-    if (capture_file != NULL) {
-        main_w->openCaptureFile(*capture_file);
+    if (cf_name != NULL) {
+        main_w->openCaptureFile(*cf_name);
     }
 
     g_main_loop_new(NULL, FALSE);
