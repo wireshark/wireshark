@@ -120,6 +120,7 @@ set(CLEAN_FILES
 	packet_format_group_box.cpp
 	packet_list.cpp
 	packet_list_model.cpp
+	packet_list_record.cpp
 	packet_range_group_box.cpp
 	preferences_dialog.cpp
 	print_dialog.cpp
@@ -139,12 +140,10 @@ set(CLEAN_FILES
 	time_shift_dialog.cpp
 	uat_dialog.cpp
 	wireshark_application.cpp
-
-	packet_list_record.cpp
-	qcustomplot.cpp
 )
 
 set(DIRTY_FILES
+	qcustomplot.cpp
 )
 
 set(QTSHARK_UI
