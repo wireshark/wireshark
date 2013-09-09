@@ -1674,6 +1674,6 @@ void
 proto_reg_handoff_card_app_toolkit(void)
 {
 	sms_dissector_table =
-		register_dissector_table("etsi_cat.sms_tpdu", "3GPP SMS TPDU",
-		FT_UINT8, BASE_DEC);
+		register_dissector_table("etsi_cat.sms_tpdu",
+		"ETSI CAT SMS TPDU", FT_UINT8, BASE_DEC);
 }

@@ -547,7 +547,7 @@ proto_register_ccid(void)
         &sub_selected, sub_enum_vals, FALSE);
 
     ccid_dissector_table = register_dissector_table("usbccid.payload",
-                                                    "CCID Payload", FT_UINT8, BASE_DEC);
+                                                    "USBCCID Payload", FT_UINT8, BASE_DEC);
 
     register_dissector("usbccid", dissect_ccid, proto_ccid);
 }

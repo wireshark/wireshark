@@ -444,7 +444,7 @@ proto_register_btavctp(void)
 
     reassembling = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    avctp_service_dissector_table = register_dissector_table("btavctp.service", "AVCTP Service", FT_UINT16, BASE_HEX);
+    avctp_service_dissector_table = register_dissector_table("btavctp.service", "BT AVCTP Service", FT_UINT16, BASE_HEX);
 
     proto_btavctp = proto_register_protocol("Bluetooth AVCTP Protocol", "BT AVCTP", "btavctp");
     register_dissector("btavctp", dissect_btavctp, proto_btavctp);

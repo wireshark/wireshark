@@ -1735,7 +1735,8 @@ proto_register_aim(void)
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &aim_desegment);
 
-	subdissector_table = register_dissector_table("aim.family", "Family ID", FT_UINT16, BASE_HEX);
+	subdissector_table = register_dissector_table("aim.family",
+		"AIM Family ID", FT_UINT16, BASE_HEX);
 }
 
 void

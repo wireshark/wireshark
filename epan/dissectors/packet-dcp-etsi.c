@@ -904,10 +904,10 @@ proto_register_dcp_etsi (void)
   dcp_dissector_table = register_dissector_table("dcp-etsi.sync",
             "DCP Sync", FT_STRING, BASE_NONE);
   af_dissector_table = register_dissector_table("dcp-af.pt",
-            "AF Payload Type", FT_UINT8, BASE_DEC);
+            "DCP-AF Payload Type", FT_UINT8, BASE_DEC);
 
   tpl_dissector_table = register_dissector_table("dcp-tpl.ptr",
-            "AF Payload Type", FT_STRING, BASE_NONE);
+            "DCP-TPL Protocol Type & Revision", FT_STRING, BASE_NONE);
 
   register_init_routine(dcp_init_protocol);
 
