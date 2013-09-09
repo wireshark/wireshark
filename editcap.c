@@ -966,12 +966,7 @@ main(int argc, char *argv[])
         case 'C':
         {
             int choplen = 0, chopoff = 0;
-#if 0
-    int choplen_begin = 0;              /* No chop at beginning   */
-    int choplen_end = 0;                /* No chop at end         */
-    int chopoff_begin_pos = 0, chopoff_begin_neg = 0;/* Offsets for chopping from beginning */
-    int chopoff_end_pos = 0, chopoff_end_neg = 0;    /* Offset for chopping from end */
-#endif
+
             switch (sscanf(optarg, "%d:%d", &chopoff, &choplen)) {
             case 1: /* only the chop length was specififed */
                 choplen = chopoff;
