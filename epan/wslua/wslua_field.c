@@ -62,9 +62,6 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
     FieldInfo fi = checkFieldInfo(L,1);
 
     switch(fi->hfinfo->type) {
-        case FT_NONE:
-                lua_pushnil(L);
-                return 1;
         case FT_BOOLEAN:
                 lua_pushboolean(L,(int)fvalue_get_uinteger(&(fi->value)));
                 return 1;
@@ -146,6 +143,12 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
 
                 return 1;
             }
+        case FT_NONE:
+                if (fi->length == 0) {
+                        lua_pushnil(L);
+                        return 1;
+                }
+                /* FALLTHROUGH */
         case FT_BYTES:
         case FT_UINT_BYTES:
         case FT_GUID:
