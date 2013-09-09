@@ -1737,7 +1737,7 @@ proto_register_modbus(void)
 
     /* Registering subdissectors table */
     modbus_data_dissector_table = register_dissector_table("modbus.data", "Modbus Data", FT_STRING, BASE_NONE);
-    modbus_dissector_table = register_dissector_table("mbtcp.prot_id", "protocol identifier", FT_UINT16, BASE_DEC);
+    modbus_dissector_table = register_dissector_table("mbtcp.prot_id", "Modbus/TCP protocol identifier", FT_UINT16, BASE_DEC);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mbtcp, mbtcp_hf, array_length(mbtcp_hf));

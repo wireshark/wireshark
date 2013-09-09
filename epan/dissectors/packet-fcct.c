@@ -277,7 +277,7 @@ proto_register_fcct(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     fcct_gserver_table = register_dissector_table ("fcct.server",
-                                                   "Server",
+                                                   "FCCT Server",
                                                    FT_UINT8, BASE_HEX);
 }
 
