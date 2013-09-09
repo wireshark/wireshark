@@ -3209,7 +3209,7 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset  +=  1;
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_serv_type, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-	bit_offset  +=  3;
+	/*bit_offset  +=  3;*/
 
 	/* no length check possible */
 	return (1);
