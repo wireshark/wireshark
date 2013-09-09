@@ -26,6 +26,10 @@
 
 #include <QDialog>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QInputDialog>
 
 #include <unistd.h>
 
