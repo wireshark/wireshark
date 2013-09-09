@@ -182,7 +182,10 @@ void MainWindow::openCaptureFile(QString &cf_path, QString &display_filter)
     }
     // get_dirname overwrites its path. Hopefully this isn't a problem.
     wsApp->setLastOpenDir(get_dirname(cf_path.toUtf8().data()));
-    df_combo_box_->setEditText(display_filter);
+    if(display_filter != NULL)
+    {
+        df_combo_box_->setEditText(display_filter);
+    }
 
     main_ui_->statusBar->showExpert();
 }
