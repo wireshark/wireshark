@@ -463,6 +463,7 @@ int main(int argc, char *argv[])
     MainWindow *main_w;
 
     int                  opt;
+    gboolean             arg_error = FALSE;
 
 #ifdef _WIN32
     WSADATA	       wsaData;
@@ -726,6 +727,53 @@ int main(int argc, char *argv[])
             exit(0);
             break;
         }
+    }
+
+    if (!arg_error) {
+        argc -= optind;
+        argv += optind;
+        if (argc >= 1) {
+            if (cf_name != NULL) {
+                /*
+                 * Input file name specified with "-r" *and* specified as a regular
+                 * command-line argument.
+                 */
+                cmdarg_err("File name specified both with -r and regular argument");
+                arg_error = TRUE;
+            } else {
+                /*
+                 * Input file name not specified with "-r", and a command-line argument
+                 * was specified; treat it as the input file name.
+                 *
+                 * Yes, this is different from tshark, where non-flag command-line
+                 * arguments are a filter, but this works better on GUI desktops
+                 * where a command can be specified to be run to open a particular
+                 * file - yes, you could have "-r" as the last part of the command,
+                 * but that's a bit ugly.
+                 */
+                cf_name = new QString(g_strdup(argv[0]));
+
+            }
+            argc--;
+            argv++;
+        }
+
+        if (argc != 0) {
+            /*
+             * Extra command line arguments were specified; complain.
+             */
+            cmdarg_err("Invalid argument: %s", argv[0]);
+            arg_error = TRUE;
+        }
+    }
+    if (arg_error) {
+#ifndef HAVE_LIBPCAP
+        if (capture_option_specified) {
+            cmdarg_err("This version of Wireshark was not built with support for capturing packets.");
+        }
+#endif
+        print_usage(FALSE);
+        exit(1);
     }
 
     /* Init the "Open file" dialog directory */
