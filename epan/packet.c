@@ -897,8 +897,8 @@ void dissector_delete_uint_range(const char *abbrev, range_t *range,
 static gboolean
 dissector_delete_all_check (gpointer key _U_, gpointer value, gpointer user_data)
 {
-	dtbl_entry_t *dtbl_entry = value;
-	dissector_handle_t handle = user_data;
+	dtbl_entry_t *dtbl_entry = (dtbl_entry_t *) value;
+	dissector_handle_t handle = (dissector_handle_t *) user_data;
 
 	return (proto_get_id (dtbl_entry->current->protocol) == proto_get_id (handle->protocol));
 }
