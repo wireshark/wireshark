@@ -460,7 +460,8 @@ RESOURCES += \
 
 
 TRANSLATIONS = \
-        qtshark_de.ts	\
+        qtshark_de.ts \
+        qtshark_zh_CN.ts \
         qtshark_fr.ts
 
 ICON = ../../packaging/macosx/Resources/Wireshark.icns

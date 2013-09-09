@@ -22,6 +22,7 @@
 <RCC>
     <qresource prefix="/i18n">
         <file>qtshark_de.qm</file>
+        <file>qtshark_zh_CN.qm</file>
         <file>qtshark_fr.qm</file>
     </qresource>
 </RCC>

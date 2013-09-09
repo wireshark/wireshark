@@ -198,6 +198,7 @@ QRC_FILES = \
 #
 TS_FILES = \
 	qtshark_fr.ts \
+	qtshark_zh_CN.ts \
 	qtshark_de.ts
 
 #
@@ -206,6 +207,7 @@ TS_FILES = \
 # Should be auto-generated ?
 QM_FILES = \
 	qtshark_fr.qm \
+	qtshark_zh_CN.qm \
 	qtshark_de.qm
 
 #

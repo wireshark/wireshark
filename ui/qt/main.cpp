@@ -819,6 +819,9 @@ int main(int argc, char *argv[])
         case 3: /* German */
         locale = "de";
         break;
+        case 4: /* Chinese */
+        locale = "zh_CN";
+        break;
         default: /* Auto-Detect */
         locale = QLocale::system().name();
         break;
