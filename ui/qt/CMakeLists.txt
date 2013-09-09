@@ -139,11 +139,12 @@ set(CLEAN_FILES
 	time_shift_dialog.cpp
 	uat_dialog.cpp
 	wireshark_application.cpp
+
+	packet_list_record.cpp
+	qcustomplot.cpp
 )
 
 set(DIRTY_FILES
-	packet_list_record.cpp
-	qcustomplot.cpp
 )
 
 set(QTSHARK_UI
@@ -185,6 +186,7 @@ set(QTSHARK_QRC
 set(QTSHARK_TS
 	qtshark_de.ts
 	qtshark_fr.ts
+	qtshark_zh_CN.ts
 )
 
 include_directories(
