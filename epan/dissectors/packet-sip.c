@@ -1539,6 +1539,10 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 		/* In case there are more parameters, point to the start of it */
 		contact_params_start_offset = current_offset+1;
 		queried_offset = contact_params_start_offset;
+		if (c == ',') {
+			/* comma separator found, stop parsing of current contact-param here */
+			break;
+		}
 	}
 
 	return current_offset;
@@ -2050,6 +2054,7 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (len == -1)
 			break;	/* need more data */
 		offset += len;
+		first = FALSE;
 	}
 	return TRUE;
 }

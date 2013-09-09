@@ -392,7 +392,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 				it->fields++;
 				break;
 			case FT_RELATIVE_TIME:
-				new_time = fvalue_get(&((field_info *)gp->pdata[0])->value);
+				new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
 
 				switch(graph->calc_type){
 					guint64 t, pt; /* time in us */
