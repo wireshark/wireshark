@@ -975,6 +975,8 @@ load_cap_file(capture_file *cf)
     struct wtap_pkthdr  phdr;
     guchar       pd[WTAP_MAX_PACKET_SIZE];
 
+    memset(&phdr, 0, sizeof(phdr));
+
     while (raw_pipe_read(&phdr, pd, &err, &err_info, &data_offset)) {
         process_packet(cf, data_offset, &phdr, pd);
     }

@@ -117,7 +117,7 @@ sub read_svn_info {
 		$package_format = $version_pref{"pkg_format"};
 	}
 
-	if (-d "$srcdir/.svn") {
+	if (-d "$srcdir/.svn" or -d "$srcdir/../.svn") {
 		$info_source = "Command line (svn info)";
 		$svn_info_cmd = "svn info $srcdir";
 	} elsif (-d "$srcdir/.git/svn") {

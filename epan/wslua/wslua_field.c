@@ -187,6 +187,8 @@ static int FieldInfo_get_range(lua_State* L) {
 	r->tvb = ep_alloc(sizeof(struct _wslua_tvb));
 
 	r->tvb->ws_tvb = fi->ds_tvb;
+	r->tvb->expired = FALSE;
+	r->tvb->need_free = FALSE;
 	r->offset = fi->start;
 	r->len = fi->length;
 

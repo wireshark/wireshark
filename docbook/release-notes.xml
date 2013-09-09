@@ -175,6 +175,18 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Lua ByteArray:append() causes wireshark crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4461">Bug
+          4461</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Lua script can not get &quot;data-text-lines&quot; protocol data.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5200">Bug
+          5200</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           PER normally small non-negative whole number decoding is wrong when &gt;= 64.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8841">Bug
           8841</ulink>)
@@ -199,9 +211,21 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Dissector for EtherCAT: ADS highlighting in the Packet Bytes Pane is incorrect.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9036">Bug
+          9036</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           802.11 HT Extended Capabilities B10 decode incorrect.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9038">Bug
           9038</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Weird malformed HTTP error.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9101">Bug
+          9101</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -231,11 +255,15 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 ASSA R3,
+EtherCAT AMS,
+GTPv2,
+HTTP,
 IEEE 802.11,
 IPFIX,
 LDAP,
 MQ,
 NBAP,
+NCP SSS,
 RTPS,
 SIP,
 
