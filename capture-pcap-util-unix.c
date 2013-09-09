@@ -28,6 +28,8 @@
 
 #ifdef HAVE_LIBPCAP
 
+#ifndef HAVE_PCAP_FINDALLDEVS
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -56,8 +58,15 @@ struct rtentry;
 # include <sys/sockio.h>
 #endif
 
-#include "capture_ifinfo.h"
 #include "capture-pcap-util.h"
+
+#else
+
+#include <pcap.h>
+
+#endif  /* HAVE_PCAP_FINDALLDEVS */
+
+#include "capture_ifinfo.h"
 #include "capture-pcap-util-int.h"
 
 #ifndef HAVE_PCAP_FINDALLDEVS
