@@ -1,0 +1,44 @@
+#!/bin/sh
+# Copyright 2013, Alexis La Goutte (See AUTHORS file)
+#
+# $Id$
+#
+# For git user, copy pre-commit in .git/hook/ folder
+#   to don't launch the script when commit use --no-verify argument
+#
+# From
+# http://mark-story.com/posts/view/using-git-commit-hooks-to-prevent-stupid-mistakes
+#
+for FILE in `git diff-index --cached --name-only HEAD` ; do
+    #Exit immediately if a command exits with a non-zero status.
+    set -e
+
+    #Check if checkhf is good
+    ./tools/checkhf.pl $FILE
+
+    #Check if checkAPIs is good
+    ./tools/checkAPIs.pl $FILE
+
+    #Check if fix-encoding-args is good
+    ./tools/fix-encoding-args.pl $FILE
+
+    #Check if fix-encoding-args is good
+    ./tools/fix-encoding-args.pl $FILE
+    #Add whitetrailing spaces...
+    #perl -p -i -e 's/\ +$//' $(find . -name "*.[ch]" -print)
+
+done
+exit
+
+#
+#  Editor modelines
+#
+#  Local Variables:
+#  c-basic-offset: 4
+#  tab-width: 8
+#  indent-tabs-mode: nil
+#  End:
+#
+#  ex: set shiftwidth=4 tabstop=8 expandtab:
+#  :indentSize=4:tabSize=8:noTabs=true:
+#
