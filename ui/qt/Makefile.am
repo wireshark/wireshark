@@ -105,6 +105,8 @@ file_set_dialog.cpp file_set_dialog.h: ui_file_set_dialog.h
 
 filter_expressions_preferences_frame.cpp filter_expressions_preferences_frame.h: ui_filter_expressions_preferences_frame.h
 
+follow_stream_dialog.cpp: ui_follow_stream_dialog.h
+
 font_color_preferences_frame.cpp font_color_preferences_frame.h: ui_font_color_preferences_frame.h
 
 import_text_dialog.cpp import_text_dialog.h: ui_import_text_dialog.h
