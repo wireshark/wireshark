@@ -359,10 +359,23 @@ file, use:
 
     editcap -L -C 12:4 capture_vlan.pcap capture_no_vlan.pcap
 
-To remove the IP header as well as the last 4 bytes from all packets within an
-Ethernet-encapsulated capture file, use:
+To chop both the 10 byte and 20 byte regions from the following 75 byte packet
+in a single pass, use any of the 8 possible methods provided below:
 
-    editcap -C 14:20 -C -4 capture.pcap chopped.pcap
+    <--------------------------- 75 ---------------------------->
+
+    +---+-------+-----------+---------------+-------------------+
+    | 5 |   10  |     15    |       20      |         25        |
+    +---+-------+-----------+---------------+-------------------+
+
+    1) editcap -C 5:10 -C -25:-20 capture.pcap chopped.pcap
+    2) editcap -C 5:10 -C 50:-20 capture.pcap chopped.pcap
+    3) editcap -C -70:10 -C -25:-20 capture.pcap chopped.pcap
+    4) editcap -C -70:10 -C 50:-20 capture.pcap chopped.pcap
+    5) editcap -C 30:20 -C -60:-10 capture.pcap chopped.pcap
+    6) editcap -C 30:20 -C 15:-10 capture.pcap chopped.pcap
+    7) editcap -C -45:20 -C -60:-10 capture.pcap chopped.pcap
+    8) editcap -C -45:20 -C 15:-10 capture.pcap chopped.pcap
 
 =head1 SEE ALSO
 
