@@ -88,7 +88,6 @@ public:
     int monospaceTextSize(const char *str, bool bold = false);
     void setConfigurationProfile(const gchar *profile_name);
 
-
 private:
     void prefsToCaptureOpts();
 

@@ -58,7 +58,7 @@ private:
     pref_t *pref_auto_scroll_percentage_;
     pref_t *pref_toolbar_main_style_;
     pref_t *pref_toolbar_filter_style_;
-
+    pref_t *pref_qt_language_;
     void updateWidgets();
 
 private slots:
@@ -74,6 +74,7 @@ private slots:
     void on_autoScrollPercentageLineEdit_textEdited(const QString &new_pct);
     void on_mainToolbarComboBox_currentIndexChanged(int index);
     void on_filterToolbarComboBox_currentIndexChanged(int index);
+    void on_languageComboBox_currentIndexChanged(int index);
 };
 
 #endif // MAIN_WINDOW_PREFERENCES_FRAME_H

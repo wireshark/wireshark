@@ -164,7 +164,7 @@ typedef struct _e_prefs {
   guint        gui_recent_df_entries_max;
   guint        gui_recent_files_count_max;
   guint        gui_fileopen_style;
-  gchar	      *gui_fileopen_dir;
+  gchar       *gui_fileopen_dir;
   guint        gui_fileopen_preview;
   gboolean     gui_ask_unsaved;
   gboolean     gui_find_wrap;
@@ -206,6 +206,7 @@ typedef struct _e_prefs {
   gchar       *saved_at_version;
   gboolean     unknown_prefs;         /* unknown or obsolete pref(s) */ 
   gboolean     unknown_colorfilters;  /* unknown or obsolete color filter(s) */
+  guint        gui_qt_language;       /* Qt Translation language selection */
 } e_prefs;
 
 WS_DLL_PUBLIC e_prefs prefs;

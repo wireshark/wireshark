@@ -489,23 +489,11 @@ int main(int argc, char *argv[])
     GLogLevelFlags       log_flags;
     int                  status;
 
-    //initialize language !
-
 #ifdef _WIN32
     create_app_running_mutex();
 #endif
-
-    QString locale = QLocale::system().name();
+    QString locale;
     QString *capture_file = NULL;
-
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "Translator %s", locale.toStdString().c_str());
-    QTranslator translator;
-    translator.load(QString(":/i18n/qtshark_") + locale);
-    ws_app.installTranslator(&translator);
-
-    QTranslator qtTranslator;
-    qtTranslator.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    ws_app.installTranslator(&qtTranslator);
 
     // In Qt 5, C strings are treated always as UTF-8 when converted to
     // QStrings; in Qt 4, the codec must be set to make that happen
@@ -817,6 +805,32 @@ int main(int argc, char *argv[])
 
     splash_update(RA_PREFERENCES, NULL, NULL);
     prefs_p = ws_app.readConfigurationFiles (&gdp_path, &dp_path);
+
+    //initialize language !
+
+    /*TODO: Enhance... may be get the locale from the enum gui_qt_language */
+    switch(prefs_p->gui_qt_language){
+        case 1: /* English */
+        locale = "en";
+        break;
+        case 2: /* French */
+        locale = "fr";
+        break;
+        case 3: /* German */
+        locale = "de";
+        break;
+        default: /* Auto-Detect */
+        locale = QLocale::system().name();
+        break;
+    }
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Translator %s", locale.toStdString().c_str());
+    QTranslator translator;
+    translator.load(QString(":/i18n/qtshark_") + locale);
+    wsApp->installTranslator(&translator);
+
+    QTranslator qtTranslator;
+    qtTranslator.load("qt_" + locale, QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    wsApp->installTranslator(&qtTranslator);
 
     splash_update(RA_LISTENERS, NULL, NULL);
 
