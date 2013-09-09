@@ -106,6 +106,8 @@ The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. ws-buglink:0000[]
 
+* Lua ByteArray:append() causes wireshark crash. (ws-buglink:4461[])
+
 * "Edit Interface Settings": "Capture Filter" combo box is not populated across Wireshark sessions. (ws-buglink:7278[])
 
 * PER normally small non-negative whole number decoding is wrong when >= 64. (ws-buglink:8841[])

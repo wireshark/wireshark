@@ -94,12 +94,15 @@ WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
 #define WSLUA_ARG_ByteArray__cat_FIRST 1 /* First array */
 #define WSLUA_ARG_ByteArray__cat_SECOND 2 /* Second array */
 
-    ByteArray ba = checkByteArray(L,WSLUA_ARG_ByteArray__cat_FIRST);
+    ByteArray ba1 = checkByteArray(L,WSLUA_ARG_ByteArray__cat_FIRST);
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray__cat_SECOND);
+    ByteArray ba;
 
-    if (! (ba  && ba2) )
+    if (! (ba1  && ba2) )
         WSLUA_ERROR(ByteArray__cat,"Both arguments must be ByteArrays");
 
+    ba = g_byte_array_new();
+    g_byte_array_append(ba,ba1->data,ba1->len);
     g_byte_array_append(ba,ba2->data,ba2->len);
 
     pushByteArray(L,ba);
@@ -117,8 +120,7 @@ WSLUA_METHOD ByteArray_prepend(lua_State* L) {
 
     g_byte_array_prepend(ba,ba2->data,ba2->len);
 
-    pushByteArray(L,ba);
-    return 1;
+    return 0;
 }
 
 WSLUA_METHOD ByteArray_append(lua_State* L) {
@@ -132,8 +134,7 @@ WSLUA_METHOD ByteArray_append(lua_State* L) {
 
     g_byte_array_append(ba,ba2->data,ba2->len);
 
-    pushByteArray(L,ba);
-    return 1;
+    return 0;
 }
 
 WSLUA_METHOD ByteArray_set_size(lua_State* L) {
