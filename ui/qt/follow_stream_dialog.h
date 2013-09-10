@@ -54,6 +54,7 @@
 
 #include "../file.h"
 #include "ui/alert_box.h"
+#include "ui/follow.h"
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
 #include "wsutil/tempfile.h"
@@ -68,7 +69,6 @@
 
 
 #include <QtGui>
-#include "../follow.h"
 
 WS_DLL_PUBLIC FILE *data_out_file;
 
