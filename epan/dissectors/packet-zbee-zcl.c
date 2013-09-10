@@ -1858,16 +1858,15 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
         case ZBEE_ZCL_UTC:
             /* Display UTC */
-            attr_time.secs = (guint32)tvb_get_letohl(tvb, *offset);
+            attr_time.secs = tvb_get_letohl(tvb, *offset);
             attr_time.secs += ZBEE_ZCL_NSTIME_UTC_OFFSET;
             attr_time.nsecs = 0;
 
             proto_item_append_text(tree, ", %s",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved") );
-            proto_tree_add_time(tree, hf_zbee_zcl_attr_utc, tvb, *offset, (int)sizeof(guint),
-                            &attr_time);
+            proto_tree_add_time(tree, hf_zbee_zcl_attr_utc, tvb, *offset, 4, &attr_time);
 
-            *offset += (int)sizeof(guint32);
+            *offset += 4;
             break;
 
         case ZBEE_ZCL_CLUSTER_ID:

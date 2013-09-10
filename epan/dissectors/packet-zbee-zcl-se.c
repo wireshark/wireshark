@@ -341,12 +341,16 @@ dissect_zcl_msg_cancel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_msg_confirm(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
+    nstime_t confirm_time;
+
     /* Retrieve "Message ID" field */
     proto_tree_add_item(tree, hf_zbee_zcl_msg_message_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Retrieve "Confirmation Time" field */
-    proto_tree_add_item(tree, hf_zbee_zcl_msg_confirm_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    confirm_time.secs = tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    confirm_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_msg_confirm_time, tvb, *offset, 4, &confirm_time);
     *offset += 4;
 }
 
@@ -378,7 +382,7 @@ decode_zcl_msg_duration(gchar *s, guint16 value)
  *      messaging specifications.
  *  PARAMETERS
  *      guint *s        - string to display
- *      guint16 value   - value to decode
+ *      guint32 value   - value to decode
  *  RETURNS
  *      none
  *---------------------------------------------------------------
@@ -388,8 +392,10 @@ decode_zcl_msg_start_time(gchar *s, guint32 value)
 {
     if (value == ZBEE_ZCL_MSG_START_TIME_NOW)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Now");
-    else
+    else {
+        value += ZBEE_ZCL_NSTIME_UTC_OFFSET;
         g_snprintf(s, ITEM_LABEL_LENGTH, "%s", abs_time_secs_to_str (value, ABSOLUTE_TIME_LOCAL, TRUE));
+    }
 } /* decode_zcl_msg_start_time */
 
 
