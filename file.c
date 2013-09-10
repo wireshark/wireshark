@@ -1218,7 +1218,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
 
   /* Add this packet's link-layer encapsulation type to cf->linktypes, if
      it's not already there.
-     XXX - yes, this is O(N), so if every packet had a different 
+     XXX - yes, this is O(N), so if every packet had a different
      link-layer encapsulation type, it'd be O(N^2) to read the file, but
      there are probably going to be a small number of encapsulation types
      in a file. */
@@ -1364,7 +1364,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 		file_int_data = &g_array_index (idb_inf_merge_file->interface_data, wtapng_if_descr_t, 0);
 		int_data.wtap_encap            = file_int_data->wtap_encap;
 		int_data.time_units_per_second = file_int_data->time_units_per_second;
-		int_data.link_type             = file_int_data->link_type; 
+		int_data.link_type             = file_int_data->link_type;
 		int_data.snap_len              = file_int_data->snap_len;
 		int_data.if_name               = g_strdup(file_int_data->if_name);
 		int_data.opt_comment           = NULL;
@@ -1386,11 +1386,11 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 		in_files[i].interface_id = i;
 	}
 
-    pdh = wtap_dump_fdopen_ng(out_fd, file_type, 
-		selected_frame_type, 
+    pdh = wtap_dump_fdopen_ng(out_fd, file_type,
+		selected_frame_type,
 		merge_max_snapshot_length(in_file_count, in_files),
         FALSE /* compressed */, shb_hdr, idb_inf /* wtapng_iface_descriptions_t *idb_inf */, &open_err);
-    
+
 	  if (pdh == NULL) {
 		ws_close(out_fd);
 		merge_close_in_files(in_file_count, in_files);
@@ -1946,7 +1946,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     }
 
     if (redissect || refilter) {
-      /* If we're redissecting or refiltering then any frame dependencies 
+      /* If we're redissecting or refiltering then any frame dependencies
        * from the previous dissection/filtering are no longer valid.
        */
       fdata->flags.dependent_of_displayed = 0;
@@ -2196,7 +2196,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
   int         progbar_quantum;
   range_process_e process_this;
 
-  memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+  memset(&pseudo_header, 0, sizeof(union wtap_pseudo_header));
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -4150,7 +4150,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
     /* Add this packet's link-layer encapsulation type to cf->linktypes, if
        it's not already there.
-       XXX - yes, this is O(N), so if every packet had a different 
+       XXX - yes, this is O(N), so if every packet had a different
        link-layer encapsulation type, it'd be O(N^2) to read the file, but
        there are probably going to be a small number of encapsulation types
        in a file. */
@@ -4532,7 +4532,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
           cf->packet_comment_count--;
         }
       }
-    }    
+    }
   }
   return CF_WRITE_OK;
 
