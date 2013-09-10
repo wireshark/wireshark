@@ -109,6 +109,8 @@ The following bugs have been fixed:
 
 * Lua script can not get "data-text-lines" protocol data. (ws-buglink:5200[])
 
+* Lua: Trying to use Field.new("tcp.segments") to get reassembled TCP data is failed. (ws-buglink:5201[])
+
 * "Edit Interface Settings": "Capture Filter" combo box is not populated across Wireshark sessions. (ws-buglink:7278[])
 
 * PER normally small non-negative whole number decoding is wrong when >= 64. (ws-buglink:8841[])
