@@ -22,9 +22,9 @@ The following vulnerabilities have been fixed.
 The Bluetooth HCI ACL dissector could crash. Discovered by Laurent Butti.
 // Fixed in trunk: r50268
 // Fixed in trunk-1.10: r51330
-(ws-buglink:????[])
+(ws-buglink:8827[])
 +
-Versions affected: 1.10.0 to 1.10.2
+Versions affected: 1.10.0 to 1.10.1
 //+
 //cve-idlink:2013-????[]
 
@@ -46,7 +46,7 @@ The ASSA R3 dissector could crash. Discovered by Ben Schmidt.
 // Fixed in trunk: r51196
 // Fixed in trunk-1.10: r51231
 // Fixed in trunk-1.8: r51232
-(ws-buglink:????[])
+(ws-buglink:9020[])
 +
 Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
 //+
@@ -58,7 +58,7 @@ The RTPS dissector could crash. Discovered by Ben Schmidt.
 // Fixed in trunk: r51213
 // Fixed in trunk-1.10: r51623
 // Fixed in trunk-1.8: r51624
-(ws-buglink:????[])
+(ws-buglink:9019[])
 +
 Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
 //+
@@ -66,36 +66,35 @@ Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
 
 * ws-salink:2013-58[]
 +
-The ? dissector could crash. Discovered by ?.
-// Fixed in trunk: r?
-// Fixed in trunk-1.10: r?
-// Fixed in trunk-1.8: r?
-(ws-buglink:????[])
+The MQ dissector could crash.
+// Fixed in trunk: r51603
+// Fixed in trunk-1.10: r51623
+// Fixed in trunk-1.8: r51624
+(ws-buglink:9079[])
 +
 Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
 //+
 //cve-idlink:2013-????[]
 
-
 * ws-salink:2013-59[]
 +
-The MQ dissector could crash.
-// Fixed in trunk: r51603
+The LDAP dissector could crash.
+// Fixed in trunk: r51516
 // Fixed in trunk-1.10: r51623
 // Fixed in trunk-1.8: r51624
-(ws-buglink:????[])
-+
+// (ws-buglink:????[])
+//+
 Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
 //+
 //cve-idlink:2013-????[]
 
 * ws-salink:2013-60[]
 +
-The LDAP dissector could crash.
-// Fixed in trunk: r51516
-// Fixed in trunk-1.10: r51623
-// Fixed in trunk-1.8: r51624
-(ws-buglink:????[])
+The Netmon file parser could crash. Discovered by G. Geshev.
+// Fixed in trunk: r49673
+// Fixed in trunk-1.10: r51910
+// Fixed in trunk-1.8: r51911
+(ws-buglink:8742[])
 +
 Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
 //+
@@ -107,6 +106,8 @@ The following bugs have been fixed:
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. ws-buglink:0000[]
 
 * Lua ByteArray:append() causes wireshark crash. (ws-buglink:4461[])
+
+* Lua script can not get "data-text-lines" protocol data. (ws-buglink:5200[])
 
 * "Edit Interface Settings": "Capture Filter" combo box is not populated across Wireshark sessions. (ws-buglink:7278[])
 
@@ -161,6 +162,7 @@ ASSA R3
 Bluetooth HCI ACL
 EtherCAT AMS
 GTPv2
+HTTP
 IEEE 802.11
 IPFIX
 ISDN SUP
