@@ -1652,6 +1652,49 @@ file_open_error_message(int err, gboolean for_writing)
         errmsg = "The file \"%s\" could not be created because an invalid filename was specified.";
         break;
 
+    case ENOMEM:
+        /*
+         * The problem probably has nothing to do with how much RAM the
+         * user has on their machine, so don't confuse them by saying
+         * "memory".  The problem is probably either virtual address
+         * space or swap space.
+         */
+#if GLIB_SIZEOF_VOID_P == 4
+        /*
+         * ILP32; we probably ran out of virtual address space.
+         */
+#define ENOMEM_REASON "it can't be handled by a 32-bit application"
+#else
+        /*
+         * LP64 or LLP64; we probably ran out of swap space.
+         */
+#if defined(_WIN32)
+        /*
+         * You need to make the pagefile bigger.
+         */
+#define ENOMEM_REASON "the pagefile is too small"
+#elif defined(__APPLE__)
+        /*
+         * dynamic_pager couldn't, or wouldn't, create more swap files.
+         */
+#define ENOMEM_REASON "your system ran out of swap file space"
+#else
+        /*
+         * Either you have a fixed swap partition or a fixed swap file,
+         * and it needs to be made bigger.
+         *
+         * This is UN*X, but it's not OS X, so we assume the user is
+         * *somewhat* nerdy.
+         */
+#define ENOMEM_REASON "your system is out of swap space"
+#endif
+#endif /* GLIB_SIZEOF_VOID_P == 4 */
+        if (for_writing)
+            errmsg = "The file \"%s\" could not be created because" ENOMEM_REASON ".";
+        else
+            errmsg = "The file \"%s\" could not be opened because" ENOMEM_REASON ".";
+        break;
+
     default:
         g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                "The file \"%%s\" could not be %s: %s.",

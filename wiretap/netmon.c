@@ -367,7 +367,11 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
 		return -1;
 	}
-	frame_table = (guint32 *)g_malloc(frame_table_length);
+	frame_table = (guint32 *)g_try_malloc(frame_table_length);
+	if (frame_table_length != 0 && frame_table == NULL) {
+		*err = ENOMEM;	/* we assume we're out of memory */
+		return -1;
+	}
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(frame_table, frame_table_length, wth->fh);
 	if ((guint32)bytes_read != frame_table_length) {
