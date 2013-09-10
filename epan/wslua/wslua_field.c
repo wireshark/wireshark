@@ -263,6 +263,8 @@ static const luaL_Reg FieldInfo_get[] = {
     {"label", FieldInfo__tostring},
     /* WSLUA_ATTRIBUTE FieldInfo_value RO The value of this field */
     {"value", FieldInfo__call},
+    /* WSLUA_ATTRIBUTE FieldInfo_tvb RO A tvbrange covering this field */
+    {"tvb", FieldInfo_get_range},
     /* WSLUA_ATTRIBUTE FieldInfo_len RO The length of this field */
     {"len", FieldInfo__len},
     /* WSLUA_ATTRIBUTE FieldInfo_offset RO The offset of this field */
@@ -312,7 +314,7 @@ WSLUA_METAMETHOD FieldInfo__le(lua_State* L) {
     FieldInfo r = checkFieldInfo(L,2);
 
     if (l->ds_tvb != r->ds_tvb)
-        return 0;
+        WSLUA_ERROR(FieldInfo__le,"Data source must be the same for both fields");
 
     if (r->start + r->length <= l->start + r->length) {
         lua_pushboolean(L,1);
@@ -328,7 +330,7 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
     FieldInfo r = checkFieldInfo(L,2);
 
     if (l->ds_tvb != r->ds_tvb)
-        WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
+        WSLUA_ERROR(FieldInfo__lt,"Data source must be the same for both fields");
 
     if ( r->start + r->length < l->start ) {
         lua_pushboolean(L,1);
@@ -362,14 +364,15 @@ int FieldInfo_register(lua_State* L) {
 
 
 WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
-	/* Obtain all fields from the current tree.  Note this only gets whatever fields the underlying
-     * dissectors have filled in for this packet at this time - there may be fields applicable to
-     * the packet that simply aren't being filled in because at this time they're not needed for anything.
-     * So this function only gets what the C-side code has currently populated, not the full list.
-     */
-	GPtrArray* found;
-	int items_found = 0;
-	guint i;
+    /*
+    Obtain all fields from the current tree.  Note this only gets whatever fields the underlying
+    dissectors have filled in for this packet at this time - there may be fields applicable to
+    the packet that simply aren't being filled in because at this time they're not needed for anything.
+    This function only gets what the C-side code has currently populated, not the full list.
+    */
+    GPtrArray* found;
+    int items_found = 0;
+    guint i;
 
     if (! lua_tree || ! lua_tree->tree ) {
         WSLUA_ERROR(wslua_all_field_infos,"Cannot be called outside a listener or dissector");
@@ -481,7 +484,7 @@ WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
         WSLUA_ARG_ERROR(Field_new,FIELDNAME,"a field with this name must exist");
 
     if (!wanted_fields)
-        WSLUA_ERROR(Field_get,"A Field extractor must be defined before Taps or Dissectors get called");
+        WSLUA_ERROR(Field_new,"A Field extractor must be defined before Taps or Dissectors get called");
 
     f = (Field)g_malloc(sizeof(void*));
     *f = (header_field_info*)g_strdup(name); /* cheating */
