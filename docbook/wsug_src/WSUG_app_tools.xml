@@ -27,7 +27,7 @@
     <example id="AppToolstsharkEx">
       <title>Help information available from tshark</title>
       <programlisting>
-TShark 1.11.0 (SVN Rev 49633 from /trunk)
+TShark 1.11.0 (SVN Rev 51944 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -96,7 +96,7 @@ Output:
      aggregator=,|/s|&lt;char&gt; select comma, space, printable character as
                            aggregator
      quote=d|s|n           select double, single, no quotes for values
-  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
+  -t a|ad|d|dd|e|r|u|ud    output format of time stamps (def: r: rel. to first)
   -u s|hms                 output format of seconds (def: s: seconds)
   -l                       flush standard output after each packet
   -q                       be more quiet on stdout (e.g. when using statistics)
@@ -106,6 +106,9 @@ Output:
                            n = write network address resolution information
   -X &lt;key&gt;:&lt;value&gt;         eXtension options, see the man page for details
   -z &lt;statistics&gt;          various statistics, see the man page for details
+  --capture-comment &lt;comment&gt;
+                           add a capture comment to the newly created
+                           output file (only for pcapng)
 
 Miscellaneous:
   -h                       display this help and exit
@@ -178,7 +181,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 1.11.0 (SVN Rev 49633 from /trunk)
+Dumpcap 1.11.0 (SVN Rev 51944 from /trunk)
 Capture network packets and dump them into a pcapng file.
 See http://www.wireshark.org for more information.
 
@@ -222,10 +225,14 @@ Output (files):
                               files:NUM - ringbuffer: replace after NUM files
   -n                       use pcapng format instead of pcap (default)
   -P                       use libpcap format instead of pcapng
+  --capture-comment &lt;comment&gt;
+                           add a capture comment to the output file
+                           (only for pcapng)
 
 Miscellaneous:
   -N &lt;packet_limit&gt;        maximum number of packets buffered within dumpcap
-  -C &lt;byte_limit&gt;          maximum number of bytes used for buffering packets within dumpcap
+  -C &lt;byte_limit&gt;          maximum number of bytes used for buffering packets
+                           within dumpcap
   -t                       use a separate thread per interface
   -q                       don't report packet capture counts
   -v                       print version information and exit
@@ -252,7 +259,7 @@ Use Ctrl-C to stop capturing at any time.
     <example id="AppToolscapinfosEx">
       <title>Help information available from capinfos</title>
       <programlisting>
-Capinfos 1.11.0 (SVN Rev 49633 from /trunk)
+Capinfos 1.11.0 (SVN Rev 51944 from /trunk)
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -305,7 +312,7 @@ Miscellaneous:
   -C cancel processing if file open fails (default is to continue)
   -A generate all infos (default)
 
-Options are processed from left to right order with later options superceeding
+Options are processed from left to right order with later options superceding
 or adding to earlier options.
 
 If no options are given the default is to display all infos in long report
@@ -326,7 +333,7 @@ output format.
     <example id="AppToolsrawsharkEx">
       <title>Help information available from rawshark</title>
       <programlisting>
-Rawshark 1.11.0 (SVN Rev 49633 from /trunk)
+Rawshark 1.11.0 (SVN Rev 51944 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -340,7 +347,7 @@ Input file:
   -r &lt;infile&gt;              set the pipe or file name to read from
 
 Processing:
-  -d &lt;encap:dlt&gt;|&lt;proto:protoname&gt;
+  -d &lt;encap:linktype&gt;|&lt;proto:protoname&gt;
                            packet encapsulation or protocol
   -F &lt;field&gt;               field to display
   -n                       disable all name resolution (def: all enabled)
@@ -380,7 +387,7 @@ Miscellaneous:
       <title>Help information available from editcap</title>
       <para>
       <programlisting>
-Editcap 1.11.0 (SVN Rev 49633 from /trunk)
+Editcap 1.11.0 (SVN Rev 51944 from /trunk)
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -414,9 +421,16 @@ Duplicate packet removal:
 
 Packet manipulation:
   -s &lt;snaplen&gt;           truncate each packet to max. &lt;snaplen&gt; bytes of data.
-  -C &lt;choplen&gt;           chop each packet by &lt;choplen&gt; bytes. Positive values
+  -C [offset:]&lt;choplen&gt;  chop each packet by &lt;choplen&gt; bytes. Positive values
                          chop at the packet beginning, negative values at the
-                         packet end.
+                         packet end. If an optional offset precedes the length,
+                         then the bytes chopped will be offset from that value.
+                         Positive offsets are from the packet beginning,
+                         negative offsets are from the packet end. You can use
+                         this option more than once, allowing up to 2 chopping
+                         regions within a packet provided that at least 1
+                         choplen is positive and at least 1 is negative.
+  -L                     adjust the frame length when chopping and/or snapping
   -t &lt;time adjustment&gt;   adjust the timestamp of each packet;
                          &lt;time adjustment&gt; is in relative seconds (e.g. -0.5).
   -S &lt;strict adjustment&gt; adjust timestamp of packets if necessary to insure
@@ -427,21 +441,21 @@ Packet manipulation:
                          that each packet's delta time is the absolute value
                          of the adjustment specified. A value of -0 will set
                          all packets to the timestamp of the first packet.
-  -E &lt;error probability&gt; set the probability (between 0.0 and 1.0 incl.)
-                         that a particular packet byte will be randomly changed.
+  -E &lt;error probability&gt; set the probability (between 0.0 and 1.0 incl.) that
+                          a particular packet byte will be randomly changed.
 
 Output File(s):
-  -c &lt;packets per file&gt;  split the packet output to different files
-                         based on uniform packet counts
-                         with a maximum of &lt;packets per file&gt; each.
-  -i &lt;seconds per file&gt;  split the packet output to different files
-                         based on uniform time intervals
-                         with a maximum of &lt;seconds per file&gt; each.
-  -F &lt;capture type&gt;      set the output file type; default is pcapng.
-                         an empty "-F" option will list the file types.
-  -T &lt;encap type&gt;        set the output file encapsulation type;
-                         default is the same as the input file.
-                         an empty "-T" option will list the encapsulation types.
+  -c &lt;packets per file&gt;  split the packet output to different files based on
+                         uniform packet counts with a maximum of
+                         &lt;packets per file&gt; each.
+  -i &lt;seconds per file&gt;  split the packet output to different files based on
+                         uniform time intervals with a maximum of
+                         &lt;seconds per file&gt; each.
+  -F &lt;capture type&gt;      set the output file type; default is pcapng. An empty
+                         "-F" option will list the file types.
+  -T &lt;encap type&gt;        set the output file encapsulation type; default is the
+                         same as the input file. an empty "-T" option will 
+                         list the encapsulation types.
 
 Miscellaneous:
   -h                     display this help and exit.
@@ -467,20 +481,20 @@ editcap: The available capture file types for the "-F" flag are:
     eyesdn - EyeSDN USB S0/E1 ISDN trace format
     k12text - K12 text file
     lanalyzer - Novell LANalyzer
-    libpcap - Wireshark/tcpdump/... - libpcap
     modlibpcap - Modified tcpdump - libpcap
     netmon1 - Microsoft NetMon 1.x
     netmon2 - Microsoft NetMon 2.x
     nettl - HP-UX nettl trace
-    ngsniffer - NA Sniffer (DOS)
-    ngwsniffer_1_1 - NA Sniffer (Windows) 1.1
-    ngwsniffer_2_0 - NA Sniffer (Windows) 2.00x
+    ngsniffer - Sniffer (DOS)
+    ngwsniffer_1_1 - NetXray, Sniffer (Windows) 1.1
+    ngwsniffer_2_0 - Sniffer (Windows) 2.00x
     niobserver - Network Instruments Observer
     nokialibpcap - Nokia tcpdump - libpcap 
     nseclibpcap - Wireshark - nanosecond libpcap
     nstrace10 - NetScaler Trace (Version 1.0)
     nstrace20 - NetScaler Trace (Version 2.0)
-    pcapng - Wireshark - pcapng
+    pcap - Wireshark/tcpdump/... - pcap
+    pcapng - Wireshark/... - pcapng
     rf5 - Tektronix K12xx 32-bit .rf5 format
     rh6_1libpcap - RedHat 6.1 tcpdump - libpcap
     snoop - Sun snoop
@@ -515,6 +529,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     bluetooth-h4 - Bluetooth H4
     bluetooth-h4-linux - Bluetooth H4 with linux header
     bluetooth-hci - Bluetooth without transport layer
+    bluetooth-le-ll - Bluetooth Low Energy Link Layer
     can20b - Controller Area Network 2.0B
     chdlc - Cisco HDLC
     chdlc-with-direction - Cisco HDLC with Directional Info
@@ -633,12 +648,6 @@ editcap: The available encapsulation types for the "-T" flag are:
     usb-usbpcap - USB packets with USBPcap header
     user0 - USER 0
     user1 - USER 1
-    user10 - USER 10
-    user11 - USER 11
-    user12 - USER 12
-    user13 - USER 13
-    user14 - USER 14
-    user15 - USER 15
     user2 - USER 2
     user3 - USER 3
     user4 - USER 4
@@ -647,12 +656,18 @@ editcap: The available encapsulation types for the "-T" flag are:
     user7 - USER 7
     user8 - USER 8
     user9 - USER 9
+    user10 - USER 10
+    user11 - USER 11
+    user12 - USER 12
+    user13 - USER 13
+    user14 - USER 14
+    user15 - USER 15
     v5-ef - V5 Envelope Function
     whdlc - Wellfleet HDLC
+    wireshark-upper-pdu - Wireshark Upper PDU export
     wpan - IEEE 802.15.4 Wireless PAN
     wpan-nofcs - IEEE 802.15.4 Wireless PAN with FCS not present
     wpan-nonask-phy - IEEE 802.15.4 Wireless PAN non-ASK PHY
-    x25-nettl - X.25 with nettl headers
     x2e-serial - X2E serial line capture
     x2e-xoraya - X2E Xoraya
       </programlisting>
@@ -726,7 +741,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-Mergecap 1.11.0 (SVN Rev 49633 from /trunk)
+Mergecap 1.11.0 (SVN Rev 51944 from /trunk)
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
@@ -830,7 +845,7 @@ Miscellaneous:
     <example id="AppToolstext2pcapEx">
       <title>Help information available from text2pcap</title>
       <programlisting>
-Text2pcap 1.11.0 (SVN Rev 49633 from /trunk)
+Text2pcap 1.11.0 (SVN Rev 51944 from /trunk)
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
@@ -879,6 +894,12 @@ Prepend dummy header:
                          (in DECIMAL).
                          Automatically prepends Ethernet header as well.
                          Example: -i 46
+  -4 &lt;srcip&gt;,&lt;destip&gt;    prepend dummy IPv4 header with specified
+                         dest and source address.
+                         Example: -4 10.0.0.1,10.0.0.2
+  -6 &lt;srcip&gt;,&lt;destip&gt;    replace IPv6 header with specified
+                         dest and source address.
+                         Example: -6 fe80:0:0:0:202:b3ff:fe1e:8329, 2001:0db8:85a3:0000:0000:8a2e:0370:7334
   -u &lt;srcp&gt;,&lt;destp&gt;      prepend dummy UDP header with specified
                          source and destination ports (in DECIMAL).
                          Automatically prepends Ethernet &amp; IP headers as well.
