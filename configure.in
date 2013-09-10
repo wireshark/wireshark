@@ -337,9 +337,9 @@ then
 		# functions not to work with 64-bit userland
 	        # code, so capturing won't work.
 		#
-		CFLAGS="-arch i386 $CFLAGS"
-		CXXFLAGS="-arch i386 $CXXFLAGS"
-		LDFLAGS="-arch i386 $LDFLAGS"
+		CFLAGS="-m32 $CFLAGS"
+		CXXFLAGS="-m32 $CXXFLAGS"
+		LDFLAGS="-m32 $LDFLAGS"
 		;;
 	esac
 fi
