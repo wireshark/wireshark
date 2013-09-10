@@ -17,137 +17,24 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2013-54[]
+* ws-salink:2013-61[]
 +
-The Bluetooth HCI ACL dissector could crash. Discovered by Laurent Butti.
-// Fixed in trunk: r50268
-// Fixed in trunk-1.10: r51330
-(ws-buglink:8827[])
+Something is up with a dissector.
+// Fixed in trunk: r?????
+// Fixed in trunk-1.10: r?????
+// Fixed in trunk-1.8: r?????
+(ws-buglink:????[])
 +
-Versions affected: 1.10.0 to 1.10.1
+Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
 //+
 //cve-idlink:2013-????[]
 
-* ws-salink:2013-55[]
-+
-The NBAP dissector could crash. Discovered by Laurent Butti.
-// Fixed in trunk: r51195
-// Fixed in trunk-1.10: r51228
-// Fixed in trunk-1.8: r51230
-(ws-buglink:9005[])
-+
-Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
-//+
-//cve-idlink:2013-????[]
-
-* ws-salink:2013-56[]
-+
-The ASSA R3 dissector could go into an infinite loop. Discovered by Ben Schmidt.
-// Fixed in trunk: r51196
-// Fixed in trunk-1.10: r51231
-// Fixed in trunk-1.8: r51232
-(ws-buglink:9020[])
-+
-Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
-//+
-//cve-idlink:2013-????[]
-
-* ws-salink:2013-57[]
-+
-The RTPS dissector could overflow a buffer. Discovered by Ben Schmidt.
-// Fixed in trunk: r51213
-// Fixed in trunk-1.10: r51623
-// Fixed in trunk-1.8: r51624
-(ws-buglink:9019[])
-+
-Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
-//+
-//cve-idlink:2013-????[]
-
-* ws-salink:2013-58[]
-+
-The MQ dissector could crash.
-// Fixed in trunk: r51603
-// Fixed in trunk-1.10: r51623
-// Fixed in trunk-1.8: r51624
-(ws-buglink:9079[])
-+
-Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
-//+
-//cve-idlink:2013-????[]
-
-* ws-salink:2013-59[]
-+
-The LDAP dissector could crash.
-// Fixed in trunk: r51516
-// Fixed in trunk-1.10: r51623
-// Fixed in trunk-1.8: r51624
-// (ws-buglink:????[])
-//+
-Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
-//+
-//cve-idlink:2013-????[]
-
-* ws-salink:2013-60[]
-+
-The Netmon file parser could crash. Discovered by G. Geshev.
-// Fixed in trunk: r49673
-// Fixed in trunk-1.10: r51910
-// Fixed in trunk-1.8: r51911
-(ws-buglink:8742[])
-+
-Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
-//+
-//cve-idlink:2013-????[]
 
 
 The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. ws-buglink:0000[]
 
-* Lua ByteArray:append() causes wireshark crash. (ws-buglink:4461[])
-
-* Lua script can not get "data-text-lines" protocol data. (ws-buglink:5200[])
-
-* Lua: Trying to use Field.new("tcp.segments") to get reassembled TCP data is failed. (ws-buglink:5201[])
-
-* "Edit Interface Settings": "Capture Filter" combo box is not populated across Wireshark sessions. (ws-buglink:7278[])
-
-* PER normally small non-negative whole number decoding is wrong when >= 64. (ws-buglink:8841[])
-
-* Strange behavior of tree expand/collapse in packet details. (ws-buglink:8908[])
-
-* Incorrect parsing of IPFIX *IpTotalLength elements. (ws-buglink:8918[])
-
-* IO graph/advanced, max/min/summ error on frames with multiple Diameter messages. (ws-buglink:8980[])
-
-* pod2man error on reordercap.pod. (ws-buglink:8982[])
-
-* SGI Nsym disambiguation is unconditionally displayed when dissecting VHT. (ws-buglink:8989[])
-
-* The Wireshark icon doesn't show up in OS X 10.5. (ws-buglink:8993[])
-
-* Build fails if system Python is version 3+. (ws-buglink:8995[])
-
-* SCSI dissector does not parse PERSISTENT RESERVE commands correctly. (ws-buglink:9012[])
-
-* SDP messages throws an assert. (ws-buglink:9022[])
-
-* Wireshark fails to decode single-line, multiple Contact: URIs in SIP responses. (ws-buglink:9031[])
-
-* PN_MRP LinkUp Message is shown as LinkDown in info. (ws-buglink:9035[])
-
-* Dissector for EtherCAT: ADS highlighting in the Packet Bytes Pane is incorrect. (ws-buglink:9036[])
-
-* 802.11 HT Extended Capabilities B10 decode incorrect. (ws-buglink:9038[])
-
-* Wrong dissection of MSTI Root Identifiers for all MSTIs. (ws-buglink:9088[])
-
-* Weird malformed HTTP error. (ws-buglink:9101[])
-
-* Warning for attempting to install 64-bit Wireshark on a 32-bit machine has an embedded "\n". (ws-buglink:9103[])
-
-* Wireshark crashes when using "Export Specified Packets" > "Displayed". (ws-buglink:9106[])
 
 === New and Updated Features
 
@@ -161,26 +48,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-ASN.1 PER
-ASSA R3
-Bluetooth HCI ACL
-EtherCAT AMS
-GTPv2
-HTTP
-IEEE 802.11
-IPFIX
-ISDN SUP
-LDAP
-MQ
-NBAP
-Novell SSS
-PROFINET MRP
-Radiotap
-ROHC
-RTPS
-SCSI
-SIP
-STP
+.
 
 --sort-and-group--
 
@@ -188,7 +56,7 @@ STP
 
 --sort-and-group--
 
-Microsoft Network Monitor, pcap-ng.
+.
 
 --sort-and-group--
 
