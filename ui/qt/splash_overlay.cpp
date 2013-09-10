@@ -37,7 +37,7 @@
 /*
  * Update frequency for the splash screen, given in milliseconds.
  */
-int info_update_freq_ = 50;
+int info_update_freq_ = 15;
 
 void splash_update(register_action_e action, const char *message, void *dummy) {
     Q_UNUSED(dummy);
@@ -127,7 +127,6 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
       /* Only update every splash_register_freq milliseconds */
       return;
     }
-    time_.restart();
     last_action_ = action;
 
     switch(action) {
@@ -182,6 +181,8 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
     so_ui_->progressBar->setValue(register_cur_);
 
     wsApp->processEvents();
+
+    time_.restart();
 }
 
 void SplashOverlay::paintEvent(QPaintEvent *event)
