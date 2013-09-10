@@ -136,7 +136,7 @@ WSLUA_METAMETHOD NSTime__eq(lua_State* L) { /* Compares two NSTimes */
     gboolean result = FALSE;
 
     if (!time1 || !time2)
-      WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
+      WSLUA_ERROR(NSTime__eq,"Both values must be a NSTime");
 
     if (nstime_cmp(time1, time2) == 0)
         result = TRUE;
@@ -152,7 +152,7 @@ WSLUA_METAMETHOD NSTime__le(lua_State* L) { /* Compares two NSTimes */
     gboolean result = FALSE;
 
     if (!time1 || !time2)
-      WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
+      WSLUA_ERROR(NSTime__le,"Both values must be a NSTime");
 
     if (nstime_cmp(time1, time2) <= 0)
         result = TRUE;
@@ -168,7 +168,7 @@ WSLUA_METAMETHOD NSTime__lt(lua_State* L) { /* Compares two NSTimes */
     gboolean result = FALSE;
 
     if (!time1 || !time2)
-      WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
+      WSLUA_ERROR(NSTime__lt,"Both values must be a NSTime");
 
     if (nstime_cmp(time1, time2) < 0)
         result = TRUE;
