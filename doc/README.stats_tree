@@ -117,6 +117,7 @@ WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void) {
     stats_tree_register("udp", /* the proto we are going to "tap" */
                         "udp_terms", /* the abbreviation for this tree (to be used as -z udp_terms,tree) */
                         st_str_udp_term, /* the name of the menu and window (use "/" for sub menus)*/
+                        0, /* tap listener flags for per-packet callback */
                         udp_term_stats_tree_packet, /* the per packet callback */
                         udp_term_stats_tree_init, /* the init callback */
                         NULL ); /* the cleanup callback (in this case there isn't) */
@@ -131,7 +132,7 @@ the stats_tree API
  every stats_tree callback has a stats_tree* parameter (st), stats_tree is an obscure
  data structure which should be passed to the api functions.
 
-stats_tree_register( tapname, abbr, name,  packet_cb, init_cb, cleanup_cb);
+stats_tree_register( tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb);
  registers a new stats tree
 
 stats_tree_parent_id_by_name( st, parent_name)
