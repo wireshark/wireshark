@@ -2000,7 +2000,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
         if (tree)
         {
-            proto_tree  *ti;
+            proto_item  *ti;
 
             /* set the label text on the record layer expanding node */
             if (first_iteration)
@@ -2281,7 +2281,7 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
      *     } HeartbeatMessage;
      */
 
-    proto_tree  *ti;
+    proto_item  *ti;
     proto_tree  *tls_heartbeat_tree;
     const gchar *type;
     guint8       byte;
@@ -2546,7 +2546,7 @@ dissect_ssl3_hnd_hello_ext_alpn(tvbuff_t *tvb,
     guint16 alpn_length;
     guint8 name_length;
     proto_tree *alpn_tree;
-    proto_tree *ti;
+    proto_item *ti;
 
     alpn_length = tvb_get_ntohs(tvb, offset);
     if (ext_len<2 || alpn_length!=ext_len-2) {
@@ -2581,7 +2581,8 @@ dissect_ssl3_hnd_hello_ext_npn(tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset, guint32 ext_len)
 {
     guint8      npn_length;
-    proto_tree *npn_tree, *ti;
+    proto_tree *npn_tree;
+    proto_item *ti;
 
     if (ext_len == 0) {
         return offset;
@@ -2614,7 +2615,8 @@ dissect_ssl3_hnd_hello_ext_reneg_info(tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset, guint32 ext_len)
 {
     guint8      reneg_info_length;
-    proto_tree *reneg_info_tree, *ti;
+    proto_tree *reneg_info_tree;
+    proto_item *ti;
 
     if (ext_len == 0) {
         return offset;
@@ -2642,7 +2644,8 @@ dissect_ssl3_hnd_hello_ext_server_name(tvbuff_t *tvb,
                                proto_tree *tree, guint32 offset, guint32 ext_len)
 {
     guint16     server_name_length;
-    proto_tree *server_name_tree, *ti;
+    proto_tree *server_name_tree;
+    proto_item *ti;
 
 
    if (ext_len == 0) {
@@ -2686,7 +2689,7 @@ dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
 {
     guint16     curves_length;
     proto_tree *curves_tree;
-    proto_tree *ti;
+    proto_item *ti;
 
     curves_length = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_ssl_handshake_extension_elliptic_curves_len,
@@ -2721,7 +2724,7 @@ dissect_ssl3_hnd_hello_ext_ec_point_formats(tvbuff_t *tvb,
 {
     guint8      ecpf_length;
     proto_tree *ecpf_tree;
-    proto_tree *ti;
+    proto_item *ti;
 
     ecpf_length = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_ssl_handshake_extension_ec_point_formats_len,
@@ -2764,7 +2767,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
      * } ClientHello;
      *
      */
-    proto_tree *ti;
+    proto_item *ti;
     proto_tree *cs_tree;
     gint        cipher_suite_length;
     guint8      compression_methods_length;
@@ -2997,7 +3000,7 @@ dissect_ssl3_hnd_cert(tvbuff_t *tvb,
      * } Certificate;
      */
     guint32     certificate_list_length;
-    proto_tree *ti;
+    proto_item *ti;
     proto_tree *subtree;
     asn1_ctx_t  asn1_ctx;
 
@@ -3100,7 +3103,7 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
      *    } CertificateRequest;
      *
      */
-    proto_tree *ti;
+    proto_item *ti;
     proto_tree *subtree;
     guint8      cert_types_count;
     gint        sh_alg_length;
@@ -3629,7 +3632,7 @@ dissect_ssl3_hnd_cert_status(tvbuff_t *tvb, proto_tree *tree,
 {
     guint8      cert_status_type;
     guint       cert_status_len;
-    proto_tree *ti;
+    proto_item *ti;
     proto_tree *cert_status_tree;
 
     if (tree)
@@ -3699,7 +3702,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8       msg_type;
     const gchar *msg_type_str;
     guint32      available_bytes;
-    proto_tree  *ti;
+    proto_item  *ti;
     proto_tree  *ssl_record_tree;
 
     initial_offset  = offset;
@@ -4008,7 +4011,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
     guint16 session_id_length;
     guint16 challenge_length;
 
-    proto_tree *ti;
+    proto_item *ti;
     proto_tree *cs_tree;
     cs_tree=0;
 
@@ -4575,7 +4578,7 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
     guint16     cipher_spec_length;
     guint16     connection_id_length;
     guint16     version;
-    proto_tree *ti;
+    proto_item *ti;
     proto_tree *subtree;
     asn1_ctx_t  asn1_ctx;
 
@@ -5118,7 +5121,7 @@ dissect_ssl_hash_alg_list(tvbuff_t *tvb, proto_tree *tree,
 {
     guint32     offset_start;
     proto_tree *subtree, *alg_tree;
-    proto_tree *ti;
+    proto_item *ti;
 
     offset_start = offset;
     if (len==0)
