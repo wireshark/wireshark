@@ -16,9 +16,9 @@ function acc () {
 		-d2 $V2_PATH/$DIR/.libs/$LIBNAME.abi.tar.gz ; then
 		abi-compliance-checker -l $LIBNAME \
 			-d1 $V1_PATH/$DIR/abi-descriptor.xml -relpath1 $V1_PATH/$DIR \
-			-v1 `ls  $V1_PATH/$DIR/.libs/$LIBNAME.so.?.?.?|sed 's/.*\.so\.//'` \
+			-v1 `ls  $V1_PATH/$DIR/.libs/$LIBNAME.so.?.*.*|sed 's/.*\.so\.//'` \
 			-d2 $V2_PATH/$DIR/abi-descriptor.xml -relpath2 $V2_PATH/$DIR \
-			-v2 `ls  $V2_PATH/$DIR/.libs/$LIBNAME.so.?.?.?|sed 's/.*\.so\.//'` \
+			-v2 `ls  $V2_PATH/$DIR/.libs/$LIBNAME.so.?.*.*|sed 's/.*\.so\.//'` \
 			-check-implementation
 	fi
 }

@@ -2196,6 +2196,8 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
   int         progbar_quantum;
   range_process_e process_this;
 
+  memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
