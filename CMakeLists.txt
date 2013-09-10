@@ -280,6 +280,13 @@ else()
   set(LINK_MODE_MODULE MODULE)
 endif()
 
+if(APPLE AND EXISTS /usr/local/opt/gettext)
+	# GLib on OS X requires libintl. Homebrew installs gettext (and
+	# libintl) in /usr/local/opt/gettext
+	include_directories(/usr/local/opt/gettext/include)
+	link_directories(/usr/local/opt/gettext/lib)
+endif()
+
 # The packagelist is doing some magic:  If we add XXX to the packagelist, we
 # - may optionally set XXX_OPTIONS to pass to the find_package command
 # - will call FindXXX.cmake
