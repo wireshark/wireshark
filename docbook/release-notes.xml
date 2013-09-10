@@ -36,124 +36,23 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-55.html">wnpa-sec-2013-55</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-61.html">wnpa-sec-2013-61</ulink>
           </para>
           <para>
-	    The NBAP dissector could crash. Discovered by Laurent Butti.
-            <!-- Fixed in trunk: r51195 -->
-            <!-- Fixed in trunk-1.10: r51228 -->
-            <!-- Fixed in trunk-1.8: r51230 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9005">Bug
-            9005</ulink>)
+	    .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.10: r????? -->
+            <!-- Fixed in trunk-1.8: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
-          <para>Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.</para>
+          <para>Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-????">CVE-2013-????</ulink>
           </para>
 	  -->
         </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-56.html">wnpa-sec-2013-56</ulink>
-          </para>
-          <para>
-	    The ASSA R3 dissector could go into an infinite loop. Discovered by Ben Schmidt.
-            <!-- Fixed in trunk: r51196 -->
-            <!-- Fixed in trunk-1.10: r51231 -->
-            <!-- Fixed in trunk-1.8: r51232 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9020">Bug 9020
-            </ulink>)
-          </para>
-          <para>Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.</para>
-	  <!--
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-????">CVE-2013-????</ulink>
-          </para>
-	  -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-57.html">wnpa-sec-2013-57</ulink>
-          </para>
-          <para>
-	    The RTPS dissector could overflow a buffer. Discovered by Ben Schmidt.
-            <!-- Fixed in trunk: r51213 -->
-            <!-- Fixed in trunk-1.10: r51623 -->
-            <!-- Fixed in trunk-1.8: r51624 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9019">Bug 9019
-            </ulink>)
-          </para>
-          <para>Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.</para>
-	  <!--
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-????">CVE-2013-????</ulink>
-          </para>
-	  -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-58.html">wnpa-sec-2013-58</ulink>
-          </para>
-          <para>
-	    The MQ dissector could crash.
-            <!-- Fixed in trunk: r51603 -->
-            <!-- Fixed in trunk-1.10: r51623 -->
-            <!-- Fixed in trunk-1.8: r51624 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9079">Bug 9079
-            </ulink>)
-          </para>
-          <para>Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.</para>
-	  <!--
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-????">CVE-2013-????</ulink>
-          </para>
-	  -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-59.html">wnpa-sec-2013-59</ulink>
-          </para>
-          <para>
-	    The LDAP dissector could crash.
-            <!-- Fixed in trunk: r51516 -->
-            <!-- Fixed in trunk-1.10: r51623 -->
-            <!-- Fixed in trunk-1.8: r51624 -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-            </ulink>) -->
-          </para>
-          <para>Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.</para>
-	  <!--
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-????">CVE-2013-????</ulink>
-          </para>
-	  -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-60.html">wnpa-sec-2013-60</ulink>
-          </para>
-          <para>
-	    The Netmon file parser could crash. Discovered by G. Geshev.
-            <!-- Fixed in trunk: r49673 -->
-            <!-- Fixed in trunk-1.10: r51910 -->
-            <!-- Fixed in trunk-1.8: r51911 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8742">Bug 8742
-            </ulink>)
-          </para>
-          <para>Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.</para>
-	  <!--
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-????">CVE-2013-????</ulink>
-          </para>
-	  -->
-        </listitem>
-
 
       </itemizedlist>
     </para>
@@ -173,60 +72,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-          Lua ByteArray:append() causes wireshark crash.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4461">Bug
-          4461</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Lua script can not get &quot;data-text-lines&quot; protocol data.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5200">Bug
-          5200</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          PER normally small non-negative whole number decoding is wrong when &gt;= 64.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8841">Bug
-          8841</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect parsing of IPFIX *IpTotalLength elements.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8918">Bug
-          8918</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          IO graph/advanced, max/min/summ error on frames with multiple Diameter messages.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8980">Bug
-          8980</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark fails to decode single-line, multiple Contact: URIs in SIP responses.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9031">Bug
-          9031</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Dissector for EtherCAT: ADS highlighting in the Packet Bytes Pane is incorrect.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9036">Bug
-          9036</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          802.11 HT Extended Capabilities B10 decode incorrect.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9038">Bug
-          9038</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Weird malformed HTTP error.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9101">Bug
-          9101</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -254,18 +99,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-ASSA R3,
-EtherCAT AMS,
-GTPv2,
-HTTP,
-IEEE 802.11,
-IPFIX,
-LDAP,
-MQ,
-NBAP,
-NCP SSS,
-RTPS,
-SIP,
+.
 
     </para>
     </section>
