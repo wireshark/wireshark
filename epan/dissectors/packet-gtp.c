@@ -333,7 +333,7 @@ static expert_field ei_gtp_ext_length_warn = EI_INIT;
 
 static gboolean g_gtp_etsi_order = FALSE;
 
-static gint dissect_tpdu_as = -1;
+static gint dissect_tpdu_as = GTP_TPDU_AS_TPDU;
 static const enum_val_t gtp_decode_tpdu_as[] = {
 	{"none", "None",   GTP_TPDU_AS_NONE},
 	{"tpdu", "TPDU",   GTP_TPDU_AS_TPDU},
