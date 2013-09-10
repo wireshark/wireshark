@@ -1551,7 +1551,7 @@ add_library(epan ${LINK_MODE_LIB}
 
 add_dependencies(epan svnversion)
 
-set(FULL_SO_VERSION "3.1.0")
+set(FULL_SO_VERSION "3.1.1")
 
 set_target_properties(epan PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
 set_target_properties(epan PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

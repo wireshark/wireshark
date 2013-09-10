@@ -34,7 +34,7 @@ The NBAP dissector could crash. Discovered by Laurent Butti.
 // Fixed in trunk: r51195
 // Fixed in trunk-1.10: r51228
 // Fixed in trunk-1.8: r51230
-(ws-buglink:????[])
+(ws-buglink:9005[])
 +
 Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
 //+
@@ -42,7 +42,7 @@ Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
 
 * ws-salink:2013-56[]
 +
-The ASSA R3 dissector could crash. Discovered by Ben Schmidt.
+The ASSA R3 dissector could go into an infinite loop. Discovered by Ben Schmidt.
 // Fixed in trunk: r51196
 // Fixed in trunk-1.10: r51231
 // Fixed in trunk-1.8: r51232
@@ -54,7 +54,7 @@ Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9
 
 * ws-salink:2013-57[]
 +
-The RTPS dissector could crash. Discovered by Ben Schmidt.
+The RTPS dissector could overflow a buffer. Discovered by Ben Schmidt.
 // Fixed in trunk: r51213
 // Fixed in trunk-1.10: r51623
 // Fixed in trunk-1.8: r51624
@@ -146,6 +146,8 @@ The following bugs have been fixed:
 * Weird malformed HTTP error. (ws-buglink:9101[])
 
 * Warning for attempting to install 64-bit Wireshark on a 32-bit machine has an embedded "\n". (ws-buglink:9103[])
+
+* Wireshark crashes when using "Export Specified Packets" > "Displayed". (ws-buglink:9106[])
 
 === New and Updated Features
 
