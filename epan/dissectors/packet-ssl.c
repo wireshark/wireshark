@@ -1612,39 +1612,25 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         return offset + 5 + record_length;
     }
 
-    /*
-     * If building a protocol tree, fill in record layer part of tree
-     */
-    if (tree)
-    {
+    /* add the record layer subtree header */
+    ti = proto_tree_add_item(tree, hf_ssl_record, tvb,
+                             offset, 5 + record_length, ENC_NA);
+    ssl_record_tree = proto_item_add_subtree(ti, ett_ssl_record);
 
-        /* add the record layer subtree header */
-        tvb_ensure_bytes_exist(tvb, offset, 5 + record_length);
-        ti = proto_tree_add_item(tree, hf_ssl_record, tvb,
-                                 offset, 5 + record_length, ENC_NA);
-        ssl_record_tree = proto_item_add_subtree(ti, ett_ssl_record);
+    /* show the one-byte content type */
+    proto_tree_add_item(ssl_record_tree, hf_ssl_record_content_type,
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-        /* show the one-byte content type */
-        proto_tree_add_item(ssl_record_tree, hf_ssl_record_content_type,
-                            tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;;
+    /* add the version */
+    proto_tree_add_item(ssl_record_tree, hf_ssl_record_version, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        /* add the version */
-        proto_tree_add_item(ssl_record_tree, hf_ssl_record_version, tvb,
-                            offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        /* add the length */
-        proto_tree_add_uint(ssl_record_tree, hf_ssl_record_length, tvb,
-                            offset, 2, record_length);
-        offset += 2;    /* move past length field itself */
-    }
-    else
-    {
-        /* if no protocol tree, then just skip over those fields */
-        offset += 5;
-    }
-
+    /* add the length */
+    proto_tree_add_uint(ssl_record_tree, hf_ssl_record_length, tvb,
+                        offset, 2, record_length);
+    offset += 2;    /* move past length field itself */
 
     /*
      * if we don't already have a version set for this conversation,
