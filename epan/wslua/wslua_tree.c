@@ -321,6 +321,24 @@ WSLUA_METHOD TreeItem_append_text(lua_State *L) {
     return 0;
 }
 
+WSLUA_METHOD TreeItem_prepend_text(lua_State *L) {
+    /* Prepends text to the label */
+#define WSLUA_ARG_TreeItem_prepend_text_TEXT 2 /* The text to be prepended */
+    TreeItem ti = checkTreeItem(L,1);
+    const gchar* s;
+
+    if (ti) {
+        if (ti->expired) {
+            luaL_error(L,"expired TreeItem");
+            return 0;
+        }
+
+        s = luaL_checkstring(L,WSLUA_ARG_TreeItem_prepend_text_TEXT);
+        proto_item_prepend_text(ti->item,"%s",s);
+    }
+    return 0;
+}
+
 WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
     /* Sets the expert flags of the item and adds expert info to the packet. */
 #define WSLUA_OPTARG_TreeItem_add_expert_info_GROUP 2 /* One of PI_CHECKSUM, PI_SEQUENCE, PI_RESPONSE_CODE, PI_REQUEST_CODE, PI_UNDECODED, PI_REASSEMBLE, PI_MALFORMED or PI_DEBUG */
@@ -405,6 +423,7 @@ static const luaL_Reg TreeItem_methods[] = {
     {"add_le",           TreeItem_add_le},
     {"set_text",         TreeItem_set_text},
     {"append_text",      TreeItem_append_text},
+    {"prepend_text",     TreeItem_prepend_text},
     {"add_expert_info",  TreeItem_add_expert_info},
     {"set_generated",    TreeItem_set_generated},
     {"set_hidden",       TreeItem_set_hidden},
