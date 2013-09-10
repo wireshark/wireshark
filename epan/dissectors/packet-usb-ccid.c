@@ -58,6 +58,8 @@ static int hf_ccid_dwProtocols = -1;
 static int hf_ccid_dwDefaultClock = -1;
 static int hf_ccid_dwMaximumClock = -1;
 static int hf_ccid_bNumClockSupported = -1;
+static int hf_ccid_bRFU = -1;
+static int hf_ccid_abRFU = -1;
 
 static const int *bVoltageLevel_fields[] = {
     &hf_ccid_bVoltageSupport50,
@@ -94,6 +96,8 @@ static const int *bVoltageLevel_fields[] = {
 #define RDR_PC_ESCAPE          0x83
 #define RDR_PC_DATA_CLOCK      0x84
 
+void proto_register_ccid(void);
+void proto_reg_handoff_ccid(void);
 
 static const value_string ccid_descriptor_type_vals[] = {
         {USB_DESC_TYPE_SMARTCARD, "smart card"},
@@ -352,11 +356,17 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case PC_RDR_XFR_BLOCK:
+    case PC_RDR_ESCAPE:
         proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(ccid_tree, hf_ccid_bBWI, tvb, 7, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(ccid_tree, hf_ccid_wLevelParameter, tvb, 8, 2, ENC_LITTLE_ENDIAN);
+
+        if (cmd == PC_RDR_ESCAPE) {
+            proto_tree_add_item(ccid_tree, hf_ccid_abRFU, tvb, 7, 3, ENC_NA);
+        } else {
+            proto_tree_add_item(ccid_tree, hf_ccid_bBWI, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ccid_tree, hf_ccid_wLevelParameter, tvb, 8, 2, ENC_LITTLE_ENDIAN);
+        }
 
         if (tvb_get_letohl(tvb, 1) != 0)
         {
@@ -403,12 +413,16 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case RDR_PC_DATA_BLOCK:
+    case RDR_PC_ESCAPE:
         proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bStatus, tvb, 7, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(ccid_tree, hf_ccid_bChainParameter, tvb, 9, 1, ENC_LITTLE_ENDIAN);
+        if (cmd == RDR_PC_ESCAPE)
+            proto_tree_add_item(ccid_tree, hf_ccid_bRFU, tvb, 9, 1, ENC_LITTLE_ENDIAN);
+        else
+            proto_tree_add_item(ccid_tree, hf_ccid_bChainParameter, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
         if (tvb_get_letohl(tvb, 1) != 0)
         {
@@ -423,7 +437,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             /* Try to dissect responses to GSM SIM packets */
-            if (sub_selected == SUB_GSM_SIM_CMD) {
+            else if (sub_selected == SUB_GSM_SIM_CMD) {
                 call_dissector(sub_handles[SUB_GSM_SIM_RSP], next_tvb, pinfo, tree);
             }
 
@@ -471,6 +485,12 @@ proto_register_ccid(void)
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bError,
          { "Error", "usbccid.bError", FT_UINT8, BASE_DEC,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bRFU,
+         { "RFU", "usbccid.bRFU", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_abRFU,
+         { "RFU", "usbccid.abRFU", FT_BYTES, BASE_NONE,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bChainParameter,
          { "Chain Parameter", "usbccid.bChainParameter", FT_UINT8, BASE_DEC,
