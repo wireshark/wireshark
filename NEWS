@@ -1,4 +1,4 @@
-Wireshark 1.8.9 Release Notes
+Wireshark 1.8.10 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,117 +14,71 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2013-45
+     o wnpa-sec-2013-55
 
-       The Bluetooth SDP dissector could go into a large loop.
-       Discovered by Laurent Butti. (Bug 8831)
+       The NBAP dissector could crash. Discovered by Laurent Butti.
+       (Bug 9005)
 
-       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
+       Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.
 
-       CVE-2013-4927
+     o wnpa-sec-2013-56
 
-     o wnpa-sec-2013-47
+       The ASSA R3 dissector could go into an infinite loop.
+       Discovered by Ben Schmidt. (Bug 9020 )
 
-       The DIS dissector could go into a large loop. (Bug 8911)
+       Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.
 
-       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
+     o wnpa-sec-2013-57
 
-       CVE-2013-4929
+       The RTPS dissector could overflow a buffer. Discovered by Ben
+       Schmidt. (Bug 9019 )
 
-     o wnpa-sec-2013-48
+       Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.
 
-       The DVB-CI dissector could crash. Discovered by Laurent Butti.
-       (Bug 8916)
+     o wnpa-sec-2013-58
 
-       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
+       The MQ dissector could crash. (Bug 9079 )
 
-       CVE-2013-4930
+       Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.
 
-     o wnpa-sec-2013-49
+     o wnpa-sec-2013-59
 
-       The GSM RR dissector (and possibly others) could go into a
-       large loop. (Bug 8923)
+       The LDAP dissector could crash.
 
-       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
+       Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.
 
-       CVE-2013-4931
-
-     o wnpa-sec-2013-50
-
-       The GSM A Common dissector could crash. (Bug 8940)
-
-       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
-
-       CVE-2013-4932
-
-     o wnpa-sec-2013-51
+     o wnpa-sec-2013-60
 
        The Netmon file parser could crash. Discovered by G. Geshev.
-       (Bug 8742)
+       (Bug 8742 )
 
-       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
-
-       CVE-2013-4933
-
-       CVE-2013-4934
-
-     o wnpa-sec-2013-52
-
-       The ASN.1 PER dissector could crash. Discovered by
-       Oliver-Tobias Ripka. (Bug 8722)
-
-       Versions affected: 1.10.0, 1.8.0 to 1.8.8.
-
-       CVE-2013-4935
+       Versions affected: 1.10.0 to 1.10.1, 1.8.0 to 1.8.9.
 
    The following bugs have been fixed:
 
-     o Wireshark hides under Taskbar. (Bug 3034)
+     o Lua ByteArray:append() causes wireshark crash. (Bug 4461)
 
-     o Wireshark doesn't translate IEEE802a OUI. (Bug 3123)
+     o Lua script can not get "data-text-lines" protocol data. (Bug
+       5200)
 
-     o IEEE 802.15.4 frame check sequence in "Chipcon mode" not
-       displayed correctly. (Bug 4507)
+     o PER normally small non-negative whole number decoding is wrong
+       when >= 64. (Bug 8841)
 
-     o Mask in Lua ProtoField.uint32() does not work as expected.
-       (Bug 5734)
+     o Incorrect parsing of IPFIX *IpTotalLength elements. (Bug 8918)
 
-     o Lines of text are truncated if they are either longer than the
-       paper width or past the paper height. (Bug 7543)
+     o IO graph/advanced, max/min/summ error on frames with multiple
+       Diameter messages. (Bug 8980)
 
-     o [PATCH] Add MAC-DATA support to TETRA dissector and other
-       minor improvements. (Bug 8708)
+     o Wireshark fails to decode single-line, multiple Contact: URIs
+       in SIP responses. (Bug 9031)
 
-     o Wireshark writes empty NRB FQDN which makes trace unloadable.
-       (Bug 8763)
+     o Dissector for EtherCAT: ADS highlighting in the Packet Bytes
+       Pane is incorrect. (Bug 9036)
 
-     o Wrong encoding for 2 pod files, UTF-8 characters in another.
-       (Bug 8774)
+     o 802.11 HT Extended Capabilities B10 decode incorrect. (Bug
+       9038)
 
-     o SCSI (SPC) sense key specific information field must not
-       include SKSV. (Bug 8782)
-
-     o Wireshark crashes when closing Flow Graph with Graph Analysis
-       opened. (Bug 8793)
-
-     o Detection of IPv6 works only on Solaris 8. (Bug 8813)
-
-     o ansi_637_tele dissector displays MSB as MBS for Call-Back
-       Number. (Bug 8851)
-
-     o Dropped bytes in IMAP dissector. (Bug 8857)
-
-     o Kismet drone/server dissector improvements. (Bug 8864)
-
-     o iostat_draw sizeof mismatch. (Bug 8888)
-
-     o SIP stats shows incorrect values for Max/Ave setup times. (Bug
-       8897)
-
-     o Graph Filter field limited to 256 characters. (Bug 8909)
-
-     o All mongodb query show as [Malformed Packet: MONGO]. (Bug
-       8960)
+     o Weird malformed HTTP error. (Bug 9101)
 
   New and Updated Features
 
@@ -136,13 +90,12 @@ What's New
 
   Updated Protocol Support
 
-   ANSI IS-637-A, ASN.1 PER, ASN.1, DCERPC NDR, Ethernet, H.235, IEEE
-   802.15.4, IEEE 802a, IMAP, KDSP, MAC-LTE, MONGO, PDCP-LTE, RLC,
-   RLC-LTE, SCSI, SoulSeek, TETRA
+   ASSA R3, EtherCAT AMS, GTPv2, HTTP, IEEE 802.11, IPFIX, LDAP, MQ,
+   NBAP, NCP SSS, RTPS, SIP,
 
   New and Updated Capture File Support
 
-   Microsoft Network Monitor, pcap-ng.
+   .
 
 Getting Wireshark
 
