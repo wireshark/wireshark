@@ -434,18 +434,9 @@ then
 		# functions not to work with 64-bit userland
 	        # code, so capturing won't work.
 		#
-		case $host_cpu in
-		i*86 | x86_64)
-			CFLAGS="-arch i386 $CFLAGS"
-			CXXFLAGS="-arch i386 $CXXFLAGS"
-			LDFLAGS="-arch i386 $LDFLAGS"
-			;;
-		powerpc*)
-			CFLAGS="-arch ppc $CFLAGS"
-			CXXFLAGS="-arch ppc $CXXFLAGS"
-			LDFLAGS="-arch ppc $LDFLAGS"
-			;;
-		esac
+		CFLAGS="-m32 $CFLAGS"
+		CXXFLAGS="-m32 $CXXFLAGS"
+		LDFLAGS="-m32 $LDFLAGS"
 		;;
 	esac
 else
