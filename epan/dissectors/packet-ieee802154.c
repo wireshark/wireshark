@@ -1367,6 +1367,8 @@ dissect_ieee802154_gtsinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             guint8  gts_slot        = tvb_get_guint8(tvb, (*offset)+2);
             guint8  gts_length      = (gts_slot & IEEE802154_GTS_LENGTH_MASK) >> IEEE802154_GTS_LENGTH_SHIFT;
 
+            gts_slot = (gts_slot & IEEE802154_GTS_SLOT_MASK);
+
             if (tree) {
                 /* Add address, slot, and time length fields. */
                 ti = proto_tree_add_text(subtree, tvb, (*offset), 3, "{Address: 0x%04x", gts_addr);
