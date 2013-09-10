@@ -167,7 +167,7 @@ win32:INCLUDEPATH += \
     $${WIRESHARK_LIB_DIR}/gtk3/include/glib-2.0 $${WIRESHARK_LIB_DIR}/gtk3/lib/glib-2.0/include \
     $${WIRESHARK_LIB_DIR}/WpdPack/Include \
     $${WIRESHARK_LIB_DIR}/AirPcap_Devpack_4_1_0_1622/Airpcap_Devpack/include \
-    $${WIRESHARK_LIB_DIR}/gnutls-$${GNUTLS_PKG}-$${WIRESHARK_TARGET_PLATFORM}ws \
+    $${GNUTLS_DIR}/include \
     $${WIRESHARK_LIB_DIR}/zlib125/include
 
 # We have to manually trigger relinking each time one of these is modified.
