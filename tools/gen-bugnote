@@ -75,7 +75,7 @@ bug_title=`
 
 case "$output_fmt" in
     asciidoc)
-        echo -n "* $bug_title (ws-buglink:$bug_id[])" \
+        echo -e "* $bug_title (ws-buglink:$bug_id[])\n" \
                 | $recode_cmd \
                 | $clipboard_cmd
     ;;
