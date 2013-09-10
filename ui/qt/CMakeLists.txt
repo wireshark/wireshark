@@ -229,6 +229,14 @@ if (WERROR)
 		PROPERTIES
 		COMPILE_FLAGS -Werror
 	)
+	# The Qt headers generate a ton of shortening errors on 64-bit systems.
+	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set_source_files_properties(
+			${CLEAN_FILES}
+			PROPERTIES
+			COMPILE_FLAGS -Wno-shorten-64-to-32
+		)
+	endif()
 endif()
 
 add_definitions(${QT_DEFINITIONS})
