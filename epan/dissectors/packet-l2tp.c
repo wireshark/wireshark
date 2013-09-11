@@ -105,6 +105,7 @@ static int hf_l2tp_l2_spec_g = -1;
 static int hf_l2tp_l2_spec_c = -1;
 static int hf_l2tp_l2_spec_u = -1;
 static int hf_l2tp_cisco_avp_type = -1;
+static int hf_l2tp_cablelabs_avp_type = -1;
 static int hf_l2tp_avp_message_type = -1;
 static int hf_l2tp_avp_assigned_tunnel_id = -1;
 static int hf_l2tp_avp_assigned_control_conn_id = -1;
@@ -114,6 +115,13 @@ static int hf_l2tp_avp_local_session_id = -1;
 static int hf_l2tp_avp_called_number = -1;
 static int hf_l2tp_avp_calling_number = -1;
 static int hf_l2tp_cisco_tie_breaker = -1;
+static int hf_l2tp_cablel_avp_l_bit = -1;
+static int hf_l2tp_cablel_avp_tsid_group_id = -1;
+static int hf_l2tp_cablel_avp_frequency = -1;
+static int hf_l2tp_cablel_avp_modulation = -1;
+static int hf_l2tp_cablel_avp_m = -1;
+static int hf_l2tp_cablel_avp_n = -1;
+
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_l2tp_cisco_pw_type = -1;
 static int hf_l2tp_avp_error_code = -1;
@@ -194,6 +202,8 @@ static int hf_l2tp_avp_framing_errors = -1;
 static int hf_l2tp_cisco_remote_end_id = -1;
 static int hf_l2tp_avp_tx_connect_speed_v3 = -1;
 static int hf_l2tp_avp_rx_connect_speed_v3 = -1;
+
+static dissector_table_t l2tp_vendor_avp_dissector_table;
 
 #define UDP_PORT_L2TP   1701
 
@@ -678,6 +688,39 @@ static const value_string cisco_avp_type_vals[] = {
     { CISCO_AUTH_NONCE,               "Control Message Authentication Nonce" },
     { CISCO_INTERFACE_MTU,            "Interface MTU" },
     { 0,                              NULL }
+};
+
+static const value_string cablelabs_avp_type_vals[] = {
+	/* 7.5.2 DEPI Specific AVPs */
+    { 0,   "Reserved" },
+    { 1,   "DEPI Result Code" },
+    { 2,   "DEPI Resource Allocation Request" },
+    { 3,   "DEPI Resource Allocation Reply" },
+    { 4,   "DEPI Local MTU" },
+    { 5,   "DOCSIS SYNC Control" },
+    { 6,   "EQAM Capability Bits" },
+    { 7,   "DEPI Remote MTU" },
+    { 8,   "DEPI Local UDP Port" },
+    { 9,   "DPR Session Type" },
+    { 10,  "DPR Session Status" },
+	/* 7.5.3 QAM Channel PHY AVPs */
+    { 100, "Downstream QAM Channel TSID Group" },
+    { 101, "Downstream QAM Channel Frequency" },
+    { 102, "Downstream QAM Channel Power" },
+    { 103, "Downstream QAM Channel Modulation" },
+    { 104, "Downstream QAM Channel J.83 Annex" },
+    { 105, "Downstream QAM Channel Symbol Rate" },
+    { 106, "Downstream QAM Channel Interleaver Depth" },
+    { 107, "Downstream QAM Channel RF Block Muting53" },
+    /* 7.5.4 DEPI Redundancy Capabilities AVPs */
+    { 200, "DEPI Redundancy Capabilities" },
+	{ 0,                              NULL }
+};
+
+static const value_string l2tp_cablel_modulation_vals[] = {
+    { 0,   "64-QAM" },
+    { 1,   "128-QAM" },
+	{ 0,        NULL }
 };
 
 static const value_string pw_types_vals[] = {
@@ -1345,6 +1388,96 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 	return offset;
 }
+
+/*
+ * Ref: http://www.cablelabs.com/specifications/CM-SP-DEPI-I08-100611.pdf
+ */ 
+static int
+dissect_l2tp_vnd_cablelabs_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int offset = 0;
+    int         avp_type;
+    guint32     avp_vendor_id;
+    guint32     avp_len;
+    guint16     ver_len_hidden;
+	proto_item *tf;
+	proto_tree *l2tp_avp_tree;
+
+    ver_len_hidden  = tvb_get_ntohs(tvb, offset);
+    avp_len         = AVP_LENGTH(ver_len_hidden);
+    avp_vendor_id   = tvb_get_ntohs(tvb, offset + 2);
+    avp_type        = tvb_get_ntohs(tvb, offset + 4);
+
+    tf =  proto_tree_add_text(tree, tvb, offset,
+                              avp_len, "Vendor %s: %s AVP",
+                              val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
+                              val_to_str(avp_type, cablelabs_avp_type_vals, "Unknown (%u)"));
+
+
+    l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
+
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+	if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
+        offset += avp_len;
+        return offset;
+    }
+
+    offset += 2;
+    avp_len -= 2;
+
+    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    avp_len -= 2;
+
+    proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_cablelabs_avp_type, tvb, offset, 2, avp_type);
+    offset += 2;
+    avp_len -= 2;
+
+    switch (avp_type) {
+    case 101:
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cablel_avp_l_bit, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cablel_avp_tsid_group_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        avp_len-=2;
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cablel_avp_frequency, tvb, offset, 4, ENC_BIG_ENDIAN);
+        avp_len -= 4;
+        offset+=4;
+        break;
+    case 103:
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cablel_avp_l_bit, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cablel_avp_tsid_group_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cablel_avp_modulation, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        avp_len-=2;
+        break;
+    case 105:
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cablel_avp_l_bit, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cablel_avp_tsid_group_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        avp_len-=2;
+		while(avp_len > 0){
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cablel_avp_m, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            avp_len-=2;
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cablel_avp_n, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            avp_len-=2;
+		}
+        break;
+    default:
+        proto_tree_add_text(l2tp_avp_tree, tvb, offset,
+                            avp_len, "Vendor-Specific AVP(not dissected yet)");
+        break;
+    }
+    offset += avp_len;
+
+	return offset;
+}
+
+
 /*
  * Processes AVPs for Control Messages all versions and transports
  */
@@ -1384,34 +1517,42 @@ static void process_control_avps(tvbuff_t *tvb,
         }
 
         if (avp_vendor_id != VENDOR_IETF) {
+
+            avp_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
+
             if (avp_vendor_id == VENDOR_CISCO) {      /* Vendor-Specific AVP */
 
-                avp_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
                 dissect_l2tp_cisco_avps(avp_tvb, pinfo, l2tp_tree);
                 idx += avp_len;
                 continue;
 
             } else {
                 /* Vendor-Specific AVP */
-                tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
-                                      avp_len, "Vendor %s AVP Type %u",
-                                      val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
-                                      avp_type);
+				if (!dissector_try_uint(l2tp_vendor_avp_dissector_table, avp_vendor_id, avp_tvb, pinfo, l2tp_tree)){
+                    tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
+                                          avp_len, "Vendor %s AVP Type %u",
+                                          val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
+                                          avp_type);
 
-                l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
+                    l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
-                proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, idx, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, idx, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_length, tvb, idx, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, idx, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, idx, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_length, tvb, idx, 2, ENC_BIG_ENDIAN);
 
-                if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
-                    idx += avp_len;
-                    continue;
-                }
-                idx += 2;
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2, "Type: %u", avp_type);
-                idx += 2;
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len, "Vendor-Specific AVP");
+                    if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
+                        idx += avp_len;
+                        continue;
+                    }
+                    idx += 2;
+                    proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id, tvb, idx, 2, ENC_BIG_ENDIAN);
+                    idx += 2;
+
+                    proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2, "Type: %u", avp_type);
+                    idx += 2;
+                    proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len, "Vendor-Specific AVP");
+					avp_len-=6;
+				}
                 idx += avp_len;
                 continue;
             }
@@ -2728,6 +2869,10 @@ proto_register_l2tp(void)
           { "Type", "l2tp.avp.ciscotype", FT_UINT16, BASE_DEC, VALS(cisco_avp_type_vals), 0,
             "AVP Type", HFILL }},
 
+		{ &hf_l2tp_cablelabs_avp_type,
+          { "Type", "l2tp.avp.cablelabstype", FT_UINT16, BASE_DEC, VALS(cablelabs_avp_type_vals), 0,
+            "AVP Type", HFILL }},
+
         { &hf_l2tp_avp_message_type,
           { "Message Type", "l2tp.avp.message_type", FT_UINT16, BASE_DEC, VALS(message_type_vals), 0,
             NULL, HFILL }},
@@ -2762,6 +2907,30 @@ proto_register_l2tp(void)
 
         { &hf_l2tp_cisco_tie_breaker,
           { "Tie Breaker", "l2tp.cisco.tie_breaker", FT_UINT64, BASE_HEX, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_cablel_avp_l_bit,
+          { "L(lock bit)", "l2tp.cablel.l_bit", FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }},
+
+        { &hf_l2tp_cablel_avp_tsid_group_id,
+          { "TSID Group ID", "l2tp.cablel.tsid_group_id", FT_UINT16, BASE_DEC, NULL, 0x7f00,
+            NULL, HFILL }},
+
+		{ &hf_l2tp_cablel_avp_frequency,
+          { "Frequency", "l2tp.cablel.frequency", FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_cablel_avp_modulation,
+          { "Modulation", "l2tp.cablel.modulation", FT_UINT16, BASE_DEC, VALS(l2tp_cablel_modulation_vals), 0x000f,
+            NULL, HFILL }},
+
+        { &hf_l2tp_cablel_avp_m,
+          { "M", "l2tp.cablel.m", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_cablel_avp_n,
+          { "N", "l2tp.cablel.n", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
       /* Generated from convert_proto_tree_add_text.pl */
@@ -2869,6 +3038,8 @@ proto_register_l2tp(void)
     expert_l2tp = expert_register_protocol(proto_l2tp);
     expert_register_field_array(expert_l2tp, ei, array_length(ei));
 
+	l2tp_vendor_avp_dissector_table = register_dissector_table("l2tp.vendor_avp", "L2TP vendor AVP dissector table", FT_UINT32, BASE_DEC);
+
     l2tp_module = prefs_register_protocol(proto_l2tp, NULL);
 
     prefs_register_enum_preference(l2tp_module,
@@ -2916,6 +3087,10 @@ proto_reg_handoff_l2tp(void)
      */
     ppp_hdlc_handle = find_dissector("ppp_hdlc");
     ppp_lcp_options_handle = find_dissector("ppp_lcp_options");
+
+    /* Register vendor AVP dissector(s)*/
+    dissector_add_uint("l2tp.vendor_avp", VENDOR_CABLELABS, new_create_dissector_handle(dissect_l2tp_vnd_cablelabs_avps, proto_l2tp));
+
 
     /*
      * Get a handle for the dissectors used in v3.
