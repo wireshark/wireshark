@@ -143,7 +143,7 @@ BEGIN-TLV 3GPP2-Prepaid-Acct-Quota
 	ATTRIBUTE	VolumeThreshouldOverflow			 5 integer
 	ATTRIBUTE	DurationQuota						 6 integer
 	ATTRIBUTE	DurationThreshold					 7 integer
-	ATTRIBUTE	Update-Reason						 8 string
+	ATTRIBUTE	Update-Reason						 8 integer
 END-TLV 3GPP2-Prepaid-Acct-Quota
 
 #contains sub-types
