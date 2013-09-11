@@ -723,6 +723,6 @@ proto_reg_handoff_wcp(void) {
     fr_uncompressed_handle = find_dissector("fr_uncompressed");
 
     wcp_handle = create_dissector_handle(dissect_wcp, proto_wcp);
-    dissector_add_uint("fr.ietf", NLPID_COMPRESSED, wcp_handle);
+    dissector_add_uint("fr.nlpid", NLPID_COMPRESSED, wcp_handle);
     dissector_add_uint("ethertype",  ETHERTYPE_WCP, wcp_handle);
 }

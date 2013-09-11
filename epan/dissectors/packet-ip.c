@@ -3064,7 +3064,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("null.type", BSD_AF_INET, ip_handle);
   dissector_add_uint("chdlc.protocol", ETHERTYPE_IP, ip_handle);
   dissector_add_uint("osinl.excl", NLPID_IP, ip_handle);
-  dissector_add_uint("fr.ietf", NLPID_IP, ip_handle);
+  dissector_add_uint("fr.nlpid", NLPID_IP, ip_handle);
   dissector_add_uint("x.25.spi", NLPID_IP, ip_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IP_1051, ip_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IP_1201, ip_handle);

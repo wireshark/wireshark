@@ -5539,7 +5539,7 @@ proto_reg_handoff_ppp(void)
     data_handle = find_dissector("data");
 
     ppp_handle = find_dissector("ppp");
-    dissector_add_uint("fr.ietf", NLPID_PPP, ppp_handle);
+    dissector_add_uint("fr.nlpid", NLPID_PPP, ppp_handle);
 
     ppp_hdlc_handle = find_dissector("ppp_hdlc");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_PPP, ppp_hdlc_handle);

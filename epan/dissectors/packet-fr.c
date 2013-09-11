@@ -965,7 +965,7 @@ proto_register_fr(void)
   proto_register_field_array(proto_fr, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  fr_subdissector_table = register_dissector_table("fr.ietf",
+  fr_subdissector_table = register_dissector_table("fr.nlpid",
                                                    "Frame Relay NLPID", FT_UINT8, BASE_HEX);
   fr_osinl_subdissector_table = register_dissector_table("fr.osinl",
                                                          "Frame Relay OSI NLPID", FT_UINT8, BASE_HEX);
