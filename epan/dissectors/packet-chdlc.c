@@ -223,8 +223,9 @@ proto_register_chdlc(void)
   proto_register_subtree_array(ett, array_length(ett));
 
 /* subdissector code */
-  subdissector_table = register_dissector_table("chdlctype",
-                                                "Cisco HDLC frame type", FT_UINT16, BASE_HEX);
+  subdissector_table = register_dissector_table("chdlc.protocol",
+                                                "Cisco HDLC protocol",
+                                                FT_UINT16, BASE_HEX);
 
   register_dissector("chdlc", dissect_chdlc, proto_chdlc);
 
@@ -364,5 +365,5 @@ proto_reg_handoff_slarp(void)
   dissector_handle_t slarp_handle;
 
   slarp_handle = create_dissector_handle(dissect_slarp, proto_slarp);
-  dissector_add_uint("chdlctype", CISCO_SLARP, slarp_handle);
+  dissector_add_uint("chdlc.protocol", CISCO_SLARP, slarp_handle);
 }

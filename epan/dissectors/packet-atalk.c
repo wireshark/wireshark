@@ -2445,7 +2445,7 @@ proto_reg_handoff_atalk(void)
 
   ddp_handle = create_dissector_handle(dissect_ddp, proto_ddp);
   dissector_add_uint("ethertype", ETHERTYPE_ATALK, ddp_handle);
-  dissector_add_uint("chdlctype", ETHERTYPE_ATALK, ddp_handle);
+  dissector_add_uint("chdlc.protocol", ETHERTYPE_ATALK, ddp_handle);
   dissector_add_uint("ppp.protocol", PPP_AT, ddp_handle);
   dissector_add_uint("null.type", BSD_AF_APPLETALK, ddp_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_APPLETALK, ddp_handle);

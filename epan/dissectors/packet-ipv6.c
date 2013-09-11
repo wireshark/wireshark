@@ -2900,7 +2900,7 @@ proto_reg_handoff_ipv6(void)
   dissector_add_uint("null.type", BSD_AF_INET6_BSD, ipv6_handle);
   dissector_add_uint("null.type", BSD_AF_INET6_FREEBSD, ipv6_handle);
   dissector_add_uint("null.type", BSD_AF_INET6_DARWIN, ipv6_handle);
-  dissector_add_uint("chdlctype", ETHERTYPE_IPv6, ipv6_handle);
+  dissector_add_uint("chdlc.protocol", ETHERTYPE_IPv6, ipv6_handle);
   dissector_add_uint("fr.ietf", NLPID_IP6, ipv6_handle);
   dissector_add_uint("osinl.excl", NLPID_IP6, ipv6_handle);
   dissector_add_uint("x.25.spi", NLPID_IP6, ipv6_handle);

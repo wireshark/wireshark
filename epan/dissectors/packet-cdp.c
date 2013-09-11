@@ -1334,6 +1334,6 @@ proto_reg_handoff_cdp(void)
     data_handle = find_dissector("data");
     cdp_handle  = create_dissector_handle(dissect_cdp, proto_cdp);
     dissector_add_uint("llc.cisco_pid", 0x2000, cdp_handle);
-    dissector_add_uint("chdlctype",     0x2000, cdp_handle);
+    dissector_add_uint("chdlc.protocol", 0x2000, cdp_handle);
     dissector_add_uint("ppp.protocol",  0x0207, cdp_handle);
 }

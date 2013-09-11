@@ -944,7 +944,7 @@ proto_reg_handoff_eth(void)
 
     eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
     dissector_add_uint("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
-    dissector_add_uint("chdlctype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+    dissector_add_uint("chdlc.protocol", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 
     dissector_add_uint("sll.ltype", LINUX_SLL_P_ETHERNET, eth_withoutfcs_handle);

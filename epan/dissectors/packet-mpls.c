@@ -802,8 +802,8 @@ proto_reg_handoff_mpls(void)
     mpls_handle = find_dissector("mpls");
     dissector_add_uint("ethertype", ETHERTYPE_MPLS, mpls_handle);
     dissector_add_uint("ethertype", ETHERTYPE_MPLS_MULTI, mpls_handle);
-    dissector_add_uint("chdlctype", ETHERTYPE_MPLS, mpls_handle);
-    dissector_add_uint("chdlctype", ETHERTYPE_MPLS_MULTI, mpls_handle);
+    dissector_add_uint("chdlc.protocol", ETHERTYPE_MPLS, mpls_handle);
+    dissector_add_uint("chdlc.protocol", ETHERTYPE_MPLS_MULTI, mpls_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_MPLS, mpls_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_MPLS_MULTI, mpls_handle);
     dissector_add_uint("ip.proto", IP_PROTO_MPLS_IN_IP, mpls_handle);

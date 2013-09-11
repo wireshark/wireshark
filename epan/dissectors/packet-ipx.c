@@ -1501,7 +1501,7 @@ proto_reg_handoff_ipx(void)
 	ipx_handle = find_dissector("ipx");
 	dissector_add_uint("udp.port", UDP_PORT_IPX, ipx_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_IPX, ipx_handle);
-	dissector_add_uint("chdlctype", ETHERTYPE_IPX, ipx_handle);
+    dissector_add_uint("chdlc.protocol", ETHERTYPE_IPX, ipx_handle);
 	dissector_add_uint("ppp.protocol", PPP_IPX, ipx_handle);
 	dissector_add_uint("llc.dsap", SAP_NETWARE1, ipx_handle);
 	dissector_add_uint("llc.dsap", SAP_NETWARE2, ipx_handle);

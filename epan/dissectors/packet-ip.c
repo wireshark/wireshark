@@ -2428,10 +2428,10 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 {
     int length, tot_length;
     guint8 oct, version, ihl;
-        
+
 /*
-    0                   1                   2                   3   
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |Version|  IHL  |Type of Service|          Total Length         |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -2450,8 +2450,8 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 /*
     3.  IPv6 Header Format
 
-         0                   1                   2                   3   
-         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         |Version| Traffic Class |           Flow Label                  |
         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -3062,7 +3062,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("llc.dsap", SAP_IP, ip_handle);
   dissector_add_uint("ip.proto", IP_PROTO_IPIP, ip_handle);
   dissector_add_uint("null.type", BSD_AF_INET, ip_handle);
-  dissector_add_uint("chdlctype", ETHERTYPE_IP, ip_handle);
+  dissector_add_uint("chdlc.protocol", ETHERTYPE_IP, ip_handle);
   dissector_add_uint("osinl.excl", NLPID_IP, ip_handle);
   dissector_add_uint("fr.ietf", NLPID_IP, ip_handle);
   dissector_add_uint("x.25.spi", NLPID_IP, ip_handle);
