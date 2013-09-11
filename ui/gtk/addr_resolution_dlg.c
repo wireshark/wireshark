@@ -49,41 +49,6 @@
 #include "ui/gtk/addr_resolution_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
 
-
-/* Needed for addrinfo */
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#ifdef HAVE_NETDB_H
-# include <netdb.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif
-
-#if defined(_WIN32) && defined(INET6)
-# include <ws2tcpip.h>
-#endif
-
-#ifdef NEED_INET_V6DEFS_H
-# include "wsutil/inet_v6defs.h"
-#endif
-
-
 static GtkWidget *addr_resolution_dlg_w = NULL;
 
 
@@ -182,6 +147,26 @@ ipv4_hash_table_to_texbuff(gpointer key, gpointer value, gpointer user_data)
 }
 
 static void
+ipv4_hash_table_resolved_to_texbuff(gpointer key, gpointer value, gpointer user_data)
+{
+	gchar string_buff[ADDRESS_STR_MAX];
+	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
+	hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
+	int addr = *(int*)key;
+
+	if(!ipv4_hash_table_entry->is_dummy_entry){
+		g_snprintf(string_buff, ADDRESS_STR_MAX, "%s\t%s\n",
+			  ipv4_hash_table_entry->ip,
+			  ipv4_hash_table_entry->name);
+
+		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+	}
+
+}
+
+
+
+static void
 ipv6_hash_table_to_texbuff(gpointer key _U_, gpointer value, gpointer user_data)
 {
 	gchar string_buff[ADDRESS_STR_MAX];
@@ -195,14 +180,27 @@ ipv6_hash_table_to_texbuff(gpointer key _U_, gpointer value, gpointer user_data)
 	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
 }
+
+static void
+ipv6_hash_table_resolved_to_texbuff(gpointer key _U_, gpointer value, gpointer user_data)
+{
+	gchar string_buff[ADDRESS_STR_MAX];
+	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
+	hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
+
+	if(!ipv6_hash_table_entry->is_dummy_entry){
+		g_snprintf(string_buff, ADDRESS_STR_MAX, "%s\t%s\n",
+			  ipv6_hash_table_entry->ip6,
+			  ipv6_hash_table_entry->name);
+
+		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+	}
+
+}
+
 static void
 addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 {
-    struct addrinfo *ai;
-    struct sockaddr_in *sa4;
-    struct sockaddr_in6 *sa6;
-    char   addr_str[ADDRSTRLEN];
-    int i, tab_count;
     gchar string_buff[ADDRESS_STR_MAX];
 	GHashTable *manuf_hashtable;
 	GHashTable *wka_hashtable;
@@ -217,49 +215,19 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
     /* Dump the v4 addresses first, then v6 */
-    for (ai = get_addrinfo_list(); ai; ai = ai->ai_next) {
-        if (ai->ai_family != AF_INET) {
-            continue;
-        }
+	ipv4_hash_table = get_ipv4_hash_table();
+	if(ipv4_hash_table){
+		g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_resolved_to_texbuff, buffer);
+	}
 
-        sa4 = (struct sockaddr_in *)(void *)ai->ai_addr;
-        if (inet_ntop(AF_INET, &(sa4->sin_addr.s_addr), addr_str, ADDRSTRLEN)) {
-            tab_count = (HOSTNAME_POS - (int)strlen(addr_str)) / 8;
-            g_snprintf(string_buff, ADDRESS_STR_MAX, "%s", addr_str);
-            gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-            for (i = 0; i < tab_count; i++){
-                g_snprintf(string_buff, ADDRESS_STR_MAX, "\t");
-                gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-            }
-            g_snprintf(string_buff, ADDRESS_STR_MAX, "%s\n", ai->ai_canonname);
-            gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-        }
-    }
-
-
-    for (ai = get_addrinfo_list(); ai; ai = ai->ai_next) {
-        if (ai->ai_family != AF_INET6) {
-            continue;
-        }
-
-        sa6 = (struct sockaddr_in6 *)(void *)ai->ai_addr;
-        if (inet_ntop(AF_INET6, sa6->sin6_addr.s6_addr, addr_str, ADDRSTRLEN)) {
-            tab_count = (HOSTNAME_POS - (int)strlen(addr_str)) / 8;
-            g_snprintf(string_buff, ADDRESS_STR_MAX, "%s", addr_str);
-            gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-            for (i = 0; i < tab_count; i++){
-                g_snprintf(string_buff, ADDRESS_STR_MAX, "\t");
-                gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-            }
-            g_snprintf(string_buff, ADDRESS_STR_MAX, "%s\n", ai->ai_canonname);
-            gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-        }
-    }
+	ipv6_hash_table = get_ipv6_hash_table();
+	if(ipv6_hash_table){
+		g_hash_table_foreach( ipv6_hash_table, ipv6_hash_table_resolved_to_texbuff, buffer);
+	}
 
 	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Address resolution IPv4 Hash table \n#\n");
 	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
-	ipv4_hash_table = get_ipv4_hash_table();
 	if(ipv4_hash_table){
 		g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(ipv4_hash_table));
 		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
@@ -269,7 +237,6 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 	g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Address resolution IPv6 Hash table \n#\n");
 	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
-	ipv6_hash_table = get_ipv6_hash_table();
 	if(ipv6_hash_table){
 		g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(ipv6_hash_table));
 		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
