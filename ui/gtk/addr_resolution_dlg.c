@@ -147,12 +147,11 @@ ipv4_hash_table_to_texbuff(gpointer key, gpointer value, gpointer user_data)
 }
 
 static void
-ipv4_hash_table_resolved_to_texbuff(gpointer key, gpointer value, gpointer user_data)
+ipv4_hash_table_resolved_to_texbuff(gpointer key _U_, gpointer value, gpointer user_data)
 {
 	gchar string_buff[ADDRESS_STR_MAX];
 	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
 	hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
-	int addr = *(int*)key;
 
 	if(!ipv4_hash_table_entry->is_dummy_entry){
 		g_snprintf(string_buff, ADDRESS_STR_MAX, "%s\t%s\n",
