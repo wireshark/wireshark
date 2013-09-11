@@ -715,7 +715,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	first_linelen = tvb_find_line_end(tvb, offset,
 	    tvb_ensure_length_remaining(tvb, offset), &next_offset,
 	    TRUE);
-	
+
 	if (first_linelen == -1) {
 		/* No complete line was found in this segment, do
 		 * desegmentation if we're told to.
@@ -807,7 +807,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	headers.transfer_encoding = NULL; /* transfer encoding not known yet */
 	headers.upgrade = 0; /* assume we're not upgrading */
 	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		/*
 		 * Find the end of the line.
 		 * XXX - what if we don't find it because the packet
@@ -1103,7 +1103,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		}
 	}
-	
+
 	reported_datalen = tvb_reported_length_remaining(tvb, offset);
 	datalen = tvb_length_remaining(tvb, offset);
 
@@ -1610,7 +1610,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 	}
 
 
-	while (datalen != 0) {
+	while (datalen > 0) {
 		proto_item *chunk_ti = NULL;
 		proto_tree *chunk_subtree = NULL;
 		tvbuff_t *data_tvb = NULL; /*  */
@@ -1802,7 +1802,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 	chunks_decoded	  = 0;
 	chunked_data_size = 0;
 
-	while (datalen != 0) {
+	while (datalen > 0) {
 		tvbuff_t *data_tvb;
 		guint32	  chunk_size;
 		gint	  chunk_offset;
@@ -2647,7 +2647,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			conv_data->startframe = pinfo->fd->num;
 		http_payload_subdissector(tvb, tree, pinfo, conv_data);
 	} else {
-		while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->fd->num >= conv_data->startframe) {
 				/*g_warning("Go Websocket");*/
 				call_dissector_only(websocket_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
@@ -3144,7 +3144,7 @@ dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_message_http,
 				tvb, 0, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_message_http);
-		while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			len = tvb_find_line_end(tvb, offset,
 					tvb_ensure_length_remaining(tvb, offset),
 					&next_offset, FALSE);
