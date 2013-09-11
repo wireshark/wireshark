@@ -487,7 +487,9 @@ MSVC_VARIANT = $(MSVC_VARIANT)
 MSVCR_DLL = "$(MSVCR_DLL:\=/)"
 
 QMAKE_CFLAGS         *= $(STANDARD_CFLAGS) $(PORTAUDIO_CFLAGS:\=/)
-QMAKE_CXXFLAGS       *= $(STANDARD_CFLAGS) $(PORTAUDIO_CFLAGS:\=/)
+# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
+# This avoids conflicts with the C++ standard library.
+QMAKE_CXXFLAGS       *= $(STANDARD_CFLAGS) /DNOMINMAX $(PORTAUDIO_CFLAGS:\=/)
 QMAKE_LFLAGS         *= /LARGEADDRESSAWARE $(LDFLAGS)
 
 <<KEEP
