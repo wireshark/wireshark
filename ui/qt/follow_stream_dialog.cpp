@@ -27,11 +27,40 @@
 #include "main_window.h"
 #include "wireshark_application.h"
 
+#include "epan/follow.h"
+#include "epan/dissectors/packet-ipv6.h"
+#include "epan/prefs.h"
+#include "epan/charsets.h"
+#include "epan/epan_dissect.h"
+#include "epan/ipproto.h"
+#include "epan/tap.h"
+
+#include "file.h"
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
+#include "ui/utf8_entities.h"
+#include "wsutil/tempfile.h"
+#include "wsutil/file_util.h"
+#include "ws_symbol_export.h"
+
+#include "qt_ui_utils.h"
+
+#include "globals.h"
+#include "file.h"
+
+#include "version_info.h"
+
 #include "ui/follow.h"
 
 #ifdef HAVE_LIBZ
 #include <zlib.h>
 #endif
+
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QPrintDialog>
+#include <QPrinter>
+#include <QTextStream>
 
 FollowStreamDialog::FollowStreamDialog(QWidget *parent) :
     QDialog(parent),
@@ -197,8 +226,9 @@ FollowStreamDialog::follow_read_stream()
 //Copy from ui/gtk/follow_udp.c
 static int
 udp_queue_packet_data(void *tapdata, packet_info *pinfo,
-                      epan_dissect_t *edt _U_, const void *data)
+                      epan_dissect_t *edt, const void *data)
 {
+    Q_UNUSED(edt)
 
     follow_record_t *follow_record;
     follow_info_t *follow_info = (follow_info_t *)tapdata;
@@ -230,8 +260,10 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
 
 //Copy from ui/gtk/follow_ssl.c
 static int
-ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl)
+ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *ssl)
 {
+    Q_UNUSED(edt)
+
     follow_info_t *      follow_info = (follow_info_t*) tapdata;
     SslDecryptedRecord * rec = NULL;
     SslDataInfo *        appl_data = NULL;
@@ -599,9 +631,8 @@ bool FollowStreamDialog::Follow(QString previous_filter_, follow_type_t type)
     case FOLLOW_SSL:
         /* we got ssl so we can follow */
         if (!epan_dissect_packet_contains_field(cfile.edt, "ssl")) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "Error following stream.  Please make\n"
-                          "sure you have an SSL packet selected.");
+            QMessageBox::critical(this, tr("Error following stream"),
+                               tr("Please make sure you have an SSL packet selected."));
             return false;
         }
         break;
@@ -691,9 +722,9 @@ bool FollowStreamDialog::Follow(QString previous_filter_, follow_type_t type)
         msg = register_tap_listener("udp_follow", follow_info, follow_filter,
                                     0, NULL, udp_queue_packet_data, NULL);
         if (msg) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "Can't register udp_follow tap: %s\n",
-                          msg->str);
+            QMessageBox::critical(this, "Error",
+                               "Can't register udp_follow tap: %1",
+                               msg->str);
             g_free(follow_info->filter_out_filter);
             g_free(follow_info);
             g_free(follow_filter);
@@ -706,8 +737,8 @@ bool FollowStreamDialog::Follow(QString previous_filter_, follow_type_t type)
                                     NULL, ssl_queue_packet_data, NULL);
         if (msg)
         {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "Can't register ssl tap: %s\n",msg->str);
+            QMessageBox::critical(this, "Error",
+                          "Can't register ssl tap: %1", msg->str);
             g_free(follow_info->filter_out_filter);
             g_free(follow_info);
             g_free(follow_filter);
@@ -959,19 +990,19 @@ FollowStreamDialog::follow_read_tcp_stream()
 
     data_out_file = ws_fopen(follow_info->data_out_filename, "rb");
     if (data_out_file == NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Could not open temporary file %s: %s", follow_info->data_out_filename,
+        QMessageBox::critical(this, "Error",
+                      "Could not open temporary file %1: %2", follow_info->data_out_filename,
                       g_strerror(errno));
         return FRS_OPEN_ERROR;
     }
 
     while ((nchars=fread(&sc, 1, sizeof(sc), data_out_file))) {
         if (nchars != sizeof(sc)) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "Short read from temporary file %s: expected %lu, got %lu",
-                          follow_info->data_out_filename,
-                          (unsigned long)sizeof(sc),
-                          (unsigned long)nchars);
+            QMessageBox::critical(this, "Error",
+                          QString(tr("Short read from temporary file %1: expected %2, got %3"))
+                          .arg(follow_info->data_out_filename)
+                          .arg(sizeof(sc))
+                          .arg(nchars));
             fclose(data_out_file);
             data_out_file = NULL;
             return FRS_READ_ERROR;

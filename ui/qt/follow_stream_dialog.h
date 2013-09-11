@@ -24,51 +24,21 @@
 #ifndef FOLLOW_STREAM_DIALOG_H
 #define FOLLOW_STREAM_DIALOG_H
 
-#include <QDialog>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QPrinter>
-#include <QPrintDialog>
-#include <QInputDialog>
-
 #include "config.h"
+
+#include <glib.h>
+
+#include <stdio.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
-#include "qt_ui_utils.h"
-
-#include <epan/follow.h>
-#include <epan/dissectors/packet-ipv6.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/prefs.h>
-#include <epan/addr_resolv.h>
-#include <epan/charsets.h>
-#include <epan/epan_dissect.h>
-#include <epan/filesystem.h>
-#include <epan/ipproto.h>
-#include <epan/charsets.h>
-#include <epan/plugins.h>
-#include <epan/tap.h>
-
-#include "../file.h"
-#include "ui/alert_box.h"
 #include "ui/follow.h"
-#include "ui/simple_dialog.h"
-#include "ui/utf8_entities.h"
-#include "wsutil/tempfile.h"
-#include <wsutil/file_util.h>
-#include "ws_symbol_export.h"
 
-
-#include "globals.h"
-#include "file.h"
-
-#include "version_info.h"
-
-
-#include <QtGui>
+#include <QDialog>
+#include <QFile>
+#include <QPushButton>
 
 extern "C" {
 WS_DLL_PUBLIC FILE *data_out_file;

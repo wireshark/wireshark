@@ -78,32 +78,6 @@ struct	ip6_ext {
 	guchar	ip6e_len;
 };
 
-
-/* Option types and related macros */
-#define IP6OPT_PAD1			0x00	/* 00 0 00000 */
-#define IP6OPT_PADN			0x01	/* 00 0 00001 */
-#define IP6OPT_TEL			0x04	/* 00 0 00100 */
-#define IP6OPT_RTALERT			0x05	/* 00 0 00101 */
-#define IP6OPT_CALIPSO			0x07	/* 00 0 00111 */
-#define IP6OPT_QUICKSTART		0x26	/* 00 1 00110 */
-#define IP6OPT_ENDI			0x8A	/* 10 0 01010 */
-#define IP6OPT_EXP_1E			0x1E	/* 00 0 11110 */
-#define IP6OPT_EXP_3E			0x3E	/* 00 1 11110 */
-#define IP6OPT_EXP_5E			0x5E	/* 01 0 11110 */
-#define IP6OPT_RPL			0x63	/* 01 1 00011 */
-#define IP6OPT_EXP_7E			0x7E	/* 01 1 11110 */
-#define IP6OPT_EXP_9E			0x9E	/* 10 0 11110 */
-#define IP6OPT_EXP_BE			0xBE	/* 10 1 11110 */
-#define IP6OPT_JUMBO			0xC2	/* 11 0 00010 = 194 */
-#define IP6OPT_HOME_ADDRESS		0xC9	/* 11 0 01001 */
-#define IP6OPT_EXP_DE			0xDE	/* 11 0 11110 */
-#define IP6OPT_EXP_FE			0xFE	/* 11 1 11110 */
-
-#define IP6OPT_RTALERT_MLD		0	/* Datagram contains MLD msg */
-#define IP6OPT_RTALERT_RSVP		1	/* Datagram contains RSVP msg */
-#define IP6OPT_RTALERT_ACTNET		2	/* Datagram contains ACTNET msg */
-
-
 /* Routing header */
 struct ip6_rthdr {
 	guint8  ip6r_nxt;	/* next header */
@@ -192,7 +166,14 @@ struct ip6_shim {
 #define IP6F_RESERVED_MASK	0x0006	/* reserved bits in ip6f_offlg */
 #define IP6F_MORE_FRAG		0x0001	/* more-fragments flag */
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 void capture_ipv6(const guchar *, int, int, packet_counts *);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __PACKET_IPV6_H_DEFINED__ */

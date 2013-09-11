@@ -26,7 +26,9 @@
 
 #include "globals.h"
 
+#include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
+#include <epan/ipproto.h>
 #include <epan/prefs.h>
 
 //#include <wiretap/wtap.h>
