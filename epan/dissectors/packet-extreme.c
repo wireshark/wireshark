@@ -1509,5 +1509,5 @@ proto_register_extreme_oui(void)
 	  }
 	};
 
-	llc_add_oui(OUI_EXTREME, "llc.extreme_pid", "Extreme OUI PID", hf);
+	llc_add_oui(OUI_EXTREME, "llc.extreme_pid", "LLC Extreme OUI PID", hf);
 }

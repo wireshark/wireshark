@@ -124,7 +124,7 @@ proto_register_cimetrics(void)
 		proto_cimetrics_mstp);
 
 	llc_add_oui(OUI_CIMETRICS, "llc.cimetrics_pid",
-		"Cimetrics OUI PID", hf2);
+		"LLC Cimetrics OUI PID", hf2);
 }
 
 void

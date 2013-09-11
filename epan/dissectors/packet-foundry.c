@@ -463,5 +463,5 @@ proto_register_foundry_oui(void)
 	  }
 	};
 
-	llc_add_oui(OUI_FOUNDRY, "llc.foundry_pid", "Foundry OUI PID", hf);
+	llc_add_oui(OUI_FOUNDRY, "llc.foundry_pid", "LLC Foundry OUI PID", hf);
 }

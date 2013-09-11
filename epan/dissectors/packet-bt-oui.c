@@ -84,6 +84,6 @@ void proto_register_bt_oui(void)
 		}
 	};
 
-	llc_add_oui(OUI_BLUETOOTH, "llc.bluetooth_pid", "Bluetooth OUI PID", hf);
+	llc_add_oui(OUI_BLUETOOTH, "llc.bluetooth_pid", "LLC Bluetooth OUI PID", hf);
 }
 
