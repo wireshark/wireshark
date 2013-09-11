@@ -70,7 +70,9 @@
 
 #include <QtGui>
 
+extern "C" {
 WS_DLL_PUBLIC FILE *data_out_file;
+}
 
 typedef struct {
     follow_type_t   follow_type;
