@@ -14,7 +14,7 @@
 /* packet-atn-ulcs.h
  * Definitions for atn packet disassembly structures and routines
  *
- *
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -16,6 +16,8 @@
  * By Mathias Guettler <guettler@web.de>
  * Copyright 2013
  *
+ * $Id$
+ *
  * Routines for ATN context management protocol packet disassembly.
  * ATN context management allows an aircraft
  * to log on to a ground facility.
@@ -113,7 +115,7 @@ static int hf_atn_cm_hours = -1;                  /* Timehours */
 static int hf_atn_cm_minutes = -1;                /* Timeminutes */
 
 /*--- End of included file: packet-atn-cm-hf.c ---*/
-#line 64 "../../asn1/atn-cm/packet-atn-cm-template.c"
+#line 66 "../../asn1/atn-cm/packet-atn-cm-template.c"
 
 
 /*--- Included file: packet-atn-cm-ett.c ---*/
@@ -135,7 +137,7 @@ static gint ett_atn_cm_ShortTsap = -1;
 static gint ett_atn_cm_Time = -1;
 
 /*--- End of included file: packet-atn-cm-ett.c ---*/
-#line 66 "../../asn1/atn-cm/packet-atn-cm-template.c"
+#line 68 "../../asn1/atn-cm/packet-atn-cm-template.c"
 static gint ett_atn_cm = -1;
 
 
@@ -632,7 +634,7 @@ static void dissect_CMGroundMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 /*--- End of included file: packet-atn-cm-fn.c ---*/
-#line 69 "../../asn1/atn-cm/packet-atn-cm-template.c"
+#line 71 "../../asn1/atn-cm/packet-atn-cm-template.c"
 static int proto_atn_cm = -1;
 
 static int
@@ -941,7 +943,7 @@ void proto_register_atn_cm (void)
         "Timeminutes", HFILL }},
 
 /*--- End of included file: packet-atn-cm-hfarr.c ---*/
-#line 213 "../../asn1/atn-cm/packet-atn-cm-template.c"
+#line 215 "../../asn1/atn-cm/packet-atn-cm-template.c"
     };
 		static gint *ett[] = {
 
@@ -964,7 +966,7 @@ void proto_register_atn_cm (void)
     &ett_atn_cm_Time,
 
 /*--- End of included file: packet-atn-cm-ettarr.c ---*/
-#line 216 "../../asn1/atn-cm/packet-atn-cm-template.c"
+#line 218 "../../asn1/atn-cm/packet-atn-cm-template.c"
 			&ett_atn_cm
 		};
 		
