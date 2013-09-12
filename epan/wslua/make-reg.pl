@@ -59,11 +59,16 @@ print H "\n\n";
 print C '#include "config.h"' . "\n";
 
 print C '#include "wslua.h"' . "\n\n"; 
+print C "static void wslua_reg_module(lua_State* L, const char *name, lua_CFunction func) { \n"; 
+print C "\tlua_pushcfunction(L, func);\n";
+print C "\tlua_pushstring(L, name);\n";
+print C "\tlua_call(L, 1, 0);\n";
+print C "}\n\n";
 print C "void wslua_register_classes(lua_State* L) { \n"; 
 for (@classes) {
-	print C "\t${_}_register(L);\n"
+	print C "\twslua_reg_module(L, \"${_}\", ${_}_register);\n";
 }
-print C "\tluaopen_bit(L);\n";
+print C "\twslua_reg_module(L, \"bit\", luaopen_bit);\n";
 print C "}\n\n";
 
 
