@@ -1865,6 +1865,7 @@ real_proto_register_diameter(void)
 	/* Set default TCP ports */
 	range_convert_str(&global_diameter_tcp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_UDP_PORT);
 	range_convert_str(&global_diameter_sctp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_SCTP_PORT);
+	range_convert_str(&global_diameter_udp_port_range, "", MAX_UDP_PORT);
 
 	/* Register configuration options for ports */
 	diameter_module = prefs_register_protocol(proto_diameter,
@@ -1970,7 +1971,7 @@ proto_reg_handoff_diameter(void)
 	/* set port for future deletes */
 	diameter_tcp_port_range = range_copy(global_diameter_tcp_port_range);
 	diameter_sctp_port_range = range_copy(global_diameter_sctp_port_range);
-	diameter_sctp_port_range = range_copy(global_diameter_udp_port_range);
+	diameter_udp_port_range = range_copy(global_diameter_udp_port_range);
 	dissector_add_uint_range("tcp.port",  diameter_tcp_port_range,  diameter_tcp_handle);
 	dissector_add_uint_range("sctp.port", diameter_sctp_port_range, diameter_sctp_handle);
 	dissector_add_uint_range("udp.port", diameter_udp_port_range, diameter_udp_handle);
