@@ -1602,7 +1602,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 				todsecs  = tvb_get_ntoh64(tvb, start) >> 12;
 				time_stamp.secs = (todsecs  / 1000000) - TOD_BASETIME;
-				time_stamp.nsecs = (todsecs  % 1000000) * 1000;
+				time_stamp.nsecs = (int)((todsecs  % 1000000) * 1000);
 				break;
 
 			case ENC_TIME_TOD|ENC_LITTLE_ENDIAN:
@@ -1611,7 +1611,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 */
 				todsecs  = tvb_get_letoh64(tvb, start) >> 12 ;
 				time_stamp.secs = (todsecs  / 1000000) - TOD_BASETIME;
-				time_stamp.nsecs = (todsecs  % 1000000) * 1000;
+				time_stamp.nsecs = (int)((todsecs  % 1000000) * 1000);
 				break;
 
 			case ENC_TIME_NTP|ENC_BIG_ENDIAN:
