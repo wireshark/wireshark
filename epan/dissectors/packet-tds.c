@@ -1312,7 +1312,7 @@ dissect_tds_col_info_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guint of
             return FALSE;
         }
 
-        nl_data->columns[col] = wmem_alloc(wmem_packet_scope(), sizeof(struct _tds_col));
+        nl_data->columns[col] = wmem_new(wmem_packet_scope(), struct _tds_col);
 
         nl_data->columns[col]->name[0] ='\0';
 
@@ -1370,7 +1370,7 @@ read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset, gui
     cur += 2;
 
     for (i = 0; i < nl_data->num_cols; i++) {
-        nl_data->columns[i] = wmem_alloc(wmem_packet_scope(), sizeof(struct _tds_col));
+        nl_data->columns[i] = wmem_new(wmem_packet_scope(), struct _tds_col);
         name_len = tvb_get_guint8(tvb,cur);
         cur ++;
         cur += name_len;
