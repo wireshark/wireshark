@@ -1448,13 +1448,13 @@ void proto_register_pn532(void)
          {"Not Used", "pn532.txmode.not_used.7", FT_BOOLEAN, 8,
           NULL, 0x80, NULL, HFILL}},
         {&hf_pn532_txmode_tx_speed,
-         {"Not Used", "pn532.txmode.txspeed", FT_UINT8, BASE_HEX,
+         {"TX speed", "pn532.txmode.txspeed", FT_UINT8, BASE_HEX,
           VALS(pn532_txspeed_vals), 0x70, NULL, HFILL}},
         {&hf_pn532_txmode_nu_2_3,
-         {"Not Used", "pn532.txmode.not_used.2_3", FT_BOOLEAN, 8,
+         {"Not Used", "pn532.txmode.not_used.2_3", FT_UINT, BASE_HEX,
           NULL, 0xC0, NULL, HFILL}},
         {&hf_pn532_txmode_tx_framing,
-         {"Not Used", "pn532.txmode.not_used.2_3", FT_BOOLEAN, 8,
+         {"TX mode", "pn532.txmode.framing", FT_UINT, BASE_HEX,
           VALS(pn532_txframing_vals), 0x03, NULL, HFILL}},
     };
 
