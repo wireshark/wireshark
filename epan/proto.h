@@ -248,9 +248,9 @@ typedef struct _protocol protocol_t;
  * For backwards compatibility, we interpret an encoding of 1 as meaning
  * "little-endian timespec", so that passing TRUE is interpreted as that.
  */
-#define ENC_TIME_TIMESPEC	0x00000000
-#define ENC_TIME_NTP		0x00000002
-#define ENC_TIME_TOD		0x00000004
+#define ENC_TIME_TIMESPEC	0x00000000	/* "struct timespec" */
+#define ENC_TIME_NTP		0x00000002	/* NTP times */
+#define ENC_TIME_TOD		0x00000004	/* System/3xx and z/Architecture time-of-day clock */
 
 /*
  * Historically, the only place the representation mattered for strings
