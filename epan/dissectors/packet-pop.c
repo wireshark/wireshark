@@ -37,6 +37,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/wmem/wmem.h>
 #include "packet-ssl.h"
 
 static int proto_pop = -1;
@@ -151,7 +152,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      /*
       * No conversation - create one and attach it.
       */
-     data_val = se_new0(struct pop_data_val);
+     data_val = wmem_new0(wmem_file_scope(), struct pop_data_val);
 
      conversation_add_proto_data(conversation, proto_pop, data_val);
   }
@@ -220,7 +221,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         data_val->msg_read_len += tvb_length(tvb);
 
-        frame_data_p = se_new(struct pop_proto_data);
+        frame_data_p = wmem_new(wmem_file_scope(), struct pop_proto_data);
 
         frame_data_p->conversation_id = conversation->index;
         frame_data_p->more_frags = data_val->msg_read_len < data_val->msg_tot_len;

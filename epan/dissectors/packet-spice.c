@@ -34,7 +34,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #define SPICE_MAGIC 0x52454451 /* = "REDQ" */
 
@@ -3115,7 +3115,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     spice_info = (spice_conversation_t*)conversation_get_proto_data(conversation, proto_spice);
     if (!spice_info) {
-        spice_info = se_new0(spice_conversation_t);
+        spice_info = wmem_new0(wmem_file_scope(), spice_conversation_t);
         spice_info->destport           = pinfo->destport;
         spice_info->channel_type       = SPICE_CHANNEL_NONE;
         spice_info->next_state         = SPICE_LINK_CLIENT;
@@ -3130,7 +3130,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     per_packet_info = (spice_packet_t *)p_get_proto_data(pinfo->fd, proto_spice, 0);
     if (!per_packet_info) {
-        per_packet_info = se_new(spice_packet_t);
+        per_packet_info = wmem_new(wmem_file_scope(), spice_packet_t);
         per_packet_info->state = spice_info->next_state;
         p_add_proto_data(pinfo->fd, proto_spice, 0, per_packet_info);
     }

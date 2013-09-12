@@ -31,7 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <wsutil/str_util.h>
 
@@ -119,7 +119,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	hash_info = (exec_hash_entry_t *)conversation_get_proto_data(conversation, proto_exec);
 	if(!hash_info){
-		hash_info = se_new(exec_hash_entry_t);
+		hash_info = wmem_new(wmem_file_scope(), exec_hash_entry_t);
 
 		hash_info->first_packet_number = pinfo->fd->num;
 		hash_info->second_packet_number = 0;
@@ -260,7 +260,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->username){
-				hash_info->username=se_strdup((gchar*)field_stringz);
+				hash_info->username=wmem_strdup(wmem_file_scope(), (gchar*)field_stringz);
 			}
 
 			 /* Next field we need */
@@ -311,7 +311,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->command){
-				hash_info->command=se_strdup((gchar*)field_stringz);
+				hash_info->command=wmem_strdup(wmem_file_scope(), (gchar*)field_stringz);
 			}
 
 		} else {

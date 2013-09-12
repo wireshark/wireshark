@@ -42,7 +42,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
@@ -1356,7 +1356,7 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	mikey = (mikey_t *)p_get_proto_data(pinfo->fd, proto_mikey, 0);
 
 	if (!mikey) {
-		mikey = se_new0(mikey_t);
+		mikey = wmem_new0(wmem_file_scope(), mikey_t);
 		mikey->type = -1;
 		p_add_proto_data(pinfo->fd, proto_mikey, 0, mikey);
 	}

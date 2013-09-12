@@ -7,7 +7,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * By Deepti Ragha <dlragha@ncsu.edu> 
+ * By Deepti Ragha <dlragha@ncsu.edu>
  * Copyright 2012 Deepti Ragha
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@
 #include <epan/strutil.h>
 #include <epan/arptypes.h>
 #include <epan/addr_resolv.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-arp.h"
 #include <epan/etypes.h>
 #include <epan/arcnet_pids.h>
@@ -403,7 +403,7 @@ atmarpnum_to_str(const guint8 *ad, int ad_tl)
     /*
      * I'm assuming this means it's an ASCII (IA5) string.
      */
-    cur = (gchar *)ep_alloc(MAX_E164_STR_LEN+3+1);
+    cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_E164_STR_LEN+3+1);
     if (ad_len > MAX_E164_STR_LEN) {
       /* Can't show it all. */
       memcpy(cur, ad, MAX_E164_STR_LEN);
@@ -666,10 +666,10 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
           else
           {
             /* Create result and store in result table */
-            duplicate_result_key *persistent_key = se_new(duplicate_result_key);
+            duplicate_result_key *persistent_key = wmem_new(wmem_file_scope(), duplicate_result_key);
             memcpy(persistent_key, &result_key, sizeof(duplicate_result_key));
 
-            result = se_new(address_hash_value);
+            result = wmem_new(wmem_file_scope(), address_hash_value);
             memcpy(result, value, sizeof(address_hash_value));
 
             g_hash_table_insert(duplicate_result_hash_table, persistent_key, result);
@@ -679,7 +679,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
       else
       {
         /* No existing entry. Prepare one */
-        value = se_new(struct address_hash_value);
+        value = wmem_new(wmem_file_scope(), struct address_hash_value);
         memcpy(value->mac, mac, 6);
         value->frame_num = pinfo->fd->num;
         value->time_of_entry = pinfo->fd->abs_ts.secs;

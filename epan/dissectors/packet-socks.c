@@ -70,6 +70,8 @@
 #include "packet-udp.h"
 #include <epan/strutil.h>
 
+#include <epan/wmem/wmem.h>
+
 #define TCP_PORT_SOCKS 1080
 
 
@@ -993,7 +995,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
 	state_info = (sock_state_t *)p_get_proto_data(pinfo->fd, proto_socks, 0);
 	if (state_info == NULL) {
-		state_info = se_new(sock_state_t);
+		state_info = wmem_new(wmem_file_scope(), sock_state_t);
 		state_info->in_socks_dissector_flag = 0;
 		state_info->client = clientNoInit;
 		state_info->server = serverNoInit;
@@ -1020,7 +1022,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
 	hash_info = (socks_hash_entry_t *)conversation_get_proto_data(conversation,proto_socks);
 	if (hash_info == NULL){
-		hash_info = se_new0(socks_hash_entry_t);
+		hash_info = wmem_new0(wmem_file_scope(), socks_hash_entry_t);
 		hash_info->start_done_frame = G_MAXINT;
 		hash_info->clientState = clientStart;
 		hash_info->serverState = serverStart;

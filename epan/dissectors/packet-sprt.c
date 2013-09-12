@@ -41,6 +41,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-sprt.h"
 
@@ -816,7 +817,7 @@ void sprt_add_address(packet_info *pinfo,
      */
     if (!p_conv_data) {
         /* Create conversation data */
-        p_conv_data = se_new(struct _sprt_conversation_info);
+        p_conv_data = wmem_new(wmem_file_scope(), struct _sprt_conversation_info);
         p_conv_data->stream_started = FALSE;
         p_conv_data->seqnum[0] = 0;
         p_conv_data->seqnum[1] = 0;
