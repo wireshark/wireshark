@@ -105,6 +105,28 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
     ui->dragRadioButton->setChecked(mouse_drags_);
 
+    ctx_menu_.addAction(ui->actionZoomIn);
+    ctx_menu_.addAction(ui->actionZoomOut);
+    ctx_menu_.addAction(ui->actionReset);
+    ctx_menu_.addSeparator();
+    ctx_menu_.addAction(ui->actionMoveRight10);
+    ctx_menu_.addAction(ui->actionMoveLeft10);
+    ctx_menu_.addAction(ui->actionMoveUp10);
+    ctx_menu_.addAction(ui->actionMoveDown10);
+    ctx_menu_.addAction(ui->actionMoveRight1);
+    ctx_menu_.addAction(ui->actionMoveLeft1);
+    ctx_menu_.addAction(ui->actionMoveUp1);
+    ctx_menu_.addAction(ui->actionMoveDown1);
+    ctx_menu_.addSeparator();
+    ctx_menu_.addAction(ui->actionNextStream);
+    ctx_menu_.addAction(ui->actionPreviousStream);
+    ctx_menu_.addAction(ui->actionSwitchDirection);
+    ctx_menu_.addAction(ui->actionGoToPacket);
+    ctx_menu_.addSeparator();
+    ctx_menu_.addAction(ui->actionDragZoom);
+    ctx_menu_.addAction(ui->actionToggleSequenceNumbers);
+    ctx_menu_.addAction(ui->actionToggleTimeOrigin);
+
     memset (&graph_, 0, sizeof(graph_));
     graph_.type = graph_type;
     COPY_ADDRESS(&graph_.src_address, &current.ip_src);
@@ -169,45 +191,37 @@ void TCPStreamDialog::showEvent(QShowEvent *event)
 
 void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
 {
-    QCustomPlot *sp = ui->streamPlot;
-    double h_factor = sp->axisRect()->rangeZoomFactor(Qt::Horizontal);
-    double v_factor = sp->axisRect()->rangeZoomFactor(Qt::Vertical);
-    bool scale_range = false;
+    int pan_pixels = event->modifiers() & Qt::ShiftModifier ? 1 : 10;
 
-    double h_pan = 0.0;
-    double v_pan = 0.0;
 
     // XXX - This differs from the main window but matches other applications (e.g. Mozilla and Safari)
     switch(event->key()) {
     case Qt::Key_Minus:
     case Qt::Key_Underscore:    // Shifted minus on U.S. keyboards
     case Qt::Key_O:             // GTK+
-        h_factor = pow(h_factor, -1);
-        v_factor = pow(v_factor, -1);
-        scale_range = true;
+        zoomAxes(false);
         break;
     case Qt::Key_Plus:
     case Qt::Key_Equal:         // Unshifted plus on U.S. keyboards
     case Qt::Key_I:             // GTK+
-        scale_range = true;
+        zoomAxes(true);
         break;
 
-    // XXX Use pixel sizes instead
     case Qt::Key_Right:
     case Qt::Key_L:
-        h_pan = sp->xAxis->range().size() * 10.0 / sp->xAxis->axisRect()->width();
+        panAxes(pan_pixels, 0);
         break;
     case Qt::Key_Left:
     case Qt::Key_H:
-        h_pan = sp->xAxis->range().size() * -10.0 / sp->xAxis->axisRect()->width();
+        panAxes(-1 * pan_pixels, 0);
         break;
     case Qt::Key_Up:
     case Qt::Key_K:
-        v_pan = sp->yAxis->range().size() * 10.0 / sp->yAxis->axisRect()->height();
+        panAxes(0, pan_pixels);
         break;
     case Qt::Key_Down:
     case Qt::Key_J:
-        v_pan = sp->yAxis->range().size() * -10.0 / sp->yAxis->axisRect()->height();
+        panAxes(0, -1 * pan_pixels);
         break;
 
     case Qt::Key_Space:
@@ -232,46 +246,21 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
         on_otherDirectionButton_clicked();
         break;
     case Qt::Key_G:
-        if (tracer_->visible() && cap_file_ && packet_num_ > 0) {
-            emit goToPacket(packet_num_);
-        }
+        on_actionGoToPacket_triggered();
         break;
     case Qt::Key_S:
-        seq_origin_zero_ = seq_origin_zero_ ? false : true;
-        fillGraph();
+        on_actionSwitchDirection_triggered();
         break;
     case Qt::Key_T:
-        ts_origin_conn_ = ts_origin_conn_ ? false : true;
-        fillGraph();
+        on_actionToggleTimeOrigin_triggered();
         break;
     case Qt::Key_Z:
-        if (mouse_drags_) {
-            ui->selectRadioButton->toggle();
-        } else {
-            ui->dragRadioButton->toggle();
-        }
+        on_actionDragZoom_triggered();
         break;
 
         // Alas, there is no Blade Runner-style Qt::Key_Enhance
     }
 
-    if (scale_range) {
-        sp->xAxis->scaleRange(h_factor, sp->xAxis->range().center());
-        sp->yAxis->scaleRange(v_factor, sp->yAxis->range().center());
-        sp->replot();
-    }
-
-    double pan_mul = event->modifiers() & Qt::ShiftModifier ? 0.1 : 1.0;
-
-    // The GTK+ version won't pan unless we're zoomed. Should we do the same here?
-    if (h_pan) {
-        sp->xAxis->moveRange(h_pan * pan_mul);
-        sp->replot();
-    }
-    if (v_pan) {
-        sp->yAxis->moveRange(v_pan * pan_mul);
-        sp->replot();
-    }
     QDialog::keyPressEvent(event);
 
     // GTK+ Shortcuts:
@@ -400,6 +389,41 @@ void TCPStreamDialog::fillGraph()
 
     resetAxes();
     tracer_->setGraph(sp->graph(0));
+}
+
+void TCPStreamDialog::zoomAxes(bool in)
+{
+    QCustomPlot *sp = ui->streamPlot;
+    double h_factor = sp->axisRect()->rangeZoomFactor(Qt::Horizontal);
+    double v_factor = sp->axisRect()->rangeZoomFactor(Qt::Vertical);
+
+    if (!in) {
+        h_factor = pow(h_factor, -1);
+        v_factor = pow(v_factor, -1);
+    }
+
+    sp->xAxis->scaleRange(h_factor, sp->xAxis->range().center());
+    sp->yAxis->scaleRange(v_factor, sp->yAxis->range().center());
+    sp->replot();
+}
+
+void TCPStreamDialog::panAxes(int x_pixels, int y_pixels)
+{
+    QCustomPlot *sp = ui->streamPlot;
+    double h_pan = 0.0;
+    double v_pan = 0.0;
+
+    h_pan = sp->xAxis->range().size() * x_pixels / sp->xAxis->axisRect()->width();
+    v_pan = sp->yAxis->range().size() * y_pixels / sp->yAxis->axisRect()->height();
+    // The GTK+ version won't pan unless we're zoomed. Should we do the same here?
+    if (h_pan) {
+        sp->xAxis->moveRange(h_pan);
+        sp->replot();
+    }
+    if (v_pan) {
+        sp->yAxis->moveRange(v_pan);
+        sp->replot();
+    }
 }
 
 void TCPStreamDialog::resetAxes()
@@ -682,13 +706,15 @@ void TCPStreamDialog::graphClicked(QMouseEvent *event)
     Q_UNUSED(event)
     QCustomPlot *sp = ui->streamPlot;
 
-    if (mouse_drags_) {
+    if (event->button() == Qt::RightButton) {
+        // XXX We should find some way to get streamPlot to handle a
+        // contextMenuEvent instead.
+        ctx_menu_.exec(event->globalPos());
+    } else  if (mouse_drags_) {
         if (sp->axisRect()->rect().contains(event->pos())) {
             sp->setCursor(QCursor(Qt::ClosedHandCursor));
         }
-        if (tracer_->visible() && cap_file_ && packet_num_ > 0) {
-            emit goToPacket(packet_num_);
-        }
+        on_actionGoToPacket_triggered();
     } else {
         if (!rubber_band_) {
             rubber_band_ = new QRubberBand(QRubberBand::Rectangle, ui->streamPlot);
@@ -954,6 +980,104 @@ void TCPStreamDialog::on_selectRadioButton_toggled(bool checked)
 {
     if (checked) mouse_drags_ = false;
     ui->streamPlot->setInteractions(0);
+}
+
+void TCPStreamDialog::on_actionZoomIn_triggered()
+{
+    zoomAxes(true);
+}
+
+void TCPStreamDialog::on_actionZoomOut_triggered()
+{
+    zoomAxes(false);
+}
+
+void TCPStreamDialog::on_actionReset_triggered()
+{
+    on_resetButton_clicked();
+}
+
+void TCPStreamDialog::on_actionMoveRight10_triggered()
+{
+    panAxes(10, 0);
+}
+
+void TCPStreamDialog::on_actionMoveLeft10_triggered()
+{
+    panAxes(-10, 0);
+}
+
+void TCPStreamDialog::on_actionMoveUp10_triggered()
+{
+    panAxes(0, 10);
+}
+
+void TCPStreamDialog::on_actionMoveDown10_triggered()
+{
+    panAxes(0, -10);
+}
+
+void TCPStreamDialog::on_actionMoveRight1_triggered()
+{
+    panAxes(1, 0);
+}
+
+void TCPStreamDialog::on_actionMoveLeft1_triggered()
+{
+    panAxes(-1, 0);
+}
+
+void TCPStreamDialog::on_actionMoveUp1_triggered()
+{
+    panAxes(0, 1);
+}
+
+void TCPStreamDialog::on_actionMoveDown1_triggered()
+{
+    panAxes(0, -1);
+}
+
+void TCPStreamDialog::on_actionNextStream_triggered()
+{
+    on_nextStreamPushButton_clicked();
+}
+
+void TCPStreamDialog::on_actionPreviousStream_triggered()
+{
+    on_prevStreamPushButton_clicked();
+}
+
+void TCPStreamDialog::on_actionSwitchDirection_triggered()
+{
+    on_otherDirectionButton_clicked();
+}
+
+void TCPStreamDialog::on_actionGoToPacket_triggered()
+{
+    if (tracer_->visible() && cap_file_ && packet_num_ > 0) {
+        emit goToPacket(packet_num_);
+    }
+}
+
+void TCPStreamDialog::on_actionDragZoom_triggered()
+{
+    if (mouse_drags_) {
+        ui->selectRadioButton->toggle();
+    } else {
+        ui->dragRadioButton->toggle();
+    }
+}
+
+void TCPStreamDialog::on_actionToggleSequenceNumbers_triggered()
+{
+    seq_origin_zero_ = seq_origin_zero_ ? false : true;
+    fillGraph();
+}
+
+void TCPStreamDialog::on_actionToggleTimeOrigin_triggered()
+{
+    ts_origin_conn_ = ts_origin_conn_ ? false : true;
+    fillGraph();
 }
 
 /*

@@ -36,6 +36,7 @@
 
 #include "qcustomplot.h"
 #include <QDialog>
+#include <QMenu>
 #include <QRubberBand>
 
 namespace Ui {
@@ -79,12 +80,15 @@ private:
     bool mouse_drags_;
     QRubberBand *rubber_band_;
     QPoint rb_origin_;
+    QMenu ctx_menu_;
 
     int num_dsegs_;
     int num_acks_;
     int num_sack_ranges_;
 
     void fillGraph();
+    void zoomAxes(bool in);
+    void panAxes(int x_pixels, int y_pixels);
     void resetAxes();
     void fillStevens();
     void fillThroughput();
@@ -109,6 +113,24 @@ private slots:
     void on_otherDirectionButton_clicked();
     void on_dragRadioButton_toggled(bool checked);
     void on_selectRadioButton_toggled(bool checked);
+    void on_actionZoomIn_triggered();
+    void on_actionZoomOut_triggered();
+    void on_actionReset_triggered();
+    void on_actionMoveRight10_triggered();
+    void on_actionMoveLeft10_triggered();
+    void on_actionMoveUp10_triggered();
+    void on_actionMoveDown10_triggered();
+    void on_actionMoveRight1_triggered();
+    void on_actionMoveLeft1_triggered();
+    void on_actionMoveUp1_triggered();
+    void on_actionMoveDown1_triggered();
+    void on_actionNextStream_triggered();
+    void on_actionPreviousStream_triggered();
+    void on_actionSwitchDirection_triggered();
+    void on_actionGoToPacket_triggered();
+    void on_actionDragZoom_triggered();
+    void on_actionToggleSequenceNumbers_triggered();
+    void on_actionToggleTimeOrigin_triggered();
 };
 
 #endif // TCP_STREAM_DIALOG_H
