@@ -382,6 +382,7 @@ win32 {
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L.. -llibui \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0 \
+        -L$${ZLIB_DIR}/lib -lzdll \
         -L$${WINSPARKLE_DIR} -lWinSparkle
 
     !isEmpty(MSVCR_DLL) {
