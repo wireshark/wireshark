@@ -444,7 +444,7 @@ const value_string nlpid_vals[] = {
   { 0,                     NULL },
 };
 
-static dissector_table_t osinl_subdissector_table;
+static dissector_table_t osinl_incl_subdissector_table;
 static dissector_table_t osinl_excl_subdissector_table;
 static dissector_handle_t data_handle, ppp_handle;
 
@@ -465,7 +465,7 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   nlpid = tvb_get_guint8(tvb, 0);
 
   /* try lookup with the subdissector tables that includes the nlpid */
-  if (dissector_try_uint(osinl_subdissector_table, nlpid, tvb, pinfo, tree))
+  if (dissector_try_uint(osinl_incl_subdissector_table, nlpid, tvb, pinfo, tree))
     return;
   /* try lookup with the subdissector tables that excludes the nlpid */
   new_tvb = tvb_new_subset_remaining(tvb, 1);
@@ -542,8 +542,8 @@ proto_register_osi(void)
      all protocols that require inclusion of the NLPID
      should register here
   */
-  osinl_subdissector_table = register_dissector_table("osinl",
-                                                      "OSI incl NLPID", FT_UINT8, BASE_HEX);
+  osinl_incl_subdissector_table = register_dissector_table("osinl.incl",
+                                                           "OSI incl NLPID", FT_UINT8, BASE_HEX);
 
   /* This dissector table is for those protocols whose PDUs
    * aren't* defined to begin with an NLPID.

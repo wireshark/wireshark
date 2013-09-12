@@ -972,8 +972,8 @@ proto_register_btrfcomm(void)
     expert_btrfcomm = expert_register_protocol(proto_btrfcomm);
     expert_register_field_array(expert_btrfcomm, ei, array_length(ei));
 
-    rfcomm_service_dissector_table = register_dissector_table("btrfcomm.service", "RFCOMM SERVICE", FT_UINT16, BASE_HEX);
-    rfcomm_channel_dissector_table = register_dissector_table("btrfcomm.channel", "RFCOMM Channel", FT_UINT16, BASE_DEC);
+    rfcomm_service_dissector_table = register_dissector_table("btrfcomm.service", "BT RFCOMM Service", FT_UINT16, BASE_HEX);
+    rfcomm_channel_dissector_table = register_dissector_table("btrfcomm.channel", "BT RFCOMM Channel", FT_UINT16, BASE_DEC);
 
     module = prefs_register_protocol(proto_btrfcomm, NULL);
     prefs_register_static_text_preference(module, "rfcomm.version",

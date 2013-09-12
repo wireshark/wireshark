@@ -32,7 +32,7 @@
 static int proto_redback = -1;
 static gint ett_redback = -1;
 
-static dissector_table_t osinl_subdissector_table;
+static dissector_table_t osinl_incl_subdissector_table;
 static dissector_table_t osinl_excl_subdissector_table;
 
 static dissector_handle_t ipv4_handle;
@@ -113,7 +113,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				call_dissector(ethnofcs_handle, next_tvb, pinfo, tree);
 			} else {
 				guint8 nlpid = tvb_get_guint8(tvb, dataoff);
-				if(dissector_try_uint(osinl_subdissector_table, nlpid, next_tvb, pinfo, tree))
+				if(dissector_try_uint(osinl_incl_subdissector_table, nlpid, next_tvb, pinfo, tree))
 					break;
 				next_tvb = tvb_new_subset_remaining(tvb, dataoff+1);
 				if(dissector_try_uint(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree))
@@ -206,7 +206,7 @@ proto_reg_handoff_redback(void)
 {
 	dissector_handle_t redback_handle;
 
-	osinl_subdissector_table = find_dissector_table("osinl");
+	osinl_incl_subdissector_table = find_dissector_table("osinl.incl");
 	osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
 
 	ipv4_handle = find_dissector("ip");

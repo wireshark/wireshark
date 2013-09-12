@@ -321,7 +321,7 @@ proto_register_sll(void)
 
 	sll_linux_dissector_table = register_dissector_table (
 		"sll.ltype",
-		"Linux protocol type",
+		"Linux SLL protocol type",
 		FT_UINT16,
 		BASE_HEX
 	);

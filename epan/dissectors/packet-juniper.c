@@ -387,7 +387,7 @@ static dissector_handle_t frelay_handle;
 static dissector_handle_t chdlc_handle;
 static dissector_handle_t data_handle;
 
-static dissector_table_t osinl_subdissector_table;
+static dissector_table_t osinl_incl_subdissector_table;
 static dissector_table_t osinl_excl_subdissector_table;
 
 static int dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, guint8 *flags);
@@ -657,7 +657,7 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   case PROTO_CLNP:
   case PROTO_MPLS_CLNP:
     nlpid = tvb_get_guint8(tvb, offset);
-    if(dissector_try_uint(osinl_subdissector_table, nlpid, next_tvb, pinfo, tree))
+    if(dissector_try_uint(osinl_incl_subdissector_table, nlpid, next_tvb, pinfo, tree))
       return 0;
     next_tvb = tvb_new_subset_remaining(tvb, offset+1);
     if(dissector_try_uint(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree))
@@ -1478,7 +1478,7 @@ proto_reg_handoff_juniper(void)
   dissector_handle_t juniper_vp_handle;
   dissector_handle_t juniper_svcs_handle;
 
-  osinl_subdissector_table = find_dissector_table("osinl");
+  osinl_incl_subdissector_table = find_dissector_table("osinl.incl");
   osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
 
   eth_handle    = find_dissector("eth_withoutfcs");

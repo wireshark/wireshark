@@ -718,7 +718,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
         /*Verizon CVSE type*/
            proto_tree_add_item(ext_tree, hf_mip_cvse_verizon_cvse_type, tvb, cvse_local_offset, 2, ENC_BIG_ENDIAN);
       }else if( cvse_vendor_id == VENDOR_THE3GPP2 ){
-        /*THE3GPP2 CVSE type*/  
+        /*THE3GPP2 CVSE type*/
        cvse_3gpp2_type = tvb_get_ntohs(tvb, cvse_local_offset);
       /* THE3GPP2 CVSE Value */
        if(cvse_3gpp2_type == GRE_KEY_EXT){
@@ -1359,7 +1359,7 @@ void proto_register_mip(void)
       { "3GPP2 CVSE Type","mip.ext.cvse.3gpp2_type",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
-    }, 
+    },
     { &hf_mip_cvse_3gpp2_grekey,
       { "GRE Key","mip.ext.cvse.3gpp2_grekey",
         FT_UINT16, BASE_DEC, NULL, 0,
@@ -1456,8 +1456,8 @@ void proto_register_mip(void)
   proto_register_field_array(proto_mip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  mip_nvse_ext_dissector_table = register_dissector_table("mip.nvse_ext", "Normal Vendor/Organization Specific Extension", FT_UINT32, BASE_DEC);
-
+  mip_nvse_ext_dissector_table = register_dissector_table("mip.nvse_ext",
+    "MIP Normal Vendor/Organization Specific Extension", FT_UINT32, BASE_DEC);
 }
 
 void
@@ -1470,8 +1470,8 @@ proto_reg_handoff_mip(void)
   dissector_add_uint("udp.port", UDP_PORT_MIP, mip_handle);
 
   /* Register as dissector for 3GPP2 NVSE */
-  dissector_add_uint("mip.nvse_ext", VENDOR_THE3GPP2, new_create_dissector_handle(dissect_mip_priv_ext_3gpp2, proto_mip));
-
+  dissector_add_uint("mip.nvse_ext", VENDOR_THE3GPP2,
+    new_create_dissector_handle(dissect_mip_priv_ext_3gpp2, proto_mip));
 }
 
 /*

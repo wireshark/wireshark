@@ -111,7 +111,7 @@ static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t gprs_ns_handle;
 static dissector_handle_t data_handle;
 
-static dissector_table_t osinl_subdissector_table;
+static dissector_table_t osinl_incl_subdissector_table;
 
 /*
  * Encapsulation type.
@@ -724,7 +724,7 @@ dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
    * Either that, or it's Q.933 iff the DLCI is 0.
    */
   next_tvb = tvb_new_subset_remaining(tvb,offset);
-  if (dissector_try_uint(osinl_subdissector_table, fr_nlpid, next_tvb,
+  if (dissector_try_uint(osinl_incl_subdissector_table, fr_nlpid, next_tvb,
                          pinfo, tree) ||
       dissector_try_uint(fr_osinl_subdissector_table, fr_nlpid, next_tvb,
                          pinfo, tree)) {
@@ -1004,5 +1004,5 @@ proto_reg_handoff_fr(void)
   gprs_ns_handle = find_dissector("gprs_ns");
   data_handle = find_dissector("data");
 
-  osinl_subdissector_table = find_dissector_table("osinl");
+  osinl_incl_subdissector_table = find_dissector_table("osinl.incl");
 }

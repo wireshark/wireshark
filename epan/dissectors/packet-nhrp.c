@@ -253,7 +253,7 @@ static const value_string nhrp_cie_code_vals[] = {
     { 0,                                NULL }
 };
 
-static dissector_table_t osinl_subdissector_table;
+static dissector_table_t osinl_incl_subdissector_table;
 static dissector_table_t osinl_excl_subdissector_table;
 static dissector_table_t ethertype_subdissector_table;
 
@@ -778,7 +778,7 @@ void dissect_nhrp_mand(tvbuff_t    *tvb,
                      * Dissect based on the NLPID.
                      */
                     dissected = dissector_try_uint(
-                        osinl_subdissector_table,
+                        osinl_incl_subdissector_table,
                         hdr->ar_pro_type, sub_tvb, pinfo,
                         ind_tree) ||
                                 dissector_try_uint(
@@ -1407,7 +1407,7 @@ proto_reg_handoff_nhrp(void)
 
     data_handle = find_dissector("data");
 
-    osinl_subdissector_table      = find_dissector_table("osinl");
+    osinl_incl_subdissector_table = find_dissector_table("osinl.incl");
     osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
     ethertype_subdissector_table  = find_dissector_table("ethertype");
 

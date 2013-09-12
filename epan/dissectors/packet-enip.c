@@ -2375,7 +2375,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       proto_tree_add_item( dlr_tree, hf_dlr_advadvertiseinterval,    tvb, DLR_ADV_ADVERTISE_INTERVAL,      4, ENC_BIG_ENDIAN );
       proto_tree_add_item( dlr_tree, hf_dlr_advadvertisetimeout,     tvb, DLR_ADV_ADVERTISE_TIMEOUT,       4, ENC_BIG_ENDIAN );
       proto_tree_add_item( dlr_tree, hf_dlr_advlearningupdateenable, tvb, DLR_ADV_LEARNING_UPDATE_ENABLE,  1, ENC_BIG_ENDIAN );
-      proto_tree_add_item( dlr_tree, hf_dlr_advreserved,             tvb, DLR_ADV_RESERVED,               19, ENC_NA );   
+      proto_tree_add_item( dlr_tree, hf_dlr_advreserved,             tvb, DLR_ADV_RESERVED,               19, ENC_NA );
    }
    else if( dlr_frametype == DLR_FT_FLUSH_TABLES )
    {
@@ -3227,12 +3227,12 @@ proto_register_enip(void)
       { &hf_dlr_rgc_red_gateway_enable,
         { "Redundant Gateway Enable", "cip.dlr.rgc.gateway_enable",
           FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
-          NULL, HFILL }},          
+          NULL, HFILL }},
 
       { &hf_dlr_rgc_gateway_precedence,
         { "Gateway Precedence", "cip.dlr.rgc.gateway_precedence",
           FT_UINT8, BASE_DEC, NULL, 0,
-          NULL, HFILL }},    
+          NULL, HFILL }},
 
       { &hf_dlr_rgc_advertise_interval,
         { "Advertise Interval", "cip.dlr.rgc.advertise_interval",
@@ -3263,7 +3263,7 @@ proto_register_enip(void)
         { "Active Gateway Physical Address", "cip.dlr.aga.physical_address",
           FT_ETHER, BASE_NONE, NULL, 0,
           NULL, HFILL }},
-          
+
       { &hf_dlr_active_gateway_precedence,
         { "Active Gateway Precedence", "cip.dlr.active_gateway_precedence",
           FT_UINT8, BASE_DEC, NULL, 0,
@@ -3563,10 +3563,10 @@ proto_register_enip(void)
                                   FALSE);
 
    subdissector_sud_table = register_dissector_table("enip.sud.iface",
-                                                     "SendUnitData.Interface Handle", FT_UINT32, BASE_HEX);
+                                                     "ENIP SendUnitData.Interface Handle", FT_UINT32, BASE_HEX);
 
    subdissector_srrd_table = register_dissector_table("enip.srrd.iface",
-                                                      "SendRequestReplyData.Interface Handle", FT_UINT32, BASE_HEX);
+                                                      "ENIP SendRequestReplyData.Interface Handle", FT_UINT32, BASE_HEX);
 
    register_init_routine(&enip_init_protocol);
 

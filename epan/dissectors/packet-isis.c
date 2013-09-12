@@ -315,6 +315,6 @@ proto_register_isis(void) {
 void
 proto_reg_handoff_isis(void)
 {
-    dissector_add_uint("osinl", NLPID_ISO10589_ISIS, isis_handle);
+    dissector_add_uint("osinl.incl", NLPID_ISO10589_ISIS, isis_handle);
     dissector_add_uint("ethertype", ETHERTYPE_L2ISIS, isis_handle);
 }
