@@ -35,7 +35,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
 #include "packet-tn3270.h"
@@ -662,7 +662,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
       proto_tree_add_text(tree, tvb, offset, 1, "%s Requests Signature",source);
     } else {
       guint8 *sig = tvb_get_ephemeral_string(tvb, offset + 1, len);
-      proto_tree_add_string_format_value(tree, hf_telnet_comport_subopt_signature, tvb, offset, 1 + len, sig, 
+      proto_tree_add_string_format_value(tree, hf_telnet_comport_subopt_signature, tvb, offset, 1 + len, sig,
                                          "%s Signature: %s",source, sig);
     }
     break;
@@ -686,7 +686,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
     if (len >= 1) {
       guint8 datasize = tvb_get_guint8(tvb, offset+1);
       const char *ds = (datasize > 8) ? "<invalid>" : datasizes[datasize];
-      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_data_size, tvb, offset, 2, datasize, 
+      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_data_size, tvb, offset, 2, datasize,
                                        "%s Data Size: %s",source,ds);
     } else {
       expert_add_info_format(pinfo, item, &ei_telnet_invalid_data_size, "%s <Invalid Data Size Packet>", source);
@@ -698,7 +698,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
     if (len >= 1) {
       guint8 parity = tvb_get_guint8(tvb, offset+1);
       const char *pr = (parity > 5) ? "<invalid>" : parities[parity];
-      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_parity, tvb, offset, 2, parity, 
+      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_parity, tvb, offset, 2, parity,
                                        "%s Parity: %s",source,pr);
     } else {
       expert_add_info_format(pinfo, item, &ei_telnet_invalid_parity, "%s <Invalid Parity Packet>", source);
@@ -709,7 +709,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
     if (len >= 1) {
       guint8 stop = tvb_get_guint8(tvb, offset+1);
       const char *st = (stop > 3) ? "<invalid>" : stops[stop];
-      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_stop, tvb, offset, 2, stop, 
+      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_stop, tvb, offset, 2, stop,
                                        "%s Stop: %s",source,st);
     } else {
       expert_add_info_format(pinfo, item, &ei_telnet_invalid_stop, "%s <Invalid Stop Packet>", source);
@@ -721,7 +721,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
     if (len >= 1) {
       guint8 crt = tvb_get_guint8(tvb, offset+1);
       const char *c = (crt > 19) ? "Control: <invalid>" : control[crt];
-      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_control, tvb, offset, 2, crt, 
+      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_control, tvb, offset, 2, crt,
                                        "%s Stop: %s",source,c);
     } else {
       expert_add_info_format(pinfo, item, &ei_telnet_invalid_control, "%s <Invalid Control Packet>", source);
@@ -803,7 +803,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
     if (len >= 1) {
       guint8 purge = tvb_get_guint8(tvb, offset+1);
       const char *p = (purge > 3) ? "<Purge invalid>" : purges[purge];
-      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_purge, tvb, offset, 2, purge, 
+      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_purge, tvb, offset, 2, purge,
                                        "%s %s",source,p);
     } else {
       expert_add_info_format(pinfo, item, &ei_telnet_invalid_purge, "%s <Invalid Purge Packet>", source);
@@ -1044,7 +1044,7 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
       if(krb5_tvb)
         dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
       else
-        expert_add_info_format(pinfo, ti, &ei_telnet_kerberos_blob_too_long, "Kerberos blob (too long to dissect - length %u > %u)", len, MAX_KRB5_BLOB_LEN);                            
+        expert_add_info_format(pinfo, ti, &ei_telnet_kerberos_blob_too_long, "Kerberos blob (too long to dissect - length %u > %u)", len, MAX_KRB5_BLOB_LEN);
     }
   }
 
@@ -1082,7 +1082,7 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 }
 
 static void
-dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len, 
+dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len,
                               proto_tree *tree, proto_item *item _U_)
 {
   guint8  acmd;
@@ -1629,7 +1629,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
 }
 
 static void
-telnet_suboption_name(proto_tree *tree, tvbuff_t *tvb, int* offset, gchar** optname, 
+telnet_suboption_name(proto_tree *tree, tvbuff_t *tvb, int* offset, gchar** optname,
                       proto_tree **opt_tree, proto_item **opt_item, const char *type)
 {
   guint8      opt_byte;
@@ -1649,7 +1649,7 @@ telnet_suboption_name(proto_tree *tree, tvbuff_t *tvb, int* offset, gchar** optn
   *opt_tree = proto_item_add_subtree(*opt_item, ett);
 
   (*offset)++;
-  (*optname) = ep_strdup_printf("%s %s", type, opt);
+  (*optname) = wmem_strdup_printf(wmem_packet_scope(), "%s %s", type, opt);
 }
 
 static int
@@ -1663,7 +1663,7 @@ telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int s
 
   offset += 1;  /* skip IAC */
   optcode = tvb_get_guint8(tvb, offset);
- 
+
   cmd_item = proto_tree_add_text(telnet_tree, tvb, start_offset, 2, "Command header");
   cmd_tree = proto_item_add_subtree(cmd_item, ett_telnet_cmd);
   proto_tree_add_item(cmd_tree, hf_telnet_cmd, tvb, offset, 1, ENC_NA);

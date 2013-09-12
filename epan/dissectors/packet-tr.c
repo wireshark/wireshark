@@ -32,7 +32,7 @@
 #include "packet-llc.h"
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 static int proto_tr = -1;
 static int hf_tr_dst = -1;
@@ -587,8 +587,8 @@ static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item *hidden_item;
-	int 	    j, size;
-	int 	    segment, brdgnmb, unprocessed_rif;
+	int	    j, size;
+	int	    segment, brdgnmb, unprocessed_rif;
 	int	    buff_offset=0;
 
 #define RIF_OFFSET		16
@@ -597,7 +597,7 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 	char	*buffer;
 #define MAX_BUF_LEN 3 + (RIF_BYTES_TO_PROCESS / 2) * 6 + 1
 
-	buffer=(char *)ep_alloc(MAX_BUF_LEN);
+	buffer=(char *)wmem_alloc(wmem_packet_scope(), MAX_BUF_LEN);
 	/* Only process so many  bytes of RIF, as per TR spec, and not overflow
 	 * static buffer above */
 	unprocessed_rif = rcf_len - RIF_BYTES_TO_PROCESS;

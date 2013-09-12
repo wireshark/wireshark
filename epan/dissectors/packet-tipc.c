@@ -37,7 +37,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 
 #include "packet-tcp.h"
@@ -573,7 +573,7 @@ tipc_addr_to_str(guint tipc_address)
 	guint16 processor;
 	gchar *buff;
 
-	buff = (gchar *)ep_alloc(MAX_TIPC_ADDRESS_STR_LEN);
+	buff = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_TIPC_ADDRESS_STR_LEN);
 
 	processor = tipc_address & 0x0fff;
 
