@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/address.h>
+#include <wmem/wmem.h>
 #include <epan/conversation.h>
 #include "packet-tn5250.h"
 
@@ -5149,7 +5150,7 @@ add_tn5250_conversation(packet_info *pinfo, int tn5250e)
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    tn5250_info = se_new(tn5250_conv_info_t);
+    tn5250_info = wmem_new(wmem_file_scope(), tn5250_conv_info_t);
     SE_COPY_ADDRESS(&(tn5250_info->outbound_addr),&(pinfo->dst));
     tn5250_info->outbound_port = pinfo->destport;
     SE_COPY_ADDRESS(&(tn5250_info->inbound_addr),&(pinfo->src));

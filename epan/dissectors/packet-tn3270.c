@@ -53,6 +53,7 @@
 
 #include <epan/packet.h>
 #include <epan/address.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 
@@ -4734,7 +4735,7 @@ dissect_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
     }
 
     /* Not found */
-    sf_id_str = ep_strdup_printf("Unknown [%0*x]", sf_id_len*2, sf_id);
+    sf_id_str = wmem_strdup_printf(wmem_packet_scope(), "Unknown [%0*x]", sf_id_len*2, sf_id);
     display_sf_hdr(tn3270_tree, tvb, offset, sf_length,
                    sf_length, sf_id_len, sf_id_str);
     offset += sf_length;
@@ -5322,7 +5323,7 @@ add_tn3270_conversation(packet_info *pinfo, int tn3270e, gint model)
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    tn3270_info = se_new(tn3270_conv_info_t);
+    tn3270_info = wmem_new(wmem_file_scope(), tn3270_conv_info_t);
 
     COPY_ADDRESS(&(tn3270_info->outbound_addr), &(pinfo->dst));
     tn3270_info->outbound_port = pinfo->destport;

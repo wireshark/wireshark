@@ -30,7 +30,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #ifdef _MSC_VER
 /* disable: warning C4090: 'XY' : different 'const' qualifiers */
@@ -94,7 +94,8 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 
     item = proto_tree_add_item(tree,proto_user_encap,tvb,0,-1,ENC_NA);
     if (!encap) {
-        char* msg = ep_strdup_printf("User encapsulation not handled: DLT=%d, "
+        char* msg = wmem_strdup_printf(wmem_packet_scope(),
+                                     "User encapsulation not handled: DLT=%d, "
                                      "check your Preferences->Protocols->DLT_USER",
                          pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
         proto_item_set_text(item,"%s",msg);
@@ -104,7 +105,8 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         return;
     }
     if (encap->payload_proto == NULL) {
-        char* msg = ep_strdup_printf("User encapsulation's protocol %s not found: "
+        char* msg = wmem_strdup_printf(wmem_packet_scope(),
+                                     "User encapsulation's protocol %s not found: "
                                      "DLT=%d, check your Preferences->Protocols->DLT_USER",
                                      encap->payload_proto_name,
                                      pinfo->match_uint + 147 - WTAP_ENCAP_USER0);

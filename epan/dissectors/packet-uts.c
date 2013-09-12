@@ -31,7 +31,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
 
 #define	SOH	(0x01)
 #define	STX	(0x02)

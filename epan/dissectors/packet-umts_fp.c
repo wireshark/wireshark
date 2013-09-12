@@ -28,6 +28,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <glib.h>
 #include <wsutil/crc7.h> /* For FP data header and control frame CRC. */
@@ -3006,7 +3007,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         for (pdu_no=0; pdu_no < subframes[n].number_of_mac_is_pdus; pdu_no++) {
             int i;
             guint length = 0;
-            umts_mac_is_info * mac_is_info = se_new(umts_mac_is_info);
+            umts_mac_is_info * mac_is_info = wmem_new(wmem_file_scope(), umts_mac_is_info);
 
             mac_is_info->number_of_mac_is_sdus = subframes[n].number_of_mac_is_sdus[pdu_no];
             DISSECTOR_ASSERT(subframes[n].number_of_mac_is_sdus[pdu_no] <= MAX_MAC_FRAMES);
@@ -3821,7 +3822,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
     guint8 fake_lchid=0;
     gint *cur_val=NULL;
 
-    fpi = se_new0(fp_info);
+    fpi = wmem_new0(wmem_file_scope(), fp_info);
     p_add_proto_data(pinfo->fd, proto_fp, 0, fpi);
 
     fpi->iface_type = p_conv_data->iface_type;
@@ -3859,14 +3860,14 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
     switch (fpi->channel) {
         case CHANNEL_HSDSCH: /* HS-DSCH - High Speed Downlink Shared Channel */
             fpi->hsdsch_entity = p_conv_data->hsdsch_entity;
-            macinf = se_new0(umts_mac_info);
+            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             fpi->hsdsch_macflowd_id = p_conv_data->hsdsch_macdflow_id;
            macinf->content[0] = hsdsch_macdflow_id_mac_content_map[p_conv_data->hsdsch_macdflow_id]; /*MAC_CONTENT_PS_DTCH;*/
             macinf->lchid[0] = p_conv_data->hsdsch_macdflow_id;
             /*macinf->content[0] = lchId_type_table[p_conv_data->edch_lchId[0]];*/
             p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
 
-            rlcinf = se_new0(rlc_info);
+            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
 
             /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then it's SRB0 == UM else AM*/
             rlcinf->mode[0] = hsdsch_macdflow_id_rlc_map[p_conv_data->hsdsch_macdflow_id];
@@ -3914,8 +3915,8 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
 
         case CHANNEL_EDCH:
 			/*Most configuration is now done in the actual dissecting function*/
-            macinf = se_new0(umts_mac_info);
-            rlcinf = se_new0(rlc_info);
+            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
+            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             fpi->no_ddi_entries = p_conv_data->no_ddi_entries;
             for (i=0; i<fpi->no_ddi_entries; i++) {
                 fpi->edch_ddi[i] = p_conv_data->edch_ddi[i];    /*Set the DDI value*/
@@ -3927,7 +3928,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             }
             fpi->edch_type = p_conv_data->edch_type;
 
-           /* macinf = se_new0(umts_mac_info);
+           /* macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             macinf->content[0] = MAC_CONTENT_PS_DTCH;*/
             p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
 
@@ -3962,8 +3963,8 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
                 return fpi;
             }
 
-            rlcinf = se_new0(rlc_info);
-            macinf = se_new0(umts_mac_info);
+            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
+            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             offset = 2;    /*To correctly read the tfi*/
             fakes = 5; /* Reset fake counter. */
             for (chan=0; chan < fpi->num_chans; chan++) {    /*Iterate over the what channels*/
@@ -4080,12 +4081,12 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
              */
             offset = 2;
             /* Set MAC data */
-            macinf = se_new0(umts_mac_info);
+            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             macinf->ctmux[0]   = 1;
             macinf->content[0] = MAC_CONTENT_DCCH;
             p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
             /* Set RLC data */
-            rlcinf = se_new0(rlc_info);
+            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             /* Make configurable ?(avaliable in NBAP?) */
             /* For RLC re-assembly to work we need to fake urnti */
             rlcinf->urnti[0] = fpi->channel;
@@ -4108,8 +4109,8 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
              */
             offset = 2;
             /* set MAC data */
-            macinf = se_new0(umts_mac_info);
-            rlcinf = se_new0(rlc_info);
+            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
+            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             for( chan = 0; chan < fpi->num_chans; chan++ ){
                     macinf->ctmux[chan]   = 1;
                     macinf->content[chan] = MAC_CONTENT_DCCH;
@@ -4122,8 +4123,8 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
             break;
         case CHANNEL_HSDSCH_COMMON:
-                rlcinf = se_new0(rlc_info);
-                macinf = se_new0(umts_mac_info);
+                rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
+                macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
                 p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
                 p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
             break;

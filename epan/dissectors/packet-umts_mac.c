@@ -26,6 +26,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
@@ -466,7 +467,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             /* In this case skip RLC and call RRC immediately subdissector */
             rrcinf = (rrc_info *)p_get_proto_data(pinfo->fd, proto_rrc, 0);
             if (!rrcinf) {
-                rrcinf = se_new0(struct rrc_info);
+                rrcinf = wmem_new0(wmem_file_scope(), struct rrc_info);
                 p_add_proto_data(pinfo->fd, proto_rrc, 0, rrcinf);
             }
             rrcinf->msgtype[fpinf->cur_tb] = RRC_MESSAGE_TYPE_BCCH_FACH;
@@ -604,7 +605,7 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 static void init_frag(tvbuff_t * tvb, body_parts * bp, guint length, guint offset, guint32 frame_num, guint16 tsn, guint8 type)
 {
-    mac_is_fragment * frag = se_new(mac_is_fragment);
+    mac_is_fragment * frag = wmem_new(wmem_file_scope(), mac_is_fragment);
     frag->type = type;
     frag->length = length;
     frag->data = (guint8 *)g_malloc(length);
@@ -656,14 +657,14 @@ static tvbuff_t * reassemble(tvbuff_t * tvb, body_parts ** body_parts_array, gui
     if (sdus == NULL) {
         mac_is_channel * channel;
         sdus = g_hash_table_new(mac_is_fragment_hash, mac_is_fragment_equal);
-        channel = se_new(mac_is_channel);
+        channel = wmem_new(wmem_file_scope(), mac_is_channel);
         *channel = *ch;
         g_hash_table_insert(mac_is_sdus, channel, sdus);
     }
 
-    sdu = se_new(mac_is_sdu);
+    sdu = wmem_new(wmem_file_scope(), mac_is_sdu);
     sdu->length = 0;
-    sdu->data = (guint8 *)se_alloc(length);
+    sdu->data = (guint8 *)wmem_alloc(wmem_file_scope(), length);
 
     f = body_parts_array[head_tsn]->head; /* Start from head. */
     g_hash_table_insert(sdus, f, sdu); /* Insert head->sdu mapping. */
@@ -785,11 +786,11 @@ static body_parts ** get_body_parts(mac_is_channel * ch)
     if (bpa == NULL) {
         mac_is_channel * channel;
         guint16 i;
-        bpa = se_alloc_array(body_parts*, MAX_TSN); /* Create new body_parts-pointer array */
+        bpa = wmem_alloc_array(wmem_file_scope(), body_parts*, MAX_TSN); /* Create new body_parts-pointer array */
         for (i = 0; i < MAX_TSN; i++) {
-            bpa[i] = se_new0(body_parts); /* Fill it with body_parts. */
+            bpa[i] = wmem_new0(wmem_file_scope(), body_parts); /* Fill it with body_parts. */
         }
-        channel = se_new(mac_is_channel); /* Alloc new channel for use in hash table. */
+        channel = wmem_new(wmem_file_scope(), mac_is_channel); /* Alloc new channel for use in hash table. */
         *channel = *ch;
         g_hash_table_insert(mac_is_fragments, channel, bpa);
     }

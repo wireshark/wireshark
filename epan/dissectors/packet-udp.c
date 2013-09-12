@@ -34,7 +34,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
@@ -175,7 +175,7 @@ init_udp_conversation_data(void)
   struct udp_analysis *udpd;
 
   /* Initialize the udp protocol data structure to add to the udp conversation */
-  udpd = se_new0(struct udp_analysis);
+  udpd = wmem_new0(wmem_file_scope(), struct udp_analysis);
   /*
   udpd->flow1.username = NULL;
   udpd->flow1.command = NULL;
@@ -263,8 +263,8 @@ add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_add
 
   flow->process_uid = uid;
   flow->process_pid = pid;
-  flow->username = se_strdup(username);
-  flow->command = se_strdup(command);
+  flow->username = wmem_strdup(wmem_file_scope(), username);
+  flow->command = wmem_strdup(wmem_file_scope(), command);
 }
 
 
@@ -370,7 +370,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   struct udp_analysis *udpd = NULL;
   proto_tree *process_tree;
 
-  udph=ep_new(e_udphdr);
+  udph=wmem_new(wmem_packet_scope(), e_udphdr);
   SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
   SET_ADDRESS(&udph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 

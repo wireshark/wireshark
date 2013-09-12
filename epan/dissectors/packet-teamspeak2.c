@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <wsutil/crc32.h>
 #include <epan/crc32-tvb.h>
+#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 
@@ -391,7 +392,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* XXX: Following fragmentation stuff should be separate from the GUI stuff ??    */
     /* Get our stored fragmentation data or create one! */
     if ( ! ( frag = (ts2_frag *)p_get_proto_data(pinfo->fd, proto_ts2, 0) ) ) {
-        frag = se_new(ts2_frag);
+        frag = wmem_new(wmem_file_scope(), ts2_frag);
         frag->frag_num=0;
     }
 
@@ -696,7 +697,7 @@ static ts2_conversation* ts2_get_conversation(packet_info *pinfo)
     }
     else
     {
-        conversation_data = se_new(ts2_conversation);
+        conversation_data = wmem_new(wmem_file_scope(), ts2_conversation);
         conversation_data->last_inorder_server_frame=0; /* sequence number should never be zero so we can use this as an initial number */
         conversation_data->last_inorder_client_frame=0;
         conversation_data->server_port=pinfo->srcport;
@@ -823,7 +824,7 @@ static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *t
     gint     len;
     guint32  ocrc32;
 
-    zero = (guint8 *)ep_alloc0(4);
+    zero = (guint8 *)wmem_alloc0(wmem_packet_scope(), 4);
     ocrc32 = crc32_ccitt_tvb(tvb, offset);
     ocrc32 = crc32_ccitt_seed(zero, 4, 0xffffffff-ocrc32);
     len = tvb_reported_length_remaining(tvb, offset+4);
