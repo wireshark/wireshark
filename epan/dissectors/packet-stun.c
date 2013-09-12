@@ -343,24 +343,7 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int
 dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 msg_type, guint msg_length)
 {
-    guint reported_length;
     tvbuff_t *next_tvb;
-
-    reported_length = tvb_reported_length(tvb);
-
-    /* two first bits not NULL => should be a channel-data message */
-    if (msg_type == 0xFFFF)
-        return 0;
-
-    /* note that padding is only mandatory over streaming
-       protocols */
-    if (pinfo->ipproto == IP_PROTO_UDP) {
-        if (reported_length != (msg_length + CHANNEL_DATA_HDR_LEN))
-            return 0;
-    } else { /* TCP */
-        if (reported_length != ((msg_length + CHANNEL_DATA_HDR_LEN + 3) & ~0x3))
-            return 0;
-    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN");
     col_set_str(pinfo->cinfo, COL_INFO, "ChannelData TURN Message");
@@ -384,7 +367,7 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         call_dissector_only(data_handle, next_tvb, pinfo, tree, NULL);
     }
 
-    return reported_length;
+    return tvb_reported_length(tvb);
 }
 
 
@@ -428,6 +411,22 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
     /* STUN Channel Data message ? */
     if (msg_type & 0xC000) {
+        guint reported_length = tvb_reported_length(tvb);
+
+        /* two first bits not NULL => should be a channel-data message */
+        if (msg_type == 0xFFFF)
+            return 0;
+
+        /* note that padding is only mandatory over streaming
+           protocols */
+        if (pinfo->ipproto == IP_PROTO_UDP) {
+            if (reported_length != (msg_length + CHANNEL_DATA_HDR_LEN))
+                return 0;
+        } else { /* TCP */
+            if (reported_length != ((msg_length + CHANNEL_DATA_HDR_LEN + 3) & ~0x3))
+                return 0;
+        }
+
         if (heur_check) {
             /* If the packet is being dissected through heuristics, ensure there
              * is already a STUN conversation because the heuristics are otherwise
