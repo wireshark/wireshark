@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/wmem/wmem.h>
 #include <wsutil/crc32.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
@@ -296,7 +297,7 @@ key_to_val(const gchar *key, int keylen, const value_string_keyval *kv, const gc
     }
     i++;
   }
-  return ep_strdup_printf(fmt, key);
+  return wmem_strdup_printf(wmem_packet_scope(), fmt, key);
 }
 
 static const gchar *
@@ -459,7 +460,7 @@ static void
 dissect_Conf2ACK(packet_info *pinfo) {
 
   /* Signals start of SRT(C)P streams */
-  struct srtp_info *dummy_srtp_info = se_new0(struct srtp_info);
+  struct srtp_info *dummy_srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
 
   dummy_srtp_info->encryption_algorithm = SRTP_ENC_ALG_AES_CM;
   dummy_srtp_info->auth_algorithm = SRTP_AUTH_ALG_HMAC_SHA1;

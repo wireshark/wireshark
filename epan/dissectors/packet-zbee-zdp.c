@@ -30,6 +30,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 #include "packet-zbee.h"
@@ -1014,8 +1015,8 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
     proto_item  *field_root;
     proto_tree  *field_tree;
 
-    gchar   *str = (gchar *)ep_alloc(length);
-    gchar   *complex = (gchar *)ep_alloc(max_len);
+    gchar   *str = (gchar *)wmem_alloc(wmem_packet_scope(), length);
+    gchar   *complex = (gchar *)wmem_alloc(wmem_packet_scope(), max_len);
     guint8  tag;
 
     if ((tree) && (ettindex != -1)) {

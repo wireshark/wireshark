@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-ieee802154.h"
 #include "packet-zbee.h"
@@ -369,7 +370,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Set up hint structures */
     if (!pinfo->fd->flags.visited) {
         /* Allocate frame data with hints for upper layers */
-        nwk_hints = se_new0(zbee_nwk_hints_t);
+        nwk_hints = wmem_new0(wmem_file_scope(), zbee_nwk_hints_t);
         p_add_proto_data(pinfo->fd, proto_zbee_nwk, 0, nwk_hints);
     } else {
         /* Retrieve existing structure */
