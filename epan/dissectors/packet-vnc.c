@@ -47,7 +47,7 @@
 #include <glib.h>
 
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -843,7 +843,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * there yet */
 	per_conversation_info = (vnc_conversation_t *)conversation_get_proto_data(conversation, proto_vnc);
 	if(!per_conversation_info) {
-		per_conversation_info = se_new(vnc_conversation_t);
+		per_conversation_info = wmem_new(wmem_file_scope(), vnc_conversation_t);
 
 		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SERVER_VERSION;
 		per_conversation_info->security_type_selected = VNC_SECURITY_TYPE_INVALID;
@@ -1011,7 +1011,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc, 0);
 
 	if(!per_packet_info) {
-		per_packet_info = se_new(vnc_packet_t);
+		per_packet_info = wmem_new(wmem_file_scope(), vnc_packet_t);
 
 		per_packet_info->state = per_conversation_info->vnc_next_state;
 		per_packet_info->preferred_encoding = -1;

@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include "packet-rpc.h"
+#include <epan/emem.h>
 
 /*
  * For the protocol specifications, see

@@ -28,7 +28,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/xdlc.h>
-#include <epan/emem.h>
 
 static int proto_v120 = -1;
 static int hf_v120_address = -1;

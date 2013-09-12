@@ -29,6 +29,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include <epan/uat.h>
 
 /* Initialize the protocol and registered fields */
@@ -174,7 +175,7 @@ vcdu_uat_data_update_cb(void *p, const char **err) {
     uat_channel_t *ud = (uat_channel_t *)p;
 
     if (ud->channel >= 64) {
-        *err = ep_strdup_printf("Channel must be between 0-63.");
+        *err = wmem_strdup_printf(wmem_packet_scope(), "Channel must be between 0-63.");
         return;
     }
 }
