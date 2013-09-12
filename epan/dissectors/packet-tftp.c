@@ -46,7 +46,7 @@
 #include <stdlib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/range.h>
 #include <epan/prefs.h>
@@ -336,7 +336,7 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
   tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
   if (!tftp_info) {
-    tftp_info = se_new(tftp_conv_info_t);
+    tftp_info = wmem_new(wmem_file_scope(), tftp_conv_info_t);
     tftp_info->blocksize = 512; /* TFTP default block size */
     tftp_info->source_file = NULL;
     tftp_info->destination_file = NULL;
@@ -408,7 +408,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
         if (!tftp_info) {
-	  tftp_info = se_new(tftp_conv_info_t);
+	  tftp_info = wmem_new(wmem_file_scope(), tftp_conv_info_t);
 	  tftp_info->blocksize = 512; /* TFTP default block size */
 	  tftp_info->source_file = NULL;
 	  tftp_info->destination_file = NULL;
@@ -428,47 +428,47 @@ proto_register_tftp(void)
     { &hf_tftp_opcode,
       { "Opcode",	      "tftp.opcode",
 	FT_UINT16, BASE_DEC, VALS(tftp_opcode_vals), 0x0,
-      	"TFTP message type", HFILL }},
+	"TFTP message type", HFILL }},
 
     { &hf_tftp_source_file,
       { "Source File",	      "tftp.source_file",
 	FT_STRINGZ, BASE_NONE, NULL, 0x0,
-      	"TFTP source file name", HFILL }},
+	"TFTP source file name", HFILL }},
 
     { &hf_tftp_destination_file,
       { "DESTINATION File",   "tftp.destination_file",
 	FT_STRINGZ, BASE_NONE, NULL, 0x0,
-      	"TFTP source file name", HFILL }},
+	"TFTP source file name", HFILL }},
 
     { &hf_tftp_transfer_type,
       { "Type",	              "tftp.type",
 	FT_STRINGZ, BASE_NONE, NULL, 0x0,
-      	"TFTP transfer type", HFILL }},
+	"TFTP transfer type", HFILL }},
 
     { &hf_tftp_blocknum,
       { "Block",              "tftp.block",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"Block number", HFILL }},
+	"Block number", HFILL }},
 
     { &hf_tftp_error_code,
       { "Error code",         "tftp.error.code",
 	FT_UINT16, BASE_DEC, VALS(tftp_error_code_vals), 0x0,
-      	"Error code in case of TFTP error message", HFILL }},
+	"Error code in case of TFTP error message", HFILL }},
 
     { &hf_tftp_error_string,
       { "Error message",      "tftp.error.message",
 	FT_STRINGZ, BASE_NONE, NULL, 0x0,
-      	"Error string in case of TFTP error message", HFILL }},
+	"Error string in case of TFTP error message", HFILL }},
 
     { &hf_tftp_option_name,
       { "Option name",        "tftp.option.name",
 	FT_STRINGZ, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+	NULL, HFILL }},
 
     { &hf_tftp_option_value,
       { "Option value",       "tftp.option.value",
 	FT_STRINGZ, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+	NULL, HFILL }},
 
   };
   static gint *ett[] = {

@@ -31,7 +31,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 #include "packet-t38.h"
@@ -492,7 +492,7 @@ t30_get_string_numbers(tvbuff_t *tvb, int offset, int len)
     if (len != LENGTH_T30_NUM)
         return NULL;
 
-    buf=(gchar *)ep_alloc(LENGTH_T30_NUM+1);
+    buf=(gchar *)wmem_alloc(wmem_packet_scope(), LENGTH_T30_NUM+1);
 
     for (i=0; i<LENGTH_T30_NUM; i++)
         buf[LENGTH_T30_NUM-i-1] = reverse_byte(tvb_get_guint8(tvb, offset+i));
@@ -612,7 +612,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     int frame_count = 0;
     int frame;
 #define BUF_SIZE  (10*1 + 90*2 + 156*3 + 256*2 + 1) /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
-    gchar *buf = (gchar *)ep_alloc(BUF_SIZE);
+    gchar *buf = (gchar *)wmem_alloc(wmem_packet_scope(), BUF_SIZE);
     gchar *buf_top = buf;
 
     if (len != 32) {
