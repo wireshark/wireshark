@@ -120,17 +120,10 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 					if (!g_str_equal(n->name,name)) {
 						D(2,("Renaming Oid from: %s -> %s, this means the same oid is registered more than once",n->name,name));
 					}
-					/* There used to be a comment here that claimed we couldn't free
-					 * n->name since it may be part of an hf_register_info struct
-                                         * that has been appended to the hfa GArray. I think that comment
-					 * was wrong, because we only ever create oid_info_t's in this
-					 * function, and we are always careful here to g_strdup the name.
-					 * All that to justify freeing n->name in the next line, since
-					 * doing so fixes some memory leaks. */
-					g_free(n->name);
+					wmem_free(wmem_epan_scope(), n->name);
 				}
 
-				n->name = g_strdup(name);
+				n->name = wmem_strdup(wmem_epan_scope(), name);
 
 				if (! n->value_type) {
 					n->value_type = type;
@@ -139,7 +132,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 				return n;
 			}
 		} else {
-			n = (oid_info_t *)g_malloc(sizeof(oid_info_t));
+			n = wmem_new(wmem_epan_scope(), oid_info_t);
 			n->subid = subids[i];
 			n->kind = kind;
 			n->children = wmem_tree_new(wmem_epan_scope());
@@ -151,7 +144,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 			wmem_tree_insert32(c->children,n->subid,n);
 
 			if (i == oid_len) {
-				n->name = g_strdup(name);
+				n->name = wmem_strdup(wmem_epan_scope(), name);
 				n->value_type = type;
 				n->kind = kind;
 				return n;
