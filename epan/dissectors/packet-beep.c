@@ -37,7 +37,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 #define TCP_PORT_BEEP 10288
@@ -795,10 +795,10 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (!request_val) { /* Create one */
 
-        new_request_key = (struct beep_request_key *)se_alloc(sizeof(struct beep_request_key));
+        new_request_key = wmem_new(wmem_file_scope(), struct beep_request_key);
         new_request_key->conversation = conversation->index;
 
-        request_val = (struct beep_request_val *)se_alloc(sizeof(struct beep_request_val));
+        request_val = wmem_new(wmem_file_scope(), struct beep_request_val);
         request_val->processed = 0;
         request_val->size = 0;
 
@@ -868,7 +868,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * elsewhere for other frames
      */
 
-    beep_frame_data = se_new(struct beep_proto_data);
+    beep_frame_data = wmem_new(wmem_file_scope(), struct beep_proto_data);
 
     beep_frame_data->pl_left = pl_left;
     beep_frame_data->pl_size = 0;
@@ -884,7 +884,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (beep_frame_data == NULL) {
 
-    beep_frame_data = (struct beep_proto_data *)se_alloc(sizeof(struct beep_proto_data));
+    beep_frame_data = wmem_new(wmem_file_scope(), struct beep_proto_data);
 
     beep_frame_data->pl_left = 0;
     beep_frame_data->pl_size = 0;

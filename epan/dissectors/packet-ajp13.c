@@ -30,7 +30,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include "packet-tcp.h"
 
@@ -440,7 +440,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
         if (ajp13_tree) {
           proto_tree_add_string_format(ajp13_tree, hf_ajp13_additional_header,
                                 tvb, hpos, hname_len+2+hval_len+2,
-                                ep_strdup_printf("%s: %s", hname, hval),
+                                wmem_strdup_printf(wmem_packet_scope(), "%s: %s", hname, hval),
                                 "%s: %s", hname, hval);
         }
         pos+=hval_len+2;
@@ -689,7 +689,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       if (ajp13_tree) {
         proto_tree_add_string_format(ajp13_tree, hf_ajp13_additional_header,
                                      tvb, hpos, hname_len+2+hval_len+2,
-                                     ep_strdup_printf("%s: %s", hname, hval),
+                                     wmem_strdup_printf(wmem_packet_scope(), "%s: %s", hname, hval),
                                      "%s: %s", hname, hval);
       }
       pos+=hval_len+2;
@@ -733,7 +733,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       if (ajp13_tree) {
         proto_tree_add_string_format(ajp13_tree, hf_ajp13_req_attribute,
                                      tvb, apos, 1+aname_len+2+aval_len+2,
-                                     ep_strdup_printf("%s: %s", aname, aval),
+                                     wmem_strdup_printf(wmem_packet_scope(), "%s: %s", aname, aval),
                                      "%s: %s", aname, aval);
       }
     } else if (aid == 0x0B ) {
@@ -783,7 +783,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   cd = (ajp13_conv_data*)conversation_get_proto_data(conv, proto_ajp13);
   if (!cd) {
-    cd = se_new(ajp13_conv_data);
+    cd = wmem_new(wmem_file_scope(), ajp13_conv_data);
     cd->content_length = 0;
     cd->was_get_body_chunk = FALSE;
     conversation_add_proto_data(conv, proto_ajp13, cd);
@@ -800,7 +800,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * time we've see the packet, and it must be the first "in order"
      * pass through the data.
      */
-    fd = se_new(ajp13_frame_data);
+    fd = wmem_new(wmem_file_scope(), ajp13_frame_data);
     p_add_proto_data(pinfo->fd, proto_ajp13, 0, fd);
     fd->is_request_body = FALSE;
     if (cd->content_length) {

@@ -34,7 +34,7 @@
 #include <epan/packet.h>
 /* #include <epan/strutil.h> */
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
 
@@ -4842,10 +4842,10 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (!request_val && !aspinfo->reply)  {
 		afp_command = tvb_get_guint8(tvb, offset);
-		new_request_key = se_new(afp_request_key);
+		new_request_key = wmem_new(wmem_file_scope(), afp_request_key);
 		*new_request_key = request_key;
 
-		request_val = se_new(afp_request_val);
+		request_val = wmem_new(wmem_file_scope(), afp_request_val);
 		request_val->command = afp_command;
 
 		if (afp_command == AFP_SPOTLIGHTRPC)

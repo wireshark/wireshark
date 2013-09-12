@@ -41,7 +41,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 
 #include "packet-rx.h"
@@ -1585,10 +1585,10 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	opcode = 0;
 	if(!pinfo->fd->flags.visited){
 		if ( !request_val && !reply) {
-			new_request_key = se_new(struct afs_request_key);
+			new_request_key = wmem_new(wmem_file_scope(), struct afs_request_key);
 			*new_request_key = request_key;
 
-			request_val = se_new(struct afs_request_val);
+			request_val = wmem_new(wmem_file_scope(), struct afs_request_val);
 			request_val -> opcode = tvb_get_ntohl(tvb, offset);
 			request_val -> req_num = pinfo->fd->num;
 			request_val -> rep_num = 0;
@@ -2747,7 +2747,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 					{
 						char *part;
 						j = tvb_get_ntohl(tvb, offset);
-						part=ep_strdup("/vicepa");
+						part=wmem_strdup(wmem_packet_scope(), "/vicepa");
 						if ( i<nservers && j<=25 )
 						{
 							part[6] = 'a' + (char) j;
@@ -2794,7 +2794,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 					{
 						char *part;
 						j = tvb_get_ntohl(tvb, offset);
-						part=ep_strdup("/vicepa");
+						part=wmem_strdup(wmem_packet_scope(), "/vicepa");
 						if ( i<nservers && j<=25 )
 						{
 							part[6] = 'a' + (char) j;
@@ -2842,7 +2842,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 					{
 						char *part;
 						j = tvb_get_ntohl(tvb, offset);
-						part=ep_strdup("/vicepa");
+						part=wmem_strdup(wmem_packet_scope(), "/vicepa");
 						if ( i<nservers && j<=25 )
 						{
 							part[6] = 'a' + (char) j;
