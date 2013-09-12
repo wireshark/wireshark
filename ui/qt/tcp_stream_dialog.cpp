@@ -742,7 +742,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
     QCustomPlot *sp = ui->streamPlot;
     Qt::CursorShape shape = Qt::ArrowCursor;
     if (event) {
-        if (event->buttons() & Qt::LeftButton == Qt::LeftButton) {
+        if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton) {
             if (mouse_drags_) {
                 shape = Qt::ClosedHandCursor;
             } else {
