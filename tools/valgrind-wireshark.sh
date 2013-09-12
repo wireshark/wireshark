@@ -34,7 +34,7 @@ COMMAND_ARGS="-nr"
 COMMAND_ARGS2=
 VALID=0
 PCAP=""
-TOOL=""
+TOOL="memcheck"
 
 while getopts ":2b:C:lmnprtTYwcevW" OPTCHAR ; do
     case $OPTCHAR in
@@ -42,10 +42,10 @@ while getopts ":2b:C:lmnprtTYwcevW" OPTCHAR ; do
         b) BIN_DIR=$OPTARG ;;
         C) COMMAND_ARGS="-C $OPTARG $COMMAND_ARGS" ;;
         l) LEAK_CHECK="--leak-check=full" ;;
-        m) TOOL="--tool=massif" ;;
+        m) TOOL="massif" ;;
         n) COMMAND_ARGS="-v"
            VALID=1 ;;
-        p) TOOL="--tool=callgrind" ;;
+        p) TOOL="callgrind" ;;
         r) REACHABLE="--show-reachable=yes" ;;
         t) TRACK_ORIGINS="--track-origins=yes" ;;
         T) COMMAND_ARGS="-Vx $COMMAND_ARGS" ;; # "build the Tree"
@@ -84,10 +84,12 @@ if [ "$BIN_DIR" = "." ]; then
     export WIRESHARK_RUN_FROM_BUILD_DIRECTORY=
 fi
 
-export WIRESHARK_DEBUG_EP_NO_CHUNKS=
-export WIRESHARK_DEBUG_SE_NO_CHUNKS=
-export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
-export G_SLICE=always-malloc # or debug-blocks
+if [ "$TOOL" != "callgrind" ]; then
+    export WIRESHARK_DEBUG_EP_NO_CHUNKS=
+    export WIRESHARK_DEBUG_SE_NO_CHUNKS=
+    export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
+    export G_SLICE=always-malloc # or debug-blocks
+fi
 
 COMMAND="$BIN_DIR/$COMMAND"
 
@@ -102,4 +104,4 @@ else
     LIBTOOL=""
 fi
 
-$LIBTOOL valgrind --suppressions=`dirname $0`/vg-suppressions $TOOL $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
+$LIBTOOL valgrind --suppressions=`dirname $0`/vg-suppressions --tool=$TOOL $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
