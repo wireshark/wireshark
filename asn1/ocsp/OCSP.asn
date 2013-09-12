@@ -39,26 +39,31 @@ BEGIN
 
 IMPORTS
 
-      -- Directory Authentication Framework (X.509)
-             Certificate, AlgorithmIdentifier
-             FROM AuthenticationFramework { joint-iso-itu-t ds(5)
-                      module(1) authenticationFramework(7) 3 }
+  authenticationFramework
+  FROM UsefulDefinitions {joint-iso-itu-t ds(5) module(1)
+      usefulDefinitions(0) 5}
 
-	     CRLReason
-	     FROM CertificateExtensions
+  EXTENSION
+  FROM AuthenticationFramework authenticationFramework
 
--- PKIX Certificate Extensions
-             AuthorityInfoAccessSyntax
-          FROM PKIX1Implicit88 {iso(1) identified-organization(3)
-                  dod(6) internet(1) security(5) mechanisms(5) pkix(7)
-                  id-mod(0) id-pkix1-implicit-88(2)}
+  -- Directory Authentication Framework (X.509)
+  Certificate, AlgorithmIdentifier
+  FROM AuthenticationFramework { joint-iso-itu-t ds(5)
+      module(1) authenticationFramework(7) 3 }
 
+  CRLReason
+  FROM CertificateExtensions
 
-          Name, GeneralName, CertificateSerialNumber, Extensions,
-           id-kp, id-ad-ocsp
-             FROM PKIX1Explicit88 {iso(1) identified-organization(3)
-                  dod(6) internet(1) security(5) mechanisms(5) pkix(7)
-                  id-mod(0) id-pkix1-explicit-88(1)};
+  -- PKIX Certificate Extensions
+  AuthorityInfoAccessSyntax
+  FROM PKIX1Implicit88 {iso(1) identified-organization(3)
+      dod(6) internet(1) security(5) mechanisms(5) pkix(7)
+     id-mod(0) id-pkix1-implicit-88(2)}
+
+  Name, GeneralName, CertificateSerialNumber, Extensions, id-kp, id-ad-ocsp
+  FROM PKIX1Explicit88 {iso(1) identified-organization(3)
+      dod(6) internet(1) security(5) mechanisms(5) pkix(7)
+      id-mod(0) id-pkix1-explicit-88(1)};
 
 OCSPRequest     ::=     SEQUENCE {
     tbsRequest                  TBSRequest,
@@ -155,6 +160,13 @@ CrlID ::= SEQUENCE {
       crlUrl               [0]     EXPLICIT IA5String OPTIONAL,
       crlNum               [1]     EXPLICIT INTEGER OPTIONAL,
       crlTime              [2]     EXPLICIT GeneralizedTime OPTIONAL }
+
+re-ocsp-nonce EXTENSION ::= {
+   SYNTAX        ReOcspNonce
+   IDENTIFIED BY id-pkix-ocsp-nonce
+}
+
+ReOcspNonce ::= OCTET STRING
 
 
 -- Object Identifiers
