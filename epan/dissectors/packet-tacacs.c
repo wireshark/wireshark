@@ -63,7 +63,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include "packet-tacacs.h"
 
@@ -1287,14 +1287,14 @@ md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8
 	int i,j;
 	size_t md5_len;
 	md5_byte_t *md5_buff;
-	md5_byte_t hash[MD5_LEN];       				/* the md5 hash */
+	md5_byte_t hash[MD5_LEN];				/* the md5 hash */
 	md5_byte_t *mdp;
 	md5_state_t mdcontext;
 
 	md5_len = 4 /* sizeof(session_id) */ + strlen(key)
 			+ sizeof(version) + sizeof(seq_no);
 
-	md5_buff = (md5_byte_t*)ep_alloc(md5_len+MD5_LEN);
+	md5_buff = (md5_byte_t*)wmem_alloc(wmem_packet_scope(), md5_len+MD5_LEN);
 
 
 	mdp = md5_buff;
