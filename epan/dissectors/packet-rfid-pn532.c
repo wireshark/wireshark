@@ -1451,10 +1451,10 @@ void proto_register_pn532(void)
          {"TX speed", "pn532.txmode.txspeed", FT_UINT8, BASE_HEX,
           VALS(pn532_txspeed_vals), 0x70, NULL, HFILL}},
         {&hf_pn532_txmode_nu_2_3,
-         {"Not Used", "pn532.txmode.not_used.2_3", FT_UINT, BASE_HEX,
+         {"Not Used", "pn532.txmode.not_used.2_3", FT_UINT8, BASE_HEX,
           NULL, 0xC0, NULL, HFILL}},
         {&hf_pn532_txmode_tx_framing,
-         {"TX mode", "pn532.txmode.framing", FT_UINT, BASE_HEX,
+         {"TX mode", "pn532.txmode.framing", FT_UINT8, BASE_HEX,
           VALS(pn532_txframing_vals), 0x03, NULL, HFILL}},
     };
 
