@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-zdp.h"
@@ -418,7 +419,7 @@ dissect_zbee_zdp_req_set_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* No Length field in ZigBee 2003 & earlier, uses a fixed length of 16. */
         user_length = 16;
     }
-    user        = (gchar *)ep_alloc(user_length+1);
+    user        = (gchar *)wmem_alloc(wmem_packet_scope(), user_length+1);
     user        = (gchar *)tvb_memcpy(tvb, user, offset, user_length);
     user[user_length] = '\0';
     if (tree) {
