@@ -28,7 +28,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/ipv6-utils.h>
@@ -649,7 +649,7 @@ static const gchar * decode_wccp_encoded_address(tvbuff_t *tvb, int offset, pack
   gchar *buffer;
   guint32 host_addr;
 
-  buffer= (char *) ep_alloc(WCCP_IP_MAX_LENGTH+1);
+  buffer= (char *) wmem_alloc(wmem_packet_scope(), WCCP_IP_MAX_LENGTH+1);
   host_addr = tvb_get_ntohl(tvb,offset);
 
   wccp_fmt_ipadddress(buffer, host_addr);
@@ -840,7 +840,7 @@ bucket_name(guint8 bucket)
   if (bucket == 0xff) {
     return (gchar *) "Unassigned";
   } else {
-    return ep_strdup_printf("%u", bucket);
+    return wmem_strdup_printf(wmem_packet_scope(), "%u", bucket);
   }
 }
 
@@ -1314,7 +1314,7 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, gint length,
   proto_tree_add_item(field_tree, hf_service_info_flags_src_port_alt_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(field_tree, hf_service_info_flags_dest_port_alt_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-  buf= (char *) ep_alloc(128);
+  buf= (char *) wmem_alloc(wmem_packet_scope(), 128);
   decode_bitfield_value(buf, flags,
                         0xFFFFFFFF ^ (WCCP2_SI_SRC_IP_HASH
                                       | WCCP2_SI_DST_IP_HASH
@@ -1456,7 +1456,7 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset, gint length,
   proto_tree_add_item(field_tree, hf_web_cache_identity_flag_hash_info, tvb, offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(field_tree, hf_web_cache_identity_flag_assign_type, tvb, offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(field_tree, hf_web_cache_identity_flag_version_request, tvb, offset, 2, ENC_BIG_ENDIAN);
-  buf=(char *) ep_alloc(128);
+  buf=(char *) wmem_alloc(wmem_packet_scope(), 128);
   decode_bitfield_value(buf, flags, 0xFFF0, 16);
   proto_tree_add_text(field_tree, tvb, offset, 2,
                       "%s : %s",
@@ -1653,7 +1653,7 @@ assignment_bucket_name(guint8 bucket)
   if (bucket == 0xff) {
     cur= (gchar *) "Unassigned";
   } else {
-    cur=ep_strdup_printf("%u%s", bucket >> 1,
+    cur=wmem_strdup_printf(wmem_packet_scope(), "%u%s", bucket >> 1,
                          (bucket & 0x01) ? " (Alt)" : "");
   }
   return cur;
@@ -1917,7 +1917,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
   case 1:
     if (wccp_wccp_address_table.table_ipv4 == NULL)
       wccp_wccp_address_table.table_ipv4 = (guint32 *)
-        ep_alloc( wccp_wccp_address_table.table_length * 4);
+        wmem_alloc(wmem_packet_scope(), wccp_wccp_address_table.table_length * 4);
     if ((address_length != 4) && (pinfo && info_tree)) {
       expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The Address length must be 4, but I found  %d for IPv4 addresses. Correcting this.",
@@ -1928,7 +1928,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
   case 2:
     if (wccp_wccp_address_table.table_ipv6 == NULL)
       wccp_wccp_address_table.table_ipv6 = (struct e_in6_addr *)
-        ep_alloc( wccp_wccp_address_table.table_length * sizeof(struct e_in6_addr));
+        wmem_alloc(wmem_packet_scope(), wccp_wccp_address_table.table_length * sizeof(struct e_in6_addr));
     if ((address_length != 16) && (pinfo && info_tree)) {
       expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The Address length must be 16, but I found %d for IPv6 addresses.  Correcting this",
@@ -1979,7 +1979,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
         tvb_get_ipv6(tvb, offset, &(wccp_wccp_address_table.table_ipv6[i]));
       break;
     default:
-      addr = ep_strdup_printf("unknown family");
+      addr = wmem_strdup_printf(wmem_packet_scope(), "unknown family");
     };
 
     if (element_tree) {

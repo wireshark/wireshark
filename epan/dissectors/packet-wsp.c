@@ -46,6 +46,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 
 #include "packet-wap.h"
@@ -1278,7 +1279,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
     get_integer_value(val,tvb,start,len,ok)
 
 /* NOTE - Do NOT call g_free() for the str returned after using it because the
- * get_text_string() macro now returns ep_alloc'd memory. */
+ * get_text_string() macro now returns wmem_alloc'd memory. */
 #define get_text_string(str,tvb,start,len,ok) \
     if (is_text_string(tvb_get_guint8(tvb,start))) { \
         str = (gchar *)tvb_get_ephemeral_stringz(tvb,start,(gint *)&len); \
@@ -1301,7 +1302,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
     if (val & 0x80) { /* High nibble "." Low nibble */ \
         len = 1; \
         val &= 0x7F; \
-        str = ep_strdup_printf("%u.%u", val >> 4, val & 0x0F); \
+        str = wmem_strdup_printf(wmem_packet_scope(), "%u.%u", val >> 4, val & 0x0F); \
     } else { get_text_string(str,tvb,start,len,ok); }
 
 /* Parameter parser */
@@ -2802,9 +2803,9 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
         if (is_quoted_string(val_str[0])) { \
             if (is_quoted_string(val_str[val_len-2])) { \
                 /* Trailing quote - issue a warning */ \
-                str = ep_strdup_printf("%s" TrailingQuoteWarning, val_str); \
+                str = wmem_strdup_printf(wmem_packet_scope(), "%s" TrailingQuoteWarning, val_str); \
             } else { /* OK (no trailing quote) */ \
-                str = ep_strdup_printf("%s\"", val_str); \
+                str = wmem_strdup_printf(wmem_packet_scope(), "%s\"", val_str); \
             } \
             tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
             ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
@@ -2853,7 +2854,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
                 ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
                         tvb, hdr_start, offset - hdr_start, str); \
                 /* BEHOLD: do NOT try to free str, as \
-                 * abs_time_secs_to_str() returns ep_allocated data */ \
+                 * abs_time_secs_to_str() returns wmem_allocated data */ \
             } \
         } \
     wkh_4_End(hf_hdr_ ## underscored); \
@@ -2888,7 +2889,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
                 ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
                         tvb, hdr_start, offset - hdr_start, str); \
                 /* BEHOLD: do NOT try to free str, as \
-                 * abs_time_secs_to_str() returns ep_allocated data */ \
+                 * abs_time_secs_to_str() returns wmem_allocated data */ \
             } \
         } \
     wkh_4_End(hf_hdr_ ## underscored); \
@@ -2960,7 +2961,7 @@ wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _
 
     wkh_1_WellKnownValue;
         val = val_id & 0x7F;
-        val_str = ep_strdup_printf("%u second%s", val, plurality(val, "", "s"));
+        val_str = wmem_strdup_printf(wmem_packet_scope(), "%u second%s", val, plurality(val, "", "s"));
         tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
         ti = proto_tree_add_string(tree, hf_hdr_age,
                 tvb, hdr_start, offset - hdr_start, val_str);
@@ -2971,7 +2972,7 @@ wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _
         if (val_id <= 4) { /* Length field already parsed by macro! */
             get_long_integer(val, tvb, off, len, ok);
             if (ok) {
-                val_str = ep_strdup_printf("%u second%s", val, plurality(val, "", "s"));
+                val_str = wmem_strdup_printf(wmem_packet_scope(), "%u second%s", val, plurality(val, "", "s"));
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
                 ti = proto_tree_add_string(tree, hf_hdr_age,
                         tvb, hdr_start, offset - hdr_start, val_str);
@@ -3073,7 +3074,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
                 proto_tree_add_string(subtree, \
                         hf_hdr_ ## underscored ## _realm, \
                         tvb, off, len, str); \
-                val_str = ep_strdup_printf("; realm=%s", str); \
+                val_str = wmem_strdup_printf(wmem_packet_scope(), "; realm=%s", str); \
                 proto_item_append_string(ti, val_str); \
                 off += len; \
             } \
@@ -3095,7 +3096,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
                     proto_tree_add_string(subtree, \
                             hf_hdr_ ## underscored ## _realm, \
                             tvb, off, len, str); \
-                    val_str = ep_strdup_printf("; realm=%s", str); \
+                    val_str = wmem_strdup_printf(wmem_packet_scope(), "; realm=%s", str); \
                     proto_item_append_string(ti, val_str); \
                     off += len; \
                     /* Auth-params: parameter - TODO */ \
@@ -3152,7 +3153,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
                 proto_tree_add_string(subtree, \
                         hf_hdr_ ## underscored ## _user_id, \
                         tvb, off, len, str); \
-                val_str = ep_strdup_printf("; user-id=%s", str); \
+                val_str = wmem_strdup_printf(wmem_packet_scope(), "; user-id=%s", str); \
                 proto_item_append_string(ti, val_str); \
                 off += len; \
                 /* Password: text-string */ \
@@ -3161,7 +3162,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
                     proto_tree_add_string(subtree, \
                             hf_hdr_ ## underscored ## _password, \
                             tvb, off, len, str); \
-                    val_str = ep_strdup_printf("; password=%s", str); \
+                    val_str = wmem_strdup_printf(wmem_packet_scope(), "; password=%s", str); \
                     proto_item_append_string(ti, val_str); \
                     off += len; \
                 } \
@@ -3206,7 +3207,7 @@ wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info
     wkh_3_ValueWithLength;
         off = val_start + val_len_len;
         if (val_len == 16) {
-            val_str = ep_strdup_printf(
+            val_str = wmem_strdup_printf(wmem_packet_scope(),
                     "%02x%02x%02x%02x%02x%02x%02x%02x"
                     "%02x%02x%02x%02x%02x%02x%02x%02x",
                     tvb_get_guint8(tvb, off),
@@ -3279,7 +3280,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
     gchar *str; /* may not be freed! */ \
     \
     wkh_1_WellKnownValue; \
-        str = ep_strdup_printf("%u", val_id & 0x7F); \
+        str = wmem_strdup_printf(wmem_packet_scope(), "%u", val_id & 0x7F); \
         tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
         ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
                 tvb, hdr_start, offset - hdr_start, str); \
@@ -3290,7 +3291,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
         if (val_id <= 4) { /* Length field already parsed by macro! */ \
             get_long_integer(val, tvb, off, len, ok); \
             if (ok) { \
-                str = ep_strdup_printf("%u", val); \
+                str = wmem_strdup_printf(wmem_packet_scope(), "%u", val); \
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
                 ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
                         tvb, hdr_start, offset - hdr_start, str); \
@@ -3425,7 +3426,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
                                 "<Unknown cache control directive 0x%02X>"));
                     get_delta_seconds_value(val, tvb, off, len, ok);
                     if (ok) {
-                        val_str = ep_strdup_printf("=%u second%s",
+                        val_str = wmem_strdup_printf(wmem_packet_scope(), "=%u second%s",
                                 val, plurality(val, "", "s"));
                         proto_item_append_string(ti, val_str);
                     }
@@ -3443,7 +3444,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
                         tvb, hdr_start, offset - hdr_start, val_str);
                 get_integer_value(val, tvb, off, len, ok);
                 if (ok) { /* Integer-value */
-                    val_str = ep_strdup_printf("=%u", val);
+                    val_str = wmem_strdup_printf(wmem_packet_scope(), "=%u", val);
                     proto_item_append_string(ti, val_str);
                 } else { /* Text-value */
                     get_text_string(val_str, tvb, off, len, ok);
@@ -3451,10 +3452,10 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
                         if (is_quoted_string(val_str[0])) {
                             if (is_quoted_string(val_str[len-2])) {
                                 /* Trailing quote - issue a warning */
-                                str = ep_strdup_printf("%s" TrailingQuoteWarning,
+                                str = wmem_strdup_printf(wmem_packet_scope(), "%s" TrailingQuoteWarning,
                                         val_str);
                             } else { /* OK (no trailing quote) */
-                                str = ep_strdup_printf("%s\"", val_str);
+                                str = wmem_strdup_printf(wmem_packet_scope(), "%s\"", val_str);
                             }
                             proto_item_append_string(ti, str);
                         } else { /* Token-text | 0x00 */
@@ -3507,7 +3508,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
             val = warn_code & 0x7f;
             val_str = try_val_to_str_ext(val, &vals_wsp_warning_code_short_ext);
             if (val_str) { /* OK */
-                str = ep_strdup_printf("code=%s", val_str);
+                str = wmem_strdup_printf(wmem_packet_scope(), "code=%s", val_str);
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
                 ti = proto_tree_add_string(tree, hf_hdr_warning,
                         tvb, hdr_start, offset - hdr_start, str);
@@ -3519,7 +3520,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
                 if (ok) { /* Valid warn-agent string */
                     proto_tree_add_string(subtree, hf_hdr_warning_agent,
                             tvb, off, len, str);
-                    val_str = ep_strdup_printf("; agent=%s", str);
+                    val_str = wmem_strdup_printf(wmem_packet_scope(), "; agent=%s", str);
                     proto_item_append_string(ti, val_str);
                     off += len;
                     get_text_string(str, tvb, off, len, ok);
@@ -3527,7 +3528,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
                         proto_tree_add_string(subtree,
                                 hf_hdr_warning_text,
                                 tvb, off, len, str);
-                        val_str = ep_strdup_printf("; text=%s", str);
+                        val_str = wmem_strdup_printf(wmem_packet_scope(), "; text=%s", str);
                         proto_item_append_string(ti, val_str);
                         /*off += len;*/
                     }
@@ -3577,7 +3578,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
                      * the str, since the pointer to it is immediately
                      * forgotten with the call to g_strdup_printf()? */
                     off += len;
-                    str = ep_strdup_printf("; target=%s", val_str);
+                    str = wmem_strdup_printf(wmem_packet_scope(), "; target=%s", val_str);
                     proto_item_append_string(ti, str);
                     /* Add zero or more dates */
                     while (ok && (off < offset)) {
@@ -3585,10 +3586,10 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
                         if (ok) { /* Valid warn-text string */
                             off += len;
                             val_str = abs_time_secs_to_str(val, ABSOLUTE_TIME_LOCAL, TRUE);
-                            str = ep_strdup_printf("; date=%s", val_str);
+                            str = wmem_strdup_printf(wmem_packet_scope(), "; date=%s", val_str);
                             proto_item_append_string(ti, str);
                             /* BEHOLD: do NOT try to free str, as \
-                             * abs_time_secs_to_str() returns ep_allocated data */ \
+                             * abs_time_secs_to_str() returns wmem_allocated data */ \
                         }
                     }
                 }
@@ -3612,7 +3613,7 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 
     wkh_1_WellKnownValue;
         val = val_id & 0x7F;
-        val_str = ep_strdup_printf("%u.%u", val >> 4, val & 0x0F);
+        val_str = wmem_strdup_printf(wmem_packet_scope(), "%u.%u", val >> 4, val & 0x0F);
         tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
         proto_tree_add_string(tree, hf_hdr_encoding_version,
                 tvb, hdr_start, offset - hdr_start, val_str);
@@ -3626,7 +3627,7 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
         off = val_start + val_len_len;
         val = tvb_get_guint8(tvb, off);
         if (val & 0x80) { /* Header Code Page */
-            val_str = ep_strdup_printf("code-page=%u", val & 0x7F);
+            val_str = wmem_strdup_printf(wmem_packet_scope(), "code-page=%u", val & 0x7F);
             tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
             ti = proto_tree_add_string(tree, hf_hdr_encoding_version,
                     tvb, hdr_start, offset - hdr_start, val_str);
@@ -3635,7 +3636,7 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
             if (off < offset) { /* Extra version-value */
                 get_version_value(val,val_str,tvb,off,len,ok);
                 if (ok) { /* Always creates a string if OK */
-                    str = ep_strdup_printf(": %s", val_str);
+                    str = wmem_strdup_printf(wmem_packet_scope(), ": %s", val_str);
                     proto_item_append_string(ti, str);
                 }
             }
@@ -3663,7 +3664,7 @@ wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
         off = val_start + val_len_len;
         get_uintvar_integer (val, tvb, off, len, ok); /* Uintvar start */
         if (ok) {
-            val_str = ep_strdup_printf("first-byte-pos=%u", val);
+            val_str = wmem_strdup_printf(wmem_packet_scope(), "first-byte-pos=%u", val);
             tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
             ti = proto_tree_add_string(tree, hf_hdr_content_range,
                     tvb, hdr_start, offset - hdr_start, val_str);
@@ -3678,7 +3679,7 @@ wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
             } else { /* Uintvar entity length */
                 get_uintvar_integer (val, tvb, off, len, ok);
                 if (ok) {
-                    val_str = ep_strdup_printf("; entity-length=%u", val);
+                    val_str = wmem_strdup_printf(wmem_packet_scope(), "; entity-length=%u", val);
                     proto_item_append_string(ti, val_str);
                     proto_tree_add_uint(subtree,
                             hf_hdr_content_range_entity_length,
@@ -3718,7 +3719,7 @@ wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo
             /* Get the First-byte-pos (Uintvar-integer) */
             get_uintvar_integer (val, tvb, off, len, ok);
             if (ok) {
-                val_str = ep_strdup_printf("; first-byte-pos=%u", val);
+                val_str = wmem_strdup_printf(wmem_packet_scope(), "; first-byte-pos=%u", val);
                 proto_item_append_string(ti, val_str);
                 proto_tree_add_uint(subtree, hf_hdr_range_first_byte_pos,
                         tvb, off, len, val);
@@ -3727,7 +3728,7 @@ wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo
                 if (off < offset) {
                     get_uintvar_integer (val, tvb, off, len, ok);
                     if (ok) {
-                        val_str = ep_strdup_printf("; last-byte-pos=%u", val);
+                        val_str = wmem_strdup_printf(wmem_packet_scope(), "; last-byte-pos=%u", val);
                         proto_item_append_string(ti, val_str);
                         proto_tree_add_uint(subtree,
                                 hf_hdr_range_last_byte_pos,
@@ -3743,7 +3744,7 @@ wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo
             /* Get the Suffix-length (Uintvar-integer) */
             get_uintvar_integer (val, tvb, off, len, ok);
             if (ok) {
-                val_str = ep_strdup_printf("; suffix-length=%u", val);
+                val_str = wmem_strdup_printf(wmem_packet_scope(), "; suffix-length=%u", val);
                 proto_item_append_string(ti, val_str);
                 proto_tree_add_uint(subtree, hf_hdr_range_suffix_length,
                         tvb, off, len, val);
@@ -3971,7 +3972,7 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
         proto_tree_add_string(tree, hf, \
                 tvb, start, type_len + val_len, val_str); \
         DebugLog(("Creating str to append to ti\n")); \
-        str = ep_strdup_printf("; " lowercase "=%s", val_str); \
+        str = wmem_strdup_printf(wmem_packet_scope(), "; " lowercase "=%s", val_str); \
         DebugLog(("Appending str to ti\n")); \
         proto_item_append_string(ti, str); \
         DebugLog(("\tFreeing str [%s]\n", str)); \
@@ -3991,21 +3992,21 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
         if (is_quoted_string(val_str[0])) { \
             if (is_quoted_string(val_str[val_len-2])) { \
                 /* Trailing quote - issue a warning */ \
-                str = ep_strdup_printf("%s" TrailingQuoteWarning, val_str); \
+                str = wmem_strdup_printf(wmem_packet_scope(), "%s" TrailingQuoteWarning, val_str); \
                 proto_tree_add_string(tree, hf, \
                         tvb, start, type_len + val_len, str); \
-                str = ep_strdup_printf("; " lowercase "=%s", val_str); \
+                str = wmem_strdup_printf(wmem_packet_scope(), "; " lowercase "=%s", val_str); \
             } else { /* OK (no trailing quote) */ \
-                str = ep_strdup_printf("%s\"", val_str); \
+                str = wmem_strdup_printf(wmem_packet_scope(), "%s\"", val_str); \
                 proto_tree_add_string(tree, hf, \
                         tvb, start, type_len + val_len, str); \
-                str = ep_strdup_printf("; " lowercase "=%s\"", val_str); \
+                str = wmem_strdup_printf(wmem_packet_scope(), "; " lowercase "=%s\"", val_str); \
             } \
         } else { /* Token-text | 0x00 */ \
             /* TODO - verify that we have either Token-text or 0x00 */ \
             proto_tree_add_string(tree, hf, \
                     tvb, start, type_len + val_len, val_str); \
-            str = ep_strdup_printf("; " lowercase "=%s", val_str); \
+            str = wmem_strdup_printf(wmem_packet_scope(), "; " lowercase "=%s", val_str); \
         } \
         proto_item_append_string(ti, str); \
         offset += val_len; \
@@ -4059,12 +4060,12 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
                         tvb_ensure_bytes_exist(tvb, start, offset - start);
                         proto_tree_add_text(tree, tvb, start, offset - start,
                                 "%s: %s" TrailingQuoteWarning, str, val_str);
-                        s = ep_strdup_printf("; %s=%s", str, val_str);
+                        s = wmem_strdup_printf(wmem_packet_scope(), "; %s=%s", str, val_str);
                     } else { /* OK (no trailing quote) */
                         tvb_ensure_bytes_exist(tvb, start, offset - start);
                         proto_tree_add_text(tree, tvb, start, offset - start,
                                 "%s: %s\"", str, val_str);
-                        s = ep_strdup_printf("; %s=%s\"", str, val_str);
+                        s = wmem_strdup_printf(wmem_packet_scope(), "; %s=%s\"", str, val_str);
                     }
                 } else { /* Token-text | 0x00 */
                     /* TODO - verify that it is either Token-text or 0x00
@@ -4072,7 +4073,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
                     tvb_ensure_bytes_exist(tvb, start, offset - start);
                     proto_tree_add_text(tree, tvb, start, offset - start,
                             "%s: %s", str, val_str);
-                    s = ep_strdup_printf("; %s=%s", str, val_str);
+                    s = wmem_strdup_printf(wmem_packet_scope(), "; %s=%s", str, val_str);
                 }
                 /* TODO - check if we can insert a searchable field in the
                  * protocol tree for the untyped parameter case */
@@ -4088,7 +4089,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
                     tvb_ensure_bytes_exist(tvb, start, offset - start);
                     proto_tree_add_text(tree, tvb, start, offset - start,
                             "%s: %u", str, val);
-                    s = ep_strdup_printf("; %s=%u", str, val);
+                    s = wmem_strdup_printf(wmem_packet_scope(), "; %s=%u", str, val);
                     proto_item_append_string(ti, s);
                     DebugLog(("parameter() - Untyped: %s\n", s));
                     /* TODO - check if we can insert a searchable field in the
@@ -4127,7 +4128,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
                         "<Unknown character set Identifier 0x%X>");
                 proto_tree_add_string(tree, hf_parameter_charset,
                         tvb, start, type_len + val_len, val_str);
-                str = ep_strdup_printf("; charset=%s", val_str);
+                str = wmem_strdup_printf(wmem_packet_scope(), "; charset=%s", val_str);
                 proto_item_append_string(ti, str);
                 offset += val_len;
             } else {
@@ -4142,7 +4143,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
             if (ok) {
                 proto_tree_add_uint (tree, hf_wsp_parameter_type,
                         tvb, start, type_len + val_len, val);
-                s = ep_strdup_printf("; Type=%u", val);
+                s = wmem_strdup_printf(wmem_packet_scope(), "; Type=%u", val);
                 proto_item_append_string (ti, s);
                 offset += val_len;
             } else {
@@ -4191,7 +4192,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
                 tvb_ensure_bytes_exist(tvb, start, offset - start);
                 proto_tree_add_string (tree, hf_wsp_parameter_upart_type,
                         tvb, start, offset - start, val_str);
-                str = ep_strdup_printf("; type=%s", val_str);
+                str = wmem_strdup_printf(wmem_packet_scope(), "; type=%s", val_str);
                 proto_item_append_string(ti, str);
             } else { /* Invalid parameter value */
                 proto_tree_add_text (tree, tvb, start, len,
@@ -4253,7 +4254,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
                 proto_tree_add_uint (tree, hf_wsp_parameter_sec,
                         tvb, start, 2, peek);
                 str = (gchar *) val_to_str_ext_const(peek, &vals_wsp_parameter_sec_ext, "Undefined");
-                s = ep_strdup_printf("; SEC=%s", str);
+                s = wmem_strdup_printf(wmem_packet_scope(), "; SEC=%s", str);
                 proto_item_append_string (ti, s);
                 offset++;
             } else { /* Error */
@@ -4273,7 +4274,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
             if (ok) {
                 proto_tree_add_string (tree, hf_wsp_parameter_level,
                         tvb, start, type_len + val_len, str);
-                s = ep_strdup_printf("; level=%s", str);
+                s = wmem_strdup_printf(wmem_packet_scope(), "; level=%s", str);
                 proto_item_append_string (ti, s);
                 offset += val_len;
             } else {
@@ -4292,7 +4293,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
             if (ok) {
                 proto_tree_add_uint (tree, hf_wsp_parameter_size,
                         tvb, start, type_len + val_len, val);
-                s = ep_strdup_printf("; Size=%u", val);
+                s = wmem_strdup_printf(wmem_packet_scope(), "; Size=%u", val);
                 proto_item_append_string (ti, s);
                 offset += val_len;
             } else {
@@ -4385,11 +4386,11 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
     get_uintvar_integer (val, tvb, offset, val_len, ok);
     if (ok && (val < 1100)) {
         if (val <= 100) { /* Q-value in 0.01 steps */
-            str = ep_strdup_printf("0.%02u", val - 1);
+            str = wmem_strdup_printf(wmem_packet_scope(), "0.%02u", val - 1);
         } else { /* Q-value in 0.001 steps */
-            str = ep_strdup_printf("0.%03u", val - 100);
+            str = wmem_strdup_printf(wmem_packet_scope(), "0.%03u", val - 100);
         }
-        s = ep_strdup_printf("; q=%s", str);
+        s = wmem_strdup_printf(wmem_packet_scope(), "; q=%s", str);
         proto_item_append_string (ti, s);
         proto_tree_add_string (tree, hf_parameter_q,
                 tvb, start, val_len, str);
@@ -4916,7 +4917,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *wsp_tree = NULL;
 
     wsp_info_value_t *stat_info;
-    stat_info = (wsp_info_value_t *)ep_alloc(sizeof(wsp_info_value_t));
+    stat_info = (wsp_info_value_t *)wmem_alloc(wmem_packet_scope(), sizeof(wsp_info_value_t));
     stat_info->status_code = 0;
 
 /* This field shows up as the "Info" column in the display; you should make
@@ -5651,7 +5652,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
                                         offset, tvb_get_guint8(tvb, offset)));
                             return;
                         }
-                        valStr = ep_strdup_printf(" (0x%02x = %s)", peek, str);
+                        valStr = wmem_strdup_printf(wmem_packet_scope(), " (0x%02x = %s)", peek, str);
                         DebugLog(("add_capabilities(extended methods):%s\n",
                                     valStr));
                         proto_item_append_string(ti, valStr);
@@ -5660,7 +5661,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
                 } else {
                     while (offset < capaStart + capaLen) {
                         peek = tvb_get_guint8(tvb, offset++);
-                        valStr = ep_strdup_printf(" (0x%02x)", peek);
+                        valStr = wmem_strdup_printf(wmem_packet_scope(), " (0x%02x)", peek);
                         DebugLog(("add_capabilities(extended methods):%s\n",
                                     valStr));
                         proto_item_append_string(ti, valStr);
@@ -5688,7 +5689,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
                                         offset, tvb_get_guint8(tvb, offset)));
                             return;
                         }
-                        valStr = ep_strdup_printf(" (0x%02x = %s)", peek, str);
+                        valStr = wmem_strdup_printf(wmem_packet_scope(), " (0x%02x = %s)", peek, str);
                         DebugLog(("add_capabilities(header code pages):%s\n",
                                     valStr));
                         proto_item_append_string(ti, valStr);
@@ -5697,7 +5698,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
                 } else {
                     while (offset < capaStart + capaLen) {
                         peek = tvb_get_guint8(tvb, offset++);
-                        valStr = ep_strdup_printf(" (0x%02x)", peek);
+                        valStr = wmem_strdup_printf(wmem_packet_scope(), " (0x%02x)", peek);
                         DebugLog(("add_capabilities(header code pages):%s\n",
                                     valStr));
                         proto_item_append_string(ti, valStr);
@@ -5812,7 +5813,7 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 
     if (valueEnd < valueStart)
     {
-        valueBuffer = (char *)ep_alloc (1);
+        valueBuffer = (char *)wmem_alloc(wmem_packet_scope(), 1);
         valueBuffer[0] = 0;
         valueEnd = valueStart;
     }

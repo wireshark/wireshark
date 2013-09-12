@@ -37,7 +37,7 @@
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-wap.h"
 #include "packet-wtp.h"
 #include "packet-wsp.h"
@@ -342,7 +342,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint           dataLen;
 
 #define SZINFO_SIZE 256
-    szInfo=(char *)ep_alloc(SZINFO_SIZE);
+    szInfo=(char *)wmem_alloc(wmem_packet_scope(), SZINFO_SIZE);
 
     b0 = tvb_get_guint8 (tvb, offCur + 0);
     /* Discover Concatenated PDUs */
