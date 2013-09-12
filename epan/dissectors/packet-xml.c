@@ -41,7 +41,6 @@
 #include <wsutil/str_util.h>
 #include <wsutil/report_err.h>
 
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
@@ -191,7 +190,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_ptr_array_free(stack, TRUE);
 
     stack = g_ptr_array_new();
-    current_frame                 = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
+    current_frame                 = (xml_frame_t *)wmem_alloc(wmem_packet_scope(), sizeof(xml_frame_t));
     current_frame->type           = XML_FRAME_ROOT;
     current_frame->name           = NULL;
     current_frame->name_orig_case = NULL;
@@ -212,7 +211,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         colinfo_str = "/XML";
     } else {
         char *colinfo_str_buf;
-        colinfo_str_buf = ep_strdup_printf("/%s", root_ns->name);
+        colinfo_str_buf = wmem_strdup_printf(wmem_packet_scope(), "/%s", root_ns->name);
         ascii_strup_inplace(colinfo_str_buf);
         colinfo_str = colinfo_str_buf;
     }
@@ -326,7 +325,7 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
                         tvb_format_text(tok->tvb, tok->offset, tok->len));
 
     if (is_cdata) {
-        new_frame                 = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
+        new_frame                 = (xml_frame_t *)wmem_alloc(wmem_packet_scope(), sizeof(xml_frame_t));
         new_frame->type           = XML_FRAME_CDATA;
         new_frame->name           = NULL;
         new_frame->name_orig_case = NULL;
@@ -369,7 +368,7 @@ static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 
     pt = proto_item_add_subtree(pi, ett);
 
-    new_frame                 = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
+    new_frame                 = (xml_frame_t *)wmem_alloc(wmem_packet_scope(), sizeof(xml_frame_t));
     new_frame->type           = XML_FRAME_XMPLI;
     new_frame->name           = name;
     new_frame->name_orig_case = name;
@@ -436,7 +435,7 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
 
     } else {
         name = tvb_get_ephemeral_string(name_tok->tvb, name_tok->offset, name_tok->len);
-        name_orig_case = ep_strdup(name);
+        name_orig_case = wmem_strdup(wmem_packet_scope(), name);
         ascii_strdown_inplace(name);
 
         if(current_frame->ns) {
@@ -459,7 +458,7 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
 
     pt = proto_item_add_subtree(pi, ns->ett);
 
-    new_frame = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
+    new_frame = (xml_frame_t *)wmem_alloc(wmem_packet_scope(), sizeof(xml_frame_t));
     new_frame->type           = XML_FRAME_TAG;
     new_frame->name           = name;
     new_frame->name_orig_case = name_orig_case;
@@ -527,7 +526,7 @@ static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_,
 
     proto_item_set_text(dtd_item, "%s", tvb_format_text(tok->tvb, tok->offset, tok->len));
 
-    new_frame = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
+    new_frame = (xml_frame_t *)wmem_alloc(wmem_packet_scope(), sizeof(xml_frame_t));
     new_frame->type           = XML_FRAME_DTD_DOCTYPE;
     new_frame->name           = (gchar *)tvb_get_ephemeral_string(name_tok->tvb,
                                                                   name_tok->offset,
@@ -589,7 +588,7 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     xml_frame_t     *new_frame;
 
     name           = tvb_get_ephemeral_string(tok->sub->tvb, tok->sub->offset, tok->sub->len);
-    name_orig_case = ep_strdup(name);
+    name_orig_case = wmem_strdup(wmem_packet_scope(), name);
     ascii_strdown_inplace(name);
 
     if(current_frame->ns && (hfidp = (int *)g_hash_table_lookup(current_frame->ns->attributes, name) )) {
@@ -605,7 +604,7 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 
     current_frame->last_item = pi;
 
-    new_frame = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
+    new_frame = (xml_frame_t *)wmem_alloc(wmem_packet_scope(), sizeof(xml_frame_t));
     new_frame->type           = XML_FRAME_ATTRIB;
     new_frame->name           = name;
     new_frame->name_orig_case = name_orig_case;

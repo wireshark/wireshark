@@ -31,7 +31,7 @@
 
 #include "packet-tpkt.h"
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 void proto_register_x224(void);
 void proto_reg_handoff_x224(void);
@@ -227,7 +227,7 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 		/* No.  Attach that information to the conversation, and add
 		 * it to the list of information structures.
 		 */
-		x224_info = se_new(x224_conv_info_t);
+		x224_info = wmem_new(wmem_file_scope(), x224_conv_info_t);
 		x224_info->klass=0;
 
 		conversation_add_proto_data(conversation, proto_x224, x224_info);

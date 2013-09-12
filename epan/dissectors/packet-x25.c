@@ -35,7 +35,7 @@
 #include <epan/circuit.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/nlpid.h>
 #include <epan/x264_prt_id.h>
@@ -602,7 +602,7 @@ static const char *clear_code(unsigned char code)
 		return "Destination Absent";
 	}
 
-	return ep_strdup_printf("Unknown %02X", code);
+	return wmem_strdup_printf(wmem_packet_scope(),"Unknown %02X", code);
 }
 
 static const char *reset_code(unsigned char code)
@@ -630,7 +630,7 @@ static const char *reset_code(unsigned char code)
 		return "Network out of order";
 	}
 
-	return ep_strdup_printf("Unknown %02X", code);
+	return wmem_strdup_printf(wmem_packet_scope(),"Unknown %02X", code);
 }
 
 static const char *restart_code(unsigned char code)
@@ -650,14 +650,14 @@ static const char *restart_code(unsigned char code)
 		return "Registration/cancellation confirmed";
 	}
 
-	return ep_strdup_printf("Unknown %02X", code);
+	return wmem_strdup_printf(wmem_packet_scope(),"Unknown %02X", code);
 }
 
 static char *
 dte_address_util(tvbuff_t *tvb, int offset, guint8 len)
 {
 	int i;
-	char *tmpbuf = (char *)ep_alloc(258);
+	char *tmpbuf = (char *)wmem_alloc(wmem_packet_scope(), 258);
 
 	for (i = 0; (i<len)&&(i<256); i++) {
 		if (i % 2 == 0) {
@@ -1020,8 +1020,8 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     guint8 byte;
     int localoffset;
 
-    addr1=(char *)ep_alloc(16);
-    addr2=(char *)ep_alloc(16);
+    addr1=(char *)wmem_alloc(wmem_packet_scope(), 16);
+    addr2=(char *)wmem_alloc(wmem_packet_scope(), 16);
 
     byte = tvb_get_guint8(tvb, *offset);
     len1 = (byte >> 0) & 0x0F;
@@ -1101,8 +1101,8 @@ x25_toa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     guint8 byte;
     int localoffset;
 
-    addr1=(char *)ep_alloc(256);
-    addr2=(char *)ep_alloc(256);
+    addr1=(char *)wmem_alloc(wmem_packet_scope(), 256);
+    addr2=(char *)wmem_alloc(wmem_packet_scope(), 256);
 
     len1 = tvb_get_guint8(tvb, *offset);
     if (tree) {
