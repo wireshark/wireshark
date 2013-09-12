@@ -327,7 +327,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[4].length = 0;
         key[4].key = NULL;
 
-        chandle_data = (chandle_data_t *)se_alloc(sizeof(chandle_data_t));
+        chandle_data = (chandle_data_t *)wmem_alloc(wmem_file_scope(), sizeof(chandle_data_t));
         chandle_data->start_fragments = wmem_tree_new(wmem_file_scope());
         chandle_data->interface_id = hci_data->interface_id;
         chandle_data->adapter_id   = hci_data->adapter_id;

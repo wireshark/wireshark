@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 #define PNAME  "Canon BJNP"
 #define PSNAME "BJNP"
@@ -114,8 +115,9 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   proto_tree_add_item (bjnp_tree, hf_cmd_code, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  info = ep_strdup_printf("%s: %s",val_to_str (dev_type, dev_type_vals, "Unknown type (%d)"),
-                          val_to_str (cmd_code, cmd_code_vals, "Unknown code (%d)"));
+  info = wmem_strdup_printf(wmem_packet_scope(), "%s: %s",
+                            val_to_str (dev_type, dev_type_vals, "Unknown type (%d)"),
+                            val_to_str (cmd_code, cmd_code_vals, "Unknown code (%d)"));
 
   proto_item_append_text (ti, ", %s", info);
   col_add_str (pinfo->cinfo, COL_INFO, info);

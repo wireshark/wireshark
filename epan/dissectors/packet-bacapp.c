@@ -32,6 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/stats_tree.h>
@@ -4673,8 +4674,8 @@ bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt
     gchar *srcstr;
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
-    dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
+    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", address_to_str(&pinfo->src), NULL);
+    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", address_to_str(&pinfo->dst), NULL);
 
     tick_stat_node(st, st_str_packets_by_ip, 0, TRUE);
     packets_for_this_dst = tick_stat_node(st, st_str_packets_by_ip_dst, st_node_packets_by_ip, TRUE);
@@ -4719,8 +4720,8 @@ bacapp_stats_tree_service(stats_tree* st, packet_info* pinfo, epan_dissect_t* ed
 
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
-    dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
+    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", address_to_str(&pinfo->src), NULL);
+    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", address_to_str(&pinfo->dst), NULL);
 
     tick_stat_node(st, st_str_packets_by_service, 0, TRUE);
     if (binfo->service_type) {
@@ -4757,8 +4758,8 @@ bacapp_stats_tree_objectid(stats_tree* st, packet_info* pinfo, epan_dissect_t* e
     gchar *srcstr;
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
-    dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
+    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", address_to_str(&pinfo->src), NULL);
+    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", address_to_str(&pinfo->dst), NULL);
 
     tick_stat_node(st, st_str_packets_by_objectid, 0, TRUE);
     if (binfo->object_ident) {
@@ -4795,8 +4796,8 @@ bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t*
     gchar *srcstr;
     const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
-    srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
-    dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
+    srcstr = wmem_strconcat(wmem_packet_scope(), "Src: ", address_to_str(&pinfo->src), NULL);
+    dststr = wmem_strconcat(wmem_packet_scope(), "Dst: ", address_to_str(&pinfo->dst), NULL);
 
     tick_stat_node(st, st_str_packets_by_instanceid, 0, TRUE);
     if (binfo->object_ident) {
@@ -5757,11 +5758,14 @@ fObjectIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 
     /* update BACnet Statistics */
     updateBacnetInfoValue(BACINFO_OBJECTID,
-                  ep_strdup(val_to_split_str(object_type, 128,
+                  wmem_strdup(wmem_packet_scope(),
+                    val_to_split_str(object_type, 128,
                     BACnetObjectType, ASHRAE_Reserved_Fmt,
                     Vendor_Proprietary_Fmt)));
-    updateBacnetInfoValue(BACINFO_INSTANCEID, ep_strdup_printf("Instance ID: %u",
-                  object_id_instance(object_id)));
+    updateBacnetInfoValue(BACINFO_INSTANCEID,
+                  wmem_strdup_printf(wmem_packet_scope(),
+                    "Instance ID: %u",
+                    object_id_instance(object_id)));
 
     /* here are the details of how we arrived at the above text */
     subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
@@ -7330,7 +7334,8 @@ fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
     const gchar* label;
 
     fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-    label = ep_strdup_printf( "%s: ", val_to_str_const( tag_no, VALS(BACnetPropertyStates), "Unknown State" ));
+    label = wmem_strdup_printf(wmem_packet_scope(), "%s: ",
+                               val_to_str_const( tag_no, VALS(BACnetPropertyStates), "Unknown State" ));
 
     switch (tag_no) {
     case 0:
@@ -10642,13 +10647,14 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(wmem_packet_scope(), "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              ep_strconcat(val_to_str_const(bacapp_service,
-                                                            BACnetConfirmedServiceChoice,
-                                                            bacapp_unknown_service_str),
-                                           confsreqstr, NULL));
+                              wmem_strconcat(wmem_packet_scope(), 
+                                             val_to_str_const(bacapp_service,
+                                                              BACnetConfirmedServiceChoice,
+                                                              bacapp_unknown_service_str),
+                                             confsreqstr, NULL));
         break;
     case BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST:
         bacapp_service = tvb_get_guint8(tvb, offset + 1);
@@ -10658,10 +10664,11 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          bacapp_unknown_service_str));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              ep_strconcat(val_to_str_const(bacapp_service,
-                                                            BACnetUnconfirmedServiceChoice,
-                                                            bacapp_unknown_service_str),
-                                           uconfsreqstr, NULL));
+                              wmem_strconcat(wmem_packet_scope(),
+                                             val_to_str_const(bacapp_service,
+                                                              BACnetUnconfirmedServiceChoice,
+                                                              bacapp_unknown_service_str),
+                                             uconfsreqstr, NULL));
         break;
     case BACAPP_TYPE_SIMPLE_ACK:
         bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
@@ -10673,13 +10680,15 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(wmem_packet_scope(),
+                                                 "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              ep_strconcat(val_to_str_const(bacapp_service,
-                                                            BACnetConfirmedServiceChoice,
-                                                            bacapp_unknown_service_str),
-                                           sackstr, NULL));
+                              wmem_strconcat(wmem_packet_scope(),
+                                             val_to_str_const(bacapp_service,
+                                                              BACnetConfirmedServiceChoice,
+                                                              bacapp_unknown_service_str),
+                                             sackstr, NULL));
         break;
     case BACAPP_TYPE_COMPLEX_ACK:
         /* segmented messages have 2 additional bytes */
@@ -10703,13 +10712,14 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(wmem_packet_scope(), "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              ep_strconcat(val_to_str_const(bacapp_service,
-                                                            BACnetConfirmedServiceChoice,
-                                                            bacapp_unknown_service_str),
-                                           cackstr, NULL));
+                              wmem_strconcat(wmem_packet_scope(),
+                                             val_to_str_const(bacapp_service,
+                                                              BACnetConfirmedServiceChoice,
+                                                              bacapp_unknown_service_str),
+                                             cackstr, NULL));
         break;
     case BACAPP_TYPE_SEGMENT_ACK:
         /* nothing more to add */
@@ -10724,14 +10734,15 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(wmem_packet_scope(), "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              ep_strconcat(errstr,
-                                           val_to_str_const(bacapp_service,
-                                                            BACnetConfirmedServiceChoice,
-                                                            bacapp_unknown_service_str),
-                                           NULL));
+                              wmem_strconcat(wmem_packet_scope(),
+                                             errstr,
+                                             val_to_str_const(bacapp_service,
+                                                              BACnetConfirmedServiceChoice,
+                                                              bacapp_unknown_service_str),
+                                             NULL));
         break;
     case BACAPP_TYPE_REJECT:
         bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
@@ -10744,15 +10755,15 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          Vendor_Proprietary_Fmt), bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(wmem_packet_scope(), "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              ep_strconcat(rejstr,
-                                           val_to_split_str(bacapp_reason, 64,
-                                                            BACnetRejectReason,
-                                                            ASHRAE_Reserved_Fmt,
-                                                            Vendor_Proprietary_Fmt),
-                                           NULL));
+                              wmem_strconcat(wmem_packet_scope(), rejstr,
+                                             val_to_split_str(bacapp_reason, 64,
+                                                              BACnetRejectReason,
+                                                              ASHRAE_Reserved_Fmt,
+                                                              Vendor_Proprietary_Fmt),
+                                             NULL));
         break;
     case BACAPP_TYPE_ABORT:
         bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
@@ -10765,16 +10776,16 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          Vendor_Proprietary_Fmt), bacapp_invoke_id);
 
         updateBacnetInfoValue(BACINFO_INVOKEID,
-                              ep_strdup_printf("Invoke ID: %d", bacapp_invoke_id));
+                              wmem_strdup_printf(wmem_packet_scope(), "Invoke ID: %d", bacapp_invoke_id));
 
         updateBacnetInfoValue(BACINFO_SERVICE,
-                              ep_strconcat(abortstr,
-                                           val_to_split_str(bacapp_reason,
-                                                            64,
-                                                            BACnetAbortReason,
-                                                            ASHRAE_Reserved_Fmt,
-                                                            Vendor_Proprietary_Fmt),
-                                           NULL));
+                              wmem_strconcat(wmem_packet_scope(), abortstr,
+                                             val_to_split_str(bacapp_reason,
+                                                              64,
+                                                              BACnetAbortReason,
+                                                              ASHRAE_Reserved_Fmt,
+                                                              Vendor_Proprietary_Fmt),
+                                             NULL));
         break;
         /* UNKNOWN */
     default:

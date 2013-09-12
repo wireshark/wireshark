@@ -72,6 +72,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/asn1.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-ber.h"
 
@@ -4611,7 +4612,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
     }
 
     if ((len < 10) || (len > 19)) {
-        error_str = ep_strdup_printf("BER Error: UTCTime invalid length: %u", len);
+        error_str = wmem_strdup_printf(wmem_packet_scope(), "BER Error: UTCTime invalid length: %u", len);
         instr = tvb_get_ephemeral_string(tvb, offset, len > 19 ? 19 : len);
         goto malformed;
     }
@@ -4675,15 +4676,16 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
         i+=5;
         break;
     default:
-        error_str = ep_strdup_printf("BER Error: malformed UTCTime encoding, "
-                                    "unexpected character in %dth octet, "
-                                    "must be \'Z\', \'+\' or \'-\'", i+1);
+        error_str = wmem_strdup_printf(wmem_packet_scope(),
+                                       "BER Error: malformed UTCTime encoding, "
+                                       "unexpected character in %dth octet, "
+                                       "must be \'Z\', \'+\' or \'-\'", i+1);
         goto malformed;
         break;
     }
 
     if (len != i) {
-        error_str = ep_strdup_printf(
+        error_str = wmem_strdup_printf(wmem_packet_scope(),
             "BER Error: malformed UTCTime encoding, %d unexpected character%s after %dth octet",
             len - i,
             (len == (i - 1) ? "s" : ""),

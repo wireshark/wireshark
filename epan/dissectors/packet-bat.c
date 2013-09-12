@@ -29,6 +29,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
+#include <epan/wmem/wmem.h>
 
 /* Start content from packet-bat.h */
 #define BAT_BATMAN_PORT  4305
@@ -240,7 +241,7 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 	tvbuff_t *next_tvb;
 
-	batman_packeth = ep_new(struct batman_packet_v5);
+	batman_packeth = wmem_new(wmem_packet_scope(), struct batman_packet_v5);
 
 	batman_packeth->version = tvb_get_guint8(tvb, offset+0);
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+1);
@@ -366,7 +367,7 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint length_remaining;
 	int offset = 0;
 
-	gw_packeth = ep_new(struct gw_packet);
+	gw_packeth = wmem_new(wmem_packet_scope(), struct gw_packet);
 	gw_packeth->type = tvb_get_guint8(tvb, 0);
 
 	switch (gw_packeth->type) {
@@ -467,7 +468,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	gint length_remaining, i;
 	int offset = 0;
 
-	vis_packeth = ep_new(struct vis_packet_v22);
+	vis_packeth = wmem_new(wmem_packet_scope(), struct vis_packet_v22);
 
 	sender_ip_addr = tvb_get_ptr(tvb, 0, 4);
 	sender_ip = tvb_get_ipv4(tvb, 0);
@@ -549,7 +550,7 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	const guint8  *ip_addr;
 	guint32 ip;
 
-	vis_datah = ep_new(struct vis_data_v22);
+	vis_datah = wmem_new(wmem_packet_scope(), struct vis_data_v22);
 	vis_datah->type = tvb_get_guint8(tvb, 0);
 	vis_datah->data = tvb_get_ntohs(tvb, 1);
 	ip_addr = tvb_get_ptr(tvb, 3, 4);
@@ -600,7 +601,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	gint length_remaining, i;
 	int offset = 0;
 
-	vis_packeth = ep_new(struct vis_packet_v23);
+	vis_packeth = wmem_new(wmem_packet_scope(), struct vis_packet_v23);
 
 	sender_ip_addr = tvb_get_ptr(tvb, 0, 4);
 	sender_ip = tvb_get_ipv4(tvb, 0);
@@ -682,7 +683,7 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	const guint8  *ip_addr;
 	guint32 ip;
 
-	vis_datah = ep_new(struct vis_data_v23);
+	vis_datah = wmem_new(wmem_packet_scope(), struct vis_data_v23);
 	vis_datah->type = tvb_get_guint8(tvb, 0);
 	vis_datah->data = tvb_get_guint8(tvb, 1);
 	ip_addr = tvb_get_ptr(tvb, 2, 4);

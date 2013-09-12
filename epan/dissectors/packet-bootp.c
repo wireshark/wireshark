@@ -124,6 +124,7 @@
 #include <epan/sminmpec.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include <epan/wmem/wmem.h>
 
 void proto_register_bootp(void);
 void proto_reg_handoff_bootp(void);
@@ -1211,7 +1212,7 @@ static void uat_bootp_record_update_cb(void* r, const char** err) {
 	uat_bootp_record_t* rec = (uat_bootp_record_t *)r;
 
 	if ((rec->opt == 0) || (rec->opt >=BOOTP_OPT_NUM-1))
-		*err = ep_strdup_printf("Option must be between 1 and %d", BOOTP_OPT_NUM-2);
+		*err = wmem_strdup_printf(wmem_packet_scope(), "Option must be between 1 and %d", BOOTP_OPT_NUM-2);
 }
 
 static void uat_bootp_record_free_cb(void*r) {
@@ -4334,7 +4335,7 @@ static void get_opt60_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tlv
 	guint   i;
 	guint8 *val_asc;
 
-	val_asc = (guint8 *)ep_alloc0(4);
+	val_asc = (guint8 *)wmem_alloc0(wmem_packet_scope(), 4);
 	/* Type */
 	tvb_memcpy(tvb, val_asc, off, 2);
 	*tlvtype = (guint8)strtoul((gchar*)val_asc, NULL, 16);
@@ -4342,7 +4343,7 @@ static void get_opt60_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tlv
 	tvb_memcpy(tvb, val_asc, off + 2, 2);
 	*tlvlen = (guint8)strtoul((gchar*)val_asc, NULL, 16);
 	/* Value */
-	*value = (guint8 *)ep_alloc0(*tlvlen);
+	*value = (guint8 *)wmem_alloc0(wmem_packet_scope(), *tlvlen);
 	for (i=0; i<*tlvlen; i++)
 	{
 		memset(val_asc, 0, 4);
@@ -4366,7 +4367,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 	guint8     *val_other  = NULL;
 	guint       off        = voff;
 
-	asc_val = (guint8*)ep_alloc0(4);
+	asc_val = (guint8*)wmem_alloc0(wmem_packet_scope(), 4);
 
 	if (opt125)
 	{
@@ -5310,7 +5311,7 @@ bootp_init_protocol(void)
 	/* Now apply the custom options */
 	for (i = 0; i < num_bootp_records_uat; i++)
 	{
-		bootp_opt[uat_bootp_records[i].opt].text = se_strdup(uat_bootp_records[i].text);
+		bootp_opt[uat_bootp_records[i].opt].text = wmem_strdup(wmem_file_scope(), uat_bootp_records[i].text);
 		bootp_opt[uat_bootp_records[i].opt].ftype = uat_bootp_records[i].ftype;
 		bootp_opt[uat_bootp_records[i].opt].phf = NULL;
 	}

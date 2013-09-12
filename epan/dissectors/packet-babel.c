@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 void proto_register_babel(void);
 void proto_reg_handoff_babel(void);
@@ -119,7 +120,7 @@ format_address(const unsigned char *prefix)
 static const char *
 format_prefix(const unsigned char *prefix, unsigned char plen)
 {
-    return ep_strdup_printf("%s/%u", format_address(prefix), plen);
+    return wmem_strdup_printf(wmem_packet_scope(), "%s/%u", format_address(prefix), plen);
 }
 
 static int

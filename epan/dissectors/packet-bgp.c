@@ -63,7 +63,7 @@
 #include <epan/show_exception.h>
 #include <epan/afn.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include <packet-ip.h>
@@ -1206,30 +1206,30 @@ static char*
 decode_bgp_rd(tvbuff_t *tvb, gint offset)
 {
     guint16 rd_type;
-    emem_strbuf_t *strbuf;
+    wmem_strbuf_t *strbuf;
 
     rd_type = tvb_get_ntohs(tvb,offset);
-    strbuf = ep_strbuf_new_label(NULL);
+    strbuf = wmem_strbuf_new_label(wmem_packet_scope());
 
     switch (rd_type) {
         case FORMAT_AS2_LOC:
-            ep_strbuf_printf(strbuf, "%u:%u", tvb_get_ntohs(tvb, offset + 2),
-                             tvb_get_ntohl(tvb, offset + 4));
+            wmem_strbuf_append_printf(strbuf, "%u:%u", tvb_get_ntohs(tvb, offset + 2),
+                                      tvb_get_ntohl(tvb, offset + 4));
             break;
         case FORMAT_IP_LOC:
-            ep_strbuf_printf(strbuf, "%s:%u", tvb_ip_to_str(tvb, offset + 2),
-                             tvb_get_ntohs(tvb, offset + 6));
+            wmem_strbuf_append_printf(strbuf, "%s:%u", tvb_ip_to_str(tvb, offset + 2),
+                                      tvb_get_ntohs(tvb, offset + 6));
             break ;
         case FORMAT_AS4_LOC:
-            ep_strbuf_printf(strbuf, "%u:%u", tvb_get_ntohl(tvb, offset + 2),
-                             tvb_get_ntohs(tvb, offset + 6));
+            wmem_strbuf_append_printf(strbuf, "%u:%u", tvb_get_ntohl(tvb, offset + 2),
+                                      tvb_get_ntohs(tvb, offset + 6));
             break ;
         default:
-            ep_strbuf_printf(strbuf, "Unknown (0x%04x) RD type",rd_type);
+            wmem_strbuf_append_printf(strbuf, "Unknown (0x%04x) RD type",rd_type);
             break;
     } /* switch (rd_type) */
 
-    return strbuf->str;
+    return (char*)wmem_strbuf_get_str(strbuf);
 }
 
 static int
@@ -1878,7 +1878,7 @@ decode_mdt_safi(proto_tree *tree, tvbuff_t *tvb, gint offset)
  * argument.
  */
 static guint
-decode_MPLS_stack(tvbuff_t *tvb, gint offset, emem_strbuf_t *stack_strbuf)
+decode_MPLS_stack(tvbuff_t *tvb, gint offset, wmem_strbuf_t *stack_strbuf)
 {
     guint32     label_entry;    /* an MPLS label enrty (label + COS field + stack bit   */
     gint        indx;          /* index for the label stack */
@@ -1886,7 +1886,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, emem_strbuf_t *stack_strbuf)
     indx = offset ;
     label_entry = 0x000000 ;
 
-    ep_strbuf_truncate(stack_strbuf, 0);
+    wmem_strbuf_truncate(stack_strbuf, 0);
 
     while ((label_entry & 0x000001) == 0) {
 
@@ -1894,18 +1894,18 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, emem_strbuf_t *stack_strbuf)
 
         /* withdrawn routes may contain 0 or 0x800000 in the first label */
         if((indx-offset)==0&&(label_entry==0||label_entry==0x800000)) {
-            ep_strbuf_append(stack_strbuf, "0 (withdrawn)");
+            wmem_strbuf_append(stack_strbuf, "0 (withdrawn)");
             return (1);
         }
 
-        ep_strbuf_append_printf(stack_strbuf, "%u%s", label_entry >> 4,
+        wmem_strbuf_append_printf(stack_strbuf, "%u%s", label_entry >> 4,
                 ((label_entry & 0x000001) == 0) ? "," : " (bottom)");
 
         indx += 3 ;
 
         if ((label_entry & 0x000001) == 0) {
             /* real MPLS multi-label stack in BGP? - maybe later; for now, it must be a bogus packet */
-            ep_strbuf_append(stack_strbuf, " (BOGUS: Bottom of Stack NOT set!)");
+            wmem_strbuf_append(stack_strbuf, " (BOGUS: Bottom of Stack NOT set!)");
             break;
         }
     }
@@ -1918,7 +1918,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, emem_strbuf_t *stack_strbuf)
  */
 
 static int
-mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbuf_t *strbuf, gint nhlen)
+mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, wmem_strbuf_t *strbuf, gint nhlen)
 {
     int                 length;                         /* length of the address in byte */
     guint32             ip4addr,ip4addr2;               /* IPv4 address                 */
@@ -1937,62 +1937,65 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
                     /* RTF NHop can be IPv4 or IPv6. They are differentiated by length of the field*/
                     length = nhlen;
                     if (nhlen == 4) {
-                        ep_strbuf_append(strbuf, tvb_ip_to_str(tvb, offset));
+                        wmem_strbuf_append(strbuf, tvb_ip_to_str(tvb, offset));
                     } else if (nhlen == 16) {
-                        ep_strbuf_append(strbuf, tvb_ip6_to_str(tvb, offset));
+                        wmem_strbuf_append(strbuf, tvb_ip6_to_str(tvb, offset));
                     } else {
-                        ep_strbuf_append(strbuf, "Unknown address");
+                        wmem_strbuf_append(strbuf, "Unknown address");
                     }
                     break;
                 case SAFNUM_TUNNEL:
                     length = 4 ;
                     ip4addr = tvb_get_ipv4(tvb, offset);
-                    ep_strbuf_append(strbuf, ip_to_str((guint8 *)&ip4addr));
+                    wmem_strbuf_append(strbuf, ip_to_str((guint8 *)&ip4addr));
                     break;
                 case SAFNUM_LAB_VPNUNICAST:
                 case SAFNUM_LAB_VPNMULCAST:
                 case SAFNUM_LAB_VPNUNIMULC:
                     rd_type=tvb_get_ntohs(tvb,offset) ;
+                    wmem_strbuf_truncate(strbuf, 0);
                     switch (rd_type) {
                         case FORMAT_AS2_LOC:
                             length = 8 + sizeof(ip4addr);
                             ip4addr = tvb_get_ipv4(tvb, offset + 8);   /* Next Hop */
-                            ep_strbuf_printf(strbuf, "Empty Label Stack RD=%u:%u IPv4=%s",
-                                             tvb_get_ntohs(tvb, offset + 2),
-                                             tvb_get_ntohl(tvb, offset + 4),
-                                             ip_to_str((guint8 *)&ip4addr));
+                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%u:%u IPv4=%s",
+                                                      tvb_get_ntohs(tvb, offset + 2),
+                                                      tvb_get_ntohl(tvb, offset + 4),
+                                                      ip_to_str((guint8 *)&ip4addr));
                             break;
                         case FORMAT_IP_LOC:
                             length = 8 + sizeof(ip4addr);
                             ip4addr = tvb_get_ipv4(tvb, offset + 2);   /* IP part of the RD            */
                             ip4addr2 = tvb_get_ipv4(tvb, offset + 8);  /* Next Hop   */
-                            ep_strbuf_printf(strbuf, "Empty Label Stack RD=%s:%u IPv4=%s",
-                                             ip_to_str((guint8 *)&ip4addr),
-                                             tvb_get_ntohs(tvb, offset + 6),
-                                             ip_to_str((guint8 *)&ip4addr2));
+                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%s:%u IPv4=%s",
+                                                      ip_to_str((guint8 *)&ip4addr),
+                                                      tvb_get_ntohs(tvb, offset + 6),
+                                                      ip_to_str((guint8 *)&ip4addr2));
                             break ;
                         case FORMAT_AS4_LOC:
                             length = 8 + sizeof(ip4addr);
                             ip4addr = tvb_get_ipv4(tvb, offset + 8);  /* Next Hop   */
-                            ep_strbuf_printf(strbuf, "Empty Label Stack RD=%u.%u:%u IPv4=%s",
-                                             tvb_get_ntohs(tvb, offset + 2),
-                                             tvb_get_ntohs(tvb, offset + 4),
-                                             tvb_get_ntohs(tvb, offset + 6),
-                                             ip_to_str((guint8 *)&ip4addr));
+                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%u.%u:%u IPv4=%s",
+                                                      tvb_get_ntohs(tvb, offset + 2),
+                                                      tvb_get_ntohs(tvb, offset + 4),
+                                                      tvb_get_ntohs(tvb, offset + 6),
+                                                      ip_to_str((guint8 *)&ip4addr));
                             break ;
                         default:
                             length = 0 ;
-                            ep_strbuf_printf(strbuf, "Unknown (0x%04x) labeled VPN IPv4 address format",rd_type);
+                            wmem_strbuf_append_printf(strbuf, "Unknown (0x%04x) labeled VPN IPv4 address format",rd_type);
                             break;
                     } /* switch (rd_type) */
                     break;
                 default:
                     length = 0 ;
-                    ep_strbuf_printf(strbuf, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                    wmem_strbuf_truncate(strbuf, 0);
+                    wmem_strbuf_append_printf(strbuf, "Unknown SAFI (%u) for AFI %u", safi, afi);
                     break;
             } /* switch (safi) */
             break;
         case AFNUM_INET6:
+            wmem_strbuf_truncate(strbuf, 0);
             switch (safi) {
                 case SAFNUM_UNICAST:
                 case SAFNUM_MULCAST:
@@ -2002,7 +2005,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
                 case SAFNUM_TUNNEL:
                     length = 16 ;
                     tvb_get_ipv6(tvb, offset, &ip6addr);
-                    ep_strbuf_printf(strbuf, "%s", ip6_to_str(&ip6addr));
+                    wmem_strbuf_append_printf(strbuf, "%s", ip6_to_str(&ip6addr));
                     break;
                 case SAFNUM_LAB_VPNUNICAST:
                 case SAFNUM_LAB_VPNMULCAST:
@@ -2012,42 +2015,43 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
                         case FORMAT_AS2_LOC:
                             length = 8 + 16;
                             tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
-                            ep_strbuf_printf(strbuf, "Empty Label Stack RD=%u:%u IPv6=%s",
-                                             tvb_get_ntohs(tvb, offset + 2),
-                                             tvb_get_ntohl(tvb, offset + 4),
-                                             ip6_to_str(&ip6addr));
+                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%u:%u IPv6=%s",
+                                                      tvb_get_ntohs(tvb, offset + 2),
+                                                      tvb_get_ntohl(tvb, offset + 4),
+                                                      ip6_to_str(&ip6addr));
                             break;
                         case FORMAT_IP_LOC:
                             length = 8 + 16;
                             ip4addr = tvb_get_ipv4(tvb, offset + 2);   /* IP part of the RD            */
                             tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
-                            ep_strbuf_printf(strbuf, "Empty Label Stack RD=%s:%u IPv6=%s",
-                                             ip_to_str((guint8 *)&ip4addr),
-                                             tvb_get_ntohs(tvb, offset + 6),
-                                             ip6_to_str(&ip6addr));
+                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%s:%u IPv6=%s",
+                                                      ip_to_str((guint8 *)&ip4addr),
+                                                      tvb_get_ntohs(tvb, offset + 6),
+                                                      ip6_to_str(&ip6addr));
                             break ;
                         case FORMAT_AS4_LOC:
                             length = 8 + 16;
                             tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
-                            ep_strbuf_printf(strbuf, "Empty Label Stack RD=%u:%u IPv6=%s",
-                                             tvb_get_ntohl(tvb, offset + 2),
-                                             tvb_get_ntohs(tvb, offset + 6),
-                                             ip6_to_str(&ip6addr));
+                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%u:%u IPv6=%s",
+                                                      tvb_get_ntohl(tvb, offset + 2),
+                                                      tvb_get_ntohs(tvb, offset + 6),
+                                                      ip6_to_str(&ip6addr));
                             break ;
                         default:
                             length = 0 ;
-                            ep_strbuf_printf(strbuf, "Unknown (0x%04x) labeled VPN IPv6 address format",rd_type);
+                            wmem_strbuf_append_printf(strbuf, "Unknown (0x%04x) labeled VPN IPv6 address format",rd_type);
                             break;
                     }  /* switch (rd_type) */
                     break;
                 default:
                     length = 0 ;
-                    ep_strbuf_printf(strbuf, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                    wmem_strbuf_append_printf(strbuf, "Unknown SAFI (%u) for AFI %u", safi, afi);
                     break;
             } /* switch (safi) */
             break;
-       case AFNUM_L2VPN:
+        case AFNUM_L2VPN:
         case AFNUM_L2VPN_OLD:
+            wmem_strbuf_truncate(strbuf, 0);
             switch (safi) {
                 case SAFNUM_LAB_VPNUNICAST: /* only labeles prefixes do make sense */
                 case SAFNUM_LAB_VPNMULCAST:
@@ -2055,18 +2059,19 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
                 case SAFNUM_VPLS:
                     length = 4; /* the next-hop is simply an ipv4 addr */
                     ip4addr = tvb_get_ipv4(tvb, offset + 0);
-                    ep_strbuf_printf(strbuf, "IPv4=%s",
-                                     ip_to_str((guint8 *)&ip4addr));
+                    wmem_strbuf_append_printf(strbuf, "IPv4=%s",
+                                              ip_to_str((guint8 *)&ip4addr));
                     break;
                 default:
                     length = 0 ;
-                    ep_strbuf_printf(strbuf, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                    wmem_strbuf_append_printf(strbuf, "Unknown SAFI (%u) for AFI %u", safi, afi);
                     break;
             } /* switch (safi) */
             break;
         default:
             length = 0 ;
-            ep_strbuf_printf(strbuf, "Unknown AFI (%u) value", afi);
+            wmem_strbuf_truncate(strbuf, 0);
+            wmem_strbuf_append_printf(strbuf, "Unknown AFI (%u) value", afi);
             break;
     } /* switch (afi) */
     return(length) ;
@@ -2095,8 +2100,8 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
     } ip4addr, ip4addr2;                    /* IPv4 address                 */
     struct e_in6_addr   ip6addr;            /* IPv6 address                 */
     guint16             rd_type;            /* Route Distinguisher type     */
-    emem_strbuf_t      *stack_strbuf;       /* label stack                  */
-    emem_strbuf_t      *comm_strbuf;
+    wmem_strbuf_t      *stack_strbuf;       /* label stack                  */
+    wmem_strbuf_t      *comm_strbuf;
 
     switch (afi) {
 
@@ -2113,7 +2118,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
 
             case SAFNUM_MPLS_LABEL:
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = ep_strbuf_new_label(NULL);
+                stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -2135,12 +2140,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 ti = proto_tree_add_text(tree, tvb, start_offset,
                                          (offset + length) - start_offset,
                                          "Label Stack=%s IPv4=%s/%u",
-                                         stack_strbuf->str, ip_to_str(ip4addr.addr_bytes), plen);
+                                         wmem_strbuf_get_str(stack_strbuf),
+                                         ip_to_str(ip4addr.addr_bytes), plen);
                 prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
                 proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
                                     tag, plen + labnum * 3 * 8);
                 proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum, "%s Label Stack: %s",
-                                    tag, stack_strbuf->str);
+                                    tag, wmem_strbuf_get_str(stack_strbuf));
                 if (hf_addr4 != -1) {
                     proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset,
                                         length, ip4addr.addr);
@@ -2179,31 +2185,31 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 }
 
                 length = (plen + 7)/8;
-                comm_strbuf = ep_strbuf_new_label(NULL);
+                comm_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
 
                 switch (tvb_get_ntohs(tvb, offset + 1 + 4)) {
                 case BGP_EXT_COM_RT_0:
-                    ep_strbuf_printf(comm_strbuf, "%u:%u",
-                                     tvb_get_ntohs(tvb, offset + 1 + 6),
-                                     tvb_get_ntohl(tvb, offset + 1 + 8));
+                    wmem_strbuf_append_printf(comm_strbuf, "%u:%u",
+                                              tvb_get_ntohs(tvb, offset + 1 + 6),
+                                              tvb_get_ntohl(tvb, offset + 1 + 8));
                     break;
                 case BGP_EXT_COM_RT_1:
-                    ep_strbuf_printf(comm_strbuf, "%s:%u",
-                                     tvb_ip_to_str(tvb, offset + 1 + 6),
-                                     tvb_get_ntohs(tvb, offset + 1 + 10));
+                    wmem_strbuf_append_printf(comm_strbuf, "%s:%u",
+                                              tvb_ip_to_str(tvb, offset + 1 + 6),
+                                              tvb_get_ntohs(tvb, offset + 1 + 10));
                     break;
                 case BGP_EXT_COM_RT_2:
-                    ep_strbuf_printf(comm_strbuf, "%u:%u",
-                                     tvb_get_ntohl(tvb, 6),
-                                     tvb_get_ntohs(tvb, offset + 1 + 10));
+                    wmem_strbuf_append_printf(comm_strbuf, "%u:%u",
+                                              tvb_get_ntohl(tvb, 6),
+                                              tvb_get_ntohs(tvb, offset + 1 + 10));
                     break;
                 default:
-                    ep_strbuf_printf(comm_strbuf, "Invalid RT type");
+                    wmem_strbuf_append_printf(comm_strbuf, "Invalid RT type");
                     break;
                 }
                 ti = proto_tree_add_text(tree, tvb, offset + 1, length, "%s %u:%s/%u",
                                     tag, tvb_get_ntohl(tvb, offset + 1 + 0),
-                                    comm_strbuf->str,
+                                    wmem_strbuf_get_str(comm_strbuf),
                                     plen);
                 prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
                 proto_tree_add_text(prefix_tree, tvb, offset, 1, "%s Prefix length: %u",
@@ -2211,7 +2217,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 proto_tree_add_text(prefix_tree, tvb, offset + 1, 4, "%s Originating AS: %u",
                                                     tag, tvb_get_ntohl(tvb, offset + 1 + 0));
                 proto_tree_add_text(prefix_tree, tvb, offset + 1 + 4, length - 4, "%s Community prefix: %s",
-                                                    tag, comm_strbuf->str);
+                                                    tag, wmem_strbuf_get_str(comm_strbuf));
                 total_length = 1 + length;
                 break;
             case SAFNUM_ENCAPSULATION:
@@ -2275,7 +2281,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case SAFNUM_LAB_VPNMULCAST:
             case SAFNUM_LAB_VPNUNIMULC:
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = ep_strbuf_new_label(NULL);
+                stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -2310,7 +2316,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         ti = proto_tree_add_text(tree, tvb, start_offset,
                                                  (offset + 8 + length) - start_offset,
                                                  "Label Stack=%s RD=%u:%u, IPv4=%s/%u",
-                                                 stack_strbuf->str,
+                                                 wmem_strbuf_get_str(stack_strbuf),
                                                  tvb_get_ntohs(tvb, offset + 2),
                                                  tvb_get_ntohl(tvb, offset + 4),
                                                  ip_to_str(ip4addr.addr_bytes), plen);
@@ -2318,7 +2324,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
                                             tag, plen + labnum * 3 * 8 + 8 * 8);
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum,
-                                            "%s Label Stack: %s", tag, stack_strbuf->str);
+                                            "%s Label Stack: %s", tag, wmem_strbuf_get_str(stack_strbuf));
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
                                             "%s Route Distinguisher: %u:%u", tag, tvb_get_ntohs(tvb, offset + 2),
                                             tvb_get_ntohl(tvb, offset + 4));
@@ -2347,7 +2353,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         ti = proto_tree_add_text(tree, tvb, start_offset,
                                                  (offset + 8 + length) - start_offset,
                                                  "Label Stack=%s RD=%s:%u, IPv4=%s/%u",
-                                                 stack_strbuf->str,
+                                                 wmem_strbuf_get_str(stack_strbuf),
                                                  ip_to_str(ip4addr.addr_bytes),
                                                  tvb_get_ntohs(tvb, offset + 6),
                                                  ip_to_str(ip4addr2.addr_bytes),
@@ -2356,7 +2362,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
                                             tag, plen + labnum * 3 * 8 + 8 * 8);
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum,
-                                            "%s Label Stack: %s", tag, stack_strbuf->str);
+                                            "%s Label Stack: %s", tag, wmem_strbuf_get_str(stack_strbuf));
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
                                             "%s Route Distinguisher: %s:%u", tag, ip_to_str(ip4addr.addr_bytes),
                                             tvb_get_ntohs(tvb, offset + 6));
@@ -2383,7 +2389,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         ti = proto_tree_add_text(tree, tvb, start_offset,
                                                  (offset + 8 + length) - start_offset,
                                                  "Label Stack=%s RD=%u.%u:%u, IPv4=%s/%u",
-                                                 stack_strbuf->str,
+                                                 wmem_strbuf_get_str(stack_strbuf),
                                                  tvb_get_ntohs(tvb, offset + 2),
                                                  tvb_get_ntohs(tvb, offset + 4),
                                                  tvb_get_ntohs(tvb, offset + 6),
@@ -2392,7 +2398,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
                                             tag, plen + labnum * 3 * 8 + 8 * 8);
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum,
-                                            "%s Label Stack: %s", tag, stack_strbuf->str);
+                                            "%s Label Stack: %s", tag, wmem_strbuf_get_str(stack_strbuf));
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
                                             "%s Route Distinguisher: %u.%u:%u", tag, tvb_get_ntohs(tvb, offset + 2),
                                             tvb_get_ntohs(tvb, offset + 4), tvb_get_ntohs(tvb, offset + 6));
@@ -2442,7 +2448,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
 
             case SAFNUM_MPLS_LABEL:
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = ep_strbuf_new_label(NULL);
+                stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -2464,7 +2470,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 proto_tree_add_text(tree, tvb, start_offset,
                                     (offset + length) - start_offset,
                                     "Label Stack=%s, IPv6=%s/%u",
-                                    stack_strbuf->str,
+                                    wmem_strbuf_get_str(stack_strbuf),
                                     ip6_to_str(&ip6addr), plen);
                 total_length = (1 + labnum * 3) + length;
                 break;
@@ -2515,7 +2521,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case SAFNUM_LAB_VPNMULCAST:
             case SAFNUM_LAB_VPNUNIMULC:
                 plen =  tvb_get_guint8(tvb, offset);
-                stack_strbuf = ep_strbuf_new_label(NULL);
+                stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
@@ -2549,7 +2555,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         proto_tree_add_text(tree, tvb, start_offset,
                                             (offset + 8 + length) - start_offset,
                                             "Label Stack=%s RD=%u:%u, IPv6=%s/%u",
-                                            stack_strbuf->str,
+                                            wmem_strbuf_get_str(stack_strbuf),
                                             tvb_get_ntohs(tvb, offset + 2),
                                             tvb_get_ntohl(tvb, offset + 4),
                                             ip6_to_str(&ip6addr), plen);
@@ -2570,7 +2576,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         proto_tree_add_text(tree, tvb, start_offset,
                                             (offset + 8 + length) - start_offset,
                                             "Label Stack=%s RD=%s:%u, IPv6=%s/%u",
-                                            stack_strbuf->str,
+                                            wmem_strbuf_get_str(stack_strbuf),
                                             ip_to_str(ip4addr.addr_bytes),
                                             tvb_get_ntohs(tvb, offset + 6),
                                             ip6_to_str(&ip6addr), plen);
@@ -2589,7 +2595,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         proto_tree_add_text(tree, tvb, start_offset,
                                             (offset + 8 + length) - start_offset,
                                             "Label Stack=%s RD=%u.%u:%u, IPv6=%s/%u",
-                                            stack_strbuf->str,
+                                            wmem_strbuf_get_str(stack_strbuf),
                                             tvb_get_ntohs(tvb, offset + 2),
                                             tvb_get_ntohs(tvb, offset + 4),
                                             tvb_get_ntohs(tvb, offset + 6),
@@ -2671,7 +2677,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                     ce_id=tvb_get_ntohs(tvb,offset+10);
                     labblk_off=tvb_get_ntohs(tvb,offset+12);
                     labblk_size=tvb_get_ntohs(tvb,offset+14);
-                    stack_strbuf = ep_strbuf_new_label(NULL);
+                    stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
                     decode_MPLS_stack(tvb, offset + 16, stack_strbuf);
                     switch (rd_type) {
 
@@ -2686,7 +2692,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                                 ce_id,
                                                 labblk_off,
                                                 labblk_size,
-                                                stack_strbuf->str);
+                                                wmem_strbuf_get_str(stack_strbuf));
                             break;
 
                         case FORMAT_IP_LOC:
@@ -2700,7 +2706,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                                 ce_id,
                                                 labblk_off,
                                                 labblk_size,
-                                                stack_strbuf->str);
+                                                wmem_strbuf_get_str(stack_strbuf));
                             break;
                         case FORMAT_AS4_LOC:
                             proto_tree_add_text(tree, tvb, offset,
@@ -2713,7 +2719,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                                 ce_id,
                                                 labblk_off,
                                                 labblk_size,
-                                                stack_strbuf->str);
+                                                wmem_strbuf_get_str(stack_strbuf));
                             break;
                         default:
                             proto_tree_add_text(tree, tvb, start_offset,
@@ -3072,10 +3078,10 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     guint8          length;                     /* AS_PATH length           */
     guint8          type;                       /* AS_PATH type             */
     guint32         as_path_item;               /* item in AS_PATH segment  */
-    emem_strbuf_t   *as_path_emstr = NULL;      /* AS_PATH                  */
-    emem_strbuf_t   *communities_emstr = NULL;  /* COMMUNITIES              */
-    emem_strbuf_t   *cluster_list_emstr = NULL; /* CLUSTER_LIST             */
-    emem_strbuf_t   *junk_emstr;                /* tmp                      */
+    wmem_strbuf_t   *as_path_emstr = NULL;      /* AS_PATH                  */
+    wmem_strbuf_t   *communities_emstr = NULL;  /* COMMUNITIES              */
+    wmem_strbuf_t   *cluster_list_emstr = NULL; /* CLUSTER_LIST             */
+    wmem_strbuf_t   *junk_emstr;                /* tmp                      */
     guint32         ipaddr;                     /* IPv4 address             */
     guint32         aggregator_as;
     guint16         ssa_type;                   /* SSA T + Type */
@@ -3093,7 +3099,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     o = BGP_HEADER_SIZE;
-    junk_emstr = ep_strbuf_new_label(NULL);
+    junk_emstr = wmem_strbuf_new_label(wmem_packet_scope());
 
     /* check for withdrawals */
     len = tvb_get_ntohs(tvb, o);
@@ -3209,8 +3215,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     /* "tlen * 11" (10 digits + space) should be a good estimate
                        of how long the AS path string could be                 */
                     if (as_path_emstr == NULL)
-                        as_path_emstr = ep_strbuf_sized_new((tlen + 1) * 11, 0);
-                    ep_strbuf_truncate(as_path_emstr, 0);
+                        as_path_emstr = wmem_strbuf_sized_new(wmem_packet_scope(), (tlen + 1) * 11, 0);
+                    wmem_strbuf_truncate(as_path_emstr, 0);
 
                     /* estimate the length of the AS number */
                     if (bgpa_type == BGPTYPE_NEW_AS_PATH)
@@ -3253,57 +3259,60 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
                     /* snarf each AS path */
                     while (q < end) {
+                        const gchar *str = wmem_strbuf_get_str(as_path_emstr);
                         type = tvb_get_guint8(tvb, q++);
-                        if (as_path_emstr->len > 1 &&
-                            as_path_emstr->str[as_path_emstr->len - 1] != ' ')
-                            ep_strbuf_append_c(as_path_emstr, ' ');
+                        if (wmem_strbuf_get_len(as_path_emstr) > 1 &&
+                            str[wmem_strbuf_get_len(as_path_emstr) - 1] != ' ')
+                            wmem_strbuf_append_c(as_path_emstr, ' ');
                         if (type == AS_SET) {
-                            ep_strbuf_append_c(as_path_emstr, '{');
+                            wmem_strbuf_append_c(as_path_emstr, '{');
                         }
                         else if (type == AS_CONFED_SET) {
-                            ep_strbuf_append_c(as_path_emstr, '[');
+                            wmem_strbuf_append_c(as_path_emstr, '[');
                         }
                         else if (type == AS_CONFED_SEQUENCE) {
-                            ep_strbuf_append_c(as_path_emstr, '(');
+                            wmem_strbuf_append_c(as_path_emstr, '(');
                         }
                         length = tvb_get_guint8(tvb, q++);
 
                         /* snarf each value in path */
                         for (j = 0; j < length; j++) {
-                            ep_strbuf_append_printf(as_path_emstr, "%u%s",
-                                                    (asn_len == 2) ?
-                                                    tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
-                                                    (type == AS_SET || type == AS_CONFED_SET) ?
-                                                    ", " : " ");
+                            wmem_strbuf_append_printf(as_path_emstr, "%u%s",
+                                                      (asn_len == 2) ?
+                                                      tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
+                                                      (type == AS_SET || type == AS_CONFED_SET) ?
+                                                      ", " : " ");
                             q += asn_len;
                         }
 
                         /* cleanup end of string */
                         if (type == AS_SET) {
-                            ep_strbuf_truncate(as_path_emstr, as_path_emstr->len - 2);
-                            ep_strbuf_append_c(as_path_emstr, '}');
+                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 2);
+                            wmem_strbuf_append_c(as_path_emstr, '}');
                         }
                         else if (type == AS_CONFED_SET) {
-                            ep_strbuf_truncate(as_path_emstr, as_path_emstr->len - 2);
-                            ep_strbuf_append_c(as_path_emstr, ']');
+                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 2);
+                            wmem_strbuf_append_c(as_path_emstr, ']');
                         }
                         else if (type == AS_CONFED_SEQUENCE) {
-                            ep_strbuf_truncate(as_path_emstr, as_path_emstr->len - 1);
-                            ep_strbuf_append_c(as_path_emstr, ')');
+                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 1);
+                            wmem_strbuf_append_c(as_path_emstr, ')');
                         }
                         else {
-                            ep_strbuf_truncate(as_path_emstr, as_path_emstr->len - 1);
+                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 1);
                         }
                     }
 
                     /* check for empty AS_PATH */
-                    if (tlen == 0)
-                        ep_strbuf_printf(as_path_emstr, "empty");
+                    if (tlen == 0) {
+                        wmem_strbuf_truncate(as_path_emstr, 0);
+                        wmem_strbuf_append_printf(as_path_emstr, "empty");
+                    }
 
-                    proto_item_append_text(ti_pa, ": %s", as_path_emstr->str);
+                    proto_item_append_text(ti_pa, ": %s", wmem_strbuf_get_str(as_path_emstr));
 
                     ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-                                             "AS path: %s", as_path_emstr->str);
+                                             "AS path: %s", wmem_strbuf_get_str(as_path_emstr));
                     as_paths_tree = proto_item_add_subtree(ti, ett_bgp_as_paths);
 
                     /* (o + i + aoff) =
@@ -3317,49 +3326,50 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     /* XXX - Can we use some g_string*() trickery instead, e.g.
                        g_string_erase()? */
                     while (q < end) {
-                        ep_strbuf_truncate(as_path_emstr, 0);
+                        wmem_strbuf_truncate(as_path_emstr, 0);
                         type = tvb_get_guint8(tvb, q++);
                         if (type == AS_SET) {
-                            ep_strbuf_append_c(as_path_emstr, '{');
+                            wmem_strbuf_append_c(as_path_emstr, '{');
                         }
                         else if (type == AS_CONFED_SET) {
-                            ep_strbuf_append_c(as_path_emstr, '[');
+                            wmem_strbuf_append_c(as_path_emstr, '[');
                         }
                         else if (type == AS_CONFED_SEQUENCE) {
-                            ep_strbuf_append_c(as_path_emstr, '(');
+                            wmem_strbuf_append_c(as_path_emstr, '(');
                         }
                         length = tvb_get_guint8(tvb, q++);
 
                         /* snarf each value in path */
                         for (j = 0; j < length; j++) {
-                            ep_strbuf_append_printf(as_path_emstr, "%u%s",
-                                                    (asn_len == 2) ?
-                                                    tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
-                                                    (type == AS_SET || type == AS_CONFED_SET) ? ", " : " ");
+                            wmem_strbuf_append_printf(as_path_emstr, "%u%s",
+                                                      (asn_len == 2) ?
+                                                      tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
+                                                      (type == AS_SET || type == AS_CONFED_SET) ? ", " : " ");
                             q += asn_len;
                         }
 
                         /* cleanup end of string */
                         if (type == AS_SET) {
-                            ep_strbuf_truncate(as_path_emstr, as_path_emstr->len - 2);
-                            ep_strbuf_append_c(as_path_emstr, '}');
+                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 2);
+                            wmem_strbuf_append_c(as_path_emstr, '}');
                         }
                         else if (type == AS_CONFED_SET) {
-                            ep_strbuf_truncate(as_path_emstr, as_path_emstr->len - 2);
-                            ep_strbuf_append_c(as_path_emstr, ']');
+                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 2);
+                            wmem_strbuf_append_c(as_path_emstr, ']');
                         }
                         else if (type == AS_CONFED_SEQUENCE) {
-                            ep_strbuf_truncate(as_path_emstr, as_path_emstr->len - 1);
-                            ep_strbuf_append_c(as_path_emstr, ')');
+                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 1);
+                            wmem_strbuf_append_c(as_path_emstr, ')');
                         }
                         else {
-                            ep_strbuf_truncate(as_path_emstr, as_path_emstr->len - 1);
+                            wmem_strbuf_truncate(as_path_emstr, wmem_strbuf_get_len(as_path_emstr) - 1);
                         }
 
                         /* length here means number of ASs, ie length * 2 bytes */
                         ti = proto_tree_add_text(as_paths_tree, tvb,
                                                  q - length * asn_len - 2,
-                                                 length * asn_len + 2, "AS path segment: %s", as_path_emstr->str);
+                                                 length * asn_len + 2, "AS path segment: %s",
+                                                 wmem_strbuf_get_str(as_path_emstr));
                         as_path_tree = proto_item_add_subtree(ti, ett_bgp_as_paths);
                         proto_tree_add_text(as_path_tree, tvb, q - length * asn_len - 2,
                                             1, "Path segment type: %s (%u)",
@@ -3470,32 +3480,33 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                        a good estimate of how long the communities string could
                        be                                                       */
                     if (communities_emstr == NULL)
-                        communities_emstr = ep_strbuf_sized_new((tlen + 1) * 12, 0);
-                    ep_strbuf_truncate(communities_emstr, 0);
+                        communities_emstr = wmem_strbuf_sized_new(wmem_packet_scope(), (tlen + 1) * 12, 0);
+                    wmem_strbuf_truncate(communities_emstr, 0);
 
                     /* snarf each community */
                     while (q < end) {
                         /* check for well-known communities */
                         if (tvb_get_ntohl(tvb, q) == BGP_COMM_NO_EXPORT)
-                            ep_strbuf_append(communities_emstr, "NO_EXPORT ");
+                            wmem_strbuf_append(communities_emstr, "NO_EXPORT ");
                         else if (tvb_get_ntohl(tvb, q) == BGP_COMM_NO_ADVERTISE)
-                            ep_strbuf_append(communities_emstr, "NO_ADVERTISE ");
+                            wmem_strbuf_append(communities_emstr, "NO_ADVERTISE ");
                         else if (tvb_get_ntohl(tvb, q) == BGP_COMM_NO_EXPORT_SUBCONFED)
-                            ep_strbuf_append(communities_emstr, "NO_EXPORT_SUBCONFED ");
+                            wmem_strbuf_append(communities_emstr, "NO_EXPORT_SUBCONFED ");
                         else {
-                            ep_strbuf_append_printf(communities_emstr, "%u:%u ",
-                                                    tvb_get_ntohs(tvb, q),
-                                                    tvb_get_ntohs(tvb, q + 2));
+                            wmem_strbuf_append_printf(communities_emstr, "%u:%u ",
+                                                      tvb_get_ntohs(tvb, q),
+                                                      tvb_get_ntohs(tvb, q + 2));
                         }
                         q += 4;
                     }
                     /* cleanup end of string */
-                    ep_strbuf_truncate(communities_emstr, communities_emstr->len - 1);
+                    wmem_strbuf_truncate(communities_emstr, wmem_strbuf_get_len(communities_emstr) - 1);
 
-                    proto_item_append_text(ti_pa,": %s", communities_emstr->str);
+                    proto_item_append_text(ti_pa,": %s", wmem_strbuf_get_str(communities_emstr));
 
                     ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-                                             "Communities: %s", communities_emstr ? communities_emstr->str : "<none>");
+                                             "Communities: %s", communities_emstr ?
+                                                 wmem_strbuf_get_str(communities_emstr) : "<none>");
                     communities_tree = proto_item_add_subtree(ti,
                                                               ett_bgp_communities);
 
@@ -3598,7 +3609,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                 if (j + advance > nexthop_len)
                                     break;
                                 proto_tree_add_text(subtree3, tvb,o + i + aoff + 4 + j,
-                                                    advance, "Next hop: %s (%u)", junk_emstr->str, advance);
+                                                    advance, "Next hop: %s (%u)",
+                                                    wmem_strbuf_get_str(junk_emstr), advance);
                                 j += advance;
                             }
                             break;
@@ -3704,21 +3716,22 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                        a good estimate of how long the cluster_list string could
                        be                                                       */
                     if (cluster_list_emstr == NULL)
-                        cluster_list_emstr = ep_strbuf_sized_new((tlen + 1) * 16, 0);
-                    ep_strbuf_truncate(cluster_list_emstr, 0);
+                        cluster_list_emstr = wmem_strbuf_sized_new(wmem_packet_scope(), (tlen + 1) * 16, 0);
+                    wmem_strbuf_truncate(cluster_list_emstr, 0);
 
                     /* snarf each cluster list */
                     while (q < end) {
-                        ep_strbuf_append_printf(cluster_list_emstr, "%s ", tvb_ip_to_str(tvb, q));
+                        wmem_strbuf_append_printf(cluster_list_emstr, "%s ", tvb_ip_to_str(tvb, q));
                         q += 4;
                     }
                     /* cleanup end of string */
-                    ep_strbuf_truncate(cluster_list_emstr, cluster_list_emstr->len - 1);
+                    wmem_strbuf_truncate(cluster_list_emstr, wmem_strbuf_get_len(cluster_list_emstr) - 1);
 
-                    proto_item_append_text(ti_pa, ": %s", cluster_list_emstr->str);
+                    proto_item_append_text(ti_pa, ": %s", wmem_strbuf_get_str(cluster_list_emstr));
 
                     ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-                                             "Cluster list: %s", cluster_list_emstr ? cluster_list_emstr->str : "<none>");
+                                             "Cluster list: %s", cluster_list_emstr ?
+                                                 wmem_strbuf_get_str(cluster_list_emstr) : "<none>");
                     cluster_list_tree = proto_item_add_subtree(ti,
                                                                ett_bgp_cluster_list);
 
@@ -3748,7 +3761,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                         while (q < end) {
                             ext_com8 = tvb_get_guint8(tvb,q); /* handle regular types (8 bit) */
                             ext_com  = tvb_get_ntohs(tvb,q);  /* handle extended length types (16 bit) */
-                            ep_strbuf_printf(junk_emstr, "%s", val_to_str(ext_com8,bgpext_com8_type,"Unknown %d"));
+                            wmem_strbuf_truncate(junk_emstr, 0);
+                            wmem_strbuf_append_printf(junk_emstr, "%s", val_to_str(ext_com8,bgpext_com8_type,"Unknown %d"));
                             is_regular_type = FALSE;
                             is_extended_type = FALSE;
                             /* handle regular types (8 bit) */
@@ -3756,7 +3770,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                 case BGP_EXT_COM_QOS_MARK_T:
                                 case BGP_EXT_COM_QOS_MARK_NT:
                                     is_regular_type = TRUE;
-                                    ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
+                                    ti = proto_tree_add_text(subtree3,tvb,q,8, "%s", wmem_strbuf_get_str(junk_emstr));
 
                                     subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities);
                                     proto_tree_add_text(subtree4, tvb, q, 1,
@@ -3776,7 +3790,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                     break;
                                 case BGP_EXT_COM_COS_CAP_T:
                                     is_regular_type = TRUE;
-                                    ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
+                                    ti = proto_tree_add_text(subtree3,tvb,q,8, "%s", wmem_strbuf_get_str(junk_emstr));
 
                                     subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities);
                                     proto_tree_add_text(subtree4, tvb, q, 1,
@@ -3796,65 +3810,66 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                             } /* switch (ext_com8) */
 
                             if (!is_regular_type) {
-                                ep_strbuf_printf(junk_emstr, "%s", val_to_str(ext_com,bgpext_com_type,"Unknown %d"));
+                                wmem_strbuf_truncate(junk_emstr, 0);
+                                wmem_strbuf_append_printf(junk_emstr, "%s", val_to_str(ext_com,bgpext_com_type,"Unknown %d"));
 
                                 /* handle extended length types (16 bit) */
                                 switch (ext_com) {
                                     case BGP_EXT_COM_RT_0:
                                     case BGP_EXT_COM_RO_0:
                                         is_extended_type = TRUE;
-                                        ep_strbuf_append_printf(junk_emstr, ": %u%s%d",
-                                                                tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
-                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
+                                        wmem_strbuf_append_printf(junk_emstr, ": %u%s%d",
+                                                                  tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s", wmem_strbuf_get_str(junk_emstr));
                                         break ;
                                     case BGP_EXT_COM_RT_1:
                                     case BGP_EXT_COM_RO_1:
                                         is_extended_type = TRUE;
                                         ipaddr = tvb_get_ipv4(tvb,q+2);
-                                        ep_strbuf_append_printf(junk_emstr, ": %s%s%u",
-                                                                ip_to_str((guint8 *)&ipaddr),":",tvb_get_ntohs(tvb,q+6));
-                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
+                                        wmem_strbuf_append_printf(junk_emstr, ": %s%s%u",
+                                                                  ip_to_str((guint8 *)&ipaddr),":",tvb_get_ntohs(tvb,q+6));
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s", wmem_strbuf_get_str(junk_emstr));
                                         break;
                                     case BGP_EXT_COM_RT_2:
                                     case BGP_EXT_COM_RO_2:
                                         is_extended_type = TRUE;
-                                        ep_strbuf_append_printf(junk_emstr, ": %u.%u:%u",
-                                                                tvb_get_ntohs(tvb,q+2),tvb_get_ntohs(tvb,q+4) ,tvb_get_ntohs(tvb,q+6));
-                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
+                                        wmem_strbuf_append_printf(junk_emstr, ": %u.%u:%u",
+                                                                  tvb_get_ntohs(tvb,q+2),tvb_get_ntohs(tvb,q+4) ,tvb_get_ntohs(tvb,q+6));
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s", wmem_strbuf_get_str(junk_emstr));
                                         break;
                                     case BGP_EXT_COM_VPN_ORIGIN:
                                     case BGP_EXT_COM_OSPF_RID:
                                         is_extended_type = TRUE;
                                         ipaddr = tvb_get_ipv4(tvb,q+2);
-                                        ep_strbuf_append_printf(junk_emstr, ": %s", ip_to_str((guint8 *)&ipaddr));
-                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
+                                        wmem_strbuf_append_printf(junk_emstr, ": %s", ip_to_str((guint8 *)&ipaddr));
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s", wmem_strbuf_get_str(junk_emstr));
                                         break;
                                     case BGP_EXT_COM_OSPF_RTYPE:
                                         is_extended_type = TRUE;
                                         ipaddr = tvb_get_ipv4(tvb,q+2);
-                                        ep_strbuf_append_printf(junk_emstr, ": Area: %s, Type: %s", ip_to_str((guint8 *)&ipaddr),
-                                                                val_to_str_const(tvb_get_guint8(tvb,q+6),bgpext_ospf_rtype,"Unknown"));
+                                        wmem_strbuf_append_printf(junk_emstr, ": Area: %s, Type: %s", ip_to_str((guint8 *)&ipaddr),
+                                                                  val_to_str_const(tvb_get_guint8(tvb,q+6),bgpext_ospf_rtype,"Unknown"));
                                         /* print OSPF Metric type if selected */
                                         /* always print E2 even if not external route -- receiving router should ignore */
                                         if ( (tvb_get_guint8(tvb,q+7)) & BGP_OSPF_RTYPE_METRIC_TYPE ) {
-                                            ep_strbuf_append(junk_emstr, " E2");
+                                            wmem_strbuf_append(junk_emstr, " E2");
                                         } else if ((tvb_get_guint8(tvb,q+6)==BGP_OSPF_RTYPE_EXT) || (tvb_get_guint8(tvb,q+6)==BGP_OSPF_RTYPE_NSSA)) {
-                                            ep_strbuf_append(junk_emstr, " E1");
+                                            wmem_strbuf_append(junk_emstr, " E1");
                                         } else {
-                                            ep_strbuf_append(junk_emstr, ", no options");
+                                            wmem_strbuf_append(junk_emstr, ", no options");
                                         }
-                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s", wmem_strbuf_get_str(junk_emstr));
                                         break;
                                     case BGP_EXT_COM_LINKBAND:
                                         is_extended_type = TRUE;
                                         as_num = tvb_get_ntohs(tvb,q+2);
                                         linkband = tvb_get_ntohieee_float(tvb,q+4);
-                                        ep_strbuf_append_printf(junk_emstr, ": ASN %u, %.3f Mbps", as_num,linkband*8/1000000);
-                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
+                                        wmem_strbuf_append_printf(junk_emstr, ": ASN %u, %.3f Mbps", as_num,linkband*8/1000000);
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s", wmem_strbuf_get_str(junk_emstr));
                                         break;
                                     case BGP_EXT_COM_L2INFO:
                                         is_extended_type = TRUE;
-                                        ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
+                                        ti = proto_tree_add_text(subtree3,tvb,q,8, "%s", wmem_strbuf_get_str(junk_emstr));
 
                                         subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities);
                                         proto_tree_add_item(subtree4, hf_bgp_ext_com_l2_encaps,tvb,q+2, 1, ENC_BIG_ENDIAN);
