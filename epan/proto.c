@@ -1197,6 +1197,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	const char *string;
 	nstime_t    time_stamp;
 	guint32     tmpsecs;
+	guint64     todsecs;
 	gboolean    length_error;
 
 	/* there is a possibility here that we might raise an exception
@@ -1590,6 +1591,27 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 					time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
 				else
 					time_stamp.nsecs = 0;
+				break;
+
+			case ENC_TIME_TOD|ENC_BIG_ENDIAN:
+				/*
+				 * TOD time stamp, big-endian.
+				 */
+/* XXX - where should this go? */
+#define TOD_BASETIME 2208988800ul
+
+				todsecs  = tvb_get_ntoh64(tvb, start) >> 12;
+				time_stamp.secs = (todsecs  / 1000000) - TOD_BASETIME;
+				time_stamp.nsecs = (todsecs  % 1000000) * 1000;
+				break;
+
+			case ENC_TIME_TOD|ENC_LITTLE_ENDIAN:
+				/*
+				 * TOD time stamp, big-endian.
+				 */
+				todsecs  = tvb_get_letoh64(tvb, start) >> 12 ;
+				time_stamp.secs = (todsecs  / 1000000) - TOD_BASETIME;
+				time_stamp.nsecs = (todsecs  % 1000000) * 1000;
 				break;
 
 			case ENC_TIME_NTP|ENC_BIG_ENDIAN:

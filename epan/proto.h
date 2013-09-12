@@ -250,6 +250,7 @@ typedef struct _protocol protocol_t;
  */
 #define ENC_TIME_TIMESPEC	0x00000000
 #define ENC_TIME_NTP		0x00000002
+#define ENC_TIME_TOD		0x00000004
 
 /*
  * Historically, the only place the representation mattered for strings
