@@ -32,6 +32,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
@@ -560,7 +561,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANCP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ancp_info = ep_new(struct ancp_tap_t);
+    ancp_info = wmem_new(wmem_packet_scope(), struct ancp_tap_t);
     ancp_info->ancp_mtype   = 0;
     ancp_info->ancp_adjcode = 0;
 

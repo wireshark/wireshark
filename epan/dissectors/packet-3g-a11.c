@@ -45,6 +45,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 /* Include vendor id translation */
 #include <epan/sminmpec.h>
 
@@ -605,7 +606,7 @@ decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
         return;
     }
 
-    msid_digits = (char *)ep_alloc(A11_MSG_MSID_LEN_MAX+2);
+    msid_digits = (char *)wmem_alloc(wmem_packet_scope(), A11_MSG_MSID_LEN_MAX+2);
     msid_start_offset = offset;
 
     if (msid_len > A11_MSG_MSID_ELEM_LEN_MAX)

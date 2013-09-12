@@ -106,7 +106,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-ax25-kiss.h"
 #include "packet-ax25.h"
@@ -209,7 +209,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	void       *saved_private_data;
 	tvbuff_t   *next_tvb = NULL;
 
-	info_buffer    = (char *)ep_alloc( STRLEN );
+	info_buffer    = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
 	info_buffer[0] = '\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25 KISS" );

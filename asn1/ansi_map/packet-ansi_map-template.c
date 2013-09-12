@@ -435,12 +435,12 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             if(ansi_map_saved_invokedata)
                 return;
 
-            ansi_map_saved_invokedata = se_new(struct ansi_map_invokedata_t);
+            ansi_map_saved_invokedata = wmem_new(wmem_file_scope(), struct ansi_map_invokedata_t);
             ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
             ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 
             g_hash_table_insert(TransactionId_table,
-                                se_strdup(buf),
+                                wmem_strdup(wmem_file_scope(), buf),
                                 ansi_map_saved_invokedata);
 
             /*g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->fd->num);*/

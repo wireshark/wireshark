@@ -41,6 +41,7 @@
 #include <math.h>
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 void proto_register_ansi_801(void);
 void proto_reg_handoff_ansi_801(void);
@@ -784,7 +785,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 		fl_value = (float)(0.5 * (1 << (value >> 1)));
 		if (value & 0x01)
 			fl_value *= 1.5f;
-		str = ep_strdup_printf("%.2f meters", fl_value);
+		str = wmem_strdup_printf(wmem_packet_scope(), "%.2f meters", fl_value);
 	}
 	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_a, tvb, bit_offset, 5, value,
 					      "%s (0x%02x)", str, value);
@@ -800,7 +801,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 		fl_value = (float)(0.5 * (1 << (value >> 1)));
 		if (value & 0x01)
 			fl_value *= 1.5f;
-		str = ep_strdup_printf("%.2f meters", fl_value);
+		str = wmem_strdup_printf(wmem_packet_scope(), "%.2f meters", fl_value);
 	}
 	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_p, tvb, bit_offset, 5, value,
 					      "%s (0x%02x)", str, value);
@@ -879,7 +880,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 			fl_value = (float)(0.5 * (1 << (value >> 1)));
 			if (value & 0x01)
 				fl_value *= 1.5f;
-			str = ep_strdup_printf("%.2f meters", fl_value);
+			str = wmem_strdup_printf(wmem_packet_scope(), "%.2f meters", fl_value);
 		}
 		proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_v, tvb, bit_offset, 5, value,
 						      "%s (0x%02x)", str, value);

@@ -41,7 +41,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 
 /*  Generic data  */
@@ -1837,7 +1837,7 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conv = find_or_create_conversation(pinfo);
     conn = (amqp_conv *)conversation_get_proto_data(conv, proto_amqp);
     if (conn == NULL) {
-        conn = se_new0(amqp_conv);
+        conn = wmem_new0(wmem_file_scope(), amqp_conv);
         conversation_add_proto_data(conv, proto_amqp, conn);
     }
     check_amqp_version(tvb, conn);
@@ -1986,7 +1986,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             amqp_typename = "integer";
             if (length < 4)
                 goto too_short;
-            value  = ep_strdup_printf("%d", tvb_get_ntohl(tvb, offset));
+            value  = wmem_strdup_printf(wmem_packet_scope(), "%d", tvb_get_ntohl(tvb, offset));
             offset += 4;
             length -= 4;
             break;
@@ -5583,16 +5583,16 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
         guint8         proto_major;
         guint8         proto_minor;
-        emem_strbuf_t *strbuf;
+        wmem_strbuf_t *strbuf;
 
         proto_major = tvb_get_guint8(tvb, 6);
         proto_minor = tvb_get_guint8(tvb, 7);
-        strbuf      = ep_strbuf_new_label("");
-        ep_strbuf_append_printf(strbuf,
-                                "Protocol-Header %d-%d ",
-                                proto_major,
-                                proto_minor);
-        col_append_str(pinfo->cinfo, COL_INFO, strbuf->str);
+        strbuf      = wmem_strbuf_new_label(wmem_packet_scope());
+        wmem_strbuf_append_printf(strbuf,
+                                  "Protocol-Header %d-%d ",
+                                  proto_major,
+                                  proto_minor);
+        col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(strbuf));
         col_set_fence(pinfo->cinfo, COL_INFO);
 
         if (tree) {
@@ -5725,16 +5725,16 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
         guint8         proto_major;
         guint8         proto_minor;
-        emem_strbuf_t *strbuf;
+        wmem_strbuf_t *strbuf;
 
         proto_major = tvb_get_guint8(tvb, 6);
         proto_minor = tvb_get_guint8(tvb, 7);
-        strbuf = ep_strbuf_new_label("");
-        ep_strbuf_append_printf(strbuf,
-                                "Protocol-Header %u-%u",
-                                proto_major,
-                                proto_minor);
-        col_append_str(pinfo->cinfo, COL_INFO, strbuf->str);
+        strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+        wmem_strbuf_append_printf(strbuf,
+                                  "Protocol-Header %u-%u",
+                                  proto_major,
+                                  proto_minor);
+        col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(strbuf));
         col_set_fence(pinfo->cinfo, COL_INFO);
 
         if (tree) {
@@ -8505,7 +8505,7 @@ get_amqp_0_10_type_formatter(guint8 code,
         table = amqp_0_10_fixed_types;
     for (i = 0; table[i].typecode != 0xff; ++i) {
         if (table[i].typecode == code) {
-            *name        = ep_strdup(table[i].amqp_typename);
+            *name        = wmem_strdup(wmem_packet_scope(), table[i].amqp_typename);
             *formatter   = table[i].formatter;
             *length_size = table[i].known_size;
             return TRUE;
@@ -8537,10 +8537,10 @@ format_amqp_0_10_int(tvbuff_t *tvb,
     else if (length == 4)
         val = (gint32)tvb_get_ntohl(tvb, offset);
     else {
-        *value = ep_strdup_printf("Invalid int length %d!", length);
+        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid int length %d!", length);
         return length;
     }
-    *value = ep_strdup_printf("%d", val);
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%d", val);
     return length;
 }
 
@@ -8558,10 +8558,10 @@ format_amqp_0_10_uint(tvbuff_t *tvb,
     else if (length == 4)
         val = tvb_get_ntohl(tvb, offset);
     else {
-        *value = ep_strdup_printf("Invalid uint length %d!", length);
+        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid uint length %d!", length);
         return length;
     }
-    *value = ep_strdup_printf("%u", val);
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%u", val);
     return length;
 }
 
@@ -8582,7 +8582,7 @@ format_amqp_0_10_boolean(tvbuff_t *tvb,
     guint8 val;
 
     val = tvb_get_guint8(tvb, offset);
-    *value = ep_strdup(val ? "true" : "false");
+    *value = wmem_strdup(wmem_packet_scope(), val ? "true" : "false");
     return 1;
 }
 
@@ -8600,7 +8600,7 @@ format_amqp_0_10_vbin(tvbuff_t *tvb,
     else if (length == 4)
         bin_length = tvb_get_ntohl(tvb, offset);
     else {
-        *value = ep_strdup_printf("Invalid vbin length size %d!", length);
+        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid vbin length size %d!", length);
         return length;
     }
     AMQP_INCREMENT(offset, length, bound);
@@ -8623,7 +8623,7 @@ format_amqp_0_10_str(tvbuff_t *tvb,
     else if (length == 4)
         string_length = tvb_get_ntohl(tvb, offset);
     else {
-        *value = ep_strdup_printf("Invalid string length size %d!", length);
+        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid string length size %d!", length);
         return length;
     }
     AMQP_INCREMENT(offset, length, bound);

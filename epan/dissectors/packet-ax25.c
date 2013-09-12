@@ -49,7 +49,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/xdlc.h>
 #include <epan/ax25_pids.h>
 #include <epan/ipproto.h>
@@ -152,7 +152,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	tvbuff_t *next_tvb = NULL;
 
 
-	info_buffer = (char *)ep_alloc( STRLEN );
+	info_buffer = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
 	info_buffer[0] = '\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25" );

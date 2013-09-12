@@ -40,7 +40,7 @@
 
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-atalk.h"
 #include "packet-afp.h"
@@ -820,10 +820,10 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          we have both a request for 1 packet and a request for n packets,
          hopefully most of the time ATP_EOM will be set in the last packet.
       */
-      new_request_key = se_new(asp_request_key);
+      new_request_key = wmem_new(wmem_file_scope(), asp_request_key);
       *new_request_key = request_key;
 
-      request_val = se_new(asp_request_val);
+      request_val = wmem_new(wmem_file_scope(), asp_request_val);
       request_val->value = nbe;
 
       g_hash_table_insert(atp_request_hash, new_request_key,request_val);
@@ -1293,10 +1293,10 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo)
   request_val = (asp_request_val *) g_hash_table_lookup(asp_request_hash, &request_key);
   if (!request_val && !aspinfo->reply )  {
     fn = tvb_get_guint8(tvb, 0);
-    new_request_key = se_new(asp_request_key);
+    new_request_key = wmem_new(wmem_file_scope(), asp_request_key);
     *new_request_key = request_key;
 
-    request_val = se_new(asp_request_val);
+    request_val = wmem_new(wmem_file_scope(), asp_request_val);
     request_val->value = fn;
 
     g_hash_table_insert(asp_request_hash, new_request_key, request_val);

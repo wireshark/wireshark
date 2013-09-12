@@ -52,7 +52,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/ax25_pids.h>
 
 #define STRLEN	80
@@ -163,7 +163,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	guint8      dti      = 0;
 	gboolean    dissected;
 
-	info_buffer = (char *)ep_alloc( STRLEN );
+	info_buffer = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
 	info_buffer[0] = '\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25-NoL3");

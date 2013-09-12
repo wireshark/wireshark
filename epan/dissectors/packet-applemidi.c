@@ -52,6 +52,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 
 #include "packet-rtp.h"
@@ -303,11 +304,11 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/* set dynamic payload-type 97 which is used by Apple for their RTP-MIDI implementation for this
 	   address/port-tuple to cause RTP-dissector to call the RTP-MIDI-dissector for payload-decoding */
 
-	encoding_name_and_rate = se_new(encoding_name_and_rate_t);
+	encoding_name_and_rate = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
 	rtp_dyn_payload = g_hash_table_new( g_int_hash, g_int_equal );
-	encoding_name_and_rate->encoding_name = se_strdup( "rtp-midi" );
+	encoding_name_and_rate->encoding_name = wmem_strdup( wmem_file_scope(), "rtp-midi" );
 	encoding_name_and_rate->sample_rate = 10000;
-	key = se_new(gint);
+	key = wmem_new(wmem_file_scope(), gint);
 	*key = 97;
 	g_hash_table_insert( rtp_dyn_payload, key, encoding_name_and_rate );
         rtp_add_address( pinfo, &pinfo->src, pinfo->srcport, 0, APPLEMIDI_DISSECTOR_SHORTNAME,

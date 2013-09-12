@@ -24,7 +24,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <etypes.h>
 
@@ -227,7 +227,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       ata_info_t *tmp_ata_info;
       /* first time we see this request so add a struct for request/response
          matching */
-      ata_info=se_new(ata_info_t);
+      ata_info=wmem_new(wmem_file_scope(), ata_info_t);
       ata_info->tag=tag;
       ata_info->conversation=conversation;
       ata_info->request_frame=pinfo->fd->num;

@@ -28,7 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 void proto_register_armagetronad(void);
 void proto_reg_handoff_armagetronad(void);
@@ -153,7 +153,7 @@ add_message_data(tvbuff_t * tvb, gint offset, gint data_len, proto_tree * tree)
 	if (!tree)
 		return;
 
-	data = (gchar *)tvb_memcpy(tvb, ep_alloc(data_len + 1), offset, data_len);
+	data = (gchar *)tvb_memcpy(tvb, wmem_alloc(wmem_packet_scope(), data_len + 1), offset, data_len);
 	data[data_len] = '\0';
 
 	for (i = 0; i < data_len; i += 2) {
@@ -179,7 +179,7 @@ add_message_data(tvbuff_t * tvb, gint offset, gint data_len, proto_tree * tree)
 }
 
 static gint
-add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, emem_strbuf_t * info)
+add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, wmem_strbuf_t * info)
 {
 	guint16 descriptor_id, message_id;
 	gint data_len;
@@ -212,7 +212,7 @@ add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, emem_strbuf_t * info
 	proto_tree_add_item(msg_tree, hf_armagetronad_descriptor_id, tvb,
 			    offset, 2, ENC_BIG_ENDIAN);
 	if (info)
-		ep_strbuf_append_printf(info, "%s, ", descriptor);
+		wmem_strbuf_append_printf(info, "%s, ", descriptor);
 
 	/* MessageID field */
 	proto_tree_add_item(msg_tree, hf_armagetronad_message_id, tvb,
@@ -236,13 +236,13 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 	proto_tree *armagetronad_tree;
 	guint16 sender;
 	gint offset = 0;
-	emem_strbuf_t *info;
+	wmem_strbuf_t *info;
 	gsize new_len;
 
 	if (!is_armagetronad_packet(tvb))
 		return 0;
 
-	info = ep_strbuf_new("");
+	info = wmem_strbuf_new(wmem_packet_scope(), "");
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Armagetronad");
 
@@ -260,14 +260,14 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 	proto_tree_add_item(ti, hf_armagetronad_sender_id, tvb, offset, 2,
 			    ENC_BIG_ENDIAN);
 
-	new_len = info->len - 2;	/* Remove the trailing ", " */
+	new_len = wmem_strbuf_get_len(info) - 2;	/* Remove the trailing ", " */
 	if (new_len > 0)
-		info = ep_strbuf_truncate(info, new_len);
+		wmem_strbuf_truncate(info, new_len);
 	else
-		info = ep_strbuf_new("No message");
+		info = wmem_strbuf_new(wmem_packet_scope(), "No message");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] from 0x%04x",
-		     info->str, sender);
+		     wmem_strbuf_get_str(info), sender);
 
 	return offset + 2;
 }
