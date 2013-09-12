@@ -77,7 +77,18 @@ struct tcp_graph {
     struct segment  *segments;
 };
 
-void graph_segment_list_get(capture_file *, struct tcp_graph *, gboolean stream_known );
+/** Fill in the segment list for a TCP graph
+ *
+ * @param cf Capture file to scan
+ * @param tg TCP graph. A valid stream must be set. If either the source or
+ *        destination address types are AT_NONE the address and port
+ *        information will be filled in using the first packet in the
+ *        specified stream.
+ * @param stream_known If FALSE, session information will be filled in using
+ *        the currently selected packet. If FALSE, session information will
+ *        be matched against tg.
+ */
+void graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_known );
 void graph_segment_list_free(struct tcp_graph * );
 
 /* for compare_headers() */

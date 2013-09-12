@@ -293,6 +293,12 @@ extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *, proto_tree *, i
  */
 extern void add_tcp_process_info(guint32 frame_num, address *local_addr, address *remote_addr, guint16 local_port, guint16 remote_port, guint32 uid, guint32 pid, gchar *username, gchar *command);
 
+/** Get the current number of TCP streams
+ *
+ * @return The number of TCP streams
+ */
+WS_DLL_PUBLIC guint32 get_tcp_stream_count(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

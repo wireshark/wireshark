@@ -448,7 +448,7 @@ static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
 static dissector_handle_t sport_handle;
-static guint32 tcp_stream_index;
+static guint32 tcp_stream_count;
 
 /* TCP structs and definitions */
 
@@ -511,7 +511,7 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
     tcpd->flow1.valid_bif = 1;
     tcpd->flow2.valid_bif = 1;
-    tcpd->stream = tcp_stream_index++;
+    tcpd->stream = tcp_stream_count++;
     tcpd->server_port = 0;
 
     return tcpd;
@@ -595,6 +595,11 @@ add_tcp_process_info(guint32 frame_num, address *local_addr, address *remote_add
     flow->command = wmem_strdup(wmem_file_scope(), command);
 }
 
+/* Return the current stream count */
+guint32 get_tcp_stream_count(void)
+{
+    return tcp_stream_count;
+}
 
 /* Calculate the timestamps relative to this conversation */
 static void
@@ -4764,7 +4769,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 tcp_init(void)
 {
-    tcp_stream_index = 0;
+    tcp_stream_count = 0;
     reassembly_table_init(&tcp_reassembly_table,
                           &addresses_ports_reassembly_table_functions);
 }

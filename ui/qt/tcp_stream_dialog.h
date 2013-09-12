@@ -104,9 +104,11 @@ private slots:
     void on_buttonBox_accepted();
     void on_graphTypeComboBox_currentIndexChanged(int index);
     void on_resetButton_clicked();
+    void on_prevStreamPushButton_clicked();
+    void on_nextStreamPushButton_clicked();
     void on_otherDirectionButton_clicked();
-    void on_dragToolButton_toggled(bool checked);
-    void on_selectToolButton_toggled(bool checked);
+    void on_dragRadioButton_toggled(bool checked);
+    void on_selectRadioButton_toggled(bool checked);
 };
 
 #endif // TCP_STREAM_DIALOG_H

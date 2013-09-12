@@ -96,8 +96,14 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ui->graphTypeComboBox->setCurrentIndex(-1);
     ui->graphTypeComboBox->setUpdatesEnabled(true);
 
-    ui->mouseHorizontalLayout->setContentsMargins(0, 0, 0, 0);
-    ui->dragToolButton->setChecked(mouse_drags_);
+    if (QIcon::hasThemeIcon("go-previous") && QIcon::hasThemeIcon("go-next")) {
+        ui->prevStreamPushButton->setText(QString());
+        ui->prevStreamPushButton->setIcon(QIcon::fromTheme("go-previous"));
+        ui->nextStreamPushButton->setText(QString());
+        ui->nextStreamPushButton->setIcon(QIcon::fromTheme("go-next"));
+    }
+
+    ui->dragRadioButton->setChecked(mouse_drags_);
 
     memset (&graph_, 0, sizeof(graph_));
     graph_.type = graph_type;
@@ -215,6 +221,13 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
         resetAxes();
         break;
 
+    case Qt::Key_PageDown:
+        on_prevStreamPushButton_clicked();
+        break;
+    case Qt::Key_PageUp:
+        on_nextStreamPushButton_clicked();
+        break;
+
     case Qt::Key_D:
         on_otherDirectionButton_clicked();
         break;
@@ -233,9 +246,9 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Z:
         if (mouse_drags_) {
-            ui->selectToolButton->toggle();
+            ui->selectRadioButton->toggle();
         } else {
-            ui->dragToolButton->toggle();
+            ui->dragRadioButton->toggle();
         }
         break;
 
@@ -317,6 +330,11 @@ void TCPStreamDialog::fillGraph()
     sequence_num_map_.clear();
     graph_segment_list_free(&graph_);
     tracer_->setGraph(NULL);
+
+    ui->streamNumberLabel->setText(QString("Stream %1").arg(graph_.stream));
+    ui->prevStreamPushButton->setEnabled(graph_.stream > 0);
+    ui->nextStreamPushButton->setEnabled(graph_.stream < get_tcp_stream_count() - 1);
+
     // We need at least one graph, so don't bother deleting the first one.
     for (int i = 0; i < sp->graphCount(); i++) {
         sp->graph(i)->clearData();
@@ -662,8 +680,12 @@ QRectF TCPStreamDialog::getZoomRanges(QRect zoom_rect)
 void TCPStreamDialog::graphClicked(QMouseEvent *event)
 {
     Q_UNUSED(event)
+    QCustomPlot *sp = ui->streamPlot;
 
     if (mouse_drags_) {
+        if (sp->axisRect()->rect().contains(event->pos())) {
+            sp->setCursor(QCursor(Qt::ClosedHandCursor));
+        }
         if (tracer_->visible() && cap_file_ && packet_num_ > 0) {
             emit goToPacket(packet_num_);
         }
@@ -717,6 +739,27 @@ void TCPStreamDialog::axisClicked(QCPAxis *axis, QCPAxis::SelectablePart part, Q
 // using a QTimer instead.
 void TCPStreamDialog::mouseMoved(QMouseEvent *event)
 {
+    QCustomPlot *sp = ui->streamPlot;
+    Qt::CursorShape shape = Qt::ArrowCursor;
+    if (event) {
+        if (event->buttons() & Qt::LeftButton == Qt::LeftButton) {
+            if (mouse_drags_) {
+                shape = Qt::ClosedHandCursor;
+            } else {
+                shape = Qt::CrossCursor;
+            }
+        } else {
+            if (sp->axisRect()->rect().contains(event->pos())) {
+                if (mouse_drags_) {
+                    shape = Qt::OpenHandCursor;
+                } else {
+                    shape = Qt::CrossCursor;
+                }
+            }
+        }
+    }
+    sp->setCursor(QCursor(shape));
+
     if (mouse_drags_) {
         double tr_key = tracer_->position->key();
         struct segment *packet_seg = NULL;
@@ -790,6 +833,8 @@ void TCPStreamDialog::mouseReleased(QMouseEvent *event)
                 sp->replot();
             }
         }
+    } else if (ui->streamPlot->cursor().shape() == Qt::ClosedHandCursor) {
+        ui->streamPlot->setCursor(QCursor(Qt::OpenHandCursor));
     }
 }
 
@@ -861,6 +906,26 @@ void TCPStreamDialog::setCaptureFile(capture_file *cf)
     }
 }
 
+void TCPStreamDialog::on_prevStreamPushButton_clicked()
+{
+    if (graph_.stream > 0) {
+        graph_.stream--;
+        graph_.src_address.type = AT_NONE;
+        graph_.dst_address.type = AT_NONE;
+        fillGraph();
+    }
+}
+
+void TCPStreamDialog::on_nextStreamPushButton_clicked()
+{
+    if (graph_.stream < get_tcp_stream_count() - 1) {
+        graph_.stream++;
+        graph_.src_address.type = AT_NONE;
+        graph_.dst_address.type = AT_NONE;
+        fillGraph();
+    }
+}
+
 void TCPStreamDialog::on_otherDirectionButton_clicked()
 {
     address tmp_addr;
@@ -876,21 +941,19 @@ void TCPStreamDialog::on_otherDirectionButton_clicked()
     fillGraph();
 }
 
-void TCPStreamDialog::on_dragToolButton_toggled(bool checked)
+void TCPStreamDialog::on_dragRadioButton_toggled(bool checked)
 {
     if (checked) mouse_drags_ = true;
     ui->streamPlot->setInteractions(
                 QCP::iRangeDrag |
                 QCP::iRangeZoom
                 );
-    ui->streamPlot->setCursor(QCursor(Qt::OpenHandCursor));
 }
 
-void TCPStreamDialog::on_selectToolButton_toggled(bool checked)
+void TCPStreamDialog::on_selectRadioButton_toggled(bool checked)
 {
     if (checked) mouse_drags_ = false;
     ui->streamPlot->setInteractions(0);
-    ui->streamPlot->setCursor(QCursor(Qt::CrossCursor));
 }
 
 /*

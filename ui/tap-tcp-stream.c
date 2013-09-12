@@ -50,12 +50,24 @@ typedef struct _tcp_scan_t {
 } tcp_scan_t;
 
 
-static int
+static gboolean
 tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     tcp_scan_t   *ts = (tcp_scan_t *)pct;
     struct tcp_graph *tg  = ts->tg;
     const struct tcpheader *tcphdr = (const struct tcpheader *)vip;
+
+    if (tg->stream == tcphdr->th_stream
+            && (tg->src_address.type == AT_NONE || tg->dst_address.type == AT_NONE)) {
+        /*
+         * We only know the stream number. Fill in our connection data.
+         * We assume that the server response is more interesting.
+         */
+        COPY_ADDRESS(&tg->src_address, &tcphdr->ip_dst);
+        tg->src_port = tcphdr->th_dport;
+        COPY_ADDRESS(&tg->dst_address, &tcphdr->ip_src);
+        tg->dst_port = tcphdr->th_sport;
+    }
 
     if (compare_headers(&tg->src_address, &tg->dst_address,
                         tg->src_port, tg->dst_port,
@@ -98,7 +110,7 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         ts->last = segment;
     }
 
-    return 0;
+    return FALSE;
 }
 
 /* here we collect all the external data we will ever need */
@@ -226,7 +238,7 @@ typedef struct _th_t {
     struct tcpheader *tcphdrs[MAX_SUPPORTED_TCP_HEADERS];
 } th_t;
 
-static int
+static gboolean
 tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
     int       n;
@@ -261,7 +273,7 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
         th->num_hdrs++;
     }
 
-    return 0;
+    return FALSE;
 }
 
 /* XXX should be enhanced so that if we have multiple TCP layers in the trace
@@ -347,7 +359,6 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     COPY_ADDRESS(&hdrs->ip_src, &th.tcphdrs[0]->ip_src);
     COPY_ADDRESS(&hdrs->ip_dst, &th.tcphdrs[0]->ip_dst);
     return th.tcphdrs[0];
-
 }
 
 int rtt_is_retrans(struct unack *list, unsigned int seqno)
