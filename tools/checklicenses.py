@@ -137,6 +137,18 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'packaging/macosx': [
         'UNKNOWN',
     ],
+    'svnversion.h': [
+        'UNKNOWN',
+    ],
+    'tools/lemon': [
+        'UNKNOWN',
+    ],
+    'epan/except.c': [
+        'UNKNOWN',
+    ],
+    'epan/except.h': [
+        'UNKNOWN',
+    ],
 }
 
 
