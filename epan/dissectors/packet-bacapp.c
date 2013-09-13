@@ -4032,6 +4032,10 @@ BACnetAccumulatorStatus [] = {
     { 0, NULL }
 };
 
+/* These values are (manually) transferred from
+ * http://www.bacnet.org/VendorID/BACnet Vendor IDs.htm
+ */
+
 static const value_string
 BACnetVendorIdentifiers [] = {
     {   0, "ASHRAE" },
