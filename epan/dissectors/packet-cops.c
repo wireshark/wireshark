@@ -1675,7 +1675,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
         if(*oid_info_p) {
             if ((*oid_info_p)->kind == OID_KIND_ROW) {
-                oid_info = (oid_info_t *)emem_tree_lookup32((emem_tree_t *)(*oid_info_p)->children,1);
+                oid_info = (oid_info_t *)wmem_tree_lookup32((*oid_info_p)->children,1);
             } else {
                 oid_info = NULL;
             }
@@ -1708,7 +1708,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
                  * -- a lazy lego
                  */
                 hfid = oid_info->value_hfid;
-                oid_info = (oid_info_t *)emem_tree_lookup32((emem_tree_t *)(*oid_info_p)->children,oid_info->subid+1);
+                oid_info = (oid_info_t *)wmem_tree_lookup32((*oid_info_p)->children,oid_info->subid+1);
             } else
                 hfid = cops_tag_cls2syntax( ber_tag, ber_class );
             switch (proto_registrar_get_ftype(hfid)) {
