@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-tcp.h>
 
 #define CMPP_FIX_HEADER_LENGTH  12
@@ -271,7 +272,7 @@ cmpp_version(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
 	version = tvb_get_guint8(tvb, offset);
 	minor   = version & 0x0F;
 	major   = (version & 0xF0) >> 4;
-	strval  = ep_strdup_printf("%02u.%02u", major, minor);
+	strval  = wmem_strdup_printf(wmem_packet_scope(), "%02u.%02u", major, minor);
 	/* TODO: the version should be added as a uint_format */
 	proto_tree_add_string(tree, field, tvb, offset, 1, strval);
 	return strval;
@@ -293,7 +294,7 @@ cmpp_timestamp(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
 	timevalue /= 100;
 	day = timevalue % 100;
 	month = timevalue / 100;
-	strval = ep_strdup_printf("%02u/%02u %02u:%02u:%02u", month, day,
+	strval = wmem_strdup_printf(wmem_packet_scope(), "%02u/%02u %02u:%02u:%02u", month, day,
 		hour, minute, second);
 	proto_tree_add_string(tree, field, tvb, offset, 4, strval);
 	return strval;
@@ -357,7 +358,7 @@ cmpp_msg_id(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
 	hour = (tvb_get_guint8(tvb, offset + 1) & 0x7C) >> 2;
 	minute = (tvb_get_ntohs(tvb, offset + 1) & 0x03F0) >> 4;
 	second = (tvb_get_ntohs(tvb, offset + 2) & 0x0FC0) >> 6;
-	strval = ep_strdup_printf("%02u/%02u %02u:%02u:%02u", month, day,
+	strval = wmem_strdup_printf(wmem_packet_scope(), "%02u/%02u %02u:%02u:%02u", month, day,
 		hour, minute, second);
 
 	ismg_code = (tvb_get_ntohl(tvb, offset + 3) & 0x3FFFFF00) >> 16;

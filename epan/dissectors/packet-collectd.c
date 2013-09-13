@@ -33,6 +33,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/stats_tree.h>
+#include <epan/wmem/wmem.h>
 
 #define STR_NONNULL(str) ((str) ? (str) : "(null)")
 
@@ -933,8 +934,8 @@ stats_account_string (string_counter_t **ret_list, const gchar *new_value)
 			return (0);
 		}
 
-	entry = (string_counter_t *)ep_alloc0 (sizeof (*entry));
-	entry->string = ep_strdup (new_value);
+	entry = (string_counter_t *)wmem_alloc0 (wmem_packet_scope(), sizeof (*entry));
+	entry->string = wmem_strdup (wmem_packet_scope(), new_value);
 	entry->count = 1;
 	entry->next = *ret_list;
 

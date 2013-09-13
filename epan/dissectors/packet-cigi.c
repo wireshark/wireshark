@@ -35,6 +35,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 
 /* Forward declaration */
 void proto_register_cigi(void);
@@ -2621,7 +2622,6 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     const char* src_str;
     const char* dest_str;
-    const char* info_str;
 
     packet_id = tvb_get_guint8(tvb, 0);
 
@@ -2651,14 +2651,13 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dest_str = "IG";
     }
 
-    info_str = se_strdup_printf("%s => %s (%u bytes)", src_str, dest_str,
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s => %s (%u bytes)", src_str, dest_str,
         tvb_reported_length(tvb));
-
-    col_set_str(pinfo->cinfo, COL_INFO, info_str);
 
     if (tree) {
 
-        ti = proto_tree_add_protocol_format(tree, proto_cigi, tvb, 0, tvb_length(tvb), "Common Image Generator Interface (%i), %s", cigi_version, info_str);
+        ti = proto_tree_add_protocol_format(tree, proto_cigi, tvb, 0, tvb_length(tvb), "Common Image Generator Interface (%i), %s => %s (%u bytes)",
+                                            cigi_version, src_str, dest_str, tvb_reported_length(tvb));
 
         cigi_tree = proto_item_add_subtree(ti, ett_cigi);
 

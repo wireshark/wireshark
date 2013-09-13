@@ -31,7 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/tap.h>
-
+#include <epan/wmem/wmem.h>
 #include <epan/etypes.h>
 
 
@@ -161,11 +161,11 @@ static const gchar *
 csm_fc(guint16 fc, guint16 ct)
 {
     if (fc == 0x0000) {
-        return ep_strdup(val_to_str(ct, class_type_vals,
-                       "0x%04x"));
+        return wmem_strdup(wmem_packet_scope(),
+                           val_to_str(ct, class_type_vals, "0x%04x"));
     } else {
-        return ep_strdup(val_to_str(fc, function_code_vals,
-                       "0x%04x"));
+        return wmem_strdup(wmem_packet_scope(),
+                           val_to_str(fc, function_code_vals, "0x%04x"));
     }
 }
 

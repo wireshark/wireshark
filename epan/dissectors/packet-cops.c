@@ -1063,7 +1063,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         if (!pinfo->fd->flags.visited) {
-            cops_call = se_new(cops_call_t);
+            cops_call = wmem_new(wmem_file_scope(), cops_call_t);
             cops_call->op_code = op_code;
             cops_call->solicited = is_solicited;
             cops_call->req_num = PINFO_FD_NUM(pinfo);
@@ -1544,7 +1544,7 @@ static guint redecode_oid(guint32* pprid_subids, guint pprid_subids_len, guint8*
 
     for (i=0; i<encoded_len; i++) { if (! (encoded_subids[i] & 0x80 )) n++; }
 
-    *subids_p = subids = (guint32 *)ep_alloc(sizeof(guint32)*(n+pprid_subids_len));
+    *subids_p = subids = (guint32 *)wmem_alloc(wmem_packet_scope(), sizeof(guint32)*(n+pprid_subids_len));
     subid_overflow = subids+n+pprid_subids_len;
     for (i=0;i<pprid_subids_len;i++) subids[i] = pprid_subids[i];
 

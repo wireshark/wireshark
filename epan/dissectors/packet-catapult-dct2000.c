@@ -32,7 +32,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -1451,7 +1451,7 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
     }
 
     /* Allocate struct */
-    p_fp_info = se_new0(struct fp_info);
+    p_fp_info = wmem_new0(wmem_file_scope(), struct fp_info);
 
     /* Check that the number of outhdr values looks sensible */
     if (((strcmp(protocol_name, "fpiur_r5") == 0) && (outhdr_values_found != 2)) ||
@@ -1656,8 +1656,8 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboo
     }
 
     /* Allocate structs */
-    p_rlc_info = se_new(struct rlc_info);
-    p_fp_info = se_new(struct fp_info);
+    p_rlc_info = wmem_new(wmem_file_scope(), struct rlc_info);
+    p_fp_info = wmem_new(wmem_file_scope(), struct fp_info);
 
     /* Fill in struct fields for first (only) PDU in this frame */
 
@@ -1726,7 +1726,7 @@ static void attach_mac_lte_info(packet_info *pinfo)
     }
 
     /* Allocate & zero struct */
-    p_mac_lte_info = se_new0(struct mac_lte_info);
+    p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
 
     /* Populate the struct from outhdr values */
     p_mac_lte_info->crcStatusValid = crc_fail;  /* not set yet */
@@ -1848,7 +1848,7 @@ static void attach_rlc_lte_info(packet_info *pinfo)
     }
 
     /* Allocate & zero struct */
-    p_rlc_lte_info = se_new0(rlc_lte_info);
+    p_rlc_lte_info = wmem_new0(wmem_file_scope(), rlc_lte_info);
 
     p_rlc_lte_info->rlcMode = outhdr_values[i++];
     p_rlc_lte_info->direction = outhdr_values[i++];
@@ -1877,7 +1877,7 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
     }
 
     /* Allocate & zero struct */
-    p_pdcp_lte_info = se_new0(pdcp_lte_info);
+    p_pdcp_lte_info = wmem_new0(wmem_file_scope(), pdcp_lte_info);
 
     p_pdcp_lte_info->no_header_pdu = outhdr_values[i++];
     p_pdcp_lte_info->plane = (enum pdcp_plane)outhdr_values[i++];
@@ -1934,7 +1934,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             char *hex_string;
             int tty_string_length = tvb_length_remaining(tvb, offset);
             int hex_string_length = 1+(2*tty_string_length)+1;
-            hex_string = (char *)ep_alloc(hex_string_length);
+            hex_string = (char *)wmem_alloc(wmem_packet_scope(), hex_string_length);
 
             idx = g_snprintf(hex_string, hex_string_length, "$");
 
@@ -2039,7 +2039,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     if (p_mac_lte_info == NULL) {
 
         /* Allocate & zero struct */
-        p_mac_lte_info = se_new0(mac_lte_info);
+        p_mac_lte_info = wmem_new0(wmem_file_scope(), mac_lte_info);
 
         /* This indicates to MAC dissector that it has an oob event */
         p_mac_lte_info->length = 0;

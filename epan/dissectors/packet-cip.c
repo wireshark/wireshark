@@ -44,6 +44,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 #include "packet-cip.h"
 #include "packet-enip.h"
 #include "packet-cipsafety.h"
@@ -3152,7 +3153,7 @@ dissect_cia(tvbuff_t *tvb, int offset, int* pathpos, unsigned char segment_type,
             int hf8, int hf16, int hf32)
 {
    int temp_data;
-   emem_strbuf_t *strbuf;
+   wmem_strbuf_t *strbuf;
 
    switch (segment_type)
    {
@@ -3175,10 +3176,10 @@ dissect_cia(tvbuff_t *tvb, int offset, int* pathpos, unsigned char segment_type,
       }
       else
       {
-         strbuf = ep_strbuf_new(segment_name);
-         ep_strbuf_append(strbuf, ": 0x%02X");
+         strbuf = wmem_strbuf_new(wmem_packet_scope(), segment_name);
+         wmem_strbuf_append(strbuf, ": 0x%02X");
 
-         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals , strbuf->str) );
+         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals , wmem_strbuf_get_str(strbuf)) );
       }
 
       if (value != NULL)
@@ -3221,10 +3222,10 @@ dissect_cia(tvbuff_t *tvb, int offset, int* pathpos, unsigned char segment_type,
       }
       else
       {
-         strbuf = ep_strbuf_new(segment_name);
-         ep_strbuf_append(strbuf, ": 0x%04X");
+         strbuf = wmem_strbuf_new(wmem_packet_scope(), segment_name);
+         wmem_strbuf_append(strbuf, ": 0x%04X");
 
-         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals , strbuf->str) );
+         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals , wmem_strbuf_get_str(strbuf)) );
       }
 
       if (value != NULL)
@@ -3276,10 +3277,10 @@ dissect_cia(tvbuff_t *tvb, int offset, int* pathpos, unsigned char segment_type,
       }
       else
       {
-         strbuf = ep_strbuf_new(segment_name);
-         ep_strbuf_append(strbuf, ": 0x%08X");
+         strbuf = wmem_strbuf_new(wmem_packet_scope(), segment_name);
+         wmem_strbuf_append(strbuf, ": 0x%08X");
 
-         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals , strbuf->str) );
+         proto_item_append_text( epath_item, "%s", val_to_str( temp_data, vals , wmem_strbuf_get_str(strbuf)) );
       }
 
       if (value != NULL)
@@ -4298,10 +4299,10 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
        {
           if ( cip_req_info->pData == NULL )
           {
-             mr_mult_req_info = se_new(mr_mult_req_info_t);
+             mr_mult_req_info = wmem_new(wmem_file_scope(), mr_mult_req_info_t);
              mr_mult_req_info->service = SC_MULT_SERV_PACK;
              mr_mult_req_info->num_services = num_services;
-             mr_mult_req_info->requests = (cip_req_info_t *)se_alloc0(sizeof(cip_req_info_t)*num_services);
+             mr_mult_req_info->requests = (cip_req_info_t *)wmem_alloc0(wmem_file_scope(), sizeof(cip_req_info_t)*num_services);
              cip_req_info->pData = mr_mult_req_info;
           }
           else
@@ -4950,7 +4951,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    if (preq_info != NULL)
    {
       DISSECTOR_ASSERT(preq_info->connInfo == NULL);
-      preq_info->connInfo = se_new0(cip_conn_info_t);
+      preq_info->connInfo = wmem_new0(wmem_file_scope(), cip_conn_info_t);
 
       preq_info->connInfo->ConnSerialNumber = ConnSerialNumber;
       preq_info->connInfo->VendorID = VendorID;
@@ -5427,7 +5428,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             {
                if ( preq_info->pData == NULL )
                {
-                  pembedded_req_info = se_new0(cip_req_info_t);
+                  pembedded_req_info = wmem_new0(wmem_file_scope(), cip_req_info_t);
                   preq_info->pData = pembedded_req_info;
                }
                else
@@ -5583,7 +5584,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                   next_tvb = tvb_new_subset( tvb, offset+4+add_stat_size, item_length-4-add_stat_size, item_length-4-add_stat_size);
 
                   /* keep packet context */
-                  request_info = ep_new(modbus_request_info_t);
+                  request_info = wmem_new(wmem_packet_scope(), modbus_request_info_t);
                   request_info->packet_type = RESPONSE_PACKET;
                   request_info->register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;
                   request_info->register_format = MBTCP_PREF_REGISTER_FORMAT_UINT16;
@@ -5673,7 +5674,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                next_tvb = tvb_new_subset( tvb, offset+2+req_path_size, item_length-req_path_size-2, item_length-req_path_size-2);
 
                /* keep packet context */
-               request_info = ep_new(modbus_request_info_t);
+               request_info = wmem_new(wmem_packet_scope(), modbus_request_info_t);
                request_info->packet_type = QUERY_PACKET;
                request_info->register_addr_type = MBTCP_PREF_REGISTER_ADDR_RAW;
                request_info->register_format = MBTCP_PREF_REGISTER_FORMAT_UINT16;
@@ -6228,7 +6229,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
                pi = proto_tree_add_text(cip_tree, NULL, 0, 0, "Request Path: ");
                PROTO_ITEM_SET_GENERATED(pi);
 
-               preq_info->ciaData = se_new(cip_simple_request_info_t);
+               preq_info->ciaData = wmem_new(wmem_file_scope(), cip_simple_request_info_t);
                dissect_epath( tvbIOI, pinfo, pi, 0, preq_info->IOILen*2, TRUE, FALSE, preq_info->ciaData, NULL);
                tvb_free(tvbIOI);
             }
@@ -6267,7 +6268,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       pi = proto_tree_add_text(cip_tree, tvb, offset+2, req_path_size*2, "Request Path: ");
       if (preq_info)
       {
-         preq_info->ciaData = se_new(cip_simple_request_info_t);
+         preq_info->ciaData = wmem_new(wmem_file_scope(), cip_simple_request_info_t);
          dissect_epath( tvb, pinfo, pi, offset+2, req_path_size*2, FALSE, FALSE, preq_info->ciaData, NULL);
          memcpy(&path_info, preq_info->ciaData, sizeof(cip_simple_request_info_t));
       }
@@ -6304,7 +6305,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
          preq_info->dissector = dissector;
 
          /* copy IOI for access by response packet */
-         preq_info->pIOI = se_alloc( ioilen*2);
+         preq_info->pIOI = wmem_alloc(wmem_file_scope(), ioilen*2);
          preq_info->IOILen = ioilen;
          tvb_memcpy(tvb, preq_info->pIOI, offset+2, ioilen*2);
 
@@ -6356,7 +6357,7 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       preq_info = enip_info->cip_info;
       if ( preq_info == NULL )
       {
-         preq_info = se_new0(cip_req_info_t);
+         preq_info = wmem_new0(wmem_file_scope(), cip_req_info_t);
          enip_info->cip_info = preq_info;
       }
       dissect_cip_data( tree, tvb, 0, pinfo, enip_info->cip_info );
