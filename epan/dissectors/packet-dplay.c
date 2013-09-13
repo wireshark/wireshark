@@ -28,7 +28,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/aftypes.h>
 #include <string.h>
 
@@ -428,7 +428,7 @@ static gint display_unicode_string(proto_tree *tree, gint hf_index, tvbuff_t *tv
      * Allocate a buffer for the string; "len" is the length in
      * bytes, not the length in characters.
      */
-    str = (char *)ep_alloc(len/2);
+    str = (char *)wmem_alloc(wmem_packet_scope(), len/2);
 
     /*
      * XXX - this assumes the string is just ISO 8859-1; we need
@@ -1745,4 +1745,3 @@ void proto_reg_handoff_dplay(void)
     heur_dissector_add("udp", heur_dissect_dplay, proto_dplay);
     heur_dissector_add("tcp", heur_dissect_dplay, proto_dplay);
 }
-

@@ -84,7 +84,7 @@
 #include <epan/strutil.h>
 
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-kerberos.h>
@@ -1813,7 +1813,7 @@ static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn
     offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
     offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 
-    address_str=(char *)ep_alloc(ADDRESS_STR_BUFSIZ);
+    address_str=(char *)wmem_alloc(wmem_packet_scope(), ADDRESS_STR_BUFSIZ);
     address_str[0]='\0';
     switch(addr_type){
     case KRB5_ADDR_IPv4:

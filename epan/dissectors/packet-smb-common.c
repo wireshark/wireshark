@@ -30,7 +30,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 #include "packet-smb-common.h"
 
@@ -100,7 +100,7 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 	 * Allocate a buffer for the string; "len" is the length in
 	 * bytes, not the length in characters.
 	 */
-	str = (char *)ep_alloc(len/2);
+	str = (char *)wmem_alloc(wmem_packet_scope(), len/2);
 
 	/*
 	 * XXX - this assumes the string is just ISO 8859-1; we need
@@ -163,7 +163,7 @@ unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
 	int           us_len;
 	gboolean      overflow = FALSE;
 
-	cur=(gchar *)ep_alloc(MAX_UNICODE_STR_LEN+3+1);
+	cur=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_UNICODE_STR_LEN+3+1);
 	p = cur;
 	len = MAX_UNICODE_STR_LEN;
 	us_len = 0;
@@ -265,7 +265,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 			/*
 			 * The string we return must be null-terminated.
 			 */
-			cur=(gchar *)ep_alloc(MAX_UNICODE_STR_LEN+3+1);
+			cur=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_UNICODE_STR_LEN+3+1);
 			copylen = *len;
 
 			if (copylen < 0) {

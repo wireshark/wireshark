@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include "epan/packet.h"
+#include <epan/wmem/wmem.h>
 
 #define OPCODE_C_context             0
 #define OPCODE_C_terminal            1
@@ -856,7 +857,7 @@ static char *decode_key_name(int unicode)
 {
     char *key_name;
 
-    key_name = (char *)ep_alloc(10);
+    key_name = (char *)wmem_alloc(wmem_packet_scope(), 10);
 
     if ((unicode <= 0x20)
         || (unicode == 0x7F)
@@ -1115,7 +1116,7 @@ static void decode_evt(proto_tree  *tree,
                 pt_length  -= 1;
             }
             unicode_value = decode_utf8(utf8_value);
-            key_name      = (char *)ep_alloc(30);
+            key_name      = (char *)wmem_alloc(wmem_packet_scope(), 30);
             g_snprintf(key_name, 30, "\"%s\"", decode_key_name((int)unicode_value));
 
             /* add text to the frame "INFO" column */

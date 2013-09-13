@@ -28,7 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
 
 
@@ -85,7 +85,7 @@ PIDL_dissect_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = (char *)ep_alloc(64);
+        valstr = (char *)wmem_alloc(wmem_packet_scope(), 64);
         valstr[0]=0;
 
         switch (hf_info->display) {
@@ -169,7 +169,7 @@ PIDL_dissect_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = (char *)ep_alloc(64);
+        valstr = (char *)wmem_alloc(wmem_packet_scope(), 64);
         valstr[0]=0;
 
         switch (hf_info->display) {
@@ -300,7 +300,7 @@ PIDL_dissect_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = (char *)ep_alloc(64);
+        valstr = (char *)wmem_alloc(wmem_packet_scope(), 64);
         valstr[0]=0;
 
         switch (hf_info->display) {
@@ -417,7 +417,7 @@ PIDL_dissect_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = (char *)ep_alloc(64);
+        valstr = (char *)wmem_alloc(wmem_packet_scope(), 64);
         valstr[0]=0;
 
         switch (hf_info->display) {

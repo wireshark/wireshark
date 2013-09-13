@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include "packet-ieee80211.h"
 
 #define SHORT_STR 256
@@ -153,7 +154,7 @@ static gint ett_prism_did = -1;
 #define PRISM_TYPE1_MACTIME      0x00020044      /* Mac time element */
 #define PRISM_TYPE2_MACTIME      0x00002041
 #define PRISM_TYPE1_CHANNEL      0x00030044      /* Channel element */
-#define PRISM_TYPE2_CHANNEL      0x00003041 
+#define PRISM_TYPE2_CHANNEL      0x00003041
 #define PRISM_TYPE1_RSSI         0x00040044      /* RSSI element */
 #define PRISM_TYPE2_RSSI         0x00004041
 #define PRISM_TYPE1_SQ           0x00050044      /* SQ element */
@@ -223,7 +224,7 @@ static gchar *
 prism_rate_return(guint32 rate)
 {
   gchar *result=NULL;
-  result = (gchar *)ep_alloc(SHORT_STR);
+  result = (gchar *)wmem_alloc(wmem_packet_scope(), SHORT_STR);
   result[0] = '\0';
   prism_rate_base_custom(result, rate);
 

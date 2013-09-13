@@ -46,7 +46,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 #include <epan/expert.h>
 
@@ -459,7 +459,7 @@ unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
     return "";
 
   if (endianness) {
-      byte_array = (guint8 *)ep_alloc(length*2 + 1);
+      byte_array = (guint8 *)wmem_alloc(wmem_packet_scope(), length*2 + 1);
       for (i = length; i > 0; i--) {
         c_char = ascii_text[i];
         if (c_char != 0) {
@@ -478,7 +478,7 @@ unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
   }
   else
   {
-      byte_array = (guint8 *)ep_alloc(length + 1);
+      byte_array = (guint8 *)wmem_alloc(wmem_packet_scope(), length + 1);
       for (i = 0; i < length; i++) {
         c_char = ascii_text[i];
         if (c_char != 0) {

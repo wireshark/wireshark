@@ -33,7 +33,7 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include <epan/tvbparse.h>
 
@@ -613,7 +613,7 @@ tvb_mip6_fmt_ts(tvbuff_t *tvb, gint offset)
 	}
 
 	fractime = bd->tm_sec + tempfrac / NTP_FLOAT_DENOM;
-	buff=(char *)ep_alloc(NTP_TS_SIZE);
+	buff=(char *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
 	g_snprintf(buff, NTP_TS_SIZE,
 		 "%s %2d, %d %02d:%02d:%07.4f UTC",
 		 mon_names[bd->tm_mon],
@@ -655,7 +655,7 @@ tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 	}
 
 	fractime = bd->tm_sec + tempfrac / NTP_FLOAT_DENOM;
-	buff=(char *)ep_alloc(NTP_TS_SIZE);
+	buff=(char *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
 	g_snprintf(buff, NTP_TS_SIZE,
 		 "%s %2d, %d %02d:%02d:%09.6f UTC",
 		 mon_names[bd->tm_mon],
@@ -831,7 +831,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 * But, all V3 and V4 servers set this to IP address of their
 	 * higher level server. My decision was to resolve this address.
 	 */
-	buff = (gchar *)ep_alloc(NTP_TS_SIZE);
+	buff = (gchar *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
 	if (stratum <= 1) {
 		g_snprintf (buff, NTP_TS_SIZE, "Unidentified reference source '%.4s'",
 			tvb_get_ephemeral_string(tvb, 12, 4));

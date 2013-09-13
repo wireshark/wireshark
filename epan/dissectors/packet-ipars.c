@@ -31,7 +31,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 static int      proto_ipars     = -1;
 static guint8   ipars_eomtype   = G_MAXUINT8;
@@ -58,7 +58,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
     int         offset = 0;
     gchar       *eom_msg;
 
-    eom_msg = (gchar *)ep_alloc(MAX_EOM_MSG_SIZE);
+    eom_msg = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_EOM_MSG_SIZE);
     eom_msg[0] = 0;
 
     col_clear(pinfo->cinfo, COL_INFO);

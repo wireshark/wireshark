@@ -29,6 +29,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/wmem/wmem.h>
 #include "packet-ssl.h"
 
 #include <stdio.h>
@@ -80,8 +81,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int             iter;
 	int             commandlen;
 
-	tokenbuf = (guchar *)ep_alloc(MAX_BUFFER);
-	command_token = (guchar *)ep_alloc(MAX_BUFFER);
+	tokenbuf = (guchar *)wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
+	command_token = (guchar *)wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
 	memset(tokenbuf, '\0', MAX_BUFFER);
 	memset(command_token, '\0', MAX_BUFFER);
 	commandlen = 0;
@@ -158,7 +159,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  }
 
 			  /*
-			   * Extract second token, and, if there is a second 
+			   * Extract second token, and, if there is a second
 			   * token, and it's not uid, add it as the request or reply command.
 			   */
 			  tokenlen = get_token_len(line, line + linelen, &next_token);
@@ -169,7 +170,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    if ( TRUE == is_request && strncmp(tokenbuf,"uid",tokenlen) == 0) {
 			      proto_tree_add_item(reqresp_tree, hf_imap_request_uid, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
 			      /*
-			       * UID is a precursor to a command, if following the tag, 
+			       * UID is a precursor to a command, if following the tag,
                                * so move to next token to grab the actual command.
                                */
 			      uid_offset = offset;

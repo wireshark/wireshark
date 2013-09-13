@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/in_cksum.h>
+#include <epan/wmem/wmem.h>
 
 #include <epan/oui.h>
 #include <epan/nlpid.h>
@@ -245,7 +246,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (data_length & 1) {
         guint8 *padded_buffer;
         /* Allocate new buffer */
-        padded_buffer = (guint8 *)ep_alloc(data_length+1);
+        padded_buffer = (guint8 *)wmem_alloc(wmem_packet_scope(), data_length+1);
         tvb_memcpy(tvb, padded_buffer, 0, data_length);
         /* Swap bytes in last word */
         padded_buffer[data_length] = padded_buffer[data_length-1];

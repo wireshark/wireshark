@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
+#include <epan/wmem/wmem.h>
 
 
 static int proto_lapsat = -1;
@@ -268,7 +269,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int is_
 	const char *frame_type;
 	char *info;
 
-	info = (char *)ep_alloc(80);
+	info = (char *)wmem_alloc(wmem_packet_scope(), 80);
 
 	/* Grab complete control field */
 	ctl = tvb_get_ntohs(tvb, 1) >> 4;

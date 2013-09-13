@@ -34,7 +34,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/ptvcursor.h>
 
 /*
@@ -257,7 +257,7 @@ optsstr(guint8 opts)
 	if (opts == 0)
 		return("");
 
-	msg=(char *)ep_alloc(MAX_STR_LEN);
+	msg=(char *)wmem_alloc(wmem_packet_scope(), MAX_STR_LEN);
 	if (opts & PGM_OPT){
 		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "Present");
 		idx += MIN(returned_length, MAX_STR_LEN-idx);
@@ -289,7 +289,7 @@ paritystr(guint8 parity)
 	if (parity == 0)
 		return("");
 
-	msg=(char *)ep_alloc(MAX_STR_LEN);
+	msg=(char *)wmem_alloc(wmem_packet_scope(), MAX_STR_LEN);
 	if (parity & PGM_OPT_PARITY_PRM_PRO){
 		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "Pro-active");
 		idx += MIN(returned_length, MAX_STR_LEN-idx);
@@ -506,7 +506,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			firsttime = TRUE;
 			soffset = 0;
 			naks = (int)(optdata_len/sizeof(guint32));
-			nakbuf = (unsigned char *)ep_alloc(8192);
+			nakbuf = (unsigned char *)wmem_alloc(wmem_packet_scope(), 8192);
 			j = 0;
 			/*
 			 * Print out 8 per line

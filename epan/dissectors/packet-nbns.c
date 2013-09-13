@@ -30,7 +30,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
@@ -172,8 +172,8 @@ static const true_false_string tfs_flags_broadcast = {
     "Not a broadcast packet"
 };
 
-static const true_false_string tfs_nbss_flags_e = { 
-    "Add 65536 to length", 
+static const true_false_string tfs_nbss_flags_e = {
+    "Add 65536 to length",
     "Add 0 to length"
 };
 
@@ -316,7 +316,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
     char         *pname_ret;
     size_t        idx = 0;
 
-    nbname_buf = (char *)ep_alloc(NBNAME_BUF_LEN);
+    nbname_buf = (char *)wmem_alloc(wmem_packet_scope(), NBNAME_BUF_LEN);
     nbname = nbname_buf;
     /* XXX Fix data len */
     name_len = get_dns_name(tvb, offset, 0, nbns_data_offset, &name);
@@ -453,7 +453,7 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
     proto_tree *q_tree;
     proto_item *tq;
 
-    name = (char *)ep_alloc(MAX_NAME_LEN);
+    name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
     data_start = data_offset = offset;
 
     name_len = MAX_NAME_LEN;
@@ -510,7 +510,7 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
     if (!nbns_tree)
         return;
 
-    buf = (char *)ep_alloc(MAX_BUF_SIZE);
+    buf = (char *)wmem_alloc(wmem_packet_scope(), MAX_BUF_SIZE);
     opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
     g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str_const(opcode, opcode_vals, "Unknown operation"));
     if (flags & F_RESPONSE && !is_wack) {
@@ -562,7 +562,7 @@ nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(field_tree, hf_nbns_nb_flags_group, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_nbns_nb_flags_ont, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    proto_item_append_text(tf, "(%s, %s", 
+    proto_item_append_text(tf, "(%s, %s",
                 val_to_str_const(flags & NB_FLAGS_ONT, nb_flags_ont_vals, "Unknown"),
                 (flags & NB_FLAGS_G) ? "group" : "unique");
 }
@@ -587,18 +587,18 @@ nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(field_tree, hf_nbns_name_flags_act, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_nbns_name_flags_prm, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    proto_item_append_text(tf, "(%s, %s", 
+    proto_item_append_text(tf, "(%s, %s",
                 val_to_str_const(flags & NAME_FLAGS_ONT, name_flags_ont_vals, "Unknown"),
                 (flags & NAME_FLAGS_G) ? "group" : "unique");
     if (flags & NAME_FLAGS_DRG)
-        proto_item_append_text(tf, ", being deregistered"); 
+        proto_item_append_text(tf, ", being deregistered");
     if (flags & NAME_FLAGS_CNF)
-        proto_item_append_text(tf, ", in conflict"); 
+        proto_item_append_text(tf, ", in conflict");
     if (flags & NAME_FLAGS_ACT)
-        proto_item_append_text(tf, ", active"); 
+        proto_item_append_text(tf, ", active");
     if (flags & NAME_FLAGS_PRM)
-        proto_item_append_text(tf, ", permanent node name"); 
-    proto_item_append_text(tf, ")"); 
+        proto_item_append_text(tf, ", permanent node name");
+    proto_item_append_text(tf, ")");
 }
 
 static int
@@ -625,9 +625,9 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
     cur_offset = offset;
 
-    name     = (char *)ep_alloc(MAX_NAME_LEN);
-    name_str = (char *)ep_alloc(MAX_NAME_LEN);
-    nbname   = (char *)ep_alloc(16+4+1); /* 4 for [<last char>] */
+    name     = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
+    name_str = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
+    nbname   = (char *)wmem_alloc(wmem_packet_scope(), 16+4+1); /* 4 for [<last char>] */
 
     name_len = MAX_NAME_LEN;
     len      = get_nbns_name_type_class(tvb, offset, nbns_data_offset, name,
@@ -1223,7 +1223,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int name_type;
     int len;
 
-    name = (char *)ep_alloc(MAX_NAME_LEN);
+    name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBDS");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1430,7 +1430,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
     const char   *saved_proto;
     void	 *pd_save;
 
-    name = (char *)ep_alloc(MAX_NAME_LEN);
+    name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
 
     /* Desegmentation */
     length_remaining = tvb_length_remaining(tvb, offset);

@@ -33,6 +33,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 #define CIMD_STX   0x02 /* Start of CIMD PDU */
 #define CIMD_ETX   0x03 /* End of CIMD PDU */
@@ -408,7 +409,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
 
   payloadText = tvb_format_text(tvb, g_offset, g_size);
   size = (int)strlen(payloadText);
-  tmpBuffer = (gchar*)ep_alloc(size+1);
+  tmpBuffer = (gchar*)wmem_alloc(wmem_packet_scope(), size+1);
   for (loop = 0; loop < size; loop++)
   {
     if (payloadText[loop] == '_')
@@ -454,7 +455,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   tmpBuffer[bufPoz] = '\0';
 
   size1 = (int)strlen(tmpBuffer);
-  tmpBuffer1 = (gchar*)ep_alloc(size1+1);
+  tmpBuffer1 = (gchar*)wmem_alloc(wmem_packet_scope(), size1+1);
   for (loop=0; loop<size1; loop++)
   {
     ch = tmpBuffer[loop];
@@ -607,7 +608,7 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
   guint       dcs_is;           /* indication sense */
   guint       dcs_it;           /* indication type */
 
-  gchar* bigbuf = (gchar*)ep_alloc(1024);
+  gchar* bigbuf = (gchar*)wmem_alloc(wmem_packet_scope(), 1024);
 
   param_item = proto_tree_add_text(tree, tvb,
     startOffset + 1, endOffset - (startOffset + 1),

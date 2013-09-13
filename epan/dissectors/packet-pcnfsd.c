@@ -37,6 +37,7 @@ Protocol information comes from the book
 
 #include "packet-rpc.h"
 #include "packet-pcnfsd.h"
+#include <epan/wmem/wmem.h>
 
 static int proto_pcnfsd = -1;
 static int hf_pcnfsd_procedure_v1 = -1;
@@ -176,7 +177,7 @@ pcnfsd_decode_obscure(const char* data, int len)
 	char *decoded_buf;
 	char *decoded_data;
 
-	decoded_buf = (char *)ep_alloc(len);
+	decoded_buf = (char *)wmem_alloc(wmem_packet_scope(), len);
 	decoded_data = decoded_buf;
 	for ( ; len>0 ; len--, data++, decoded_data++) {
 		*decoded_data = (*data ^ 0x5b) & 0x7f;
@@ -249,7 +250,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if (password) {
 		/* Only attempt to decode the password if it has been specified */
-		if (strcmp(password, RPC_STRING_EMPTY))	
+		if (strcmp(password, RPC_STRING_EMPTY))
 			pcnfsd_decode_obscure(password, (int)strlen(password));
 
 		if (password_tree)
@@ -444,4 +445,3 @@ proto_reg_handoff_pcnfsd(void)
 	rpc_init_proc_table(PCNFSD_PROGRAM, 1, pcnfsd1_proc, hf_pcnfsd_procedure_v1);
 	rpc_init_proc_table(PCNFSD_PROGRAM, 2, pcnfsd2_proc, hf_pcnfsd_procedure_v2);
 }
-
