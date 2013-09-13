@@ -30,6 +30,8 @@
 
 #include "config.h"
 
+#include <epan/emem.h>
+
 /* WSLUA_MODULE Tvb Functions for handling packet data */
 
 #include "wslua.h"

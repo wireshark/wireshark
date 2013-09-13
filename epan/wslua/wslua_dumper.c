@@ -28,6 +28,8 @@
 
 #include "config.h"
 
+#include <epan/emem.h>
+
 /* WSLUA_MODULE Dumper Saving capture files */
 
 #include "wslua.h"

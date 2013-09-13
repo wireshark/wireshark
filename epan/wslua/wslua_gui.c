@@ -26,6 +26,8 @@
 
 #include "config.h"
 
+#include <epan/emem.h>
+
 #include "wslua.h"
 
 /* WSLUA_MODULE Gui GUI support */

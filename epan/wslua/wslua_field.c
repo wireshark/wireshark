@@ -28,6 +28,8 @@
 
 #include "config.h"
 
+#include <epan/emem.h>
+
 /* WSLUA_MODULE Field Obtaining dissection data */
 
 #include "wslua.h"

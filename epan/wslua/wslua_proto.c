@@ -29,6 +29,8 @@
 
 #include "config.h"
 
+#include <epan/emem.h>
+
 /* WSLUA_MODULE Proto Functions for writing dissectors */
 
 #include "wslua.h"

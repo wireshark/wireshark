@@ -29,6 +29,8 @@
 
 #include "config.h"
 
+#include <epan/emem.h>
+
 /* WSLUA_MODULE Tree Adding information to the dissection tree */
 
 #include "wslua.h"

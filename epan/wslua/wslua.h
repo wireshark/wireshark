@@ -51,7 +51,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/filesystem.h>
-#include <epan/emem.h>
 #include <epan/funnel.h>
 #include <epan/tvbparse.h>
 #include <epan/epan.h>

@@ -30,6 +30,8 @@
 
 #include "config.h"
 
+#include <epan/emem.h>
+
 /* WSLUA_MODULE Listener Post-dissection packet analysis */
 
 #include "wslua.h"

@@ -30,6 +30,8 @@
 
 #include "config.h"
 
+#include <epan/emem.h>
+
 /* WSLUA_MODULE Pinfo Obtaining packet information */
 
 
