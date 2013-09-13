@@ -1489,7 +1489,7 @@ sub check_included_files($$)
                 }
         }
 }
- 
+
 sub check_proto_tree_add_XXX_encoding($$)
 {
         my ($fileContentsRef, $filename) = @_;
@@ -1866,22 +1866,28 @@ my @apiSummaryGroups = ();
 my $check_value_string_array_null_termination = 1;      # default: enabled
 my $machine_readable_output = 0;                        # default: disabled
 my $check_hf = 1;                                       # default: enabled
-my $buildbot_flag = 0;                                  # default: no
-my $debug_flag = 0;
+my $check_addtext = 1;                                  # default: enabled
+my $debug_flag = 0;                                     # default: disabled
 
 my $result = GetOptions(
                         'group=s' => \@apiGroups,
                         'summary-group=s' => \@apiSummaryGroups,
                         'check-value-string-array-null-termination!' => \$check_value_string_array_null_termination,
                         'Machine-readable' => \$machine_readable_output,
-                        'nohf' => \$check_hf,
-                        'build' => \$buildbot_flag,
+                        'check-hf!' => \$check_hf,
+                        'check-addtext!' => \$check_addtext,
                         'debug' => \$debug_flag
                         );
 if (!$result) {
-        print "Usage: checkAPIs.pl [-M] [-g group1] [-g group2] ... [-s group1] [-s group2] ... [--nocheck-value-string-array-null-termination] file1 file2 ..\n";
-        print "       -g <group>:  Check input files for use of APIs in <group> (in addition to the default groups)\n";
-        print "       -s <group>:  Output summary (count) for each API in <group> (-g <group> also req'd)\n";
+        print "Usage: checkAPIs.pl [-M] [-g group1] [-g group2] ... \n";
+        print "                    [-s group1] [-s group2] ... \n";
+        print "                    [--nocheck-value-string-array-null-termination] \n";
+        print "                    [--nocheck-addtext] [--nocheck-hf] [--debug] file1 file2 ...\n";
+        print "\n";
+        print "       -g <group>:  Check input files for use of APIs in <group>\n";
+        print "                    (in addition to the default groups)\n";
+        print "       -s <group>:  Output summary (count) for each API in <group>\n";
+        print "                    (-g <group> also req'd)\n";
         print "       -M: Generate output for -g in 'machine-readable' format\n";
         print "\n";
         print "   Default Groups[-g]: ", join (", ", sort @apiGroups), "\n";
@@ -1981,7 +1987,7 @@ while ($_ = $ARGV[0])
 
         check_snprintf_plus_strlen(\$fileContents, $filename);
 
-        if (! $buildbot_flag) {
+        if ($check_addtext) {
                 checkAddTextCalls(\$fileContents, $filename);
         }
 
