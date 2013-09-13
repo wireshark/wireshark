@@ -73,6 +73,10 @@ private:
     bool seq_origin_zero_;
     struct tcp_graph graph_;
     QCPPlotTitle *title_;
+    QCPGraph *base_graph_; // Clickable packets
+    QCPGraph *tput_graph_;
+    QCPGraph *ack_graph_;
+    QCPGraph *rwin_graph_;
     QCPItemTracer *tracer_;
     QRectF axis_bounds_;
     guint32 packet_num_;
@@ -86,11 +90,13 @@ private:
     int num_acks_;
     int num_sack_ranges_;
 
+    void findStream();
     void fillGraph();
     void zoomAxes(bool in);
     void panAxes(int x_pixels, int y_pixels);
     void resetAxes();
     void fillStevens();
+    void fillTcptrace();
     void fillThroughput();
     void fillRoundTripTime();
     void fillWindowScale();
@@ -108,8 +114,7 @@ private slots:
     void on_buttonBox_accepted();
     void on_graphTypeComboBox_currentIndexChanged(int index);
     void on_resetButton_clicked();
-    void on_prevStreamPushButton_clicked();
-    void on_nextStreamPushButton_clicked();
+    void on_streamNumberSpinBox_valueChanged(int new_stream);
     void on_otherDirectionButton_clicked();
     void on_dragRadioButton_toggled(bool checked);
     void on_selectRadioButton_toggled(bool checked);
@@ -131,6 +136,11 @@ private slots:
     void on_actionDragZoom_triggered();
     void on_actionToggleSequenceNumbers_triggered();
     void on_actionToggleTimeOrigin_triggered();
+    void on_actionRoundTripTime_triggered();
+    void on_actionThroughput_triggered();
+    void on_actionStevens_triggered();
+    void on_actionTcptrace_triggered();
+    void on_actionWindowScaling_triggered();
 };
 
 #endif // TCP_STREAM_DIALOG_H

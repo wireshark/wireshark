@@ -48,6 +48,7 @@ const int moving_avg_period_ = 20;
 #endif
 const QRgb graph_color_1 = tango_sky_blue_5;
 const QRgb graph_color_2 = tango_butter_6;
+const QRgb graph_color_3 = tango_chameleon_5;
 
 // Don't accidentally zoom into a 1x1 rect if you happen to click on the graph
 // in zoom mode.
@@ -68,7 +69,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     cap_file_(cf),
     ts_origin_conn_(true),
     seq_origin_zero_(true),
-    tracer_(NULL),
     mouse_drags_(true),
     rubber_band_(NULL),
     num_dsegs_(-1),
@@ -89,19 +89,13 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 //#endif
 
     ui->graphTypeComboBox->setUpdatesEnabled(false);
-    ui->graphTypeComboBox->addItem(tr("Time / Sequence (Stevens)"), qVariantFromValue(GRAPH_TSEQ_STEVENS));
-    ui->graphTypeComboBox->addItem(tr("Throughput"), qVariantFromValue(GRAPH_THROUGHPUT));
-    ui->graphTypeComboBox->addItem(tr("Round Trip Time"), qVariantFromValue(GRAPH_RTT));
-    ui->graphTypeComboBox->addItem(tr("Window Scaling"), qVariantFromValue(GRAPH_WSCALE));
+    ui->graphTypeComboBox->addItem(ui->actionRoundTripTime->text(), qVariantFromValue(GRAPH_RTT));
+    ui->graphTypeComboBox->addItem(ui->actionThroughput->text(), qVariantFromValue(GRAPH_THROUGHPUT));
+    ui->graphTypeComboBox->addItem(ui->actionStevens->text(), qVariantFromValue(GRAPH_TSEQ_STEVENS));
+    ui->graphTypeComboBox->addItem(ui->actionTcptrace->text(), qVariantFromValue(GRAPH_TSEQ_TCPTRACE));
+    ui->graphTypeComboBox->addItem(ui->actionWindowScaling->text(), qVariantFromValue(GRAPH_WSCALE));
     ui->graphTypeComboBox->setCurrentIndex(-1);
     ui->graphTypeComboBox->setUpdatesEnabled(true);
-
-    if (QIcon::hasThemeIcon("go-previous") && QIcon::hasThemeIcon("go-next")) {
-        ui->prevStreamPushButton->setText(QString());
-        ui->prevStreamPushButton->setIcon(QIcon::fromTheme("go-previous"));
-        ui->nextStreamPushButton->setText(QString());
-        ui->nextStreamPushButton->setIcon(QIcon::fromTheme("go-next"));
-    }
 
     ui->dragRadioButton->setChecked(mouse_drags_);
 
@@ -126,6 +120,13 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ctx_menu_.addAction(ui->actionDragZoom);
     ctx_menu_.addAction(ui->actionToggleSequenceNumbers);
     ctx_menu_.addAction(ui->actionToggleTimeOrigin);
+    ctx_menu_.addAction(ui->actionCrosshairs);
+    ctx_menu_.addSeparator();
+    ctx_menu_.addAction(ui->actionRoundTripTime);
+    ctx_menu_.addAction(ui->actionThroughput);
+    ctx_menu_.addAction(ui->actionStevens);
+    ctx_menu_.addAction(ui->actionTcptrace);
+    ctx_menu_.addAction(ui->actionWindowScaling);
 
     memset (&graph_, 0, sizeof(graph_));
     graph_.type = graph_type;
@@ -134,26 +135,40 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     COPY_ADDRESS(&graph_.dst_address, &current.ip_dst);
     graph_.dst_port = current.th_dport;
     graph_.stream = header->th_stream;
+    findStream();
+
+    ui->streamNumberSpinBox->setValue(graph_.stream);
+    ui->streamNumberSpinBox->setMaximum(get_tcp_stream_count() - 1);
 
     QCustomPlot *sp = ui->streamPlot;
     QCPPlotTitle *file_title = new QCPPlotTitle(sp, cf_get_display_name(cap_file_));
     file_title->setFont(sp->xAxis->labelFont());
     title_ = new QCPPlotTitle(sp);
-    tracer_ = new QCPItemTracer(sp);
     sp->plotLayout()->insertRow(0);
     sp->plotLayout()->addElement(0, 0, file_title);
     sp->plotLayout()->insertRow(0);
     sp->plotLayout()->addElement(0, 0, title_);
-    sp->addGraph(); // 0 - All: Selectable segments
-    sp->addGraph(sp->xAxis, sp->yAxis2); // 1 - Throughput: Moving average
+
+    base_graph_ = sp->addGraph(); // All: Selectable segments
+    base_graph_->setPen(QPen(QBrush(graph_color_1), 0.25));
+    base_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 5));
+    tput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2); // Throughput: Moving average
+    tput_graph_->setPen(QPen(QBrush(graph_color_2), 0.5));
+    tput_graph_->setLineStyle(QCPGraph::lsLine);
+    ack_graph_ = sp->addGraph(); // tcptrace: rev ACKs
+    ack_graph_->setPen(QPen(QBrush(graph_color_2), 0.5));
+    ack_graph_->setLineStyle(QCPGraph::lsStepLeft);
+    rwin_graph_ = sp->addGraph(); // tcptrace: rev RWIN
+    rwin_graph_->setPen(QPen(QBrush(graph_color_3), 0.5));
+    rwin_graph_->setLineStyle(QCPGraph::lsStepLeft);
+
+    tracer_ = new QCPItemTracer(sp);
     sp->addItem(tracer_);
 
     // Fills the graph
     ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(graph_type)));
 
     sp->setMouseTracking(true);
-    sp->graph(0)->setPen(QPen(QBrush(graph_color_1), 0.25));
-    sp->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 5));
 
     sp->yAxis->setLabelColor(QColor(graph_color_1));
     sp->yAxis->setTickLabelColor(QColor(graph_color_1));
@@ -235,21 +250,21 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
         resetAxes();
         break;
 
-    case Qt::Key_PageDown:
-        on_prevStreamPushButton_clicked();
-        break;
     case Qt::Key_PageUp:
-        on_nextStreamPushButton_clicked();
+        on_actionNextStream_triggered();
+        break;
+    case Qt::Key_PageDown:
+        on_actionPreviousStream_triggered();
         break;
 
     case Qt::Key_D:
-        on_otherDirectionButton_clicked();
+        on_actionSwitchDirection_triggered();
         break;
     case Qt::Key_G:
         on_actionGoToPacket_triggered();
         break;
     case Qt::Key_S:
-        on_actionSwitchDirection_triggered();
+        on_actionToggleSequenceNumbers_triggered();
         break;
     case Qt::Key_T:
         on_actionToggleTimeOrigin_triggered();
@@ -258,55 +273,36 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
         on_actionDragZoom_triggered();
         break;
 
+    case Qt::Key_1:
+        on_actionRoundTripTime_triggered();
+        break;
+    case Qt::Key_2:
+        on_actionThroughput_triggered();
+        break;
+    case Qt::Key_3:
+        on_actionStevens_triggered();
+        break;
+    case Qt::Key_4:
+        on_actionTcptrace_triggered();
+        break;
+    case Qt::Key_5:
+        on_actionWindowScaling_triggered();
+        break;
         // Alas, there is no Blade Runner-style Qt::Key_Enhance
     }
 
     QDialog::keyPressEvent(event);
-
-    // GTK+ Shortcuts:
-    // Left Mouse Button	selects segment under cursor in Wiresharks packet list
-    // can also drag to zoom in on a rectangular region
-    // Middle Mouse Button	zooms in (towards area under cursor)
-    // <Shift>-Middle Mouse Button	zooms out
-
-    // Right Mouse Button	moves the graph (if zoomed in)
-    // <Ctrl>-Right Mouse Button	displays a portion of graph under cursor magnified
-
-    // 1	display Round Trip Time Graph
-    // 2	display Throughput Graph
-    // 3	display Time/Sequence Graph (Stevens)
-    // 4	display Time/Sequence Graph (tcptrace)
-    // 5	display Window Scaling Graph
-
-    // <Space bar>	toggles crosshairs on/off
-
-    // i or +	zoom in (towards area under mouse pointer)
-    // o or -	zoom out
-    // r or <Home>	restore graph to initial state (zoom out max)
-    // s	toggles relative/absolute sequence numbers
-    // t	toggles time origin
-    // g	go to frame under cursor in Wiresharks packet list (if possible)
-
-    // <Left>	move view left by 100 pixels (if zoomed in)
-    // <Right>	move view right 100 pixels (if zoomed in)
-    // <Up>	move view up by 100 pixels (if zoomed in)
-    // <Down>	move view down by 100 pixels (if zoomed in)
-
-    // <Shift><Left>	move view left by 10 pixels (if zoomed in)
-    // <Shift><Right>	move view right 10 pixels (if zoomed in)
-    // <Shift><Up>	move view up by 10 pixels (if zoomed in)
-    // <Shift><Down>	move view down by 10 pixels (if zoomed in)
-
-    // <Ctrl><Left>	move view left by 1 pixel (if zoomed in)
-    // <Ctrl><Right>	move view right 1 pixel (if zoomed in)
-    // <Ctrl><Up>	move view up by 1 pixel (if zoomed in)
-    // <Ctrl><Down>	move view down by 1 pixel (if zoomed in)
-
 }
 
 void TCPStreamDialog::mouseReleaseEvent(QMouseEvent *event)
 {
     mouseReleased(event);
+}
+
+void TCPStreamDialog::findStream()
+{
+    graph_segment_list_free(&graph_);
+    graph_segment_list_get(cap_file_, &graph_, TRUE);
 }
 
 void TCPStreamDialog::fillGraph()
@@ -315,16 +311,10 @@ void TCPStreamDialog::fillGraph()
 
     if (sp->graphCount() < 1) return;
 
-    time_stamp_map_.clear();
-    sequence_num_map_.clear();
-    graph_segment_list_free(&graph_);
+    base_graph_->setLineStyle(QCPGraph::lsNone);
     tracer_->setGraph(NULL);
 
-    ui->streamNumberLabel->setText(QString("Stream %1").arg(graph_.stream));
-    ui->prevStreamPushButton->setEnabled(graph_.stream > 0);
-    ui->nextStreamPushButton->setEnabled(graph_.stream < get_tcp_stream_count() - 1);
-
-    // We need at least one graph, so don't bother deleting the first one.
+    // base_graph_ is always visible.
     for (int i = 0; i < sp->graphCount(); i++) {
         sp->graph(i)->clearData();
         sp->graph(i)->setVisible(i == 0 ? true : false);
@@ -348,14 +338,11 @@ void TCPStreamDialog::fillGraph()
         return;
     }
 
-    // XXX graph_segment_list_get returns a different list for throughput
-    // graphs. If the throughput list used the same list we could call this
-    // above in our ctor.
-    graph_segment_list_get(cap_file_, &graph_, TRUE);
     ts_offset_ = 0;
     seq_offset_ = 0;
     bool first = true;
 
+    time_stamp_map_.clear();
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         if (!compareHeaders(seg)) {
             continue;
@@ -373,6 +360,9 @@ void TCPStreamDialog::fillGraph()
     case GRAPH_TSEQ_STEVENS:
         fillStevens();
         break;
+    case GRAPH_TSEQ_TCPTRACE:
+        fillTcptrace();
+        break;
     case GRAPH_THROUGHPUT:
         fillThroughput();
         break;
@@ -388,7 +378,7 @@ void TCPStreamDialog::fillGraph()
     sp->setEnabled(true);
 
     resetAxes();
-    tracer_->setGraph(sp->graph(0));
+    tracer_->setGraph(base_graph_);
 }
 
 void TCPStreamDialog::zoomAxes(bool in)
@@ -433,32 +423,27 @@ void TCPStreamDialog::resetAxes()
     y_axis_xfrm_.reset();
     double pixel_pad = 10.0; // per side
 
-    sp->graph(0)->rescaleAxes(false, true);
-    for (int i = 1; i < sp->graphCount(); i++) {
-        sp->graph(i)->rescaleValueAxis(false, true);
-    }
+    base_graph_->rescaleAxes(false, true);
+    tput_graph_->rescaleValueAxis(false, true);
 
     double axis_pixels = sp->xAxis->axisRect()->width();
     sp->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->xAxis->range().center());
 
-    axis_pixels = sp->yAxis->axisRect()->height();
-    sp->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->yAxis->range().center());
-
-    if (sp->graph(1)->visible()) {
-        axis_pixels = sp->yAxis2->axisRect()->height();
-        sp->yAxis2->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->yAxis2->range().center());
-
+    if (sp->yAxis2->visible()) {
         double ratio = sp->yAxis2->range().size() / sp->yAxis->range().size();
         y_axis_xfrm_.translate(0.0, sp->yAxis2->range().lower - (sp->yAxis->range().lower * ratio));
         y_axis_xfrm_.scale(1.0, ratio);
     }
+
+    axis_pixels = sp->yAxis->axisRect()->height();
+    sp->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->yAxis->range().center());
 
     sp->replot();
 }
 
 void TCPStreamDialog::fillStevens()
 {
-    QString dlg_title = QString(tr("Sequence Numbers")) + streamDescription();
+    QString dlg_title = QString(tr("Sequence Numbers (Stevens)")) + streamDescription();
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
 
@@ -466,7 +451,7 @@ void TCPStreamDialog::fillStevens()
     sp->yAxis->setLabel(sequence_number_label_);
 
     // True Stevens-style graphs don't have lines but I like them - gcc
-    sp->graph(0)->setLineStyle(QCPGraph::lsStepLeft);
+    base_graph_->setLineStyle(QCPGraph::lsStepLeft);
 
     QVector<double> rel_time, seq;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
@@ -478,9 +463,46 @@ void TCPStreamDialog::fillStevens()
         rel_time.append(ts - ts_offset_);
         seq.append(seg->th_seq - seq_offset_);
     }
-    sp->graph(0)->setData(rel_time, seq);
+    base_graph_->setData(rel_time, seq);
 }
 
+void TCPStreamDialog::fillTcptrace()
+{
+    QString dlg_title = QString(tr("Sequence Numbers (tcptrace)")) + streamDescription();
+    setWindowTitle(dlg_title);
+    title_->setText(dlg_title);
+
+    QCustomPlot *sp = ui->streamPlot;
+    sp->yAxis->setLabel(sequence_number_label_);
+
+    ack_graph_->setVisible(true);
+    rwin_graph_->setVisible(true);
+
+    QVector<double> seq_time, seq, ackrwin_time, ack, rwin;
+    for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
+        double ts = (seg->rel_secs + seg->rel_usecs / 1000000.0) - ts_offset_;
+        if (compareHeaders(seg)) {
+            // Forward direction: seq + data
+            seq_time.append(ts);
+            seq.append(seg->th_seq - seq_offset_);
+        } else {
+            // Reverse direction: ACK + RWIN
+            if (! (seg->th_flags & TH_ACK)) {
+                // SYNs and RSTs do not necessarily have ACKs
+                continue;
+            }
+            double ackno = seg->th_ack - seq_offset_;
+            ackrwin_time.append(ts);
+            ack.append(ackno);
+            rwin.append(ackno + seg->th_win);
+        }
+    }
+    base_graph_->setData(seq_time, seq);
+    ack_graph_->setData(ackrwin_time, ack);
+    rwin_graph_->setData(ackrwin_time, rwin);
+}
+
+// XXX Bug: We plot negative values sometimes.
 void TCPStreamDialog::fillThroughput()
 {
     QString dlg_title = QString(tr("Throughput")) + streamDescription();
@@ -499,10 +521,7 @@ void TCPStreamDialog::fillThroughput()
     sp->yAxis2->setTickLabelColor(QColor(graph_color_2));
     sp->yAxis2->setVisible(true);
 
-    sp->graph(0)->setLineStyle(QCPGraph::lsNone);
-    sp->graph(1)->setVisible(true);
-    sp->graph(1)->setPen(QPen(QBrush(graph_color_2), 0.5));
-    sp->graph(1)->setLineStyle(QCPGraph::lsLine);
+    tput_graph_->setVisible(true);
 
     if (!graph_.segments || !graph_.segments->next) {
         dlg_title.append(tr(" [not enough data]"));
@@ -520,6 +539,10 @@ void TCPStreamDialog::fillThroughput()
     // For now use not-really-correct initial values just to keep our vector
     // lengths the same.
     for (struct segment *seg = graph_.segments->next; seg != NULL; seg = seg->next) {
+        if (!compareHeaders(seg)) {
+            continue;
+        }
+
         double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
 
 #ifdef MA_1_SECOND
@@ -554,11 +577,11 @@ void TCPStreamDialog::fillThroughput()
             tput[tput.size() - 1] = av_tput;
         } else {
             tput.append(av_tput);
-            tput_time.append(ts);
+            tput_time.append(ts - ts_offset_);
         }
     }
-    sp->graph(0)->setData(rel_time, seg_len);
-    sp->graph(1)->setData(tput_time, tput);
+    base_graph_->setData(rel_time, seg_len);
+    tput_graph_->setData(tput_time, tput);
 }
 
 void TCPStreamDialog::fillRoundTripTime()
@@ -566,6 +589,7 @@ void TCPStreamDialog::fillRoundTripTime()
     QString dlg_title = QString(tr("Round Trip Time")) + streamDescription();
     setWindowTitle(dlg_title);
     title_->setText(dlg_title);
+    sequence_num_map_.clear();
 
     QCustomPlot *sp = ui->streamPlot;
     sp->xAxis->setLabel(sequence_number_label_);
@@ -573,7 +597,7 @@ void TCPStreamDialog::fillRoundTripTime()
     sp->xAxis->setNumberPrecision(0);
     sp->yAxis->setLabel(round_trip_time_ms_label_);
 
-    sp->graph(0)->setLineStyle(QCPGraph::lsLine);
+    base_graph_->setLineStyle(QCPGraph::lsLine);
 
     QVector<double> seq_no, rtt;
     guint32 seq_base = 0;
@@ -603,7 +627,7 @@ void TCPStreamDialog::fillRoundTripTime()
             }
         }
     }
-    sp->graph(0)->setData(seq_no, rtt);
+    base_graph_->setData(seq_no, rtt);
 }
 
 void TCPStreamDialog::fillWindowScale()
@@ -613,7 +637,7 @@ void TCPStreamDialog::fillWindowScale()
     title_->setText(dlg_title);
 
     QCustomPlot *sp = ui->streamPlot;
-    sp->graph(0)->setLineStyle(QCPGraph::lsLine);
+    base_graph_->setLineStyle(QCPGraph::lsLine);
 
     QVector<double> rel_time, win_size;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
@@ -629,7 +653,7 @@ void TCPStreamDialog::fillWindowScale()
             win_size.append(seg->th_win);
         }
     }
-    sp->graph(0)->setData(rel_time, win_size);
+    base_graph_->setData(rel_time, win_size);
     sp->yAxis->setLabel(window_size_label_);
 }
 
@@ -768,7 +792,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
     QCustomPlot *sp = ui->streamPlot;
     Qt::CursorShape shape = Qt::ArrowCursor;
     if (event) {
-        if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton) {
+        if (event->buttons().testFlag(Qt::LeftButton)) {
             if (mouse_drags_) {
                 shape = Qt::ClosedHandCursor;
             } else {
@@ -794,6 +818,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
         if (event && tracer_->graph() && tracer_->position->axisRect()->rect().contains(event->pos())) {
             switch (graph_.type) {
             case GRAPH_TSEQ_STEVENS:
+            case GRAPH_TSEQ_TCPTRACE:
             case GRAPH_THROUGHPUT:
             case GRAPH_WSCALE:
                 packet_seg = time_stamp_map_.value(tr_key, NULL);
@@ -932,39 +957,20 @@ void TCPStreamDialog::setCaptureFile(capture_file *cf)
     }
 }
 
-void TCPStreamDialog::on_prevStreamPushButton_clicked()
+void TCPStreamDialog::on_streamNumberSpinBox_valueChanged(int new_stream)
 {
-    if (graph_.stream > 0) {
-        graph_.stream--;
+    if (new_stream >= 0 && new_stream < int(get_tcp_stream_count())) {
+        graph_.stream = new_stream;
         graph_.src_address.type = AT_NONE;
         graph_.dst_address.type = AT_NONE;
-        fillGraph();
-    }
-}
-
-void TCPStreamDialog::on_nextStreamPushButton_clicked()
-{
-    if (graph_.stream < get_tcp_stream_count() - 1) {
-        graph_.stream++;
-        graph_.src_address.type = AT_NONE;
-        graph_.dst_address.type = AT_NONE;
+        findStream();
         fillGraph();
     }
 }
 
 void TCPStreamDialog::on_otherDirectionButton_clicked()
 {
-    address tmp_addr;
-    guint16 tmp_port;
-
-    COPY_ADDRESS(&tmp_addr, &graph_.src_address);
-    tmp_port = graph_.src_port;
-    COPY_ADDRESS(&graph_.src_address, &graph_.dst_address);
-    graph_.src_port = graph_.dst_port;
-    COPY_ADDRESS(&graph_.dst_address, &tmp_addr);
-    graph_.dst_port = tmp_port;
-
-    fillGraph();
+    on_actionSwitchDirection_triggered();
 }
 
 void TCPStreamDialog::on_dragRadioButton_toggled(bool checked)
@@ -1039,17 +1045,31 @@ void TCPStreamDialog::on_actionMoveDown1_triggered()
 
 void TCPStreamDialog::on_actionNextStream_triggered()
 {
-    on_nextStreamPushButton_clicked();
+    if (int(graph_.stream) < int(get_tcp_stream_count()) - 1) {
+        ui->streamNumberSpinBox->setValue(graph_.stream + 1);
+    }
 }
 
 void TCPStreamDialog::on_actionPreviousStream_triggered()
 {
-    on_prevStreamPushButton_clicked();
+    if (graph_.stream > 0) {
+        ui->streamNumberSpinBox->setValue(graph_.stream - 1);
+    }
 }
 
 void TCPStreamDialog::on_actionSwitchDirection_triggered()
 {
-    on_otherDirectionButton_clicked();
+    address tmp_addr;
+    guint16 tmp_port;
+
+    COPY_ADDRESS(&tmp_addr, &graph_.src_address);
+    tmp_port = graph_.src_port;
+    COPY_ADDRESS(&graph_.src_address, &graph_.dst_address);
+    graph_.src_port = graph_.dst_port;
+    COPY_ADDRESS(&graph_.dst_address, &tmp_addr);
+    graph_.dst_port = tmp_port;
+
+    fillGraph();
 }
 
 void TCPStreamDialog::on_actionGoToPacket_triggered()
@@ -1078,6 +1098,31 @@ void TCPStreamDialog::on_actionToggleTimeOrigin_triggered()
 {
     ts_origin_conn_ = ts_origin_conn_ ? false : true;
     fillGraph();
+}
+
+void TCPStreamDialog::on_actionRoundTripTime_triggered()
+{
+    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(GRAPH_RTT)));
+}
+
+void TCPStreamDialog::on_actionThroughput_triggered()
+{
+    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(GRAPH_THROUGHPUT)));
+}
+
+void TCPStreamDialog::on_actionStevens_triggered()
+{
+    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(GRAPH_TSEQ_STEVENS)));
+}
+
+void TCPStreamDialog::on_actionTcptrace_triggered()
+{
+    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(GRAPH_TSEQ_TCPTRACE)));
+}
+
+void TCPStreamDialog::on_actionWindowScaling_triggered()
+{
+    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(GRAPH_WSCALE)));
 }
 
 /*

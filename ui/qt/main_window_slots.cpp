@@ -1772,6 +1772,11 @@ void MainWindow::on_actionStatisticsTcpStreamStevens_triggered()
     openTcpStreamDialog(GRAPH_TSEQ_STEVENS);
 }
 
+void MainWindow::on_actionStatisticsTcpStreamTcptrace_triggered()
+{
+    openTcpStreamDialog(GRAPH_TSEQ_TCPTRACE);
+}
+
 void MainWindow::on_actionStatisticsTcpStreamThroughput_triggered()
 {
     openTcpStreamDialog(GRAPH_THROUGHPUT);

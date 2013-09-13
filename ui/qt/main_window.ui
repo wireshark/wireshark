@@ -325,6 +325,7 @@
       <string>TCP Stream Graphs</string>
      </property>
      <addaction name="actionStatisticsTcpStreamStevens"/>
+     <addaction name="actionStatisticsTcpStreamTcptrace"/>
      <addaction name="actionStatisticsTcpStreamThroughput"/>
      <addaction name="actionStatisticsTcpStreamRoundTripTime"/>
      <addaction name="actionStatisticsTcpStreamWindowScaling"/>
@@ -1310,6 +1311,14 @@
    </property>
    <property name="text">
     <string>Follow SSL Stream</string>
+   </property>
+  </action>
+  <action name="actionStatisticsTcpStreamTcptrace">
+   <property name="text">
+    <string>Time Sequence (tcptrace)</string>
+   </property>
+   <property name="toolTip">
+    <string>TCP time sequence graph (tcptrace)</string>
    </property>
   </action>
  </widget>
