@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include "ftypes-int.h"
+#include <epan/emem.h>
 #include <epan/addr_resolv.h>
 
 static void

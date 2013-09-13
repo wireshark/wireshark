@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <ftypes-int.h>
+#include <epan/emem.h>
 #include <string.h>
 
 #define CMP_MATCHES cmp_matches
