@@ -34,7 +34,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/conversation.h>
 
 #include "packet-ziop.h"
@@ -242,7 +241,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
     {
       guint8 flags;
       guint byte_order;
-      emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("none");
+      const char *label = "none";
 
       ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, ENC_NA);
       ziop_tree = proto_item_add_subtree (ti, ett_ziop);
@@ -258,10 +257,10 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       byte_order = (flags & 0x01) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
       if (flags & 0x01) {
-        ep_strbuf_printf(flags_strbuf, "little-endian");
+        label = "little-endian";
       }
       proto_tree_add_uint_format_value(ziop_tree, hf_ziop_flags, tvb, offset, 1,
-                                            flags, "0x%02x (%s)", flags, flags_strbuf->str);
+                                            flags, "0x%02x (%s)", flags, label);
       offset++;
 
       proto_tree_add_item(ziop_tree, hf_ziop_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -336,3 +335,16 @@ void proto_reg_handoff_ziop (void) {
 
   data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
