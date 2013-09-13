@@ -14,6 +14,16 @@
  *                     http://www.systec-electronic.com
  *                     - Daniel Krueger <daniel.krueger[AT]systec-electronic.com>
  *
+ * Copyright (c) 2013: B&R Industrieelektronik GmbH
+ *                     http://www.br-automation.com
+ * 
+ *                     - Roland Knall <roland.knall[AT]br-automation.com>
+ *                       - Extended to be similair in handling as to B&R plugin
+ *                       - Multiple SOD Read/Write dissection
+ *                       - Include AInv message type
+ *                       - Straighten text formatting
+ *                       - Remove unneccessary if(tree) checks
+ *
  * $Id$
  *
  * A dissector for:
@@ -109,13 +119,15 @@ static const gchar* addr_str_abbr_res = " (res.)";
 #define EPL_PRES    0x04
 #define EPL_SOA     0x05
 #define EPL_ASND    0x06
+#define EPL_AINV    0x0D
 
 static const value_string mtyp_vals[] = {
-    {EPL_SOC,  "Start of Cycle (SoC)"       },
-    {EPL_PREQ, "PollRequest (PReq)"         },
-    {EPL_PRES, "PollResponse (PRes)"        },
-    {EPL_SOA,  "Start of Asynchronous (SoA)"},
-    {EPL_ASND, "Asynchronous Send (ASnd)"   },
+    {EPL_SOC,  "Start of Cycle (SoC)"         },
+    {EPL_PREQ, "PollRequest (PReq)"           },
+    {EPL_PRES, "PollResponse (PRes)"          },
+    {EPL_SOA,  "Start of Asynchronous (SoA)"  },
+    {EPL_ASND, "Asynchronous Send (ASnd)"     },
+    {EPL_AINV, "Asynchronous Invite (AInv)"   },
     {0,NULL}
 };
 
@@ -470,11 +482,13 @@ static gint dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_in
 static gint dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
+static gint dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
 
 static gint dissect_epl_asnd_sdo(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response);
+static gint dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response);
 static gint dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response);
 
 static const gchar* decode_epl_address(guchar adr);
@@ -482,6 +496,7 @@ static const gchar* decode_epl_address(guchar adr);
 /* Initialize the protocol and registered fields */
 static gint proto_epl            = -1;
 static gint hf_epl_mtyp          = -1;
+static gint hf_epl_node          = -1;
 static gint hf_epl_dest          = -1;
 static gint hf_epl_src           = -1;
 
@@ -517,6 +532,7 @@ static gint hf_epl_soa_svtg      = -1;
 static gint hf_epl_soa_eplv      = -1;
 
 static gint hf_epl_asnd_svid     = -1;
+static gint hf_epl_asnd_svtg      = -1;
 /* static gint hf_epl_asnd_data     = -1; */
 
 /*IdentResponse*/
@@ -608,12 +624,14 @@ static gint hf_epl_asnd_nmtcommand_nmtflusharpentry_nid      = -1;
 static gint hf_epl_asnd_nmtcommand_nmtpublishtime_dt         = -1;
 
 /*Asynchronuous SDO Sequence Layer*/
+static gint hf_epl_asnd_sdo_seq                              = -1;
 static gint hf_epl_asnd_sdo_seq_receive_sequence_number      = -1;
 static gint hf_epl_asnd_sdo_seq_receive_con                  = -1;
 static gint hf_epl_asnd_sdo_seq_send_sequence_number         = -1;
 static gint hf_epl_asnd_sdo_seq_send_con                     = -1;
 
 /*Asynchronuous SDO Command Layer*/
+static gint hf_epl_asnd_sdo_cmd                              = -1;
 static gint hf_epl_asnd_sdo_cmd_transaction_id               = -1;
 static gint hf_epl_asnd_sdo_cmd_response                     = -1;
 static gint hf_epl_asnd_sdo_cmd_abort                        = -1;
@@ -621,7 +639,13 @@ static gint hf_epl_asnd_sdo_cmd_abort                        = -1;
 static gint hf_epl_asnd_sdo_cmd_segmentation                 = -1;
 static gint hf_epl_asnd_sdo_cmd_command_id                   = -1;
 static gint hf_epl_asnd_sdo_cmd_segment_size                 = -1;
+
+static gint hf_epl_asnd_sdo_cmd_data                         = -1;
 static gint hf_epl_asnd_sdo_cmd_data_size                    = -1;
+static gint hf_epl_asnd_sdo_cmd_data_padding                 = -1;
+static gint hf_epl_asnd_sdo_cmd_data_index                   = -1;
+static gint hf_epl_asnd_sdo_cmd_data_subindex                = -1;
+static gint hf_epl_asnd_sdo_cmd_data_data                    = -1;
 
 static gint hf_epl_asnd_sdo_cmd_abort_code                   = -1;
 /*static gint hf_epl_asnd_sdo_cmd_abort_flag                   = -1;*/
@@ -629,15 +653,7 @@ static gint hf_epl_asnd_sdo_cmd_abort_code                   = -1;
 /*static gint hf_epl_asnd_sdo_cmd_cmd_valid_test               = -1;*/
 
 /*static gint hf_epl_asnd_sdo_actual_command_id                = -1;*/
-
-static gint hf_epl_asnd_sdo_cmd_write_by_index_index         = -1;
-static gint hf_epl_asnd_sdo_cmd_write_by_index_subindex      = -1;
-static gint hf_epl_asnd_sdo_cmd_write_by_index_data          = -1;
 /*static gint hf_epl_asnd_sdo_cmd_write_by_index_response      = -1;*/
-
-static gint hf_epl_asnd_sdo_cmd_read_by_index_index          = -1;
-static gint hf_epl_asnd_sdo_cmd_read_by_index_subindex       = -1;
-static gint hf_epl_asnd_sdo_cmd_read_by_index_data           = -1;
 /*static gint hf_epl_asnd_sdo_cmd_read_by_index_response       = -1;*/
 
 /*static gint hf_epl_asnd_sdo_actual_segment_size              = -1;*/
@@ -651,6 +667,11 @@ static gint ett_epl_el              = -1;
 static gint ett_epl_el_entry        = -1;
 static gint ett_epl_el_entry_type   = -1;
 static gint ett_epl_sdo_entry_type  = -1;
+
+static gint ett_epl_sdo                 = -1;
+static gint ett_epl_sdo_sequence_layer  = -1;
+static gint ett_epl_sdo_command_layer   = -1;
+static gint ett_epl_sdo_data            = -1;
 
 static dissector_handle_t epl_handle;
 
@@ -753,6 +774,17 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             }
             break;
 
+        case EPL_AINV:
+            if (udpencap)
+            {
+                col_set_str(pinfo->cinfo, COL_INFO, "AInv   ");
+            }
+            else
+            {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "AInv   src = %3d   dst = %3d   ", epl_src, epl_dest);
+            }
+            break;
+
         default:    /* no valid EPL packet */
             return FALSE;
 
@@ -771,10 +803,14 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (tree && !udpencap)
     {
+        epl_dest_item = proto_tree_add_item(epl_tree, hf_epl_node, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        PROTO_ITEM_SET_HIDDEN(epl_dest_item);
         epl_dest_item = proto_tree_add_item(epl_tree, hf_epl_dest, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_item_append_text (epl_dest_item, "%s", dest_str);
         offset += 1;
 
+        epl_src_item = proto_tree_add_item(epl_tree, hf_epl_node, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        PROTO_ITEM_SET_HIDDEN(epl_src_item);
         epl_src_item = proto_tree_add_item(epl_tree, hf_epl_src, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_item_append_text (epl_src_item, "%s", src_str);
         offset += 1;
@@ -805,6 +841,10 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         case EPL_ASND:
             offset = dissect_epl_asnd(epl_tree, tvb, pinfo, epl_src, offset);
+            break;
+
+        case EPL_AINV:
+            offset = dissect_epl_ainv(epl_tree, tvb, pinfo, epl_src, offset);
             break;
 
         /* Default case can not happen as it is caught by an earlier switch
@@ -849,11 +889,8 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
     offset += 1;
 
     flags = tvb_get_guint8(tvb, offset);
-    if (epl_tree)
-    {
-        proto_tree_add_boolean(epl_tree, hf_epl_soc_mc, tvb, offset, 1, flags);
-        proto_tree_add_boolean(epl_tree, hf_epl_soc_ps, tvb, offset, 1, flags);
-    }
+    proto_tree_add_boolean(epl_tree, hf_epl_soc_mc, tvb, offset, 1, flags);
+    proto_tree_add_boolean(epl_tree, hf_epl_soc_ps, tvb, offset, 1, flags);
     offset += 2;
 
     if (show_soc_flags)
@@ -862,14 +899,11 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
                         ((EPL_SOC_MC_MASK & flags) >> 7), ((EPL_SOC_PS_MASK & flags) >> 6));
     }
 
-    if (epl_tree)
-    {
-        nettime.secs  = tvb_get_letohl(tvb, offset);
-        nettime.nsecs = tvb_get_letohl(tvb, offset+4);
-        proto_tree_add_time(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, &nettime);
+    nettime.secs  = tvb_get_letohl(tvb, offset);
+    nettime.nsecs = tvb_get_letohl(tvb, offset+4);
+    proto_tree_add_time(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, &nettime);
 
-        proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset+8, 8, ENC_LITTLE_ENDIAN);
-    }
+    proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset+8, 8, ENC_LITTLE_ENDIAN);
     offset += 16;
 
     return offset;
@@ -887,32 +921,23 @@ dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
     offset += 1;
 
     flags = tvb_get_guint8(tvb, offset);
-    if (epl_tree)
-    {
-        proto_tree_add_boolean(epl_tree, hf_epl_preq_ms, tvb, offset, 1, flags);
-        proto_tree_add_boolean(epl_tree, hf_epl_preq_ea, tvb, offset, 1, flags);
-        proto_tree_add_boolean(epl_tree, hf_epl_preq_rd, tvb, offset, 1, flags);
-    }
+    proto_tree_add_boolean(epl_tree, hf_epl_preq_ms, tvb, offset, 1, flags);
+    proto_tree_add_boolean(epl_tree, hf_epl_preq_ea, tvb, offset, 1, flags);
+    proto_tree_add_boolean(epl_tree, hf_epl_preq_rd, tvb, offset, 1, flags);
     offset += 2;
 
     pdoversion = tvb_get_guint8(tvb, offset);
-    if (epl_tree)
-    {
-        proto_tree_add_string_format(epl_tree, hf_epl_preq_pdov, tvb, offset,
+    proto_tree_add_string_format(epl_tree, hf_epl_preq_pdov, tvb, offset,
         1, "", "PDOVersion %d.%d",  hi_nibble(pdoversion), lo_nibble(pdoversion));
-    }
     offset += 2;
 
     /* get size of payload */
     len = tvb_get_letohs(tvb, offset);
-    if (epl_tree)
-    {
-        proto_tree_add_uint(epl_tree, hf_epl_preq_size, tvb, offset, 2, len);
-    }
+    proto_tree_add_uint(epl_tree, hf_epl_preq_size, tvb, offset, 2, len);
 
     offset += 2;
 
-    if (epl_tree && (len > 0))
+    if (len > 0)
     {
         proto_tree_add_item(epl_tree, hf_epl_preq_pl, tvb, offset, len, ENC_NA);
     }
@@ -933,52 +958,37 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
     guint8  pdoversion;
     guint8  flags;
 
-    if (epl_tree)
+    if (epl_src != EPL_MN_NODEID)   /* check if the sender is CN or MN */
     {
-        if (epl_src != EPL_MN_NODEID)   /* check if the sender is CN or MN */
-        {
-            proto_tree_add_item(epl_tree, hf_epl_pres_stat_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        }
-        else /* MN */
-        {
-            proto_tree_add_item(epl_tree, hf_epl_pres_stat_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        }
+        proto_tree_add_item(epl_tree, hf_epl_pres_stat_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+    else /* MN */
+    {
+        proto_tree_add_item(epl_tree, hf_epl_pres_stat_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset += 1;
 
     flags = tvb_get_guint8(tvb, offset);
-    if (epl_tree)
-    {
-        proto_tree_add_boolean(epl_tree, hf_epl_pres_ms, tvb, offset, 1, flags);
-        proto_tree_add_boolean(epl_tree, hf_epl_pres_en, tvb, offset, 1, flags);
-        proto_tree_add_boolean(epl_tree, hf_epl_pres_rd, tvb, offset, 1, flags);
-    }
+    proto_tree_add_boolean(epl_tree, hf_epl_pres_ms, tvb, offset, 1, flags);
+    proto_tree_add_boolean(epl_tree, hf_epl_pres_en, tvb, offset, 1, flags);
+    proto_tree_add_boolean(epl_tree, hf_epl_pres_rd, tvb, offset, 1, flags);
     offset += 1;
 
-    if (epl_tree)
-    {
-        proto_tree_add_item(epl_tree, hf_epl_pres_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(epl_tree, hf_epl_pres_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    }
+    proto_tree_add_item(epl_tree, hf_epl_pres_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_tree, hf_epl_pres_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     pdoversion = tvb_get_guint8(tvb, offset);
-    if (epl_tree)
-    {
-        proto_tree_add_string_format(epl_tree, hf_epl_pres_pdov, tvb, offset,
+    proto_tree_add_string_format(epl_tree, hf_epl_pres_pdov, tvb, offset,
         1, "", "PDOVersion %d.%d",  hi_nibble(pdoversion), lo_nibble(pdoversion));
-    }
     offset += 2;
 
     /* get size of payload */
     len = tvb_get_letohs(tvb, offset);
-    if (epl_tree)
-    {
-        proto_tree_add_uint(epl_tree, hf_epl_pres_size, tvb, offset, 2, len);
-    }
+    proto_tree_add_uint(epl_tree, hf_epl_pres_size, tvb, offset, 2, len);
 
     offset += 2;
-    if (epl_tree && (len > 0))
+    if (len > 0)
     {
         proto_tree_add_item(epl_tree, hf_epl_pres_pl, tvb, offset, len, ENC_NA);
     }
@@ -998,38 +1008,26 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
     guint8 eplversion;
     guint8 svid, target;
 
-    if (epl_tree)
+    if (epl_src != EPL_MN_NODEID)   /* check if CN or MN */
     {
-        if (epl_src != EPL_MN_NODEID)   /* check if CN or MN */
-        {
-            proto_tree_add_item(epl_tree, hf_epl_soa_stat_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        }
-        else /* MN */
-        {
-            proto_tree_add_item(epl_tree, hf_epl_soa_stat_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        }
+        proto_tree_add_item(epl_tree, hf_epl_soa_stat_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+    else /* MN */
+    {
+        proto_tree_add_item(epl_tree, hf_epl_soa_stat_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset += 1;
 
-    if (epl_tree)
-    {
-        proto_tree_add_item(epl_tree, hf_epl_soa_ea, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(epl_tree, hf_epl_soa_er, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    }
+    proto_tree_add_item(epl_tree, hf_epl_soa_ea, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_tree, hf_epl_soa_er, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     svid = tvb_get_guint8(tvb, offset);
-    if (epl_tree)
-    {
-        proto_tree_add_uint(epl_tree, hf_epl_soa_svid, tvb, offset, 1, svid);
-    }
+    proto_tree_add_uint(epl_tree, hf_epl_soa_svid, tvb, offset, 1, svid);
     offset += 1;
 
     target = tvb_get_guint8(tvb, offset);
-    if (epl_tree)
-    {
-        proto_tree_add_uint(epl_tree, hf_epl_soa_svtg, tvb, offset, 1, target);
-    }
+    proto_tree_add_uint(epl_tree, hf_epl_soa_svtg, tvb, offset, 1, target);
     offset += 1;
 
     if (svid != EPL_SOA_NOSERVICE)
@@ -1038,12 +1036,9 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
                         target, val_to_str(svid, soa_svid_vals, "Unknown (%d)"));
     }
 
-    if (epl_tree)
-    {
-        eplversion = tvb_get_guint8(tvb, offset);
-        proto_tree_add_string_format(epl_tree, hf_epl_soa_eplv, tvb, offset,
-            1, "", "EPLVersion %d.%d",  hi_nibble(eplversion), lo_nibble(eplversion));
-    }
+    eplversion = tvb_get_guint8(tvb, offset);
+    proto_tree_add_string_format(epl_tree, hf_epl_soa_eplv, tvb, offset,
+        1, "", "EPLVersion %d.%d",  hi_nibble(eplversion), lo_nibble(eplversion));
     offset += 1;
 
     return offset;
@@ -1055,14 +1050,13 @@ gint
 dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset)
 {
     guint8  svid;
+    proto_item *item;
+    proto_tree *subtree;
 
     /* get ServiceID of payload */
     svid = tvb_get_guint8(tvb, offset);
-    if (epl_tree)
-    {
-        proto_tree_add_uint(epl_tree, hf_epl_asnd_svid, tvb, offset, 1, svid);
-    }
-
+    item = proto_tree_add_uint(epl_tree, hf_epl_asnd_svid, tvb, offset, 1, svid);
+    
     offset += 1;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ",
@@ -1087,13 +1081,81 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
             break;
 
         case EPL_ASND_SDO:
-            offset = dissect_epl_asnd_sdo(epl_tree, tvb, pinfo, offset);
+            subtree = proto_item_add_subtree ( item, ett_epl_sdo );
+            offset = dissect_epl_asnd_sdo(subtree, tvb, pinfo, offset);
             break;
     }
 
     return offset;
 }
 
+gint
+dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset)
+{
+    guint8 svid, svtg, eplversion;
+    proto_item *item;
+    proto_tree *subtree;
+
+    if (epl_src != EPL_MN_NODEID)   /* check if CN or MN */
+    {
+        proto_tree_add_item(epl_tree, hf_epl_soa_stat_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+    else /* MN */
+    {
+        proto_tree_add_item(epl_tree, hf_epl_soa_stat_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+
+    offset += 2;
+
+    proto_tree_add_item(epl_tree, hf_epl_soa_ea, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_tree, hf_epl_soa_er, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    svid = tvb_get_guint8(tvb, offset);
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ",
+    val_to_str(svid, asnd_svid_vals, "Unknown (%d)"));
+
+    item = proto_tree_add_uint(epl_tree, hf_epl_asnd_svid, tvb, offset, 1, svid);
+    offset += 1;
+
+    switch (svid)
+    {
+        case EPL_ASND_IDENTRESPONSE:
+            offset = dissect_epl_asnd_ires(epl_tree, tvb, pinfo, epl_src, offset);
+            break;
+
+        case EPL_ASND_STATUSRESPONSE:
+            offset = dissect_epl_asnd_sres(epl_tree, tvb, pinfo, epl_src, offset);
+            break;
+
+        case EPL_ASND_NMTREQUEST:
+            offset = dissect_epl_asnd_nmtreq(epl_tree, tvb, pinfo, offset);
+            break;
+
+        case EPL_ASND_NMTCOMMAND:
+            offset = dissect_epl_asnd_nmtcmd(epl_tree, tvb, pinfo, offset);
+            break;
+
+        case EPL_SOA_UNSPECIFIEDINVITE:
+            svtg = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint (epl_tree, hf_epl_asnd_svtg, tvb, offset, 1, svtg );
+            offset += 1;
+
+            eplversion = tvb_get_guint8(tvb, offset);
+            proto_tree_add_string_format(epl_tree, hf_epl_soa_eplv, tvb, offset,
+                1, "", "EPLVersion %d.%d",  hi_nibble(eplversion), lo_nibble(eplversion));
+
+            break;
+
+        case EPL_ASND_SDO:
+            subtree = proto_item_add_subtree ( item, ett_epl_sdo );
+            offset = dissect_epl_asnd_sdo(subtree, tvb, pinfo, offset);
+            break;
+    }
+
+    return offset;
+}
 
 
 gint
@@ -1103,14 +1165,9 @@ dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 
     rcid = tvb_get_guint8(tvb, offset);
 
-    if (epl_tree)
-    {
-        proto_tree_add_uint(epl_tree, hf_epl_asnd_nmtrequest_rcid, tvb, offset, 1, rcid);
-
-        proto_tree_add_item(epl_tree, hf_epl_asnd_nmtrequest_rct, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
-
-        proto_tree_add_item(epl_tree, hf_epl_asnd_nmtrequest_rcd, tvb, offset+2, -1, ENC_NA);
-    }
+    proto_tree_add_uint(epl_tree, hf_epl_asnd_nmtrequest_rcid, tvb, offset, 1, rcid);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_nmtrequest_rct, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_nmtrequest_rcd, tvb, offset+2, -1, ENC_NA);
 
     offset += 2;
 
@@ -1294,20 +1351,13 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     guint       number_of_entries, cnt;    /* used for dissection of ErrorCodeList */
     guint8      nmt_state;
 
-    if (epl_tree)
-    {
-        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_en, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_ec, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
+    proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_en, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_ec, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
 
-        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
-    }
-    else
-    {
-        offset += 2;
-    }
+    proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
 
     nmt_state = tvb_get_guint8(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ", val_to_str(nmt_state, epl_nmt_cs_vals, "Unknown (%d)"));
@@ -1408,24 +1458,23 @@ gint
 dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
     guint8 seq_recv, seq_send;
+    proto_tree *sod_seq_tree;
+    proto_item *item;
+
+    item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_seq, tvb,  offset, 5, ENC_NA);
+    sod_seq_tree = proto_item_add_subtree(item, ett_epl_sdo_sequence_layer);
 
     /* Asynchronuous SDO Sequence Layer */
     seq_recv = tvb_get_guint8(tvb, offset);
 
-    if (epl_tree)
-    {
-        proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_seq_receive_sequence_number, tvb, offset, 1, seq_recv);
-        proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_seq_receive_con,             tvb, offset, 1, seq_recv);
-    }
+    proto_tree_add_uint(sod_seq_tree, hf_epl_asnd_sdo_seq_receive_sequence_number, tvb, offset, 1, seq_recv);
+    proto_tree_add_uint(sod_seq_tree, hf_epl_asnd_sdo_seq_receive_con,             tvb, offset, 1, seq_recv);
     offset += 1;
 
     seq_send = tvb_get_guint8(tvb, offset);
 
-    if (epl_tree)
-    {
-        proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_seq_send_sequence_number, tvb, offset, 1, seq_send);
-        proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_seq_send_con, tvb, offset, 1, seq_send);
-    }
+    proto_tree_add_uint(sod_seq_tree, hf_epl_asnd_sdo_seq_send_sequence_number, tvb, offset, 1, seq_send);
+    proto_tree_add_uint(sod_seq_tree, hf_epl_asnd_sdo_seq_send_con, tvb, offset, 1, seq_send);
     offset += 3;
 
     seq_recv &= EPL_ASND_SDO_SEQ_CON_MASK;
@@ -1452,6 +1501,8 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
     gboolean response, abort_flag;
     guint32 abort_code;
     guint16 segment_size;
+    proto_tree *sdo_cmd_tree;
+    proto_item *item;
 
     offset += 1;
 
@@ -1462,31 +1513,27 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
     /* test if CommandField == empty */
     if (command_id != 0 || abort_flag)
     {
+        item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd, tvb,  offset, 0, ENC_NA);
+        sdo_cmd_tree = proto_item_add_subtree(item, ett_epl_sdo_command_layer);
+
         segmented  = (tvb_get_guint8(tvb, offset + 1) & EPL_ASND_SDO_CMD_SEGMENTATION_FILTER) >> 4;
         response   = tvb_get_guint8(tvb, offset + 1) & EPL_ASND_SDO_CMD_RESPONSE_FILTER;
         segment_size = tvb_get_letohs(tvb, offset + 3);
 
-        if (epl_tree)
-        {
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_transaction_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
+        proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_transaction_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
 
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_response, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_abort,    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_response, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_abort,    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_segmentation, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
+        proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_segmentation, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
 
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_command_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
+        proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_command_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
 
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_segment_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 4;
-        }
-        else
-        {
-            offset += 7;
-        }
+        proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_segment_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 4;
 
         /* adjust size of packet */
         tvb_set_reported_length(tvb, offset + segment_size);
@@ -1494,10 +1541,7 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
         if (segmented == EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
         {
             /* if Segmentation = Initiate then print DataSize */
-            if (epl_tree)
-            {
-                proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            }
+            proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             segmented = TRUE;
             offset += 4;
         }
@@ -1506,11 +1550,8 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
         {
             abort_code = tvb_get_letohl(tvb, offset);
             /* if AbortBit is set then print AbortMessage */
-            if (epl_tree)
-            {
-                proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_abort_code, tvb, offset, 4, abort_code);
-            }
-
+            proto_tree_add_uint(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_abort_code, tvb, offset, 4, abort_code);
+            
             col_append_fstr(pinfo->cinfo, COL_INFO, "Abort = 0x%08X", abort_code);
         }
         else
@@ -1518,11 +1559,15 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
             switch (command_id)
             {
                 case EPL_ASND_SDO_COMMAND_WRITE_BY_INDEX:
-                    offset = dissect_epl_sdo_command_write_by_index(epl_tree, tvb, pinfo, offset, segmented, response);
+                    offset = dissect_epl_sdo_command_write_by_index(sdo_cmd_tree, tvb, pinfo, offset, segmented, response);
+                    break;
+
+                case EPL_ASND_SDO_COMMAND_WRITE_MULTIPLE_PARAMETER_BY_INDEX:
+                    offset = dissect_epl_sdo_command_write_multiple_by_index(sdo_cmd_tree, tvb, pinfo, offset, segmented, response);
                     break;
 
                 case EPL_ASND_SDO_COMMAND_READ_BY_INDEX:
-                    offset = dissect_epl_sdo_command_read_by_index(epl_tree, tvb, pinfo, offset, segmented, response);
+                    offset = dissect_epl_sdo_command_read_by_index(sdo_cmd_tree, tvb, pinfo, offset, segmented, response);
                     break;
 
                 default:
@@ -1541,52 +1586,35 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
     gint size;
     guint16 indx;
     guint8 subindx;
-    guint32 val;
     proto_item* item;
+    proto_item *sdo_data_tree;
 
     if (!response)
     {   /* request */
+
+        item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data, tvb,  offset, 0, ENC_NA);
+        sdo_data_tree = proto_item_add_subtree(item, ett_epl_sdo_data);
+
         if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
         {
             indx = tvb_get_letohs(tvb, offset);
-            if (epl_tree)
-            {
-                proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_write_by_index_index, tvb, offset, 2, indx);
-            }
+            proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, indx);
+            proto_item_append_text(item, ": 0x%04X", indx );
             offset += 2;
 
             subindx = tvb_get_guint8(tvb, offset);
-            if (epl_tree)
-            {
-                proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_write_by_index_subindex, tvb, offset, 1, subindx);
-            }
+            proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindx);
+            proto_item_append_text(item, "/0x%02X", subindx );
             offset += 2;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Write 0x%04X/%d", indx, subindx);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Write 0x%04X/0x%02X ", indx, subindx);
         }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Requ. %s",
                             val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
 
         size = tvb_reported_length_remaining(tvb, offset);
-        item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_write_by_index_data, tvb, offset, size, ENC_NA);
-
-        if (size == 4)
-        {
-            val = tvb_get_letohl(tvb, offset);
-            proto_item_append_text(item, " (%d)", val);
-        }
-        else if (size == 2)
-        {
-            val = tvb_get_letohs(tvb, offset);
-            proto_item_append_text(item, " (%d)", val);
-        }
-        else if (size == 1)
-        {
-            val = tvb_get_guint8(tvb, offset);
-            proto_item_append_text(item, " (%d)", val);
-        }
-
+        proto_tree_add_item(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_data, tvb, offset, size, ENC_NA);
         offset += size;
     }
     else
@@ -1597,6 +1625,90 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
     return offset;
 }
 
+gint
+dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented  _U_, gboolean response)
+{
+    gint pyldoffset, dataoffset;
+    guint8 subindx, padding;
+    guint16 indx;
+    guint32 size, offsetincrement, datalength;
+    proto_item* item;
+    proto_item *sdo_data_tree;
+    gboolean lastentry = FALSE;
+
+    /* Offset is calculated simply by only applying EPL payload offset, not packet offset.
+     * The packet offset is 16, as this is the number of bytes trailing the SDO payload.
+     * 8 has to be removed, because the increment of PLK SDO payloads is calculated, starting
+     * with the byte position AFTER the Sequence Layer.
+     */
+    pyldoffset = 8;
+
+    if (!response)
+    {   /* request */
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Write Multiple Parameter by Index" );
+
+        while ( !lastentry && tvb_reported_length_remaining(tvb, offset) > 0 )
+        {
+            offsetincrement = tvb_get_letohl(tvb, offset);
+
+            /* the data is aligned in 4-byte increments, therfore maximum padding is 3 */
+            padding = tvb_get_guint8 ( tvb, offset + 7 ) & 0x03;
+
+            datalength = offsetincrement - ( offset - pyldoffset );
+
+            /*
+             * 8 is the reduced based on the following calculation:
+             *   - 4 byte for byte position of next data set
+             *   - 2 byte for index
+             *   - 1 byte for subindex
+             *   - 1 byte for reserved and padding
+             */
+            size = datalength - 8 - padding;
+
+            if ( offsetincrement == 0 )
+            {
+                datalength = tvb_reported_length_remaining ( tvb, offset );
+                size = tvb_reported_length_remaining ( tvb, offset ) - ( pyldoffset );
+                lastentry = TRUE;
+            }
+
+            item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data, tvb, offset, datalength, ENC_NA);
+            sdo_data_tree = proto_item_add_subtree(item, ett_epl_sdo_data);
+
+            dataoffset = offset + 4;
+
+            if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
+            {
+                indx = tvb_get_letohs(tvb, dataoffset);
+                proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, dataoffset, 2, indx);
+                proto_item_append_text(item, ": 0x%04X", indx );
+
+                dataoffset += 2;
+                subindx = tvb_get_guint8(tvb, dataoffset);
+                proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, subindx);
+                proto_item_append_text(item, "/0x%02X ", subindx );
+
+                dataoffset += 1;
+                proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_padding, tvb, dataoffset, 1, padding);
+                dataoffset += 1;
+            }
+
+            if ( size > 4 )
+                size = size - padding;
+
+            proto_tree_add_item(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_data, tvb, dataoffset, size, ENC_NA);
+
+            offset += datalength;
+        }
+    }
+    else
+    {
+        /* response, no payload */
+        col_append_str(pinfo->cinfo, COL_INFO, "Response");
+    }
+    return offset;
+}
 
 
 gint
@@ -1605,51 +1717,34 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
     gint size;
     guint16 indx;
     guint8 subindx;
-    guint32 val;
     proto_item* item;
+    proto_item* sdo_data_tree;
+
+    item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data, tvb,  offset, 0, ENC_NA);
+    sdo_data_tree = proto_item_add_subtree(item, ett_epl_sdo_data);
 
     if (!response)
     {   /* request */
+
         indx = tvb_get_letohs(tvb, offset);
-        if (epl_tree)
-        {
-            proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_read_by_index_index, tvb, offset, 2, indx);
-        }
+        proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, indx);
+        proto_item_append_text(item, ": 0x%04X", indx );
         offset += 2;
 
         subindx = tvb_get_guint8(tvb, offset);
-        if (epl_tree)
-        {
-            proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_read_by_index_subindex, tvb, offset, 1, subindx);
-        }
+        proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindx);
+        proto_item_append_text(item, "/0x%02X", subindx );
         offset += 1;
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Read 0x%04X/%d", indx, subindx);
-
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Read 0x%04X/0x%02X ", indx, subindx);
     }
     else
     {   /* response */
         col_append_fstr(pinfo->cinfo, COL_INFO, "Resp. %s",
-                            val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
+                    val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
 
         size = tvb_reported_length_remaining(tvb, offset);
-        item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_read_by_index_data, tvb, offset, size, ENC_NA);
-
-        if (size == 4)
-        {
-            val = tvb_get_letohl(tvb, offset);
-            proto_item_append_text(item, " (%d)", val);
-        }
-        else if (size == 2)
-        {
-            val = tvb_get_letohs(tvb, offset);
-            proto_item_append_text(item, " (%d)", val);
-        }
-        else if (size == 1)
-        {
-            val = tvb_get_guint8(tvb, offset);
-            proto_item_append_text(item, " (%d)", val);
-        }
+        proto_tree_add_item(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_data, tvb, offset, size, ENC_NA);
 
         offset += size;
     }
@@ -1670,6 +1765,10 @@ proto_register_epl(void)
           { "MessageType", "epl.mtyp",
             FT_UINT8, BASE_DEC, VALS(mtyp_vals), 0x7F,
             NULL, HFILL }
+        },
+        { &hf_epl_node,
+          { "Node", "epl.node",
+              FT_UINT8, BASE_DEC_HEX, NULL, 0x00, NULL, HFILL }
         },
         { &hf_epl_dest,
           { "Destination", "epl.dest",
@@ -1827,9 +1926,13 @@ proto_register_epl(void)
 
 /* ASnd header */
         { &hf_epl_asnd_svid,
-          { "ServiceID", "epl.asnd.svid",
+          { "Requested Service ID", "epl.asnd.svid",
             FT_UINT8, BASE_DEC, VALS(asnd_svid_vals), 0x00,
             NULL, HFILL }
+        },
+        { &hf_epl_asnd_svtg,
+            { "Requested Service Target", "epl.asnd.svtg",
+                FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
 #if 0
         { &hf_epl_asnd_data,
@@ -2139,8 +2242,6 @@ proto_register_epl(void)
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-#endif
-#if 0
         { &hf_epl_asnd_statusresponse_el_entry,
           { "Entry", "epl.asnd.sres.el.entry",
             FT_BYTES, BASE_NONE, NULL, 0x00,
@@ -2237,6 +2338,10 @@ proto_register_epl(void)
         },
 
 /* ASnd-->SDO */
+        { &hf_epl_asnd_sdo_seq,
+            { "Sequence Layer", "epl.asnd.sdo.seq",
+                FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
         { &hf_epl_asnd_sdo_seq_receive_sequence_number,
           { "ReceiveSequenceNumber", "epl.asnd.sdo.seq.receive.sequence.number",
             FT_UINT8, BASE_DEC, NULL, 0xfc,
@@ -2258,6 +2363,10 @@ proto_register_epl(void)
             NULL, HFILL }
         },
 
+        { &hf_epl_asnd_sdo_cmd,
+            { "Command Layer", "epl.asnd.sdo.cmd",
+                FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
         { &hf_epl_asnd_sdo_cmd_transaction_id,
           { "SDO Transaction ID", "epl.asnd.sdo.cmd.transaction.id",
             FT_UINT8, BASE_DEC, NULL, 0x00,
@@ -2288,43 +2397,36 @@ proto_register_epl(void)
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_epl_asnd_sdo_cmd_data,
+            { "SDO Index", "epl.asnd.sdo.cmd.data",
+                FT_NONE,  BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
         { &hf_epl_asnd_sdo_cmd_data_size,
           { "SDO Data size", "epl.asnd.sdo.cmd.data.size",
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
+        },
+        { &hf_epl_asnd_sdo_cmd_data_padding,
+            { "SDO Data Padding", "epl.asnd.sdo.cmd.data.padding",
+                FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL }
         },
         { &hf_epl_asnd_sdo_cmd_abort_code,
           { "SDO Transfer Abort", "epl.asnd.sdo.cmd.abort.code",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &sdo_cmd_abort_code_ext, 0x00,
             NULL, HFILL }
         },
-        { &hf_epl_asnd_sdo_cmd_write_by_index_index,
-          { "SDO Write by Index, Index",
-            "epl.asnd.sdo.cmd.write.by.index.index", FT_UINT16, BASE_HEX, NULL,
+        { &hf_epl_asnd_sdo_cmd_data_index,
+          { "OD Index",
+            "epl.asnd.sdo.cmd.data.index", FT_UINT16, BASE_HEX, NULL,
             0x00, NULL, HFILL }
         },
-        { &hf_epl_asnd_sdo_cmd_write_by_index_subindex,
-          { "SDO Write by Index, SubIndex",
-            "epl.asnd.sdo.cmd.write.by.index.subindex", FT_UINT8, BASE_HEX, NULL,
+        { &hf_epl_asnd_sdo_cmd_data_subindex,
+          { "OD SubIndex",
+            "epl.asnd.sdo.cmd.data.subindex", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL }
         },
-        { &hf_epl_asnd_sdo_cmd_read_by_index_index,
-          { "SDO Read by Index, Index",
-            "epl.asnd.sdo.cmd.read.by.index.index", FT_UINT16, BASE_HEX, NULL,
-            0x00, NULL, HFILL }
-        },
-        { &hf_epl_asnd_sdo_cmd_read_by_index_subindex,
-          { "SDO Read by Index, SubIndex",
-            "epl.asnd.sdo.cmd.read.by.index.subindex", FT_UINT8, BASE_HEX, NULL,
-            0x00, NULL, HFILL }
-        },
-        { &hf_epl_asnd_sdo_cmd_write_by_index_data,
-          { "Payload", "epl.asnd.sdo.cmd.write.by.index.data",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_asnd_sdo_cmd_read_by_index_data,
-          { "Payload", "epl.asnd.sdo.cmd.read.by.index.data",
+        { &hf_epl_asnd_sdo_cmd_data_data,
+          { "Payload", "epl.asnd.sdo.cmd.data.data",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
@@ -2340,6 +2442,10 @@ proto_register_epl(void)
         &ett_epl_el_entry,
         &ett_epl_el_entry_type,
         &ett_epl_sdo_entry_type,
+        &ett_epl_sdo,
+        &ett_epl_sdo_data,
+        &ett_epl_sdo_sequence_layer,
+        &ett_epl_sdo_command_layer,
     };
 
     module_t *epl_module;
