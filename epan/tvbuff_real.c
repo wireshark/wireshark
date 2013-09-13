@@ -25,6 +25,8 @@
 
 #include "config.h"
 
+#include <epan/emem.h>
+
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */

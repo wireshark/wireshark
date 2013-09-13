@@ -42,6 +42,7 @@
 #include "proto.h"
 
 #include <epan/strutil.h>
+#include <epan/emem.h>
 #include <epan/epan.h>
 
 /* Allocate all the data structures for constructing column data, given

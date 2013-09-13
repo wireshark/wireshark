@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <epan/emem.h>
 #include <epan/packet.h>
 
 #include "asn1.h"

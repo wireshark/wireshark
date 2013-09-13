@@ -35,6 +35,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/ipproto.h>
 #include <epan/dissectors/packet-tcp.h>
 #include "follow.h"

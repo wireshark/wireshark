@@ -37,6 +37,8 @@
 #include <string.h>
 #include <glib.h>
 
+#include <epan/emem.h>
+
 #include <wsutil/sha1.h>
 #include <wsutil/crc16.h>
 

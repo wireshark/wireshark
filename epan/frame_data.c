@@ -30,6 +30,7 @@
 #include <wiretap/wtap.h>
 #include <epan/frame_data.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/timestamp.h>
 
