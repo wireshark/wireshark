@@ -397,6 +397,12 @@ personal preferences file.
 
 =over 4
 
+=item WIRESHARK_APPDATA
+
+On Windows, Wireshark normally stores all application data in %APPDATA% or
+%USERPROFILE%.  You can override the default location by exporting this
+environment variable to specify an alternate location.
+
 =item WIRESHARK_DEBUG_EP_NO_CHUNKS
 
 Normally per-packet memory is allocated in large "chunks."  This behavior
