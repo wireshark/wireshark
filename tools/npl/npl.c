@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2012-2013, Jakub Zawadzki <darkjames-ws@darkjames.pl>
  *
  * $Id$
