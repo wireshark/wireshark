@@ -95,6 +95,7 @@ EXTRA_DIST = \
 	cppcheck/cppcheck.sh				\
 	cppcheck/includes				\
 	cppcheck/suppressions				\
+	debian-setup.sh					\
 	dfilter-test.py 				\
 	extract_asn1_from_spec.pl			\
 	fix-encoding-args.pl				\

@@ -706,7 +706,6 @@ EXTRA_DIST = \
 	debian/wireshark.files \
 	debian/wireshark.manpages \
 	debian/wireshark.menu	\
-	debian-setup.sh		\
 	dfilters		\
 	doxygen.cfg.in		\
 	dumpcap.c	\
