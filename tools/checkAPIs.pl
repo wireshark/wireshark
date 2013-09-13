@@ -1871,6 +1871,7 @@ my $machine_readable_output = 0;                        # default: disabled
 my $check_hf = 1;                                       # default: enabled
 my $check_addtext = 1;                                  # default: enabled
 my $debug_flag = 0;                                     # default: disabled
+my $buildbot_flag = 0;
 
 my $result = GetOptions(
                         'group=s' => \@apiGroups,
@@ -1879,6 +1880,7 @@ my $result = GetOptions(
                         'Machine-readable' => \$machine_readable_output,
                         'check-hf!' => \$check_hf,
                         'check-addtext!' => \$check_addtext,
+                        'build' => \$buildbot_flag,
                         'debug' => \$debug_flag
                         );
 if (!$result) {
@@ -1990,7 +1992,7 @@ while ($_ = $ARGV[0])
 
         check_snprintf_plus_strlen(\$fileContents, $filename);
 
-        if ($check_addtext) {
+        if ($check_addtext && ! $buildbot_flag) {
                 checkAddTextCalls(\$fileContents, $filename);
         }
 
