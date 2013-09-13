@@ -307,7 +307,7 @@ static char *progfile_dir;
  */
 static char *appbundle_dir;
 #endif
- 
+
 /*
  * TRUE if we're running from the build directory and we aren't running
  * with special privileges.
@@ -1320,7 +1320,7 @@ get_persconffile_dir_no_profile(void)
 #ifdef _WIN32
     char *appdatadir;
     char *userprofiledir;
-    char *u3appdatapath;
+    char *altappdatapath;
 #else
     const char *homedir;
     struct passwd *pwd;
@@ -1332,14 +1332,23 @@ get_persconffile_dir_no_profile(void)
 
 #ifdef _WIN32
     /*
+     * See if the user has selected an alternate environment.
+     */
+    altappdatapath = getenv_utf8("WIRESHARK_APPDATA");
+    if (altappdatapath != NULL) {
+        persconffile_dir = altappdatapath;
+        return persconffile_dir;
+    }
+
+    /*
      * See if we are running in a U3 environment.
      */
-    u3appdatapath = getenv_utf8("U3_APP_DATA_PATH");
-    if (u3appdatapath != NULL) {
+    altappdatapath = getenv_utf8("U3_APP_DATA_PATH");
+    if (altappdatapath != NULL) {
         /*
          * We are; use the U3 application data path.
          */
-        persconffile_dir = u3appdatapath;
+        persconffile_dir = altappdatapath;
     } else {
         /*
          * Use %APPDATA% or %USERPROFILE%, so that configuration
