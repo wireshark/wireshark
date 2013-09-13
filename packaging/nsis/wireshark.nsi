@@ -671,7 +671,7 @@ ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State"
 StrCmp $0 "0" SecRequired_skip_StartMenu
 SetOutPath $PROFILE
 ;CreateDirectory "$SMPROGRAMS\${PROGRAM_NAME}"
-; To qoute "http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnwue/html/ch11d.asp":
+; To quote "http://download.microsoft.com/download/0/4/6/046bbd36-0812-4c22-a870-41911c6487a6/WindowsUserExperience.pdf"
 ; "Do not include Readme, Help, or Uninstall entries on the Programs menu."
 Delete "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.lnk"
 ;WriteINIStr "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.url" "InternetShortcut" "URL" "http://www.wireshark.org/"
