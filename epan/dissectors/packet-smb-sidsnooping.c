@@ -63,12 +63,12 @@ static gboolean samr_query_dispinfo_tap_installed = FALSE;
 
 
 char *
-find_sid_name(char *sid)
+find_sid_name(const char *sid)
 {
 	sid_name *sn;
 	sid_name old_sn;
 
-	old_sn.sid=sid;
+	old_sn.sid=(char*)sid;
 	sn=(sid_name *)g_hash_table_lookup(sid_name_table, &old_sn);
 	if(!sn){
 		return NULL;

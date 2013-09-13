@@ -61,7 +61,7 @@
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 
 #include "packet-x11-keysymdef.h"
@@ -1357,31 +1357,32 @@ static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 
       if (do_red_green_blue) {
             int sep = FALSE;
-            emem_strbuf_t *buffer = ep_strbuf_new_label("flags: ");
+            wmem_strbuf_t *buffer = wmem_strbuf_new_label(wmem_packet_scope());
+            wmem_strbuf_append(buffer, "flags: ");
 
             if (do_red_green_blue & 0x1) {
-                  ep_strbuf_append(buffer, "DoRed");
+                  wmem_strbuf_append(buffer, "DoRed");
                   sep = TRUE;
             }
 
             if (do_red_green_blue & 0x2) {
-                  if (sep) ep_strbuf_append(buffer, " | ");
-                  ep_strbuf_append(buffer, "DoGreen");
+                  if (sep) wmem_strbuf_append(buffer, " | ");
+                  wmem_strbuf_append(buffer, "DoGreen");
                   sep = TRUE;
             }
 
             if (do_red_green_blue & 0x4) {
-                  if (sep) ep_strbuf_append(buffer, " | ");
-                  ep_strbuf_append(buffer, "DoBlue");
+                  if (sep) wmem_strbuf_append(buffer, " | ");
+                  wmem_strbuf_append(buffer, "DoBlue");
                   sep = TRUE;
             }
 
             if (do_red_green_blue & 0xf8) {
-                  if (sep) ep_strbuf_append(buffer, " + trash");
+                  if (sep) wmem_strbuf_append(buffer, " + trash");
             }
 
             ti = proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, *offsetp, 1, do_red_green_blue,
-                                            "%s", buffer->str);
+                                            "%s", wmem_strbuf_get_str(buffer));
             tt = proto_item_add_subtree(ti, ett_x11_color_flags);
             if (do_red_green_blue & 0x1)
                   proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_red, tvb, *offsetp, 1,
@@ -1541,10 +1542,11 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             proto_tree *ttt;
             guint do_red_green_blue;
             guint16 red, green, blue;
-            emem_strbuf_t *buffer;
+            wmem_strbuf_t *buffer;
             const char *sep;
 
-            buffer=ep_strbuf_new_label("colorItem ");
+            buffer=wmem_strbuf_new_label(wmem_packet_scope());
+            wmem_strbuf_append(buffer, "colorItem ");
             red = VALUE16(tvb, *offsetp + 4);
             green = VALUE16(tvb, *offsetp + 6);
             blue = VALUE16(tvb, *offsetp + 8);
@@ -1552,17 +1554,17 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
             sep = "";
             if (do_red_green_blue & 0x1) {
-                ep_strbuf_append_printf(buffer, "red = %d", red);
+                wmem_strbuf_append_printf(buffer, "red = %d", red);
                 sep = ", ";
             }
             if (do_red_green_blue & 0x2) {
-                ep_strbuf_append_printf(buffer, "%sgreen = %d", sep, green);
+                wmem_strbuf_append_printf(buffer, "%sgreen = %d", sep, green);
                 sep = ", ";
             }
             if (do_red_green_blue & 0x4)
-                ep_strbuf_append_printf(buffer, "%sblue = %d", sep, blue);
+                wmem_strbuf_append_printf(buffer, "%sblue = %d", sep, blue);
 
-            tti = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, *offsetp, 12, "%s", buffer->str);
+            tti = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, *offsetp, 12, "%s", wmem_strbuf_get_str(buffer));
             ttt = proto_item_add_subtree(tti, ett_x11_color_item);
             proto_tree_add_item(ttt, hf_x11_coloritem_pixel, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
@@ -1862,7 +1864,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
       if (keysym == XK_VoidSymbol)
             keysym = NoSymbol;
 
-      return ep_strdup_printf("%d, \"%s\"", keysym, keysymString(keysym));
+      return wmem_strdup_printf(wmem_packet_scope(), "%d, \"%s\"", keysym, keysymString(keysym));
 #endif
 }
 
@@ -2135,7 +2137,7 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
                   l = STRING16_MAX_DISPLAYED_LENGTH;
             }
 
-            *s = (char *)ep_alloc(l + 3);
+            *s = (char *)wmem_alloc(wmem_packet_scope(), l + 3);
             dp = *s;
             *dp++ = '"';
             if (truncated) l -= 3;

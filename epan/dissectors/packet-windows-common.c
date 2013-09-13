@@ -28,7 +28,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
 #include "packet-smb-sidsnooping.h"
 #include "packet-windows-common.h"
@@ -1492,7 +1492,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	guint8 revision, num_auth;
 	guint32 sa_field, rid=0;
 	guint64 authority=0;
-	emem_strbuf_t *sa_str = NULL, *sid_in_dec_str = NULL, *sid_in_hex_str = NULL, *label_str = NULL,
+	wmem_strbuf_t *sa_str = NULL, *sid_in_dec_str = NULL, *sid_in_hex_str = NULL, *label_str = NULL,
 				  *domain_str = NULL, *wkwn_sid1_str = NULL, *wkwn_sid2_str = NULL;
 	const char *mapped_name = NULL, *mapped_rid = NULL;
 	gboolean domain_sid = FALSE, s_1_5_32 = FALSE, s_1_5_64 = FALSE, locally_defined = FALSE,
@@ -1525,37 +1525,37 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		offset++;
 	}
 
-	sid_in_dec_str = ep_strbuf_new_label("");
-	ep_strbuf_append_printf (sid_in_dec_str, "S-%u-%" G_GINT64_MODIFIER "u", revision, authority);
+	sid_in_dec_str = wmem_strbuf_new_label(wmem_packet_scope());
+	wmem_strbuf_append_printf (sid_in_dec_str, "S-%u-%" G_GINT64_MODIFIER "u", revision, authority);
 
 	/*  If sid_display_hex is set, sid_in_dec_str is still needed for
 		looking up well-known SIDs*/
 	if (sid_display_hex) {
-		sid_in_hex_str = ep_strbuf_new_label("");
-		ep_strbuf_append_printf (sid_in_hex_str, "S-%x-%" G_GINT64_MODIFIER "x", revision, authority);
+		sid_in_hex_str = wmem_strbuf_new_label(wmem_packet_scope());
+		wmem_strbuf_append_printf (sid_in_hex_str, "S-%x-%" G_GINT64_MODIFIER "x", revision, authority);
 	}
 
-	wkwn_sid1_str = ep_strbuf_new_label("");
-	label_str = ep_strbuf_new_label("");
+	wkwn_sid1_str = wmem_strbuf_new_label(wmem_packet_scope());
+	label_str = wmem_strbuf_new_label(wmem_packet_scope());
 
-	if (strcmp(sid_in_dec_str->str, "S-1-16")==0)
+	if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-16")==0)
 		S_1_16 = TRUE;
 
 	/* Look for well-known SIDs in format 'S-1-<Identifier Authority>' (i.e., exactly 3 fields) */
 	if (num_auth==0 || S_1_16) {
-		mapped_name = match_wkwn_sids(sid_in_dec_str->str);
+		mapped_name = match_wkwn_sids(wmem_strbuf_get_str(sid_in_dec_str));
 		if (mapped_name) {
-			ep_strbuf_append_printf(label_str, "%s", mapped_name);
-			ep_strbuf_append_printf(wkwn_sid1_str, "%s",
-				(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str));
+			wmem_strbuf_append(label_str, mapped_name);
+			wmem_strbuf_append(wkwn_sid1_str,
+				(sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str)));
 			wkwn_sid1_len = 8;
 		}
 	}
 
 	sa_offset = offset;
-	sa_str = ep_strbuf_new_label("");
-	wkwn_sid2_str = ep_strbuf_new_label("");
-	domain_str = ep_strbuf_new_label("");
+	sa_str = wmem_strbuf_new_label(wmem_packet_scope());
+	wkwn_sid2_str = wmem_strbuf_new_label(wmem_packet_scope());
+	domain_str = wmem_strbuf_new_label(wmem_packet_scope());
 
 	/* Build the sub-authorities and full SID strings */
 	for(i=1; i<num_auth+1; i++) {
@@ -1569,42 +1569,42 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		* assume that non le byte encodings will be "uncommon"?
 		*/
 		sa_field = tvb_get_letohl(tvb, offset);
-		ep_strbuf_append_printf(sid_in_dec_str, "-%u", sa_field);
-		ep_strbuf_append_printf(sa_str,
+		wmem_strbuf_append_printf(sid_in_dec_str, "-%u", sa_field);
+		wmem_strbuf_append_printf(sa_str,
 			(i==1 ? (sid_display_hex ? "%x" : "%u") : (sid_display_hex ? "-%x" : "-%u")),
 			sa_field);
 		if (sid_display_hex)
-			ep_strbuf_append_printf(sid_in_hex_str, "-%x", sa_field);
+			wmem_strbuf_append_printf(sid_in_hex_str, "-%x", sa_field);
 
 		if (i==1) {
 			/* Look for well-known SIDs at level one ("S-1-<authority>-<value>") */
 			if (S_1_16) {
 				/* Mandatory Level (S-1-16) */
-				mapped_rid = match_wkwn_sids(sid_in_dec_str->str);
+				mapped_rid = match_wkwn_sids(wmem_strbuf_get_str(sid_in_dec_str));
 				if (mapped_rid) {
 					/* Get the RID */
-					ep_strbuf_append_printf(label_str, "%s-%s", mapped_name, mapped_rid);
+					wmem_strbuf_append_printf(label_str, "%s-%s", mapped_name, mapped_rid);
 					rid = sa_field;
 					rid_offset = offset;
-					ep_strbuf_append_printf(wkwn_sid2_str, "%s",
-						(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str));
+					wmem_strbuf_append(wkwn_sid2_str,
+						(sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str)));
 					wkwn_sid1_len=12;				}
 			} else {
-				mapped_name = match_wkwn_sids(sid_in_dec_str->str);
+				mapped_name = match_wkwn_sids(wmem_strbuf_get_str(sid_in_dec_str));
 				if (mapped_name) {
-					ep_strbuf_append_printf(label_str, "%s", mapped_name);
-					ep_strbuf_append_printf(wkwn_sid1_str, "%s",
-						(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str));
+					wmem_strbuf_append(label_str, mapped_name);
+					wmem_strbuf_append(wkwn_sid1_str,
+						(sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str)));
 					wkwn_sid1_len = 12;
 				}
 				/* The following three SID types have (unique) RIDs */
-				if (strcmp(sid_in_dec_str->str, "S-1-5-21")==0) {
+				if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-5-21")==0) {
 					/* Domain SID */
 					domain_sid = TRUE;
-				} else if (strcmp(sid_in_dec_str->str, "S-1-5-32")==0) {
+				} else if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-5-32")==0) {
 					/* Local Group (S-1-5-32) SID */
 					s_1_5_32 = TRUE;
-				} else if (strcmp(sid_in_dec_str->str, "S-1-5-64")==0) {
+				} else if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-5-64")==0) {
 					/* Authentication (S-1-5-64) SID */
 					s_1_5_64 = TRUE;
 				}
@@ -1613,14 +1613,14 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 			/* The only well-known SIDS with two subauthority fields ("level 2 SIDs") are
 			   Local Group (S-1-5-32), and Authentication (S-1-5-64). */
 			if (s_1_5_32 || s_1_5_64) {
-				mapped_rid = match_wkwn_sids(sid_in_dec_str->str);
+				mapped_rid = match_wkwn_sids(wmem_strbuf_get_str(sid_in_dec_str));
 				if (mapped_rid) {
 					/* Get the RID */
-					ep_strbuf_append_printf(label_str, "-%s", mapped_rid);
+					wmem_strbuf_append_printf(label_str, "-%s", mapped_rid);
 					rid = sa_field;
 					rid_offset = offset;
-					ep_strbuf_append_printf(wkwn_sid2_str, "%s",
-						(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str));
+					wmem_strbuf_append(wkwn_sid2_str,
+						(sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str)));
 					wkwn_sid2_len=16;
 				} else {
 					/* The RID not well-known. */
@@ -1640,14 +1640,14 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 				if (num_auth >= 4) {
 					if (i >= 2 && i <=4 ) {
 						/* Add the field to the domain string (d1-d2-d3) */
-						ep_strbuf_append_printf(domain_str,
+						wmem_strbuf_append_printf(domain_str,
 							(i==2 ? (sid_display_hex ? "%x" : "%u") : (sid_display_hex ? "-%x" : "-%u")), sa_field);
 
 					} else if (i==5) {
 						rid = sa_field;
 						rid_offset = offset;
 						mapped_rid = val_to_str_const(rid, wkwn_S_1_5_21_rids, "Domain RID");
-						ep_strbuf_append_printf(label_str, "-%s", mapped_rid);
+						wmem_strbuf_append_printf(label_str, "-%s", mapped_rid);
 
 					} else {
 						locally_defined = TRUE;
@@ -1668,24 +1668,24 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	if ( !(mapped_name || domain_sid || s_1_5_32 || s_1_5_64) ) {
 	    /* If requested, try to map the NON-well-known SID to an object name discovered in this capture  */
 		if (sid_name_snooping) {
-			mapped_name = find_sid_name(sid_in_dec_str->str);
+			mapped_name = find_sid_name(wmem_strbuf_get_str(sid_in_dec_str));
 		} else {
 			mapped_name = "<Unknown SID type>";
 		}
 	}
 
 	if (locally_defined) {
-		ep_strbuf_append_printf(label_str, "-<locally defined>");
+		wmem_strbuf_append_printf(label_str, "-<locally defined>");
 	}
 
 	/* It's tree time
 	   Display the full SID string in hex or dec */
 	item = proto_tree_add_string_format(
 		parent_tree, hf_sid, tvb, offset_sid_start, (offset - offset_sid_start),
-		(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str),
-		"%s: %s", name, (sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str)
+		(sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str)),
+		"%s: %s", name, (sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str))
 	);
-	proto_item_append_text(item, "  (%s)", label_str->str);
+	proto_item_append_text(item, "  (%s)", wmem_strbuf_get_str(label_str));
 
 
 	subtree = proto_item_add_subtree(item, ett_nt_sid);
@@ -1699,7 +1699,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 	/* Add subauthorities */
 	proto_tree_add_string_format (subtree, hf_nt_sid_subauth, tvb, sa_offset,
-		num_auth*4, sa_str->str, "Subauthorities: %s", sa_str->str);
+		num_auth*4, wmem_strbuf_get_str(sa_str), "Subauthorities: %s", wmem_strbuf_get_str(sa_str));
 
 	if (rid) {
 		item = proto_tree_add_item (subtree,
@@ -1708,37 +1708,37 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	}
 
 	/* Add well-known SID and domain strings if present */
-	if (*wkwn_sid1_str->str) {
+	if (wmem_strbuf_get_len(wkwn_sid1_str) > 0) {
 		hidden_item = proto_tree_add_string_format(
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid1_len,
-			wkwn_sid1_str->str, "Well-known SID: %s", wkwn_sid1_str->str);
+			wmem_strbuf_get_str(wkwn_sid1_str), "Well-known SID: %s", wmem_strbuf_get_str(wkwn_sid1_str));
 		proto_item_append_text(hidden_item, "  (%s)", mapped_name);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
-	if (*wkwn_sid2_str->str) {
+	if (wmem_strbuf_get_len(wkwn_sid2_str) > 0) {
 		hidden_item = proto_tree_add_string_format(
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid2_len,
-			wkwn_sid2_str->str, "Well-known SID: %s", wkwn_sid2_str->str);
-		proto_item_append_text(hidden_item, "  (%s)", label_str->str);
+			wmem_strbuf_get_str(wkwn_sid2_str), "Well-known SID: %s", wmem_strbuf_get_str(wkwn_sid2_str));
+		proto_item_append_text(hidden_item, "  (%s)", wmem_strbuf_get_str(label_str));
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
-	if (domain_sid && *domain_str->str) {
+	if (domain_sid && wmem_strbuf_get_len(domain_str) > 0) {
 		hidden_item = proto_tree_add_string_format(
 			subtree, hf_nt_sid_domain, tvb, offset_sid_start + 12, 12,
-			domain_str->str, "Domain: %s", domain_str->str);
+			wmem_strbuf_get_str(domain_str), "Domain: %s", wmem_strbuf_get_str(domain_str));
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
 	/* If requested, return SID string with mapped name */
 	if(sid_str){
 		if(mapped_name){
-			*sid_str = ep_strdup_printf("%s  (%s)",
-				(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str), label_str->str);
+			*sid_str = wmem_strdup_printf(wmem_packet_scope(), "%s  (%s)",
+				(sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str)), wmem_strbuf_get_str(label_str));
 		} else {
-			*sid_str = ep_strdup(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str);
+			*sid_str = wmem_strdup(wmem_packet_scope(), sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str));
 		}
 		if(!(*sid_str)){
-			*sid_str=ep_strdup("corrupted SID");
+			*sid_str=wmem_strdup(wmem_packet_scope(), "corrupted SID");
 		}
 	}
 	return offset;

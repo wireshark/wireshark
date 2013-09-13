@@ -39,6 +39,6 @@ typedef struct _sid_name {
 } sid_name;
 
 WS_DLL_PUBLIC
-char *find_sid_name(char *sid);
+char *find_sid_name(const char *sid);
 
 #endif
