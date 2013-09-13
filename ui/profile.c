@@ -30,6 +30,7 @@
 
 #include <glib.h>
 
+#include <epan/emem.h>
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 
