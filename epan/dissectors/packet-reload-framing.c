@@ -134,11 +134,6 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   if (effective_length < MIN_HDR_LENGTH)
     return 0;
 
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-  if (conversation)
-    reload_framing_info = (reload_conv_info_t *)conversation_get_proto_data(conversation, proto_reload_framing);
-
   /* Get the type
    * http://tools.ietf.org/html/draft-ietf-p2psip-base-12
    * 5.6.2.  Framing Header
@@ -171,6 +166,11 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   default:
     return 0;
   }
+
+  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                   pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+  if (conversation)
+    reload_framing_info = (reload_conv_info_t *)conversation_get_proto_data(conversation, proto_reload_framing);
 
   if (from_dtls && have_tap_listener(exported_pdu_tap)) {
     exp_pdu_data_t *exp_pdu_data;
