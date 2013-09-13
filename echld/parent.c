@@ -302,7 +302,7 @@ extern echld_state_t echld_terminate(void) {
 	parent.closing = TRUE;
 	PARENT_SEND(NULL,0,ECHLD_CLOSE_CHILD,++reqh_ids);
 
-	do ; while(sleep(1)); /* wait a full sec without signals */
+	do {;} while(sleep(1)); /* wait a full sec without signals */
 
 	echld_cleanup();
 	close(parent.dispatcher_fd);
