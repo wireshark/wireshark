@@ -22,13 +22,13 @@
 #
 
 set(CLEAN_FILES
-	common.c
 	echld-util.c
 	parent.c
 )
 
 set(DIRTY_FILES
 	child.c
+	common.c
 	dispatcher.c
 )
 
