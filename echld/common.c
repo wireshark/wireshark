@@ -248,7 +248,7 @@ long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 	do {
 		hdr_t* h = (hdr_t*)r->rp;
 		long nread;
-		size_t fr_len;
+		size_t fr_len = 0;
 		size_t missing;
 
 		DBG((5,"READ reader_len=%d",r->len));
