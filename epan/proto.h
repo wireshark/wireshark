@@ -45,6 +45,8 @@
 
 #include <glib.h>
 
+#include <epan/emem.h>
+
 #include "ipv4.h"
 #include "wsutil/nstime.h"
 #include "time_fmt.h"

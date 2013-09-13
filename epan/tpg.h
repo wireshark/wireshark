@@ -32,7 +32,6 @@
 #include <epan/proto.h>
 #include <epan/tvbuff.h>
 #include <epan/tvbparse.h>
-#include <epan/emem.h>
 #include "ws_symbol_export.h"
 
 typedef struct _tpg_parser_data_t {

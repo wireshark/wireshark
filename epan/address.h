@@ -27,7 +27,6 @@
 #define __ADDRESS_H__
 
 #include <string.h>     /* for memcmp */
-#include "emem.h"
 
 #ifdef __cplusplus
 extern "C" {

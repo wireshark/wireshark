@@ -27,7 +27,6 @@
 #define __FTYPES_H__
 
 #include <glib.h>
-#include "../emem.h"
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
