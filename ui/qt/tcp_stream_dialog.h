@@ -75,6 +75,7 @@ private:
     QCPPlotTitle *title_;
     QCPGraph *base_graph_; // Clickable packets
     QCPGraph *tput_graph_;
+    QCPGraph *seg_graph_;
     QCPGraph *ack_graph_;
     QCPGraph *rwin_graph_;
     QCPItemTracer *tracer_;

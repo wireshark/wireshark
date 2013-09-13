@@ -155,6 +155,12 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     tput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2); // Throughput: Moving average
     tput_graph_->setPen(QPen(QBrush(graph_color_2), 0.5));
     tput_graph_->setLineStyle(QCPGraph::lsLine);
+    seg_graph_ = sp->addGraph(); // tcptrace: fwd segments
+    seg_graph_->setErrorType(QCPGraph::etValue);
+    seg_graph_->setLineStyle(QCPGraph::lsNone);
+    seg_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
+    seg_graph_->setErrorPen(QPen(QBrush(graph_color_1), 0.5));
+    seg_graph_->setErrorBarSize(3.0);
     ack_graph_ = sp->addGraph(); // tcptrace: rev ACKs
     ack_graph_->setPen(QPen(QBrush(graph_color_2), 0.5));
     ack_graph_->setLineStyle(QCPGraph::lsStepLeft);
@@ -424,7 +430,9 @@ void TCPStreamDialog::resetAxes()
     double pixel_pad = 10.0; // per side
 
     base_graph_->rescaleAxes(false, true);
-    tput_graph_->rescaleValueAxis(false, true);
+    for (int i = 0; i < sp->graphCount(); i++) {
+        sp->graph(i)->rescaleValueAxis(true, true);
+    }
 
     double axis_pixels = sp->xAxis->axisRect()->width();
     sp->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->xAxis->range().center());
@@ -475,16 +483,26 @@ void TCPStreamDialog::fillTcptrace()
     QCustomPlot *sp = ui->streamPlot;
     sp->yAxis->setLabel(sequence_number_label_);
 
+    seg_graph_->setVisible(true);
     ack_graph_->setVisible(true);
     rwin_graph_->setVisible(true);
 
-    QVector<double> seq_time, seq, ackrwin_time, ack, rwin;
+    QVector<double> seq_time, seq, sb_time, sb_center, sb_span, ackrwin_time, ack, rwin;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         double ts = (seg->rel_secs + seg->rel_usecs / 1000000.0) - ts_offset_;
         if (compareHeaders(seg)) {
             // Forward direction: seq + data
             seq_time.append(ts);
             seq.append(seg->th_seq - seq_offset_);
+
+            // QCP doesn't have a segment graph type. For now, fake
+            // it with error bars.
+            if (seg->th_seglen > 0) {
+                double half = seg->th_seglen / 2.0;
+                sb_time.append(ts);
+                sb_center.append(seg->th_seq - seq_offset_ + half);
+                sb_span.append(half);
+            }
         } else {
             // Reverse direction: ACK + RWIN
             if (! (seg->th_flags & TH_ACK)) {
@@ -498,6 +516,7 @@ void TCPStreamDialog::fillTcptrace()
         }
     }
     base_graph_->setData(seq_time, seq);
+    seg_graph_->setDataValueError(sb_time, sb_center, sb_span);
     ack_graph_->setData(ackrwin_time, ack);
     rwin_graph_->setData(ackrwin_time, rwin);
 }
