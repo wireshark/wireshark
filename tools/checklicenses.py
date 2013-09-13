@@ -153,6 +153,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'epan/except.h': [
         'UNKNOWN',
     ],
+    'cmake/TestFileOffsetBits.c': [
+        'UNKNOWN',
+    ],
 }
 
 
