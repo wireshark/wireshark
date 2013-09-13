@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/wmem/wmem.h>
 #include <stdlib.h>
 #include <errno.h>
 
@@ -529,8 +530,8 @@ proto_reg_handoff_ib_sdp(void)
         heur_dissector_add("infiniband.mad.cm.private", dissect_ib_sdp, proto_ib_sdp);
 
         /* allocate enough space in the addresses to store the largest address (a GID) */
-        manual_addr_data[0] = se_alloc(GID_SIZE);
-        manual_addr_data[1] = se_alloc(GID_SIZE);
+        manual_addr_data[0] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
+        manual_addr_data[1] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
 
         initialized = TRUE;
     }
@@ -567,4 +568,3 @@ proto_reg_handoff_ib_sdp(void)
 
     }
 }
-

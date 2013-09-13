@@ -29,7 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 #include "guid-utils.h"
@@ -109,7 +109,7 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 
     /* limit the allocation to a reasonable size */
     if(u32ArraySize < 100) {
-        call = (remunk_remqueryinterface_call_t *)se_alloc(sizeof(remunk_remqueryinterface_call_t) + u32ArraySize * sizeof(e_uuid_t));
+        call = (remunk_remqueryinterface_call_t *)wmem_alloc(wmem_file_scope(), sizeof(remunk_remqueryinterface_call_t) + u32ArraySize * sizeof(e_uuid_t));
         call->iid_count = u32ArraySize;
         call->iids = (e_uuid_t *) (call+1);
         info->call_data->private_data = call;
@@ -279,7 +279,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
             pszFormat = ",...";
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, pszFormat, u32PublicRefs, u32PrivateRefs);
- 
+
         u32ItemIdx++;
     }
 
