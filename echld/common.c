@@ -1,5 +1,5 @@
 /* echld_common.h
- *  common functions of ECHLD 
+ *  common functions of ECHLD
  *
  * $Id$
  *
@@ -55,7 +55,7 @@ extern void echld_common_set_dbg(int level, FILE* fp, const char* prefix) {
 }
 #define DBG(attrs) ( common_dbg attrs )
 #else
-#define DBG(attrs) 
+#define DBG(attrs)
 #endif
 
 
@@ -131,7 +131,7 @@ static struct _t_map t_map[] = {
 	{ECHLD_PACKET_LIST,"PACKET_LIST"},
 	{ECHLD_SAVE_FILE,"SAVE_FILE"},
 	{ECHLD_FILE_SAVED,"FILE_SAVED"},
-	{0,NULL}
+	{ECHLD_NULL,NULL}
 };
 
 const char* echld_msg_type_str(echld_msg_type_t id) {
@@ -146,10 +146,10 @@ const char* echld_msg_type_str(echld_msg_type_t id) {
 
 
 /**
- the "epan pipe" protocol 
+ the "epan pipe" protocol
 **/
 
-typedef void (*reader_realloc_t)(echld_reader_t*, size_t); 
+typedef void (*reader_realloc_t)(echld_reader_t*, size_t);
 
 static void child_realloc_buff(echld_reader_t* r, size_t needed) {
 	size_t a = r->actual_len;
@@ -160,8 +160,8 @@ static void child_realloc_buff(echld_reader_t* r, size_t needed) {
 
 	if ( a < (s + needed) ) {
 		guint8* data = r->data;
-	
-	   	do { 
+
+		do {
 			a *= 2;
 		} while( a < (s + needed) );
 
@@ -182,7 +182,7 @@ static void parent_realloc_buff(echld_reader_t* b, size_t needed) {
 	// parent thread: obtain malloc mutex
 	child_realloc_buff(b,needed);
 	// parent thread: release malloc mutex
-}	
+}
 #endif
 
 
@@ -200,7 +200,7 @@ void echld_reset_reader(echld_reader_t* r, int fd, size_t initial) {
 	} else {
 		r->wp = r->data;
 		r->rp = r->data;
-		r->len = 0;		
+		r->len = 0;
 	}
 }
 
@@ -220,7 +220,7 @@ static long reader_readv(echld_reader_t* r, size_t len) {
 
 	DBG((2,"READV needed=%d",len));
 
-	if ( (r->actual_len - r->len) < len ) 
+	if ( (r->actual_len - r->len) < len )
 		reader_realloc_buff(r, len);
 
 	iov.iov_base = r->wp;
@@ -250,7 +250,6 @@ long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 		long nread;
 		size_t fr_len;
 		size_t missing;
-		long off;
 
 		DBG((5,"READ reader_len=%d",r->len));
 
@@ -262,9 +261,8 @@ long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 			goto incomplete_frame;
 		}
 
-		off = (fr_len = HDR_LEN(h)) + ECHLD_HDR_LEN;
 		DBG((5,"READ we've got a frame! fr_len=%d ch=%d t='%c' rh=%d",fr_len, h->h.chld_id, HDR_TYPE(h), h->h.reqh_id));
-		
+
 
 		cb( &(r->rp[sizeof(hdr_t)]), HDR_LEN(h), h->h.chld_id, HDR_TYPE(h), h->h.reqh_id, cb_data);
 
@@ -275,7 +273,7 @@ long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 		DBG((5,"READ consumed frame!"));
 
 		goto again;
-		
+
 	incomplete_header:
 		missing = ECHLD_HDR_LEN - (r->len);
 		DBG((5,"READ incomplete_header missing=%d",missing));
@@ -308,7 +306,7 @@ long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 		}
 
 	} while(1);
-	
+
 	DBG((1,"READ incomplete_frame Cannot happen"));
 
 	return 0;
@@ -352,7 +350,7 @@ param_t* paramset_find (param_t* paramsets, char* name, char** err) {
 
 echld_bool_t paramset_apply_set (param_t* paramsets, char* name, char* val, char** err) {
 	param_t* p = paramset_find(paramsets,name,err);
-	
+
 	if ( !p ) return FALSE;
 	if ( ! p->set ) {
 		*err = g_strdup_printf("Cannot set RO param='%s'",name);
@@ -364,7 +362,7 @@ echld_bool_t paramset_apply_set (param_t* paramsets, char* name, char* val, char
 
 char* paramset_apply_get (param_t* paramsets, char* name, char** err) {
 	param_t* p = paramset_find(paramsets,name,err);
-	
+
 	if ( !p ) return NULL;
 
 	if ( ! p->get ) {
@@ -405,14 +403,14 @@ echld_bool_t paramset_apply_em(param_t* paramset, enc_msg_t* em, char** err) {
 			return FALSE;
 		}
 
-		if (! paramset_apply_set(paramset,param,value,err)) 
+		if (! paramset_apply_set(paramset,param,value,err))
 			return FALSE;
 	}
 
 	return TRUE;
 }
 
-char* paramset_get_params_list(param_t* paramsets,const char* fmt) { 
+char* paramset_get_params_list(param_t* paramsets,const char* fmt) {
 	param_t* p = paramsets;
 	GString* str = g_string_new("");
 	char* s;
@@ -608,7 +606,7 @@ static child_decoder_t child_decoder = {
 	str_dec,
 	int_str_dec,
 	str_dec,
-	x2str_dec 
+	x2str_dec
 };
 
 static child_encoder_t  child_encoder = {
@@ -789,7 +787,7 @@ static char* save_file_json(GByteArray* ba _U_) {
 
 /* this to be used only at the parent */
 static char* decode_json(echld_msg_type_t type, enc_msg_t* m) {
-  	GByteArray* ba = (GByteArray*)m;
+	GByteArray* ba = (GByteArray*)m;
 
 	switch(type) {
 		case ECHLD_ERROR: return error_json(ba);
@@ -843,22 +841,22 @@ extern void dummy_switch(echld_msg_type_t type) {
 		case ECHLD_ERROR: break; //
 		case ECHLD_TIMED_OUT: break;
 		case ECHLD_NEW_CHILD: break;
-		case ECHLD_HELLO: break; 
+		case ECHLD_HELLO: break;
 		case ECHLD_CHILD_DEAD: break; //S msg
 		case ECHLD_CLOSE_CHILD: break;
 		case ECHLD_CLOSING: break; //
-		case ECHLD_SET_PARAM: break; 
+		case ECHLD_SET_PARAM: break;
 		case ECHLD_GET_PARAM: break;
 		case ECHLD_PARAM: break; //SS param,val
 		case ECHLD_PING: break;
 		case ECHLD_PONG: break; //
-		case ECHLD_OPEN_FILE: break; 
+		case ECHLD_OPEN_FILE: break;
 		case ECHLD_FILE_OPENED: break; //
 		case ECHLD_OPEN_INTERFACE: break;
 		case ECHLD_INTERFACE_OPENED: break; //
 		case ECHLD_START_CAPTURE: break;
 		case ECHLD_CAPTURE_STARTED: break; //
-		case ECHLD_NOTIFY: break; //S notification (pre-encoded) 
+		case ECHLD_NOTIFY: break; //S notification (pre-encoded)
 		case ECHLD_GET_SUM: break;
 		case ECHLD_PACKET_SUM: break; //S (pre-encoded)
 		case ECHLD_GET_TREE: break;
@@ -897,21 +895,21 @@ extern void dummy_switch(echld_msg_type_t type) {
 
 		case ECHLD_ERROR: break; // error(err,reason)
 		case ECHLD_TIMED_OUT: break;
-		case ECHLD_HELLO: break; 
+		case ECHLD_HELLO: break;
 		case ECHLD_CHILD_DEAD: break; // child_dead(msg)
 		case ECHLD_CLOSING: break;
 		case ECHLD_PARAM: break;
 		case ECHLD_PONG: break;
-		case ECHLD_FILE_OPENED: break; 
+		case ECHLD_FILE_OPENED: break;
 		case ECHLD_INTERFACE_OPENED: break;
 		case ECHLD_CAPTURE_STARTED: break;
-		case ECHLD_NOTIFY: break; // notify(pre-encoded) 
+		case ECHLD_NOTIFY: break; // notify(pre-encoded)
 		case ECHLD_PACKET_SUM: break; // packet_sum(pre-encoded)
-		case ECHLD_TREE: break; //tree(framenum, tree(pre-encoded) ) 
+		case ECHLD_TREE: break; //tree(framenum, tree(pre-encoded) )
 		case ECHLD_BUFFER: break; // buffer (name,range,totlen,data)
-		case ECHLD_EOF: break; 
-		case ECHLD_CAPTURE_STOPPED: break; 
-		case ECHLD_NOTE_ADDED: break; 
+		case ECHLD_EOF: break;
+		case ECHLD_CAPTURE_STOPPED: break;
+		case ECHLD_NOTE_ADDED: break;
 		case ECHLD_PACKET_LIST: break; // packet_list(name,filter,range);
 		case ECHLD_FILE_SAVED: break;
 

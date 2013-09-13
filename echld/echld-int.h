@@ -98,7 +98,7 @@ struct _hdr {
 
 typedef union _hdr_t {
 	struct _hdr h;
-	guint8 b[ECHLD_HDR_LEN]; 
+	guint8 b[ECHLD_HDR_LEN];
 } hdr_t;
 
 #define HDR_TYPE(H) ((((H)->h.type_len)&0xff000000)>>24)
@@ -140,7 +140,7 @@ typedef struct _echld_reader {
 
 
 #define reader_is_empty(R) ( (R)->len == 0 )
-#define reader_has_header(R) ((R)->len >= ECHLD_HDR_LEN) 
+#define reader_has_header(R) ((R)->len >= ECHLD_HDR_LEN)
 #define reader_has_frame(R) ( reader_has_header(R) && ( (HDR_LEN( (hdr_t*)((R)->rp) ) + ECHLD_HDR_LEN) >= ((R)->len )))
 
 #define READER_FD_SET(R,fdset_p) FD_SET(R.fd,&(fdset_p))
@@ -189,7 +189,7 @@ typedef struct _echld_epan_stuff_t {
 	capture_session cap_sess;
 	capture_options cap_opts;
 	capture_file cfile;
-#endif	
+#endif
 	e_prefs* prefs;
 } echld_epan_stuff_t;
 
@@ -213,25 +213,25 @@ typedef struct _child_in {
 } child_decoder_t;
 
 typedef struct _child_out {
-	enc_msg_t* (*error) 		(int , const char*);
-	enc_msg_t* (*child_dead) 	(const char*);
-	enc_msg_t* (*param) 		(const char*, const char*);
-	enc_msg_t* (*notify) 		(const char*); // pre-encoded
-	enc_msg_t* (*packet_sum) 	(int, const char*); // framenum, sum(pre-encoded)
-	enc_msg_t* (*tree) 		(int, const char*); // framenum, tree(pre-encoded)
-	enc_msg_t* (*buffer) 		(int , const char*, const char*, const char*); // totlen,name,range,data
-	enc_msg_t* (*packet_list) 	(const char*, const char*, const char*); // name, filter, range
+	enc_msg_t* (*error)		(int , const char*);
+	enc_msg_t* (*child_dead)	(const char*);
+	enc_msg_t* (*param)		(const char*, const char*);
+	enc_msg_t* (*notify)		(const char*); // pre-encoded
+	enc_msg_t* (*packet_sum)	(int, const char*); // framenum, sum(pre-encoded)
+	enc_msg_t* (*tree)		(int, const char*); // framenum, tree(pre-encoded)
+	enc_msg_t* (*buffer)		(int , const char*, const char*, const char*); // totlen,name,range,data
+	enc_msg_t* (*packet_list)	(const char*, const char*, const char*); // name, filter, range
 } child_encoder_t;
 
 
 typedef struct _parent_in {
-	echld_bool_t (*error) 		(enc_msg_t*, int* , char**);
-	echld_bool_t (*child_dead) 	(enc_msg_t*, char**);
-	echld_bool_t (*param) 		(enc_msg_t*, char**, char**);
-	echld_bool_t (*notify) 		(enc_msg_t*, char**); // pre-encoded
-	echld_bool_t (*packet_sum) 	(enc_msg_t*, int*, char**); // framenum, sum(pre-encoded)
-	echld_bool_t (*packet) 		(enc_msg_t*, int*, char**); // framenum, tree(pre-encoded)
-	echld_bool_t (*buffer) 		(enc_msg_t*, int*, char**, char**, char**); // totlen,name,range,data
+	echld_bool_t (*error)		(enc_msg_t*, int* , char**);
+	echld_bool_t (*child_dead)	(enc_msg_t*, char**);
+	echld_bool_t (*param)		(enc_msg_t*, char**, char**);
+	echld_bool_t (*notify)		(enc_msg_t*, char**); // pre-encoded
+	echld_bool_t (*packet_sum)	(enc_msg_t*, int*, char**); // framenum, sum(pre-encoded)
+	echld_bool_t (*packet)		(enc_msg_t*, int*, char**); // framenum, tree(pre-encoded)
+	echld_bool_t (*buffer)		(enc_msg_t*, int*, char**, char**, char**); // totlen,name,range,data
 	echld_bool_t (*packet_list) (enc_msg_t*, char**, char**, char**); // name, filter, range
 } parent_decoder_t;
 
@@ -251,13 +251,13 @@ extern int echld_child_loop(void);
 extern void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds,	char* argv0, int (*main)(int, char **));
 
 
-extern void dummy_switch(echld_msg_type_t type); 
+extern void dummy_switch(echld_msg_type_t type);
 extern void echld_unused(void);
 
 /* config stuff */
 
 /* initial debug levels */
-/* undefine to avoid debugging */ 
+/* undefine to avoid debugging */
 #define DEBUG_BASE 5
 #define DEBUG_CHILD 5
 #define DEBUG_DISPATCHER 5
@@ -283,7 +283,7 @@ extern void echld_unused(void);
 #define NO_INITIALIZER 19
 
 #ifndef DEBUG_BASE
-#define echld_common_set_dbg(a,b,c) 
+#define echld_common_set_dbg(a,b,c)
 #endif
 
 

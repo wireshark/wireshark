@@ -35,10 +35,10 @@ extern "C" {
 
 #define ECHLD_VERSION "0.0"
 #define ECHLD_MAJOR_VERSION 0 /* increases when existing things change */
- 							  /* if this changes an old client may or may not work */
+							  /* if this changes an old client may or may not work */
 
 #define ECHLD_MINOR_VERSION 0 /* increases when new things are added */
- 							  /* if just this one changes an old client will still work */
+							  /* if just this one changes an old client will still work */
 
 /*
  * You should take a look to doc/README.epan_child before reading this
@@ -182,7 +182,7 @@ WS_DLL_PUBLIC enc_msg_t* echld_new_child_params(void);
 
 
 
-/* takes the em, and param=value pairs of strings, NULL to end. 
+/* takes the em, and param=value pairs of strings, NULL to end.
     echld_new_child_params_add_params(em,param1_str,val1_str,param2_str,val2_str,NULL);  */
 WS_DLL_PUBLIC void echld_new_child_params_add_params(enc_msg_t*, ...);
 
@@ -315,6 +315,7 @@ enum _echld_msg_type_t {
 	/*  in = child to parent */
 	/* out = parent to child */
 
+	ECHLD_NULL ='\0',  /* To terminate array */
 	ECHLD_ERROR = '!', /* in: an error has occurred,
 						*	this can be a response to most messages
 						*   some errors are sent asyncronously (some are handled internally, some are then passed)
