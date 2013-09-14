@@ -63,6 +63,7 @@ static gint ett_moldudp64_msgblk = -1;
 static expert_field ei_moldudp64_msglen_invalid = EI_INIT;
 static expert_field ei_moldudp64_end_of_session_extra = EI_INIT;
 static expert_field ei_moldudp64_count_invalid = EI_INIT;
+static expert_field ei_moldudp64_request = EI_INIT;
 
 /* Code to dissect a message block */
 guint
@@ -72,7 +73,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *blk_tree;
     guint16     msglen, real_msglen, whole_len;
-    guint       remaining;
+    gint        remaining;
 
     if (tvb_length_remaining(tvb, offset) < MOLDUDP64_MSGLEN_LEN)
         return 0;
@@ -80,7 +81,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     msglen = tvb_get_ntohs(tvb, offset);
     remaining = tvb_reported_length(tvb) - offset - MOLDUDP64_MSGLEN_LEN;
 
-    if (remaining < (offset + MOLDUDP64_MSGLEN_LEN))
+    if (remaining < 0)
         real_msglen = 0;
     else if (msglen <= remaining)
         real_msglen = msglen;
@@ -147,6 +148,10 @@ dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         col_set_str(pinfo->cinfo, COL_INFO, "MoldUDP64 Heartbeat");
     else if (count == MOLDUDP64_ENDOFSESS)
         col_set_str(pinfo->cinfo, COL_INFO, "MoldUDP64 End Of Session");
+    else if (count > 0 && tvb_reported_length(tvb) == (MOLDUDP64_SESSION_LEN  +
+                                                       MOLDUDP64_SEQUENCE_LEN +
+                                                       MOLDUDP64_COUNT_LEN))
+        col_set_str(pinfo->cinfo, COL_INFO, "MoldUDP64 Request");
     else
         col_set_str(pinfo->cinfo, COL_INFO, "MoldUDP64 Messages");
 
@@ -175,12 +180,13 @@ dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         real_count++;
     }
 
-    if (count == MOLDUDP64_ENDOFSESS)
+    if (count == MOLDUDP64_ENDOFSESS && real_count != 0)
     {
-        if (real_count != 0)
-        {
-            expert_add_info(pinfo, ti, &ei_moldudp64_end_of_session_extra);
-        }
+        expert_add_info(pinfo, ti, &ei_moldudp64_end_of_session_extra);
+    }
+    else if (count > 0 && real_count == 0)
+    {
+        expert_add_info(pinfo, ti, &ei_moldudp64_request);
     }
     else if (real_count != count)
     {
@@ -242,6 +248,7 @@ proto_register_moldudp64(void)
         { &ei_moldudp64_msglen_invalid, { "moldudp64.msglen.invalid", PI_MALFORMED, PI_ERROR, "Invalid Message Length", EXPFILL }},
         { &ei_moldudp64_end_of_session_extra, { "moldudp64.end_of_session_extra", PI_MALFORMED, PI_ERROR, "End Of Session packet with extra data.", EXPFILL }},
         { &ei_moldudp64_count_invalid, { "moldudp64.count.invalid", PI_MALFORMED, PI_ERROR, "Invalid Message Count", EXPFILL }},
+        { &ei_moldudp64_request, { "moldudp64.request", PI_COMMENTS_GROUP, PI_COMMENT, "Number of Requested Messages", EXPFILL }},
     };
 
     expert_module_t* expert_moldudp64;
