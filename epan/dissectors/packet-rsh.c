@@ -36,8 +36,8 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include <wsutil/str_util.h>
 
 /* The rsh protocol uses TCP port 512 per its IANA assignment */
@@ -123,7 +123,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	hash_info = (rsh_hash_entry_t *)conversation_get_proto_data(conversation, proto_rsh);
 	if(!hash_info){
-		hash_info = se_new(rsh_hash_entry_t);
+		hash_info = wmem_new(wmem_file_scope(), rsh_hash_entry_t);
 
 		hash_info->first_packet_number = pinfo->fd->num;
 		hash_info->second_packet_number = 0;
@@ -270,7 +270,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->client_username){
-				hash_info->client_username=se_strdup((gchar*)field_stringz);
+				hash_info->client_username=wmem_strdup(wmem_file_scope(), (gchar*)field_stringz);
 			}
 
 			 /* Next field we need */
@@ -298,7 +298,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->server_username){
-				hash_info->server_username=se_strdup((gchar*)field_stringz);
+				hash_info->server_username=wmem_strdup(wmem_file_scope(), (gchar*)field_stringz);
 			}
 
 			/* Next field we need */
