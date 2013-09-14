@@ -1212,7 +1212,7 @@ static void uat_bootp_record_update_cb(void* r, const char** err) {
 	uat_bootp_record_t* rec = (uat_bootp_record_t *)r;
 
 	if ((rec->opt == 0) || (rec->opt >=BOOTP_OPT_NUM-1))
-		*err = wmem_strdup_printf(wmem_packet_scope(), "Option must be between 1 and %d", BOOTP_OPT_NUM-2);
+		*err = ep_strdup_printf("Option must be between 1 and %d", BOOTP_OPT_NUM-2);
 }
 
 static void uat_bootp_record_free_cb(void*r) {
@@ -5311,7 +5311,7 @@ bootp_init_protocol(void)
 	/* Now apply the custom options */
 	for (i = 0; i < num_bootp_records_uat; i++)
 	{
-		bootp_opt[uat_bootp_records[i].opt].text = wmem_strdup(wmem_file_scope(), uat_bootp_records[i].text);
+		bootp_opt[uat_bootp_records[i].opt].text = se_strdup(uat_bootp_records[i].text);
 		bootp_opt[uat_bootp_records[i].opt].ftype = uat_bootp_records[i].ftype;
 		bootp_opt[uat_bootp_records[i].opt].phf = NULL;
 	}
