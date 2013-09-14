@@ -41,7 +41,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-edonkey.h"
 #include "packet-tcp.h"
 
@@ -1010,7 +1010,8 @@ static const char *kademlia_hash(tvbuff_t *tvb, int offset) {
     for (i = 0; i < 4; i++)
         hash[i] = tvb_get_letohl(tvb, offset + i*4);
 
-    return ep_strdup_printf("%08X%08X%08X%08X", hash[0], hash[1], hash[2], hash[3]);
+    return wmem_strdup_printf(wmem_packet_scope(),
+              "%08X%08X%08X%08X", hash[0], hash[1], hash[2], hash[3]);
 }
 
 static int dissect_kademlia_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U_,
