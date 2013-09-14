@@ -533,7 +533,7 @@ and did you also install that package?]]))
 	# header.
 	#
 	# However, it might also happen on some others OSes with some erroneous
-	# system manipulations where multiple versions of libcap might co-exist
+	# system manipulations where multiple versions of libpcap might co-exist
 	# e.g. hand made symbolic link from libpcap.so -> libpcap.so.0.8 but
 	# having the pcap header version 0.7.
 	#
