@@ -28,7 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 
 #define ETHERNET_INTERFACE      1
@@ -485,7 +485,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             guint32        tag_len;
             guint32        delta;
             guint32        iLoop;
-            emem_strbuf_t *sb;
+            wmem_strbuf_t *sb;
 
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifindex, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
@@ -508,7 +508,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             offset = starting_offset + 16;
             delta  = 148;
 
-            sb = ep_strbuf_sized_new(8, SHORT_STR);
+            sb = wmem_strbuf_sized_new(wmem_packet_scope(), 8, SHORT_STR);
 
             for (iLoop = 0; iLoop < num_bss_entries; iLoop++)
             {
@@ -516,7 +516,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 proto_tree *bss_tree;
                 int         current_offset;
 
-                ep_strbuf_truncate(sb, 0);
+                wmem_strbuf_truncate(sb, 0);
 
                 current_offset = offset + iLoop * delta;
 
@@ -540,20 +540,20 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                                                    "BSS requires support for mandatory features of HT PHY (IEEE 802.11"
                                                    " - Clause 20)");
                         } else {
-                            ep_strbuf_append_printf(sb, "%2.1f%s ",
+                            wmem_strbuf_append_printf(sb, "%2.1f%s ",
                                       (tag_data_ptr[isr] & 0x7F) * 0.5,
                                       (tag_data_ptr[isr] & 0x80) ? "(B)" : "");
 
                         }
                     }
-                    ep_strbuf_append(sb, " [Mbit/sec]");
+                    wmem_strbuf_append(sb, " [Mbit/sec]");
                 }
                 else {
-                    ep_strbuf_append(sb, "Not defined");
+                    wmem_strbuf_append(sb, "Not defined");
                 }
 
                 proto_tree_add_string (bss_tree, hf_waveagent_ifwlansupprates, tvb, offset + 36,
-                    tag_len, sb->str);
+                    tag_len, wmem_strbuf_get_str(sb));
 
                 proto_tree_add_item(bss_tree,
                     hf_waveagent_scanbssid, tvb, current_offset + 56, 6, ENC_NA);
