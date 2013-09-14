@@ -43,6 +43,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
@@ -176,7 +177,7 @@ dissect_skype_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	skype_udp_info = (skype_udp_conv_info_t *)conversation_get_proto_data(conversation, proto_skype);
 	if (!skype_udp_info) {
 		/* new conversation create local data structure */
-		skype_udp_info = se_new(skype_udp_conv_info_t);
+		skype_udp_info = wmem_new(wmem_file_scope(), skype_udp_conv_info_t);
 		skype_udp_info->global_src_ip = 0;
 		skype_udp_info->global_dst_ip = 0;
 		conversation_add_proto_data(conversation, proto_skype,

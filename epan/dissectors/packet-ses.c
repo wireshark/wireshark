@@ -29,19 +29,18 @@
 
 #include <glib.h>
 
+#include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/show_exception.h>
+#include <epan/strutil.h>
 
 #include "packet-ber.h"
 #include "packet-ses.h"
 
-/* #include <epan/prefs.h> */
-#include <epan/emem.h>
-#include <epan/strutil.h>
 
 /* ses header fields             */
 static int proto_ses          = -1;
@@ -1092,7 +1091,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			pres_ctx_id = (guint32 *)p_get_proto_data (pinfo->fd, proto_ses, 0);
 			if (ses_rtse_reassemble != 0 && !pres_ctx_id) {
 				/* First time visited - save pres_ctx_id */
-				pres_ctx_id = se_new(guint32);
+				pres_ctx_id = wmem_new(wmem_file_scope(), guint32);
 				*pres_ctx_id = ses_pres_ctx_id;
 				p_add_proto_data (pinfo->fd, proto_ses, 0, pres_ctx_id);
 			}

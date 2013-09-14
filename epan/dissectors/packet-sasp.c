@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include <glib.h>
+#include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
@@ -527,7 +528,7 @@ static void dissect_dereg_req(tvbuff_t *tvb, proto_tree *pay_load, guint32 offse
 	proto_tree *dereg_req_data;
 	guint8 reason_flag;
 	static gboolean first_flag = TRUE;
-	emem_strbuf_t *reasonflags_strbuf = ep_strbuf_new_label("");
+	wmem_strbuf_t *reasonflags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
 	static const gchar *fstr[] = {"No Reason", "Learned & Purposeful" };
 
 	dereg_tree = proto_tree_add_text(pay_load, tvb, offset, -1 , "DeReg Request");
@@ -542,19 +543,19 @@ static void dissect_dereg_req(tvbuff_t *tvb, proto_tree *pay_load, guint32 offse
 	offset += 1;
 
 	/* Reason */
-	ep_strbuf_truncate(reasonflags_strbuf, 0);
+	wmem_strbuf_truncate(reasonflags_strbuf, 0);
 	reason_flag = tvb_get_guint8(tvb, offset);
 
 	if ((reason_flag & SASP_DEREG_REQ_REASON_LEARNED) == 0)
-		ep_strbuf_append_printf(reasonflags_strbuf, "%s%s", first_flag ? "" : ", ", fstr[0]);
+		wmem_strbuf_append_printf(reasonflags_strbuf, "%s%s", first_flag ? "" : ", ", fstr[0]);
 	else
-		ep_strbuf_append_printf(reasonflags_strbuf, "%s%s", first_flag ? "" : ", ", fstr[1]);
+		wmem_strbuf_append_printf(reasonflags_strbuf, "%s%s", first_flag ? "" : ", ", fstr[1]);
 	first_flag = FALSE;
 
 	/*dereg_req_reason_flag =*/
 	proto_tree_add_uint_format(dereg_req_data, hf_dereg_req_reason_flag, tvb,
 		offset, 1, reason_flag, "Reason: 0x%02x (%s)", reason_flag,
-		reasonflags_strbuf->str);
+		wmem_strbuf_get_str(reasonflags_strbuf));
 #if 0   /* XXX: ToDo?? Flags to be displayed under a subtree ? */
 	dereg_req_reason_flag_tree = proto_item_add_subtree(dereg_req_reason_flag, ett_dereg_req_reason_flag);
 #endif

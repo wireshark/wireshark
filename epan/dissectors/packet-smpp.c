@@ -62,7 +62,7 @@
 #include <epan/stats_tree.h>
 
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 #include "packet-smpp.h"
 
@@ -1555,7 +1555,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                 field = tvb_get_guint8(tvb, *offset);
                 minor = field & 0x0F;
                 major = (field & 0xF0) >> 4;
-                strval=ep_strdup_printf("%u.%u", major, minor);
+                strval=wmem_strdup_printf(wmem_packet_scope(), "%u.%u", major, minor);
                 proto_tree_add_string(sub_tree, hf_smpp_SC_interface_version,
                                       tvb, *offset, 1, strval);
                 (*offset)++;
@@ -1886,7 +1886,7 @@ bind_receiver(proto_tree *tree, tvbuff_t *tvb)
     field = tvb_get_guint8(tvb, offset++);
     minor = field & 0x0F;
     major = (field & 0xF0) >> 4;
-    strval=ep_strdup_printf("%u.%u", major, minor);
+    strval=wmem_strdup_printf(wmem_packet_scope(), "%u.%u", major, minor);
     proto_tree_add_string(tree, hf_smpp_interface_version, tvb,
                           offset - 1, 1, strval);
     smpp_handle_int1(tree, tvb, hf_smpp_addr_ton, &offset);
@@ -2464,8 +2464,8 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (command_status_str == NULL) {
                 /* Check if the reserved value is in the vendor-specific range. */
                 command_status_str = (command_status >= 0x400 && command_status <= 0x4FF ?
-                                ep_strdup_printf("Vendor-specific Error (0x%08X)", command_status) :
-                                ep_strdup_printf("(Reserved Error 0x%08X)", command_status));
+                                wmem_strdup_printf(wmem_packet_scope(), "Vendor-specific Error (0x%08X)", command_status) :
+                                wmem_strdup_printf(wmem_packet_scope(), "(Reserved Error 0x%08X)", command_status));
         }
     }
     offset += 4;
@@ -2719,7 +2719,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         } /* if (tree || (command_id == 4)) */
 
         /* Queue packet for Tap */
-        tap_rec = ep_new0(smpp_tap_rec_t);
+        tap_rec = wmem_new0(wmem_packet_scope(), smpp_tap_rec_t);
         tap_rec->command_id = command_id;
         tap_rec->command_status = command_status;
         tap_queue_packet(smpp_tap, pinfo, tap_rec);

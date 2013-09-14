@@ -85,7 +85,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/reassemble.h>
@@ -5100,7 +5100,7 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
     cmdset_t         *csdata;
     scsi_task_data_t *cdata;
 
-    cdata = ep_new(scsi_task_data_t);
+    cdata = wmem_new(wmem_packet_scope(), scsi_task_data_t);
     cdata->itl = itl;
     cdata->itlq = itlq;
     cdata->type = SCSI_PDU_TYPE_RSP;
@@ -5160,7 +5160,7 @@ dissect_scsi_snsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const char       *old_proto;
     scsi_task_data_t *cdata;
 
-    cdata = ep_new(scsi_task_data_t);
+    cdata = wmem_new(wmem_packet_scope(), scsi_task_data_t);
     cdata->itl = itl;
     cdata->itlq = itlq;
     cdata->type = SCSI_PDU_TYPE_SNS;
@@ -5505,7 +5505,7 @@ dissect_scsi_cdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* make sure no one will overwrite this in the info column */
     col_set_fence(pinfo->cinfo, COL_INFO);
 
-    cdata = ep_new(scsi_task_data_t);
+    cdata = wmem_new(wmem_packet_scope(), scsi_task_data_t);
     cdata->itl = itl;
     cdata->itlq = itlq;
     cdata->type = SCSI_PDU_TYPE_CDB;
@@ -5586,7 +5586,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     payload_len = tvb_length(tvb);
-    cdata = ep_new(scsi_task_data_t);
+    cdata = wmem_new(wmem_packet_scope(), scsi_task_data_t);
     cdata->itl = itl;
     cdata->itlq = itlq;
     cdata->type = SCSI_PDU_TYPE_CDB;
@@ -5783,7 +5783,7 @@ get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl)
         cmdset = scsi_def_devtype;
     }
 
-    csdata = ep_new(cmdset_t);
+    csdata = wmem_new(wmem_packet_scope(), cmdset_t);
 
     switch(cmdset&SCSI_CMDSET_MASK) {
     case SCSI_DEV_SBC:

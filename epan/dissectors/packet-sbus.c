@@ -28,7 +28,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 /* Attribute values*/
@@ -711,10 +711,10 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        sbus_attribut = tvb_get_guint8(tvb,8);
 
        if ( !request_val && sbus_attribut == 0 ) {/* request telegram */
-              new_request_key = se_new(sbus_request_key);
+              new_request_key = wmem_new(wmem_file_scope(), sbus_request_key);
               *new_request_key = request_key;
 
-              request_val = se_new(sbus_request_val);
+              request_val = wmem_new(wmem_file_scope(), sbus_request_val);
               request_val->cmd_code=tvb_get_guint8(tvb,10);
               request_val->retry_count=0;
               request_val->req_frame = pinfo->fd->num; /*store actual frame nr.*/

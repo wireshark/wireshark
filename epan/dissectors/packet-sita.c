@@ -35,7 +35,7 @@
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 static dissector_table_t    sita_dissector_table;
 static dissector_handle_t   data_handle;
@@ -75,27 +75,27 @@ static int                  hf_dcd              = -1;
 #define IOP                 "Local"
 #define REMOTE              "Remote"
 
-static gchar *
+static const gchar *
 format_flags_string(guchar value, const gchar *array[])
 {
     int         i;
     guint       bpos;
-    emem_strbuf_t   *buf;
+    wmem_strbuf_t   *buf;
     const char  *sep = "";
 
-    buf = ep_strbuf_sized_new(MAX_FLAGS_LEN, MAX_FLAGS_LEN);
+    buf = wmem_strbuf_sized_new(wmem_packet_scope(), MAX_FLAGS_LEN, MAX_FLAGS_LEN);
     for (i = 0; i < 8; i++) {
         bpos = 1 << i;
         if (value & bpos) {
             if (array[i][0]) {
                 /* there is a string to emit... */
-                ep_strbuf_append_printf(buf, "%s%s", sep,
+                wmem_strbuf_append_printf(buf, "%s%s", sep,
                     array[i]);
                 sep = ", ";
             }
         }
     }
-    return buf->str;
+    return wmem_strbuf_get_str(buf);
 }
 
 static void
@@ -103,7 +103,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item  *ti;
     guchar      flags, signals, errors1, errors2, proto;
-    gchar       *errors1_string, *errors2_string, *signals_string, *flags_string;
+    const gchar *errors1_string, *errors2_string, *signals_string, *flags_string;
     proto_tree  *sita_tree          = NULL;
     proto_tree  *sita_flags_tree    = NULL;
     proto_tree  *sita_errors1_tree  = NULL;

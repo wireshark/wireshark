@@ -96,6 +96,7 @@
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/asn1.h>

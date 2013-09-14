@@ -25,7 +25,7 @@
 
 #include <glib.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
@@ -954,7 +954,7 @@ dissect_digitech_procedure(guint8 procedure, const gint offset,
 
     if (conv_data == NULL)
     {
-        conv_data = se_new(digitech_conv_data_t);
+        conv_data = wmem_new(wmem_file_scope(), digitech_conv_data_t);
         conv_data->protocol_version = 1; /* Default to version 1 */
     }
 

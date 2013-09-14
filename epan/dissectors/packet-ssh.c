@@ -55,7 +55,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/sctpppids.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -338,7 +338,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	global_data = (struct ssh_flow_data *)conversation_get_proto_data(conversation, proto_ssh);
 	if (!global_data) {
-		global_data = (struct ssh_flow_data *)se_alloc0(sizeof(struct ssh_flow_data));
+		global_data = (struct ssh_flow_data *)wmem_alloc0(wmem_file_scope(), sizeof(struct ssh_flow_data));
 		global_data->version=SSH_VERSION_UNKNOWN;
 		global_data->kex_specific_dissector=ssh_dissect_kex_dh;
 		global_data->peer_data[CLIENT_PEER_DATA].mac_length=-1;
@@ -439,26 +439,26 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 	struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
 	if (tree) {
-		emem_strbuf_t *title=ep_strbuf_new("SSH Version 2");
+		wmem_strbuf_t *title=wmem_strbuf_new(wmem_packet_scope(), "SSH Version 2");
 
 		if (peer_data->enc || peer_data->mac || peer_data->comp) {
-			ep_strbuf_append_printf(title, " (");
+			wmem_strbuf_append_printf(title, " (");
 			if (peer_data->enc)
-				ep_strbuf_append_printf(title, "encryption:%s%s",
+				wmem_strbuf_append_printf(title, "encryption:%s%s",
 					peer_data->enc,
 					peer_data->mac || peer_data->comp
 						? " " : "");
 			if (peer_data->mac)
-				ep_strbuf_append_printf(title, "mac:%s%s",
+				wmem_strbuf_append_printf(title, "mac:%s%s",
 					peer_data->mac,
 					peer_data->comp ? " " : "");
 			if (peer_data->comp)
-				ep_strbuf_append_printf(title, "compression:%s",
+				wmem_strbuf_append_printf(title, "compression:%s",
 					peer_data->comp);
-			ep_strbuf_append_printf(title, ")");
+			wmem_strbuf_append_printf(title, ")");
 		}
 
-		ti=proto_tree_add_text(tree, tvb, offset, -1, "%s", title->str);
+		ti=proto_tree_add_text(tree, tvb, offset, -1, "%s", wmem_strbuf_get_str(title));
 		ssh2_tree = proto_item_add_subtree(ti, ett_ssh2);
 	}
 
@@ -984,7 +984,7 @@ ssh_choose_algo(gchar *client, gchar *server, gchar **result)
 	for (step = client_strings; *step; step++) {
 		GSList *agreed;
 		if ((agreed=g_slist_find_custom(server_list, *step, ssh_gslist_compare_strings))) {
-			*result = se_strdup((const gchar *)agreed->data);
+			*result = wmem_strdup(wmem_file_scope(), (const gchar *)agreed->data);
 			break;
 		}
 	}
