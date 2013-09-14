@@ -86,7 +86,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/inet_aton.h>
 #include <epan/expert.h>
@@ -325,7 +325,7 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uui
 	if(oxid == 0 || oid == 0) {
 		/*g_warning("interface_new#%u", pinfo->fd->num);*/
 
-		interf = se_new(dcom_interface_t);
+		interf = wmem_new(wmem_file_scope(), dcom_interface_t);
 		interf->parent = NULL;
 		interf->private_data = NULL;
 		interf->first_packet = pinfo->fd->num;
@@ -1944,7 +1944,7 @@ dcom_register_rountine(dcom_dissect_fn_t routine, e_uuid_t* uuid)
 	if (dcom_get_rountine_by_uuid(uuid))
 		return -1;
 
-	marshaler = se_new(dcom_marshaler_t);
+	marshaler = wmem_new(wmem_file_scope(), dcom_marshaler_t);
 	if (!marshaler) {
 		/*memory error*/
 		return -1;

@@ -51,7 +51,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
 
@@ -346,7 +346,7 @@ dnet_ntoa(const guint8 *data)
 {
     if (data[0] == 0xAA && data[1] == 0x00 && data[2] == 0x04 && data[3] == 0x00) {
         guint16 dnet_addr = data[4] | (data[5] << 8);
-        return ep_strdup_printf("%d.%d", dnet_addr >> 10, dnet_addr & 0x03FF);
+        return wmem_strdup_printf(wmem_packet_scope(), "%d.%d", dnet_addr >> 10, dnet_addr & 0x03FF);
     }
     return NULL;
 }

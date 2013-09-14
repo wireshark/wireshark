@@ -42,6 +42,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 #include "packet-dtn.h"
 #include "packet-tcp.h"
 
@@ -573,7 +574,8 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
         }
         else
         {
-            src_node = ep_strdup_printf("%s:%d.%d", IPN_SCHEME_STR, dict_data->source_scheme_offset, dict_data->source_ssp_offset);
+            src_node = wmem_strdup_printf(wmem_packet_scope(), "%s:%d.%d", IPN_SCHEME_STR,
+                                          dict_data->source_scheme_offset, dict_data->source_ssp_offset);
         }
         if (dict_data->dest_scheme_offset == 0 && dict_data->dest_ssp_offset == 0)
         {
@@ -581,12 +583,14 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
         }
         else
         {
-            dst_node = ep_strdup_printf("%s:%d.%d", IPN_SCHEME_STR, dict_data->dest_scheme_offset, dict_data->dest_ssp_offset);
+            dst_node = wmem_strdup_printf(wmem_packet_scope(), "%s:%d.%d", IPN_SCHEME_STR,
+                                          dict_data->dest_scheme_offset, dict_data->dest_ssp_offset);
         }
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s", src_node, dst_node);
         /* remember custodian, for use in checking cteb validity */
-        *bundle_custodian = ep_strdup_printf("%s:%d.%d", IPN_SCHEME_STR, dict_data->cust_scheme_offset, dict_data->cust_ssp_offset);
+        *bundle_custodian = wmem_strdup_printf(wmem_packet_scope(), "%s:%d.%d", IPN_SCHEME_STR,
+                                               dict_data->cust_scheme_offset, dict_data->cust_ssp_offset);
     }
 
     /*
@@ -635,8 +639,9 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
                      tvb_get_ephemeral_stringz(tvb, offset + dict_data->dest_ssp_offset, NULL));
 
         /* remember custodian, for use in checking cteb validity */
-        *bundle_custodian = ep_strdup_printf("%s:%s", tvb_get_ephemeral_stringz(tvb, offset + dict_data->cust_scheme_offset, NULL),
-                                            tvb_get_ephemeral_stringz(tvb, offset + dict_data->cust_ssp_offset, NULL));
+        *bundle_custodian = wmem_strdup_printf(wmem_packet_scope(), "%s:%s",
+                                               tvb_get_ephemeral_stringz(tvb, offset + dict_data->cust_scheme_offset, NULL),
+                                               tvb_get_ephemeral_stringz(tvb, offset + dict_data->cust_ssp_offset, NULL));
     }
     offset += dict_data->bundle_header_dict_length;        /*Skip over dictionary*/
 

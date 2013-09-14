@@ -54,7 +54,6 @@
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
@@ -591,7 +590,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 static const char *
 address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 {
-	char *label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 	address_avp_t *t = (address_avp_t *)a->type_data;
 	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_BIG_ENDIAN);
 	proto_tree *pt = proto_item_add_subtree(pi,t->ett);
@@ -651,7 +650,7 @@ static const char *
 time_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 {
 	int len = tvb_length(tvb);
-	char *label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 	proto_item *pi;
 
 	if ( len != 4 ) {
@@ -669,7 +668,7 @@ time_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 static const char *
 address_v16_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 {
-	char *label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 	address_avp_t *t = (address_avp_t *)a->type_data;
 	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_BIG_ENDIAN);
 	proto_tree *pt = proto_item_add_subtree(pi,t->ett);
@@ -698,7 +697,7 @@ address_v16_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 static const char *
 simple_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 {
-	char *label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_BIG_ENDIAN);
 	proto_item_fill_label(PITEM_FINFO(pi), label);
 	label = strstr(label,": ")+2;
@@ -708,7 +707,7 @@ simple_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 static const char *
 utf8_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 {
-	char *label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+	char *label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 	proto_item *pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_UTF_8|ENC_BIG_ENDIAN);
 	proto_item_fill_label(PITEM_FINFO(pi), label);
 	label = strstr(label,": ")+2;
@@ -725,7 +724,7 @@ integer32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
-		label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -751,7 +750,7 @@ integer64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
-		label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -777,7 +776,7 @@ unsigned32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
-		label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -803,7 +802,7 @@ unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
-		label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -829,7 +828,7 @@ float32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
-		label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -855,7 +854,7 @@ float64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
-		label = (char *)ep_alloc(ITEM_LABEL_LENGTH+1);
+		label = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -906,7 +905,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int packet_len = first_word & 0x00ffffff;
 	proto_item *pi, *cmd_item, *app_item, *version_item;
 	proto_tree *diam_tree;
-	diam_ctx_t *c = (diam_ctx_t *)ep_alloc0(sizeof(diam_ctx_t));
+	diam_ctx_t *c = (diam_ctx_t *)wmem_alloc0(wmem_packet_scope(), sizeof(diam_ctx_t));
 	int offset;
 	value_string *cmd_vs;
 	const char *cmd_str;
@@ -919,7 +918,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *it;
 	nstime_t ns;
 	void *pd_save;
-	diam_sub_dis_t *diam_sub_dis_inf = ep_new0(diam_sub_dis_t);
+	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(wmem_packet_scope(), diam_sub_dis_t);
 
 
 	diam_sub_dis_inf->application_id = tvb_get_ntohl(tvb,8);
@@ -1088,7 +1087,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (!diameter_pair) {
 		/* create a "fake" diameter_pair structure */
-		diameter_pair = (diameter_req_ans_pair_t *)ep_alloc(sizeof(diameter_req_ans_pair_t));
+		diameter_pair = (diameter_req_ans_pair_t *)wmem_alloc(wmem_packet_scope(), sizeof(diameter_req_ans_pair_t));
 		diameter_pair->hop_by_hop_id = hop_by_hop_id;
 		diameter_pair->cmd_code = cmd;
 		diameter_pair->result_code = 0;

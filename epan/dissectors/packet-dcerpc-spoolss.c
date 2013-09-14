@@ -35,7 +35,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-spoolss.h"
@@ -592,7 +592,8 @@ dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, hf_time_msec, &millisecond);
 
-	str = ep_strdup_printf("%d/%02d/%02d %02d:%02d:%02d.%03d",
+	str = wmem_strdup_printf(wmem_packet_scope(),
+			      "%d/%02d/%02d %02d:%02d:%02d.%03d",
 			      year, month, day, hour, minute, second,
 			      millisecond);
 
@@ -782,7 +783,7 @@ SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	if(!pinfo->fd->flags.visited){
 		if(!dcv->se_data){
 			if(value_name){
-				dcv->se_data = se_strdup(value_name);
+				dcv->se_data = wmem_strdup(wmem_file_scope(), value_name);
 			}
 		}
 	}
@@ -870,7 +871,8 @@ SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	/* GetPrinterDataEx() stores the key/value in se_data */
 	if(!pinfo->fd->flags.visited){
 		if(!dcv->se_data){
-			dcv->se_data = se_strdup_printf("%s==%s",
+			dcv->se_data = wmem_strdup_printf(wmem_file_scope(),
+				"%s==%s",
 				key_name?key_name:"",
 				value_name?value_name:"");
 		}
@@ -959,8 +961,8 @@ SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	/* GetPrinterDataEx() stores the key/value in se_data */
 	if(!pinfo->fd->flags.visited){
 		if(!dcv->se_data){
-			dcv->se_data = se_strdup_printf("%s",
-				value_name?value_name:"");
+			dcv->se_data = wmem_strdup_printf(wmem_file_scope(),
+				"%s", value_name?value_name:"");
 		}
 	}
 
@@ -2626,8 +2628,8 @@ SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	/* OpenPrinterEx() stores the key/value in se_data */
 	if(!pinfo->fd->flags.visited){
 		if(!dcv->se_data){
-			dcv->se_data = se_strdup_printf("%s",
-				name?name:"");
+			dcv->se_data = wmem_strdup_printf(wmem_file_scope(),
+				"%s", name?name:"");
 		}
 	}
 
@@ -2693,7 +2695,7 @@ SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 		const char *pol_name;
 
 		if (dcv->se_data){
-			pol_name = ep_strdup_printf(
+			pol_name = wmem_strdup_printf(wmem_packet_scope(),
 				"OpenPrinterEx(%s)", (char *)dcv->se_data);
 		} else {
 			pol_name = "Unknown OpenPrinterEx() handle";
@@ -3274,7 +3276,7 @@ SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 	if(!pinfo->fd->flags.visited){
 		if(!dcv->se_data){
 			if(name){
-				dcv->se_data = se_strdup(name);
+				dcv->se_data = wmem_strdup(wmem_file_scope(), name);
 			}
 		}
 	}
@@ -3324,7 +3326,7 @@ SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 		const char *pol_name;
 
 		if (dcv->se_data){
-			pol_name = ep_strdup_printf(
+			pol_name = wmem_strdup_printf(wmem_packet_scope(),
 				"ReplyOpenPrinter(%s)", (char *)dcv->se_data);
 		} else {
 			pol_name = "Unknown ReplyOpenPrinter() handle";
@@ -3846,7 +3848,7 @@ SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		const char *pol_name;
 
 		if (dcv->se_data){
-			pol_name = ep_strdup_printf(
+			pol_name = wmem_strdup_printf(wmem_packet_scope(),
 				"AddPrinterEx(%s)", (char *)dcv->se_data);
 		} else {
 			pol_name = "Unknown AddPrinterEx() handle";

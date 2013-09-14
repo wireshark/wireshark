@@ -29,7 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-svcctl.h"
 #include "packet-dcerpc-nt.h"
@@ -279,7 +279,7 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 	/* OpenSCManager() stores the server\database  in se_data */
 	if(!pinfo->fd->flags.visited){
 		if(!dcv->se_data){
-			dcv->se_data=se_strdup_printf("%s\\%s",mn,dn);
+			dcv->se_data=wmem_strdup_printf(wmem_file_scope(), "%s\\%s",mn,dn);
 		}
 	}
 
@@ -315,7 +315,7 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 		const char *pol_name;
 
 		if (dcv->se_data){
-			pol_name = ep_strdup_printf(
+			pol_name = wmem_strdup_printf(wmem_packet_scope(),
 				"OpenSCManagerW(%s)", (char *)dcv->se_data);
 		} else {
 			pol_name = "Unknown OpenSCManagerW() handle";
@@ -365,7 +365,7 @@ svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset,
 	/* OpenSCManager() stores the server\database  in se_data */
 	if(!pinfo->fd->flags.visited){
 		if(!dcv->se_data){
-			dcv->se_data=se_strdup_printf("%s\\%s",mn,dn);
+			dcv->se_data=wmem_strdup_printf(wmem_file_scope(), "%s\\%s",mn,dn);
 		}
 	}
 
@@ -401,7 +401,7 @@ svcctl_dissect_OpenSCManagerW_reply(tvbuff_t *tvb, int offset,
 		const char *pol_name;
 
 		if (dcv->se_data){
-			pol_name = ep_strdup_printf(
+			pol_name = wmem_strdup_printf(wmem_packet_scope(),
 				"OpenSCManagerW(%s)", (char *)dcv->se_data);
 		} else {
 			pol_name = "Unknown OpenSCManagerW() handle";

@@ -46,7 +46,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
 #include <epan/asn1.h>
@@ -1094,7 +1094,7 @@ static const gchar *msg_type_to_str (void)
 
   case STANAG:
     /* Include message type and precedence */
-    msg_type = ep_strdup_printf ("%s (%s) [%s]",
+    msg_type = wmem_strdup_printf (wmem_packet_scope(), "%s (%s) [%s]",
                 val_to_str_const (dmp.msg_type, type_vals, "Unknown"),
                 val_to_str_const (dmp.st_type, message_type_vals, "Unknown"),
                 (dmp.prec == 0x6 || dmp.prec == 0x7) ?
@@ -1104,14 +1104,14 @@ static const gchar *msg_type_to_str (void)
 
   case IPM:
     /* Include importance */
-    msg_type = ep_strdup_printf ("%s [%s]",
+    msg_type = wmem_strdup_printf (wmem_packet_scope(), "%s [%s]",
                 val_to_str_const (dmp.msg_type, type_vals, "Unknown"),
                 val_to_str_const (dmp.prec, importance, "Unknown"));
     break;
 
   case REPORT:
     /* Include report types included */
-    msg_type = ep_strdup_printf ("Report (%s%s%s)",
+    msg_type = wmem_strdup_printf (wmem_packet_scope(), "Report (%s%s%s)",
                 dmp.dr ? "DR" : "", (dmp.dr && dmp.ndr) ? " and " : "",
                 dmp.ndr ? "NDR" : "");
     break;
@@ -1124,7 +1124,7 @@ static const gchar *msg_type_to_str (void)
     /* If we have msg_time we have a matching packet */
     have_msg = (dmp.id_val &&
                 (dmp.id_val->msg_time.secs>0 || dmp.id_val->msg_time.nsecs>0));
-    msg_type = ep_strdup_printf ( "Acknowledgement%s%s",
+    msg_type = wmem_strdup_printf (wmem_packet_scope(), "Acknowledgement%s%s",
                 have_msg ? val_to_str (dmp.id_val->msg_type, ack_msg_type,
                                        " (unknown:%d)") : "",
                 dmp.ack_reason ? " [negative]" : "");
@@ -1399,7 +1399,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
 
   nstime_set_zero(&msg_time);
 
-  dmp_key = se_new (dmp_id_key);
+  dmp_key = wmem_new (wmem_file_scope(), dmp_id_key);
 
   if (!pinfo->fd->flags.visited &&
       (dmp.msg_type == REPORT || dmp.msg_type == NOTIF))
@@ -1456,7 +1456,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
       }
     } else {
       /* New message */
-      dmp_data = se_new0 (dmp_id_val);
+      dmp_data = wmem_new0 (wmem_file_scope(), dmp_id_val);
       dmp_data->msg_type = dmp.msg_type;
 
       if (dmp.msg_type == ACK) {
@@ -1482,7 +1482,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
       }
     }
 
-    pkg_data = se_new (dmp_id_val);
+    pkg_data = wmem_new (wmem_file_scope(), dmp_id_val);
     *pkg_data = *dmp_data;
     p_add_proto_data (pinfo->fd, proto_dmp, 0, pkg_data);
   } else {
@@ -1653,7 +1653,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 static gchar *dissect_7bit_string (tvbuff_t *tvb, gint offset, gint length)
 {
   guchar *encoded = tvb_get_ephemeral_string (tvb, offset, length);
-  guchar *decoded = (guchar *)ep_alloc0 ((size_t)(length * 1.2) + 1);
+  guchar *decoded = (guchar *)wmem_alloc0 (wmem_packet_scope(), (size_t)(length * 1.2) + 1);
   guchar  rest = 0, bits = 1;
   gint    len = 0, i;
 
@@ -1676,10 +1676,10 @@ static const gchar *dissect_thales_mts_id (tvbuff_t *tvb, gint offset, gint leng
 {
   /* Thales XOmail uses this format: "MTA-NAME/000000000000" */
   if (length >= 7 && length <= 22) {
-    return ep_strdup_printf ("%s/%08X%04X",
-                             dissect_7bit_string (tvb, offset, length - 6),
-                             tvb_get_ntohl (tvb, offset + length - 6),
-                             tvb_get_ntohs (tvb, offset + length - 2));
+    return wmem_strdup_printf (wmem_packet_scope(), "%s/%08X%04X",
+                               dissect_7bit_string (tvb, offset, length - 6),
+                               tvb_get_ntohl (tvb, offset + length - 6),
+                               tvb_get_ntohs (tvb, offset + length - 2));
   }
 
   return ILLEGAL_FORMAT;
@@ -1700,11 +1700,11 @@ static const gchar *dissect_thales_ipm_id (tvbuff_t *tvb, gint offset, gint leng
       number += (65536 - 1024);
     }
 
-    return ep_strdup_printf ("%s%0*d %02d%02d%02d%02d%02d%02dZ",
-                             (length == 6) ? "" : dissect_7bit_string (tvb, offset, length - 6),
-                             number_len, number,
-                             tmp->tm_year % 100, tmp->tm_mon + 1, tmp->tm_mday,
-                             tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+    return wmem_strdup_printf (wmem_packet_scope(), "%s%0*d %02d%02d%02d%02d%02d%02dZ",
+                               (length == 6) ? "" : dissect_7bit_string (tvb, offset, length - 6),
+                               number_len, number,
+                               tmp->tm_year % 100, tmp->tm_mon + 1, tmp->tm_mday,
+                               tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
   }
 
   return ILLEGAL_FORMAT;
@@ -1723,7 +1723,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
   gchar      *sic = NULL;
 
   key = tvb_get_guint8 (tvb, offset);
-  sic = (gchar *)ep_alloc (MAX_SIC_LEN);
+  sic = (gchar *)wmem_alloc (wmem_packet_scope(), MAX_SIC_LEN);
 
   if (key <= 0xB6) {
     /* 2 bytes, single 3-character SIC, characters [A-Z0-9] only */
@@ -2991,10 +2991,10 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (field_tree, hf_envelope_dl_expansion_prohib, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   if (envelope & 0xE0) {
-    env_flags = ep_strdup_printf ("%s%s%s",
-                                  (envelope & 0x80) ? ", ContId discarded" : "",
-                                  (envelope & 0x40) ? ", Reass prohibited" : "",
-                                  (envelope & 0x20) ? ", DLE prohibited"   : "");
+    env_flags = wmem_strdup_printf (wmem_packet_scope(), "%s%s%s",
+                                    (envelope & 0x80) ? ", ContId discarded" : "",
+                                    (envelope & 0x40) ? ", Reass prohibited" : "",
+                                    (envelope & 0x20) ? ", DLE prohibited"   : "");
     proto_item_append_text (tf, ":%s", &env_flags[1]);
   } else {
     proto_item_append_text (tf, " (none)");
@@ -3062,22 +3062,22 @@ static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
   switch (dmp_struct_format) {
 
   case STRUCT_ID_UINT8:
-    dmp.struct_id = ep_strdup_printf ("%u", tvb_get_guint8 (tvb, offset));
+    dmp.struct_id = wmem_strdup_printf (wmem_packet_scope(), "%u", tvb_get_guint8 (tvb, offset));
     proto_tree_add_item (body_tree, hf_message_bodyid_uint8, tvb, offset, 1, ENC_BIG_ENDIAN);
     break;
 
   case STRUCT_ID_UINT16:
-    dmp.struct_id = ep_strdup_printf ("%u", tvb_get_ntohs (tvb, offset));
+    dmp.struct_id = wmem_strdup_printf (wmem_packet_scope(), "%u", tvb_get_ntohs (tvb, offset));
     proto_tree_add_item (body_tree, hf_message_bodyid_uint16, tvb, offset, 2, ENC_BIG_ENDIAN);
     break;
 
   case STRUCT_ID_UINT32:
-    dmp.struct_id = ep_strdup_printf ("%u", tvb_get_ntohl (tvb, offset));
+    dmp.struct_id = wmem_strdup_printf (wmem_packet_scope(), "%u", tvb_get_ntohl (tvb, offset));
     proto_tree_add_item (body_tree, hf_message_bodyid_uint32, tvb, offset, 4, ENC_BIG_ENDIAN);
     break;
 
   case STRUCT_ID_UINT64:
-    dmp.struct_id = ep_strdup_printf ("%" G_GINT64_MODIFIER "u", tvb_get_ntoh64 (tvb, offset));
+    dmp.struct_id = wmem_strdup_printf (wmem_packet_scope(), "%" G_GINT64_MODIFIER "u", tvb_get_ntoh64 (tvb, offset));
     proto_tree_add_item (body_tree, hf_message_bodyid_uint64, tvb, offset, 8, ENC_BIG_ENDIAN);
     break;
 
@@ -3505,13 +3505,13 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (message & 0xF0) {
-      sec_cat = ep_strdup_printf ("%s%s%s%s",
-                                  (message & 0x80) ? ",cl" : "",
-                                  (message & 0x40) ? ",cs" : "",
-                                  (message & 0x20) ? ",ex" : "",
-                                  (message & 0x10) ? ",ne" : "");
+      sec_cat = wmem_strdup_printf (wmem_packet_scope(), "%s%s%s%s",
+                                    (message & 0x80) ? ",cl" : "",
+                                    (message & 0x40) ? ",cs" : "",
+                                    (message & 0x20) ? ",ex" : "",
+                                    (message & 0x10) ? ",ne" : "");
       proto_item_append_text (tf, ": %s", &sec_cat[1]);
-      *label_string = ep_strconcat(*label_string, sec_cat, NULL);
+      *label_string = wmem_strconcat(wmem_packet_scope(), *label_string, sec_cat, NULL);
     }
     break;
 
@@ -3524,7 +3524,7 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
     } else {
       tr = proto_tree_add_item (field_tree, hf_message_sec_cat_permissive, tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_item_append_text (tf, ": rel-to-%s", get_nat_pol_id_short (message >> 2));
-      *label_string = ep_strdup_printf("%s,rel-to-%s", *label_string, get_nat_pol_id_short (message >> 2));
+      *label_string = wmem_strdup_printf(wmem_packet_scope(), "%s,rel-to-%s", *label_string, get_nat_pol_id_short (message >> 2));
       if ((message >> 2) == 0) {
         expert_add_info(pinfo, tr, &ei_reserved_value);
       }
@@ -3584,7 +3584,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *field_tree = NULL;
   proto_item *en = NULL, *ei = NULL, *tf = NULL;
   proto_item *hidden_item;
-  const char  *label_string = ep_strdup ("");
+  const char  *label_string = wmem_strdup (wmem_packet_scope(), "");
   const gchar *class_name = NULL;
   guint8      message, dmp_sec_pol, dmp_sec_class, dmp_nation = 0, exp_time, dtg;
   gint32      secs = 0;
@@ -3703,7 +3703,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   tf = proto_tree_add_item (field_tree, hf_message_sec_class_val, tvb, offset, 1, ENC_BIG_ENDIAN);
   if (class_name) {
     proto_item_append_text (tf, " (%s)", class_name);
-    label_string = ep_strconcat(label_string, class_name, NULL);
+    label_string = wmem_strconcat(wmem_packet_scope(), label_string, class_name, NULL);
   }
 
   /* Security Policy */

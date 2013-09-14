@@ -33,7 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
@@ -665,10 +665,10 @@ static void add_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
 		 * and put the hash value in the policy handle hash
 		 * table.
 		 */
-		value = (pol_hash_value *)se_alloc(sizeof(pol_hash_value));
+		value = (pol_hash_value *)wmem_alloc(wmem_file_scope(), sizeof(pol_hash_value));
 		value->list = pol;
 		pol->next = NULL;
-		key = (pol_hash_key *)se_alloc(sizeof(pol_hash_key));
+		key = (pol_hash_key *)wmem_alloc(wmem_file_scope(), sizeof(pol_hash_key));
 		memcpy(&key->policy_hnd, policy_hnd, sizeof(key->policy_hnd));
 		g_hash_table_insert(pol_hash, key, value);
 	} else {
@@ -765,7 +765,7 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 	/* Create a new value */
 
-	pol = (pol_value *)se_alloc(sizeof(pol_value));
+	pol = (pol_value *)wmem_alloc(wmem_file_scope(), sizeof(pol_value));
 
 	pol->open_frame = is_open ? pinfo->fd->num : 0;
 	pol->close_frame = is_close ? pinfo->fd->num : 0;
@@ -837,17 +837,17 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 			if (strcmp(pol->name, name) != 0)
 				g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
 #endif
-			/* pol->name is se_allocated, don't free it now */
+			/* pol->name is wmem_file_scope() allocated, don't free it now */
 		}
 
-		pol->name = se_strdup(name);
+		pol->name = wmem_strdup(wmem_file_scope(), name);
 
 		return;
 	}
 
 	/* Create a new value */
 
-	pol = (pol_value *)se_alloc(sizeof(pol_value));
+	pol = (pol_value *)wmem_alloc(wmem_file_scope(), sizeof(pol_value));
 
 	pol->open_frame = 0;
 	pol->close_frame = 0;
@@ -855,9 +855,9 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	pol->last_frame = 0;
 	pol->type = 0;
 	if (name)
-		pol->name = se_strdup(name);
+		pol->name = wmem_strdup(wmem_file_scope(), name);
 	else
-		pol->name = se_strdup("<UNKNOWN>");
+		pol->name = wmem_strdup(wmem_file_scope(), "<UNKNOWN>");
 
 	add_pol_handle(policy_hnd, pinfo->fd->num, pol, value);
 }
@@ -1145,7 +1145,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		if(!pol_name){
 			pol_name="<...>";
 		}
-		pol_string=ep_strdup_printf("%s(%s)", pinfo->dcerpc_procedure_name, pol_name);
+		pol_string=wmem_strdup_printf(wmem_packet_scope(), "%s(%s)", pinfo->dcerpc_procedure_name, pol_name);
 		dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_string);
 		dcerpc_store_polhnd_type(&policy_hnd, pinfo, param&PIDL_POLHND_TYPE_MASK);
 	}
@@ -1157,7 +1157,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		dcv = (dcerpc_call_value *)di->call_data;
 		if(!dcv->pol){
-			dcv->pol=(e_ctx_hnd *)se_memdup(&policy_hnd, sizeof(e_ctx_hnd));
+			dcv->pol=(e_ctx_hnd *)wmem_memdup(wmem_file_scope(), &policy_hnd, sizeof(e_ctx_hnd));
 		}
 	}
 
@@ -1443,7 +1443,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * so we need to make its private data have
 		 * session duration as well.
 		 */
-		dcv->private_data = se_strdup(sid_str);
+		dcv->private_data = wmem_strdup(wmem_file_scope(), sid_str);
 	}
 
 	return offset;

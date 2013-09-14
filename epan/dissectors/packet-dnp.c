@@ -38,7 +38,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
@@ -3120,10 +3120,10 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (!pinfo->fd->flags.visited && conv_data_ptr == NULL)
         {
           dl_conversation_key_t* new_dl_conversation_key = NULL;
-          new_dl_conversation_key  = se_new(dl_conversation_key_t);
+          new_dl_conversation_key  = wmem_new(wmem_file_scope(), dl_conversation_key_t);
           *new_dl_conversation_key = dl_conversation_key;
 
-          conv_data_ptr = se_new(dnp3_conv_t);
+          conv_data_ptr = wmem_new(wmem_file_scope(), dnp3_conv_t);
 
           /*** Increment static global fragment reassembly id ***/
           conv_data_ptr->conv_seq_number = seq_number++;

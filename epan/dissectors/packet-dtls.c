@@ -57,7 +57,7 @@
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 #include <epan/reassemble.h>
 #include "packet-x509if.h"
@@ -503,7 +503,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else {
     SslService dummy;
 
-    ssl_session = se_new0(SslDecryptSession);
+    ssl_session = wmem_new0(wmem_file_scope(), SslDecryptSession);
     ssl_session_init(ssl_session);
     ssl_session->version = SSL_VER_UNKNOWN;
     conversation_add_proto_data(conversation, proto_dtls, ssl_session);
@@ -1544,7 +1544,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 }
               }
 
-              encrypted_pre_master.data = (guchar *)se_alloc(encrlen);
+              encrypted_pre_master.data = (guchar *)wmem_alloc(wmem_file_scope(), encrlen);
               encrypted_pre_master.data_len = encrlen;
               tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
 

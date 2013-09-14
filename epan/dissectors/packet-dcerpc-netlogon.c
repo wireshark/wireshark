@@ -36,6 +36,7 @@
 #include <wsutil/des.h>
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 /* for dissect_mscldap_string */
 #include "packet-ldap.h"
 #include "packet-dcerpc.h"
@@ -2505,14 +2506,14 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     /*int oldoffset = offset;*/
     netlogon_auth_vars *vars;
     netlogon_auth_vars *existing_vars;
-    netlogon_auth_key *key = (netlogon_auth_key *)se_alloc(sizeof(netlogon_auth_key));
+    netlogon_auth_key *key = (netlogon_auth_key *)wmem_alloc(wmem_file_scope(), sizeof(netlogon_auth_key));
     guint8 tab[8] = { 0,0,0,0,0,0,0,0};
     dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
     dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
     /* As we are not always keeping this it could be more intelligent to g_malloc it
-       and if we decide to keep it then transform it into se_alloc */
-    vars = (netlogon_auth_vars *)se_alloc(sizeof(netlogon_auth_vars));
+       and if we decide to keep it then transform it into wmem_alloc */
+    vars = (netlogon_auth_vars *)wmem_alloc(wmem_file_scope(), sizeof(netlogon_auth_vars));
     offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset, pinfo, tree, drep);
     offset = dissect_ndr_pointer_cb(
         tvb, offset, pinfo, tree, drep,
@@ -2522,7 +2523,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
 
     debugprintf("1)Len %d offset %d txt %s\n",(int) strlen(dcv->private_data),offset,(char*)dcv->private_data);
-    vars->client_name = se_strdup((const guint8 *)dcv->private_data);
+    vars->client_name = wmem_strdup(wmem_file_scope(), (const guint8 *)dcv->private_data);
     debugprintf("2)Len %d offset %d txt %s\n",(int) strlen(dcv->private_data),offset,vars->client_name);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
@@ -6861,7 +6862,7 @@ static guint32 get_keytab_as_list(md4_pass **p_pass_list,const char* ntlm_pass _
         add_ntlm = 1;
     }
 
-    *p_pass_list = (md4_pass *)ep_alloc(nb_pass*sizeof(md4_pass));
+    *p_pass_list = (md4_pass *)wmem_alloc(wmem_packet_scope(), nb_pass*sizeof(md4_pass));
     pass_list=*p_pass_list;
     if(add_ntlm) {
         memcpy(pass_list[0].md4,&(ntlm_pass_hash.md4),sizeof(md4_pass));
@@ -7900,7 +7901,7 @@ static const value_string seal_algs[] = {
 static int get_seal_key(const guint8 *session_key,int key_len,guint64 sequence,guint8* seal_key)
 {
     guint8 zeros[4];
-    guint8 *buf = (guint8 *)ep_alloc(key_len);
+    guint8 *buf = (guint8 *)wmem_alloc(wmem_packet_scope(), key_len);
     guint8 buf2[16];
     guint8 zero_sk[16];
     int i = 0;

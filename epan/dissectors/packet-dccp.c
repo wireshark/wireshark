@@ -58,7 +58,7 @@
 #include <epan/in_cksum.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-ip.h"
 #include <epan/conversation.h>
 #include <epan/tap.h>
@@ -636,7 +636,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     guint      options_len                = 0;
     e_dccphdr *dccph;
 
-    dccph = ep_new0(e_dccphdr);
+    dccph = wmem_new0(wmem_packet_scope(), e_dccphdr);
 
     SET_ADDRESS(&dccph->ip_src, pinfo->src.type, pinfo->src.len,
                 pinfo->src.data);

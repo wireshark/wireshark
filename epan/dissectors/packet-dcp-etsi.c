@@ -32,7 +32,7 @@
 #include <epan/reassemble.h>
 #include <wsutil/crcdrm.h>
 #include <epan/reedsolomon.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <string.h>
 
 /* forward reference */
@@ -288,7 +288,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
                            fcount, fragments, rx_min
         );
-    got = (guint32 *)ep_alloc(fcount*sizeof(guint32));
+    got = (guint32 *)wmem_alloc(wmem_packet_scope(), fcount*sizeof(guint32));
 
     /* make a list of the findex (offset) numbers of the fragments we have */
     fd = fragment_get(&dcp_reassembly_table, pinfo, seq, NULL);
@@ -301,7 +301,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     if(fragments>=rx_min) { /* yes, in theory */
       guint i,current_findex;
       fragment_head *frag=NULL;
-      guint8 *dummy_data = (guint8*) ep_alloc0 (plen);
+      guint8 *dummy_data = (guint8*) wmem_alloc0 (wmem_packet_scope(), plen);
       tvbuff_t *dummytvb = tvb_new_real_data(dummy_data, plen, plen);
       /* try and decode with missing fragments */
       if(tree)

@@ -39,7 +39,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 
 void proto_register_dmx_chan(void);
@@ -74,7 +74,7 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"0x%03x: %s",
 			"%3u: %s"
 		};
-		emem_strbuf_t *chan_str = ep_strbuf_new_label("");
+		wmem_strbuf_t *chan_str = wmem_strbuf_new_label(wmem_packet_scope());
 		proto_item    *item;
 		guint16        length,r,c,row_count;
 		guint8         v;
@@ -89,26 +89,26 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		for (r = 0; r < row_count;r++) {
 			for (c = 0;(c < global_disp_col_count) && (((r * global_disp_col_count) + c) < length);c++) {
 				if ((global_disp_col_count >= 2) && ((c % (global_disp_col_count / 2)) == 0)) {
-					ep_strbuf_append(chan_str, " ");
+					wmem_strbuf_append(chan_str, " ");
 				}
 
 				v = tvb_get_guint8(tvb, (offset + (r * global_disp_col_count) + c));
 				if (global_disp_chan_val_type == 0) {
 					v = (v * 100) / 255;
 					if (v == 100) {
-						ep_strbuf_append(chan_str, "FL ");
+						wmem_strbuf_append(chan_str, "FL ");
 					} else {
-						ep_strbuf_append_printf(chan_str, chan_format[global_disp_chan_val_type], v);
+						wmem_strbuf_append_printf(chan_str, chan_format[global_disp_chan_val_type], v);
 					}
 				} else {
-					ep_strbuf_append_printf(chan_str, chan_format[global_disp_chan_val_type], v);
+					wmem_strbuf_append_printf(chan_str, chan_format[global_disp_chan_val_type], v);
 				}
 			}
 
 			proto_tree_add_none_format(dmx_chan_tree, hf_dmx_chan_output_dmx_data, tvb,
 							offset+(r * global_disp_col_count), c,
 							string_format[global_disp_chan_nr_type],
-							(r * global_disp_col_count) + 1, chan_str->str);
+							(r * global_disp_col_count) + 1, wmem_strbuf_get_str(chan_str));
 		}
 
 		/* Add the real type hidden */
