@@ -4578,12 +4578,21 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		case DOCSIS_CM_CAP_RNGHLDOFF_SUP:
 			proto_item_append_text(ti,
 					       "Ranging ID ");
-			proto_item_append_text(ti,
-					       "(0x%04x)", (val_other[0] << sizeof(guint8)) + val_other[1]);
-			proto_item_append_text(ti,
-					       " Component Bit Mask ");
-			proto_item_append_text(ti,
-					       "(0x%04x)", (val_other[2] << sizeof(guint8)) + val_other[3]);
+			if (tlv_len == 4)
+			{
+				proto_item_append_text(ti,
+						"(0x%04x)", (val_other[0] << sizeof(guint8)) + val_other[1]);
+				proto_item_append_text(ti,
+						" Component Bit Mask ");
+				proto_item_append_text(ti,
+						"(0x%04x)", (val_other[2] << sizeof(guint8)) + val_other[3]);
+			}
+			else
+			{
+				proto_item_append_text(ti,
+						" (Invalid Length %u : Should be 4",
+						tlv_len);
+			}
 			break;
 		case DOCSIS_CM_CAP_USSYMRATE_SUP:
 			proto_item_append_text(ti,
@@ -4602,7 +4611,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		}
 
 		subtree = proto_item_add_subtree(ti, ett_bootp_option);
-		if (tlv_type == DOCSIS_CM_CAP_RNGHLDOFF_SUP)
+		if (tlv_type == DOCSIS_CM_CAP_RNGHLDOFF_SUP && tlv_len >= 4)
 		{
 			for (i = 0 ; i < 4; i++)
 			{
@@ -4624,7 +4633,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 
 			}
 		}
-		if (tlv_type == DOCSIS_CM_CAP_Opt802MPLSSup)
+		if (tlv_type == DOCSIS_CM_CAP_Opt802MPLSSup && tlv_len >= 4)
 		{
 			for (i = 0 ; i < 25; i++)
 			{
@@ -6949,3 +6958,16 @@ proto_reg_handoff_bootp(void)
 	dissector_add_uint("udp.port", UDP_PORT_BOOTPS, bootp_handle);
 	dissector_add_uint("udp.port", UDP_PORT_BOOTPC, bootp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
