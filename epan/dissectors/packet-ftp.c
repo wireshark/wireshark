@@ -37,8 +37,8 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -224,7 +224,7 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_p
     /*
      * Copy the rest of the line into a null-terminated buffer.
      */
-    args = ep_strndup(line, linelen);
+    args = wmem_strndup(wmem_packet_scope(), line, linelen);
     p = args;
 
     for (;;) {
@@ -339,7 +339,7 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
         return FALSE;
 
     /* Copy the rest of the line into a null-terminated buffer. */
-    args = ep_strndup(line, linelen);
+    args = wmem_strndup(wmem_packet_scope(), line, linelen);
     p = args;
 
     /*
@@ -385,12 +385,12 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
 
         if (delimiters_seen == 2) {     /* end of address family field */
             gchar *af_str;
-            af_str = ep_strndup(field, fieldlen);
+            af_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
             *eprt_af = atoi(af_str);
         }
         else if (delimiters_seen == 3) {/* end of IP address field */
             gchar *ip_str;
-            ip_str = ep_strndup(field, fieldlen);
+            ip_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
 
             if (*eprt_af == EPRT_AF_IPv4) {
                 if (inet_pton(AF_INET, ip_str, eprt_ip) > 0)
@@ -411,7 +411,7 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
         }
         else if (delimiters_seen == 4) {/* end of port field */
             gchar *pt_str;
-            pt_str = ep_strndup(field, fieldlen);
+            pt_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
 
             *ftp_port = atoi(pt_str);
             *ftp_port_len = fieldlen;
@@ -460,7 +460,7 @@ parse_extended_pasv_response(const guchar *line, gint linelen, guint16 *ftp_port
     /*
      * Copy the rest of the line into a null-terminated buffer.
      */
-    args = ep_strndup(line, linelen);
+    args = wmem_strndup(wmem_packet_scope(), line, linelen);
     p = args;
 
     /*
