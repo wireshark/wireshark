@@ -73,6 +73,7 @@
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 #include "packet-mq.h"
 
@@ -2290,7 +2291,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 guint8* sFormat = NULL;
                                 sFormat = tvb_get_ephemeral_string_enc(tvb, tMsgProps.iOffsetFormat, 8, string_rep);
                                 if (strip_trailing_blanks(sFormat, 8) == 0) 
-                                    sFormat = (guint8*)ep_strdup("MQNONE");
+                                    sFormat = (guint8*)wmem_strdup(wmem_packet_scope(), "MQNONE");
 
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " Fmt=%s", sFormat);
                                 if (tree)

@@ -36,7 +36,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <wsutil/str_util.h>
 
@@ -199,7 +199,7 @@ msrp_add_address( packet_info *pinfo,
      */
     if (!p_conv_data) {
         /* Create conversation data */
-        p_conv_data = se_new0(struct _msrp_conversation_info);
+        p_conv_data = wmem_new0(wmem_file_scope(), struct _msrp_conversation_info);
         conversation_add_proto_data(p_conv, proto_msrp, p_conv_data);
     }
 
@@ -240,8 +240,8 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (p_conv_data)
             {
                 /* Save this conversation info into packet info */
-                p_conv_packet_data = (struct _msrp_conversation_info *)se_memdup(p_conv_data,
-                       sizeof(struct _msrp_conversation_info));
+                p_conv_packet_data = (struct _msrp_conversation_info *)wmem_memdup(wmem_file_scope(),
+                       p_conv_data, sizeof(struct _msrp_conversation_info));
 
                 p_add_proto_data(pinfo->fd, proto_msrp, 0, p_conv_packet_data);
             }

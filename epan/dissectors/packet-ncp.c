@@ -49,7 +49,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include "packet-ipx.h"
 #include "packet-tcp.h"
@@ -264,12 +264,12 @@ mncp_hash_insert(conversation_t *conversation, guint32 nwconnection, guint8 nwta
     /* Now remember the request, so we can find it if we later
        a reply to it. Track by conversation, connection, and task number.
        in NetWare these values determine each unique session */
-    key = se_new(mncp_rhash_key);
+    key = wmem_new(wmem_file_scope(), mncp_rhash_key);
     key->conversation = conversation;
     key->nwconnection = nwconnection;
     key->nwtask = nwtask;
 
-    value = se_new(mncp_rhash_value);
+    value = wmem_new(wmem_file_scope(), mncp_rhash_value);
 
     g_hash_table_insert(mncp_rhash, key, value);
 

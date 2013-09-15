@@ -29,13 +29,13 @@
  */
 
 /************************************************************************
- *									*
- *  Notes: These are possible command values. User input is welcome 	*
- *									*
- *  Command = 0x040a - Remote host closed connection (maybe ?? )	*
- *  Command = 0x0411 - Remote host closed connection			*
- *  Command = 0x0413 - Local host closed connection or SYN worked	*
- *									*
+ *                                                                      *
+ *  Notes: These are possible command values. User input is welcome     *
+ *                                                                      *
+ *  Command = 0x040a - Remote host closed connection (maybe ?? )        *
+ *  Command = 0x0411 - Remote host closed connection                    *
+ *  Command = 0x0413 - Local host closed connection or SYN worked       *
+ *                                                                      *
  ************************************************************************/
 
 
@@ -49,7 +49,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 #include "packet-tcp.h"
@@ -289,7 +289,7 @@ static void add_msproxy_conversation( packet_info *pinfo,
 	}
 	conversation_set_dissector(conversation, msproxy_sub_handle);
 
-	new_conv_info = se_new(redirect_entry_t);
+	new_conv_info = wmem_new(wmem_file_scope(), redirect_entry_t);
 
 	new_conv_info->remote_addr = hash_info->dst_addr;
 	new_conv_info->clnt_port = hash_info->clnt_port;
@@ -1089,7 +1089,7 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	hash_info = (hash_entry_t *)conversation_get_proto_data(conversation, proto_msproxy);
 	if ( !hash_info) {
-    		hash_info = se_new(hash_entry_t);
+    		hash_info = wmem_new(wmem_file_scope(), hash_entry_t);
 		conversation_add_proto_data(conversation, proto_msproxy,
 			hash_info);
 	}

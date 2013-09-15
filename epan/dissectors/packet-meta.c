@@ -28,6 +28,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-sscop.h"
 #include "packet-gsm_a_common.h"
@@ -404,7 +405,7 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             aal5proto    = tvb_get_guint8(tvb, offs);
             p_sscop_info = (sscop_payload_info *)p_get_proto_data(pinfo->fd, proto_sscop, 0);
             if (!p_sscop_info) {
-                p_sscop_info = se_new0(sscop_payload_info);
+                p_sscop_info = wmem_new0(wmem_file_scope(), sscop_payload_info);
                 p_add_proto_data(pinfo->fd, proto_sscop, 0, p_sscop_info);
             }
             switch (aal5proto) {

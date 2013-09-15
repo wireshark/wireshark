@@ -27,6 +27,8 @@
 
 #include "config.h"
 
+#include <epan/wmem/wmem.h>
+
 #include "packet-rpc.h"
 #include "packet-nfs.h"
 
@@ -307,7 +309,7 @@ dissect_nfsacl2_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* Get access mask to check and save it for comparison to the access reply. */
 	amask = tvb_get_ntohl(tvb, offset);
-	acc_request = (guint32 *)se_memdup( &amask, sizeof(guint32));
+	acc_request = (guint32 *)wmem_memdup(wmem_file_scope(), &amask, sizeof(guint32));
 	civ = (rpc_call_info_value *)pinfo->private_data;
 	civ->private_data = acc_request;
 

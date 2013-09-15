@@ -34,7 +34,7 @@
 
 #include <epan/packet.h>
 
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 #include "packet-giop.h"
@@ -138,7 +138,8 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 
   guint32 unique_id_len;
 
-  emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("none");
+  wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+  wmem_strbuf_append(flags_strbuf, "none");
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, MIOP_MAGIC);
   /* Clear out stuff in the info column */
@@ -197,14 +198,15 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
                                  "%u.%u", version_major, version_minor);
       offset++;
       if (flags & 0x01) {
-        ep_strbuf_printf(flags_strbuf, "little-endian");
+        wmem_strbuf_truncate(flags_strbuf, 0);
+        wmem_strbuf_append(flags_strbuf, "little-endian");
       }
       if (flags & 0x02) {
-        ep_strbuf_append_printf(flags_strbuf, "%s%s",
-                                flags_strbuf->len ? ", " : "", "last message");
+        wmem_strbuf_append_printf(flags_strbuf, "%s%s",
+                                  wmem_strbuf_get_len(flags_strbuf) ? ", " : "", "last message");
       }
       proto_tree_add_uint_format_value(miop_tree, hf_miop_flags, tvb, offset, 1,
-                                       flags, "0x%02x (%s)", flags, flags_strbuf->str);
+                                       flags, "0x%02x (%s)", flags, wmem_strbuf_get_str(flags_strbuf));
       offset++;
       proto_tree_add_item(miop_tree, hf_miop_packet_length, tvb, offset, 2, byte_order);
       offset += 2;

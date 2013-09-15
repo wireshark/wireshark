@@ -76,6 +76,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 #include "packet-mbtcp.h"
 #include <epan/prefs.h>
@@ -484,7 +485,7 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     p_remove_proto_data(pinfo->fd, proto_modbus, 0);
 
     /* Create enough context for Modbus dissector */
-    request_info = ep_new(modbus_request_info_t);
+    request_info = wmem_new(wmem_packet_scope(), modbus_request_info_t);
     request_info->packet_type = (guint8)packet_type;
     request_info->register_addr_type = (guint8)global_mbus_tcp_register_addr_type;
     request_info->register_format = (guint8)global_mbus_tcp_register_format;
@@ -625,7 +626,7 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     p_remove_proto_data(pinfo->fd, proto_modbus, 0);
 
     /* Create enough context for Modbus dissector */
-    request_info = ep_new(modbus_request_info_t);
+    request_info = wmem_new(wmem_packet_scope(), modbus_request_info_t);
     request_info->packet_type = (guint8)packet_type;
     request_info->register_addr_type = (guint8)global_mbus_rtu_register_addr_type;
     request_info->register_format = (guint8)global_mbus_rtu_register_format;

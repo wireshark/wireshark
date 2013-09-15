@@ -27,6 +27,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <wiretap/netscaler.h>
 
 static int proto_nstrace = -1;
@@ -145,13 +146,15 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t       *next_tvb_eth_client;
 	guint8		offset;
 	guint		i, bpos;
-	emem_strbuf_t  *flags_strbuf = ep_strbuf_new_label("None");
+	wmem_strbuf_t  *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
 	static const gchar *flags[] = {"FP", "FR", "DFD", "SRSS", "RSSH"};
 	gboolean 	first_flag = TRUE;
 	guint8		flagoffset, flagval;
 	guint8		src_vmname_len = 0, dst_vmname_len = 0;
 	guint8		variable_ns_len = 0;
 	guint 		flagval32;
+
+	wmem_strbuf_append(flags_strbuf, "None");
 
 	if (pnstr->rec_type == NSPR_HEADER_VERSION205)
 		{
@@ -201,9 +204,9 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			bpos = 1 << i;
 			if (flagval & bpos) {
 				if (first_flag) {
-					ep_strbuf_truncate(flags_strbuf, 0);
+					wmem_strbuf_truncate(flags_strbuf, 0);
 				}
-				ep_strbuf_append_printf(flags_strbuf, "%s%s", first_flag ? "" : ", ", flags[i]);
+				wmem_strbuf_append_printf(flags_strbuf, "%s%s", first_flag ? "" : ", ", flags[i]);
 				first_flag = FALSE;
 			}
 		}
@@ -212,7 +215,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ns_tree, hf_ns_dnode, tvb, pnstr->destnodeid_offset, 2, ENC_LITTLE_ENDIAN);
 
 		flagitem = proto_tree_add_uint_format_value(ns_tree, hf_ns_clflags, tvb, flagoffset, 1, flagval,
-						"0x%02x (%s)", flagval, flags_strbuf->str);
+						"0x%02x (%s)", flagval, wmem_strbuf_get_str(flags_strbuf));
 		flagtree = proto_item_add_subtree(flagitem, ett_ns_flags);
 
 		proto_tree_add_boolean(flagtree, hf_ns_clflags_res, tvb, flagoffset, 1, flagval);

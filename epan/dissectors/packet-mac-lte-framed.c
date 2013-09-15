@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-mac-lte.h"
 
@@ -64,7 +65,7 @@ static void dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
     p_mac_lte_info = (struct mac_lte_info*)p_get_proto_data(pinfo->fd, proto_mac_lte, 0);
     if (p_mac_lte_info == NULL) {
         /* Allocate new info struct for this frame */
-        p_mac_lte_info = (struct mac_lte_info*)se_alloc0(sizeof(struct mac_lte_info));
+        p_mac_lte_info = (struct mac_lte_info*)wmem_alloc0(wmem_file_scope(), sizeof(struct mac_lte_info));
         infoAlreadySet = FALSE;
     }
     else {

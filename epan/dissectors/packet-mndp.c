@@ -36,7 +36,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 /* protocol handles */
 static int proto_mndp = -1;
@@ -111,7 +111,7 @@ extval_to_str_idx(guint32 val, const ext_value_string *vs, gint *idx, const char
   if (ret != NULL)
     return ret;
 
-  return ep_strdup_printf(fmt, val);
+  return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 /* ============= end copy/paste/modify  ============== */
 

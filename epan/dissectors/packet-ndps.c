@@ -32,7 +32,7 @@
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 
 #include "packet-ipx.h"
@@ -2022,7 +2022,7 @@ ndps_string(tvbuff_t* tvb, int hfinfo, proto_tree *ndps_tree, int offset, char *
     {
         proto_tree_add_string(ndps_tree, hfinfo, tvb, offset, 4, "<Not Specified>");
         if (stringval != NULL)
-          *stringval = ep_strdup("");
+          *stringval = wmem_strdup(wmem_packet_scope(), "");
         return foffset;
     }
     if (str_length <= 2 || (str_length & 0x01) || tvb_get_guint8(tvb, foffset + 1) != 0) {
@@ -4138,11 +4138,11 @@ ndps_hash_insert(conversation_t *conversation, guint32 ndps_xport)
 
     /* Now remember the request, so we can find it if we later
        a reply to it. */
-    request_key = se_new(ndps_req_hash_key);
+    request_key = wmem_new(wmem_file_scope(), ndps_req_hash_key);
     request_key->conversation = conversation;
     request_key->ndps_xport = ndps_xport;
 
-    request_value = se_new(ndps_req_hash_value);
+    request_value = wmem_new(wmem_file_scope(), ndps_req_hash_value);
     request_value->ndps_prog = 0;
     request_value->ndps_func = 0;
     request_value->ndps_frame_num = 0;

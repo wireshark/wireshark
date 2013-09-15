@@ -42,7 +42,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
@@ -1472,7 +1472,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				if (mgcp_type == MGCP_REQUEST)
 				{
 					endpointId = tvb_format_text(tvb, tvb_previous_offset,tokenlen);
-					mi->endpointId = ep_strdup(endpointId);
+					mi->endpointId = wmem_strdup(wmem_packet_scope(), endpointId);
 					proto_tree_add_string(tree,hf_mgcp_req_endpoint, tvb,
 					                      tvb_previous_offset, tokenlen, endpointId);
 				}
@@ -1719,9 +1719,9 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					   frame numbers are 1-origin, so we use 0
 					   to mean "we don't yet know in which frame
 					   the reply for this call appears". */
-					new_mgcp_call_key    = (mgcp_call_info_key *)se_alloc(sizeof(*new_mgcp_call_key));
+					new_mgcp_call_key    = (mgcp_call_info_key *)wmem_alloc(wmem_file_scope(), sizeof(*new_mgcp_call_key));
 					*new_mgcp_call_key   = mgcp_call_key;
-					mgcp_call            = (mgcp_call_t *)se_alloc(sizeof(*mgcp_call));
+					mgcp_call            = (mgcp_call_t *)wmem_alloc(wmem_file_scope(), sizeof(*mgcp_call));
 					mgcp_call->req_num   = pinfo->fd->num;
 					mgcp_call->rsp_num   = 0;
 					mgcp_call->transid   = mi->transid;
@@ -1854,12 +1854,12 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 	tokenline = tvb_get_ephemeral_string(tvb, offset, param_val_len);
 
 	/* Split into type=value pairs separated by comma */
-	tokens = ep_strsplit(tokenline, ",", -1);
+	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
 
 	for (i = 0; tokens[i] != NULL; i++)
 	{
 		tokenlen = (int)strlen(tokens[i]);
-		typval = ep_strsplit(tokens[i], "=", 2);
+		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], "=", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
 			if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PS"))
@@ -1966,14 +1966,14 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 	tokenline = tvb_get_ephemeral_string(tvb, offset, param_val_len);
 
 	/* Split into type=value pairs separated by comma */
-	tokens = ep_strsplit(tokenline, ",", -1);
+	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
 	for (i = 0; tokens[i] != NULL; i++)
 	{
 		hf_uint = -1;
 		hf_string = -1;
 
 		tokenlen = (int)strlen(tokens[i]);
-		typval = ep_strsplit(tokens[i], ":", 2);
+		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], ":", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
 			if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "p"))

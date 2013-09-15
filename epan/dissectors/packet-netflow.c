@@ -126,7 +126,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/dissectors/packet-tcp.h>
@@ -5427,8 +5427,8 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
                     /* ToDo: Test for changed template ? If so: expert ?             */
                     break; /* Don't allow cacheing of this template */
                 }
-                tmplt.fields_p[TF_SCOPES]  = (v9_v10_tmplt_entry_t *)se_alloc0(option_scope_field_count *sizeof(v9_v10_tmplt_entry_t));
-                tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)se_alloc0(option_field_count       *sizeof(v9_v10_tmplt_entry_t));
+                tmplt.fields_p[TF_SCOPES]  = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), option_scope_field_count *sizeof(v9_v10_tmplt_entry_t));
+                tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), option_field_count       *sizeof(v9_v10_tmplt_entry_t));
                 break;
             } while (FALSE);
         }
@@ -5441,7 +5441,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 
         if ((tmplt_p == NULL) && (tmplt.fields_p[TF_SCOPES] || tmplt.fields_p[TF_ENTRIES])) {
             /* create permanent template copy for storage in template table */
-            tmplt_p = (v9_v10_tmplt_t *)se_memdup(&tmplt, sizeof(tmplt));
+            tmplt_p = (v9_v10_tmplt_t *)wmem_memdup(wmem_file_scope(), &tmplt, sizeof(tmplt));
             SE_COPY_ADDRESS(&tmplt_p->src_addr, &pinfo->net_src);
             SE_COPY_ADDRESS(&tmplt_p->dst_addr, &pinfo->net_dst);
             g_hash_table_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);
@@ -5520,7 +5520,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
                     /* ToDo: Test for changed template ? If so: expert ?             */
                     break; /* Don't allow cacheing of this template */
                 }
-                tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)se_alloc0(count * sizeof(v9_v10_tmplt_entry_t));
+                tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), count * sizeof(v9_v10_tmplt_entry_t));
                 break;
             } while (FALSE);
         }
@@ -5529,7 +5529,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 
         if ((tmplt_p == NULL) && tmplt.fields_p[TF_ENTRIES]) {
             /* create permanent template copy for storage in template table */
-            tmplt_p = (v9_v10_tmplt_t *)se_memdup(&tmplt, sizeof(tmplt));
+            tmplt_p = (v9_v10_tmplt_t *)wmem_memdup(wmem_file_scope(), &tmplt, sizeof(tmplt));
             SE_COPY_ADDRESS(&tmplt_p->src_addr, &pinfo->net_src);
             SE_COPY_ADDRESS(&tmplt_p->dst_addr, &pinfo->net_dst);
             g_hash_table_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);

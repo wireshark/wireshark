@@ -41,6 +41,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/wmem/wmem.h>
 #include "packet-wap.h"
 #include "packet-wsp.h"
 /* #include "packet-mmse.h" */		/* We autoregister	*/
@@ -764,9 +765,9 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			major = (version & 0x70) >> 4;
 			minor = version & 0x0F;
 			if (minor == 0x0F)
-			    vers_string = ep_strdup_printf("%u", major);
+			    vers_string = wmem_strdup_printf(wmem_packet_scope(), "%u", major);
 			else
-			    vers_string = ep_strdup_printf("%u.%u", major, minor);
+			    vers_string = wmem_strdup_printf(wmem_packet_scope(), "%u.%u", major, minor);
 			proto_tree_add_string(mmse_tree, hf_mmse_mms_version,
 				tvb, offset - 2, 2, vers_string);
 		    }

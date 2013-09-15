@@ -66,7 +66,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/base64.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-imf.h"
 
@@ -205,7 +205,7 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
     if (! lines) return NULL;
 
     c = *p;
-    ret = (char *)ep_alloc(strlen(lines) + 1);
+    ret = (char *)wmem_alloc(wmem_packet_scope(), strlen(lines) + 1);
     q = ret;
 
     while (c) {
@@ -658,7 +658,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 
                             if (semicolon_offset > 0) {
                                 value_str[semicolon_offset] = '\0';
-                                parameters = ep_strdup(value_str + semicolon_offset + 1);
+                                parameters = wmem_strdup(wmem_packet_scope(), value_str + semicolon_offset + 1);
                             } else {
                                 parameters = NULL;
                             }

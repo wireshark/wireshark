@@ -60,6 +60,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <expert.h>
 
 
@@ -207,12 +208,12 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       else
       {
-        emem_strbuf_t      *strbuf;
+        wmem_strbuf_t      *strbuf;
         gboolean            first = TRUE;
 
         ti_status = proto_tree_add_uint_format(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1,
                                                packet_status, "Status: Error present (expand tree for details)");
-        strbuf = ep_strbuf_new_label("");
+        strbuf = wmem_strbuf_new_label(wmem_epan_scope());
         for (idx = 0; idx < 8; idx++)
         {
           if (packet_status & (1 << idx))
@@ -223,12 +224,12 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             else
             {
-              ep_strbuf_append(strbuf, ", ");
+              wmem_strbuf_append(strbuf, ", ");
             }
-            ep_strbuf_append(strbuf, msk_strings[idx]);
+            wmem_strbuf_append(strbuf, msk_strings[idx]);
           }
         }
-        proto_item_append_text(ti, "%s)", strbuf->str);
+        proto_item_append_text(ti, "%s)", wmem_strbuf_get_str(strbuf));
       }
 
       netanalyzer_status_tree = proto_item_add_subtree(ti_status, ett_netanalyzer_status);
@@ -270,7 +271,7 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            (tvb_get_guint8(tvb, INFO_TYPE_OFFSET) == 0x00) )
       {
 #define MAX_BUFFER 255
-        szTemp=(guchar *)ep_alloc(MAX_BUFFER);
+        szTemp=(guchar *)wmem_alloc(wmem_epan_scope(), MAX_BUFFER);
 
         /* everything ok */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");

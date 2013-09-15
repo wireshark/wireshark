@@ -42,6 +42,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include <wsutil/type_util.h>
 
 /* Chi-X version */
@@ -173,12 +174,12 @@ time_stamp(tvbuff_t *tvb, proto_tree *nasdaq_itch_tree, int id, int offset, int 
       ms = val = (guint32)strtoul(str_value, NULL, 10);
       switch (size) {
       case 3:
-          display = ep_strdup_printf(" %03u" , val);
+          display = wmem_strdup_printf(wmem_packet_scope(), " %03u" , val);
           break;
       case 5:
           ms = val *1000;
       case 8: /* 0 86 400 000 */
-          display = ep_strdup_printf(" %u (%02u:%02u:%02u.%03u)", val,
+          display = wmem_strdup_printf(wmem_packet_scope(), " %u (%02u:%02u:%02u.%03u)", val,
               ms/3600000, (ms % 3600000)/60000, (ms % 60000)/1000, ms %1000);
           break;
       }

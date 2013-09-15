@@ -45,7 +45,6 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include "packet-q708.h"
 #include "packet-sccp.h"
@@ -287,7 +286,7 @@ mtp3_pc_to_str(const guint32 pc)
 {
   gchar *str;
 
-  str=(gchar *)ep_alloc(MAX_STRUCTURED_PC_LENGTH);
+  str=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_STRUCTURED_PC_LENGTH);
   mtp3_pc_to_str_buf(pc, str, MAX_STRUCTURED_PC_LENGTH);
   return str;
 }
@@ -698,7 +697,7 @@ reset_mtp3_standard(void)
 static void
 dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    mtp3_tap_rec_t* tap_rec = ep_new0(mtp3_tap_rec_t);
+    mtp3_tap_rec_t* tap_rec = wmem_new0(wmem_packet_scope(), mtp3_tap_rec_t);
     gint heuristic_standard;
     guint8 si;
     mtp3_addr_pc_t* mtp3_addr_dpc;

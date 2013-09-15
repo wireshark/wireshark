@@ -48,7 +48,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/ax25_pids.h>
 
 #include "packet-netrom.h"
@@ -163,7 +163,7 @@ dissect_netrom_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	type    =  tvb_get_guint8( tvb, offset );
 	op_code = type &0x0f;
 
-	info_buffer = ep_strdup_printf( "%s%s%s%s (0x%02x)",
+	info_buffer = wmem_strdup_printf( wmem_packet_scope(), "%s%s%s%s (0x%02x)",
 					val_to_str_const( op_code, op_code_vals_text, "Unknown" ),
 					( type & NETROM_MORE_FLAG  ) ? ", More"  : "",
 					( type & NETROM_NAK_FLAG   ) ? ", NAK"   : "",
