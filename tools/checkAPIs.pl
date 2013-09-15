@@ -1973,7 +1973,7 @@ while ($_ = $ARGV[0])
 
         #$errorCount += check_ett_registration(\$fileContents, $filename);
 
-        if ($fileContents =~ m{ // }xo)
+        if ($fileContents =~ m{ \s// }xo)
         {
                 print STDERR "Error: Found C++ style comments in " .$filename."\n";
                 $errorCount++;
