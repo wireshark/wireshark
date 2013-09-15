@@ -39,8 +39,8 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
 #include <epan/strutil.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-rdt.h"
 
@@ -273,7 +273,7 @@ void rdt_add_address(packet_info *pinfo,
     if (!p_conv_data)
     {
         /* Create conversation data */
-        p_conv_data = se_new(struct _rdt_conversation_info);
+        p_conv_data = wmem_new(wmem_file_scope(), struct _rdt_conversation_info);
         conversation_add_proto_data(p_conv, proto_rdt, p_conv_data);
     }
 
@@ -1250,7 +1250,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (p_conv_data)
             {
                 /* Save this conversation info into packet info */
-                p_conv_packet_data = se_new(struct _rdt_conversation_info);
+                p_conv_packet_data = wmem_new(wmem_file_scope(), struct _rdt_conversation_info);
                 g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RDT_SETUP_METHOD_SIZE);
                 p_conv_packet_data->frame_number = p_conv_data->frame_number;
                 p_conv_packet_data->feature_level = p_conv_data->feature_level;
