@@ -33,7 +33,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-tcp.h"
 
@@ -395,7 +395,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!hash_info)
 	{
 		/* Populate new data struct... */
-		hash_info = se_new(rlogin_hash_entry_t);
+		hash_info = wmem_new(wmem_file_scope(), rlogin_hash_entry_t);
 		hash_info->state = NONE;
 		hash_info->info_framenum = 0;  /* no frame has the number 0 */
 		hash_info->user_name[0] = '\0';
