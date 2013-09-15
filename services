@@ -11169,6 +11169,14 @@ profinet-cm     34964/udp # PROFInet Context Manager [Peter_Wenzel] [Peter_Wenze
 ethercat        34980/tcp # EtherCAT Port [Martin_Rostan] [Martin_Rostan] 2003-11
 ethercat        34980/udp # EhterCAT Port [Martin_Rostan] [Martin_Rostan] 2003-11
 heathview       35000/tcp # HeathView [Heathwest_Systems_Limited] [Andrew_Porrer] 2013-03-21
+rt-viewer       35001/tcp # ReadyTech Viewer [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
+rt-viewer       35001/udp # ReadyTech Viewer [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
+rt-sound        35002/tcp # ReadyTech Sound Server [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
+rt-devicemapper 35003/tcp # ReadyTech DeviceMapper Server [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
+rt-classmanager 35004/tcp # ReadyTech ClassManager [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
+rt-classmanager 35004/udp # ReadyTech ClassManager [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
+rt-labtracker   35005/tcp # ReadyTech LabTracker [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
+rt-helper       35006/tcp # ReadyTech Helper Service [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
 kitim           35354/tcp # KIT Messenger [Rudi_Visser] [Rudi_Visser] 2011-07-07
 altova-lm       35355/tcp # Altova License Management [Alexander_Falk_2] [Alexander_Falk_2] 2011-07-07
 altova-lm-disc  35355/udp # Altova License Management Discovery [Alexander_Falk_2] [Alexander_Falk_2] 2011-07-07
