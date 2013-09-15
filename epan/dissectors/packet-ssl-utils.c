@@ -2807,13 +2807,13 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     if(ssl->version_netorder==TLSV1DOT1_VERSION || ssl->version_netorder==TLSV1DOT2_VERSION){
         /* if stream cipher used, IV is not contained */
         worklen=worklen-(decoder->cipher_suite->block!=1 ? decoder->cipher_suite->block : 0);
-        memcpy(out_str->data,out_str->data+(decoder->cipher_suite->block!=1 ? decoder->cipher_suite->block : 0),worklen);
+        memmove(out_str->data,out_str->data+(decoder->cipher_suite->block!=1 ? decoder->cipher_suite->block : 0),worklen);
     }
     if(ssl->version_netorder==DTLSV1DOT0_VERSION ||
       ssl->version_netorder==DTLSV1DOT2_VERSION ||
       ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
         worklen=worklen-decoder->cipher_suite->block;
-        memcpy(out_str->data,out_str->data+decoder->cipher_suite->block,worklen);
+        memmove(out_str->data,out_str->data+decoder->cipher_suite->block,worklen);
     }
     /* Now check the MAC */
     ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %d)\n",
