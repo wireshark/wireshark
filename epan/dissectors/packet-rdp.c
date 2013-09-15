@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/asn1.h>
 #include "packet-tpkt.h"
@@ -1630,7 +1631,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp);
 
   if (rdp_info == NULL) {
-    rdp_info = se_new0(rdp_conv_info_t);
+    rdp_info = wmem_new0(wmem_file_scope(), rdp_conv_info_t);
     rdp_info->staticChannelId  = -1;
     rdp_info->encryptionMethod = 0;
     rdp_info->encryptionLevel  = 0;
@@ -1776,7 +1777,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp);
 
   if (rdp_info == NULL) {
-    rdp_info = se_new0(rdp_conv_info_t);
+    rdp_info = wmem_new0(wmem_file_scope(), rdp_conv_info_t);
     rdp_info->staticChannelId  = -1;
     rdp_info->encryptionMethod = 0;
     rdp_info->encryptionLevel  = 0;

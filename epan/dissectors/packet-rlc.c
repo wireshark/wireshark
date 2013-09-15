@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
@@ -415,7 +416,7 @@ rlc_frag_hash(gconstpointer key)
 static gboolean
 rlc_frag_equal(gconstpointer a, gconstpointer b)
 {
-    const struct rlc_frag *x = (const struct rlc_frag *)a; 
+    const struct rlc_frag *x = (const struct rlc_frag *)a;
     const struct rlc_frag *y = (const struct rlc_frag *)b;
 
     return rlc_channel_equal(&x->ch, &y->ch) &&
@@ -429,7 +430,7 @@ rlc_sdu_create(void)
 {
     struct rlc_sdu *sdu;
 
-    sdu = (struct rlc_sdu *)se_alloc0(sizeof(struct rlc_sdu));
+    sdu = (struct rlc_sdu *)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_sdu));
     return sdu;
 }
 
@@ -490,7 +491,7 @@ rlc_frag_create(tvbuff_t *tvb, enum rlc_mode mode, packet_info *pinfo,
 {
     struct rlc_frag *frag;
 
-    frag = (struct rlc_frag *)se_alloc0(sizeof(struct rlc_frag));
+    frag = (struct rlc_frag *)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_frag));
     rlc_frag_assign(frag, mode, pinfo, seq, li);
     rlc_frag_assign_data(frag, tvb, offset, length);
 
@@ -848,7 +849,7 @@ reassemble_data(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag *fr
     else
         sdu->reassembled_in = sdu->last;
 
-    sdu->data = (guint8 *)se_alloc(sdu->len);
+    sdu->data = (guint8 *)wmem_alloc(wmem_file_scope(), sdu->len);
     temp = sdu->frags;
     while (temp && ((offs + temp->len) <= sdu->len)) {
         memcpy(sdu->data + offs, temp->data, temp->len);
@@ -891,7 +892,7 @@ get_frags(packet_info * pinfo, struct rlc_channel * ch_lookup)
     } else if (pinfo != NULL) {
         struct rlc_channel *ch;
         ch = rlc_channel_create(ch_lookup->mode, pinfo);
-        frags = (struct rlc_frag **)se_alloc0(sizeof(struct rlc_frag *) * 4096);
+        frags = (struct rlc_frag **)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_frag *) * 4096);
         g_hash_table_insert(fragment_table, ch, frags);
     } else {
         return NULL;
@@ -909,7 +910,7 @@ get_endlist(packet_info * pinfo, struct rlc_channel * ch_lookup)
     } else if (pinfo != NULL) { /* Else create a new one. */
         struct rlc_channel * ch;
 
-        endlist = se_new(struct rlc_seqlist);
+        endlist = wmem_new(wmem_file_scope(), struct rlc_seqlist);
         ch = rlc_channel_create(ch_lookup->mode, pinfo);
         endlist->fail_packet = 0;
         endlist->list = NULL;
@@ -1134,7 +1135,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
             if (frags[start] != NULL) {
                 endlist->list->data = GINT_TO_POINTER(start-1);
             }
-            /* NOTE: frags[start] is se_alloced and will remain until file closes, we would want to free it here maybe. */
+            /* NOTE: frags[start] is wmem_alloced and will remain until file closes, we would want to free it here maybe. */
             return NULL;
         }
 
@@ -1242,7 +1243,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     list = (struct rlc_seqlist *)g_hash_table_lookup(sequence_table, &lookup.ch);
     if (!list) {
         /* we see this channel for the first time */
-        list = (struct rlc_seqlist *)se_alloc0(sizeof(*list));
+        list = (struct rlc_seqlist *)wmem_alloc0(wmem_file_scope(), sizeof(*list));
         rlc_channel_assign(&list->ch, mode, pinfo);
         g_hash_table_insert(sequence_table, &list->ch, list);
     }
@@ -1275,7 +1276,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
         }
         return FALSE; /* we revisit the seq that was already seen */
     }
-    seq_new = (struct rlc_seq *)se_alloc0(sizeof(struct rlc_seq));
+    seq_new = (struct rlc_seq *)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_seq));
     *seq_new = seq_item;
     seq_new->arrival = pinfo->fd->abs_ts;
     list->list = g_list_append(list->list, seq_new); /* insert in order of arrival */
@@ -1326,7 +1327,7 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
         fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
         rrcinf = (rrc_info *)p_get_proto_data(pinfo->fd, proto_rrc, 0);
         if (!rrcinf) {
-            rrcinf = (rrc_info *)se_alloc0(sizeof(struct rrc_info));
+            rrcinf = (rrc_info *)wmem_alloc0(wmem_file_scope(), sizeof(struct rrc_info));
             p_add_proto_data(pinfo->fd, proto_rrc, 0, rrcinf);
         }
         rrcinf->msgtype[fpinf->cur_tb] = msgtype;
@@ -1406,7 +1407,7 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
 
     /*Fix the key into a byte block*/
     /*TODO: This should be done in a preferences callback function*/
-    out = ep_alloc0( strlen(global_rlc_kasumi_key)+1);
+    out = wmem_alloc0(wmem_packet_scope(), strlen(global_rlc_kasumi_key)+1);
     memcpy(out,global_rlc_kasumi_key,strlen(global_rlc_kasumi_key));    /*Copy from prefrence const pointer*/
     key_in = translate_hex_key(out);    /*Translation*/
 
@@ -1980,7 +1981,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                 col_append_str(pinfo->cinfo, COL_INFO, " BITMAP=(");
 
                 bitmap_tree = proto_item_add_subtree(ti, ett_rlc_bitmap);
-                buff = (gchar *)ep_alloc(BUFF_SIZE);
+                buff = (gchar *)wmem_alloc(wmem_packet_scope(), BUFF_SIZE);
                 for (i=0; i<len; i++) {
                     bits = tvb_get_bits8(tvb, bit_offset, 8);
                     for (l=0, j=0; l<8; l++) {
@@ -2583,14 +2584,14 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
     if (fpi == NULL) {
         /* Allocate new info struct for this frame */
-        fpi = (fp_info *)se_alloc0(sizeof(fp_info));
+        fpi = (fp_info *)wmem_alloc0(wmem_file_scope(), sizeof(fp_info));
     } else {
         fpInfoAlreadySet = TRUE;
     }
     rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
     if (rlci == NULL) {
         /* Allocate new info struct for this frame */
-        rlci = (rlc_info *)se_alloc0(sizeof(rlc_info));
+        rlci = (rlc_info *)wmem_alloc0(wmem_file_scope(), sizeof(rlc_info));
     } else {
         rlcInfoAlreadySet = TRUE;
     }
