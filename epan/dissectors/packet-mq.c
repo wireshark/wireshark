@@ -913,8 +913,8 @@ static reassembly_table mq_reassembly_table;
 #define MQ_TEXT_REQMSG  "REQUEST MESSAGE"
 #define MQ_TEXT_ASYMSG  "ASYNC MESSAGE"
 #define MQ_TEXT_NOTIFICATION "NOTIFICATION"
-#define MQ_TEXT_BIND$READAHEAD_AS_Q_DEF "Bind/Read Ahead As Q Def"
-#define MQ_TEXT_IMMEDIATE$NONE "Close Immediate/No option"
+#define MQ_TEXT_BIND_READAHEAD_AS_Q_DEF "Bind/Read Ahead As Q Def"
+#define MQ_TEXT_IMMEDIATE_NONE "Close Immediate/No option"
 #define MQ_TEXT_MQPMO_NONE "Resp as Q Def/Resp as Topic Def/None"
 #define MQ_TEXT_MQGMO_NONE "No Wait/Prop as Q Def/None"
 #define MQ_TEXT_MQMO_NONE  "None"
@@ -1338,7 +1338,7 @@ static gint dissect_mq_MQOO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset,gint
 
 	if (uOpenOpt==0)
 	{
-		proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_BIND$READAHEAD_AS_Q_DEF);
+		proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_BIND_READAHEAD_AS_Q_DEF);
 	}
 	else
 	{
@@ -1380,7 +1380,7 @@ static gint dissect_mq_MQCO(tvbuff_t *tvb, proto_tree *mq_tree, gint offset, mq_
 
 	if (iCloseOpt==0)
 	{
-		proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_IMMEDIATE$NONE);
+		proto_tree_add_text(mq_tree_sub, tvb, offset, 4, MQ_TEXT_IMMEDIATE_NONE);
 	}
 	else
 	{
