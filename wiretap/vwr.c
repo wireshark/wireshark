@@ -1319,18 +1319,18 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     else if (plcp_type == vVW510021_W_PLCP_MIXED) {
         /* set the appropriate flags to indicate HT mode and CB */
         radioflags |= RADIOTAP_F_CHAN_HT | ((plcp_ptr[3] & 0x80) ? RADIOTAP_F_CHAN_40MHZ : 0) |
-                      ((plcp_ptr[6] & 0x80) ? RADIOTAP_F_CHAN_SHORTGI : 0);
+                      ((l1p_1 & 0x40) ? 0 : RADIOTAP_F_CHAN_SHORTGI);
         chanflags |= CHAN_OFDM;
     }
     else if (plcp_type == vVW510021_W_PLCP_GREENFIELD) {
         /* set the appropriate flags to indicate HT mode and CB */
         radioflags |= RADIOTAP_F_CHAN_HT | ((plcp_ptr[0] & 0x80) ? RADIOTAP_F_CHAN_40MHZ : 0) |
-                      ((plcp_ptr[3] & 0x80) ? RADIOTAP_F_CHAN_SHORTGI : 0);
+                      ((l1p_1 & 0x40) ?  0 : RADIOTAP_F_CHAN_SHORTGI);
         chanflags |= CHAN_OFDM;
     }
     else if (plcp_type == vVW510021_W_PLCP_VHT_MIXED) {
         guint8 SBW = l1p_2 >> 4 & 0xf;
-        radioflags |= RADIOTAP_F_CHAN_VHT | ((plcp_ptr[6] & 0x80) ? RADIOTAP_F_CHAN_SHORTGI : 0);
+        radioflags |= RADIOTAP_F_CHAN_VHT | ((l1p_1 & 0x40) ?  0 : RADIOTAP_F_CHAN_SHORTGI);
         chanflags |= CHAN_OFDM;
         if (SBW == 3)
             radioflags |= RADIOTAP_F_CHAN_40MHZ;
