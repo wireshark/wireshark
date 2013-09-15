@@ -1917,7 +1917,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfid, tvb,
 					   offset+12, 4, spinfile_id);
 		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfuid, tvb,
-					   offset+16, 4, spinfile_id);
+					   offset+16, 4, spinfile_uid);
 
 		/* = spin file handle (mount point) = */
 		local_dsid   = tvb_get_letohl(tvb, offset+20);
@@ -1972,7 +1972,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfid, tvb,
 					   offset+28, 4, spinfile_id);
 		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfuid, tvb,
-					   offset+32, 4, spinfile_id);
+					   offset+32, 4, spinfile_uid);
 		/* = export point id  = */
 		export_id  = tvb_get_letohl(tvb, offset+36);
 		proto_tree_add_uint_format(tree, hf_nfs3_gxfh_exportptid, tvb,

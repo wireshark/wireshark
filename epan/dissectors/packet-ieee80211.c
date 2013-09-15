@@ -12840,7 +12840,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
       guint tag_offset;
       guint8 sub_tag_id;
-      guint32 bssid_info, info, sub_tag_length;
+      guint32 bssid_info, sub_tag_length;
       proto_item *parent_item;
       proto_tree *bssid_info_subtree, *sub_tag_tree;
       tvbuff_t *volatile sub_tag_tvb = NULL;
@@ -12883,7 +12883,6 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
       offset += 1;
-      info = tvb_get_guint8 (tvb, offset);
       proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_phy_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
       offset += 1;

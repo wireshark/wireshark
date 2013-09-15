@@ -6684,7 +6684,6 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 	smb2_sesid_info_t  sesid_key;
 	int                sesid_offset;
 	proto_item        *item;
-	unsigned int       pid;
 
 
 	if (si->flags&SMB2_FLAGS_ASYNC_CMD) {
@@ -6692,7 +6691,6 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 		offset += 8;
 	} else {
 		/* Process ID */
-		pid = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_pid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
