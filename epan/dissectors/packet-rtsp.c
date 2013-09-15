@@ -41,10 +41,10 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 #include <epan/tap.h>
 #include <epan/tap-voip.h>
 #include <epan/stats_tree.h>
+#include <epan/wmem/wmem.h>
 #include <wsutil/str_util.h>
 
 #include "packet-rdt.h"
@@ -469,7 +469,8 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
             (len == linelen || isspace(line[len])))
         {
             *type = RTSP_REQUEST;
-            rtsp_stat_info->request_method = ep_strndup(rtsp_methods[ii], len+1);
+            rtsp_stat_info->request_method =
+               wmem_strndup(wmem_packet_scope(), rtsp_methods[ii], len+1);
             return TRUE;
         }
     }
@@ -586,7 +587,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
         /* Create new data if necessary */
         if (!data)
         {
-            data = se_new0(rtsp_conversation_data_t);
+            data = wmem_new0(wmem_file_scope(), rtsp_conversation_data_t);
             conversation_add_proto_data(conv, proto_rtsp, data);
         }
 
@@ -709,7 +710,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     gchar        *session_id  = NULL;
     voip_packet_info_t *stat_info = NULL;
 
-    rtsp_stat_info = ep_new(rtsp_info_value_t);
+    rtsp_stat_info = wmem_new(wmem_packet_scope(), rtsp_info_value_t);
     rtsp_stat_info->framenum = pinfo->fd->num;
     rtsp_stat_info->response_code = 0;
     rtsp_stat_info->request_method = NULL;
@@ -778,10 +779,12 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     line = tvb_get_ptr(tvb, offset, first_linelen);
     if (is_request_or_reply) {
         if ( rtsp_type == RTSP_REPLY ) {
-            frame_label = ep_strdup_printf("Reply: %s", format_text(line, first_linelen));
+            frame_label = wmem_strdup_printf(wmem_packet_scope(),
+                  "Reply: %s", format_text(line, first_linelen));
         }
         else {
-            frame_label = ep_strdup(format_text(line, first_linelen));
+            frame_label = wmem_strdup(wmem_packet_scope(),
+                  format_text(line, first_linelen));
         }
     }
 
@@ -1134,8 +1137,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (session_id) {
-        stat_info = ep_new0(voip_packet_info_t);
-        stat_info->protocol_name = ep_strdup("RTSP");
+        stat_info = wmem_new0(wmem_packet_scope(), voip_packet_info_t);
+        stat_info->protocol_name = wmem_strdup(wmem_packet_scope(), "RTSP");
         stat_info->call_id = session_id;
         stat_info->frame_label = frame_label;
         stat_info->call_state = VOIP_CALL_SETUP;
@@ -1311,7 +1314,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
     while (url < lineend && !isspace(*url))
         url++;
     /* Create a URL-sized buffer and copy contents */
-    tmp_url = ep_strndup(url_start, url - url_start);
+    tmp_url = wmem_strndup(wmem_packet_scope(), url_start, url - url_start);
 
     /* Add URL to tree */
     proto_tree_add_string(sub_tree, hf_rtsp_url, tvb,
