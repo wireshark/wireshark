@@ -1156,7 +1156,7 @@ static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     guint8 signature[] = {'p','l','a','y'};
     guint32 dplay_id, token;
 
-    if((tvb_length(tvb) < 25)
+    if(tvb_length(tvb) < 25)
         return FALSE;
 
     dplay_id = tvb_get_letohl(tvb, 20);
