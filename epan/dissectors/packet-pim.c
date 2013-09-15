@@ -32,6 +32,7 @@
 #include <epan/afn.h>
 #include <epan/prefs.h>
 #include <epan/in_cksum.h>
+#include <epan/wmem/wmem.h>
 #include "packet-pim.h"
 
 #define PIM_TYPE(x)     ((x) & 0x0f)
@@ -133,13 +134,13 @@ dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
 
     flags_masklen = tvb_get_ntohs(tvb, offset);
     if (flags_masklen & 0x0180) {
-        return ep_strdup_printf("(%s%s%s) ",
-                                flags_masklen & 0x0100 ? "S" : "",
-                                flags_masklen & 0x0080 ? "W" : "",
-                                flags_masklen & 0x0040 ? "R" : "");
+        return wmem_strdup_printf(wmem_packet_scope(), "(%s%s%s) ",
+                                  flags_masklen & 0x0100 ? "S" : "",
+                                  flags_masklen & 0x0080 ? "W" : "",
+                                  flags_masklen & 0x0040 ? "R" : "");
     } else {
-        return ep_strdup_printf("%s/%u",
-                                tvb_ip_to_str(tvb, offset + 2), flags_masklen & 0x3f);
+        return wmem_strdup_printf(wmem_packet_scope(), "%s/%u",
+                                  tvb_ip_to_str(tvb, offset + 2), flags_masklen & 0x3f);
     }
 }
 
@@ -1011,7 +1012,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         for (i = 0; i < ngroup; i++) {
             if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, 
-                                   ep_strdup_printf("Group %d", i), &tigroup,
+                                   wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), &tigroup,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak3;
 
@@ -1073,7 +1074,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         for (i = 0; tvb_reported_length_remaining(tvb, offset) > 0; i++) {
             if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, 
-                                   ep_strdup_printf("Group %d", i), &tigroup,
+                                   wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), &tigroup,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak4;
 
@@ -1088,7 +1089,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
             for (j = 0; j < frpcnt; j++) {
                 if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, 
-                                       ep_strdup_printf("RP %d", j), NULL,
+                                       wmem_strdup_printf(wmem_packet_scope(), "RP %d", j), NULL,
                                        hf_pim_rp_ip4, hf_pim_rp_ip6, &advance))
 
                     goto breakbreak4;
@@ -1162,7 +1163,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         for (i = 0; i < pfxcnt; i++) {
             if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, 
-                                   ep_strdup_printf("Group %d", i), NULL,
+                                   wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), NULL,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak8;
             offset += advance;

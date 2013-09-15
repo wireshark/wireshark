@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include "packet-mtp3.h"
 
 #define INVALID_SSN	0xff
@@ -239,7 +240,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		offset += 1;
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_spc, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/*src_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
-		mtp3_addr_opc = ep_new0(mtp3_addr_pc_t);
+		mtp3_addr_opc = wmem_new0(wmem_packet_scope(), mtp3_addr_pc_t);
 		mtp3_addr_opc->pc = (guint32 )tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_opc->type = ITU_STANDARD; 
 		mtp3_addr_opc->ni = 0;
@@ -256,7 +257,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_opc, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 
 		/*src_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
-		mtp3_addr_opc = ep_new0(mtp3_addr_pc_t);
+		mtp3_addr_opc = wmem_new0(wmem_packet_scope(), mtp3_addr_pc_t);
 		mtp3_addr_opc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_opc->type = ITU_STANDARD;
 		mtp3_addr_opc->ni = 0;
@@ -328,7 +329,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_spc1, tvb, offset, 3, ENC_BIG_ENDIAN);
 
 		/*dst_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
-		mtp3_addr_dpc = ep_new0(mtp3_addr_pc_t);
+		mtp3_addr_dpc = wmem_new0(wmem_packet_scope(), mtp3_addr_pc_t);
 		mtp3_addr_dpc->pc = (guint32)tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
@@ -346,7 +347,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_dpc, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		/*dst_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
-		mtp3_addr_dpc = ep_new0(mtp3_addr_pc_t);
+		mtp3_addr_dpc = wmem_new0(wmem_packet_scope(), mtp3_addr_pc_t);
 		mtp3_addr_dpc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;

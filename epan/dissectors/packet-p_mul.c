@@ -43,6 +43,7 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/wmem/wmem.h>
 #include <string.h>
 
 #include "packet-cdt.h"
@@ -330,7 +331,7 @@ static p_mul_seq_val *lookup_seq_val (guint32 message_id, guint16 seq_no,
                                       address *addr)
 {
   p_mul_seq_val *pkg_data;
-  p_mul_id_key  *p_mul_key = se_new(p_mul_id_key);
+  p_mul_id_key  *p_mul_key = wmem_new(wmem_file_scope(), p_mul_id_key);
 
   p_mul_key->id = message_id;
   p_mul_key->seq = seq_no;
@@ -358,7 +359,7 @@ static void copy_hashtable_data (gpointer key, p_mul_ack_data *ack_data1, GHashT
 {
   p_mul_ack_data *ack_data2;
 
-  ack_data2 = se_new(p_mul_ack_data);
+  ack_data2 = wmem_new(wmem_file_scope(), p_mul_ack_data);
   ack_data2->ack_id = ack_data1->ack_id;
   ack_data2->ack_resend_count = ack_data1->ack_resend_count;
 
@@ -386,7 +387,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
   nstime_set_zero(&addr_time);
   nstime_set_zero(&prev_time);
 
-  p_mul_key = se_new(p_mul_id_key);
+  p_mul_key = wmem_new(wmem_file_scope(), p_mul_id_key);
 
   if (!pinfo->fd->flags.visited &&
       (pdu_type == Address_PDU || pdu_type == Data_PDU || pdu_type == Discard_Message_PDU))
@@ -459,7 +460,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
           ack_data = (p_mul_ack_data *)g_hash_table_lookup (p_mul_data->ack_data, GUINT_TO_POINTER(dstIP));
           if (!ack_data) {
             /* Only save reference to first ACK */
-            ack_data = se_new0(p_mul_ack_data);
+            ack_data = wmem_new0(wmem_file_scope(), p_mul_ack_data);
             ack_data->ack_id = pinfo->fd->num;
             g_hash_table_insert (p_mul_data->ack_data, GUINT_TO_POINTER(dstIP), ack_data);
           } else {
@@ -482,7 +483,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
     } else {
       /* New message */
       if (pdu_type == Ack_PDU) {
-        p_mul_data = se_new0(p_mul_seq_val);
+        p_mul_data = wmem_new0(wmem_file_scope(), p_mul_seq_val);
       } else {
         p_mul_data = (p_mul_seq_val *)g_malloc0(sizeof (p_mul_seq_val));
       }
@@ -493,7 +494,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
 
       if (pdu_type == Ack_PDU) {
         /* No matching message for this ack */
-        ack_data = se_new0(p_mul_ack_data);
+        ack_data = wmem_new0(wmem_file_scope(), p_mul_ack_data);
         ack_data->ack_id = pinfo->fd->num;
         g_hash_table_insert (p_mul_data->ack_data, GUINT_TO_POINTER(dstIP), ack_data);
       } else {
@@ -513,7 +514,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
     }
 
     /* Copy the current package data to the frame */
-    pkg_data = se_new(p_mul_seq_val);
+    pkg_data = wmem_new(wmem_file_scope(), p_mul_seq_val);
     *pkg_data = *p_mul_data;
     if (p_mul_data->ack_data) {
       /* Copy the hash table for ack data */
@@ -804,7 +805,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8         pdu_type, *value, map = 0, fec_len;
   gint           i, tot_no_missing = 0, no_missing = 0, offset = 0;
   address        src, dst;
-  emem_strbuf_t *message_id_list = NULL;
+  wmem_strbuf_t *message_id_list = NULL;
   nstime_t       ts;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "P_MUL");
@@ -940,7 +941,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (pdu_type == Ack_PDU) {
     /* Source ID of Ack Sender */
     ip = tvb_get_ipv4 (tvb, offset);
-    SET_ADDRESS (&dst, AT_IPv4, sizeof(ip), ep_memdup (&ip, 4));
+    SET_ADDRESS (&dst, AT_IPv4, sizeof(ip), wmem_memdup (wmem_packet_scope(), &ip, 4));
     proto_tree_add_item (p_mul_tree, hf_source_id_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
@@ -951,7 +952,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } else {
     /* Source Id */
     ip = tvb_get_ipv4 (tvb, offset);
-    SET_ADDRESS (&src, AT_IPv4, sizeof(ip), ep_memdup (&ip, 4));
+    SET_ADDRESS (&src, AT_IPv4, sizeof(ip), wmem_memdup (wmem_packet_scope(), &ip, 4));
     proto_tree_add_item (p_mul_tree, hf_source_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
@@ -1027,7 +1028,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Destination Id */
       ip = tvb_get_ipv4 (tvb, offset);
-      SET_ADDRESS (&dst, AT_IPv4, sizeof(ip), ep_memdup(&ip, 4));
+      SET_ADDRESS (&dst, AT_IPv4, sizeof(ip), wmem_memdup(wmem_packet_scope(), &ip, 4));
       proto_tree_add_item (field_tree, hf_dest_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
 
@@ -1067,7 +1068,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
 
   case Ack_PDU:
-    message_id_list = ep_strbuf_new_label("");
+    message_id_list = wmem_strbuf_new_label(wmem_packet_scope());
 
     for (i = 0; i < count; i++) {
       /* Ack Info Entry */
@@ -1089,7 +1090,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Source Id */
       ip = tvb_get_ipv4 (tvb, offset);
-      SET_ADDRESS (&src, AT_IPv4, sizeof(ip), ep_memdup (&ip, 4));
+      SET_ADDRESS (&src, AT_IPv4, sizeof(ip), wmem_memdup (wmem_packet_scope(), &ip, 4));
       proto_tree_add_item (field_tree, hf_source_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
 
@@ -1109,9 +1110,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 4;
 
       if (i == 0) {
-        ep_strbuf_printf (message_id_list, "%u", message_id);
+        wmem_strbuf_append_printf (message_id_list, "%u", message_id);
       } else {
-        ep_strbuf_append_printf (message_id_list, ",%u", message_id);
+        wmem_strbuf_append_printf (message_id_list, ",%u", message_id);
       }
 
       if (len > 10) {
@@ -1260,8 +1261,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (pdu_type != Ack_PDU) {
     col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %u", message_id);
   } else {
-    if (message_id_list && message_id_list->len > 0) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %s", message_id_list->str);
+    if (message_id_list && wmem_strbuf_get_len(message_id_list) > 0) {
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %s", wmem_strbuf_get_str(message_id_list));
     }
   }
 

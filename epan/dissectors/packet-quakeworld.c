@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+#include <epan/wmem/wmem.h>
 
 static int proto_quakeworld = -1;
 
@@ -226,7 +227,7 @@ Cmd_TokenizeString(char* text)
 			return;
 
 		if (cmd_argc < MAX_ARGS) {
-			cmd_argv[cmd_argc] = ep_strdup(com_token);
+			cmd_argv[cmd_argc] = wmem_strdup(wmem_packet_scope(), com_token);
 			cmd_argv_start[cmd_argc] = start + com_token_start;
 			cmd_argv_length[cmd_argc] = com_token_length;
 			cmd_argc++;
@@ -446,7 +447,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 				info_tree = proto_item_add_subtree(
 					info_item, ett_quakeworld_connectionless_connect_infostring);
 				dissect_id_infostring(tvb, info_tree, offset + Cmd_Argv_start(4),
-					ep_strdup(infostring),
+					wmem_strdup(wmem_packet_scope(), infostring),
 					ett_quakeworld_connectionless_connect_infostring_key_value,
 					hf_quakeworld_connectionless_connect_infostring_key_value,
 					hf_quakeworld_connectionless_connect_infostring_key,

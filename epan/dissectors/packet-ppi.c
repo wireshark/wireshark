@@ -55,6 +55,7 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/frequency-utils.h>
+#include <epan/wmem/wmem.h>
 
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */
 #include <wiretap/pcap-encap.h>
@@ -974,7 +975,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             while (fd_head) {
                 if (fd_head->tvb_data && fd_head->len) {
                     mpdu_count++;
-                    mpdu_str = ep_strdup_printf("MPDU #%d", mpdu_count);
+                    mpdu_str = wmem_strdup_printf(pinfo->pool, "MPDU #%d", mpdu_count);
 
                     next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
                     add_new_data_source(pinfo, next_tvb, mpdu_str);

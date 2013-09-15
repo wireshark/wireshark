@@ -47,6 +47,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 
 static int proto_openwire = -1;
@@ -603,7 +604,7 @@ detect_protocol_options(tvbuff_t *tvb, packet_info *pinfo, int offset, int iComm
                 type = tvb_get_guint8(tvb, offset + 11);
                 command_id = tvb_get_ntohl(tvb, offset + 5);
 
-                cd = se_new(openwire_conv_data);
+                cd = wmem_new(wmem_file_scope(), openwire_conv_data);
                 cd->caching = FALSE;
                 cd->tight = FALSE;
                 if (command_id > (1 << 24))
@@ -639,7 +640,7 @@ detect_protocol_options(tvbuff_t *tvb, packet_info *pinfo, int offset, int iComm
         cd = (openwire_conv_data*)conversation_get_proto_data(conv, proto_openwire);
         if (!cd)
         {
-            cd = se_new(openwire_conv_data);
+            cd = wmem_new(wmem_file_scope(), openwire_conv_data);
             cd->tight = TRUE;
             cd->caching = FALSE; /* Dummy value */
             conversation_add_proto_data(conv, proto_openwire, cd);
@@ -680,7 +681,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 {
     gint           startOffset  = offset;
     proto_item    *boolean_item = NULL;
-    emem_strbuf_t *cache_strbuf = ep_strbuf_new_label("");
+    wmem_strbuf_t *cache_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
 
     if (type == OPENWIRE_TYPE_CACHED && retrieve_caching(pinfo) == TRUE && tvb_length_remaining(tvb, offset) >= 3)
     {
@@ -689,7 +690,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         proto_item * cached_item = NULL;
         inlined = tvb_get_guint8(tvb, offset + 0) == TRUE ? TRUE : FALSE;
         cachedID = tvb_get_ntohs(tvb, offset + 1);
-        ep_strbuf_append_printf(cache_strbuf, " (CachedID: %d)", cachedID);
+        wmem_strbuf_append_printf(cache_strbuf, " (CachedID: %d)", cachedID);
         if (openwire_verbose_type)
         {
             proto_tree_add_item(tree, hf_openwire_cached_inlined, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -704,7 +705,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         {
             proto_item    *ti;
             ti = proto_tree_add_item(tree, particularize(field, hf_openwire_type_object), tvb, startOffset, 3, ENC_NA);
-            proto_item_append_text(ti, "%s", cache_strbuf->str);
+            proto_item_append_text(ti, "%s", wmem_strbuf_get_str(cache_strbuf));
             return 3;
         }
         else
@@ -895,7 +896,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         proto_item    *ti;
         ti = proto_tree_add_item(tree, particularize(field, hf_openwire_type_object), tvb, startOffset, -1, ENC_NA);
         proto_item_append_text(ti, ": %s", val_to_str_ext(type, &openwire_type_vals_ext, "Unknown (0x%02x)"));
-        proto_item_append_text(ti, "%s", cache_strbuf->str);
+        proto_item_append_text(ti, "%s", wmem_strbuf_get_str(cache_strbuf));
 
         object_tree = proto_item_add_subtree(ti, ett_openwire_type);
 

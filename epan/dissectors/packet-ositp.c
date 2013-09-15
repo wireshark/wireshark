@@ -34,7 +34,7 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-frame.h"
 #include "packet-osi.h"
 #include "packet-osi-options.h"
@@ -356,7 +356,7 @@ static gchar *print_tsap(const guchar *tsap, int length)
   gboolean allprintable;
   gint idx = 0, returned_length;
 
-  cur=(gchar *)ep_alloc(MAX_TSAP_LEN * 2 + 3);
+  cur=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_TSAP_LEN * 2 + 3);
   cur[0] = '\0';
   if (length <= 0 || length > MAX_TSAP_LEN)
     g_snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
@@ -1012,7 +1012,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         prev_dst_ref = (guint32 *)p_get_proto_data (pinfo->fd, proto_clnp, 0);
         if (!prev_dst_ref) {
           /* First COTP in frame - save previous dst_ref as offset */
-          prev_dst_ref = se_new(guint32);
+          prev_dst_ref = wmem_new(wmem_file_scope(), guint32);
           *prev_dst_ref = cotp_dst_ref;
           p_add_proto_data (pinfo->fd, proto_clnp, 0, prev_dst_ref);
         } else if (cotp_frame_reset) {

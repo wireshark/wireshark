@@ -37,7 +37,7 @@
 #include "packet-e164.h"
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include <epan/sctpppids.h>
 #include <epan/lapd_sapi.h>
@@ -2578,7 +2578,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	fragment_head *fd_head;
 	tvbuff_t *next_tvb = NULL;
 
-	q931_pi=ep_new(q931_packet_info);
+	q931_pi=wmem_new(wmem_packet_scope(), q931_packet_info);
 
 	/* Init struct for collecting q931_packet_info */
 	reset_q931_packet_info(q931_pi);

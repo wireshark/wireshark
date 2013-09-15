@@ -3635,7 +3635,7 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
     case 3:
     {
-        struct e_in6_addr *ad = ep_new0(struct e_in6_addr);
+        struct e_in6_addr *ad = wmem_new0(wmem_packet_scope(), struct e_in6_addr);
 
         tvb_memcpy(tvb, &ad->bytes[8], offset + 3, 8);
         proto_tree_add_text(field_tree, tvb, offset + 3, length - 3, "%s: %s",

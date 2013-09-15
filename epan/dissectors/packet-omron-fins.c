@@ -37,6 +37,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #define OMRON_FINS_UDP_PORT 9600
 
@@ -1122,7 +1123,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     cmd_str = try_val_to_str_idx(command_code, command_code_cv, &cmd_str_idx);
     if (cmd_str_idx == -1)
-        cmd_str = ep_strdup_printf("Unknown (%d)", command_code);
+        cmd_str = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)", command_code);
 
     /* Setup and fill in the INFO column if it's there */
     icf_flags = tvb_get_guint8(tvb, offset);

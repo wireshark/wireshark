@@ -40,7 +40,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 #include "packet-tcp.h"
 
@@ -873,10 +873,10 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 		tmpstr = (char *) tvb_get_ephemeral_string(tvb, data_offset,
 				string_length_copy);
 
-		string_buffer = (char *)memcpy(ep_alloc(string_length_copy+1), tmpstr, string_length_copy);
+		string_buffer = (char *)memcpy(wmem_alloc(wmem_packet_scope(), string_length_copy+1), tmpstr, string_length_copy);
 	} else {
 		string_buffer = (char *) tvb_memcpy(tvb,
-				ep_alloc(string_length_copy+1), data_offset, string_length_copy);
+				wmem_alloc(wmem_packet_scope(), string_length_copy+1), data_offset, string_length_copy);
 	}
 
 	string_buffer[string_length_copy] = '\0';
@@ -894,7 +894,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 				string_buffer_size = (guint16)strlen(formatted) + 12 + 1;
 
 				/* alloc maximum data area */
-				string_buffer_print = (char*) ep_alloc(string_buffer_size);
+				string_buffer_print = (char*) wmem_alloc(wmem_packet_scope(), string_buffer_size);
 				/* copy over the data */
 				g_snprintf((char *)string_buffer_print, string_buffer_size,
 						"%s<TRUNCATED>", formatted);
@@ -912,7 +912,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 		} else {
 			if (string_data) {
 				string_buffer_print =
-				    ep_strdup(format_text((guint8 *) string_buffer,
+				    wmem_strdup(wmem_packet_scope(), format_text((guint8 *) string_buffer,
 								 (int)strlen(string_buffer)));
 			} else {
 				string_buffer_print="<DATA>";
@@ -2993,10 +2993,10 @@ pvfs2_io_tracking_new_with_tag(guint64 tag, guint32 num)
 	pvfs2_io_tracking_value_t *value;
 	pvfs2_io_tracking_key_t *newkey;
 
-	newkey = se_new0(pvfs2_io_tracking_key_t);
+	newkey = wmem_new0(wmem_file_scope(), pvfs2_io_tracking_key_t);
 	newkey->tag = tag;
 
-	value = se_new0(pvfs2_io_tracking_value_t);
+	value = wmem_new0(wmem_file_scope(), pvfs2_io_tracking_value_t);
 
 	g_hash_table_insert(pvfs2_io_tracking_value_table, newkey, value);
 
