@@ -869,12 +869,18 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
       /*
        * Neither search address B nor search port B are wildcarded,
        * start out with an exact match.
-       * Exact matches check both directions.
        */
       conversation =
          conversation_lookup_hashtable(conversation_hashtable_exact,
          frame_num, addr_a, addr_b, ptype,
          port_a, port_b);
+      /* Didn't work, try the other direction */
+      if (conversation == NULL) {
+	      conversation =
+		 conversation_lookup_hashtable(conversation_hashtable_exact,
+		 frame_num, addr_b, addr_a, ptype,
+		 port_b, port_a);
+      }
       if ((conversation == NULL) && (addr_a->type == AT_FC)) {
          /* In Fibre channel, OXID & RXID are never swapped as
           * TCP/UDP ports are in TCP/IP.
