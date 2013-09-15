@@ -38,13 +38,13 @@
 
 static int proto_pn532 = -1;
 
-/* Device-specific HFs */
 static int hf_pn532_command = -1;
 static int hf_pn532_direction = -1;
 static int hf_pn532_MaxTg = -1;
 static int hf_pn532_Tg = -1;
 static int hf_pn532_NbTg = -1;
 static int hf_pn532_BrTy = -1;
+static int hf_pn532_error = -1;
 static int hf_pn532_status_nad_present = -1;
 static int hf_pn532_status_mi = -1;
 static int hf_pn532_status_error_code = -1;
@@ -57,8 +57,6 @@ static int hf_pn532_fw_support_rfu = -1;
 static int hf_pn532_fw_support_iso_018092 = -1;
 static int hf_pn532_fw_support_iso_iec_14443_type_b = -1;
 static int hf_pn532_fw_support_iso_iec_14443_type_a = -1;
-
-/* Card type-specific HFs */
 static int hf_pn532_14443a_sak = -1;
 static int hf_pn532_14443a_atqa = -1;
 static int hf_pn532_14443a_uid = -1;
@@ -69,6 +67,8 @@ static int hf_pn532_14443b_pupi = -1;
 static int hf_pn532_14443b_app_data = -1;
 static int hf_pn532_14443b_proto_info = -1;
 static int hf_pn532_sam_mode = -1;
+static int hf_pn532_sam_timeout = -1;
+static int hf_pn532_sam_irq = -1;
 static int hf_pn532_config = -1;
 static int hf_pn532_config_not_used = -1;
 static int hf_pn532_config_auto_rfca = -1;
@@ -134,6 +134,69 @@ static int hf_pn532_txmode_nu_7 = -1;
 static int hf_pn532_txmode_tx_speed = -1;
 static int hf_pn532_txmode_nu_2_3 = -1;
 static int hf_pn532_txmode_tx_framing = -1;
+static int hf_pn532_baudrate = -1;
+static int hf_pn532_flags = -1;
+static int hf_pn532_flags_rfu_7 = -1;
+static int hf_pn532_flags_remove_preamble_and_postamble = -1;
+static int hf_pn532_flags_iso_14443_4_picc_emulation = -1;
+static int hf_pn532_flags_automatic_rats = -1;
+static int hf_pn532_flags_rfu_3 = -1;
+static int hf_pn532_flags_automatic_atr_res = -1;
+static int hf_pn532_flags_did_used = -1;
+static int hf_pn532_flags_nad_used = -1;
+static int hf_pn532_target = -1;
+static int hf_pn532_wakeup_enable = -1;
+static int hf_pn532_generate_irq = -1;
+static int hf_pn532_register_address = -1;
+static int hf_pn532_register_value = -1;
+static int hf_pn532_field = -1;
+static int hf_pn532_brrx = -1;
+static int hf_pn532_brtx = -1;
+static int hf_pn532_type = -1;
+static int hf_pn532_sam_status = -1;
+static int hf_pn532_wakeup_enable_i2c = -1;
+static int hf_pn532_wakeup_enable_gpio = -1;
+static int hf_pn532_wakeup_enable_spi = -1;
+static int hf_pn532_wakeup_enable_hsu = -1;
+static int hf_pn532_wakeup_enable_rf_level_detector = -1;
+static int hf_pn532_wakeup_enable_rfu_2 = -1;
+static int hf_pn532_wakeup_enable_int_1 = -1;
+static int hf_pn532_wakeup_enable_int_0 = -1;
+static int hf_pn532_gpio_ioi1 = -1;
+static int hf_pn532_gpio_p3 = -1;
+static int hf_pn532_gpio_p7 = -1;
+static int hf_pn532_poll_number = -1;
+static int hf_pn532_period = -1;
+static int hf_pn532_autopoll_type = -1;
+static int hf_pn532_autopoll_type_act = -1;
+static int hf_pn532_autopoll_type_dep = -1;
+static int hf_pn532_autopoll_type_tcl = -1;
+static int hf_pn532_autopoll_type_mf_fe = -1;
+static int hf_pn532_autopoll_type_not_used = -1;
+static int hf_pn532_autopoll_type_baudrate_and_modulation = -1;
+static int hf_pn532_target_data = -1;
+static int hf_pn532_target_data_length = -1;
+static int hf_pn532_nfc_id_3i = -1;
+static int hf_pn532_gi = -1;
+static int hf_pn532_next_not_used_2_7 = -1;
+static int hf_pn532_next_gi = -1;
+static int hf_pn532_next_nfc_id_3i = -1;
+static int hf_pn532_nfc_id_3t = -1;
+static int hf_pn532_activation_baudrate = -1;
+static int hf_pn532_communication_mode = -1;
+static int hf_pn532_jump_next_not_used_3_7 = -1;
+static int hf_pn532_jump_next_passive_initiator_data = -1;
+static int hf_pn532_jump_next_gi = -1;
+static int hf_pn532_jump_next_nfc_id_3i = -1;
+static int hf_pn532_passive_initiator_data = -1;
+static int hf_pn532_did_target = -1;
+static int hf_pn532_send_bit_rate_target = -1;
+static int hf_pn532_receive_bit_rate_target = -1;
+static int hf_pn532_timeout = -1;
+static int hf_pn532_optional_parameters = -1;
+static int hf_pn532_test_number = -1;
+static int hf_pn532_parameters = -1;
+static int hf_pn532_parameters_length = -1;
 
 static expert_field ei_unknown_data = EI_INIT;
 static expert_field ei_unexpected_data = EI_INIT;
@@ -230,12 +293,16 @@ static dissector_table_t pn532_dissector_table;
 
 /* Subtree handles: set by register_subtree_array */
 static gint ett_pn532 = -1;
+static gint ett_pn532_flags = -1;
+static gint ett_pn532_target = -1;
 static gint ett_pn532_fw_support = -1;
 static gint ett_pn532_config_212_kbps = -1;
 static gint ett_pn532_config_424_kbps = -1;
 static gint ett_pn532_config_848_kbps = -1;
 static gint ett_pn532_mifare_parameters = -1;
 static gint ett_pn532_felica_parameters = -1;
+static gint ett_pn532_wakeup_enable = -1;
+static gint ett_pn532_autopoll_type = -1;
 
 /* Re-arranged from defs above to be in ascending order by value */
 static const value_string pn532_commands[] = {
@@ -441,6 +508,54 @@ static const value_string pn532_txframing_vals[] = {
     {0x00, NULL}
 };
 
+static const value_string pn532_baudrate_vals[] = {
+    {0x00,  "9.6 kbaud"},
+    {0x01,  "19.2 kbaud"},
+    {0x02,  "38.4 kbaud"},
+    {0x03,  "57.6 kbaud"},
+    {0x04,  "115.2 kbaud"},
+    {0x05,  "230.4 kbaud"},
+    {0x06,  "460.8 kbaud"},
+    {0x07,  "921.6 kbaud"},
+    {0x08,  "1.288 Mbaud"},
+    {0x00, NULL}
+};
+
+static void sam_timeout_base(gchar* buf, guint32 value) {
+    if (value == 0x00) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "No timeout control");
+    } else if (0x01 <= value && value <= 0x13) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", value * 50);
+    } else {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%03u s", value * 50 / 1000, value * 50 % 1000);
+    }
+}
+
+static const value_string pn532_type_vals[] = {
+    {0x00,  "Mifare, ISO/IEC14443-3 Type A, ISO/IEC14443-3 Type B, ISO/IEC18092 passive 106 kbps"},
+    {0x01,  "ISO/IEC18092 Active Mode"},
+    {0x02,  "Innovision Jewel Tag"},
+    {0x10,  "FeliCa, ISO/IEC18092 passive 212/424 kbps"},
+    {0x00, NULL}
+};
+
+static const value_string pn532_communication_mode_vals[] = {
+    {0x00,  "Passive Mode"},
+    {0x01,  "Active Mode"},
+    {0x00, NULL}
+};
+
+static const value_string pn532_test_number_vals[] = {
+    {0x00,  "Communication Line Test"},
+    {0x01,  "ROM Test"},
+    {0x02,  "RAM Test"},
+    {0x04,  "Polling Test to Target"},
+    {0x05,  "Echo Back Test"},
+    {0x06,  "Attention Request Test or ISO/IEC14443-4 card presence detection"},
+    {0x07,  "Self Antenna Test"},
+    {0x00, NULL}
+};
+
 static gint
 dissect_status(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
@@ -458,10 +573,15 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *pn532_tree;
     proto_item *sub_item;
     proto_tree *sub_tree;
+    proto_item *next_item;
+    proto_tree *next_tree;
     guint8      cmd;
     guint8      config;
     guint8      baudrate;
     guint8      length;
+    guint8      value;
+    guint8      type;
+    guint8      item_value;
     tvbuff_t   *next_tvb;
     gint        offset = 0;
 
@@ -482,11 +602,27 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (cmd) {
 
     case DIAGNOSE_REQ:
-/* TODO */
+        proto_tree_add_item(pn532_tree, hf_pn532_test_number,  tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_parameters_length,  tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+/* TODO: "parameters" can be decoded using "test_number" value */
+        proto_tree_add_item(pn532_tree, hf_pn532_parameters,  tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
+        offset += tvb_length_remaining(tvb, offset);
         break;
 
     case DIAGNOSE_RSP:
-/* TODO */
+/* TODO: There is no info for which TestNumber payload is here; but this
+           can be done be storing additional data from DIAGNOSE_REQ in wmem_tree */
+        if (tvb_length_remaining(tvb, offset) >= 1) {
+            proto_tree_add_item(pn532_tree, hf_pn532_parameters_length,  tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(pn532_tree, hf_pn532_parameters,  tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
+            offset += tvb_length_remaining(tvb, offset);
+        }
         break;
 
     case GET_FIRMWARE_VERSION_REQ:
@@ -517,23 +653,66 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case GET_GENERAL_STATUS_RSP:
-/* TODO */
+        proto_tree_add_item(pn532_tree, hf_pn532_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_field, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, offset, 1, ENC_BIG_ENDIAN);
+        value = tvb_get_guint8(tvb, offset);
+        item_value = value;
+        offset += 1;
+
+        for (item_value = 1; item_value <= value; item_value += 1) {
+            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_target,  tvb, offset, 4, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_pn532_target);
+            proto_item_append_text(sub_item, " %u/%u", item_value, value);
+
+            proto_tree_add_item(sub_tree, hf_pn532_Tg, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_pn532_brrx, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_pn532_brtx, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_pn532_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        }
+
+        proto_tree_add_item(pn532_tree, hf_pn532_sam_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
         break;
 
     case READ_REGISTER_REQ:
-/* TODO */
+        while (tvb_length_remaining(tvb, offset) >= 2) {
+            proto_tree_add_item(pn532_tree, hf_pn532_register_address, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
         break;
 
     case READ_REGISTER_RSP:
-/* TODO */
+        while (tvb_length_remaining(tvb, offset) >= 1) {
+            proto_tree_add_item(pn532_tree, hf_pn532_register_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        }
         break;
 
     case WRITE_REGISTER_REQ:
-        /* No parameters */
+        while (tvb_length_remaining(tvb, offset) >= 3) {
+            proto_tree_add_item(pn532_tree, hf_pn532_register_address, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(pn532_tree, hf_pn532_register_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        }
         break;
 
     case WRITE_REGISTER_RSP:
-/* TODO */
+        /* No parameters */
         break;
 
     case READ_GPIO_REQ:
@@ -541,11 +720,22 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case READ_GPIO_RSP:
-/* TODO */
+        proto_tree_add_item(pn532_tree, hf_pn532_gpio_p3, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_gpio_p7, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_gpio_ioi1, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
         break;
 
     case WRITE_GPIO_REQ:
-/* TODO */
+        proto_tree_add_item(pn532_tree, hf_pn532_gpio_p3, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_gpio_p7, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
         break;
 
     case WRITE_GPIO_RSP:
@@ -553,7 +743,8 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case SET_SERIAL_BAUD_RATE_REQ:
-/* TODO */
+        proto_tree_add_item(pn532_tree, hf_pn532_baudrate, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
         break;
 
     case SET_SERIAL_BAUD_RATE_RSP:
@@ -561,7 +752,18 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case SET_PARAMETERS_REQ:
-/* TODO */
+        sub_item = proto_tree_add_item(pn532_tree, hf_pn532_flags,  tvb, offset, 1, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn532_flags);
+
+        proto_tree_add_item(sub_tree, hf_pn532_flags_rfu_7, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_flags_remove_preamble_and_postamble, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_flags_iso_14443_4_picc_emulation, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_flags_automatic_rats, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_flags_rfu_3, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_flags_automatic_atr_res, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_flags_did_used, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_flags_nad_used, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
         break;
 
     case SET_PARAMETERS_RSP:
@@ -572,8 +774,13 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(pn532_tree, hf_pn532_sam_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-/* TODO Timeout */
-/* TODO IRQ */
+        proto_tree_add_item(pn532_tree, hf_pn532_sam_timeout, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        if (tvb_length_remaining(tvb, offset) >= 1) {
+            proto_tree_add_item(pn532_tree, hf_pn532_sam_irq, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        }
         break;
 
     case SAM_CONFIGURATION_RSP:
@@ -581,7 +788,23 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case POWER_DOWN_REQ:
-/* TODO */
+        sub_item = proto_tree_add_item(pn532_tree, hf_pn532_wakeup_enable,  tvb, offset, 1, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn532_wakeup_enable);
+
+        proto_tree_add_item(sub_tree, hf_pn532_wakeup_enable_i2c, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_wakeup_enable_gpio, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_wakeup_enable_spi, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_wakeup_enable_hsu, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_wakeup_enable_rf_level_detector, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_wakeup_enable_rfu_2, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_wakeup_enable_int_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_wakeup_enable_int_0, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        if (tvb_length_remaining(tvb, offset) >= 1) {
+            proto_tree_add_item(pn532_tree, hf_pn532_generate_irq, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        }
         break;
 
     case POWER_DOWN_RSP:
@@ -731,23 +954,69 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case IN_JUMP_FOR_DEP_REQ:
-/* TODO */
+    case IN_JUMP_FOR_PSL_REQ:
+        proto_tree_add_item(pn532_tree, hf_pn532_communication_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_activation_baudrate, tvb, offset, 1, ENC_BIG_ENDIAN);
+        baudrate = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_jump_next_not_used_3_7, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pn532_tree, hf_pn532_jump_next_passive_initiator_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pn532_tree, hf_pn532_jump_next_gi, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pn532_tree, hf_pn532_jump_next_nfc_id_3i, tvb, offset, 1, ENC_BIG_ENDIAN);
+        value = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (value & 0x01) {
+            if (baudrate == 0x00) {
+                proto_tree_add_item(pn532_tree, hf_pn532_passive_initiator_data, tvb, offset, 4, ENC_NA);
+                offset += 4;
+            } else {
+                proto_tree_add_item(pn532_tree, hf_pn532_passive_initiator_data, tvb, offset, 5, ENC_NA);
+                offset += 5;
+            }
+        }
+
+        if (value & 0x02) {
+            proto_tree_add_item(pn532_tree, hf_pn532_nfc_id_3i, tvb, offset, 10, ENC_NA);
+            offset += 10;
+        }
+
+        if (value & 0x04) {
+            proto_tree_add_item(pn532_tree, hf_pn532_gi, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
+            offset += tvb_length_remaining(tvb, offset);
+        }
         break;
 
     case IN_JUMP_FOR_DEP_RSP:
-        offset = dissect_status(pn532_tree, tvb, offset);
-
-/* TODO */
-        break;
-
-    case IN_JUMP_FOR_PSL_REQ:
-/* TODO */
-        break;
-
     case IN_JUMP_FOR_PSL_RSP:
         offset = dissect_status(pn532_tree, tvb, offset);
 
-/* TODO */
+        proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_nfc_id_3t, tvb, offset, 10, ENC_NA);
+        offset += 10;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_did_target, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_send_bit_rate_target, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_receive_bit_rate_target, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_timeout, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_optional_parameters, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_gt, tvb, offset, 10, ENC_NA);
+        offset += 10;
         break;
 
     case IN_LIST_PASSIVE_TARGET_REQ:
@@ -790,78 +1059,47 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case IN_LIST_PASSIVE_TARGET_RSP:
         proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, offset, 1, ENC_BIG_ENDIAN);
+        value = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-/* TODO for + storing infos in tree */
+/* TODO: implement in accordance with the specification,
+         need storing additional information ("baudrate" from request) in wmem_tree */
+        for (item_value = 1; item_value <= value; item_value += 1) {
+            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_target,  tvb, offset, 0, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_pn532_target);
+            proto_item_append_text(sub_item, " %u/%u", item_value, value);
 
-        /* Probably an ISO/IEC 14443-B tag */
-        if (tvb_reported_length(tvb) == 18) {
 
-            /* Add the PUPI */
-            proto_tree_add_item(pn532_tree, hf_pn532_14443b_pupi, tvb, 5, 4, ENC_BIG_ENDIAN);
 
-            /* Add the Application Data */
-            proto_tree_add_item(pn532_tree, hf_pn532_14443b_app_data, tvb, 9, 4, ENC_BIG_ENDIAN);
+            /* Probably an ISO/IEC 14443-B tag */
+            if (tvb_reported_length(tvb) == 18) {
 
-            /* Add the Protocol Info */
-            proto_tree_add_item(pn532_tree, hf_pn532_14443b_proto_info, tvb, 13, 3, ENC_BIG_ENDIAN);
-        }
+                /* Add the PUPI */
+                proto_tree_add_item(pn532_tree, hf_pn532_14443b_pupi, tvb, 5, 4, ENC_BIG_ENDIAN);
 
-        /* InnoVision Jewel/Topaz (ISO 14443-A/proprietary) */
-        if (tvb_reported_length(tvb) == 10) {
+                /* Add the Application Data */
+                proto_tree_add_item(pn532_tree, hf_pn532_14443b_app_data, tvb, 9, 4, ENC_BIG_ENDIAN);
 
-            /* Add the ATQA/SENS_RES (0x0C00)*/
-            proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
-
-            /* Add the UID (4 bytes) */
-            proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 6, 4, ENC_BIG_ENDIAN);
-        }
-
-        /* Probably one of:
-         * a MiFare DESFire card (21 bytes),
-         * an MF UltraLight tag (15 bytes)
-         * an MF Classic card with a 4 byte UID (12 bytes) */
-
-        if ((tvb_reported_length(tvb) == 21) || (tvb_reported_length(tvb) == 15) || (tvb_reported_length(tvb) == 12)) {
-
-            /* Add the ATQA/SENS_RES */
-            proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
-
-            /* Add the SAK/SEL_RES value */
-            proto_tree_add_item(pn532_tree, hf_pn532_14443a_sak, tvb, 6, 1, ENC_BIG_ENDIAN);
-
-            /* Add the UID length */
-            proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid_length, tvb, 7, 1, ENC_BIG_ENDIAN);
-
-            /* Add the UID */
-            if (tvb_reported_length(tvb) != 12) {
-                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 7, ENC_BIG_ENDIAN);
-
-                /* Probably MiFare DESFire, or some other 14443-A card with an ATS value/7 byte UID */
-                if (tvb_reported_length(tvb) == 21) {
-
-                    /* Add the ATS value */
-                    proto_tree_add_item(pn532_tree, hf_pn532_14443a_ats, tvb, 16, 5, ENC_BIG_ENDIAN);
-                }
-            }
-            /* Probably MiFare Classic with a 4 byte UID */
-            else {
-                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
+                /* Add the Protocol Info */
+                proto_tree_add_item(pn532_tree, hf_pn532_14443b_proto_info, tvb, 13, 3, ENC_BIG_ENDIAN);
             }
 
-        }
+            /* InnoVision Jewel/Topaz (ISO 14443-A/proprietary) */
+            if (tvb_reported_length(tvb) == 10) {
 
-        /* Probably an EMV/ISO 14443-A (VISA - 28 bytes payload/MC - 31 bytes payload)
-                 card with a 4 byte UID
+                /* Add the ATQA/SENS_RES (0x0C00)*/
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
 
-           MTCOS-based contactless passports also have a 4 byte (randomised) UID (26 bytes payload)
-        */
+                /* Add the UID (4 bytes) */
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 6, 4, ENC_BIG_ENDIAN);
+            }
 
-        if (tvb_reported_length(tvb) == 26 || tvb_reported_length(tvb) == 28 || tvb_reported_length(tvb) == 31) {
+            /* Probably one of:
+            * a MiFare DESFire card (21 bytes),
+            * an MF UltraLight tag (15 bytes)
+            * an MF Classic card with a 4 byte UID (12 bytes) */
 
-        /* Check to see if there's a plausible ATQA value (0x0004 for my MC/VISA cards, and 0x0008 for MTCOS) */
-
-            if (tvb_get_ntohs(tvb, 4) == 0x0004 || tvb_get_ntohs(tvb, 4) == 0x08) {
+            if ((tvb_reported_length(tvb) == 21) || (tvb_reported_length(tvb) == 15) || (tvb_reported_length(tvb) == 12)) {
 
                 /* Add the ATQA/SENS_RES */
                 proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
@@ -873,27 +1111,67 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid_length, tvb, 7, 1, ENC_BIG_ENDIAN);
 
                 /* Add the UID */
-                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
+                if (tvb_reported_length(tvb) != 12) {
+                    proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 7, ENC_BIG_ENDIAN);
 
-                /* Dissect the ATS length for certainty... */
-                proto_tree_add_item(pn532_tree, hf_pn532_14443a_ats_length, tvb, 12, 1, ENC_BIG_ENDIAN);
+                    /* Probably MiFare DESFire, or some other 14443-A card with an ATS value/7 byte UID */
+                    if (tvb_reported_length(tvb) == 21) {
 
-                /* Pass the ATS value to the Data dissector, since it's too long to handle normally
-                    Don't care about the "status word" at the end, right now */
-                next_tvb = tvb_new_subset_remaining(tvb, 13);
-                call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+                        /* Add the ATS value */
+                        proto_tree_add_item(pn532_tree, hf_pn532_14443a_ats, tvb, 16, 5, ENC_BIG_ENDIAN);
+                    }
+                }
+                /* Probably MiFare Classic with a 4 byte UID */
+                else {
+                    proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
+                }
+
             }
-        }
 
-        /* See if we've got a FeliCa payload with a System Code */
-        if (tvb_reported_length(tvb) == 24) {
+            /* Probably an EMV/ISO 14443-A (VISA - 28 bytes payload/MC - 31 bytes payload)
+                    card with a 4 byte UID
 
-            /* For FeliCa, this is at position 4. This doesn't exist for other payload types. */
-            proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 4, 1, ENC_BIG_ENDIAN);
+            MTCOS-based contactless passports also have a 4 byte (randomised) UID (26 bytes payload)
+            */
 
-            /* Use the length value (20?) at position 4, and skip the Status Word (9000) at the end */
-            next_tvb = tvb_new_subset(tvb, 5, tvb_get_guint8(tvb, 4) - 1, 19);
-            call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
+            if (tvb_reported_length(tvb) == 26 || tvb_reported_length(tvb) == 28 || tvb_reported_length(tvb) == 31) {
+
+            /* Check to see if there's a plausible ATQA value (0x0004 for my MC/VISA cards, and 0x0008 for MTCOS) */
+
+                if (tvb_get_ntohs(tvb, 4) == 0x0004 || tvb_get_ntohs(tvb, 4) == 0x08) {
+
+                    /* Add the ATQA/SENS_RES */
+                    proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
+
+                    /* Add the SAK/SEL_RES value */
+                    proto_tree_add_item(pn532_tree, hf_pn532_14443a_sak, tvb, 6, 1, ENC_BIG_ENDIAN);
+
+                    /* Add the UID length */
+                    proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid_length, tvb, 7, 1, ENC_BIG_ENDIAN);
+
+                    /* Add the UID */
+                    proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
+
+                    /* Dissect the ATS length for certainty... */
+                    proto_tree_add_item(pn532_tree, hf_pn532_14443a_ats_length, tvb, 12, 1, ENC_BIG_ENDIAN);
+
+                    /* Pass the ATS value to the Data dissector, since it's too long to handle normally
+                        Don't care about the "status word" at the end, right now */
+                    next_tvb = tvb_new_subset_remaining(tvb, 13);
+                    call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+                }
+            }
+
+            /* See if we've got a FeliCa payload with a System Code */
+            if (tvb_reported_length(tvb) == 24) {
+
+                /* For FeliCa, this is at position 4. This doesn't exist for other payload types. */
+                proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 4, 1, ENC_BIG_ENDIAN);
+
+                /* Use the length value (20?) at position 4, and skip the Status Word (9000) at the end */
+                next_tvb = tvb_new_subset(tvb, 5, tvb_get_guint8(tvb, 4) - 1, 19);
+                call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
+            }
         }
 
         break;
@@ -902,13 +1180,46 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-/* TODO */
+        proto_tree_add_item(pn532_tree, hf_pn532_next_not_used_2_7, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pn532_tree, hf_pn532_next_gi, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pn532_tree, hf_pn532_next_nfc_id_3i, tvb, offset, 1, ENC_BIG_ENDIAN);
+        value = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (value & 0x01) {
+            proto_tree_add_item(pn532_tree, hf_pn532_nfc_id_3i, tvb, offset, 10, ENC_NA);
+            offset += 10;
+        }
+
+        if (value & 0x02) {
+            proto_tree_add_item(pn532_tree, hf_pn532_gi, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
+            offset += tvb_length_remaining(tvb, offset);
+        }
         break;
 
     case IN_ATR_RSP:
         offset = dissect_status(pn532_tree, tvb, offset);
 
-/* TODO */
+        proto_tree_add_item(pn532_tree, hf_pn532_nfc_id_3t, tvb, offset, 10, ENC_NA);
+        offset += 10;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_did_target, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_send_bit_rate_target, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_receive_bit_rate_target, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_timeout, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_optional_parameters, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_gt, tvb, offset, 10, ENC_NA);
+        offset += 10;
         break;
 
     case IN_PSL_REQ:
@@ -1021,11 +1332,96 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case IN_AUTO_POLL_REQ:
-/* TODO */
+        proto_tree_add_item(pn532_tree, hf_pn532_poll_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(pn532_tree, hf_pn532_period, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        /* This one is mandatory */
+        sub_item = proto_tree_add_item(pn532_tree, hf_pn532_autopoll_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn532_autopoll_type);
+        proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_act, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_dep, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_tcl, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_mf_fe, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_not_used, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_baudrate_and_modulation, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        while (tvb_length_remaining(tvb, offset) >= 1) {
+            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_autopoll_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            sub_tree = proto_item_add_subtree(sub_item, ett_pn532_autopoll_type);
+            proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_act, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_dep, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_tcl, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_mf_fe, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_not_used, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_pn532_autopoll_type_baudrate_and_modulation, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        }
+
         break;
 
     case IN_AUTO_POLL_RSP:
-/* TODO */
+        proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, offset, 1, ENC_BIG_ENDIAN);
+        value = tvb_get_guint8(tvb, offset);
+        item_value = value;
+        offset += 1;
+
+        for (item_value = 1; item_value <= value; item_value += 1) {
+            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_target,  tvb, offset, 4, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_pn532_target);
+            proto_item_append_text(sub_item, " %u/%u", item_value, value);
+
+            next_item = proto_tree_add_item(sub_tree, hf_pn532_autopoll_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            next_tree = proto_item_add_subtree(next_item, ett_pn532_autopoll_type);
+            proto_tree_add_item(next_tree, hf_pn532_autopoll_type_act, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(next_tree, hf_pn532_autopoll_type_dep, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(next_tree, hf_pn532_autopoll_type_tcl, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(next_tree, hf_pn532_autopoll_type_mf_fe, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(next_tree, hf_pn532_autopoll_type_not_used, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(next_tree, hf_pn532_autopoll_type_baudrate_and_modulation, tvb, offset, 1, ENC_BIG_ENDIAN);
+            type = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_pn532_target_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+            length = tvb_get_guint8(tvb, offset);
+            proto_item_set_len(sub_item, length + 4);
+            offset += 1;
+
+            if (type & 0x40) { /* DEP */
+                if (type & 0x80) { /* Passive mode */
+                    proto_tree_add_item(pn532_tree, hf_pn532_target_data, tvb, offset, length, ENC_NA);
+                    offset += length;
+                }
+
+                proto_tree_add_item(pn532_tree, hf_pn532_nfc_id_3t, tvb, offset, 10, ENC_NA);
+                offset += 10;
+
+                proto_tree_add_item(pn532_tree, hf_pn532_did_target, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                proto_tree_add_item(pn532_tree, hf_pn532_send_bit_rate_target, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                proto_tree_add_item(pn532_tree, hf_pn532_receive_bit_rate_target, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                proto_tree_add_item(pn532_tree, hf_pn532_timeout, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                proto_tree_add_item(pn532_tree, hf_pn532_optional_parameters, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                proto_tree_add_item(pn532_tree, hf_pn532_gt, tvb, offset, 10, ENC_NA);
+                offset += 10;
+            } else { /* non-DEP */
+                proto_tree_add_item(pn532_tree, hf_pn532_target_data, tvb, offset, length, ENC_NA);
+                offset += length;
+            }
+        }
+
         break;
 
     case TG_INIT_AS_TARGET_REQ:
@@ -1192,6 +1588,9 @@ void proto_register_pn532(void)
         {&hf_pn532_status_error_code,
          {"Error Code", "pn532.status.error_code", FT_UINT8, BASE_HEX,
           VALS(pn532_errors), 0x3F, NULL, HFILL}},
+        {&hf_pn532_error,
+         {"Last Error", "pn532.last_error", FT_UINT8, BASE_HEX,
+          VALS(pn532_errors), 0x00, NULL, HFILL}},
         {&hf_pn532_BrTy,
          {"Baud Rate and Modulation", "pn532.BrTy", FT_UINT8, BASE_HEX,
           VALS(pn532_brtypes), 0x0, NULL, HFILL}},
@@ -1261,6 +1660,12 @@ void proto_register_pn532(void)
         {&hf_pn532_sam_mode,
          {"SAM Mode", "pn532.sam.mode", FT_UINT8, BASE_HEX,
           VALS(pn532_sam_modes), 0x0, NULL, HFILL}},
+        {&hf_pn532_sam_timeout,
+         {"SAM Timeout", "pn532.sam.timeout", FT_UINT8, BASE_CUSTOM,
+          sam_timeout_base, 0x0, NULL, HFILL}},
+        {&hf_pn532_sam_irq,
+         {"SAM IRQ", "pn532.sam.irq", FT_UINT8, BASE_HEX,
+          NULL, 0x0, NULL, HFILL}},
         {&hf_pn532_config,
          {"Config Item", "pn532.config", FT_UINT8, BASE_HEX,
           VALS(pn532_config_vals), 0x0, NULL, HFILL}},
@@ -1372,6 +1777,9 @@ void proto_register_pn532(void)
         {&hf_pn532_gt,
          {"Gt", "pn532.gt", FT_BYTES, BASE_NONE,
           NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_gi,
+         {"Gi", "pn532.gi", FT_BYTES, BASE_NONE,
+          NULL, 0x00, NULL, HFILL}},
         {&hf_pn532_mode_nu_3_7,
          {"Not Used", "pn532.mode.not_used.3_7", FT_UINT8, BASE_HEX,
           NULL, 0xF8, NULL, HFILL}},
@@ -1448,14 +1856,200 @@ void proto_register_pn532(void)
          {"Not Used", "pn532.txmode.not_used.7", FT_BOOLEAN, 8,
           NULL, 0x80, NULL, HFILL}},
         {&hf_pn532_txmode_tx_speed,
-         {"TX speed", "pn532.txmode.txspeed", FT_UINT8, BASE_HEX,
+         {"Tx Speed", "pn532.txmode.txspeed", FT_UINT8, BASE_HEX,
           VALS(pn532_txspeed_vals), 0x70, NULL, HFILL}},
         {&hf_pn532_txmode_nu_2_3,
          {"Not Used", "pn532.txmode.not_used.2_3", FT_UINT8, BASE_HEX,
           NULL, 0xC0, NULL, HFILL}},
         {&hf_pn532_txmode_tx_framing,
-         {"TX mode", "pn532.txmode.framing", FT_UINT8, BASE_HEX,
+         {"Tx Framing", "pn532.txmode.not_used.2_3", FT_UINT8, BASE_HEX,
           VALS(pn532_txframing_vals), 0x03, NULL, HFILL}},
+        {&hf_pn532_baudrate,
+         {"Baudrate", "pn532.baudrate", FT_UINT8, BASE_HEX,
+          VALS(pn532_baudrate_vals), 0x00, NULL, HFILL}},
+        {&hf_pn532_flags,
+         {"Flags", "pn532.flags", FT_UINT8, BASE_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_flags_rfu_7,
+         {"RFU", "pn532.flags.rfu.7", FT_BOOLEAN, 8,
+          NULL, 0x80, NULL, HFILL}},
+        {&hf_pn532_flags_remove_preamble_and_postamble,
+         {"Remove Preamble and Postamble", "pn532.flags.remove_preamble_and_postamble", FT_BOOLEAN, 8,
+          NULL, 0x40, NULL, HFILL}},
+        {&hf_pn532_flags_iso_14443_4_picc_emulation,
+         {"ISO 14443-4 PICC Emulation", "pn532.flags.iso_14443_4_picc_emulation", FT_BOOLEAN, 8,
+          NULL, 0x20, NULL, HFILL}},
+        {&hf_pn532_flags_automatic_rats,
+         {"Automatic RATS", "pn532.flags.automatic_rats", FT_BOOLEAN, 8,
+          NULL, 0x10, NULL, HFILL}},
+        {&hf_pn532_flags_rfu_3,
+         {"RFU", "pn532.flags.rfu.3", FT_BOOLEAN, 8,
+          NULL, 0x08, NULL, HFILL}},
+        {&hf_pn532_flags_automatic_atr_res,
+         {"Automatic ATR RES", "pn532.flags.automatic_atr_res", FT_BOOLEAN, 8,
+          NULL, 0x04, NULL, HFILL}},
+        {&hf_pn532_flags_did_used,
+         {"DID Used", "pn532.flags.did_used", FT_BOOLEAN, 8,
+          NULL, 0x02, NULL, HFILL}},
+        {&hf_pn532_flags_nad_used,
+         {"NAD Used", "pn532.flags.nad_used", FT_BOOLEAN, 8,
+          NULL, 0x01, NULL, HFILL}},
+        {&hf_pn532_wakeup_enable,
+         {"Wakeup Enable", "pn532.wakeup_enable", FT_UINT8, BASE_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_target,
+         {"Target", "pn532.target", FT_NONE, BASE_NONE,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_generate_irq,
+         {"Generate IRQ", "pn532.generate_irq", FT_UINT8, BASE_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_register_address,
+         {"Register Address", "pn532.register.address", FT_UINT16, BASE_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_register_value,
+         {"Register Value", "pn532.register.value", FT_UINT8, BASE_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_field,
+         {"Field", "pn532.register.value", FT_BOOLEAN, BASE_NONE,
+          &tfs_present_not_present, 0x00, "Field indicates if an external RF field is present and detected by the PN532", HFILL}},
+        {&hf_pn532_brrx,
+         {"Baudrate Rx", "pn532.brrx", FT_UINT8, BASE_HEX,
+          VALS(pn532_speed_vals), 0x00, NULL, HFILL}},
+        {&hf_pn532_brtx,
+         {"Baudrate Tx", "pn532.brtx", FT_UINT8, BASE_HEX,
+          VALS(pn532_speed_vals), 0x00, NULL, HFILL}},
+        {&hf_pn532_type,
+         {"Type", "pn532.type", FT_UINT8, BASE_HEX,
+          VALS(pn532_type_vals), 0x00, NULL, HFILL}},
+        {&hf_pn532_sam_status,
+         {"SAM Status", "pn532.sam.status", FT_UINT8, BASE_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_wakeup_enable_i2c,
+         {"I2C", "pn532.wakeup_enable.i2c", FT_BOOLEAN, 8,
+          NULL, 0x80, NULL, HFILL}},
+        {&hf_pn532_wakeup_enable_gpio,
+         {"GPIO", "pn532.wakeup_enable.gpio", FT_BOOLEAN, 8,
+          NULL, 0x40, NULL, HFILL}},
+        {&hf_pn532_wakeup_enable_spi,
+         {"SPI", "pn532.wakeup_enable.spi", FT_BOOLEAN, 8,
+          NULL, 0x20, NULL, HFILL}},
+        {&hf_pn532_wakeup_enable_hsu,
+         {"HSU", "pn532.wakeup_enable.hsu", FT_BOOLEAN, 8,
+          NULL, 0x10, NULL, HFILL}},
+        {&hf_pn532_wakeup_enable_rf_level_detector,
+         {"RF Level Detector", "pn532.wakeup_enable.rf_level_detector", FT_BOOLEAN, 8,
+          NULL, 0x08, NULL, HFILL}},
+        {&hf_pn532_wakeup_enable_rfu_2,
+         {"RFU", "pn532.wakeup_enable.rfu_2", FT_BOOLEAN, 8,
+          NULL, 0x04, NULL, HFILL}},
+        {&hf_pn532_wakeup_enable_int_1,
+         {"I2C", "pn532.wakeup_enable.int.1", FT_BOOLEAN, 8,
+          NULL, 0x02, NULL, HFILL}},
+        {&hf_pn532_wakeup_enable_int_0,
+         {"I2C", "pn532.wakeup_enable.int.0", FT_BOOLEAN, 8,
+          NULL, 0x01, NULL, HFILL}},
+        {&hf_pn532_gpio_ioi1,
+         {"GPIO IOI1", "pn532.gpio.ioi1", FT_UINT8, BASE_HEX,
+          NULL, 0xFF, NULL, HFILL}},
+        {&hf_pn532_gpio_p3,
+         {"GPIO P3", "pn532.gpio.p3", FT_UINT8, BASE_HEX,
+          NULL, 0xFF, NULL, HFILL}},
+        {&hf_pn532_gpio_p7,
+         {"GPIO P7", "pn532.gpio.p7", FT_UINT8, BASE_HEX,
+          NULL, 0xFF, NULL, HFILL}},
+        {&hf_pn532_poll_number,
+         {"Poll Number", "pn532.poll_number", FT_UINT8, BASE_DEC,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_period,
+         {"Period", "pn532.period", FT_UINT8, BASE_DEC,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_autopoll_type,
+         {"Type", "pn532.autopoll_type", FT_UINT8, BASE_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_target_data,
+         {"Target Data", "pn532.target_data", FT_BYTES, BASE_NONE,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_target_data_length,
+         {"Target Data Length", "pn532.target_data.length", FT_UINT8, BASE_DEC,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_autopoll_type_act,
+         {"Active Mode", "pn532.autopoll_type.active", FT_BOOLEAN, 8,
+          NULL, 0x80, NULL, HFILL}},
+        {&hf_pn532_autopoll_type_dep,
+         {"DEP", "pn532.autopoll_type.dep", FT_BOOLEAN, 8,
+          NULL, 0x40, NULL, HFILL}},
+        {&hf_pn532_autopoll_type_tcl,
+         {"TCL", "pn532.autopoll_type.tcl", FT_BOOLEAN, 8,
+          NULL, 0x20, NULL, HFILL}},
+        {&hf_pn532_autopoll_type_mf_fe,
+         {"Mf_Fe", "pn532.autopoll_type.mf_fe", FT_BOOLEAN, 8,
+          NULL, 0x10, NULL, HFILL}},
+        {&hf_pn532_autopoll_type_not_used,
+         {"Not used", "pn532.autopoll_type.not_used", FT_BOOLEAN, 8,
+          NULL, 0x08, NULL, HFILL}},
+        {&hf_pn532_autopoll_type_baudrate_and_modulation,
+         {"Baudrate and Modulation", "pn532.autopoll_type.baudrate_and_modulation", FT_UINT8, BASE_HEX,
+          VALS(pn532_brtypes), 0x07, NULL, HFILL}},
+        {&hf_pn532_nfc_id_3i,
+         {"NFC ID 3i", "pn532.nfc_id_3i", FT_BYTES, BASE_NONE,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_next_not_used_2_7,
+         {"Not Used", "pn532.next.not_used.2_7", FT_BOOLEAN, 8,
+          NULL, 0xFC, NULL, HFILL}},
+        {&hf_pn532_next_gi,
+         {"Gi", "pn532.next.gi", FT_BOOLEAN, 8,
+          &tfs_present_not_present, 0x02, NULL, HFILL}},
+        {&hf_pn532_next_nfc_id_3i,
+         {"NFC ID 3i", "pn532.next.nfc_id_3i", FT_BOOLEAN, 8,
+          &tfs_present_not_present, 0x01, NULL, HFILL}},
+        {&hf_pn532_nfc_id_3t,
+         {"NFC ID 3t", "pn532.nfc_id_3t", FT_BYTES, BASE_NONE,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_communication_mode,
+         {"Communication Mode", "pn532.communication_mode", FT_UINT8, BASE_HEX,
+          VALS(pn532_communication_mode_vals), 0x00, NULL, HFILL}},
+        {&hf_pn532_activation_baudrate,
+         {"Baudrate", "pn532.activation_baudrate", FT_UINT8, BASE_HEX,
+          VALS(pn532_speed_vals), 0x70, NULL, HFILL}},
+        {&hf_pn532_jump_next_not_used_3_7,
+         {"Not Used", "pn532.jump_next.not_used.3_7", FT_BOOLEAN, 8,
+          NULL, 0xF8, NULL, HFILL}},
+        {&hf_pn532_jump_next_gi,
+         {"Gi", "pn532.jump_next.gi", FT_BOOLEAN, 8,
+          &tfs_present_not_present, 0x04, NULL, HFILL}},
+        {&hf_pn532_jump_next_nfc_id_3i,
+         {"NFC ID 3i", "pn532.jump_next.nfc_id_3i", FT_BOOLEAN, 8,
+          &tfs_present_not_present, 0x02, NULL, HFILL}},
+        {&hf_pn532_jump_next_passive_initiator_data,
+         {"Passive Initiator Data", "pn532.jump_next.passive_initiator_data", FT_BOOLEAN, 8,
+          &tfs_present_not_present, 0x01, NULL, HFILL}},
+        {&hf_pn532_passive_initiator_data,
+         {"Passive Initiator Data", "pn532.passive_initiator_data", FT_BYTES, BASE_NONE,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_did_target,
+         {"DID Target", "pn532.did_target", FT_UINT8, BASE_HEX_DEC,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_send_bit_rate_target,
+         {"Send Bit Rate Target", "pn532.send_bit_rate_target", FT_UINT8, BASE_DEC_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_receive_bit_rate_target,
+         {"Receive Bit Rate Target", "pn532.receive_bit_rate_target", FT_UINT8, BASE_DEC_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_timeout,
+         {"Timeout", "pn532.timeout", FT_UINT8, BASE_DEC_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_optional_parameters,
+         {"Optional Parameters", "pn532.optional_parameters", FT_UINT8, BASE_HEX,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_test_number,
+         {"Test Number", "pn532.test_number", FT_UINT8, BASE_HEX,
+          VALS(pn532_test_number_vals), 0x00, NULL, HFILL}},
+        {&hf_pn532_parameters,
+         {"Parameters", "pn532.diagnose_parameters", FT_BYTES, BASE_NONE,
+          NULL, 0x00, NULL, HFILL}},
+        {&hf_pn532_parameters_length,
+         {"Parameters Length", "pn532.diagnose_parameters.length", FT_UINT8, BASE_DEC,
+          NULL, 0x00, NULL, HFILL}},
     };
 
     static ei_register_info ei[] = {
@@ -1465,12 +2059,16 @@ void proto_register_pn532(void)
 
     static gint *ett[] = {
         &ett_pn532,
+        &ett_pn532_flags,
+        &ett_pn532_target,
         &ett_pn532_fw_support,
         &ett_pn532_config_212_kbps,
         &ett_pn532_config_424_kbps,
         &ett_pn532_config_848_kbps,
         &ett_pn532_mifare_parameters,
-        &ett_pn532_felica_parameters
+        &ett_pn532_felica_parameters,
+        &ett_pn532_wakeup_enable,
+        &ett_pn532_autopoll_type
     };
 
     static const enum_val_t sub_enum_vals[] = {
@@ -1489,6 +2087,9 @@ void proto_register_pn532(void)
     expert_register_field_array(expert_pn532, ei, array_length(ei));
 
     pref_mod = prefs_register_protocol(proto_pn532, NULL);
+    prefs_register_static_text_preference(pref_mod, "version",
+            "PN532 protocol version is based on: \"UM0701-02; PN532 User Manual\"",
+            "Version of protocol supported by this dissector.");
     prefs_register_enum_preference(pref_mod, "prtype532", "Payload Type", "Protocol payload type",
         &sub_selected, sub_enum_vals, FALSE);
 
