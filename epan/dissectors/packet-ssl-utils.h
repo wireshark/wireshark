@@ -278,7 +278,9 @@ typedef struct _SslDecoder {
 #define ENC_IDEA        0x34
 #define ENC_AES         0x35
 #define ENC_AES256      0x36
-#define ENC_NULL        0x37
+#define ENC_CAMELLIA128 0x37
+#define ENC_CAMELLIA256 0x38
+#define ENC_NULL        0x39
 
 #define DIG_MD5         0x40
 #define DIG_SHA         0x41
