@@ -57,7 +57,7 @@
 #include "packet-e164.h"
 #include "packet-charging_ase.h"
 #include <epan/sctpppids.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/circuit.h>
 #include <epan/reassemble.h>
 #include <packet-mtp3.h>
@@ -3310,7 +3310,7 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
     proto_tree_add_string(address_digits_tree, hf_isup_called, parameter_tvb,
                           offset - length, length, called_number);
   }
-  tap_called_number = ep_strdup(called_number);
+  tap_called_number = wmem_strdup(wmem_packet_scope(), called_number);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter  Subsequent number
@@ -5172,7 +5172,7 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   }
 
   proto_item_set_text(parameter_item, "Calling Party Number: %s", calling_number);
-  tap_calling_number = ep_strdup(calling_number);
+  tap_calling_number = wmem_strdup(wmem_packet_scope(), calling_number);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Original called  number
@@ -6930,7 +6930,7 @@ dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
   gint    gen_name_length;
   char   *gen_name = NULL;
 
-  gen_name = (char *)ep_alloc(MAXGNAME + 1);
+  gen_name = (char *)wmem_alloc(wmem_packet_scope(), MAXGNAME + 1);
   gen_name[0] = '\0';
   gen_name_length = tvb_length(parameter_tvb) - 1;
   indicator = tvb_get_guint8(parameter_tvb, 0);
@@ -9945,7 +9945,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
 
   offset +=  MESSAGE_TYPE_LENGTH;
 
-   tap_rec = (isup_tap_rec_t *)ep_alloc(sizeof(isup_tap_rec_t));
+   tap_rec = (isup_tap_rec_t *)wmem_alloc(wmem_packet_scope(), sizeof(isup_tap_rec_t));
    tap_rec->message_type = message_type;
    tap_rec->calling_number = NULL;
    tap_rec->called_number = NULL;
@@ -10185,7 +10185,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
      proto_tree_add_text(isup_tree, message_tvb, 0, 0, "No optional parameters are possible with this message type");
 
    /* if there are calling/called number, we'll get them for the tap */
-   tap_rec->calling_number = tap_calling_number ? tap_calling_number : ep_strdup("");
+   tap_rec->calling_number = tap_calling_number ? tap_calling_number : wmem_strdup(wmem_packet_scope(), "");
    tap_rec->called_number  = tap_called_number;
    tap_rec->cause_value    = tap_cause_value;
    tap_queue_packet(isup_tap, pinfo, tap_rec);
@@ -10245,7 +10245,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 
   offset +=  MESSAGE_TYPE_LENGTH;
 
-  tap_rec = (isup_tap_rec_t *)ep_alloc(sizeof(isup_tap_rec_t));
+  tap_rec = (isup_tap_rec_t *)wmem_alloc(wmem_packet_scope(), sizeof(isup_tap_rec_t));
   tap_rec->message_type   = message_type;
   tap_rec->calling_number = NULL;
   tap_rec->called_number  = NULL;
@@ -10553,7 +10553,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
     proto_tree_add_text(isup_tree, message_tvb, 0, 0, "No optional parameters are possible with this message type");
 
   /* if there are calling/called number, we'll get them for the tap */
-  tap_rec->calling_number = tap_calling_number ? tap_calling_number : ep_strdup("");
+  tap_rec->calling_number = tap_calling_number ? tap_calling_number : wmem_strdup(wmem_packet_scope(), "");
   tap_rec->called_number  = tap_called_number;
   tap_rec->cause_value    = tap_cause_value;
   tap_queue_packet(isup_tap, pinfo, tap_rec);
@@ -10838,7 +10838,7 @@ msg_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U
   int          msg_node;
   int          dir_node;
 
-  dir = ep_strdup_printf("%s->%s", ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
+  dir = wmem_strdup_printf(wmem_packet_scope(), "%s->%s", ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
 
   msg_node = tick_stat_node(st, msg, st_node_msg, TRUE);
   tick_stat_node(st, dir, msg_node, FALSE);

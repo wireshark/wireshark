@@ -50,6 +50,7 @@
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+#include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-tcp.h>
 
 /* The digest is up to 32 bytes long */
@@ -222,7 +223,7 @@ prepare_ldss_transfer_conv(ldss_broadcast_t *broadcast)
 	conversation_t *transfer_conv;
 	ldss_transfer_info_t *transfer_info;
 
-	transfer_info = se_new0(ldss_transfer_info_t);
+	transfer_info = wmem_new0(wmem_file_scope(), ldss_transfer_info_t);
 	transfer_info->broadcast = broadcast;
 
 	/* Preparation for later push/pull dissection */
@@ -410,7 +411,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ldss_broadcast_t *data;
 
 		/* Populate data from the broadcast */
-		data = se_new0(ldss_broadcast_t);
+		data = wmem_new0(wmem_file_scope(), ldss_broadcast_t);
 		data->num = pinfo->fd->num;
 		data->ts = pinfo->fd->abs_ts;
 		data->message_id = messageID;
@@ -420,11 +421,11 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		data->offset = offset;
 		data->compression = compression;
 
-		data->file = se_new0(ldss_file_t);
+		data->file = wmem_new0(wmem_file_scope(), ldss_file_t);
 		data->file->digest = digest;
 		data->file->digest_type = digest_type;
 
-		data->broadcaster = se_new0(ldss_broadcaster_t);
+		data->broadcaster = wmem_new0(wmem_file_scope(), ldss_broadcaster_t);
 		COPY_ADDRESS(&data->broadcaster->addr, &pinfo->src);
 		data->broadcaster->port = port;
 
@@ -493,8 +494,8 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    highest_num_seen < pinfo->fd->num) {
 
 			already_dissected = FALSE;
-			transfer_info->req = se_new0(ldss_file_request_t);
-			transfer_info->req->file = se_new0(ldss_file_t);
+			transfer_info->req = wmem_new0(wmem_file_scope(), ldss_file_request_t);
+			transfer_info->req->file = wmem_new0(wmem_file_scope(), ldss_file_t);
 			highest_num_seen = pinfo->fd->num;
 		}
 
@@ -607,7 +608,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if(digest_bytes->len >= DIGEST_LEN)
 						digest_bytes->len = (DIGEST_LEN-1);
 					/* Ensure the digest is zero-padded */
-					transfer_info->file->digest = (guint8 *)se_alloc0(DIGEST_LEN);
+					transfer_info->file->digest = (guint8 *)wmem_alloc0(wmem_file_scope(), DIGEST_LEN);
 					memcpy(transfer_info->file->digest, digest_bytes->data, digest_bytes->len);
 
 					g_byte_array_free(digest_bytes, TRUE);

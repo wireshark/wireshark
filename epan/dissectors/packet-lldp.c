@@ -31,7 +31,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/etypes.h>
 #include <epan/oui.h>
 #include <epan/afn.h>
@@ -673,7 +673,7 @@ get_latitude_or_longitude(int option, guint64 value)
 			direction = "East";
 	}
 
-	return ep_strdup_printf("%u.%04" G_GINT64_MODIFIER "u degrees %s",
+	return wmem_strdup_printf(wmem_packet_scope(), "%u.%04" G_GINT64_MODIFIER "u degrees %s",
 	    integerPortion, tempValue, direction);
 }
 
@@ -2508,7 +2508,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		subTypeStr = val_to_str(subType, ieee_802_1qbg_subtypes, "Unknown subtype 0x%x");
 		break;
 	default:
-		subTypeStr = ep_strdup_printf("Unknown (%d)",subType);
+		subTypeStr = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",subType);
 		break;
 	}
 	if (tree)

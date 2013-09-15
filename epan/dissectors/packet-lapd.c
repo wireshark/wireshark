@@ -48,6 +48,7 @@
 #include <epan/prefs.h>
 #include <epan/lapd_sapi.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 static int proto_lapd = -1;
 static int hf_lapd_direction = -1;
@@ -363,7 +364,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		if (NULL == p_get_proto_data(pinfo->fd, proto_lapd, 0)) {
 			/* Per packet information */
-			lapd_ppi = se_new(lapd_ppi_t);
+			lapd_ppi = wmem_new(wmem_file_scope(), lapd_ppi_t);
 			lapd_ppi->has_crc = TRUE;
 			if (prev_byte_state)
 				fill_lapd_byte_state(&lapd_ppi->start_byte_state, prev_byte_state->state,
@@ -383,13 +384,13 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						fill_lapd_byte_state(convo_data->byte_state_a, state, full_byte, bit_offset, ones, data, data_len);
 					else {
 						if (!convo_data->byte_state_b)
-							convo_data->byte_state_b = se_new(lapd_byte_state_t);
+							convo_data->byte_state_b = wmem_new(wmem_file_scope(), lapd_byte_state_t);
 						fill_lapd_byte_state(convo_data->byte_state_b, state, full_byte, bit_offset, ones, data, data_len);
 					}
 				} else { /* lapd convo data has to be created */
-					lapd_byte_state = se_new(lapd_byte_state_t);
+					lapd_byte_state = wmem_new(wmem_file_scope(), lapd_byte_state_t);
 					fill_lapd_byte_state(lapd_byte_state, state, full_byte, bit_offset, ones, data, data_len);
-					convo_data = se_new(lapd_convo_data_t);
+					convo_data = wmem_new(wmem_file_scope(), lapd_convo_data_t);
 					COPY_ADDRESS(&convo_data->addr_a, &pinfo->src);
 					COPY_ADDRESS(&convo_data->addr_b, &pinfo->dst);
 					convo_data->port_a = pinfo->srcport;

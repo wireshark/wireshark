@@ -35,6 +35,7 @@
 #include <epan/uat.h>
 #include <epan/base64.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include <wsutil/str_util.h>
 
@@ -508,7 +509,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
   int         end_offset;
   tvbuff_t   *label_tvb;
   gchar      *type = NULL;
-  emem_strbuf_t  *label_string = ep_strbuf_new("");
+  wmem_strbuf_t  *label_string = wmem_strbuf_new(wmem_packet_scope(), "");
 
   /* a semicolon separated list of attributes */
   tree = proto_item_add_subtree(item, ett_imf_siolabel);
@@ -555,7 +556,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
 
     } else if (tvb_strneql(tvb, item_offset, "label", 5) == 0) {
       gchar *label = tvb_get_ephemeral_string(tvb, value_offset + 1, value_length - 2); /* quoted */
-      label_string = ep_strbuf_append(label_string, label);
+      wmem_strbuf_append(label_string, label);
 
       if (tvb_get_guint8(tvb, item_offset + 5) == '*') { /* continuations */
         int num = (int)strtol(tvb_get_ephemeral_string(tvb, item_offset + 6, value_offset - item_offset + 6), NULL, 10);
@@ -575,13 +576,13 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
     }
   } while (end_offset != -1);
 
-  if (type && label_string->len > 0) {
+  if (type && wmem_strbuf_get_len(label_string) > 0) {
     if (strcmp (type, ":ess") == 0) {
-      label_tvb = base64_to_tvb(tvb, label_string->str);
+      label_tvb = base64_to_tvb(tvb, wmem_strbuf_get_str(label_string));
       add_new_data_source(pinfo, label_tvb, "ESS Security Label");
       dissect_ess_ESSSecurityLabel_PDU(label_tvb, pinfo, tree);
     } else if (strcmp (type, ":x411") == 0) {
-      label_tvb = base64_to_tvb(tvb, label_string->str);
+      label_tvb = base64_to_tvb(tvb, wmem_strbuf_get_str(label_string));
       add_new_data_source(pinfo, label_tvb, "X.411 Security Label");
       dissect_p1_MessageSecurityLabel_PDU(label_tvb, pinfo, tree);
     }

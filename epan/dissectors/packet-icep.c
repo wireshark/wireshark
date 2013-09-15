@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 
 #if 0
@@ -243,7 +244,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
 		s = tvb_get_ephemeral_string(tvb, offset, Size);
 		proto_tree_add_string(tree, hf_icep, tvb, offset, Size, s);
 	} else {
-		s = ep_strdup("(empty)");
+		s = wmem_strdup(wmem_packet_scope(), "(empty)");
 		/* display the 0x00 Size byte when click on a empty ice_string */
 		proto_tree_add_string(tree, hf_icep, tvb, offset - 1, 1, s);
 	}

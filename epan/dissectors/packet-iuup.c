@@ -36,7 +36,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <wsutil/crc10.h>
 #include <wsutil/crc6.h>
@@ -418,7 +418,7 @@ static guint dissect_rfcis(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tr
     guint i;
 
     do {
-        iuup_rfci_t *rfci = se_new0(iuup_rfci_t);
+        iuup_rfci_t *rfci = wmem_new0(wmem_file_scope(), iuup_rfci_t);
         guint len = 0;
 
         DISSECTOR_ASSERT(c < 64);
@@ -489,9 +489,9 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
             g_hash_table_remove(circuits,GUINT_TO_POINTER(pinfo->circuit_id));
         }
 
-        iuup_circuit = se_new0(iuup_circuit_t);
+        iuup_circuit = wmem_new0(wmem_file_scope(), iuup_circuit_t);
     } else {
-        iuup_circuit = ep_new0(iuup_circuit_t);
+        iuup_circuit = wmem_new0(wmem_packet_scope(), iuup_circuit_t);
     }
 
     iuup_circuit->id = pinfo->circuit_id;

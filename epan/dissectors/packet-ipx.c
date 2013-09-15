@@ -41,7 +41,7 @@
 #include <epan/arcnet_pids.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 static int ipx_tap = -1;
 
@@ -487,12 +487,12 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
 	spx_hash_value		*value;
 
 	/* Now remember the packet, so we can find it if we later. */
-	key = se_new(spx_hash_key);
+	key = wmem_new(wmem_file_scope(), spx_hash_key);
 	key->conversation = conversation;
 	key->spx_src = spx_src;
 	key->spx_seq = spx_seq;
 
-	value = se_new0(spx_hash_value);
+	value = wmem_new0(wmem_file_scope(), spx_hash_value);
 
 	g_hash_table_insert(spx_hash, key, value);
 
@@ -725,7 +725,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * Found in the hash table.  Mark this frame as
 				 * a retransmission.
 				 */
-				spx_rexmit_info_p = se_new(spx_rexmit_info);
+				spx_rexmit_info_p = wmem_new(wmem_file_scope(), spx_rexmit_info);
 				spx_rexmit_info_p->num = pkt_value->num;
 				p_add_proto_data(pinfo->fd, proto_spx, 0,
 				    spx_rexmit_info_p);

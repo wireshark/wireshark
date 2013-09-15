@@ -30,7 +30,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/expert.h>
@@ -208,7 +208,7 @@ init_mpa_state(void)
 {
 	mpa_state_t *state;
 
-	state = (mpa_state_t *) se_alloc0(sizeof(mpa_state_t));
+	state = (mpa_state_t *) wmem_alloc0(wmem_file_scope(), sizeof(mpa_state_t));
 	state->revision = -1;
 	return state;
 }

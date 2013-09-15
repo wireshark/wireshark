@@ -39,7 +39,7 @@
 #include <epan/circuit.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/aftypes.h>
@@ -581,7 +581,7 @@ static gchar *key_to_str( const iax_circuit_key *key )
   /* why doesn't ep_address_to_str take a const pointer?
      cast the warnings into oblivion. */
 
-  /* XXX - is this a case for ep_alloc? */
+  /* XXX - is this a case for wmem_packet_scope()? */
   g_snprintf(strp, 80, "{%s:%i,%i}",
              ep_address_to_str((address *)&key->addr),
              key->port,
@@ -646,7 +646,7 @@ static guint iax_circuit_lookup(const address *address_p,
   if (! circuit_id_p) {
     iax_circuit_key *new_key;
 
-    new_key = se_new(iax_circuit_key);
+    new_key = wmem_new(wmem_file_scope(), iax_circuit_key);
     new_key->addr.type = address_p->type;
     new_key->addr.len  = MIN(address_p->len, MAX_ADDRESS);
     new_key->addr.data = new_key->address_data;
@@ -655,7 +655,7 @@ static guint iax_circuit_lookup(const address *address_p,
     new_key->port      = port;
     new_key->callno    = callno;
 
-    circuit_id_p  = (guint32 *)se_new(iax_circuit_key);
+    circuit_id_p  = (guint32 *)wmem_new(wmem_file_scope(), iax_circuit_key);
     *circuit_id_p = ++circuitcount;
 
     g_hash_table_insert(iax_circuit_hashtab, new_key, circuit_id_p);
@@ -996,7 +996,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   circuit_id = iax_circuit_lookup(&pinfo->src, pinfo->ptype,
                                   pinfo->srcport, scallno);
 
-  call = se_new(iax_call_data);
+  call = wmem_new(wmem_file_scope(), iax_call_data);
   call -> dataformat = AST_DATAFORMAT_NULL;
   call -> src_codec = 0;
   call -> dst_codec = 0;
@@ -1030,7 +1030,7 @@ typedef struct iax_packet_data {
 
 static iax_packet_data *iax_new_packet_data(iax_call_data *call, gboolean reversed)
 {
-  iax_packet_data *p = se_new(iax_packet_data);
+  iax_packet_data *p = wmem_new(wmem_file_scope(), iax_packet_data);
   p->first_time    = TRUE;
   p->call_data     = call;
   p->codec         = 0;
@@ -1246,10 +1246,10 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         break;
 
       case IAX_IE_CALLED_NUMBER:
-        iax2_info->calledParty = ep_strdup(tvb_format_text(tvb, offset+2, ies_len));
+        iax2_info->calledParty = wmem_strdup(wmem_packet_scope(), tvb_format_text(tvb, offset+2, ies_len));
         break;
       case IAX_IE_CALLING_NUMBER:
-        iax2_info->callingParty = ep_strdup(tvb_format_text(tvb, offset+2, ies_len));
+        iax2_info->callingParty = wmem_strdup(wmem_packet_scope(), tvb_format_text(tvb, offset+2, ies_len));
         break;
 
       case IAX_IE_APPARENT_ADDR:
@@ -1478,7 +1478,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
                               ie_finfo->rep->representation);
         else {
           guint8 *ie_val = NULL;
-          ie_val = (guint8 *)ep_alloc(ITEM_LABEL_LENGTH);
+          ie_val = (guint8 *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH);
           proto_item_fill_label(ie_finfo, ie_val);
           proto_item_set_text(ti, "Information Element: %s",
                               ie_val);
@@ -2000,7 +2000,7 @@ typedef struct _call_list {
 
 static call_list *call_list_append(call_list *list, guint16 scallno)
 {
-  call_list *node = ep_new0(call_list);
+  call_list *node = wmem_new0(wmem_packet_scope(), call_list);
 
   node->scallno = scallno;
 

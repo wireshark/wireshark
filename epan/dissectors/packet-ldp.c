@@ -46,7 +46,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/afn.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 
@@ -1030,7 +1030,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 break;
             }
 
-            addr=(guint8 *)ep_alloc0(addr_size);
+            addr=(guint8 *)wmem_alloc0(wmem_packet_scope(), addr_size);
 
             for(ax=0; ax+1 <= prefix_len_octets; ax++)
                 addr[ax]=tvb_get_guint8(tvb, offset+ax);
@@ -1105,7 +1105,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 break;
             }
 
-            addr=(guint8 *)ep_alloc0(addr_size);
+            addr=(guint8 *)wmem_alloc0(wmem_packet_scope(), addr_size);
 
             for(ax=0; ax+1 <= host_len; ax++)
                 addr[ax]=tvb_get_guint8(tvb, offset+ax);
@@ -1395,7 +1395,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     ti=proto_tree_add_text(tree, tvb, offset, rem, "Addresses");
     val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
-    addr=(guint8 *)ep_alloc(addr_size);
+    addr=(guint8 *)wmem_alloc(wmem_packet_scope(), addr_size);
 
     for(ix=1; rem >= addr_size; ix++, offset += addr_size,
             rem -= addr_size) {

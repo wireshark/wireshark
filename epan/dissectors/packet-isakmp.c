@@ -48,7 +48,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-
+#include <epan/wmem/wmem.h>
 #include <epan/ipproto.h>
 #include <epan/asn1.h>
 #include <epan/reassemble.h>
@@ -2576,7 +2576,7 @@ byte_to_str(const guint8 *val,const gint val_len, const byte_string *vs, const c
   if (ret != NULL)
     return ret;
 
-  return ep_strdup_printf(fmt, val);
+  return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 
@@ -2804,7 +2804,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (ike_sa_data) {
       guint8 initiator_flag;
       initiator_flag = hdr.flags & I_FLAG;
-      ikev2_dec_data = ep_new(ikev2_decrypt_data_t);
+      ikev2_dec_data = wmem_new(wmem_packet_scope(), ikev2_decrypt_data_t);
       ikev2_dec_data->encr_key = initiator_flag ? ike_sa_data->sk_ei : ike_sa_data->sk_er;
       ikev2_dec_data->auth_key = initiator_flag ? ike_sa_data->sk_ai : ike_sa_data->sk_ar;
       ikev2_dec_data->encr_spec = ike_sa_data->encr_spec;
@@ -4677,12 +4677,14 @@ dissect_enc(tvbuff_t *tvb,
       if (key_info->auth_spec->gcry_alg) {
         err = gcry_md_open(&md_hd, key_info->auth_spec->gcry_alg, key_info->auth_spec->gcry_flag);
         if (err) {
-          REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 hashing error: algorithm %d: gcry_md_open failed: %s",
+          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+            "IKEv2 hashing error: algorithm %d: gcry_md_open failed: %s",
             key_info->auth_spec->gcry_alg, gcry_strerror(err)));
         }
         err = gcry_md_setkey(md_hd, key_info->auth_key, key_info->auth_spec->key_len);
         if (err) {
-          REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 hashing error: algorithm %s, key length %u: gcry_md_setkey failed: %s",
+          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+            "IKEv2 hashing error: algorithm %s, key length %u: gcry_md_setkey failed: %s",
             gcry_md_algo_name(key_info->auth_spec->gcry_alg), key_info->auth_spec->key_len, gcry_strerror(err)));
         }
 
@@ -4693,7 +4695,8 @@ dissect_enc(tvbuff_t *tvb,
         md_len = gcry_md_get_algo_dlen(key_info->auth_spec->gcry_alg);
         if (md_len < icd_len) {
           gcry_md_close(md_hd);
-          REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 hashing error: algorithm %s: gcry_md_get_algo_dlen returned %d which is smaller than icd length %d",
+          REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+            "IKEv2 hashing error: algorithm %s: gcry_md_get_algo_dlen returned %d which is smaller than icd length %d",
             gcry_md_algo_name(key_info->auth_spec->gcry_alg), md_len, icd_len));
         }
         if (tvb_memeql(tvb, offset, md, icd_len) == 0) {
@@ -4734,25 +4737,29 @@ dissect_enc(tvbuff_t *tvb,
       err = gcry_cipher_open(&cipher_hd, key_info->encr_spec->gcry_alg, key_info->encr_spec->gcry_mode, 0);
       if (err) {
         g_free(decr_data);
-        REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 decryption error: algorithm %d, mode %d: gcry_cipher_open failed: %s",
+        REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+          "IKEv2 decryption error: algorithm %d, mode %d: gcry_cipher_open failed: %s",
           key_info->encr_spec->gcry_alg, key_info->encr_spec->gcry_mode, gcry_strerror(err)));
       }
       err = gcry_cipher_setkey(cipher_hd, key_info->encr_key, key_info->encr_spec->key_len);
       if (err) {
         g_free(decr_data);
-        REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 decryption error: algorithm %d, key length %d:  gcry_cipher_setkey failed: %s",
+        REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+          "IKEv2 decryption error: algorithm %d, key length %d:  gcry_cipher_setkey failed: %s",
           key_info->encr_spec->gcry_alg, key_info->encr_spec->key_len, gcry_strerror(err)));
       }
       err = gcry_cipher_setiv(cipher_hd, iv, iv_len);
       if (err) {
         g_free(decr_data);
-        REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 decryption error: algorithm %d, iv length %d:  gcry_cipher_setiv failed: %s",
+        REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+          "IKEv2 decryption error: algorithm %d, iv length %d:  gcry_cipher_setiv failed: %s",
           key_info->encr_spec->gcry_alg, iv_len, gcry_strerror(err)));
       }
       err = gcry_cipher_decrypt(cipher_hd, decr_data, decr_data_len, encr_data, encr_data_len);
       if (err) {
         g_free(decr_data);
-        REPORT_DISSECTOR_BUG(ep_strdup_printf("IKEv2 decryption error: algorithm %d:  gcry_cipher_decrypt failed: %s",
+        REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+          "IKEv2 decryption error: algorithm %d:  gcry_cipher_decrypt failed: %s",
           key_info->encr_spec->gcry_alg, gcry_strerror(err)));
       }
       gcry_cipher_close(cipher_hd);

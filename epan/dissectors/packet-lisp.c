@@ -30,6 +30,7 @@
 #include <epan/afn.h>
 #include <epan/ipv6-utils.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #define INET_ADDRLEN        4
 #define INET6_ADDRLEN       16
@@ -373,7 +374,7 @@ get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
                 iid = tvb_get_ntohl(tvb, offset + LCAF_HEADER_LEN);
                 afi = tvb_get_ntohs(tvb, offset + LCAF_HEADER_LEN + 4);
                 addr_str = get_addr_str(tvb, offset + LCAF_HEADER_LEN + 6, afi, &cur_len);
-                return ep_strdup_printf("[%d] %s", iid, addr_str);
+                return wmem_strdup_printf(wmem_packet_scope(), "[%d] %s", iid, addr_str);
             }
             return addr_str;
         default:

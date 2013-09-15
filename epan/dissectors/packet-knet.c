@@ -28,6 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-tcp.h>
 
 #define PROTO_TAG_KNET      "KNET"    /*!< Definition of kNet Protocol */
@@ -363,7 +364,7 @@ dissect_reliable_message_number(tvbuff_t *buffer, int offset, proto_tree *tree)
  *
  */
 static int
-dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *pinfo, emem_strbuf_t* info_field)
+dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *pinfo, wmem_strbuf_t* info_field)
 {
     gint   messageid_length;
     guint8 messageid;
@@ -391,7 +392,7 @@ dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *
 
     *offset += messageid_length;
 
-    ep_strbuf_append_printf(info_field, "Msg ID (%d) ", messageid);
+    wmem_strbuf_append_printf(info_field, "Msg ID (%d) ", messageid);
 
     return messageid;
 }
@@ -466,7 +467,7 @@ dissect_payload(tvbuff_t *buffer, int offset, int messageid, proto_tree *tree, i
  *
  */
 static void
-dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, emem_strbuf_t* info_field)
+dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, wmem_strbuf_t* info_field)
 {
     int offset;
     int content_length;
@@ -488,7 +489,7 @@ dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, em
 
     content_length = dissect_content_length(tvb, offset, msgblock_tree); /* Calculates the Content Length of this packet. */
 
-    ep_strbuf_append_printf(info_field, "%d: ", messageindex + 1);
+    wmem_strbuf_append_printf(info_field, "%d: ", messageindex + 1);
 
     offset += 2; /* Move the offset the amount of contentlength and flags fields */
 
@@ -537,7 +538,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean    bytes_left;
 
     /* String that is going to be displayed in the info column in Wireshark */
-    emem_strbuf_t *info_field = ep_strbuf_new("");
+    wmem_strbuf_t *info_field = wmem_strbuf_new(wmem_packet_scope(), "");
 
     int offset;
     int length;
@@ -575,7 +576,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if(tree == NULL)
                 offset += count_vle_bytes(next_tvb, offset);
 
-            ep_strbuf_append_printf(info_field, "%d: ", messageindex + 1);
+            wmem_strbuf_append_printf(info_field, "%d: ", messageindex + 1);
 
             messageid = dissect_messageid(next_tvb, &offset, message_tree, pinfo, info_field); /* Calculate messageid and add it to the tree-view */
 
@@ -603,7 +604,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         packetid = dissect_packetid(tvb, 0, datagram_tree); /* Lets calculate our packetid! */
 
-        ep_strbuf_append_printf(info_field, "Packet ID: %d ", packetid);
+        wmem_strbuf_append_printf(info_field, "Packet ID: %d ", packetid);
 
         offset += 3;
 
@@ -644,7 +645,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(current_protocol == KNET_TCP_PACKET && ((struct tcpinfo*)(pinfo->private_data))->is_reassembled)
         col_add_str(pinfo->cinfo, COL_INFO, "REASSEMBLED PACKET");
     else
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Messages: %d %s", messageindex + 1,  info_field->str);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Messages: %d %s", messageindex + 1, wmem_strbuf_get_str(info_field));
 
     messageindex++;
 }

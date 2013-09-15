@@ -31,7 +31,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
@@ -1618,10 +1618,10 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* allocate space for source/destination addresses if not allocated already. we will fill them in later */
     if (!src_addr)
-        src_addr = se_alloc(ADDR_MAX_LEN);
+        src_addr = wmem_alloc(wmem_file_scope(), ADDR_MAX_LEN);
 
     if (!dst_addr)
-        dst_addr = se_alloc(ADDR_MAX_LEN);
+        dst_addr = wmem_alloc(wmem_file_scope(), ADDR_MAX_LEN);
 
     pinfo->srcport = pinfo->destport = 0xffffffff;  /* set the src/dest QPN to something impossible instead of the default 0,
                                                        so we don't mistake it for a MAD. (QP is only 24bit, so can't be 0xffffffff)*/
@@ -2055,10 +2055,10 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* allocate space for source/destination addresses if not allocated already. we will fill them in later */
     if (!src_addr)
-        src_addr = se_alloc(ADDR_MAX_LEN);
+        src_addr = wmem_alloc(wmem_file_scope(), ADDR_MAX_LEN);
 
     if (!dst_addr)
-        dst_addr = se_alloc(ADDR_MAX_LEN);
+        dst_addr = wmem_alloc(wmem_file_scope(), ADDR_MAX_LEN);
 
     operand =  tvb_get_guint8(tvb, offset);
     operand = (operand & 0xF0) >> 4;
@@ -2973,8 +2973,8 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     proto_tree *CM_header_tree;
     tvbuff_t   *next_tvb;
 
-    local_gid  = (guint8 *)ep_alloc(GID_SIZE);
-    remote_gid = (guint8 *)ep_alloc(GID_SIZE);
+    local_gid  = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
+    remote_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
     {
@@ -3086,7 +3086,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 /* Now we create a conversation for the CM exchange. This uses both
                    sides of the conversation since CM packets also include the source
                    QPN */
-                proto_data = se_new(conversation_infiniband_data);
+                proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
                 proto_data->service_id = connection->service_id;
 
                 conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -3147,7 +3147,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 
                     connection->resp_qp = remote_qpn;
 
-                    proto_data = se_new(conversation_infiniband_data);
+                    proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
                     proto_data->service_id = connection->service_id;
 
                     /* RC traffic never(?) includes a field indicating the source QPN, so

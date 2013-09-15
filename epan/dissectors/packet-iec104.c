@@ -40,7 +40,7 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/dissectors/packet-tcp.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 /* IEC-104 comment: Fields are little endian. */
 
@@ -1048,7 +1048,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	struct asduheader asduh;
 	proto_item *it104;
 	proto_tree *it104tree;
-	emem_strbuf_t * res;
+	wmem_strbuf_t * res;
 
 	guint8 offset = 0;  /* byte offset, signal dissection */
 	guint8 offset_start_ioa = 0; /* position first ioa */
@@ -1062,7 +1062,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	it104 = proto_tree_add_item(tree, proto_iec104asdu, tvb, 0, -1, ENC_NA);
 	it104tree = proto_item_add_subtree(it104, ett_asdu);
 
-	res = ep_strbuf_new_label(NULL);
+	res = wmem_strbuf_new_label(wmem_packet_scope());
 
 	/* Type identification */
 	asduh.TypeId = tvb_get_guint8(tvb, 0);
@@ -1095,33 +1095,34 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	cause_str = val_to_str(asduh.TNCause & F_CAUSE, causetx_types, " <CauseTx=%u>");
 
-	ep_strbuf_append_printf(res, "ASDU=%u %s %s", asduh.Addr, val_to_str(asduh.TypeId, asdu_types, "<TypeId=%u>"), cause_str);
+	wmem_strbuf_append_printf(res, "ASDU=%u %s %s", asduh.Addr, val_to_str(asduh.TypeId, asdu_types, "<TypeId=%u>"), cause_str);
 
 	if (asduh.TNCause & F_NEGA)
-		ep_strbuf_append(res, "_NEGA");
+		wmem_strbuf_append(res, "_NEGA");
 	if (asduh.TNCause & F_TEST)
-		ep_strbuf_append(res, "_TEST");
+		wmem_strbuf_append(res, "_TEST");
 
 	if ((asduh.TNCause & (F_TEST | F_NEGA)) == 0) {
 		for (Ind=strlen(cause_str); Ind< 7; Ind++)
-			ep_strbuf_append(res, " ");
+			wmem_strbuf_append(res, " ");
 	}
 
 	if (asduh.NumIx > 1) {
-		ep_strbuf_append_printf(res, " IOA[%d]=%d", asduh.NumIx, asduh.IOA);
+		wmem_strbuf_append_printf(res, " IOA[%d]=%d", asduh.NumIx, asduh.IOA);
 		if (asduh.SQ == F_SQ)
-			ep_strbuf_append_printf(res, "-%d", asduh.IOA + asduh.NumIx - 1);
+			wmem_strbuf_append_printf(res, "-%d", asduh.IOA + asduh.NumIx - 1);
 		else
-			ep_strbuf_append(res, ",...");
+			wmem_strbuf_append(res, ",...");
 	} else {
-		ep_strbuf_append_printf(res, " IOA=%d", asduh.IOA);
+		wmem_strbuf_append_printf(res, " IOA=%d", asduh.IOA);
 	}
 
-	col_append_str(pinfo->cinfo, COL_INFO, res->str);
+	col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(res));
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	/* 'ASDU Details': ROOT ITEM */
-	proto_item_append_text(it104, ": %s '%s'", res->str, Len >= ASDU_HEAD_LEN ? val_to_str_const(asduh.TypeId, asdu_lngtypes, "<Unknown TypeId>") : "");
+	proto_item_append_text(it104, ": %s '%s'", wmem_strbuf_get_str(res),
+		Len >= ASDU_HEAD_LEN ? val_to_str_const(asduh.TypeId, asdu_lngtypes, "<Unknown TypeId>") : "");
 
 	/* 'Signal Details': TREE */
 	offset = 6;  /* offset position after DUI, already stored in asduh struct */
@@ -1355,14 +1356,14 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint Off;
 	proto_item *it104, *ti;
 	proto_tree *it104tree;
-	emem_strbuf_t * res;
+	wmem_strbuf_t * res;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "104apci");
 
 	it104 = proto_tree_add_item(tree, proto_iec104apci, tvb, 0, -1, ENC_NA);
 	it104tree = proto_item_add_subtree(it104, ett_apci);
 
-	res = ep_strbuf_new_label(NULL);
+	res = wmem_strbuf_new_label(wmem_packet_scope());
 
 	for (Off = 0; Off <= TcpLen - 2; Off++) {
 		Start = tvb_get_guint8(tvb, Off);
@@ -1370,7 +1371,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			if (Off > 0)
 			{
 				proto_tree_add_item(it104tree, hf_apcidata, tvb, 0, Off, ENC_NA);
-				ep_strbuf_append_printf(res, "<ERR prefix %u bytes> ", Off);
+				wmem_strbuf_append_printf(res, "<ERR prefix %u bytes> ", Off);
 			}
 
 			proto_item_set_len(it104, Off + APCI_LEN);
@@ -1381,7 +1382,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			len = tvb_get_guint8(tvb, Off + 1);
 			if (len < APDU_MIN_LEN) {
 				expert_add_info_format(pinfo, ti, &ei_iec104_apdu_min_len, "APDU less than %d bytes", APDU_MIN_LEN);
-				ep_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", len);
+				wmem_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", len);
 				return;
 			}
 
@@ -1397,35 +1398,35 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 6, 2, ENC_LITTLE_ENDIAN);
 
 			if (len <= APDU_MAX_LEN) {
-				ep_strbuf_append_printf(res, "%s %s (",
+				wmem_strbuf_append_printf(res, "%s %s (",
 					(pinfo->srcport == IEC104_PORT ? "->" : "<-"),
 					val_to_str_const(type, apci_types, "<ERR>"));
 			}
 			else {
-				ep_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", len);
+				wmem_strbuf_append_printf(res, "<ERR ApduLen=%u bytes> ", len);
 			}
 
 			switch(type) {
 			case I_TYPE:
 				temp16 = tvb_get_letohs(tvb, Off + 2) >> 1;
-				ep_strbuf_append_printf(res, "%d,", temp16);
+				wmem_strbuf_append_printf(res, "%d,", temp16);
 				proto_tree_add_uint(it104tree, hf_apcitx, tvb, Off+2, 2, temp16);
 			case S_TYPE:
 				temp16 = tvb_get_letohs(tvb, Off + 4) >> 1;
-				ep_strbuf_append_printf(res, "%d) ", temp16);
+				wmem_strbuf_append_printf(res, "%d) ", temp16);
 				proto_tree_add_uint(it104tree, hf_apcirx, tvb, Off+4, 2, temp16);
 				break;
 			case U_TYPE:
-				ep_strbuf_append_printf(res, "%s) ", val_to_str_const((temp8 >> 2) & 0x3F, u_types, "<ERR>"));
+				wmem_strbuf_append_printf(res, "%s) ", val_to_str_const((temp8 >> 2) & 0x3F, u_types, "<ERR>"));
 				proto_tree_add_item(it104tree, hf_apciutype, tvb, Off + 2, 1, ENC_LITTLE_ENDIAN);
 				break;
 			}
 
 			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", res->str);
+			col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", wmem_strbuf_get_str(res));
 			col_set_fence(pinfo->cinfo, COL_INFO);
 
-			proto_item_append_text(it104, ": %s", res->str);
+			proto_item_append_text(it104, ": %s", wmem_strbuf_get_str(res));
 
 			if (type == I_TYPE)
 				call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off + APCI_LEN, -1, len - APCI_DATA_LEN), pinfo, tree);

@@ -33,7 +33,7 @@
 
 #include <glib.h>
 
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 
@@ -97,7 +97,7 @@ typedef enum {
 } json_token_type_t;
 
 typedef struct {
-	ep_stack_t stack;
+	wmem_stack_t *stack;
 
 } json_parser_data_t;
 
@@ -136,9 +136,9 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	offset = 0;
-	
-	parser_data.stack = ep_stack_new();
-	ep_stack_push(parser_data.stack, json_tree);
+
+	parser_data.stack = wmem_stack_new(wmem_packet_scope());
+	wmem_stack_push(parser_data.stack, json_tree);
 
 	tt = tvbparse_init(tvb, offset, -1, &parser_data, want_ignore);
 
@@ -169,39 +169,39 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	proto_tree *tree = (proto_tree *)ep_stack_peek(data->stack);
+	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
 	proto_tree *subtree;
 	proto_item *ti;
 
 	ti = proto_tree_add_item(tree, &hfi_json_object, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 	subtree = proto_item_add_subtree(ti, ett_json_object);
-	ep_stack_push(data->stack, subtree);
+	wmem_stack_push(data->stack, subtree);
 }
 
 static void after_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *elem _U_) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	ep_stack_pop(data->stack);
+	wmem_stack_pop(data->stack);
 }
 
 static void before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	proto_tree *tree = (proto_tree *)ep_stack_peek(data->stack);
+	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
 	proto_tree *subtree;
 	proto_item *ti;
 
 	ti = proto_tree_add_item(tree, &hfi_json_member, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 	subtree = proto_item_add_subtree(ti, ett_json_member);
-	ep_stack_push(data->stack, subtree);
+	wmem_stack_push(data->stack, subtree);
 }
 
 static void after_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	proto_tree *tree = (proto_tree *)ep_stack_pop(data->stack);
+	proto_tree *tree = (proto_tree *)wmem_stack_pop(data->stack);
 
 	if (tree) {
 		tvbparse_elem_t *key_tok = tok->sub;
@@ -218,20 +218,20 @@ static void after_member(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 static void before_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	proto_tree *tree = (proto_tree *)ep_stack_peek(data->stack);
+	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
 	proto_tree *subtree;
 	proto_item *ti;
 
 	ti = proto_tree_add_item(tree, &hfi_json_array, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 	subtree = proto_item_add_subtree(ti, ett_json_array);
-	ep_stack_push(data->stack, subtree);
+	wmem_stack_push(data->stack, subtree);
 }
 
 static void after_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *elem _U_) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	ep_stack_pop(data->stack);
+	wmem_stack_pop(data->stack);
 }
 
 /*
@@ -250,7 +250,7 @@ static void after_array(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 
 static char *json_string_unescape(tvbparse_elem_t *tok)
 {
-	char *str = (char *)ep_alloc(tok->len - 1);
+	char *str = (char *)wmem_alloc(wmem_packet_scope(), tok->len - 1);
 	int i, j;
 
 	j = 0;
@@ -374,7 +374,7 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	proto_tree *tree = (proto_tree *)ep_stack_peek(data->stack);
+	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
 	json_token_type_t value_id = JSON_TOKEN_INVALID;
 
 	if (tok->sub)

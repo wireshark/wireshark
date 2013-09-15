@@ -45,7 +45,7 @@
 #include <epan/arcnet_pids.h>
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 #include "packet-ipsec.h"
 #include "packet-ipv6.h"
@@ -1394,7 +1394,8 @@ dissect_shim6_ct(proto_tree * shim_tree, gint hf_item, tvbuff_t * tvb, gint offs
   tmp[4] = tvb_get_guint8(tvb, offset++);
   tmp[5] = tvb_get_guint8(tvb, offset++);
 
-  ct_str = ep_strdup_printf("%s: %02X %02X %02X %02X %02X %02X", label,
+  ct_str = wmem_strdup_printf(wmem_packet_scope(),
+                              "%s: %02X %02X %02X %02X %02X %02X", label,
                               tmp[0] & SHIM6_BITMASK_CT, tmp[1], tmp[2],
                               tmp[3], tmp[4], tmp[5]
                             );
@@ -1839,7 +1840,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tvb_get_guint8(tvb, offset + IP6H_SRC + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_SRC + 11) == 0xfffe) {  /* RFC 4291 appendix A */
-      mac_addr = (guint8 *)ep_alloc(6);
+      mac_addr = (guint8 *)wmem_alloc(wmem_packet_scope(), 6);
       tvb_memcpy(tvb, mac_addr, offset + IP6H_SRC + 8, 3);
       tvb_memcpy(tvb, mac_addr+3, offset+ IP6H_SRC + 13, 3);
       mac_addr[0] &= ~0x02;
@@ -1926,7 +1927,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tvb_get_guint8(tvb, offset + IP6H_DST + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_DST + 11) == 0xfffe) { /* RFC 4291 appendix A */
-      mac_addr = (guint8 *)ep_alloc(6);
+      mac_addr = (guint8 *)wmem_alloc(wmem_packet_scope(), 6);
       tvb_memcpy(tvb, mac_addr, offset + IP6H_DST + 8, 3);
       tvb_memcpy(tvb, mac_addr+3, offset+ IP6H_DST + 13, 3);
       mac_addr[0] &= ~0x02;
