@@ -330,7 +330,7 @@ static int hf_mq_md_msgseqnumber = -1;
 static int hf_mq_md_offset = -1;
 static int hf_mq_md_msgflags = -1;
 static int hf_mq_md_origlen = -1;
-static int hf_mq_md_lastformat = -1;
+/* static int hf_mq_md_lastformat = -1; */
 static int hf_mq_dlh_structid = -1;
 static int hf_mq_dlh_version = -1;
 static int hf_mq_dlh_reason = -1;
@@ -3806,7 +3806,7 @@ void proto_register_mq(void)
 		{ &hf_mq_md_offset      ,{"Offset...", "mq.md.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "MD Offset", HFILL }},
 		{ &hf_mq_md_msgflags    ,{"Msg flags", "mq.md.msgflags", FT_UINT32, BASE_HEX, NULL, 0x0, "MD Message flags", HFILL }},
 		{ &hf_mq_md_origlen     ,{"Orig len.", "mq.md.origlength", FT_INT32, BASE_DEC, NULL, 0x0, "MD Original length", HFILL }},
-		{ &hf_mq_md_lastformat  ,{"Last format", "mq.md.lastformat", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Last format", HFILL }},
+		/*{ &hf_mq_md_lastformat  ,{"Last format", "mq.md.lastformat", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Last format", HFILL }},*/
 
 		{ &hf_mq_dlh_structid   ,{"structid.", "mq.dlh.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mq_dlh_version    ,{"Version..", "mq.dlh.version", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH version", HFILL }},
