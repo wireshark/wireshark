@@ -75,9 +75,9 @@
 #include <epan/conversation.h>
 
 #include <epan/prefs.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <epan/wmem/wmem.h>
 
 /* Version is the first 2 bits of the first octet*/
 #define RTCP_VERSION(octet) ((octet) >> 6)
@@ -654,7 +654,7 @@ void srtcp_add_address( packet_info *pinfo,
      */
     if ( ! p_conv_data ) {
         /* Create conversation data */
-        p_conv_data = se_new0(struct _rtcp_conversation_info);
+        p_conv_data = wmem_new0(wmem_file_scope(), struct _rtcp_conversation_info);
         conversation_add_proto_data(p_conv, proto_rtcp, p_conv_data);
     }
 
@@ -2520,8 +2520,8 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (p_conv_data)
             {
                 /* Save this conversation info into packet info */
-                p_conv_packet_data = (struct _rtcp_conversation_info *)se_memdup(p_conv_data,
-                       sizeof(struct _rtcp_conversation_info));
+                p_conv_packet_data = (struct _rtcp_conversation_info *)wmem_memdup(wmem_file_scope(),
+                      p_conv_data, sizeof(struct _rtcp_conversation_info));
 
                 p_add_proto_data(pinfo->fd, proto_rtcp, 0, p_conv_packet_data);
             }
@@ -2609,7 +2609,7 @@ static void remember_outgoing_sr(packet_info *pinfo, guint32 lsr)
     if (!p_conv_data)
     {
         /* Allocate memory for data */
-        p_conv_data = se_new0(struct _rtcp_conversation_info);
+        p_conv_data = wmem_new0(wmem_file_scope(), struct _rtcp_conversation_info);
 
         /* Add it to conversation. */
         conversation_add_proto_data(p_conv, proto_rtcp, p_conv_data);
@@ -2629,7 +2629,7 @@ static void remember_outgoing_sr(packet_info *pinfo, guint32 lsr)
     /* Will use/create packet info */
     if (!p_packet_data)
     {
-        p_packet_data = se_new0(struct _rtcp_conversation_info);
+        p_packet_data = wmem_new0(wmem_file_scope(), struct _rtcp_conversation_info);
 
         p_add_proto_data(pinfo->fd, proto_rtcp, 0, p_packet_data);
     }
@@ -2698,7 +2698,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
         if (!p_packet_data)
         {
             /* Create packet info if it doesn't exist */
-            p_packet_data = se_new0(struct _rtcp_conversation_info);
+            p_packet_data = wmem_new0(wmem_file_scope(), struct _rtcp_conversation_info);
 
             /* Set as packet info */
             p_add_proto_data(pinfo->fd, proto_rtcp, 0, p_packet_data);
