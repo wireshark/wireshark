@@ -282,14 +282,13 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
      */
     if (crc_exists) {
         if (crc == crc_computed) {
-            item = proto_tree_add_uint_format(fcoib_tree, hf_fcoib_crc, tvb,
+            item = proto_tree_add_uint_format_value(fcoib_tree, hf_fcoib_crc, tvb,
                                               crc_offset, 4, crc,
-                                              "CRC: %8.8x [valid]", crc);
+                                              "%8.8x [valid]", crc);
         } else {
-            item = proto_tree_add_uint_format(fcoib_tree, hf_fcoib_crc, tvb,
+            item = proto_tree_add_uint_format_value(fcoib_tree, hf_fcoib_crc, tvb,
                                               crc_offset, 4, crc,
-                                              "CRC: %8.8x "
-                                              "[error: should be %8.8x]",
+                                              "%8.8x [error: should be %8.8x]",
                                               crc, crc_computed);
             expert_add_info_format(pinfo, item, &ei_fcoib_crc,
                                    "Bad FC CRC %8.8x %8.x",

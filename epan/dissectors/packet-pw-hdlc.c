@@ -107,13 +107,13 @@ static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, 
 
 		tr = proto_item_add_subtree( item, ett_pw_hdlc );
 
-		item_address = proto_tree_add_uint( tr, hf_pw_hdlc_address_field, tvb, 0, 1, addr );
-		item_control = proto_tree_add_uint_format( tr, hf_pw_hdlc_control_field, tvb, 1, 1, control, "Control field: 0x%x", control );
+		item_address = proto_tree_add_item( tr, hf_pw_hdlc_address_field, tvb, 0, 1, ENC_NA );
+		item_control = proto_tree_add_item( tr, hf_pw_hdlc_control_field, tvb, 1, 1, ENC_NA );
 
 		tr = proto_item_add_subtree( item_address, ett_pw_hdlc );
 
 		if ( 0x3F == (( addr & 0xFC ) >> 2 ))
-			proto_tree_add_uint_format( tr, hf_pw_hdlc_address, tvb, 0, 1, 0xFC, "Address: 0x%x (All stations)", 0x3F );
+			proto_tree_add_uint_format_value( tr, hf_pw_hdlc_address, tvb, 0, 1, 0xFC, "0x%x (All stations)", 0x3F );
 		else
 			proto_tree_add_uint( tr, hf_pw_hdlc_address, tvb, 0, 1, ( addr & 0xFC ) >> 2 );
 

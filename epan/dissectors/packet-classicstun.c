@@ -385,10 +385,10 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             offset, 2, att_type);
                 offset += 2;
                 if (ATTR_HDR_LEN+att_length > msg_length) {
-                    proto_tree_add_uint_format(att_tree,
+                    proto_tree_add_uint_format_value(att_tree,
                                    classicstun_att_length, tvb, offset, 2,
                                    att_length,
-                                   "Attribute Length: %u (bogus, goes past the end of the message)",
+                                   "%u (bogus, goes past the end of the message)",
                                    att_length);
                     break;
                 }

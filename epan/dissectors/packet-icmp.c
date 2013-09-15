@@ -826,7 +826,6 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 	guint8 version;
 	guint8 class_num;
 	guint8 c_type;
-	guint16 reserved;
 	guint16 cksum, computed_cksum;
 	guint16 obj_length, obj_trunc_length;
 	proto_item *ti, *tf_object, *hidden_item;
@@ -864,10 +863,8 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 			    version);
 
 	/* Reserved */
-	reserved = tvb_get_ntohs(tvb, offset) & 0x0fff;
-	proto_tree_add_uint_format(ext_tree, hf_icmp_ext_reserved,
-				   tvb, offset, 2, reserved,
-				   "Reserved: 0x%03x", reserved);
+	proto_tree_add_item(ext_tree, hf_icmp_ext_reserved,
+				   tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Checksum */
 	cksum = tvb_get_ntohs(tvb, offset + 2);
@@ -877,18 +874,18 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 			reported_length);
 
 	if (computed_cksum == 0) {
-		proto_tree_add_uint_format(ext_tree, hf_icmp_ext_checksum,
+		proto_tree_add_uint_format_value(ext_tree, hf_icmp_ext_checksum,
 					   tvb, offset + 2, 2, cksum,
-					   "Checksum: 0x%04x [correct]",
+					   "0x%04x [correct]",
 					   cksum);
 		hidden_item =
 		    proto_tree_add_boolean(ext_tree,
 					   hf_icmp_ext_checksum_bad, tvb,
 					   offset + 2, 2, FALSE);
 	} else {
-		proto_tree_add_uint_format(ext_tree, hf_icmp_ext_checksum,
+		proto_tree_add_uint_format_value(ext_tree, hf_icmp_ext_checksum,
 					   tvb, offset + 2, 2, cksum,
-					   "Checksum: 0x%04x [incorrect, should be 0x%04x]",
+					   "0x%04x [incorrect, should be 0x%04x]",
 					   cksum, in_cksum_shouldbe(cksum,
 								    computed_cksum));
 		hidden_item =
@@ -1356,10 +1353,10 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    ip_checksum(tvb_get_ptr(tvb, 0, reported_length),
 				reported_length);
 		if (computed_cksum == 0) {
-			proto_tree_add_uint_format(icmp_tree,
+			proto_tree_add_uint_format_value(icmp_tree,
 						   hf_icmp_checksum, tvb,
 						   2, 2, cksum,
-						   "Checksum: 0x%04x [correct]",
+						   "0x%04x [correct]",
 						   cksum);
 			item =
 			    proto_tree_add_boolean(icmp_tree,
@@ -1367,10 +1364,10 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						   tvb, 2, 2, FALSE);
 			PROTO_ITEM_SET_HIDDEN(item);
 		} else {
-			proto_tree_add_uint_format(icmp_tree,
+			proto_tree_add_uint_format_value(icmp_tree,
 						   hf_icmp_checksum, tvb,
 						   2, 2, cksum,
-						   "Checksum: 0x%04x [incorrect, should be 0x%04x]",
+						   "0x%04x [incorrect, should be 0x%04x]",
 						   cksum,
 						   in_cksum_shouldbe(cksum,
 								     computed_cksum));
@@ -1855,7 +1852,7 @@ void proto_register_icmp(void)
 
 		{&hf_icmp_ext_reserved,
 		 {"Reserved", "icmp.ext.res", FT_UINT16, BASE_HEX, NULL,
-		  0x0,
+		  0x0fff,
 		  NULL, HFILL}},
 
 		{&hf_icmp_ext_checksum,

@@ -4256,7 +4256,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_item_append_text(ti, ", Seq: %u", tcph->th_seq);
         }
         if(tcp_relative_seq) {
-            proto_tree_add_uint_format(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq, "Sequence number: %u    (relative sequence number)", tcph->th_seq);
+            proto_tree_add_uint_format_value(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq, "%u    (relative sequence number)", tcph->th_seq);
         } else {
             proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq);
         }
@@ -4289,7 +4289,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tcph->th_have_seglen) {
             if (nxtseq != tcph->th_seq) {
                 if(tcp_relative_seq) {
-                    tf=proto_tree_add_uint_format(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq, "Next sequence number: %u    (relative sequence number)", nxtseq);
+                    tf=proto_tree_add_uint_format_value(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq, "%u    (relative sequence number)", nxtseq);
                 } else {
                     tf=proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
                 }
@@ -4313,8 +4313,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
                                    "Header length: %u bytes", tcph->th_hlen);
-        tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
-                                        tcph->th_flags, "Flags: 0x%03x (%s)", tcph->th_flags, wmem_strbuf_get_str(flags_strbuf));
+        tf = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
+                                        tcph->th_flags, "0x%03x (%s)", tcph->th_flags, wmem_strbuf_get_str(flags_strbuf));
         field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_res, tvb, offset + 12, 1, tcph->th_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_ns, tvb, offset + 12, 1, tcph->th_flags);
@@ -4442,9 +4442,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cksum_vec[3].len = reported_len;
             computed_cksum = in_cksum(cksum_vec, 4);
             if (computed_cksum == 0 && th_sum == 0xffff) {
-                item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+                item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
                                                   offset + 16, 2, th_sum,
-                                                  "Checksum: 0x%04x [should be 0x0000 (see RFC 1624)]", th_sum);
+                                                  "0x%04x [should be 0x0000 (see RFC 1624)]", th_sum);
 
                 checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
                 item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
@@ -4460,8 +4460,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Checksum is treated as valid on most systems, so we're willing to desegment it. */
                 desegment_ok = TRUE;
             } else if (computed_cksum == 0) {
-                item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-                                                  offset + 16, 2, th_sum, "Checksum: 0x%04x [correct]", th_sum);
+                item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
+                                                  offset + 16, 2, th_sum, "0x%04x [correct]", th_sum);
 
                 checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
                 item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
@@ -4474,9 +4474,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Checksum is valid, so we're willing to desegment it. */
                 desegment_ok = TRUE;
             } else {
-                item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+                item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
                                                   offset + 16, 2, th_sum,
-                                                  "Checksum: 0x%04x [incorrect, should be 0x%04x (maybe caused by \"TCP checksum offload\"?)]", th_sum,
+                                                  "0x%04x [incorrect, should be 0x%04x (maybe caused by \"TCP checksum offload\"?)]", th_sum,
                                                   in_cksum_shouldbe(th_sum, computed_cksum));
 
                 checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
@@ -4495,8 +4495,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 pinfo->noreassembly_reason = " [incorrect TCP checksum]";
             }
         } else {
-            item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-                                              offset + 16, 2, th_sum, "Checksum: 0x%04x [validation disabled]", th_sum);
+            item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
+                                              offset + 16, 2, th_sum, "0x%04x [validation disabled]", th_sum);
 
             checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
             item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
@@ -4512,8 +4512,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     } else {
         /* We don't have all the packet data, so we can't checksum it... */
-        item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-                                          offset + 16, 2, th_sum, "Checksum: 0x%04x [unchecked, not all data available]", th_sum);
+        item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
+                                          offset + 16, 2, th_sum, "0x%04x [unchecked, not all data available]", th_sum);
 
         checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
         item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,

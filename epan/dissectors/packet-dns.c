@@ -1399,8 +1399,8 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
     proto_tree_add_uint(rr_tree, hf_dns_rr_class, tvb, offset, 2, dns_class);
   }
   offset += 2;
-  ttl_tree = proto_tree_add_uint_format(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ttl,
-                             "Time to live: %s", time_secs_to_str(ttl));
+  ttl_tree = proto_tree_add_uint_format_value(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ttl,
+                             "%s", time_secs_to_str(ttl));
   if (ttl & 0x80000000) {
     expert_add_info(pinfo, ttl_tree, &ei_ttl_negative);
   }

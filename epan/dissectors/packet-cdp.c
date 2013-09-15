@@ -269,13 +269,13 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     checksum_good = (computed_checksum == 0);
     checksum_bad = !checksum_good;
     if (checksum_good) {
-        checksum_item = proto_tree_add_uint_format(cdp_tree,
+        checksum_item = proto_tree_add_uint_format_value(cdp_tree,
                                                    hf_cdp_checksum, tvb, offset, 2, packet_checksum,
-                                                   "Checksum: 0x%04x [correct]", packet_checksum);
+                                                   "0x%04x [correct]", packet_checksum);
     } else {
-        checksum_item = proto_tree_add_uint_format(cdp_tree,
+        checksum_item = proto_tree_add_uint_format_value(cdp_tree,
                                                    hf_cdp_checksum, tvb, offset, 2, packet_checksum,
-                                                   "Checksum: 0x%04x [incorrect, should be 0x%04x]",
+                                                   "0x%04x [incorrect, should be 0x%04x]",
                                                    packet_checksum,
                                                    in_cksum_shouldbe(packet_checksum, computed_checksum));
     }

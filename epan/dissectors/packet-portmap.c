@@ -92,8 +92,8 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	/* program */
 	prog = tvb_get_ntohl(tvb, offset+0);
 	prog_name = rpc_prog_name(prog);
-	proto_tree_add_uint_format(tree, hf_portmap_prog, tvb,
-		offset, 4, prog, "Program: %s (%u)",
+	proto_tree_add_uint_format_value(tree, hf_portmap_prog, tvb,
+		offset, 4, prog, "%s (%u)",
 		prog_name, prog);
 	col_append_fstr(pinfo->cinfo, COL_INFO,  " %s(%u)", prog_name, prog);
 
@@ -175,8 +175,8 @@ dissect_set_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if ( tree )
 	{
 		prog = tvb_get_ntohl(tvb, offset+0);
-		proto_tree_add_uint_format(tree, hf_portmap_prog, tvb,
-			offset, 4, prog, "Program: %s (%d)",
+		proto_tree_add_uint_format_value(tree, hf_portmap_prog, tvb,
+			offset, 4, prog, "%s (%d)",
 			rpc_prog_name(prog), prog);
 		proto_tree_add_item(tree, hf_portmap_version, tvb,
 			offset+4, 4, ENC_BIG_ENDIAN);
@@ -203,8 +203,8 @@ dissect_unset_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if ( tree )
 	{
 		prog = tvb_get_ntohl(tvb, offset+0);
-		proto_tree_add_uint_format(tree, hf_portmap_prog, tvb,
-			offset, 4, prog, "Program: %s (%d)",
+		proto_tree_add_uint_format_value(tree, hf_portmap_prog, tvb,
+			offset, 4, prog, "%s (%d)",
 			rpc_prog_name(prog), prog);
 		proto_tree_add_item(tree, hf_portmap_version, tvb,
 			offset+4, 4, ENC_BIG_ENDIAN);
@@ -247,14 +247,14 @@ dissect_dump_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			rpc_prog_name(prog), prog, version);
 		subtree = proto_item_add_subtree(ti, ett_portmap_entry);
 
-		proto_tree_add_uint_format(subtree, hf_portmap_prog, tvb,
+		proto_tree_add_uint_format_value(subtree, hf_portmap_prog, tvb,
 			offset+0, 4, prog,
-			"Program: %s (%u)", rpc_prog_name(prog), prog);
+			"%s (%u)", rpc_prog_name(prog), prog);
 		proto_tree_add_uint(subtree, hf_portmap_version, tvb,
 			offset+4, 4, version);
-		proto_tree_add_uint_format(subtree, hf_portmap_proto, tvb,
+		proto_tree_add_uint_format_value(subtree, hf_portmap_proto, tvb,
 			offset+8, 4, proto,
-			"Protocol: %s (0x%02x)", ipprotostr(proto), proto);
+			"%s (0x%02x)", ipprotostr(proto), proto);
 		proto_tree_add_uint(subtree, hf_portmap_port, tvb,
 			offset+12, 4, port);
 	}
@@ -281,8 +281,8 @@ dissect_callit_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	prog = tvb_get_ntohl(tvb, offset+0);
 	if ( tree )
 	{
-		proto_tree_add_uint_format(tree, hf_portmap_prog, tvb,
-			offset, 4, prog, "Program: %s (%u)",
+		proto_tree_add_uint_format_value(tree, hf_portmap_prog, tvb,
+			offset, 4, prog, "%s (%u)",
 			rpc_prog_name(prog), prog);
 	}
 
@@ -296,8 +296,8 @@ dissect_callit_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proc = tvb_get_ntohl(tvb, offset+8);
 	if ( tree )
 	{
-		proto_tree_add_uint_format(tree, hf_portmap_proc, tvb,
-			offset+8, 4, proc, "Procedure: %s (%u)",
+		proto_tree_add_uint_format_value(tree, hf_portmap_proc, tvb,
+			offset+8, 4, proc, "%s (%u)",
 			rpc_proc_name(prog, vers, proc), proc);
 	}
 
@@ -403,9 +403,9 @@ dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree
 
 	prog = tvb_get_ntohl(tvb, offset);
 	if (rpcb_tree)
-		proto_tree_add_uint_format(rpcb_tree, hf_portmap_rpcb_prog, tvb,
+		proto_tree_add_uint_format_value(rpcb_tree, hf_portmap_rpcb_prog, tvb,
 			offset, 4, prog,
-			"Program: %s (%u)", rpc_prog_name(prog), prog);
+			"%s (%u)", rpc_prog_name(prog), prog);
 	offset += 4;
 
 	offset = dissect_rpc_uint32(tvb, rpcb_tree,

@@ -279,7 +279,7 @@ dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (type == SCOP_CMD_HELLO_RESP) {
         status = tvb_get_ntohs(tvb, 1);
-        proto_tree_add_uint_format(tree, hf_scop_status, tvb, offset, 2, status, "Status: %s", (status==0x0000)?"Success":"Failure");
+        proto_tree_add_uint_format_value(tree, hf_scop_status, tvb, offset, 2, status, "%s", (status==0x0000)?"Success":"Failure");
         offset += 2;
     }
 

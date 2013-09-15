@@ -291,8 +291,8 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, FDDI_HEADER_SIZE+FDDI_PADDING,
                                         "Fiber Distributed Data Interface, %s", fc_str);
     fh_tree = proto_item_add_subtree(ti, ett_fddi);
-    ti = proto_tree_add_uint_format(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC + FDDI_PADDING, 1, fddihdr->fc,
-        "Frame Control: 0x%02x (%s)", fddihdr->fc, fc_str);
+    ti = proto_tree_add_uint_format_value(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC + FDDI_PADDING, 1, fddihdr->fc,
+        "0x%02x (%s)", fddihdr->fc, fc_str);
     fc_tree = proto_item_add_subtree(ti, ett_fddi_fc);
     proto_tree_add_uint(fc_tree, hf_fddi_fc_clf, tvb, FDDI_P_FC + FDDI_PADDING, 1, fddihdr->fc);
     switch ((fddihdr->fc) & FDDI_FC_CLFF) {

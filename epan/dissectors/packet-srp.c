@@ -154,16 +154,16 @@ static void dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	calc_crc = crc16_ccitt_tvb(tvb,crc_offset);
 
 	if( crc == calc_crc ) {
-	    proto_tree_add_uint_format(srp_tree, hf_srp_crc, tvb,
+	    proto_tree_add_uint_format_value(srp_tree, hf_srp_crc, tvb,
 				       crc_offset, 2, crc,
-				       "CRC: 0x%04x (correct)", crc);
+				       "0x%04x (correct)", crc);
 	} else {
 	    hidden_item = proto_tree_add_boolean(srp_tree, hf_srp_crc_bad, tvb,
 					  crc_offset, 2, TRUE);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
-	    proto_tree_add_uint_format(srp_tree, hf_srp_crc, tvb,
+	    proto_tree_add_uint_format_value(srp_tree, hf_srp_crc, tvb,
 				       crc_offset, 2, crc,
-				       "CRC: 0x%04x (incorrect, should be 0x%04x)",
+				       "0x%04x (incorrect, should be 0x%04x)",
 				       crc,
 				       calc_crc);
 	}

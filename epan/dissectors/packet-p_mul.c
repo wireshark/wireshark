@@ -842,8 +842,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += 1;
 
   /* MAP / PDU_Type */
-  en = proto_tree_add_uint_format (p_mul_tree, hf_pdu_type, tvb, offset, 1,
-                                   pdu_type, "PDU Type: %s (0x%02x)",
+  en = proto_tree_add_uint_format_value(p_mul_tree, hf_pdu_type, tvb, offset, 1,
+                                   pdu_type, "%s (0x%02x)",
                                    get_type (pdu_type), pdu_type);
   field_tree = proto_item_add_subtree (en, ett_pdu_type);
 
@@ -963,9 +963,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         message_id_offset = message_id;
       }
       message_id -= message_id_offset;
-      proto_tree_add_uint_format (p_mul_tree, hf_message_id, tvb, offset, 4,
-                                  message_id, "Message ID (MSID): %u"
-                                  "    (relative message id)", message_id);
+      proto_tree_add_uint_format_value(p_mul_tree, hf_message_id, tvb, offset, 4,
+                                  message_id, "%u    (relative message id)", message_id);
     } else {
       proto_tree_add_item (p_mul_tree, hf_message_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
@@ -1102,9 +1101,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           message_id_offset = message_id;
         }
         message_id -= message_id_offset;
-        proto_tree_add_uint_format (field_tree, hf_message_id, tvb, offset, 4,
-                                    message_id, "Message ID (MSID): %u"
-                                    "    (relative message id)", message_id);
+        proto_tree_add_uint_format_value(field_tree, hf_message_id, tvb, offset, 4,
+                                    message_id, "%u    (relative message id)", message_id);
       } else {
         proto_tree_add_item (field_tree, hf_message_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       }
@@ -1140,9 +1138,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               missing_tree = proto_item_add_subtree (en, ett_range_entry);
 
               for (sno = ack_seq_no; sno <= end_seq_no; sno++) {
-                en = proto_tree_add_uint_format (missing_tree, hf_miss_seq_no,
+                en = proto_tree_add_uint_format_value(missing_tree, hf_miss_seq_no,
                                                  tvb, offset, 6, sno,
-                                                 "Missing Data PDU Seq Number: %d", sno);
+                                                 "%d", sno);
                 PROTO_ITEM_SET_GENERATED (en);
               }
               tot_no_missing += (end_seq_no - ack_seq_no + 1);

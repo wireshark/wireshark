@@ -404,13 +404,13 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			GNUTELLA_SERVENT_ID_LENGTH,
 			ENC_NA);
 
-		proto_tree_add_uint_format(gnutella_header_tree,
+		proto_tree_add_uint_format_value(gnutella_header_tree,
 			hf_gnutella_header_payload,
 			tvb,
 			GNUTELLA_HEADER_PAYLOAD_OFFSET,
 			GNUTELLA_BYTE_LENGTH,
 			payload_descriptor,
-			"Payload: %i (%s)",
+			"%i (%s)",
 			payload_descriptor,
 			payload_descriptor_text);
 

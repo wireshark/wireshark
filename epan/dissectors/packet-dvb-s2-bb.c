@@ -758,12 +758,12 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
     input8 = tvb_get_guint8(tvb, cur_off + DVB_S2_BB_OFFS_MATYPE2);
     new_off += 1;
     if (flag_is_ms) {
-        proto_tree_add_uint_format(dvb_s2_bb_tree, hf_dvb_s2_bb_matype2, tvb,
-                                   cur_off + DVB_S2_BB_OFFS_MATYPE2, 1, input8, "MATYPE2: Input Stream Identifier (ISI): %d",
+        proto_tree_add_uint_format_value(dvb_s2_bb_tree, hf_dvb_s2_bb_matype2, tvb,
+                                   cur_off + DVB_S2_BB_OFFS_MATYPE2, 1, input8, "Input Stream Identifier (ISI): %d",
                                    input8);
     } else {
-        proto_tree_add_uint_format(dvb_s2_bb_tree, hf_dvb_s2_bb_matype2, tvb,
-                                   cur_off + DVB_S2_BB_OFFS_MATYPE2, 1, input8, "MATYPE2: reserved");
+        proto_tree_add_uint_format_value(dvb_s2_bb_tree, hf_dvb_s2_bb_matype2, tvb,
+                                   cur_off + DVB_S2_BB_OFFS_MATYPE2, 1, input8, "reserved");
     }
 
     input16 = tvb_get_ntohs(tvb, cur_off + DVB_S2_BB_OFFS_UPL);
@@ -777,8 +777,8 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
     bb_data_len /= 8;
     new_off += 2;
 
-    proto_tree_add_uint_format(dvb_s2_bb_tree, hf_dvb_s2_bb_dfl, tvb,
-                               cur_off + DVB_S2_BB_OFFS_DFL, 2, input16, "DFL: %d bits (%d bytes)", input16, input16 / 8);
+    proto_tree_add_uint_format_value(dvb_s2_bb_tree, hf_dvb_s2_bb_dfl, tvb,
+                               cur_off + DVB_S2_BB_OFFS_DFL, 2, input16, "%d bits (%d bytes)", input16, input16 / 8);
 
     new_off += 1;
     proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_sync, tvb, cur_off + DVB_S2_BB_OFFS_SYNC, 1, ENC_BIG_ENDIAN);

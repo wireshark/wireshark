@@ -136,7 +136,7 @@ dissect_krb4_kdc_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 
 	/* lifetime */
 	lifetime=tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_krb4_lifetime, tvb, offset, 1, lifetime, "Lifetime: %d (%d minutes)", lifetime, lifetime*5);
+	proto_tree_add_uint_format_value(tree, hf_krb4_lifetime, tvb, offset, 1, lifetime, "%d (%d minutes)", lifetime, lifetime*5);
 	offset++;
 
 	/* service Name */
@@ -185,7 +185,7 @@ dissect_krb4_kdc_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 	/* length2 */
 	length=little_endian?tvb_get_letohs(tvb, offset):tvb_get_ntohs(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_krb4_length, tvb, offset, 2, length, "Length: %d", length);
+	proto_tree_add_uint_format_value(tree, hf_krb4_length, tvb, offset, 2, length, "%d", length);
 	offset+=2;
 
 	/* encrypted blob */
@@ -236,7 +236,7 @@ dissect_krb4_appl_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 	/* lifetime */
 	lifetime=tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_krb4_lifetime, tvb, offset, 1, lifetime, "Lifetime: %d (%d minutes)", lifetime, lifetime*5);
+	proto_tree_add_uint_format_value(tree, hf_krb4_lifetime, tvb, offset, 1, lifetime, "%d (%d minutes)", lifetime, lifetime*5);
 	offset++;
 
 	/* service Name */

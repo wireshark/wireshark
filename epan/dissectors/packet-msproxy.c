@@ -686,8 +686,8 @@ static void dissect_msproxy_request(tvbuff_t *tvb,
 	cmd = tvb_get_ntohs( tvb, offset);
 
 	if ( tree)
-		proto_tree_add_uint_format( tree, hf_msproxy_cmd, tvb, offset, 2,
-			cmd, "Command: %s (0x%02x)",
+		proto_tree_add_uint_format_value( tree, hf_msproxy_cmd, tvb, offset, 2,
+			cmd, "%s (0x%02x)",
 			get_msproxy_cmd_name( cmd, FROM_CLIENT),
 			cmd);
 
@@ -1006,8 +1006,8 @@ static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 
 	cmd = tvb_get_ntohs( tvb, offset);
 
-	ti = proto_tree_add_uint_format( tree, hf_msproxy_cmd, tvb, offset, 2,
-			cmd, "Command: 0x%02x (%s)", cmd,
+	ti = proto_tree_add_uint_format_value( tree, hf_msproxy_cmd, tvb, offset, 2,
+			cmd, "0x%02x (%s)", cmd,
 			get_msproxy_cmd_name( cmd, FROM_SERVER));
 	offset += 2;
 

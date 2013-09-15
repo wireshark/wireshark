@@ -211,8 +211,8 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ns_tree, hf_ns_snode, tvb, pnstr->srcnodeid_offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(ns_tree, hf_ns_dnode, tvb, pnstr->destnodeid_offset, 2, ENC_LITTLE_ENDIAN);
 
-		flagitem = proto_tree_add_uint_format(ns_tree, hf_ns_clflags, tvb, flagoffset, 1, flagval,
-						"Cluster Flags: 0x%02x (%s)", flagval, flags_strbuf->str);
+		flagitem = proto_tree_add_uint_format_value(ns_tree, hf_ns_clflags, tvb, flagoffset, 1, flagval,
+						"0x%02x (%s)", flagval, flags_strbuf->str);
 		flagtree = proto_item_add_subtree(flagitem, ett_ns_flags);
 
 		proto_tree_add_boolean(flagtree, hf_ns_clflags_res, tvb, flagoffset, 1, flagval);

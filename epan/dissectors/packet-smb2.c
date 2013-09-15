@@ -6693,7 +6693,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 	} else {
 		/* Process ID */
 		pid = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint_format(tree, hf_smb2_pid, tvb, offset, 4, pid, "Process Id: %08x",pid);
+		proto_tree_add_item(tree, hf_smb2_pid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* Tree ID */

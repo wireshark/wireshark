@@ -83,12 +83,11 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * adapter was used to do the capture, we can't do the conversion.
    */
   col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%", signal_level);
-  if (tree) {
-    proto_tree_add_uint_format(airopeek_tree, hf_signal_strength, tvb, 2, 1,
+
+  proto_tree_add_uint_format_value(airopeek_tree, hf_signal_strength, tvb, 2, 1,
                                signal_level,
-                               "Signal Strength: %u%%",
+                               "%u%%",
                                signal_level);
-  }
 
   /* dissect the 802.11 header next */
   pinfo->current_proto = "IEEE 802.11";

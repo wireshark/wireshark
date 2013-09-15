@@ -335,8 +335,8 @@ void dissect_nhrp_hdr(tvbuff_t     *tvb,
         pro_type_str = val_to_str_const(hdr->ar_pro_type, etype_vals,
             "Unknown Ethertype");
     }
-    proto_tree_add_uint_format(nhrp_tree, hf_nhrp_hdr_pro_type, tvb, offset, 2,
-        hdr->ar_pro_type, "Protocol Type (short form): %s (0x%04x)",
+    proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_pro_type, tvb, offset, 2,
+        hdr->ar_pro_type, "%s (0x%04x)",
         pro_type_str, hdr->ar_pro_type);
     offset += 2;
 

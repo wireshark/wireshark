@@ -12859,7 +12859,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       /*** Begin: BSSID Information ***/
       offset += 6;
       bssid_info = tvb_get_letohl (tvb, offset);
-      parent_item = proto_tree_add_uint_format(tree, hf_ieee80211_tag_neighbor_report_bssid_info, tvb, offset, 4, bssid_info, "BSSID Information: 0x%08X", bssid_info);
+      parent_item = proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_bssid_info, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       bssid_info_subtree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_bssid_info_tree);
 
       proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_reachability, tvb, offset, 1, bssid_info);
@@ -12877,16 +12877,14 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       /*** End: BSSID Information ***/
 
       offset += 4;
-      info = tvb_get_guint8 (tvb, offset);
-      proto_tree_add_uint_format(tree, hf_ieee80211_tag_neighbor_report_reg_class, tvb, offset, 1, info, "Regulatory Class: 0x%02X", info);
+      proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_reg_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+      offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
       offset += 1;
       info = tvb_get_guint8 (tvb, offset);
-      proto_tree_add_uint_format(tree, hf_ieee80211_tag_neighbor_report_channel_number, tvb, offset, 1, info, "Channel Number: 0x%02X", info);
-
-      offset += 1;
-      info = tvb_get_guint8 (tvb, offset);
-      proto_tree_add_uint_format(tree, hf_ieee80211_tag_neighbor_report_phy_type, tvb, offset, 1, info, "PHY Type: 0x%02X", info);
+      proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_phy_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
       offset += 1;
       sub_tag_id = tvb_get_guint8 (tvb, offset);
@@ -14653,10 +14651,10 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         /* Davide Schiera (2006-11-21): added WEP or WPA separation      */
         if (algorithm == PROTECTION_ALG_WEP) {
           if (can_decrypt)
-            proto_tree_add_uint_format (wep_tree, hf_ieee80211_wep_icv, tvb,
+            proto_tree_add_uint_format_value(wep_tree, hf_ieee80211_wep_icv, tvb,
                 hdr_len + ivlen + len, 4,
                 tvb_get_ntohl(tvb, hdr_len + ivlen + len),
-                "WEP ICV: 0x%08x (not verified)",
+                "0x%08x (not verified)",
                 tvb_get_ntohl(tvb, hdr_len + ivlen + len));
         } else if (algorithm == PROTECTION_ALG_CCMP) {
         } else if (algorithm == PROTECTION_ALG_TKIP) {
@@ -14673,10 +14671,10 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       /* Davide Schiera (2006-11-21): added WEP or WPA separation        */
       if (algorithm == PROTECTION_ALG_WEP) {
         if (tree)
-          proto_tree_add_uint_format (wep_tree, hf_ieee80211_wep_icv, tvb,
+          proto_tree_add_uint_format_value(wep_tree, hf_ieee80211_wep_icv, tvb,
               hdr_len + ivlen + len, 4,
               tvb_get_ntohl(tvb, hdr_len + ivlen + len),
-              "WEP ICV: 0x%08x (correct)",
+              "0x%08x (correct)",
               tvb_get_ntohl(tvb, hdr_len + ivlen + len));
 
         add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");

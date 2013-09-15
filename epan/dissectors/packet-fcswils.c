@@ -718,11 +718,11 @@ dissect_swils_elp(tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         proto_tree_add_item(elp_tree, hf_swils_elp_rev, tvb, offset++, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(elp_tree, hf_swils_elp_flags, tvb, offset, 2, ENC_NA);
         offset += 3;
-        proto_tree_add_uint_format(elp_tree, hf_swils_elp_r_a_tov, tvb, offset, 4,
-                                   elp.r_a_tov, "R_A_TOV: %d msecs", elp.r_a_tov);
+        proto_tree_add_uint_format_value(elp_tree, hf_swils_elp_r_a_tov, tvb, offset, 4,
+                                   elp.r_a_tov, "%d msecs", elp.r_a_tov);
         offset += 4;
-        proto_tree_add_uint_format(elp_tree, hf_swils_elp_e_d_tov, tvb, offset, 4,
-                                   elp.e_d_tov, "E_D_TOV: %d msecs", elp.e_d_tov);
+        proto_tree_add_uint_format_value(elp_tree, hf_swils_elp_e_d_tov, tvb, offset, 4,
+                                   elp.e_d_tov, "%d msecs", elp.e_d_tov);
         offset += 4;
         proto_tree_add_string(elp_tree, hf_swils_elp_req_epn, tvb, offset, 8,
                               fcwwn_to_str(elp.req_epname));
@@ -870,9 +870,9 @@ dissect_swils_efp(tvbuff_t *tvb, proto_tree *efp_tree, guint8 isreq _U_)
     efp.payload_len = tvb_get_ntohs(tvb, offset);
     if (efp.payload_len < FC_SWILS_EFP_SIZE) {
         if (efp_tree)
-            proto_tree_add_uint_format(efp_tree, hf_swils_efp_payload_len,
+            proto_tree_add_uint_format_value(efp_tree, hf_swils_efp_payload_len,
                                        tvb, offset, 2, efp.payload_len,
-                                       "Payload Len: %u (bogus, must be >= %u)",
+                                       "%u (bogus, must be >= %u)",
                                        efp.payload_len, FC_SWILS_EFP_SIZE);
         return;
     }

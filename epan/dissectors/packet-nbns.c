@@ -519,8 +519,8 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
         g_strlcat(buf, val_to_str_const(flags & F_RCODE, rcode_vals, "Unknown error"), MAX_BUF_SIZE);
         buf[MAX_BUF_SIZE-1] = '\0';
     }
-    tf = proto_tree_add_uint_format(nbns_tree, hf_nbns_flags,
-                                    tvb, offset, 2, flags, "Flags: 0x%04x (%s)", flags, buf);
+    tf = proto_tree_add_uint_format_value(nbns_tree, hf_nbns_flags,
+                                    tvb, offset, 2, flags, "0x%04x (%s)", flags, buf);
     field_tree = proto_item_add_subtree(tf, ett_nbns_flags);
     proto_tree_add_item(field_tree, hf_nbns_flags_response,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1500,19 +1500,15 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     msg_type = tvb_get_guint8(tvb, offset);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, length + 4, ENC_NA);
-        nbss_tree = proto_item_add_subtree(ti, ett_nbss);
+    ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, length + 4, ENC_NA);
+    nbss_tree = proto_item_add_subtree(ti, ett_nbss);
 
-        proto_tree_add_item(nbss_tree, hf_nbss_type, tvb, offset, 1, ENC_NA);
-    }
+    proto_tree_add_item(nbss_tree, hf_nbss_type, tvb, offset, 1, ENC_NA);
 
     offset += 1;
 
     if (is_cifs) {
-        if (tree) {
-            proto_tree_add_item(nbss_tree, hf_nbss_cifs_length, tvb, offset, 3, ENC_BIG_ENDIAN);
-        }
+        proto_tree_add_item(nbss_tree, hf_nbss_cifs_length, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
     } else {
         if (tree) {
@@ -1522,10 +1518,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         offset += 1;
 
-        if (tree) {
-            proto_tree_add_uint_format(nbss_tree, hf_nbss_length, tvb, offset, 2,
-                                       length, "Length: %u", length);
-        }
+        proto_tree_add_uint(nbss_tree, hf_nbss_length, tvb, offset, 2, length);
 
         offset += 2;
     }

@@ -213,10 +213,10 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				} else {
 					wan_link_delay = tvb_get_ntohs(tvb,
 					    offset);
-					proto_tree_add_uint_format(option_tree,
+					proto_tree_add_uint_format_value(option_tree,
 					    hf_ipxwan_wan_link_delay, tvb,
 					    offset, 2, wan_link_delay,
-					    "WAN Link Delay: %ums",
+					    "%ums",
 					    wan_link_delay);
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_common_network_number,
@@ -233,15 +233,15 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						"Bogus length: %u, should be 8", option_data_len);
 				} else {
 					delay = tvb_get_ntohl(tvb, offset);
-					proto_tree_add_uint_format(option_tree,
+					proto_tree_add_uint_format_value(option_tree,
 					    hf_ipxwan_delay, tvb,
 					    offset, 4, delay,
-					    "Delay: %uus", delay);
+					    "%uus", delay);
 					throughput = tvb_get_ntohl(tvb, offset);
-					proto_tree_add_uint_format(option_tree,
+					proto_tree_add_uint_format_value(option_tree,
 					    hf_ipxwan_throughput, tvb,
 					    offset, 4, throughput,
-					    "Throughput: %uus",
+					    "%uus",
 					    throughput);
 				}
 				break;
@@ -255,10 +255,10 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    hf_ipxwan_request_size, tvb,
 					    offset, 4, ENC_BIG_ENDIAN);
 					delta_time = tvb_get_ntohl(tvb, offset);
-					proto_tree_add_uint_format(option_tree,
+					proto_tree_add_uint_format_value(option_tree,
 					    hf_ipxwan_delta_time, tvb,
 					    offset, 4, delta_time,
-					    "Delta Time: %uus",
+					    "%uus",
 					    delta_time);
 				}
 				break;

@@ -720,9 +720,9 @@ static tvbuff_t * add_to_tree(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         proto_tree_add_text(tree, new_tvb, 0, -1, "[Reassembled MAC-is SDU]");
 
         while (f) {
-            proto_tree_add_uint_format(tree, hf_mac_is_fraglink, new_tvb,
+            proto_tree_add_uint_format_value(tree, hf_mac_is_fraglink, new_tvb,
                     counter, f->length, f->frame_num,
-                    "Frame: %u, payload: %u-%u (%u bytes) (TSN: %u)",
+                    "%u, payload: %u-%u (%u bytes) (TSN: %u)",
                     f->frame_num, counter, counter+f->length-1, f->length,
                     f->tsn);
             counter += f->length;

@@ -377,8 +377,8 @@ dissect_operation_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
                 "Bogus: ForCES Operation TLV (Type:0x%04x) is not supported", type);
 
         length = tvb_get_ntohs(tvb, offset+2);
-        proto_tree_add_uint_format(oper_tree, hf_forces_lfbselect_tlv_type_operation_length,
-                                   tvb, offset+2, 2, length, "Length: %u Bytes", length);
+        proto_tree_add_uint_format_value(oper_tree, hf_forces_lfbselect_tlv_type_operation_length,
+                                   tvb, offset+2, 2, length, "%u Bytes", length);
 
         dissect_path_data_tlv(tvb, pinfo, oper_tree, offset+TLV_TL_LENGTH);
         if (length == 0)
@@ -423,8 +423,8 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     proto_tree_add_item(meta_data_tree, hf_forces_redirect_tlv_meta_data_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     length_meta = tvb_get_ntohs(tvb, offset+2);
-    proto_tree_add_uint_format(meta_data_tree, hf_forces_redirect_tlv_meta_data_tlv_length, tvb, offset+2, 2,
-                               length_meta, "Length: %u Bytes", length_meta);
+    proto_tree_add_uint_format_value(meta_data_tree, hf_forces_redirect_tlv_meta_data_tlv_length, tvb, offset+2, 2,
+                               length_meta, "%u Bytes", length_meta);
     proto_item_set_len(ti, length_meta);
 
     start_offset = offset;
@@ -436,8 +436,8 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
         proto_tree_add_item(meta_data_ilv_tree, hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_id,
                                    tvb, offset+8, 4, ENC_BIG_ENDIAN);
         length_ilv = tvb_get_ntohl(tvb, offset+12);
-        proto_tree_add_uint_format(meta_data_ilv_tree, hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_length,
-                                   tvb,  offset+12, 4, length_ilv, "Length: %u Bytes", length_ilv);
+        proto_tree_add_uint_format_value(meta_data_ilv_tree, hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_length,
+                                   tvb,  offset+12, 4, length_ilv, "%u Bytes", length_ilv);
         if (length_ilv > 0)
             proto_tree_add_item(meta_data_ilv_tree, hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv,
                                    tvb, offset+8, length_ilv, ENC_NA);
@@ -454,8 +454,8 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
         proto_tree_add_item(redirect_data_tree, hf_forces_redirect_tlv_redirect_data_tlv_type,
                             tvb, offset, 2,  ENC_BIG_ENDIAN);
         length_redirect = tvb_get_ntohs(tvb, offset+2);
-        proto_tree_add_uint_format(redirect_data_tree, hf_forces_redirect_tlv_redirect_data_tlv_length,
-                            tvb, offset+2, 2, length_redirect, "Length: %u Bytes", length_redirect);
+        proto_tree_add_uint_format_value(redirect_data_tree, hf_forces_redirect_tlv_redirect_data_tlv_length,
+                            tvb, offset+2, 2, length_redirect, "%u Bytes", length_redirect);
 
         if (tvb_reported_length_remaining(tvb, offset) < length_redirect)
         {
@@ -547,8 +547,8 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
         tlv_item = proto_tree_add_item(forces_tlv_tree, hf_forces_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         length_count = tvb_get_ntohs(tvb, offset+2) * 4;
         proto_item_set_len(ti, length_count);
-        ti = proto_tree_add_uint_format(forces_tlv_tree, hf_forces_tlv_length,
-                                        tvb, offset+2, 2, length_count, "Length: %u Bytes", length_count);
+        ti = proto_tree_add_uint_format_value(forces_tlv_tree, hf_forces_tlv_length,
+                                        tvb, offset+2, 2, length_count, "%u Bytes", length_count);
         if (tvb_reported_length_remaining(tvb, offset) < length_count)
             expert_add_info_format(pinfo, ti, &ei_forces_tlv_length, "Bogus: Main TLV length (%u bytes) is wrong", length_count);
 

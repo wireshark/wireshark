@@ -1032,20 +1032,19 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
             tlv_ds_map_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv_ds_map);
             proto_item_append_text(ti, ", Label: %u", label);
             if (label <= MPLS_LABEL_MAX_RESERVED) {
-                proto_tree_add_uint_format(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_label,
-                                           tvb, offset, 3, label, "Downstream Label: %u (%s)", label,
-                                           val_to_str_const(label, special_labels, "Reserved - Unknown"));
+                proto_tree_add_uint(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_label,
+                                           tvb, offset, 3, label);
                 proto_item_append_text(ti, " (%s)", val_to_str_const(label, special_labels,
                                                                      "Reserved - Unknown"));
             } else {
-                proto_tree_add_uint_format(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_label,
-                                           tvb, offset, 3, label, "Downstream Label: %u", label);
+                proto_tree_add_uint_format_value(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_label,
+                                           tvb, offset, 3, label, "%u", label);
             }
             proto_item_append_text(ti, ", Exp: %u, BOS: %u", exp, bos);
-            proto_tree_add_uint_format(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_exp,
-                                       tvb, offset + 2, 1, exp, "Downstream Exp: %u", exp);
-            proto_tree_add_uint_format(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_bos,
-                                       tvb, offset + 2, 1, bos, "Downstream BOS: %u", bos);
+            proto_tree_add_uint(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_exp,
+                                       tvb, offset + 2, 1, exp);
+            proto_tree_add_uint(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_bos,
+                                       tvb, offset + 2, 1, bos);
             proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_proto,
                                 tvb, offset + 3, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(ti, ", Protocol: %u (%s)", proto,
@@ -1400,21 +1399,21 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
             tlv_ilso = proto_item_add_subtree(ti, ett_mpls_echo_tlv_ilso);
             proto_item_append_text(ti, ", Label: %u", label);
             if (label <= MPLS_LABEL_MAX_RESERVED) {
-                proto_tree_add_uint_format(tlv_ilso, hf_mpls_echo_tlv_ilso_label,
-                                           tvb, offset, 3, label, "Label: %u (%s)", label,
+                proto_tree_add_uint_format_value(tlv_ilso, hf_mpls_echo_tlv_ilso_label,
+                                           tvb, offset, 3, label, "%u (%s)", label,
                                            val_to_str_const(label, special_labels, "Reserved - Unknown"));
                 proto_item_append_text(ti, " (%s)", val_to_str_const(label, special_labels,
                                                                      "Reserved - Unknown"));
             } else {
-                proto_tree_add_uint_format(tlv_ilso, hf_mpls_echo_tlv_ilso_label,
-                                           tvb, offset, 3, label, "Label: %u", label);
+                proto_tree_add_uint_format_value(tlv_ilso, hf_mpls_echo_tlv_ilso_label,
+                                           tvb, offset, 3, label, "%u", label);
             }
             proto_item_append_text(ti, ", Exp: %u, BOS: %u, TTL: %u",
                                    exp, bos, ttl);
-            proto_tree_add_uint_format(tlv_ilso, hf_mpls_echo_tlv_ilso_exp,
-                                       tvb, offset + 2, 1, exp, "Exp: %u", exp);
-            proto_tree_add_uint_format(tlv_ilso, hf_mpls_echo_tlv_ilso_bos,
-                                       tvb, offset + 2, 1, bos, "BOS: %u", bos);
+            proto_tree_add_uint(tlv_ilso, hf_mpls_echo_tlv_ilso_exp,
+                                       tvb, offset + 2, 1, exp);
+            proto_tree_add_uint(tlv_ilso, hf_mpls_echo_tlv_ilso_bos,
+                                       tvb, offset + 2, 1, bos);
             proto_tree_add_item(tlv_ilso, hf_mpls_echo_tlv_ilso_ttl,
                                 tvb, offset + 3, 1, ENC_BIG_ENDIAN);
             rem    -= 4;
@@ -2117,7 +2116,7 @@ proto_register_mpls_echo(void)
             FT_UINT24, BASE_DEC, VALS(special_labels), 0x0, "MPLS ECHO TLV Downstream Map Downstream Label", HFILL}
         },
         { &hf_mpls_echo_tlv_ds_map_mp_exp,
-          { "Downstream Experimental", "mpls_echo.tlv.ds_map.mp_exp",
+          { "Downstream Exp", "mpls_echo.tlv.ds_map.mp_exp",
             FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Downstream Map Downstream Experimental", HFILL}
         },
         { &hf_mpls_echo_tlv_ds_map_mp_bos,

@@ -2656,8 +2656,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_volume_label, tvb, (offset+2), 12, ENC_ASCII|ENC_NA);
 
                     omron_byte = tvb_get_guint8(tvb, (offset+14));
-                    proto_tree_add_uint_format(omron_disk_data_tree, hf_omron_date_year, tvb, (offset+14), 1, omron_byte,
-                        "Year: %d", ((omron_byte>>1)+1980));
+                    proto_tree_add_uint_format_value(omron_disk_data_tree, hf_omron_date_year, tvb, (offset+14), 1, omron_byte,
+                        "%d", ((omron_byte>>1)+1980));
 
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_date_month, tvb, (offset+14), 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_date_day, tvb, (offset+14), 4, ENC_BIG_ENDIAN);
@@ -2665,8 +2665,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_date_minute, tvb, (offset+14), 4, ENC_BIG_ENDIAN);
 
                     omron_byte = tvb_get_guint8(tvb, (offset+17));
-                    proto_tree_add_uint_format(omron_disk_data_tree, hf_omron_date_second, tvb, (offset+17), 1, omron_byte,
-                        "Second: %d", ((omron_byte&0x1F)*2));
+                    proto_tree_add_uint_format_value(omron_disk_data_tree, hf_omron_date_second, tvb, (offset+17), 1, omron_byte,
+                        "%d", ((omron_byte&0x1F)*2));
 
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_total_capacity, tvb, (offset+18), 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_unused_capacity, tvb, (offset+22), 4, ENC_BIG_ENDIAN);
@@ -2684,8 +2684,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         proto_tree_add_item(omron_file_data_tree, hf_omron_filename, tvb, offset, 12, ENC_ASCII|ENC_NA);
 
                         omron_byte = tvb_get_guint8(tvb, (offset+12));
-                        proto_tree_add_uint_format(omron_file_data_tree, hf_omron_date_year, tvb, (offset+12), 1, omron_byte,
-                                                   "Year: %d", ((omron_byte>>1)+1980));
+                        proto_tree_add_uint_format_value(omron_file_data_tree, hf_omron_date_year, tvb, (offset+12), 1, omron_byte,
+                                                   "%d", ((omron_byte>>1)+1980));
 
                         proto_tree_add_item(omron_file_data_tree, hf_omron_date_month, tvb, (offset+12), 4, ENC_BIG_ENDIAN);
                         proto_tree_add_item(omron_file_data_tree, hf_omron_date_day, tvb, (offset+12), 4, ENC_BIG_ENDIAN);
@@ -2693,8 +2693,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         proto_tree_add_item(omron_file_data_tree, hf_omron_date_minute, tvb, (offset+12), 4, ENC_BIG_ENDIAN);
 
                         omron_byte = tvb_get_guint8(tvb, (offset+15));
-                        proto_tree_add_uint_format(omron_file_data_tree, hf_omron_date_second, tvb, (offset+15), 1, omron_byte,
-                                                   "Second: %d", ((omron_byte&0x1F)*2));
+                        proto_tree_add_uint_format_value(omron_file_data_tree, hf_omron_date_second, tvb, (offset+15), 1, omron_byte,
+                                                   "%d", ((omron_byte&0x1F)*2));
 
                         proto_tree_add_item(omron_file_data_tree, hf_omron_file_capacity, tvb, (offset+16), 4, ENC_BIG_ENDIAN);
 

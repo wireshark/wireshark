@@ -465,16 +465,16 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				/* Report checkword status */
 				if (checkword_sum == checkword_field) {
-					item = proto_tree_add_uint_format(ccsds_tree, hf_ccsds_checkword, tvb, offset, 2, checkword_field,
-							"CCSDS checkword: 0x%04x [correct]", checkword_field);
+					item = proto_tree_add_uint_format_value(ccsds_tree, hf_ccsds_checkword, tvb, offset, 2, checkword_field,
+							"0x%04x [correct]", checkword_field);
 					checkword_tree = proto_item_add_subtree(item, ett_ccsds_checkword);
 					item = proto_tree_add_boolean(checkword_tree, hf_ccsds_checkword_good, tvb, offset, 2, TRUE);
 					PROTO_ITEM_SET_GENERATED(item);
 					item = proto_tree_add_boolean(checkword_tree, hf_ccsds_checkword_bad, tvb, offset, 2, FALSE);
 					PROTO_ITEM_SET_GENERATED(item);
 				} else {
-					item = proto_tree_add_uint_format(ccsds_tree, hf_ccsds_checkword, tvb, offset, 2, checkword_field,
-							"CCSDS checkword: 0x%04x [incorrect, should be 0x%04x]", checkword_field, checkword_sum);
+					item = proto_tree_add_uint_format_value(ccsds_tree, hf_ccsds_checkword, tvb, offset, 2, checkword_field,
+							"0x%04x [incorrect, should be 0x%04x]", checkword_field, checkword_sum);
 					checkword_tree = proto_item_add_subtree(item, ett_ccsds_checkword);
 					item = proto_tree_add_boolean(checkword_tree, hf_ccsds_checkword_good, tvb, offset, 2, FALSE);
 					PROTO_ITEM_SET_GENERATED(item);

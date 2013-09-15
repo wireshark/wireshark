@@ -2520,8 +2520,8 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	if (tempLen < 4)
 	{
 		if (tree)
-			proto_tree_add_uint_format(org_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2,
-			    tempShort, "TLV Length: %u (too short, must be >= 4)", tempLen);
+			proto_tree_add_uint_format_value(org_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2,
+			    tempShort, "%u (too short, must be >= 4)", tempLen);
 		return tLength;
 	}
 	if (tree)

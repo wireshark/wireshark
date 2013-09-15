@@ -358,8 +358,8 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sasp_tree = proto_item_add_subtree(ti, ett_sasp_header);
 
 	hdr_type = tvb_get_ntohs(tvb, offset);
-	hti = proto_tree_add_uint_format(sasp_tree, hf_sasp_type, tvb, offset, 2, hdr_type,
-		"Type: %s", (hdr_type == SASP_HDR_TYPE) ? "SASP" : "[Invalid]");
+	hti = proto_tree_add_uint_format_value(sasp_tree, hf_sasp_type, tvb, offset, 2, hdr_type,
+		"%s", (hdr_type == SASP_HDR_TYPE) ? "SASP" : "[Invalid]");
 	if (hdr_type != SASP_HDR_TYPE)
 	{
 		expert_add_info_format(pinfo, hti, &ei_msg_type_invalid,

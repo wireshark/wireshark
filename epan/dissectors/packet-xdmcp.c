@@ -432,8 +432,8 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     case XDMCP_ALIVE:
     {
       guint8 session_running = tvb_get_guint8(tvb, offset);
-      proto_tree_add_uint_format(xdmcp_tree, hf_xdmcp_session_running, tvb,
-                          offset, 1, session_running, "Session running: %s", session_running ? "Yes" : "No");
+      proto_tree_add_uint_format_value(xdmcp_tree, hf_xdmcp_session_running, tvb,
+                          offset, 1, session_running, "%s", session_running ? "Yes" : "No");
       offset++;
 
       proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,

@@ -553,9 +553,9 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				4, 4, dsi_code);
 			break;
 		}
-		proto_tree_add_uint_format(dsi_tree, hf_dsi_length, tvb,
+		proto_tree_add_uint_format_value(dsi_tree, hf_dsi_length, tvb,
 			8, 4, dsi_length,
-			"Length: %u bytes", dsi_length);
+			"%u bytes", dsi_length);
 		proto_tree_add_uint(dsi_tree, hf_dsi_reserved, tvb,
 			12, 4, dsi_reserved);
 	}

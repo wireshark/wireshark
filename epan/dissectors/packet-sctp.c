@@ -3733,8 +3733,8 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
 
   if (length < CHUNK_HEADER_LENGTH) {
     if (tree) {
-      proto_tree_add_uint_format(chunk_tree, hf_chunk_length, chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH, length,
-                                 "Chunk length: %u (invalid, should be >= %u)", length, CHUNK_HEADER_LENGTH);
+      proto_tree_add_uint_format_value(chunk_tree, hf_chunk_length, chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH, length,
+                                 "%u (invalid, should be >= %u)", length, CHUNK_HEADER_LENGTH);
       proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)", length, CHUNK_HEADER_LENGTH);
     }
 
@@ -3979,15 +3979,15 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
     switch(sctp_checksum) {
     case SCTP_CHECKSUM_NONE:
-      proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum, "Checksum: 0x%08x (not verified)", checksum);
+      proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum, "0x%08x (not verified)", checksum);
       break;
     case SCTP_CHECKSUM_ADLER32:
       if (adler32_correct)
-        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
+        proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                   checksum, "0x%08x [correct Adler32]", checksum);
       else {
-        item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
-                                          "Checksum: 0x%08x [incorrect Adler32, should be 0x%08x]",
+        item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
+                                          "0x%08x [incorrect Adler32, should be 0x%08x]",
                                           checksum, calculated_adler32);
         expert_add_info(pinfo, item, &ei_sctp_bad_sctp_checksum);
       }
@@ -3996,11 +3996,11 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
       break;
     case SCTP_CHECKSUM_CRC32C:
       if (crc32c_correct)
-        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
+        proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                   checksum, "0x%08x [correct CRC32C]", checksum);
       else {
-        item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
-                                          "Checksum: 0x%08x [incorrect CRC32C, should be 0x%08x]",
+        item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
+                                          "0x%08x [incorrect CRC32C, should be 0x%08x]",
                                           checksum, calculated_crc32c);
         expert_add_info(pinfo, item, &ei_sctp_bad_sctp_checksum);
       }
@@ -4009,17 +4009,17 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
       break;
     case SCTP_CHECKSUM_AUTOMATIC:
       if ((adler32_correct) && !(crc32c_correct))
-        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
+        proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                   checksum, "0x%08x [correct Adler32]", checksum);
       else if ((!adler32_correct) && (crc32c_correct))
-        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
+        proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                   checksum, "0x%08x [correct CRC32C]", checksum);
       else if ((adler32_correct) && (crc32c_correct))
-        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x [correct Adler32 and CRC32C]", checksum);
+        proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                   checksum, "0x%08x [correct Adler32 and CRC32C]", checksum);
       else {
-        item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
-                                          "Checksum: 0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
+        item = proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
+                                          "0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
                                           checksum, calculated_adler32, calculated_crc32c);
         expert_add_info(pinfo, item, &ei_sctp_bad_sctp_checksum);
       }
@@ -4029,8 +4029,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     }
   } else {
     /* We don't have the whole packet so we can't verify the checksum */
-    proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                               checksum, "Checksum: 0x%08x [unchecked, not all data available]", checksum);
+    proto_tree_add_uint_format_value(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                               checksum, "0x%08x [unchecked, not all data available]", checksum);
   }
 
   /* add all chunks of the sctp datagram to the protocol tree */

@@ -88,9 +88,9 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     proto_tree_add_uint(radio_tree, hf_channel, tvb, 0, 0,
             pinfo->pseudo_header->ieee_802_11.channel);
 
-    proto_tree_add_uint_format(radio_tree, hf_signal_strength, tvb, 0, 0,
+    proto_tree_add_uint_format_value(radio_tree, hf_signal_strength, tvb, 0, 0,
             pinfo->pseudo_header->ieee_802_11.signal_level,
-            "Signal Strength: %u%%",
+            "%u%%",
             pinfo->pseudo_header->ieee_802_11.signal_level);
   }
 

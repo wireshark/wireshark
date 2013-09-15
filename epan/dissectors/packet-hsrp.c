@@ -379,14 +379,14 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 proto_tree_add_uint(hsrp_tree, hf_hsrp_state, tvb, offset, 1, state);
                                 offset++;
                                 hellotime = tvb_get_guint8(tvb, offset);
-                                proto_tree_add_uint_format(hsrp_tree, hf_hsrp_hellotime, tvb, offset, 1, hellotime,
-                                                   "Hellotime: %sDefault (%u)",
+                                proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp_hellotime, tvb, offset, 1, hellotime,
+                                                   "%sDefault (%u)",
                                                    (hellotime == HSRP_DEFAULT_HELLOTIME) ? "" : "Non-",
                                                    hellotime);
                                 offset++;
                                 holdtime = tvb_get_guint8(tvb, offset);
-                                proto_tree_add_uint_format(hsrp_tree, hf_hsrp_holdtime, tvb, offset, 1, holdtime,
-                                                   "Holdtime: %sDefault (%u)",
+                                proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp_holdtime, tvb, offset, 1, holdtime,
+                                                   "%sDefault (%u)",
                                                    (holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "Non-",
                                                    holdtime);
                                 offset++;
@@ -452,8 +452,8 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 proto_tree *group_state_tlv;
 
                                 if (tree) {
-                                        ti = proto_tree_add_uint_format(hsrp_tree, hf_hsrp2_group_state_tlv, tvb, offset, 2, type,
-                                        "Group State TLV: Type=%d Len=%d", type, len);
+                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_group_state_tlv, tvb, offset, 2, type,
+                                        "Type=%d Len=%d", type, len);
                                 }
                                 offset+=2;
 
@@ -485,14 +485,14 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                         offset+=4;
 
                                         hellotime = tvb_get_ntohl(tvb, offset);
-                                        proto_tree_add_uint_format(group_state_tlv, hf_hsrp2_hellotime, tvb, offset, 4, hellotime,
-                                                           "Hellotime: %sDefault (%u)",
+                                        proto_tree_add_uint_format_value(group_state_tlv, hf_hsrp2_hellotime, tvb, offset, 4, hellotime,
+                                                           "%sDefault (%u)",
                                                            (hellotime == HSRP2_DEFAULT_HELLOTIME) ? "" : "Non-",
                                                            hellotime);
                                         offset+=4;
                                         holdtime = tvb_get_ntohl(tvb, offset);
-                                        proto_tree_add_uint_format(group_state_tlv, hf_hsrp2_holdtime, tvb, offset, 4, holdtime,
-                                                           "Holdtime: %sDefault (%u)",
+                                        proto_tree_add_uint_format_value(group_state_tlv, hf_hsrp2_holdtime, tvb, offset, 4, holdtime,
+                                                           "%sDefault (%u)",
                                                            (holdtime == HSRP2_DEFAULT_HOLDTIME) ? "" : "Non-",
                                                            holdtime);
                                         offset+=4;
@@ -520,8 +520,8 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                                 if (tree) {
                                         proto_tree *interface_state_tlv;
-                                        ti = proto_tree_add_uint_format(hsrp_tree, hf_hsrp2_interface_state_tlv, tvb, offset, 1, type,
-                                        "Interface State TLV: Type=%d Len=%d", type, len);
+                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_interface_state_tlv, tvb, offset, 1, type,
+                                        "Type=%d Len=%d", type, len);
                                         offset+=2;
 
                                         /* Making Interface State TLV subtree */
@@ -537,8 +537,8 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                         proto_tree *text_auth_tlv;
                                         gchar auth_buf[8 + 1];
 
-                                        ti = proto_tree_add_uint_format(hsrp_tree, hf_hsrp2_text_auth_tlv, tvb, offset, 1, type,
-                                        "Text Authentication TLV: Type=%d Len=%d", type, len);
+                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_text_auth_tlv, tvb, offset, 1, type,
+                                        "Type=%d Len=%d", type, len);
                                         offset+=2;
 
                                         /* Making Text Authentication TLV subtree */

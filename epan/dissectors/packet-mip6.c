@@ -1324,10 +1324,10 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
             proto_nemo = 1;
 
         lifetime = tvb_get_ntohs(tvb, MIP6_BU_LIFETIME_OFF);
-        proto_tree_add_uint_format(data_tree, hf_mip6_bu_lifetime, tvb,
+        proto_tree_add_uint_format_value(data_tree, hf_mip6_bu_lifetime, tvb,
                 MIP6_BU_LIFETIME_OFF,
                 MIP6_BU_LIFETIME_LEN, lifetime,
-                "Lifetime: %d (%ld seconds)",
+                "%d (%ld seconds)",
                 lifetime, (long)lifetime * 4);
     }
 
@@ -1365,10 +1365,10 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
                 MIP6_BA_SEQNR_OFF, MIP6_BA_SEQNR_LEN, ENC_BIG_ENDIAN);
 
         lifetime = tvb_get_ntohs(tvb, MIP6_BA_LIFETIME_OFF);
-        proto_tree_add_uint_format(data_tree, hf_mip6_ba_lifetime, tvb,
+        proto_tree_add_uint_format_value(data_tree, hf_mip6_ba_lifetime, tvb,
                 MIP6_BA_LIFETIME_OFF,
                 MIP6_BA_LIFETIME_LEN, lifetime,
-                "Lifetime: %d (%ld seconds)",
+                "%d (%ld seconds)",
                 lifetime, (long)lifetime * 4);
     }
 
@@ -1543,10 +1543,10 @@ dissect_fmip6_fbu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
                 FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, ENC_BIG_ENDIAN);
 
         lifetime = tvb_get_ntohs(tvb, FMIP6_FBU_LIFETIME_OFF);
-        proto_tree_add_uint_format(data_tree, hf_fmip6_fbu_lifetime, tvb,
+        proto_tree_add_uint_format_value(data_tree, hf_fmip6_fbu_lifetime, tvb,
                 FMIP6_FBU_LIFETIME_OFF,
                 FMIP6_FBU_LIFETIME_LEN, lifetime,
-                "Lifetime: %d (%ld seconds)",
+                "%d (%ld seconds)",
                 lifetime, (long)lifetime * 4);
     }
 
@@ -1572,10 +1572,10 @@ dissect_fmip6_fback(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_
         proto_tree_add_item(data_tree, hf_fmip6_fback_seqnr, tvb,
                 FMIP6_FBACK_SEQNR_OFF, FMIP6_FBACK_SEQNR_LEN, ENC_BIG_ENDIAN);
         lifetime = tvb_get_ntohs(tvb, FMIP6_FBACK_LIFETIME_OFF);
-        proto_tree_add_uint_format(data_tree, hf_fmip6_fback_lifetime, tvb,
+        proto_tree_add_uint_format_value(data_tree, hf_fmip6_fback_lifetime, tvb,
                 FMIP6_FBACK_LIFETIME_OFF,
                 FMIP6_FBACK_LIFETIME_LEN, lifetime,
-                "Lifetime: %d (%ld seconds)",
+                "%d (%ld seconds)",
                 lifetime, (long)lifetime * 4);
     }
 
@@ -1878,9 +1878,9 @@ dissect_mip6_opt_bra(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     int ri;
 
     ri = tvb_get_ntohs(tvb, offset + MIP6_BRA_RI_OFF);
-    proto_tree_add_uint_format(opt_tree, hf_mip6_bra_interval, tvb,
+    proto_tree_add_uint_format_value(opt_tree, hf_mip6_bra_interval, tvb,
             offset, optlen,
-            ri, "Refresh interval: %d (%ld seconds)",
+            ri, "%d (%ld seconds)",
             ri, (long)ri * 4);
 }
 
@@ -3483,10 +3483,10 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(mip6_tree, hf_mip6_proto, tvb,
                 MIP6_PROTO_OFF, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_uint_format(mip6_tree, hf_mip6_hlen, tvb,
+        proto_tree_add_uint_format_value(mip6_tree, hf_mip6_hlen, tvb,
                 MIP6_HLEN_OFF, 1,
                 tvb_get_guint8(tvb, MIP6_HLEN_OFF),
-                "Header length: %u (%u bytes)",
+                "%u (%u bytes)",
                 tvb_get_guint8(tvb, MIP6_HLEN_OFF),
                 len);
 

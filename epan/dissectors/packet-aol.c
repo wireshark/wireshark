@@ -163,7 +163,7 @@ static guint dissect_aol_init(tvbuff_t *tvb, packet_info *pinfo _U_, guint offse
 	proto_tree_add_item(data_tree,hf_aol_udo_timestamp,tvb,offset,4,ENC_LITTLE_ENDIAN); offset += 4;
 
 	dos_ver = tvb_get_ntohs(tvb,offset);
-	proto_tree_add_uint_format(data_tree,hf_aol_dos_ver,tvb,offset,2,dos_ver,"DOS Version: %d.%d",(dos_ver & 0xFF00) >> 8,dos_ver & 0xFF);
+	proto_tree_add_uint_format_value(data_tree,hf_aol_dos_ver,tvb,offset,2,dos_ver,"%d.%d",(dos_ver & 0xFF00) >> 8,dos_ver & 0xFF);
 	offset += 2;
 
 	proto_tree_add_item(data_tree,hf_aol_sess_flags,   tvb,offset,2,ENC_LITTLE_ENDIAN); offset += 2;
@@ -173,7 +173,7 @@ static guint dissect_aol_init(tvbuff_t *tvb, packet_info *pinfo _U_, guint offse
 
 	/* Windows version is a 32-bit value, but only the lower 16 bits are populated */
 	win_ver = tvb_get_ntohs(tvb,offset);
-	proto_tree_add_uint_format(data_tree,hf_aol_win_ver,tvb,offset,2,dos_ver,"Windows Version: %d.%d",(win_ver & 0xFF00) >> 8,win_ver & 0xFF);
+	proto_tree_add_uint_format_value(data_tree,hf_aol_win_ver,tvb,offset,2,dos_ver,"%d.%d",(win_ver & 0xFF00) >> 8,win_ver & 0xFF);
 	offset += 4;
 
 	proto_tree_add_item(data_tree,hf_aol_wmem_mode,    tvb,offset,1,ENC_NA);            offset += 1;
@@ -266,7 +266,7 @@ static void dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* Add it */
 					col_append_fstr(pinfo->cinfo,COL_INFO," [Token: '%c%c']",(token & 0xFF00) >> 8,token & 0xFF);
 					proto_item_append_text(ti," [Token: '%c%c']",(token & 0xFF00) >> 8,token & 0xFF);
-					proto_tree_add_uint_format(aol_tree,hf_aol_token,tvb,offset,2,token,"Token: '%c%c'",(token & 0xFF00) >> 8,token & 0xFF);
+					proto_tree_add_uint_format_value(aol_tree,hf_aol_token,tvb,offset,2,token,"'%c%c'",(token & 0xFF00) >> 8,token & 0xFF);
 					offset += 2; pdu_len -= 2;
 				}
 

@@ -2549,7 +2549,7 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
     di = proto_tree_add_text(tree, tvb, offset_start, -1, "CI+ private descriptor Tag=0x%02x", tag);
     descriptor_tree = proto_item_add_subtree(di, ett_mpeg_descriptor);
 
-    proto_tree_add_uint_format(descriptor_tree, hf_mpeg_descriptor_tag, tvb, offset, 1, tag, "Descriptor Tag: %s (0x%x)", tag_str, tag);
+    proto_tree_add_item(descriptor_tree, hf_mpeg_descriptor_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     len = tvb_get_guint8(tvb, offset);

@@ -3420,7 +3420,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         val_to_str_const(svcaction, scsi_osd_svcaction_vals, "Unknown OSD Service Action"));
     if(svcaction){
         proto_item *it;
-        it=proto_tree_add_uint_format(tree, hf_scsi_osd_svcaction, tvb, 0, 0, svcaction, "Service Action: 0x%04x", svcaction);
+        it=proto_tree_add_uint_format_value(tree, hf_scsi_osd_svcaction, tvb, 0, 0, svcaction, "0x%04x", svcaction);
         PROTO_ITEM_SET_GENERATED(it);
     }
     dissector=find_svcaction_dissector(svcaction);

@@ -1785,7 +1785,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     seq_fir = seq & FAST_SER_SEQ_FIR;
     seq_fin = seq & FAST_SER_SEQ_FIN;
 
-    fastser_seq_item = proto_tree_add_uint_format(fastser_tree, hf_selfm_fastser_seq, tvb, offset, 1, seq, "Sequence Byte: 0x%02x (", seq);
+    fastser_seq_item = proto_tree_add_uint_format_value(fastser_tree, hf_selfm_fastser_seq, tvb, offset, 1, seq, "0x%02x (", seq);
     if (seq_fir) proto_item_append_text(fastser_seq_item, "FIR, ");
     if (seq_fin) proto_item_append_text(fastser_seq_item, "FIN, ");
     proto_item_append_text(fastser_seq_item, "Count %u)", seq_cnt);

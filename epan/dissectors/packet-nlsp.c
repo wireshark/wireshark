@@ -467,9 +467,9 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (tree) {
 		holding_timer = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint_format(tree, hf_nlsp_hello_holding_timer,
+		proto_tree_add_uint_format_value(tree, hf_nlsp_hello_holding_timer,
 		    tvb, offset, 2, holding_timer,
-		    "Holding Timer: %us", holding_timer);
+		    "%us", holding_timer);
 	}
 	offset += 2;
 

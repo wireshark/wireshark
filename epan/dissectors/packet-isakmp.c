@@ -2833,8 +2833,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset += 1;
 
-    vers_item = proto_tree_add_uint_format(isakmp_tree, hf_isakmp_version, tvb, offset,
-                                           1, hdr.version, "Version: %u.%u",
+    vers_item = proto_tree_add_uint_format_value(isakmp_tree, hf_isakmp_version, tvb, offset,
+                                           1, hdr.version, "%u.%u",
                                            hi_nibble(hdr.version), lo_nibble(hdr.version));
     vers_tree = proto_item_add_subtree(vers_item, ett_isakmp_version);
     proto_tree_add_item(vers_tree, hf_isakmp_mjver, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2880,8 +2880,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 4;
 
     if (hdr.length < ISAKMP_HDR_SIZE) {
-      proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, 4,
-                                 hdr.length, "Length: (bogus, length is %u, should be at least %lu)",
+      proto_tree_add_uint_format_value(isakmp_tree, hf_isakmp_length, tvb, offset, 4,
+                                 hdr.length, "(bogus, length is %u, should be at least %lu)",
                                  hdr.length, (unsigned long)ISAKMP_HDR_SIZE);
 #ifdef HAVE_LIBGCRYPT
       if (pd_changed) pinfo->private_data = pd_save;
@@ -2892,8 +2892,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len = hdr.length - ISAKMP_HDR_SIZE;
 
     if (len < 0) {
-      proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, 4,
-                                 hdr.length, "Length: (bogus, length is %u, which is too large)",
+      proto_tree_add_uint_format_value(isakmp_tree, hf_isakmp_length, tvb, offset, 4,
+                                 hdr.length, "(bogus, length is %u, which is too large)",
                                  hdr.length);
 #ifdef HAVE_LIBGCRYPT
       if (pd_changed) pinfo->private_data = pd_save;
@@ -3659,8 +3659,8 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
 
   protocol_id= tvb_get_guint8(tvb, offset);
   if (protocol_id == 0)
-    proto_tree_add_uint_format(tree, hf_isakmp_id_protoid, tvb, offset,1,
-                               protocol_id, "Protocol ID: Unused");
+    proto_tree_add_uint_format_value(tree, hf_isakmp_id_protoid, tvb, offset,1,
+                               protocol_id, "Unused");
   else
     proto_tree_add_item(tree, hf_isakmp_id_protoid, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3669,8 +3669,8 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
 
   port = tvb_get_ntohs(tvb, offset);
   if (port == 0)
-    proto_tree_add_uint_format(tree, hf_isakmp_id_port, tvb, offset, 2,
-                               port, "Port: Unused");
+    proto_tree_add_uint_format_value(tree, hf_isakmp_id_port, tvb, offset, 2,
+                               port, "Unused");
   else
     proto_tree_add_item(tree, hf_isakmp_id_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -4498,8 +4498,8 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     case IKEV2_TS_IPV4_ADDR_RANGE:
 	protocol_id = tvb_get_guint8(tvb, offset);
 	if (protocol_id == 0)
-	    proto_tree_add_uint_format(tree, hf_isakmp_ts_protoid, tvb, offset,1,
-                               protocol_id, "Protocol ID: Unused");
+	    proto_tree_add_uint_format_value(tree, hf_isakmp_ts_protoid, tvb, offset,1,
+                               protocol_id, "Unused");
         else
 	    proto_tree_add_item(tree, hf_isakmp_ts_protoid, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -4527,8 +4527,8 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     case IKEV2_TS_IPV6_ADDR_RANGE:
 	protocol_id = tvb_get_guint8(tvb, offset);
 	if (protocol_id == 0)
-	    proto_tree_add_uint_format(tree, hf_isakmp_ts_protoid, tvb, offset,1,
-                               protocol_id, "Protocol ID: Unused");
+	    proto_tree_add_uint_format_value(tree, hf_isakmp_ts_protoid, tvb, offset,1,
+                               protocol_id, "Unused");
         else
 	    proto_tree_add_item(tree, hf_isakmp_ts_protoid, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;

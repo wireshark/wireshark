@@ -1198,9 +1198,9 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         /* Parse the next header field. */
         ipv6.ip6_nxt = tvb_get_bits8(tvb, bit_offset, LOWPAN_IPV6_NEXT_HEADER_BITS);
         if (tree) {
-            proto_tree_add_uint_format(tree, hf_6lowpan_next_header, tvb, bit_offset>>3,
+            proto_tree_add_uint_format_value(tree, hf_6lowpan_next_header, tvb, bit_offset>>3,
                     BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_NEXT_HEADER_BITS), ipv6.ip6_nxt,
-                    "Next header: %s (0x%02x)", ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
+                    "%s (0x%02x)", ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
         }
         bit_offset += LOWPAN_IPV6_NEXT_HEADER_BITS;
     }
@@ -1493,8 +1493,8 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     if (!(iphc_flags & LOWPAN_IPHC_FLAG_NHDR)) {
         ipv6.ip6_nxt = tvb_get_guint8(tvb, offset);
         if (tree) {
-            proto_tree_add_uint_format(tree, hf_6lowpan_next_header, tvb, offset, (int)sizeof(guint8), ipv6.ip6_nxt,
-                    "Next header: %s (0x%02x)", ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
+            proto_tree_add_uint_format_value(tree, hf_6lowpan_next_header, tvb, offset, (int)sizeof(guint8), ipv6.ip6_nxt,
+                    "%s (0x%02x)", ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
         }
         offset += (int)sizeof(guint8);
     }
@@ -1842,8 +1842,8 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         if (!(ext_flags & LOWPAN_NHC_EXT_NHDR)) {
             ipv6_ext.ip6e_nxt = tvb_get_guint8(tvb, offset);
             if (tree) {
-                proto_tree_add_uint_format(nhc_tree, hf_6lowpan_nhc_ext_next, tvb, offset, (int)sizeof(guint8), ipv6_ext.ip6e_nxt,
-                            "Next header: %s (0x%02x)", ipprotostr(ipv6_ext.ip6e_nxt), ipv6_ext.ip6e_nxt);
+                proto_tree_add_uint_format_value(nhc_tree, hf_6lowpan_nhc_ext_next, tvb, offset, (int)sizeof(guint8), ipv6_ext.ip6e_nxt,
+                            "%s (0x%02x)", ipprotostr(ipv6_ext.ip6e_nxt), ipv6_ext.ip6e_nxt);
                 proto_item_set_end(ti, tvb, offset+(int)sizeof(guint8));
             }
             offset += (int)sizeof(guint8);

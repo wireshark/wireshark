@@ -117,9 +117,8 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
 
-      ti = proto_tree_add_uint_format(ipsictl_tree, hf_ipsictl_pdu, tvb,
-           offset, (length+4), pdu,
-           "PDU: %d", pdu);
+      ti = proto_tree_add_uint(ipsictl_tree, hf_ipsictl_pdu, tvb,
+           offset, (length+4), pdu);
 
       pdu_tree = proto_item_add_subtree(ti, ett_ipsictl_pdu);
     }
@@ -201,7 +200,7 @@ void proto_register_ipsictl(void)
   static hf_register_info hf[] = {
     { &hf_ipsictl_pdu,
       { "PDU",	"ipsictl.pdu",
-	FT_UINT16,	BASE_HEX,	NULL,	0x0,
+	FT_UINT16,	BASE_DEC,	NULL,	0x0,
       	"IPSICTL PDU", HFILL }},
     { &hf_ipsictl_magic,
       { "Magic",	"ipsictl.magic",

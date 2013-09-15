@@ -469,8 +469,8 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            hiph_shim6_fixed_bit_p);
                 proto_tree_add_uint(hip_tree, hf_hip_packet_type, tvb, offset+2, 1,
                                     hiph_packet_type);
-                proto_tree_add_uint_format(hip_tree, hf_hip_version, tvb, offset+3, 1,
-                                           hiph_version, "Version: %u, Reserved: %u",
+                proto_tree_add_uint_format_value(hip_tree, hf_hip_version, tvb, offset+3, 1,
+                                           hiph_version, "%u, Reserved: %u",
                                            hiph_version, hiph_reserved);
                 proto_tree_add_uint_format(hip_tree, hf_hip_shim6_fixed_bit_s, tvb, offset+3, 1,
                                            hiph_shim6_fixed_bit_s,
@@ -504,15 +504,15 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, cksum_vec[3].len);
                         computed_checksum = in_cksum(cksum_vec, 4);
                         if (computed_checksum == 0) {
-                                proto_tree_add_uint_format(hip_tree, hf_hip_checksum, tvb,
+                                proto_tree_add_uint_format_value(hip_tree, hf_hip_checksum, tvb,
                                                            offset+4, 2, checksum_h,
-                                                           "Checksum: 0x%04x (correct)",
+                                                           "0x%04x (correct)",
                                                            checksum_h);
                         } else {
                                if (checksum_h == 0 && pinfo->ipproto == IP_PROTO_UDP) {
-                                       proto_tree_add_uint_format(hip_tree, hf_hip_checksum, tvb,
+                                       proto_tree_add_uint_format_value(hip_tree, hf_hip_checksum, tvb,
                                                                   offset+4, 2, checksum_h,
-                                                                  "Checksum: 0x%04x (correct)",
+                                                                  "0x%04x (correct)",
                                                                   checksum_h);
                                } else {
                                        proto_tree_add_uint_format(hip_tree, hf_hip_checksum, tvb,
@@ -525,9 +525,9 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                }
                         }
                 } else {
-                        proto_tree_add_uint_format(hip_tree, hf_hip_checksum, tvb,
+                        proto_tree_add_uint_format_value(hip_tree, hf_hip_checksum, tvb,
                                                    offset+4, 2, checksum_h,
-                                                   "Checksum: 0x%04x (unverified)",
+                                                   "0x%04x (unverified)",
                                                    checksum_h);
                 }
 
@@ -670,9 +670,9 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                                 newoffset++;
                                 /* Reserved includes the Preferred bit */
                                 reserved = tvb_get_guint8(tvb, newoffset);
-                                proto_tree_add_uint_format(ti_loc, hf_hip_tlv_locator_reserved, tvb,
+                                proto_tree_add_uint_format_value(ti_loc, hf_hip_tlv_locator_reserved, tvb,
                                                            newoffset, 1, reserved,
-                                                           "Reserved: 0x%x %s", reserved,
+                                                           "0x%x %s", reserved,
                                                            (reserved >> 31) ? "(Preferred)" : "");
                                 newoffset++;
                                 /* Locator lifetime */

@@ -2604,9 +2604,9 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
                                        name ? name : "Unknown operation",
                                        info->call_data->opnum);
         else
-            proto_tree_add_uint_format(sub_tree, hf_dcerpc_op, tvb,
+            proto_tree_add_uint_format_value(sub_tree, hf_dcerpc_op, tvb,
                                        0, 0, info->call_data->opnum,
-                                       "Operation: %s (%u)",
+                                       "%s (%u)",
                                        name ? name : "Unknown operation",
                                        info->call_data->opnum);
 

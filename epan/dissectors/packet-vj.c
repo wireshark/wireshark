@@ -547,16 +547,16 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
     switch (changes & SPECIALS_MASK) {
 
     case SPECIAL_I:
-      ti = proto_tree_add_uint_format(tree, hf_vj_change_mask, src_tvb,
+      ti = proto_tree_add_uint_format_value(tree, hf_vj_change_mask, src_tvb,
                                       offset, 1, changes,
-                                      "Change mask: 0x%02x (echoed interactive traffic)",
+                                      "0x%02x (echoed interactive traffic)",
                                       changes);
       break;
 
     case SPECIAL_D:
-      ti = proto_tree_add_uint_format(tree, hf_vj_change_mask, src_tvb,
+      ti = proto_tree_add_uint_format_value(tree, hf_vj_change_mask, src_tvb,
                                       offset, 1, changes,
-                                      "Change mask: 0x%02x (unidirectional data)",
+                                      "0x%02x (unidirectional data)",
                                       changes);
       break;
 
@@ -564,9 +564,9 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
       /*
        * XXX - summarize bits?
        */
-      ti = proto_tree_add_uint_format(tree, hf_vj_change_mask, src_tvb,
+      ti = proto_tree_add_uint_format_value(tree, hf_vj_change_mask, src_tvb,
                                       offset, 1, changes,
-                                      "Change mask: 0x%02x", changes);
+                                      "0x%02x", changes);
       break;
     }
     changes_tree = proto_item_add_subtree(ti, ett_vj_changes);

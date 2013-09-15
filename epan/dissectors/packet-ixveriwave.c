@@ -765,15 +765,15 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             proto_tree_add_item(tap_tree, hf_radiotap_nss,
                                 tvb, offset - 1, 1, ENC_BIG_ENDIAN);
 
-            proto_tree_add_uint_format(tap_tree, hf_radiotap_datarate,
+            proto_tree_add_uint_format_value(tap_tree, hf_radiotap_datarate,
                                        tvb, offset - 5, 2, tvb_get_letohs(tvb, offset-5),
-                                       "Data rate: %.1f (MCS %d)", phyRate, mcs_index);
+                                       "%.1f (MCS %d)", phyRate, mcs_index);
         }
     } else {
         if (tree) {
-            proto_tree_add_uint_format(tap_tree, hf_radiotap_datarate,
+            proto_tree_add_uint_format_value(tap_tree, hf_radiotap_datarate,
             tvb, offset - 5, 2, tvb_get_letohs(tvb, offset-5),
-            "Data rate: %.1f Mb/s", phyRate);
+            "%.1f Mb/s", phyRate);
         }
     }
     col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", phyRate);

@@ -543,9 +543,8 @@ dissect_fc_vft(proto_tree *parent_tree,
     hop_ct = tvb_get_guint8(tvb, offset + 4);
 
     if (parent_tree) {
-        item = proto_tree_add_uint_format(parent_tree, hf_fc_vft, tvb, offset,
-                                    8, vf_id, "VFT Header: "
-                                    "VF_ID %d Pri %d Hop Count %d",
+        item = proto_tree_add_uint_format_value(parent_tree, hf_fc_vft, tvb, offset,
+                                    8, vf_id, "VF_ID %d Pri %d Hop Count %d",
                                     vf_id, pri, hop_ct);
         tree = proto_item_add_subtree(item, ett_fc_vft);
     }
@@ -985,9 +984,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             /* for F_BSY frames, the upper 4 bits of the type field specify the
              * reason for the BSY.
              */
-            proto_tree_add_uint_format (fc_tree, hf_fc_type, tvb,
+            proto_tree_add_uint_format_value(fc_tree, hf_fc_type, tvb,
                                         offset+8, FC_TYPE_SIZE,
-                                        fchdr.type,"Type: 0x%x(%s)", fchdr.type,
+                                        fchdr.type,"0x%x(%s)", fchdr.type,
                                         fclctl_get_typestr ((guint8) (fchdr.r_ctl & 0x0F),
                                                             fchdr.type));
         } else {
@@ -1018,9 +1017,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             /* In all these cases of Link Ctl frame, the parameter field
              * encodes the detailed error message
              */
-            proto_tree_add_uint_format (fc_tree, hf_fc_param, tvb,
+            proto_tree_add_uint_format_value(fc_tree, hf_fc_param, tvb,
                                         offset+20, 4, param,
-                                        "Parameter: 0x%x(%s)", param,
+                                        "0x%x(%s)", param,
                                         fclctl_get_paramstr ((fchdr.r_ctl & 0x0F),
                                                              param));
         } else {
@@ -1028,9 +1027,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         }
     } else if (ftype == FC_FTYPE_BLS) {
         if ((fchdr.r_ctl & 0x0F) == FC_BLS_ABTS) {
-            proto_tree_add_uint_format (fc_tree, hf_fc_param, tvb,
+            proto_tree_add_uint_format_value(fc_tree, hf_fc_param, tvb,
                                         offset+20, 4, param,
-                                        "Parameter: 0x%x(%s)", param,
+                                        "0x%x(%s)", param,
                                         ((param & 0x0F) == 1 ? "Abort Sequence" :
                                          "Abort Exchange"));
         } else {
@@ -1291,14 +1290,13 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_uint(fcsof_tree, hf_fcsof, tvb, sof_offset, 4, sof);
 
     if (crc == crc_computed) {
-        proto_tree_add_uint_format(fcsof_tree, hf_fccrc, tvb,
+        proto_tree_add_uint_format_value(fcsof_tree, hf_fccrc, tvb,
                                        crc_offset, 4, crc,
-                                       "CRC: %8.8x [valid]", crc);
+                                       "%8.8x [valid]", crc);
     } else {
-        it = proto_tree_add_uint_format(fcsof_tree, hf_fccrc, tvb,
+        it = proto_tree_add_uint_format_value(fcsof_tree, hf_fccrc, tvb,
                                        crc_offset, 4, crc,
-                                       "CRC: %8.8x "
-                                       "[error: should be %8.8x]",
+                                       "%8.8x [error: should be %8.8x]",
                                        crc, crc_computed);
 
         expert_add_info_format(pinfo, it, &ei_fccrc,

@@ -2136,9 +2136,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     ipsum = ip_checksum(tvb_get_ptr(tvb, offset, hlen), hlen);
     if (tree) {
       if (ipsum == 0) {
-        item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb,
+        item = proto_tree_add_uint_format_value(ip_tree, hf_ip_checksum, tvb,
                                           offset + 10, 2, iph->ip_sum,
-                                          "Header checksum: 0x%04x [correct]",
+                                          "0x%04x [correct]",
                                           iph->ip_sum);
         checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
         item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb,
@@ -2148,9 +2148,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                                       offset + 10, 2, FALSE);
         PROTO_ITEM_SET_GENERATED(item);
       } else {
-        item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb,
+        item = proto_tree_add_uint_format_value(ip_tree, hf_ip_checksum, tvb,
                                           offset + 10, 2, iph->ip_sum,
-                                          "Header checksum: 0x%04x "
+                                          "0x%04x"
                                           "[incorrect, should be 0x%04x "
                                           "(may be caused by \"IP checksum "
                                           "offload\"?)]", iph->ip_sum,
@@ -2175,9 +2175,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   } else {
     ipsum = 0;
     if (tree) {
-      item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb,
+      item = proto_tree_add_uint_format_value(ip_tree, hf_ip_checksum, tvb,
                                         offset + 10, 2, iph->ip_sum,
-                                        "Header checksum: 0x%04x [%s]",
+                                        "0x%04x [%s]",
                                         iph->ip_sum,
                                         ip_check_checksum ?
                                             (pinfo->flags.in_error_pkt ?

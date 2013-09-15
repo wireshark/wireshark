@@ -1449,8 +1449,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	{
 		if (tree)
 		{
-			proto_tree_add_uint_format(radius_tree, hf_radius_length,
-				tvb, 2, 2, rh.rh_pktlength, "Length: %u (bogus, < %u)",
+			proto_tree_add_uint_format_value(radius_tree, hf_radius_length,
+				tvb, 2, 2, rh.rh_pktlength, "%u (bogus, < %u)",
 				rh.rh_pktlength, HDR_LENGTH);
 		}
 		return tvb_length(tvb);

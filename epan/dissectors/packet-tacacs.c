@@ -938,9 +938,9 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		version = tvb_get_guint8(tvb,0);
-		proto_tree_add_uint_format(tacplus_tree, hf_tacplus_majvers, tvb, 0, 1,
+		proto_tree_add_uint_format_value(tacplus_tree, hf_tacplus_majvers, tvb, 0, 1,
 		    version,
-		    "Major version: %s",
+		    "%s",
 		    (version&0xf0)==0xc0?"TACACS+":"Unknown Version");
 		proto_tree_add_uint(tacplus_tree, hf_tacplus_minvers, tvb, 0, 1,
 		    version&0xf);
@@ -949,9 +949,9 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(tacplus_tree, hf_tacplus_seqno, tvb, 2, 1,
 		    ENC_BIG_ENDIAN);
 		flags = tvb_get_guint8(tvb,3);
-		tf = proto_tree_add_uint_format(tacplus_tree, hf_tacplus_flags,
+		tf = proto_tree_add_uint_format_value(tacplus_tree, hf_tacplus_flags,
 		    tvb, 3, 1, flags,
-		    "Flags: 0x%02x (%s payload, %s)", flags,
+		    "0x%02x (%s payload, %s)", flags,
 		    (flags&FLAGS_UNENCRYPTED) ? "Unencrypted" : "Encrypted",
 		    (flags&FLAGS_SINGLE) ? "Single connection" : "Multiple Connections" );
 		flags_tree = proto_item_add_subtree(tf, ett_tacplus_flags);

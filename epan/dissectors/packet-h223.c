@@ -697,11 +697,11 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
             real_checksum = tvb_get_guint8(tvb, len - 1);
 
             if( calc_checksum == real_checksum ) {
-                proto_tree_add_uint_format(al_tree, hf_h223_al2_crc, tvb, len - 1, 1, real_checksum,
-                                           "CRC: 0x%02x (correct)", real_checksum );
+                proto_tree_add_uint_format_value(al_tree, hf_h223_al2_crc, tvb, len - 1, 1, real_checksum,
+                                           "0x%02x (correct)", real_checksum );
             } else {
-                proto_tree_add_uint_format(al_tree, hf_h223_al2_crc, tvb, len - 1, 1, real_checksum,
-                                           "CRC: 0x%02x (incorrect, should be 0x%02x)", real_checksum, calc_checksum );
+                proto_tree_add_uint_format_value(al_tree, hf_h223_al2_crc, tvb, len - 1, 1, real_checksum,
+                                           "0x%02x (incorrect, should be 0x%02x)", real_checksum, calc_checksum );
                 tmp_item = proto_tree_add_boolean( al_tree, hf_h223_al2_crc_bad, tvb, len - 1, 1, TRUE );
                 PROTO_ITEM_SET_GENERATED(tmp_item);
 
@@ -1031,18 +1031,18 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
 
             case 2:
                 if( errors == -1 ) {
-                    proto_tree_add_uint_format(hdr_tree, hf_h223_mux_rawhdr, tvb,
+                    proto_tree_add_uint_format_value(hdr_tree, hf_h223_mux_rawhdr, tvb,
                                                0, 3, raw_hdr,
-                                               "Raw value: 0x%06x (uncorrectable errors)", raw_hdr );
+                                               "0x%06x (uncorrectable errors)", raw_hdr );
                 } else {
                     if( errors == 0 ) {
-                        proto_tree_add_uint_format(hdr_tree, hf_h223_mux_rawhdr, tvb,
+                        proto_tree_add_uint_format_value(hdr_tree, hf_h223_mux_rawhdr, tvb,
                                                    0, 3, raw_hdr,
-                                                   "Raw value: 0x%06x (correct)", raw_hdr );
+                                                   "0x%06x (correct)", raw_hdr );
                     } else {
-                        proto_tree_add_uint_format(hdr_tree, hf_h223_mux_rawhdr, tvb,
+                        proto_tree_add_uint_format_value(hdr_tree, hf_h223_mux_rawhdr, tvb,
                                                    0, 3, raw_hdr,
-                                                   "Raw value: 0x%06x (errors are 0x%06x)", raw_hdr, errors );
+                                                   "0x%06x (errors are 0x%06x)", raw_hdr, errors );
                     }
                     item = proto_tree_add_uint(hdr_tree,hf_h223_mux_correctedhdr,tvb,0,3,
                                                correct_hdr);

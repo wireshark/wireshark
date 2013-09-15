@@ -233,14 +233,14 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"Bus: I2C-%d", bus);
 
 		if (is_event) {
-			proto_tree_add_uint_format(i2c_tree, hf_i2c_event, tvb, 0, 0,
-					flags, "Event: %s (0x%08x)",
+			proto_tree_add_uint_format_value(i2c_tree, hf_i2c_event, tvb, 0, 0,
+					flags, "%s (0x%08x)",
 					i2c_get_event_desc(flags), flags);
 		} else {
 			proto_tree_add_uint_format_value(i2c_tree, hf_i2c_addr, tvb, 0, 1,
 					addr, "0x%02x%s", addr, addr ? "" : " (General Call)");
-			proto_tree_add_uint_format(i2c_tree, hf_i2c_flags, tvb, 0, 0,
-					flags, "Flags: 0x%08x", flags);
+			proto_tree_add_uint_format_value(i2c_tree, hf_i2c_flags, tvb, 0, 0,
+					flags, "0x%08x", flags);
 		}
 	}
 

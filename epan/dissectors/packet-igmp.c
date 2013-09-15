@@ -782,8 +782,8 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 	if (blocks)
 		col_append_str(pinfo->cinfo, COL_INFO, blocks);
 
-	proto_tree_add_uint_format(tree, hf_type, tvb, offset, 1, type,
-		"Type: %s (0x%02x)", typestr, type);
+	proto_tree_add_uint_format_value(tree, hf_type, tvb, offset, 1, type,
+		"%s (0x%02x)", typestr, type);
 	offset += 1;
 
 	/* maximum number of hops that the requester wants to trace */

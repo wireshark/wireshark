@@ -3214,8 +3214,8 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             break;
                         case 0x20: /* Jitter Depth Distribution */
                             for (i = 0; i < parameter_length / 4; i+=4) {
-                                proto_tree_add_uint_format(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_jitter_depth_distribution,
-                                        tvb, offset+i, 4, tvb_get_ntohl(tvb, offset+i), "Jitter Depth Distribution: +/- %3d ms: %d",
+                                proto_tree_add_uint_format_value(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_jitter_depth_distribution,
+                                        tvb, offset+i, 4, tvb_get_ntohl(tvb, offset+i), "+/- %3d ms: %d",
                                         ((2 * i/4) + 1) * framing_rtp / 2, tvb_get_ntohl(tvb, offset+i));
                             }
                             break;

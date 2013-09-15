@@ -2035,9 +2035,9 @@ dissect_ff_msg_fda_open_sess_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fda_open_sess_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fda_open_sess_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -2153,9 +2153,9 @@ dissect_ff_msg_fda_idle_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fda_idle_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fda_idle_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -2845,9 +2845,9 @@ dissect_ff_msg_sm_id_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_sm_id_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_sm_id_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -2982,9 +2982,9 @@ dissect_ff_msg_sm_clear_addr_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_sm_clear_addr_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_sm_clear_addr_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -3240,10 +3240,10 @@ dissect_ff_msg_sm_set_assign_info_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_sm_set_assign_info_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -3372,10 +3372,10 @@ dissect_ff_msg_sm_clear_assign_info_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_sm_clear_assign_info_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -3920,9 +3920,9 @@ dissect_ff_msg_fms_init_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_init_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_init_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -4106,9 +4106,9 @@ dissect_ff_msg_fms_status_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_status_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_status_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -4290,9 +4290,9 @@ dissect_ff_msg_fms_id_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_id_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_id_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -4440,9 +4440,9 @@ dissect_ff_msg_fms_get_od_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_get_od_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_get_od_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -4568,9 +4568,9 @@ dissect_ff_msg_fms_init_put_od_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_init_put_od_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_init_put_od_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -4692,9 +4692,9 @@ dissect_ff_msg_fms_put_od_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_put_od_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_put_od_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -4815,10 +4815,10 @@ dissect_ff_msg_fms_terminate_put_od_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_terminate_put_od_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -4945,10 +4945,10 @@ dissect_ff_msg_fms_generic_init_download_sequence_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_gen_init_download_seq_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -5084,10 +5084,10 @@ dissect_ff_msg_fms_generic_download_segment_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_gen_download_seg_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -5227,10 +5227,10 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_gen_terminate_download_seq_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -5358,10 +5358,10 @@ dissect_ff_msg_fms_init_download_sequence_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_init_download_seq_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -5492,9 +5492,9 @@ dissect_ff_msg_fms_download_segment_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_download_seg_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_download_seg_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -5632,10 +5632,10 @@ dissect_ff_msg_fms_terminate_download_sequence_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_terminate_download_seq_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -5761,9 +5761,9 @@ dissect_ff_msg_fms_init_upload_seq_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_init_upload_seq_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_init_upload_seq_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -5893,9 +5893,9 @@ dissect_ff_msg_fms_upload_segment_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_upload_seg_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_upload_seg_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -6021,10 +6021,10 @@ dissect_ff_msg_fms_terminate_upload_seq_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_terminate_upload_seq_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -6152,10 +6152,10 @@ dissect_ff_msg_fms_req_dom_download_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_req_dom_download_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -6282,9 +6282,9 @@ dissect_ff_msg_fms_req_dom_upload_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_req_dom_upload_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_req_dom_upload_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -6463,9 +6463,9 @@ dissect_ff_msg_fms_create_pi_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_create_pi_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_create_pi_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -6590,9 +6590,9 @@ dissect_ff_msg_fms_del_pi_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_del_pi_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_del_pi_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -6721,9 +6721,9 @@ dissect_ff_msg_fms_start_pi_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_start_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_start_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -6851,9 +6851,9 @@ dissect_ff_msg_fms_stop_pi_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_stop_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_stop_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -6981,9 +6981,9 @@ dissect_ff_msg_fms_resume_pi_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_resume_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_resume_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -7111,9 +7111,9 @@ dissect_ff_msg_fms_reset_pi_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_reset_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_reset_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -7232,9 +7232,9 @@ dissect_ff_msg_fms_kill_pi_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_kill_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_kill_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -7350,9 +7350,9 @@ dissect_ff_msg_fms_read_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_read_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_read_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -7476,10 +7476,10 @@ dissect_ff_msg_fms_read_subindex_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_read_with_subidx_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -7599,9 +7599,9 @@ dissect_ff_msg_fms_write_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_fms_write_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_write_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -7727,10 +7727,10 @@ dissect_ff_msg_fms_write_subindex_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_write_with_subidx_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -7894,10 +7894,10 @@ dissect_ff_msg_fms_def_variable_list_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_def_variable_list_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -8019,10 +8019,10 @@ dissect_ff_msg_fms_del_variable_list_err(tvbuff_t *tvb, gint offset,
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_del_variable_list_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -8364,10 +8364,10 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_alter_ev_condition_monitoring_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -8499,10 +8499,10 @@ dissect_ff_msg_fms_ack_ev_notification_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_ack_ev_notification_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -8640,10 +8640,10 @@ dissect_ff_msg_lr_get_info_rsp(
     switch (MaxMsgNumDiff) {
         case 0:
         case 1:
-            proto_tree_add_uint_format(sub_tree,
+            proto_tree_add_uint_format_value(sub_tree,
                 hf_ff_lr_get_info_rsp_lr_max_msg_num_diff,
                 tvb, offset, 1, MaxMsgNumDiff,
-                "Max Message Number Difference: Do not detect a fault (%u)",
+                "Do not detect a fault (%u)",
                 MaxMsgNumDiff);
             break;
 
@@ -8741,9 +8741,9 @@ dissect_ff_msg_lr_get_info_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_lr_get_info_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_lr_get_info_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -8848,10 +8848,10 @@ dissect_ff_msg_lr_put_info_req(
     switch (MaxMsgNumDiff) {
         case 0:
         case 1:
-            proto_tree_add_uint_format(sub_tree,
+            proto_tree_add_uint_format_value(sub_tree,
                 hf_ff_lr_put_info_req_lr_max_msg_num_diff,
                 tvb, offset, 1, MaxMsgNumDiff,
-                "Max Message Number Difference: Do not detect a fault (%u)",
+                "Do not detect a fault (%u)",
                 MaxMsgNumDiff);
             break;
 
@@ -8996,10 +8996,10 @@ dissect_ff_msg_lr_put_info_rsp(
     switch (MaxMsgNumDiff) {
         case 0:
         case 1:
-            proto_tree_add_uint_format(sub_tree,
+            proto_tree_add_uint_format_value(sub_tree,
                 hf_ff_lr_put_info_rsp_lr_max_msg_num_diff,
                 tvb, offset, 1, MaxMsgNumDiff,
-                "Max Message Number Difference: Do not detect a fault (%u)",
+                "Do not detect a fault (%u)",
                 MaxMsgNumDiff);
             break;
 
@@ -9097,9 +9097,9 @@ dissect_ff_msg_lr_put_info_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree, hf_ff_lr_put_info_err_err_code,
+    proto_tree_add_uint_format_value(sub_tree, hf_ff_lr_put_info_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -9299,10 +9299,10 @@ dissect_ff_msg_lr_get_statistics_err(
 
     ErrorCode = tvb_get_guint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
-    proto_tree_add_uint_format(sub_tree,
+    proto_tree_add_uint_format_value(sub_tree,
         hf_ff_lr_get_statistics_err_err_code,
         tvb, offset, 1, ErrorCode,
-        "Error Code: %s (%u)", error_code, ErrorCode);
+        "%s (%u)", error_code, ErrorCode);
     offset += 1;
     length -= 1;
 
@@ -9507,10 +9507,10 @@ dissect_ff_msg_diagnostic_msg_req(
         proto_tree_add_item(sub_tree,
             hf_ff_lr_diagnostic_msg_req_dev_idx, tvb, offset, 2, ENC_BIG_ENDIAN);
     } else {
-        proto_tree_add_uint_format(sub_tree,
+        proto_tree_add_uint_format_value(sub_tree,
             hf_ff_lr_diagnostic_msg_req_dev_idx,
             tvb, offset, 2, DeviceIndex,
-            "Device Index: Index not assigned (%u)", DeviceIndex);
+            "Index not assigned (%u)", DeviceIndex);
     }
     offset += 2;
     length -= 2;

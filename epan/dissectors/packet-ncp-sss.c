@@ -290,7 +290,7 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
             bvalue = bvalue*2;
     }
 
-    tinew = proto_tree_add_uint_format(sss_tree, hf_flags, tvb, foffset, 4, flags, "%s 0x%08x", "Flags:", flags);
+    tinew = proto_tree_add_uint(sss_tree, hf_flags, tvb, foffset, 4, flags);
     flags_tree = proto_item_add_subtree(tinew, ett_nds);
 
     bvalue = 0x00000001;

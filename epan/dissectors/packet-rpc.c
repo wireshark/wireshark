@@ -2119,10 +2119,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	xid      = tvb_get_ntohl(tvb, offset);
-	if (rpc_tree) {
-		proto_tree_add_uint_format(rpc_tree,hf_rpc_xid, tvb,
-			offset, 4, xid, "XID: 0x%x (%u)", xid, xid);
-	}
+	proto_tree_add_item(rpc_tree,hf_rpc_xid, tvb,
+			offset, 4, ENC_BIG_ENDIAN);
 
 	msg_type_name = val_to_str(msg_type,rpc_msg_type,"%u");
 	if (rpc_tree) {
@@ -2152,9 +2150,9 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		prog = tvb_get_ntohl(tvb, offset + 4);
 
 		if (rpc_tree) {
-			proto_tree_add_uint_format(rpc_tree,
+			proto_tree_add_uint_format_value(rpc_tree,
 				hf_rpc_program, tvb, offset+4, 4, prog,
-				"Program: %s (%u)", progname, prog);
+				"%s (%u)", progname, prog);
 		}
 
 		/* Set the protocol name to the underlying
@@ -2240,9 +2238,9 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		if (rpc_tree) {
-			proto_tree_add_uint_format(rpc_tree,
+			proto_tree_add_uint_format_value(rpc_tree,
 				hf_rpc_procedure, tvb, offset+12, 4, proc,
-				"Procedure: %s (%u)", procname, proc);
+				"%s (%u)", procname, proc);
 		}
 
 		/* Print the program version, procedure name, and message type (call or reply). */
@@ -2467,16 +2465,16 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if (rpc_tree) {
 			proto_item *tmp_item;
-			tmp_item=proto_tree_add_uint_format(rpc_tree,
+			tmp_item=proto_tree_add_uint_format_value(rpc_tree,
 				hf_rpc_program, tvb, 0, 0, prog,
-				"Program: %s (%u)", progname, prog);
+				"%s (%u)", progname, prog);
 			PROTO_ITEM_SET_GENERATED(tmp_item);
 			tmp_item=proto_tree_add_uint(rpc_tree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
 			PROTO_ITEM_SET_GENERATED(tmp_item);
-			tmp_item=proto_tree_add_uint_format(rpc_tree,
+			tmp_item=proto_tree_add_uint_format_value(rpc_tree,
 				hf_rpc_procedure, tvb, 0, 0, proc,
-				"Procedure: %s (%u)", procname, proc);
+				"%s (%u)", procname, proc);
 			PROTO_ITEM_SET_GENERATED(tmp_item);
 		}
 
@@ -2711,9 +2709,9 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				procedure_hf, tvb, 0, 0, proc);
 			PROTO_ITEM_SET_GENERATED(tmp_item);
 		} else {
-			tmp_item=proto_tree_add_uint_format(ptree,
+			tmp_item=proto_tree_add_uint_format_value(ptree,
 				hf_rpc_procedure, tvb, 0, 0, proc,
-				"Procedure: %s (%u)", procname, proc);
+				"%s (%u)", procname, proc);
 			PROTO_ITEM_SET_GENERATED(tmp_item);
 		}
 	}
@@ -3787,7 +3785,7 @@ proto_register_rpc(void)
 			"Fragment Length", "rpc.fraglen", FT_UINT32, BASE_DEC,
 			NULL, RPC_RM_FRAGLEN, NULL, HFILL }},
 		{ &hf_rpc_xid, {
-			"XID", "rpc.xid", FT_UINT32, BASE_HEX,
+			"XID", "rpc.xid", FT_UINT32, BASE_HEX_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_msgtype, {
 			"Message Type", "rpc.msgtyp", FT_UINT32, BASE_DEC,

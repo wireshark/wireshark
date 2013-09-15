@@ -224,8 +224,8 @@ dissect_cntrl_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
   if (!tree)
     return;
 
-  proto_tree_add_uint_format(tree, hf_pptp_protocol_version, tvb, offset,
-                               2, tvb_get_ntohs(tvb, offset), "Protocol version: %u.%u",
+  proto_tree_add_uint_format_value(tree, hf_pptp_protocol_version, tvb, offset,
+                               2, tvb_get_ntohs(tvb, offset), "%u.%u",
                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
   offset += 2;
 
@@ -256,8 +256,8 @@ dissect_cntrl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
   if (!tree)
     return;
 
-  proto_tree_add_uint_format(tree, hf_pptp_protocol_version, tvb, offset,
-                               2, tvb_get_ntohs(tvb, offset), "Protocol version: %u.%u",
+  proto_tree_add_uint_format_value(tree, hf_pptp_protocol_version, tvb, offset,
+                               2, tvb_get_ntohs(tvb, offset), "%u.%u",
                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
   offset += 2;
 

@@ -4788,14 +4788,14 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	    break;
 	}
 
-	proto_tree_add_uint_format(assoc_header_ptree, hf_dcm_assoc_reject_result, tvb,
-	    offset  , 1, reject_result, "Result: %s", reject_result_desc);
+	proto_tree_add_uint_format_value(assoc_header_ptree, hf_dcm_assoc_reject_result, tvb,
+	    offset  , 1, reject_result, "%s", reject_result_desc);
 
-	proto_tree_add_uint_format(assoc_header_ptree, hf_dcm_assoc_reject_source, tvb,
-	    offset+1, 1, reject_source, "Source: %s", reject_source_desc);
+	proto_tree_add_uint_format_value(assoc_header_ptree, hf_dcm_assoc_reject_source, tvb,
+	    offset+1, 1, reject_source, "%s", reject_source_desc);
 
-	proto_tree_add_uint_format(assoc_header_ptree, hf_dcm_assoc_reject_reason, tvb,
-	    offset+2, 1, reject_reason, "Reason: %s", reject_reason_desc);
+	proto_tree_add_uint_format_value(assoc_header_ptree, hf_dcm_assoc_reject_reason, tvb,
+	    offset+2, 1, reject_reason, "%s", reject_reason_desc);
 
 	offset += 3;
 
@@ -4848,11 +4848,11 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	    break;
 	}
 
-	proto_tree_add_uint_format(assoc_header_ptree, hf_dcm_assoc_abort_source,
-	    tvb, offset  , 1, abort_source, "Source: %s", abort_source_desc);
+	proto_tree_add_uint_format_value(assoc_header_ptree, hf_dcm_assoc_abort_source,
+	    tvb, offset  , 1, abort_source, "%s", abort_source_desc);
 
-	proto_tree_add_uint_format(assoc_header_ptree, hf_dcm_assoc_abort_reason,
-	    tvb, offset+1, 1, abort_reason, "Reason: %s", abort_reason_desc);
+	proto_tree_add_uint_format_value(assoc_header_ptree, hf_dcm_assoc_abort_reason,
+	    tvb, offset+1, 1, abort_reason, "%s", abort_reason_desc);
 	offset += 2;
 
 	if (abort_source == 0) {
@@ -6335,8 +6335,8 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	---------------------------------------------------------------
     */
 
-    proto_tree_add_uint_format(tag_ptree, hf_dcm_tag, tvb, offset_tag, 4,
-        (grp << 16) | elm, "Tag:    %04x,%04x (%s)", grp, elm, tag_def->description);
+    proto_tree_add_uint_format_value(tag_ptree, hf_dcm_tag, tvb, offset_tag, 4,
+        (grp << 16) | elm, "%04x,%04x (%s)", grp, elm, tag_def->description);
 
     /* Add VR to tag detail, except for dicom items */
     if (!is_item)  {

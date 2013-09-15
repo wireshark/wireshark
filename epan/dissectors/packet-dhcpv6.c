@@ -1544,16 +1544,16 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_string(subtree, hf_iaid, tvb, off,
                                     4, tvb_arphrdaddr_to_str(tvb, off, 4, opttype));
         if (tvb_get_ntohl(tvb, off+4) == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format(subtree, hf_iaid_t1, tvb, off+4,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "T1: infinity");
+            proto_tree_add_uint_format_value(subtree, hf_iaid_t1, tvb, off+4,
+                                    4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
         } else {
             proto_tree_add_item(subtree, hf_iaid_t1, tvb, off+4,
                                     4, ENC_BIG_ENDIAN);
         }
 
         if (tvb_get_ntohl(tvb, off+8) == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format(subtree, hf_iaid_t2, tvb, off+8,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "T2: infinity");
+            proto_tree_add_uint_format_value(subtree, hf_iaid_t2, tvb, off+8,
+                                    4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
         } else {
             proto_tree_add_item(subtree, hf_iaid_t2, tvb, off+8,
                                     4, ENC_BIG_ENDIAN);
@@ -1602,8 +1602,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         valid_lifetime = tvb_get_ntohl(tvb, off + 20);
 
         if (preferred_lifetime == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format(subtree, hf_iaaddr_pref_lifetime, tvb, off+16,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "Preferred lifetime: infinity");
+            proto_tree_add_uint_format_value(subtree, hf_iaaddr_pref_lifetime, tvb, off+16,
+                                    4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
         } else {
             proto_tree_add_item(subtree, hf_iaaddr_pref_lifetime, tvb, off+16,
                                     4, ENC_BIG_ENDIAN);
@@ -1986,15 +1986,15 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
 
         if (tvb_get_ntohl(tvb, off) == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format(subtree, hf_iaprefix_pref_lifetime, tvb, off,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "Preferred lifetime: infinity");
+            proto_tree_add_uint_format_value(subtree, hf_iaprefix_pref_lifetime, tvb, off,
+                                    4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
         } else {
             proto_tree_add_item(subtree, hf_iaprefix_pref_lifetime, tvb, off,
                                     4, ENC_BIG_ENDIAN);
         }
         if (tvb_get_ntohl(tvb, off + 4) == DHCPV6_LEASEDURATION_INFINITY) {
-            proto_tree_add_uint_format(subtree, hf_iaprefix_valid_lifetime, tvb, off+4,
-                                    4, DHCPV6_LEASEDURATION_INFINITY, "Valid lifetime: infinity");
+            proto_tree_add_uint_format_value(subtree, hf_iaprefix_valid_lifetime, tvb, off+4,
+                                    4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
         } else {
             proto_tree_add_item(subtree, hf_iaprefix_valid_lifetime, tvb, off+4,
                                     4, ENC_BIG_ENDIAN);

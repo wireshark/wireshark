@@ -585,8 +585,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         }
     }
 
-    ti = proto_tree_add_uint_format(stun_tree, hf_stun_type, tvb, 0, 2,
-                    msg_type, "Message Type: 0x%04x (%s %s)", msg_type, msg_method_str, msg_class_str);
+    ti = proto_tree_add_uint_format_value(stun_tree, hf_stun_type, tvb, 0, 2,
+                    msg_type, "0x%04x (%s %s)", msg_type, msg_method_str, msg_class_str);
     stun_type_tree = proto_item_add_subtree(ti, ett_stun_type);
     proto_tree_add_uint(stun_type_tree, hf_stun_type_class, tvb, 0, 2, msg_type);
     ti = proto_tree_add_text(stun_type_tree, tvb, 0, 2, "%s (%d)", msg_class_str, msg_type_class);
@@ -640,10 +640,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             PROTO_ITEM_SET_GENERATED(ti);
 
             if ((offset+ATTR_HDR_LEN+att_length) > (STUN_HDR_LEN+msg_length)) {
-                proto_tree_add_uint_format(att_tree,
+                proto_tree_add_uint_format_value(att_tree,
                                stun_att_length, tvb, offset+2, 2,
                                att_length,
-                               "Attribute Length: %u (bogus, goes past the end of the message)",
+                               "%u (bogus, goes past the end of the message)",
                                att_length);
                 break;
             }

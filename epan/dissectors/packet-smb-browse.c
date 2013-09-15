@@ -612,9 +612,9 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* periodicity (in milliseconds) */
 		periodicity = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint_format(tree, hf_periodicity, tvb, offset, 4,
+		proto_tree_add_uint_format_value(tree, hf_periodicity, tvb, offset, 4,
 		    periodicity,
-		    "Update Periodicity: %s",
+		    "%s",
 		    time_msecs_to_str(periodicity));
 		offset += 4;
 
@@ -719,9 +719,9 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* server uptime */
 		uptime = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint_format(tree, hf_server_uptime,
+		proto_tree_add_uint_format_value(tree, hf_server_uptime,
 		    tvb, offset, 4, uptime,
-		    "Uptime: %s",
+		    "%s",
 		    time_msecs_to_str(uptime));
 		offset += 4;
 
@@ -879,9 +879,9 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* periodicity (in seconds; convert to milliseconds) */
 		periodicity = tvb_get_letohs(tvb, offset)*1000;
-		proto_tree_add_uint_format(tree, hf_periodicity, tvb, offset, 2,
+		proto_tree_add_uint_format_value(tree, hf_periodicity, tvb, offset, 2,
 		    periodicity,
-		    "Update Periodicity: %s",
+		    "%s",
 		    time_msecs_to_str(periodicity));
 		offset += 2;
 

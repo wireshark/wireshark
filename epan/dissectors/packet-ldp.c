@@ -1443,7 +1443,6 @@ static void
 dissect_tlv_atm_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
-    guint16     id;
 
     if (rem != 4){
         proto_tree_add_text(tree, tvb, offset, rem,
@@ -1456,11 +1455,9 @@ dissect_tlv_atm_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
     proto_tree_add_item(val_tree, hf_ldp_tlv_atm_label_vbits, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    id=tvb_get_ntohs(tvb, offset)&0x0FFF;
-    proto_tree_add_uint_format(val_tree, hf_ldp_tlv_atm_label_vpi, tvb, offset, 2, id, "VPI: %u", id);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_atm_label_vpi, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    id=tvb_get_ntohs(tvb, offset+2);
-    proto_tree_add_uint_format(val_tree, hf_ldp_tlv_atm_label_vci, tvb, offset+2, 2, id, "VCI: %u", id);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_atm_label_vci, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 }
 
 /* Dissect FRAME RELAY Label TLV */
@@ -1470,7 +1467,6 @@ dissect_tlv_frame_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
     guint8      len;
-    guint32     id;
 
     if (rem != 4){
         proto_tree_add_text(tree, tvb, offset, rem,
@@ -1485,9 +1481,8 @@ dissect_tlv_frame_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     proto_tree_add_uint_format(val_tree, hf_ldp_tlv_fr_label_len, tvb, offset, 2, len,
                                "Number of DLCI bits: %s (%u)", val_to_str_const(len, tlv_fr_len_vals, "Unknown Length"), len);
 
-    id=tvb_get_ntoh24(tvb, offset+1)&0x7FFFFF;
-    proto_tree_add_uint_format(val_tree,
-                               hf_ldp_tlv_fr_label_dlci, tvb, offset+1, 3, id, "DLCI: %u", id);
+    proto_tree_add_item(val_tree,
+                               hf_ldp_tlv_fr_label_dlci, tvb, offset+1, 3, ENC_BIG_ENDIAN);
 }
 
 /* Dissect STATUS TLV */
@@ -1711,7 +1706,6 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int
 {
     proto_tree *ti, *val_tree, *lbl_tree;
     guint8      numlr, ix;
-    guint16     id;
 
     if (rem < 4) {
         proto_tree_add_text(tree, tvb, offset, rem,
@@ -1748,27 +1742,20 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int
                                "ATM Label Range Component %u", ix);
         lbl_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
-        id=tvb_get_ntohs(tvb, offset)&0x0FFF;
-        proto_tree_add_uint_format(lbl_tree,
+        proto_tree_add_item(lbl_tree,
                                    hf_ldp_tlv_sess_atm_minvpi,
                                    tvb, offset, 2,
-                                   id, "Minimum VPI: %u", id);
-        id=tvb_get_ntohs(tvb, offset+4)&0x0FFF;
-        proto_tree_add_uint_format(lbl_tree,
+                                   ENC_BIG_ENDIAN);
+        proto_tree_add_item(lbl_tree,
                                    hf_ldp_tlv_sess_atm_maxvpi,
-                                   tvb, (offset+4), 2, id,
-                                   "Maximum VPI: %u", id);
+                                   tvb, (offset+4), 2, ENC_BIG_ENDIAN);
 
-        id=tvb_get_ntohs(tvb, offset+2);
-        proto_tree_add_uint_format(lbl_tree,
+        proto_tree_add_item(lbl_tree,
                                    hf_ldp_tlv_sess_atm_minvci,
-                                   tvb, offset+2, 2,
-                                   id, "Minimum VCI: %u", id);
-        id=tvb_get_ntohs(tvb, offset+6);
-        proto_tree_add_uint_format(lbl_tree,
+                                   tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(lbl_tree,
                                    hf_ldp_tlv_sess_atm_maxvci,
-                                   tvb, offset+6, 2,
-                                   id, "Maximum VCI: %u", id);
+                                   tvb, offset+6, 2, ENC_BIG_ENDIAN);
 
         offset += 8;
     }
@@ -2417,12 +2404,12 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
 
         switch (type) {
         case TLV_VENDOR_PRIVATE_START:
-            proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2,
-                                       typebak, "TLV Type: Vendor Private (0x%X)", typebak);
+            proto_tree_add_uint_format_value(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2,
+                                       typebak, "Vendor Private (0x%X)", typebak);
             break;
         case TLV_EXPERIMENTAL_START:
-            proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2,
-                                       typebak, "TLV Type: Experimental (0x%X)", typebak);
+            proto_tree_add_uint_format_value(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2,
+                                       typebak, "Experimental (0x%X)", typebak);
             break;
         default:
             proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2,
@@ -2462,8 +2449,8 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             else {
                 guint32 label=tvb_get_ntohl(tvb, offset+4) & 0x000FFFFF;
 
-                proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_generic_label,
-                                           tvb, offset+4, length, label, "Generic Label: %u", label);
+                proto_tree_add_uint(tlv_tree, hf_ldp_tlv_generic_label,
+                                           tvb, offset+4, length, label);
             }
             break;
 
@@ -2854,12 +2841,12 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 
         switch (type) {
         case LDP_VENDOR_PRIVATE_START:
-            proto_tree_add_uint_format(msg_tree, hf_ldp_msg_type, tvb, offset, 2,
-                                       typebak, "Message Type: Vendor Private (0x%X)", typebak);
+            proto_tree_add_uint_format_value(msg_tree, hf_ldp_msg_type, tvb, offset, 2,
+                                       typebak, "Vendor Private (0x%X)", typebak);
             break;
         case LDP_EXPERIMENTAL_MESSAGE_START:
-            proto_tree_add_uint_format(msg_tree, hf_ldp_msg_type, tvb, offset, 2,
-                                       typebak, "Message Type: Experimental (0x%X)", typebak);
+            proto_tree_add_uint_format_value(msg_tree, hf_ldp_msg_type, tvb, offset, 2,
+                                       typebak, "Experimental (0x%X)", typebak);
             break;
         default:
             proto_tree_add_uint_format(msg_tree, hf_ldp_msg_type, tvb, offset, 2,

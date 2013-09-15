@@ -1776,7 +1776,7 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
-	guint8		th_0=0, daf=0, oaf=0;
+	guint8		th_0;
 	const guint8	*ptr;
 	unsigned int	mpf, id;
 
@@ -1786,26 +1786,22 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	mpf = mpf_value(th_0);
 
 	if (tree) {
-		daf = tvb_get_guint8(tvb, 2);
-		oaf = tvb_get_guint8(tvb, 3);
 
 		/* Byte 0 */
-		bf_item = proto_tree_add_uint(tree, hf_sna_th_0, tvb, 0, 1,
-		    th_0);
+		bf_item = proto_tree_add_item(tree, hf_sna_th_0, tvb, 0, 1, ENC_NA);
 		bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
-		proto_tree_add_uint(bf_tree, hf_sna_th_fid, tvb, 0, 1, th_0);
-		proto_tree_add_uint(bf_tree, hf_sna_th_mpf, tvb, 0, 1, th_0);
-		proto_tree_add_uint(bf_tree, hf_sna_th_odai,tvb, 0, 1, th_0);
-		proto_tree_add_uint(bf_tree, hf_sna_th_efi, tvb, 0, 1, th_0);
+		proto_tree_add_item(bf_tree, hf_sna_th_fid, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(bf_tree, hf_sna_th_mpf, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(bf_tree, hf_sna_th_odai,tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(bf_tree, hf_sna_th_efi, tvb, 0, 1, ENC_NA);
 
 
 		/* Byte 1 */
 		proto_tree_add_text(tree, tvb, 1, 1, "Reserved");
 
 		/* Byte 2 */
-		proto_tree_add_uint_format(tree, hf_sna_th_daf, tvb, 2, 1, daf,
-		    "Destination Address Field: 0x%02x", daf);
+		proto_tree_add_item(tree, hf_sna_th_daf, tvb, 2, 1, ENC_NA);
 	}
 
 	/* Set DST addr */
@@ -1813,11 +1809,8 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	SET_ADDRESS(&pinfo->net_dst, AT_SNA, SNA_FID2_ADDR_LEN, ptr);
 	SET_ADDRESS(&pinfo->dst, AT_SNA, SNA_FID2_ADDR_LEN, ptr);
 
-	if (tree) {
-		/* Byte 3 */
-		proto_tree_add_uint_format(tree, hf_sna_th_oaf, tvb, 3, 1, oaf,
-		    "Origin Address Field: 0x%02x", oaf);
-	}
+	/* Byte 3 */
+	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 3, 1, ENC_NA);
 
 	/* Set SRC addr */
 	ptr = tvb_get_ptr(tvb, 3, SNA_FID2_ADDR_LEN);
@@ -1825,17 +1818,16 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	SET_ADDRESS(&pinfo->src, AT_SNA, SNA_FID2_ADDR_LEN, ptr);
 
 	id = tvb_get_ntohs(tvb, 4);
-	if (tree)
-		proto_tree_add_uint(tree, hf_sna_th_snf, tvb, 4, 2, id);
+	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 4, 2, ENC_BIG_ENDIAN);
 
 	if (mpf != MPF_WHOLE_BIU && !sna_defragment) {
 		if (mpf == MPF_FIRST_SEGMENT) {
 			*continue_dissecting = rh_only;
-        	} else {
+			} else {
 			*continue_dissecting = stop_here;
-        	}
+			}
 
-    	}
+		}
 	else if (sna_defragment) {
 		*rh_tvb_ptr = defragment_by_sequence(pinfo, tvb,
 		    bytes_in_header, mpf, id);

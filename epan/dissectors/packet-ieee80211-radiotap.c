@@ -1341,10 +1341,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				chan_str = ieee80211_mhz_to_str(freq);
 				col_add_fstr(pinfo->cinfo,
 					     COL_FREQ_CHAN, "%s", chan_str);
-				proto_tree_add_uint_format(radiotap_tree,
+				proto_tree_add_uint_format_value(radiotap_tree,
 							   hf_radiotap_channel_frequency,
 							   tvb, offset, 2, freq,
-							   "Channel frequency: %s",
+							   "%s",
 							   chan_str);
 				g_free(chan_str);
 				/* We're already 2-byte aligned. */

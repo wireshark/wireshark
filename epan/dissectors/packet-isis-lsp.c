@@ -2727,8 +2727,8 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 		switch (check_and_get_checksum(tvb, offset_checksum, pdu_length-12, checksum, offset, &cacl_checksum)) {
 			case NO_CKSUM :
 				checksum = tvb_get_ntohs(tvb, offset);
-				proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
-					"Checksum: 0x%04x [unused]", checksum);
+				proto_tree_add_uint_format_value(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
+					"0x%04x [unused]", checksum);
 			break;
 			case DATA_MISSING :
 				isis_dissect_unknown(tvb, tree, offset,
@@ -2736,14 +2736,14 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 			 		tvb_length_remaining(tvb, offset_checksum));
 			break;
 			case CKSUM_NOT_OK :
-				it_cksum = proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
-					"Checksum: 0x%04x [incorrect, should be 0x%04x]",
+				it_cksum = proto_tree_add_uint_format_value(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
+					"0x%04x [incorrect, should be 0x%04x]",
 					checksum, cacl_checksum);
 				isis_lsp_checkum_additional_info(tvb, pinfo, it_cksum, offset, FALSE);
 			break;
 			case CKSUM_OK :
-				it_cksum = proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
-					"Checksum: 0x%04x [correct]", checksum);
+				it_cksum = proto_tree_add_uint_format_value(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
+					"0x%04x [correct]", checksum);
 				isis_lsp_checkum_additional_info(tvb, pinfo, it_cksum, offset, TRUE);
 			break;
 			default :

@@ -128,9 +128,9 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	spp_msg_string = spp_conn_ctrl(conn_ctrl);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spp_msg_string);
 	if (tree) {
-		ti = proto_tree_add_uint_format(spp_tree, hf_spp_connection_control, tvb,
+		ti = proto_tree_add_uint_format_value(spp_tree, hf_spp_connection_control, tvb,
 						0, 1, conn_ctrl,
-						"Connection Control: %s (0x%02X)",
+						"%s (0x%02X)",
 						spp_msg_string, conn_ctrl);
 		cc_tree = proto_item_add_subtree(ti, ett_spp_connctrl);
 		proto_tree_add_boolean(cc_tree, hf_spp_connection_control_sys, tvb,

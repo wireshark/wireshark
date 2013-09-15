@@ -132,13 +132,13 @@ dissect_v52_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 
     if (discriminator == 0x48) {
-        proto_tree_add_uint_format(tree, hf_v52_discriminator, tvb, offset, 1, discriminator,
-            "Protocol discriminator: V5.2 (0x%02X)",
+        proto_tree_add_uint_format_value(tree, hf_v52_discriminator, tvb, offset, 1, discriminator,
+            "V5.2 (0x%02X)",
             discriminator);
     } else {
-        proto_tree_add_uint_format(tree, hf_v52_discriminator,
+        proto_tree_add_uint_format_value(tree, hf_v52_discriminator,
             tvb, offset, 1, discriminator,
-            "Protocol discriminator: Reserved (0x%02X)",
+            "Reserved (0x%02X)",
             discriminator);
     }
 }

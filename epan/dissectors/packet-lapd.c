@@ -545,13 +545,13 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 		checksum_calculated = g_htons(checksum_calculated);  /* Note: g_htons() macro may eval arg multiple times */
 
 		if (checksum == checksum_calculated) {
-			checksum_ti = proto_tree_add_uint_format(lapd_tree, hf_lapd_checksum, tvb, checksum_offset, 2, 0,"Checksum: 0x%04x [correct]", checksum);
+			checksum_ti = proto_tree_add_uint_format_value(lapd_tree, hf_lapd_checksum, tvb, checksum_offset, 2, 0,"0x%04x [correct]", checksum);
 			checksum_tree = proto_item_add_subtree(checksum_ti, ett_lapd_checksum);
 			proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_good, tvb, checksum_offset, 2, TRUE);
 			proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_bad, tvb, checksum_offset, 2, FALSE);
 		} else {
 			proto_item *pi;
-			checksum_ti = proto_tree_add_uint_format(lapd_tree, hf_lapd_checksum, tvb, checksum_offset, 2, 0,"Checksum: 0x%04x [incorrect, should be 0x%04x]", checksum, checksum_calculated);
+			checksum_ti = proto_tree_add_uint_format_value(lapd_tree, hf_lapd_checksum, tvb, checksum_offset, 2, 0,"0x%04x [incorrect, should be 0x%04x]", checksum, checksum_calculated);
 			checksum_tree = proto_item_add_subtree(checksum_ti, ett_lapd_checksum);
 			proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_good, tvb, checksum_offset, 2, FALSE);
 			pi = proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_bad, tvb, checksum_offset, 2, TRUE);

@@ -274,8 +274,8 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		device_type = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(edp_tree, hf_ismp_edp_device_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_uint_format(edp_tree, hf_ismp_edp_module_rev, tvb, offset, 4, tvb_get_ntohl(tvb, offset),
-			"Module Firmware Revision: %02x.%02x.%02x.%02x", tvb_get_guint8(tvb, offset),
+		proto_tree_add_uint_format_value(edp_tree, hf_ismp_edp_module_rev, tvb, offset, 4, tvb_get_ntohl(tvb, offset),
+			"%02x.%02x.%02x.%02x", tvb_get_guint8(tvb, offset),
 			tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2), tvb_get_guint8(tvb, offset+3));
 		offset += 4;
 

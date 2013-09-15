@@ -223,7 +223,7 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_uint(zep_tree, hf_zep_seqno, tvb, 17, 4, zep_data.seqno);
             }
         }
-        if (!((zep_data.version==2) && (zep_data.type==ZEP_V2_TYPE_ACK))) proto_tree_add_uint_format(zep_tree, hf_zep_ieee_length, tvb, zep_header_len - 1, 1, ieee_packet_len, "Length: %i %s", ieee_packet_len, (ieee_packet_len==1)?"Byte":"Bytes");
+        if (!((zep_data.version==2) && (zep_data.type==ZEP_V2_TYPE_ACK))) proto_tree_add_uint_format_value(zep_tree, hf_zep_ieee_length, tvb, zep_header_len - 1, 1, ieee_packet_len, "%i %s", ieee_packet_len, (ieee_packet_len==1)?"Byte":"Bytes");
     }
 
     /* Determine which dissector to call next. */

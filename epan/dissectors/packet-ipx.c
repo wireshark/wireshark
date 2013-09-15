@@ -303,8 +303,8 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	proto_tree_add_item(ipx_tree, hf_ipx_checksum, tvb, 0, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_uint_format(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length,
-		"Length: %d bytes", ipxh->ipx_length);
+	proto_tree_add_uint_format_value(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length,
+		"%d bytes", ipxh->ipx_length);
 	ipx_hops = tvb_get_guint8(tvb, 4);
 	proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, tvb, 4, 1, ipx_hops,
 		"Transport Control: %d hops", ipx_hops);
@@ -593,9 +593,9 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	spx_msg_string = spx_conn_ctrl(conn_ctrl);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spx_msg_string);
 	if (tree) {
-		ti = proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, tvb,
+		ti = proto_tree_add_uint_format_value(spx_tree, hf_spx_connection_control, tvb,
 						0, 1, conn_ctrl,
-						"Connection Control: %s (0x%02X)",
+						"%s (0x%02X)",
 						spx_msg_string, conn_ctrl);
 		cc_tree = proto_item_add_subtree(ti, ett_spx_connctrl);
 		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_sys, tvb,

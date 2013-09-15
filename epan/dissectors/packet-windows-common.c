@@ -2282,8 +2282,8 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * BOGUS - the size includes the ACE header length,
 		 * which is 4.
 		 */
-		proto_tree_add_uint_format(tree, hf_nt_ace_size, tvb, offset, 2,
-		    size, "Size: %u (bogus, must be >= 4)", size);
+		proto_tree_add_uint_format_value(tree, hf_nt_ace_size, tvb, offset, 2,
+		    size, "%u (bogus, must be >= 4)", size);
 		return old_offset;	/* our caller quits in this case */
 	}
 	proto_tree_add_uint(tree, hf_nt_ace_size, tvb, offset, 2, size);

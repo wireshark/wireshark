@@ -247,14 +247,14 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         cksum_vec[0].len = pim_length;
         computed_cksum = in_cksum(&cksum_vec[0], 1);
         if (computed_cksum == 0) {
-            proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
+            proto_tree_add_uint_format_value(pim_tree, hf_pim_cksum, tvb,
                                        offset, 2, pim_cksum,
-                                       "Checksum: 0x%04x [correct]",
+                                       "0x%04x [correct]",
                                        pim_cksum);
         } else {
-            proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
+            proto_tree_add_uint_format_value(pim_tree, hf_pim_cksum, tvb,
                                        offset, 2, pim_cksum,
-                                       "Checksum: 0x%04x [incorrect, should be 0x%04x]",
+                                       "0x%04x [incorrect, should be 0x%04x]",
                                        pim_cksum, in_cksum_shouldbe(pim_cksum, computed_cksum));
         }
     } else {
@@ -464,7 +464,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case 5:     /* assert */
     {
-        guint32 pref;
 
         proto_tree_add_item(pimopt_tree, hf_pim_group_address_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
@@ -473,10 +472,8 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 4;
 
         proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, ENC_BIG_ENDIAN);
-        pref = tvb_get_ntohl(tvb, offset) & 0x7fffffff;
-        proto_tree_add_uint_format(pimopt_tree, hf_pim_metric_pref, tvb,
-                                   offset, 4, pref,
-                                   "Metric Preference: %u", pref);
+        proto_tree_add_item(pimopt_tree, hf_pim_metric_pref, tvb,
+                                   offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -780,14 +777,14 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         }
 
         if (computed_cksum == 0) {
-            proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
+            proto_tree_add_uint_format_value(pim_tree, hf_pim_cksum, tvb,
                                        offset + 2, 2, pim_cksum,
-                                       "Checksum: 0x%04x [correct]",
+                                       "0x%04x [correct]",
                                        pim_cksum);
         } else {
-            proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
+            proto_tree_add_uint_format_value(pim_tree, hf_pim_cksum, tvb,
                                        offset + 2, 2, pim_cksum,
-                                       "Checksum: 0x%04x [incorrect, should be 0x%04x]",
+                                       "0x%04x [incorrect, should be 0x%04x]",
                                        pim_cksum, in_cksum_shouldbe(pim_cksum, computed_cksum));
         }
     } else {
@@ -1115,7 +1112,6 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     case 5:     /* assert */
     {
         int advance;
-        guint32 pref;
 
         if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, 
                                 NULL, NULL,
@@ -1130,10 +1126,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         offset += advance;
 
         proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, ENC_BIG_ENDIAN);
-        pref = tvb_get_ntohl(tvb, offset) & 0x7fffffff;
-        proto_tree_add_uint_format(pimopt_tree, hf_pim_metric_pref, tvb,
-                                   offset, 4, pref,
-                                   "Metric Preference: %u", pref);
+        proto_tree_add_item(pimopt_tree, hf_pim_metric_pref, tvb,
+                                   offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1180,7 +1174,6 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     case 9:     /* State-Refresh */
     {
         int advance;
-        guint32 pref;
 
         if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, 
                                 NULL, NULL,
@@ -1201,10 +1194,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         offset += advance;
 
         proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, ENC_BIG_ENDIAN);
-        pref = tvb_get_ntohl(tvb, offset) & 0x7fffffff;
-        proto_tree_add_uint_format(pimopt_tree, hf_pim_metric_pref, tvb,
-                                   offset, 4, pref,
-                                   "Metric Preference: %u", pref);
+        proto_tree_add_item(pimopt_tree, hf_pim_metric_pref, tvb,
+                                   offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, ENC_BIG_ENDIAN);

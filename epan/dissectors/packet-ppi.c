@@ -521,8 +521,8 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     common_frequency = tvb_get_letohs(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
     chan_str = ieee80211_mhz_to_str(common_frequency);
-    proto_tree_add_uint_format(ptvcursor_tree(csr), hf_80211_common_chan_freq, ptvcursor_tvbuff(csr),
-                               ptvcursor_current_offset(csr), 2, common_frequency, "Channel frequency: %s", chan_str);
+    proto_tree_add_uint_format_value(ptvcursor_tree(csr), hf_80211_common_chan_freq, ptvcursor_tvbuff(csr),
+                               ptvcursor_current_offset(csr), 2, common_frequency, "%s", chan_str);
     col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%s", chan_str);
     g_free(chan_str);
     ptvcursor_advance(csr, 2);

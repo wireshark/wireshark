@@ -498,8 +498,8 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		mac_tree = proto_item_add_subtree(ti, ett_tr_mac);
 
 		proto_tree_add_uint(mac_tree, hf_trmac_mv, tvb, 3, 1, mv_val);
-		proto_tree_add_uint_format(mac_tree, hf_trmac_length, tvb, 0, 2, mv_length,
-				"Total Length: %d bytes", mv_length);
+		proto_tree_add_uint_format_value(mac_tree, hf_trmac_length, tvb, 0, 2, mv_length,
+				"%d bytes", mv_length);
 		proto_tree_add_uint(mac_tree, hf_trmac_srcclass, tvb, 2, 1, tvb_get_guint8(tvb, 2) & 0x0f);
 		proto_tree_add_uint(mac_tree, hf_trmac_dstclass, tvb, 2, 1, tvb_get_guint8(tvb, 2) >> 4 );
 

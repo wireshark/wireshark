@@ -218,9 +218,9 @@ display_LMNT_token(tvbuff_t *tvb, int offset, proto_tree *tree)
 	Token = tvb_get_letohs(tvb, offset);
 
 	if (Token == 0xffff) {
-		proto_tree_add_uint_format(tree, hf_lmnt_token, tvb, offset, 2,
+		proto_tree_add_uint_format_value(tree, hf_lmnt_token, tvb, offset, 2,
 			Token,
-			"LMNT Token: 0x%04x (Windows NT Networking)", Token);
+			"0x%04x (Windows NT Networking)", Token);
 	} else {
 		/*
 		 * XXX - what is it if it's not 0xffff?

@@ -669,9 +669,9 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
       if(eth_check_fcs){
         guint32 fcs = crc32_802_tvb(tvb, tvb_length(tvb) - 4);
         if (fcs == sent_fcs) {
-          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+          item = proto_tree_add_uint_format_value(fh_tree, hf_eth_fcs, trailer_tvb,
                                             padding_length+trailer_length, 4, sent_fcs,
-                                            "Frame check sequence: 0x%08x [correct]", sent_fcs);
+                                            "0x%08x [correct]", sent_fcs);
           checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
           item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, trailer_tvb,
                                         padding_length+trailer_length, 4, TRUE);
@@ -680,9 +680,9 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
                                         padding_length+trailer_length, 4, FALSE);
           PROTO_ITEM_SET_GENERATED(item);
         } else {
-          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+          item = proto_tree_add_uint_format_value(fh_tree, hf_eth_fcs, trailer_tvb,
                                             padding_length+trailer_length, 4, sent_fcs,
-                                            "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
+                                            "0x%08x [incorrect, should be 0x%08x]",
                                             sent_fcs, fcs);
           checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
           item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, trailer_tvb,
@@ -695,9 +695,9 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
           col_append_str(pinfo->cinfo, COL_INFO, " [ETHERNET FRAME CHECK SEQUENCE INCORRECT]");
         }
       }else{
-        item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+        item = proto_tree_add_uint_format_value(fh_tree, hf_eth_fcs, trailer_tvb,
                                           padding_length+trailer_length, 4, sent_fcs,
-                                          "Frame check sequence: 0x%08x [validiation disabled]", sent_fcs);
+                                          "0x%08x [validiation disabled]", sent_fcs);
         checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
         item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, trailer_tvb,
                                       padding_length+trailer_length, 4, FALSE);

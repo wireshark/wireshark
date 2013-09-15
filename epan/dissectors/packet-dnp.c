@@ -2943,8 +2943,8 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += 1;
 
   /* Add Control Byte Subtree */
-  tc = proto_tree_add_uint_format(dl_tree, hf_dnp3_ctl, tvb, offset, 1, dl_ctl,
-          "Control: 0x%02x (", dl_ctl);
+  tc = proto_tree_add_uint_format_value(dl_tree, hf_dnp3_ctl, tvb, offset, 1, dl_ctl,
+          "0x%02x (", dl_ctl);
   /* Add Text to Control Byte Subtree Header */
   if (dl_prm) {
     if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tc, "DIR, ");
@@ -2987,16 +2987,16 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dl_crc = tvb_get_letohs(tvb, offset);
   calc_dl_crc = calculateCRC(tvb_get_ptr(tvb, 0, DNP_HDR_LEN - 2), DNP_HDR_LEN - 2);
   if (dl_crc == calc_dl_crc)
-    proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
-                               dl_crc, "CRC: 0x%04x [correct]", dl_crc);
+    proto_tree_add_uint_format_value(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
+                               dl_crc, "0x%04x [correct]", dl_crc);
   else
   {
     proto_item *hidden_item;
     hidden_item = proto_tree_add_boolean(dl_tree, hf_dnp_hdr_CRC_bad, tvb,
                                          offset, 2, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
-                               dl_crc, "CRC: 0x%04x [incorrect, should be 0x%04x]",
+    proto_tree_add_uint_format_value(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
+                               dl_crc, "0x%04x [incorrect, should be 0x%04x]",
                                dl_crc, calc_dl_crc);
   }
   offset += 2;

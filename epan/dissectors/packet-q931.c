@@ -711,32 +711,32 @@ dissect_q931_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
 	unsigned int discriminator = tvb_get_guint8(tvb, offset);
 
 	if (discriminator == NLPID_DMS) {
-		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+		proto_tree_add_uint_format_value(tree, hf_q931_discriminator,
 			 tvb, offset, 1, discriminator,
-			 "Protocol discriminator: Maintenance messages");
+			 "Maintenance messages");
 	} else if (discriminator == NLPID_Q_931) {
-		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+		proto_tree_add_uint_format_value(tree, hf_q931_discriminator,
 			 tvb, offset, 1, discriminator,
-			 "Protocol discriminator: Q.931");
+			 "Q.931");
 	} else if (discriminator == NLPID_Q_2931) {
-		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+		proto_tree_add_uint_format_value(tree, hf_q931_discriminator,
 			 tvb, offset, 1, discriminator,
-			 "Protocol discriminator: Q.2931");
+			 "Q.2931");
 	} else if ((discriminator >= 16 && discriminator < 63)
 	    || ((discriminator >= 80) && (discriminator < 254))) {
-		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+		proto_tree_add_uint_format_value(tree, hf_q931_discriminator,
 		    tvb, offset, 1, discriminator,
-		    "Protocol discriminator: Network layer or layer 3 protocol (0x%02X)",
+		    "Network layer or layer 3 protocol (0x%02X)",
 		    discriminator);
 	} else if (discriminator >= 64 && discriminator <= 79) {
-		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+		proto_tree_add_uint_format_value(tree, hf_q931_discriminator,
 		    tvb, offset, 1, discriminator,
-		    "Protocol discriminator: National use (0x%02X)",
+		    "National use (0x%02X)",
 		    discriminator);
 	} else {
-		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+		proto_tree_add_uint_format_value(tree, hf_q931_discriminator,
 		    tvb, offset, 1, discriminator,
-		    "Protocol discriminator: Reserved (0x%02X)",
+		    "Reserved (0x%02X)",
 		    discriminator);
 	}
 }

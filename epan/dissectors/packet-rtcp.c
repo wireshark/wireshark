@@ -1731,10 +1731,10 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
                      */
                     prefix_len = tvb_get_guint8( tvb, offset );
                     if ( prefix_len + 1 > item_len ) {
-                        proto_tree_add_uint_format( sdes_item_tree,
+                        proto_tree_add_uint_format_value( sdes_item_tree,
                             hf_rtcp_sdes_prefix_len, tvb,
                             offset, 1, prefix_len,
-                            "Prefix length: %u (bogus, must be <= %u)",
+                            "%u (bogus, must be <= %u)",
                             prefix_len, item_len - 1);
                         offset += item_len;
                         continue;
@@ -1896,8 +1896,8 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 
             /* Loss Rate */
             fraction_rate = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(content_tree, hf_rtcp_ssrc_fraction, tvb, offset, 1,
-                                       fraction_rate, "Fraction lost: %u / 256", fraction_rate);
+            proto_tree_add_uint_format_value(content_tree, hf_rtcp_ssrc_fraction, tvb, offset, 1,
+                                       fraction_rate, "%u / 256", fraction_rate);
             offset++;
 
             /* Discard Rate */
@@ -2373,8 +2373,8 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 
         /* Fraction lost, 8bits */
         rr_flt = tvb_get_guint8( tvb, offset );
-        proto_tree_add_uint_format( ssrc_sub_tree, hf_rtcp_ssrc_fraction, tvb,
-            offset, 1, rr_flt, "Fraction lost: %u / 256", rr_flt );
+        proto_tree_add_uint_format_value( ssrc_sub_tree, hf_rtcp_ssrc_fraction, tvb,
+            offset, 1, rr_flt, "%u / 256", rr_flt );
         offset++;
 
         /* Cumulative number of packets lost, 24 bits */

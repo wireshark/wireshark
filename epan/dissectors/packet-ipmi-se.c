@@ -2261,8 +2261,8 @@ rq12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	} else {
 		desc = "Reserved";
 	}
-	ti = proto_tree_add_uint_format(tree, hf_ipmi_se_12_byte1, tvb, 0, 1,
-			pno, "Parameter selector: %s (0x%02x)", desc, pno);
+	ti = proto_tree_add_uint_format_value(tree, hf_ipmi_se_12_byte1, tvb, 0, 1,
+			pno, "%s (0x%02x)", desc, pno);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_12_byte1);
 	proto_tree_add_uint_format(s_tree, hf_ipmi_se_12_param, tvb, 0, 1,
 			pno, "%sParameter selector: %s (0x%02x)",
@@ -2312,8 +2312,8 @@ rq13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	} else {
 		desc = "Reserved";
 	}
-	ti = proto_tree_add_uint_format(tree, hf_ipmi_se_13_byte1, tvb, 0, 1,
-			pno, "Parameter selector: %s (0x%02x)", desc, pno);
+	ti = proto_tree_add_uint_format_value(tree, hf_ipmi_se_13_byte1, tvb, 0, 1,
+			pno, "%s (0x%02x)", desc, pno);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_13_byte1);
 	proto_tree_add_item(s_tree, hf_ipmi_se_13_getrev, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format(s_tree, hf_ipmi_se_13_param, tvb, 0, 1,

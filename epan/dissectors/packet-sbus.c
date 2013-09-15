@@ -1870,13 +1870,13 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               /*Show CRC and add hidden item for wrong CRC*/
               sbus_helper = tvb_get_ntohs(tvb, offset);
               if (sbus_helper == sbus_crc_calc) {
-                     proto_tree_add_uint_format(sbus_tree,
+                     proto_tree_add_uint_format_value(sbus_tree,
                                                 hf_sbus_crc, tvb, offset, 2, sbus_helper,
-                                                "Checksum: 0x%04x (correct)", sbus_helper);
+                                                "0x%04x (correct)", sbus_helper);
               } else {
-                     cs = proto_tree_add_uint_format(sbus_tree,
+                     cs = proto_tree_add_uint_format_value(sbus_tree,
                                                      hf_sbus_crc, tvb, offset, 2, sbus_helper,
-                                                     "Checksum: 0x%04x (NOT correct)", sbus_helper);
+                                                     "0x%04x (NOT correct)", sbus_helper);
                      expert_add_info(pinfo, cs, &ei_sbus_crc_bad);
                      hi = proto_tree_add_boolean(sbus_tree,
                                                  hf_sbus_crc_bad, tvb, offset, 2, TRUE);

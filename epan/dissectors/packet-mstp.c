@@ -203,9 +203,9 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	crc8 = ~crc8;
 	framecrc8 = tvb_get_guint8(tvb, offset+5);
 	if (framecrc8 == crc8) {
-		item = proto_tree_add_uint_format(subtree, hf_mstp_frame_crc8,
+		item = proto_tree_add_uint_format_value(subtree, hf_mstp_frame_crc8,
 			tvb, offset+5, 1, framecrc8,
-			"Header CRC: 0x%02x [correct]", framecrc8);
+			"0x%02x [correct]", framecrc8);
 		checksum_tree = proto_item_add_subtree(item, ett_bacnet_mstp_checksum);
 		item = proto_tree_add_boolean(checksum_tree,
 			hf_mstp_frame_checksum_good,
@@ -216,9 +216,9 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			tvb, offset+5, 1, FALSE);
 		PROTO_ITEM_SET_GENERATED(item);
 	} else {
-		item = proto_tree_add_uint_format(subtree, hf_mstp_frame_crc8,
+		item = proto_tree_add_uint_format_value(subtree, hf_mstp_frame_crc8,
 			tvb, offset+5, 1, framecrc8,
-			"Header CRC: 0x%02x [incorrect, should be 0x%02x]",
+			"0x%02x [incorrect, should be 0x%02x]",
 			framecrc8, crc8);
 		checksum_tree = proto_item_add_subtree(item, ett_bacnet_mstp_checksum);
 		item = proto_tree_add_boolean(checksum_tree,
@@ -276,9 +276,9 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* get the actual CRC from the frame */
 		framecrc16 = tvb_get_ntohs(tvb, offset+mstp_frame_pdu_len);
 		if (framecrc16 == crc16) {
-			item = proto_tree_add_uint_format(subtree, hf_mstp_frame_crc16,
+			item = proto_tree_add_uint_format_value(subtree, hf_mstp_frame_crc16,
 				tvb, offset+mstp_frame_pdu_len, 2, framecrc16,
-				"Data CRC: 0x%04x [correct]", framecrc16);
+				"0x%04x [correct]", framecrc16);
 			checksum_tree = proto_item_add_subtree(item,
 				ett_bacnet_mstp_checksum);
 			item = proto_tree_add_boolean(checksum_tree,
@@ -290,9 +290,9 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				tvb, offset+mstp_frame_pdu_len, 2, FALSE);
 			PROTO_ITEM_SET_GENERATED(item);
 		} else {
-			item = proto_tree_add_uint_format(subtree, hf_mstp_frame_crc16,
+			item = proto_tree_add_uint_format_value(subtree, hf_mstp_frame_crc16,
 				tvb, offset+mstp_frame_pdu_len, 2, framecrc16,
-				"Data CRC: 0x%04x [incorrect, should be 0x%04x]",
+				"0x%04x [incorrect, should be 0x%04x]",
 				framecrc16, crc16);
 			checksum_tree = proto_item_add_subtree(item,
 				ett_bacnet_mstp_checksum);

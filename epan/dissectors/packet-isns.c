@@ -817,7 +817,7 @@ dissect_isns_attr_integer(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, 
             tree = proto_item_add_subtree(item, ett_isns_attribute);
         } else if((tag==ISNS_ATTR_TAG_PORTAL_GROUP_TAG)&&((function_id==ISNS_FUNC_DEVATTRREG)||(function_id==ISNS_FUNC_RSP_DEVATTRREG))){
             /* 5.6.5.1 */
-            item = proto_tree_add_uint_format(parent_tree, hf_isns_portal_group_tag, tvb, offset, 8, 0, "PG Tag: <NULL>");
+            item = proto_tree_add_uint_format_value(parent_tree, hf_isns_portal_group_tag, tvb, offset, 8, 0, "<NULL>");
             tree = proto_item_add_subtree(item, ett_isns_attribute);
         } else {
             item = proto_tree_add_text(parent_tree, tvb, offset, 8, "Oops, you surprised me here. a 0 byte integer.");

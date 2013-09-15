@@ -425,9 +425,8 @@ decode_ip_element(nsip_ip_element_info_t *element, build_info_t *bi, proto_tree 
   if (bi->nsip_tree) {
     /* UDP port value */
     udp_port = tvb_get_ntohs(bi->tvb, bi->offset);
-    proto_tree_add_uint_format(field_tree, hf_nsip_ip_element_udp_port,
-                               bi->tvb, bi->offset, 2, udp_port,
-                               "UDP Port: %u", udp_port);
+    proto_tree_add_item(field_tree, hf_nsip_ip_element_udp_port,
+                               bi->tvb, bi->offset, 2, ENC_BIG_ENDIAN);
     proto_item_append_text(tf, ", UDP Port: %u", udp_port);
   }
   bi->offset += 2;

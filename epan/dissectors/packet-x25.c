@@ -1380,8 +1380,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb,
 		    0, 2, bytes0_1);
-	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-		    X25_CALL_REQUEST, "Packet Type: %s", long_name);
+	    proto_tree_add_uint_format_value(x25_tree, hf_x25_type, tvb, 2, 1,
+		    X25_CALL_REQUEST, "%s", long_name);
 	}
 	localoffset = 3;
 	if (localoffset < x25_pkt_len) { /* calling/called addresses */
@@ -1660,8 +1660,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d", short_name, vc);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
-	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-	    	    X25_CALL_ACCEPTED, "Packet Type: %s", long_name);
+	    proto_tree_add_uint_format_value(x25_tree, hf_x25_type, tvb, 2, 1,
+	    	    X25_CALL_ACCEPTED, "%s", long_name);
 	}
 	localoffset = 3;
         if (localoffset < x25_pkt_len) { /* calling/called addresses */
@@ -1698,8 +1698,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	x25_hash_add_proto_end(vc, pinfo->fd->num);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
-	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb,
-	    	    localoffset+2, 1, X25_CLEAR_REQUEST, "Packet Type: %s",
+	    proto_tree_add_uint_format_value(x25_tree, hf_x25_type, tvb,
+	    	    localoffset+2, 1, X25_CLEAR_REQUEST, "%s",
 	    	    long_name);
 	    proto_tree_add_text(x25_tree, tvb, 3, 1,
 		    "Cause: %s", clear_code(tvb_get_guint8(tvb, 3)));
@@ -1779,8 +1779,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	x25_hash_add_proto_end(vc, pinfo->fd->num);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
-	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-		    X25_RESET_REQUEST, "Packet Type: %s", long_name);
+	    proto_tree_add_uint_format_value(x25_tree, hf_x25_type, tvb, 2, 1,
+		    X25_RESET_REQUEST, "%s", long_name);
 	    proto_tree_add_text(x25_tree, tvb, 3, 1,
 		    "Cause: %s", reset_code(tvb_get_guint8(tvb, 3)));
 	    proto_tree_add_text(x25_tree, tvb, 4, 1,
@@ -1820,8 +1820,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    restart_code(tvb_get_guint8(tvb, 3)),
 		    (int)tvb_get_guint8(tvb, 4));
 	if (x25_tree) {
-	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-		    X25_RESTART_REQUEST, "Packet Type: %s", long_name);
+	    proto_tree_add_uint_format_value(x25_tree, hf_x25_type, tvb, 2, 1,
+		    X25_RESTART_REQUEST, "%s", long_name);
 	    proto_tree_add_text(x25_tree, tvb, 3, 1,
 		    "Cause: %s", restart_code(tvb_get_guint8(tvb, 3)));
 	    proto_tree_add_text(x25_tree, tvb, 4, 1,

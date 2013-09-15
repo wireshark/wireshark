@@ -1914,12 +1914,10 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 				       offset+11, 1, flags);
 		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_streamdir, tvb,
 				       offset+11, 1, flags);
-		proto_tree_add_uint_format(field_tree, hf_nfs3_gxfh_spinfid, tvb,
-					   offset+12, 4, spinfile_id,
-					   "spin file id: 0x%08x (%u)", spinfile_id, spinfile_id);
-		proto_tree_add_uint_format(field_tree, hf_nfs3_gxfh_spinfuid, tvb,
-					   offset+16, 4, spinfile_id,
-					   "spin file unique id: 0x%08x (%u)", spinfile_uid, spinfile_uid);
+		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfid, tvb,
+					   offset+12, 4, spinfile_id);
+		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfuid, tvb,
+					   offset+16, 4, spinfile_id);
 
 		/* = spin file handle (mount point) = */
 		local_dsid   = tvb_get_letohl(tvb, offset+20);
@@ -1971,12 +1969,10 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 				       offset+27, 1, flags);
 		proto_tree_add_boolean(field_tree, hf_nfs3_gxfh_sfhflags_streamdir, tvb,
 				       offset+27, 1, flags);
-		proto_tree_add_uint_format(field_tree, hf_nfs3_gxfh_spinfid, tvb,
-					   offset+28, 4, spinfile_id,
-					   "spin file id: 0x%08x (%u)", spinfile_id, spinfile_id);
-		proto_tree_add_uint_format(field_tree, hf_nfs3_gxfh_spinfuid, tvb,
-					   offset+32, 4, spinfile_id,
-					   "spin file unique id: 0x%08x (%u)", spinfile_uid, spinfile_uid);
+		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfid, tvb,
+					   offset+28, 4, spinfile_id);
+		proto_tree_add_uint(field_tree, hf_nfs3_gxfh_spinfuid, tvb,
+					   offset+32, 4, spinfile_id);
 		/* = export point id  = */
 		export_id  = tvb_get_letohl(tvb, offset+36);
 		proto_tree_add_uint_format(tree, hf_nfs3_gxfh_exportptid, tvb,
@@ -11779,11 +11775,11 @@ proto_register_nfs(void)
 			TFS(&tfs_set_notset), SPINNP_FH_FLAG_STREAMDIR_MASK, NULL, HFILL }},
 
 		{ &hf_nfs3_gxfh_spinfid, {
-			"spin file id", "nfs.gxfh3.spinfid", FT_UINT32, BASE_HEX,
+			"spin file id", "nfs.gxfh3.spinfid", FT_UINT32, BASE_HEX_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs3_gxfh_spinfuid, {
-			"spin file unique id", "nfs.gxfh3.spinfuid", FT_UINT32, BASE_HEX,
+			"spin file unique id", "nfs.gxfh3.spinfuid", FT_UINT32, BASE_HEX_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs3_gxfh_exportptid, {

@@ -5317,10 +5317,8 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Length - make sure it's valid */
     length = tvb_get_ntohs(tvb, 2);
     if (length < 4) {
-        if (tree) {
-            proto_tree_add_uint_format(fh_tree, hf_chap_length, tvb, 2, 2,
-                length, "Length: %u (invalid, must be >= 4)", length);
-        }
+        proto_tree_add_uint_format_value(fh_tree, hf_chap_length, tvb, 2, 2,
+                length, "%u (invalid, must be >= 4)", length);
         return;
     }
     proto_item_set_len(ti, length);
