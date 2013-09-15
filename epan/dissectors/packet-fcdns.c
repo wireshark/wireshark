@@ -34,7 +34,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
 #include "packet-scsi.h"
@@ -1646,10 +1646,10 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = se_new(fcdns_conv_key_t);
+            req_key = wmem_new(wmem_file_scope(), fcdns_conv_key_t);
             req_key->conv_idx = conversation->index;
 
-            cdata = se_new(fcdns_conv_data_t);
+            cdata = wmem_new(wmem_file_scope(), fcdns_conv_data_t);
             cdata->opcode = opcode;
 
             g_hash_table_insert (fcdns_req_hash, req_key, cdata);

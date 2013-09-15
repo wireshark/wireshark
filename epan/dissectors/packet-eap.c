@@ -30,7 +30,7 @@
 #include <epan/conversation.h>
 #include <epan/ppptypes.h>
 #include <epan/reassemble.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/eap.h>
 #include <epan/expert.h>
 
@@ -707,7 +707,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /*
      * Attach state information to the conversation.
      */
-    conversation_state = se_new(conv_state_t);
+    conversation_state = wmem_new(wmem_file_scope(), conv_state_t);
     conversation_state->eap_tls_seq      = -1;
     conversation_state->eap_reass_cookie =  0;
     conversation_state->leap_state       = -1;
@@ -960,7 +960,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                  * This frame requires reassembly; remember the reassembly
                  * ID for subsequent accesses to it.
                  */
-                packet_state = se_new(frame_state_t);
+                packet_state = wmem_new(wmem_file_scope(), frame_state_t);
                 packet_state->info = eap_reass_cookie;
                 p_add_proto_data(pinfo->fd, proto_eap, 0, packet_state);
               }
@@ -1097,7 +1097,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
            * Remember the state for subsequent accesses to this
            * frame.
            */
-          packet_state = se_new(frame_state_t);
+          packet_state = wmem_new(wmem_file_scope(), frame_state_t);
           packet_state->info = leap_state;
           p_add_proto_data(pinfo->fd, proto_eap, 0, packet_state);
 

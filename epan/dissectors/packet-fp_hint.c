@@ -27,6 +27,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
@@ -150,11 +151,11 @@ static guint16 assign_rb_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset,
 	macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
 	rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 	if (!macinf) {
-		macinf = se_new0(struct umts_mac_info);
+		macinf = wmem_new0(wmem_file_scope(), struct umts_mac_info);
 		p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
 	}
 	if (!rlcinf) {
-		rlcinf = se_new0(struct rlc_info);
+		rlcinf = wmem_new0(wmem_file_scope(), struct rlc_info);
 		p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
 	}
 
@@ -430,7 +431,7 @@ static void attach_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, guint
 
 	fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
 	if (!fpi) {
-		fpi = se_new0(fp_info);
+		fpi = wmem_new0(wmem_file_scope(), fp_info);
 		p_add_proto_data(pinfo->fd, proto_fp, 0, fpi);
 	}
 

@@ -28,7 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/etypes.h>
 #include <epan/conversation.h>
 #include "packet-scsi.h"
@@ -129,13 +129,13 @@ const gchar *
 fclctl_get_paramstr (guint32 linkctl_type, guint32 param)
 {
     if (linkctl_type == FC_LCTL_PBSY) {
-      return ep_strdup_printf("%s, %s",
+      return wmem_strdup_printf(wmem_packet_scope(), "%s, %s",
                  val_to_str (((param & 0xFF000000) >> 24), fc_lctl_pbsy_acode_val, "0x%x"),
 		 val_to_str (((param & 0x00FF0000) >> 16), fc_lctl_pbsy_rjt_val, "0x%x"));
     }
     if ((linkctl_type == FC_LCTL_FRJT) ||
              (linkctl_type == FC_LCTL_PRJT)) {
-      return ep_strdup_printf("%s, %s",
+      return wmem_strdup_printf(wmem_packet_scope(), "%s, %s",
                  val_to_str (((param & 0xFF000000) >> 24), fc_lctl_rjt_acode_val, "0x%x"),
                  val_to_str (((param & 0x00FF0000) >> 16), fc_lctl_rjt_val, "%x"));
     }

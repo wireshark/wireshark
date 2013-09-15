@@ -39,6 +39,7 @@
 #include <epan/crc32-tvb.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #define FCOE_HEADER_LEN   14        /* header: version, SOF, and padding */
 #define FCOE_TRAILER_LEN   8        /* trailer: CRC, EOF, and padding */
@@ -145,7 +146,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         version = len_sof >> 14;
         ver = "pre-T11 ";
         if (version != 0)
-            ver = ep_strdup_printf(ver, "pre-T11 ver %d ", version);
+            ver = wmem_strdup_printf(wmem_packet_scope(), ver, "pre-T11 ver %d ", version);
     } else {
         frame_len = tvb_reported_length_remaining(tvb, 0) -
           FCOE_HEADER_LEN - FCOE_TRAILER_LEN;
@@ -158,7 +159,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ver = "";
         version = tvb_get_guint8(tvb, 0) >> 4;
         if (version != 0)
-            ver = ep_strdup_printf(ver, "ver %d ", version);
+            ver = wmem_strdup_printf(wmem_packet_scope(), ver, "ver %d ", version);
     }
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoE");
     crc_offset = header_len + frame_len;

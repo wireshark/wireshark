@@ -28,7 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
 #include "packet-scsi.h"
@@ -758,7 +758,7 @@ dissect_swils_elp(tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
             char *flagsbuf;
             gint stroff, returned_length;
 
-            flagsbuf=(char *)ep_alloc(MAX_FLAGS_LEN);
+            flagsbuf=(char *)wmem_alloc(wmem_packet_scope(), MAX_FLAGS_LEN);
             stroff = 0;
 
             returned_length = g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff,
@@ -1806,10 +1806,10 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = se_new(fcswils_conv_key_t);
+            req_key = wmem_new(wmem_file_scope(), fcswils_conv_key_t);
             req_key->conv_idx = conversation->index;
 
-            cdata = se_new(fcswils_conv_data_t);
+            cdata = wmem_new(wmem_file_scope(), fcswils_conv_data_t);
             cdata->opcode = opcode;
 
             g_hash_table_insert(fcswils_req_hash, req_key, cdata);

@@ -33,7 +33,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
@@ -1904,10 +1904,10 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = se_new(fcels_conv_key_t);
+            req_key = wmem_new(wmem_file_scope(), fcels_conv_key_t);
             req_key->conv_idx = conversation->index;
 
-            cdata = se_new(fcels_conv_data_t);
+            cdata = wmem_new(wmem_file_scope(), fcels_conv_data_t);
             cdata->opcode = opcode;
 
             g_hash_table_insert (fcels_req_hash, req_key, cdata);

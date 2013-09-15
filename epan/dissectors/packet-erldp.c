@@ -31,7 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-epmd.h>
@@ -283,7 +283,7 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       proto_tree_add_item(tree, hf_erldp_atom_cache_ref, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       if (value_str)
-        *value_str = ep_strdup_printf("%d", int_val);
+        *value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", int_val);
       break;
 
     case SMALL_INTEGER_EXT:
@@ -291,7 +291,7 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       proto_tree_add_item(tree, hf_erldp_small_int_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       if (value_str)
-        *value_str = ep_strdup_printf("%d", int_val);
+        *value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", int_val);
       break;
 
     case INTEGER_EXT:
@@ -299,7 +299,7 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       proto_tree_add_item(tree, hf_erldp_int_ext, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       if (value_str)
-        *value_str = ep_strdup_printf("%d", int_val);
+        *value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", int_val);
       break;
 
     case PID_EXT:

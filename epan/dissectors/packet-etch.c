@@ -147,7 +147,7 @@ static char             *gbl_current_keytab_folder = NULL;
 static int               gbl_pdu_counter;
 static guint32           gbl_old_frame_num;
 
-static emem_strbuf_t    *gbl_symbol_buffer = NULL;
+static wmem_strbuf_t    *gbl_symbol_buffer = NULL;
 static gboolean          gbl_have_symbol   = FALSE;
 
 /***************************************************************************/
@@ -534,14 +534,14 @@ read_number(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
     const gchar *symbol = NULL;
     guint32      hash   = 0;
 
-    gbl_symbol_buffer = ep_strbuf_new_label("");  /* no symbol found yet */
+    gbl_symbol_buffer = wmem_strbuf_new_label(wmem_packet_scope());  /* no symbol found yet */
     if (byteLength == 4) {
       hash = tvb_get_ntohl(tvb, *offset);
       symbol = try_val_to_str_ext(hash, gbl_symbols_vs_ext);
       if(symbol != NULL) {
         asWhat = hf_etch_symbol;
         gbl_have_symbol = TRUE;
-        ep_strbuf_append_printf(gbl_symbol_buffer,"%s",symbol);
+        wmem_strbuf_append_printf(gbl_symbol_buffer,"%s",symbol);
       }
     }
     ti = proto_tree_add_item(etch_tree, asWhat, tvb, *offset,
@@ -667,7 +667,7 @@ read_key_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   /* append the symbol of the key */
   if(gbl_have_symbol == TRUE){
     proto_item_append_text(parent_ti, " (");
-    proto_item_append_text(parent_ti, "%s", gbl_symbol_buffer->str);
+    proto_item_append_text(parent_ti, "%s", wmem_strbuf_get_str(gbl_symbol_buffer));
     proto_item_append_text(parent_ti, ")");
   }
 
@@ -681,16 +681,16 @@ read_key_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 /*
  * Preparse the message for the info column
  */
-static emem_strbuf_t*
+static wmem_strbuf_t*
 get_column_info(tvbuff_t *tvb)
 {
   int            byte_length;
   guint8         type_code;
-  emem_strbuf_t *result_buf;
+  wmem_strbuf_t *result_buf;
   int            my_offset = 0;
 
   /* We've a full PDU: 8 bytes + pdu_packetlen bytes  */
-  result_buf = ep_strbuf_new_label("");
+  result_buf = wmem_strbuf_new_label(wmem_packet_scope());
 
   my_offset += (4 + 4 + 1); /* skip Magic, Length, Version */
 
@@ -704,7 +704,7 @@ get_column_info(tvbuff_t *tvb)
     hash   = tvb_get_ntohl(tvb, my_offset);
     symbol = try_val_to_str_ext(hash, gbl_symbols_vs_ext);
     if (symbol != NULL) {
-      ep_strbuf_append_printf(result_buf, "%s()", symbol);
+      wmem_strbuf_append_printf(result_buf, "%s()", symbol);
     }
   }
 
@@ -720,7 +720,7 @@ static void
 dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* We've a full PDU: 8 bytes + pdu_packetlen bytes  */
-  emem_strbuf_t *colInfo = NULL;
+  wmem_strbuf_t *colInfo = NULL;
 
   if (pinfo->cinfo || tree) {
     colInfo = get_column_info(tvb);    /* get current symbol */
@@ -738,7 +738,7 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gbl_old_frame_num = pinfo->fd->num;
 
     col_set_writable(pinfo->cinfo, TRUE);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", colInfo->str);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", wmem_strbuf_get_str(colInfo));
   }
 
   if (tree) {
@@ -748,7 +748,7 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *etch_tree;
 
     ti = proto_tree_add_protocol_format(tree, proto_etch, tvb, 0, -1,
-                                        "ETCH Protocol: %s", colInfo->str);
+                                        "ETCH Protocol: %s", wmem_strbuf_get_str(colInfo));
 
     offset = 9;
     etch_tree = proto_item_add_subtree(ti, ett_etch);
