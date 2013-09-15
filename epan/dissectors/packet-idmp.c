@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <epan/oids.h>
@@ -123,7 +124,7 @@ static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         if((!saved_protocolID) && (op == (ROS_OP_BIND | ROS_OP_RESULT))) {
             /* save for subsequent operations - should be into session data */
-            saved_protocolID = se_strdup(protocolID);
+            saved_protocolID = wmem_strdup(wmem_file_scope(), protocolID);
         }
 
         /* mimic ROS! */
@@ -172,7 +173,7 @@ static int hf_idmp_present = -1;                  /* INTEGER */
 static int hf_idmp_absent = -1;                   /* NULL */
 
 /*--- End of included file: packet-idmp-hf.c ---*/
-#line 131 "../../asn1/idmp/packet-idmp-template.c"
+#line 132 "../../asn1/idmp/packet-idmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_idmp = -1;
@@ -191,7 +192,7 @@ static gint ett_idmp_Code = -1;
 static gint ett_idmp_InvokeId = -1;
 
 /*--- End of included file: packet-idmp-ett.c ---*/
-#line 135 "../../asn1/idmp/packet-idmp-template.c"
+#line 136 "../../asn1/idmp/packet-idmp-template.c"
 
 
 /*--- Included file: packet-idmp-fn.c ---*/
@@ -615,7 +616,7 @@ dissect_idmp_IDM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-idmp-fn.c ---*/
-#line 137 "../../asn1/idmp/packet-idmp-template.c"
+#line 138 "../../asn1/idmp/packet-idmp-template.c"
 
 void
 register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name)
@@ -931,7 +932,7 @@ void proto_register_idmp(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 320 "../../asn1/idmp/packet-idmp-template.c"
+#line 321 "../../asn1/idmp/packet-idmp-template.c"
     };
 
     /* List of subtrees */
@@ -954,7 +955,7 @@ void proto_register_idmp(void)
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 328 "../../asn1/idmp/packet-idmp-template.c"
+#line 329 "../../asn1/idmp/packet-idmp-template.c"
     };
     module_t *idmp_module;
 

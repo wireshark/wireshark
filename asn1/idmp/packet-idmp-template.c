@@ -28,6 +28,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <epan/oids.h>
@@ -115,7 +116,7 @@ static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         if((!saved_protocolID) && (op == (ROS_OP_BIND | ROS_OP_RESULT))) {
             /* save for subsequent operations - should be into session data */
-            saved_protocolID = se_strdup(protocolID);
+            saved_protocolID = wmem_strdup(wmem_file_scope(), protocolID);
         }
 
         /* mimic ROS! */

@@ -93,7 +93,6 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/oids.h>
 #include <epan/strutil.h>
@@ -409,13 +408,13 @@ attribute_types_update_cb(void *r, const char **err)
   char c;
 
   if (rec->attribute_type == NULL) {
-    *err = ep_strdup_printf("Attribute type can't be empty");
+    *err = wmem_strdup_printf(wmem_packet_scope(), "Attribute type can't be empty");
     return;
   }
 
   g_strstrip(rec->attribute_type);
   if (rec->attribute_type[0] == 0) {
-    *err = ep_strdup_printf("Attribute type can't be empty");
+    *err = wmem_strdup_printf(wmem_packet_scope(), "Attribute type can't be empty");
     return;
   }
 
@@ -424,7 +423,7 @@ attribute_types_update_cb(void *r, const char **err)
    */
   c = proto_check_field_name(rec->attribute_type);
   if (c) {
-    *err = ep_strdup_printf("Attribute type can't contain '%c'", c);
+    *err = wmem_strdup_printf(wmem_packet_scope(), "Attribute type can't contain '%c'", c);
     return;
   }
 
@@ -635,7 +634,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		/* This octet string contained a GUID */
 		dissect_dcerpc_uuid_t(tvb, offset, actx->pinfo, tree, drep, hf_ldap_guid, &uuid);
 
-		ldapvalue_string=(char*)ep_alloc(1024);
+		ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
 		g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                           uuid.Data1, uuid.Data2, uuid.Data3,
                           uuid.Data4[0], uuid.Data4[1],
@@ -651,7 +650,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		/* get flag value to populate ldapvalue_string */
 		flags=tvb_get_letohl(tvb, offset);
 
-		ldapvalue_string=(char*)ep_alloc(1024);
+		ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
 		g_snprintf(ldapvalue_string, 1023, "0x%08x",flags);
 
 		/* populate bitmask subtree */
@@ -685,9 +684,9 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 
 	/* convert the string into a printable string */
 	if(is_ascii){
-		ldapvalue_string=ep_strndup(str, len);
+		ldapvalue_string=wmem_strndup(wmem_packet_scope(), str, len);
 	} else {
-		ldapvalue_string=(char*)ep_alloc(3*len);
+		ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 3*len);
 		for(i=0;i<len;i++){
 			g_snprintf(ldapvalue_string+i*3,3,"%02x",str[i]&0xff);
 			ldapvalue_string[3*i+2]=':';
@@ -816,7 +815,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         }
         /* if we cant reuse the old one, grab a new chunk */
         if(!lcrp){
-          lcrp=se_new0(ldap_call_response_t);
+          lcrp=wmem_new0(wmem_file_scope(), ldap_call_response_t);
         }
         lcrp->messageId=messageId;
         lcrp->req_frame=pinfo->fd->num;
@@ -1781,7 +1780,7 @@ dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* This octet string contained a GUID */
 	dissect_dcerpc_uuid_t(tvb, 0, pinfo, tree, drep, hf_ldap_guid, &uuid);
 
-	ldapvalue_string=(char*)ep_alloc(1024);
+	ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
 	g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                    uuid.Data1, uuid.Data2, uuid.Data3,
                    uuid.Data4[0], uuid.Data4[1],

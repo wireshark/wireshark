@@ -101,7 +101,6 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/oids.h>
 #include <epan/strutil.h>
@@ -342,7 +341,7 @@ static int hf_ldap_graceAuthNsRemaining = -1;     /* INTEGER_0_maxInt */
 static int hf_ldap_error = -1;                    /* T_error */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 189 "../../asn1/ldap/packet-ldap-template.c"
+#line 188 "../../asn1/ldap/packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -415,7 +414,7 @@ static gint ett_ldap_PasswordPolicyResponseValue = -1;
 static gint ett_ldap_T_warning = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 200 "../../asn1/ldap/packet-ldap-template.c"
+#line 199 "../../asn1/ldap/packet-ldap-template.c"
 
 static expert_field ei_ldap_exceeded_filter_length = EI_INIT;
 static expert_field ei_ldap_too_many_filter_elements = EI_INIT;
@@ -628,13 +627,13 @@ attribute_types_update_cb(void *r, const char **err)
   char c;
 
   if (rec->attribute_type == NULL) {
-    *err = ep_strdup_printf("Attribute type can't be empty");
+    *err = wmem_strdup_printf(wmem_packet_scope(), "Attribute type can't be empty");
     return;
   }
 
   g_strstrip(rec->attribute_type);
   if (rec->attribute_type[0] == 0) {
-    *err = ep_strdup_printf("Attribute type can't be empty");
+    *err = wmem_strdup_printf(wmem_packet_scope(), "Attribute type can't be empty");
     return;
   }
 
@@ -643,7 +642,7 @@ attribute_types_update_cb(void *r, const char **err)
    */
   c = proto_check_field_name(rec->attribute_type);
   if (c) {
-    *err = ep_strdup_printf("Attribute type can't contain '%c'", c);
+    *err = wmem_strdup_printf(wmem_packet_scope(), "Attribute type can't contain '%c'", c);
     return;
   }
 
@@ -854,7 +853,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		/* This octet string contained a GUID */
 		dissect_dcerpc_uuid_t(tvb, offset, actx->pinfo, tree, drep, hf_ldap_guid, &uuid);
 
-		ldapvalue_string=(char*)ep_alloc(1024);
+		ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
 		g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                           uuid.Data1, uuid.Data2, uuid.Data3,
                           uuid.Data4[0], uuid.Data4[1],
@@ -870,7 +869,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		/* get flag value to populate ldapvalue_string */
 		flags=tvb_get_letohl(tvb, offset);
 
-		ldapvalue_string=(char*)ep_alloc(1024);
+		ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
 		g_snprintf(ldapvalue_string, 1023, "0x%08x",flags);
 
 		/* populate bitmask subtree */
@@ -904,9 +903,9 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 
 	/* convert the string into a printable string */
 	if(is_ascii){
-		ldapvalue_string=ep_strndup(str, len);
+		ldapvalue_string=wmem_strndup(wmem_packet_scope(), str, len);
 	} else {
-		ldapvalue_string=(char*)ep_alloc(3*len);
+		ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 3*len);
 		for(i=0;i<len;i++){
 			g_snprintf(ldapvalue_string+i*3,3,"%02x",str[i]&0xff);
 			ldapvalue_string[3*i+2]=':';
@@ -1035,7 +1034,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         }
         /* if we cant reuse the old one, grab a new chunk */
         if(!lcrp){
-          lcrp=se_new0(ldap_call_response_t);
+          lcrp=wmem_new0(wmem_file_scope(), ldap_call_response_t);
         }
         lcrp->messageId=messageId;
         lcrp->req_frame=pinfo->fd->num;
@@ -3842,7 +3841,7 @@ static void dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 883 "../../asn1/ldap/packet-ldap-template.c"
+#line 882 "../../asn1/ldap/packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -4744,7 +4743,7 @@ dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* This octet string contained a GUID */
 	dissect_dcerpc_uuid_t(tvb, 0, pinfo, tree, drep, hf_ldap_guid, &uuid);
 
-	ldapvalue_string=(char*)ep_alloc(1024);
+	ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
 	g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                    uuid.Data1, uuid.Data2, uuid.Data3,
                    uuid.Data4[0], uuid.Data4[1],
@@ -5777,7 +5776,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2237 "../../asn1/ldap/packet-ldap-template.c"
+#line 2236 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5852,7 +5851,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2250 "../../asn1/ldap/packet-ldap-template.c"
+#line 2249 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -6018,7 +6017,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2399 "../../asn1/ldap/packet-ldap-template.c"
+#line 2398 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }
