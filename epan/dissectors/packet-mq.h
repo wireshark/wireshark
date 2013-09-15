@@ -31,8 +31,7 @@
 #define GET_VALSV(A)   mq_##A##_vals
 #define GET_VALSP(F)   (gchar *)GET_VALSV(F)
 
-#define DEF_VALSB(A) \
-const value_string mq_##A##_vals[] = \
+#define DEF_VALSB(A) const value_string mq_##A##_vals[] = \
 {
 
 #define DEF_VALS1(A)   { (guint32)MQ_##A, #A }
