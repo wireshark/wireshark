@@ -1,3 +1,5 @@
+# $Id$
+
 #.EXPORTS
 OPERATION
 ERROR
@@ -34,7 +36,7 @@ Reject/problem/returnResult	rejectResult
   proto_tree_add_text(tree, tvb, offset,-1, "invoke argument");
 
   ros_match_call_response(tvb, actx->pinfo, tree, invokeid, TRUE);
-	
+
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
@@ -51,7 +53,7 @@ Reject/problem/returnResult	rejectResult
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
 
   ros_match_call_response(tvb, actx->pinfo, tree, invokeid, FALSE);
-	
+
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_RESULT);
@@ -68,7 +70,7 @@ Reject/problem/returnResult	rejectResult
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
 
   ros_match_call_response(tvb, actx->pinfo, tree, invokeid, FALSE);
-	
+
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ERROR);

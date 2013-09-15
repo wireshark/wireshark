@@ -1,3 +1,5 @@
+# $Id$
+
 #.MODULE_IMPORT
 DirectoryAccessProtocol		dap
 ServiceAdministration		x509if
@@ -12,7 +14,7 @@ AccessPoint
 AccessPointInformation EXTERN WS_DLL
 ContinuationReference
 Exclusions
-MasterAndShadowAccessPoints 
+MasterAndShadowAccessPoints
 OperationProgress
 ReferenceType
 #.TYPE_RENAME
@@ -29,8 +31,8 @@ AccessPoint
 MasterAndShadowAccessPoints
 
 #.REGISTER
-AccessPoint 			B "2.5.12.1" "id-doa-myAccessPoint"
-AccessPoint 			B "2.5.12.2" "id-doa-superiorKnowledge"
-MasterAndShadowAccessPoints 	B "2.5.12.3" "id-doa-specificKnowledge"
-MasterAndShadowAccessPoints 	B "2.5.12.4" "id-doa-nonSpecificKnowledge"
-DitBridgeKnowledge 		B "2.5.12.8" "id-doa-ditBridgeKnowledge"
+AccessPoint			B "2.5.12.1" "id-doa-myAccessPoint"
+AccessPoint			B "2.5.12.2" "id-doa-superiorKnowledge"
+MasterAndShadowAccessPoints	B "2.5.12.3" "id-doa-specificKnowledge"
+MasterAndShadowAccessPoints	B "2.5.12.4" "id-doa-nonSpecificKnowledge"
+DitBridgeKnowledge		B "2.5.12.8" "id-doa-ditBridgeKnowledge"

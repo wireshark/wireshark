@@ -1,3 +1,4 @@
+# $Id$
 
 #.OPT 
 -b
@@ -278,7 +279,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
 		}
 		break;
- 	/* ts3G-25413 */
+	/* ts3G-25413 */
 	case 2:
 		call_dissector(ranap_handle, parameter_tvb, actx->pinfo, tree);
 		break;
@@ -344,7 +345,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
     return offset;
   /* Detailed diagnostic information contains either a SMS-SUBMIT-REPORT or a SMS-DELIVERY-REPORT */
   oct = tvb_get_guint8((tvbuff_t*)actx->value_ptr, 0);
-  actx->pinfo->p2p_dir = ((oct & 0x03) == 0) ? P2P_DIR_RECV : P2P_DIR_SENT; 
+  actx->pinfo->p2p_dir = ((oct & 0x03) == 0) ? P2P_DIR_RECV : P2P_DIR_SENT;
   dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY ForwardSM-Arg
@@ -718,7 +719,7 @@ if (!actx->value_ptr)
 		}/* switch(octet) */
 		break;
 	case 2:
- 		/* gsm-0806 */
+		/* gsm-0806 */
 		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
 		/* Discrimination parameter */
 		proto_tree_add_item(subtree, hf_gsm_map_disc_par, (tvbuff_t*)actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
@@ -798,7 +799,7 @@ if (!actx->value_ptr)
 		}/* switch(octet) */
 		break;
 	case 2:
- 		/* gsm-0806 */
+		/* gsm-0806 */
 		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
 		/* Discrimination parameter */
 		proto_tree_add_item(subtree, hf_gsm_map_disc_par, (tvbuff_t*)actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
@@ -876,7 +877,7 @@ if (!actx->value_ptr)
 %(DEFAULT_BODY)s
 	if (!parameter_tvb)
                 return offset;
-                
+
     length = tvb_length(parameter_tvb);
     name_len = tvb_get_guint8(parameter_tvb, 0);
 	apn_str = tvb_get_ephemeral_string(parameter_tvb, 1, length - 1);

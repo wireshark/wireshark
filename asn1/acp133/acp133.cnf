@@ -1,5 +1,6 @@
 # acp133.cnf
 # ACP133 conformation file
+# $Id$
 
 #.IMPORT ../p1/p1-exp.cnf
 #.IMPORT ../x509af/x509af-exp.cnf
@@ -22,7 +23,7 @@ Kmid
 
 ##.CLASS OBJECT-CLASS
 #&Superclasses         ClassReference OBJECT-CLASS
-#&kind                 
+#&kind
 #&MandatoryAttributes  ClassReference ATTRIBUTE
 #&OptionalAttributes   ClassReference ATTRIBUTE
 #&id                   ObjectIdentifierType
@@ -30,27 +31,27 @@ Kmid
 
 ##.CLASS ATTRIBUTE
 #&derivation            ClassReference ATTRIBUTE
-#&Type                  
+#&Type
 #&equality-match        ClassReference MATCHING-RULE
 #&ordering-match        ClassReference MATCHING-RULE
 #&substrings-match      ClassReference MATCHING-RULE
 #&single-valued         BooleanType
 #&collective            BooleanType
 #&no-user-modification  BooleanType
-#&usage                 
+#&usage
 #&id                    ObjectIdentifierType
 ##.END
 
 #.CLASS MATCHING-RULE
 &ParentMatchingRules   ClassReference MATCHING-RULE
-&AssertionType         
+&AssertionType
 &uniqueMatchIndicator  ClassReference ATTRIBUTE
 &id                    ObjectIdentifierType
 #.END
 
 #.CLASS CONTEXT
-&Type      
-&Assertion  
+&Type
+&Assertion
 &id         ObjectIdentifierType
 #.END
 
@@ -90,7 +91,7 @@ AddressCapabilities B "2.6.5.2.16" "id-at-mhs-or-addresses-with-capabilities"
 Capability B "2.6.5.2.19" "id-at-mhs-deliverable-classes"
 
 
-# SDN.701 
+# SDN.701
 Kmid B "2.16.840.1.101.2.1.5.14" "id-at-alid"
 MonthlyUKMs B "2.16.840.1.101.2.1.5.20" "id-at-janUKMs"
 MonthlyUKMs B "2.16.840.1.101.2.1.5.21" "id-at-febUKMs"

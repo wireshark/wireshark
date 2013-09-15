@@ -45,7 +45,7 @@ Winds/speed	winds_speed
 LevelSpeed/speed	levelspeed_speed
 ProtectedGroundPDUs/abortProvider	pmcpdlcproviderabortreason
 ProtectedAircraftPDUs/abortProvider pmcpdlcproviderabortreason
-ProtectedGroundPDUs/abortUser	pmcpdlcuserabortreason  
+ProtectedGroundPDUs/abortUser	pmcpdlcuserabortreason
 ProtectedAircraftPDUs/abortUser	pmcpdlcuserabortreason
 ProtectedStartDownMessage/mode	protectedmode
 ProtectedGroundPDUs/send	protecteduplinkmessage
@@ -65,8 +65,8 @@ ProtectedAircraftPDUs/startdown	protectedstartDownmessage
 					case dm:
 							dissect_atn_cpdlc_ATCDownlinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx, tree, hf_index);
 							break;
-					case um: 
-							dissect_atn_cpdlc_ATCUplinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx , tree, hf_index); 
+					case um:
+							dissect_atn_cpdlc_ATCUplinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx , tree, hf_index);
 							break;
 					default:
 							break;

@@ -1,6 +1,7 @@
 # c-basic-offset: 2; tab-width: 2; indent-tabs-mode: t
 # vi: set shiftwidth=2 tabstop=2 noexpandtab:
 # :indentSize=2:tabSize=2:noTabs=false:
+# $Id$
 
 #.MODULE_IMPORT
 
@@ -18,7 +19,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 
 #.PDU
 	Fully-encoded-data
-	ACSE-apdu 
+	ACSE-apdu
 #.END
 
 
@@ -45,8 +46,8 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 #.FN_BODY	PDV-list/presentation-data-values/arbitrary
 
 		packet_info * pinfo = actx->pinfo;
-		tvbuff_t *tvb_usr = NULL; 
-		proto_item *ti = NULL; 
+		tvbuff_t *tvb_usr = NULL;
+		proto_item *ti = NULL;
 		proto_tree *atn_ulcs_tree = NULL;
 		atn_conversation_t *atn_cv = NULL;
 
@@ -291,7 +292,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 			memset(aarq_data,0,sizeof(aarq_data_t));
 
 			aarq_data->cv = atn_cv;
-			aarq_data-> aarq_pending = TRUE; 
+			aarq_data-> aarq_pending = TRUE;
 		}
 
 #.END
@@ -475,7 +476,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 
 			atn_cv = find_atn_conversation(
 					&pinfo->dst,
-					pinfo->clnp_dstref, 
+					pinfo->clnp_dstref,
 					&pinfo->src);
 		}
 		/* CR: srcref present, dstref always zero */
@@ -536,7 +537,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 							NULL);
 		}
 	}
-    
+
 	offset += tvb_length_remaining(tvb, offset);
 
 #.END

@@ -10,13 +10,13 @@ GUID			TYPE = FT_GUID  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 #.IMPORT ../p1/p1-exp.cnf
 
 #.CLASS CONTEXT
-&Type       
-&Assertion  
+&Type
+&Assertion
 &id         ObjectIdentifierType
 #.END
 #.CLASS ATTRIBUTE
 &derivation            ClassReference ATTRIBUTE
-&Type                  
+&Type
 &equality-match        ClassReference MATCHING-RULE
 &ordering-match        ClassReference MATCHING-RULE
 &substrings-match      ClassReference MATCHING-RULE
@@ -28,7 +28,7 @@ GUID			TYPE = FT_GUID  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 #.END
 #.CLASS MATCHING-RULE
 &ParentMatchingRules   ClassReference MATCHING-RULE
-&AssertionType         
+&AssertionType
 &uniqueMatchIndicator  ClassReference ATTRIBUTE
 &id                    ObjectIdentifierType
 #.END
@@ -179,7 +179,7 @@ ObjectIdentifier	B "2.5.4.56" "id-at-defaultDirQop"
 # 60 "id-at-confKeyInfo" - what syntax?
 # 61 ? aACertificate(61)
 # 62 ? attributeDescriptorCertificate(62)
-# 63 ? attributeAuthorityRevocationList(63) 
+# 63 ? attributeAuthorityRevocationList(63)
 # 64 "id-at-familyInformation" - what syntax?
 DirectoryString        B "2.5.4.65"   "id-at-pseudonym"
 ObjectIdentifier       B "2.5.4.66" "id-at-communuicationsService"
@@ -190,11 +190,11 @@ CaseIgnoreListMatch	   B "2.5.13.11" "id-mr-caseIgnoreListMatch"
 BitString			   B "2.5.13.16" "id-mr-bitStringMatch"
 SyntaxUTCTime		   B "2.5.13.26" "id-mr-uTCTimeOrderingMatch"
 
-SyntaxGeneralizedTime  B "2.5.18.1" "id-oa-createTimeStamp"	
-SyntaxGeneralizedTime  B "2.5.18.2" "id-oa-modifyTimeStamp"	
+SyntaxGeneralizedTime  B "2.5.18.1" "id-oa-createTimeStamp"
+SyntaxGeneralizedTime  B "2.5.18.2" "id-oa-modifyTimeStamp"
 ObjectIdentifier       B "2.5.18.5" "id-oa-administrativeRole"
 ObjectIdentifier       B "2.5.18.7" "id-oa-collectiveExclusions"
-SyntaxGeneralizedTime  B "2.5.18.8" "id-oa-subschemaTimeStamp"	
+SyntaxGeneralizedTime  B "2.5.18.8" "id-oa-subschemaTimeStamp"
 Boolean		           B "2.5.18.9" "id-oa-hasSubordinates"
 #id-oa-subschemaSubentryList OBJECT IDENTIFIER ::= {id-oa 10}
 #id-oa-accessControlSubentryList OBJECT IDENTIFIER ::= {id-oa 11}
@@ -336,8 +336,8 @@ DirectoryString B "2.16.840.1.113730.3.1.241" "displayName"
 # Microsoft-specific
 # GeneralName other-name
 SyntaxBMPString	B "1.3.6.1.4.1.311.20.2"	"id-ms-certificate-template-name"
-SyntaxUTF8String B "1.3.6.1.4.1.311.20.2.3" 	"id-ms-user-principal-name"
-SyntaxBMPString B "1.3.6.1.4.1.311.17.1" 	"id-ms-local-machine-keyset"
+SyntaxUTF8String B "1.3.6.1.4.1.311.20.2.3"	"id-ms-user-principal-name"
+SyntaxBMPString B "1.3.6.1.4.1.311.17.1"	"id-ms-local-machine-keyset"
 Integer	B	"1.3.6.1.4.1.311.21.1"		"id-ms-ca-version"
 OctetString	B	"1.3.6.1.4.1.311.21.2"		"id-ms-previous-cert-hash"
 Integer	B	"1.3.6.1.4.1.311.21.3"		"id-ms-virtual-base"
@@ -353,7 +353,7 @@ SyntaxIA5String			B "1.2.826.0.1004.10.1.1" "nexor-originating-ua"
 Boolean		B	"2.6.1.6.3"	"id-sat-ipm-auto-discarded"
 
 # RFC 4530
-GUID	B 	"1.3.6.1.1.16.4"	"entryUUID"
+GUID	B	"1.3.6.1.1.16.4"	"entryUUID"
 
 # Guidelines for Extended Validation Certificates (http://www.cabforum.org/EV_Certificate_Guidelines_draft11.pdf)
 DirectoryString	B "1.3.6.1.4.1.311.60.2.1.1" "jurisdictionOfIncorporationLocalityName"
@@ -380,13 +380,13 @@ XDayOf/fifth				fifth_dayof
 	tvbuff_t	*wide_tvb = NULL;
 	char		*string;
 #.END
-	
+
 #.FN_FTR SyntaxBMPString
 	if (! wide_tvb) {
 		return offset;
 	}
 	string = tvb_get_ephemeral_unicode_string (wide_tvb, 0, tvb_length(wide_tvb), ENC_BIG_ENDIAN);
-	proto_item_append_text(actx->created_item, " %s", string);	
+	proto_item_append_text(actx->created_item, " %s", string);
 
 #.END
 

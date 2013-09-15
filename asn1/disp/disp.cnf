@@ -1,3 +1,5 @@
+# $Id$
+
 #.TYPE_ATTR
 Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 
@@ -28,8 +30,8 @@ Information/signedInformation/information	information-data
 ShadowingAgreementInfo	S dop.oid	"agreement.2.5.19.1"
 EstablishParameter		S dop.oid	"establish.rolea.2.5.19.1"
 EstablishParameter		S dop.oid	"establish.roleb.2.5.19.1"
-ModificationParameter 	S dop.oid	"modify.rolea.2.5.19.1"
-ModificationParameter 	S dop.oid	"modify.roleb.2.5.19.1"
+ModificationParameter	S dop.oid	"modify.rolea.2.5.19.1"
+ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 
 
 
