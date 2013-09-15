@@ -109,8 +109,8 @@
 #include <epan/ipproto.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/sminmpec.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-rsvp.h"
 #include "packet-ip.h"
@@ -1861,36 +1861,42 @@ summary_session(tvbuff_t *tvb, int offset)
 {
     switch(tvb_get_guint8(tvb, offset+3)) {
     case RSVP_SESSION_TYPE_IPV4:
-        return ep_strdup_printf("SESSION: IPv4, Destination %s, Protocol %d, Port %d. ",
-                                tvb_ip_to_str(tvb, offset+4),
-                                tvb_get_guint8(tvb, offset+8),
-                                tvb_get_ntohs(tvb, offset+10));
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "SESSION: IPv4, Destination %s, Protocol %d, Port %d. ",
+                                  tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_guint8(tvb, offset+8),
+                                  tvb_get_ntohs(tvb, offset+10));
         break;
     case RSVP_SESSION_TYPE_IPV4_LSP:
-        return ep_strdup_printf("SESSION: IPv4-LSP, Destination %s, Tunnel ID %d, Ext ID %0x. ",
-                                tvb_ip_to_str(tvb, offset+4),
-                                tvb_get_ntohs(tvb, offset+10),
-                                tvb_get_ntohl(tvb, offset+12));
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "SESSION: IPv4-LSP, Destination %s, Tunnel ID %d, Ext ID %0x. ",
+                                  tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+10),
+                                  tvb_get_ntohl(tvb, offset+12));
         break;
     case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
-        return ep_strdup_printf("SESSION: IPv4-Aggregate, Destination %s, DSCP %d. ",
-                                tvb_ip_to_str(tvb, offset+4),
-                                tvb_get_guint8(tvb, offset+11));
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "SESSION: IPv4-Aggregate, Destination %s, DSCP %d. ",
+                                  tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_guint8(tvb, offset+11));
         break;
     case RSVP_SESSION_TYPE_IPV4_UNI:
-        return ep_strdup_printf("SESSION: IPv4-UNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
-                                tvb_ip_to_str(tvb, offset+4),
-                                tvb_get_ntohs(tvb, offset+10),
-                                tvb_ip_to_str(tvb, offset+12));
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "SESSION: IPv4-UNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
+                                  tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+10),
+                                  tvb_ip_to_str(tvb, offset+12));
         break;
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
-        return ep_strdup_printf("SESSION: IPv4-E-NNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
-                                tvb_ip_to_str(tvb, offset+4),
-                                tvb_get_ntohs(tvb, offset+10),
-                                tvb_ip_to_str(tvb, offset+12));
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "SESSION: IPv4-E-NNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
+                                  tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+10),
+                                  tvb_ip_to_str(tvb, offset+12));
         break;
     default:
-        return ep_strdup_printf("SESSION: Type %d. ", tvb_get_guint8(tvb, offset+3));
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "SESSION: Type %d. ", tvb_get_guint8(tvb, offset+3));
         break;
     }
     DISSECTOR_ASSERT_NOT_REACHED();
@@ -1908,21 +1914,25 @@ summary_template(tvbuff_t *tvb, int offset)
 
     switch(tvb_get_guint8(tvb, offset+3)) {
     case 1:
-        return ep_strdup_printf("%s: IPv4, Sender %s, Port %d. ", objtype,
-                                tvb_ip_to_str(tvb, offset+4),
-                                tvb_get_ntohs(tvb, offset+10));
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "%s: IPv4, Sender %s, Port %d. ", objtype,
+                                  tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+10));
         break;
     case 7:
-        return ep_strdup_printf("%s: IPv4-LSP, Tunnel Source: %s, LSP ID: %d. ", objtype,
-                                tvb_ip_to_str(tvb, offset+4),
-                                tvb_get_ntohs(tvb, offset+10));
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "%s: IPv4-LSP, Tunnel Source: %s, LSP ID: %d. ", objtype,
+                                  tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+10));
         break;
     case 9:
-        return ep_strdup_printf("%s: IPv4-Aggregate, Aggregator %s. ", objtype,
-                                tvb_ip_to_str(tvb, offset+4));
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "%s: IPv4-Aggregate, Aggregator %s. ", objtype,
+                                  tvb_ip_to_str(tvb, offset+4));
         break;
     default:
-        return ep_strdup_printf("%s: Type %d. ", objtype, tvb_get_guint8(tvb, offset+3));
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "%s: Type %d. ", objtype, tvb_get_guint8(tvb, offset+3));
         break;
     }
     DISSECTOR_ASSERT_NOT_REACHED();
@@ -7363,7 +7373,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     message_type = tvb_get_guint8(tvb, 1);
 
-    rsvph = ep_new0(rsvp_conversation_info);
+    rsvph = wmem_new0(wmem_packet_scope(), rsvp_conversation_info);
 
     /* Copy over the source and destination addresses from the pinfo strucutre */
     SET_ADDRESS(&rsvph->source, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -7465,9 +7475,10 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* If not, insert the new request key into the hash table */
     if (!request_val) {
-        new_request_key = (struct rsvp_request_key *)se_memdup(&request_key, sizeof(struct rsvp_request_key));
+        new_request_key = (struct rsvp_request_key *)wmem_memdup(
+              wmem_file_scope(), &request_key, sizeof(struct rsvp_request_key));
 
-        request_val = se_new(struct rsvp_request_val);
+        request_val = wmem_new(wmem_file_scope(), struct rsvp_request_val);
         request_val->value = conversation->index;
 
         g_hash_table_insert(rsvp_request_hash, new_request_key, request_val);
