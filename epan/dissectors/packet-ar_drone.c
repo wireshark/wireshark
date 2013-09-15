@@ -125,7 +125,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree *ar_tree, *sub_tree;
     char *command;
 
-    if (!tvb_bytes_exist(tvb, 0, 3))
+    if (tvb_length(tvb) < 4)
         return 0;
 
     /* Make sure the packet we're dissecting is a ar_drone packet */
