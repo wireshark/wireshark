@@ -125,7 +125,7 @@ conversation_hash_exact_old(gconstpointer v)
 }
 
 static void
-conversation_hashtable_exact_to_texbuff(gpointer key, gpointer value, gpointer user_data)
+conversation_hashtable_exact_to_texbuff(gpointer key, gpointer value _U_, gpointer user_data)
 {
 	gchar string_buff[CONV_STR_BUF_MAX];
 	GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
