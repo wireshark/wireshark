@@ -76,6 +76,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     num_sack_ranges_(-1)
 {
     struct segment current;
+    int graph_idx = -1;
 
     ui->setupUi(this);
 
@@ -88,14 +89,19 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 //    ui->hintLabel->setAttribute(Qt::WA_MacSmallSize, true);
 //#endif
 
-    ui->graphTypeComboBox->setUpdatesEnabled(false);
-    ui->graphTypeComboBox->addItem(ui->actionRoundTripTime->text(), qVariantFromValue(GRAPH_RTT));
-    ui->graphTypeComboBox->addItem(ui->actionThroughput->text(), qVariantFromValue(GRAPH_THROUGHPUT));
-    ui->graphTypeComboBox->addItem(ui->actionStevens->text(), qVariantFromValue(GRAPH_TSEQ_STEVENS));
-    ui->graphTypeComboBox->addItem(ui->actionTcptrace->text(), qVariantFromValue(GRAPH_TSEQ_TCPTRACE));
-    ui->graphTypeComboBox->addItem(ui->actionWindowScaling->text(), qVariantFromValue(GRAPH_WSCALE));
-    ui->graphTypeComboBox->setCurrentIndex(-1);
-    ui->graphTypeComboBox->setUpdatesEnabled(true);
+    QComboBox *gtcb = ui->graphTypeComboBox;
+    gtcb->setUpdatesEnabled(false);
+    gtcb->addItem(ui->actionRoundTripTime->text(), qVariantFromValue(GRAPH_RTT));
+    if (graph_type == GRAPH_RTT) graph_idx = gtcb->count() - 1;
+    gtcb->addItem(ui->actionThroughput->text(), qVariantFromValue(GRAPH_THROUGHPUT));
+    if (graph_type == GRAPH_THROUGHPUT) graph_idx = gtcb->count() - 1;
+    gtcb->addItem(ui->actionStevens->text(), qVariantFromValue(GRAPH_TSEQ_STEVENS));
+    if (graph_type == GRAPH_TSEQ_STEVENS) graph_idx = gtcb->count() - 1;
+    gtcb->addItem(ui->actionTcptrace->text(), qVariantFromValue(GRAPH_TSEQ_TCPTRACE));
+    if (graph_type == GRAPH_TSEQ_TCPTRACE) graph_idx = gtcb->count() - 1;
+    gtcb->addItem(ui->actionWindowScaling->text(), qVariantFromValue(GRAPH_WSCALE));
+    if (graph_type == GRAPH_WSCALE) graph_idx = gtcb->count() - 1;
+    gtcb->setUpdatesEnabled(true);
 
     ui->dragRadioButton->setChecked(mouse_drags_);
 
@@ -171,8 +177,8 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     tracer_ = new QCPItemTracer(sp);
     sp->addItem(tracer_);
 
-    // Fills the graph
-    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(graph_type)));
+    // Triggers fillGraph().
+    ui->graphTypeComboBox->setCurrentIndex(graph_idx);
 
     sp->setMouseTracking(true);
 
@@ -620,15 +626,21 @@ void TCPStreamDialog::fillRoundTripTime()
 
     QVector<double> seq_no, rtt;
     guint32 seq_base = 0;
-    struct unack *unack = NULL, *u;
+    struct unack *unack = NULL, *u = NULL;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
-        if (seg == graph_.segments) {
-            seq_base = seg->th_seq;
-        }
         if (compareHeaders(seg)) {
-            if (seg->th_seglen && !rtt_is_retrans(unack, seg->th_seq)) {
+            seq_base = seg->th_seq;
+            break;
+        }
+    }
+    for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
+        if (compareHeaders(seg)) {
+            guint32 seqno = seg->th_seq - seq_base;
+            if (seg->th_seglen && !rtt_is_retrans(unack, seqno)) {
                 double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
-                rtt_put_unack_on_list(&unack, rtt_get_new_unack(rt_val, seg->th_seq));
+                u = rtt_get_new_unack(rt_val, seqno);
+                if (!u) return;
+                rtt_put_unack_on_list(&unack, u);
             }
         } else {
             guint32 ack_no = seg->th_ack - seq_base;
@@ -640,9 +652,11 @@ void TCPStreamDialog::fillRoundTripTime()
                     seq_no.append(u->seqno - seq_offset_);
                     rtt.append((rt_val - u->time) * 1000.0);
                     sequence_num_map_.insert(u->seqno, seg);
+                    v = u->next;
                     rtt_delete_unack_from_list(&unack, u);
+                } else {
+                    v = u->next;
                 }
-                v = u->next;
             }
         }
     }
