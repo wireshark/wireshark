@@ -29,7 +29,7 @@
 #include "config.h"
 
 #include "packet-rpc.h"
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 /*
  * For the protocol specifications, see
@@ -243,23 +243,23 @@ dissect_flags(tvbuff_t *tvb, int offset, proto_tree *tree)
 
             if (flags != 0)
             {
-                emem_strbuf_t *strbuf = ep_strbuf_new_label(NULL);
+                wmem_strbuf_t *strbuf = wmem_strbuf_new_label(wmem_packet_scope());
 
                 if (flags & VXI11_CORE_FLAG_WAITLOCK)
                 {
-                    ep_strbuf_append(strbuf, "WAIT_LOCK, ");
+                    wmem_strbuf_append(strbuf, "WAIT_LOCK, ");
                 }
                 if (flags & VXI11_CORE_FLAG_END)
                 {
-                    ep_strbuf_append(strbuf, "END, ");
+                    wmem_strbuf_append(strbuf, "END, ");
                 }
                 if (flags & VXI11_CORE_FLAG_TERMCHRSET)
                 {
-                    ep_strbuf_append(strbuf, "TERM_CHR_SET, ");
+                    wmem_strbuf_append(strbuf, "TERM_CHR_SET, ");
                 }
 
-                ep_strbuf_truncate(strbuf, strbuf->len - 2);
-                proto_item_append_text(flags_item, " (%s)", strbuf->str);
+                wmem_strbuf_truncate(strbuf, wmem_strbuf_get_len(strbuf) - 2);
+                proto_item_append_text(flags_item, " (%s)", wmem_strbuf_get_str(strbuf));
             }
         }
     }
@@ -288,23 +288,23 @@ dissect_reason(tvbuff_t *tvb, int offset, proto_tree *tree)
 
             if (reason != 0)
             {
-                emem_strbuf_t *strbuf = ep_strbuf_new_label(NULL);
+                wmem_strbuf_t *strbuf = wmem_strbuf_new_label(wmem_packet_scope());
 
                 if (reason & VXI11_CORE_REASON_REQCNT)
                 {
-                    ep_strbuf_append(strbuf, "REQ_CNT, ");
+                    wmem_strbuf_append(strbuf, "REQ_CNT, ");
                 }
                 if (reason & VXI11_CORE_REASON_CHR)
                 {
-                    ep_strbuf_append(strbuf, "CHR, ");
+                    wmem_strbuf_append(strbuf, "CHR, ");
                 }
                 if (reason & VXI11_CORE_REASON_END)
                 {
-                    ep_strbuf_append(strbuf, "END, ");
+                    wmem_strbuf_append(strbuf, "END, ");
                 }
 
-                ep_strbuf_truncate(strbuf, strbuf->len - 2);
-                proto_item_append_text(reason_item, " (%s)", strbuf->str);
+                wmem_strbuf_truncate(strbuf, wmem_strbuf_get_len(strbuf) - 2);
+                proto_item_append_text(reason_item, " (%s)", wmem_strbuf_get_str(strbuf));
             }
         }
     }

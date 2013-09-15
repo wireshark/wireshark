@@ -57,6 +57,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-rtps.h"
 
@@ -1687,7 +1688,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
      */
 
   /* Calc indent string */
-  indent_string = (char *)ep_alloc((indent_level*2)+1);
+  indent_string = (char *)wmem_alloc(wmem_epan_scope(), (indent_level*2)+1);
   memset(indent_string, ' ', indent_level*2);
   indent_string[indent_level*2] = '\0';
 
@@ -2179,10 +2180,10 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
   /* Array print */
   if (arr_dimension != NULL) {
     /* Printing an array */
-    emem_strbuf_t *dim_str = ep_strbuf_new_label(NULL);
+    wmem_strbuf_t *dim_str = wmem_strbuf_new_label(wmem_packet_scope());
     for (i = 0; i < MAX_ARRAY_DIMENSION; ++i) {
       if (arr_dimension[i] != 0) {
-        ep_strbuf_append_printf(dim_str, "[%d]", arr_dimension[i]);
+        wmem_strbuf_append_printf(dim_str, "[%d]", arr_dimension[i]);
       } else {
         break;
       }
@@ -2190,7 +2191,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
     proto_tree_add_text(tree, tvb, offset_begin, (offset-offset_begin),
                   "%s%s %s%s;%s",
                   indent_string, type_name, name ? name : "",
-                  dim_str->str, is_key ? KEY_COMMENT : "");
+                  wmem_strbuf_get_str(dim_str), is_key ? KEY_COMMENT : "");
     return retVal;
   }
 
@@ -2256,7 +2257,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
                         const char *label _U_) {
   gint32 num_bits;
   guint32 data;
-  emem_strbuf_t *temp_buff = ep_strbuf_new_label(NULL);
+  wmem_strbuf_t *temp_buff = wmem_strbuf_new_label(wmem_packet_scope());
   int i, j, idx;
   gchar *last_one;
   proto_item * ti;
@@ -2283,27 +2284,27 @@ static int rtps_util_add_bitmap(proto_tree *tree,
     offset += 4;
     for (j = 0; j < 32; ++j) {
       datamask = (1 << (31-j));
-      ep_strbuf_append_c(temp_buff, ((data & datamask) == datamask) ? '1':'0');
+      wmem_strbuf_append_c(temp_buff, ((data & datamask) == datamask) ? '1':'0');
       ++idx;
-      if (idx >= num_bits || temp_buff->len >= ITEM_LABEL_LENGTH - 1) {
+      if ((idx >= num_bits) || (wmem_strbuf_get_len(temp_buff) >= (ITEM_LABEL_LENGTH - 1))) {
         break;
       }
     }
   }
 
   /* removes all the ending '0' */
-  last_one = strrchr(temp_buff->str, '1');
+  last_one = strrchr(wmem_strbuf_get_str(temp_buff), '1');
   if (last_one) {
-    ep_strbuf_truncate(temp_buff, (gsize) (last_one - temp_buff->str));
+    wmem_strbuf_truncate(temp_buff, (gsize) (last_one - wmem_strbuf_get_str(temp_buff)));
   }
 
-  if (temp_buff->len > 0) {
+  if (wmem_strbuf_get_len(temp_buff) > 0) {
     proto_tree_add_text(bitmap_tree,
                         tvb,
                         original_offset + 12,
                         offset - original_offset - 12,
                         "bitmap: %s",
-                        temp_buff->str);
+                        wmem_strbuf_get_str(temp_buff));
   }
 
   proto_item_set_len(ti, offset-original_offset);
@@ -2325,7 +2326,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
   guint64 base;
   gint32 num_bits;
   guint32 data;
-  emem_strbuf_t *temp_buff = ep_strbuf_new_label(NULL);
+  wmem_strbuf_t *temp_buff = wmem_strbuf_new_label(wmem_packet_scope());
   gchar *last_one;
   int i, j, idx;
   proto_item * ti;
@@ -2373,18 +2374,18 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
     offset += 4;
     for (j = 0; j < 32; ++j) {
       datamask = (1 << (31-j));
-      ep_strbuf_append_c(temp_buff, ((data & datamask) == datamask) ? '1':'0');
+      wmem_strbuf_append_c(temp_buff, ((data & datamask) == datamask) ? '1':'0');
       ++idx;
-      if (idx >= num_bits || temp_buff->len >= ITEM_LABEL_LENGTH - 1) {
+      if ((idx >= num_bits) || (wmem_strbuf_get_len(temp_buff) >= (ITEM_LABEL_LENGTH - 1))) {
         break;
       }
     }
   }
 
   /* removes all the ending '0' */
-  last_one = strrchr(temp_buff->str, '1');
+  last_one = strrchr(wmem_strbuf_get_str(temp_buff), '1');
   if (last_one) {
-    ep_strbuf_truncate(temp_buff, (gsize) (last_one - temp_buff->str));
+    wmem_strbuf_truncate(temp_buff, (gsize) (last_one - wmem_strbuf_get_str(temp_buff)));
   }
 
   bitmap_tree = proto_item_add_subtree(ti, ett_rtps_bitmap);
@@ -2398,11 +2399,11 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
   }
   proto_tree_add_uint(bitmap_tree, hf_rtps_fragment_number_num_bits, tvb, original_offset + base_size, 4, num_bits);
 
-  if (temp_buff->len > 0) {
+  if (wmem_strbuf_get_len(temp_buff) > 0) {
     proto_tree_add_text(bitmap_tree, tvb,
                         original_offset + base_size + 4,
                         offset - original_offset - base_size - 4,
-                        "bitmap: %s", temp_buff->str);
+                        "bitmap: %s", wmem_strbuf_get_str(temp_buff));
   }
 
   proto_item_set_len(ti, offset-original_offset);
@@ -5733,8 +5734,8 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
     if (rtps_max_batch_samples_dissected == 0) {
       sample_info_max = 1024;   /* Max size of sampleInfo shown */
     }
-    sample_info_flags = (guint16 *)ep_alloc(sizeof(guint16) * sample_info_max);
-    sample_info_length = (guint32 *)ep_alloc(sizeof(guint32) * sample_info_max);
+    sample_info_flags = (guint16 *)wmem_alloc(wmem_packet_scope(), sizeof(guint16) * sample_info_max);
+    sample_info_length = (guint32 *)wmem_alloc(wmem_packet_scope(), sizeof(guint32) * sample_info_max);
 
     /* Sample Info List: start decoding the sample info list until the offset
      * is greater or equal than 'sampleListOffset' */

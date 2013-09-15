@@ -32,7 +32,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>    /* req'd for packet-zbee-security.h */
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 
 #include "packet-zbee.h"
@@ -1235,7 +1235,8 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                 key_record.frame_num = pinfo->fd->num;
                 key_record.label = NULL;
                 memcpy(&key_record.key, &key, ZBEE_APS_CMD_KEY_LENGTH);
-                *nwk_keyring = g_slist_prepend(*nwk_keyring, se_memdup(&key_record, sizeof(key_record_t)));
+                *nwk_keyring = g_slist_prepend(*nwk_keyring, wmem_memdup(wmem_file_scope(),
+                                                                         &key_record, sizeof(key_record_t)));
             }
         }
     }

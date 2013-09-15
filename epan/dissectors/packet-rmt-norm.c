@@ -47,6 +47,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-rmt-common.h"
 
@@ -251,7 +252,7 @@ static guint dissect_feccode(proto_tree *tree,
 	guint8 encoding_id = tvb_get_guint8(tvb, offset);
 
 	/* Save encoding ID */
-	norm_data = se_new0(norm_packet_data_t);
+	norm_data = wmem_new0(wmem_file_scope(), norm_packet_data_t);
 	norm_data->encoding_id = encoding_id;
 
 	p_add_proto_data(pinfo->fd, proto_rmt_norm, 0, norm_data);
@@ -385,7 +386,7 @@ static void dissect_norm_info(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 	offset++;
 
 	/* Save encoding ID */
-	norm_data = se_new0(norm_packet_data_t);
+	norm_data = wmem_new0(wmem_file_scope(), norm_packet_data_t);
 	norm_data->encoding_id = tvb_get_guint8(tvb, offset);
 
 	p_add_proto_data(pinfo->fd, proto_rmt_norm, 0, norm_data);

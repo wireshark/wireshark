@@ -43,6 +43,7 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include <wiretap/wtap.h>
 
@@ -736,7 +737,7 @@ dissect_rpcap_startcap_request (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (field_tree, hf_flags_outbound, tvb, offset, 2, ENC_BIG_ENDIAN);
 
   if (flags & 0x1F) {
-    gchar *flagstr = ep_strdup_printf ("%s%s%s%s%s",
+    gchar *flagstr = wmem_strdup_printf (wmem_packet_scope(), "%s%s%s%s%s",
 	  (flags & FLAG_PROMISC)    ? ", Promiscuous" : "",
 	  (flags & FLAG_DGRAM)      ? ", Datagram"    : "",
 	  (flags & FLAG_SERVEROPEN) ? ", ServerOpen"  : "",

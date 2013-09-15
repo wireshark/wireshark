@@ -35,7 +35,6 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/aftypes.h>
 
@@ -673,7 +672,7 @@ static void smb2_key_derivation(const guint8 *KI _U_, guint32 KI_len _U_,
 /* for export-object-smb2 */
 static gchar *policy_hnd_to_file_id(const e_ctx_hnd *hnd) {
 gchar *file_id;
-	file_id = ep_strdup_printf(
+	file_id = wmem_strdup_printf(wmem_packet_scope(),
 			"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 			hnd->uuid.Data1,
 			hnd->uuid.Data2,
@@ -725,7 +724,7 @@ feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoff
 	/* Create a new tvb to point to the payload data */
 	data_tvb = tvb_new_subset(tvb, dataoffset, length, length);
 	/* Create the eo_info to pass to the listener */
-	eo_info = ep_new(smb_eo_t);
+	eo_info = wmem_new(wmem_packet_scope(), smb_eo_t);
 	/* Fill in eo_info */
 	eo_info->smbversion=2;
 	/* cmd == opcode */
@@ -741,17 +740,17 @@ feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoff
 		/* Remove "File: " from filename */
 		if (g_str_has_prefix(auxstring, "File: ")) {
 			aux_string_v = g_strsplit(auxstring, "File: ", -1);
-			eo_info->filename = ep_strdup_printf("\\%s",aux_string_v[g_strv_length(aux_string_v)-1]);
+			eo_info->filename = wmem_strdup_printf(wmem_packet_scope(), "\\%s",aux_string_v[g_strv_length(aux_string_v)-1]);
 			g_strfreev(aux_string_v);
 		} else {
 			if (g_str_has_prefix(auxstring, "\\")) {
-				eo_info->filename = ep_strdup(auxstring);
+				eo_info->filename = wmem_strdup(wmem_packet_scope(), auxstring);
 			} else {
-				eo_info->filename = ep_strdup_printf("\\%s",auxstring);
+				eo_info->filename = wmem_strdup_printf(wmem_packet_scope(), "\\%s",auxstring);
 			}
 		}
 	} else {
-		auxstring=ep_strdup_printf("File_Id_%s", file_id);
+		auxstring=wmem_strdup_printf(wmem_packet_scope(), "File_Id_%s", file_id);
 		eo_info->filename=auxstring;
 	}
 
@@ -767,13 +766,13 @@ feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoff
 	if (si->tree) {
 		eo_info->tid=si->tree->tid;
 		if (strlen(si->tree->name)>0 && strlen(si->tree->name)<=256) {
-			eo_info->hostname = ep_strdup(si->tree->name);
+			eo_info->hostname = wmem_strdup(wmem_packet_scope(), si->tree->name);
 		} else {
-			eo_info->hostname = ep_strdup_printf("\\\\%s\\TREEID_%i",tree_ip_str(pinfo,si->opcode),si->tree->tid);
+			eo_info->hostname = wmem_strdup_printf(wmem_packet_scope(), "\\\\%s\\TREEID_%i",tree_ip_str(pinfo,si->opcode),si->tree->tid);
 		}
 	} else {
 		eo_info->tid=0;
-		eo_info->hostname = ep_strdup_printf("\\\\%s\\TREEID_UNKNOWN",tree_ip_str(pinfo,si->opcode));
+		eo_info->hostname = wmem_strdup_printf(wmem_packet_scope(), "\\\\%s\\TREEID_UNKNOWN",tree_ip_str(pinfo,si->opcode));
 	}
 
 	/* packet number */
@@ -1384,9 +1383,9 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, TRUE, FALSE);
 		if (!pinfo->fd->flags.visited) {
 			if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
-				fid_name = se_strdup_printf("File: %s", (char *)si->saved->extra_info);
+				fid_name = wmem_strdup_printf(wmem_file_scope(), "File: %s", (char *)si->saved->extra_info);
 			} else {
-				fid_name = se_strdup_printf("File: ");
+				fid_name = wmem_strdup_printf(wmem_file_scope(), "File: ");
 			}
 			dcerpc_store_polhnd_name(&policy_hnd, pinfo,
 						  fid_name);
@@ -1397,8 +1396,8 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			if (si->conv) {
 				eo_file_info = (smb2_eo_file_info_t *)g_hash_table_lookup(si->conv->files,&policy_hnd);
 				if (!eo_file_info) {
-					eo_file_info = se_new(smb2_eo_file_info_t);
-					policy_hnd_hashtablekey = se_new(e_ctx_hnd);
+					eo_file_info = wmem_new(wmem_file_scope(), smb2_eo_file_info_t);
+					policy_hnd_hashtablekey = wmem_new(wmem_file_scope(), e_ctx_hnd);
 					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
 					eo_file_info->end_of_file=0;
 					g_hash_table_insert(si->conv->files,policy_hnd_hashtablekey,eo_file_info);
@@ -1437,8 +1436,8 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 				if (eo_file_info) {
 					si->eo_file_info=eo_file_info;
 				} else { /* XXX This should never happen */
-					eo_file_info = se_new(smb2_eo_file_info_t);
-					policy_hnd_hashtablekey = se_new(e_ctx_hnd);
+					eo_file_info = wmem_new(wmem_file_scope(), smb2_eo_file_info_t);
+					policy_hnd_hashtablekey = wmem_new(wmem_file_scope(), e_ctx_hnd);
 					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
 					eo_file_info->end_of_file=0;
 					g_hash_table_insert(si->conv->files,policy_hnd_hashtablekey,eo_file_info);
@@ -2476,11 +2475,11 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		while ((ntlmssph = (const ntlmssp_header_t *)fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL) {
 			if (ntlmssph && ntlmssph->type == NTLMSSP_AUTH) {
 				smb2_sesid_info_t *sesid;
-				sesid = se_new(smb2_sesid_info_t);
+				sesid = wmem_new(wmem_file_scope(), smb2_sesid_info_t);
 				sesid->sesid = si->sesid;
-				sesid->acct_name = se_strdup(ntlmssph->acct_name);
-				sesid->domain_name = se_strdup(ntlmssph->domain_name);
-				sesid->host_name = se_strdup(ntlmssph->host_name);
+				sesid->acct_name = wmem_strdup(wmem_file_scope(), ntlmssph->acct_name);
+				sesid->domain_name = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
+				sesid->host_name = wmem_strdup(wmem_file_scope(), ntlmssph->host_name);
 				if (memcmp(ntlmssph->session_key, zeros, NTLMSSP_KEY_LEN) != 0) {
 					smb2_key_derivation(ntlmssph->session_key,
 							    NTLMSSP_KEY_LEN,
@@ -2588,7 +2587,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	 */
 	if (!pinfo->fd->flags.visited && si->saved && buf && olb.len) {
 		si->saved->extra_info_type = SMB2_EI_TREENAME;
-		si->saved->extra_info = se_alloc(olb.len+1);
+		si->saved->extra_info = wmem_alloc(wmem_file_scope(), olb.len+1);
 		g_snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
 	}
 
@@ -2623,7 +2622,7 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		if (tid) {
 			g_hash_table_remove(si->session->tids, &tid_key);
 		}
-		tid = se_new(smb2_tid_info_t);
+		tid = wmem_new(wmem_file_scope(), smb2_tid_info_t);
 		tid->tid = si->tid;
 		tid->name = (char *)si->saved->extra_info;
 		tid->connect_frame = pinfo->fd->num;
@@ -6723,7 +6722,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 		 * a tree connect, we create a dummy sessison, so we can hang the
 		 * tree data on it
 		 */
-		si->session              = se_new(smb2_sesid_info_t);
+		si->session              = wmem_new(wmem_file_scope(), smb2_sesid_info_t);
 		si->session->sesid       = si->sesid;
 		si->session->acct_name   = NULL;
 		si->session->domain_name = NULL;
@@ -6795,8 +6794,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	smb2_eo_file_info_t	*eo_file_info;
 	e_ctx_hnd		*policy_hnd_hashtablekey;
 
-	sti = ep_new(smb2_transform_info_t);
-	si  = ep_new(smb2_info_t);
+	sti = wmem_new(wmem_packet_scope(), smb2_transform_info_t);
+	si  = wmem_new(wmem_packet_scope(), smb2_info_t);
 	si->eo_file_info = NULL;
 	si->conv     = NULL;
 	si->saved    = NULL;
@@ -6971,7 +6970,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 					/* no we couldnt find it, so just add it then
 					* if was a request we are decoding
 					*/
-					ssi                  = se_new0(smb2_saved_info_t);
+					ssi                  = wmem_new0(wmem_file_scope(), smb2_saved_info_t);
 					ssi->msg_id          = ssi_key.msg_id;
 					ssi->frame_req       = pinfo->fd->num;
 					ssi->req_time        = pinfo->fd->abs_ts;
@@ -7006,8 +7005,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 						eo_file_info = (smb2_eo_file_info_t *)g_hash_table_lookup(si->conv->files,&ssi->policy_hnd);
 						if (!eo_file_info) { /* XXX This should never happen */
 							/* assert(1==0); */
-							eo_file_info = se_new(smb2_eo_file_info_t);
-							policy_hnd_hashtablekey = se_new(e_ctx_hnd);
+							eo_file_info = wmem_new(wmem_file_scope(), smb2_eo_file_info_t);
+							policy_hnd_hashtablekey = wmem_new(wmem_file_scope(), e_ctx_hnd);
 							memcpy(policy_hnd_hashtablekey, &ssi->policy_hnd, sizeof(e_ctx_hnd));
 							eo_file_info->end_of_file=0;
 							g_hash_table_insert(si->conv->files,policy_hnd_hashtablekey,eo_file_info);

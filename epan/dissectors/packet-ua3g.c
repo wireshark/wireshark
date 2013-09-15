@@ -30,7 +30,7 @@
 #include <glib.h>
 
 #include "epan/packet.h"
-#include "epan/emem.h"
+#include "epan/wmem/wmem.h"
 #include "packet-uaudp.h"
 
 
@@ -1643,7 +1643,7 @@ decode_lcd_line_cmd(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     const gchar*  command_str;
     proto_tree    *ua3g_body_tree = tree, *ua3g_param_tree, *ua3g_option_tree;
     proto_item    *ua3g_param_item, *ua3g_option_item;
-    emem_strbuf_t *strbuf;
+    wmem_strbuf_t *strbuf;
 
     command     = tvb_get_guint8(tvb, offset) & 0x03;
     column_n    = tvb_get_guint8(tvb, offset + 1);
@@ -1655,13 +1655,13 @@ decode_lcd_line_cmd(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     if (!ua3g_body_tree)
         return;
 
-    strbuf  = ep_strbuf_new_label("\"");
+    strbuf  = wmem_strbuf_new_label(wmem_packet_scope());
 
-    ep_strbuf_append_printf(strbuf, "%s\"", tvb_format_text(tvb, offset + 2, length - 2));
+    wmem_strbuf_append_printf(strbuf, "\"%s\"", tvb_format_text(tvb, offset + 2, length - 2));
 
     ua3g_param_item = proto_tree_add_text(ua3g_body_tree, tvb, offset,
         length, "%s %d: %s",
-        command_str, column_n, strbuf->str);
+        command_str, column_n, wmem_strbuf_get_str(strbuf));
     ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
     proto_tree_add_item(ua3g_body_tree, hf_ua3g_command_lcd_line, tvb, offset, 1, ENC_NA);
@@ -1685,7 +1685,7 @@ decode_lcd_line_cmd(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
     offset++;
     length--;
-    proto_tree_add_text(ua3g_param_tree, tvb, offset, length, "ASCII Char: %s", strbuf->str);
+    proto_tree_add_text(ua3g_param_tree, tvb, offset, length, "ASCII Char: %s", wmem_strbuf_get_str(strbuf));
 }
 
 
@@ -2134,20 +2134,20 @@ decode_beep(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         case 0x04: /* Start Beep */
             {
                 guint8         beep_dest;
-                emem_strbuf_t *strbuf;
+                wmem_strbuf_t *strbuf;
                 int            i;
 
                 beep_dest = tvb_get_guint8(tvb, offset);
 
-                strbuf = ep_strbuf_new_label(NULL);
+                strbuf = wmem_strbuf_new_label(wmem_packet_scope());
 
                 for (i = 0; i < 5; i++) {
-                    ep_strbuf_append(strbuf,
+                    wmem_strbuf_append(strbuf,
                         val_to_str_const(beep_dest & (0x01 << i), str_start_beep_destination, ""));
                 }
 
                 proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
-                    "Destination: %s", strbuf->str);
+                    "Destination: %s", wmem_strbuf_get_str(strbuf));
                 offset++;
 
                 proto_tree_add_item(ua3g_body_tree, hf_ua3g_beep_beep_number, tvb, offset, 1, ENC_NA);
@@ -2488,33 +2488,33 @@ decode_audio_config(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 " Bluetooth Link",
                 " USB Link"
             };
-            emem_strbuf_t *strbuf;
+            wmem_strbuf_t *strbuf;
             guint8 device_values;
             int j;
             int device_index = 0;
 
-            strbuf = ep_strbuf_new_label(NULL);
+            strbuf = wmem_strbuf_new_label(wmem_packet_scope());
 
             while (length > 0) {
 
                 device_values = tvb_get_guint8(tvb, offset);
 
-                ep_strbuf_truncate(strbuf, 0);
+                wmem_strbuf_truncate(strbuf, 0);
 
                 if (device_values != 0) {
                     for (j = 0; j < 5; j++) {
                         if (device_values & (0x01 << j)) {
-                            ep_strbuf_append(strbuf, str_device_values[j]);
+                            wmem_strbuf_append(strbuf, str_device_values[j]);
                         }
                     }
                 } else {
-                    ep_strbuf_append(strbuf, " None");
+                    wmem_strbuf_append(strbuf, " None");
                 }
 
                 proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
                                     "%s:%s",
                                     val_to_str_const(device_index, str_device_configuration, "Unknown"),
-                                    strbuf->str);
+                                    wmem_strbuf_get_str(strbuf));
                 offset++;
                 length--;
                 device_index++;
@@ -3180,7 +3180,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_default_codec, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                             } else {
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_default_codec, tvb, offset, 8, ENC_BIG_ENDIAN);
-                                /* XXX - add as expert info ep_strbuf_append(strbuf, "Parameter Value Too Long (more than 64 bits)"); */
+                                /* XXX - add as expert info wmem_strbuf_append(strbuf, "Parameter Value Too Long (more than 64 bits)"); */
                             }
                             break;
                         case 0x10: /* VAD */
@@ -3194,7 +3194,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_voice_mode, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                             } else {
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd03_parameter_voice_mode, tvb, offset, 8, ENC_BIG_ENDIAN);
-                                /* XXX - add as expert info ep_strbuf_append(strbuf, "Parameter Value Too Long (more than 64 bits)"); */
+                                /* XXX - add as expert info wmem_strbuf_append(strbuf, "Parameter Value Too Long (more than 64 bits)"); */
                             }
                             break;
                         case 0x1B: /* Delay Distribution */

@@ -295,7 +295,8 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 proto_tree_add_int(tpncp_tree, hf_tpncp_cid, tvb, 12, 4, cid);
                 offset += 16;
                 if (tpncp_events_info_db[id].tpncp_data_field_size) {
-                    tpncp_header = ep_strdup_printf("TPNCP Event: %s (%d)", val_to_str_const(id, tpncp_events_id_vals, "Unknown"), id);
+                    tpncp_header = wmem_strdup_printf(wmem_packet_scope(), "TPNCP Event: %s (%d)",
+                                                      val_to_str_const(id, tpncp_events_id_vals, "Unknown"), id);
                     tpncp_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", tpncp_header);
                     dissect_tpncp_event(id, tvb, tpncp_item, &offset);
                 }
@@ -306,7 +307,8 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 proto_tree_add_uint(tpncp_tree, hf_tpncp_command_id, tvb, 8, 4, id);
                 offset += 12;
                 if (tpncp_commands_info_db[id].tpncp_data_field_size) {
-                    tpncp_header = ep_strdup_printf("TPNCP Command: %s (%d)", val_to_str_const(id, tpncp_commands_id_vals, "Unknown"), id);
+                    tpncp_header = wmem_strdup_printf(wmem_packet_scope(), "TPNCP Command: %s (%d)",
+                                                      val_to_str_const(id, tpncp_commands_id_vals, "Unknown"), id);
                     tpncp_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", tpncp_header);
                     dissect_tpncp_command(id, tvb, tpncp_item, &offset);
                 }

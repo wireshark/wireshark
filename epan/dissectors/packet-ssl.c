@@ -2161,7 +2161,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         }
 
                         /* convert hex string into char*/
-                        out = (unsigned char*) ep_alloc(size > 0 ? size / 2 : 0);
+                        out = (unsigned char*) wmem_alloc(wmem_packet_scope(), size > 0 ? size / 2 : 0);
 
                         for (i = 0; i < size; i+=2)
                         {

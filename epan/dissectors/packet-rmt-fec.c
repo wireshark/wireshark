@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-rmt-common.h"
 
@@ -119,7 +120,7 @@ void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		instance_id = (guint8) tvb_get_ntohs(tvb, offset+8);
 
 		/* Decode FEC Instance ID */
-		fec_data = se_new0(fec_packet_data_t);
+		fec_data = wmem_new0(wmem_file_scope(), fec_packet_data_t);
 		fec_data->instance_id = instance_id;
 
 		p_add_proto_data(pinfo->fd, proto_rmt_fec, 0, fec_data);

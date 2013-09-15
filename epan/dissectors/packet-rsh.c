@@ -328,7 +328,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * info column of the entire conversation
              */
             if(!hash_info->command){
-                hash_info->command=se_strdup((gchar*)field_stringz);
+                hash_info->command=wmem_strdup(wmem_file_scope(), (gchar*)field_stringz);
             }
 
         } else {

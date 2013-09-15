@@ -71,6 +71,7 @@
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/next_tvb.h>
 #include <epan/uat.h>
 #include <epan/asn1.h>
@@ -309,7 +310,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 235 "../../asn1/snmp/packet-snmp-template.c"
+#line 236 "../../asn1/snmp/packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -352,7 +353,7 @@ static gint ett_snmp_SimpleOpen_U = -1;
 static gint ett_snmp_RReqPDU_U = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 254 "../../asn1/snmp/packet-snmp-template.c"
+#line 255 "../../asn1/snmp/packet-snmp-template.c"
 
 static expert_field ei_snmp_failed_decrypted_data_pdu = EI_INIT;
 static expert_field ei_snmp_decrypted_data_bad_formatted = EI_INIT;
@@ -522,7 +523,8 @@ dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, in
         hour_from_utc	= tvb_get_guint8(tvb,offset+9);
         min_from_utc	= tvb_get_guint8(tvb,offset+10);
 
-		str = ep_strdup_printf("%u-%u-%u, %u:%u:%u.%u UTC %s%u:%u",
+		str = wmem_strdup_printf(wmem_packet_scope(),
+             "%u-%u-%u, %u:%u:%u.%u UTC %s%u:%u",
              year,
              month,
              day,
@@ -534,7 +536,8 @@ dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, in
              hour_from_utc,
              min_from_utc);
     }else{
-         str = ep_strdup_printf("%u-%u-%u, %u:%u:%u.%u",
+         str = wmem_strdup_printf(wmem_packet_scope(),
+             "%u-%u-%u, %u:%u:%u.%u",
              year,
              month,
              day,
@@ -909,7 +912,7 @@ show_oid_index:
 									goto indexing_done;
 								}
 
-								buf = (guint8*)ep_alloc(buf_len+1);
+								buf = (guint8*)wmem_alloc(wmem_packet_scope(), buf_len+1);
 								for (i = 0; i < buf_len; i++)
 									buf[i] = (guint8)suboid[i];
 								buf[i] = '\0';
@@ -1138,21 +1141,21 @@ set_label:
 
 	if (oid_info && oid_info->name) {
 		if (oid_left >= 1) {
-			repr  = ep_strdup_printf("%s.%s (%s)", oid_info->name,
+			repr  = wmem_strdup_printf(wmem_packet_scope(), "%s.%s (%s)", oid_info->name,
 						 oid_subid2string(&(subids[oid_matched]),oid_left),
 						 oid_subid2string(subids,oid_matched+oid_left));
-			info_oid = ep_strdup_printf("%s.%s", oid_info->name,
+			info_oid = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", oid_info->name,
 						    oid_subid2string(&(subids[oid_matched]),oid_left));
 		} else {
-			repr  = ep_strdup_printf("%s (%s)", oid_info->name,
+			repr  = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", oid_info->name,
 						 oid_subid2string(subids,oid_matched));
 			info_oid = oid_info->name;
 		}
 	} else if (oid_string) {
-		repr  = ep_strdup(oid_string);
+		repr  = wmem_strdup(wmem_packet_scope(), oid_string);
 		info_oid = oid_string;
 	} else {
-		repr  = ep_strdup("[Bad OID]");
+		repr  = wmem_strdup(wmem_packet_scope(), "[Bad OID]");
 	}
 
 	valstr = strstr(label,": ");
@@ -2980,7 +2983,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1769 "../../asn1/snmp/packet-snmp-template.c"
+#line 1772 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3906,7 +3909,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2430 "../../asn1/snmp/packet-snmp-template.c"
+#line 2433 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3946,7 +3949,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2446 "../../asn1/snmp/packet-snmp-template.c"
+#line 2449 "../../asn1/snmp/packet-snmp-template.c"
   };
   static ei_register_info ei[] = {
      { &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},

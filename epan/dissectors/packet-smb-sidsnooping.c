@@ -88,7 +88,7 @@ add_sid_name_mapping(char *sid, char *name)
 		return;
 	}
 
-	sn=se_new(sid_name);
+	sn=wmem_new(wmem_file_scope(), sid_name);
 	sn->sid=g_strdup(sid);
 	sn->name=g_strdup(name);
 	g_hash_table_insert(sid_name_table, sn, sn);
@@ -148,7 +148,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 			g_hash_table_remove(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num));
 		}
 		if(!old_ctx){
-			old_ctx=se_memdup(fi->value.value.bytes->data, 20);
+			old_ctx=wmem_memdup(wmem_file_scope(), fi->value.value.bytes->data, 20);
 		}
 		g_hash_table_insert(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num), old_ctx);
 
