@@ -72,8 +72,8 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
-#include <epan/emem.h>
 #include <epan/garrayfix.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-radius.h"
 
@@ -401,7 +401,7 @@ static const value_string ascenddf_portq[]      = { {1, "lt"}, {2, "eq"}, {3, "g
 
 static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	const gchar *str;
-	emem_strbuf_t *filterstr;
+	wmem_strbuf_t *filterstr;
 	int len;
 	guint8 proto, srclen, dstlen;
 	guint32 srcip, dstip;
@@ -411,15 +411,15 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	len=tvb_length(tvb);
 
 	if (len != 24) {
-		str = ep_strdup_printf("Wrong attribute length %d", len);
+		str = wmem_strdup_printf(wmem_packet_scope(), "Wrong attribute length %d", len);
 		return str;
 	}
 
-	filterstr=ep_strbuf_sized_new(64, 64);
+	filterstr=wmem_strbuf_sized_new(wmem_packet_scope(), 64, 64);
 
 	proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, ENC_NA);
 
-	ep_strbuf_printf(filterstr, "%s %s %s",
+	wmem_strbuf_append_printf(filterstr, "%s %s %s",
 		val_to_str(tvb_get_guint8(tvb, 0), ascenddf_filtertype, "%u"),
 		val_to_str(tvb_get_guint8(tvb, 2), ascenddf_inout, "%u"),
 		val_to_str(tvb_get_guint8(tvb, 1), ascenddf_filteror, "%u"));
@@ -427,7 +427,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	proto=tvb_get_guint8(tvb, 14);
 	if (proto) {
 		str=val_to_str(proto, ascenddf_proto, "%u");
-		ep_strbuf_append_printf(filterstr, " %s", str);
+		wmem_strbuf_append_printf(filterstr, " %s", str);
 	}
 
 	srcip=tvb_get_ipv4(tvb, 4);
@@ -436,9 +436,9 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	srcportq=tvb_get_guint8(tvb, 20);
 
 	if (srcip || srclen || srcportq) {
-		ep_strbuf_append_printf(filterstr, " srcip %s/%d", ip_to_str((guint8 *) &srcip), srclen);
+		wmem_strbuf_append_printf(filterstr, " srcip %s/%d", ip_to_str((guint8 *) &srcip), srclen);
 		if (srcportq)
-			ep_strbuf_append_printf(filterstr, " srcport %s %d",
+			wmem_strbuf_append_printf(filterstr, " srcport %s %d",
 				val_to_str(srcportq, ascenddf_portq, "%u"), srcport);
 	}
 
@@ -448,13 +448,13 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	dstportq=tvb_get_guint8(tvb, 21);
 
 	if (dstip || dstlen || dstportq) {
-		ep_strbuf_append_printf(filterstr, " dstip %s/%d", ip_to_str((guint8 *) &dstip), dstlen);
+		wmem_strbuf_append_printf(filterstr, " dstip %s/%d", ip_to_str((guint8 *) &dstip), dstlen);
 		if (dstportq)
-			ep_strbuf_append_printf(filterstr, " dstport %s %d",
+			wmem_strbuf_append_printf(filterstr, " dstport %s %d",
 				val_to_str(dstportq, ascenddf_portq, "%u"), dstport);
 	}
 
-	str=ep_strdup(filterstr->str);
+	str=wmem_strdup(wmem_packet_scope(), wmem_strbuf_get_str(filterstr));
 
 	return str;
 }
@@ -473,7 +473,7 @@ static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb, 
 	if (net == 0xFFFFFFFE)
 		str = "NAS-selected";
 	else
-		str = ep_strdup_printf("0x%08X", net);
+		str = wmem_strdup_printf(wmem_packet_scope(), "0x%08X", net);
 	proto_tree_add_ipxnet_format(tree, hf_radius_framed_ipx_network, tvb, 0,
 				     len, net, "Framed-IPX-Network: %s", str);
 
@@ -492,7 +492,7 @@ static const gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb, packet_
 	proto_tree_add_uint(tree,hf_radius_cosine_vpi,tvb,0,2,vpi);
 	proto_tree_add_uint(tree,hf_radius_cosine_vci,tvb,2,2,vci);
 
-	return ep_strdup_printf("%u/%u",vpi,vci);
+	return wmem_strdup_printf(wmem_packet_scope(), "%u/%u",vpi,vci);
 }
 
 static const value_string daylight_saving_time_vals[] = {
@@ -529,7 +529,7 @@ dissect_radius_3gpp_ms_tmime_zone(proto_tree* tree, tvbuff_t* tvb, packet_info* 
     daylight_saving_time = tvb_get_guint8(tvb, offset) & 0x3;
     proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
 
-	return ep_strdup_printf( "Timezone: GMT %c%d hours %d minutes %s ", 
+	return wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c%d hours %d minutes %s ", 
 		sign, oct / 4, oct % 4 * 15, val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
 
 }
@@ -565,7 +565,7 @@ radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
 
 	padded_length = length + ((length % AUTHENTICATOR_LENGTH) ?
 		(AUTHENTICATOR_LENGTH - (length % AUTHENTICATOR_LENGTH)) : 0);
-	pd = (guint8 *)ep_alloc0(padded_length);
+	pd = (guint8 *)wmem_alloc0(wmem_packet_scope(), padded_length);
 	tvb_memcpy(tvb, pd, offset, length);
 
 	for ( i = 0; i < padded_length; i += AUTHENTICATOR_LENGTH ) {
@@ -675,7 +675,7 @@ void radius_string(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 			proto_tree_add_item(tree, a->hf_alt, tvb, offset, len, ENC_NA);
 		} else {
 			gchar *buffer;
-			buffer=(gchar *)ep_alloc(1024); /* an AVP value can be at most 253 bytes */
+			buffer=(gchar *)wmem_alloc(wmem_packet_scope(), 1024); /* an AVP value can be at most 253 bytes */
 			radius_decrypt_avp(buffer,1024,tvb,offset,len);
 			proto_item_append_text(avp_item, "Decrypted: %s", buffer);
 			proto_tree_add_string(tree, a->hf, tvb, offset, len, buffer);
@@ -1412,7 +1412,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 
 	/* Initialise stat info for passing to tap */
-	rad_info = ep_new(radius_info_t);
+	rad_info = wmem_new(wmem_packet_scope(), radius_info_t);
 	rad_info->code = 0;
 	rad_info->ident = 0;
 	rad_info->req_time.secs = 0;
@@ -1550,9 +1550,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				   frame numbers are 1-origin, so we use 0
 				   to mean "we don't yet know in which frame
 				   the reply for this call appears". */
-				new_radius_call_key = se_new(radius_call_info_key);
+				new_radius_call_key = wmem_new(wmem_file_scope(), radius_call_info_key);
 				*new_radius_call_key = radius_call_key;
-				radius_call = se_new(radius_call_t);
+				radius_call = wmem_new(wmem_file_scope(), radius_call_t);
 				radius_call->req_num = pinfo->fd->num;
 				radius_call->rsp_num = 0;
 				radius_call->ident = rh.rh_ident;
