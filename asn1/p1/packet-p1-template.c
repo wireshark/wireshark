@@ -92,7 +92,7 @@ typedef struct p1_address_ctx {
 	gboolean do_address;
 	const char *content_type_id;
 	gboolean report_unknown_content_type;
-	emem_strbuf_t* oraddress;
+	wmem_strbuf_t* oraddress;
 } p1_address_ctx_t;
 
 static void set_do_address(asn1_ctx_t* actx, gboolean do_address)
@@ -100,7 +100,7 @@ static void set_do_address(asn1_ctx_t* actx, gboolean do_address)
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL) {
-		actx->subtree.tree_ctx = ep_new0(p1_address_ctx_t);
+		actx->subtree.tree_ctx = wmem_new0(wmem_packet_scope(), p1_address_ctx_t);
 	}
 
 	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
@@ -113,10 +113,10 @@ static void do_address(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
 
 	if (ctx && ctx->do_address) {
 		if (addr) {
-			ep_strbuf_append(ctx->oraddress, addr);
+			wmem_strbuf_append(ctx->oraddress, addr);
 		}
 		if (tvb_string) {
-			ep_strbuf_append(ctx->oraddress, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
+			wmem_strbuf_append(ctx->oraddress, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
 		}
 	}
 
@@ -124,25 +124,25 @@ static void do_address(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
 
 static void do_address_str(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
 {
-	emem_strbuf_t *ddatype = (emem_strbuf_t *)actx->value_ptr;
+	wmem_strbuf_t *ddatype = (wmem_strbuf_t *)actx->value_ptr;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
 	do_address(addr, tvb_string, actx);
 
 	if (ctx && ctx->do_address && ddatype && tvb_string)
-		ep_strbuf_append(ddatype, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
+		wmem_strbuf_append(ddatype, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
 }
 
 static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx, proto_tree* tree)
 {
-	emem_strbuf_t *ddatype = (emem_strbuf_t *)actx->value_ptr;
+	wmem_strbuf_t *ddatype = (wmem_strbuf_t *)actx->value_ptr;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
 	do_address(addr, tvb_string, actx);
 
 	if (ctx && ctx->do_address && tvb_string && ddatype) {
-		if (ddatype->len > 0) {
-			proto_item_append_text (tree, " (%s=%s)", ddatype->str, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
+		if (wmem_strbuf_get_len(ddatype) > 0) {
+			proto_item_append_text (tree, " (%s=%s)", wmem_strbuf_get_str(ddatype), tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
 		}
 	}
 }
@@ -167,7 +167,7 @@ void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, gboolean
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL) {
-		actx->subtree.tree_ctx = ep_new0(p1_address_ctx_t);
+		actx->subtree.tree_ctx = wmem_new0(wmem_packet_scope(), p1_address_ctx_t);
 	}
 
 	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
@@ -186,10 +186,10 @@ const char* p1_get_last_oraddress (asn1_ctx_t* actx)
 		return "";
 
 	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
-	if (ctx->oraddress->len <= 0)
+	if (wmem_strbuf_get_len(ctx->oraddress) <= 0)
 		return "";
 
-	return ctx->oraddress->str;
+	return wmem_strbuf_get_str(ctx->oraddress);
 }
 
 /*

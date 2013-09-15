@@ -791,7 +791,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 #.FN_FTR H-RNTI
   rrcinf = (struct rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc, 0);
   if (!rrcinf) {
-    rrcinf = se_new0(struct rrc_info);
+    rrcinf = wmem_new0(wmem_file_scope(), struct rrc_info);
     p_add_proto_data(actx->pinfo->fd, proto_rrc, 0, rrcinf);
   }
   rrcinf->hrnti[actx->pinfo->fd->subnum] = tvb_get_ntohs(hrnti_tvb, 0);

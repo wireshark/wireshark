@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
@@ -375,7 +376,7 @@ static void add_hsdsch_bind(packet_info *pinfo){
 				conversation_set_dissector(conversation, fp_handle);
 
 				if(pinfo->link_dir==P2P_DIR_DL){
-					umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+					umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
 					/* Fill in the HSDSCH relevant data */
 
 					umts_fp_conversation_info->iface_type        = IuB_Interface;

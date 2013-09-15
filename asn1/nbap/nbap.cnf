@@ -103,7 +103,7 @@ ProtocolIE-ContainerPairList
 #.END
 
 #.FN_FTR ProcedureID
-  ProcedureID = ep_strdup_printf("%s/%s",
+  ProcedureID = wmem_strdup_printf(wmem_packet_scope(), "%s/%s",
                                  val_to_str(ProcedureCode, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
                                  val_to_str(ddMode, VALS(nbap_DdMode_vals), "unknown(%u)"));
     crcn_context_present = FALSE; /*Reset CRNC Com context present flag.*/
@@ -758,7 +758,7 @@ transportFormatSet_type = NBAP_CPCH;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type        = IuB_Interface;
                 umts_fp_conversation_info->division          = Division_FDD;
@@ -851,7 +851,7 @@ num_items = 1;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type         = IuB_Interface;
                 umts_fp_conversation_info->division           = Division_FDD;
@@ -960,7 +960,7 @@ transportFormatSet_type = NBAP_CPCH;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type        = IuB_Interface;
                 umts_fp_conversation_info->division          = Division_FDD;
@@ -1166,7 +1166,7 @@ dch_id = 0xFFFFFFFF;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
 
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type        = IuB_Interface;
@@ -1280,7 +1280,7 @@ BindingID_port = 0;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type        = IuB_Interface;
                 umts_fp_conversation_info->division          = Division_FDD;
@@ -1451,7 +1451,7 @@ BindingID_port = 0;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /*Steal the old informatoin*/
                 memcpy(umts_fp_conversation_info,conversation_get_proto_data(old_conversation, proto_fp),sizeof(umts_fp_conversation_info_t));
 
@@ -1796,7 +1796,7 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
                 conversation_set_dissector(conversation, fp_handle);
 
                 if(actx->pinfo->link_dir==P2P_DIR_DL){
-                    umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                     /* Fill in the HSDSCH relevant data */
 
                     umts_fp_conversation_info->iface_type        = IuB_Interface;
@@ -1913,7 +1913,7 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
                 conversation_set_dissector(conversation, fp_handle);
 
                 if(actx->pinfo->link_dir==P2P_DIR_DL){
-                    umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                     /* Fill in the HSDSCH relevant data */
 
                     umts_fp_conversation_info->iface_type        = IuB_Interface;
@@ -2037,7 +2037,7 @@ int i;
             /*Set NBAP configuration to lower layers*/
             if(actx->pinfo->link_dir==P2P_DIR_DL){
 
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /*Select frame type = 3 according to paragraph 5.1.6 in 3GPP TS 25.435*/
                 umts_fp_conversation_info->channel = CHANNEL_HSDSCH_COMMON;
                 umts_fp_conversation_info->division          = Division_FDD;
