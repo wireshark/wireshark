@@ -1252,8 +1252,8 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
     proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_sano, message_tvb, frameStart1 + 3, 1, ct );
 
     /* When the following clause is met, DB1,2 contain the SOD index, and DB3 the SOD subindex */
-    if ( ( ( sacmd & OPENSAFETY_SSDO_SACMD_INI ) == OPENSAFETY_SSDO_SACMD_INI ) ||
-            ( sacmd == OPENSAFETY_MSG_SSDO_ABORT )
+    if ( ( ( sacmd & OPENSAFETY_SSDO_SACMD_INI ) == OPENSAFETY_SSDO_SACMD_INI ) &&
+            ( sacmd != OPENSAFETY_MSG_SSDO_ABORT )
     )
     {
         ssdoIndex = tvb_get_letohs(message_tvb, db0Offset + 1);
@@ -1262,7 +1262,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
         proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_sod_index, message_tvb, db0Offset + 1, 2,
                 ssdoIndex, "0x%04X (%s)", ssdoIndex,
                 val_to_str_const(((guint32) (ssdoIndex << 16)), sod_idx_names, "Unknown") );
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_const(((guint32) (ssdoIndex << 16)), sod_idx_names, "0x%04X"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_const(((guint32) (ssdoIndex << 16)), sod_idx_names, "Unknown"));
 
         /* Some SOD downloads (0x101A for instance) don't have sub-indeces */
         if ( ssdoSubIndex != 0x0 )
@@ -1271,7 +1271,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
                 ssdoSubIndex, "0x%02X (%s)", ssdoSubIndex,
                 val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex), sod_idx_names, "Unknown") );
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                    val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex), sod_idx_names, "0x%02X"));
+                    val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex), sod_idx_names, "Unknown"));
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "]" );
         payloadOffset += 3;
@@ -1279,11 +1279,12 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
 
     if ( sacmd == OPENSAFETY_MSG_SSDO_ABORT )
     {
-        abortcode = tvb_get_ntohl(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 4);
+        abortcode = tvb_get_letohl(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 4);
 
-        proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_abort_code, message_tvb, payloadOffset, 4, abortcode,
+        proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_abort_code, message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 4, 4, abortcode,
                 "0x%04X %04X - %s", (guint16)(abortcode >> 16), (guint16)(abortcode),
                 val_to_str_const(abortcode, abort_codes, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(abortcode, abort_codes, "Unknown"));
 
 
     } else {
@@ -1488,12 +1489,17 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
         if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_FAIL) == 0 )
         {
             byte = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1);
-            proto_tree_add_uint_format(snmt_tree, hf_oss_snmt_error_group, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 1,
+            proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_group, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 1,
                                        byte, "%s", ( byte == 0 ? "Device" : val_to_str(byte, sn_fail_error_group, "Reserved [%d]" ) ) );
 
             byte = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2);
-            proto_tree_add_uint_format(snmt_tree, hf_oss_snmt_error_code, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2, 1,
+            proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_code, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2, 1,
                                        byte, "%s [%d]", ( byte == 0 ? "Default" : "Vendor Specific" ), byte );
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - Group: %s; Code: %s",
+                ( byte == 0 ? "Device" : val_to_str(byte, sn_fail_error_group, "Reserved [%d]" ) ),
+                ( byte == 0 ? "Default" : "Vendor Specific" )
+            );
         }
         else if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGNED_UDID_SCM) == 0 )
         {
