@@ -836,6 +836,7 @@ DISSECTOR_SRC = \
 	packet-mplstp-oam.c	\
 	packet-mpls-y1711.c	\
 	packet-mpls.c		\
+	packet-mq-base.c	\
 	packet-mq-pcf.c		\
 	packet-mq.c		\
 	packet-mrcpv2.c		\
