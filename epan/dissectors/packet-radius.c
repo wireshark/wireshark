@@ -400,7 +400,6 @@ static const value_string ascenddf_proto[]      = { {1, "icmp"}, {6, "tcp"}, {17
 static const value_string ascenddf_portq[]      = { {1, "lt"}, {2, "eq"}, {3, "gt"}, {4, "ne"}, {0, NULL} };
 
 static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
-	const gchar *str;
 	wmem_strbuf_t *filterstr;
 	int len;
 	guint8 proto, srclen, dstlen;
@@ -411,8 +410,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	len=tvb_length(tvb);
 
 	if (len != 24) {
-		str = wmem_strdup_printf(wmem_packet_scope(), "Wrong attribute length %d", len);
-		return str;
+		return wmem_strdup_printf(wmem_packet_scope(), "Wrong attribute length %d", len);
 	}
 
 	filterstr=wmem_strbuf_sized_new(wmem_packet_scope(), 64, 64);
@@ -426,8 +424,8 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 
 	proto=tvb_get_guint8(tvb, 14);
 	if (proto) {
-		str=val_to_str(proto, ascenddf_proto, "%u");
-		wmem_strbuf_append_printf(filterstr, " %s", str);
+		wmem_strbuf_append_printf(filterstr, " %s",
+				val_to_str(proto, ascenddf_proto, "%u"));
 	}
 
 	srcip=tvb_get_ipv4(tvb, 4);
@@ -454,9 +452,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 				val_to_str(dstportq, ascenddf_portq, "%u"), dstport);
 	}
 
-	str=wmem_strdup(wmem_packet_scope(), wmem_strbuf_get_str(filterstr));
-
-	return str;
+	return wmem_strbuf_get_str(filterstr);
 }
 
 static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
