@@ -4580,9 +4580,9 @@ dissect_ranap_GlobalRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_ranap_GTP_TEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 332 "../../asn1/ranap/ranap.cnf"
-  tvbuff_t *parameter_tvb=NULL;	
+  tvbuff_t *parameter_tvb=NULL;
   int saved_hf;
-  
+
   saved_hf = hf_index;
   hf_index = -1;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4591,7 +4591,7 @@ dissect_ranap_GTP_TEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   if (!parameter_tvb)
     return offset;
-  proto_tree_add_item(tree, saved_hf, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);  
+  proto_tree_add_item(tree, saved_hf, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
 
 
 
@@ -4768,18 +4768,18 @@ dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 8, FALSE, &imsi_tvb);
-  
+
 	if(!imsi_tvb)
 		return offset;
 	if ( actx->pinfo->sccp_info
 		 && actx->pinfo->sccp_info->data.co.assoc
 		 && ! actx->pinfo->sccp_info->data.co.assoc->calling_party ) {
-	   
+
 		guint len = tvb_length(imsi_tvb);
 		guint8* bytes = (guint8 *)ep_tvb_memdup(imsi_tvb,0,len);
 
-		actx->pinfo->sccp_info->data.co.assoc->calling_party = 
-			se_strdup_printf("IMSI: %s", bytes_to_str(bytes, len) );
+		actx->pinfo->sccp_info->data.co.assoc->calling_party =
+			wmem_strdup_printf(wmem_file_scope(), "IMSI: %s", bytes_to_str(bytes, len) );
 	}
 	digit_str = unpack_digits(imsi_tvb, 0);
 	proto_tree_add_string(tree, hf_ranap_imsi_digits, imsi_tvb, 0, -1, digit_str);
@@ -7336,7 +7336,7 @@ dissect_ranap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 			case id_Source_ToTarget_TransparentContainer: /* INTEGER ::= 61 */
 				/* 9.2.1.30a Source to Target Transparent Container
 				 * Note: In the current version of this specification, this IE may
-				 * either carry the Source RNC to Target RNC Transparent Container 
+				 * either carry the Source RNC to Target RNC Transparent Container
 				 * or the Source eNB to Target eNB Transparent Container IE as defined in [49]...
 				 */
 				call_dissector(rrc_s_to_trnc_handle,rrc_message_tvb,actx->pinfo, proto_tree_get_root(tree));
@@ -7344,7 +7344,7 @@ dissect_ranap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 			case id_Target_ToSource_TransparentContainer: /* INTEGER ::= 63 */
 				/* 9.2.1.30b Target to Source Transparent Container
 				 * In the current version of this specification, this IE may
-				 * either carry the Target RNC to Source RNC Transparent Container 
+				 * either carry the Target RNC to Source RNC Transparent Container
 				 * or the Target eNB to Source eNB Transparent Container IE as defined in [49]...
 				 */
 				call_dissector(rrc_t_to_srnc_handle,rrc_message_tvb,actx->pinfo, proto_tree_get_root(tree));
@@ -7514,13 +7514,13 @@ static const per_sequence_t SourceRNC_ToTargetRNC_TransparentContainer_sequence[
 static int
 dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 344 "../../asn1/ranap/ranap.cnf"
-/* If SourceRNC-ToTargetRNC-TransparentContainer is called trough 
+/* If SourceRNC-ToTargetRNC-TransparentContainer is called trough
    dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU
    ProtocolIE_ID may be unset
    */
-   
-   
-   ProtocolIE_ID = id_Source_ToTarget_TransparentContainer; 
+
+
+   ProtocolIE_ID = id_Source_ToTarget_TransparentContainer;
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7888,7 +7888,7 @@ dissect_ranap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   proto_item *item;
   proto_tree *subtree, *nsap_tree;
   gint tvb_len;
-  
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      1, 160, TRUE, &parameter_tvb);
 
@@ -7910,7 +7910,7 @@ dissect_ranap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 		nsap_tree = proto_item_add_subtree(item, ett_ranap_TransportLayerAddress_nsap);
 		dissect_nsap(parameter_tvb, 0, 20, nsap_tree);
 	}
-	
+
 
 
   return offset;

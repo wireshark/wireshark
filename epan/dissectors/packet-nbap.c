@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
+#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
@@ -1545,7 +1546,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nbap-val.h ---*/
-#line 83 "../../asn1/nbap/packet-nbap-template.c"
+#line 84 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
@@ -4849,7 +4850,7 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 91 "../../asn1/nbap/packet-nbap-template.c"
+#line 92 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
@@ -6488,7 +6489,7 @@ static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 99 "../../asn1/nbap/packet-nbap-template.c"
+#line 100 "../../asn1/nbap/packet-nbap-template.c"
 
 static expert_field ei_nbap_no_find_comm_context_id = EI_INIT;
 static expert_field ei_nbap_no_find_port_info = EI_INIT;
@@ -6897,7 +6898,7 @@ dissect_nbap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                    ett_nbap_ProcedureID, ProcedureID_sequence);
 
 #line 106 "../../asn1/nbap/nbap.cnf"
-  ProcedureID = ep_strdup_printf("%s/%s",
+  ProcedureID = wmem_strdup_printf(wmem_packet_scope(), "%s/%s",
                                  val_to_str(ProcedureCode, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
                                  val_to_str(ddMode, VALS(nbap_DdMode_vals), "unknown(%u)"));
     crcn_context_present = FALSE; /*Reset CRNC Com context present flag.*/
@@ -18669,7 +18670,7 @@ BindingID_port = 0;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /*Steal the old informatoin*/
                 memcpy(umts_fp_conversation_info,conversation_get_proto_data(old_conversation, proto_fp),sizeof(umts_fp_conversation_info_t));
 
@@ -23364,7 +23365,7 @@ int i;
             /*Set NBAP configuration to lower layers*/
             if(actx->pinfo->link_dir==P2P_DIR_DL){
 
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /*Select frame type = 3 according to paragraph 5.1.6 in 3GPP TS 25.435*/
                 umts_fp_conversation_info->channel = CHANNEL_HSDSCH_COMMON;
                 umts_fp_conversation_info->division          = Division_FDD;
@@ -23814,7 +23815,7 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                 conversation_set_dissector(conversation, fp_handle);
 
                 if(actx->pinfo->link_dir==P2P_DIR_DL){
-                    umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                     /* Fill in the HSDSCH relevant data */
 
                     umts_fp_conversation_info->iface_type        = IuB_Interface;
@@ -24152,7 +24153,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
                 conversation_set_dissector(conversation, fp_handle);
 
                 if(actx->pinfo->link_dir==P2P_DIR_DL){
-                    umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                     /* Fill in the HSDSCH relevant data */
 
                     umts_fp_conversation_info->iface_type        = IuB_Interface;
@@ -28678,7 +28679,7 @@ dch_id = 0xFFFFFFFF;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
 
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type        = IuB_Interface;
@@ -28822,7 +28823,7 @@ BindingID_port = 0;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type        = IuB_Interface;
                 umts_fp_conversation_info->division          = Division_FDD;
@@ -32383,7 +32384,7 @@ transportFormatSet_type = NBAP_CPCH;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type        = IuB_Interface;
                 umts_fp_conversation_info->division          = Division_FDD;
@@ -32548,7 +32549,7 @@ num_items = 1;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type         = IuB_Interface;
                 umts_fp_conversation_info->division           = Division_FDD;
@@ -32691,7 +32692,7 @@ transportFormatSet_type = NBAP_CPCH;
             /* Set dissector */
             conversation_set_dissector(conversation, fp_handle);
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type        = IuB_Interface;
                 umts_fp_conversation_info->division          = Division_FDD;
@@ -55161,7 +55162,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 321 "../../asn1/nbap/packet-nbap-template.c"
+#line 322 "../../asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -55219,7 +55220,7 @@ static void add_hsdsch_bind(packet_info *pinfo){
 				conversation_set_dissector(conversation, fp_handle);
 
 				if(pinfo->link_dir==P2P_DIR_DL){
-					umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+					umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
 					/* Fill in the HSDSCH relevant data */
 
 					umts_fp_conversation_info->iface_type        = IuB_Interface;
@@ -68495,7 +68496,7 @@ void proto_register_nbap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 490 "../../asn1/nbap/packet-nbap-template.c"
+#line 491 "../../asn1/nbap/packet-nbap-template.c"
 	};
 
 	/* List of subtrees */
@@ -70135,7 +70136,7 @@ void proto_register_nbap(void)
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 499 "../../asn1/nbap/packet-nbap-template.c"
+#line 500 "../../asn1/nbap/packet-nbap-template.c"
 	};
 
 	static ei_register_info ei[] = {
@@ -71289,7 +71290,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 556 "../../asn1/nbap/packet-nbap-template.c"
+#line 557 "../../asn1/nbap/packet-nbap-template.c"
 }
 
 
