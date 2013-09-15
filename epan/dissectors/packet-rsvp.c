@@ -2635,90 +2635,90 @@ dissect_rsvp_error(proto_item *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
                             "C-type: 1 - IPv4");
         if(obj_length>4) {
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
-                    			"Error node: %s",
+            proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
+                                "Error node: %s",
                             tvb_ip_to_str(tvb, offset2));
         
         offset3 = offset2+4;
         }
-		break;
+        break;
     }
 
     case 2: {
         proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
                             "C-type: 2 - IPv6");
-		if(obj_length>4) {
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
+        if(obj_length>4) {
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
                             "Error node: %s",
                             tvb_ip6_to_str(tvb, offset2));
-		
-		offset3 = offset2+16;
-		}
-		break;
+        
+        offset3 = offset2+16;
+        }
+        break;
     }
 
     case 3: {
         proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
                             "C-type: 3 - IPv4 IF-ID");
-		if(obj_length>4) {
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
+        if(obj_length>4) {
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
                             "Error node: %s",
                             tvb_ip_to_str(tvb, offset2));
-		
-		offset3 = offset2+4;
-		}
-		break;
+        
+        offset3 = offset2+4;
+        }
+        break;
     }
 
     default:
         proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
                             "C-type: Unknown (%u)",
                             type);
-		if(obj_length>4) {
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+        if(obj_length>4) {
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
                             "Data (%d bytes)", obj_length - 4);
         }
-		return;
+        return;
     }
-	
-	if(obj_length>4) {
-		error_flags = tvb_get_guint8(tvb, offset3);
-	    ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_error_flags,
-	                             tvb, offset3, 1, ENC_BIG_ENDIAN);
-	    rsvp_error_subtree = proto_item_add_subtree(ti2, TREE(TT_ERROR_FLAGS));
-	    proto_tree_add_item(rsvp_error_subtree, hf_rsvp_error_flags_path_state_removed,
-	                             tvb, offset3, 1, ENC_BIG_ENDIAN);
-	    proto_tree_add_item(rsvp_error_subtree, hf_rsvp_error_flags_not_guilty,
-	                             tvb, offset3, 1, ENC_BIG_ENDIAN);
-	    proto_tree_add_item(rsvp_error_subtree, hf_rsvp_error_flags_in_place,
-	                             tvb, offset3, 1, ENC_BIG_ENDIAN);
-	    proto_item_append_text(ti2, " %s %s %s",
-	                           (error_flags & (1<<2))  ? "Path-State-Removed" : "",
-	                           (error_flags & (1<<1))  ? "NotGuilty" : "",
-	                           (error_flags & (1<<0))  ? "InPlace" : "");
-	    error_code = tvb_get_guint8(tvb, offset3+1);
-	    proto_tree_add_text(rsvp_object_tree, tvb, offset3+1, 1,
-	                        "Error code: %u - %s", error_code,
-	                        val_to_str_ext(error_code, &rsvp_error_codes_ext, "Unknown (%d)"));
-	    error_val = dissect_rsvp_error_value(rsvp_object_tree, tvb, offset3+2, error_code);
+    
+    if(obj_length>4) {
+        error_flags = tvb_get_guint8(tvb, offset3);
+        ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_error_flags,
+                                 tvb, offset3, 1, ENC_BIG_ENDIAN);
+        rsvp_error_subtree = proto_item_add_subtree(ti2, TREE(TT_ERROR_FLAGS));
+        proto_tree_add_item(rsvp_error_subtree, hf_rsvp_error_flags_path_state_removed,
+                                 tvb, offset3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_error_subtree, hf_rsvp_error_flags_not_guilty,
+                                 tvb, offset3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_error_subtree, hf_rsvp_error_flags_in_place,
+                                 tvb, offset3, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti2, " %s %s %s",
+                               (error_flags & (1<<2))  ? "Path-State-Removed" : "",
+                               (error_flags & (1<<1))  ? "NotGuilty" : "",
+                               (error_flags & (1<<0))  ? "InPlace" : "");
+        error_code = tvb_get_guint8(tvb, offset3+1);
+        proto_tree_add_text(rsvp_object_tree, tvb, offset3+1, 1,
+                            "Error code: %u - %s", error_code,
+                            val_to_str_ext(error_code, &rsvp_error_codes_ext, "Unknown (%d)"));
+        error_val = dissect_rsvp_error_value(rsvp_object_tree, tvb, offset3+2, error_code);
 
-	
+    
 
-	    switch (type) {
-	    case 1:
-	        proto_item_set_text(ti, "ERROR: IPv4, Error code: %s, Value: %d, Error Node: %s",
-	                            val_to_str_ext(error_code, &rsvp_error_codes_ext, "Unknown (%d)"),
-	                            error_val, tvb_ip_to_str(tvb, offset2));
-	        break;
-	    case 3:
-	        proto_item_set_text(ti, "ERROR: IPv4 IF-ID, Error code: %s, Value: %d, Control Node: %s. ",
-	                            val_to_str_ext(error_code, &rsvp_error_codes_ext, "Unknown (%d)"),
-	                            error_val, tvb_ip_to_str(tvb, offset2));
-	        dissect_rsvp_ifid_tlv(ti, rsvp_object_tree, tvb, offset+12, obj_length-12,
-	                              TREE(TT_ERROR_SUBOBJ));
-	        break;
-	    }
-	}
+        switch (type) {
+        case 1:
+            proto_item_set_text(ti, "ERROR: IPv4, Error code: %s, Value: %d, Error Node: %s",
+                                val_to_str_ext(error_code, &rsvp_error_codes_ext, "Unknown (%d)"),
+                                error_val, tvb_ip_to_str(tvb, offset2));
+            break;
+        case 3:
+            proto_item_set_text(ti, "ERROR: IPv4 IF-ID, Error code: %s, Value: %d, Control Node: %s. ",
+                                val_to_str_ext(error_code, &rsvp_error_codes_ext, "Unknown (%d)"),
+                                error_val, tvb_ip_to_str(tvb, offset2));
+            dissect_rsvp_ifid_tlv(ti, rsvp_object_tree, tvb, offset+12, obj_length-12,
+                                  TREE(TT_ERROR_SUBOBJ));
+            break;
+        }
+    }
 }
 
 /*------------------------------------------------------------------------------
@@ -8988,3 +8988,16 @@ proto_reg_handoff_rsvp(void)
     dissector_add_uint("udp.port", UDP_PORT_PRSVP, rsvp_handle);
     rsvp_tap = register_tap("rsvp");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
