@@ -42,7 +42,6 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/base64.h>
-#include <epan/emem.h>
 #include <epan/stats_tree.h>
 
 #include <epan/req_resp_hdrs.h>
@@ -156,13 +155,13 @@ header_fields_update_cb(void *r, const char **err)
 	char c;
 
 	if (rec->header_name == NULL) {
-		*err = ep_strdup_printf("Header name can't be empty");
+		*err = wmem_strdup_printf(wmem_packet_scope(), "Header name can't be empty");
 		return;
 	}
 
 	g_strstrip(rec->header_name);
 	if (rec->header_name[0] == 0) {
-		*err = ep_strdup_printf("Header name can't be empty");
+		*err = wmem_strdup_printf(wmem_packet_scope(), "Header name can't be empty");
 		return;
 	}
 
@@ -171,7 +170,7 @@ header_fields_update_cb(void *r, const char **err)
 	 */
 	c = proto_check_field_name(rec->header_name);
 	if (c) {
-		*err = ep_strdup_printf("Header name can't contain '%c'", c);
+		*err = wmem_strdup_printf(wmem_packet_scope(), "Header name can't contain '%c'", c);
 		return;
 	}
 
@@ -752,7 +751,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	stat_info = ep_new(http_info_value_t);
+	stat_info = wmem_new(wmem_packet_scope(), http_info_value_t);
 	stat_info->framenum = pinfo->fd->num;
 	stat_info->response_code = 0;
 	stat_info->request_method = NULL;
@@ -1000,9 +999,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree && stat_info->http_host && stat_info->request_uri) {
 		proto_item *e_ti;
-		gchar *uri = ep_strdup_printf("%s://%s%s",
+		gchar *uri = wmem_strdup_printf(wmem_packet_scope(), "%s://%s%s",
 			   "http",	/* XXX, https? */
-			    g_strstrip(ep_strdup(stat_info->http_host)), stat_info->request_uri);
+			    g_strstrip(wmem_strdup(wmem_packet_scope(), stat_info->http_host)), stat_info->request_uri);
 
 		e_ti = proto_tree_add_string(http_tree,
 					     hf_http_request_full_uri, tvb, 0,
@@ -1348,7 +1347,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * an active listener to process it (which happens when
 		 * the export object window is open). */
 		if(have_tap_listener(http_eo_tap)) {
-			eo_info = ep_new(http_eo_t);
+			eo_info = wmem_new(wmem_packet_scope(), http_eo_t);
 
 			eo_info->hostname = conv_data->http_host;
 			eo_info->filename = conv_data->request_uri;
@@ -1377,7 +1376,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			private_data_changed = TRUE;
 
 			if (headers.content_type_parameters)
-				pinfo->private_data = ep_strdup(headers.content_type_parameters);
+				pinfo->private_data = wmem_strdup(wmem_packet_scope(), headers.content_type_parameters);
 			else
 				pinfo->private_data = NULL;
 			/*
@@ -1506,8 +1505,8 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	/* Save the request URI for various later uses */
 	request_uri = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-	stat_info->request_uri = ep_strdup(request_uri);
- 	conv_data->request_uri = se_strdup(request_uri);
+	stat_info->request_uri = wmem_strdup(wmem_packet_scope(), request_uri);
+ 	conv_data->request_uri = wmem_strdup(wmem_file_scope(), request_uri);
 
 	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
 			      request_uri);
@@ -2169,8 +2168,8 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 		if (isHttpRequestOrReply && reqresp_dissector) {
 			*reqresp_dissector = basic_request_dissector;
 
-			stat_info->request_method = ep_strndup(data, indx+1);
-			conv_data->request_method = se_strndup(data, indx+1);
+			stat_info->request_method = wmem_strndup(wmem_packet_scope(), data, indx+1);
+			conv_data->request_method = wmem_strndup(wmem_file_scope(), data, indx+1);
 		}
 
 
@@ -2325,7 +2324,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	len = next_offset - offset;
 	line_end_offset = offset + linelen;
 	header_len = colon_offset - offset;
-	header_name = se_strndup(&line[0], header_len);
+	header_name = wmem_strndup(wmem_file_scope(), &line[0], header_len);
 	hf_index = find_header_hf_value(tvb, offset, header_len);
 
 	/*
@@ -2348,7 +2347,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	 * has value_len bytes in it.
 	 */
 	value_len = line_end_offset - value_offset;
-	value = (char *)ep_alloc(value_len+1);
+	value = (char *)wmem_alloc(wmem_packet_scope(), value_len+1);
 	memcpy(value, &line[value_offset - offset], value_len);
 	value[value_len] = '\0';
 
@@ -2420,7 +2419,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_CONTENT_TYPE:
-			eh_ptr->content_type = (gchar*) ep_memdup((guint8*)value,value_len + 1);
+			eh_ptr->content_type = (gchar*) wmem_memdup(wmem_packet_scope(), (guint8*)value,value_len + 1);
 
 			for (i = 0; i < value_len; i++) {
 				c = value[i];
@@ -2493,11 +2492,11 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_CONTENT_ENCODING:
-			eh_ptr->content_encoding = ep_strndup(value, value_len);
+			eh_ptr->content_encoding = wmem_strndup(wmem_packet_scope(), value, value_len);
 			break;
 
 		case HDR_TRANSFER_ENCODING:
-			eh_ptr->transfer_encoding = ep_strndup(value, value_len);
+			eh_ptr->transfer_encoding = wmem_strndup(wmem_packet_scope(), value, value_len);
 			if (eh_ptr->have_content_length &&
 					g_ascii_strncasecmp(eh_ptr->transfer_encoding, "chunked", 7) == 0) {
 				expert_add_info(pinfo, hdr_item, &ei_http_chunked_and_length);
@@ -2505,8 +2504,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_HOST:
-			stat_info->http_host = ep_strndup(value, value_len);
-			conv_data->http_host = se_strndup(value, value_len);
+			stat_info->http_host = wmem_strndup(wmem_packet_scope(), value, value_len);
+			conv_data->http_host = wmem_strndup(wmem_file_scope(), value, value_len);
 			break;
 
 		case HDR_UPGRADE:

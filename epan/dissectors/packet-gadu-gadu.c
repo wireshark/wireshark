@@ -33,6 +33,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 
 #include <epan/dissectors/packet-tcp.h>
 
@@ -548,7 +549,7 @@ gadu_gadu_create_conversation(packet_info *pinfo, guint32 uin)
 	conv = find_or_create_conversation(pinfo);
 	gg_conv = (struct gadu_gadu_conv_data *)conversation_get_proto_data(conv, hfi_gadu_gadu->id);
 	if (!gg_conv) {
-		gg_conv = se_new(struct gadu_gadu_conv_data);
+		gg_conv = wmem_new(wmem_file_scope(), struct gadu_gadu_conv_data);
 		gg_conv->uin = uin;
 
 		conversation_add_proto_data(conv, hfi_gadu_gadu->id, gg_conv);
@@ -604,26 +605,26 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, const header_field_info *hfi, pr
 
 	const int org_offset = offset;
 
-	emem_strbuf_t *str;
+	wmem_strbuf_t *str;
 	guint8 ch;
 	gint len;
 	
 	len = tvb_reported_length_remaining(tvb, offset);
 
-	str = ep_strbuf_new("");
+	str = wmem_strbuf_new(wmem_packet_scope(), "");
 
 	while ((len > 0) && (ch = tvb_get_guint8(tvb, offset))) {
 		if (ch < 0x80)
-			ep_strbuf_append_c(str, ch);
+			wmem_strbuf_append_c(str, ch);
 		else
-			ep_strbuf_append_unichar(str, table_cp1250[ch-0x80]);
+			wmem_strbuf_append_unichar(str, table_cp1250[ch-0x80]);
 		offset++;
 		len--;
 	}
 	if (len > 0)
 		offset++;	/* NUL */
 
-	proto_tree_add_unicode_string(tree, hfi->id, tvb, org_offset, offset - org_offset, str->str);
+	proto_tree_add_unicode_string(tree, hfi->id, tvb, org_offset, offset - org_offset, wmem_strbuf_get_str(str));
 
 	return offset;
 }

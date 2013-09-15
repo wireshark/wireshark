@@ -33,6 +33,7 @@
 #include <epan/stats_tree.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 
 static dissector_handle_t hartip_tcp_handle;
@@ -388,7 +389,7 @@ dissect_string(proto_tree *tree, int hf, const char *name, int len,
   proto_item *ti;
   char       *str;
 
-  str = (char *)ep_alloc(256);
+  str = (char *)wmem_alloc(wmem_packet_scope(), 256);
 
   ti = proto_tree_add_item(tree, hf, tvb, offset, len, ENC_NA);
   if (len < 256) {
@@ -414,12 +415,12 @@ dissect_packAscii(proto_tree *tree, int hf, const char *name, int len,
   guint8     *tmp;
   char       *str = NULL;
 
-  str = (char *)ep_alloc(256+1);
+  str = (char *)wmem_alloc(wmem_packet_scope(), 256+1);
 
   ti = proto_tree_add_item(tree, hf, tvb, offset, len, ENC_NA);
 
   DISSECTOR_ASSERT(len < 3 * (256/4));
-  tmp = (guint8 *)ep_alloc0(len);
+  tmp = (guint8 *)wmem_alloc0(wmem_packet_scope(), len);
   tvb_memcpy(tvb, tmp, offset, len);
 
   iIndex = 0;
@@ -880,7 +881,7 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   offset++;
 
   /* Setup statistics for tap. */
-  tapinfo = ep_new(hartip_tap_info);
+  tapinfo = wmem_new(wmem_packet_scope(), hartip_tap_info);
   tapinfo->message_type = message_type;
   tapinfo->message_id   = message_id;
   tap_queue_packet(hartip_tap, pinfo, tapinfo);

@@ -291,7 +291,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
@@ -1030,12 +1030,12 @@ static const char *giop_ior_file = "IOR.txt";
 static GList *insert_in_comp_req_list(GList *list, guint32 fn, guint32 reqid, const gchar * op, giop_sub_handle_t *sh ) {
   comp_req_list_entry_t * entry;
 
-  entry =  se_new(comp_req_list_entry_t);
+  entry =  wmem_new(wmem_file_scope(), comp_req_list_entry_t);
 
   entry->fn    = fn;
   entry->reqid = reqid;
   entry->subh  = sh;
-  entry->operation = se_strdup(op); /* duplicate operation for storage */
+  entry->operation = wmem_strdup(wmem_file_scope(), op); /* duplicate operation for storage */
   entry->repoid = NULL;             /* dont have yet */
 
   return g_list_append (list, entry); /* append */
@@ -1132,10 +1132,10 @@ static void insert_in_complete_reply_hash(guint32 fn, guint32 mfn) {
     return;                     /* FN collision */
   }
 
-  new_key = se_new(struct complete_reply_hash_key);
+  new_key = wmem_new(wmem_file_scope(), struct complete_reply_hash_key);
   new_key->fn = fn;             /* save FN */
 
-  val = se_new(struct complete_reply_hash_val);
+  val = wmem_new(wmem_file_scope(), struct complete_reply_hash_val);
   val->mfn = mfn;               /* and MFN */
 
   g_hash_table_insert(giop_complete_reply_hash, new_key, val);
@@ -1381,12 +1381,12 @@ static void insert_in_objkey_hash(GHashTable *hash, const gchar *obj, guint32 le
 
   /* So, passed key should NOT exist in hash at this point.*/
 
-  new_objkey_key = se_new(struct giop_object_key);
+  new_objkey_key = wmem_new(wmem_file_scope(), struct giop_object_key);
   new_objkey_key->objkey_len = len; /* save it */
-  new_objkey_key->objkey = (guint8 *) se_memdup(obj,len);        /* copy from object and allocate ptr */
+  new_objkey_key->objkey = (guint8 *) wmem_memdup(wmem_file_scope(), obj,len);        /* copy from object and allocate ptr */
 
-  objkey_val = se_new(struct giop_object_val);
-  objkey_val->repo_id = se_strdup(repoid); /* duplicate and store Respository ID string */
+  objkey_val = wmem_new(wmem_file_scope(), struct giop_object_val);
+  objkey_val->repo_id = wmem_strdup(wmem_file_scope(), repoid); /* duplicate and store Respository ID string */
   objkey_val->src = src;                   /* where IOR came from */
 
 
@@ -1448,7 +1448,7 @@ static guint32 string_to_IOR(guchar *in, guint32 in_len, guint8 **out){
   gint8 tmpval;         /* complete value */
   guint32 i;
 
-  *out = ep_alloc_array0(guint8, in_len); /* allocate buffer */
+  *out = wmem_alloc0_array(wmem_packet_scope(), guint8, in_len); /* allocate buffer */
 
   if (*out == NULL) {
     return 0;
@@ -1525,7 +1525,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
     return;
   }
 
-  buf = (guchar *)ep_alloc0(max_iorlen+1);        /* input buf */
+  buf = (guchar *)wmem_alloc0(wmem_packet_scope(), max_iorlen+1);        /* input buf */
 
   while ((len = giop_getline(fp,buf,max_iorlen+1)) > 0) {
     my_offset = 0;              /* reset for every IOR read */
@@ -2074,7 +2074,7 @@ gchar * make_printable_string (const gchar *in, guint32 len) {
   guint32 i = 0;
   gchar *print_string = NULL;
 
-  print_string = (gchar * )ep_alloc0(len + 1); /* make some space and zero it */
+  print_string = (gchar * )wmem_alloc0(wmem_packet_scope(), len + 1); /* make some space and zero it */
   memcpy(print_string, in, len);        /* and make a copy of input data */
 
   for(i=0; i < len; i++) {
@@ -2961,7 +2961,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
     printf("giop:get_CDR_fixed(): slen =  %.2x \n", slen);
 #endif
 
-  tmpbuf = (gchar *)ep_alloc0(slen);     /* allocate temp buffer */
+  tmpbuf = (gchar *)wmem_alloc0(wmem_packet_scope(), slen);     /* allocate temp buffer */
 
   /* If even , grab 1st dig */
 
@@ -3016,8 +3016,8 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
      */
 
     sindex = 0;                         /* reset */
-    *seq = ep_alloc_array0(gchar, slen + 3);     /* allocate temp buffer , including space for sign, decimal point and
-                                         * \0 -- TODO check slen is reasonable first */
+    *seq = wmem_alloc0_array(wmem_packet_scope(), gchar, slen + 3); /* allocate temp buffer , including space for sign, decimal point and
+                                                                     * \0 -- TODO check slen is reasonable first */
 #if DEBUG
     printf("giop:get_CDR_fixed(): sign =  %.2x \n", sign);
 #endif
@@ -3220,7 +3220,7 @@ void get_CDR_octet_seq(tvbuff_t *tvb, const gchar **seq, int *offset, guint32 le
    * allocating the buffer, so that we don't try to allocate a buffer bigger
    * than the data we'll actually be copying, and thus don't run the risk
    * of crashing if the buffer is *so* big that we fail to allocate it
-   * and "ep_alloc_array0()" aborts.
+   * and "wmem_alloc0_array()" aborts.
    */
   tvb_ensure_bytes_exist(tvb, *offset, len);
 
@@ -3229,7 +3229,7 @@ void get_CDR_octet_seq(tvbuff_t *tvb, const gchar **seq, int *offset, guint32 le
    * do what we do now, and null-terminate the string (which also means
    * we don't need to zero out the entire allocation, just the last byte)?
    */
-  seq_buf = ep_alloc_array0(gchar, len + 1);
+  seq_buf = wmem_alloc0_array(wmem_packet_scope(), gchar, len + 1);
   tvb_memcpy( tvb, seq_buf, *offset, len);
   *seq = seq_buf;
   *offset += len;
@@ -3317,7 +3317,7 @@ guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset, gboolean s
   else if (slength > 0) {
     get_CDR_octet_seq(tvb, seq, offset, slength);
   } else {
-    *seq = ep_strdup("");        /* zero-length string */
+    *seq = wmem_strdup(wmem_packet_scope(), "");        /* zero-length string */
   }
 
   return slength;               /* return length */

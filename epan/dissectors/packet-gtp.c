@@ -56,6 +56,7 @@
 
 #include <epan/conversation.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
@@ -3091,7 +3092,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
             }
             /* if we cant reuse the old one, grab a new chunk */
             if (!gcrp) {
-                gcrp = se_new(gtp_msg_hash_t);
+                gcrp = wmem_new(wmem_file_scope(), gtp_msg_hash_t);
             }
             gcrp->seq_nr=seq_nr;
             gcrp->req_frame = pinfo->fd->num;
@@ -7860,7 +7861,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     /* Setting everything to 0, so that the TEID is 0 for GTP version 0
      * The magic number should perhaps be replaced.
      */
-    gtp_hdr = ep_new0(gtp_hdr_t);
+    gtp_hdr = wmem_new0(wmem_packet_scope(), gtp_hdr_t);
 
 	/* Setting the TEID to -1 to say that the TEID is not valid for this packet */
     gtp_hdr->teid = -1;

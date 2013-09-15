@@ -48,6 +48,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 #define GVCP_PORT 3956
 
@@ -108,7 +109,7 @@ static int
 dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint16 packet_type, packet_opcode, packet_plsize;
-  emem_strbuf_t *info;
+  wmem_strbuf_t *info;
 
   /* Check that there's enough data */
   if (tvb_length(tvb) < 8)
@@ -141,24 +142,24 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   packet_plsize = tvb_get_ntohs(tvb, 4);
 
   /* allocate growable info string */
-  info = ep_strbuf_new(val_to_str(packet_opcode, opcode_names, "Unknown opcode (0x%04x)"));
+  info = wmem_strbuf_new(wmem_packet_scope(), val_to_str(packet_opcode, opcode_names, "Unknown opcode (0x%04x)"));
 
   /* check that GVCP header+payload match total packet size */
   if (tvb_reported_length(tvb) < 8+(guint32)packet_plsize) {
-    ep_strbuf_append_printf(info, " (truncated? %u bytes missing)",
-                            (8 + packet_plsize) - tvb_reported_length(tvb));
-    col_add_str(pinfo->cinfo, COL_INFO, info->str);
+    wmem_strbuf_append_printf(info, " (truncated? %u bytes missing)",
+                              (8 + packet_plsize) - tvb_reported_length(tvb));
+    col_add_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(info));
     return tvb_length(tvb);/* or should we assume this is not GVCP, return 0?*/
   }
   if (tvb_reported_length(tvb) > 8+(guint32)packet_plsize) {
-    ep_strbuf_append_printf(info, " (%u excess bytes)",
-                            tvb_reported_length(tvb) - (8 + packet_plsize));
-    col_add_str(pinfo->cinfo, COL_INFO, info->str);
+    wmem_strbuf_append_printf(info, " (%u excess bytes)",
+                              tvb_reported_length(tvb) - (8 + packet_plsize));
+    col_add_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(info));
     return tvb_length(tvb);/* or should we assume this is not GVCP, return 0?*/
   }
   if (packet_plsize & 3) {/* payload is always a multiple of 4 bytes */
-    ep_strbuf_append(info, " (payload is not multiple of 4 bytes)");
-    col_add_str(pinfo->cinfo, COL_INFO, info->str);
+    wmem_strbuf_append(info, " (payload is not multiple of 4 bytes)");
+    col_add_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(info));
     return tvb_length(tvb);/* or should we assume this is not GVCP, return 0?*/
   }
 
@@ -167,88 +168,88 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   switch (packet_opcode) {
   case 0x04: /* Assign new temporary IP */
     if (packet_plsize < 24) {/* 56 bytes seem to be normal */
-      ep_strbuf_append(info, " <missing args>");
+      wmem_strbuf_append(info, " <missing args>");
     } else { /* packet contain new network configuration */
-      ep_strbuf_append_printf(info, "%d.%d.%d.%d to %s",
-                              tvb_get_guint8(tvb, 28), tvb_get_guint8(tvb, 29),
-                              tvb_get_guint8(tvb, 30), tvb_get_guint8(tvb, 31),
-                              tvb_bytes_to_str_punct(tvb, 10, 6, ':'));
+      wmem_strbuf_append_printf(info, "%d.%d.%d.%d to %s",
+                                tvb_get_guint8(tvb, 28), tvb_get_guint8(tvb, 29),
+                                tvb_get_guint8(tvb, 30), tvb_get_guint8(tvb, 31),
+                                tvb_bytes_to_str_punct(tvb, 10, 6, ':'));
     }
     break;
   case 0x80: /* Register Read Request */
   case 0x81: /* Register Read Answer */
     if (packet_plsize == 0) {
-      ep_strbuf_append(info, " <missing arg(s)>");
+      wmem_strbuf_append(info, " <missing arg(s)>");
     } else { /* packet contains address(es) to read from */
-      ep_strbuf_append_printf(info, " 0x%08x", tvb_get_ntohl(tvb, 8));
+      wmem_strbuf_append_printf(info, " 0x%08x", tvb_get_ntohl(tvb, 8));
       if (packet_plsize >= 8) {
-        ep_strbuf_append_printf(info, ", 0x%08x", tvb_get_ntohl(tvb, 12));
+        wmem_strbuf_append_printf(info, ", 0x%08x", tvb_get_ntohl(tvb, 12));
         if (packet_plsize >= 12)
-          ep_strbuf_append(info, ", ...");
+          wmem_strbuf_append(info, ", ...");
       }
     }
     break;
   case 0x82: /* Register Write Request */
     if (packet_plsize < 8) {
-      ep_strbuf_append(info, " <missing arg(s)>");
+      wmem_strbuf_append(info, " <missing arg(s)>");
     } else { /* packet contains address/value pairs to read from */
-      ep_strbuf_append_printf(info, " *0x%08x = 0x%08x", tvb_get_ntohl(tvb, 8),
-                              tvb_get_ntohl(tvb, 12));
+      wmem_strbuf_append_printf(info, " *0x%08x = 0x%08x", tvb_get_ntohl(tvb, 8),
+                                tvb_get_ntohl(tvb, 12));
       if (packet_plsize >= 16) {
-        ep_strbuf_append_printf(info, ", *0x%08x = 0x%08x",
-                                tvb_get_ntohl(tvb, 16), tvb_get_ntohl(tvb, 20));
+        wmem_strbuf_append_printf(info, ", *0x%08x = 0x%08x",
+                                  tvb_get_ntohl(tvb, 16), tvb_get_ntohl(tvb, 20));
         if (packet_plsize >= 24)
-          ep_strbuf_append(info, ", ...");
+          wmem_strbuf_append(info, ", ...");
       }
     }
     break;
   case 0x83: /* Register Write Answer */
     if (packet_plsize < 4) {
-      ep_strbuf_append(info, " <missing arg>");
+      wmem_strbuf_append(info, " <missing arg>");
     } else {
-      ep_strbuf_append_printf(info, " %d register%s written",
-                              tvb_get_ntohl(tvb, 8),
-                              tvb_get_ntohl(tvb, 8)==1?"":"s");
+      wmem_strbuf_append_printf(info, " %d register%s written",
+                                tvb_get_ntohl(tvb, 8),
+                                tvb_get_ntohl(tvb, 8)==1?"":"s");
     }
     break;
   case 0x84: /* Block Read Request */
     if (packet_plsize < 8) {
-      ep_strbuf_append(info, " <missing args>");
+      wmem_strbuf_append(info, " <missing args>");
     } else { /* packet contains address/size pair to read from */
-      ep_strbuf_append_printf(info, " 0x%08x (%d bytes, X=0x%04x)",
-                              tvb_get_ntohl(tvb, 8), tvb_get_ntohs(tvb, 14),
-                              tvb_get_ntohs(tvb, 12));
+      wmem_strbuf_append_printf(info, " 0x%08x (%d bytes, X=0x%04x)",
+                                tvb_get_ntohl(tvb, 8), tvb_get_ntohs(tvb, 14),
+                                tvb_get_ntohs(tvb, 12));
       if (packet_plsize > 8) {
-        ep_strbuf_append(info, "; excess payload");
+        wmem_strbuf_append(info, "; excess payload");
       }
     }
     break;
   case 0x85: /* Block Read Answer */
     if (packet_plsize < 8) {
-      ep_strbuf_append(info, " <missing args>");
+      wmem_strbuf_append(info, " <missing args>");
     } else { /* packet contains desired data */
-      ep_strbuf_append_printf(info, " %d bytes from 0x%08x", packet_plsize - 4,
-                              tvb_get_ntohl(tvb, 8));
+      wmem_strbuf_append_printf(info, " %d bytes from 0x%08x", packet_plsize - 4,
+                                tvb_get_ntohl(tvb, 8));
     }
     break;
   case 0x86: /* Block Write Request */
     if (packet_plsize < 8) {
-      ep_strbuf_append(info, " <missing args>");
+      wmem_strbuf_append(info, " <missing args>");
     } else { /* packet contains desired data */
-      ep_strbuf_append_printf(info, " *0x%08x = <%d bytes>",
-                              tvb_get_ntohl(tvb, 8), packet_plsize - 4);
+      wmem_strbuf_append_printf(info, " *0x%08x = <%d bytes>",
+                                tvb_get_ntohl(tvb, 8), packet_plsize - 4);
     }
     break;
   case 0x87: /* Block Write Answer */
     if (packet_plsize < 4) {
-      ep_strbuf_append(info, " <missing arg>");
+      wmem_strbuf_append(info, " <missing arg>");
     } else {
-      ep_strbuf_append_printf(info, " %d bytes written", tvb_get_ntohl(tvb, 8));
+      wmem_strbuf_append_printf(info, " %d bytes written", tvb_get_ntohl(tvb, 8));
     }
     break;
   }
 
-  col_add_str(pinfo->cinfo, COL_INFO, info->str);
+  col_add_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(info));
 
   if (tree) { /* we are being asked for details */
     proto_item *ti = NULL;

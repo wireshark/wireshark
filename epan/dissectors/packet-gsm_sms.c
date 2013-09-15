@@ -2714,7 +2714,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         }
 
         /* Store udl and length for later decoding of reassembled SMS */
-        p_frag_params = se_new0(sm_fragment_params);
+        p_frag_params = wmem_new0(wmem_file_scope(), sm_fragment_params);
         p_frag_params->udl = udl;
         p_frag_params->fill_bits =  fill_bits;
         p_frag_params->length = length;

@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-csn1.h"
 
@@ -1047,7 +1048,7 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* SI1 or SI2 */
 	if (is_si1) {
 		SystemInformation1_t *data;
-		data = ep_new(SystemInformation1_t);
+		data = wmem_new(wmem_packet_scope(), SystemInformation1_t);
 		csnStreamDissector(bcch_tree, &ar, CSNDESCR(SystemInformation1_t), tvb, data, ett_gmr1_bcch);
 		col_append_fstr(
 			pinfo->cinfo, COL_INFO,
@@ -1056,7 +1057,7 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		);
 	} else {
 		SystemInformation2_t *data;
-		data = ep_new(SystemInformation2_t);
+		data = wmem_new(wmem_packet_scope(), SystemInformation2_t);
 		csnStreamDissector(bcch_tree, &ar, CSNDESCR(SystemInformation2_t), tvb, data, ett_gmr1_bcch);
 		col_append_fstr(
 			pinfo->cinfo, COL_INFO,

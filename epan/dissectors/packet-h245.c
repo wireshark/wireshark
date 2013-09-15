@@ -7390,7 +7390,7 @@ dissect_h245_T_h223_al_type_al3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 #line 315 "../../asn1/h245/h245.cnf"
  if(h223_lc_params_temp) {
 	h223_lc_params_temp->al_type = al3;
-	h223_lc_params_temp->al_params = se_new(h223_al3_params);
+	h223_lc_params_temp->al_params = wmem_new(wmem_file_scope(), h223_al3_params);
   }
 
   offset = dissect_h245_Al3(tvb, offset, actx, tree, hf_index);
@@ -7800,7 +7800,7 @@ dissect_h245_H223LogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_h245_OLC_fw_h223_params(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 186 "../../asn1/h245/h245.cnf"
-  h223_fw_lc_params = se_new(h223_lc_params);
+  h223_fw_lc_params = wmem_new(wmem_file_scope(), h223_lc_params);
   h223_fw_lc_params->al_type = al_nonStandard;
   h223_fw_lc_params->al_params = NULL;
   h223_fw_lc_params->segmentable = 0;
@@ -8431,7 +8431,7 @@ dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_h245_OLC_rev_h223_params(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 207 "../../asn1/h245/h245.cnf"
-  h223_rev_lc_params = se_new(h223_lc_params);
+  h223_rev_lc_params = wmem_new(wmem_file_scope(), h223_lc_params);
   h223_rev_lc_params->al_type = al_nonStandard;
   h223_rev_lc_params->al_params = NULL;
   h223_rev_lc_params->segmentable = 0;
@@ -8694,7 +8694,7 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 #line 130 "../../asn1/h245/h245.cnf"
   gint32 temp;
 
-  upcoming_olc = (!actx->pinfo->fd->flags.visited) ? se_new0(olc_info_t) : NULL;
+  upcoming_olc = (!actx->pinfo->fd->flags.visited) ? wmem_new0(wmem_file_scope(), olc_info_t) : NULL;
 
   h223_fw_lc_num = 0;
   h223_lc_params_temp = NULL;
@@ -8704,7 +8704,7 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
   if(h223_fw_lc_num != 0 && h223_fw_lc_params) {
-	h223_pending_olc *pending = se_new(h223_pending_olc);
+	h223_pending_olc *pending = wmem_new(wmem_file_scope(), h223_pending_olc);
 	pending->fw_channel_params = h223_fw_lc_params;
 	pending->rev_channel_params = h223_rev_lc_params;
 	temp = h223_fw_lc_num;
@@ -8717,7 +8717,7 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
       h245_setup_channels(actx->pinfo, &upcoming_olc->rev_lc);
     } else {
       g_hash_table_insert(h245_pending_olc_reqs, 
-        se_strdup(gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->dst, &actx->pinfo->src)), 
+        wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->dst, &actx->pinfo->src)), 
         upcoming_olc);
     }
   }
@@ -8980,7 +8980,7 @@ static int
 dissect_h245_MultiplexElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 83 "../../asn1/h245/h245.cnf"
   /*MultiplexElement*/
-  h223_mux_element* me = se_new(h223_mux_element);
+  h223_mux_element* me = wmem_new(wmem_file_scope(), h223_mux_element);
   h223_me->next = me;
   h223_me = me;
   h223_me->next = NULL;
