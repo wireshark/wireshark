@@ -188,38 +188,20 @@ conversation_hash_exact(gconstpointer v)
 {
 	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
-	int i;
-	const guint8 *ADD_ADDRESS_TO_HASH_data;
+	address tmp_addr;
 
 	hash_val = 0;
+	tmp_addr.len  = 4;
 
-	for ( i = 0; i < key->addr1.len; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr1)->data);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
 
-	for ( i = 0; i < 4; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port1);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	tmp_addr.data = &key->port1;
+	ADD_ADDRESS_TO_HASH(hash_val, &tmp_addr);
 
-	for ( i = 0; i < key->addr2.len; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr2)->data);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
 
-	for ( i = 0; i < 4; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port2);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	tmp_addr.data = &key->port2;
+	ADD_ADDRESS_TO_HASH(hash_val, &tmp_addr);
 
 	hash_val += ( hash_val << 3 );
 	hash_val ^= ( hash_val >> 11 );
@@ -289,41 +271,24 @@ conversation_hash_no_addr2(gconstpointer v)
 {
 	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
-	int i;
-	const guint8 *ADD_ADDRESS_TO_HASH_data;
+	address tmp_addr;
 
 	hash_val = 0;
+	tmp_addr.len  = 4;
+
 	ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
-	hash_val += key->port1;
-	hash_val += key->port2;
 
-	for ( i = 0; i < key->addr1.len; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr1)->data);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	tmp_addr.data = &key->port1;
+	ADD_ADDRESS_TO_HASH(hash_val, &tmp_addr);
 
-	for ( i = 0; i < 4; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port1);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
-
-	for ( i = 0; i < 4; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port2);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	tmp_addr.data = &key->port2;
+	ADD_ADDRESS_TO_HASH(hash_val, &tmp_addr);
 
 	hash_val += ( hash_val << 3 );
 	hash_val ^= ( hash_val >> 11 );
 	hash_val += ( hash_val << 15 );
 
 	return hash_val;
-
 }
 
 /*
@@ -371,31 +336,17 @@ conversation_hash_no_port2(gconstpointer v)
 {
 	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
-	int i;
-	const guint8 *ADD_ADDRESS_TO_HASH_data;
+	address tmp_addr;
 
 	hash_val = 0;
+	tmp_addr.len  = 4;
 
-	for ( i = 0; i < key->addr1.len; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr1)->data);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
 
-	for ( i = 0; i < 4; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port1);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	tmp_addr.data = &key->port1;
+	ADD_ADDRESS_TO_HASH(hash_val, &tmp_addr);
 
-	for ( i = 0; i < key->addr2.len; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr2)->data);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
 
 	hash_val += ( hash_val << 3 );
 	hash_val ^= ( hash_val >> 11 );
@@ -449,24 +400,19 @@ conversation_hash_no_addr2_or_port2(gconstpointer v)
 {
 	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
-	int i;
-	const guint8 *ADD_ADDRESS_TO_HASH_data;
+	address tmp_addr;
 
 	hash_val = 0;
+	tmp_addr.len  = 4;
 
-	for ( i = 0; i < key->addr1.len; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr1)->data);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
 
-	for ( i = 0; i < 4; i++ ) {
-		ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port1);
-		hash_val += ADD_ADDRESS_TO_HASH_data[i];
-		hash_val += ( hash_val << 10 );
-		hash_val ^= ( hash_val >> 6 );
-	}
+	tmp_addr.data = &key->port1;
+	ADD_ADDRESS_TO_HASH(hash_val, &tmp_addr);
+
+	hash_val += ( hash_val << 3 );
+	hash_val ^= ( hash_val >> 11 );
+	hash_val += ( hash_val << 15 );
 
 	return hash_val;
 }
@@ -1378,3 +1324,16 @@ get_conversation_hashtable_no_addr2_or_port2(void)
 {
 	return conversation_hashtable_no_addr2_or_port2;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

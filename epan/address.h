@@ -194,6 +194,8 @@ typedef struct _address {
                 ADD_ADDRESS_TO_HASH_index < (addr)->len; \
                 ADD_ADDRESS_TO_HASH_index++) { \
             hash_val += ADD_ADDRESS_TO_HASH_data[ADD_ADDRESS_TO_HASH_index]; \
+            hash_val += ( hash_val << 10 ); \
+            hash_val ^= ( hash_val >> 6 ); \
         } \
     } while (0)
 
