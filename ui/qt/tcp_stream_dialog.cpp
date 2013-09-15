@@ -437,7 +437,7 @@ void TCPStreamDialog::resetAxes()
 
     base_graph_->rescaleAxes(false, true);
     for (int i = 0; i < sp->graphCount(); i++) {
-        sp->graph(i)->rescaleValueAxis(true, true);
+        sp->graph(i)->rescaleValueAxis(false, true);
     }
 
     double axis_pixels = sp->xAxis->axisRect()->width();
@@ -527,7 +527,6 @@ void TCPStreamDialog::fillTcptrace()
     rwin_graph_->setData(ackrwin_time, rwin);
 }
 
-// XXX Bug: We plot negative values sometimes.
 void TCPStreamDialog::fillThroughput()
 {
     QString dlg_title = QString(tr("Throughput")) + streamDescription();
@@ -554,10 +553,7 @@ void TCPStreamDialog::fillThroughput()
     }
 
     QVector<double> rel_time, seg_len, tput_time, tput;
-    struct segment *oldest_seg = graph_.segments;
-#ifndef MA_1_SECOND
-    int i = 1;
-#endif
+    int oldest = 0;
     int sum = 0;
     // Financial charts don't show MA data until a full period has elapsed.
     // The Rosetta Code MA examples start spitting out values immediately.
@@ -568,22 +564,24 @@ void TCPStreamDialog::fillThroughput()
             continue;
         }
 
-        double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
+        double ts = (seg->rel_secs + seg->rel_usecs / 1000000.0) - ts_offset_;
+
+        rel_time.append(ts);
+        seg_len.append(seg->th_seglen);
 
 #ifdef MA_1_SECOND
-        while (ts - (oldest_seg->rel_secs + oldest_seg->rel_usecs / 1000000.0) > 1.0) {
-            oldest_seg = oldest_seg->next;
-            sum -= oldest_seg->th_seglen;
+        while (ts - rel_time[oldest] > 1.0 && oldest < rel_time.size()) {
+            sum -= seg_len[oldest];
+            oldest++;
         }
 #else
-        if (i > moving_avg_period_) {
-            oldest_seg = oldest_seg->next;
-            sum -= oldest_seg->th_seglen;
+        if (seg_len.size() > moving_avg_period_) {
+            sum -= seg_len[oldest];
+            oldest++;
         }
-        i++;
 #endif
 
-        double dtime = ts - (oldest_seg->rel_secs + oldest_seg->rel_usecs / 1000000.0);
+        double dtime = ts - rel_time[oldest];
         double av_tput;
         sum += seg->th_seglen;
         if (dtime > 0.0) {
@@ -592,9 +590,6 @@ void TCPStreamDialog::fillThroughput()
             av_tput = 0.0;
         }
 
-        rel_time.append(ts - ts_offset_);
-        seg_len.append(seg->th_seglen);
-
         // Add a data point only if our time window has advanced. Otherwise
         // update the most recent point. (We might want to show a warning
         // for out-of-order packets.)
@@ -602,7 +597,7 @@ void TCPStreamDialog::fillThroughput()
             tput[tput.size() - 1] = av_tput;
         } else {
             tput.append(av_tput);
-            tput_time.append(ts - ts_offset_);
+            tput_time.append(ts);
         }
     }
     base_graph_->setData(rel_time, seg_len);
@@ -649,7 +644,7 @@ void TCPStreamDialog::fillRoundTripTime()
 
             for (u = unack; u; u = v) {
                 if (ack_no > u->seqno) {
-                    seq_no.append(u->seqno - seq_offset_);
+                    seq_no.append(u->seqno);
                     rtt.append((rt_val - u->time) * 1000.0);
                     sequence_num_map_.insert(u->seqno, seg);
                     v = u->next;
