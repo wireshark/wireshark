@@ -329,6 +329,8 @@ my %APIs = (
 
 );
 
+my @apiGroups = qw(prohibited deprecated emem);
+
 # Deprecated GTK+ (and GDK) functions/macros with (E)rror or (W)arning flag:
 # (The list is based upon the GTK+ 2.24.8 documentation;
 # E: There should be no current Wireshark use so Error if seen;
@@ -1740,6 +1742,28 @@ sub check_hf_entries($$)
         return $errorCount;
 }
 
+sub print_usage
+{
+        print "Usage: checkAPIs.pl [-M] [-h] [-g group1] [-g group2] ... \n";
+        print "                    [--build] [-s group1] [-s group2] ... \n";
+        print "                    [--nocheck-value-string-array-null-termination] \n";
+        print "                    [--nocheck-addtext] [--nocheck-hf] [--debug] file1 file2 ...\n";
+        print "\n";
+        print "       -M: Generate output for -g in 'machine-readable' format\n";
+        print "       -h: help, print usage message\n";
+        print "       -g <group>:  Check input files for use of APIs in <group>\n";
+        print "                    (in addition to the default groups)\n";
+        print "       -s <group>:  Output summary (count) for each API in <group>\n";
+        print "                    (-g <group> also req'd)\n";
+        print "       ---nocheck-value-string-array-null-termination: UNDOCUMENTED\n";
+        print "       ---nocheck-addtext: UNDOCUMENTED\n";
+        print "       ---nocheck-hf: UNDOCUMENTED\n";
+        print "       ---debug: UNDOCUMENTED\n";
+        print "       ---build: UNDOCUMENTED\n";
+        print "\n";
+        print "   Default Groups[-g]: ", join (", ", sort @apiGroups), "\n";
+        print "   Available Groups:   ", join (", ", sort keys %APIs), "\n";
+}
 
 # -------------
 # action:  remove '#if 0'd code from the input string
@@ -1864,7 +1888,6 @@ my $EnumValRegex        = qr/ $Static_andor_ConstRegex enum_val_t \ + [^;*]+ = [
 #
 my $errorCount = 0;
 # The default list, which can be expanded.
-my @apiGroups = qw(prohibited deprecated emem);
 my @apiSummaryGroups = ();
 my $check_value_string_array_null_termination = 1;      # default: enabled
 my $machine_readable_output = 0;                        # default: disabled
@@ -1872,6 +1895,7 @@ my $check_hf = 1;                                       # default: enabled
 my $check_addtext = 1;                                  # default: enabled
 my $debug_flag = 0;                                     # default: disabled
 my $buildbot_flag = 0;
+my $help_flag = 0;
 
 my $result = GetOptions(
                         'group=s' => \@apiGroups,
@@ -1881,22 +1905,11 @@ my $result = GetOptions(
                         'check-hf!' => \$check_hf,
                         'check-addtext!' => \$check_addtext,
                         'build' => \$buildbot_flag,
-                        'debug' => \$debug_flag
+                        'debug' => \$debug_flag,
+			'help' => \$help_flag
                         );
-if (!$result) {
-        print "Usage: checkAPIs.pl [-M] [-g group1] [-g group2] ... \n";
-        print "                    [-s group1] [-s group2] ... \n";
-        print "                    [--nocheck-value-string-array-null-termination] \n";
-        print "                    [--nocheck-addtext] [--nocheck-hf] [--debug] file1 file2 ...\n";
-        print "\n";
-        print "       -g <group>:  Check input files for use of APIs in <group>\n";
-        print "                    (in addition to the default groups)\n";
-        print "       -s <group>:  Output summary (count) for each API in <group>\n";
-        print "                    (-g <group> also req'd)\n";
-        print "       -M: Generate output for -g in 'machine-readable' format\n";
-        print "\n";
-        print "   Default Groups[-g]: ", join (", ", sort @apiGroups), "\n";
-        print "   Available Groups:   ", join (", ", sort keys %APIs), "\n";
+if (!$result || $help_flag) {
+	print_usage();
         exit(1);
 }
 
