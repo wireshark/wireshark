@@ -114,6 +114,7 @@
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/addr_resolution_dlg.h"
 #include "ui/gtk/export_pdu_dlg.h"
+#include "ui/gtk/conversation_hastables_dlg.h"
 
 #include "ui/gtk/packet_list.h"
 
@@ -1297,6 +1298,7 @@ static const char *ui_desc_menubar =
 "    </menu>\n"
 "    <menu name= 'InternalsMenu' action='/Internals'>\n"
 "      <menuitem name='Dissectortables' action='/Internals/Dissectortables'/>\n"
+"      <menuitem name='Conversations' action='/Internals/Conversations'/>\n"
 "      <menuitem name='SupportedProtocols' action='/Internals/SupportedProtocols'/>\n"
 "    </menu>\n"
 "    <menu name= 'HelpMenu' action='/Help'>\n"
@@ -1740,6 +1742,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Tools/FirewallACLRules",     NULL,                           "Firewall ACL Rules",       NULL,                       NULL,               G_CALLBACK(firewall_rule_cb) },
 
    { "/Internals/Dissectortables",  NULL,                           "_Dissector tables",        NULL,                       NULL,               G_CALLBACK(dissector_tables_dlg_cb) },
+   { "/Internals/Conversations",    NULL,                           "_Conversation hash tables",NULL,                       NULL,               G_CALLBACK(conversation_hastables_dlg) },
    { "/Internals/SupportedProtocols", NULL,                 "_Supported Protocols (slow!)",     NULL,                       NULL,               G_CALLBACK(supported_cb) },
 
    { "/Help/Contents",              GTK_STOCK_HELP,                 "_Contents",            "F1",                           NULL,               G_CALLBACK(help_menu_cont_cb) },

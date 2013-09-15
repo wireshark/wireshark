@@ -183,6 +183,22 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const p
 extern void conversation_set_port2(conversation_t *conv, const guint32 port);
 extern void conversation_set_addr2(conversation_t *conv, const address *addr);
 
+WS_DLL_PUBLIC
+GHashTable *get_conversation_hashtable_exact(void);
+
+WS_DLL_PUBLIC
+GHashTable *get_conversation_hashtable_no_addr2(void);
+
+WS_DLL_PUBLIC
+GHashTable *get_conversation_hashtable_no_addr2(void);
+
+WS_DLL_PUBLIC
+GHashTable * get_conversation_hashtable_no_port2(void);
+
+WS_DLL_PUBLIC
+GHashTable *get_conversation_hashtable_no_addr2_or_port2(void);
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
