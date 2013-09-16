@@ -571,7 +571,7 @@ static const fragment_items afs_frag_items = {
 	{	guint32 i_orxs,len_orxs; \
 		i_orxs = tvb_get_ntohl(tvb, offset); \
 		len_orxs = ((i_orxs+4-1)/4)*4 + 4; \
-		proto_tree_add_item(tree, field, tvb, offset-4, len_orxs, \
+		proto_tree_add_item(tree, field, tvb, offset+4, i_orxs, \
 		ENC_ASCII|ENC_NA); \
 		offset += len_orxs; \
 	}
