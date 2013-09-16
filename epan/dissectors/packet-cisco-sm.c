@@ -101,7 +101,7 @@ static const value_string sm_backhaul_reason_code[] = {
 	{ 0x00, "Layer management request"},
 	{ 0x01, "SUERM (Signal Unit Error Monitor) failure"},
 	{ 0x02, "Excessively long alignment period"},
-	{ 0x03, "T7 timer expired"}, 
+	{ 0x03, "T7 timer expired"},
 	{ 0x04, "Physical interface failure"},
 	{ 0x05, "Two or three invalid BSNs"},
 	{ 0x06, "Two or three invalid FIBs"},
@@ -114,7 +114,7 @@ static const value_string sm_backhaul_reason_code[] = {
 	{ 0x17, "Proving period failure"},
 	{ 0x18, "Timer T1 expired waiting for FISU (Fill-In Signal Unit)"},
 	{ 0x19, "SIN received in the in-service state"},
-	{ 0x20, "CTS lost"}, 
+	{ 0x20, "CTS lost"},
 	{ 0x25, "No resources"},
 	{    0, NULL}
 };
@@ -275,7 +275,6 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *sm_tree;
 	tvbuff_t *next_tvb = NULL;
 	guint32 sm_message_type;
-	guint32 bsn_num = 0;
 	guint32 bh_event_code = 0;
 	guint16 protocol;
 	guint16 msg_type = 0;
@@ -461,7 +460,6 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item(sm_tree, hf_sm_retrieval_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 					if (msg_type == PDU_RETRIEVAL_CONFIRM && tvb_get_ntohl(tvb,offset) == 0x01) {
 						offset += 4;
-						bsn_num = tvb_get_ntohl(tvb,offset);
 						proto_tree_add_item(sm_tree, hf_sm_bsn_num, tvb, offset, 4, ENC_BIG_ENDIAN);
 					}
 					break;
@@ -575,7 +573,7 @@ proto_register_sm(void)
 			FT_UINT32, BASE_HEX, VALS(sm_linkdown_cause_code), 0x0,
 			NULL, HFILL }
 		},
-		
+
 		{ &hf_sm_retrieval_type,
 		  { "Retrieval type","sm.retrieval_type",
 			FT_UINT32, BASE_HEX, VALS(sm_retrieval_type), 0x0,
