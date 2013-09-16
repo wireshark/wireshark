@@ -154,9 +154,9 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
     memset (&graph_, 0, sizeof(graph_));
     graph_.type = graph_type;
-    COPY_ADDRESS(&graph_.src_address, &current.ip_src);
+    copy_address(&graph_.src_address, &current.ip_src);
     graph_.src_port = current.th_sport;
-    COPY_ADDRESS(&graph_.dst_address, &current.ip_dst);
+    copy_address(&graph_.dst_address, &current.ip_dst);
     graph_.dst_port = current.th_dport;
     graph_.stream = header->th_stream;
     findStream();
@@ -1136,11 +1136,11 @@ void TCPStreamDialog::on_actionSwitchDirection_triggered()
     address tmp_addr;
     guint16 tmp_port;
 
-    COPY_ADDRESS(&tmp_addr, &graph_.src_address);
+    copy_address(&tmp_addr, &graph_.src_address);
     tmp_port = graph_.src_port;
-    COPY_ADDRESS(&graph_.src_address, &graph_.dst_address);
+    copy_address(&graph_.src_address, &graph_.dst_address);
     graph_.src_port = graph_.dst_port;
-    COPY_ADDRESS(&graph_.dst_address, &tmp_addr);
+    copy_address(&graph_.dst_address, &tmp_addr);
     graph_.dst_port = tmp_port;
 
     fillGraph();

@@ -191,7 +191,7 @@ cmp_address(const address *addr1, const address *addr2) {
  * @return TRUE if the adresses are equal, FALSE otherwise.
  */
 static inline gboolean
-address_equal(const address *addr1, const address *addr2) {
+addresses_equal(const address *addr1, const address *addr2) {
     if (addr1->type == addr2->type
             && ( addr1->type == AT_NONE
                  || ( addr1->len == addr2->len
@@ -201,7 +201,7 @@ address_equal(const address *addr1, const address *addr2) {
             ) return TRUE;
     return FALSE;
 }
-#define ADDRESSES_EQUAL(addr1, addr2) address_equal((addr1), (addr2))
+#define ADDRESSES_EQUAL(addr1, addr2) addresses_equal((addr1), (addr2))
 
 /** Copy an address, allocating a new buffer for the address data.
  *
