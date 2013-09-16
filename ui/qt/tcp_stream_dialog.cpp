@@ -65,8 +65,6 @@ const QString sequence_number_label_ = QObject::tr("Sequence Number (B)");
 const QString time_s_label_ = QObject::tr("Time (s)");
 const QString window_size_label_ = QObject::tr("Window Size (B)");
 
-Q_DECLARE_METATYPE(tcp_graph_type)
-
 TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_type graph_type) :
     QDialog(parent),
     ui(new Ui::TCPStreamDialog),
@@ -95,15 +93,15 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
     QComboBox *gtcb = ui->graphTypeComboBox;
     gtcb->setUpdatesEnabled(false);
-    gtcb->addItem(ui->actionRoundTripTime->text(), qVariantFromValue(GRAPH_RTT));
+    gtcb->addItem(ui->actionRoundTripTime->text(), GRAPH_RTT);
     if (graph_type == GRAPH_RTT) graph_idx = gtcb->count() - 1;
-    gtcb->addItem(ui->actionThroughput->text(), qVariantFromValue(GRAPH_THROUGHPUT));
+    gtcb->addItem(ui->actionThroughput->text(), GRAPH_THROUGHPUT);
     if (graph_type == GRAPH_THROUGHPUT) graph_idx = gtcb->count() - 1;
-    gtcb->addItem(ui->actionStevens->text(), qVariantFromValue(GRAPH_TSEQ_STEVENS));
+    gtcb->addItem(ui->actionStevens->text(), GRAPH_TSEQ_STEVENS);
     if (graph_type == GRAPH_TSEQ_STEVENS) graph_idx = gtcb->count() - 1;
-    gtcb->addItem(ui->actionTcptrace->text(), qVariantFromValue(GRAPH_TSEQ_TCPTRACE));
+    gtcb->addItem(ui->actionTcptrace->text(), GRAPH_TSEQ_TCPTRACE);
     if (graph_type == GRAPH_TSEQ_TCPTRACE) graph_idx = gtcb->count() - 1;
-    gtcb->addItem(ui->actionWindowScaling->text(), qVariantFromValue(GRAPH_WSCALE));
+    gtcb->addItem(ui->actionWindowScaling->text(), GRAPH_WSCALE);
     if (graph_type == GRAPH_WSCALE) graph_idx = gtcb->count() - 1;
     gtcb->setUpdatesEnabled(true);
 
@@ -981,7 +979,7 @@ void TCPStreamDialog::on_buttonBox_accepted()
 void TCPStreamDialog::on_graphTypeComboBox_currentIndexChanged(int index)
 {
     if (index < 0) return;
-    graph_.type = ui->graphTypeComboBox->itemData(index).value<tcp_graph_type>();
+    graph_.type = static_cast<tcp_graph_type>(ui->graphTypeComboBox->itemData(index).toInt());
     fillGraph();
 }
 
@@ -1142,27 +1140,27 @@ void TCPStreamDialog::on_actionToggleTimeOrigin_triggered()
 
 void TCPStreamDialog::on_actionRoundTripTime_triggered()
 {
-    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(GRAPH_RTT)));
+    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(GRAPH_RTT));
 }
 
 void TCPStreamDialog::on_actionThroughput_triggered()
 {
-    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(GRAPH_THROUGHPUT)));
+    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(GRAPH_THROUGHPUT));
 }
 
 void TCPStreamDialog::on_actionStevens_triggered()
 {
-    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(GRAPH_TSEQ_STEVENS)));
+    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(GRAPH_TSEQ_STEVENS));
 }
 
 void TCPStreamDialog::on_actionTcptrace_triggered()
 {
-    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(GRAPH_TSEQ_TCPTRACE)));
+    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(GRAPH_TSEQ_TCPTRACE));
 }
 
 void TCPStreamDialog::on_actionWindowScaling_triggered()
 {
-    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(qVariantFromValue(GRAPH_WSCALE)));
+    ui->graphTypeComboBox->setCurrentIndex(ui->graphTypeComboBox->findData(GRAPH_WSCALE));
 }
 
 /*
