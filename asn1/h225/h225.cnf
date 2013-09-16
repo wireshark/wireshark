@@ -268,6 +268,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_BODY FastStart/_item  VAL_PTR = &value_tvb
 	tvbuff_t *value_tvb = NULL;
 	char codec_str[50];
+	codec_str[0] = '\0';
 
 %(DEFAULT_BODY)s
 	if (value_tvb && tvb_length(value_tvb)) {
