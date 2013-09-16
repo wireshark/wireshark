@@ -1935,7 +1935,10 @@ while ($_ = $ARGV[0])
 
         # delete leading './'
         $filename =~ s{ ^ \. / } {}xo;
-
+	unless (-f $filename) {
+		print STDERR "Warning: $filename is not of type file - skipping.\n";
+		next;
+	}
         # Read in the file (ouch, but it's easier that way)
         open(FC, $filename) || die("Couldn't open $filename");
         $line = 1;
