@@ -145,8 +145,10 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     graph_.stream = header->th_stream;
     findStream();
 
+    ui->streamNumberSpinBox->blockSignals(true);
     ui->streamNumberSpinBox->setValue(graph_.stream);
     ui->streamNumberSpinBox->setMaximum(get_tcp_stream_count() - 1);
+    ui->streamNumberSpinBox->blockSignals(false);
 
     QCustomPlot *sp = ui->streamPlot;
     QCPPlotTitle *file_title = new QCPPlotTitle(sp, cf_get_display_name(cap_file_));
@@ -188,9 +190,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
     tracer_->setVisible(false);
     toggleTracerStyle(true);
-
-    // XXX QCustomPlot doesn't seem to draw any sort of focus indicator.
-    sp->setFocus();
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
     save_bt->setText(tr("Save As..."));
@@ -394,6 +393,9 @@ void TCPStreamDialog::fillGraph()
 
     resetAxes();
     tracer_->setGraph(base_graph_);
+
+    // XXX QCustomPlot doesn't seem to draw any sort of focus indicator.
+    sp->setFocus();
 }
 
 void TCPStreamDialog::zoomAxes(bool in)
