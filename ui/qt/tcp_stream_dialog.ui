@@ -28,7 +28,7 @@
     </widget>
    </item>
    <item>
-    <widget class="ElidedLabel" name="hintLabel">
+    <widget class="QLabel" name="hintLabel">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
@@ -68,7 +68,7 @@
 &lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
-      <string>&lt;i&gt;Mouse over for shortcuts&lt;/i&gt;</string>
+      <string>&lt;small&gt;&lt;i&gt;Mouse over for shortcuts&lt;/i&gt;&lt;/small&gt;</string>
      </property>
     </widget>
    </item>
@@ -467,11 +467,6 @@
    <extends>QWidget</extends>
    <header>qcustomplot.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ElidedLabel</class>
-   <extends>QLabel</extends>
-   <header>elided_label.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

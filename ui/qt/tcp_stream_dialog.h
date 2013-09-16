@@ -73,6 +73,7 @@ private:
     bool seq_origin_zero_;
     struct tcp_graph graph_;
     QCPPlotTitle *title_;
+    QString stream_desc_;
     QCPGraph *base_graph_; // Clickable packets
     QCPGraph *tput_graph_;
     QCPGraph *seg_graph_;

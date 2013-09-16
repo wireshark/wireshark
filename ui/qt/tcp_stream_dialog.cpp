@@ -26,10 +26,13 @@
 
 #include "epan/to_str.h"
 
+#include "wsutil/str_util.h"
+
 #include "ui/utf8_entities.h"
 
-#include "wireshark_application.h"
 #include "tango_colors.h"
+#include "qt_ui_utils.h"
+#include "wireshark_application.h"
 
 #include <QCursor>
 #include <QDir>
@@ -38,6 +41,19 @@
 #include <QPushButton>
 
 #include <QDebug>
+
+// To do:
+// - Show a message or disable the graph if we don't have any data.
+// - Add a bytes in flight graph
+// - Make the crosshairs tracer a vertical band?
+// - Implement File->Copy
+// - Add UDP graphs
+// - Add horizontal- and vertical-only zoom via modifier keys?
+// - Make the first throughput MA period a dotted/dashed line?
+// - Add range scroll bars?
+// - ACK & RWIN segment ticks in tcptrace graph
+// - Add missing elements (retrans, URG, SACK, etc) to tcptrace. It probably makes
+//   sense to subclass QCPGraph for this.
 
 // The GTK+ version computes a 20 (or 21!) segment moving average. Comment
 // out the line below to use that. By default we use a 1 second MA.
@@ -201,8 +217,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
             this, SLOT(axisClicked(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)));
     connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(transformYRange(QCPRange)));
     disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-
-    mouseMoved(NULL);
 }
 
 TCPStreamDialog::~TCPStreamDialog()
@@ -355,12 +369,21 @@ void TCPStreamDialog::fillGraph()
     ts_offset_ = 0;
     seq_offset_ = 0;
     bool first = true;
+    guint64 bytes_fwd = 0;
+    guint64 bytes_rev = 0;
+    int pkts_fwd = 0;
+    int pkts_rev = 0;
+
 
     time_stamp_map_.clear();
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
         if (!compareHeaders(seg)) {
+            bytes_rev += seg->th_seglen;
+            pkts_rev++;
             continue;
         }
+        bytes_fwd += seg->th_seglen;
+        pkts_fwd++;
         double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
         if (first) {
             if (ts_origin_conn_) ts_offset_ = ts;
@@ -391,6 +414,14 @@ void TCPStreamDialog::fillGraph()
     }
     sp->setEnabled(true);
 
+    stream_desc_ = tr("%1 %2 pkts, %3 %4 %5 pkts, %6 ")
+            .arg(UTF8_RIGHTWARDS_ARROW)
+            .arg(gchar_free_to_qstring(format_size(pkts_fwd, format_size_unit_none|format_size_prefix_si)))
+            .arg(gchar_free_to_qstring(format_size(bytes_fwd, format_size_unit_bytes|format_size_prefix_si)))
+            .arg(UTF8_LEFTWARDS_ARROW)
+            .arg(gchar_free_to_qstring(format_size(pkts_rev, format_size_unit_none|format_size_prefix_si)))
+            .arg(gchar_free_to_qstring(format_size(bytes_rev, format_size_unit_bytes|format_size_prefix_si)));
+    mouseMoved(NULL);
     resetAxes();
     tracer_->setGraph(base_graph_);
 
@@ -847,6 +878,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
     }
     sp->setCursor(QCursor(shape));
 
+    QString hint = "<small><i>";
     if (mouse_drags_) {
         double tr_key = tracer_->position->key();
         struct segment *packet_seg = NULL;
@@ -872,14 +904,15 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
 
         if (!packet_seg) {
             tracer_->setVisible(false);
-            ui->hintLabel->setText(tr("<small><i>Hover over the graph for details.</i></small>"));
+            hint += "Hover over the graph for details. " + stream_desc_ + "</i></small>";
+            ui->hintLabel->setText(hint);
             ui->streamPlot->replot();
             return;
         }
 
         tracer_->setVisible(true);
         packet_num_ = packet_seg->num;
-        QString hint = QString(tr("<small><i>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</i></small>"))
+        hint += tr("%1 %2 (%3s len %4 seq %5 ack %6 win %7)")
                 .arg(cap_file_ ? tr("Click to select packet") : tr("Packet"))
                 .arg(packet_num_)
                 .arg(QString::number(packet_seg->rel_secs + packet_seg->rel_usecs / 1000000.0, 'g', 4))
@@ -887,26 +920,27 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
                 .arg(packet_seg->th_seq)
                 .arg(packet_seg->th_ack)
                 .arg(packet_seg->th_win);
-        ui->hintLabel->setText(hint);
         tracer_->setGraphKey(ui->streamPlot->xAxis->pixelToCoord(event->pos().x()));
         ui->streamPlot->replot();
     } else {
-        QString hint = QString(tr("<small>Click to select a portion of the graph</small>"));
-        if (rubber_band_) {
+        if (rubber_band_ && rubber_band_->isVisible()) {
             rubber_band_->setGeometry(QRect(rb_origin_, event->pos()).normalized());
             QRectF zoom_ranges = getZoomRanges(QRect(rb_origin_, event->pos()));
             if (zoom_ranges.width() > 0.0 && zoom_ranges.height() > 0.0) {
-                hint = QString(tr("<small>Release to zoom, x = %1 to %2, y = %3 to %4</small>"))
+                hint += tr("Release to zoom, x = %1 to %2, y = %3 to %4")
                         .arg(zoom_ranges.x())
                         .arg(zoom_ranges.x() + zoom_ranges.width())
                         .arg(zoom_ranges.y())
                         .arg(zoom_ranges.y() + zoom_ranges.height());
             } else {
-                hint = QString(tr("<small>Unable to select range</small>"));
+                hint += tr("Unable to select range.");
             }
+        } else {
+            hint += tr("Click to select a portion of the graph.");
         }
-        ui->hintLabel->setText(hint);
     }
+    hint += " " + stream_desc_ + "</i></small>";
+    ui->hintLabel->setText(hint);
 }
 
 void TCPStreamDialog::mouseReleased(QMouseEvent *event)
