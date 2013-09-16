@@ -25,8 +25,8 @@ BasicAccessControl	crmf
 
 # Forward declaration of classes
 #.CLASS CONTEXT
-&Type      
-&Assertion  
+&Type
+&Assertion
 &id         ObjectIdentifierType
 #.END
 
@@ -54,7 +54,7 @@ BasicAccessControl	crmf
 
 #.CLASS ATTRIBUTE
 &derivation            ClassReference ATTRIBUTE
-&Type                  
+&Type
 &equality-match        ClassReference MATCHING-RULE
 &ordering-match        ClassReference MATCHING-RULE
 &substrings-match      ClassReference MATCHING-RULE
@@ -67,7 +67,7 @@ BasicAccessControl	crmf
 
 #.CLASS MATCHING-RULE
 &ParentMatchingRules   ClassReference MATCHING-RULE
-&AssertionType         
+&AssertionType
 &uniqueMatchIndicator  ClassReference ATTRIBUTE
 &id                    ObjectIdentifierType
 #.END
@@ -107,7 +107,7 @@ AttributeError
 NameError
 ServiceError
 Abandoned
-SearchControlOptions 
+SearchControlOptions
 SecurityError
 SecurityProblem
 SecurityParameters EXTERN WS_DLL
@@ -198,7 +198,7 @@ const value_string dap_opr_code_string_vals[] = {
 /* DAP ERRORS */
 static const value_string dap_err_code_string_vals[] = {
 #.TABLE_BODY ERROR
-	{ %(&errorCode)s, "%(_ident)s" },  
+	{ %(&errorCode)s, "%(_ident)s" },
 #.TABLE_FTR
 	  { 0, NULL }
 };
@@ -208,8 +208,8 @@ static const value_string dap_err_code_string_vals[] = {
 #.TABLE11_HDR
 static const ros_opr_t dap_opr_tab[] = {
 #.TABLE11_BODY OPERATION
-  /* %(_name)s */ 
-  { %(&operationCode)-25s,	%(_argument_pdu)s,	%(_result_pdu)s }, 
+  /* %(_name)s */
+  { %(&operationCode)-25s,	%(_argument_pdu)s,	%(_result_pdu)s },
 #.TABLE11_FTR
   { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
 };
@@ -218,7 +218,7 @@ static const ros_opr_t dap_opr_tab[] = {
 #.TABLE21_HDR
 static const ros_err_t dap_err_tab[] = {
 #.TABLE21_BODY ERROR
-  /* %(_name)s*/ 
+  /* %(_name)s*/
   { %(&errorCode)s,	%(_parameter_pdu)s },
 #.TABLE21_FTR
   { 0,	(new_dissector_t)(-1) },
@@ -271,7 +271,7 @@ OPERATION.&ResultType
 	}
 	/* do the default thing */
 
-	%(DEFAULT_BODY)s	
+	%(DEFAULT_BODY)s
 
 #.FN_BODY	SimpleCredentials
 
@@ -280,14 +280,14 @@ OPERATION.&ResultType
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", x509if_get_last_dn());
 
 
-	
-	
-#.FN_BODY PagedResultsRequest/queryReference  VAL_PTR=&out_tvb 
+
+
+#.FN_BODY PagedResultsRequest/queryReference  VAL_PTR=&out_tvb
 	tvbuff_t *out_tvb;
-	int 	i;
+	int	i;
 	int	len;
 
-    	%(DEFAULT_BODY)s
+	%(DEFAULT_BODY)s
 
 	if(out_tvb) {
 		len = tvb_length(out_tvb);
@@ -295,7 +295,7 @@ OPERATION.&ResultType
 		for(i=0; i<len; i++)
 			if(!g_ascii_isprint(tvb_get_guint8(out_tvb, i)))
 				break;
-	
+
 		if(i == len) {
 			if(actx->created_item) {
 
@@ -306,7 +306,7 @@ OPERATION.&ResultType
 			}
 		}
 	}
-	
+
 #.FN_PARS SecurityProblem
 	VAL_PTR = &problem
 
