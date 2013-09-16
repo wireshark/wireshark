@@ -1724,7 +1724,7 @@ handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
             else
                 out_phdr->len = 0;
         }
-        in_phdr = out_phdr;
+        /*in_phdr = out_phdr;*/
     }
 }
 
