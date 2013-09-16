@@ -667,29 +667,8 @@ ep_utoa(guint port)
 static gchar
 *serv_name_lookup(const guint port, const port_type proto)
 {
-    const char *serv_proto;
-    struct servent *servp;
     serv_port_t *serv_port_table;
     gchar *name;
-
-    switch(proto) {
-        case PT_UDP:
-            serv_proto = "udp";
-            break;
-        case PT_TCP:
-            serv_proto = "tcp";
-            break;
-        case PT_SCTP:
-            serv_proto = "sctp";
-            break;
-        case PT_DCCP:
-            serv_proto = "dcp";
-            break;
-        default:
-            /* not yet implemented */
-            return NULL;
-            /*NOTREACHED*/
-    } /* proto */
 
     serv_port_table = (serv_port_t *)g_hash_table_lookup(serv_port_hashtable, &port);
 
@@ -723,15 +702,14 @@ static gchar
         } /* proto */
     }
 
-    if ((!gbl_resolv_flags.transport_name) ||
-            (servp = getservbyport(g_htons(port), serv_proto)) == NULL) {
-        /* unknown port */
-        name = (gchar*)g_malloc(16);
-        guint32_to_str_buf(port, name, 16);
-    }else{
-        name = g_strdup(servp->s_name);
-    }
-    if(serv_port_table == NULL){
+	/* getservbyport() was used here but it was to expensive, if the functionality is desired
+	 * it would be better to pre parse etc/services or C:\Windows\System32\drivers\etc at
+	 * startup
+	 */
+    name = (gchar*)g_malloc(16);
+    guint32_to_str_buf(port, name, 16);
+
+	if(serv_port_table == NULL){
         int *key;
 
         key = (int *)g_new(int, 1);
