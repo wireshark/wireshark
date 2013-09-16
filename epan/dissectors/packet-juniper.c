@@ -502,7 +502,7 @@ static int
 dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, guint8 *flags)
 {
   proto_item *tisub;
-  guint8     direction,l2hdr_presence,proto,ext_type,ext_len;
+  guint8     l2hdr_presence,proto,ext_type,ext_len;
   guint16    ext_total_len,ext_offset=6,hdr_len;
   guint32    magic_number,ext_val;
 
@@ -510,7 +510,6 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
   magic_number = tvb_get_ntoh24(tvb, 0);
   *flags = tvb_get_guint8(tvb, 3);
-  direction = *flags & JUNIPER_FLAG_PKT_IN;
   l2hdr_presence = *flags & JUNIPER_FLAG_NO_L2;
 
   juniper_subtree = proto_item_add_subtree(ti, ett_juniper);

@@ -1811,13 +1811,10 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 {
 	proto_tree *field_tree = NULL;
 	proto_item *tf;
-	guint16     cluster_id;
 	guint16     epoch;
 	guint32     export_id;
 	guint32     export_uid;
 	guint8      flags;
-	guint8      reserved;
-	guint32     local_dsid;
 	guint32     spinfile_id;
 	guint32     spinfile_uid;
 	guint8      utility;
@@ -1859,9 +1856,6 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		epoch = tvb_get_letohs(tvb, offset+2);
 		proto_tree_add_uint(tree, hf_nfs3_gxfh_epoch, tvb, offset+2, 2, epoch);
 		/* = spin file handle = */
-		local_dsid   = tvb_get_letohl(tvb, offset+4);
-		cluster_id   = tvb_get_letohs(tvb, offset+8);
-		reserved     = tvb_get_guint8(tvb, offset+10);
 		flags        = tvb_get_guint8(tvb, offset+11);
 		spinfile_id  = tvb_get_letohl(tvb, offset+12);
 		spinfile_uid = tvb_get_letohl(tvb, offset+16);
@@ -1907,9 +1901,6 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 					   offset+16, 4, spinfile_uid);
 
 		/* = spin file handle (mount point) = */
-		local_dsid   = tvb_get_letohl(tvb, offset+20);
-		cluster_id   = tvb_get_letohs(tvb, offset+24);
-		reserved     = tvb_get_guint8(tvb, offset+26);
 		flags        = tvb_get_guint8(tvb, offset+27);
 		spinfile_id  = tvb_get_letohl(tvb, offset+28);
 		spinfile_uid = tvb_get_letohl(tvb, offset+32);
@@ -2226,7 +2217,7 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 	} else if (fhlen == 40) {
 		/*
 		If fhlen = 40, it's an NFSv4 file handle).  In Celerra|VNX NFSv4 file handles,
-		the first 4 bytes hold the Named Attribute ID, and the next 4 bytes hold the 
+		the first 4 bytes hold the Named Attribute ID, and the next 4 bytes hold the
 		RO_Node boolean which if true, the file/dir is Read Only. Unlike NFSv3 file
 		handles where the file/dir info precedes the export info, the next 16 bytes contain
 		the *export* info followed by 16 bytes containing the *file/dir* info.

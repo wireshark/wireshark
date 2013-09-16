@@ -2271,11 +2271,11 @@ dissect_tlv_upstrm_ass_lbl(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 /*Dissect IPv4 Interface ID TLV*/
 static void
 dissect_tlv_ipv4_interface_id(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
-{    
+{
     proto_tree *ti, *val_tree, *sub_tree = NULL;
     ti = proto_tree_add_text(tree, tvb, offset, rem, "IPv4 Interface ID");
     val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
- 
+
     /*Dissect IPv4 Next/Previous Hop Address*/
     proto_tree_add_item(val_tree, hf_ldp_tlv_ipv4_intID_hop_addr, tvb,offset, 4, ENC_BIG_ENDIAN);
 
@@ -2284,14 +2284,14 @@ dissect_tlv_ipv4_interface_id(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
 
     ti = proto_tree_add_text(val_tree, tvb, offset + 8, rem, "Sub TLV");
     sub_tree = proto_item_add_subtree(ti, ett_ldp_sub_tlv);
-    
+
     if(rem != 20 && rem != 24 && rem != 28 && rem != 29)
     	{
 	    /*rem = 20 >> Length of IP Multicast Tunnel TLV
 	    rem = 29 >> Length of LDP P2MP LSV TLV
 	    rem = 24 >> Length of RSVP-TE P2MP LSP TLV
 	    rem = 28 >> Length of MPLS Context Label TLV*/
-	    
+
 	    proto_item* inv_length;
 	    inv_length = proto_tree_add_item(val_tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
 	    expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
@@ -2946,7 +2946,6 @@ static void
 dissect_tlv_pw_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
-    guint32     data;
 
     if(rem != 4){
         proto_tree_add_text(tree, tvb, offset, rem,
@@ -2955,7 +2954,6 @@ dissect_tlv_pw_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
         return;
     }
 
-    data=tvb_get_ntohl(tvb, offset);
     ti = proto_tree_add_item(tree, hf_ldp_tlv_pw_status_data, tvb, offset, rem, ENC_BIG_ENDIAN);
 
     val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
