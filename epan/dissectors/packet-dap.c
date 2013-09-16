@@ -707,15 +707,15 @@ const value_string dap_opr_code_string_vals[] = {
 
 /* DAP ERRORS */
 static const value_string dap_err_code_string_vals[] = {
-	{ err_ros_bind, "directoryBindError" },  
-	{ id_errcode_abandoned, "abandoned" },  
-	{ id_errcode_abandonFailed, "abandonFailed" },  
-	{ id_errcode_attributeError, "attributeError" },  
-	{ id_errcode_nameError, "nameError" },  
-	{ id_errcode_referral, "referral" },  
-	{ id_errcode_securityError, "securityError" },  
-	{ id_errcode_serviceError, "serviceError" },  
-	{ id_errcode_updateError, "updateError" },  
+	{ err_ros_bind, "directoryBindError" },
+	{ id_errcode_abandoned, "abandoned" },
+	{ id_errcode_abandonFailed, "abandonFailed" },
+	{ id_errcode_attributeError, "attributeError" },
+	{ id_errcode_nameError, "nameError" },
+	{ id_errcode_referral, "referral" },
+	{ id_errcode_securityError, "securityError" },
+	{ id_errcode_serviceError, "serviceError" },
+	{ id_errcode_updateError, "updateError" },
 	  { 0, NULL }
 };
 
@@ -1567,10 +1567,10 @@ dissect_dap_T_newRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_dap_T_pagedResultsQueryReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	tvbuff_t *out_tvb;
-	int 	i;
+	int	i;
 	int	len;
 
-    	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &out_tvb);
 
 
@@ -1580,7 +1580,7 @@ dissect_dap_T_pagedResultsQueryReference(gboolean implicit_tag _U_, tvbuff_t *tv
 		for(i=0; i<len; i++)
 			if(!g_ascii_isprint(tvb_get_guint8(out_tvb, i)))
 				break;
-	
+
 		if(i == len) {
 			if(actx->created_item) {
 
@@ -1591,7 +1591,7 @@ dissect_dap_T_pagedResultsQueryReference(gboolean implicit_tag _U_, tvbuff_t *tv
 			}
 		}
 	}
-	
+
 
   return offset;
 }
@@ -1855,8 +1855,8 @@ dissect_dap_SimpleCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", x509if_get_last_dn());
 
 
-	
-	
+
+
 
   return offset;
 }
@@ -2077,7 +2077,7 @@ dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 	  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               DirectoryBindArgument_set, hf_index, ett_dap_DirectoryBindArgument);
-	
+
 
 
   return offset;
@@ -4783,26 +4783,26 @@ static int dissect_UpdateError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 #line 1 "../../asn1/dap/packet-dap-table11.c"
 
 static const ros_opr_t dap_opr_tab[] = {
-  /* directoryBind */ 
-  { op_ros_bind              ,	dissect_DirectoryBindArgument_PDU,	dissect_DirectoryBindResult_PDU }, 
-  /* read */ 
-  { id_opcode_read           ,	dissect_ReadArgument_PDU,	dissect_ReadResult_PDU }, 
-  /* compare */ 
-  { id_opcode_compare        ,	dissect_CompareArgument_PDU,	dissect_CompareResult_PDU }, 
-  /* abandon */ 
-  { id_opcode_abandon        ,	dissect_AbandonArgument_PDU,	dissect_AbandonResult_PDU }, 
-  /* list */ 
-  { id_opcode_list           ,	dissect_ListArgument_PDU,	dissect_ListResult_PDU }, 
-  /* search */ 
-  { id_opcode_search         ,	dissect_SearchArgument_PDU,	dissect_SearchResult_PDU }, 
-  /* addEntry */ 
-  { id_opcode_addEntry       ,	dissect_AddEntryArgument_PDU,	dissect_AddEntryResult_PDU }, 
-  /* removeEntry */ 
-  { id_opcode_removeEntry    ,	dissect_RemoveEntryArgument_PDU,	dissect_RemoveEntryResult_PDU }, 
-  /* modifyEntry */ 
-  { id_opcode_modifyEntry    ,	dissect_ModifyEntryArgument_PDU,	dissect_ModifyEntryResult_PDU }, 
-  /* modifyDN */ 
-  { id_opcode_modifyDN       ,	dissect_ModifyDNArgument_PDU,	dissect_ModifyDNResult_PDU }, 
+  /* directoryBind */
+  { op_ros_bind              ,	dissect_DirectoryBindArgument_PDU,	dissect_DirectoryBindResult_PDU },
+  /* read */
+  { id_opcode_read           ,	dissect_ReadArgument_PDU,	dissect_ReadResult_PDU },
+  /* compare */
+  { id_opcode_compare        ,	dissect_CompareArgument_PDU,	dissect_CompareResult_PDU },
+  /* abandon */
+  { id_opcode_abandon        ,	dissect_AbandonArgument_PDU,	dissect_AbandonResult_PDU },
+  /* list */
+  { id_opcode_list           ,	dissect_ListArgument_PDU,	dissect_ListResult_PDU },
+  /* search */
+  { id_opcode_search         ,	dissect_SearchArgument_PDU,	dissect_SearchResult_PDU },
+  /* addEntry */
+  { id_opcode_addEntry       ,	dissect_AddEntryArgument_PDU,	dissect_AddEntryResult_PDU },
+  /* removeEntry */
+  { id_opcode_removeEntry    ,	dissect_RemoveEntryArgument_PDU,	dissect_RemoveEntryResult_PDU },
+  /* modifyEntry */
+  { id_opcode_modifyEntry    ,	dissect_ModifyEntryArgument_PDU,	dissect_ModifyEntryResult_PDU },
+  /* modifyDN */
+  { id_opcode_modifyDN       ,	dissect_ModifyDNArgument_PDU,	dissect_ModifyDNResult_PDU },
   { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
 };
 
@@ -4814,23 +4814,23 @@ static const ros_opr_t dap_opr_tab[] = {
 #line 1 "../../asn1/dap/packet-dap-table21.c"
 
 static const ros_err_t dap_err_tab[] = {
-  /* directoryBindError*/ 
+  /* directoryBindError*/
   { err_ros_bind,	dissect_DirectoryBindError_PDU },
-  /* abandoned*/ 
+  /* abandoned*/
   { id_errcode_abandoned,	dissect_Abandoned_PDU },
-  /* abandonFailed*/ 
+  /* abandonFailed*/
   { id_errcode_abandonFailed,	dissect_AbandonFailedError_PDU },
-  /* attributeError*/ 
+  /* attributeError*/
   { id_errcode_attributeError,	dissect_AttributeError_PDU },
-  /* nameError*/ 
+  /* nameError*/
   { id_errcode_nameError,	dissect_NameError_PDU },
-  /* referral*/ 
+  /* referral*/
   { id_errcode_referral,	dissect_Referral_PDU },
-  /* securityError*/ 
+  /* securityError*/
   { id_errcode_securityError,	dissect_SecurityError_PDU },
-  /* serviceError*/ 
+  /* serviceError*/
   { id_errcode_serviceError,	dissect_ServiceError_PDU },
-  /* updateError*/ 
+  /* updateError*/
   { id_errcode_updateError,	dissect_UpdateError_PDU },
   { 0,	(new_dissector_t)(-1) },
 };
