@@ -1526,8 +1526,7 @@ typedef struct {
 } connection_context;
 
 /* holds a table of connection contexts being negotiated by CM. the key is a obtained
-   using ADD_ADDRESS_TO_HASH(initiator address, TransactionID) [remember that the 1st
-   argument to ADD_ADDRESS_TO_HASH must be an lvalue. */
+   using add_address_to_hash64(initiator address, TransactionID) */
 static GHashTable *CM_context_table = NULL;
 
 /* heuristics sub-dissectors list for dissecting the data payload of IB packets */
@@ -3080,7 +3079,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 /* save the context to the context hash table, for retrieval when the corresponding
                    CM REP message arrives*/
                 *hash_key = MadData.transactionID;
-                ADD_ADDRESS_TO_HASH(*hash_key, &pinfo->src);
+                *hash_key = add_address_to_hash64(*hash_key, &pinfo->src);
                 g_hash_table_replace(CM_context_table, hash_key, connection);
 
                 /* Now we create a conversation for the CM exchange. This uses both
@@ -3133,7 +3132,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 connection_context *connection;
                 guint64 hash_key;
                 hash_key = MadData.transactionID;
-                ADD_ADDRESS_TO_HASH(hash_key, &pinfo->dst);
+                hash_key = add_address_to_hash64(hash_key, &pinfo->dst);
                 connection = (connection_context *)g_hash_table_lookup(CM_context_table, &hash_key);
 
                 /* if an appropriate connection was not found there's something wrong, but nothing we can

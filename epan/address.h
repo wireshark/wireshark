@@ -28,6 +28,9 @@
 
 #include <string.h>     /* for memcmp */
 
+#include "emem.h"
+#include "tvbuff.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -68,136 +71,232 @@ typedef struct _address {
     const void	*data;		/* pointer to address data */
 } address;
 
+/** Initialize an address with the given values.
+ *
+ * @param addr[in,out] The address to initialize.
+ * @param addr_type[in] Address type.
+ * @param addr_len[in] The length in bytes of the address data. For example, 4 for
+ *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
+ * @param addr_data[in] Pointer to the address data.
+ */
+static inline void
+set_address(address *addr, address_type addr_type, int addr_len, const void * addr_data) {
+    addr->data = addr_data;
+    addr->type = addr_type;
+    addr->hf   = -1;
+    addr->len  = addr_len;
+}
 #define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) \
-    do {                            \
-        (addr)->data = (addr_data); \
-        (addr)->type = (addr_type); \
-        (addr)->hf   = -1;          \
-        (addr)->len  = (addr_len);  \
-    } while (0)
+    set_address((addr), (addr_type), (addr_len), (addr_data))
 
-/* Same as SET_ADDRESS but it takes a TVB and an offset instead of
- * (frequently) a pointer into a TVB.  This allow us to get the tvb_get_ptr()
- * call out of the dissectors.
+/** Initialize an address from TVB data.
  *
- * Call tvb_get_ptr() first in case it throws an exception: then we won't
- * modify the address at all.
+ * Same as SET_ADDRESS but it takes a TVB and an offset. This is preferred
+ * over passing the return value of tvb_get_ptr() to set_address().
+ *
+ * This calls tvb_get_ptr() (including throwing any exceptions) before
+ * modifying the address.
+ *
+ * @param addr[in,out] The address to initialize.
+ * @param addr_type[in] Address type.
+ * @param tvb[in] Pointer to the TVB.
+ * @param offset[in] Offset within the TVB.
+ * @param addr_len[in] The length in bytes of the address data. For example, 4 for
+ *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
  */
+static inline void
+tvb_set_address(address *addr, address_type addr_type, tvbuff_t *tvb, const gint offset, int addr_len) {
+    const void *data = tvb_get_ptr(tvb, offset, addr_len);
+    addr->data = data;
+    addr->type = addr_type;
+    addr->hf   = -1;
+    addr->len  = addr_len;
+}
 #define	TVB_SET_ADDRESS(addr, addr_type, tvb, offset, addr_len) \
-    do {                            \
-        (addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
-        (addr)->type = (addr_type); \
-        (addr)->hf   = -1;          \
-        (addr)->len  = (addr_len);  \
-    } while (0)
+    tvb_set_address((addr), (addr_type), (tvb), (offset), (addr_len))
 
-#define	SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) \
-    do {                            \
-        (addr)->data = (addr_data); \
-        (addr)->type = (addr_type); \
-        (addr)->hf   = (addr_hf);   \
-        (addr)->len  = (addr_len);  \
-    } while (0)
-
-/* Same as SET_ADDRESS_HF but it takes a TVB and an offset instead of
- * (frequently) a pointer into a TVB.  This allow us to get the tvb_get_ptr()
- * call out of the dissectors.
+/** Initialize an address with the given values including an associated field.
  *
- * Call tvb_get_ptr() first in case it throws an exception: then we won't
- * modify the address at all.
+ * @param addr[in,out] The address to initialize.
+ * @param addr_type[in] Address type.
+ * @param addr_len[in] The length in bytes of the address data. For example, 4 for
+ *                 AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
+ * @param addr_data[in] Pointer to the address data.
+ * @param addr_hf[in] The header field index to associate with the address.
  */
+static inline void
+set_address_hf(address *addr, address_type addr_type, int addr_len, const void * addr_data, int addr_hf) {
+    addr->data = addr_data;
+    addr->type = addr_type;
+    addr->hf   = addr_hf;
+    addr->len  = addr_len;
+}
+#define	SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) \
+    set_address_hf((addr), (addr_type), (tvb), (offset), (addr_len), (addr_hf))
+
+/** Initialize an address from TVB data including an associated field.
+ *
+ * Same as SET_ADDRESS_HF but it takes a TVB and an offset. This is preferred
+ * over passing the return value of tvb_get_ptr() to set_address().
+ *
+ * This calls tvb_get_ptr() (including throwing any exceptions) before
+ * modifying the address.
+ *
+ * @param addr[in,out] The address to initialize.
+ * @param addr_type[in] Address type.
+ * @param tvb[in] Pointer to the TVB.
+ * @param offset[in] Offset within the TVB.
+ * @param addr_len[in] The length in bytes of the address data. For example, 4 for
+ *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
+ * @param addr_hf[in] The header field index to associate with the address.
+ */
+static inline void
+tvb_set_address_hf(address *addr, address_type addr_type, tvbuff_t *tvb, const gint offset, int addr_len, int addr_hf) {
+    const void *data = tvb_get_ptr(tvb, offset, addr_len);
+    addr->data = data;
+    addr->type = addr_type;
+    addr->hf   = addr_hf;
+    addr->len  = addr_len;
+}
 #define	TVB_SET_ADDRESS_HF(addr, addr_type, tvb, offset, addr_len, addr_hf) \
-    do {                            \
-        (addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
-        (addr)->type = (addr_type); \
-        (addr)->hf   = (addr_hf);   \
-        (addr)->len  = (addr_len);  \
-    } while (0)
+    tvb_set_address_hf((addr), (addr_type), (tvb), (offset), (addr_len), (addr_hf))
 
-/*
- * Given two addresses, return
- *  0 if the addresses are equal,
- *  a positive number if addr1>addr2 in some nondefined metric,
- *  a negative number if addr1<addr2 in some nondefined metric
+/** Compare two addresses.
+ *
+ * @param addr1[in] The first address to compare.
+ * @param addr2[in] The second address to compare.
+ * @return 0 if the addresses are equal,
+ *  A positive number if addr1 > addr2 in some nondefined metric,
+ *  A negative number if addr1 < addr2 in some nondefined metric.
  */
-#define CMP_ADDRESS(addr1, addr2) ( \
-        ((addr1)->type > (addr2)->type)?1:	\
-        ((addr1)->type < (addr2)->type)?-1:	\
-        ((addr1)->len  > (addr2)->len) ?1:	\
-        ((addr1)->len  < (addr2)->len) ?-1:	\
-        memcmp((addr1)->data, (addr2)->data, (addr1)->len) \
-        )
+static inline int
+cmp_address(const address *addr1, const address *addr2) {
+    if (addr1->type > addr2->type) return 1;
+    if (addr1->type < addr2->type) return -1;
+    if (addr1->len  > addr2->len) return 1;
+    if (addr1->len  < addr2->len) return -1;
+    return memcmp(addr1->data, addr2->data, addr1->len);
+}
+#define CMP_ADDRESS(addr1, addr2) cmp_address((addr1), (addr2))
 
-/*
+/** Check two addresses for equality.
+ *
  * Given two addresses, return "true" if they're equal, "false" otherwise.
  * Addresses are equal only if they have the same type; if the type is
  * AT_NONE, they are then equal, otherwise they must have the same
  * amount of data and the data must be the same.
+ *
+ * @param addr1[in] The first address to compare.
+ * @param addr2[in] The second address to compare.
+ * @return TRUE if the adresses are equal, FALSE otherwise.
  */
-#define ADDRESSES_EQUAL(addr1, addr2)	   \
-    (                                      \
-     (addr1)->type == (addr2)->type &&     \
-     (                                     \
-      (addr1)->type == AT_NONE ||          \
-      (                                    \
-       (addr1)->len == (addr2)->len &&     \
-       memcmp((addr1)->data, (addr2)->data, (addr1)->len) == 0    \
-      )                                    \
-     )                                     \
-    )
+static inline gboolean
+address_equal(const address *addr1, const address *addr2) {
+    if (addr1->type == addr2->type
+            && ( addr1->type == AT_NONE
+                 || ( addr1->len == addr2->len
+                      && memcmp(addr1->data, addr2->data, addr1->len) == 0
+                      )
+                 )
+            ) return TRUE;
+    return FALSE;
+}
+#define ADDRESSES_EQUAL(addr1, addr2) address_equal((addr1), (addr2))
 
-/*
- * Copy an address, allocating a new buffer for the address data.
+/** Copy an address, allocating a new buffer for the address data.
+ *
+ * @param to[in,out] The destination address.
+ * @param from[in] The source address.
  */
-#define COPY_ADDRESS(to, from) \
-    do {                           \
-        guint8 *COPY_ADDRESS_data; \
-        (to)->type = (from)->type; \
-        (to)->len = (from)->len;   \
-        (to)->hf = (from)->hf;     \
-        COPY_ADDRESS_data = (guint8 *)g_malloc((from)->len);  \
-        memcpy(COPY_ADDRESS_data, (from)->data, (from)->len); \
-        (to)->data = COPY_ADDRESS_data; \
-    } while (0)
+static inline void
+copy_address(address *to, const address *from) {
+    guint8 *to_data;
 
-/* Perform a shallow copy of the address (both addresses point to the same
+    to->type = from->type;
+    to->len = from->len;
+    to->hf = from->hf;
+    to_data = (guint8 *)g_malloc(from->len);
+    memcpy(to_data, from->data, from->len);
+    to->data = to_data;
+}
+#define COPY_ADDRESS(to, from) copy_address((to), (from))
+
+/** Perform a shallow copy of the address (both addresses point to the same
  * memory location).
+ *
+ * @param to[in,out] The destination address.
+ * @param from[in] The source address.
  */
-#define COPY_ADDRESS_SHALLOW(to, from) \
-    do {                           \
-        (to)->type = (from)->type; \
-        (to)->len = (from)->len;   \
-        (to)->hf = (from)->hf;     \
-        (to)->data = (from)->data; \
-    } while (0)
+static inline void
+copy_address_shallow(address *to, const address *from) {
+    memcpy(to, from, sizeof(address));
+    /*
+    to->type = from->type;
+    to->len = from->len;
+    to->hf = from->hf;
+    to->data = from->data;
+    */
+}
+#define COPY_ADDRESS_SHALLOW(to, from) copy_address_shallow((to), (from))
 
-#define SE_COPY_ADDRESS(to, from)     \
-    do {                              \
-        guint8 *SE_COPY_ADDRESS_data; \
-        (to)->type = (from)->type;    \
-        (to)->len = (from)->len;      \
-        (to)->hf = (from)->hf;        \
-        SE_COPY_ADDRESS_data = (guint8 *)se_alloc((from)->len); \
-        memcpy(SE_COPY_ADDRESS_data, (from)->data, (from)->len); \
-        (to)->data = SE_COPY_ADDRESS_data; \
-    } while (0)
-
-/*
- * Hash an address into a hash value (which must already have been set).
+/** Copy an address, allocating a new buffer for the address data
+ *  using seasonal memory.
+ *
+ * @param to[in,out] The destination address.
+ * @param from[in] The source address.
  */
-#define ADD_ADDRESS_TO_HASH(hash_val, addr) \
-    do { \
-        const guint8 *ADD_ADDRESS_TO_HASH_data; \
-        int ADD_ADDRESS_TO_HASH_index; \
-        ADD_ADDRESS_TO_HASH_data = (const guint8 *)(addr)->data; \
-        for (ADD_ADDRESS_TO_HASH_index = 0; \
-                ADD_ADDRESS_TO_HASH_index < (addr)->len; \
-                ADD_ADDRESS_TO_HASH_index++) { \
-            hash_val += ADD_ADDRESS_TO_HASH_data[ADD_ADDRESS_TO_HASH_index]; \
-            hash_val += ( hash_val << 10 ); \
-            hash_val ^= ( hash_val >> 6 ); \
-        } \
-    } while (0)
+static inline void
+se_copy_address(address *to, const address *from) {
+    guint8 *to_data;
+
+    to->type = from->type;
+    to->len = from->len;
+    to->hf = from->hf;
+    to_data = (guint8 *)se_alloc(from->len);
+    memcpy(to_data, from->data, from->len);
+    to->data = to_data;
+}
+#define SE_COPY_ADDRESS(to, from) se_copy_address((to), (from))
+
+/** Hash an address into a hash value (which must already have been set).
+ *
+ * @param hash_val The existing hash value.
+ * @param addr The address to add.
+ * @return The new hash value.
+ */
+static inline guint
+add_address_to_hash(guint hash_val, const address *addr) {
+    const guint8 *hash_data = (const guint8 *)(addr)->data;
+    int idx;
+
+    for (idx = 0; idx < (addr)->len; idx++) {
+        hash_val += hash_data[idx];
+        hash_val += ( hash_val << 10 );
+        hash_val ^= ( hash_val >> 6 );
+    }
+    return hash_val;
+}
+#define ADD_ADDRESS_TO_HASH(hash_val, addr) do { hash_val = add_address_to_hash(hash_val, (addr)); } while (0)
+
+/** Hash an address into a hash value (which must already have been set).
+ *  64-bit version of add_address_to_hash().
+ *
+ * @param hash_val The existing hash value.
+ * @param addr The address to add.
+ * @return The new hash value.
+ */
+static inline guint64
+add_address_to_hash64(guint64 hash_val, const address *addr) {
+    const guint8 *hash_data = (const guint8 *)(addr)->data;
+    int idx;
+
+    for (idx = 0; idx < (addr)->len; idx++) {
+        hash_val += hash_data[idx];
+        hash_val += ( hash_val << 10 );
+        hash_val ^= ( hash_val >> 6 );
+    }
+    return hash_val;
+}
 
 /* Types of port numbers Wireshark knows about. */
 typedef enum {

@@ -376,7 +376,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
   nstime_t        addr_time, prev_time;
   guint           addr_id = 0, prev_id = 0;
   guint16         last_found_pdu = 0;
-  gboolean        missing_pdu = FALSE, set_address = FALSE;
+  gboolean        missing_pdu = FALSE, need_set_address = FALSE;
   GHashTable     *pkg_list;
 
   if (pinfo->flags.in_error_pkt) {
@@ -396,7 +396,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
     p_mul_key->id = message_id;
     p_mul_key->seq = 0;
     SE_COPY_ADDRESS(&p_mul_key->addr, addr);
-    set_address = TRUE;
+    need_set_address = TRUE;
 
     p_mul_data = (p_mul_seq_val *) g_hash_table_lookup (p_mul_id_hash_table, p_mul_key);
 
@@ -448,7 +448,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
   if (!pinfo->fd->flags.visited) {
     p_mul_key->id = message_id;
     p_mul_key->seq = seq_no;
-    if (!set_address) {
+    if (!need_set_address) {
       SE_COPY_ADDRESS(&p_mul_key->addr, addr);
     }
     p_mul_data = (p_mul_seq_val *) g_hash_table_lookup (p_mul_id_hash_table, p_mul_key);
