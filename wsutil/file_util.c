@@ -28,7 +28,7 @@
  * DO NOT USE THESE FUNCTIONS DIRECTLY, USE ws_open() AND ALIKE FUNCTIONS FROM file_util.h INSTEAD!!!
  *
  * the following code is stripped down code copied from the GLib file glib/gstdio.h
- * stipped down, because this is used on _WIN32 only and we use only wide char functions */
+ * stripped down, because this is used on _WIN32 only and we use only wide char functions */
 
 #ifndef _WIN32
 #error "This is only for Windows"
@@ -623,9 +623,9 @@ static SECURITY_ATTRIBUTES *sec_attributes_;
 
 void create_app_running_mutex() {
       SECURITY_ATTRIBUTES *sa = NULL;
-      
+
       if (!sec_attributes_) sec_attributes_ = g_new0(SECURITY_ATTRIBUTES, 1);
-      
+
       sec_attributes_->nLength = sizeof(SECURITY_ATTRIBUTES);
       sec_attributes_->lpSecurityDescriptor = g_new0(SECURITY_DESCRIPTOR, 1);
       sec_attributes_->bInheritHandle = TRUE;
@@ -634,7 +634,7 @@ void create_app_running_mutex() {
 	          sa = sec_attributes_;
 	    }
       }
-      
+
       if (!sa) {
 	    g_free(sec_attributes_->lpSecurityDescriptor);
 	    g_free(sec_attributes_);
