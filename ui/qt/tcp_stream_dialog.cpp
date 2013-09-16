@@ -49,6 +49,10 @@ const int moving_avg_period_ = 20;
 const QRgb graph_color_1 = tango_sky_blue_5;
 const QRgb graph_color_2 = tango_butter_6;
 const QRgb graph_color_3 = tango_chameleon_5;
+//const QRgb graph_color_4 = tango_aluminium_6;
+
+// Size of selectable packet points in the base graph
+const double pkt_point_size_ = 3.0;
 
 // Don't accidentally zoom into a 1x1 rect if you happen to click on the graph
 // in zoom mode.
@@ -157,7 +161,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
     base_graph_ = sp->addGraph(); // All: Selectable segments
     base_graph_->setPen(QPen(QBrush(graph_color_1), 0.25));
-    base_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 5));
     tput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2); // Throughput: Moving average
     tput_graph_->setPen(QPen(QBrush(graph_color_2), 0.5));
     tput_graph_->setLineStyle(QCPGraph::lsLine);
@@ -166,7 +169,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     seg_graph_->setLineStyle(QCPGraph::lsNone);
     seg_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
     seg_graph_->setErrorPen(QPen(QBrush(graph_color_1), 0.5));
-    seg_graph_->setErrorBarSize(3.0);
+    seg_graph_->setErrorBarSize(pkt_point_size_);
     ack_graph_ = sp->addGraph(); // tcptrace: rev ACKs
     ack_graph_->setPen(QPen(QBrush(graph_color_2), 0.5));
     ack_graph_->setLineStyle(QCPGraph::lsStepLeft);
@@ -332,6 +335,8 @@ void TCPStreamDialog::fillGraph()
         sp->graph(i)->setVisible(i == 0 ? true : false);
     }
 
+    base_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, pkt_point_size_));
+
     sp->xAxis->setLabel(time_s_label_);
     sp->xAxis->setNumberFormat("gb");
     sp->xAxis->setNumberPrecision(6);
@@ -435,10 +440,12 @@ void TCPStreamDialog::resetAxes()
     y_axis_xfrm_.reset();
     double pixel_pad = 10.0; // per side
 
-    base_graph_->rescaleAxes(false, true);
-    for (int i = 0; i < sp->graphCount(); i++) {
-        sp->graph(i)->rescaleValueAxis(false, true);
-    }
+    sp->rescaleAxes(true);
+    tput_graph_->rescaleValueAxis(false, true);
+//    base_graph_->rescaleAxes(false, true);
+//    for (int i = 0; i < sp->graphCount(); i++) {
+//        sp->graph(i)->rescaleValueAxis(false, true);
+//    }
 
     double axis_pixels = sp->xAxis->axisRect()->width();
     sp->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, sp->xAxis->range().center());
@@ -488,6 +495,8 @@ void TCPStreamDialog::fillTcptrace()
 
     QCustomPlot *sp = ui->streamPlot;
     sp->yAxis->setLabel(sequence_number_label_);
+
+    base_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot));
 
     seg_graph_->setVisible(true);
     ack_graph_->setVisible(true);
@@ -843,6 +852,9 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
         struct segment *packet_seg = NULL;
         packet_num_ = 0;
 
+        // XXX If we have multiple packets with the same timestamp tr_key
+        // may not return the packet we want. It might be possible to fudge
+        // unique keys using nextafter().
         if (event && tracer_->graph() && tracer_->position->axisRect()->rect().contains(event->pos())) {
             switch (graph_.type) {
             case GRAPH_TSEQ_STEVENS:
