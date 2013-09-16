@@ -763,17 +763,17 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	stratum = tvb_get_guint8(tvb, 1);
 	if (stratum == 0) {
-		buffc="Peer Clock Stratum: unspecified or invalid (%u)";
+		buffc="unspecified or invalid (%u)";
 	} else if (stratum == 1) {
-		buffc="Peer Clock Stratum: primary reference (%u)";
+		buffc="primary reference (%u)";
 	} else if ((stratum >= 2) && (stratum <= 15)) {
-		buffc="Peer Clock Stratum: secondary reference (%u)";
+		buffc="secondary reference (%u)";
 	} else if (stratum == 16) {
-		buffc="Peer Clock Stratum: unsynchronized (%u)";
+		buffc="unsynchronized (%u)";
 	} else {
-		buffc="Peer Clock Stratum: reserved: %u";
+		buffc="reserved: %u";
 	}
-	proto_tree_add_uint_format(ntp_tree, hf_ntp_stratum, tvb, 1, 1,
+	proto_tree_add_uint_format_value(ntp_tree, hf_ntp_stratum, tvb, 1, 1,
 				   stratum, buffc, stratum);
 	/* Poll interval, 1byte field indicating the maximum interval
 	 * between successive messages, in seconds to the nearest

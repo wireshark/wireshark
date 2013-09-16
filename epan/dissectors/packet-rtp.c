@@ -1311,8 +1311,8 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_text(rfc2198_tree, tvb, offset, (hdr_follow)?4:1, "Header %u", cnt);
 		rfc2198_hdr_tree = proto_item_add_subtree(ti, ett_rtp_rfc2198_hdr);
 		proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_follow, tvb, offset, 1, ENC_BIG_ENDIAN );
-		proto_tree_add_uint_format(rfc2198_hdr_tree, hf_rtp_payload_type, tvb,
-		    offset, 1, octet1, "Payload type: %s (%u)",
+		proto_tree_add_uint_format_value(rfc2198_hdr_tree, hf_rtp_payload_type, tvb,
+		    offset, 1, octet1, "%s (%u)",
 			payload_type_str ? payload_type_str : val_to_str_ext_const(hdr_new->pt, &rtp_payload_type_vals_ext, "Unknown"),
 			hdr_new->pt);
 		proto_item_append_text(ti, ": PT=%s",
@@ -1682,8 +1682,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		proto_tree_add_boolean( rtp_tree, hf_rtp_marker, tvb, offset,
 		    1, octet2 );
 
-		proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
-		    offset, 1, octet2, "Payload type: %s (%u)",
+		proto_tree_add_uint_format_value( rtp_tree, hf_rtp_payload_type, tvb,
+		    offset, 1, octet2, "%s (%u)",
 			payload_type_str ? payload_type_str : val_to_str_ext_const( payload_type, &rtp_payload_type_vals_ext,"Unknown"),
 			payload_type);
 
@@ -1709,15 +1709,14 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 	/* CSRC list*/
 	if ( csrc_count > 0 ) {
-		if ( tree ) {
-			ti = proto_tree_add_item(rtp_tree, hf_rtp_csrc_items, tvb, offset,
+		ti = proto_tree_add_item(rtp_tree, hf_rtp_csrc_items, tvb, offset,
 			                         csrc_count * 4, ENC_NA);
-			proto_item_append_text(ti, " (%u items)", csrc_count);
-			rtp_csrc_tree = proto_item_add_subtree( ti, ett_csrc_list );
-		}
-		for (i = 0; i < csrc_count; i++ ) {
+		proto_item_append_text(ti, " (%u items)", csrc_count);
+		rtp_csrc_tree = proto_item_add_subtree( ti, ett_csrc_list );
+
+        for (i = 0; i < csrc_count; i++ ) {
 			csrc_item = tvb_get_ntohl( tvb, offset );
-			if ( tree ) proto_tree_add_uint_format( rtp_csrc_tree,
+			proto_tree_add_uint_format( rtp_csrc_tree,
 			    hf_rtp_csrc_item, tvb, offset, 4,
 			    csrc_item,
 			    "CSRC item %d: 0x%X",

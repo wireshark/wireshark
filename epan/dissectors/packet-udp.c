@@ -399,8 +399,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     }
     udp_tree = proto_item_add_subtree(ti, ett_udp);
 
-    port_item = proto_tree_add_uint_format(udp_tree, hfi_udp_srcport.id, tvb, offset, 2, udph->uh_sport,
-	"Source port: %s (%u)", get_udp_port(udph->uh_sport), udph->uh_sport);
+    port_item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_srcport.id, tvb, offset, 2, udph->uh_sport,
+	"%s (%u)", get_udp_port(udph->uh_sport), udph->uh_sport);
     /* The beginning port number, 32768 + 666 (33434), is from LBL's traceroute.c source code and this code
      * further assumes that 3 attempts are made per hop */
     if(udph->uh_sport > 32768 + 666 && udph->uh_sport <= 32768 + 666 + 30)
@@ -409,8 +409,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 				   ((udph->uh_sport - 32768 - 666 - 1) % 3) + 1
 				   );
 
-    port_item = proto_tree_add_uint_format(udp_tree, hfi_udp_dstport.id, tvb, offset + 2, 2, udph->uh_dport,
-	"Destination port: %s (%u)", get_udp_port(udph->uh_dport), udph->uh_dport);
+    port_item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_dstport.id, tvb, offset + 2, 2, udph->uh_dport,
+	"%s (%u)", get_udp_port(udph->uh_dport), udph->uh_dport);
     if(udph->uh_dport > 32768 + 666 && udph->uh_dport <= 32768 + 666 + 30)
 	    expert_add_info_format(pinfo, port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
 				   ((udph->uh_dport - 32768 - 666 - 1) / 3) + 1,
@@ -428,16 +428,16 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     if (udph->uh_ulen < 8) {
       /* Bogus length - it includes the header, so it must be >= 8. */
       /* XXX - should handle IPv6 UDP jumbograms (RFC 2675), where the length is zero */
-      item = proto_tree_add_uint_format(udp_tree, hfi_udp_length.id, tvb, offset + 4, 2,
-          udph->uh_ulen, "Length: %u (bogus, must be >= 8)", udph->uh_ulen);
+      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_length.id, tvb, offset + 4, 2,
+          udph->uh_ulen, "%u (bogus, must be >= 8)", udph->uh_ulen);
       expert_add_info_format(pinfo, item, &ei_udp_length, "Bad length value %u < 8", udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u < 8]", udph->uh_ulen);
       return;
     }
     if ((udph->uh_ulen > tvb_reported_length(tvb)) && ! pinfo->fragmented && ! pinfo->flags.in_error_pkt) {
       /* Bogus length - it goes past the end of the IP payload */
-      item = proto_tree_add_uint_format(udp_tree, hfi_udp_length.id, tvb, offset + 4, 2,
-          udph->uh_ulen, "Length: %u (bogus, payload length %u)", udph->uh_ulen, tvb_reported_length(tvb));
+      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_length.id, tvb, offset + 4, 2,
+          udph->uh_ulen, "%u (bogus, payload length %u)", udph->uh_ulen, tvb_reported_length(tvb));
       expert_add_info_format(pinfo, item, &ei_udp_length, "Bad length value %u > IP payload length", udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u > IP PAYLOAD LENGTH]", udph->uh_ulen);
     } else {
@@ -460,8 +460,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         hidden_item = proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
       }
-      item = proto_tree_add_uint_format(udp_tree, hfi_udplite_checksum_coverage.id, tvb, offset + 4, 2,
-          udph->uh_sum_cov, "Checksum coverage: %u (bogus, must be >= 8 and <= %u (ip.len-ip.hdr_len))",
+      item = proto_tree_add_uint_format_value(udp_tree, hfi_udplite_checksum_coverage.id, tvb, offset + 4, 2,
+          udph->uh_sum_cov, "%u (bogus, must be >= 8 and <= %u (ip.len-ip.hdr_len))",
           udph->uh_sum_cov, udph->uh_ulen);
       expert_add_info_format(pinfo, item, &ei_udplite_checksum_coverage, "Bad checksum coverage length value %u < 8 or > %u",
                              udph->uh_sum_cov, udph->uh_ulen);
@@ -485,8 +485,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   if (udph->uh_sum == 0) {
     /* No checksum supplied in the packet. */
     if ((ip_proto == IP_PROTO_UDP) && (pinfo->src.type == AT_IPv4)) {
-      item = proto_tree_add_uint_format(udp_tree, hfi_udp_checksum.id, tvb, offset + 6, 2, 0,
-        "Checksum: 0x%04x (none)", 0);
+      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb, offset + 6, 2, 0,
+        "0x%04x (none)", 0);
 
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
       item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
@@ -496,8 +496,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                              offset + 6, 2, FALSE);
       PROTO_ITEM_SET_GENERATED(item);
     } else {
-      item = proto_tree_add_uint_format(udp_tree, hfi_udp_checksum.id, tvb, offset + 6, 2, 0,
-        "Checksum: 0x%04x (Illegal)", 0);
+      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb, offset + 6, 2, 0,
+        "0x%04x (Illegal)", 0);
       expert_add_info(pinfo, item, &ei_udp_checksum_zero);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [ILLEGAL CHECKSUM (0)]");
 
@@ -553,8 +553,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       cksum_vec[3].len = udph->uh_sum_cov;
       computed_cksum = in_cksum(&cksum_vec[0], 4);
       if (computed_cksum == 0) {
-        item = proto_tree_add_uint_format(udp_tree, hfi_udp_checksum.id, tvb,
-          offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [correct]", udph->uh_sum);
+        item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,
+          offset + 6, 2, udph->uh_sum, "0x%04x [correct]", udph->uh_sum);
 
         checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
         item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
@@ -564,9 +564,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                                       offset + 6, 2, FALSE);
         PROTO_ITEM_SET_GENERATED(item);
       } else {
-        item = proto_tree_add_uint_format(udp_tree, hfi_udp_checksum.id, tvb,
+        item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,
                                           offset + 6, 2, udph->uh_sum,
-          "Checksum: 0x%04x [incorrect, should be 0x%04x (maybe caused by \"UDP checksum offload\"?)]", udph->uh_sum,
+          "0x%04x [incorrect, should be 0x%04x (maybe caused by \"UDP checksum offload\"?)]", udph->uh_sum,
           in_cksum_shouldbe(udph->uh_sum, computed_cksum));
 
         checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
@@ -581,8 +581,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         col_append_fstr(pinfo->cinfo, COL_INFO, " [UDP CHECKSUM INCORRECT]");
       }
     } else {
-      item = proto_tree_add_uint_format(udp_tree, hfi_udp_checksum.id, tvb,
-        offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [validation disabled]", udph->uh_sum);
+      item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,
+        offset + 6, 2, udph->uh_sum, "0x%04x [validation disabled]", udph->uh_sum);
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
       item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
                              offset + 6, 2, FALSE);
@@ -592,8 +592,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       PROTO_ITEM_SET_GENERATED(item);
     }
   } else {
-    item = proto_tree_add_uint_format(udp_tree, hfi_udp_checksum.id, tvb,
-      offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [unchecked, not all data available]", udph->uh_sum);
+    item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,
+      offset + 6, 2, udph->uh_sum, "0x%04x [unchecked, not all data available]", udph->uh_sum);
 
     checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
     item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,

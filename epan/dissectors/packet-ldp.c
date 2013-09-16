@@ -1478,8 +1478,8 @@ dissect_tlv_frame_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
     len=(guint8)(tvb_get_ntohs(tvb, offset)>>7) & 0x03;
-    proto_tree_add_uint_format(val_tree, hf_ldp_tlv_fr_label_len, tvb, offset, 2, len,
-                               "Number of DLCI bits: %s (%u)", val_to_str_const(len, tlv_fr_len_vals, "Unknown Length"), len);
+    proto_tree_add_uint_format_value(val_tree, hf_ldp_tlv_fr_label_len, tvb, offset, 2, len,
+                               "%s (%u)", val_to_str_const(len, tlv_fr_len_vals, "Unknown Length"), len);
 
     proto_tree_add_item(val_tree,
                                hf_ldp_tlv_fr_label_dlci, tvb, offset+1, 3, ENC_BIG_ENDIAN);
@@ -1507,8 +1507,8 @@ dissect_tlv_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     proto_tree_add_item(val_tree, hf_ldp_tlv_status_fbit, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     data=tvb_get_ntohl(tvb, offset)&0x3FFFFFFF;
-    proto_tree_add_uint_format(val_tree, hf_ldp_tlv_status_data, tvb, offset, 4,
-                               data, "Status Data: %s (0x%X)", val_to_str_const(data, tlv_status_data, "Unknown Status Data"), data);
+    proto_tree_add_uint_format_value(val_tree, hf_ldp_tlv_status_data, tvb, offset, 4,
+                               data, "%s (0x%X)", val_to_str_const(data, tlv_status_data, "Unknown Status Data"), data);
 
     proto_tree_add_item(val_tree, hf_ldp_tlv_status_msg_id, tvb, offset+4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(val_tree, hf_ldp_tlv_status_msg_type, tvb, offset+8, 2, ENC_BIG_ENDIAN);
@@ -1771,7 +1771,6 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
 {
     proto_tree *ti, *val_tree, *lbl_tree;
     guint8      numlr, ix, len;
-    guint32     id;
 
     if(rem < 4) {
         proto_tree_add_text(tree, tvb, offset, rem,
@@ -1814,15 +1813,11 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
         lbl_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
         len=(guint8)(tvb_get_ntohs(tvb, offset)>>7) & 0x03;
-        proto_tree_add_uint_format(lbl_tree, hf_ldp_tlv_sess_fr_len, tvb, offset, 2, len,
-                                   "Number of DLCI bits: %s (%u)", val_to_str_const(len, tlv_fr_len_vals, "Unknown Length"), len);
+        proto_tree_add_uint_format_value(lbl_tree, hf_ldp_tlv_sess_fr_len, tvb, offset, 2, len,
+                                   "%s (%u)", val_to_str_const(len, tlv_fr_len_vals, "Unknown Length"), len);
 
-        id=tvb_get_ntoh24(tvb, offset+1)&0x7FFFFF;
-        proto_tree_add_uint_format(lbl_tree,
-                                   hf_ldp_tlv_sess_fr_mindlci, tvb, offset+1, 3, id, "Minimum DLCI %u", id);
-        id=tvb_get_ntoh24(tvb, offset+5)&0x7FFFFF;
-        proto_tree_add_uint_format(lbl_tree,
-                                   hf_ldp_tlv_sess_fr_maxdlci, tvb, offset+5, 3, id, "Maximum DLCI %u", id);
+        proto_tree_add_item(lbl_tree, hf_ldp_tlv_sess_fr_mindlci, tvb, offset+1, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(lbl_tree, hf_ldp_tlv_sess_fr_maxdlci, tvb, offset+5, 3, ENC_BIG_ENDIAN);
 
         offset += 8;
     }
@@ -2961,16 +2956,15 @@ dissect_tlv_pw_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     }
 
     data=tvb_get_ntohl(tvb, offset);
-    ti = proto_tree_add_uint_format(tree, hf_ldp_tlv_pw_status_data, tvb, offset , rem,
-                                    data, "PW Status: 0x%08x ", data);
+    ti = proto_tree_add_item(tree, hf_ldp_tlv_pw_status_data, tvb, offset, rem, ENC_BIG_ENDIAN);
 
     val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
     /* Display the bits 0-4 if they are set or not set */
-    proto_tree_add_boolean(val_tree, hf_ldp_tlv_pw_not_forwarding, tvb, offset , 4, data);
-    proto_tree_add_boolean(val_tree, hf_ldp_tlv_pw_lac_ingress_recv_fault, tvb, offset , 4, data);
-    proto_tree_add_boolean(val_tree, hf_ldp_tlv_pw_lac_egress_recv_fault, tvb, offset , 4, data);
-    proto_tree_add_boolean(val_tree, hf_ldp_tlv_pw_psn_pw_ingress_recv_fault, tvb, offset , 4, data);
-    proto_tree_add_boolean(val_tree, hf_ldp_tlv_pw_psn_pw_egress_recv_fault, tvb, offset , 4, data);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_pw_not_forwarding, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_pw_lac_ingress_recv_fault, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_pw_lac_egress_recv_fault, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_pw_psn_pw_ingress_recv_fault, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_pw_psn_pw_egress_recv_fault, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -4045,7 +4039,7 @@ proto_register_ldp(void)
             NULL, 0x0, "Attachment Individual Identifier AC Id", HFILL}},
 
         { &hf_ldp_tlv_pw_status_data,
-          { "Status Code", "ldp.msg.tlv.pwstatus.code", FT_UINT32, BASE_HEX,
+          { "PW Status", "ldp.msg.tlv.pwstatus.code", FT_UINT32, BASE_HEX,
             NULL, 0, NULL, HFILL }},
 
         { &hf_ldp_tlv_pw_not_forwarding,

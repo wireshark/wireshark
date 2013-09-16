@@ -478,11 +478,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       } else {
         /* Error code = error class + (error num % 100) */
         error_code = (error_class * 100) + error_number;
-        it = proto_tree_add_uint_format(attr_tree, xmcp_attr_error_code, tvb,
-                                        (offset+2), 2, error_code,
-                                        "Error Code: %d (%s)", error_code,
-                                        val_to_str_const(error_code, error_codes,
-                                                         "Unknown"));
+        it = proto_tree_add_uint(attr_tree, xmcp_attr_error_code, tvb,
+                                        (offset+2), 2, error_code);
         PROTO_ITEM_SET_GENERATED(it);
         proto_item_append_text(attr_tree, ": %d", error_code);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", error %d (%s)", error_code,
@@ -1185,7 +1182,7 @@ proto_register_xmcp(void)
     },
     { &xmcp_attr_error_code,
       { "Error Code",           "xmcp.attr.error",
-        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        FT_UINT16, BASE_DEC, VALS(error_codes), 0x0, NULL, HFILL}
     },
     { &xmcp_attr_error_reason,
       { "Error Reason Phrase",  "xmcp.attr.error.reason",

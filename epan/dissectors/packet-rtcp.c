@@ -1902,8 +1902,8 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 
             /* Discard Rate */
             fraction_rate = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(content_tree, hf_rtcp_ssrc_discarded, tvb, offset, 1,
-                                       fraction_rate, "Fraction Discarded: %u / 256", fraction_rate);
+            proto_tree_add_uint_format_value(content_tree, hf_rtcp_ssrc_discarded, tvb, offset, 1,
+                                       fraction_rate, "%u / 256", fraction_rate);
             offset++;
 
             /* Burst Density */

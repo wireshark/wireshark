@@ -1648,8 +1648,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
 
         temp_optlen = tvb_get_ntohs(tvb, off);
-        proto_tree_add_uint_format(subtree, hf_elapsed_time, tvb, off,
-                                    2, temp_optlen*10, "Elapsed-time: %u ms", temp_optlen*10);
+        proto_tree_add_uint_format_value(subtree, hf_elapsed_time, tvb, off,
+                                    2, temp_optlen*10, "%u ms", temp_optlen*10);
         break;
     case OPTION_RELAY_MSG:
         if (optlen == 0) {

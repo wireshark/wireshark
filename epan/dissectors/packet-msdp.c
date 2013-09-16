@@ -375,8 +375,8 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
         }
 
         error_sub = tvb_get_guint8(tvb, *offset);
-        proto_tree_add_uint_format(tree, hf_msdp_not_error_sub, tvb, *offset, 1,
-                                   error_sub, "Error subcode: %s (%u)",
+        proto_tree_add_uint_format_value(tree, hf_msdp_not_error_sub, tvb, *offset, 1,
+                                   error_sub, "%s (%u)",
                                    val_to_str_const(error_sub, vals, "<Unknown Error subcode>"),
                                    error_sub);
         *offset += 1;
@@ -517,9 +517,9 @@ proto_register_msdp(void)
                         "Indicates the type of Notification", HFILL }
                 },
                 { &hf_msdp_not_error_sub,
-                        { "Error subode",           "msdp.not.error_sub",
+                        { "Error subcode",           "msdp.not.error_sub",
                         FT_UINT8, BASE_DEC, NULL, 0,
-                        "Error subcode", HFILL }
+                        NULL, HFILL }
                 },
                 { &hf_msdp_not_ipv4,
                         { "IPv4 address",           "msdp.not.ipv4",

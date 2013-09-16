@@ -557,9 +557,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		gsmtap_tree = proto_item_add_subtree(ti, ett_gsmtap);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_version,
 				    tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_uint_format(gsmtap_tree, hf_gsmtap_hdrlen,
+		proto_tree_add_uint_format_value(gsmtap_tree, hf_gsmtap_hdrlen,
 				    tvb, offset+1, 1, hdr_len,
-				    "Header length: %u bytes", hdr_len);
+				    "%u bytes", hdr_len);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_type,
 				    tvb, offset+2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_timeslot,

@@ -1255,14 +1255,14 @@ ipmi_do_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipmi_tree, ipmi_d
 
 		/* Header checksum */
 		if (hdr_crc == hdr_exp_crc) {
-			proto_tree_add_uint_format(hdr_tree, hf_ipmi_header_crc, tvb, offs++, 1,
-					hdr_crc, "Header checksum: 0x%02x (correct)", hdr_crc);
+			proto_tree_add_uint_format_value(hdr_tree, hf_ipmi_header_crc, tvb, offs++, 1,
+					hdr_crc, "0x%02x (correct)", hdr_crc);
 		}
 		else {
 			ti = proto_tree_add_boolean(hdr_tree, hf_ipmi_bad_checksum, tvb, 0, 0, TRUE);
 			PROTO_ITEM_SET_HIDDEN(ti);
-			proto_tree_add_uint_format(hdr_tree, hf_ipmi_header_crc, tvb, offs++, 1,
-					hdr_crc, "Header checksum: 0x%02x (incorrect, expected 0x%02x)",
+			proto_tree_add_uint_format_value(hdr_tree, hf_ipmi_header_crc, tvb, offs++, 1,
+					hdr_crc, "0x%02x (incorrect, expected 0x%02x)",
 				       	hdr_crc, hdr_exp_crc);
 		}
 
@@ -1288,8 +1288,8 @@ ipmi_do_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipmi_tree, ipmi_d
 
 		/* Response code (if present) */
 		if (is_resp) {
-			proto_tree_add_uint_format(hdr_tree, hf_ipmi_header_completion, tvb, offs++, 1,
-				hdr.ccode, "Completion code: %s (0x%02x)", ccdesc, hdr.ccode);
+			proto_tree_add_uint_format_value(hdr_tree, hf_ipmi_header_completion, tvb, offs++, 1,
+				hdr.ccode, "%s (0x%02x)", ccdesc, hdr.ccode);
 		}
 
 		/* Defining body signature (if present) */

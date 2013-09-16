@@ -456,8 +456,8 @@ rs04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	res = tvb_get_guint8(tvb, 0);
 	fail = tvb_get_guint8(tvb, 1);
 
-	proto_tree_add_uint_format(tree, hf_ipmi_app_04_result, tvb, 0, 1,
-			res, "Self test result: %s (0x%02x)",
+	proto_tree_add_uint_format_value(tree, hf_ipmi_app_04_result, tvb, 0, 1,
+			res, "%s (0x%02x)",
 			val_to_str_const(res, vals_04_result, "Device-specific internal failure"),
 			res);
 

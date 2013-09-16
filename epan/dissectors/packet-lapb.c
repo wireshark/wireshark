@@ -128,15 +128,10 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     }
 
-    if (tree) {
 	ti = proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0, 2,
 					    "LAPB");
 	lapb_tree = proto_item_add_subtree(ti, ett_lapb);
-	proto_tree_add_uint_format(lapb_tree, hf_lapb_address, tvb, 0, 1, byte0,
-				       "Address: 0x%02X", byte0);
-    }
-    else
-        lapb_tree = NULL;
+	proto_tree_add_uint(lapb_tree, hf_lapb_address, tvb, 0, 1, byte0);
 
     control = dissect_xdlc_control(tvb, 1, pinfo, lapb_tree, hf_lapb_control,
 	    ett_lapb_control, &lapb_cf_items, NULL, NULL, NULL,
@@ -164,8 +159,8 @@ proto_register_lapb(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_lapb_address,
-	  { "Address Field", "lapb.address", FT_UINT8, BASE_HEX, NULL, 0x0,
-	  	"Address", HFILL }},
+	  { "Address", "lapb.address", FT_UINT8, BASE_HEX, NULL, 0x0,
+	  	NULL, HFILL }},
 
 	{ &hf_lapb_control,
 	  { "Control Field", "lapb.control", FT_UINT8, BASE_HEX, NULL, 0x0,

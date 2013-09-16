@@ -427,8 +427,8 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_uint(iapp_tree, hf_iapp_version, tvb, 0, 1,
 			ih.ia_version);
-		proto_tree_add_uint_format(iapp_tree, hf_iapp_type, tvb, 1, 1,
-			ih.ia_type, "Type: %s(%d)", codestrval, ia_type);
+		proto_tree_add_uint_format_value(iapp_tree, hf_iapp_type, tvb, 1, 1,
+			ih.ia_type, "%s(%d)", codestrval, ia_type);
 
 		pdutf = proto_tree_add_text(iapp_tree, tvb, 2, -1,
 				"Protocol data units");
@@ -459,7 +459,7 @@ proto_register_iapp(void)
 			{ "Version", "iapp.version", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_iapp_type,
-			{ "type", "iapp.type", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+			{ "Type", "iapp.type", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 	};
 

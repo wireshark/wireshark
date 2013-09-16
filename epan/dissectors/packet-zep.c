@@ -66,7 +66,7 @@ void proto_reg_handoff_zep(void);
 /*  Initialize protocol and registered fields. */
 static int proto_zep = -1;
 static int hf_zep_version = -1;
-/* static int hf_zep_type = -1; */
+static int hf_zep_type = -1;
 static int hf_zep_channel_id = -1;
 static int hf_zep_device_id = -1;
 static int hf_zep_lqi_mode = -1;
@@ -207,11 +207,11 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else {
             proto_tree_add_uint(zep_tree, hf_zep_version, tvb, 2, 1, zep_data.version);
             if (zep_data.type == ZEP_V2_TYPE_ACK) {
-                proto_tree_add_uint_format(zep_tree, hf_zep_version, tvb, 3, 1, zep_data.type, "Type: %i (Ack)", ZEP_V2_TYPE_ACK);
+                proto_tree_add_uint_format_value(zep_tree, hf_zep_type, tvb, 3, 1, zep_data.type, "%i (Ack)", ZEP_V2_TYPE_ACK);
                 proto_tree_add_uint(zep_tree, hf_zep_seqno, tvb, 4, 4, zep_data.seqno);
             }
             else {
-                proto_tree_add_uint_format(zep_tree, hf_zep_version, tvb, 3, 1, zep_data.type, "Type: %i (%s)", zep_data.type, (zep_data.type==ZEP_V2_TYPE_DATA)?"Data":"Reserved");
+                proto_tree_add_uint_format_value(zep_tree, hf_zep_type, tvb, 3, 1, zep_data.type, "%i (%s)", zep_data.type, (zep_data.type==ZEP_V2_TYPE_DATA)?"Data":"Reserved");
                 proto_tree_add_uint(zep_tree, hf_zep_channel_id, tvb, 4, 1, zep_data.channel_id);
                 proto_tree_add_uint(zep_tree, hf_zep_device_id, tvb, 5, 2, zep_data.device_id);
                 proto_tree_add_boolean_format(zep_tree, hf_zep_lqi_mode, tvb, 7, 1, zep_data.lqi_mode, "LQI/CRC Mode: %s", zep_data.lqi_mode?"CRC":"LQI");
@@ -267,11 +267,9 @@ void proto_register_zep(void)
         { "Protocol Version",           "zep.version", FT_UINT8, BASE_DEC, NULL, 0x0,
             "The version of the sniffer.", HFILL }},
 
-#if 0
         { &hf_zep_type,
         { "Type",                       "zep.type", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
-#endif
 
         { &hf_zep_channel_id,
         { "Channel ID",                 "zep.channel_id", FT_UINT8, BASE_DEC, NULL, 0x0,

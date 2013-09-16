@@ -1186,9 +1186,8 @@ static const value_string zero_is_none_vals[] = {
 #define LISTofTEXTITEM16(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, TRUE, next_offset, byte_order); }
 #define OPCODE() {                                                \
       opcode = VALUE8(tvb, *offsetp);                             \
-      proto_tree_add_uint_format(t, hf_x11_opcode, tvb, *offsetp, \
-            1, opcode,  "opcode: %u (%s)", opcode,                \
-            val_to_str_const(opcode, state->opcode_vals, "Unknown"));   \
+      proto_tree_add_uint(t, hf_x11_opcode, tvb, *offsetp,        \
+            1, opcode);                                           \
       *offsetp += 1;                                              \
   }
 

@@ -381,16 +381,16 @@ void dissect_nhrp_hdr(tvbuff_t     *tvb,
         ipcsum = nhrp_checksum(tvb_get_ptr(tvb, 0, total_len),
             total_len);
         if (ipcsum == 0) {
-            proto_tree_add_uint_format(nhrp_tree, hf_nhrp_hdr_chksum, tvb, offset, 2, rx_chksum,
-                "NHRP Packet checksum: 0x%04x [correct]", rx_chksum);
+            proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_chksum, tvb, offset, 2, rx_chksum,
+                "0x%04x [correct]", rx_chksum);
         } else {
-            proto_tree_add_uint_format(nhrp_tree, hf_nhrp_hdr_chksum, tvb, offset, 2, rx_chksum,
-                "NHRP Packet checksum: 0x%04x [incorrect, should be 0x%04x]", rx_chksum,
+            proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_chksum, tvb, offset, 2, rx_chksum,
+                "0x%04x [incorrect, should be 0x%04x]", rx_chksum,
                 in_cksum_shouldbe(rx_chksum, ipcsum));
         }
     } else {
-        proto_tree_add_uint_format(nhrp_tree, hf_nhrp_hdr_chksum, tvb, offset, 2, rx_chksum,
-            "NHRP Packet checksum: 0x%04x [not all data available]", rx_chksum);
+        proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_chksum, tvb, offset, 2, rx_chksum,
+            "0x%04x [not all data available]", rx_chksum);
     }
     offset += 2;
 
@@ -402,16 +402,16 @@ void dissect_nhrp_hdr(tvbuff_t     *tvb,
     offset += 2;
 
     hdr->ar_op_version = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_format(nhrp_tree, hf_nhrp_hdr_version, tvb, offset, 1,
-        hdr->ar_op_version, "Version : %u (%s)", hdr->ar_op_version,
+    proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_version, tvb, offset, 1,
+        hdr->ar_op_version, "%u (%s)", hdr->ar_op_version,
         (hdr->ar_op_version == 1) ? "NHRP - rfc2332" : "Unknown");
     offset += 1;
     proto_tree_add_item(nhrp_tree, hf_nhrp_hdr_op_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     hdr->ar_shtl = tvb_get_guint8(tvb, offset);
-    shtl_tree_item = proto_tree_add_uint_format(nhrp_tree, hf_nhrp_hdr_shtl,
-        tvb, offset, 1, hdr->ar_shtl, "Source Address Type/Len: %s/%u",
+    shtl_tree_item = proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_shtl,
+        tvb, offset, 1, hdr->ar_shtl, "%s/%u",
         val_to_str_const(NHRP_SHTL_TYPE(hdr->ar_shtl), nhrp_shtl_type_vals, "Unknown Type"),
         NHRP_SHTL_LEN(hdr->ar_shtl));
     shtl_tree = proto_item_add_subtree(shtl_tree_item, ett_nhrp_hdr_shtl);
@@ -420,8 +420,8 @@ void dissect_nhrp_hdr(tvbuff_t     *tvb,
     offset += 1;
 
     hdr->ar_sstl = tvb_get_guint8(tvb, offset);
-    sstl_tree_item = proto_tree_add_uint_format(nhrp_tree, hf_nhrp_hdr_sstl,
-        tvb, offset, 1, hdr->ar_sstl, "Source SubAddress Type/Len: %s/%u",
+    sstl_tree_item = proto_tree_add_uint_format_value(nhrp_tree, hf_nhrp_hdr_sstl,
+        tvb, offset, 1, hdr->ar_sstl, "%s/%u",
         val_to_str_const(NHRP_SHTL_TYPE(hdr->ar_sstl), nhrp_shtl_type_vals, "Unknown Type"),
         NHRP_SHTL_LEN(hdr->ar_sstl));
     sstl_tree = proto_item_add_subtree(sstl_tree_item, ett_nhrp_hdr_sstl);
@@ -501,9 +501,8 @@ void dissect_cie_list(tvbuff_t    *tvb,
         offset += 2;
 
         val = tvb_get_guint8(tvb, offset);
-        cli_addr_tree_item = proto_tree_add_uint_format(cie_tree,
-            hf_nhrp_cli_addr_tl, tvb, offset, 1, val,
-            "Client Address Type/Len: %s/%u",
+        cli_addr_tree_item = proto_tree_add_uint_format_value(cie_tree,
+            hf_nhrp_cli_addr_tl, tvb, offset, 1, val, "%s/%u",
             val_to_str_const(NHRP_SHTL_TYPE(val), nhrp_shtl_type_vals, "Unknown Type"),
             NHRP_SHTL_LEN(val));
         cli_addr_tree = proto_item_add_subtree(cli_addr_tree_item, ett_nhrp_cie_cli_addr_tl);
@@ -512,9 +511,8 @@ void dissect_cie_list(tvbuff_t    *tvb,
         offset += 1;
 
         val = tvb_get_guint8(tvb, offset);
-        cli_saddr_tree_item = proto_tree_add_uint_format(cie_tree,
-            hf_nhrp_cli_saddr_tl, tvb, offset, 1, val,
-            "Client Sub Address Type/Len: %s/%u",
+        cli_saddr_tree_item = proto_tree_add_uint_format_value(cie_tree,
+            hf_nhrp_cli_saddr_tl, tvb, offset, 1, val, "%s/%u",
             val_to_str_const(NHRP_SHTL_TYPE(val), nhrp_shtl_type_vals, "Unknown Type"),
             NHRP_SHTL_LEN(val));
         cli_saddr_tree = proto_item_add_subtree(cli_saddr_tree_item, ett_nhrp_cie_cli_saddr_tl);
@@ -1062,7 +1060,7 @@ proto_register_nhrp(void)
             NULL, HFILL }
         },
         { &hf_nhrp_hdr_chksum,
-          { "Packet Checksum", "nhrp.hdr.chksum",
+          { "NHRP Packet Checksum", "nhrp.hdr.chksum",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },

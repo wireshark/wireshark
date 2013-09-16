@@ -276,9 +276,9 @@ dissect_m2tp_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
     proto_tree_add_uint(m2tp_tree, hf_m2tp_version, common_header_tvb, VERSION_OFFSET, VERSION_LENGTH, version);
     proto_tree_add_uint(m2tp_tree, hf_m2tp_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, reserved);
     proto_tree_add_uint(m2tp_tree, hf_m2tp_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, message_class);
-    proto_tree_add_uint_format(m2tp_tree, hf_m2tp_message_type,
+    proto_tree_add_uint_format_value(m2tp_tree, hf_m2tp_message_type,
                                common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
-                               message_type, "Message type: %u (%s)",
+                               message_type, "%u (%s)",
                                message_type, val_to_str_const(message_class * 256 + message_type, m2tp_message_class_type_values, "reserved"));
     proto_tree_add_uint(m2tp_tree, hf_m2tp_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, message_length);
   };

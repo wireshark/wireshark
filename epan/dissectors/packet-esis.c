@@ -327,8 +327,8 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                 (ehdr.esis_type&BIT_6) ? "1" : "0");
 
     tmp_uint = pntohs( ehdr.esis_holdtime );
-    proto_tree_add_uint_format(esis_tree, hf_esis_holdtime, tvb, 5, 2,
-                               tmp_uint, "Holding Time  : %u seconds",
+    proto_tree_add_uint_format_value(esis_tree, hf_esis_holdtime, tvb, 5, 2,
+                               tmp_uint, "%u seconds",
                                tmp_uint );
 
     tmp_uint = pntohs( ehdr.esis_checksum );
@@ -355,8 +355,8 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       cksum_status = NULL;
       DISSECTOR_ASSERT_NOT_REACHED();
     }
-    proto_tree_add_uint_format( esis_tree, hf_esis_checksum, tvb, 7, 2,
-                                tmp_uint, "Checksum      : 0x%x ( %s )",
+    proto_tree_add_uint_format_value( esis_tree, hf_esis_checksum, tvb, 7, 2,
+                                tmp_uint, "0x%x ( %s )",
                                 tmp_uint, cksum_status );
   }
 

@@ -1611,9 +1611,9 @@ dissect_shim6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo)
         shim_tree = proto_item_add_subtree(ti, ett_ipv6_shim6);
 
         /* Next Header */
-        proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_nxt, tvb,
+        proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_nxt, tvb,
             offset + (int)offsetof(struct ip6_shim, ip6s_nxt), 1, shim.ip6s_nxt,
-            "Next header: %s (%u)", ipprotostr(shim.ip6s_nxt), shim.ip6s_nxt);
+            "%s (%u)", ipprotostr(shim.ip6s_nxt), shim.ip6s_nxt);
 
         /* Header Extension Length */
         proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_len, tvb,

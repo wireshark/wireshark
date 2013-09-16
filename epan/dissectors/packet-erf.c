@@ -1067,8 +1067,8 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   proto_tree_add_uint64(tree, hf_erf_ts, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.ts);
 
-  rectype_item = proto_tree_add_uint_format(tree, hf_erf_rectype, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type,
-					    "Record type: 0x%02x (Type %d: %s)",
+  rectype_item = proto_tree_add_uint_format_value(tree, hf_erf_rectype, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type,
+					    "0x%02x (Type %d: %s)",
 					    pinfo->pseudo_header->erf.phdr.type,
 					    pinfo->pseudo_header->erf.phdr.type & ERF_HDR_TYPE_MASK,
 					    val_to_str_const(pinfo->pseudo_header->erf.phdr.type & ERF_HDR_TYPE_MASK,
@@ -1513,7 +1513,7 @@ proto_register_erf(void)
       { "Timestamp", "erf.ts",
         FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_rectype,
-      { "Type", "erf.types",
+      { "Record type", "erf.types",
         FT_UINT8, BASE_HEX,  NULL, 0x0, NULL, HFILL } },
     { &hf_erf_type,
       { "Type", "erf.types.type",

@@ -150,16 +150,14 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if (tree) {
 		if (datastream_type_string != NULL) {
-			proto_tree_add_uint_format(spp_tree, hf_spp_datastream_type, tvb,
+			proto_tree_add_uint_format_value(spp_tree, hf_spp_datastream_type, tvb,
 						   1, 1, datastream_type,
-						   "Datastream Type: %s (0x%02X)",
+						   "%s (0x%02X)",
 						   datastream_type_string,
 						   datastream_type);
 		} else {
-			proto_tree_add_uint_format(spp_tree, hf_spp_datastream_type, tvb,
-						   1, 1, datastream_type,
-						   "Datastream Type: 0x%02X",
-						   datastream_type);
+			proto_tree_add_uint(spp_tree, hf_spp_datastream_type, tvb,
+						   1, 1, datastream_type);
 		}
 		proto_tree_add_item(spp_tree, hf_spp_src_id, tvb,  2, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(spp_tree, hf_spp_dst_id, tvb,  4, 2, ENC_BIG_ENDIAN);
@@ -222,7 +220,7 @@ proto_register_spp(void)
 		  NULL, HFILL }},
 
 		{ &hf_spp_datastream_type,
-		{ "Datastream type",	       	"spp.type",
+		{ "Datastream Type",	       	"spp.type",
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
 		  NULL, HFILL }},
 

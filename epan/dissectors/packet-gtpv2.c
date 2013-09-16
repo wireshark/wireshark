@@ -4894,14 +4894,14 @@ dissect_gtpv2_mmbr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     guint32 max_dl;
 
     max_ul = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_uint_format(tree, hf_gtpv2_mmbr_ul, tvb, offset, 4, max_ul, "Max MBR/APN-AMBR for uplink : %u %s",
+    proto_tree_add_uint_format_value(tree, hf_gtpv2_mmbr_ul, tvb, offset, 4, max_ul, "%u %s",
                                 (max_ul) > 1000 ? max_ul/1000 : max_ul,
                                 (max_ul) > 1000 ? "Mbps" : "kbps");
 
     offset += 4;
 
     max_dl = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_uint_format(tree, hf_gtpv2_mmbr_dl, tvb, offset, 4, max_dl, "Max MBR/APN-AMBR for downlink : %u %s",
+    proto_tree_add_uint_format_value(tree, hf_gtpv2_mmbr_dl, tvb, offset, 4, max_dl, "%u %s",
                                 (max_dl) > 1000 ? max_dl/1000 : max_dl,
                                 (max_dl) > 1000 ? "Mbps" : "kbps");
 }

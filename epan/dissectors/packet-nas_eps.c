@@ -2195,8 +2195,8 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     } else {
         bitrate = calc_bitrate(octet);
         dl_total += bitrate;
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl, tvb, curr_offset, 1, octet,
-                       "APN-AMBR for downlink : %u kbps", bitrate);
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl, tvb, curr_offset, 1, octet,
+                       "%u kbps", bitrate);
     }
     curr_offset++;
 
@@ -2208,8 +2208,8 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     } else {
         bitrate = calc_bitrate(octet);
         ul_total += bitrate;
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul, tvb, curr_offset, 1, octet,
-                       "APN-AMBR for uplink : %u kbps", bitrate);
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul, tvb, curr_offset, 1, octet,
+                       "%u kbps", bitrate);
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
@@ -2222,10 +2222,8 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     } else {
         bitrate = calc_bitrate_ext(octet);
         dl_total += (octet > 0x4a) ? bitrate*1000 : bitrate;
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl_ext, tvb, curr_offset, 1, octet,
-                       "APN-AMBR for downlink (extended) : %u %s",
-                       bitrate,
-                       (octet > 0x4a) ? "Mbps" : "kbps");
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_ext, tvb, curr_offset, 1, octet,
+                       "%u %s", bitrate, (octet > 0x4a) ? "Mbps" : "kbps");
     }
     if (len < 5) {
         /* APN-AMBR for downlink (extended-2) is not present; display total now */
@@ -2250,10 +2248,8 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     } else {
         bitrate = calc_bitrate_ext(octet);
         ul_total += (octet > 0x4a) ? bitrate*1000 : bitrate;
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul_ext, tvb, curr_offset, 1, octet,
-                       "APN-AMBR for uplink (extended) : %u %s",
-                       bitrate,
-                       (octet > 0x4a) ? "Mbps" : "kbps");
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_ext, tvb, curr_offset, 1, octet,
+                       "%u %s", bitrate, (octet > 0x4a) ? "Mbps" : "kbps");
     }
     if (len < 6) {
         /* APN-AMBR for uplink (extended-2) is not present; display total now */
@@ -2277,9 +2273,8 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                        "Use the value indicated by the APN-AMBR for downlink and APN-AMBR for downlink (extended)");
     } else {
         dl_total += octet*256*1000;
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl_ext2, tvb, curr_offset, 1, octet,
-                       "APN-AMBR for downlink (extended-2) : %u Mbps",
-                       (octet* 256));
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_ext2, tvb, curr_offset, 1, octet,
+                       "%u Mbps", (octet* 256));
     }
     proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for downlink : %.3f Mbps", (gfloat)dl_total / 1000);
     curr_offset++;
@@ -2292,9 +2287,8 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                        "Use the value indicated by the APN-AMBR for uplink and APN-AMBR for uplink (extended)");
     } else {
         ul_total += octet*256*1000;
-        proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
-                       "APN-AMBR for uplink (extended-2) : %u Mbps",
-                       (octet* 256));
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
+                       "%u Mbps", (octet* 256));
     }
     proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for uplink : %.3f Mbps", (gfloat)ul_total / 1000);
     curr_offset++;
@@ -2351,8 +2345,8 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         proto_tree_add_uint_format(tree, hf_nas_eps_mbr_ul, tvb, curr_offset, 1, octet,
                        "UE->NW Subscribed maximum bit rate for uplink/ NW->UE Reserved");
     } else {
-        proto_tree_add_uint_format(tree, hf_nas_eps_mbr_ul, tvb, curr_offset, 1, octet,
-                       "Maximum bit rate for uplink : %u kbps", calc_bitrate(octet));
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_mbr_ul, tvb, curr_offset, 1, octet,
+                       "%u kbps", calc_bitrate(octet));
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
@@ -2363,24 +2357,24 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         proto_tree_add_uint_format(tree, hf_nas_eps_mbr_dl, tvb, curr_offset, 1, octet,
                        "UE->NW Subscribed maximum bit rate for downlink/ NW->UE Reserved");
     } else {
-        proto_tree_add_uint_format(tree, hf_nas_eps_mbr_dl, tvb, curr_offset, 1, octet,
-                       "Maximum bit rate for downlink : %u kbps", calc_bitrate(octet));
+        proto_tree_add_uint_format_value(tree, hf_nas_eps_mbr_dl, tvb, curr_offset, 1, octet,
+                       "%u kbps", calc_bitrate(octet));
     }
     curr_offset++;
     if ((curr_offset - offset) >= len)
         return(len);
     /* Guaranteed bit rate for uplink octet 6 */
     octet = tvb_get_guint8(tvb,curr_offset);
-    proto_tree_add_uint_format(tree, hf_nas_eps_gbr_ul, tvb, curr_offset, 1, octet,
-                   "Guaranteed bit rate for uplink : %u kbps", calc_bitrate(octet));
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_gbr_ul, tvb, curr_offset, 1, octet,
+                   "%u kbps", calc_bitrate(octet));
 
     curr_offset++;
     if ((curr_offset - offset) >= len)
         return(len);
     /* Guaranteed bit rate for downlink octet 7 */
     octet = tvb_get_guint8(tvb,curr_offset);
-    proto_tree_add_uint_format(tree, hf_nas_eps_gbr_dl, tvb, curr_offset, 1, octet,
-                   "Guaranteed bit rate for downlink : %u kbps", calc_bitrate(octet));
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_gbr_dl, tvb, curr_offset, 1, octet,
+                   "%u kbps", calc_bitrate(octet));
 
     curr_offset++;
     if ((curr_offset - offset) >= len)
@@ -5556,22 +5550,22 @@ proto_register_nas_eps(void) {
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_apn_ambr_ul_ext,
-        { "APN-AMBR for uplink(Extended)","nas_eps.emm.apn_ambr_ul_ext",
+        { "APN-AMBR for uplink (extended)","nas_eps.emm.apn_ambr_ul_ext",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_apn_ambr_dl_ext,
-        { "APN-AMBR for downlink(Extended)","nas_eps.emm.apn_ambr_dl_ext",
+        { "APN-AMBR for downlink (extended)","nas_eps.emm.apn_ambr_dl_ext",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_apn_ambr_ul_ext2,
-        { "APN-AMBR for uplink(Extended-2)","nas_eps.emm.apn_ambr_ul_ext2",
+        { "APN-AMBR for uplink (extended-2)","nas_eps.emm.apn_ambr_ul_ext2",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_apn_ambr_dl_ext2,
-        { "APN-AMBR for downlink(Extended-2)","nas_eps.emm.apn_ambr_dl_ext2",
+        { "APN-AMBR for downlink (extended-2)","nas_eps.emm.apn_ambr_dl_ext2",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },

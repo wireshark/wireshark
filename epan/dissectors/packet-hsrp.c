@@ -172,7 +172,7 @@ static gint hf_hsrp2_state = -1;
 static gint hf_hsrp2_group_state_tlv = -1;
 static gint hf_hsrp2_interface_state_tlv = -1;
 static gint hf_hsrp2_text_auth_tlv = -1;
-/* static gint hf_hsrp2_md5_auth_tlv = -1; */
+static gint hf_hsrp2_md5_auth_tlv = -1;
 static gint hf_hsrp2_ipversion = -1;
 static gint hf_hsrp2_hellotime = -1;
 static gint hf_hsrp2_holdtime = -1;
@@ -553,12 +553,12 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                         /* offset += 8; */
                                 }
                         } else if (type == 4 && len == 28) {
-                                /* Text Authentication TLV */
+                                /* MD5 Authentication TLV */
                                 if (tree) {
                                         proto_tree *md5_auth_tlv;
 
-                                        ti = proto_tree_add_uint_format(hsrp_tree, hf_hsrp2_text_auth_tlv, tvb, offset, 1, type,
-                                        "MD5 Authentication TLV: Type=%d Len=%d", type, len);
+                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_md5_auth_tlv, tvb, offset, 1, type,
+                                        "Type=%d Len=%d", type, len);
                                         offset+=2;
 
                                         /* Making MD5 Authentication TLV subtree */
@@ -709,12 +709,10 @@ void proto_register_hsrp(void)
                     FT_UINT8, BASE_DEC, NULL, 0x0,
                     NULL, HFILL }},
 
-#if 0
                 { &hf_hsrp2_md5_auth_tlv,
                   { "MD5 Authentication TLV", "hsrp2.md5_auth_tlv",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
                     NULL, HFILL }},
-#endif
 
                 { &hf_hsrp2_ipversion,
                   { "IP Ver.", "hsrp2.ipversion",

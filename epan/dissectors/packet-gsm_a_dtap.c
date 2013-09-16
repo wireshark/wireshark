@@ -3515,8 +3515,8 @@ de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
-	proto_tree_add_uint_format(tree, hf_gsm_a_dtap_cause_of_no_cli, tvb, curr_offset, 1, oct,
-				   "Cause of no CLI: %s (%u)",
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_cause_of_no_cli, tvb, curr_offset, 1, oct,
+				   "%s (%u)",
 				   val_to_str_const(oct, gsm_a_cause_of_no_cli_values, "Unavailable"),
 				   oct);
 

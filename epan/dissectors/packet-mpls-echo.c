@@ -539,8 +539,8 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             tlv_fec_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv_fec);
 
             /* FEC sub-TLV Type and Length */
-            proto_tree_add_uint_format(tlv_fec_tree, hf_mpls_echo_tlv_fec_type, tvb,
-                                       offset, 2, saved_type, "Type: %s (%u)",
+            proto_tree_add_uint_format_value(tlv_fec_tree, hf_mpls_echo_tlv_fec_type, tvb,
+                                       offset, 2, saved_type, "%s (%u)",
                                        val_to_str_ext_const(type, &mpls_echo_tlv_fec_names_ext,
                                                             "Unknown sub-TLV type"), saved_type);
 
@@ -1480,13 +1480,13 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 
         /* MPLS Echo TLV Type and Length */
         if (in_errored) {
-            proto_tree_add_uint_format(mpls_echo_tlv_tree, hf_mpls_echo_tlv_errored_type, tvb,
-                                       offset, 2, saved_type, "Errored TLV Type: %s (%u)",
+            proto_tree_add_uint_format_value(mpls_echo_tlv_tree, hf_mpls_echo_tlv_errored_type, tvb,
+                                       offset, 2, saved_type, "%s (%u)",
                                        val_to_str_ext_const(type, &mpls_echo_tlv_type_names_ext,
                                                             "Unknown TLV type"), saved_type);
         } else {
-            proto_tree_add_uint_format(mpls_echo_tlv_tree, hf_mpls_echo_tlv_type, tvb,
-                                       offset, 2, saved_type, "Type: %s (%u)",
+            proto_tree_add_uint_format_value(mpls_echo_tlv_tree, hf_mpls_echo_tlv_type, tvb,
+                                       offset, 2, saved_type, "%s (%u)",
                                        val_to_str_ext_const(type, &mpls_echo_tlv_type_names_ext,
                                                             "Unknown TLV type"), saved_type);
         }

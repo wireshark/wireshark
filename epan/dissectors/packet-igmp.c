@@ -409,8 +409,8 @@ dissect_v3_max_resp(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		tsecs = bits;
 	}
 
-	item = proto_tree_add_uint_format(parent_tree, hf_max_resp, tvb,
-			offset, 1, tsecs, "Max Response Time: %.1f sec (0x%02x)",tsecs*0.1,bits);
+	item = proto_tree_add_uint_format_value(parent_tree, hf_max_resp, tvb,
+			offset, 1, tsecs, "%.1f sec (0x%02x)",tsecs*0.1,bits);
 
 	if (bits&0x80) {
 		tree = proto_item_add_subtree(item, ett_max_resp);
@@ -662,8 +662,8 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 
 	/* max resp time */
 	tsecs = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_max_resp, tvb,
-		offset, 1, tsecs, "Max Response Time: %.1f sec (0x%02x)", tsecs*0.1,tsecs);
+	proto_tree_add_uint_format_value(tree, hf_max_resp, tvb,
+		offset, 1, tsecs, "%.1f sec (0x%02x)", tsecs*0.1,tsecs);
 	offset += 1;
 
 	/* checksum */

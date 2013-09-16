@@ -154,8 +154,8 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     offset += 1;
 
     tsecs = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_format(tree, hf_max_resp, tvb, offset, 1, tsecs,
-	"Max Response Time: %.1f sec (0x%02x)", tsecs * 0.1, tsecs);
+    proto_tree_add_uint_format_value(tree, hf_max_resp, tvb, offset, 1, tsecs,
+	"%.1f sec (0x%02x)", tsecs * 0.1, tsecs);
     offset += 1;
 
     igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
@@ -260,8 +260,8 @@ proto_register_igap(void)
 	},
 
 	{ &hf_max_resp,
-	  { "Max Resp Time", "igap.max_resp", FT_UINT8, BASE_DEC,
-	    NULL, 0, "Max Response Time", HFILL }
+	  { "Max Response Time", "igap.max_resp", FT_UINT8, BASE_DEC,
+	    NULL, 0, NULL, HFILL }
 	},
 
 	{ &hf_checksum,

@@ -260,18 +260,18 @@ dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
       else if (dlci_efa == 8180) { col_append_str(pinfo->cinfo, COL_INFO, " | LinkCtrl"); }
 
       if(efa <= 8175) {
-         proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "Envelope function address: ISDN (%u)", efa);
+         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+               "ISDN (%u)", efa);
          proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:ISDN (%u))",sapi,tei,efa);
       }
       else if (efa > 8175 && efa <= 8180){
-         proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "Envelope function address: %s (%u)", val_to_str_const(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
+         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+               "%s (%u)", val_to_str_const(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
          proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%s (%u))",sapi,tei,val_to_str_const(efa, efa_values, "unknown EFA-value"),efa);
       }
       else {
-         proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "Envelope function address: RESERVED (%u)", efa);
+         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+               "RESERVED (%u)", efa);
          proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:RESERVED (%u))",sapi,tei,efa);
       }
    }
@@ -289,20 +289,20 @@ dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
       else if (dlci_efa == 8180) { col_append_str(pinfo->cinfo, COL_INFO, " | LinkCtrl"); }
 
       if (efa <= 8175) {
-         proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "Envelope function address: ISDN (%u)", efa);
+         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+               "ISDN (%u)", efa);
          proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:ISDN (%u))",sapi,tei,efa);
 
       }
       else if (efa > 8175 && efa <= 8180){
-         proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "Envelope function address: %s (%u)", val_to_str_const(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
+         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+               "%s (%u)", val_to_str_const(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
          proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%s (%u))",sapi,tei,val_to_str_const(efa, efa_values, "unknown EFA-value"),efa);
 
       }
       else {
-         proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "Envelope function address: RESERVED (%u)", efa);
+         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+               "RESERVED (%u)", efa);
          proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:RESERVED (%u))",sapi,tei,efa);
       }
    }
@@ -441,8 +441,8 @@ dissect_status_type_identification_parameter(tvbuff_t *parameter_tvb, proto_tree
    status_id   = tvb_get_ntohs(parameter_tvb, NTFY_STATUS_IDENT_OFFSET);
 
    proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, NTFY_STATUS_TYPE_OFFSET, NTFY_STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
-   proto_tree_add_uint_format(parameter_tree, hf_status_id,  parameter_tvb, NTFY_STATUS_IDENT_OFFSET, NTFY_STATUS_IDENT_LENGTH,
-         status_id, "Status identification: %u (%s)", status_id,
+   proto_tree_add_uint_format_value(parameter_tree, hf_status_id,  parameter_tvb, NTFY_STATUS_IDENT_OFFSET, NTFY_STATUS_IDENT_LENGTH,
+         status_id, "%u (%s)", status_id,
          val_to_str_const(status_type * 256 * 256 + status_id, status_type_id_values, "unknown"));
 
    proto_item_append_text(parameter_item, " (%s)",
@@ -1324,9 +1324,9 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
       proto_tree_add_item(common_header_tree, hf_version, common_header_tvb, COMMON_HEADER_VERSION_OFFSET, COMMON_HEADER_VERSION_LENGTH, ENC_BIG_ENDIAN);
       proto_tree_add_item(common_header_tree, hf_reserved, common_header_tvb, COMMON_HEADER_RESERVED_OFFSET, COMMON_HEADER_RESERVED_LENGTH, ENC_BIG_ENDIAN);
       proto_tree_add_item(common_header_tree, hf_msg_class, common_header_tvb, COMMON_HEADER_MSG_CLASS_OFFSET, COMMON_HEADER_MSG_CLASS_LENGTH, ENC_BIG_ENDIAN);
-      proto_tree_add_uint_format(common_header_tree, hf_msg_type,
+      proto_tree_add_uint_format_value(common_header_tree, hf_msg_type,
             common_header_tvb, COMMON_HEADER_MSG_TYPE_OFFSET, COMMON_HEADER_MSG_TYPE_LENGTH,
-            message_type, "Message type: %s ( %u )",
+            message_type, "%s ( %u )",
             val_to_str_const(message_class * 256 + message_type, msg_class_type_values, "reserved"), message_type);
       proto_tree_add_item(common_header_tree, hf_msg_length, common_header_tvb, COMMON_HEADER_MSG_LENGTH_OFFSET, COMMON_HEADER_MSG_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 

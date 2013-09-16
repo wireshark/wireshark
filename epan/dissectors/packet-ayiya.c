@@ -119,9 +119,9 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_bits_item(ayiya_tree, hf_hash_method, tvb, 12, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_bits_item(ayiya_tree, hf_auth_method, tvb, 16, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_bits_item(ayiya_tree, hf_opcode, tvb, 20, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_uint_format(ayiya_tree, hf_next_header, tvb,
+		proto_tree_add_uint_format_value(ayiya_tree, hf_next_header, tvb,
 								   3, 1, next_header,
-								   "Next header: %s (0x%02x)",
+								   "%s (0x%02x)",
 								   ipprotostr(next_header), next_header);
 		tv.secs = tvb_get_ntohl(tvb, 4);
 		tv.nsecs = 0;

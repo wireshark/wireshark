@@ -477,8 +477,7 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tvb_get_ntohl(tvb, 0) == 0xffffffff) {
 		col_set_str(pinfo->cinfo, COL_INFO, "Connectionless ");
-		if (quake3_tree)
-			proto_tree_add_uint_format(quake3_tree,
+		proto_tree_add_uint_format(quake3_tree,
 				hf_quake3_connectionless,
 				tvb, 0, 0, 1,
 				"Type: Connectionless");
@@ -487,8 +486,7 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else {
 		col_set_str(pinfo->cinfo, COL_INFO, "Game ");
-		if (quake3_tree)
-			proto_tree_add_uint_format(quake3_tree,
+		proto_tree_add_uint_format(quake3_tree,
 				hf_quake3_game,
 				tvb, 0, 0, 1,
 				"Type: Game");

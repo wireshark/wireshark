@@ -3930,8 +3930,8 @@ dissect_isup_event_information_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
   guint8 indicators;
 
   indicators = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_uint_format(parameter_tree, hf_isup_event_ind, parameter_tvb, 0, EVENT_INFO_LENGTH, indicators,
-                             "Event indicator: %s (%u)",
+  proto_tree_add_uint_format_value(parameter_tree, hf_isup_event_ind, parameter_tvb, 0, EVENT_INFO_LENGTH, indicators,
+                             "%s (%u)",
                              val_to_str_const(indicators & GFEDCBA_8BIT_MASK, isup_event_ind_value, "spare"),
                              indicators & GFEDCBA_8BIT_MASK);
   proto_tree_add_boolean(parameter_tree, hf_isup_event_presentation_restricted_ind, parameter_tvb, 0, EVENT_INFO_LENGTH, indicators);
@@ -4836,8 +4836,8 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
         } /* end if */
 
         Local_BCU_ID = tvb_get_letohl(parameter_tvb, offset);
-        proto_tree_add_uint_format(bat_ase_element_tree, hf_Local_BCU_ID , parameter_tvb, offset, 4,
-                                   Local_BCU_ID , "Local BCU ID : 0x%08x", Local_BCU_ID);
+        proto_tree_add_uint_format_value(bat_ase_element_tree, hf_Local_BCU_ID , parameter_tvb, offset, 4,
+                                   Local_BCU_ID , "0x%08x", Local_BCU_ID);
         offset = offset + 4;
         break;
       case SIGNAL :
@@ -8222,8 +8222,8 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
 
       octet = tvb_get_guint8(optional_parameters_tvb,offset);
 
-      proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, optional_parameters_tvb, offset,
-                                 PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
+      proto_tree_add_uint(parameter_tree, hf_isup_parameter_length, optional_parameters_tvb, offset,
+                                 PARAMETER_LENGTH_IND_LENGTH, parameter_length);
       offset += PARAMETER_LENGTH_IND_LENGTH;
       if (octet == 0)
         continue;
@@ -8580,9 +8580,8 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_in
 
       octet = tvb_get_guint8(optional_parameters_tvb,offset);
 
-      proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, optional_parameters_tvb, offset,
-                                 PARAMETER_LENGTH_IND_LENGTH, parameter_length,
-                                 "Parameter length: %u", parameter_length);
+      proto_tree_add_uint(parameter_tree, hf_isup_parameter_length, optional_parameters_tvb, offset,
+                                 PARAMETER_LENGTH_IND_LENGTH, parameter_length);
       offset += PARAMETER_LENGTH_IND_LENGTH;
       if (octet == 0)
         continue;

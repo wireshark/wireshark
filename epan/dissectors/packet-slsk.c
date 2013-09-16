@@ -372,8 +372,8 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           i=tvb_get_guint8(tvb, offset);
-          proto_tree_add_uint_format(slsk_tree, hf_slsk_login_successful, tvb, offset, 1, tvb_get_guint8(tvb, offset),
-            "Login successful: %s (Byte: %d)", val_to_str_const(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
+          proto_tree_add_uint_format_value(slsk_tree, hf_slsk_login_successful, tvb, offset, 1, tvb_get_guint8(tvb, offset),
+            "%s (Byte: %d)", val_to_str_const(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
           offset += 1;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           proto_tree_add_item(slsk_tree, hf_slsk_login_message, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
@@ -444,8 +444,8 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
-          proto_tree_add_uint_format(slsk_tree, hf_slsk_user_exists, tvb, offset, 1, tvb_get_guint8(tvb, offset),
-            "User exists: %s (Byte: %d)", val_to_str_const(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
+          proto_tree_add_uint_format_value(slsk_tree, hf_slsk_user_exists, tvb, offset, 1, tvb_get_guint8(tvb, offset),
+            "%s (Byte: %d)", val_to_str_const(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
           offset += 1;
         }
         else if (check_slsk_format(tvb, offset, "is")) {
@@ -2448,7 +2448,7 @@ proto_register_slsk(void)
       { "IP Address", "slsk.ip.address",
       FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_slsk_user_exists,
-      { "user exists", "slsk.user.exists",
+      { "User exists", "slsk.user.exists",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_slsk_status_code,
       { "Status Code", "slsk.status.code",

@@ -215,21 +215,19 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    nettl_item = proto_tree_add_protocol_format(tree, proto_nettl, tvb,
 		0, -1, "HP-UX Network Tracing and Logging (nettl) header");
 	    nettl_tree = proto_item_add_subtree(nettl_item, ett_nettl);
-            proto_tree_add_uint_format(nettl_tree, hf_nettl_subsys, tvb,
-		0, 0, pinfo->pseudo_header->nettl.subsys,
-		"Subsystem: %d (%s)", pinfo->pseudo_header->nettl.subsys,
-		val_to_str_const(pinfo->pseudo_header->nettl.subsys, subsystem, "Unknown"));
-            proto_tree_add_int(nettl_tree, hf_nettl_devid, tvb,
-		0, 0, pinfo->pseudo_header->nettl.devid);
-            proto_tree_add_uint_format(nettl_tree, hf_nettl_kind, tvb,
-		0, 0, pinfo->pseudo_header->nettl.kind,
-		"Trace Kind: 0x%08x (%s)", pinfo->pseudo_header->nettl.kind,
-		val_to_str_const(pinfo->pseudo_header->nettl.kind & ~NETTL_HDR_SUBSYSTEM_BITS_MASK, trace_kind, "Unknown"));
-            proto_tree_add_int(nettl_tree, hf_nettl_pid, tvb,
-		0, 0, pinfo->pseudo_header->nettl.pid);
-            proto_tree_add_uint(nettl_tree, hf_nettl_uid, tvb,
-		0, 0, pinfo->pseudo_header->nettl.uid);
-
+        proto_tree_add_uint_format_value(nettl_tree, hf_nettl_subsys, tvb,
+			0, 0, pinfo->pseudo_header->nettl.subsys, "%d (%s)", pinfo->pseudo_header->nettl.subsys,
+			val_to_str_const(pinfo->pseudo_header->nettl.subsys, subsystem, "Unknown"));
+        proto_tree_add_int(nettl_tree, hf_nettl_devid, tvb,
+			0, 0, pinfo->pseudo_header->nettl.devid);
+        proto_tree_add_uint_format_value(nettl_tree, hf_nettl_kind, tvb,
+			0, 0, pinfo->pseudo_header->nettl.kind,
+			"0x%08x (%s)", pinfo->pseudo_header->nettl.kind,
+			val_to_str_const(pinfo->pseudo_header->nettl.kind & ~NETTL_HDR_SUBSYSTEM_BITS_MASK, trace_kind, "Unknown"));
+        proto_tree_add_int(nettl_tree, hf_nettl_pid, tvb,
+			0, 0, pinfo->pseudo_header->nettl.pid);
+        proto_tree_add_uint(nettl_tree, hf_nettl_uid, tvb,
+			0, 0, pinfo->pseudo_header->nettl.uid);
       }
 
       switch (pinfo->fd->lnk_t) {

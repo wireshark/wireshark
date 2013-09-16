@@ -2545,8 +2545,8 @@ dissect_e212_mcc_mnc_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         expert_add_info(pinfo, item, &ei_E212_mcc_non_decimal);
 
     if (long_mnc) {
-        item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
-                   "Mobile Network Code (MNC): %s (%03u)",
+        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+                   "%s (%03u)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
         /* Prepare a string with the MCC and MNC including the country and Operator if
@@ -2558,8 +2558,8 @@ dissect_e212_mcc_mnc_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             mnc,
             val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, ""));
     } else {
-        item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
-                   "Mobile Network Code (MNC): %s (%02u)",
+        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+                   "%s (%02u)",
                    val_to_str_ext_const(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
         /* Prepare a string with the MCC and MNC including the country and Operator if
@@ -2668,13 +2668,13 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         expert_add_info(pinfo, item, &ei_E212_mcc_non_decimal);
 
     if (long_mnc)
-        item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
-                   "Mobile Network Code (MNC): %s (%03u)",
+        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+                   "%s (%03u)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
     else
-        item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
-                   "Mobile Network Code (MNC): %s (%02u)",
+        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+                   "%s (%02u)",
                    val_to_str_ext_const(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
 
@@ -2707,7 +2707,7 @@ proto_register_e212(void)
         "Mobile Country Code MCC", HFILL }
     },
     { &hf_E212_mnc,
-        { "Mobile network code (MNC)","e212.mnc",
+        { "Mobile Network Code (MNC)","e212.mnc",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Mobile network code", HFILL }
     },

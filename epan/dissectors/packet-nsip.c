@@ -301,12 +301,9 @@ decode_iei_cause(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
   if (bi->nsip_tree) {
     cause = tvb_get_guint8(bi->tvb, bi->offset);
-    proto_tree_add_uint_format(bi->nsip_tree, hf_nsip_cause,
+    proto_tree_add_uint(bi->nsip_tree, hf_nsip_cause,
                                bi->tvb, ie_start_offset, ie->total_length,
-                               cause,
-                               "Cause: %s (%#02x)",
-                               val_to_str_const(cause, tab_nsip_cause_values,
-                                                "Unknown"), cause);
+                               cause);
     col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
         "Cause: %s",
         val_to_str(cause, tab_nsip_cause_values, "Unknown (0x%02x)"));
@@ -324,10 +321,9 @@ decode_iei_ns_vci(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (bi->nsip_tree) {
     ns_vci = tvb_get_ntohs(bi->tvb, bi->offset);
 
-    proto_tree_add_uint_format(bi->nsip_tree, hf_nsip_ns_vci,
+    proto_tree_add_uint(bi->nsip_tree, hf_nsip_ns_vci,
                                bi->tvb, ie_start_offset, ie->total_length,
-                               ns_vci,
-                               "NS VCI: %#04x", ns_vci);
+                               ns_vci);
     col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
         "NS VCI: %#04x", ns_vci);
     proto_item_append_text(bi->ti, ", NS VCI: %#04x", ns_vci);
@@ -473,10 +469,9 @@ decode_iei_max_num_ns_vc(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
  if (bi->nsip_tree) {
    num_ns_vc = tvb_get_ntohs(bi->tvb, bi->offset);
 
-   proto_tree_add_uint_format(bi->nsip_tree, hf_nsip_max_num_ns_vc,
+   proto_tree_add_uint(bi->nsip_tree, hf_nsip_max_num_ns_vc,
                               bi->tvb, ie_start_offset, ie->total_length,
-                              num_ns_vc,
-                              "Maximum Number of NS-VCs: %u", num_ns_vc);
+                              num_ns_vc);
  }
  bi->offset += 2;
 }
@@ -488,10 +483,9 @@ decode_iei_num_ip4_endpoints(nsip_ie_t *ie, build_info_t *bi, int ie_start_offse
   if (bi->nsip_tree) {
     num_endpoints = tvb_get_ntohs(bi->tvb, bi->offset);
 
-    proto_tree_add_uint_format(bi->nsip_tree, hf_nsip_num_ip4_endpoints,
+    proto_tree_add_uint(bi->nsip_tree, hf_nsip_num_ip4_endpoints,
                                bi->tvb, ie_start_offset, ie->total_length,
-                               num_endpoints,
-                               "Number of IP4 Endpoints: %u", num_endpoints);
+                               num_endpoints);
   }
   bi->offset += 2;
 }
@@ -503,10 +497,9 @@ decode_iei_num_ip6_endpoints(nsip_ie_t *ie, build_info_t *bi, int ie_start_offse
   if (bi->nsip_tree) {
     num_endpoints = tvb_get_ntohs(bi->tvb, bi->offset);
 
-    proto_tree_add_uint_format(bi->nsip_tree, hf_nsip_num_ip6_endpoints,
+    proto_tree_add_uint(bi->nsip_tree, hf_nsip_num_ip6_endpoints,
                                bi->tvb, ie_start_offset, ie->total_length,
-                               num_endpoints,
-                               "Number of IP6 Endpoints: %u", num_endpoints);
+                               num_endpoints);
   }
   bi->offset += 2;
 }
@@ -993,11 +986,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     bi.ti = proto_tree_add_item(tree, proto_nsip, tvb, 0, -1,
                              ENC_NA);
     nsip_tree = proto_item_add_subtree(bi.ti, ett_nsip);
-    proto_tree_add_uint_format(nsip_tree, hf_nsip_pdu_type, tvb, 0, 1,
-                               pdu_type,
-                               "PDU type: %s (%#02x)",
-                               val_to_str_const(pdu_type, tab_nsip_pdu_types,
-                                                "Unknown"), pdu_type);
+    proto_tree_add_item(nsip_tree, hf_nsip_pdu_type, tvb, 0, 1, ENC_NA);
     proto_item_append_text(bi.ti, ", PDU type: %s",
                                val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown"));
     bi.nsip_tree = nsip_tree;
@@ -1019,7 +1008,7 @@ proto_register_nsip(void)
     },
     { &hf_nsip_ns_vci,
       { "NS-VCI", "nsip.ns_vci",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         "Network Service Virtual Link Identifier", HFILL }
     },
     { &hf_nsip_pdu_type,

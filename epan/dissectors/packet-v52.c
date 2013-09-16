@@ -332,10 +332,9 @@ static const value_string steady_signal_values [] = {
     { 0x1e, "Ramp to normal polarity" },
     { 0,    NULL } };
 
-static const value_string digit_ack_values [] = {
-    { 0x0, "No ending acknowledgement requested" },
-    { 0x1, "Ending acknowledgement requested when digit transmission is finished" },
-    { 0,   NULL } };
+const true_false_string tfs_digit_ack_values = {
+    "Ending acknowledgement requested when digit transmission is finished",
+    "No ending acknowledgement requested" };
 
 static const value_string line_info_values [] = {
     { 0x00, "Impedance marker reset" },
@@ -860,11 +859,7 @@ dissect_digit_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         proto_tree_add_item(info_tree, hf_v52_info_length, info_tvb, info_offset+1, info_element_length, ENC_BIG_ENDIAN);
         proto_item_append_text(ti_info, " %s (0x%x)",val_to_str_const(info_element, info_element_values, "unknown info element"),info_element);
 
-        buffer = tvb_get_guint8(info_tvb, info_offset+2)>>6;
-        buffer = buffer&0x01;
-
-        proto_tree_add_uint_format(info_tree, hf_v52_digit_ack, info_tvb, info_offset+2, 1, buffer,
-                    "Digit ack request indication: %s",val_to_str_const(buffer,digit_ack_values,"unknown"));
+        proto_tree_add_item(info_tree, hf_v52_digit_ack, info_tvb, info_offset+2, 1, ENC_NA);
 
         buffer = tvb_get_guint8(info_tvb, info_offset+2)>>4;
         buffer = buffer&0x03;
@@ -2373,7 +2368,7 @@ proto_register_v52(void)
           NULL, HFILL } },
         {&hf_v52_digit_ack,
           { "Digit ack request indication","v52.digit_ack",
-          FT_UINT8,    BASE_HEX, VALS(digit_ack_values),                0x40,
+          FT_BOOLEAN,    8, TFS(&tfs_digit_ack_values),                 0x40,
           NULL, HFILL } },
         {&hf_v52_digit_spare,
           { "Digit spare","v52.digit_spare",

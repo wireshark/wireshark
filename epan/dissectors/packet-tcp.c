@@ -4063,10 +4063,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tcp_tree = proto_item_add_subtree(ti, ett_tcp);
         pinfo->tcp_tree=tcp_tree;
 
-        proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, tvb, offset, 2, tcph->th_sport,
-                                   "Source port: %s (%u)", get_tcp_port(tcph->th_sport), tcph->th_sport);
-        proto_tree_add_uint_format(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, tcph->th_dport,
-                                   "Destination port: %s (%u)", get_tcp_port(tcph->th_dport), tcph->th_dport);
+        proto_tree_add_uint_format_value(tcp_tree, hf_tcp_srcport, tvb, offset, 2, tcph->th_sport,
+                                   "%s (%u)", get_tcp_port(tcph->th_sport), tcph->th_sport);
+        proto_tree_add_uint_format_value(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, tcph->th_dport,
+                                   "%s (%u)", get_tcp_port(tcph->th_dport), tcph->th_dport);
         hidden_item = proto_tree_add_uint(tcp_tree, hf_tcp_port, tvb, offset, 2, tcph->th_sport);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
         hidden_item = proto_tree_add_uint(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, tcph->th_dport);
@@ -4270,8 +4270,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_fstr(pinfo->cinfo, COL_INFO, ", bogus TCP header length (%u, must be at least %u)",
                         tcph->th_hlen, TCPH_MIN_LEN);
         if (tree) {
-            proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
-                                       "Header length: %u bytes (bogus, must be at least %u)", tcph->th_hlen,
+            proto_tree_add_uint_format_value(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
+                                       "%u bytes (bogus, must be at least %u)", tcph->th_hlen,
                                        TCPH_MIN_LEN);
         }
         return;
@@ -4311,8 +4311,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tree) {
-        proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
-                                   "Header length: %u bytes", tcph->th_hlen);
+        proto_tree_add_uint_format_value(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
+                                   "%u bytes", tcph->th_hlen);
         tf = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
                                         tcph->th_flags, "0x%03x (%s)", tcph->th_flags, wmem_strbuf_get_str(flags_strbuf));
         field_tree = proto_item_add_subtree(tf, ett_tcp_flags);

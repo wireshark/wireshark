@@ -1978,16 +1978,15 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                  "Bogus IP header length (%u, must be at least %u)",
                  hlen, IPH_MIN_LEN);
     if (tree) {
-      proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
-                                 "Header length: %u bytes (bogus, must be "
-                                 "at least %u)", hlen, IPH_MIN_LEN);
+      proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
+                                 "%u bytes (bogus, must be at least %u)", hlen, IPH_MIN_LEN);
     }
     return;
   }
 
   if (tree) {
-    proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
-                               "Header length: %u bytes", hlen);
+    proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
+                               "%u bytes", hlen);
   }
 
   iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
@@ -1998,9 +1997,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   if (tree) {
     if (g_ip_dscp_actif) {
-      tf = proto_tree_add_uint_format(ip_tree, hf_ip_dsfield, tvb, offset + 1,
-        1, iph->ip_tos, "Differentiated Services Field: 0x%02x "
-        "(DSCP 0x%02x: %s; ECN: 0x%02x: %s)", iph->ip_tos,
+      tf = proto_tree_add_uint_format_value(ip_tree, hf_ip_dsfield, tvb, offset + 1,
+        1, iph->ip_tos, "0x%02x (DSCP 0x%02x: %s; ECN: 0x%02x: %s)", iph->ip_tos,
         IPDSFIELD_DSCP(iph->ip_tos), val_to_str_ext_const(IPDSFIELD_DSCP(iph->ip_tos),
                                                           &dscp_vals_ext, "Unknown DSCP"),
         IPDSFIELD_ECN(iph->ip_tos), val_to_str_const(IPDSFIELD_ECN(iph->ip_tos),
@@ -2010,9 +2008,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       proto_tree_add_item(field_tree, hf_ip_dsfield_dscp, tvb, offset + 1, 1, ENC_NA);
       proto_tree_add_item(field_tree, hf_ip_dsfield_ecn, tvb, offset + 1, 1, ENC_NA);
     } else {
-      tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, tvb, offset + 1, 1,
+      tf = proto_tree_add_uint_format_value(ip_tree, hf_ip_tos, tvb, offset + 1, 1,
                                       iph->ip_tos,
-                                      "Type of service: 0x%02x (%s)",
+                                      "0x%02x (%s)",
                                       iph->ip_tos,
                                       val_to_str_const(IPTOS_TOS(iph->ip_tos),
                                                        iptos_vals, "Unknown"));
@@ -2053,13 +2051,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       col_add_fstr(pinfo->cinfo, COL_INFO,
                    "Bogus IP length (%u, less than header length %u)",
                    iph->ip_len, hlen);
-      tf = NULL;
-      if (tree) {
-        tf = proto_tree_add_uint_format(ip_tree, hf_ip_len, tvb, offset + 2, 2,
+      tf = proto_tree_add_uint_format_value(ip_tree, hf_ip_len, tvb, offset + 2, 2,
           iph->ip_len,
-          "Total length: %u bytes (bogus, less than header length %u)",
+          "%u bytes (bogus, less than header length %u)",
           iph->ip_len, hlen);
-      }
       expert_add_info(pinfo, tf, &ei_ip_bogus_ip_length);
       /* Can't dissect any further */
       return;
@@ -2536,7 +2531,7 @@ proto_register_ip(void)
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_dsfield,
-      { "Differentiated Services field", "ip.dsfield", FT_UINT8, BASE_DEC,
+      { "Differentiated Services Field", "ip.dsfield", FT_UINT8, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_dsfield_dscp,

@@ -871,9 +871,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     case FC_RCTL_LINK_DATA:
     case FC_RCTL_VIDEO:
         /* the lower 4 bits of R_CTL are the information category */
-        proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+        proto_tree_add_uint_format_value(fc_tree, hf_fc_rctl, tvb, offset,
                                     FC_RCTL_SIZE, fchdr.r_ctl,
-                                    "R_CTL: 0x%x(%s/%s)",
+                                    "0x%x(%s/%s)",
                                     fchdr.r_ctl,
                                     val_to_str ((fchdr.r_ctl & 0xF0),
                                                 fc_routing_val, "0x%x"),
@@ -883,9 +883,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     case FC_RCTL_LINK_CTL:
         /* the lower 4 bits of R_CTL indicate the type of link ctl frame */
-        proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+        proto_tree_add_uint_format_value(fc_tree, hf_fc_rctl, tvb, offset,
                                     FC_RCTL_SIZE, fchdr.r_ctl,
-                                    "R_CTL: 0x%x(%s/%s)",
+                                    "0x%x(%s/%s)",
                                     fchdr.r_ctl,
                                     val_to_str ((fchdr.r_ctl & 0xF0),
                                                 fc_routing_val, "0x%x"),
@@ -898,9 +898,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
         case 0x00:
             /* the lower 4 bits of R_CTL indicate the type of BLS frame */
-            proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+            proto_tree_add_uint_format_value(fc_tree, hf_fc_rctl, tvb, offset,
                                         FC_RCTL_SIZE, fchdr.r_ctl,
-                                        "R_CTL: 0x%x(%s/%s)",
+                                        "0x%x(%s/%s)",
                                         fchdr.r_ctl,
                                         val_to_str ((fchdr.r_ctl & 0xF0),
                                                     fc_routing_val, "0x%x"),
@@ -909,9 +909,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             break;
 
         default:
-            proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+            proto_tree_add_uint_format_value(fc_tree, hf_fc_rctl, tvb, offset,
                                         FC_RCTL_SIZE, fchdr.r_ctl,
-                                        "R_CTL: 0x%x(%s/0x%x)",
+                                        "0x%x(%s/0x%x)",
                                         fchdr.r_ctl,
                                         val_to_str ((fchdr.r_ctl & 0xF0),
                                                     fc_routing_val, "0x%x"),
@@ -925,9 +925,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
         case 0x01:
             /* the lower 4 bits of R_CTL indicate the type of ELS frame */
-            proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+            proto_tree_add_uint_format_value(fc_tree, hf_fc_rctl, tvb, offset,
                                         FC_RCTL_SIZE, fchdr.r_ctl,
-                                        "R_CTL: 0x%x(%s/%s)",
+                                        "0x%x(%s/%s)",
                                         fchdr.r_ctl,
                                         val_to_str ((fchdr.r_ctl & 0xF0),
                                                     fc_routing_val, "0x%x"),
@@ -936,9 +936,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             break;
 
         default:
-            proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+            proto_tree_add_uint_format_value(fc_tree, hf_fc_rctl, tvb, offset,
                                         FC_RCTL_SIZE, fchdr.r_ctl,
-                                        "R_CTL: 0x%x(%s/0x%x)",
+                                        "0x%x(%s/0x%x)",
                                         fchdr.r_ctl,
                                         val_to_str ((fchdr.r_ctl & 0xF0),
                                                     fc_routing_val, "0x%x"),
@@ -948,9 +948,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         break;
 
     default:
-        proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+        proto_tree_add_uint_format_value(fc_tree, hf_fc_rctl, tvb, offset,
                                     FC_RCTL_SIZE, fchdr.r_ctl,
-                                    "R_CTL: 0x%x(%s/0x%x)",
+                                    "0x%x(%s/0x%x)",
                                     fchdr.r_ctl,
                                     val_to_str ((fchdr.r_ctl & 0xF0),
                                                 fc_routing_val, "0x%x"),

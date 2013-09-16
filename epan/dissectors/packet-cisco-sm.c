@@ -293,8 +293,8 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_sm, tvb, offset, 0, ENC_NA);
 	sm_tree = proto_item_add_subtree(ti, ett_sm);
 
-	proto_tree_add_uint_format(sm_tree, hf_sm_sm_msg_type, tvb, offset, 4, sm_message_type,
-		"SM Message type: %s (0x%0x)", val_to_str_const(sm_message_type, sm_message_type_value, "reserved"), sm_message_type);
+	proto_tree_add_uint_format_value(sm_tree, hf_sm_sm_msg_type, tvb, offset, 4, sm_message_type,
+		"%s (0x%0x)", val_to_str_const(sm_message_type, sm_message_type_value, "reserved"), sm_message_type);
 
 	offset = offset + 4;
 	if (sm_message_type ==  MESSAGE_TYPE_PDU) {
@@ -310,8 +310,8 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset = offset +2;
 			msg_type = tvb_get_ntohs(tvb,offset);
-			proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
-				"Message type: %s (0x%0x)", val_to_str_const(msg_type, sm_pdu_type_value, "reserved"),
+			proto_tree_add_uint_format_value(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
+				"%s (0x%0x)", val_to_str_const(msg_type, sm_pdu_type_value, "reserved"),
 				msg_type);
 			msg_type = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;
@@ -426,8 +426,8 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset = offset +2;
 			msg_type = tvb_get_ntohs(tvb,offset);
-			proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
-				"Message type: %s (0x%0x)", val_to_str_const(msg_type, sm_pdu_type_value, "reserved"),
+			proto_tree_add_uint_format_value(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
+				"%s (0x%0x)", val_to_str_const(msg_type, sm_pdu_type_value, "reserved"),
 				msg_type);
 			msg_type = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;
@@ -462,8 +462,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (msg_type == PDU_RETRIEVAL_CONFIRM && tvb_get_ntohl(tvb,offset) == 0x01) {
 						offset += 4;
 						bsn_num = tvb_get_ntohl(tvb,offset);
-						proto_tree_add_uint_format(sm_tree, hf_sm_bsn_num, tvb, offset, 4,
-												   bsn_num, "BSN: %d", bsn_num);
+						proto_tree_add_item(sm_tree, hf_sm_bsn_num, tvb, offset, 4, ENC_BIG_ENDIAN);
 					}
 					break;
 				case PDU_LSC_REQUEST:
@@ -593,8 +592,8 @@ proto_register_sm(void)
 			NULL, HFILL }
 		},
 		{ &hf_sm_bsn_num,
-		  { "BSN Number","sm.bsn_num",
-			FT_UINT32, BASE_HEX, NULL, 0x0,
+		  { "BSN","sm.bsn_num",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 

@@ -332,10 +332,8 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * No checksum present, or not enough of the header present to
              * checksum it.
              */
-            proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+            proto_tree_add_uint(clnp_tree, hf_clnp_checksum, tvb,
                     P_CLNP_CKSUM, 2,
-                    cnf_cksum,
-                    "Checksum     : 0x%04x",
                     cnf_cksum);
             break;
 
@@ -343,10 +341,10 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*
              * Checksum is correct.
              */
-            proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+            proto_tree_add_uint_format_value(clnp_tree, hf_clnp_checksum, tvb,
                     P_CLNP_CKSUM, 2,
                     cnf_cksum,
-                    "Checksum     : 0x%04x (correct)",
+                    "0x%04x (correct)",
                     cnf_cksum);
             break;
 
@@ -354,10 +352,10 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*
              * Checksum is not correct.
              */
-            proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+            proto_tree_add_uint_format_value(clnp_tree, hf_clnp_checksum, tvb,
                     P_CLNP_CKSUM, 2,
                     cnf_cksum,
-                    "Checksum     : 0x%04x (incorrect)",
+                    "0x%04x (incorrect)",
                     cnf_cksum);
             break;
     }

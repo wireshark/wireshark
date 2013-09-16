@@ -515,10 +515,9 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                                   "0x%04x (correct)",
                                                                   checksum_h);
                                } else {
-                                       proto_tree_add_uint_format(hip_tree, hf_hip_checksum, tvb,
+                                       proto_tree_add_uint_format_value(hip_tree, hf_hip_checksum, tvb,
                                                                   offset+4, 2, checksum_h,
-                                                                  "Checksum: 0x%04x (incorrect, "
-                                                                  "should be 0x%04x)",
+                                                                  "0x%04x (incorrect, should be 0x%04x)",
                                                                   checksum_h,
                                                                   in_cksum_shouldbe(checksum_h,
                                                                   computed_checksum));

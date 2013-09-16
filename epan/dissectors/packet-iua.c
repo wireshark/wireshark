@@ -403,8 +403,8 @@ dissect_status_type_identification_parameter(tvbuff_t *parameter_tvb, proto_tree
   status_id   = tvb_get_ntohs(parameter_tvb, STATUS_IDENT_OFFSET);
 
   proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_uint_format(parameter_tree, hf_status_id,  parameter_tvb, STATUS_IDENT_OFFSET, STATUS_IDENT_LENGTH,
-                             status_id, "Status identification: %u (%s)", status_id,
+  proto_tree_add_uint_format_value(parameter_tree, hf_status_id,  parameter_tvb, STATUS_IDENT_OFFSET, STATUS_IDENT_LENGTH,
+                             status_id, "%u (%s)", status_id,
                              val_to_str_const(status_type * 256 * 256 + status_id, support_IG?status_type_id_ig_values:status_type_id_values, "unknown"));
 
   proto_item_append_text(parameter_item, " (%s)",
@@ -873,9 +873,9 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
     proto_tree_add_item(iua_tree, hf_version, common_header_tvb, VERSION_OFFSET, VERSION_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(iua_tree, hf_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(iua_tree, hf_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, ENC_BIG_ENDIAN);
-    proto_tree_add_uint_format(iua_tree, hf_message_type,
+    proto_tree_add_uint_format_value(iua_tree, hf_message_type,
                                common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
-                               message_type, "Message type: %u (%s)",
+                               message_type, "%u (%s)",
                                message_type, val_to_str_const(message_class * 256 + message_type, support_IG?message_class_type_ig_values:message_class_type_values, "reserved"));
     proto_tree_add_item(iua_tree, hf_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   }
