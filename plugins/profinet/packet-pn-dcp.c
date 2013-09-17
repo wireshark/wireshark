@@ -29,7 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
@@ -467,7 +467,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     switch (suboption) {
     case PNDCP_SUBOPTION_DEVICE_MANUF:
-        typeofstation = (char *)ep_alloc(block_length+1);
+        typeofstation = (char *)wmem_alloc(wmem_packet_scope(), block_length+1);
         tvb_memcpy(tvb, (guint8 *) typeofstation, offset, block_length);
         typeofstation[block_length] = '\0';
         proto_tree_add_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, typeofstation);
@@ -485,11 +485,11 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset += block_length;
         break;
     case PNDCP_SUBOPTION_DEVICE_NAMEOFSTATION:
-        nameofstation = (char *)ep_alloc(block_length+1);
+        nameofstation = (char *)wmem_alloc(wmem_packet_scope(), block_length+1);
         tvb_memcpy(tvb, (guint8 *) nameofstation, offset, block_length);
         nameofstation[block_length] = '\0';
         proto_tree_add_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, nameofstation);
-        pn_append_info(pinfo, dcp_item, ep_strdup_printf(", NameOfStation:\"%s\"", nameofstation));
+        pn_append_info(pinfo, dcp_item, wmem_strdup_printf(wmem_packet_scope(), ", NameOfStation:\"%s\"", nameofstation));
         proto_item_append_text(block_item, "Device/NameOfStation");
         if (have_block_qualifier) {
             proto_item_append_text(block_item, ", BlockQualifier: %s",
@@ -538,7 +538,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(block_item, ", PN-Supervisor");
         break;
     case PNDCP_SUBOPTION_DEVICE_DEV_OPTIONS:
-        info_str = ep_strdup_printf(", Dev-Options(%u)", block_length/2);
+        info_str = wmem_strdup_printf(wmem_packet_scope(), ", Dev-Options(%u)", block_length/2);
         pn_append_info(pinfo, dcp_item, info_str);
         proto_item_append_text(block_item, "Device/Device Options");
         if (have_block_qualifier) {
@@ -556,11 +556,11 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         break;
     case PNDCP_SUBOPTION_DEVICE_ALIAS_NAME:
-        aliasname = (char *)ep_alloc(block_length+1);
+        aliasname = (char *)wmem_alloc(wmem_packet_scope(), block_length+1);
         tvb_memcpy(tvb, (guint8 *) aliasname, offset, block_length);
         aliasname[block_length] = '\0';
         proto_tree_add_string (tree, hf_pn_dcp_suboption_device_aliasname, tvb, offset, block_length, aliasname);
-        pn_append_info(pinfo, dcp_item, ep_strdup_printf(", AliasName:\"%s\"", aliasname));
+        pn_append_info(pinfo, dcp_item, wmem_strdup_printf(wmem_packet_scope(), ", AliasName:\"%s\"", aliasname));
         proto_item_append_text(block_item, "Device/AliasName");
         if (have_block_qualifier) {
             proto_item_append_text(block_item, ", BlockQualifier: %s",
@@ -702,8 +702,8 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
             expert_add_info_format(pinfo, item, &ei_pn_dcp_block_error_unknown, "%s",
                                     val_to_str(block_error, pn_dcp_block_error, "Unknown"));
         }
-        info_str = ep_strdup_printf(", Response(%s)",
-                                    val_to_str(block_error, pn_dcp_block_error, "Unknown"));
+        info_str = wmem_strdup_printf(wmem_packet_scope(), ", Response(%s)",
+                                      val_to_str(block_error, pn_dcp_block_error, "Unknown"));
         pn_append_info(pinfo, dcp_item, info_str);
         proto_item_append_text(block_item, ", BlockError: %s",
                                     val_to_str(block_error, pn_dcp_block_error, "Unknown"));
@@ -934,7 +934,7 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         return;
     }
 
-    xid_str = ep_strdup_printf(", Xid:0x%x", xid);
+    xid_str = wmem_strdup_printf(wmem_packet_scope(), ", Xid:0x%x", xid);
     pn_append_info(pinfo, dcp_item, xid_str);
 
     /* dissect a number of blocks (depending on the remaining length) */

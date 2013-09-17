@@ -35,7 +35,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/address.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "wimax_tlv.h"
 #include "wimax_bits.h"
 
@@ -738,7 +738,7 @@ proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, i
 
 	/* display the TLV name and display the value in hex. Highlight type, length, and value. */
 	va_start(ap, format);
-	message = se_strdup_vprintf(format, ap);
+	message = wmem_strdup_vprintf(wmem_packet_scope(), format, ap);
 	va_end(ap);
 	tlv_item = proto_tree_add_protocol_format(tree, hfindex, tvb, start, length, "%s", message);
 

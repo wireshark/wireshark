@@ -26,7 +26,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcom.h>
@@ -571,7 +571,7 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_rqst(tvbuff_t *tvb, int offset,
     }
 
     if (strlen(szStr) > 0) {
-        call = se_strdup(szStr);
+        call = wmem_strdup(wmem_file_scope(), szStr);
         info->call_data->private_data = call;
     }
 

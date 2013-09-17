@@ -29,7 +29,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcom.h>
@@ -453,7 +453,7 @@ cba_pdev_add(packet_info *pinfo, const guint8 *ip)
     }
 
     /* not found, create a new */
-    pdev = (cba_pdev_t *)se_alloc(sizeof(cba_pdev_t));
+    pdev = (cba_pdev_t *)wmem_alloc(wmem_file_scope(), sizeof(cba_pdev_t));
     memcpy( (void *) (pdev->ip), ip, 4);
     pdev->first_packet = pinfo->fd->num;
     pdev->ldevs        = NULL;
@@ -519,8 +519,8 @@ cba_ldev_add(packet_info *pinfo, cba_pdev_t *pdev, const char *name)
     }
 
     /* not found, create a new */
-    ldev = (cba_ldev_t *)se_alloc(sizeof(cba_ldev_t));
-    ldev->name         = se_strdup(name);
+    ldev = (cba_ldev_t *)wmem_alloc(wmem_file_scope(), sizeof(cba_ldev_t));
+    ldev->name         = wmem_strdup(wmem_file_scope(), name);
     ldev->first_packet = pinfo->fd->num;
     ldev->ldev_object  = NULL;
     ldev->acco_object  = NULL;
@@ -694,7 +694,7 @@ cba_frame_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ld
         }
     }
 
-    frame = (cba_frame_t *)se_alloc(sizeof(cba_frame_t));
+    frame = (cba_frame_t *)wmem_alloc(wmem_file_scope(), sizeof(cba_frame_t));
 
     frame->consparent          = cons_ldev;
     frame->provparent          = prov_ldev;
@@ -927,7 +927,7 @@ cba_connection_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *pr
         }
     }
 
-    conn = (cba_connection_t *)se_alloc(sizeof(cba_connection_t));
+    conn = (cba_connection_t *)wmem_alloc(wmem_file_scope(), sizeof(cba_connection_t));
 
     conn->consparentacco      = cons_ldev;
     conn->provparentacco      = prov_ldev;
@@ -940,7 +940,7 @@ cba_connection_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *pr
     conn->packet_last         = 0;
 
     conn->consid              = consid;
-    conn->provitem            = se_strdup(provitem);
+    conn->provitem            = wmem_strdup(wmem_file_scope(), provitem);
     conn->typedesclen         = typedesclen;
     conn->typedesc            = typedesc;
     conn->qostype             = qostype;
@@ -1287,7 +1287,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
 
     /* link connections infos to the call */
     if (prov_ldev != NULL && cons_ldev != NULL) {
-        call = (server_connect_call_t *)se_alloc(sizeof(server_connect_call_t) + u32ArraySize * sizeof(cba_connection_t *));
+        call = (server_connect_call_t *)wmem_alloc(wmem_file_scope(), sizeof(server_connect_call_t) + u32ArraySize * sizeof(cba_connection_t *));
         call->conn_count = 0;
         call->frame      = NULL;
         call->conns      = (cba_connection_t **) (call+1);
@@ -1336,7 +1336,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
             conn = cba_connection_connect(pinfo, cons_ldev, prov_ldev, /*cons_frame*/ NULL,
                 u16QoSType, u16QoSValue, szItem, u32ConsID, 0,
                 /* XXX - VarType must be translated to new type description if it includes an array (0x2000) */
-                (guint16 *)se_memdup(&u16VarType, 2), 1);
+                (guint16 *)wmem_memdup(wmem_file_scope(), &u16VarType, 2), 1);
 
             cba_connection_info(tvb, pinfo, sub_tree, conn);
         } else {
@@ -1447,7 +1447,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 
     /* link connection infos to the call */
     if (prov_ldev != NULL && cons_ldev != NULL) {
-        call = (server_connect_call_t *)se_alloc(sizeof(server_connect_call_t) + u32ArraySize * sizeof(cba_connection_t *));
+        call = (server_connect_call_t *)wmem_alloc(wmem_file_scope(), sizeof(server_connect_call_t) + u32ArraySize * sizeof(cba_connection_t *));
         call->conn_count = 0;
         call->frame      = NULL;
         call->conns      = (cba_connection_t **) (call+1);
@@ -1489,7 +1489,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 
             /* limit the allocation to a reasonable size */
             if (u32ArraySize2 < 1000) {
-                typedesc = (guint16 *)se_alloc0(u32ArraySize2 * 2);
+                typedesc = (guint16 *)wmem_alloc0(wmem_file_scope(), u32ArraySize2 * 2);
                 typedesclen = u32ArraySize2;
             } else {
                 typedesc = NULL;
@@ -1682,7 +1682,7 @@ dissect_ICBAAccoServer_Disconnect_rqst(tvbuff_t *tvb, int offset,
 
     /* link connection infos to the call */
     if (prov_ldev != NULL) {
-        call = (server_connect_call_t *)se_alloc(sizeof(server_connect_call_t) + u32ArraySize * sizeof(cba_connection_t *));
+        call = (server_connect_call_t *)wmem_alloc(wmem_file_scope(), sizeof(server_connect_call_t) + u32ArraySize * sizeof(cba_connection_t *));
         call->conn_count = 0;
         call->frame      = NULL;
         call->conns      = (cba_connection_t **) (call+1);
@@ -1842,7 +1842,7 @@ dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     cons_ldev = cba_acco_add(pinfo, szStr);
 
     if (prov_ldev != NULL && cons_ldev != NULL) {
-        call = (server_disconnectme_call_t *)se_alloc(sizeof(server_disconnectme_call_t));
+        call = (server_disconnectme_call_t *)wmem_alloc(wmem_file_scope(), sizeof(server_disconnectme_call_t));
         call->cons = cons_ldev;
         call->prov = prov_ldev;
         info->call_data->private_data = call;
@@ -1915,7 +1915,7 @@ dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     cons_ldev = cba_acco_add(pinfo, szStr);
 
     if (prov_ldev != NULL && cons_ldev != NULL) {
-        call = (server_disconnectme_call_t *)se_alloc(sizeof(server_disconnectme_call_t));
+        call = (server_disconnectme_call_t *)wmem_alloc(wmem_file_scope(), sizeof(server_disconnectme_call_t));
         call->cons = cons_ldev;
         call->prov = prov_ldev;
         info->call_data->private_data = call;
@@ -2178,7 +2178,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 
     /* link frame infos to the call */
     if (prov_ldev != NULL && cons_ldev != NULL && u32ArraySize < 100) {
-        call = (server_frame_call_t *)se_alloc(sizeof(server_frame_call_t) + u32ArraySize * sizeof(cba_frame_t *));
+        call = (server_frame_call_t *)wmem_alloc(wmem_file_scope(), sizeof(server_frame_call_t) + u32ArraySize * sizeof(cba_frame_t *));
         call->frame_count = 0;
         call->frames = (cba_frame_t **) (call+1);
         info->call_data->private_data = call;
@@ -2366,7 +2366,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
 
     /* link frame infos to the call */
     if (prov_ldev != NULL) {
-        call = (server_frame_call_t *)se_alloc(sizeof(server_frame_call_t) + u32ArraySize * sizeof(cba_frame_t *));
+        call = (server_frame_call_t *)wmem_alloc(wmem_file_scope(), sizeof(server_frame_call_t) + u32ArraySize * sizeof(cba_frame_t *));
         call->frame_count = 0;
         call->frames      = (cba_frame_t **) (call+1);
         info->call_data->private_data = call;
@@ -2519,7 +2519,7 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
 
     /* link connections infos to the call */
     if (frame != NULL) {
-        call = (server_connect_call_t *)se_alloc(sizeof(server_connect_call_t) + u32ArraySize * sizeof(cba_connection_t *));
+        call = (server_connect_call_t *)wmem_alloc(wmem_file_scope(), sizeof(server_connect_call_t) + u32ArraySize * sizeof(cba_connection_t *));
         call->conn_count = 0;
         call->frame = frame;
         call->conns = (cba_connection_t **) (call+1);
@@ -2559,7 +2559,7 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
             u32VariableOffset = dissect_dcom_dcerpc_array_size(tvb, u32VariableOffset, pinfo, sub_tree, drep,
                                 &u32ArraySize2);
 
-            typedesc = (guint16 *)se_alloc0(u32ArraySize2 * 2);
+            typedesc = (guint16 *)wmem_alloc0(wmem_file_scope(), u32ArraySize2 * 2);
             typedesclen = u32ArraySize2;
 
             /* extended type description will build an array here */
@@ -3322,7 +3322,7 @@ dissect_ICBAAccoServer2_GetConnectionData_rqst(tvbuff_t *tvb, int offset,
 
     /* link ldev to the call */
     if (cons_ldev != NULL) {
-        call = (cba_ldev_t **)se_alloc(sizeof(cba_ldev_t *));
+        call = (cba_ldev_t **)wmem_alloc(wmem_file_scope(), sizeof(cba_ldev_t *));
         *call = cons_ldev;
         info->call_data->private_data = call;
     }

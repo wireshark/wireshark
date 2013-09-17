@@ -26,6 +26,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include "opcua_simpletypes.h"
 #include "opcua_complextypeparser.h"
 #include "opcua_extensionobjectids.h"
@@ -209,7 +210,7 @@ void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
         }
         else
         {
-            char *szValue = ep_strdup_printf("[Invalid ByteString] Invalid length: %d", iLen);
+            char *szValue = wmem_strdup_printf(wmem_packet_scope(), "[Invalid ByteString] Invalid length: %d", iLen);
             proto_tree_add_text(tree, tvb, *pOffset, 4, "%s", szValue);
         }
     }

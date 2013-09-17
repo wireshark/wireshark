@@ -30,7 +30,7 @@
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
 #include "opcua_extensionobjectids.h"
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #define DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG           0x01
 #define DIAGNOSTICINFO_ENCODINGMASK_NAMESPACE_FLAG            0x02
@@ -389,7 +389,7 @@ void parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
     else
     {
         proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 0, ENC_NA);
-        szValue = ep_strdup_printf("[Invalid String] Invalid length: %d", iLen);
+        szValue = wmem_strdup_printf(wmem_packet_scope(), "[Invalid String] Invalid length: %d", iLen);
         proto_item_append_text(item, "%s", szValue);
         proto_item_set_end(item, tvb, *pOffset + 4);
     }
@@ -469,7 +469,7 @@ void parseByteString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex
     else
     {
         proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 0, ENC_NA);
-        szValue = ep_strdup_printf("[Invalid ByteString] Invalid length: %d", iLen);
+        szValue = wmem_strdup_printf(wmem_packet_scope(), "[Invalid ByteString] Invalid length: %d", iLen);
         proto_item_append_text(item, "%s", szValue);
         proto_item_set_end(item, tvb, *pOffset + 4);
     }

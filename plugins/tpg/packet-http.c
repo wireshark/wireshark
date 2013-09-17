@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#include <epan/wmem/wmem.h>
+
 #include "http-parser.h"
 #include <gmodule.h>
 
@@ -47,7 +49,7 @@ static int hf_http_request_uri = -1;
 static dissector_handle_t http_handle;
 
 static void dissect_http(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree) {
-    http_info_value_t* msgdata = ep_alloc0(sizeof(http_info_value_t));
+    http_info_value_t* msgdata = wmem_alloc0(wmem_packet_scope(), sizeof(http_info_value_t));
     tvbparse_elem_t* reqresp;
     tpg_parser_data_t* tpg;
     proto_item* pi = proto_tree_add_item(tree,proto_http,tvb,0,-1,ENC_NA);
