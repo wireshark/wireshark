@@ -63,5 +63,9 @@ set( EXTRA_CNF
 	rtse-exp.cnf
 )
 
+set ( EXPORT_DEPENDS
+	x509af-exp.cnf
+)
+
 ASN2WRS()
 
