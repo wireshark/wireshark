@@ -63,6 +63,7 @@
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/next_tvb.h>
 #include <epan/uat.h>
 #include <epan/asn1.h>
@@ -420,7 +421,8 @@ dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, in
         hour_from_utc	= tvb_get_guint8(tvb,offset+9);
         min_from_utc	= tvb_get_guint8(tvb,offset+10);
 
-		str = ep_strdup_printf("%u-%u-%u, %u:%u:%u.%u UTC %s%u:%u",
+		str = wmem_strdup_printf(wmem_packet_scope(),
+             "%u-%u-%u, %u:%u:%u.%u UTC %s%u:%u",
              year,
              month,
              day,
@@ -432,7 +434,8 @@ dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, in
              hour_from_utc,
              min_from_utc);
     }else{
-         str = ep_strdup_printf("%u-%u-%u, %u:%u:%u.%u",
+         str = wmem_strdup_printf(wmem_packet_scope(),
+             "%u-%u-%u, %u:%u:%u.%u",
              year,
              month,
              day,
@@ -807,7 +810,7 @@ show_oid_index:
 									goto indexing_done;
 								}
 
-								buf = (guint8*)ep_alloc(buf_len+1);
+								buf = (guint8*)wmem_alloc(wmem_packet_scope(), buf_len+1);
 								for (i = 0; i < buf_len; i++)
 									buf[i] = (guint8)suboid[i];
 								buf[i] = '\0';
@@ -1036,21 +1039,21 @@ set_label:
 
 	if (oid_info && oid_info->name) {
 		if (oid_left >= 1) {
-			repr  = ep_strdup_printf("%s.%s (%s)", oid_info->name,
+			repr  = wmem_strdup_printf(wmem_packet_scope(), "%s.%s (%s)", oid_info->name,
 						 oid_subid2string(&(subids[oid_matched]),oid_left),
 						 oid_subid2string(subids,oid_matched+oid_left));
-			info_oid = ep_strdup_printf("%s.%s", oid_info->name,
+			info_oid = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", oid_info->name,
 						    oid_subid2string(&(subids[oid_matched]),oid_left));
 		} else {
-			repr  = ep_strdup_printf("%s (%s)", oid_info->name,
+			repr  = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", oid_info->name,
 						 oid_subid2string(subids,oid_matched));
 			info_oid = oid_info->name;
 		}
 	} else if (oid_string) {
-		repr  = ep_strdup(oid_string);
+		repr  = wmem_strdup(wmem_packet_scope(), oid_string);
 		info_oid = oid_string;
 	} else {
-		repr  = ep_strdup("[Bad OID]");
+		repr  = wmem_strdup(wmem_packet_scope(), "[Bad OID]");
 	}
 
 	valstr = strstr(label,": ");
