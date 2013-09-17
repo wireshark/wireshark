@@ -51,8 +51,6 @@ set( SRC_FILES
 set( A2W_FLAGS  )
 
 set( EXTRA_CNF
-	h235-exp.cnf
-	h245-exp.cnf
 )
 
 ASN2WRS()
