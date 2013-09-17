@@ -28,9 +28,6 @@
 
 #include <string.h>     /* for memcmp */
 
-#include "emem.h"
-#include "tvbuff.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -104,16 +101,11 @@ set_address(address *addr, address_type addr_type, int addr_len, const void * ad
  * @param addr_len[in] The length in bytes of the address data. For example, 4 for
  *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
  */
-static inline void
-tvb_set_address(address *addr, address_type addr_type, tvbuff_t *tvb, const gint offset, int addr_len) {
-    const void *data = tvb_get_ptr(tvb, offset, addr_len);
-    addr->data = data;
-    addr->type = addr_type;
-    addr->hf   = -1;
-    addr->len  = addr_len;
-}
 #define	TVB_SET_ADDRESS(addr, addr_type, tvb, offset, addr_len) \
-    tvb_set_address((addr), (addr_type), (tvb), (offset), (addr_len))
+    do {                            \
+        const void *TVB_SET_ADDRESS_data = (void *)tvb_get_ptr(tvb, offset, addr_len); \
+        set_address((addr), (addr_type), (addr_len), TVB_SET_ADDRESS_data); \
+    } while (0)
 
 /** Initialize an address with the given values including an associated field.
  *
@@ -132,7 +124,7 @@ set_address_hf(address *addr, address_type addr_type, int addr_len, const void *
     addr->len  = addr_len;
 }
 #define	SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) \
-    set_address_hf((addr), (addr_type), (tvb), (offset), (addr_len), (addr_hf))
+    set_address_hf((addr), (addr_type), (addr_len), (addr_hf))
 
 /** Initialize an address from TVB data including an associated field.
  *
@@ -150,16 +142,11 @@ set_address_hf(address *addr, address_type addr_type, int addr_len, const void *
  *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
  * @param addr_hf[in] The header field index to associate with the address.
  */
-static inline void
-tvb_set_address_hf(address *addr, address_type addr_type, tvbuff_t *tvb, const gint offset, int addr_len, int addr_hf) {
-    const void *data = tvb_get_ptr(tvb, offset, addr_len);
-    addr->data = data;
-    addr->type = addr_type;
-    addr->hf   = addr_hf;
-    addr->len  = addr_len;
-}
 #define	TVB_SET_ADDRESS_HF(addr, addr_type, tvb, offset, addr_len, addr_hf) \
-    tvb_set_address_hf((addr), (addr_type), (tvb), (offset), (addr_len), (addr_hf))
+    do {                            \
+        const void *TVB_SET_ADDRESS_data = (void *) tvb_get_ptr(tvb, offset, addr_len); \
+        set_address_hf((addr), (addr_type), (addr_len), TVB_SET_ADDRESS_data, (addr_hf)); \
+    } while (0)
 
 /** Compare two addresses.
  *
@@ -245,18 +232,15 @@ copy_address_shallow(address *to, const address *from) {
  * @param to[in,out] The destination address.
  * @param from[in] The source address.
  */
-static inline void
-se_copy_address(address *to, const address *from) {
-    guint8 *to_data;
+#define SE_COPY_ADDRESS(to, from)     \
+    do {                              \
+        void *SE_COPY_ADDRESS_data; \
+        copy_address_shallow((to), (from)); \
+        SE_COPY_ADDRESS_data = se_alloc((from)->len); \
+        memcpy(SE_COPY_ADDRESS_data, (from)->data, (from)->len); \
+        (to)->data = SE_COPY_ADDRESS_data; \
+    } while (0)
 
-    to->type = from->type;
-    to->len = from->len;
-    to->hf = from->hf;
-    to_data = (guint8 *)se_alloc(from->len);
-    memcpy(to_data, from->data, from->len);
-    to->data = to_data;
-}
-#define SE_COPY_ADDRESS(to, from) se_copy_address((to), (from))
 
 /** Hash an address into a hash value (which must already have been set).
  *
