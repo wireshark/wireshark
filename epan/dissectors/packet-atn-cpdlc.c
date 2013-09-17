@@ -5130,8 +5130,8 @@ dissect_atn_cpdlc_CPDLCMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 					case dm:
 							dissect_atn_cpdlc_ATCDownlinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx, tree, hf_index);
 							break;
-					case um: 
-							dissect_atn_cpdlc_ATCUplinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx , tree, hf_index); 
+					case um:
+							dissect_atn_cpdlc_ATCUplinkMessage(tvb_new_subset_remaining(tvb_usr, 0), 0, actx , tree, hf_index);
 							break;
 					default:
 							break;

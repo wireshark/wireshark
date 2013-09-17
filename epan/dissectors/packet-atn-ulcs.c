@@ -376,8 +376,8 @@ static int
 dissect_atn_ulcs_T_pdv_list_presentation_data_values_arbitrary(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
 		packet_info * pinfo = actx->pinfo;
-		tvbuff_t *tvb_usr = NULL; 
-		proto_item *ti = NULL; 
+		tvbuff_t *tvb_usr = NULL;
+		proto_item *ti = NULL;
 		proto_tree *atn_ulcs_tree = NULL;
 		atn_conversation_t *atn_cv = NULL;
 
@@ -608,7 +608,7 @@ dissect_atn_ulcs_T_externalt_encoding_arbitrary(tvbuff_t *tvb _U_, int offset _U
 
 			atn_cv = find_atn_conversation(
 					&pinfo->dst,
-					pinfo->clnp_dstref, 
+					pinfo->clnp_dstref,
 					&pinfo->src);
 		}
 		/* CR: srcref present, dstref always zero */
@@ -669,7 +669,7 @@ dissect_atn_ulcs_T_externalt_encoding_arbitrary(tvbuff_t *tvb _U_, int offset _U
 							NULL);
 		}
 	}
-    
+
 	offset += tvb_length_remaining(tvb, offset);
 
 
@@ -1204,7 +1204,7 @@ dissect_atn_ulcs_AARQ_apdu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 			memset(aarq_data,0,sizeof(aarq_data_t));
 
 			aarq_data->cv = atn_cv;
-			aarq_data-> aarq_pending = TRUE; 
+			aarq_data-> aarq_pending = TRUE;
 		}
 
 

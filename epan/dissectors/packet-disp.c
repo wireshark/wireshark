@@ -656,7 +656,7 @@ static const value_string disp_StandardUpdate_vals[] = {
 
 static int
 dissect_disp_StandardUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 58 "../../asn1/disp/disp.cnf"
+#line 60 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -852,7 +852,7 @@ static const ber_choice_t CoordinateShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_CoordinateShadowUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "../../asn1/disp/disp.cnf"
+#line 70 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -877,7 +877,7 @@ static const value_string disp_T_standard_vals[] = {
 
 static int
 dissect_disp_T_standard(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 38 "../../asn1/disp/disp.cnf"
+#line 40 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -983,7 +983,7 @@ static const ber_choice_t RequestShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_RequestShadowUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 78 "../../asn1/disp/disp.cnf"
+#line 80 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1285,7 +1285,7 @@ static const ber_choice_t RefreshInformation_choice[] = {
 
 static int
 dissect_disp_RefreshInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "../../asn1/disp/disp.cnf"
+#line 50 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1371,7 +1371,7 @@ static const ber_choice_t UpdateShadowResult_choice[] = {
 
 static int
 dissect_disp_UpdateShadowResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "../../asn1/disp/disp.cnf"
+#line 90 "../../asn1/disp/disp.cnf"
   guint32 update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1405,7 +1405,7 @@ static const value_string disp_ShadowProblem_vals[] = {
 
 static int
 dissect_disp_ShadowProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 98 "../../asn1/disp/disp.cnf"
+#line 100 "../../asn1/disp/disp.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
