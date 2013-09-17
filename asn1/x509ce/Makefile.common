@@ -43,13 +43,16 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b
+A2W_FLAGS = -b
 
-EXTRA_CNF= \
+EXTRA_CNF = \
 	$(builddir)/../p1/p1-exp.cnf \
 	$(builddir)/../x509af/x509af-exp.cnf \
 	$(builddir)/../x509if/x509if-exp.cnf \
 	$(builddir)/../x509sat/x509sat-exp.cnf
+
+EXPORT_DEPENDS = \
+	$(builddir)/../x509af/x509af-exp.cnf
 
 $(builddir)/../p1/p1-exp.cnf:
 	(cd $(builddir)/../p1 && $(MAKE_CNF_EXPORT))
