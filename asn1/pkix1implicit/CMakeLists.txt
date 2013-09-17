@@ -47,6 +47,7 @@ set( SRC_FILES
 set( A2W_FLAGS -b )
 
 set( EXTRA_CNF
+	x509af-exp.cnf
 	x509ce-exp.cnf
 )
 
