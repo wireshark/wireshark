@@ -4733,6 +4733,7 @@ BACnetVendorIdentifiers [] = {
     { 694, "Contec Co., Ltd." },
     { 0, NULL }
 };
+static value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
 
 static int proto_bacapp = -1;
 static int hf_bacapp_type = -1;
@@ -7227,7 +7228,7 @@ fVendorIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
         ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
             "%s: %s (%u)",
             label,
-            val_to_str_const(val,BACnetVendorIdentifiers,"Unknown Vendor"),
+            val_to_str_ext_const(val,&BACnetVendorIdentifiers_ext,"Unknown Vendor"),
             val);
     else
         ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
@@ -11129,7 +11130,7 @@ proto_register_bacapp(void)
         },
         { &hf_BACnetVendorIdentifier,
           { "Vendor Identifier", "bacapp.vendor_identifier",
-            FT_UINT16, BASE_DEC, VALS(BACnetVendorIdentifiers), 0, NULL, HFILL }
+            FT_UINT16, BASE_DEC|BASE_EXT_STRING, &BACnetVendorIdentifiers_ext, 0, NULL, HFILL }
         },
         { &hf_BACnetRestartReason,
           { "Restart Reason", "bacapp.restart_reason",
