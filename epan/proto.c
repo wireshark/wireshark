@@ -6184,14 +6184,14 @@ proto_registrar_dump_values(void)
 				     hfinfo->type == FT_INT32  ||
 				     hfinfo->type == FT_INT64)) {
 
-					if (hfinfo->display & BASE_EXT_STRING) {
+					if (hfinfo->display & BASE_RANGE_STRING) {
+						range = (const range_string *)hfinfo->strings;
+					} else if (hfinfo->display & BASE_EXT_STRING) {
 						vals = VALUE_STRING_EXT_VS_P((const value_string_ext *)hfinfo->strings);
-					} else if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
-						vals = (const value_string *)hfinfo->strings;
-					} else if ((hfinfo->display & BASE_VAL64_STRING) == 0) {
+					} else if (hfinfo->display & BASE_VAL64_STRING) {
 						vals64 = (const val64_string *)hfinfo->strings;
 					} else {
-						range = (const range_string *)hfinfo->strings;
+						vals = (const value_string *)hfinfo->strings;
 					}
 				}
 				else if (hfinfo->type == FT_BOOLEAN) {
