@@ -909,7 +909,6 @@ static hashipv4_t *
 host_lookup(const guint addr, gboolean *found)
 {
     hashipv4_t * volatile tp;
-    struct hostent *hostp;
 
     *found = TRUE;
 
@@ -948,26 +947,6 @@ try_resolv:
         }
 #endif /* ASYNC_DNS */
 
-        /*
-         * The Windows "gethostbyaddr()" insists on translating 0.0.0.0 to
-         * the name of the host on which it's running; to work around that
-         * botch, we don't try to translate an all-zero IP address to a host
-         * name.
-         */
-        if (addr != 0) {
-            /* Use async DNS if possible, else fall back to timeouts,
-             * else call gethostbyaddr and hope for the best
-             */
-
-            hostp = gethostbyaddr((const char *)&addr, 4, AF_INET);
-
-            if (hostp != NULL && hostp->h_name[0] != '\0') {
-                g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
-                tp->is_dummy_entry = FALSE;
-                return tp;
-            }
-        }
-
         /* unknown host or DNS timeout */
 
     }
@@ -1000,7 +979,6 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
 #ifdef HAVE_C_ARES
     async_dns_queue_msg_t *caqm;
 #endif /* HAVE_C_ARES */
-    struct hostent *hostp;
 #endif /* INET6 */
 
     *found = TRUE;
@@ -1050,14 +1028,6 @@ try_resolv:
         }
 #endif /* HAVE_C_ARES */
 
-        /* Quick hack to avoid DNS/YP timeout */
-        hostp = gethostbyaddr((const char *)addr, sizeof(*addr), AF_INET6);
-
-        if (hostp != NULL && hostp->h_name[0] != '\0') {
-            g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
-            tp->is_dummy_entry = FALSE;
-            return tp;
-        }
 #endif /* INET6 */
     }
 
