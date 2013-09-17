@@ -4155,6 +4155,7 @@ de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 {
 	guint32     curr_offset;
 	guint32     count, nb_lb;
+	guint8      drb;
 	proto_item *item          = NULL;
 	proto_tree *lb_setup_tree = NULL;
 
@@ -4169,7 +4170,9 @@ de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 		lb_setup_tree = proto_item_add_subtree(item, ett_epc_ue_tl_a_lb_setup);
 		proto_tree_add_bits_item(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_ul_sdu_size, tvb, curr_offset<<3, 16, ENC_BIG_ENDIAN);
 		curr_offset += 2;
-		proto_tree_add_bits_item(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_drb, tvb, (curr_offset<<3)+3, 5, ENC_BIG_ENDIAN);
+		drb = tvb_get_guint8(tvb, curr_offset) & 0x1f;
+		proto_tree_add_uint_format_value(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_drb, tvb, curr_offset, 1,
+		                                 drb, "%d (%d)", drb+1, drb);
 		curr_offset++;
 		count++;
 	}
@@ -7078,7 +7081,7 @@ proto_register_gsm_a_dtap(void)
 	},
 	{ &hf_gsm_a_dtap_epc_ue_tl_a_drb,
 		{ "Data Radio Bearer identity number","gsm_a.dtap.epc.ue_tl_a_drb",
-		FT_UINT8,BASE_DEC, NULL, 0x0,
+		FT_UINT8,BASE_DEC, NULL, 0x1f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_epc_ue_tl_b_ip_pdu_delay,
