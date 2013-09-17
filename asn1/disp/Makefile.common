@@ -45,7 +45,10 @@ SRC_FILES = \
 
 A2W_FLAGS= -b
 
-EXTRA_CNF= \
+EXPORT_DEPENDS = \
+        $(builddir)/../dop-exp.cnf
+
+EXTRA_CNF = \
 	$(builddir)/../dap/dap-exp.cnf \
 	$(builddir)/../dop/dop-exp.cnf \
 	$(builddir)/../dsp/dsp-exp.cnf \

@@ -42,6 +42,7 @@ MACRO(ASN2WRS)
 			DEPENDS
 			  ${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
 			  ${SRC_FILES}
+			  ${EXPORT_DEPENDS}
 		)
 	endforeach()
 ENDMACRO()

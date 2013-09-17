@@ -41,7 +41,7 @@ $(DISSECTOR): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 		-O $(top_srcdir)/epan/dissectors \
 		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 
-$(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES)
+$(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXPORT_DEPENDS)
 	$(PYTHON) $(top_srcdir)/tools/asn2wrs.py \
 		-E $(A2W_FLAGS) \
 		$(PROTO_OPT) \

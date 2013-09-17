@@ -58,5 +58,9 @@ set( EXTRA_CNF
 	x509if-exp.cnf
 )
 
+set( EXPORT_DEPENDS
+	dop-exp.cnf
+)
+
 ASN2WRS()
 
