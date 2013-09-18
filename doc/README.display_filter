@@ -554,45 +554,51 @@ expression generator.
 
 How to add a new test to dfilter-test.py
 ========================================
-If you need a new packet, create an instance of Packet()
-inside dfilter-test.py, and add its hexdump as you see in the
-existing Packet instances.
+Note: dfilter-test.py requires Python 2.7
 
-Add a method to run your tests to an existing class which is
-a sub-class of Test, or add your own new sub-class of Test.
-The 'tests' field in each class must list the test methods that
-are to be called. Each test must return the result of:
+"tools/dfilter-test.py" is the main test script. It includes
+the test from files in tools/dftestlib. You can add a test
+to a file in tools/dftestlib, or you can create a new file
+in tools/dftestlib. If you do add a new file, you must
+import it (and the class it defines) in "tools/dfilter-test.py"
 
-    self.DFilterCount(packet_object, dfilter_text, expected_count)
+Each new test class must define "trace_file", which names
+a capture file in "tools/dftestfiles". All the tests
+run in that class will use that one capture file.
 
-If you have added a new sub-class of Test, it must be added
-to the global all_tests variable.
+There are 2 methods you can use for testing:
+
+assertDfilter(dfilter_text, expected_count)
+
+    This will run the display filter through tshark, on the
+    file named by "trace_file", and assert that the
+    number of resulting packets equals "expected_count". This
+    also asserts that tshark does not fail; success with zero
+    matches is not the same as failure to compile the display
+    filter string.
+
+assertDFilterFail(dfilter_text)
+
+    This will run tshark with the display filter, and
+    asser that tshark fails. This is useful when expecting
+    display filter syntax errors to be caught.
 
 Then, simply run "dfilter-test.py". You can run the tests
-in a single Test sub-class by naming that sub-class on the
-dfilter-test.py command-line, like:
+in a single Test class by naming that -class on the
+dfilter-test.py command-line, or even run a single
+test by naming it. E.g., the following are all valid ways
+of running dfilter-test.py:
 
-$ ./tools/dfilter-test.py TVB
-Note: Bytes test does not yet test FT_INT64.
-Note: Scanner test does not yet test embedded double-quote.
-TVB
-        ck_eq_1 ... OK
-        ck_slice_1 ... OK
-        ck_slice_2 ... OK
-        ck_slice_3 ... OK
-        ck_contains_1 ... OK
-        ck_contains_2 ... OK
-        ck_contains_3 ... OK
-        ck_contains_4 ... OK
-        ck_contains_5 ... OK
+# Run all tests
+$ ./tools/dfilter-test.py
 
+# Run all tests in "testTVB"
+$ ./tools/dfilter-test.py testTVB
 
-Total Tests Run: 9
-Total Tests Succeeded: 9
-Total Tests Failed: 0
-
+# Run the the "test_contains_1" test from testTVB
+$ ./tools/dfilter-test.py testTVB.test_contains_1
 
 Note that dfilter-test.py should be run from the top of the
 Wireshark distribution, so it knows where to find the default
-text2pcap and tshark executables.
+tshark executable.
 
