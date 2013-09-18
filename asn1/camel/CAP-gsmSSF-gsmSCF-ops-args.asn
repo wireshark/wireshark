@@ -9,7 +9,7 @@ umts-network(1) modules(3) cap-gsmSSF-gsmSCF-ops-args(101) version8(7)}
 DEFINITIONS IMPLICIT TAGS ::= BEGIN
 
 -- This module contains the operations and operation arguments used for the
--- gsmSSF – gsmSCF interface, for the control of circuit switched calls.
+-- gsmSSF - gsmSCF interface, for the control of circuit switched calls.
 
 -- The table in subclause 2.1 lists the specifications that contain the modules
 -- that are used by CAP.
@@ -74,7 +74,7 @@ FROM CAP-classes classes
 	opcode-callGap,
 	opcode-callInformationReport,
 	opcode-callInformationRequest,
-	opcode-cancel, 
+	opcode-cancel,
 	opcode-collectInformation,
 	opcode-connect,
 	opcode-connectToResource,
@@ -353,14 +353,14 @@ collectInformation {PARAMETERS-BOUND : bound} OPERATION::= {
 	ARGUMENT			CollectInformationArg {bound}
 	RETURN RESULT		FALSE
 	ERRORS		{missingParameter |
-					parameterOutOfRange | 
+					parameterOutOfRange |
 					SystemFailure	|
 					TaskRefused	|
 					UnexpectedComponentSequence	|
 					UnexpectedDataValue	|
 					UnexpectedParameter}
 	CODE				opcode-collectInformation}
--- Direction: gsmSCF-> gsmSSF, Timer: Tci 
+-- Direction: gsmSCF-> gsmSSF, Timer: Tci
 -- This operation is used to request the gsmSSF to perform the call
 -- processing actions to prompt a calling party for additional digits.
 
@@ -381,7 +381,7 @@ connect {PARAMETERS-BOUND : bound} OPERATION ::= {
 					unexpectedParameter |
 					unknownLegID}
 	CODE			opcode-connect}
--- Direction: gsmSCF-> gsmSSF, Timer: Tcon 
+-- Direction: gsmSCF-> gsmSSF, Timer: Tcon
 -- This operation is used to request the gsmSSF to perform the call processing actions
 -- to route or forward a call to a specified destination.
 
@@ -420,7 +420,7 @@ connectToResource {PARAMETERS-BOUND : bound} OPERATION ::= {
 					unexpectedParameter |
 					unknownCSID}
 	CODE			opcode-connectToResource}
--- Direction: gsmSCF -> gsmSSF, Timer: Tctr 
+-- Direction: gsmSCF -> gsmSSF, Timer: Tctr
 -- This operation is used to connect a call segment from the gsmSSF to the
 -- gsmSRF.
 
@@ -439,7 +439,7 @@ continue OPERATION ::= {
 	RETURN RESULT	FALSE
 	ALWAYS RESPONDS	FALSE
 	CODE			opcode-continue}
--- Direction: gsmSCF -> gsmSSF, Timer: Tcue 
+-- Direction: gsmSCF -> gsmSSF, Timer: Tcue
 -- This operation is used to request the gsmSSF to proceed with call processing at the
 -- DP at which it previously suspended call processing to await gsmSCF instructions
 -- (i.e. proceed to the next point in call in the BCSM). The gsmSSF continues call
@@ -456,7 +456,7 @@ continueWithArgument {PARAMETERS-BOUND : bound} OPERATION ::= {
 					unknownLegID |
 					unknownCSID}
 	CODE			opcode-continueWithArgument}
--- Direction: gsmSCF -> gsmSSF, Timer: Tcwa 
+-- Direction: gsmSCF -> gsmSSF, Timer: Tcwa
 -- This operation is used to request the gsmSSF to proceed with call processing at the
 -- DP at which it previously suspended call processing to await gsmSCF instructions
 -- (i.e. proceed to the next point in call in the BCSM). The gsmSSF continues call
@@ -495,8 +495,8 @@ disconnectForwardConnection OPERATION ::= {
 					unexpectedComponentSequence}
 	CODE			opcode-disconnectForwardConnection}
 -- Direction: gsmSCF -> gsmSSF, Timer: Tdfc
--- This operation is used to disconnect a forward temporary connection or a connection to a 
--- resource. Refer to clause 11 for a description of the procedures associated with this operation. 
+-- This operation is used to disconnect a forward temporary connection or a connection to a
+-- resource. Refer to clause 11 for a description of the procedures associated with this operation.
 
 disconnectForwardConnectionWithArgument {PARAMETERS-BOUND : bound} OPERATION ::= {
 	ARGUMENT		DisconnectForwardConnectionWithArgumentArg {bound}
@@ -567,7 +567,7 @@ establishTemporaryConnection {PARAMETERS-BOUND : bound} OPERATION ::= {
 					unexpectedParameter |
 					unknownCSID}
 	CODE			opcode-establishTemporaryConnection}
--- Direction: gsmSCF -> gsmSSF, Timer: Tetc 
+-- Direction: gsmSCF -> gsmSSF, Timer: Tetc
 -- This operation is used to create a connection to a resource for a limited period
 -- of time (e.g. to play an announcement, to collect user information); it implies
 -- the use of the assist procedure. Refer to clause 11 for a description of the
@@ -637,7 +637,7 @@ initialDP {PARAMETERS-BOUND : bound} OPERATION ::= {
 					unexpectedDataValue |
 					unexpectedParameter}
 	CODE			opcode-initialDP}
--- Direction: gsmSSF -> gsmSCF, Timer: Tidp 
+-- Direction: gsmSSF -> gsmSCF, Timer: Tidp
 -- This operation is used after a TDP to indicate request for service.
 
 InitialDPArg {PARAMETERS-BOUND : bound} ::= SEQUENCE {
@@ -693,12 +693,12 @@ InitialDPArgExtension {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 	collectInformationAllowed			[13] NULL									OPTIONAL,
 	releaseCallArgExtensionAllowed		[14] NULL									OPTIONAL
 }
--- If iPSSPCapabilities is not present then this denotes that a colocated gsmSRF is not 
--- supported by the gsmSSF. If present, then the gsmSSF supports a colocated gsmSRF capable 
+-- If iPSSPCapabilities is not present then this denotes that a colocated gsmSRF is not
+-- supported by the gsmSSF. If present, then the gsmSSF supports a colocated gsmSRF capable
 -- of playing announcements via elementaryMessageIDs and variableMessages, the playing of
--- tones and the collection of DTMF digits. Other supported capabilities are explicitly 
+-- tones and the collection of DTMF digits. Other supported capabilities are explicitly
 -- detailed in the IPSSPCapabilities parameter itself.
--- Carrier is included at the discretion of the gsmSSF operator. 
+-- Carrier is included at the discretion of the gsmSSF operator.
 -- The UserCSGInformation is conveyed in the LocationInformation. The encoding of the parameter is
 -- as defined in 3GPP TS 29.002 [11].
 
@@ -787,16 +787,16 @@ releaseCall {PARAMETERS-BOUND : bound} OPERATION ::= {
 	RETURN RESULT	FALSE
 	ALWAYS RESPONDS	FALSE
 	CODE			opcode-releaseCall}
--- Direction: gsmSCF ->?gsmSSF, Timer: Trc 
--- This operation is used to tear down an existing call at any phase of the call for all parties 
--- involved in the call. 
+-- Direction: gsmSCF ->?gsmSSF, Timer: Trc
+-- This operation is used to tear down an existing call at any phase of the call for all parties
+-- involved in the call.
 
 ReleaseCallArg {PARAMETERS-BOUND : bound} ::= CHOICE {
 	allCallSegments					AllCallSegments,
 	allCallSegmentsWithExtension	[2] AllCallSegmentsWithExtension
 	}
 
-AllCallSegments ::= Cause {bound} 
+AllCallSegments ::= Cause {bound}
 -- A default value of decimal 31 (normal unspecified) shall be given.
 
 AllCallSegmentsWithExtension ::= SEQUENCE {
@@ -822,8 +822,8 @@ requestReportBCSMEvent {PARAMETERS-BOUND : bound} OPERATION ::= {
 -- to the gsmSCF when the event is detected.
 --
 -- NOTE:
--- Every EDP must be explicitly armed by the gsmSCF via a RequestReportBCSMEvent operation. 
--- No implicit arming of EDPs at the gsmSSF after reception of any operation (different 
+-- Every EDP must be explicitly armed by the gsmSCF via a RequestReportBCSMEvent operation.
+-- No implicit arming of EDPs at the gsmSSF after reception of any operation (different
 -- from RequestReportBCSMEvent) from the gsmSCF is allowed.
 
 RequestReportBCSMEventArg {PARAMETERS-BOUND : bound} ::= SEQUENCE {
@@ -845,7 +845,7 @@ resetTimer {PARAMETERS-BOUND : bound} OPERATION ::= {
 					unexpectedParameter |
 					unknownCSID}
 	CODE			opcode-resetTimer}
--- Direction: gsmSCF -> gsmSSF, Timer: Trt 
+-- Direction: gsmSCF -> gsmSSF, Timer: Trt
 -- This operation is used to request the gsmSSF to refresh an application timer in the gsmSSF.
 
 ResetTimerArg {PARAMETERS-BOUND : bound} ::= SEQUENCE {
@@ -868,7 +868,7 @@ sendChargingInformation {PARAMETERS-BOUND : bound} OPERATION ::= {
 					unexpectedDataValue |
 					unknownLegID}
 	CODE			opcode-sendChargingInformation}
--- Direction: gsmSCF -> gsmSSF, Timer: Tsci 
+-- Direction: gsmSCF -> gsmSSF, Timer: Tsci
 -- This operation is used to instruct the gsmSSF on the charging information to send by the gsmSSF.
 -- The charging information can either be sent back by means of signalling or internal
 -- if the gsmSSF is located in the local exchange. In the local exchange

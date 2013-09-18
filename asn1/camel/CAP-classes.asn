@@ -123,7 +123,7 @@ firstExtension EXTENSION ::= {
 -- firstExtension is just an example.
 
 SupportedExtensions EXTENSION ::= {firstExtension, ...
--- full set of network operator extensions –-
+-- full set of network operator extensions --
 }
 -- SupportedExtension is the full set of the network operator extensions.
 

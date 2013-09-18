@@ -10,10 +10,10 @@
 -- **************************************************************
 
 PCAP-IEs {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 umts-Access (20) modules (3) pcap(4) version1 (1) pcap-IEs (2) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -370,7 +370,7 @@ RxTimingDeviationLCRInfo ::=			SEQUENCE {
 }
 
 RxTimingDeviationLCRInfo-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
-{ ID id-extendedTimingAdvanceLCR	CRITICALITY ignore	EXTENSION ExtendedTimingAdvanceLCR					PRESENCE optional }, -- 1.28Mcps TDD only	
+{ ID id-extendedTimingAdvanceLCR	CRITICALITY ignore	EXTENSION ExtendedTimingAdvanceLCR					PRESENCE optional }, -- 1.28Mcps TDD only
 	...
 }
 
@@ -582,7 +582,7 @@ RequestedCellIDGERANMeasurements-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 
 ClientType ::= ENUMERATED {
 	emergency-services,
-	value-added-services, 
+	value-added-services,
 	plmn-operator-services,
 	lawful-intercept-services,
 	plmn-operator-broadcast-services,
@@ -590,7 +590,7 @@ ClientType ::= ENUMERATED {
 	plmn-operator-anonymous-statistics,
 	plmn-operator-target-ms-service-support,
 	...
-} 
+}
 -- **************************************************************
 --
 -- CriticalityDiagnostics
@@ -695,8 +695,8 @@ UDRE ::=							ENUMERATED {
 										between4-and-8,
 										over8 }
 
-UDREGrowthRate ::=					ENUMERATED { 	
-										growth-1-point-5, 
+UDREGrowthRate ::=					ENUMERATED {
+										growth-1-point-5,
 										growth-2,
 										growth-4,
 										growth-6,
@@ -992,7 +992,7 @@ AcquisitionSatInfo ::=				SEQUENCE {
 	azimuthAndElevation					AzimuthAndElevation													OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { AcquisitionSatInfo-ExtIEs } }		OPTIONAL,
 	...
-}	
+}
 
 AcquisitionSatInfo-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
@@ -1195,7 +1195,7 @@ GANSS-Additional-UTC-Models ::= CHOICE {
 	utcModel1			UTCmodelSet1,
 	utcModel2			UTCmodelSet2,
 	utcModel3			UTCmodelSet3,
-	... 
+	...
 }
 
 GANSS-ALM-ECEFsbasAlmanacSet ::= SEQUENCE {
@@ -1290,7 +1290,7 @@ GANSS-Auxiliary-Information ::= CHOICE {
 }
 
 GANSS-AzimuthAndElevation ::= SEQUENCE {
-	azimuth						INTEGER(0..31), 
+	azimuth						INTEGER(0..31),
 	-- applicable range of elevation is 0..7. Values 8-75 shall not be used.
 	elevation					INTEGER(0..75),
 	ie-Extensions				ProtocolExtensionContainer { { GANSS-AzimuthAndElevation-ExtIEs } }	OPTIONAL,
@@ -1321,7 +1321,7 @@ GANSS-CommonAssistanceData-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 
 GANSS-Data-Bit-Assistance ::= SEQUENCE {
 	ganssTod							INTEGER (0..59,...),
-	dataBitAssistancelist				GANSS-DataBitAssistanceList, 
+	dataBitAssistancelist				GANSS-DataBitAssistanceList,
 	ie-Extensions						ProtocolExtensionContainer { { GANSS-Data-Bit-Assistance-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -1406,7 +1406,7 @@ GANSSGenericAssistance-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-GANSS-Additional-Navigation-Models		CRITICALITY ignore	EXTENSION GANSS-Additional-Navigation-Models	PRESENCE optional }|
 	{ ID id-GANSS-Additional-UTC-Models				CRITICALITY ignore	EXTENSION GANSS-Additional-UTC-Models				PRESENCE optional }|
 	{ ID id-GANSS-Auxiliary-Information				CRITICALITY ignore	EXTENSION GANSS-Auxiliary-Information				PRESENCE optional }|
-	-- the following IE shall be present if ‘GANSSID’ in ‘GANSSGenericAssistanceData’ is ‘0’ (SBAS)
+	-- the following IE shall be present if 'GANSSID' in 'GANSSGenericAssistanceData' is '0' (SBAS)
 	{ ID id-GANSS-SBAS-ID							CRITICALITY ignore	EXTENSION GANSS-SBAS-ID			PRESENCE optional },
 	...
 }
@@ -1521,7 +1521,7 @@ GANSS-KeplerianParametersOrb-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-GANSS-MeasurementParameters ::= SEQUENCE(SIZE(1..maxGANSSSat)) OF GANSS-MeasurementParametersItem 
+GANSS-MeasurementParameters ::= SEQUENCE(SIZE(1..maxGANSSSat)) OF GANSS-MeasurementParametersItem
 
 GANSS-MeasurementParametersItem ::= SEQUENCE {
 	satId						INTEGER(0..63),
@@ -1687,7 +1687,7 @@ GANSS-SatelliteInformationItem-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 GANSS-SatelliteInformationKP ::= SEQUENCE (SIZE (1..maxGANSSSatAlmanac)) OF GANSS-SatelliteInformationKPItem
 
 GANSS-SatelliteInformationKPItem ::= SEQUENCE {
-	satId								INTEGER(0..63), 
+	satId								INTEGER(0..63),
 	ganss-e-alm							BIT STRING (SIZE (11)),
 	ganss-delta-I-alm					BIT STRING (SIZE (11)),
 	ganss-omegadot-alm					BIT STRING (SIZE (11)),
@@ -2036,7 +2036,7 @@ NavModel-NAVKeplerianSet-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 }
 
 NavModel-SBASecef ::= SEQUENCE {
-	-- the following IE shall be present if ‘SBASclockModel’ in ‘GANSS-AddClockModels’ is not included in ‘Ganss-Sat-Info-AddNavList’
+	-- the following IE shall be present if 'SBASclockModel' in 'GANSS-AddClockModels' is not included in 'Ganss-Sat-Info-AddNavList'
 	sbasTo					BIT STRING (SIZE (13))										OPTIONAL,
 	sbasAccuracy			BIT STRING (SIZE (4)),
 	sbasXg					BIT STRING (SIZE (30)),
@@ -2772,7 +2772,7 @@ GANSSGenericDataReq ::= SEQUENCE {
 	ganss-AddNavModelsReq				AddNavigationModelsGANSS				OPTIONAL,
 	ganss-AddUtcModelsReq				GANSS-AddUtcModelsReq					OPTIONAL,
 	ganss-AuxInfoReq					GANSS-AuxInfoReq						OPTIONAL,
-	-- the following IE shall be present if GANSSID is ‘0’ (SBAS)
+	-- the following IE shall be present if GANSSID is '0' (SBAS)
 	ganss-SBAS-ID						GANSS-SBAS-ID							OPTIONAL
 }
 
@@ -2999,7 +2999,7 @@ TransmissionTOWIndicator ::= ENUMERATED {
 -- **************************************************************
 
 MessageStructure ::= SEQUENCE (SIZE (1..maxNrOfLevels)) OF
-	SEQUENCE { 
+	SEQUENCE {
 		iE-ID					ProtocolIE-ID,
 		repetitionNumber		MessageStructureRepetition									OPTIONAL,
 		iE-Extensions			ProtocolExtensionContainer { {MessageStructure-ExtIEs} }	OPTIONAL,
@@ -3330,7 +3330,7 @@ PositioningMethod ::= SEQUENCE {
 
 
 PositioningMethod-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
--- The following IE shall be present if the Selected Position Method IE value is set to "GNSS" or “OTDOA or GNSS”
+-- The following IE shall be present if the Selected Position Method IE value is set to "GNSS" or "OTDOA or GNSS"
 	{ ID id-GNSS-PositioningMethod	CRITICALITY ignore	EXTENSION GNSS-PositioningMethod	PRESENCE conditional },
 	...
 }
@@ -3439,7 +3439,7 @@ RequestType ::= SEQUENCE {
 	horizontalaccuracyCode	RequestTypeAccuracyCode		OPTIONAL,
 	iE-Extensions	ProtocolExtensionContainer { { RequestType-ExtIEs} }	OPTIONAL,
 	...
-}	
+}
 
 RequestType-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
@@ -3498,13 +3498,13 @@ UE-PositioningCapability ::= SEQUENCE {
 	supportForSFNSFNTimeDiff			BOOLEAN,
 	iE-Extensions						ProtocolExtensionContainer { {UE-PositioningCapability-ExtIEs} }	OPTIONAL,
 	...
-}	
+}
 
 UE-PositioningCapability-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-NetworkAssistedGANSSSuport			CRITICALITY ignore	EXTENSION NetworkAssistedGANSSSupport				PRESENCE optional },
 	...
 }
-	
+
 NetworkAssistedGANSSSupport ::= SEQUENCE (SIZE (1..maxGANSS)) OF SEQUENCE {
 	ganssID								GANSSID											OPTIONAL,
 	ganssMode							ENUMERATED {
@@ -3521,7 +3521,7 @@ NetworkAssistedGANSSSupport ::= SEQUENCE (SIZE (1..maxGANSS)) OF SEQUENCE {
 }
 
 NetworkAssistedGANSSSuport-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
-	-- the following IE shall be present if ‘GANSSID’ in ‘NetworkAssistedGANSSSupport’ is ‘0’ (SBAS)
+	-- the following IE shall be present if 'GANSSID' in 'NetworkAssistedGANSSSupport' is '0' (SBAS)
 	{ ID id-GANSS-SBAS-IDs					CRITICALITY ignore	EXTENSION GANSS-SBAS-IDs						PRESENCE optional }|
 	{ ID id-GANSS-Signal-IDs				CRITICALITY ignore	EXTENSION GANSS-Signal-IDs						PRESENCE optional }|
 	{ ID id-supportGANSSNonNativeADchoices	CRITICALITY ignore	EXTENSION SupportGANSSNonNativeADchoices	PRESENCE optional },
@@ -3625,7 +3625,7 @@ GANSSPositioning ::= SEQUENCE {
 	requestedDataValue				RequestedDataValue				OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { { GANSSPositioning-ExtIEs } } OPTIONAL,
 	...
-} 
+}
 
 GANSSPositioning-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
@@ -3639,7 +3639,7 @@ GANSS-PositioningInstructions ::= SEQUENCE {
 	measurementValidity					MeasurementValidity																OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { GANSS-PositioningInstructions-ExtIEs } } 	OPTIONAL,
 	...
-} 
+}
 
 GANSS-PositioningInstructions-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	{ID id-GANSScarrierPhaseRequested	CRITICALITY	ignore	EXTENSION	GANSScarrierPhaseRequested	PRESENCE optional}|
@@ -3654,7 +3654,7 @@ GANSSMultiFreqMeasRequested ::= BIT STRING (SIZE (8))
 
 -- **************************************************************
 --
--- OTDOA Assistance Data	
+-- OTDOA Assistance Data
 --
 -- **************************************************************
 OTDOAAssistanceData ::= SEQUENCE {
@@ -3759,10 +3759,10 @@ UE-Positioning-IPDL-Parameters-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 IP-Spacing ::=						ENUMERATED {
 										e5, e7, e10, e15, e20,
 										e30, e40, e50, ... }
-										
+
 IP-Length ::=						ENUMERATED {
 										ipl5, ipl10, ... }
-										
+
 BurstModeParameters ::=				SEQUENCE {
 	burstStart							INTEGER (0..15),
 	burstLength							INTEGER (10..25),
@@ -3780,8 +3780,8 @@ BurstModeParameters-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 
 UE-Positioning-OTDOA-NeighbourCellList ::= SEQUENCE (SIZE (1..maxCellMeas)) OF
 											UE-Positioning-OTDOA-NeighbourCellInfo
-											
-											
+
+
 UE-Positioning-OTDOA-NeighbourCellInfo ::= SEQUENCE {
 	modeSpecificInfo	CHOICE	{
 		fdd								SEQUENCE {
@@ -3858,7 +3858,7 @@ SFN-SFN-Drift ::= 					ENUMERATED {
 
 FineSFNSFN		::=	INTEGER (0..15)
 -- Range 0..0.9375 step size 0.0625
- 
+
 -- **************************************************************
 --
 -- Vertical Accuracy Code
@@ -3899,7 +3899,7 @@ FrequencyInfo ::=					SEQUENCE {
 
 FrequencyInfo-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 FrequencyInfoFDD ::=				SEQUENCE {
 	uarfcn-UL							UARFCN				OPTIONAL,
@@ -3910,7 +3910,7 @@ FrequencyInfoFDD ::=				SEQUENCE {
 
 FrequencyInfoFDD-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 FrequencyInfoTDD ::=				SEQUENCE {
 
@@ -3921,13 +3921,13 @@ FrequencyInfoTDD ::=				SEQUENCE {
 
 FrequencyInfoTDD-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 
 UTDOA-RRCState ::=	CHOICE {
 	uTDOA-CELLDCH	UTDOA-CELLDCH,
 	uTDOA-CELLFACH	UTDOA-CELLFACH,
-	...			
+	...
 }
 
 -- ***********************************
@@ -3946,7 +3946,7 @@ UTDOA-CELLDCH ::=		SEQUENCE {
 
 UTDOA-CELLDCH-ExtIEs		PCAP-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 UL-DPCHInfo ::=						CHOICE {
 		fdd									SEQUENCE {
@@ -3955,7 +3955,7 @@ UL-DPCHInfo ::=						CHOICE {
 			tfci-Existence						BOOLEAN,
 			numberOfFBI-Bits					NumberOfFBI-Bits,
 			iE-Extensions						ProtocolExtensionContainer { { UL-DPCHInfoFDD-ExtIEs} } OPTIONAL,
-			...			
+			...
 
 		},
 		tdd									SEQUENCE {
@@ -3970,7 +3970,7 @@ UL-DPCHInfo ::=						CHOICE {
 			specialBurstScheduling				SpecialBurstScheduling,
 			iE-Extensions						ProtocolExtensionContainer { { UL-DPCHInfoTDD-ExtIEs} } OPTIONAL,
 			...
-		},	
+		},
 		...
 
 	}
@@ -3987,7 +3987,7 @@ Compressed-Mode-Assistance-Data ::=		SEQUENCE {
 			dl-information					DL-InformationFDD,
 			ul-information					UL-InformationFDD,
 			iE-Extensions					ProtocolExtensionContainer { { Compressed-Mode-Assistance-DataFDD-ExtIEs} } OPTIONAL,
-			...			
+			...
 
 }
 
@@ -4002,22 +4002,22 @@ DL-InformationFDD ::=				SEQUENCE {
 			iE-Extensions					ProtocolExtensionContainer { { DL-InformationFDD-ExtIEs} } OPTIONAL,
 			...
 		}
-		
+
 DL-InformationFDD-ExtIEs		PCAP-PROTOCOL-EXTENSION ::= {
 	...
-}		
-		
-UL-InformationFDD ::=				SEQUENCE {			
+}
+
+UL-InformationFDD ::=				SEQUENCE {
 			transmissionGapPatternSequenceInfo			Transmission-Gap-Pattern-Sequence-Information,
 			activePatternSequenceInfo					Active-Pattern-Sequence-Information,
 			cFN											CFN,
-			iE-Extensions								ProtocolExtensionContainer { { UL-InformationFDD-ExtIEs} } OPTIONAL,		
+			iE-Extensions								ProtocolExtensionContainer { { UL-InformationFDD-ExtIEs} } OPTIONAL,
 			...
 	}
-	
+
 UL-InformationFDD-ExtIEs		PCAP-PROTOCOL-EXTENSION ::= {
 	...
-}		
+}
 
 Transmission-Gap-Pattern-Sequence-Information ::= SEQUENCE (SIZE (1..maxTGPS)) OF
 	SEQUENCE {
@@ -4035,9 +4035,9 @@ Transmission-Gap-Pattern-Sequence-Information ::= SEQUENCE (SIZE (1..maxTGPS)) O
 Transmission-Gap-Pattern-Sequence-Information-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
-	
+
 TGD					::= INTEGER (0|15..269)
--- 0 = Undefined, only one transmission gap in the transmission gap pattern sequence 
+-- 0 = Undefined, only one transmission gap in the transmission gap pattern sequence
 
 TGPRC 				::= INTEGER (0..511)
 -- 0 = infinity
@@ -4093,7 +4093,7 @@ DCH-Information ::=		SEQUENCE {
 
 DCH-Information-ExtIEs		PCAP-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 
 TrChInfoList ::= SEQUENCE (SIZE(1..maxTrCH)) OF
@@ -4108,7 +4108,7 @@ UL-TrCHInfo ::=		SEQUENCE {
 
 UL-TrCHInfo-ExtIEs		PCAP-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 UL-TrCHType ::=		ENUMERATED {dch, usch, ...}
 
@@ -4165,7 +4165,7 @@ Reference-E-TFCI-PO ::= INTEGER (0.. maxNrOfRefETFCI-PO-QUANTSTEPs)
 	-- FFS according to mapping in TS 25.213 [17]
 
 E-TFCI ::= INTEGER (0..127)
-	
+
 E-TTI ::= ENUMERATED {
 	e-TTI-2ms,
 	e-TTI-10ms,
@@ -4221,7 +4221,7 @@ UL-Timeslot-InformationItem-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 
 TimeSlot ::= INTEGER (0..14)
 
-MidambleShiftAndBurstType ::=		CHOICE {	
+MidambleShiftAndBurstType ::=		CHOICE {
 	type1								SEQUENCE {
 		midambleConfigurationBurstType1And3	MidambleConfigurationBurstType1And3,
 		midambleAllocationMode 				CHOICE {
@@ -4329,7 +4329,7 @@ UTDOA-CELLFACH ::=	SEQUENCE {
 
 UTDOA-CELLFACH-ExtIEs		PCAP-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 PRACHparameters ::=	SEQUENCE (SIZE (1..maxPRACH)) OF
 	PRACH-ChannelInfo
@@ -4474,7 +4474,7 @@ TransportFormatSet-Semi-staticPart ::= SEQUENCE {
 	transmissionTimeInterval	 	TransportFormatSet-TransmissionTimeIntervalSemiStatic,
 	channelCoding					TransportFormatSet-ChannelCodingType,
 	codingRate						TransportFormatSet-CodingRate				OPTIONAL,
-	-- This IE shall be present if the Type of channel coding IE is set to 'convolutional' or 'turbo' 
+	-- This IE shall be present if the Type of channel coding IE is set to 'convolutional' or 'turbo'
 	rateMatchingAttribute			TransportFormatSet-RateMatchingAttribute,
 	cRC-Size						TransportFormatSet-CRC-Size,
 	iE-Extensions					ProtocolExtensionContainer { { TransportFormatSet-Semi-staticPart-ExtIEs} }		OPTIONAL,
@@ -4548,7 +4548,7 @@ C-RNTI ::=						BIT STRING (SIZE (16))
 
 UARFCN ::=						INTEGER (0..16383)
 
-			
+
 CFN ::= INTEGER (0..255)
 
 ChipOffset ::= INTEGER (0..38399)
@@ -4573,7 +4573,7 @@ UschParameters ::=	SEQUENCE {
 
 UschParameters-ExtIEs		PCAP-PROTOCOL-EXTENSION ::= {
 	...
-} 
+}
 
 
 USCH-SchedulingOffset ::= INTEGER (0..255)
@@ -4596,7 +4596,7 @@ PRACH-Midamble ::= ENUMERATED {
 --
 --******************************************
 
-Positioning-ResponseTime ::=				ENUMERATED {	ms250, ms500, s1, s2, s3, s4, s6, 
+Positioning-ResponseTime ::=				ENUMERATED {	ms250, ms500, s1, s2, s3, s4, s6,
 															s8, s12, s16, s20, s24, s28, s32, s64,
 															...
 														}
@@ -4625,7 +4625,7 @@ IncludeVelocity			::= ENUMERATED {
 
 -- **************************************************************
 --
--- VelocityEstimate 
+-- VelocityEstimate
 --
 -- **************************************************************
 

@@ -3,11 +3,11 @@
 -- From OMA UserPlane Location Protocol Candidate Version 2.0 06 Aug 2010
 -- OMA-TS-ULP-V2_0-20100806-D
 --
--- 11.2 Message Specific Part 
+-- 11.2 Message Specific Part
 --
 
 --
--- 11.2.1 SUPL INIT 
+-- 11.2.1 SUPL INIT
 --
 
 SUPL-INIT DEFINITIONS AUTOMATIC TAGS ::=
@@ -69,7 +69,7 @@ KeyIdentity ::= BIT STRING(SIZE (128)) -- empty placeholder required for SUPL 1.
 END
 
 --
--- 11.2.2 SUPL START 
+-- 11.2.2 SUPL START
 --
 SUPL-START DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
@@ -125,14 +125,14 @@ PosProtocol ::= SEQUENCE {
 END
 
 --
--- 11.2.3 SUPL RESPONSE 
+-- 11.2.3 SUPL RESPONSE
 --
 SUPL-RESPONSE DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 EXPORTS SUPLRESPONSE;
 
-IMPORTS 
+IMPORTS
 	PosMethod, SLPAddress
 FROM ULP-Components
 	Ver2-SUPL-RESPONSE-extension
@@ -157,7 +157,7 @@ KeyIdentity4 ::= BIT STRING(SIZE (128))
 END
 
 --
--- 11.2.4 SUPL POS INIT 
+-- 11.2.4 SUPL POS INIT
 --
 SUPL-POS-INIT DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
@@ -222,7 +222,7 @@ SatelliteInfoElement ::= SEQUENCE {
 END
 
 --
--- 11.2.5 SUPL POS 
+-- 11.2.5 SUPL POS
 --
 SUPL-POS DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
@@ -254,7 +254,7 @@ PosPayLoad ::= CHOICE {
 END
 
 --
--- 11.2.6 SUPL END 
+-- 11.2.6 SUPL END
 --
 SUPL-END DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
@@ -299,7 +299,7 @@ SUPLAUTHREQ ::= SEQUENCE {
 END
 
 --
--- 11.2.8 SUPL AUTH RESP 
+-- 11.2.8 SUPL AUTH RESP
 --
 SUPL-AUTH-RESP DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
@@ -382,25 +382,25 @@ BEGIN
 
 EXPORTS Ver2-SUPLTRIGGEREDSTART, TriggerType, TriggerParams, maxNumGeoArea, maxAreaId, maxAreaIdList;
 
-IMPORTS 
+IMPORTS
 	LocationId, QoP, Ver, Position
 FROM ULP-Components
 	MultipleLocationIds, CauseCode, ThirdParty, ApplicationID, ReportingCap, Coordinate, CircularArea, EllipticalArea, PolygonArea
 FROM Ver2-ULP-Components
-	SETCapabilities 
+	SETCapabilities
 FROM SUPL-START;
 
 Ver2-SUPLTRIGGEREDSTART ::= SEQUENCE {
   sETCapabilities  	SETCapabilities,
   locationId       	LocationId,
   ver              	Ver OPTIONAL,
-  qoP              	QoP OPTIONAL, 
+  qoP              	QoP OPTIONAL,
   multipleLocationIds	MultipleLocationIds OPTIONAL,
 thirdParty    	ThirdParty OPTIONAL,
 applicationID	ApplicationID OPTIONAL,
   triggerType   	TriggerType OPTIONAL,
   triggerParams 	TriggerParams OPTIONAL,
-  position         	Position OPTIONAL, 
+  position         	Position OPTIONAL,
   reportingCap	ReportingCap OPTIONAL,
   causeCode	CauseCode OPTIONAL,
 ...}
@@ -420,7 +420,7 @@ PeriodicParams ::= SEQUENCE{
    startTime		INTEGER(0..2678400) OPTIONAL,
 ...}
 -- intervalBetweenFixes and startTime are in seconds.
--- numberOfFixes  * intervalBetweenFixes shall not exceed 8639999 
+-- numberOfFixes  * intervalBetweenFixes shall not exceed 8639999
 -- (100 days in seconds) for compatibility with OMA MLP and RLP
 -- startTime is in relative time in units of seconds measured from "now"
 -- a value of 0 signifies "now", a value of "startTime" signifies startTime
@@ -439,9 +439,9 @@ areaIdLists		SEQUENCE (SIZE (1..maxAreaIdList)) OF AreaIdList OPTIONAL,
 -- startTime and stopTime are in seconds.
 -- startTime and stop Time are in relative time in units of seconds measured
 -- from "now"
--- a value of 0 signifies "now”
+-- a value of 0 signifies "now"
 -- stopTime must be > startTime
--- stopTime - startTime shall not exceed 8639999 
+-- stopTime - startTime shall not exceed 8639999
 -- (100 days in seconds) for compatibility with OMA MLP and RLP
 
 AreaEventType ::= ENUMERATED {enteringArea(0), insideArea(1), outsideArea(2), leavingArea(3), ...}
@@ -566,7 +566,7 @@ BEGIN
 
 EXPORTS Ver2-SUPLTRIGGEREDRESPONSE;
 
-IMPORTS 
+IMPORTS
 	PosMethod, SLPAddress
 FROM ULP-Components
 	SupportedNetworkInformation, SPCSETKey, SPCTID, SPCSETKeylifetime, GNSSPosTechnology
@@ -600,10 +600,10 @@ BatchRepConditions ::= CHOICE {
  ...}
 
 BatchRepType ::= SEQUENCE {
-reportPosition	BOOLEAN, -- set to “true” if reporting of position is allowed
-reportMeasurements	BOOLEAN, -- set to “true” if reporting of measurements is allowed
-intermediateReports   BOOLEAN, -- set to “true” if the SET is allowed to send intermediate reports if it runs out of memory
-discardOldest 	BOOLEAN OPTIONAL, -- set to “true” if the SET should discard the oldest positions or measurements of the batch report in order to save memory, set to “false” the SET should discard the latest positions or measurements
+reportPosition	BOOLEAN, -- set to "true" if reporting of position is allowed
+reportMeasurements	BOOLEAN, -- set to "true" if reporting of measurements is allowed
+intermediateReports   BOOLEAN, -- set to "true" if the SET is allowed to send intermediate reports if it runs out of memory
+discardOldest 	BOOLEAN OPTIONAL, -- set to "true" if the SET should discard the oldest positions or measurements of the batch report in order to save memory, set to "false" the SET should discard the latest positions or measurements
 ...}
 
 END
@@ -617,8 +617,8 @@ BEGIN
 EXPORTS Ver2-SUPLREPORT;
 
 IMPORTS
-	SETCapabilities 
-FROM SUPL-START 
+	SETCapabilities
+FROM SUPL-START
 	Position, PosMethod, SessionID, Ver
 FROM ULP-Components
 	MultipleLocationIds, GNSSPosTechnology, GANSSSignals
@@ -650,7 +650,7 @@ ReportData ::= SEQUENCE {
   resultCode	ResultCode OPTIONAL,
   timestamp	TimeStamp OPTIONAL,
   ...}
-  
+
 PositionData ::= SEQUENCE {
  position		Position,
  posMethod		PosMethod OPTIONAL,
@@ -669,7 +669,7 @@ ResultCode ::= ENUMERATED {outofradiocoverage(1), noposition(2), nomeasurement(3
 
 TimeStamp ::= CHOICE {
   absoluteTime  UTCTime,
-  relativeTime  INTEGER (0..31536000)} -- relative time to when the SUPL REPORT message is sent in units of 1 sec, where 0 signifies “now” and n signifies n seconds in the past
+  relativeTime  INTEGER (0..31536000)} -- relative time to when the SUPL REPORT message is sent in units of 1 sec, where 0 signifies "now" and n signifies n seconds in the past
 
 END
 
@@ -681,7 +681,7 @@ BEGIN
 
 EXPORTS Ver2-SUPLTRIGGEREDSTOP;
 
-IMPORTS 
+IMPORTS
 	StatusCode
 FROM ULP-Components;
 
@@ -723,7 +723,7 @@ Ver2-SUPL-INIT-extension ::= SEQUENCE {
 
 NotificationMode ::= ENUMERATED {normal(0), basedOnLocation(1), ...}
 
-HistoricReporting ::= SEQUENCE {	
+HistoricReporting ::= SEQUENCE {
   allowedReportingType 	AllowedReportingType,
   reportingCriteria	   	ReportingCriteria OPTIONAL,...}
 
@@ -755,7 +755,7 @@ BasicProtectionParams ::= SEQUENCE {
 ...}
 
 Ver2-SUPL-START-extension ::= SEQUENCE {
-  multipleLocationIds	MultipleLocationIds OPTIONAL, 
+  multipleLocationIds	MultipleLocationIds OPTIONAL,
   thirdParty     	ThirdParty OPTIONAL,
   applicationID	ApplicationID OPTIONAL,
   position         	Position OPTIONAL,
@@ -784,7 +784,7 @@ utran-GANSSReferenceTimeResult	UTRAN-GANSSReferenceTimeResult OPTIONAL,
 ...}
 
 Ver2-SUPL-END-extension ::= SEQUENCE {
-  sETCapabilities	SETCapabilities OPTIONAL, 
+  sETCapabilities	SETCapabilities OPTIONAL,
 ...}
 
 END

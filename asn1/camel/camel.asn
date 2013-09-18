@@ -34,7 +34,7 @@ IMPORTS
 
 FROM MAP-CommonDataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
 gsm-Network(1) modules(3) map-CommonDataTypes(18) version9(9)}
-    
+
         CUG-Index,
         CUG-Interlock,
 	Ext-QoS-Subscribed,
@@ -122,7 +122,7 @@ InvokeIdType ::= INTEGER (-128..127)
 
 OPERATION ::= CHOICE {
   localValue OperationLocalvalue,
-  globalValue OBJECT IDENTIFIER } 
+  globalValue OBJECT IDENTIFIER }
 
 
 CAMELOperationLocalvalue ::= INTEGER{
@@ -141,7 +141,7 @@ CAMELOperationLocalvalue ::= INTEGER{
   resetTimer (33),
   furnishChargingInformation (34),
   applyCharging (35),
-  applyChargingReport (36), 
+  applyChargingReport (36),
   callGap (41),
   callInformationReport (44),
   callInformationRequest (45),
@@ -188,8 +188,8 @@ OperationLocalvalue ::= CAMELOperationLocalvalue
 
 ERROR ::= CHOICE {
   localErrorValue LocalErrorcode,
-  globalErrorValue OBJECT IDENTIFIER 
-} 
+  globalErrorValue OBJECT IDENTIFIER
+}
 
 CAMELLocalErrorcode ::= INTEGER{
   canceled (0),
@@ -289,11 +289,11 @@ AlertingPattern ::= OCTET STRING (SIZE(3))
 -- The encoding of the last octet of this parameter is as defined in 3GPP TS 29.002 [11].
 
 
--- This one Commented out by Javier Acuña (javier.acuna@sixbell.cl)
+-- This one Commented out by Javier Acuna (javier.acuna@sixbell.cl)
 -- Because I added a new Errortypes section at the end.
 
---CancelFailedPARAM ::= SEQUENCE 
---{ 
+--CancelFailedPARAM ::= SEQUENCE
+--{
   --  operation [1] InvokeID
 --}
 
@@ -407,18 +407,18 @@ BCSM-Failure  ::= SEQUENCE {
 -- locally refd 2 times, import refd 0 times
 BearerCapability ::= CHOICE
 {
-    bearerCap  [0] BearerCap 
+    bearerCap  [0] BearerCap
 }
 
 BearerCap ::= OCTET STRING (SIZE (2..cAPSpecificBoundSetmaxBearerCapabilityLength ))
- 
+
 -- Indicates the type of bearer capability connection to the user. For bearerCap, the ISUP User
 -- Service Information, ETSI EN 300 356-1 [23]
 -- encoding shall be used.
 
 Burst ::= SEQUENCE {
 	numberOfBursts						[0]	INTEGER (1..3)		DEFAULT 1,
-	burstInterval						[1]	INTEGER	(1..1200)	DEFAULT 2,						
+	burstInterval						[1]	INTEGER	(1..1200)	DEFAULT 2,
 	numberOfTonesInBurst				[2] INTEGER (1..3)		DEFAULT 3,
 	toneDuration						[3]	INTEGER	(1..20)		DEFAULT 2,
 	toneInterval						[4]	INTEGER	(1..20)		DEFAULT 2,
@@ -459,19 +459,19 @@ CalledPartyBCDNumber ::= ISDN-AddressString
 -- identification' and 'number digit' fields defined in 3GPP TS 24.008 [9];
 -- it does not carry the 'called party BCD number IEI' or 'length of called
 -- party BCD number contents'.
--- In the context of the DestinationSubscriberNumber field in ConnectSMSArg or 
--- InitialDPSMSArg, a CalledPartyBCDNumber may also contain an alphanumeric 
--- character string. In this case, type-of-number '101'B is used, in accordance 
--- with 3GPP TS 23.040 [6]. The address is coded in accordance with the 
--- GSM 7-bit default alphabet definition and the SMS packing rules 
+-- In the context of the DestinationSubscriberNumber field in ConnectSMSArg or
+-- InitialDPSMSArg, a CalledPartyBCDNumber may also contain an alphanumeric
+-- character string. In this case, type-of-number '101'B is used, in accordance
+-- with 3GPP TS 23.040 [6]. The address is coded in accordance with the
+-- GSM 7-bit default alphabet definition and the SMS packing rules
 -- as specified in 3GPP TS 23.038 [15] in this case.
 
 -- CalledPartyNumber notes: not recursive, exported,
 -- locally refd 6 times, import refd 0 times
 
 CalledPartyNumber ::=
-  
-  
+
+
   OCTET STRING (SIZE (cAPSpecificBoundSetminCalledPartyNumberLength ..cAPSpecificBoundSetmaxCalledPartyNumberLength ))
 -- Indicates the Called Party Number. Refer to ETS EN 300 356-1 [23] for encoding.
 
@@ -488,8 +488,8 @@ CalledPartyNumber ::=
 -- CallingPartyNumber notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
 CallingPartyNumber ::=
-	
-	
+
+
 	OCTET STRING (SIZE (cAPSpecificBoundSetminCallingPartyNumberLength..cAPSpecificBoundSetmaxCallingPartyNumberLength ))
 -- Indicates the Calling Party Number. Refer to ETSI EN 300 356-1 [23] for encoding.
 
@@ -524,7 +524,7 @@ CAMEL-AChBillingChargingCharacteristics ::=  CHOICE
         maxCallPeriodDuration		[0] INTEGER (1..864000),
         releaseIfdurationExceeded	[1] BOOLEAN               DEFAULT FALSE,
         tariffSwitchInterval		[2] INTEGER (1..86400)    OPTIONAL,
-		audibleIndicator			[3] AudibleIndicator,	
+		audibleIndicator			[3] AudibleIndicator,
         extensions					[4] ExtensionsArray       OPTIONAL,
         ...
     }
@@ -663,7 +663,7 @@ CGEncountered ::= ENUMERATED
         scpOverload (2)
 }
 
-ChangeOfPositionControlInfo ::= SEQUENCE SIZE(1..cAPSpecificBoundsSetnumOfChangeOfPositionControlInf) OF ChangeOfLocation 
+ChangeOfPositionControlInfo ::= SEQUENCE SIZE(1..cAPSpecificBoundsSetnumOfChangeOfPositionControlInf) OF ChangeOfLocation
 
 ChangeOfLocation ::= CHOICE {
 	cellGlobalId						[0] CellGlobalIdOrServiceAreaIdFixedLength,
@@ -672,9 +672,9 @@ ChangeOfLocation ::= CHOICE {
 	inter-SystemHandOver				[3] NULL,
 	inter-PLMNHandOver					[4] NULL,
 	inter-MSCHandOver					[5] NULL,
-	changeOfLocationAlt					[6] ChangeOfLocationAlt 
+	changeOfLocationAlt					[6] ChangeOfLocationAlt
 }
--- The cellGlobalId shall contain a Cell Global Identification. 
+-- The cellGlobalId shall contain a Cell Global Identification.
 -- The serviceAreaId shall contain a Service Area Identification.
 
 ChangeOfLocationAlt ::= SEQUENCE {

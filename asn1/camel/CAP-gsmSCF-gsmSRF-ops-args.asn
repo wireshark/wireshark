@@ -8,7 +8,7 @@ umts-network(1) modules(3) cap-gsmSCF-gsmSRF-ops-args(103) version8(7)}
 DEFINITIONS IMPLICIT TAGS ::= BEGIN
 
 -- This module contains the operations and operation arguments used for the
--- gsmSRF – gsmSCF interface, for the control of circuit switched calls.
+-- gsmSRF - gsmSCF interface, for the control of circuit switched calls.
 
 -- The table in subclause 2.1 lists the specifications that contain the modules
 -- that are used by CAP.
@@ -114,7 +114,7 @@ promptAndCollectUserInformation {PARAMETERS-BOUND : bound} OPERATION ::= {
 					unknownCSID}
 	LINKED			{specializedResourceReport}
 	CODE			opcode-promptAndCollectUserInformation}
--- Direction: gsmSCF -> gsmSRF, Timer: Tpc 
+-- Direction: gsmSCF -> gsmSRF, Timer: Tpc
 -- This operation is used to interact with a user to collect information.
 
 PromptAndCollectUserInformationArg {PARAMETERS-BOUND : bound}::= SEQUENCE {
@@ -136,8 +136,8 @@ specializedResourceReport OPERATION ::= {
 	RETURN RESULT	FALSE
 	ALWAYS RESPONDS	FALSE
 	CODE			opcode-specializedResourceReport}
--- Direction: gsmSRF -> gsmSCF, Timer: Tsrr 
--- This operation is used as the response to a PlayAnnouncement operation when the announcement 
+-- Direction: gsmSRF -> gsmSCF, Timer: Tsrr
+-- This operation is used as the response to a PlayAnnouncement operation when the announcement
 -- completed report indication is set.
 
 SpecializedResourceReportArg ::= CHOICE {

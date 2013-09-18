@@ -7,9 +7,9 @@ DEFINITIONS IMPLICIT TAGS	::=
 
 BEGIN
 
--- EXPORTS everything 
+-- EXPORTS everything
 
-IMPORTS	
+IMPORTS
 -- CallDuration, CalledNumber, RecordType, CallingNumber, CallReferenceNumber, CellId, DefaultSMS-Handling, Diagnostics, Ext-GeographicalInformation, IMSI, IMEI, IPAddress, ISDN-AddressString, LCSCause, LCSClientExternalID, LCSClientIdentity, LCSClientInternalID, LCSClientType, LCS-Priority, LCSQoSInfo, LevelOfCAMELService, LocalSequenceNumber, LocationAreaAndCell, LocationAreaCode, LocationType, ManagementExtensions, MessageReference, MSISDN, NotificationToMSUser, PositioningData, RecordingEntity, ServiceKey, ServiceSpecificInfo, SMSResult, SmsTpDestinationNumber, SubscriptionID, TimeStamp, AddressString, MSTimeZone
 -- FROM GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version1 (0)}
 
@@ -24,12 +24,12 @@ gsm-Network (1) modules (3) map-MS-DataTypes (11) version6 (6)}
 LocationMethod
 FROM SS-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3) ss-DataTypes (2) version7 (7)}
 --
--- from TS 24.080 [61] 
+-- from TS 24.080 [61]
 
 -- MBMS2G3GIndicator, FileRepairSupported, MBMSServiceType, MBMSUserServiceType, RequiredMBMSBearerCapabilities, MBMSSessionIdentity, TMGI, MBMSInformation
 -- FROM MBMSChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) mbmsChargingDataTypes (8) asn1Module (0) version1 (0)}
 
--- Editor’s note:  consider moving the above 2 items also into the generic module in order to avoid again copying from external sources.
+-- Editor's note:  consider moving the above 2 items also into the generic module in order to avoid again copying from external sources.
 ;
 
 ------------------------------------------------------------------------------
@@ -38,11 +38,11 @@ FROM SS-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) 
 --
 ------------------------------------------------------------------------------
 
-GPRSRecord	::= CHOICE 
+GPRSRecord	::= CHOICE
 --
 -- Record values 20, 22..27 are specific
 -- Record values 76..77 are MBMS specific
--- Record values 78..79 are EPC specific 
+-- Record values 78..79 are EPC specific
 {
 	sgsnPDPRecord			[20] SGSNPDPRecord,
 	sgsnMMRecord			[22] SGSNMMRecord,
@@ -160,7 +160,7 @@ SGSNMMRecord	::= SET
 	cellIdentifier				[7] CellId OPTIONAL,
 	changeLocation				[8] SEQUENCE OF ChangeLocation OPTIONAL,
 	recordOpeningTime			[9] TimeStamp,
-	duration					[10] CallDuration OPTIONAL, 
+	duration					[10] CallDuration OPTIONAL,
 	sgsnChange					[11] SGSNChange OPTIONAL,
 	causeForRecClosing			[12] CauseForRecClosing,
 	diagnostics					[13] Diagnostics OPTIONAL,
@@ -169,7 +169,7 @@ SGSNMMRecord	::= SET
 	recordExtensions			[16] ManagementExtensions OPTIONAL,
 	localSequenceNumber			[17] LocalSequenceNumber OPTIONAL,
 	servedMSISDN				[18] MSISDN OPTIONAL,
-	chargingCharacteristics		[19] ChargingCharacteristics,	
+	chargingCharacteristics		[19] ChargingCharacteristics,
 	cAMELInformationMM 			[20] CAMELInformationMM OPTIONAL,
 	rATType						[21] RATType OPTIONAL,
 	chChSelectionMode			[22] ChChSelectionMode OPTIONAL,
@@ -226,9 +226,9 @@ SGSNSMORecord	::= SET
 	routingArea					[8] RoutingAreaCode OPTIONAL,
 	cellIdentifier				[9] CellId OPTIONAL,
 	messageReference			[10] MessageReference,
-	eventTimeStamp				[11] TimeStamp,	
+	eventTimeStamp				[11] TimeStamp,
 	smsResult					[12] SMSResult OPTIONAL,
-	recordExtensions			[13] ManagementExtensions OPTIONAL, 
+	recordExtensions			[13] ManagementExtensions OPTIONAL,
 	nodeID						[14] NodeID OPTIONAL,
 	localSequenceNumber			[15] LocalSequenceNumber OPTIONAL,
 	chargingCharacteristics		[16] ChargingCharacteristics,
@@ -250,7 +250,7 @@ SGSNSMTRecord	::= SET
 	locationArea			[7] LocationAreaCode OPTIONAL,
 	routingArea				[8] RoutingAreaCode OPTIONAL,
 	cellIdentifier			[9] CellId OPTIONAL,
-	eventTimeStamp			[10] TimeStamp,	
+	eventTimeStamp			[10] TimeStamp,
 	smsResult				[11] SMSResult OPTIONAL,
 	recordExtensions		[12] ManagementExtensions OPTIONAL,
 	nodeID					[13] NodeID OPTIONAL,
@@ -350,7 +350,7 @@ SGSNNILCSRecord			::= SET
 	chChSelectionMode		[22] ChChSelectionMode OPTIONAL,
 	rATType					[23] RATType OPTIONAL,
 	recordExtensions		[24] ManagementExtensions OPTIONAL,
-	causeForRecClosing		[25] CauseForRecClosing 
+	causeForRecClosing		[25] CauseForRecClosing
 }
 
 SGSNMBMSRecord 	::= SET
@@ -440,7 +440,7 @@ CAMELAccessPointNameNI	::= AccessPointNameNI
 
 CAMELAccessPointNameOI	::= AccessPointNameOI
 
-CAMELInformationMM		::= SET 
+CAMELInformationMM		::= SET
 {
 	sCFAddress						[1] SCFAddress OPTIONAL,
 	serviceKey						[2]	ServiceKey OPTIONAL,
@@ -464,7 +464,7 @@ CAMELInformationPDP	::= SET
 	fFDAppendIndicator				[9]	FFDAppendIndicator OPTIONAL
 }
 
-CAMELInformationSMS		::= SET 
+CAMELInformationSMS		::= SET
 {
 	sCFAddress								[1] SCFAddress OPTIONAL,
 	serviceKey								[2]	ServiceKey OPTIONAL,
@@ -482,7 +482,7 @@ CauseForRecClosing	::= INTEGER
 	-- In PGW-CDR and SGW-CDR the value servingNodeChange is used for partial record
 	-- generation due to Serving Node Address list Overflow
 	-- In SGSN servingNodeChange indicates the SGSN change
-	-- 	
+	--
 	-- LCS related causes belong to the MAP error causes acc. TS 29.002 [60]
 	--
 	-- cause codes 0 to 15 are defined 'CauseForTerm' (cause for termination)
@@ -596,12 +596,12 @@ ChargingCharacteristics	::= OCTET STRING (SIZE(2))
 
 ChargingID	::= INTEGER (0..4294967295)
 	--
-	-- Generated in P-GW, part of IP CAN bearer	
+	-- Generated in P-GW, part of IP CAN bearer
 	-- 0..4294967295 is equivalent to 0..2**32-1
 	--
 
 ChargingRuleBaseName ::= IA5String (SIZE(1..16))
-	-- 
+	--
 	-- identifier for the group of charging rules
 	-- see Charging-Rule-Base-Name AVP as desined in TS 29.212 [88]
 	--
@@ -612,7 +612,7 @@ ChChSelectionMode		::= ENUMERATED
 	subscriptionSpecific		(1),	-- For SGSN only
 	aPNSpecific					(2),	-- For SGSN only
 	homeDefault					(3),	-- For SGSN, S-GW and P-GW
-	roamingDefault				(4),	-- For SGSN, S-GW and P-GW	
+	roamingDefault				(4),	-- For SGSN, S-GW and P-GW
 	visitingDefault				(5)		-- For SGSN, S-GW and P-GW
 }
 
@@ -627,7 +627,7 @@ EPCQoSInformation	::= SEQUENCE
 {
 	--
 	-- See TS 29.212 [88] for more information
-	-- 
+	--
 	qCI							[1] INTEGER,
 	maxRequestedBandwithUL		[2] INTEGER OPTIONAL,
 	maxRequestedBandwithDL		[3] INTEGER OPTIONAL,
@@ -647,8 +647,8 @@ EventBasedChargingInformation  ::= SEQUENCE
 
 FailureHandlingContinue  ::= BOOLEAN
 	--
--- This parameter is included when the failure handling procedure has been executed and new 
--- containers are opened. This parameter shall be included in the first and subsequent 
+-- This parameter is included when the failure handling procedure has been executed and new
+-- containers are opened. This parameter shall be included in the first and subsequent
 -- containers opened after the failure handling execution.
 	--
 
@@ -656,7 +656,7 @@ FFDAppendIndicator	::= BOOLEAN
 
 Flows  ::= 	SEQUENCE
 	--
-	-- See Flows AVP as defined in TS 29.214 [89] 
+	-- See Flows AVP as defined in TS 29.214 [89]
 	--
 {
 	mediaComponentNumber	[1] INTEGER,
@@ -665,7 +665,7 @@ Flows  ::= 	SEQUENCE
 
 FreeFormatData	::=	OCTET STRING (SIZE(1..160))
 	--
-	-- Free formatted data as sent in the FurnishChargingInformationGPRS 
+	-- Free formatted data as sent in the FurnishChargingInformationGPRS
 	-- see TS 29.078 [66]
 	--
 
@@ -693,16 +693,16 @@ PDPType		::= OCTET STRING (SIZE(2))
 	--
 	-- OCTET 1: PDP Type Organization
 	-- OCTET 2: PDP/PDN Type Number
-	-- See TS 29.060 [75] for encoding details. 
+	-- See TS 29.060 [75] for encoding details.
 	--
 
 PLMN-Id		::= OCTET STRING (SIZE (3))
 	--
 	--	This is a 1:1 copy from the Routing Area Identity (RAI) IE specified in TS 29.060 [75]
 	--  as follows:
-	--	OCTET 1 of PLMN-Id = OCTET 2 of RAI  
-	--	OCTET 2 of PLMN-Id = OCTET 3 of RAI  
-	--	OCTET 3 of PLMN-Id = OCTET 4 of RAI  
+	--	OCTET 1 of PLMN-Id = OCTET 2 of RAI
+	--	OCTET 2 of PLMN-Id = OCTET 3 of RAI
+	--	OCTET 3 of PLMN-Id = OCTET 4 of RAI
 	--
 
 
@@ -714,20 +714,20 @@ PSFurnishChargingInformation  ::= SEQUENCE
 
 QoSInformation	::= OCTET STRING (SIZE (4..255))
 	--
-	-- This  octet string 
-	-- is a 1:1 copy of the contents (i.e. starting with octet 5) of the "Bearer Quality of 
+	-- This  octet string
+	-- is a 1:1 copy of the contents (i.e. starting with octet 5) of the "Bearer Quality of
 	-- Service" information element specified in TS 29.274 [92].
 	--
 
 RatingGroupId ::= INTEGER
-	-- 
+	--
 	-- IP service flow identity (DCCA), range of 4 byte (0...4294967295)
 	-- see Rating-Group AVP as used in TS 32.299 [40]
 	--
 
 RATType	::= INTEGER
 	--
-	-- Ihis integer is 1:1 copy of the RAT type value as defined in TS 29.061 [82]. 
+	-- Ihis integer is 1:1 copy of the RAT type value as defined in TS 29.061 [82].
 	--
 -- WS Extension
 {
@@ -740,17 +740,17 @@ RATType	::= INTEGER
 }(0..255)
 
 ResultCode ::= INTEGER
--- 
+--
 	-- charging protocol return value, range of 4 byte (0...4294967295)
 	-- see Result-Code AVP as used in 3GPP 32.299 [40]
 	--
 
 RoutingAreaCode	::= OCTET STRING (SIZE(1))
 	--
-	-- See TS 24.008 [64]	
+	-- See TS 24.008 [64]
 	--
 
-ServiceConditionChange	::= BIT STRING 
+ServiceConditionChange	::= BIT STRING
 {
 	qoSChange 								 (0),	-- bearer modification
 	sGSNChange 								 (1), 	-- bearer modification
@@ -761,7 +761,7 @@ ServiceConditionChange	::= BIT STRING
 	serviceIdledOut 						 (6),	-- IP flow idle out, DCCA QHT expiry
 	reserved 								 (7),	-- old: QCTexpiry is no report event
 	configurationChange 					 (8),	-- configuration change
-	serviceStop 							 (9), 	-- IP flow termination.From "Service Stop" in 
+	serviceStop 							 (9), 	-- IP flow termination.From "Service Stop" in
 													-- Change-Condition" AVP
 	dCCATimeThresholdReached 				(10),	-- DCCA quota reauthorization
 	dCCAVolumeThresholdReached 				(11), 	-- DCCA quota reauthorization
@@ -769,7 +769,7 @@ ServiceConditionChange	::= BIT STRING
 	dCCATimeExhausted 						(13), 	-- DCCA quota reauthorization
 	dCCAVolumeExhausted 					(14), 	-- DCCA quota reauthorization
 	dCCAValidityTimeout 					(15), 	-- DCCA quota validity time (QVT expiry)
-	reserved1								(16),	-- reserved due to no use case, 
+	reserved1								(16),	-- reserved due to no use case,
 													-- old: return Requested is covered by (17),(18)
 	dCCAReauthorisationRequest 				(17), 	-- DCCA quota reauthorization request by OCS
 	dCCAContinueOngoingSession 				(18), 	-- DCCA failure handling (CCFH),
@@ -782,17 +782,17 @@ ServiceConditionChange	::= BIT STRING
 	rAIChange								(22), 	-- bearer modification. "RAI Change"
 	dCCAServiceSpecificUnitExhausted		(23), 	-- DCCA quota reauthorization
 	recordClosure							(24),	-- PGW-CDR closure
-	timeLimit								(25),	-- intermediate recording. From "Service Data 													
+	timeLimit								(25),	-- intermediate recording. From "Service Data
 	--	Time Limit" Change-Condition AVP value
-	volumeLimit								(26),	-- intermediate recording.From "Service Data 														
+	volumeLimit								(26),	-- intermediate recording.From "Service Data
 	--	Volume Limit" Change-Condition AVP value
 	serviceSpecificUnitLimit				(27),	-- intermediate recording
-	envelopeClosure 						(28),	
+	envelopeClosure 						(28),
 	eCGIChange								(29), 	-- bearer modification. "ECGI Change"
 	tAIChange								(30), 	-- bearer modification. "TAI Change"
 	userLocationChange						(31)	-- bearer modification. "User Location Change"
 
-} 
+}
 --
 -- Trigger and cause values for IP flow level recording are defined for support of independent
 -- online and offline charging and also for tight interworking between online and offline charging.
@@ -808,7 +808,7 @@ SCFAddress	::= AddressString
 ServiceIdentifier	::= INTEGER (0..4294967295)
 	--
 	-- The service identifier is used to identify the service or the service component
-	-- the service data flow relates to. See Service-Identifier AVP as defined 
+	-- the service data flow relates to. See Service-Identifier AVP as defined
 	-- in TS 29.212 [88]
 	--
 

@@ -3,9 +3,9 @@ DSAOperationalAttributeTypes {joint-iso-itu-t ds(5) module(1)
   dsaOperationalAttributeTypes(22) 4} DEFINITIONS ::=
 BEGIN
 
--- EXPORTS All 
--- The types and values defined in this module are exported for use in the other ASN.1 modules contained 
--- within the Directory Specifications, and for the use of other applications which will use them to access 
+-- EXPORTS All
+-- The types and values defined in this module are exported for use in the other ASN.1 modules contained
+-- within the Directory Specifications, and for the use of other applications which will use them to access
 -- Directory services. Other applications may use them for their own purposes, but this will not constrain
 -- extensions and modifications needed to maintain or improve the Directory service.
 IMPORTS
@@ -46,31 +46,31 @@ IMPORTS
     FROM DirectoryAbstractService {joint-iso-itu-t ds(5) module(1)
       directoryAbstractService(2) 4};
 
--- data types 
+-- data types
 DSEType ::= BIT STRING {
-  root(0), -- root DSE 
-  glue(1), -- represents knowledge of a name only 
-  cp(2), -- context prefix 
-  entry(3), -- object entry 
-  alias(4), -- alias entry 
-  subr(5), -- subordinate reference 
-  nssr(6), -- non-specific subordinate reference 
-  supr(7), -- superior reference 
-  xr(8), -- cross reference 
-  admPoint(9), -- administrative point 
-  subentry(10), -- subentry 
-  shadow(11), -- shadow copy 
-  immSupr(13), -- immediate superior reference 
-  rhob(14), -- rhob information 
-  sa(15), -- subordinate reference to alias entry 
-  dsSubentry(16), -- DSA Specific subentry 
-  familyMember(17), -- family member 
+  root(0), -- root DSE
+  glue(1), -- represents knowledge of a name only
+  cp(2), -- context prefix
+  entry(3), -- object entry
+  alias(4), -- alias entry
+  subr(5), -- subordinate reference
+  nssr(6), -- non-specific subordinate reference
+  supr(7), -- superior reference
+  xr(8), -- cross reference
+  admPoint(9), -- administrative point
+  subentry(10), -- subentry
+  shadow(11), -- shadow copy
+  immSupr(13), -- immediate superior reference
+  rhob(14), -- rhob information
+  sa(15), -- subordinate reference to alias entry
+  dsSubentry(16), -- DSA Specific subentry
+  familyMember(17), -- family member
   ditBridge(18), -- DIT bridge reference
   writeableCopy(19) -- writeable copy
 }
 
 SupplierOrConsumer ::= SET {
---  COMPONENTS OF AccessPoint, - - supplier or consumer 
+--  COMPONENTS OF AccessPoint, - - supplier or consumer
   ae-title             [0]  Name,
   address              [1]  PresentationAddress,
   protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL,
@@ -78,7 +78,7 @@ SupplierOrConsumer ::= SET {
 }
 
 SupplierInformation ::= SET {
---  COMPONENTS OF SupplierOrConsumer, - - supplier 
+--  COMPONENTS OF SupplierOrConsumer, - - supplier
   ae-title             [0]  Name,
   address              [1]  PresentationAddress,
   protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL,
@@ -87,17 +87,17 @@ SupplierInformation ::= SET {
   non-supplying-master [5]  AccessPoint OPTIONAL
 }
 
-ConsumerInformation ::= SupplierOrConsumer -- consumer 
+ConsumerInformation ::= SupplierOrConsumer -- consumer
 
 SupplierAndConsumers ::= SET {
---  COMPONENTS OF AccessPoint, - - supplier 
+--  COMPONENTS OF AccessPoint, - - supplier
   ae-title             [0]  Name,
   address              [1]  PresentationAddress,
   protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL,
   consumers  	       [3]  SET OF AccessPoint
 }
 
--- attribute types 
+-- attribute types
 --dseType ATTRIBUTE ::= {
 --  WITH SYNTAX             DSEType
 --  EQUALITY MATCHING RULE  bitStringMatch
@@ -165,7 +165,7 @@ SupplierAndConsumers ::= SET {
 --  ID                      id-doa-secondaryShadows
 --}
 
--- matching rules 
+-- matching rules
 --accessPointMatch MATCHING-RULE ::= {
 --  SYNTAX  Name
 --  ID      id-kmr-accessPointMatch
@@ -188,8 +188,8 @@ SupplierAndConsumers ::= SET {
 --  ID      id-kmr-supplierConsumersMatch
 --}
 
--- object identifier assignments 
--- dsa operational attributes 
+-- object identifier assignments
+-- dsa operational attributes
 --id-doa-dseType OBJECT IDENTIFIER ::=
 --  {id-doa 0}
 
@@ -207,7 +207,7 @@ SupplierAndConsumers ::= SET {
 
 --id-doa-secondaryShadows OBJECT IDENTIFIER ::= {id-doa 7}
 
--- knowledge matching rules 
+-- knowledge matching rules
 --id-kmr-accessPointMatch OBJECT IDENTIFIER ::=
 --  {id-kmr 0}
 
@@ -225,11 +225,11 @@ SupplierAndConsumers ::= SET {
 --  opBindingManagement(18) 5} DEFINITIONS ::=
 --BEGIN
 
--- EXPORTS All 
--- The types and values defined in this module are exported for use in the other ASN.1 modules contained 
--- within the Directory Specifications, and for the use of other applications which will use them to access 
--- Directory services. Other applications may use them for their own purposes, but this will not constrain
--- extensions and modifications needed to maintain or improve the Directory service.
+-- EXPORTS All
+-- The types and values defined in this module are exported for use in the other ASN.1 modules contained
+-- within the Directory Specifications, and for the use of other applications which will use them to access
+-- Directory services. Other applications may use them for their own purposes, but this will not constrain
+-- extensions and modifications needed to maintain or improve the Directory service.
 --IMPORTS
   -- from ITU-T Rec. X.501 | ISO/IEC 9594-2
 --  directoryAbstractService, directoryShadowAbstractService,
@@ -262,7 +262,7 @@ SupplierAndConsumers ::= SET {
 --  shadowOperationalBinding
 --    FROM DirectoryShadowAbstractService directoryShadowAbstractService;
 
--- bind and unbind 
+-- bind and unbind
 dSAOperationalBindingManagementBind OPERATION ::=
   directoryBind
 
@@ -272,7 +272,7 @@ DSAOperationalManagementBindError ::= DirectoryBindError
 
 dSAOperationalBindingManagementUnbind OPERATION ::= directoryUnbind
 
--- operations, arguments and results 
+-- operations, arguments and results
 --establishOperationalBinding OPERATION ::= {
 --  ARGUMENT  EstablishOperationalBindingArgument
 --  RESULT    EstablishOperationalBindingResult
@@ -285,7 +285,7 @@ EstablishOperationalBindingArgumentData ::=
 --    {-- SEQUENCE {bindingType         [0]  --OPERATIONAL-BINDING.&id({OpBindingSet}) -- OBJECT IDENTIFIER,
                bindingID           [1]  OperationalBindingID OPTIONAL,
                accessPoint         [2]  AccessPoint,
-               -- symmetric, Role A initiates, or Role B initiates 
+               -- symmetric, Role A initiates, or Role B initiates
                initiator
                  CHOICE {symmetric
                            [3] -- OPERATIONAL-BINDING.&both.&EstablishParam
@@ -322,7 +322,7 @@ Validity ::= SEQUENCE {
   validUntil
     [1]  CHOICE {explicitTermination  [0]  NULL,
                  time                 [1]  Time
-  } DEFAULT explicitTermination:NULL 
+  } DEFAULT explicitTermination:NULL
 }
 
 Time ::= CHOICE {utcTime          UTCTime,
@@ -334,7 +334,7 @@ EstablishOperationalBindingResult ::=
 --    {-- SEQUENCE {bindingType  [0] --OPERATIONAL-BINDING.&id({OpBindingSet}) -- OBJECT IDENTIFIER,
                bindingID    [1]  OperationalBindingID OPTIONAL,
                accessPoint  [2]  AccessPoint,
-               -- symmetric, Role A replies , or Role B replies 
+               -- symmetric, Role A replies , or Role B replies
                initiator
                  CHOICE {symmetric
                            [3]  -- OPERATIONAL-BINDING.&both.&EstablishParam
@@ -364,7 +364,7 @@ ModifyOperationalBindingArgumentData ::=
 --    {--SEQUENCE {bindingType         [0]  --OPERATIONAL-BINDING.&id({OpBindingSet})-- OBJECT IDENTIFIER,
                bindingID           [1]  OperationalBindingID,
                accessPoint         [2]  AccessPoint OPTIONAL,
-               -- symmetric, Role A initiates, or Role B initiates 
+               -- symmetric, Role A initiates, or Role B initiates
                initiator
                  CHOICE {symmetric
                            [3]  -- OPERATIONAL-BINDING.&both.&ModifyParam
@@ -429,7 +429,7 @@ TerminateOperationalBindingArgumentData ::=
 --  OPTIONALLY-PROTECTED-SEQ
 --    {-- SEQUENCE {bindingType         [0]  --OPERATIONAL-BINDING.&id({OpBindingSet})-- OBJECT IDENTIFIER,
                bindingID           [1] OperationalBindingID,
-               -- symmetric, Role A initiates, or Role B initiates 
+               -- symmetric, Role A initiates, or Role B initiates
                initiator
                  CHOICE {symmetric
                            [2]  -- OPERATIONAL-BINDING.&both.&TerminateParam
@@ -476,7 +476,7 @@ TerminateOperationalBindingResultData ::= SEQUENCE {
 --           }}
 }
 
--- errors and parameters 
+-- errors and parameters
 --operationalBindingError ERROR ::= {
 --  PARAMETER OPTIONALLY-PROTECTED-SEQ  {OpBindingErrorParam}
 --  CODE                                id-err-operationalBindingError
@@ -501,7 +501,7 @@ OpBindingErrorParam ::= SEQUENCE {
 
 }
 
--- information object classes 
+-- information object classes
 --OPERATIONAL-BINDING ::= CLASS {
 --  &Agreement    ,
 --  &Cooperation  OP-BINDING-COOP,
@@ -555,9 +555,9 @@ OpBindingErrorParam ::= SEQUENCE {
 --  hierarchicalOperationalBindings(20) 5} DEFINITIONS ::=
 --BEGIN
 
--- EXPORTS All 
--- The types and values defined in this module are exported for use in the other ASN.1 modules contained 
--- within the Directory Specifications, and for the use of other applications which will use them to access 
+-- EXPORTS All
+-- The types and values defined in this module are exported for use in the other ASN.1 modules contained
+-- within the Directory Specifications, and for the use of other applications which will use them to access
 -- Directory services. Other applications may use them for their own purposes, but this will not constrain
 -- extensions and modifications needed to maintain or improve the Directory service.
 --IMPORTS
@@ -584,7 +584,7 @@ OpBindingErrorParam ::= SEQUENCE {
 --    FROM DirectoryOperationalBindingTypes {joint-iso-itu-t ds(5) module(1)
 --      directoryOperationalBindingTypes(25) 5};
 
--- types 
+-- types
 HierarchicalAgreement ::= SEQUENCE {
   rdn                [0]  RelativeDistinguishedName,
   immediateSuperior  [1]  DistinguishedName
@@ -646,7 +646,7 @@ NHOBSubordinateToSuperior ::= SEQUENCE {
   subentries    [3]  SET --SIZE (1..MAX)-- OF SubentryInfo OPTIONAL
 }
 
--- operational binding information objects 
+-- operational binding information objects
 --hierarchicalOperationalBinding OPERATIONAL-BINDING ::= {
 --  AGREEMENT             HierarchicalAgreement
 --  APPLICATION CONTEXTS  {{directorySystemAC}}
@@ -689,9 +689,9 @@ NHOBSubordinateToSuperior ::= SEQUENCE {
 --DEFINITIONS ::=
 --BEGIN
 
--- EXPORTS All 
--- The types and values defined in this module are exported for use in the other ASN.1 modules contained 
--- within the Directory Specifications, and for the use of other applications which will use them to access 
+-- EXPORTS All
+-- The types and values defined in this module are exported for use in the other ASN.1 modules contained
+-- within the Directory Specifications, and for the use of other applications which will use them to access
 -- Directory services. Other applications may use them for their own purposes, but this will not constrain
 -- extensions and modifications needed to maintain or improve the Directory service.
 --IMPORTS
@@ -717,9 +717,9 @@ NHOBSubordinateToSuperior ::= SEQUENCE {
 --  ub-tag
 --    FROM UpperBounds {joint-iso-itu-t ds(5) module(1) upperBounds(10) 4};
 
--- types 
+-- types
 ACIItem ::= SEQUENCE {
-  identificationTag   DirectoryString --{ub-tag}--, 
+  identificationTag   DirectoryString --{ub-tag}--,
   precedence           Precedence,
   authenticationLevel  AuthenticationLevel,
   itemOrUserFirst
@@ -770,7 +770,7 @@ UserClasses ::= SEQUENCE {
   name       [2]  SET --SIZE (1..MAX)-- OF NameAndOptionalUID OPTIONAL,
   userGroup  [3]  SET --SIZE (1..MAX)-- OF NameAndOptionalUID OPTIONAL,
   -- dn component shall be the name of an
-  -- entry of GroupOfUniqueNames 
+  -- entry of GroupOfUniqueNames
   subtree    [4]  SET --SIZE (1..MAX)-- OF SubtreeSpecification OPTIONAL
 }
 
@@ -798,7 +798,7 @@ AuthenticationLevel ::= CHOICE {
 
 GrantsAndDenials ::= BIT STRING {
   -- permissions that may be used in conjunction
-  -- with any component of ProtectedItems 
+  -- with any component of ProtectedItems
   grantAdd(0), denyAdd(1), grantDiscloseOnError(2), denyDiscloseOnError(3),
   grantRead(4), denyRead(5), grantRemove(6),
   denyRemove(7),
@@ -818,7 +818,7 @@ GrantsAndDenials ::= BIT STRING {
 --  value  ATTRIBUTE.&Type({SupportedAttributes}{@type})
 --}
 
--- attributes 
+-- attributes
 --accessControlScheme ATTRIBUTE ::= {
 --  WITH SYNTAX             OBJECT IDENTIFIER
 --  EQUALITY MATCHING RULE  objectIdentifierMatch
@@ -848,8 +848,8 @@ GrantsAndDenials ::= BIT STRING {
 --  ID                      id-aca-subentryACI
 --}
 
--- object identifier assignments 
--- attributes 
+-- object identifier assignments
+-- attributes
 --id-aca-accessControlScheme OBJECT IDENTIFIER ::=
 --  {id-aca 1}
 

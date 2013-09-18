@@ -107,7 +107,7 @@ IMPORTS
 	OldBSS-ToNewBSS-Information,
 	PagingAreaID,
 	PagingCause,
-	PDP-TypeInformation, 
+	PDP-TypeInformation,
 	PDP-TypeInformation-extension,
 	PermanentNAS-UE-ID,
 	PLMNidentity,
@@ -534,7 +534,7 @@ RelocationRequiredIEs RANAP-PROTOCOL-IES ::= {
 	-- This IE shall be present if the Target ID IE contains a CGI IE and Source BSS To Target BSS Transparent Container is not included --		} |
 	{ ID id-ClassmarkInformation3			CRITICALITY ignore	TYPE ClassmarkInformation3			PRESENCE conditional
 	-- This IE shall be present if the Target ID IE contains a CGI IE and Source BSS To Target BSS Transparent Container is not included --		} |
-	{ ID id-Source-ToTarget-TransparentContainer	
+	{ ID id-Source-ToTarget-TransparentContainer
 							CRITICALITY reject	TYPE Source-ToTarget-TransparentContainer PRESENCE conditional
 	-- This IE shall be present if the Target ID IE contains a RNC-ID IE or eNB-ID --												} |
 	{ ID id-OldBSS-ToNewBSS-Information		CRITICALITY ignore	TYPE OldBSS-ToNewBSS-Information		PRESENCE optional		} ,
@@ -568,7 +568,7 @@ RelocationCommand ::= SEQUENCE {
 }
 
 RelocationCommandIEs RANAP-PROTOCOL-IES ::= {
-	{ ID id-Target-ToSource-TransparentContainer	
+	{ ID id-Target-ToSource-TransparentContainer
 							CRITICALITY reject	TYPE Target-ToSource-TransparentContainer PRESENCE optional	} |
 	{ ID id-L3-Information				CRITICALITY ignore	TYPE L3-Information				PRESENCE optional	} |
 	{ ID id-RAB-RelocationReleaseList		CRITICALITY ignore	TYPE RAB-RelocationReleaseList 			PRESENCE optional	} |
@@ -672,7 +672,7 @@ RelocationRequestIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-PermanentNAS-UE-ID			CRITICALITY ignore	TYPE PermanentNAS-UE-ID 			PRESENCE optional	} |
 	{ ID id-Cause					CRITICALITY ignore	TYPE Cause					PRESENCE mandatory	} |
 	{ ID id-CN-DomainIndicator			CRITICALITY reject	TYPE CN-DomainIndicator				PRESENCE mandatory	} |
-	{ ID id-Source-ToTarget-TransparentContainer		
+	{ ID id-Source-ToTarget-TransparentContainer
 							CRITICALITY reject	TYPE SourceRNC-ToTargetRNC-TransparentContainer	PRESENCE mandatory	} |
 	{ ID id-RAB-SetupList-RelocReq			CRITICALITY reject	TYPE RAB-SetupList-RelocReq			PRESENCE optional	} |
 	{ ID id-IntegrityProtectionInformation		CRITICALITY ignore	TYPE IntegrityProtectionInformation 		PRESENCE optional	} |
@@ -1464,7 +1464,7 @@ RelocationCompleteIEs RANAP-PROTOCOL-IES ::= {
 }
 
 RelocationCompleteExtensions RANAP-PROTOCOL-EXTENSION ::= {
--- Extension for Release 9 to enable the CN to handle potential UE NAS QoS issues related to higher bitrates -- 
+-- Extension for Release 9 to enable the CN to handle potential UE NAS QoS issues related to higher bitrates --
 	{ ID id-HigherBitratesThan16MbpsFlag		CRITICALITY ignore	EXTENSION HigherBitratesThan16MbpsFlag		PRESENCE optional },
 	...
 }
@@ -1521,7 +1521,7 @@ RAB-SetupItem-EnhancedRelocCompleteReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 EnhancedRelocationCompleteRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-ChosenIntegrityProtectionAlgorithm	CRITICALITY ignore	EXTENSION ChosenIntegrityProtectionAlgorithm		PRESENCE optional}|
 	{ ID id-ChosenEncryptionAlgorithm			CRITICALITY ignore	EXTENSION ChosenEncryptionAlgorithm					PRESENCE optional}|
--- Extension for Release 9 to enable the CN to handle potential UE NAS QoS issues related to higher bitrates -- 
+-- Extension for Release 9 to enable the CN to handle potential UE NAS QoS issues related to higher bitrates --
 	{ ID id-HigherBitratesThan16MbpsFlag		CRITICALITY ignore	EXTENSION HigherBitratesThan16MbpsFlag				PRESENCE optional},
 	...
 }
@@ -1886,7 +1886,7 @@ InitialUE-Message ::= SEQUENCE {
 InitialUE-MessageIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-CN-DomainIndicator			CRITICALITY ignore	TYPE CN-DomainIndicator		PRESENCE mandatory	} |
 	{ ID id-LAI							CRITICALITY ignore	TYPE LAI					PRESENCE mandatory	} |
-	{ ID id-RAC							CRITICALITY ignore	TYPE RAC					PRESENCE conditional	
+	{ ID id-RAC							CRITICALITY ignore	TYPE RAC					PRESENCE conditional
 	-- This IE shall be present if the CN Domain Indicator IE is set to "PS domain"		--												} |
 	{ ID id-SAI							CRITICALITY ignore	TYPE SAI					PRESENCE mandatory	} |
 	{ ID id-NAS-PDU						CRITICALITY ignore	TYPE NAS-PDU				PRESENCE mandatory	} |
@@ -1910,11 +1910,11 @@ InitialUE-MessageExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-ExtendedRNC-ID					CRITICALITY reject	EXTENSION ExtendedRNC-ID					PRESENCE optional}|
 -- Extension for Release 8 to support CSG --
 	{ ID id-CSG-Id							CRITICALITY reject	EXTENSION CSG-Id							PRESENCE optional}|
--- Extension for Release 9 to allow communication of the cell access mode -- 
+-- Extension for Release 9 to allow communication of the cell access mode --
 	{ ID id-Cell-Access-Mode				CRITICALITY reject	EXTENSION Cell-Access-Mode					PRESENCE optional}|
--- Extension for Release 10 to support LIPA -- 
+-- Extension for Release 10 to support LIPA --
 	{ ID id-LGW-TransportLayerAddress		CRITICALITY reject	EXTENSION TransportLayerAddress				PRESENCE optional}|
--- Extension for Release 9 to enable the CN to handle potential UE NAS QoS issues related to higher bitrates -- 
+-- Extension for Release 9 to enable the CN to handle potential UE NAS QoS issues related to higher bitrates --
 	{ ID id-HigherBitratesThan16MbpsFlag	CRITICALITY ignore	EXTENSION HigherBitratesThan16MbpsFlag	PRESENCE optional},
 	...
 }
@@ -1953,7 +1953,7 @@ DirectTransferExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-RedirectionCompleted			CRITICALITY ignore	EXTENSION RedirectionCompleted					PRESENCE optional}|
 -- Extension for Release 8 to indicate the Subscriber Profile ID for RAT/Frequency Selection Priority --
 	{ ID id-SubscriberProfileIDforRFP		CRITICALITY ignore	EXTENSION SubscriberProfileIDforRFP			PRESENCE optional}|
--- Extension for Release 10 to support LIPA -- 
+-- Extension for Release 10 to support LIPA --
 	{ ID id-LGW-TransportLayerAddress		CRITICALITY reject	EXTENSION TransportLayerAddress					PRESENCE optional},
 	...
 }
@@ -2122,7 +2122,7 @@ RAB-SetupOrModifyList 					::= RAB-IE-ContainerPairList { {RAB-SetupOrModifyItem
 
 RAB-SetupOrModifyItem-IEs RANAP-PROTOCOL-IES-PAIR ::= {
 	{ ID id-RAB-SetupOrModifyItem			FIRST CRITICALITY reject	FIRST TYPE RAB-SetupOrModifyItemFirst
-	 						SECOND CRITICALITY ignore	SECOND TYPE RAB-SetupOrModifyItemSecond	
+	 						SECOND CRITICALITY ignore	SECOND TYPE RAB-SetupOrModifyItemSecond
 																PRESENCE mandatory	},
 	...
 }
@@ -2202,7 +2202,7 @@ RAB-AssignmentResponse ::= SEQUENCE {
 RAB-AssignmentResponseIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-RAB-SetupOrModifiedList			CRITICALITY ignore	TYPE RAB-SetupOrModifiedList			PRESENCE optional	} |
 	{ ID id-RAB-ReleasedList			CRITICALITY ignore	TYPE RAB-ReleasedList				PRESENCE optional	} |
-	
+
 	{ ID id-RAB-QueuedList				CRITICALITY ignore	TYPE RAB-QueuedList				PRESENCE optional	} |
 	{ ID id-RAB-FailedList				CRITICALITY ignore	TYPE RAB-FailedList				PRESENCE optional	} |
 	{ ID id-RAB-ReleaseFailedList			CRITICALITY ignore	TYPE RAB-ReleaseFailedList			PRESENCE optional	} |
@@ -2336,8 +2336,8 @@ RANAP-RelocationInformation ::= SEQUENCE {
 }
 
 RANAP-RelocationInformationIEs RANAP-PROTOCOL-IES ::= {
-	{ ID id-DirectTransferInformationList-RANAP-RelocInf	
-							CRITICALITY ignore	TYPE DirectTransferInformationList-RANAP-RelocInf		
+	{ ID id-DirectTransferInformationList-RANAP-RelocInf
+							CRITICALITY ignore	TYPE DirectTransferInformationList-RANAP-RelocInf
 																PRESENCE optional	} |
 	{ ID id-RAB-ContextList-RANAP-RelocInf		CRITICALITY ignore	TYPE RAB-ContextList-RANAP-RelocInf		PRESENCE optional	},
 	...
@@ -2412,7 +2412,7 @@ RANAP-EnhancedRelocationInformationRequest ::= SEQUENCE {
 }
 
 RANAP-EnhancedRelocationInformationRequestIEs RANAP-PROTOCOL-IES ::= {
-	{ ID id-Source-ToTarget-TransparentContainer		
+	{ ID id-Source-ToTarget-TransparentContainer
 							CRITICALITY reject	TYPE SourceRNC-ToTargetRNC-TransparentContainer	PRESENCE mandatory	} |
 	{ ID id-OldIuSigConIdCS	CRITICALITY ignore TYPE IuSignallingConnectionIdentifier	PRESENCE optional } |
 	{ ID id-GlobalCN-IDCS				CRITICALITY reject		TYPE GlobalCN-ID				PRESENCE optional} |
@@ -2444,7 +2444,7 @@ RAB-SetupItem-EnhRelocInfoReq ::= SEQUENCE {
 	userPlaneInformation				UserPlaneInformation,
 	dataForwardingInformation			TNLInformationEnhRelInfoReq	OPTIONAL,
 	sourceSideIuULTNLInfo				TNLInformationEnhRelInfoReq	OPTIONAL,
-	
+
 	service-Handover					Service-Handover		OPTIONAL,
 	alt-RAB-Parameters					Alt-RAB-Parameters		OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { RAB-SetupItem-EnhRelocInfoReq-ExtIEs} }			OPTIONAL,
@@ -2620,7 +2620,7 @@ LocationRelatedDataRequest ::= SEQUENCE {
 
 LocationRelatedDataRequestIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-LocationRelatedDataRequestType		CRITICALITY reject	TYPE LocationRelatedDataRequestType		PRESENCE optional	},
-	-- This IE is mandatory for UTRAN, optional for GERAN Iu Mode –-
+	-- This IE is mandatory for UTRAN, optional for GERAN Iu Mode --
 	...
 }
 
@@ -2629,7 +2629,7 @@ LocationRelatedDataRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-LocationRelatedDataRequestTypeSpecificToGERANIuMode		CRITICALITY reject	EXTENSION LocationRelatedDataRequestTypeSpecificToGERANIuMode		PRESENCE optional	}|
 	-- The previous extension is optional for GERAN Iu Mode only, not applicable for UTRAN --
 	-- Extension for Release 7 to request GANSS Assistance Data. This IE shall be present if the Requested Location Related Data Type IE is set to
-	-- ‘Dedicated Assistance Data for Assisted GANSS’ or `Dedicated Assistance Data for Assisted GPS and GANSS’--
+	-- 'Dedicated Assistance Data for Assisted GANSS' or `Dedicated Assistance Data for Assisted GPS and GANSS'--
 	{ ID id-RequestedGANSSAssistanceData							CRITICALITY reject	EXTENSION RequestedGANSSAssistanceData							PRESENCE conditional	},
 	...
 }
@@ -2844,9 +2844,9 @@ UplinkInformationExchangeRequest ::= SEQUENCE {
 UplinkInformationExchangeRequestIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-InformationExchangeID		CRITICALITY reject	TYPE InformationExchangeID		PRESENCE mandatory	} |
 	{ ID id-InformationExchangeType		CRITICALITY reject	TYPE InformationExchangeType	PRESENCE mandatory	} |
-	{ ID id-InformationTransferType		CRITICALITY reject	TYPE InformationTransferType	PRESENCE conditional	
+	{ ID id-InformationTransferType		CRITICALITY reject	TYPE InformationTransferType	PRESENCE conditional
 	-- This IE shall be present if the Information Exchange Type IE is set to "transfer"	--											} |
-	{ ID id-InformationRequestType		CRITICALITY reject	TYPE InformationRequestType	PRESENCE conditional	
+	{ ID id-InformationRequestType		CRITICALITY reject	TYPE InformationRequestType	PRESENCE conditional
 	-- This IE shall be present if the Information Exchange Type IE is set to "request"		--											} |
 	{ ID id-CN-DomainIndicator			CRITICALITY reject	TYPE CN-DomainIndicator			PRESENCE mandatory	} |
 	{ ID id-GlobalRNC-ID				CRITICALITY reject	TYPE GlobalRNC-ID				PRESENCE mandatory	},
@@ -3229,9 +3229,9 @@ MBMSRegistrationRequest ::= SEQUENCE {
 MBMSRegistrationRequestIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-MBMSRegistrationRequestType		CRITICALITY reject	TYPE MBMSRegistrationRequestType				PRESENCE mandatory	} |
 	{ ID id-TMGI						CRITICALITY reject	TYPE TMGI									PRESENCE mandatory	} |
-	{ ID id-IPMulticastAddress			CRITICALITY reject	TYPE IPMulticastAddress						PRESENCE conditional	
+	{ ID id-IPMulticastAddress			CRITICALITY reject	TYPE IPMulticastAddress						PRESENCE conditional
 	-- This IE shall be present if the MBMS Registration Request Type IE is set to "register"	--								} |
-	{ ID id-APN							CRITICALITY reject	TYPE APN									PRESENCE conditional	
+	{ ID id-APN							CRITICALITY reject	TYPE APN									PRESENCE conditional
 	-- This IE shall be present if the MBMS Registration Request Type IE is set to "register"	--								} |
 	{ ID id-GlobalRNC-ID				CRITICALITY reject	TYPE GlobalRNC-ID							PRESENCE optional		},
 	...

@@ -29,17 +29,17 @@ cs2(20) modules(0) in-cs2-datatypes(0) version1(0)}
 	IMSI,
 	ISDN-AddressString,
 	LAIFixedLength,
-	GSN-Address, -- WS moved to common datatypes in rel 9.0.0	
+	GSN-Address, -- WS moved to common datatypes in rel 9.0.0
 	RAIdentity, -- WS moved to common datatypes in rel 10.4.0
 	NAEA-CIC
 FROM MAP-CommonDataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
 gsm-Network(1) modules(3) map-CommonDataTypes(18) version12(12)}
 
 	Ext-QoS-Subscribed,
-	Ext2-QoS-Subscribed, 
+	Ext2-QoS-Subscribed,
 	Ext3-QoS-Subscribed,
 	GeographicalInformation,
---	GSN-Address,  WS moved to common datatypes in rel 9.0.0	
+--	GSN-Address,  WS moved to common datatypes in rel 9.0.0
 	LocationInformation,
 	LSAIdentity,
 	QoS-Subscribed,
@@ -194,7 +194,7 @@ BearerCapability {PARAMETERS-BOUND : bound} ::= CHOICE {
 
 Burst ::= SEQUENCE {
 	numberOfBursts						[0]	INTEGER (1..3)		DEFAULT 1,
-	burstInterval						[1]	INTEGER	(1..1200)	DEFAULT 2,						
+	burstInterval						[1]	INTEGER	(1..1200)	DEFAULT 2,
 	numberOfTonesInBurst				[2] INTEGER (1..3)		DEFAULT 3,
 	toneDuration						[3]	INTEGER	(1..20)		DEFAULT 2,
 	toneInterval						[4]	INTEGER	(1..20)		DEFAULT 2,
@@ -229,11 +229,11 @@ CalledPartyBCDNumber {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE(
 -- identification' and 'number digit' fields defined in 3GPP TS 24.008 [9];
 -- it does not carry the 'called party BCD number IEI' or 'length of called
 -- party BCD number contents'.
--- In the context of the DestinationSubscriberNumber field in ConnectSMSArg or 
--- InitialDPSMSArg, a CalledPartyBCDNumber may also contain an alphanumeric 
--- character string. In this case, type-of-number '101'B is used, in accordance 
--- with 3GPP TS 23.040 [6]. The address is coded in accordance with the 
--- GSM 7 bit default alphabet definition and the SMS packing rules 
+-- In the context of the DestinationSubscriberNumber field in ConnectSMSArg or
+-- InitialDPSMSArg, a CalledPartyBCDNumber may also contain an alphanumeric
+-- character string. In this case, type-of-number '101'B is used, in accordance
+-- with 3GPP TS 23.040 [6]. The address is coded in accordance with the
+-- GSM 7 bit default alphabet definition and the SMS packing rules
 -- as specified in 3GPP TS 23.038 [15] in this case.
 
 CalledPartyNumber {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE(
@@ -283,7 +283,7 @@ CAMEL-AChBillingChargingCharacteristics {PARAMETERS-BOUND : bound} ::= CHOICE {
 		maxCallPeriodDuration				[0] INTEGER (1..864000),
 		releaseIfdurationExceeded			[1] BOOLEAN DEFAULT FALSE,
 		tariffSwitchInterval				[2] INTEGER (1..86400)					OPTIONAL,
-		audibleIndicator					[3] AudibleIndicator DEFAULT tone: FALSE,	
+		audibleIndicator					[3] AudibleIndicator DEFAULT tone: FALSE,
 		extensions							[4] Extensions {bound}					OPTIONAL,
 		...
 		}
@@ -398,7 +398,7 @@ ChangeOfLocation {PARAMETERS-BOUND : bound} ::= CHOICE {
 	inter-MSCHandOver					[5] NULL,
 	changeOfLocationAlt					[6] ChangeOfLocationAlt {bound}
 }
--- The cellGlobalId shall contain a Cell Global Identification. 
+-- The cellGlobalId shall contain a Cell Global Identification.
 -- The serviceAreaId shall contain a Service Area Identification.
 
 ChangeOfLocationAlt {PARAMETERS-BOUND : bound} ::= SEQUENCE {
@@ -564,22 +564,22 @@ Digits {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE(
 
 DpSpecificCriteria {PARAMETERS-BOUND : bound}::= CHOICE {
 	applicationTimer					[1] ApplicationTimer,
-	midCallControlInfo					[2]	MidCallControlInfo, 
+	midCallControlInfo					[2]	MidCallControlInfo,
 	dpSpecificCriteriaAlt				[3] DpSpecificCriteriaAlt {bound}
 	}
---  Exception handling: reception of DpSpecificCriteriaAlt shall be treated like 	
+--  Exception handling: reception of DpSpecificCriteriaAlt shall be treated like
 --  reception of no DpSpecificCriteria.
 --  The gsmSCF may set a timer in the gsmSSF for the No_Answer event.
 --  If the user does not answer the call within the allotted time,
 --  then the gsmSSF reports the event to the gsmSCF.
 --	The gsmSCF may define a criterion for the detection of DTMF digits during a call.
---	The gsmSCF may define other criteria in the dpSpecificCriteriaAlt alternative 
+--	The gsmSCF may define other criteria in the dpSpecificCriteriaAlt alternative
 --  in future releases.
 
 DpSpecificCriteriaAlt {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 	...,
 	changeOfPositionControlInfo			[0]	ChangeOfPositionControlInfo {bound},
-	numberOfDigits						[1]	NumberOfDigits							OPTIONAL, 
+	numberOfDigits						[1]	NumberOfDigits							OPTIONAL,
 	interDigitTimeout					[2]	INTEGER (1..127)						OPTIONAL
 	}
 -- interDigitTimeout				duration in seconds.
@@ -591,7 +591,7 @@ DpSpecificInfoAlt {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 		...,
 		initiatorOfServiceChange			[1] InitiatorOfServiceChange			OPTIONAL,
 		natureOfServiceChange				[2] NatureOfServiceChange				OPTIONAL
-	
+
 		},
 	tServiceChangeSpecificInfo			[1] SEQUENCE {
 		ext-basicServiceCode				[0] Ext-BasicServiceCode				OPTIONAL,
@@ -599,7 +599,7 @@ DpSpecificInfoAlt {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 		initiatorOfServiceChange			[1] InitiatorOfServiceChange			OPTIONAL,
 		natureOfServiceChange				[2] NatureOfServiceChange				OPTIONAL
 		},
-		
+
 	collectedInfoSpecificInfo			[2]	SEQUENCE {
 		calledPartyNumber					[0]	CalledPartyNumber					OPTIONAL,
 		...
@@ -744,7 +744,7 @@ EventSpecificInformationSMS ::= CHOICE {
 		...
 		},
 	o-smsSubmissionSpecificInfo			[1] SEQUENCE {
-		-- no specific info defined—
+		-- no specific info defined--
 		...
 		},
 	t-smsFailureSpecificInfo			[2] SEQUENCE {
@@ -752,7 +752,7 @@ EventSpecificInformationSMS ::= CHOICE {
 		...
 		},
 	t-smsDeliverySpecificInfo			[3] SEQUENCE {
-		-- no specific info defined—
+		-- no specific info defined--
 		...
 		}
 	}
@@ -1069,7 +1069,7 @@ LocationInformationGPRS		::= SEQUENCE {
 -- CellGlobalIdOrServiceAreaIdFixedLength type or the LAIFixedLength type (i.e. excluding tags
 -- and lengths) as defined in 3GPP TS 29.002 [13].
 -- sai-Present indicates that the cellGlobalIdOrServiceAreaIdOrLAI parameter contains
--- a Service Area Identity. 
+-- a Service Area Identity.
 -- UserCSGInformation contains the CSG ID, Access mode, and the CSG Membership Indication in the
 -- case the Access mode is Hybrid Mode, as defined in 3GPP TS 23.060 [93].
 
@@ -1120,7 +1120,7 @@ MetDPCriterion {PARAMETERS-BOUND : bound} ::= CHOICE {
 	inter-MSCHandOver					[9] NULL,
 	metDPCriterionAlt					[10] MetDPCriterionAlt {bound}
 }
--- The enteringCellGlobalId and leavingCellGlobalId shall contain a Cell Global Identification. 
+-- The enteringCellGlobalId and leavingCellGlobalId shall contain a Cell Global Identification.
 -- The enteringServiceAreaId and leavingServiceAreaId shall contain a Service Area Identification.
 
 MetDPCriterionAlt {PARAMETERS-BOUND : bound} ::= SEQUENCE {
@@ -1189,9 +1189,9 @@ MT-SMSCause ::= OCTET STRING (SIZE (1))
 
 NAOliInfo ::= OCTET STRING (SIZE (1))
 --  NA Oli information takes the same value as defined in ANSI T1.113-1995 [92]
---  e.g.	'3D'H  – Decimal value 61 - Cellular Service (Type 1)
---			'3E'H  – Decimal value 62 - Cellular Service (Type 2)
---			'3F'H  – Decimal value 63 - Cellular Service (roaming)
+--  e.g.		'3D'H  - Decimal value 61 - Cellular Service (Type 1)
+--			'3E'H  - Decimal value 62 - Cellular Service (Type 2)
+--			'3F'H  - Decimal value 63 - Cellular Service (roaming)
 
 NatureOfServiceChange ::= ENUMERATED {
 	userInitiated						(0),
@@ -1281,14 +1281,14 @@ ScfID {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE(
 
 SCIBillingChargingCharacteristics {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE (
 	bound.&minSCIBillingChargingLength .. bound.&maxSCIBillingChargingLength))
-	(CONSTRAINED BY {-- shall be the result of the BER-encoded value of type –-
+	(CONSTRAINED BY {-- shall be the result of the BER-encoded value of type --
 	CAMEL-SCIBillingChargingCharacteristics})
 -- Indicates AOC information to be sent to a Mobile Station
 -- The violation of the UserDefinedConstraint shall be handled as an ASN.1 syntax error.
 
 SCIGPRSBillingChargingCharacteristics {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE (
 	bound.&minSCIBillingChargingLength .. bound.&maxSCIBillingChargingLength))
-	(CONSTRAINED BY {-- shall be the result of the BER-encoded value of type –
+	(CONSTRAINED BY {-- shall be the result of the BER-encoded value of type -
 	CAMEL-SCIGPRSBillingChargingCharacteristics})
 -- Indicates AOC information to be sent to a Mobile Station
 -- The violation of the UserDefinedConstraint shall be handled as an ASN.1 syntax error.
@@ -1353,10 +1353,10 @@ SGSNCapabilities ::= OCTET STRING (SIZE (1))
 SMS-AddressString ::= AddressString (SIZE (1 .. maxSMS-AddressStringLength))
 -- This data type is used to transport CallingPartyNumber for MT-SMS.
 -- If this data type is used for MO-SMS, then the maximum number of digits shall be 16.
--- An SMS-AddressString may contain an alphanumeric character string. In this 
--- case, a nature of address indicator '101'B is used, in accordance with 
--- 3GPP TS 23.040 [6]. The address is coded in accordance with the GSM 7 bit 
--- default alphabet definition and the SMS packing rules as specified in 
+-- An SMS-AddressString may contain an alphanumeric character string. In this
+-- case, a nature of address indicator '101'B is used, in accordance with
+-- 3GPP TS 23.040 [6]. The address is coded in accordance with the GSM 7 bit
+-- default alphabet definition and the SMS packing rules as specified in
 -- 3GPP TS 23.038 [15] in this case.
 
 maxSMS-AddressStringLength INTEGER ::= 11

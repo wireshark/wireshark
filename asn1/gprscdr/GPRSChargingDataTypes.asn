@@ -7,9 +7,9 @@ DEFINITIONS IMPLICIT TAGS	::=
 
 BEGIN
 
--- EXPORTS everything 
+-- EXPORTS everything
 
-IMPORTS	
+IMPORTS
 
 --CallDuration, CalledNumber, CallEventRecordType, CallingNumber, CallReferenceNumber, CellId, DefaultSMS-Handling, Diagnostics, Ext-GeographicalInformation, IMSI, IMEI, IPAddress, ISDN-AddressString, LCSCause, LCSClientExternalID, LCSClientIdentity, LCSClientInternalID, LCSClientType, LCS-Priority, LCSQoSInfo, LevelOfCAMELService, LocalSequenceNumber, LocationAreaAndCell, LocationAreaCode, LocationType, ManagementExtensions, MessageReference, MSISDN, NotificationToMSUser, PositioningData, RecordingEntity, ServiceKey, SMSResult, SmsTpDestinationNumber, TimeStamp
 --
@@ -25,7 +25,7 @@ gsm-Network (1) modules (3) map-MS-DataTypes (11) version6 (6)  }
 LocationMethod
 FROM SS-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3) ss-DataTypes (2) version7 (7)}
 
--- from TS 24.080 [61] (editor’s note: correct reference?)
+-- from TS 24.080 [61] (editor's note: correct reference?)
 
 --MBMS2G3GIndicator, FileRepairSupported, MBMSServiceType, MBMSUserServiceType, RequiredMBMSBearerCapabilities, MBMSSessionIdentity, TMGI, MBMSInformation
 
@@ -33,7 +33,7 @@ FROM SS-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) 
 --FROM MBMSChargingDataTypes {itu-t identified-organization (4) etsi(0) mobileDomain (0) gsm-Network (1) charging (y)  asn1Module (z) mbmsChargingDataTypes (6) version1 (1)}
 --FROM MBMSChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) mbmsChargingDataTypes (8) asn1Module (0) version1 (0)}
 
--- Editor’s note:  consider moving the above 2 items also into the generic module in order to avoid again copying from external sources.
+-- Editor's note:  consider moving the above 2 items also into the generic module in order to avoid again copying from external sources.
 ;
 
 ------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ FROM SS-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) 
 --
 ------------------------------------------------------------------------------
 
-GPRSCallEventRecord	::= CHOICE 
+GPRSCallEventRecord	::= CHOICE
 --
 -- Record values 20..27 are GPRS specific
 -- Record values 29..30 are GPRS and MBMS specific
@@ -59,7 +59,7 @@ GPRSCallEventRecord	::= CHOICE
 	sgsnMBMSRecord			[29] SGSNMBMSRecord,
 	ggsnMBMSRecord			[30] GGSNMBMSRecord
 }
--- Editor’s note:  the acronyms for the LCS record types are not consistent with CS and the “call event record type” notation.  They also contradict to the record type definitons below, so alignment is needed.
+-- Editor's note:  the acronyms for the LCS record types are not consistent with CS and the "call event record type" notation.  They also contradict to the record type definitons below, so alignment is needed.
 
 GGSNPDPRecord 	::= SET
 {
@@ -95,7 +95,7 @@ GGSNPDPRecord 	::= SET
 	mSTimeZone 					 [31] MSTimeZone OPTIONAL,
 	userLocationInformation		 [32] OCTET STRING OPTIONAL,
 	cAMELChargingInformation	 [33] OCTET STRING OPTIONAL
-	
+
 }
 
 EGSNPDPRecord 	::= SET
@@ -148,7 +148,7 @@ SGSNMMRecord	::= SET
 	cellIdentifier				[7] CellId OPTIONAL,
 	changeLocation				[8] SEQUENCE OF ChangeLocation OPTIONAL,
 	recordOpeningTime			[9] TimeStamp,
-	duration					[10] CallDuration OPTIONAL, 
+	duration					[10] CallDuration OPTIONAL,
 	sgsnChange					[11] SGSNChange OPTIONAL,
 	causeForRecClosing			[12] CauseForRecClosing,
 	diagnostics				    [13] Diagnostics OPTIONAL,
@@ -157,7 +157,7 @@ SGSNMMRecord	::= SET
 	recordExtensions			[16] ManagementExtensions OPTIONAL,
 	localSequenceNumber		    [17] LocalSequenceNumber OPTIONAL,
 	servedMSISDN				[18] MSISDN OPTIONAL,
-	chargingCharacteristics	    [19] ChargingCharacteristics,	
+	chargingCharacteristics	    [19] ChargingCharacteristics,
 	cAMELInformationMM 		    [20] CAMELInformationMM OPTIONAL,
 	rATType						[21] RATType OPTIONAL,
 	chChSelectionMode			[22] ChChSelectionMode OPTIONAL
@@ -213,9 +213,9 @@ SGSNSMORecord	::= SET
 	routingArea				    [8] RoutingAreaCode OPTIONAL,
 	cellIdentifier				[9] CellId OPTIONAL,
 	messageReference			[10] MessageReference,
-	eventTimeStamp		    	[11] TimeStamp,	
+	eventTimeStamp		    	[11] TimeStamp,
 	smsResult					[12] SMSResult OPTIONAL,
-	recordExtensions			[13] ManagementExtensions OPTIONAL, 
+	recordExtensions			[13] ManagementExtensions OPTIONAL,
 	nodeID						[14] NodeID OPTIONAL,
 	localSequenceNumber		    [15] LocalSequenceNumber OPTIONAL,
 	chargingCharacteristics	    [16] ChargingCharacteristics,
@@ -237,7 +237,7 @@ SGSNSMTRecord	::= SET
 	locationArea			[7] LocationAreaCode OPTIONAL,
 	routingArea			    [8] RoutingAreaCode OPTIONAL,
 	cellIdentifier			[9] CellId OPTIONAL,
-	eventTimeStamp		    [10] TimeStamp,	
+	eventTimeStamp		    [10] TimeStamp,
 	smsResult				[11] SMSResult OPTIONAL,
 	recordExtensions		[12] ManagementExtensions OPTIONAL,
 	nodeID					[13] NodeID OPTIONAL,
@@ -337,7 +337,7 @@ SGSNNILCSRecord			::= SET
 	chChSelectionMode		[22] ChChSelectionMode OPTIONAL,
 	rATType					[23] RATType OPTIONAL,
 	recordExtensions		[24] ManagementExtensions OPTIONAL,
-	causeForRecClosing		[25] CauseForRecClosing 
+	causeForRecClosing		[25] CauseForRecClosing
 }
 
 SGSNMBMSRecord 	::= SET
@@ -419,7 +419,7 @@ CAMELAccessPointNameNI	::= AccessPointNameNI
 
 CAMELAccessPointNameOI	::= AccessPointNameOI
 
-CAMELInformationMM		::= SET 
+CAMELInformationMM		::= SET
 {
 	sCFAddress						[1] SCFAddress OPTIONAL,
 	serviceKey						[2]	ServiceKey OPTIONAL,
@@ -443,7 +443,7 @@ CAMELInformationPDP	::= SET
 	fFDAppendIndicator	     		[9]	FFDAppendIndicator OPTIONAL
 }
 
-CAMELInformationSMS		::= SET 
+CAMELInformationSMS		::= SET
 {
 	sCFAddress								[1] SCFAddress OPTIONAL,
 	serviceKey								[2]	ServiceKey OPTIONAL,
@@ -464,7 +464,7 @@ CauseForRecClosing	::= INTEGER
 	--
 	-- In GGSN the value sGSNChange should be used for partial record
 	-- generation due to SGSN Address List Overflow
-	-- 
+	--
 	-- LCS related causes belong to the MAP error causes acc. TS 29.002
 	--
 	-- cause codes 0 to 15 are defined in TS 32.205 as 'CauseForTerm' (cause for termination)
@@ -581,7 +581,7 @@ FFDAppendIndicator	::= BOOLEAN
 
 FreeFormatData	::=	OCTET STRING (SIZE(1..160))
 	--
-	-- Free formated data as sent in the FurnishChargingInformationGPRS 
+	-- Free formated data as sent in the FurnishChargingInformationGPRS
 	-- see TS 29.078
 	--
 
@@ -615,9 +615,9 @@ PDPType		::= OCTET STRING (SIZE(2))
 PLMN-Id		::= OCTET STRING (SIZE (3))
 	--	This is a 1:1 copy from the Routing Area Identity (RAI) IE specified in TS 29.060 [75]
 	--  as follows:
-	--	OCTET 1 of PLMN-Id = OCTET 2 of RAI  
-	--	OCTET 2 of PLMN-Id = OCTET 3 of RAI  
-	--	OCTET 3 of PLMN-Id = OCTET 4 of RAI  
+	--	OCTET 1 of PLMN-Id = OCTET 2 of RAI
+	--	OCTET 2 of PLMN-Id = OCTET 3 of RAI
+	--	OCTET 3 of PLMN-Id = OCTET 4 of RAI
 
 
 
@@ -633,12 +633,12 @@ PSFurnishChargingInformation  ::= SEQUENCE
 QoSInformation	::= OCTET STRING (SIZE (4..12))
 
 	--
-	-- This  octet string 
-	-- is a 1:1 copy of the contents (i.e. starting with octet 4) of the "Quality of 
+	-- This  octet string
+	-- is a 1:1 copy of the contents (i.e. starting with octet 4) of the "Quality of
 	-- service Profile" information element specified in 3GPP TS 29.060 [75].
 
 --RATType	::= INTEGER (0..255)
-RATType	::= INTEGER 
+RATType	::= INTEGER
 	--
 	-- Ihis integer is 1:1 copy of the RAT type value as defined in 3GPP TS 29.060 [75].
 	--
@@ -665,15 +665,15 @@ ServiceChangeCause	::= OCTET STRING (SIZE(4))
 -- service container closure reason
 -- (some of the values are non-exclusive)
 --
--- cause values for Gn update/release and TTS 
+-- cause values for Gn update/release and TTS
 --  H'00000001 (Bit  1): QoS change
 --  H'00000002 (Bit  2): SGSN change
 --  H'00000004 (Bit  3): SGSN PLMN ID change
---  H'00000008 (Bit  4): tariff time switch 
+--  H'00000008 (Bit  4): tariff time switch
 --  H'00000010 (Bit  5): PDP context release
 --  H'00000020 (Bit  6): RAT change
 --
--- cause values for service stop: 
+-- cause values for service stop:
 --  H'00000040 (Bit  7): service idled out (= service release by QHT)
 --  H'00000080 (Bit  8): not used
 --  H'00000100 (Bit  9): configuration change
@@ -686,8 +686,8 @@ ServiceChangeCause	::= OCTET STRING (SIZE(4))
 --  H'00002000 (Bit 14): volume exhausted
 --
 -- cause values for quota return:
---  H'00004000 (Bit 15): timeout 
---  H'00008000 (Bit 16): return requested 
+--  H'00004000 (Bit 15): timeout
+--  H'00008000 (Bit 16): return requested
 --  H'00010000 (Bit 17): reauthorisation request
 --  			Bit 18-32: are unused and will always be zero
 
@@ -742,8 +742,8 @@ MBMSUserServiceType		::= ENUMERATED
 RequiredMBMSBearerCapabilities		::= OCTET STRING (SIZE (3..14))
 
 --
--- This  octet string 
--- is a 1:1 copy of the contents (i.e. starting with octet 5) of the "Quality of 
+-- This  octet string
+-- is a 1:1 copy of the contents (i.e. starting with octet 5) of the "Quality of
 -- service Profile" information element specified in 3GPP TS 29.060 [75].
 --
 
@@ -757,8 +757,8 @@ MBMSSessionIdentity		::= OCTET STRING (SIZE (1))
 
 TMGI		::= OCTET STRING
 --
--- This  octet string 
--- is a 1:1 copy of the contents (i.e. starting with octet 4) of the "TMGI" 
+-- This  octet string
+-- is a 1:1 copy of the contents (i.e. starting with octet 4) of the "TMGI"
 -- information element specified in 3GPP TS 29.060 [75].
 --
 
@@ -766,7 +766,7 @@ MBMSServiceArea		::= OCTET STRING
 
 CNIPMulticastDistribution		::= ENUMERATED
 {
-	nO-IP-MULTICAST				(0),	
+	nO-IP-MULTICAST				(0),
 	iP-MULTICAST				(1)
 }
 

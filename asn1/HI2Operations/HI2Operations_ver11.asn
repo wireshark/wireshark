@@ -108,7 +108,7 @@ IRI-Parameters ::= SEQUENCE
 		version7(7),
 		lastVersion(8)
 	} OPTIONAL,
-		-- Optional parameter "iRIversion" (tag 23) is redundant starting 
+		-- Optional parameter "iRIversion" (tag 23) is redundant starting
 		-- from TS 101 671 v2.4.1 [i.5]
 		-- where to the object identifier "domainID" was introduced into IRI-Parameters.
 		-- In order to keep backward compatibility, even when the version of the "domainID"
@@ -373,7 +373,7 @@ CallingPartyNumber ::= CHOICE
 {
 	iSUP-Format			[1] OCTET STRING (SIZE (1..25)),
 		-- Encoded in the same format as the calling party number (parameter field)
-		-- of the ISUP (see EN 300 356 [5]).
+		-- of the ISUP (see EN 300 356 [5]).
 	dSS1-Format			[2] OCTET STRING (SIZE (1..25)),
 		-- Encoded in the format defined for the value part of the Calling party number
 		-- information element of DSS1 protocol EN 300 403-1 [6].
@@ -387,7 +387,7 @@ CalledPartyNumber ::= CHOICE
 {
 	iSUP-Format			[1] OCTET STRING (SIZE (1..25)),
 		-- Encoded in the same format as the called party number (parameter field)
-		-- of the ISUP (see EN 300 356 [5]).
+		-- of the ISUP (see EN 300 356 [5]).
 	mAP-Format			[2] OCTET STRING (SIZE (1..25)),
 		-- Encoded as AddressString of the MAP protocol TS GSM 09.02 [32].
 	dSS1-Format			[3] OCTET STRING (SIZE (1..25)),
@@ -401,9 +401,9 @@ Location ::= SEQUENCE
 {
 	e164-Number			[1] OCTET STRING (SIZE (1..25)) OPTIONAL,
 		-- Coded in the same format as the ISUP location number (parameter
-		--field) of the ISUP (see EN 300 356 [5]).
+		--field) of the ISUP (see EN 300 356 [5]).
 	globalCellID		[2] OCTET STRING (SIZE (5..7)) OPTIONAL,
-		-- See MAP format (see TS GSM 09.02 [32]).
+		-- See MAP format (see TS GSM 09.02 [32]).
 	tetraLocation		[3] TetraLocation OPTIONAL,
 		-- This optional parameter is not in use anymore, but is kept for backwards compatibility.
 	rAI					[4] OCTET STRING (SIZE (6)) OPTIONAL,
@@ -662,8 +662,8 @@ ISUP-SS-parameters ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
 
 	-- Each "OCTET STRING" contains one additional ISUP parameter TLV coded not already defined in
 	-- the previous parameters. The Tag value is the one given in EN 300 356 [5].
-	-- The Length and the Value are coded in accordance with the parameter definition in 
-	-- EN 300 356 [5]. Hereafter are listed the main parameters. 
+	-- The Length and the Value are coded in accordance with the parameter definition in
+	-- EN 300 356 [5]. Hereafter are listed the main parameters.
 	-- However other parameters may be added:
 
 	-- Connected Number: format defined in EN 300 356 [5].
@@ -672,7 +672,7 @@ ISUP-SS-parameters ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256))
 
 	-- RedirectingNumber: format defined in EN 300 356 [5].
 	-- This parameter can be provided with the "Party Information" of the "originating party"
-	-- or/and of the “terminating party”.
+	-- or/and of the "terminating party".
 
 	-- Original Called Party Number: format defined in EN 300 356 [5].
 	-- This parameter can be provided with the "Party Information" of the "originating party".
@@ -716,11 +716,11 @@ DSS1-SS-parameters-codeset-0 ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256
 	-- Called Party Subaddress: format defined in EN 300 403-1 [6].
 	-- This parameter can be provided with the "Party Information" of the "calling party".
 
-	-- Connected Subaddress: format defined in recommendation (see EN 300 097-1 [14]).
+	-- Connected Subaddress: format defined in recommendation (see EN 300 097-1 [14]).
 	-- This parameter can be provided with the "Party Information" of the
 	-- "called party" or "forwarded to party".
 
-	-- Connected Number: format defined in recommendation (see EN 300 097-1 [14]).
+	-- Connected Number: format defined in recommendation (see EN 300 097-1 [14]).
 	-- This parameter can be provided with the "Party Information" of the
 	-- "called party" or "forwarded to party".
 
@@ -871,7 +871,7 @@ National-Parameters ::= SET SIZE (1..40) OF OCTET STRING (SIZE (1..256))
 GPRSCorrelationNumber ::= OCTET STRING (SIZE(8..20))
 
 GPRSEvent ::= ENUMERATED
-	-- see 3GPP TS 03.33 [42]
+	-- see 3GPP TS 03.33 [42]
 {
 	pDPContextActivation(1),
 	startOfInterceptionWithPDPContextActive(2),
@@ -955,7 +955,7 @@ National-HI2-ASN1parameters	::= SEQUENCE
 		-- extension marker (...).
 		-- It is recommended that "version parameter" and "vendor identification parameter" are
 		-- included in the national parameters definition. Vendor identifications can be
-		-- retrieved from the IANA web site (see annex J). Besides, it is recommended to avoid
+		-- retrieved from the IANA web site (see annex J). Besides, it is recommended to avoid
 		-- using tags from 240 to 255 in a formal type definition.
 }
 

@@ -8,10 +8,10 @@
 -- **************************************************************
 
 X2AP-PDU-Contents {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-PDU-Contents (1) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -69,7 +69,7 @@ IMPORTS
 	TimeToWait,
 	TraceActivation,
 	TraceDepth,
-	
+
 	TransportLayerAddress,
 	UEAggregateMaximumBitRate,
 	UE-HistoryInformation,
@@ -85,9 +85,9 @@ IMPORTS
 	MobilityParametersInformation,
 	MobilityParametersModificationRange
 
-	
-	
-	
+
+
+
 FROM X2AP-IEs
 
 	PrivateIE-Container{},
@@ -180,7 +180,7 @@ FROM X2AP-Containers
 	maxFailedMeasObjects,
 	maxnoofCellIDforMDT,
 	maxnoofTAforMDT
-	
+
 FROM X2AP-Constants;
 
 -- **************************************************************
@@ -324,7 +324,7 @@ HandoverReport-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause				PRESENCE mandatory} |
 	{ ID id-SourceCellECGI				CRITICALITY ignore	TYPE ECGI				PRESENCE mandatory}|
 	{ ID id-FailureCellECGI				CRITICALITY ignore	TYPE ECGI				PRESENCE mandatory} |
-	{ ID id-Re-establishmentCellECGI	CRITICALITY ignore	TYPE ECGI				PRESENCE conditional} -- The IE shall be present if the Handover Report Type IE is set to “HO to Wrong Cell” -- ,
+	{ ID id-Re-establishmentCellECGI	CRITICALITY ignore	TYPE ECGI				PRESENCE conditional} -- The IE shall be present if the Handover Report Type IE is set to "HO to Wrong Cell" -- ,
 	...
 }
 
@@ -354,7 +354,7 @@ E-RABs-SubjectToStatusTransfer-ItemIEs X2AP-PROTOCOL-IES ::= {
 
 E-RABs-SubjectToStatusTransfer-Item ::= SEQUENCE {
 	e-RAB-ID								E-RAB-ID,
-	
+
 	receiveStatusofULPDCPSDUs				ReceiveStatusofULPDCPSDUs			OPTIONAL,
 	uL-COUNTvalue					COUNTvalue,
 	dL-COUNTvalue					COUNTvalue,
@@ -372,7 +372,7 @@ E-RABs-SubjectToStatusTransfer-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- UE Context Release 
+-- UE Context Release
 --
 -- **************************************************************
 
@@ -577,7 +577,7 @@ ENBConfigurationUpdate-IEs X2AP-PROTOCOL-IES ::= {
 }
 
 ServedCellsToModify::= SEQUENCE (SIZE (1..maxCellineNB)) OF ServedCellsToModify-Item
- 
+
 ServedCellsToModify-Item::= SEQUENCE {
 	old-ecgi						ECGI,
 	servedCellInfo					ServedCell-Information,
@@ -643,7 +643,7 @@ ResourceStatusRequest ::= SEQUENCE {
 
 ResourceStatusRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-ENB1-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
-	{ ID id-ENB2-Measurement-ID		CRITICALITY ignore	TYPE Measurement-ID					PRESENCE conditional}|-- The IE shall be present if the Registration Request IE is set to “Stop”--
+	{ ID id-ENB2-Measurement-ID		CRITICALITY ignore	TYPE Measurement-ID					PRESENCE conditional}|-- The IE shall be present if the Registration Request IE is set to "Stop"--
 	{ ID id-Registration-Request	CRITICALITY reject	TYPE Registration-Request			PRESENCE mandatory}|
 	{ ID id-ReportCharacteristics	CRITICALITY reject	TYPE ReportCharacteristics			PRESENCE optional}|
 	{ ID id-CellToReport			CRITICALITY ignore	TYPE CellToReport-List				PRESENCE mandatory}|
@@ -927,7 +927,7 @@ CellActivationRequest-IEs X2AP-PROTOCOL-IES ::= {
 }
 
 ServedCellsToActivate::= SEQUENCE (SIZE (1..maxCellineNB)) OF ServedCellsToActivate-Item
- 
+
 ServedCellsToActivate-Item::= SEQUENCE {
 	ecgi						ECGI,
 	iE-Extensions					ProtocolExtensionContainer { { ServedCellsToActivate-Item-ExtIEs} } OPTIONAL,
@@ -956,7 +956,7 @@ CellActivationResponse-IEs X2AP-PROTOCOL-IES ::= {
 }
 
 ActivatedCellList ::= SEQUENCE (SIZE (1..maxCellineNB)) OF ActivatedCellList-Item
- 
+
 ActivatedCellList-Item::= SEQUENCE {
 	ecgi								ECGI,
 	iE-Extensions						ProtocolExtensionContainer { { ActivatedCellList-Item-ExtIEs} } OPTIONAL,

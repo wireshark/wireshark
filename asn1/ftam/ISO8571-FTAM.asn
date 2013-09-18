@@ -1,6 +1,6 @@
 -- Module ISO8571-FTAM (ISO 8571-4:1988)
 --
--- Copyright © ISO/IEC 1988. This version of
+-- Copyright (c) ISO/IEC 1988. This version of
 -- this ASN.1 module is part of ISO/IEC 8571-4:1988;
 -- see the ISO|IEC text itself for full legal notices.
 --
@@ -1245,8 +1245,8 @@ User-Identity-Pattern ::= String-Pattern
 
 Equality-Comparision ::= BIT STRING {
   no-value-available-matches(0),
-  -- Set impies “No Value Available” matches the test.
-  -- Clear implies “No Value Availabie” fails the test.
+  -- Set impies "No Value Available" matches the test.
+  -- Clear implies "No Value Availabie" fails the test.
   equals-matches(1)
 
 -- Set implies equal items match the test.
@@ -1255,10 +1255,10 @@ Equality-Comparision ::= BIT STRING {
 
 Relational-Comparision ::= BIT STRING {
   no-value-available-matches(0),
-  -- Set impies “No Value Available” matches the test.
-  -- Clear implies “No Value Available” fails the test.
+  -- Set impies "No Value Available" matches the test.
+  -- Clear implies "No Value Available" fails the test.
   equals-matches(1),
-  -- Set implies equal items match the test.’
+  -- Set implies equal items match the test.'
   -- Clear implies equal items fail the test.
   less-than-matches(2),
   -- Set implies a value less than the test cke matches.
@@ -1317,7 +1317,7 @@ Boolean-Pattern ::= SEQUENCE {
 
 Other-Pattern ::= Equality-Comparision
 
--- Matches against “No Value Available”.
+-- Matches against "No Value Available".
 Contents-Type-Pattern ::= CHOICE {
   document-type-Pattern
     [0] IMPLICIT Object-Identifier-Pattern,

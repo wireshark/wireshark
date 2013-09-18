@@ -17,8 +17,8 @@ EXPORTS
 	ChargingTariffInformation ,
 	StartCharging ,
 	StopCharging ,
-	ChargingMessageType 
-	
+	ChargingMessageType
+
 ;
 
 -- ChargingMessageType Type
@@ -29,7 +29,7 @@ ChargingMessageType ::= CHOICE {
 	crga [2] ChargingAcknowledgementInformation ,
 	start [3] StartCharging ,
 	stop [4] StopCharging }
-	
+
 -- ChargeUnitTimeInterval Type
 
 ChargeUnitTimeInterval ::= OCTET STRING (SIZE(2))
@@ -79,7 +79,7 @@ ChargingControlIndicators ::= BIT STRING {
 -- It is only used to change the actually applied tariff.
 -- Coding of 'delayUntilStart':
 -- 0 - start tariffing, if it is not already started, without waiting for the 'start' signal
--- 1 – delay start of tariffing up to the receipt of the 'start' signal
+-- 1 - delay start of tariffing up to the receipt of the 'start' signal
 
 -- AddOnChargingInformation Type
 
@@ -131,7 +131,7 @@ CommunicationChargeCurrency ::= SEQUENCE {
 	currencyFactorScale		[0] CurrencyFactorScale ,
 	tariffDuration			[1] TariffDuration ,
 	subTariffControl		[2] SubTariffControl }
-	
+
 -- CommunicationChargePulse Type
 
 CommunicationChargePulse ::= SEQUENCE {
@@ -307,8 +307,8 @@ StopCharging ::= SEQUENCE {
 SubTariffControl ::= BIT STRING {oneTimeCharge (0)}
 (SIZE(minSubTariffControlLen..maxSubTariffControlLen))
 -- The coding of the oneTimeCharge is as follows:
--- 0 – Periodic charge
--- 1 – One time charge
+-- 0 - Periodic charge
+-- 1 - One time charge
 minSubTariffControlLen INTEGER ::= 1
 maxSubTariffControlLen INTEGER ::= 8
 
@@ -336,7 +336,7 @@ TariffCurrencyFormat ::= SEQUENCE {
 	(SIZE(minTariffIndicatorsLen..maxTariffIndicatorsLen)) ,
 	callAttemptChargeCurrency	[2] CurrencyFactorScale OPTIONAL ,
 	callSetupChargeCurrency		[3] CurrencyFactorScale OPTIONAL }
-	
+
 -- The communication charge sequence currency is a direct charge in currency per time unit. Only one fixed time unit is used.
 -- This time unit has
 -- to be agreed between all cooperating networks, e.g. one second. Being fixed, the time unit is not transferred over

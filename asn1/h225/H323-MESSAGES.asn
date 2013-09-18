@@ -7,7 +7,7 @@
 --
 
 -- Module H323-MESSAGES (H.225.0:12/2009)
-H323-MESSAGES {itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 
+H323-MESSAGES {itu-t(0) recommendation(0) h(8) h225-0(2250) version(0)
   7 h323-messages(0)} DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
@@ -21,7 +21,7 @@ IMPORTS
       version(0) 15 multimedia-system-control(0)};
 
 H323-UserInformation ::=
-  SEQUENCE -- root for all H.225.0 call signalling messages 
+  SEQUENCE -- root for all H.225.0 call signalling messages
    {
   h323-uu-pdu  H323-UU-PDU,
   user-data
@@ -179,8 +179,8 @@ ReleaseCompleteReason ::= CHOICE {
   destinationRejection         NULL, -- rejected at destination
   invalidRevision              NULL,
   noPermission                 NULL, -- called party's gatekeeper rejects
-  unreachableGatekeeper        NULL, -- terminal cannot reach gatekeeper 
-  
+  unreachableGatekeeper        NULL, -- terminal cannot reach gatekeeper
+
   -- for ARQ
   gatewayResources             NULL,
   badFormatAddress             NULL,
@@ -188,26 +188,26 @@ ReleaseCompleteReason ::= CHOICE {
   inConf                       NULL, -- called party busy
   undefinedReason              NULL,
   ...,
-  facilityCallDeflection       NULL, -- call was deflected using a Facility 
-  
+  facilityCallDeflection       NULL, -- call was deflected using a Facility
+
   -- message
   securityDenied               NULL, -- incompatible security settings
   calledPartyNotRegistered     NULL, -- used by gatekeeper when endpoint has
-  
+
   -- preGrantedARQ to bypass ARQ/ACF
   callerNotRegistered          NULL, -- used by gatekeeper when endpoint has
-  
+
   -- preGrantedARQ to bypass ARQ/ACF
   newConnectionNeeded          NULL, -- indicates that the Setup was not
-  
-  -- accepted on this connection, but that 
+
+  -- accepted on this connection, but that
   -- the Setup may be accepted on
   -- a new connection
   nonStandardReason            NonStandardParameter,
-  replaceWithConferenceInvite  ConferenceIdentifier, -- call dropped due to 
-  
+  replaceWithConferenceInvite  ConferenceIdentifier, -- call dropped due to
+
   -- subsequent invitation
-  -- to a conference 
+  -- to a conference
   -- (see 8.4.3.8/H.323)
   genericDataReason            NULL,
   neededFeatureNotSupported    NULL,
@@ -279,19 +279,19 @@ Setup-UUIE ::= SEQUENCE {
 ScnConnectionType ::= CHOICE {
   unknown     NULL, -- should be selected when connection type is unknown
   bChannel    NULL, -- each individual connection on the SCN is 64 kbit/s.
-  
-  -- Note that where SCN delivers 56 kbit/s usable data, 
+
+  -- Note that where SCN delivers 56 kbit/s usable data,
   -- the actual bandwidth allocated on SCN is still
-  -- 64 kbit/s.
-  hybrid2x64  NULL, -- each connection is a 128 kbit/s hybrid call
-  hybrid384   NULL, -- each connection is an H0 (384 kbit/s) hybrid call
-  hybrid1536  NULL, -- each connection is an H11 (1536 kbit/s) hybrid call
-  hybrid1920  NULL, -- each connection is an H12 (1920 kbit/s) hybrid call
+  -- 64 kbit/s.
+  hybrid2x64  NULL, -- each connection is a 128 kbit/s hybrid call
+  hybrid384   NULL, -- each connection is an H0 (384 kbit/s) hybrid call
+  hybrid1536  NULL, -- each connection is an H11 (1536 kbit/s) hybrid call
+  hybrid1920  NULL, -- each connection is an H12 (1920 kbit/s) hybrid call
   multirate   NULL, -- bandwidth supplied by SCN using multirate.
-  
+
   -- In this case, the information transfer rate octet
-  -- in the bearer capability shall be set to multirate 
-  -- and the rate multiplier octet shall denote the 
+  -- in the bearer capability shall be set to multirate
+  -- and the rate multiplier octet shall denote the
   -- number of B channels.
   ...
 }
@@ -301,8 +301,8 @@ ScnConnectionAggregation ::= CHOICE {
   none          NULL, -- call produced using a single SCN connection
   h221          NULL, -- use H.221 framing to aggregate the connections
   bonded-mode1  NULL, -- use ISO/IEC 13871 bonding mode 1.
-  
-  -- Use bonded-mode1 to signal a bonded call if the 
+
+  -- Use bonded-mode1 to signal a bonded call if the
   -- precise bonding mode to be used is unknown.
   bonded-mode2  NULL, -- use ISO/IEC 13871 bonding mode 2
   bonded-mode3  NULL, -- use ISO/IEC 13871 bonding mode 3
@@ -327,7 +327,7 @@ ScreeningIndicator ::= ENUMERATED {
   userProvidedVerifiedAndFailed(2),
   -- number was provided by user
   -- equipment (or by a remote network), and the
-  -- gatekeeper has determined that the 
+  -- gatekeeper has determined that the
   -- information is incorrect
   networkProvided(3),
   -- number was provided by a gatekeeper
@@ -368,7 +368,7 @@ ConferenceList ::= SEQUENCE {
 
 FacilityReason ::= CHOICE {
   routeCallToGatekeeper   NULL, -- call must use gatekeeper model
-  
+
   -- gatekeeper is alternativeAddress
   callForwarded           NULL,
   routeCallToMC           NULL,
@@ -659,13 +659,13 @@ AddressPattern ::= CHOICE {
 PartyNumber ::= CHOICE {
   e164Number                   PublicPartyNumber,
   -- the numbering plan is according to
-  -- ITUT Recs E.163 and E.164.
+  -- ITUT Recs E.163 and E.164.
   dataPartyNumber              NumberDigits,
   -- not used, value reserved.
   telexPartyNumber             NumberDigits,
   -- not used, value reserved.
   privateNumber                PrivatePartyNumber,
-  -- the numbering plan is according to 
+  -- the numbering plan is according to
   -- ISO/IEC 11571.
   nationalStandardPartyNumber  NumberDigits,
   -- not used, value reserved.
@@ -691,9 +691,9 @@ DisplayName ::= SEQUENCE {
 
 PublicTypeOfNumber ::= CHOICE {
   unknown                NULL,
-  -- if used number digits carry prefix 
+  -- if used number digits carry prefix
   -- indicating type
-  -- of number according to national 
+  -- of number according to national
   -- recommendations.
   internationalNumber    NULL,
   nationalNumber         NULL,
@@ -701,8 +701,8 @@ PublicTypeOfNumber ::= CHOICE {
   -- not used, value reserved
   subscriberNumber       NULL,
   abbreviatedNumber      NULL,
-  -- valid only for called party number at 
-  -- the outgoing access, network 
+  -- valid only for called party number at
+  -- the outgoing access, network
   -- substitutes
   -- appropriate number.
   ...
@@ -747,17 +747,17 @@ ANSI-41-UIM ::= SEQUENCE {
   -- MIN refers to Mobile Identification Number
   -- MDN refers to Mobile Directory Number
   -- MSISDN refers to Mobile Station ISDN number
-  -- ESN Refers to Electronic Serial Number 
+  -- ESN Refers to Electronic Serial Number
   -- MSCID refers to Mobile Switching Center number + Market ID or System ID
-  -- SID refers to System Identification and MID refers to Market 
+  -- SID refers to System Identification and MID refers to Market
   -- Identification
   -- SystemMyTypeCode refers to vendor identification number
-  -- SystemAccessType refers to the system access type like power down 
+  -- SystemAccessType refers to the system access type like power down
   -- registration or call
   -- origination or Short Message response etc.
   -- Qualification Information Code refers to the validity
   -- SESN Refers to SIM Electronic Serial Number for Security purposes of
-  -- User Identification 
+  -- User Identification
   -- SOC refers to System Operator Code
 }
 
@@ -770,8 +770,8 @@ GSM-UIM ::= SEQUENCE {
   vplmn   TBCD-STRING(SIZE (1..4)) OPTIONAL,
   -- IMSI refers to International Mobile Station Identification
   -- MSISDN refers to Mobile Station ISDN number
-  -- IMEI Refers to International Mobile Equipment Identification 
-  -- VPLMN or HPLMN refers to Visiting or Home Public Land Mobile Network 
+  -- IMEI Refers to International Mobile Equipment Identification
+  -- VPLMN or HPLMN refers to Visiting or Home Public Land Mobile Network
   -- number
   ...
 }
@@ -779,11 +779,11 @@ GSM-UIM ::= SEQUENCE {
 IsupNumber ::= CHOICE {
   e164Number                   IsupPublicPartyNumber,
   -- the numbering plan is according to
-  -- ITUT Recs E.163 and E.164.
+  -- ITUT Recs E.163 and E.164.
   dataPartyNumber              IsupDigits, -- not used, value reserved.
   telexPartyNumber             IsupDigits, -- not used, value reserved.
   privateNumber                IsupPrivatePartyNumber,
-  -- the numbering plan is according to 
+  -- the numbering plan is according to
   -- ISO/IEC 11571.
   nationalStandardPartyNumber  IsupDigits, -- not used, value reserved.
   ...
@@ -882,14 +882,14 @@ SecurityCapabilities ::= SEQUENCE {
 
 SecurityErrors ::= CHOICE {
   securityWrongSyncTime                 NULL, -- either time server
-  
+
   -- problem or network delay
   securityReplay                        NULL, -- replay attack encountered
   securityWrongGeneralID                NULL, -- wrong general ID
   securityWrongSendersID                NULL, -- wrong senders ID
   securityIntegrityFailed               NULL, -- integrity check failed
   securityWrongOID                      NULL, -- wrong token OIDs or crypto alg
-  
+
   -- OIDs
   securityDHmismatch                    NULL, -- mismatch of DH parameters
   securityCertificateExpired            NULL, -- certificate has expired
@@ -897,22 +897,22 @@ SecurityErrors ::= CHOICE {
   securityCertificateRevoked            NULL, -- certificate was found revoked
   securityCertificateNotReadable        NULL, -- decoding error
   securityCertificateSignatureInvalid   NULL, -- wrong signature in the
-  
+
   -- certificate
   securityCertificateMissing            NULL, -- no certificate available
   securityCertificateIncomplete         NULL, -- missing expected certificate
-  
+
   -- extensions
   securityUnsupportedCertificateAlgOID  NULL, -- crypto algs not understood
   securityUnknownCA                     NULL, -- CA/root certificate could not
-  
+
   -- be found
   ...
 }
 
 SecurityErrors2 ::= CHOICE {
   securityWrongSyncTime    NULL, -- either time server problem or network
-  
+
   -- delay
   securityReplay           NULL, -- replay attack encountered
   securityWrongGeneralID   NULL, -- wrong general ID
@@ -957,7 +957,7 @@ RequestSeqNum ::= INTEGER(1..65535)
 GatekeeperIdentifier ::= BMPString(SIZE (1..128))
 
 BandWidth ::= INTEGER(0..4294967295) -- in 100s of bits
-                     
+
 
 CallReferenceValue ::= INTEGER(0..65535)
 
@@ -966,7 +966,7 @@ EndpointIdentifier ::= BMPString(SIZE (1..128))
 ProtocolIdentifier ::= OBJECT IDENTIFIER
 
 TimeToLive ::= INTEGER(1..4294967295) -- in seconds
-                      
+
 
 H248PackagesDescriptor ::= OCTET STRING -- This octet string contains ASN.1
 
@@ -994,16 +994,16 @@ NonIsoIntegrityMechanism ::=
   CHOICE { -- HMAC mechanism used, no truncation, tagging may be necessary!
   hMAC-MD5           NULL,
   hMAC-iso10118-2-s  EncryptIntAlg, -- according to ISO/IEC 10118-2 using
-  
-  -- EncryptIntAlg as core block 
+
+  -- EncryptIntAlg as core block
   -- encryption algorithm (short MAC)
   hMAC-iso10118-2-l  EncryptIntAlg, -- according to ISO/IEC 10118-2 using
-  
-  -- EncryptIntAlg as core block 
+
+  -- EncryptIntAlg as core block
   -- encryption algorithm (long MAC)
   hMAC-iso10118-3    OBJECT IDENTIFIER, -- according to ISO/IEC 10118-3 using
-  
-  -- OID as hash function (OID is 
+
+  -- OID as hash function (OID is
   -- SHA-1,
   -- RIPE-MD160,
   -- RIPE-MD128)
@@ -1014,15 +1014,15 @@ IntegrityMechanism ::= CHOICE { -- for RAS message integrity
   nonStandard  NonStandardParameter,
   digSig       NULL, -- indicates to apply a digital signature
   iso9797      OBJECT IDENTIFIER, -- according to ISO/IEC 9797 using OID as
-  
+
   -- core encryption algorithm (X-CBC MAC)
   nonIsoIM     NonIsoIntegrityMechanism,
   ...
 }
 
 ICV ::= SEQUENCE {
-  algorithmOID  OBJECT IDENTIFIER, -- the algorithm used to compute the 
-  
+  algorithmOID  OBJECT IDENTIFIER, -- the algorithm used to compute the
+
   -- signature
   icv           BIT STRING-- the computed cryptographic --
   -- integrity check value or signature
@@ -1035,7 +1035,7 @@ FastStartToken ::=
        timeStamp  PRESENT,
        dhkey      PRESENT,
        generalID  PRESENT
-     
+
      -- set to "alias" --})
 
 EncodedFastStartToken ::= TYPE-IDENTIFIER.&Type(FastStartToken)
@@ -1161,9 +1161,9 @@ CarrierInfo ::= SEQUENCE {
 }
 
 ServiceControlDescriptor ::= CHOICE {
-  url                       IA5String(SIZE (0..512)), -- indicates a URL- 
-  
-  -- referenced 
+  url                       IA5String(SIZE (0..512)), -- indicates a URL-
+
+  -- referenced
   -- protocol/resource
   signal                    H248SignalsDescriptor,
   nonStandard               NonStandardParameter,
@@ -1410,8 +1410,8 @@ GatekeeperReject ::= SEQUENCE --(GRJ)
 
 GatekeeperRejectReason ::= CHOICE {
   resourceUnavailable        NULL,
-  terminalExcluded           NULL, -- permission failure, not a resource 
-  
+  terminalExcluded           NULL, -- permission failure, not a resource
+
   -- failure
   invalidRevision            NULL,
   undefinedReason            NULL,
@@ -1487,11 +1487,11 @@ RegistrationConfirm ::= SEQUENCE --(RCF)
               useGKCallSignalAddressToAnswer    BOOLEAN,
               ...,
               irrFrequencyInCall                INTEGER(1..65535) OPTIONAL, -- in seconds; --
-              -- not present 
+              -- not present
               -- if GK does
               -- not want IRRs
               totalBandwidthRestriction         BandWidth OPTIONAL, -- total limit --
-              -- for all 
+              -- for all
               -- concurrent
               -- calls
               alternateTransportAddresses
@@ -1536,7 +1536,7 @@ RegistrationRejectReason ::= CHOICE {
   invalidCallSignalAddress          NULL,
   invalidRASAddress                 NULL, -- supplied address is invalid
   duplicateAlias                    SEQUENCE OF AliasAddress,
-  -- alias registered to another 
+  -- alias registered to another
   -- endpoint
   invalidTerminalType               NULL,
   undefinedReason                   NULL,
@@ -1544,12 +1544,12 @@ RegistrationRejectReason ::= CHOICE {
   ...,
   transportQOSNotSupported          NULL, -- endpoint QoS not supported
   resourceUnavailable               NULL, -- gatekeeper resources exhausted
-  invalidAlias                      NULL, -- alias not consistent with 
-  
+  invalidAlias                      NULL, -- alias not consistent with
+
   -- gatekeeper rules
   securityDenial                    NULL,
   fullRegistrationRequired          NULL, -- registration permission has
-  
+
   -- expired
   additiveRegistrationNotSupported  NULL,
   invalidTerminalAliases
@@ -1625,8 +1625,8 @@ UnregRejectReason ::= CHOICE {
   callInProgress          NULL,
   undefinedReason         NULL,
   ...,
-  permissionDenied        NULL, -- requesting user not allowed to 
-  
+  permissionDenied        NULL, -- requesting user not allowed to
+
   -- unregister specified user
   securityDenial          NULL,
   securityError           SecurityErrors2
@@ -1774,12 +1774,12 @@ AdmissionRejectReason ::= CHOICE {
   securityDenial             NULL,
   qosControlNotSupported     NULL,
   incompleteAddress          NULL,
-  aliasesInconsistent        NULL, -- multiple aliases in request 
-  
+  aliasesInconsistent        NULL, -- multiple aliases in request
+
   -- identify distinct people
   routeCallToSCN             SEQUENCE OF PartyNumber,
-  exceedsCallCapacity        NULL, -- destination does not have the 
-  
+  exceedsCallCapacity        NULL, -- destination does not have the
+
   -- capacity for this call
   collectDestination         NULL,
   collectPIN                 NULL,
@@ -1931,8 +1931,8 @@ LocationRejectReason ::= CHOICE {
   undefinedReason            NULL,
   ...,
   securityDenial             NULL,
-  aliasesInconsistent        NULL, -- multiple aliases in request 
-  
+  aliasesInconsistent        NULL, -- multiple aliases in request
+
   -- identify distinct people
   routeCalltoSCN             SEQUENCE OF PartyNumber,
   resourceUnavailable        NULL,

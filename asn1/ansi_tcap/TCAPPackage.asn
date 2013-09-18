@@ -19,7 +19,7 @@ PackageType ::= CHOICE { unidirectional				[PRIVATE 1] IMPLICIT UniTransactionPD
 						 response					[PRIVATE 4] IMPLICIT TransactionPDU,
 						 conversationWithPerm		[PRIVATE 5] IMPLICIT TransactionPDU,
 						 conversationWithoutPerm	[PRIVATE 6] IMPLICIT TransactionPDU,
-						 abort						[PRIVATE 22] IMPLICIT Abort 
+						 abort						[PRIVATE 22] IMPLICIT Abort
 						 }
 
 UniTransactionPDU ::= SEQUENCE {
@@ -128,7 +128,7 @@ Invoke{ InvokeID: InvokeIdSet, OPERATION: Operations } ::= SEQUENCE {
 	componentIDs		[PRIVATE 15] IMPLICIT OCTET STRING (SIZE(0..2))
 									-- The invoke ID precedes the correlation id. There may be no
 									-- identifier,only an invoke ID, or both invoke and correlation
-									--ID’s.
+									--ID's.
 									(CONSTRAINED BY { -- must be unambiguous -- }
 									! RejectProblem : invoke-duplicateInvocation )
 									(CONSTRAINED BY { -- correlation ID must identify an

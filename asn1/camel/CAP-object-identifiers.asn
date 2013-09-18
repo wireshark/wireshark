@@ -45,7 +45,7 @@ classes											OBJECT IDENTIFIER ::=
 gsmSSF-gsmSCF-Operations						OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
 	cap-gsmSSF-gsmSCF-ops-args(101) version8(7)}
--- The Object Identifier 'gsmSSF-gsmSCF-Operations’ is updated to version8(7) in Rel-6, so
+-- The Object Identifier 'gsmSSF-gsmSCF-Operations' is updated to version8(7) in Rel-6, so
 -- other modules can IMPORT Rel-6 Operation definitions related to call control.
 
 gsmSSF-gsmSCF-Protocol							OBJECT IDENTIFIER ::=

@@ -5,7 +5,7 @@ BEGIN
 
 --
 -- The value of the SS-user data parameter of the S-UNIT-DATA request and indication
--- session-service primitives shall be a UD-type value, followed as a requestor’s
+-- session-service primitives shall be a UD-type value, followed as a requestor's
 -- option by zero or more UDC-type values.
 --
 
@@ -20,7 +20,7 @@ UD-type ::= SEQUENCE {
 
 -- Shall be the parameters of the UD PPDU.
 --
--- As an initiator’s option, the presentation data values contained in a UD PPDU may be
+-- As an initiator's option, the presentation data values contained in a UD PPDU may be
 -- encoded more than once, using UDC-type values, to allow the transfer of the same
 -- presentation data values using a number of different transfer syntaxes.
 --
