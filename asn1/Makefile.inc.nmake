@@ -50,7 +50,7 @@ $(DISSECTOR): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 !ENDIF
 
 !IFDEF EXPORT_FILES
-$(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES)
+$(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXPORT_DEPENDS)
 !IFDEF PYTHON
 	$(PYTHON) "../../tools/asn2wrs.py" \
 		-E $(A2W_FLAGS) \
