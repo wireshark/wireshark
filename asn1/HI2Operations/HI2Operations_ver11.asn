@@ -731,7 +731,7 @@ DSS1-SS-parameters-codeset-0 ::= SET SIZE (1..256) OF OCTET STRING (SIZE (1..256
 	-- Called Party Number: format defined in EN 300 403-1 [6].
 	-- This parameter could be provided with the "Party Information" of the "calling party"
 	-- when target is the originating party; it contains the dialled digits before modification
-	-- at network level (e.g. IN interaction, translation, etc …).
+	-- at network level (e.g. IN interaction, translation, etc ...).
 
 	-- User-user: format defined in EN 300 286-1 [23]).
 	-- This parameter can be provided with the "Party Information" of the
@@ -862,7 +862,7 @@ SMS-report ::= SEQUENCE
 }
 
 LawfulInterceptionIdentifier ::= OCTET STRING (SIZE (1..25))
-	-- It is recommended to use ASCII characters in "a"…"z", "A"…"Z", "-", "_", ".", and "0"…"9".
+	-- It is recommended to use ASCII characters in "a"..."z", "A"..."Z", "-", "_", ".", and "0"..."9".
 	-- For subaddress option only "0"..."9" shall be used.
 
 National-Parameters ::= SET SIZE (1..40) OF OCTET STRING (SIZE (1..256))
