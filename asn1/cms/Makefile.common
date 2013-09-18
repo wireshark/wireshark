@@ -53,7 +53,7 @@ EXTRA_CNF = \
 	$(builddir)/../x509sat/x509sat-exp.cnf
 
 EXPORT_DEPENDS = \
-	x509af-exp.cnf
+	$(builddir)/../x509af/x509af-exp.cnf
 
 $(builddir)/../x509af/x509af-exp.cnf:
 	(cd $(builddir)/../x509af && $(MAKE_CNF_EXPORT))
