@@ -801,7 +801,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		# and we just add "-llua -lliblua" to the used libs.
 		#
 		AC_MSG_CHECKING(Lua version)
-		for i in 5.0 5.1 5.2
+		for i in 5.2 5.1 5.0
 		do
 			[[ -d "/usr/include/lua$i" ]] && lua_ver=$i
 		done
