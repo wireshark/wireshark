@@ -236,8 +236,6 @@ typedef struct _SslCipherSuite {
     gint bits;
     gint eff_bits;
     gint dig;
-    gint dig_len;
-    gint export_cipher;
     gint mode;
 } SslCipherSuite;
 
@@ -287,6 +285,11 @@ typedef struct _SslDecoder {
 #define DIG_SHA         0x41
 #define DIG_SHA256      0x42
 #define DIG_SHA384      0x43
+
+typedef struct {
+    const gchar *name;
+    gint len;
+} SslDigestAlgo;
 
 typedef struct _SslRecordInfo {
     guchar *real_data;
