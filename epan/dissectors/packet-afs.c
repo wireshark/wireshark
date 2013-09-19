@@ -162,7 +162,6 @@ struct afs_volumeinfo {
 	guint16 Part7;
 };
 
-
 static int proto_afs = -1;
 static int hf_afs_fs = -1;
 static int hf_afs_cb = -1;
@@ -362,6 +361,15 @@ static int hf_afs_cb_fid_volume = -1;
 static int hf_afs_cb_fid_vnode = -1;
 static int hf_afs_cb_fid_uniqifier = -1;
 
+static int hf_afs_cm_uuid = -1;
+static int hf_afs_cm_numint = -1;
+static int hf_afs_cm_ipaddr = -1;
+static int hf_afs_cm_netmask = -1;
+static int hf_afs_cm_mtu = -1;
+static int hf_afs_cm_numcap = -1;
+static int hf_afs_cm_capabilities = -1;
+static int hf_afs_cm_cap_errortrans = -1;
+
 static int hf_afs_prot_errcode = -1;
 static int hf_afs_prot_name = -1;
 static int hf_afs_prot_id = -1;
@@ -451,7 +459,8 @@ static gint ett_afs_vldb_flags = -1;
 
 static gint ett_afs_fragment = -1;
 static gint ett_afs_fragments = -1;
-
+static gint ett_afs_cm_interfaces = -1;
+static gint ett_afs_cm_capabilities = -1;
 
 static const fragment_items afs_frag_items = {
     /* Fragment subtrees */
@@ -600,6 +609,52 @@ static const fragment_items afs_frag_items = {
 		OUT_UINT(hf_afs_fs_callback_version); \
 		OUT_TIMESECS(hf_afs_fs_callback_expires); \
 		OUT_UINT(hf_afs_fs_callback_type); \
+		tree = save; \
+	}
+
+/* Output cache manager interfaces */
+#define OUT_CM_INTERFACES() \
+	{	proto_tree *save, *ti; \
+		unsigned int i; \
+		unsigned int maxint, numint; \
+		maxint = 32; \
+		numint = tvb_get_ntohl(tvb, offset); \
+		ti = proto_tree_add_text(tree, tvb, offset, 4+11*4+3*32*4, "Interfaces"); \
+		save = tree; \
+		tree = proto_item_add_subtree(ti, ett_afs_cm_interfaces); \
+		OUT_UINT(hf_afs_cm_numint); \
+		OUT_UUID(hf_afs_cm_uuid); \
+		for ( i=0; i<numint; i++ ) { \
+		    OUT_IP(hf_afs_cm_ipaddr); \
+		} \
+		offset += 4*(maxint-numint); \
+		for ( i=0; i<numint; i++ ) { \
+			OUT_IP(hf_afs_cm_netmask); \
+		} \
+		offset += 4*(maxint-numint); \
+		for ( i=0; i<numint; i++ ) { \
+			OUT_UINT(hf_afs_cm_mtu); \
+		} \
+		offset += 4*(maxint-numint); \
+		tree = save; \
+	}
+
+/* Output CM capabilities */
+#define OUT_CM_CAPABILITIES() \
+	{	proto_tree *save, *ti; \
+		unsigned int numcap; \
+		guint32 capabilities; \
+		numcap = tvb_get_ntohl(tvb, offset); \
+		ti = proto_tree_add_text(tree, tvb, offset, 4+numcap*4, "Capabilities"); \
+		save = tree; \
+		tree = proto_item_add_subtree(ti, ett_afs_cm_capabilities); \
+		OUT_UINT(hf_afs_cm_numcap); \
+		capabilities = tvb_get_ntohl(tvb, offset); \
+		ti = proto_tree_add_uint(tree, hf_afs_cm_capabilities, tvb, offset, \
+			4, capabilities); \
+		proto_tree_add_boolean(tree, hf_afs_cm_cap_errortrans, \
+			tvb,offset,4, capabilities); \
+		offset += 4; \
 		tree = save; \
 	}
 
@@ -2600,8 +2655,11 @@ dissect_cb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int off
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{
-		switch ( opcode )
-		{
+		switch ( opcode ) {
+			case 65538: /* get-capabilites */
+				OUT_CM_INTERFACES();
+				OUT_CM_CAPABILITIES();
+				break;
 		}
 	}
 	else if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
@@ -3585,6 +3643,25 @@ proto_register_afs(void)
 	{ &hf_afs_cb_fid_uniqifier, { "FileID (Uniqifier)", "afs.cb.fid.uniq",
 		FT_UINT32, BASE_DEC, 0, 0, "File ID (Uniqifier)", HFILL }},
 
+/* CM Fields  */
+	{ &hf_afs_cm_uuid, { "UUID", "afs.cm.uuid",
+		FT_BYTES, BASE_NONE, 0, 0, NULL, HFILL }},
+	{ &hf_afs_cm_numint, { "Number of Interfaces", "afs.cm.numint",
+		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
+	{ &hf_afs_cm_ipaddr, { "IP Address", "afs.cm.ipaddr",
+		FT_IPv4, BASE_NONE, 0, 0, NULL, HFILL }},
+	{ &hf_afs_cm_netmask, { "Netmask", "afs.cm.netmask",
+		FT_IPv4, BASE_NONE, 0, 0, NULL, HFILL }},
+	{ &hf_afs_cm_mtu, { "MTU", "afs.cm.mtu",
+		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
+
+	{ &hf_afs_cm_numcap, { "Number of Capability Words", "afs.cm.numcap",
+		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
+	{ &hf_afs_cm_capabilities, { "Capabilities", "afs.cm.capabilities",
+		FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
+	{ &hf_afs_cm_cap_errortrans, { "ERRORTRANS", "afs.cm.capabilities.errortrans",
+		FT_BOOLEAN, 32, 0, 0x0001, NULL, HFILL }},
+
 /* PROT Server Fields */
 	{ &hf_afs_prot_errcode, { "Error Code", "afs.prot.errcode",
 		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
@@ -3749,6 +3826,8 @@ proto_register_afs(void)
 		&ett_afs_vldb_flags,
 		&ett_afs_fragment,
 		&ett_afs_fragments,
+		&ett_afs_cm_interfaces,
+		&ett_afs_cm_capabilities,
 	};
 
 	proto_afs = proto_register_protocol("Andrew File System (AFS)",
