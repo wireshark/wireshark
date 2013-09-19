@@ -3086,6 +3086,7 @@ static int hf_ieee80211_mesh_config_cap_forwarding = -1;
 static int hf_ieee80211_mesh_config_cap_mbca_enabled = -1;
 static int hf_ieee80211_mesh_config_cap_tbtt_adjusting = -1;
 static int hf_ieee80211_mesh_config_cap_power_save_level = -1;
+static int hf_ieee80211_mesh_form_info_num_of_peerings = -1;
 
 static int hf_ieee80211_ff_public_action = -1;
 
@@ -4147,6 +4148,7 @@ static gint ett_msh_control = -1;
 static gint ett_hwmp_targ_flags_tree = -1;
 static gint ett_mesh_chswitch_flag_tree = -1;
 static gint ett_mesh_config_cap_tree = -1;
+static gint ett_mesh_formation_info_tree = -1;
 
 static gint ett_rsn_gcs_tree = -1;
 static gint ett_rsn_pcs_tree = -1;
@@ -12632,7 +12634,9 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_congestion_control, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_sync_method, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item (tree, hf_ieee80211_mesh_config_auth_protocol, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item (tree, hf_ieee80211_mesh_config_formation_info, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
+	item = proto_tree_add_item (tree, hf_ieee80211_mesh_config_formation_info, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
+	subtree = proto_item_add_subtree(item, ett_mesh_formation_info_tree);
+	proto_tree_add_item (subtree, hf_ieee80211_mesh_form_info_num_of_peerings, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
 	item = proto_tree_add_item (tree, hf_ieee80211_mesh_config_capability, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
 	subtree = proto_item_add_subtree(item, ett_mesh_config_cap_tree);
 	proto_tree_add_item (subtree, hf_ieee80211_mesh_config_cap_accepting, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
@@ -16621,6 +16625,11 @@ proto_register_ieee80211 (void)
      {"Formation Info", "wlan.mesh.config.formation_info",
       FT_UINT8, BASE_HEX, NULL, 0,
       "Mesh Configuration Formation Info", HFILL }},
+
+    {&hf_ieee80211_mesh_form_info_num_of_peerings,
+     {"Number of Peerings", "wlan.mesh.config.formation_info.num_peers",
+      FT_UINT8, BASE_DEC, NULL, 0x7E,
+      NULL, HFILL }},
 
     {&hf_ieee80211_mesh_config_capability,
      {"Capability", "wlan.mesh.config.cap",
@@ -21262,6 +21271,7 @@ proto_register_ieee80211 (void)
     &ett_hwmp_targ_flags_tree,
     &ett_mesh_chswitch_flag_tree,
     &ett_mesh_config_cap_tree,
+    &ett_mesh_formation_info_tree,
     &ett_cap_tree,
     &ett_rsn_gcs_tree,
     &ett_rsn_pcs_tree,
