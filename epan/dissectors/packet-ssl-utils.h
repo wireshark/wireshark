@@ -224,6 +224,9 @@ typedef struct _StringInfo {
 #define SSL_CIPHER_MODE_CBC     1 /* GenericBlockCipher */
 #define SSL_CIPHER_MODE_GCM     2 /* GenericAEADCipher */
 
+/* Explicit nonce length */
+#define SSL_EX_NONCE_LEN_GCM    8 /* RFC 5288 - section 3 */
+
 #define SSL_DEBUG_USE_STDERR "-"
 
 #define SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES 16
@@ -233,7 +236,7 @@ typedef struct _SslCipherSuite {
     gint kex;
     gint sig;
     gint enc;
-    gint block;
+    gint block; /* IV block size */
     gint bits;
     gint eff_bits;
     gint dig;
@@ -251,8 +254,9 @@ typedef struct _SslDecompress SslDecompress;
 typedef struct _SslDecoder {
     SslCipherSuite* cipher_suite;
     gint compression;
-    guchar _mac_key[48];
-    StringInfo mac_key;
+    guchar _mac_key_or_write_iv[48];
+    StringInfo mac_key; /* for block and stream ciphers */
+    StringInfo write_iv; /* for AEAD ciphers (at least GCM, CCM) */
     SSL_CIPHER_CTX evp;
     SslDecompress *decomp;
     guint32 seq;

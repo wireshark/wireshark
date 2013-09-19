@@ -1502,7 +1502,7 @@ static gint
 ssl_cipher_init(gcry_cipher_hd_t *cipher, gint algo, guchar* sk,
         guchar* iv, gint mode)
 {
-    gint gcry_modes[]={GCRY_CIPHER_MODE_STREAM,GCRY_CIPHER_MODE_CBC};
+    gint gcry_modes[]={GCRY_CIPHER_MODE_STREAM,GCRY_CIPHER_MODE_CBC,GCRY_CIPHER_MODE_CTR};
     gint err;
     if (algo == -1) {
         /* NULL mode */
@@ -1843,18 +1843,18 @@ static SslCipherSuite cipher_suites[]={
     {153,KEX_DH,SIG_DSS,ENC_SEED,16,128,128,DIG_SHA, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_DSS_WITH_SEED_CBC_SHA */
     {154,KEX_DH,SIG_RSA,ENC_SEED,16,128,128,DIG_SHA, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_RSA_WITH_SEED_CBC_SHA */
     {155,KEX_DH,SIG_NONE,ENC_SEED,16,128,128,DIG_SHA, SSL_CIPHER_MODE_CBC},   /* TLS_DH_anon_WITH_SEED_CBC_SHA */
-    {156,KEX_RSA,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_RSA_WITH_AES_128_GCM_SHA256 */
-    {157,KEX_RSA,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_RSA_WITH_AES_256_GCM_SHA384 */
-    {158,KEX_DH,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 */
-    {159,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 */
-    {160,KEX_DH,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_DH_RSA_WITH_AES_128_GCM_SHA256 */
-    {161,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_DH_RSA_WITH_AES_256_GCM_SHA384 */
-    {162,KEX_DH,SIG_DSS,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_DSS_WITH_AES_128_GCM_SHA256 */
-    {163,KEX_DH,SIG_DSS,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_DSS_WITH_AES_256_GCM_SHA384 */
-    {164,KEX_DH,SIG_DSS,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_DH_DSS_WITH_AES_128_GCM_SHA256 */
-    {165,KEX_DH,SIG_DSS,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_DH_DSS_WITH_AES_256_GCM_SHA384 */
-    {166,KEX_DH,SIG_NONE,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_DH_anon_WITH_AES_128_GCM_SHA256 */
-    {167,KEX_DH,SIG_NONE,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_DH_anon_WITH_AES_256_GCM_SHA384 */
+    {156,KEX_RSA,SIG_RSA,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_RSA_WITH_AES_128_GCM_SHA256 */
+    {157,KEX_RSA,SIG_RSA,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_RSA_WITH_AES_256_GCM_SHA384 */
+    {158,KEX_DH,SIG_RSA,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 */
+    {159,KEX_DH,SIG_RSA,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 */
+    {160,KEX_DH,SIG_RSA,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_DH_RSA_WITH_AES_128_GCM_SHA256 */
+    {161,KEX_DH,SIG_RSA,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_DH_RSA_WITH_AES_256_GCM_SHA384 */
+    {162,KEX_DH,SIG_DSS,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_DHE_DSS_WITH_AES_128_GCM_SHA256 */
+    {163,KEX_DH,SIG_DSS,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_DHE_DSS_WITH_AES_256_GCM_SHA384 */
+    {164,KEX_DH,SIG_DSS,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_DH_DSS_WITH_AES_128_GCM_SHA256 */
+    {165,KEX_DH,SIG_DSS,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_DH_DSS_WITH_AES_256_GCM_SHA384 */
+    {166,KEX_DH,SIG_NONE,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_DH_anon_WITH_AES_128_GCM_SHA256 */
+    {167,KEX_DH,SIG_NONE,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_DH_anon_WITH_AES_256_GCM_SHA384 */
     {186,KEX_RSA,SIG_RSA,ENC_CAMELLIA128,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
     {187,KEX_DH,SIG_DSS,ENC_CAMELLIA128,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA256 */
     {188,KEX_DH,SIG_RSA,ENC_CAMELLIA128,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA256 */
@@ -1900,14 +1900,14 @@ static SslCipherSuite cipher_suites[]={
     {49192,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 */
     {49193,KEX_DH,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256 */
     {49194,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384 */
-    {49195,KEX_DH,SIG_DSS,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 */
-    {49196,KEX_DH,SIG_DSS,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 */
-    {49197,KEX_DH,SIG_DSS,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 */
-    {49198,KEX_DH,SIG_DSS,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384 */
-    {49199,KEX_DH,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 */
-    {49200,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 */
-    {49201,KEX_DH,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256, SSL_CIPHER_MODE_CBC},   /* TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256 */
-    {49202,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA384, SSL_CIPHER_MODE_CBC},   /* TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384 */
+    {49195,KEX_DH,SIG_DSS,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 */
+    {49196,KEX_DH,SIG_DSS,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 */
+    {49197,KEX_DH,SIG_DSS,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 */
+    {49198,KEX_DH,SIG_DSS,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384 */
+    {49199,KEX_DH,SIG_RSA,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 */
+    {49200,KEX_DH,SIG_RSA,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 */
+    {49201,KEX_DH,SIG_RSA,ENC_AES,4,128,128,DIG_SHA256, SSL_CIPHER_MODE_GCM},   /* TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256 */
+    {49202,KEX_DH,SIG_RSA,ENC_AES256,4,256,256,DIG_SHA384, SSL_CIPHER_MODE_GCM},   /* TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384 */
     {-1, 0,0,0,0,0,0,0, 0}
 };
 
@@ -2248,8 +2248,14 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
      memory allocation and waste samo more memory*/
     dec->cipher_suite=cipher_suite;
     dec->compression = compression;
-    dec->mac_key.data = dec->_mac_key;
-    ssl_data_set(&dec->mac_key, mk, ssl_cipher_suite_dig(cipher_suite)->len);
+    /* AEED ciphers don't have a MAC but need to keep the write IV instead */
+    if (mk == NULL) {
+        dec->write_iv.data = dec->_mac_key_or_write_iv;
+        ssl_data_set(&dec->write_iv, iv, cipher_suite->block);
+    } else {
+        dec->mac_key.data = dec->_mac_key_or_write_iv;
+        ssl_data_set(&dec->mac_key, mk, ssl_cipher_suite_dig(cipher_suite)->len);
+    }
     dec->seq = 0;
     dec->decomp = ssl_create_decompressor(compression);
     dec->flow = ssl_create_flow();
@@ -2323,8 +2329,13 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     ssl_print_string("key expansion", &key_block);
 
     ptr=key_block.data;
-    c_mk=ptr; ptr+=ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len;
-    s_mk=ptr; ptr+=ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len;
+    /* AEAD ciphers do not have a separate MAC */
+    if (ssl_session->cipher_suite.mode == SSL_CIPHER_MODE_GCM) {
+        c_mk = s_mk = NULL;
+    } else {
+        c_mk=ptr; ptr+=ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len;
+        s_mk=ptr; ptr+=ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len;
+    }
 
     c_wk=ptr; ptr+=ssl_session->cipher_suite.eff_bits/8;
     s_wk=ptr; ptr+=ssl_session->cipher_suite.eff_bits/8;
@@ -2455,8 +2466,10 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     }
 
     /* show key material info */
-    ssl_print_data("Client MAC key",c_mk,ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len);
-    ssl_print_data("Server MAC key",s_mk,ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len);
+    if (c_mk != NULL) {
+        ssl_print_data("Client MAC key",c_mk,ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len);
+        ssl_print_data("Server MAC key",s_mk,ssl_cipher_suite_dig(&ssl_session->cipher_suite)->len);
+    }
     ssl_print_data("Client Write key",c_wk,ssl_session->cipher_suite.bits/8);
     ssl_print_data("Server Write key",s_wk,ssl_session->cipher_suite.bits/8);
 
@@ -2817,6 +2830,31 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         }
     }
 
+    /* Nonce for GenericAEADCipher */
+    if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_GCM) {
+        /* 4 bytes write_iv, 8 bytes explicit_nonce, 4 bytes counter */
+        guchar gcm_nonce[16] = { 0 };
+
+        if ((gint)inl < SSL_EX_NONCE_LEN_GCM) {
+            ssl_debug_printf("ssl_decrypt_record failed: input %d has no space for nonce %d\n",
+                inl, SSL_EX_NONCE_LEN_GCM);
+            return -1;
+        }
+        memcpy(gcm_nonce, decoder->write_iv.data, decoder->write_iv.data_len); /* salt */
+        memcpy(gcm_nonce + decoder->write_iv.data_len, in, SSL_EX_NONCE_LEN_GCM);
+        /* NIST SP 800-38D, sect. 7.2 says that the 32-bit counter part starts
+         * at 1, and gets incremented before passing to the block cipher. */
+        gcm_nonce[4 + SSL_EX_NONCE_LEN_GCM + 3] = 2;
+        pad = gcry_cipher_setctr (decoder->evp, gcm_nonce, sizeof (gcm_nonce));
+        if (pad != 0) {
+            ssl_debug_printf("ssl_decrypt_record failed: failed to set CTR: %s %s\n",
+                    gcry_strsource (pad), gcry_strerror (pad));
+            return -1;
+        }
+        inl -= SSL_EX_NONCE_LEN_GCM;
+        in += SSL_EX_NONCE_LEN_GCM;
+    }
+
     /* First decrypt*/
     if ((pad = ssl_cipher_decrypt(&decoder->evp, out_str->data, out_str->data_len, in, inl))!= 0) {
         ssl_debug_printf("ssl_decrypt_record failed: ssl_cipher_decrypt: %s %s\n", gcry_strsource (pad),
@@ -2826,6 +2864,16 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
 
     ssl_print_data("Plaintext", out_str->data, inl);
     worklen=inl;
+
+    /* RFC 5116 sect 5.1/5.3: AES128/256 GCM/CCM uses 16 bytes for auth tag */
+    if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_GCM) {
+        if (worklen < 16) {
+            ssl_debug_printf("ssl_decrypt_record failed: missing tag, work %d\n", worklen);
+            return -1;
+        }
+        /* XXX - validate auth tag */
+        worklen -= 16;
+    }
 
     /* strip padding for GenericBlockCipher */
     if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_CBC) {
