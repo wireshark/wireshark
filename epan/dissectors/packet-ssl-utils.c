@@ -2782,6 +2782,41 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         ssl_data_realloc(out_str, inl + 32);
     }
 
+    /* RFC 6101/2246: SSLCipherText/TLSCipherText has two structures for types:
+     * (notation: { unencrypted, [ encrypted ] })
+     * GenericStreamCipher: { [content, mac] }
+     * GenericBlockCipher: { IV (TLS 1.1+), [content, mac, padding, padding_len] }
+     * RFC 5426 (TLS 1.2): TLSCipherText has additionally:
+     * GenericAEADCipher: { nonce_explicit, [content] }
+     * RFC 4347 (DTLS): based on TLS 1.1, only GenericBlockCipher is supported.
+     * RFC 6347 (DTLS 1.2): based on TLS 1.2, includes GenericAEADCipher too.
+     */
+
+    /* (TLS 1.1 and later, DTLS) Extract explicit IV for GenericBlockCipher */
+    if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_CBC) {
+        switch (ssl->version_netorder) {
+        case TLSV1DOT1_VERSION:
+        case TLSV1DOT2_VERSION:
+        case DTLSV1DOT0_VERSION:
+        case DTLSV1DOT2_VERSION:
+        case DTLSV1DOT0_VERSION_NOT:
+            if ((gint)inl < decoder->cipher_suite->block) {
+                ssl_debug_printf("ssl_decrypt_record failed: input %d has no space for IV %d\n",
+                        inl, decoder->cipher_suite->block);
+                return -1;
+            }
+            pad = gcry_cipher_setiv(decoder->evp, in, decoder->cipher_suite->block);
+            if (pad != 0) {
+                ssl_debug_printf("ssl_decrypt_record failed: failed to set IV: %s %s\n",
+                        gcry_strsource (pad), gcry_strerror (pad));
+            }
+
+            inl -= decoder->cipher_suite->block;
+            in += decoder->cipher_suite->block;
+            break;
+        }
+    }
+
     /* First decrypt*/
     if ((pad = ssl_cipher_decrypt(&decoder->evp, out_str->data, out_str->data_len, in, inl))!= 0) {
         ssl_debug_printf("ssl_decrypt_record failed: ssl_cipher_decrypt: %s %s\n", gcry_strsource (pad),
@@ -2792,35 +2827,33 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     ssl_print_data("Plaintext", out_str->data, inl);
     worklen=inl;
 
-    /* Now strip off the padding*/
-    if(decoder->cipher_suite->block!=1) {
+    /* strip padding for GenericBlockCipher */
+    if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_CBC) {
         pad=out_str->data[inl-1];
+        if (worklen <= pad) {
+            ssl_debug_printf("ssl_decrypt_record failed: padding %d too large for work %d\n",
+                pad, worklen);
+            return -1;
+        }
         worklen-=(pad+1);
         ssl_debug_printf("ssl_decrypt_record found padding %d final len %d\n",
             pad, worklen);
     }
 
-    /* And the MAC */
-    if (ssl_cipher_suite_dig(decoder->cipher_suite)->len > (gint)worklen)
-    {
-        ssl_debug_printf("ssl_decrypt_record wrong record len/padding outlen %d\n work %d\n",*outl, worklen);
-        return -1;
+    /* MAC for GenericStreamCipher and GenericBlockCipher */
+    if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_STREAM ||
+        decoder->cipher_suite->mode == SSL_CIPHER_MODE_CBC) {
+        if (ssl_cipher_suite_dig(decoder->cipher_suite)->len > (gint)worklen) {
+            ssl_debug_printf("ssl_decrypt_record wrong record len/padding outlen %d\n work %d\n",*outl, worklen);
+            return -1;
+        }
+        worklen-=ssl_cipher_suite_dig(decoder->cipher_suite)->len;
+        mac = out_str->data + worklen;
+    } else /* if (decoder->cipher_suite->mode == SSL_CIPHER_MODE_GCM) */ {
+        /* GenericAEADCipher has no MAC */
+        goto skip_mac;
     }
-    worklen-=ssl_cipher_suite_dig(decoder->cipher_suite)->len;
-    mac = out_str->data + worklen;
 
-    /* if TLS 1.1 or 1.2 we use the transmitted IV and remove it after (to not modify dissector in others parts)*/
-    if(ssl->version_netorder==TLSV1DOT1_VERSION || ssl->version_netorder==TLSV1DOT2_VERSION){
-        /* if stream cipher used, IV is not contained */
-        worklen=worklen-(decoder->cipher_suite->block!=1 ? decoder->cipher_suite->block : 0);
-        memmove(out_str->data,out_str->data+(decoder->cipher_suite->block!=1 ? decoder->cipher_suite->block : 0),worklen);
-    }
-    if(ssl->version_netorder==DTLSV1DOT0_VERSION ||
-      ssl->version_netorder==DTLSV1DOT2_VERSION ||
-      ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
-        worklen=worklen-decoder->cipher_suite->block;
-        memmove(out_str->data,out_str->data+decoder->cipher_suite->block,worklen);
-    }
     /* Now check the MAC */
     ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %d)\n",
         worklen, ssl->version_netorder, ct, decoder->seq);
@@ -2870,6 +2903,7 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
             return -1;
         }
     }
+skip_mac:
 
     *outl = worklen;
 

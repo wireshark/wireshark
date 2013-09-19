@@ -220,8 +220,9 @@ typedef struct _StringInfo {
 #define SSL_MASTER_SECRET       (1<<5)
 #define SSL_PRE_MASTER_SECRET   (1<<6)
 
-#define SSL_CIPHER_MODE_STREAM  0
-#define SSL_CIPHER_MODE_CBC     1
+#define SSL_CIPHER_MODE_STREAM  0 /* GenericStreamCipher */
+#define SSL_CIPHER_MODE_CBC     1 /* GenericBlockCipher */
+#define SSL_CIPHER_MODE_GCM     2 /* GenericAEADCipher */
 
 #define SSL_DEBUG_USE_STDERR "-"
 
