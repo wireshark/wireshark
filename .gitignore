@@ -3,6 +3,7 @@
 *.dll
 *.exe
 *.la
+*.lai
 *.lo
 *.obj
 *.pyc
