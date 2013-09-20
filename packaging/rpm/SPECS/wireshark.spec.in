@@ -172,6 +172,8 @@ Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
 %endif
 %if %{with_gtk3}
   --with-gtk3 \
+%else
+  --with-gtk2 \
 %endif
   --disable-warnings-as-errors
 
@@ -278,6 +280,9 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %{_mandir}/man1/wireshark.*
 
 %changelog
+* Fri Sep 20 2013 Jeff Morriss
+- If we're not using gtk3 add --with-gtk2 (since Wireshark now defaults to gtk3)
+
 * Thu Mar 28 2013 Jeff Morriss
 - Simplify check for rpmbuild's version.
 
