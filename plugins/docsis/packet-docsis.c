@@ -61,8 +61,8 @@
 #define EH_BP_DOWN 4
 #define EH_SFLOW_HDR_DOWN 5
 #define EH_SFLOW_HDR_UP 6
-#define EH_RESERVED_7 7
-#define EH_RESERVED_8 8
+#define EH_BP_UP2 7
+#define EH_DS_SERVICE 8
 #define EH_RESERVED_9 9
 #define EH_RESERVED_10 10
 #define EH_RESERVED_11 11
@@ -100,7 +100,15 @@ static int hf_docsis_ehdr_phsi = -1;
 static int hf_docsis_ehdr_qind = -1;
 static int hf_docsis_ehdr_grants = -1;
 static int hf_docsis_reserved = -1;
-
+static int hf_docsis_ehdr_ds_traffic_pri = -1;
+static int hf_docsis_ehdr_ds_seq_chg_cnt = -1;
+static int hf_docsis_ehdr_ds_dsid = -1;
+static int hf_docsis_ehdr_ds_pkt_seq_num = -1;
+static int hf_docsis_ehdr_bpup2_bpi_en = -1;
+static int hf_docsis_ehdr_bpup2_toggle_bit = -1;
+static int hf_docsis_ehdr_bpup2_key_seq = -1;
+static int hf_docsis_ehdr_bpup2_ver = -1;
+static int hf_docsis_ehdr_bpup2_sid = -1;
 static dissector_handle_t docsis_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t data_handle;
@@ -129,8 +137,8 @@ static const value_string eh_type_vals[] = {
   {EH_BP_DOWN, "Downstream  Privacy Element"},
   {EH_SFLOW_HDR_UP, "Service Flow EH; PHS Header Upstream"},
   {EH_SFLOW_HDR_DOWN, "Service Flow EH; PHS Header Downstream"},
-  {EH_RESERVED_7, "Reserved"},
-  {EH_RESERVED_8, "Reserved"},
+  {EH_BP_UP2, "Upstream Privacy with Multi Channel"},
+  {EH_DS_SERVICE, "Downstream Service"},
   {EH_RESERVED_9, "Reserved"},
   {EH_RESERVED_10, "Reserved"},
   {EH_RESERVED_10, "Reserved"},
@@ -288,6 +296,34 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
             proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_qind, tvb, pos+2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_grants, tvb, pos+2, 1, ENC_BIG_ENDIAN);
           }
+          break;
+        case EH_BP_UP2:
+          proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_bpup2_key_seq, tvb, pos + 1, 1,
+                               ENC_BIG_ENDIAN);
+          proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_bpup2_ver, tvb, pos + 1, 1,
+                               ENC_BIG_ENDIAN);
+          proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_bpup2_bpi_en, tvb, pos + 2, 1,
+                               ENC_BIG_ENDIAN);
+          proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_bpup2_toggle_bit, tvb, pos + 2,
+                               1, ENC_BIG_ENDIAN);
+          proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_bpup2_sid, tvb, pos + 2, 2,
+                               ENC_BIG_ENDIAN);
+          break;
+        case EH_DS_SERVICE:
+          proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_ds_traffic_pri, tvb, pos+1, 1, FALSE);
+
+          if (len == 3)
+          {
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_dsid, tvb, pos+1, 3, FALSE);
+          }
+
+          if (len == 5)
+          {
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_seq_chg_cnt, tvb, pos+1, 1, FALSE);
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_dsid, tvb, pos+1, 3, FALSE);
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ds_pkt_seq_num, tvb, pos+4, 2, FALSE);
+          }
+
           break;
         default:
           if (len > 0)
@@ -695,6 +731,51 @@ proto_register_docsis (void)
      {"Active Grants", "docsis.ehdr.act_grants",
       FT_UINT8, BASE_DEC, NULL, 0x7F,
       NULL, HFILL}
+     },
+    {&hf_docsis_ehdr_bpup2_key_seq,
+     {"Key Sequence", "docsis.ehdr.bpup2_keyseq",
+      FT_UINT8, BASE_DEC, NULL, 0xF0,
+      "NULL", HFILL}
+     },
+    {&hf_docsis_ehdr_bpup2_ver,
+     {"Version", "docsis.ehdr.bpup2_ver",
+      FT_UINT8, BASE_DEC, NULL, 0x0F,
+      "NULL", HFILL}
+     },
+    {&hf_docsis_ehdr_bpup2_bpi_en,
+     {"Encryption", "docsis.ehdr.bpup2_bpi_en",
+      FT_BOOLEAN, 8, TFS (&ena_dis_tfs), 0x80,
+      "BPI Enable", HFILL},
+     },
+    {&hf_docsis_ehdr_bpup2_toggle_bit,
+     {"Toggle", "docsis.ehdr.bpup2_toggle_bit",
+      FT_BOOLEAN, 8, TFS (&odd_even_tfs), 0x40,
+      "NULL", HFILL},
+     },
+    {&hf_docsis_ehdr_bpup2_sid,
+     {"SID", "docsis.ehdr.bpup2_sid",
+      FT_UINT16, BASE_DEC, NULL, 0x3FFF,
+      "Service Identifier", HFILL}
+     },
+    {&hf_docsis_ehdr_ds_traffic_pri,
+     {"DS Traffic Priority", "docsis.ehdr.ds_traffic_pri",
+      FT_UINT8, BASE_DEC, NULL, 0xE0,
+      "NULL", HFILL}
+     },
+    {&hf_docsis_ehdr_ds_seq_chg_cnt,
+     {"DS Sequence Change Count", "docsis.ehdr.ds_seq_chg_cnt",
+      FT_UINT8, BASE_DEC, NULL, 0x10,
+      "NULL", HFILL}
+     },
+    {&hf_docsis_ehdr_ds_dsid,
+     {"DS DSID", "docsis.ehdr.ds_dsid",
+      FT_UINT32, BASE_DEC, NULL, 0x0FFFFF,
+      "NULL", HFILL}
+     },
+    {&hf_docsis_ehdr_ds_pkt_seq_num,
+     {"DS Packet Sequence Number", "docsis.ehdr.ds_pkt_seq_num",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "NULL", HFILL}
      },
     {&hf_docsis_hcs,
      {"Header check sequence", "docsis.hcs",
