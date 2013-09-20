@@ -1010,19 +1010,24 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (tvb_length(tvb) < 52 )
         return 0;
 
-    signature_start = tvb_get_guint8(tvb, 0);
-    signature_end   = tvb_get_guint8(tvb, 15);
-    version         = ((tvb_get_ntohl(tvb, 16) & 0xF0000000) >> 28 == 1) ? 3 : 2;       /* Mask version bit off */
     magic_number    = tvb_get_ntohl(tvb, 16) & 0x0FFFFFFF;  /* Mask magic number off */
+	if(magic_number != 0x0F87C3A5){
+		return 0;
+	}
+
+	signature_start = tvb_get_guint8(tvb, 0);
+    signature_end   = tvb_get_guint8(tvb, 15);
 
     if ( ((signature_start != 0xcc) && (signature_start !=0xdd)) ||
-         (signature_end != 0xE2) || (magic_number != 0x0F87C3A5) )
+         (signature_end != 0xE2))
         /*  This packet does not appear to belong to WaveAgent.
          *  Return 0 to give another dissector a chance to dissect it.
          */
         return 0;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "WA");
+    version         = ((tvb_get_ntohl(tvb, 16) & 0xF0000000) >> 28 == 1) ? 3 : 2;       /* Mask version bit off */
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WA");
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* Grab the control word, parse the WaveAgent payload accordingly */
