@@ -167,7 +167,7 @@ esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
     no_sa  = tvb_get_guint8(tvb, offset);
     len   -= 1;
 
-    ti = proto_tree_add_uint( tree, hf_esis_number_of_source_addresses, tvb, offset, -1, no_sa);
+    ti = proto_tree_add_uint( tree, hf_esis_number_of_source_addresses, tvb, offset, 1, no_sa);
     offset++;
 
     esis_area_tree = proto_item_add_subtree( ti, ett_esis_area_addr );
