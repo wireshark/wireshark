@@ -1101,7 +1101,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
 
                 device_type = tvb_get_ephemeral_string(tvb, sub_off, field_len);
 
-                if (g_strv_length(&device_type) == 0 || device_type == NULL) {
+                if (device_type == NULL || strlen(device_type) == 0) {
                     proto_item_append_text(ti, "Packet does not contain Device Type.");
                 } else {
                     proto_item_append_text(ti, "\"%s\"", device_type);
