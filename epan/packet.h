@@ -208,8 +208,8 @@ WS_DLL_PUBLIC gboolean dissector_try_uint(dissector_table_t sub_dissectors,
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return TRUE,
    otherwise return FALSE. */
-gboolean dissector_try_uint_new(dissector_table_t sub_dissectors,
-	const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data);
+WS_DLL_PUBLIC gboolean dissector_try_uint_new(dissector_table_t sub_dissectors,
+    const guint32 uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data);
 
 /* Look for a given value in a given uint dissector table and, if found,
    return the dissector handle for that value. */
