@@ -2004,6 +2004,9 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n", name);
             }
         }
     }
+	if(offset == end_offset){
+        proto_item_append_text(item, " [0 length]");
+    }
     /* loop over all entries until we reach the end of the sequence */
     while (offset < end_offset) {
         gint8    ber_class;
