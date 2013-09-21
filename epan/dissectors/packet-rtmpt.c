@@ -149,7 +149,7 @@ static gboolean rtmpt_desegment = TRUE;
  * is really needed.
  * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6898
  */
-static guint rtmpt_max_packet_size = 262144;
+static guint rtmpt_max_packet_size = 32768;
 
 #define RTMP_PORT                     1935
 
