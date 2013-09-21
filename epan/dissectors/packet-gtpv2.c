@@ -1794,7 +1794,7 @@ dissect_gtpv2_serv_net(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 {
     gchar *mcc_mnc_str;
 
-    mcc_mnc_str = dissect_e212_mcc_mnc_packet_str(tvb, pinfo, tree, 0, TRUE);
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, 0, TRUE);
     proto_item_append_text(item, "%s", mcc_mnc_str);
 }
 
@@ -3715,7 +3715,7 @@ dissect_gtpv2_trace_reference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint32  trace_id;
     gchar   *mcc_mnc_str;
 
-    mcc_mnc_str = dissect_e212_mcc_mnc_packet_str(tvb, pinfo, tree, 0, TRUE);
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, 0, TRUE);
     offset += 3;
 
     trace_id = tvb_get_ntohs(tvb, offset);
@@ -3978,7 +3978,7 @@ dissect_gtpv2_sel_plmn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
 {
     gchar *mcc_mnc_str;
 
-    mcc_mnc_str = dissect_e212_mcc_mnc_packet_str(tvb, pinfo, tree, 0, FALSE);
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, 0, FALSE);
     proto_item_append_text(item, "%s", mcc_mnc_str);
 }
 

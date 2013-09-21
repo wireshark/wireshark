@@ -31,7 +31,7 @@
 
 extern value_string_ext E212_codes_ext;
 
-gchar* dissect_e212_mcc_mnc_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian);
+gchar* dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian);
 WS_DLL_PUBLIC
 int dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian);
 WS_DLL_PUBLIC

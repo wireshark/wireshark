@@ -2503,7 +2503,7 @@ static expert_field ei_E212_mnc_non_decimal = EI_INIT;
  * Return MCC MNC in a packet scope allocated string that can be used in labels.
  */
 gchar *
-dissect_e212_mcc_mnc_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
+dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
 {
 
     int         start_offset, mcc_mnc;
@@ -2581,7 +2581,7 @@ dissect_e212_mcc_mnc_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 int
 dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
 {
-    dissect_e212_mcc_mnc_packet_str(tvb, pinfo, tree, offset, little_endian);
+    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, little_endian);
     return offset +3;
 }
 
