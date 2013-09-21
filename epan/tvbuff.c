@@ -758,7 +758,7 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
  * meaning "to the end of the buffer"?
  */
 void *
-tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length)
+tvb_g_memdup(tvbuff_t *tvb, const gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
 	void	*duped;
@@ -1964,7 +1964,7 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
  * Throws an exception if the tvbuff ends before the string does.
  */
 guint8 *
-tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length)
+tvb_get_g_string(tvbuff_t *tvb, const gint offset, const gint length)
 {
 	const guint8 *ptr;
 	guint8       *strbuf = NULL;
@@ -1991,7 +1991,7 @@ tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length)
  * Returns an UTF-8 string that must be freed by the caller
  */
 gchar *
-tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
+tvb_get_g_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
 	gunichar2  uchar;
 	gint       i;           /* Byte counter for tvbuff */
@@ -2187,7 +2187,7 @@ tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length)
  * string (including the terminating null) through a pointer.
  */
 guint8 *
-tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
+tvb_get_g_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
 	guint   size;
 	guint8 *strptr;
@@ -2203,9 +2203,9 @@ tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint
 }
 
 guint8 *
-tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+tvb_get_g_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 {
-	return tvb_get_stringz_enc(tvb, offset, lengthp, ENC_UTF_8|ENC_NA);
+	return tvb_get_g_stringz_enc(tvb, offset, lengthp, ENC_UTF_8|ENC_NA);
 }
 
 /*
@@ -2990,7 +2990,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 		return NULL;
 	}
 
-	compr = (guint8 *)tvb_memdup(tvb, offset, comprlen);
+	compr = (guint8 *)tvb_g_memdup(tvb, offset, comprlen);
 
 	if (!compr)
 		return NULL;

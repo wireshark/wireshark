@@ -505,7 +505,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if ((plen + hlen) == tvb_length(tvb)) {
 		/* Need to integrate the last nibble */
-		guint8 *data = (guint8 *)tvb_memdup(tvb, hlen, plen);
+		guint8 *data = (guint8 *)tvb_g_memdup(tvb, hlen, plen);
 		data[plen-1] |= tvb_get_guint8(tvb, 2) << 4;
 		payload = tvb_new_child_real_data(tvb, data, plen, plen);
 		tvb_set_free_cb(payload, g_free);

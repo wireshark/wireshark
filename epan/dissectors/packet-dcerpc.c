@@ -4193,7 +4193,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             const guint32 conformance_count = dcerpc_tvb_get_ntohl(tvb, offset, hdr->drep);
             proto_tree_add_uint(cn_rts_command_tree, hf_dcerpc_cn_rts_command_conformancecount, tvb, offset, 4, conformance_count);
             offset += 4;
-            padding = (guint8 *)tvb_memdup(tvb, offset, conformance_count);
+            padding = (guint8 *)tvb_g_memdup(tvb, offset, conformance_count);
             proto_tree_add_bytes(cn_rts_command_tree, hf_dcerpc_cn_rts_command_padding, tvb, offset, conformance_count, padding);
             offset += conformance_count;
         } break;
@@ -4219,7 +4219,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                offset += 16;
             } break;
             }
-            padding = (guint8 *)tvb_memdup(tvb, offset, 12);
+            padding = (guint8 *)tvb_g_memdup(tvb, offset, 12);
             proto_tree_add_bytes(cn_rts_command_tree, hf_dcerpc_cn_rts_command_padding, tvb, offset, 12, padding);
             offset += 12;
         } break;

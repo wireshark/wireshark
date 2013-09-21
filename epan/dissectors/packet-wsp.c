@@ -1781,7 +1781,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
                                 tvb, offset, 2, codepage);
             offset += 2;
         } else if (hdr_id >= 0x20) { /* Textual header */
-            /* Header name MUST be NUL-ended string ==> tvb_get_stringz() */
+            /* Header name MUST be NUL-ended string ==> tvb_get_g_stringz() */
             hdr_str = (gchar *)tvb_get_ephemeral_stringz(tvb, hdr_start, (gint *)&hdr_len);
             val_start = hdr_start + hdr_len;
             val_id = tvb_get_guint8(tvb, val_start);

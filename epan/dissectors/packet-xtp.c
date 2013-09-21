@@ -878,7 +878,7 @@ dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	offset += 4;
 	/* message(n) */
 	msg_len = tvb_length_remaining(tvb, offset);
-	diag->msg = tvb_get_string(tvb, offset, msg_len);
+	diag->msg = tvb_get_g_string(tvb, offset, msg_len);
 
 	/** display **/
 	offset = start;

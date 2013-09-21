@@ -1882,7 +1882,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
          * We will decrypt the message in-place and then use the buffer as the
          * real data for the new tvb.
          */
-        text = (guint8 *)tvb_memdup(tvb, offset, captured_len);
+        text = (guint8 *)tvb_g_memdup(tvb, offset, captured_len);
 
         /* Perform CTR-mode transformation. */
         if (!ccm_ctr_encrypt(key, tmp, rx_mic, text, captured_len)) {

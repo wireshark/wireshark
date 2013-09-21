@@ -235,7 +235,7 @@ static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         dissect_xml(tvb, pinfo, tree);
         return TRUE;
     } else if (pref_heuristic_unicode) {
-        const guint8 *data_str    = tvb_get_unicode_string(tvb, 0, tvb_length(tvb), ENC_LITTLE_ENDIAN);
+        const guint8 *data_str    = tvb_get_g_unicode_string(tvb, 0, tvb_length(tvb), ENC_LITTLE_ENDIAN);
         tvbuff_t     *unicode_tvb = tvb_new_child_real_data(tvb, data_str, tvb_length(tvb)/2, tvb_length(tvb)/2);
         tvb_set_free_cb(unicode_tvb, g_free);
         if (tvbparse_peek(tvbparse_init(unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {

@@ -375,7 +375,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 	else if (key2 == 4)
 	{
 		char *string;
-		string = tvb_get_string(tvb, offset, msg_len);
+		string = tvb_get_g_string(tvb, offset, msg_len);
 		proto_tree_add_string(ppcap_tree1, hf_ppcap_destination_nodeid, tvb, offset, msg_len, string);
 		TVB_SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, tvb, offset, msg_len);
 		COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);

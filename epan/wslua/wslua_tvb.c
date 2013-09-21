@@ -1024,7 +1024,7 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
 
     addr = g_new(address,1);
 
-    buff = (guint8 *)tvb_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
+    buff = (guint8 *)tvb_g_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
 
     SET_ADDRESS(addr, AT_ETHER, 6, buff);
     pushAddress(L,addr);

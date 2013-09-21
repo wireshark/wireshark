@@ -338,8 +338,8 @@ guint8 *ep_tvb_get_bits(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, gboole
 WS_DLL_PUBLIC void* tvb_memcpy(tvbuff_t*, void* target, const gint offset, size_t length);
 
 /** It is the user's responsibility to g_free() the memory allocated by
- * tvb_memdup(). Calls tvb_memcpy() */
-WS_DLL_PUBLIC void* tvb_memdup(tvbuff_t*, const gint offset, size_t length);
+ * tvb_g_memdup(). Calls tvb_memcpy() */
+WS_DLL_PUBLIC void* tvb_g_memdup(tvbuff_t*, const gint offset, size_t length);
 
 /* Same as above but the buffer returned from this function does not have to
 * be freed. It will be automatically freed after the packet is dissected.
@@ -485,8 +485,8 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const 
  *                   instead it will automatically be freed when a new capture
  *                   or file is opened.
  */
-WS_DLL_PUBLIC guint8 *tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length);
-WS_DLL_PUBLIC gchar  *tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
+WS_DLL_PUBLIC guint8 *tvb_get_g_string(tvbuff_t *tvb, const gint offset, const gint length);
+WS_DLL_PUBLIC gchar  *tvb_get_g_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 WS_DLL_PUBLIC guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length);
 WS_DLL_PUBLIC guint8 *tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
     const gint length, const guint encoding);
@@ -529,8 +529,8 @@ extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const g
  *                   instead it will automatically be freed when a new capture
  *                   or file is opened.
  */
-WS_DLL_PUBLIC guint8 *tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
-WS_DLL_PUBLIC guint8 *tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
+WS_DLL_PUBLIC guint8 *tvb_get_g_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+WS_DLL_PUBLIC guint8 *tvb_get_g_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 WS_DLL_PUBLIC const guint8 *tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 WS_DLL_PUBLIC guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 WS_DLL_PUBLIC guint8 *tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);

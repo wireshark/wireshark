@@ -390,7 +390,7 @@ tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pin
 
 	tvb_memcpy(tvb, session_id, 4,4);
 
-	buff = (guint8 *)tvb_memdup(tvb, TAC_PLUS_HDR_SIZE, len);
+	buff = (guint8 *)tvb_g_memdup(tvb, TAC_PLUS_HDR_SIZE, len);
 
 
 	md5_xor( buff, key, len, session_id,version, tvb_get_guint8(tvb,2) );

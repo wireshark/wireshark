@@ -6593,7 +6593,7 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 
 		memcpy(&A_1[1], sti->nonce, 15 - 4);
 
-		plain_data = (guint8 *)tvb_memdup(tvb, offset, sti->size);
+		plain_data = (guint8 *)tvb_g_memdup(tvb, offset, sti->size);
 
 		/* Open the cipher. */
 		if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0)) {
