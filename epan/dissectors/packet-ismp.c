@@ -443,7 +443,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
 								"Interface IPX_address = %s",
 								ipx_addr_to_str(tvb_get_ntohl(tvb, offset),
-								tvb_get_ephemeral_string(tvb, offset+4, tuple_length-4)));
+								tvb_get_string(wmem_packet_scope(), tvb, offset+4, tuple_length-4)));
 							break;
 						case EDP_TUPLE_UNKNOWN:
 						default:

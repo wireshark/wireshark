@@ -1969,7 +1969,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
         a_bigbuf[0] = Dgt_meid.out[(oct & 0xf0) >> 4];
         curr_offset++;
 
-        poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+        poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
         my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
             &Dgt_meid);
@@ -2176,7 +2176,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
         a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
         curr_offset++;
 
-        poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+        poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
         my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
             &Dgt_msid);
@@ -3778,7 +3778,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         curr_offset++;
     }
 
-    poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_ascii_num,
         tvb, curr_offset, len - (curr_offset - offset),
@@ -4321,7 +4321,7 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
     curr_offset++;
 
-    poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
         &Dgt_tbcd);
@@ -4458,7 +4458,7 @@ elem_clg_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
         curr_offset++;
     }
 
-    poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
         &Dgt_tbcd);
@@ -6704,7 +6704,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
             switch (rec_type)
             {
             case ANSI_REV_MS_INFO_REC_KEYPAD_FAC:
-                poctets = tvb_get_ephemeral_string(tvb, curr_offset, oct_len);
+                poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, oct_len);
 
                 proto_tree_add_string_format(subtree, hf_ansi_a_cld_party_ascii_num,
                     tvb, curr_offset, oct_len,
@@ -7528,7 +7528,7 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
     curr_offset++;
 
-    poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_ascii_num,
         tvb, curr_offset, len - (curr_offset - offset),
@@ -12064,7 +12064,7 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (linelen >= 2) {
             ansi_a_tvb = tvb_new_composite();
             msg_type = (guint8*)wmem_alloc(pinfo->pool, 1);
-            msg_type[0] = (guint8)strtoul(tvb_get_ephemeral_string(tvb, offset, 2), NULL, 16);
+            msg_type[0] = (guint8)strtoul(tvb_get_string(wmem_packet_scope(), tvb, offset, 2), NULL, 16);
             if ((begin = tvb_find_guint8(tvb, offset, linelen, '"')) > 0) {
                 if (tvb_get_guint8(tvb, begin + 1) == '1') {
                     is_dtap = FALSE;
@@ -12079,7 +12079,7 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             while ((linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE)) > 0) {
                 if ((begin = tvb_find_guint8(tvb, offset, linelen, '=')) > 0) {
                     begin++;
-                    tvb_composite_append(ansi_a_tvb, base64_to_tvb(tvb, tvb_get_ephemeral_string(tvb, begin, offset + linelen - begin)));
+                    tvb_composite_append(ansi_a_tvb, base64_to_tvb(tvb, tvb_get_string(wmem_packet_scope(), tvb, begin, offset + linelen - begin)));
                 }
                 offset = next_offset;
             }

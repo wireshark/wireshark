@@ -204,7 +204,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 
 				uCCS=tvb_get_guint32_endian(tvb, offset + uLenF, bLittleEndian);
 				uSLn=tvb_get_guint32_endian(tvb, offset + uLenF + 4, bLittleEndian);
-				sStr=tvb_get_ephemeral_string_enc(tvb, offset + uLenF + 8,uSLn,(uCCS!=500)?ENC_ASCII:ENC_EBCDIC);
+				sStr=tvb_get_string_enc(wmem_packet_scope(), tvb, offset + uLenF + 8,uSLn,(uCCS!=500)?ENC_ASCII:ENC_EBCDIC);
 				strip_trailing_blanks(sStr,uSLn);
 
 				ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s %s", strPrm, sStr);
@@ -288,8 +288,8 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 				uSLn=tvb_get_guint32_endian(tvb, offset + uLenF, bLittleEndian);
 				if (uSLn)
 				{
-					guint8 *sStrA=tvb_get_ephemeral_string_enc(tvb, offset + uLenF + 4,uSLn,ENC_ASCII);
-					guint8 *sStrE=tvb_get_ephemeral_string_enc(tvb, offset + uLenF + 4,uSLn,ENC_EBCDIC);
+					guint8 *sStrA=tvb_get_string_enc(wmem_packet_scope(), tvb, offset + uLenF + 4,uSLn,ENC_ASCII);
+					guint8 *sStrE=tvb_get_string_enc(wmem_packet_scope(), tvb, offset + uLenF + 4,uSLn,ENC_EBCDIC);
 					ti = proto_tree_add_text(mq_tree, tvb, offset, uLen, "%s A(%s) E(%s)", strPrm, sStrA,sStrE);
 				}
 				else

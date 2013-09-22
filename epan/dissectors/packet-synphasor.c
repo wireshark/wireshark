@@ -712,7 +712,7 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 		gint oldoffset = offset; /* to calculate the length of the whole PMU block later */
 
 		/* STN with new tree to add the rest of the PMU block */
-		str = tvb_get_ephemeral_string(tvb, offset, CHNAM_LEN);
+		str = tvb_get_string(wmem_packet_scope(), tvb, offset, CHNAM_LEN);
 		station_item = proto_tree_add_text(config_tree, tvb, offset, CHNAM_LEN, "Station #%i: \"%s\"", j + 1, str);
 		station_tree = proto_item_add_subtree(station_item, ett_conf_station);
 		offset += CHNAM_LEN;
@@ -1191,7 +1191,7 @@ static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt
 	/* dissect the 'cnt' channel names */
 	for (i = 0; i < cnt; i++) {
 		char *str;
-		str = tvb_get_ephemeral_string(tvb, offset, CHNAM_LEN);
+		str = tvb_get_string(wmem_packet_scope(), tvb, offset, CHNAM_LEN);
 		proto_tree_add_text(temp_tree, tvb, offset, CHNAM_LEN,
 				    "%s #%i: \"%s\"", prefix, i+1, str);
 		offset += CHNAM_LEN;

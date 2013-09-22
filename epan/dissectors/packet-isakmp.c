@@ -3691,11 +3691,11 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
       break;
     case IKE_ID_FQDN:
       proto_tree_add_item(idtree, hf_isakmp_id_data_fqdn, tvb, offset, length, ENC_ASCII|ENC_NA);
-      proto_item_append_text(idit, "%s", tvb_get_ephemeral_string(tvb, offset,length));
+      proto_item_append_text(idit, "%s", tvb_get_string(wmem_packet_scope(), tvb, offset,length));
       break;
     case IKE_ID_USER_FQDN:
       proto_tree_add_item(idtree, hf_isakmp_id_data_user_fqdn, tvb, offset, length, ENC_ASCII|ENC_NA);
-      proto_item_append_text(idit, "%s", tvb_get_ephemeral_string(tvb, offset,length));
+      proto_item_append_text(idit, "%s", tvb_get_string(wmem_packet_scope(), tvb, offset,length));
       break;
     case IKE_ID_IPV4_ADDR_SUBNET:
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4234,7 +4234,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		break;
 	case APPLICATION_VERSION: /* 7 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_application_version, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 	case INTERNAL_IP6_ADDRESS: /* 8 */
 		offset_end = offset + optlen;
@@ -4359,27 +4359,27 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		break;
 	case XAUTH_USER_NAME: /* 16521 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 	case XAUTH_USER_PASSWORD: /* 16522 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_user_password, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 	case XAUTH_PASSCODE: /* 16523 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_passcode, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 	case XAUTH_MESSAGE: /* 16524 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_message, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 	case XAUTH_CHALLENGE: /* 16525 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_challenge, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 	case XAUTH_DOMAIN: /* 16526 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_domain, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 	case XAUTH_STATUS: /* 16527 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_status, tvb, offset, optlen, ENC_BIG_ENDIAN);
@@ -4387,20 +4387,20 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		break;
 	case XAUTH_NEXT_PIN: /* 16528 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_next_pin, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 	case XAUTH_ANSWER: /* 16527 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_xauth_answer, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 
 	case UNITY_BANNER: /* 28672 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_banner, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 	case UNITY_DEF_DOMAIN: /* 28674 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_def_domain, tvb, offset, optlen, ENC_ASCII|ENC_NA);
-		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
+		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string(wmem_packet_scope(), tvb, offset,optlen));
 		break;
 /* TODO: Support other UNITY Attributes ! */
 	default:
@@ -4650,7 +4650,7 @@ dissect_enc(tvbuff_t *tvb,
     if (iv_len) {
       iv_item = proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, iv_len, ENC_NA);
       proto_item_append_text(iv_item, " (%d bytes)", iv_len);
-      iv = (guchar *)ep_tvb_memdup(tvb, offset, iv_len);
+      iv = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, iv_len);
 
       offset += iv_len;
     }
@@ -4660,7 +4660,7 @@ dissect_enc(tvbuff_t *tvb,
      */
     encr_data_item = proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset, encr_data_len, ENC_NA);
     proto_item_append_text(encr_data_item, " (%d bytes)",encr_data_len);
-    encr_data = (guchar *)ep_tvb_memdup(tvb, offset, encr_data_len);
+    encr_data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, encr_data_len);
     offset += encr_data_len;
 
     /*
@@ -4689,7 +4689,7 @@ dissect_enc(tvbuff_t *tvb,
         }
 
         /* Calculate hash over the bytes from the beginning of the ISAKMP header to the right before the ICD. */
-        entire_message = (guchar *)ep_tvb_memdup(tvb, 0, offset);
+        entire_message = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, 0, offset);
         gcry_md_write(md_hd, entire_message, offset);
         md = gcry_md_read(md_hd, 0);
         md_len = gcry_md_get_algo_dlen(key_info->auth_spec->gcry_alg);

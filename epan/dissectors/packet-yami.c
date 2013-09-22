@@ -158,7 +158,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 	name_len = tvb_get_letohl(tvb, offset);
 	offset += 4;
 
-	name = tvb_get_ephemeral_string_enc(tvb, offset, name_len, ENC_ASCII | ENC_NA);
+	name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, name_len, ENC_ASCII | ENC_NA);
 	proto_item_append_text(ti, ": %s", name);
 	proto_item_append_text(par_ti, "%s, ", name);
 	offset += (name_len + 3) & ~3;
@@ -214,7 +214,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			val_len = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
-			val = tvb_get_ephemeral_string_enc(tvb, offset, val_len, ENC_ASCII | ENC_NA);
+			val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, val_len, ENC_ASCII | ENC_NA);
 
 			proto_item_append_text(ti, ", Type: string, Value: \"%s\"", val);
 			offset += (val_len + 3) & ~3;
@@ -366,7 +366,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 				val_len = tvb_get_letohl(tvb, offset);
 				offset += 4;
 
-				val = tvb_get_ephemeral_string_enc(tvb, offset, val_len, ENC_ASCII | ENC_NA);
+				val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, val_len, ENC_ASCII | ENC_NA);
 
 				proto_item_append_text(ti, "\"%s\", ", val);
 				proto_tree_add_string(yami_param, &hfi_yami_param_value_str, tvb, val_offset, offset - val_offset, val);

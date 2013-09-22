@@ -1504,7 +1504,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	tokenlen = get_token_len(line, lineend, &next_token);
 
 	/* Save the request URI for various later uses */
-	request_uri = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+	request_uri = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 	stat_info->request_uri = wmem_strdup(wmem_packet_scope(), request_uri);
  	conv_data->request_uri = wmem_strdup(wmem_file_scope(), request_uri);
 
@@ -1624,7 +1624,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			break;
 		}
 
-		chunk_string = tvb_get_ephemeral_string(tvb, offset, linelen);
+		chunk_string = tvb_get_string(wmem_packet_scope(), tvb, offset, linelen);
 
 		if (chunk_string == NULL) {
 			/* Can't get the chunk size line */
@@ -1816,7 +1816,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			break;
 		}
 
-		chunk_string = tvb_get_ephemeral_string(tvb, offset, linelen);
+		chunk_string = tvb_get_string(wmem_packet_scope(), tvb, offset, linelen);
 
 		if (chunk_string == NULL) {
 			/* Can't get the chunk size line */

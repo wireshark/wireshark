@@ -1407,7 +1407,7 @@ static gint dissect_mq_charv(tvbuff_t *tvb, proto_tree *tree, gint offset,gint i
 	eStr = tvb_get_guint32_endian(tvb, offset + 16, p_mq_parm->mq_int_enc);
 	if (lStr && oStr)
 	{
-		sStr = tvb_get_ephemeral_string_enc(tvb, oStr, lStr, p_mq_parm->mq_str_enc);
+		sStr = tvb_get_string_enc(wmem_packet_scope(), tvb, oStr, lStr, p_mq_parm->mq_str_enc);
 	}
 	else
 		sStr=NULL;
@@ -1551,7 +1551,7 @@ static gint dissect_mq_gmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		if (iSize != 0 && tvb_length_remaining(tvb, offset) >= iSize)
 		{
 			guint8 *sQueue;
-			sQueue = tvb_get_ephemeral_string_enc(tvb, offset + 24, 48, p_mq_parm->mq_str_enc);
+			sQueue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 24, 48, p_mq_parm->mq_str_enc);
 			if (strip_trailing_blanks(sQueue, 48) != 0)
 			{
 				col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
@@ -1617,7 +1617,7 @@ static gint dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		{
 			guint8 * sQueue;
 
-			sQueue = tvb_get_ephemeral_string_enc(tvb, offset + 32, 48, p_mq_parm->mq_str_enc);
+			sQueue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 32, 48, p_mq_parm->mq_str_enc);
 			if (strip_trailing_blanks(sQueue, 48) != 0)
 			{
 				col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
@@ -1705,7 +1705,7 @@ static gint dissect_mq_od(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 			if (iVersion >= 2)
 				iNbrRecords = tvb_get_guint32_endian(tvb, offset + 168, p_mq_parm->mq_int_enc);
 
-			sQueue = tvb_get_ephemeral_string_enc(tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
+			sQueue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
 			if (strip_trailing_blanks(sQueue,48) != 0)
 			{
 				col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sQueue);
@@ -1848,7 +1848,7 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
 	if (iSize != 0 && tvb_length_remaining(tvb, offset) >= iSize)
 	{
 		guint8 *sChannel;
-		sChannel = tvb_get_ephemeral_string_enc(tvb, offset + 24, 20, p_mq_parm->mq_str_enc);
+		sChannel = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 24, 20, p_mq_parm->mq_str_enc);
 		col_append_fstr(pinfo->cinfo,COL_INFO, ": FAPLvl=%d",iFAPLvl);
 		if (strip_trailing_blanks(sChannel, 20) != 0)
 		{
@@ -1857,7 +1857,7 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
 		if (iFAPLvl >= 4)
 		{
 			guint8 *sQMgr;
-			sQMgr = tvb_get_ephemeral_string_enc(tvb, offset + 48, 48, p_mq_parm->mq_str_enc);
+			sQMgr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 48, 48, p_mq_parm->mq_str_enc);
 			if (strip_trailing_blanks(sQMgr,48) != 0)
 			{
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", QM=%s", sQMgr);
@@ -2341,12 +2341,12 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						{
 							guint8 *sApplicationName;
 							guint8 *sQMgr;
-							sApplicationName = tvb_get_ephemeral_string_enc(tvb, offset + 48, 28, p_mq_parm->mq_str_enc);
+							sApplicationName = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 48, 28, p_mq_parm->mq_str_enc);
 							if (strip_trailing_blanks(sApplicationName, 28) != 0)
 							{
 								col_append_fstr(pinfo->cinfo, COL_INFO, ": App=%s", sApplicationName);
 							}
-							sQMgr = tvb_get_ephemeral_string_enc(tvb, offset, 48, p_mq_parm->mq_str_enc);
+							sQMgr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 48, p_mq_parm->mq_str_enc);
 							if (strip_trailing_blanks(sQMgr, 48) != 0)
 							{
 								col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQMgr);
@@ -2638,7 +2638,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (tree)
 							{
 								guint8 *sStructId;
-								sStructId = tvb_get_ephemeral_string_enc(tvb, offset, 4,((p_mq_parm->mq_strucID & MQ_MASK_SPxx)==MQ_STRUCTID_SPxx)?ENC_ASCII:ENC_EBCDIC);
+								sStructId = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4,((p_mq_parm->mq_strucID & MQ_MASK_SPxx)==MQ_STRUCTID_SPxx)?ENC_ASCII:ENC_EBCDIC);
 								ti = proto_tree_add_text(mqroot_tree, tvb, offset, 12, "%s", sStructId);
 								mq_tree = proto_item_add_subtree(ti, ett_mq_spi_base);
 
@@ -2669,7 +2669,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								{
 									/* Dissect the common part of these structures */
 									guint8 *sStructId;
-									sStructId = tvb_get_ephemeral_string_enc(tvb, offset, 4,((p_mq_parm->mq_strucID & MQ_MASK_SPxx)==MQ_STRUCTID_SPxx)?ENC_ASCII:ENC_EBCDIC);
+									sStructId = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4,((p_mq_parm->mq_strucID & MQ_MASK_SPxx)==MQ_STRUCTID_SPxx)?ENC_ASCII:ENC_EBCDIC);
 									ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, "%s", sStructId);
 									mq_tree = proto_item_add_subtree(ti, ett_mq_spi_base);
 
@@ -2896,7 +2896,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						if (iSizeUID != 0 && tvb_length_remaining(tvb, offset) >= iSizeUID)
 						{
 							guint8 *sUserId;
-							sUserId = tvb_get_ephemeral_string_enc(tvb, offset + 4, 12, p_mq_parm->mq_str_enc);
+							sUserId = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 4, 12, p_mq_parm->mq_str_enc);
 							if (strip_trailing_blanks(sUserId, 12) != 0)
 							{
 								col_append_fstr(pinfo->cinfo, COL_INFO, ": User=%s", sUserId);
@@ -3162,7 +3162,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (tMsgProps.iOffsetFormat != 0)
 							{
 								guint8* sFormat = NULL;
-								sFormat = tvb_get_ephemeral_string_enc(tvb, tMsgProps.iOffsetFormat, 8, p_mq_parm->mq_str_enc);
+								sFormat = tvb_get_string_enc(wmem_packet_scope(), tvb, tMsgProps.iOffsetFormat, 8, p_mq_parm->mq_str_enc);
 								if (strip_trailing_blanks(sFormat, 8) == 0)
 									sFormat = (guint8 *)wmem_strdup(wmem_packet_scope(),"MQNONE");
 
@@ -3188,7 +3188,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								mqinfo->encoding = tvb_get_guint32_endian(tvb, tMsgProps.iOffsetEncoding, p_mq_parm->mq_int_enc);
 								mqinfo->ccsid    = tvb_get_guint32_endian(tvb, tMsgProps.iOffsetCcsid, p_mq_parm->mq_int_enc);
 								memcpy(mqinfo->format,
-									tvb_get_ephemeral_string_enc(tvb, tMsgProps.iOffsetFormat, sizeof(mqinfo->format), p_mq_parm->mq_str_enc),
+									tvb_get_string_enc(wmem_packet_scope(), tvb, tMsgProps.iOffsetFormat, sizeof(mqinfo->format), p_mq_parm->mq_str_enc),
 									sizeof(mqinfo->format));
 								pd_save = pinfo->private_data;
 								pinfo->private_data = mqinfo;

@@ -284,7 +284,7 @@ dissect_zcl_msg_display(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 1;
 
     /* Retrieve "Message" field */
-    msg_data = tvb_get_ephemeral_string_enc(tvb, *offset, msg_len, ENC_LITTLE_ENDIAN);
+    msg_data = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, msg_len, ENC_LITTLE_ENDIAN);
     proto_tree_add_string(tree, hf_zbee_zcl_msg_message, tvb, *offset, msg_len, msg_data);
     *offset += msg_len;
 

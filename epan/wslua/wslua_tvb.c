@@ -1024,7 +1024,7 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
 
     addr = g_new(address,1);
 
-    buff = (guint8 *)tvb_g_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
+    buff = (guint8 *)tvb_memdup(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
 
     SET_ADDRESS(addr, AT_ETHER, 6, buff);
     pushAddress(L,addr);
@@ -1102,7 +1102,7 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
         return 0;
     }
 
-    lua_pushlstring(L, (gchar*)tvb_get_ephemeral_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len), tvbr->len );
+    lua_pushlstring(L, (gchar*)tvb_get_string(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len), tvbr->len );
 
     WSLUA_RETURN(1); /* The string */
 }
@@ -1118,7 +1118,7 @@ static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
         return 0;
     }
 
-    str = (gchar*)tvb_get_ephemeral_unicode_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN));
+    str = (gchar*)tvb_get_unicode_string(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN));
     lua_pushlstring(L, str, strlen(str));
 
     return 1; /* The string */
@@ -1204,7 +1204,7 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
     }
 
     ba = g_byte_array_new();
-    g_byte_array_append(ba,(const guint8 *)ep_tvb_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len),tvbr->len);
+    g_byte_array_append(ba,(const guint8 *)tvb_memdup(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len),tvbr->len);
 
     pushByteArray(L,ba);
 

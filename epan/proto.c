@@ -1471,7 +1471,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (length == -1) {
 				/* This can throw an exception */
-				string = tvb_get_g_stringz_enc(tvb, start, &length, encoding);
+
+
+
+				string = tvb_get_ephemeral_stringz_enc(tvb, start, &length, encoding);
 			} else if (length == 0) {
 				string = "[Empty]";
 			} else {
@@ -1506,7 +1509,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * we made string values counted
 				 * rather than null-terminated.)
 				 */
-				string = tvb_get_ephemeral_string_enc(tvb, start, length, encoding);
+				string = tvb_get_string_enc(wmem_packet_scope(), tvb, start, length, encoding);
 			}
 			new_fi->length = length;
 			proto_tree_set_string(new_fi, string);
@@ -2466,7 +2469,7 @@ proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
 			  guint length, const guint encoding)
 {
 	guint64 value = 0;
-	guint8* b = (guint8 *)ep_tvb_memdup(tvb, start, length);
+	guint8* b = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start, length);
 
 	if (encoding) {
 		b += length;
@@ -2632,7 +2635,7 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 		length = tvb_ensure_length_remaining(tvb, start);
 	}
 
-	string = tvb_get_ephemeral_string_enc(tvb, start, length, encoding);
+	string = tvb_get_string_enc(wmem_packet_scope(), tvb, start, length, encoding);
 	proto_tree_set_string(fi, string);
 }
 

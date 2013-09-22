@@ -4327,7 +4327,7 @@ static void get_opt125_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tl
 	/* Length */
 	*tlvlen	 = tvb_get_guint8(tvb, off+1);
 	/* Value */
-	*value = (guint8 *)ep_tvb_memdup(tvb, off + 2, *tlvlen);
+	*value = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, off + 2, *tlvlen);
 }
 
 static void get_opt60_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tlvlen, guint8 **value)

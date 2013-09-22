@@ -5806,7 +5806,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
 
    /* Connection Name */
    connection_name_size = tvb_get_guint8( tvb, offset+variable_data_size);
-   str_connection_name = tvb_get_ephemeral_string(tvb, offset+variable_data_size+2, connection_name_size);
+   str_connection_name = tvb_get_string(wmem_packet_scope(), tvb, offset+variable_data_size+2, connection_name_size);
    proto_tree_add_text(cmd_tree, tvb, offset+variable_data_size, connection_name_size+2, "Connection Name: %s", str_connection_name);
 
    variable_data_size += ((connection_name_size*2)+2);

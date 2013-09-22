@@ -333,7 +333,7 @@ iuup_proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, in
 
     DISSECTOR_ASSERT(bit_offset < 8);
 
-    shifted_buffer = (guint8 *)ep_tvb_memdup(tvb,offset,len+1);
+    shifted_buffer = (guint8 *)tvb_memdup(wmem_packet_scope(),tvb,offset,len+1);
 
     for(i = 0; i < len; i++) {
         shifted_buffer[i] <<= bit_offset;

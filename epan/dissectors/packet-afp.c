@@ -1714,7 +1714,7 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset;
 			len = tvb_get_guint8(tvb, tp_ofs);
 			tp_ofs++;
-			name = tvb_get_ephemeral_string(tvb, tp_ofs, len);
+			name = tvb_get_string(wmem_packet_scope(), tvb, tp_ofs, len);
 			return name;
 		}
 		offset += 2;
@@ -1752,7 +1752,7 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset +4;
 			len16 = tvb_get_ntohs(tvb, tp_ofs);
 			tp_ofs += 2;
-			name = tvb_get_ephemeral_string(tvb, tp_ofs, len16);
+			name = tvb_get_string(wmem_packet_scope(), tvb, tp_ofs, len16);
 			return name;
 		}
 	}
@@ -2520,7 +2520,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree_add_item(tree, hf_afp_Version, tvb, offset, 1, ENC_UTF_8|ENC_BIG_ENDIAN);
 	offset += len +1;
 	len_uam = tvb_get_guint8(tvb, offset);
-	uam = tvb_get_ephemeral_string(tvb, offset +1, len_uam);
+	uam = tvb_get_string(wmem_packet_scope(), tvb, offset +1, len_uam);
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1, ENC_UTF_8|ENC_BIG_ENDIAN);
 	offset += len_uam +1;
 
@@ -2553,7 +2553,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += len +1;
 
 	len_uam = tvb_get_guint8(tvb, offset);
-	uam = tvb_get_ephemeral_string(tvb, offset +1, len_uam);
+	uam = tvb_get_string(wmem_packet_scope(), tvb, offset +1, len_uam);
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1, ENC_UTF_8|ENC_BIG_ENDIAN);
 	offset += len_uam +1;
 
@@ -4252,7 +4252,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 								 "%s, toc index: %u, string: '%s'",
 								 spotlight_get_cpx_qtype_string(complex_query_type),
 								 toc_index + 1,
-								 tvb_get_ephemeral_string(tvb, offset + 16, query_length - 8));
+								 tvb_get_string(wmem_packet_scope(), tvb, offset + 16, query_length - 8));
 				break;
 			case SQ_CPX_TYPE_UTF16_STRING:
 				/*
@@ -4274,7 +4274,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 								 "%s, toc index: %u, utf-16 string: '%s'",
 								 spotlight_get_cpx_qtype_string(complex_query_type),
 								 toc_index + 1,
-								 tvb_get_ephemeral_unicode_string(tvb, offset + (mark_exists ? 18 : 16),
+								 tvb_get_unicode_string(wmem_packet_scope(), tvb, offset + (mark_exists ? 18 : 16),
 								 query_length - (mark_exists? 10 : 8), unicode_encoding));
 				break;
 			default:
@@ -4342,7 +4342,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			switch (cpx_query_type) {
 			case SQ_CPX_TYPE_STRING:
 				proto_tree_add_text(tree, tvb, offset, query_length, "string: '%s'",
-						    tvb_get_ephemeral_string(tvb, offset + 8, query_length - 8));
+						    tvb_get_string(wmem_packet_scope(), tvb, offset + 8, query_length - 8));
 				break;
 			case SQ_CPX_TYPE_UTF16_STRING: {
 				/* description see above */
@@ -4351,7 +4351,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				unicode_encoding &= ~ENC_UTF_16;
 
 				proto_tree_add_text(tree, tvb, offset, query_length, "utf-16 string: '%s'",
-						    tvb_get_ephemeral_unicode_string(tvb, offset + (mark_exists ? 10 : 8),
+						    tvb_get_unicode_string(wmem_packet_scope(), tvb, offset + (mark_exists ? 10 : 8),
 								query_length - (mark_exists? 10 : 8), unicode_encoding));
 				break;
 			}
@@ -4412,7 +4412,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 	proto_item *item_toc;
 	proto_tree *sub_tree_toc;
 
-	if (strncmp(tvb_get_ephemeral_string(tvb, offset, 8), "md031234", 8) == 0)
+	if (strncmp(tvb_get_string(wmem_packet_scope(), tvb, offset, 8), "md031234", 8) == 0)
 		encoding = ENC_BIG_ENDIAN;
 	else
 		encoding = ENC_LITTLE_ENDIAN;

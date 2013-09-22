@@ -135,7 +135,7 @@ dissect_hpfeeds_info_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 
     len = tvb_get_guint8(tvb, offset);
     /* don't move the offset yet as we need to get data after this operation */
-    strptr = tvb_get_ephemeral_string(tvb, offset + 1, len);
+    strptr = tvb_get_string(wmem_packet_scope(), tvb, offset + 1, len);
     ti = proto_tree_add_text(tree, tvb, offset, -1, "Broker: %s", strptr);
     data_subtree = proto_item_add_subtree(ti, ett_hpfeeds); 
 
@@ -192,7 +192,7 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* get the channel name as ephemeral string just to make an attempt 
     *  in order to decode more payload if channel is "well known" 
     */
-    strptr = tvb_get_ephemeral_string(tvb, offset, len);
+    strptr = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
     proto_tree_add_item(tree, hf_hpfeeds_channel, tvb, offset, len,
         ENC_BIG_ENDIAN);
     offset += len;

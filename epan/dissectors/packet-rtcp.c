@@ -1243,7 +1243,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                 offset++;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
-                                tvb_get_ephemeral_string(tvb, offset, item_len));
+                                tvb_get_string(wmem_packet_scope(), tvb, offset, item_len));
 
                 offset     += item_len;
                 packet_len  = packet_len - item_len - 1;
@@ -1274,7 +1274,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                     offset++;
 
                     col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
-                                    tvb_get_ephemeral_string(tvb, offset, item_len));
+                                    tvb_get_string(wmem_packet_scope(), tvb, offset, item_len));
 
                     offset     += item_len;
                     packet_len  = packet_len - item_len - 1;
@@ -1637,7 +1637,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
         offset++;
 
         reason_offset = offset;
-        reason_text = (char*)tvb_get_ephemeral_string(tvb, offset, reason_length);
+        reason_text = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, reason_length);
         proto_tree_add_string( tree, hf_rtcp_sdes_text, tvb, offset, reason_length, reason_text );
         offset += reason_length;
     }

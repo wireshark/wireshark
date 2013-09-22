@@ -2230,7 +2230,7 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		curr_info.term->type = 0; /* unknown */
 
 		if (curr_info.term->len) {
-			curr_info.term->buffer = (guint8 *)ep_tvb_memdup(new_tvb,0,curr_info.term->len);
+			curr_info.term->buffer = (guint8 *)tvb_memdup(wmem_packet_scope(),new_tvb,0,curr_info.term->len);
 			curr_info.term->str = bytes_to_str(curr_info.term->buffer,curr_info.term->len);
 		}
 

@@ -647,7 +647,7 @@ dissect_gadu_gadu_uint32_string_utf8(tvbuff_t *tvb, const header_field_info *hfi
 		/* proto_tree_add_item(tree, hfindex, tvb, offset, len, ENC_UTF_8|ENC_NA); */
 
 		/* Use workaround */
-		str = tvb_get_ephemeral_string_enc(tvb, offset, len, ENC_UTF_8|ENC_NA);
+		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8|ENC_NA);
 
 	} else
 		str = "";
@@ -923,7 +923,7 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			name_size = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
-			name = tvb_get_ephemeral_string_enc(tvb, offset, name_size, ENC_ASCII | ENC_NA);
+			name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, name_size, ENC_ASCII | ENC_NA);
 			proto_tree_add_string(tree, &hfi_gadu_gadu_userdata_attr_name, tvb, offset - 4, 4 + name_size, name);
 			offset += name_size;
 	/* type */
@@ -933,7 +933,7 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			val_size = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
-			val = tvb_get_ephemeral_string_enc(tvb, offset, val_size, ENC_ASCII | ENC_NA);
+			val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, val_size, ENC_ASCII | ENC_NA);
 			proto_tree_add_string(tree, &hfi_gadu_gadu_userdata_attr_value, tvb, offset - 4, 4 + val_size, val);
 			offset += val_size;
 		}
@@ -1342,7 +1342,7 @@ dissect_gadu_gadu_notify105_common(tvbuff_t *tvb, proto_tree *tree, int offset, 
 
 	uin_len = tvb_get_guint8(tvb, offset);
 	offset += 1;
-	uin = tvb_get_ephemeral_string_enc(tvb, offset, uin_len, ENC_ASCII | ENC_NA);
+	uin = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, uin_len, ENC_ASCII | ENC_NA);
 	proto_tree_add_string(tree, &hfi_gadu_gadu_contact_uin_str, tvb, offset - 1, 1 + uin_len, uin);
 	offset += uin_len;
 	if (puin)

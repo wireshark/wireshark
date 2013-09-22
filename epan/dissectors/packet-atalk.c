@@ -572,7 +572,7 @@ static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
      * code, we could perhaps avoid allocating and freeing
      * this string buffer.
      */
-    tmp  = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
+    tmp  = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, len);
     item = proto_tree_add_string(tree, hf_index, tvb, offset-1, len+1, tmp);
 
     subtree = proto_item_add_subtree(item, ett_pstring);
@@ -1126,7 +1126,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         break;
       case 4: /* DNS */
         if (len > 2) {
-          tmp = (gchar*)tvb_get_ephemeral_string(tvb, ofs +2, len -2);
+          tmp = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, ofs +2, len -2);
           ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "dns %s", tmp);
           break;
         }
@@ -1162,7 +1162,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     ofs = utf_ofs;
     ulen = tvb_get_ntohs(tvb, ofs);
-    tmp = (gchar*)tvb_get_ephemeral_string(tvb, ofs + 2, ulen);
+    tmp = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, ofs + 2, ulen);
     ti = proto_tree_add_text(tree, tvb, ofs, ulen +2, "UTF8 server name: %s", tmp);
     sub_tree = proto_item_add_subtree(ti, ett_asp_utf8_name);
     proto_tree_add_uint(sub_tree, hf_asp_server_utf8_name_len, tvb, ofs, 2, ulen);

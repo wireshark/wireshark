@@ -127,11 +127,11 @@ dissect_nv_pairs(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
          offset += 4;
       }
 
-      name = tvb_get_ephemeral_string(tvb, offset, namelen);
+      name = tvb_get_string(wmem_packet_scope(), tvb, offset, namelen);
       offset += namelen;
 
       if (valuelen > 0) {
-         value = tvb_get_ephemeral_string(tvb, offset, valuelen);
+         value = tvb_get_string(wmem_packet_scope(), tvb, offset, valuelen);
          offset += valuelen;
 
          proto_tree_add_text(fcgi_tree, tvb, start_offset, offset - start_offset, "%s = %s", name, value);

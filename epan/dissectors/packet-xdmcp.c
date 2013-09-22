@@ -124,7 +124,7 @@ static gint xdmcp_add_string(proto_tree *tree, gint hf,
   guint len;
 
   len = tvb_get_ntohs(tvb, offset);
-  str = tvb_get_ephemeral_string(tvb, offset+2, len);
+  str = tvb_get_string(wmem_packet_scope(), tvb, offset+2, len);
   proto_tree_add_string(tree, hf, tvb, offset, len+2, str);
 
   return len+2;

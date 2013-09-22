@@ -661,7 +661,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
     if (len == 0) {
       proto_tree_add_text(tree, tvb, offset, 1, "%s Requests Signature",source);
     } else {
-      guint8 *sig = tvb_get_ephemeral_string(tvb, offset + 1, len);
+      guint8 *sig = tvb_get_string(wmem_packet_scope(), tvb, offset + 1, len);
       proto_tree_add_string_format_value(tree, hf_telnet_comport_subopt_signature, tvb, offset, 1 + len, sig,
                                          "%s Signature: %s",source, sig);
     }

@@ -414,7 +414,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     if (lua_pinfo->pkt_comment)
         pkthdr.opt_comment = ep_strdup(lua_pinfo->pkt_comment);
 
-    data = (const guchar *)ep_tvb_memdup(tvb,0,pkthdr.caplen);
+    data = (const guchar *)tvb_memdup(wmem_packet_scope(),tvb,0,pkthdr.caplen);
 
     if (! wtap_dump(d, &pkthdr, data, &err)) {
         luaL_error(L,"error while dumping: %s",

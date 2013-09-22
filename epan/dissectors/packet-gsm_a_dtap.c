@@ -774,7 +774,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 		}
 		else
 		{
-			net_name = tvb_get_ephemeral_unicode_string(tvb, curr_offset, (len - 1), ENC_BIG_ENDIAN);
+			net_name = tvb_get_unicode_string(wmem_packet_scope(), tvb, curr_offset, (len - 1), ENC_BIG_ENDIAN);
 			proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Text String: %s", net_name);
 		}
 		break;
@@ -1067,7 +1067,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 		curr_offset++;
 		en_len--;
 
-		poctets = tvb_get_ephemeral_string(tvb, curr_offset, en_len);
+		poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, en_len);
 
 		my_dgt_tbcd_unpack(a_bigbuf, poctets, en_len, &Dgt_mbcd);
 
@@ -2511,7 +2511,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	num_string_len = len - (curr_offset - offset);
-	poctets = tvb_get_ephemeral_string(tvb, curr_offset, num_string_len);
+	poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, num_string_len);
 
 	*address_extracted = TRUE;
 	my_dgt_tbcd_unpack(a_bigbuf, poctets, num_string_len,
@@ -2592,7 +2592,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 		if (afi == 0x50)
 		{
 			ia5_string_len = len - (curr_offset - offset);
-			ia5_string = tvb_get_ephemeral_string(tvb, curr_offset, ia5_string_len);
+			ia5_string = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, ia5_string_len);
 
 			invalid_ia5_char = FALSE;
 			for(i = 0; i < ia5_string_len; i++)

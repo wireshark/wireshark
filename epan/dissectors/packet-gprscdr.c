@@ -1102,15 +1102,15 @@ dissect_gprscdr_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	return offset;
 
  proto_item_append_text(actx->created_item, " (UTC %x-%x-%x %x:%x:%x %s%x:%x)",
-			tvb_get_guint8(parameter_tvb,0),             /* Year */
-			tvb_get_guint8(parameter_tvb,1),             /* Month */
-			tvb_get_guint8(parameter_tvb,2),             /* Day */
-			tvb_get_guint8(parameter_tvb,3),             /* Hour */
-			tvb_get_guint8(parameter_tvb,4),             /* Minute */
-			tvb_get_guint8(parameter_tvb,5),             /* Second */
-			tvb_get_ephemeral_string(parameter_tvb,6,1), /* Sign */
-			tvb_get_guint8(parameter_tvb,7),             /* Hour */
-			tvb_get_guint8(parameter_tvb,8)             /* Minute */
+			tvb_get_guint8(parameter_tvb,0),                        /* Year */
+			tvb_get_guint8(parameter_tvb,1),                        /* Month */
+			tvb_get_guint8(parameter_tvb,2),                        /* Day */
+			tvb_get_guint8(parameter_tvb,3),                        /* Hour */
+			tvb_get_guint8(parameter_tvb,4),                        /* Minute */
+			tvb_get_guint8(parameter_tvb,5),                        /* Second */
+			tvb_get_string(wmem_packet_scope(), parameter_tvb,6,1), /* Sign */
+			tvb_get_guint8(parameter_tvb,7),                        /* Hour */
+			tvb_get_guint8(parameter_tvb,8)                         /* Minute */
 			);
  
 

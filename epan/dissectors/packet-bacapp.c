@@ -6268,7 +6268,7 @@ fCharacterString (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
              * other dissectors need to handle various
              * character encodings.
              */
-            str_val = tvb_get_ephemeral_string(tvb, offset, l);
+            str_val = tvb_get_string(wmem_packet_scope(), tvb, offset, l);
             /** this decoding may be not correct for multi-byte characters, Lka */
             switch (character_set) {
             case ANSI_X34:

@@ -235,7 +235,7 @@ dissect_soupbintcp_common(
 
     /* If first dissection of Login Accept, save sequence number */
     if (pkt_type == 'A' && !PINFO_FD_VISITED(pinfo)) {
-        tmp_buf = tvb_get_ephemeral_string(tvb, 13, 20);
+        tmp_buf = tvb_get_string(wmem_packet_scope(), tvb, 13, 20);
         next_seq = atoi(tmp_buf);
 
         /* Create new conversation for this session */
@@ -331,7 +331,7 @@ dissect_soupbintcp_common(
                                 tvb, offset, 10, ENC_ASCII|ENC_NA);
             offset += 10;
 
-            tmp_buf = tvb_get_ephemeral_string(tvb, offset, 20);
+            tmp_buf = tvb_get_string(wmem_packet_scope(), tvb, offset, 20);
             proto_tree_add_string_format_value(soupbintcp_tree,
                                                hf_soupbintcp_next_seq_num,
                                                tvb, offset, 20,
@@ -376,7 +376,7 @@ dissect_soupbintcp_common(
                                 tvb, offset, 10, ENC_ASCII|ENC_NA);
             offset += 10;
 
-            tmp_buf = tvb_get_ephemeral_string(tvb, offset, 20);
+            tmp_buf = tvb_get_string(wmem_packet_scope(), tvb, offset, 20);
             proto_tree_add_string_format_value(soupbintcp_tree,
                                                hf_soupbintcp_req_seq_num,
                                                tvb, offset, 20,

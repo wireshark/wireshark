@@ -981,7 +981,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 
 	if(parent_len){
 		nns->parent_len=parent_len;
-		nns->parent=(unsigned char *)tvb_g_memdup(tvb, parent_offset, parent_len);
+		nns->parent=(unsigned char *)tvb_memdup(NULL, tvb, parent_offset, parent_len);
 	} else {
 		nns->parent_len=0;
 		nns->parent=NULL;
@@ -1042,7 +1042,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	}
 
 	/* oki, we have a new entry */
-	fh=(unsigned char *)tvb_g_memdup(tvb, fh_offset, fh_length);
+	fh=(unsigned char *)tvb_memdup(NULL, tvb, fh_offset, fh_length);
 	nns->fh=fh;
 	nns->fh_length=fh_length;
 
@@ -1158,7 +1158,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 		fhlen=fh_length;
 		/* align it */
-		fhdata=(guint32 *)tvb_g_memdup(tvb, fh_offset, fh_length);
+		fhdata=(guint32 *)tvb_memdup(NULL, tvb, fh_offset, fh_length);
 		fhkey[0].length=1;
 		fhkey[0].key=&fhlen;
 		fhkey[1].length=fhlen/4;
@@ -2321,7 +2321,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		guint8 *fh_array;
 		proto_item *fh_item = NULL;
 
-		fh_array = tvb_get_g_string(tvb, offset, fhlen);
+		fh_array = tvb_get_string(NULL, tvb, offset, fhlen);
 		fhhash = crc32_ccitt(fh_array, fhlen);
 		g_free(fh_array);
 
@@ -7963,7 +7963,7 @@ dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 		newftree = proto_item_add_subtree(fitem, ett_nfs4_stateid);
 	}
 
-	sidh_array = tvb_get_g_string(tvb, offset, 16);
+	sidh_array = tvb_get_string(NULL, tvb, offset, 16);
 	sid_hash = crc16_ccitt(sidh_array, 16);
 	g_free(sidh_array);
 
@@ -9146,7 +9146,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			break;
 
 		case NFS4_OP_RENEW:
-			clientid_array = tvb_get_ephemeral_string(tvb, offset, 8);
+			clientid_array = tvb_get_string(wmem_packet_scope(), tvb, offset, 8);
 			clientid_hash = crc16_ccitt(clientid_array, 8);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_clientid, offset);
 			g_string_append_printf (op_summary[ops_counter].optext, " CID: 0x%04x", clientid_hash);

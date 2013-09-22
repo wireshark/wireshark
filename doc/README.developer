@@ -577,8 +577,8 @@ the buffer.
 
 If you're fetching into such a chunk of memory a 2-byte Unicode string
 from the buffer, and the string has a specified size, you can use
-"tvb_get_ephemeral_faked_unicode()", which will check whether the entire
-string is present before allocating a buffer for the string, and will also
+"tvb_get_faked_unicode()", which will check whether the entire string
+is present before allocating a buffer for the string, and will also
 put a trailing '\0' at the end of the buffer.  The resulting string will be
 a sequence of single-byte characters; the only Unicode characters that
 will be handled correctly are those in the ASCII range.  (Wireshark's

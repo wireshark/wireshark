@@ -1295,7 +1295,7 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       case NTLM_TARGET_INFO_DNS_DOMAIN_NAME:
       case NTLM_TARGET_INFO_DNS_TREE_NAME:
       case NTLM_TARGET_INFO_TARGET_NAME:
-        text = tvb_get_ephemeral_unicode_string(tvb, content_offset, content_length, ENC_LITTLE_ENDIAN);
+        text = tvb_get_unicode_string(wmem_packet_scope(), tvb, content_offset, content_length, ENC_LITTLE_ENDIAN);
         proto_tree_add_string(target_info_tree, *hf_array_p[item_type], tvb, content_offset, content_length, text);
         proto_item_append_text(target_info_tf, ": %s", text);
         break;
@@ -2079,7 +2079,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
       /* Store the decrypted contents in the packet state struct
          (of course at this point, they aren't decrypted yet) */
-      packet_ntlmssp_info->decrypted_payload = (guint8 *)tvb_g_memdup(tvb, offset,
+      packet_ntlmssp_info->decrypted_payload = (guint8 *)tvb_memdup(NULL, tvb, offset,
                                                           encrypted_block_length);
       packet_ntlmssp_info->payload_len = encrypted_block_length;
       decrypted_payloads = g_slist_prepend(decrypted_payloads,
@@ -2589,7 +2589,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 
     /* Store the decrypted contents in the packet state struct
        (of course at this point, they aren't decrypted yet) */
-    packet_ntlmssp_info->decrypted_payload = tvb_g_memdup(data_tvb, offset,
+    packet_ntlmssp_info->decrypted_payload = tvb_memdup(NULL, data_tvb, offset,
                                                         encrypted_block_length);
     decrypted_payloads = g_slist_prepend(decrypted_payloads,
                                          packet_ntlmssp_info->decrypted_payload);

@@ -262,7 +262,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 pt_len = pt_string_len + 1;
             }
 
-            pt_str = tvb_get_ephemeral_string(tvb, offset, pt_string_len);
+            pt_str = tvb_get_string(wmem_packet_scope(), tvb, offset, pt_string_len);
             proto_tree_add_string_format_value(sap_tree, hf_sap_payload_type, tvb, offset, pt_len,
                 pt_str, "%.*s", pt_string_len, pt_str);
             offset += pt_len;

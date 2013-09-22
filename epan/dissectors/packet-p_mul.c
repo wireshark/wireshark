@@ -915,7 +915,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
   checksum_tree = proto_item_add_subtree (en, ett_checksum);
   len = tvb_length (tvb);
-  value = tvb_get_ephemeral_string (tvb, 0, len);
+  value = tvb_get_string (wmem_packet_scope(), tvb, 0, len);
   checksum1 = checksum (value, len, offset);
   checksum2 = tvb_get_ntohs (tvb, offset);
   if (checksum1 == checksum2) {

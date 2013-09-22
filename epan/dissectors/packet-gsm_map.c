@@ -4722,7 +4722,7 @@ dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 	proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %s", utf8_text);
 	break;
     case SMS_ENCODING_8BIT:
-	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %s", tvb_get_ephemeral_string(parameter_tvb, 0, length));
+	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %s", tvb_get_string(wmem_packet_scope(), parameter_tvb, 0, length));
 	break;
     case SMS_ENCODING_UCS2:
     case SMS_ENCODING_UCS2_LANG:
@@ -8321,7 +8321,7 @@ dissect_gsm_map_ms_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
     length = tvb_length(parameter_tvb);
     name_len = tvb_get_guint8(parameter_tvb, 0);
-	apn_str = tvb_get_ephemeral_string(parameter_tvb, 1, length - 1);
+	apn_str = tvb_get_string(wmem_packet_scope(), parameter_tvb, 1, length - 1);
     if (name_len < length-1) {
 		for (;;) {
 			if (name_len >= length - 1)

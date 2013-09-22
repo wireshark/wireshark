@@ -179,7 +179,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
   if(tvb_length(tvb) < 11)
     return FALSE;
 
-  sync = tvb_get_ephemeral_string (tvb, 0, 2);
+  sync = tvb_get_string (wmem_packet_scope(), tvb, 0, 2);
   if((sync[0]!='A' && sync[0]!='P') || sync[1]!='F')
     return FALSE;
 
@@ -636,14 +636,14 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   while(offset<tvb_length(tvb)) {
     guint32 bits;
     guint32 bytes;
-    char *tag = (char*)tvb_get_ephemeral_string (tvb, offset, 4); offset += 4;
+    char *tag = (char*)tvb_get_string (wmem_packet_scope(), tvb, offset, 4); offset += 4;
     bits = tvb_get_ntohl(tvb, offset); offset += 4;
     bytes = bits / 8;
     if(bits % 8)
       bytes++;
     if(tree) {
       if(strcmp(tag, "*ptr")==0) {
-        prot = (char*)tvb_get_ephemeral_string (tvb, offset, 4);
+        prot = (char*)tvb_get_string (wmem_packet_scope(), tvb, offset, 4);
         maj = tvb_get_ntohs(tvb, offset+4);
         min = tvb_get_ntohs(tvb, offset+6);
         proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,

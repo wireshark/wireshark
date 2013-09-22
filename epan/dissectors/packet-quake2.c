@@ -110,7 +110,7 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         len = tvb_length_remaining(tvb, offset);
         if (cl_tree) {
-                text = tvb_get_ephemeral_string(tvb, offset, len);
+                text = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
                 proto_tree_add_string(cl_tree, hf_quake2_connectionless_text,
                         tvb, offset, len, text);
         }
@@ -344,7 +344,7 @@ dissect_quake2_client_commands_uinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	if (tree) {
 		proto_tree_add_text(tree, tvb, 0, len, "Userinfo: %s",
-				    tvb_get_ephemeral_string(tvb, 0, len));
+				    tvb_get_string(wmem_packet_scope(), tvb, 0, len));
 	}
 
 	return len;
@@ -360,7 +360,7 @@ dissect_quake2_client_commands_stringcmd(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	if (tree) {
 		proto_tree_add_text(tree, tvb, 0, len, "Command: %s",
-				    tvb_get_ephemeral_string(tvb, 0, len));
+				    tvb_get_string(wmem_packet_scope(), tvb, 0, len));
 	}
 
 	return len;

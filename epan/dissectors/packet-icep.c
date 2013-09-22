@@ -241,7 +241,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
 
 
 	if ( Size != 0 ) {
-		s = tvb_get_ephemeral_string(tvb, offset, Size);
+		s = tvb_get_string(wmem_packet_scope(), tvb, offset, Size);
 		proto_tree_add_string(tree, hf_icep, tvb, offset, Size, s);
 	} else {
 		s = wmem_strdup(wmem_packet_scope(), "(empty)");

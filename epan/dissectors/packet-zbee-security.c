@@ -473,15 +473,15 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
      * Eww, I think I just threw up a little...  ZigBee requires this field
      * to be patched before computing the MIC, but we don't have write-access
      * to the tvbuff. So we need to allocate a copy of the whole thing just
-     * so we can fix these 3 bits. Memory allocated by ep_tvb_memdup() is
-     * automatically freed before the next packet is processed.
+     * so we can fix these 3 bits. Memory allocated by tvb_memdup(wmem_packet_scope(),...)
+     * is automatically freed before the next packet is processed.
      */
 #ifdef HAVE_LIBGCRYPT
-    enc_buffer = (guint8 *)ep_tvb_memdup(tvb, 0, tvb_length(tvb));
+    enc_buffer = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
     /*
      * Override the const qualifiers and patch the security level field, we
      * know it is safe to overide the const qualifiers because we just
-     * allocated this memory via ep_tvb_memdup().
+     * allocated this memory via tvb_memdup(wmem_packet_scope(),...).
      */
     enc_buffer[offset] = packet.control;
 #endif /* HAVE_LIBGCRYPT */

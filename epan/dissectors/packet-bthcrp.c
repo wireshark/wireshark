@@ -237,7 +237,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint8 *id;
 
                 proto_tree_add_item(tree, hf_bthcrp_control_1284_id, tvb, offset, -1, ENC_ASCII | ENC_NA);
-                id = tvb_get_g_string(tvb, offset, tvb_length_remaining(tvb, offset));
+                id = tvb_get_string(NULL, tvb, offset, tvb_length_remaining(tvb, offset));
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - 1284 ID: %s", id);
                 offset += tvb_length_remaining(tvb, offset);
             }

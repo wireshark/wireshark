@@ -1920,7 +1920,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         int linelen = tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
 
         /* Extract & add the string. */
-        char *string = (char*)tvb_get_ephemeral_string(tvb, offset, linelen);
+        char *string = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, linelen);
         if (isascii(string[0])) {
             /* If looks printable treat as string... */
             proto_tree_add_string_format(tty_tree, hf_catapult_dct2000_tty_line,
@@ -2465,7 +2465,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (strcmp(protocol_name, "comment") == 0) {
                 /* Extract & add the string. */
                 proto_item *string_ti;
-                char *string = (char*)tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
+                char *string = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset));
 
                 /* Show comment string */
                 string_ti = proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_comment, tvb,
@@ -2492,7 +2492,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
             if (strcmp(protocol_name, "sprint") == 0) {
                 /* Extract & add the string. */
-                char *string = (char*)tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
+                char *string = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset));
 
                 /* Show sprint string */
                 proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_sprint, tvb,

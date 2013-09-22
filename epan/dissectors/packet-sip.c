@@ -1631,7 +1631,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	par_name_end_offset = tvb_skip_wsp_return(tvb,par_name_end_offset);
 
 	/* Extract the parameter name */
-	name = tvb_get_ephemeral_string(tvb, start_offset, par_name_end_offset-start_offset);
+	name = tvb_get_string(wmem_packet_scope(), tvb, start_offset, par_name_end_offset-start_offset);
 
 	/* Find end of parameter, it can be a quoted string so check for quoutes too */
 	queried_offset = par_name_end_offset;
@@ -1720,13 +1720,13 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 	proto_tree_add_text(tree, tvb, start_offset, length,
 		"Reason Protocols: %s", tvb_format_text(tvb, start_offset, length));
 
-	param_name = tvb_get_ephemeral_string(tvb, start_offset, length);
+	param_name = tvb_get_string(wmem_packet_scope(), tvb, start_offset, length);
 	if (g_ascii_strcasecmp(param_name, "Q.850") == 0){
 		current_offset = tvb_find_guint8(tvb, semi_colon_offset, line_end_offset-semi_colon_offset, '=')+1;
 		length = line_end_offset - current_offset;
 
 		/* q850_cause_code_vals */
-		cause_value = (guint)strtoul(tvb_get_ephemeral_string(tvb, current_offset, length), NULL, 10);
+		cause_value = (guint)strtoul(tvb_get_string(wmem_packet_scope(), tvb, current_offset, length), NULL, 10);
 		proto_tree_add_text(tree, tvb, current_offset, length,
 			"Cause: %u(0x%x)[%s]", cause_value,cause_value,
 			val_to_str_ext(cause_value, &q850_cause_code_vals_ext, "Unknown (%d)" ));
@@ -1905,7 +1905,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 						/* Add address port number to tree */
 						proto_tree_add_uint(tree, hf_sip_via_sent_by_port, tvb, port_offset,
 											current_offset - port_offset,
-											atoi(tvb_get_ephemeral_string(tvb, port_offset,
+											atoi(tvb_get_string(wmem_packet_scope(), tvb, port_offset,
 																		  current_offset - port_offset)));
 					}
 					else
@@ -1992,7 +1992,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 			}
 
 			/* Note parameter name */
-			param_name = tvb_get_ephemeral_string(tvb, semicolon_offset+1,
+			param_name = tvb_get_string(wmem_packet_scope(), tvb, semicolon_offset+1,
 												  parameter_name_end - semicolon_offset - 1);
 
 			/* Try to add parameter as a filterable item */
@@ -2237,7 +2237,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		descr = "Status";
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
 		             tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
-		stat_info->reason_phrase = tvb_get_ephemeral_string(tvb, offset + SIP2_HDR_LEN + 5, linelen - (SIP2_HDR_LEN + 5));
+		stat_info->reason_phrase = tvb_get_string(wmem_packet_scope(), tvb, offset + SIP2_HDR_LEN + 5, linelen - (SIP2_HDR_LEN + 5));
 		break;
 
 	case OTHER_LINE:
@@ -2364,7 +2364,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			}
 		} else {
 			header_len = colon_offset - offset;
-			header_name = (gchar*)tvb_get_ephemeral_string(tvb, offset, header_len);
+			header_name = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, header_len);
 			ascii_strdown_inplace(header_name);
 			hf_index = sip_is_known_sip_header(header_name, header_len);
 
@@ -2377,7 +2377,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			 * Fetch the value.
 			 */
 			value_len = (gint) (line_end_offset - value_offset);
-			value = tvb_get_ephemeral_string(tvb, value_offset, value_len);
+			value = tvb_get_string(wmem_packet_scope(), tvb, value_offset, value_len);
 
 			if (hf_index == -1) {
 				proto_item *ti_c = proto_tree_add_text(hdr_tree, tvb,
@@ -2419,7 +2419,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
 								display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_to_uri);
 								if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
-									stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start,
+									stat_info->tap_to_addr=tvb_get_string(wmem_packet_scope(), tvb, uri_offsets.name_addr_start,
 										uri_offsets.name_addr_end - uri_offsets.name_addr_start);
 								}
 								offset = uri_offsets.name_addr_end +1;
@@ -2481,7 +2481,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
 								display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_from_uri);
 								if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
-									stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start,
+									stat_info->tap_from_addr=tvb_get_string(wmem_packet_scope(), tvb, uri_offsets.name_addr_start,
 										uri_offsets.name_addr_end - uri_offsets.name_addr_start);
 								}
 								offset = uri_offsets.name_addr_end +1;
@@ -2871,11 +2871,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							content_type_end = tvb_skip_wsp_return(tvb, semi_colon_offset-1);
 							content_type_len = content_type_end - value_offset;
 							content_type_parameter_str_len = value_offset + value_len - parameter_offset;
-							content_type_parameter_str = tvb_get_ephemeral_string(tvb, parameter_offset,
+							content_type_parameter_str = tvb_get_string(wmem_packet_scope(), tvb, parameter_offset,
 							                             content_type_parameter_str_len);
 						}
 						media_type_str_lower_case = ascii_strdown_inplace(
-							(gchar *)tvb_get_ephemeral_string(tvb, value_offset, content_type_len));
+							(gchar *)tvb_get_string(wmem_packet_scope(), tvb, value_offset, content_type_len));
 
 						/* Debug code
 						proto_tree_add_text(hdr_tree, tvb, value_offset,content_type_len,
@@ -3085,7 +3085,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							                             value, "%s",
 							                             tvb_format_text(tvb, offset, linelen));
 						}
-						content_encoding_parameter_str = ascii_strdown_inplace(tvb_get_ephemeral_string(tvb, value_offset,
+						content_encoding_parameter_str = ascii_strdown_inplace(tvb_get_string(wmem_packet_scope(), tvb, value_offset,
 							                             (line_end_offset-value_offset)));
 						break;
 					default :
@@ -3329,7 +3329,7 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gi
 	 */
 
 	/* get method string*/
-	value = tvb_get_ephemeral_string(tvb, offset, parameter_len);
+	value = tvb_get_string(wmem_packet_scope(), tvb, offset, parameter_len);
 
 	/* Copy request method for telling tap */
 	stat_info->request_method = value;
@@ -3361,7 +3361,7 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gin
 	 * We also know that we have a version string followed by a
 	 * space at the beginning of the line, for the same reason.
 	 */
-	response_code = atoi((char*)tvb_get_ephemeral_string(tvb, offset + SIP2_HDR_LEN + 1, 3));
+	response_code = atoi((char*)tvb_get_string(wmem_packet_scope(), tvb, offset + SIP2_HDR_LEN + 1, 3));
 
 	/* Add numerical response code to tree */
 	if (tree) {
@@ -3522,7 +3522,7 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
 	guint i;
 	gchar *meth_name;
 
-	meth_name = tvb_get_ephemeral_string(tvb, meth_offset, meth_len);
+	meth_name = tvb_get_string(wmem_packet_scope(), tvb, meth_offset, meth_len);
 
 	for (i = 1; i < array_length(sip_methods); i++) {
 		if (meth_len == strlen(sip_methods[i]) &&

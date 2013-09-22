@@ -1666,7 +1666,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
 
                         case FAST_SER_TAGTYPE_CHAR8:
                         case FAST_SER_TAGTYPE_CHAR16:
-                            item_val_str_ptr = tvb_get_ephemeral_string(payload_tvb, payload_offset, data_size);
+                            item_val_str_ptr = tvb_get_string(wmem_packet_scope(), payload_tvb, payload_offset, data_size);
                             proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, data_size, "Value: %s", item_val_str_ptr);
                             payload_offset += data_size;
                             break;
@@ -2067,8 +2067,8 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
         case FAST_SER_DEVDESC_RESP:  /* 0xB0 (resp to 0x30) - Device Description Response */
 
-            fid_str_ptr = tvb_get_ephemeral_string(tvb, offset, 50);  /* Add FID / RID ASCII data to tree */
-            rid_str_ptr = tvb_get_ephemeral_string(tvb, offset+50, 40);
+            fid_str_ptr = tvb_get_string(wmem_packet_scope(), tvb, offset, 50);  /* Add FID / RID ASCII data to tree */
+            rid_str_ptr = tvb_get_string(wmem_packet_scope(), tvb, offset+50, 40);
             proto_tree_add_text(fastser_tree, tvb, offset, 50, "FID: %s", fid_str_ptr);
             proto_tree_add_text(fastser_tree, tvb, offset+50, 40, "RID: %s", rid_str_ptr);
             offset += 90;
@@ -2099,7 +2099,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                 fastser_datareg_tree = proto_item_add_subtree(fastser_datareg_item, ett_selfm_fastser_datareg);
 
                 /* 10-Byte Region description */
-                region_name_ptr = tvb_get_ephemeral_string(tvb, offset, 10);
+                region_name_ptr = tvb_get_string(wmem_packet_scope(), tvb, offset, 10);
                 proto_tree_add_text(fastser_datareg_tree, tvb, offset, 10, "Data Region Name: %s", region_name_ptr);
                 offset += 10;
 
@@ -2146,7 +2146,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             offset += 2;
 
             while ((tvb_reported_length_remaining(tvb, offset)) > 2) {
-                tag_name_ptr = tvb_get_ephemeral_string(tvb, offset, 10);  /* Data Item record name 10 bytes */
+                tag_name_ptr = tvb_get_string(wmem_packet_scope(), tvb, offset, 10);  /* Data Item record name 10 bytes */
                 fastser_tag_item = proto_tree_add_text(fastser_tree, tvb, offset, 14, "Data Item Record Name: %s", tag_name_ptr);
                 fastser_tag_tree = proto_item_add_subtree(fastser_tag_item, ett_selfm_fastser_tag);
 

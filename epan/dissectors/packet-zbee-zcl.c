@@ -1767,7 +1767,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
             *offset += (int)1;
 
-            attr_string = tvb_get_ephemeral_string(tvb, *offset, attr_uint);
+            attr_string = tvb_get_string(wmem_packet_scope(), tvb, *offset, attr_uint);
 
             proto_item_append_text(tree, ", String: %s", attr_string);
             proto_tree_add_string(tree, hf_zbee_zcl_attr_str, tvb, *offset, attr_uint, attr_string);
@@ -1801,7 +1801,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
             *offset += (int)2;
 
-            attr_string = tvb_get_ephemeral_string(tvb, *offset, attr_uint);
+            attr_string = tvb_get_string(wmem_packet_scope(), tvb, *offset, attr_uint);
             proto_item_append_text(tree, ", String: %s", attr_string);
             proto_tree_add_string(tree, hf_zbee_zcl_attr_str, tvb, *offset, attr_uint, attr_string);
 

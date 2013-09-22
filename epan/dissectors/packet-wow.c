@@ -230,7 +230,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 
-				string = g_strreverse(tvb_get_ephemeral_string(tvb, offset, 4));
+				string = g_strreverse(tvb_get_string(wmem_packet_scope(), tvb, offset, 4));
 				proto_tree_add_string(wow_tree, hf_wow_gamename,
 						      tvb, offset, 4, string);
 				offset += 4;
@@ -251,17 +251,17 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 
-				string = g_strreverse(tvb_get_ephemeral_string(tvb, offset, 4));
+				string = g_strreverse(tvb_get_string(wmem_packet_scope(), tvb, offset, 4));
 				proto_tree_add_string(wow_tree, hf_wow_platform,
 						      tvb, offset, 4, string);
 				offset += 4;
 
-				string = g_strreverse(tvb_get_ephemeral_string(tvb, offset, 4));
+				string = g_strreverse(tvb_get_string(wmem_packet_scope(), tvb, offset, 4));
 				proto_tree_add_string(wow_tree, hf_wow_os, tvb,
 						      offset, 4, string);
 				offset += 4;
 
-				string = g_strreverse(tvb_get_ephemeral_string(tvb, offset, 4));
+				string = g_strreverse(tvb_get_string(wmem_packet_scope(), tvb, offset, 4));
 				proto_tree_add_string(wow_tree, hf_wow_country,
 						      tvb, offset, 4, string);
 				offset += 4;

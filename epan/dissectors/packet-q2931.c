@@ -1295,7 +1295,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		if (len < 3)
 			return;
 		proto_tree_add_text(tree, tvb, offset, 3,
-		    "Timer: %.3s", tvb_get_ephemeral_string(tvb, offset, 3));
+		    "Timer: %.3s", tvb_get_string(wmem_packet_scope(), tvb, offset, 3));
 		break;
 
 	default:
@@ -1430,7 +1430,7 @@ dissect_q2931_number_ie(tvbuff_t *tvb, int offset, int len,
 
 	case Q2931_ISDN_NUMBERING:
 		proto_tree_add_text(tree, tvb, offset, len, "Number: %.*s",
-		    len, tvb_get_ephemeral_string(tvb, offset, len));
+		    len, tvb_get_string(wmem_packet_scope(), tvb, offset, len));
 		break;
 
 	case Q2931_NSAP_ADDRESSING:
@@ -1734,7 +1734,7 @@ dissect_q2931_transit_network_sel_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	proto_tree_add_text(tree, tvb, offset, len,
-	    "Network identification: %.*s", len, tvb_get_ephemeral_string(tvb, offset, len));
+	    "Network identification: %.*s", len, tvb_get_string(wmem_packet_scope(), tvb, offset, len));
 }
 
 /*

@@ -2150,7 +2150,7 @@ decrypt_sac_msg_body(
     clear_data = (unsigned char *)g_malloc(clear_len);
 
     err = gcry_cipher_decrypt (cipher, clear_data, clear_len,
-                tvb_get_ephemeral_string(encrypted_tvb, offset, len), len);
+                tvb_get_string(wmem_packet_scope(), encrypted_tvb, offset, len), len);
     if (gcry_err_code (err))
         goto end;
 
@@ -2218,7 +2218,7 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
         str_len--;
     }
 
-    si_str = tvb_get_ephemeral_string(tvb, offset, str_len);
+    si_str = tvb_get_string(wmem_packet_scope(), tvb, offset, str_len);
     if (!si_str)
         return;
 
@@ -2487,8 +2487,8 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
         offset++;
         /* ephemeral -> string is freed automatically when dissection
            of this packet is finished
-           tvb_get_ephemeral_string() always returns a 0-terminated string */
-        menu_string = tvb_get_ephemeral_string(tvb, offset, menu_str_len);
+           tvb_get_string() always returns a 0-terminated string */
+        menu_string = tvb_get_string(wmem_packet_scope(), tvb, offset, menu_str_len);
         if (menu_string) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                     "Module name %s", menu_string);
@@ -2988,7 +2988,7 @@ dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
   }
 
   /* both apdus' body is only a country code, this can be shared */
-  str = tvb_get_ephemeral_string(tvb, offset,
+  str = tvb_get_string(wmem_packet_scope(), tvb, offset,
               tvb_reported_length_remaining(tvb, offset));
   if (str)
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", str);
@@ -3342,7 +3342,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             offset++;
             proto_tree_add_item(tree, hf_dvbci_app_dom_id,
                     tvb, offset, app_dom_id_len, ENC_ASCII|ENC_NA);
-            app_dom_id = tvb_get_ephemeral_string(tvb, offset, app_dom_id_len);
+            app_dom_id = tvb_get_string(wmem_packet_scope(), tvb, offset, app_dom_id_len);
             if (app_dom_id) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
                         "for %s", app_dom_id);
@@ -3372,7 +3372,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             if (tvb_reported_length_remaining(tvb, offset) <= 0)
               break;
             if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
-                req_str = tvb_get_ephemeral_string(tvb, offset,
+                req_str = tvb_get_string(wmem_packet_scope(), tvb, offset,
                         tvb_reported_length_remaining(tvb, offset));
                 if (!req_str)
                     break;
@@ -3405,7 +3405,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                 proto_tree_add_text(tree, tvb, offset, 1,
                         "File name length %d", file_name_len);
                 offset++;
-                file_name_str = tvb_get_ephemeral_string(
+                file_name_str = tvb_get_string(wmem_packet_scope(), 
                         tvb, offset, file_name_len);
                 if (!file_name_str)
                     break;

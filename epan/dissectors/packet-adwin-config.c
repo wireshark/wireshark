@@ -218,13 +218,13 @@ dissect_UDPExtStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
 	/* add the processor type raw values to the tree, to allow filtering */
 	ADWIN_ADD_LE(adwin_tree, processor_type,     64,  2);
 	/* add the processor type as a pretty printed string */
-	processor_type = tvb_get_ephemeral_string(tvb, 64, 2);
+	processor_type = tvb_get_string(wmem_packet_scope(), tvb, 64, 2);
 	processor_type = str_to_str(processor_type, processor_type_mapping, "Unknown (%s)");
 	proto_tree_add_text(adwin_tree, tvb, 64, 2, "Processor Type: %s", processor_type);
 
 	/* add system type as raw value and pretty printed string */
 	ADWIN_ADD_LE(adwin_tree, system_type,        66,  2);
-	system_type = tvb_get_ephemeral_string(tvb, 66, 2);
+	system_type = tvb_get_string(wmem_packet_scope(), tvb, 66, 2);
 	system_type = str_to_str(system_type, system_type_mapping, "Unknown (%s)");
 	proto_tree_add_text(adwin_tree, tvb, 66, 2, "System Type: %s", system_type);
 
@@ -261,13 +261,13 @@ dissect_UDPMessage(tvbuff_t *tvb, proto_tree *adwin_tree)
 	/* add the processor type raw values to the tree, to allow filtering */
 	ADWIN_ADD_LE(adwin_tree, processor_type,     96,  2);
 	/* add the processor type as a pretty printed string */
-	processor_type = tvb_get_ephemeral_string(tvb, 96, 2);
+	processor_type = tvb_get_string(wmem_packet_scope(), tvb, 96, 2);
 	processor_type = str_to_str(processor_type, processor_type_mapping, "Unknown");
 	proto_tree_add_text(adwin_tree, tvb, 96, 2, "Processor Type: %s", processor_type);
 
 	/* add system type as raw value and pretty printed string */
 	ADWIN_ADD_LE(adwin_tree, system_type,        98,  2);
-	system_type = tvb_get_ephemeral_string(tvb, 98, 2);
+	system_type = tvb_get_string(wmem_packet_scope(), tvb, 98, 2);
 	system_type = str_to_str(system_type, system_type_mapping, "Unknown");
 	proto_tree_add_text(adwin_tree, tvb, 98, 2, "System Type: %s", system_type);
 }
@@ -341,7 +341,7 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *adwin
 	ADWIN_ADD_BE(adwin_tree, stream_length,        0,    4);
 	offset = 4;
 	length = tvb_strnlen(tvb, offset, -1) + 1;
-	filename = tvb_get_ephemeral_string(tvb, offset, length);
+	filename = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
 	if (strncmp(filename, "eeprom_on", length) == 0) {
 		proto_tree_add_text(adwin_tree, tvb, offset, length,
 				    "Enable EEPROM Support");

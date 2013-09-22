@@ -552,7 +552,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 						       tvb_get_letohl(tvb, offset + 4),
 						       tvb_get_letohl(tvb, offset + 8));
 			} else {
-				value = tvb_get_ephemeral_string(tvb, offset, value_len);
+				value = tvb_get_string(wmem_packet_scope(), tvb, offset, value_len);
 				proto_item_append_text(dict_item, "%s", value);
 			}
 		}

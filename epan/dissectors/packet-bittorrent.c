@@ -346,10 +346,10 @@ dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo _U_,
             proto_tree_add_item(tree, hf_bittorrent_bstr, tvb, offset+used, stringlen, ENC_ASCII|ENC_NA);
 
             if (treeadd==1) {
-               proto_item_append_text(ti, " Key: %s", format_text((guchar *)ep_tvb_memdup(tvb, offset+used, stringlen), stringlen));
+               proto_item_append_text(ti, " Key: %s", format_text((guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset+used, stringlen), stringlen));
             }
             if (treeadd==2) {
-               proto_item_append_text(ti, "  Value: %s", format_text((guchar *)ep_tvb_memdup(tvb, offset+used, stringlen), stringlen));
+               proto_item_append_text(ti, "  Value: %s", format_text((guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset+used, stringlen), stringlen));
             }
          }
          return used+stringlen;
@@ -780,8 +780,8 @@ dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
       for(i = 0; peer_id[i].name != NULL; ++i)
       {
          if(tvb_memeql(tvb, offset, peer_id[i].id, (int)strlen(peer_id[i].id)) == 0) {
-            version = tvb_get_ephemeral_string(tvb, offset + (int)strlen(peer_id[i].id),
-                                               peer_id[i].ver_len);
+            version = tvb_get_string(wmem_packet_scope(), tvb, offset + (int)strlen(peer_id[i].id),
+                                     peer_id[i].ver_len);
             proto_tree_add_text(tree, tvb, offset, 20, "Client is %s v%s",
                                 peer_id[i].name,
                                 format_text((guchar*)version, peer_id[i].ver_len));

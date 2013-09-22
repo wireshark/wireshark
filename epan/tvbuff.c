@@ -756,9 +756,14 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
  * "composite_get_ptr()" depends on -1 not being
  * an error; does anything else depend on this routine treating -1 as
  * meaning "to the end of the buffer"?
+ *
+ * If scope is NULL, memory is allocated with g_malloc() and user must
+ * explicitely free it with g_free().
+ * If scope is not NULL, memory is allocated with the corresponding pool
+ * lifetime.
  */
 void *
-tvb_g_memdup(tvbuff_t *tvb, const gint offset, size_t length)
+tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
 	void	*duped;
@@ -767,37 +772,7 @@ tvb_g_memdup(tvbuff_t *tvb, const gint offset, size_t length)
 
 	check_offset_length(tvb, offset, (gint) length, &abs_offset, &abs_length);
 
-	duped = g_malloc(abs_length);
-	return tvb_memcpy(tvb, duped, abs_offset, abs_length);
-}
-
-/*
- * XXX - this doesn't treat a length of -1 as an error.
- * If it did, this could replace some code that calls
- * "tvb_ensure_bytes_exist()" and then allocates a buffer and copies
- * data to it.
- *
- * "composite_get_ptr()" depends on -1 not being
- * an error; does anything else depend on this routine treating -1 as
- * meaning "to the end of the buffer"?
- *
- * This function allocates memory from a buffer with packet lifetime.
- * You do not have to free this buffer, it will be automatically freed
- * when wireshark starts decoding the next packet.
- * Do not use this function if you want the allocated memory to be persistent
- * after the current packet has been dissected.
- */
-void *
-ep_tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length)
-{
-	guint	abs_offset, abs_length;
-	void	*duped;
-
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	check_offset_length(tvb, offset, (gint) length, &abs_offset, &abs_length);
-
-	duped = ep_alloc(abs_length);
+	duped = wmem_alloc(scope, abs_length);
 	return tvb_memcpy(tvb, duped, abs_offset, abs_length);
 }
 
@@ -1369,7 +1344,7 @@ tvb_get_bits_buf(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, guint8 *buf, 
 }
 
 guint8 *
-ep_tvb_get_bits(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, gboolean lsb0)
+wmem_packet_tvb_get_bits(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, gboolean lsb0)
 {
 	gint    no_of_bytes;
 	guint8 *buf;
@@ -1381,7 +1356,7 @@ ep_tvb_get_bits(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, gboolean lsb0)
 	}
 
 	no_of_bytes = (no_of_bits >> 3) + ((no_of_bits & 0x7) != 0);	/* ceil(no_of_bits / 8.0) */
-	buf         = (guint8 *)ep_alloc(no_of_bytes);
+	buf         = (guint8 *)wmem_alloc(wmem_packet_scope(), no_of_bytes);
 	tvb_get_bits_buf(tvb, bit_offset, no_of_bits, buf, lsb0);
 	return buf;
 }
@@ -1798,48 +1773,17 @@ tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
 }
 
 /* Convert a string from Unicode to ASCII.	At the moment we fake it by
- * replacing all non-ASCII characters with a '.' )-:  The caller must
- * free the result returned.  The len parameter is the number of guint16's
- * to convert from Unicode. */
-/* XXX - this function has been superceded by tvb_get_unicode_string() */
-char *
-tvb_fake_unicode(tvbuff_t *tvb, int offset, const int len, const gboolean little_endian)
-{
-	char    *buffer;
-	int      i;
-	guint16  character;
-
-	/* Make sure we have enough data before allocating the buffer,
-	   so we don't blow up if the length is huge. */
-	tvb_ensure_bytes_exist(tvb, offset, 2*len);
-
-	/* We know we won't throw an exception, so we don't have to worry
-	   about leaking this buffer. */
-	buffer = (char *)g_malloc(len + 1);
-
-	for (i = 0; i < len; i++) {
-		character = little_endian ? tvb_get_letohs(tvb, offset)
-					  : tvb_get_ntohs(tvb, offset);
-		buffer[i] = character < 256 ? character : '.';
-		offset += 2;
-	}
-
-	buffer[len] = 0;
-
-	return buffer;
-}
-
-/* Convert a string from Unicode to ASCII.	At the moment we fake it by
  * replacing all non-ASCII characters with a '.' )-:   The len parameter is
  * the number of guint16's to convert from Unicode.
  *
- * This function allocates memory from a buffer with packet lifetime.
- * You do not have to free this buffer, it will be automatically freed
- * when wireshark starts decoding the next packet.
+ * If scope is set to NULL, returned buffer is allocated by g_malloc()
+ * and must be g_free by the caller. Otherwise memory is automatically
+ * freed when the scope lifetime is reached.
  */
-/* XXX: This has been replaced by tvb_get_ephemeral_unicode_string() */
+/* XXX: This has been replaced by tvb_get_string() */
 char *
-tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, const int len, const gboolean little_endian)
+tvb_get_faked_unicode(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
+                      const int len, const gboolean little_endian)
 {
 	char    *buffer;
 	int      i;
@@ -1851,7 +1795,7 @@ tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, const int len, const 
 
 	/* We know we won't throw an exception, so we don't have to worry
 	   about leaking this buffer. */
-	buffer = (char *)ep_alloc(len + 1);
+	buffer = (char *)wmem_alloc(scope, len + 1);
 
 	for (i = 0; i < len; i++) {
 		character = little_endian ? tvb_get_letohs(tvb, offset)
@@ -1960,22 +1904,20 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
  * to hold a non-null-terminated string of that length at that offset,
  * plus a trailing '\0', copy the string into it, and return a pointer
  * to the string.
- *
+ * If scope is NULL, memory is allocated with g_malloc() and user must
+ * explicitely free it with g_free().
+ * If scope is not NULL, memory is allocated with the corresponding pool
+ * lifetime.
  * Throws an exception if the tvbuff ends before the string does.
  */
 guint8 *
-tvb_get_g_string(tvbuff_t *tvb, const gint offset, const gint length)
+tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length)
 {
-	const guint8 *ptr;
-	guint8       *strbuf = NULL;
+	guint8       *strbuf;
 
-	tvb_ensure_bytes_exist(tvb, offset, length);
-
-	ptr    = ensure_contiguous(tvb, offset, length);
-	strbuf = (guint8 *)g_malloc(length + 1);
-	if (length != 0) {
-		memcpy(strbuf, ptr, length);
-	}
+	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
+	strbuf = (guint8 *)wmem_alloc(scope, length + 1);
+	tvb_memcpy(tvb, strbuf, offset, length);
 	strbuf[length] = '\0';
 	return strbuf;
 }
@@ -1988,30 +1930,34 @@ tvb_get_g_string(tvbuff_t *tvb, const gint offset, const gint length)
  *
  * Specify length in bytes
  *
- * Returns an UTF-8 string that must be freed by the caller
+ * If scope is NULL, memory is allocated with g_malloc() and user must
+ * explicitely free it with g_free().
+ * If scope is not NULL, memory is allocated with the corresponding pool
+ * lifetime.
+ *
+ * Returns an UTF-8 string
  */
 gchar *
-tvb_get_g_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
+tvb_get_unicode_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
-	gunichar2  uchar;
-	gint       i;           /* Byte counter for tvbuff */
-	GString   *strbuf = NULL;
+	gunichar2      uchar;
+	gint           i;       /* Byte counter for tvbuff */
+	wmem_strbuf_t *strbuf;
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 
-	strbuf = g_string_new(NULL);
+	strbuf = wmem_strbuf_new(scope, NULL);
 
 	for(i = 0; i < length; i += 2) {
-
 		if (encoding == ENC_BIG_ENDIAN)
 			uchar = tvb_get_ntohs(tvb, offset + i);
 		else
 			uchar = tvb_get_letohs(tvb, offset + i);
 
-		g_string_append_unichar(strbuf, uchar);
+		wmem_strbuf_append_unichar(strbuf, uchar);
 	}
 
-	return g_string_free(strbuf, FALSE);
+	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
 /*
@@ -2023,14 +1969,13 @@ tvb_get_g_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const gu
  *
  * Throws an exception if the tvbuff ends before the string does.
  *
- * This function allocates memory from a buffer with packet lifetime.
- * You do not have to free this buffer, it will be automatically freed
- * when wireshark starts decoding the next packet.
- * Do not use this function if you want the allocated memory to be persistent
- * after the current packet has been dissected.
+ * If scope is NULL, memory is allocated with g_malloc() and user must
+ * explicitely free it with g_free().
+ * If scope is not NULL, memory is allocated with the corresponding pool
+ * lifetime.
  */
 guint8 *
-tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
+tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 			     const gint length, const guint encoding)
 {
 	const guint8 *ptr;
@@ -2052,7 +1997,7 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 		 * XXX - should map all octets with the 8th bit
 		 * not set to a "substitute" UTF-8 character.
 		 */
-		strbuf = tvb_get_ephemeral_string(tvb, offset, length);
+		strbuf = tvb_get_string(scope, tvb, offset, length);
 		break;
 
 	case ENC_UTF_8:
@@ -2060,7 +2005,7 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 		 * XXX - should map all invalid UTF-8 sequences
 		 * to a "substitute" UTF-8 character.
 		 */
-		strbuf = tvb_get_ephemeral_string(tvb, offset, length);
+		strbuf = tvb_get_string(scope, tvb, offset, length);
 		break;
 
 	case ENC_UTF_16:
@@ -2069,7 +2014,7 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 		 * invalid characters and sequences to a "substitute"
 		 * UTF-8 character.
 		 */
-		strbuf = tvb_get_ephemeral_unicode_string(tvb, offset, length,
+		strbuf = tvb_get_unicode_string(scope, tvb, offset, length,
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
@@ -2080,7 +2025,7 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 		 * components of a UTF-16 surrogate pair) to a
 		 * "substitute" UTF-8 character.
 		 */
-		strbuf = tvb_get_ephemeral_unicode_string(tvb, offset, length,
+		strbuf = tvb_get_unicode_string(scope, tvb, offset, length,
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
@@ -2091,7 +2036,7 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 		 * XXX - multiple "dialects" of EBCDIC?
 		 */
 		tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
-		strbuf = (guint8 *)ep_alloc(length + 1);
+		strbuf = (guint8 *)wmem_alloc(scope, length + 1);
 		if (length != 0) {
 			ptr = ensure_contiguous(tvb, offset, length);
 			memcpy(strbuf, ptr, length);
@@ -2100,80 +2045,6 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 		strbuf[length] = '\0';
 		break;
 	}
-	return strbuf;
-}
-
-guint8 *
-tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
-{
-	guint8       *strbuf;
-
-	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
-	strbuf = (guint8 *)ep_alloc(length + 1);
-	tvb_memcpy(tvb, strbuf, offset, length);
-	strbuf[length] = '\0';
-	return strbuf;
-}
-
-/*
- * Unicode (UTF-16) version of tvb_get_ephemeral_string()
- * XXX - this is UCS-2, not UTF-16, as it doesn't handle surrogate pairs
- *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
- *
- * Specify length in bytes
- *
- * Returns an ep_ allocated UTF-8 string
- */
-gchar *
-tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
-{
-	gunichar2      uchar;
-	gint           i;       /* Byte counter for tvbuff */
-	emem_strbuf_t *strbuf;
-
-	tvb_ensure_bytes_exist(tvb, offset, length);
-
-	strbuf = ep_strbuf_new(NULL);
-
-	for(i = 0; i < length; i += 2) {
-		if (encoding == ENC_BIG_ENDIAN)
-			uchar = tvb_get_ntohs(tvb, offset + i);
-		else
-			uchar = tvb_get_letohs(tvb, offset + i);
-
-		ep_strbuf_append_unichar(strbuf, uchar);
-	}
-
-	return strbuf->str;
-}
-
-/*
- * Given a tvbuff, an offset, and a length, allocate a buffer big enough
- * to hold a non-null-terminated string of that length at that offset,
- * plus a trailing '\0', copy the string into it, and return a pointer
- * to the string.
- *
- * Throws an exception if the tvbuff ends before the string does.
- *
- * This function allocates memory from a buffer with capture session lifetime.
- * You do not have to free this buffer, it will be automatically freed
- * when wireshark starts or opens a new capture.
- */
-guint8 *
-tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length)
-{
-	const guint8 *ptr;
-	guint8       *strbuf = NULL;
-
-	tvb_ensure_bytes_exist(tvb, offset, length);
-
-	ptr    = ensure_contiguous(tvb, offset, length);
-	strbuf = (guint8 *)se_alloc(length + 1);
-	if (length != 0) {
-		memcpy(strbuf, ptr, length);
-	}
-	strbuf[length] = '\0';
 	return strbuf;
 }
 
@@ -2990,7 +2861,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 		return NULL;
 	}
 
-	compr = (guint8 *)tvb_g_memdup(tvb, offset, comprlen);
+	compr = (guint8 *)tvb_memdup(NULL, tvb, offset, comprlen);
 
 	if (!compr)
 		return NULL;

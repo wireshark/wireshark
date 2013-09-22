@@ -2456,7 +2456,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
-                  tvb_get_ephemeral_string(tvb, offset, 8));
+                  tvb_get_string(wmem_packet_scope(), tvb, offset, 8));
   if (tree) {
     proto_tree_add_item(artnet_header_tree, hf_artnet_header_id,
                         tvb, offset, 8, ENC_ASCII|ENC_NA);

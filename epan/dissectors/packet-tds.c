@@ -994,9 +994,9 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, td
         is_unicode = FALSE;
 
     if (is_unicode)
-        msg = tvb_get_ephemeral_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
+        msg = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN);
     else
-        msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
+        msg = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, len);
 
     proto_tree_add_text(query_tree, tvb, offset, len, "Query: %s", msg);
     offset += len;
@@ -1011,7 +1011,7 @@ dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree
     offset += 1;
     len    -= 1;
 
-    msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
+    msg = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, len);
     proto_tree_add_text(tree, tvb, offset, len, "Language text: %s", msg);
 }
 
@@ -1172,7 +1172,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if( i != 2) {
                 /* tds 7 is always unicode */
                 len *= 2;
-                val = tvb_get_ephemeral_unicode_string(tvb, offset2, len, ENC_LITTLE_ENDIAN);
+                val = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset2, len, ENC_LITTLE_ENDIAN);
                 proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str_const(i, login_field_names, "Unknown"), val);
             } else {
                 /* This field is the password.  We retrieve it from the packet
@@ -1183,7 +1183,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  */
 
                 len *= 2;
-                val = (gchar*)tvb_get_ephemeral_string(tvb, offset2, len);
+                val = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset2, len);
                 val2 = (char *)wmem_alloc(wmem_packet_scope(), len/2+1);
 
                 for(j = 0, k = 0; j < len; j += 2, k++) {
@@ -1485,10 +1485,10 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
             string_offset = offset + 2;
             if (is_unicode == TRUE) {
                 new_len *= 2;
-                new_val = tvb_get_ephemeral_unicode_string(tvb, string_offset,
+                new_val = tvb_get_unicode_string(wmem_packet_scope(), tvb, string_offset,
                                                           new_len, ENC_LITTLE_ENDIAN);
             } else
-                new_val = (gchar*)tvb_get_ephemeral_string(tvb, string_offset, new_len);
+                new_val = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, string_offset, new_len);
             proto_tree_add_text(tree, tvb, string_offset, new_len,
                                 "New Value: %s", new_val);
         }
@@ -1509,10 +1509,10 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
         string_offset = old_len_offset + 1;
         if (is_unicode == TRUE) {
             old_len *= 2;
-            old_val = tvb_get_ephemeral_unicode_string(tvb, string_offset,
+            old_val = tvb_get_unicode_string(wmem_packet_scope(), tvb, string_offset,
                                                       old_len, ENC_LITTLE_ENDIAN);
         } else
-            old_val = (gchar*)tvb_get_ephemeral_string(tvb, string_offset, old_len);
+            old_val = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, string_offset, old_len);
         proto_tree_add_text(tree, tvb, string_offset, old_len,
                             "Old Value: %s", old_val);
     }
@@ -1542,9 +1542,9 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
 
     if(is_unicode) {
         msg_len *= 2;
-        msg = tvb_get_ephemeral_unicode_string(tvb, offset, msg_len, ENC_LITTLE_ENDIAN);
+        msg = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, msg_len, ENC_LITTLE_ENDIAN);
     } else {
-        msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, msg_len);
+        msg = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, msg_len);
     }
     proto_tree_add_text(tree, tvb, offset, msg_len, "Error: %s", format_text((guchar*)msg, strlen(msg)));
     offset += msg_len;
@@ -1556,9 +1556,9 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
     if(srvr_len) {
         if (is_unicode) {
             srvr_len *=2;
-            msg = tvb_get_ephemeral_unicode_string(tvb, offset, srvr_len, ENC_LITTLE_ENDIAN);
+            msg = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, srvr_len, ENC_LITTLE_ENDIAN);
         } else {
-            msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, srvr_len);
+            msg = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, srvr_len);
         }
         proto_tree_add_text(tree, tvb, offset, srvr_len, "Server name: %s", msg);
         offset += srvr_len;
@@ -1571,9 +1571,9 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
     if(proc_len) {
         if (is_unicode) {
             proc_len *=2;
-            msg = tvb_get_ephemeral_unicode_string(tvb, offset, proc_len, ENC_LITTLE_ENDIAN);
+            msg = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, proc_len, ENC_LITTLE_ENDIAN);
         } else {
-            msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, proc_len);
+            msg = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, proc_len);
         }
         proto_tree_add_text(tree, tvb, offset, proc_len, "Process name: %s", msg);
         offset += proc_len;
@@ -1626,9 +1626,9 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_t
     proto_tree_add_text(tree, tvb, offset, 0, "msg_len: %d, token_sz: %d, total: %d",msg_len, token_sz, msg_len + 6U + 3U);
     if(is_unicode) {
         msg_len *= 2;
-        msg = tvb_get_ephemeral_unicode_string(tvb, offset, msg_len, ENC_LITTLE_ENDIAN);
+        msg = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, msg_len, ENC_LITTLE_ENDIAN);
     } else {
-        msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, msg_len);
+        msg = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, offset, msg_len);
     }
     proto_tree_add_text(tree, tvb, offset, msg_len, "Text: %s", format_text((guchar*)msg, strlen(msg)));
     offset += msg_len;
@@ -1681,7 +1681,7 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_co
             offset +=2;
             if(table_len != 0) {
                 table_len *= 2;
-                msg = tvb_get_ephemeral_unicode_string(tvb, offset, table_len, ENC_LITTLE_ENDIAN);
+                msg = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, table_len, ENC_LITTLE_ENDIAN);
                 proto_tree_add_text(tree, tvb, offset, table_len, "Table name: %s", msg);
                 offset += table_len;
             }
@@ -1707,7 +1707,7 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_co
         offset += 1;
         if(msg_len != 0) {
             msg_len *= 2;
-            msg = tvb_get_ephemeral_unicode_string(tvb, offset, msg_len, ENC_LITTLE_ENDIAN);
+            msg = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, msg_len, ENC_LITTLE_ENDIAN);
             proto_tree_add_text(tree, tvb, offset, msg_len, "Text: %s", msg);
             offset += msg_len;
         }
@@ -1909,7 +1909,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII|ENC_NA);
                         break;
                     case TDS_DATA_TYPE_NVARCHAR:  /* NVarChar */
-                        string_value = tvb_get_ephemeral_unicode_string(tvb, *offset, length, ENC_LITTLE_ENDIAN);
+                        string_value = tvb_get_unicode_string(wmem_packet_scope(), tvb, *offset, length, ENC_LITTLE_ENDIAN);
                         proto_tree_add_string(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, string_value);
                         break;
                     case TDS_DATA_TYPE_XML:       /* XML (introduced in TDS 7.2) */
@@ -2063,7 +2063,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         break;
                     case TDS_DATA_TYPE_NVARCHAR:  /* NVarChar */
                     case TDS_DATA_TYPE_NCHAR:     /* NChar */
-                        string_value = tvb_get_ephemeral_unicode_string(tvb, *offset, length, ENC_LITTLE_ENDIAN);
+                        string_value = tvb_get_unicode_string(wmem_packet_scope(), tvb, *offset, length, ENC_LITTLE_ENDIAN);
                         proto_tree_add_string(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, string_value);
                         break;
                     default:
@@ -2090,7 +2090,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             else {
                 switch(data_type) {
                     case TDS_DATA_TYPE_NTEXT: /* NText */
-                        string_value = tvb_get_ephemeral_unicode_string(tvb, *offset, length, ENC_LITTLE_ENDIAN);
+                        string_value = tvb_get_unicode_string(wmem_packet_scope(), tvb, *offset, length, ENC_LITTLE_ENDIAN);
                         proto_tree_add_string(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, string_value);
                         break;
                     default: /*TODO*/
@@ -2145,7 +2145,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 else if (len != 0) {
                     len *= 2;
-                    val = tvb_get_ephemeral_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
+                    val = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN);
                     proto_tree_add_string(tree, hf_tds_rpc_name, tvb, offset, len, val);
                     offset += len;
                 }
@@ -2175,7 +2175,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ++offset;
             if(len) {
                 len *= 2;
-                val = tvb_get_ephemeral_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
+                val = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN);
                 proto_tree_add_string(sub_tree, hf_tds_rpc_parameter_name, tvb, offset, len, val);
                 offset += len;
             }

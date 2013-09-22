@@ -741,7 +741,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 
                     case IAS_STRING:
                         n = tvb_get_guint8(tvb, offset + 8);
-                        string = tvb_get_ephemeral_string(tvb, offset + 9, n);
+                        string = tvb_get_string(wmem_packet_scope(), tvb, offset + 9, n);
                         g_snprintf(buf, 300, ", \"%s\"", string);
                         break;
                 }

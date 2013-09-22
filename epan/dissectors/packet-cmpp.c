@@ -258,7 +258,7 @@ cmpp_octet_string(proto_tree *tree, tvbuff_t *tvb, gint field, gint offset, gint
 {
 	char *display;
 
-	display = (char *)tvb_get_ephemeral_string(tvb, offset, length);
+	display = (char *)tvb_get_string(wmem_packet_scope(), tvb, offset, length);
 	proto_tree_add_string(tree, field, tvb, offset, length, display);
 	return display;
 }

@@ -116,7 +116,7 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 		return tvb_get_ptr(member_tvb, member_offset, abs_length);
 	}
 	else {
-		tvb->real_data = (guint8 *)tvb_g_memdup(tvb, 0, -1);
+		tvb->real_data = (guint8 *)tvb_memdup(NULL, tvb, 0, -1);
 		return tvb->real_data + abs_offset;
 	}
 

@@ -2453,7 +2453,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             if (al_filename_len > 0) {
               const gchar *al_filename;
 
-              al_filename = tvb_get_ephemeral_string(tvb, data_pos, al_filename_len);
+              al_filename = tvb_get_string(wmem_packet_scope(), tvb, data_pos, al_filename_len);
               proto_tree_add_text(point_tree, tvb, data_pos, al_filename_len, "File Name: %s", al_filename);
             }
             data_pos += al_filename_len;

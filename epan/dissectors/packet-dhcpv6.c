@@ -688,7 +688,7 @@ swap_field_length_with_char(tvbuff_t* tvb, wmem_strbuf_t* strbuf, gint offset, g
         offset++;
         len_cnt++;
 
-        wmem_strbuf_append(strbuf, tvb_get_ephemeral_string(tvb, offset, next_length));
+        wmem_strbuf_append(strbuf, tvb_get_string(wmem_packet_scope(), tvb, offset, next_length));
         len_cnt += next_length;
 
         /* Do not append replacement character to end of string. */
@@ -1099,7 +1099,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 opt_len = tlv_len;
                 field_len = tlv_len;
 
-                device_type = tvb_get_ephemeral_string(tvb, sub_off, field_len);
+                device_type = tvb_get_string(wmem_packet_scope(), tvb, sub_off, field_len);
 
                 if (device_type == NULL || strlen(device_type) == 0) {
                     proto_item_append_text(ti, "Packet does not contain Device Type.");

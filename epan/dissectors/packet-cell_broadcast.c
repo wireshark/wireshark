@@ -256,7 +256,7 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
    int			length = tvb_length(tvb) - offset;
    gchar *utf8_text = NULL, *utf8_out;
    static unsigned char msgbuf[1024];
-   guint8 * input_string = tvb_get_ephemeral_string(tvb, offset, length);
+   guint8 * input_string = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
    GIConv cd;
    GError *l_conv_error = NULL;
 
@@ -352,12 +352,12 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          proto_tree *cbs_page_subtree = proto_item_add_subtree(item, ett_gsm_cbs_page_content);
          len = tvb_length(cbs_page_tvb);
          proto_tree_add_string(cbs_page_subtree, hf_gsm_cbs_page_content, cbs_page_tvb, 0,
-                               text_len, tvb_get_ephemeral_string(cbs_page_tvb, 0, text_len));
+                               text_len, tvb_get_string(wmem_packet_scope(), cbs_page_tvb, 0, text_len));
          len -= text_len;
          if (len)
          {
             proto_tree_add_string(cbs_page_subtree, hf_gsm_cbs_page_content_padding, cbs_page_tvb, text_len, len,
-                                  tvb_get_ephemeral_string(cbs_page_tvb, text_len, len));
+                                  tvb_get_string(wmem_packet_scope(), cbs_page_tvb, text_len, len));
          }
       }
       if (text_len)
@@ -393,7 +393,7 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       cbs_msg_item = proto_tree_add_protocol_format(proto_tree_get_root(tree), proto_cell_broadcast, cbs_msg_tvb, 0, len, "GSM Cell Broadcast Message");
       cbs_msg_tree = proto_item_add_subtree(cbs_msg_item, ett_cbs_msg);
 
-      proto_tree_add_string(cbs_msg_tree, hf_gsm_cbs_message_content, cbs_msg_tvb, 0, len, tvb_get_ephemeral_string(cbs_msg_tvb, 0, len));
+      proto_tree_add_string(cbs_msg_tree, hf_gsm_cbs_message_content, cbs_msg_tvb, 0, len, tvb_get_string(wmem_packet_scope(), cbs_msg_tvb, 0, len));
    }
 }
 
@@ -422,7 +422,7 @@ void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, prot
    msg_len = tvb_length(cbs_msg_tvb);
    cbs_item2 = proto_tree_add_text(cbs_tree, tvb, offset, -1, "Cell Broadcast Message Contents (length: %d)", msg_len);
    cbs_subtree = proto_item_add_subtree(cbs_item2, ett_cbs_msg);
-   proto_tree_add_text(cbs_subtree, cbs_msg_tvb , 0, tvb_length(cbs_msg_tvb), "%s", tvb_get_ephemeral_string(cbs_msg_tvb, 0, msg_len));
+   proto_tree_add_text(cbs_subtree, cbs_msg_tvb , 0, tvb_length(cbs_msg_tvb), "%s", tvb_get_string(wmem_packet_scope(), cbs_msg_tvb, 0, msg_len));
 }
 
 /* Register the protocol with Wireshark */

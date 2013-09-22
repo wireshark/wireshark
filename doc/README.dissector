@@ -251,41 +251,23 @@ void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint 
 
 String accessors:
 
-guint8 *tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length);
-gchar  *tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
-guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length);
-guint8 *tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
-gchar  *tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
-guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length);
+guint8 *tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length);
+gchar  *tvb_get_unicode_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
+guint8 *tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
 
 Returns a null-terminated buffer containing data from the specified
 tvbuff, starting at the specified offset, and containing the specified
 length worth of characters (the length of the buffer will be length+1,
 as it includes a null character to terminate the string).
 
-tvb_get_string() returns a buffer allocated by g_malloc() so you must
-g_free() it when you are finished with the string. Failure to g_free() this
-buffer will lead to memory leaks.
+tvb_get_string() returns a buffer allocated by g_malloc() if scope is set
+to NULL (in that case memory must be explicitely freed), or with the
+allocator lifetime if scope is not NULL.
 
 tvb_get_unicode_string() is a unicode (UTF-16) version of above.  This
 is intended for reading UTF-16 unicode strings out of a tvbuff and
 returning them as a UTF-8 string for use in Wireshark.  The offset and
 returned length pointer are in bytes, not UTF-16 characters.
-
-tvb_get_ephemeral_string() returns a buffer allocated from a special heap
-with a lifetime until the next packet is dissected. You do not need to
-free() this buffer, it will happen automatically once the next packet is
-dissected.
-
-tvb_get_ephemeral_unicode_string() is a unicode (UTF-16) version of above.
-This is intended for reading UTF-16 unicode strings out of a tvbuff and
-returning them as a UTF-8 string for use in Wireshark.  The offset and
-returned length pointer are in bytes, not UTF-16 characters.
-
-tvb_get_seasonal_string() returns a buffer allocated from a special heap
-with a lifetime of the current capture session. You do not need to
-free() this buffer, it will happen automatically once the a new capture or
-file is opened.
 
 guint8 *tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 guint8 *tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
@@ -327,12 +309,8 @@ with a lifetime of the current capture session. You do not need to
 free() this buffer, it will happen automatically once the a new capture or
 file is opened.
 
-tvb_fake_unicode() has been superseded by tvb_get_unicode_string(), which
+tvb_get_faked_unicode() has been superseded by tvb_get_string(), which
 properly handles Unicode (UTF-16) strings by converting them to UTF-8.
-
-tvb_get_ephemeral_faked_unicode() has been superseded by
-tvb_get_ephemeral_string(), which properly handles Unicode (UTF-16) strings by
-converting them to UTF-8.
 
 Byte Array Accessors:
 
@@ -366,13 +344,9 @@ guint8* tvb_memcpy(tvbuff_t *tvb, guint8* target, gint offset, gint length);
 Copies into the specified target the specified length's worth of data
 from the specified tvbuff, starting at the specified offset.
 
-guint8* tvb_memdup(tvbuff_t *tvb, gint offset, gint length);
-guint8* ep_tvb_memdup(tvbuff_t *tvb, gint offset, gint length);
+guint8* tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length);
 
-Returns a buffer, allocated with "g_malloc()", containing the specified
-length's worth of data from the specified tvbuff, starting at the
-specified offset. The ephemeral variant is freed automatically after the
-packet is dissected.
+Returns a buffer, allocated with "g_malloc()" if scope is NULL, or with the specified pool.
 
 Pointer-retrieval:
 /* WARNING! Don't use this function.  There is almost always a better way.

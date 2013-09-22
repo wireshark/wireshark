@@ -1055,9 +1055,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         /* Yes - dissect it. */
         if (tree) {
             proto_tree_add_string (fc_tree, hf_fc_nh_da, tvb, next_offset, 8,
-                                   fcwwn_to_str (tvb_get_ephemeral_string (tvb, offset, 8)));
+                                   fcwwn_to_str (tvb_get_string (wmem_packet_scope(), tvb, offset, 8)));
             proto_tree_add_string (fc_tree, hf_fc_nh_sa, tvb, offset+8, 8,
-                                   fcwwn_to_str (tvb_get_ephemeral_string (tvb, offset+8, 8)));
+                                   fcwwn_to_str (tvb_get_string (wmem_packet_scope(), tvb, offset+8, 8)));
         }
         next_offset += 16;
     }

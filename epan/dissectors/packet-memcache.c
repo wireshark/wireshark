@@ -650,7 +650,7 @@ get_payload_length (tvbuff_t *tvb, const int token_number, int offset,
     return FALSE;
   }
 
-  bytes_val = tvb_get_ephemeral_string (tvb, offset, tokenlen);
+  bytes_val = tvb_get_string (wmem_packet_scope(), tvb, offset, tokenlen);
   if (bytes_val) {
     if (sscanf (bytes_val, "%u", bytes) == 1) {
       *content_length_found = TRUE;

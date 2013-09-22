@@ -417,7 +417,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         switch (encoding) {
 
         case CHARSET_ISO_10646_UCS_2:
-                unicode_str = tvb_get_ephemeral_unicode_string(tvb, offset, length, ENC_BIG_ENDIAN);
+                unicode_str = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length, ENC_BIG_ENDIAN);
                 proto_tree_add_string(tree, hf, tvb, offset, length,
                                     unicode_str);
                 break;
@@ -441,7 +441,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
  *	does not specify (it is a 16-bit integer space)
  *
  * Does that mean that in SRVLOC, ISO-10646-UCS-2 is always big-endian?
- * If so, can we just use "tvb_get_ephemeral_unicode_string()" and be
+ * If so, can we just use "tvb_get_unicode_string()" and be
  * done with it?
  *
  * XXX - this is also used with CHARSET_UTF_8.  Is that a cut-and-pasteo?
@@ -449,7 +449,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 static const guint8*
 unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
 {
-  const guint8	*ascii_text = tvb_get_ephemeral_string(tvb, offset, length);
+  const guint8	*ascii_text = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
   int	i, j=0;
   guint8	c_char, c_char1;
   guint8	*byte_array;
@@ -547,14 +547,14 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                 break;
             }
             /* Parse the attribute name */
-            tmp = tvb_get_ephemeral_unicode_string(tvb, offset, length-offset, ENC_BIG_ENDIAN);
+            tmp = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length-offset, ENC_BIG_ENDIAN);
             type_len = (int)strcspn(tmp, "=");
-            attr_type = tvb_get_ephemeral_unicode_string(tvb, offset, type_len*2, ENC_BIG_ENDIAN);
+            attr_type = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, type_len*2, ENC_BIG_ENDIAN);
             proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
             offset += (type_len*2)+2;
             if (strcmp(attr_type, "svcname-ws")==0) {
                 /* This is the attribute svcname */
-                tmp = tvb_get_ephemeral_unicode_string(tvb, offset, length-offset, ENC_BIG_ENDIAN);
+                tmp = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length-offset, ENC_BIG_ENDIAN);
                 type_len = (int)strcspn(tmp, ")");
                 add_v1_string(tree, hf_srvloc_srvrply_svcname, tvb, offset, type_len*2, encoding);
                 offset += (type_len*2)+4;
@@ -632,7 +632,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         break;
 
     case CHARSET_UTF_8:
-        type_len = (int)strcspn(tvb_get_ephemeral_string(tvb, offset, length), "=");
+        type_len = (int)strcspn(tvb_get_string(wmem_packet_scope(), tvb, offset, length), "=");
         attr_type = unicode_to_bytes(tvb, offset+1, type_len-1, FALSE);
         proto_tree_add_string(tree, hf, tvb, offset+1, type_len-1, attr_type);
         i=1;
@@ -726,7 +726,7 @@ attr_list2(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length, guin
     attr_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
 
     /* this will ensure there is a terminating null */
-    start = tvb_get_ephemeral_string(tvb, offset, length);
+    start = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
 
     cnt = 0;
     x = 0;

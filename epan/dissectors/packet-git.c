@@ -55,7 +55,7 @@ static gboolean tvb_get_packet_length(tvbuff_t *tvb, int offset,
 {
 	guint8 *lenstr;
 
-	lenstr = tvb_get_ephemeral_string(tvb, offset, 4);
+	lenstr = tvb_get_string(wmem_packet_scope(), tvb, offset, 4);
 
 	return (sscanf(lenstr, "%hx", length) == 1);
 }

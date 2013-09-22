@@ -367,7 +367,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
     return;
   tokenlen = next_offset - offset;
   /* Save connection address type */
-  media_info->connection_type = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  media_info->connection_type = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
 
   proto_tree_add_item(sdp_connection_info_tree,
@@ -382,11 +382,11 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
     tokenlen = -1; /* end of tvbuff */
     /* Save connection address */
     media_info->connection_address =
-      (char*)tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
+      (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset));
   } else {
     tokenlen = next_offset - offset;
     /* Save connection address */
-    media_info->connection_address = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
+    media_info->connection_address = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
   }
 
   proto_tree_add_item(sdp_connection_info_tree,
@@ -591,7 +591,7 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
     return;
 
   tokenlen = next_offset - offset;
-  prtcl_id = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  prtcl_id = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
   proto_tree_add_item(key_tree, hf_key_mgmt_prtcl_id, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
 
@@ -601,7 +601,7 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
   if (len < 0)
     return;
 
-  data_p = tvb_get_ephemeral_string(tvb, offset, len);
+  data_p = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
   keymgmt_tvb = base64_to_tvb(tvb, data_p);
   add_new_data_source(pinfo, keymgmt_tvb, "Key Management Data");
 
@@ -644,7 +644,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
   proto_tree_add_item(sdp_session_attribute_tree, hf_session_attribute_field,
                       tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
 
-  field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  field_name = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
   offset = next_offset + 1;
 
@@ -713,7 +713,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   proto_tree_add_item(sdp_media_tree, hf_media_media, tvb, offset, tokenlen,
                       ENC_ASCII|ENC_NA);
 
-  media_info->media_type = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  media_info->media_type = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
   offset = next_offset + 1;
 
@@ -726,10 +726,10 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   if (next_offset != -1) {
     tokenlen = next_offset - offset;
     /* Save port info */
-    media_info->media_port[media_info->media_count] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
+    media_info->media_port[media_info->media_count] = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
     proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
-                        atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen)));
+                        atoi((char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen)));
     offset = next_offset + 1;
     next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
     if (next_offset == -1)
@@ -745,10 +745,10 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       return;
     tokenlen = next_offset - offset;
     /* Save port info */
-    media_info->media_port[media_info->media_count] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
+    media_info->media_port[media_info->media_count] = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
     /* XXX Remember Port */
     proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
-                        atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen)));
+                        atoi((char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen)));
     offset = next_offset + 1;
   }
 
@@ -759,7 +759,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
   tokenlen = next_offset - offset;
   /* Save port protocol */
-  media_info->media_proto[media_info->media_count] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  media_info->media_proto[media_info->media_count] = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
   /* XXX Remember Protocol */
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb, offset, tokenlen,
@@ -778,7 +778,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     }
 
     if (!strcmp(media_info->media_proto[media_info->media_count], "RTP/AVP")) {
-      media_format = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      media_format = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
                             tokenlen, val_to_str_ext((guint32)strtoul((char*)media_format, NULL, 10), &rtp_payload_type_vals_ext, "%u"));
       idx = transport_info->media[transport_info->media_count].pt_count;
@@ -929,7 +929,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 
 #if 0
     proto_tree_add_text(tree, tvb, offset, tokenlen, "Debug; Analysed string: '%s'",
-    tvb_get_ephemeral_string(tvb, offset, tokenlen));
+    tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen));
 #endif
 
   /* Look for an '=' within this value - this may indicate that there is a
@@ -943,7 +943,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 
   /* Find the name of the parameter */
   tokenlen = next_offset - offset;
-  field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  field_name = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 #if 0
   proto_tree_add_text(tree, tvb, offset, tokenlen, "Debug; MIMEtype '%s'Parameter name: '%s'", mime_type, field_name); */
 #endif
@@ -954,14 +954,14 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
     if (strcmp((char*)field_name, "profile-level-id") == 0) {
       offset++;
       tokenlen = end_offset - offset;
-      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      format_specific_parameter = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_fmtp_mpeg4_profile_level_id, tvb, offset, tokenlen,
                                  (guint32)strtol((char*)format_specific_parameter, NULL, 10));
       PROTO_ITEM_SET_GENERATED(item);
     } else if (strcmp((char*)field_name, "config") == 0) {
       /* String including "=" */
       tokenlen = end_offset - offset;
-      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      format_specific_parameter = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
       /* ascii_bytes_to_tvb requires the "=" to be in the buffer */
       data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
       if (mp4ves_handle && data_tvb) {
@@ -976,14 +976,14 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
     if (strcmp((char*)field_name, "profile") == 0) {
       offset++;
       tokenlen = end_offset - offset;
-      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      format_specific_parameter = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_profile, tvb, offset, tokenlen,
                                  (guint32)strtol((char*)format_specific_parameter, NULL, 10));
       PROTO_ITEM_SET_GENERATED(item);
     } else if (strcmp((char*)field_name, "level") == 0) {
       offset++;
       tokenlen = end_offset - offset;
-      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      format_specific_parameter = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_level, tvb, offset, tokenlen,
                                  (guint32)strtol((char*)format_specific_parameter, NULL, 10));
       PROTO_ITEM_SET_GENERATED(item);
@@ -1009,7 +1009,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 
       /* Length includes "=" as it's required by ascii_bytes_to_tvb()*/
       tokenlen = end_offset - offset;
-      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      format_specific_parameter = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
       data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
       if (!data_tvb) {
         proto_tree_add_text(tree, tvb, offset, tokenlen, "Could not convert '%s' to 3 bytes", format_specific_parameter);
@@ -1027,7 +1027,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
     } else if (strcmp(field_name, "packetization-mode") == 0) {
       offset++;
       tokenlen = end_offset - offset;
-      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      format_specific_parameter = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_h264_packetization_mode, tvb, offset, tokenlen,
                                  (guint32)strtol((char*)format_specific_parameter, NULL, 10));
       PROTO_ITEM_SET_GENERATED(item);
@@ -1054,7 +1054,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
         tokenlen = end_offset - offset;
       }
 
-      data_p = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      data_p = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
       proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 1 string: %s", data_p);
 
       /* proto_tree_add_text(tree, tvb, offset, tokenlen, "String %s", data_p); */
@@ -1073,7 +1073,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
           /* Second NAL unit */
           offset   = comma_offset +1;
           tokenlen = end_offset - offset;
-          data_p   = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+          data_p   = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
           proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 2 string: %s", data_p);
           data_tvb = base64_to_tvb(tvb, data_p);
           add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets 2");
@@ -1154,7 +1154,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   proto_tree_add_item(sdp_media_attribute_tree,
                       hf_media_attribute_field,
                       tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-  /*??field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);*/
+  /*??field_name = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);*/
   sdp_media_attrbute_code = find_sdp_media_attribute_names(tvb, offset, tokenlen);
 
   /* Skip colon */
@@ -1163,7 +1163,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   offset = tvb_skip_wsp(tvb, offset, tvb_length_remaining(tvb, offset));
 
   /* Value is the remainder of the line */
-  attribute_value = tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
+  attribute_value = tvb_get_string(wmem_packet_scope(), tvb, offset, tvb_length_remaining(tvb, offset));
 
 
 
@@ -1183,7 +1183,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_format, tvb,
                         offset, tokenlen, ENC_ASCII|ENC_NA);
 
-    payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+    payload_type = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
     offset = next_offset + 1;
 
@@ -1206,7 +1206,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     key  = wmem_new(wmem_file_scope(), gint);
     *key = (gint)strtol((char*)payload_type, NULL, 10);
 
-    transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
+    transport_info->encoding_name[pt] = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
     next_offset =  next_offset + 1;
     offset = next_offset;
@@ -1218,7 +1218,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     tokenlen = next_offset - offset;
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_sample_rate, tvb,
                         offset, tokenlen, ENC_ASCII|ENC_NA);
-    transport_info->sample_rate[pt] = atoi(tvb_get_ephemeral_string(tvb, offset, tokenlen));
+    transport_info->sample_rate[pt] = atoi(tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen));
     /* As per RFC2327 it is possible to have multiple Media Descriptions ("m=").
        For example:
 
@@ -1281,7 +1281,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
                                               hf_media_format, tvb, offset,
                                               tokenlen, ENC_ASCII|ENC_NA);
-      media_format = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
+      media_format = atoi((char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen));
       if (media_format >= SDP_NO_OF_PT) {
         return;   /* Invalid */
       }
@@ -1291,7 +1291,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                              transport_info->encoding_name[media_format]);
 
 #if 0 /* XXX:  ?? */
-      payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      payload_type = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 #endif
       /* Move offset past the payload type */
       offset = next_offset + 1;
@@ -1357,10 +1357,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         }
         /* Attempt to convert address */
         if (inet_pton(AF_INET,
-                      (char*)tvb_get_ephemeral_string(tvb, address_offset, port_offset-address_offset),
+                      (char*)tvb_get_string(wmem_packet_scope(), tvb, address_offset, port_offset-address_offset),
                       &media_info->msrp_ipaddr) > 0) {
           /* Get port number */
-          media_info->msrp_port_number = atoi((char*)tvb_get_ephemeral_string(tvb, port_offset + 1, port_end_offset - port_offset - 1));
+          media_info->msrp_port_number = atoi((char*)tvb_get_string(wmem_packet_scope(), tvb, port_offset + 1, port_end_offset - port_offset - 1));
           /* Set flag so this info can be used */
           media_info->msrp_transport_address_set = TRUE;
         }
@@ -1426,7 +1426,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       }
       tokenlen    = next_offset - offset;
       proto_tree_add_uint(sdp_media_attribute_tree, hf_sdp_crypto_tag, tvb, offset, tokenlen,
-          atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen)));
+          atoi((char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen)));
       offset = next_offset + 1;
 
       /* crypto-suite */
@@ -1503,7 +1503,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
               } else {
                   tokenlen = next_offset - offset;
               }
-              data_p = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+              data_p = tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
               key_salt_tvb = base64_to_tvb(tvb, data_p);
               add_new_data_source(pinfo, key_salt_tvb, "Key_Salt_tvb");
               if (master_key_length != 0) {
@@ -1552,7 +1552,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
                       /* This will not work if more than one parameter */
                       /* number of octets used for the MKI in the RTP payload */
-                      transport_info->mki_len = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
+                      transport_info->mki_len = atoi((char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen));
                       proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki_length,
                           tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
                   }
@@ -2137,7 +2137,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tokenoffset = 2;
     if (hf == hf_unknown)
       tokenoffset = 0;
-    string = (char*)tvb_get_ephemeral_string(tvb, offset + tokenoffset,
+    string = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset + tokenoffset,
                                              linelen - tokenoffset);
     sub_ti = proto_tree_add_string(sdp_tree, hf, tvb, offset, linelen,
                                    string);

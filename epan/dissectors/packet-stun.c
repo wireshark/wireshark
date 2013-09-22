@@ -690,7 +690,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
       /* Deprecated STUN RFC3489 attributes */
       case PASSWORD:
                 proto_tree_add_item(att_tree, stun_att_password, tvb, offset, att_length, ENC_ASCII|ENC_NA);
-                proto_item_append_text(att_tree, " (Deprecated): %s", tvb_get_ephemeral_string(tvb, offset, att_length));
+                proto_item_append_text(att_tree, " (Deprecated): %s", tvb_get_string(wmem_packet_scope(), tvb, offset, att_length));
                 if (att_length % 4 != 0)
                     proto_tree_add_uint(att_tree, stun_att_padding,
                                 tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
@@ -741,11 +741,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case USERNAME:
                 proto_tree_add_item(att_tree, stun_att_username, tvb, offset, att_length, ENC_ASCII|ENC_NA);
-                proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
+                proto_item_append_text(att_tree, ": %s", tvb_get_string(wmem_packet_scope(), tvb, offset, att_length));
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
                     " user: %s",
-                    tvb_get_ephemeral_string(tvb,offset, att_length)
+                    tvb_get_string(wmem_packet_scope(), tvb,offset, att_length)
                     );
                 if (att_length % 4 != 0)
                     proto_tree_add_uint(att_tree, stun_att_padding,
@@ -787,11 +787,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     break;
                 proto_tree_add_item(att_tree, stun_att_error_reason, tvb, offset+4, att_length-4, ENC_ASCII|ENC_NA);
 
-                proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset+4, att_length-4));
+                proto_item_append_text(att_tree, ": %s", tvb_get_string(wmem_packet_scope(), tvb, offset+4, att_length-4));
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
                     " %s",
-                    tvb_get_ephemeral_string(tvb, offset+4, att_length-4)
+                    tvb_get_string(wmem_packet_scope(), tvb, offset+4, att_length-4)
                     );
 
 
@@ -808,11 +808,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case REALM:
                 proto_tree_add_item(att_tree, stun_att_realm, tvb, offset, att_length, ENC_ASCII|ENC_NA);
-                proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
+                proto_item_append_text(att_tree, ": %s", tvb_get_string(wmem_packet_scope(), tvb, offset, att_length));
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
                     " realm: %s",
-                    tvb_get_ephemeral_string(tvb,offset, att_length)
+                    tvb_get_string(wmem_packet_scope(), tvb,offset, att_length)
                     );
                 if (att_length % 4 != 0)
                     proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
@@ -820,7 +820,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case NONCE:
                 proto_tree_add_item(att_tree, stun_att_nonce, tvb, offset, att_length, ENC_ASCII|ENC_NA);
-                proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
+                proto_item_append_text(att_tree, ": %s", tvb_get_string(wmem_packet_scope(), tvb, offset, att_length));
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
                     " with nonce"

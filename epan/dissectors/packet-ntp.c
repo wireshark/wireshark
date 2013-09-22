@@ -834,7 +834,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	buff = (gchar *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
 	if (stratum <= 1) {
 		g_snprintf (buff, NTP_TS_SIZE, "Unidentified reference source '%.4s'",
-			tvb_get_ephemeral_string(tvb, 12, 4));
+			tvb_get_string(wmem_packet_scope(), tvb, 12, 4));
 		for (i = 0; primary_sources[i].id; i++) {
 			if (tvb_memeql(tvb, 12, primary_sources[i].id, 4) == 0) {
 				g_snprintf(buff, NTP_TS_SIZE, "%s",

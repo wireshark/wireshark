@@ -674,7 +674,7 @@ add_value_head(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     offset += 2;
     if (name_length != 0) {
         guint8 *nv;
-        nv = tvb_get_ephemeral_string(tvb, offset, name_length);
+        nv = tvb_get_string(wmem_packet_scope(), tvb, offset, name_length);
         proto_tree_add_text(tree, tvb, offset, name_length,
                             "Name: %s", format_text(nv, name_length));
         if (name_val) {

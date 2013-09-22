@@ -439,14 +439,14 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_username, tvb, offset,
                         attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
-                           tvb_get_ephemeral_string(tvb, offset, attr_length));
+                           tvb_get_string(wmem_packet_scope(), tvb, offset, attr_length));
     /*
      * Many message methods may include this attribute,
      * but it's only interesting when Registering at first
      */
     if (xmcp_msg_type_method == XMCP_METHOD_REGISTER) {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", user \"%s\"",
-                      tvb_get_ephemeral_string(tvb, offset, attr_length));
+                      tvb_get_string(wmem_packet_scope(), tvb, offset, attr_length));
     }
     break;
   case XMCP_MESSAGE_INTEGRITY:
@@ -509,7 +509,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_error_reason, tvb, (offset+4),
                         (attr_length - 4), ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, " (%s)",
-                           tvb_get_ephemeral_string(tvb, (offset+4),
+                           tvb_get_string(wmem_packet_scope(), tvb, (offset+4),
                                                     (attr_length-4)));
     break;
   case XMCP_REALM:
@@ -517,7 +517,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                         attr_length, ENC_ASCII|ENC_NA);
     {
       guint8 *realm;
-      realm = tvb_get_ephemeral_string(tvb, offset, attr_length);
+      realm = tvb_get_string(wmem_packet_scope(), tvb, offset, attr_length);
       proto_item_append_text(attr_tree, ": %s", realm);
       /* In XMCP the REALM string should always be "SAF" including the quotes */
       if (attr_length != 5 || strncmp(realm, "\"SAF\"", attr_length)) {
@@ -529,15 +529,15 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_nonce, tvb, offset,
                         attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
-                           tvb_get_ephemeral_string(tvb, offset, attr_length));
+                           tvb_get_string(wmem_packet_scope(), tvb, offset, attr_length));
     break;
   case XMCP_CLIENT_NAME:
     proto_tree_add_item(attr_tree, xmcp_attr_client_name, tvb, offset,
                         attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
-                           tvb_get_ephemeral_string(tvb, offset, attr_length));
+                           tvb_get_string(wmem_packet_scope(), tvb, offset, attr_length));
     col_append_fstr(pinfo->cinfo, COL_INFO, ", name \"%s\"",
-                      tvb_get_ephemeral_string(tvb, offset, attr_length));
+                      tvb_get_string(wmem_packet_scope(), tvb, offset, attr_length));
     break;
   case XMCP_CLIENT_HANDLE:
     if (attr_length < 4)
@@ -578,9 +578,9 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_client_label, tvb, offset,
                         attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
-                           tvb_get_ephemeral_string(tvb, offset, attr_length));
+                           tvb_get_string(wmem_packet_scope(), tvb, offset, attr_length));
     col_append_fstr(pinfo->cinfo, COL_INFO, ", label \"%s\"",
-                      tvb_get_ephemeral_string(tvb, offset, attr_length));
+                      tvb_get_string(wmem_packet_scope(), tvb, offset, attr_length));
     break;
   case XMCP_KEEPALIVE:
     if (attr_length < 4)
@@ -770,7 +770,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
        * a '<'), try XML.
        * Otherwise, try plain-text.
        */
-      test_string = tvb_get_ephemeral_string(next_tvb, 0, (attr_length < 32 ?
+      test_string = tvb_get_string(wmem_packet_scope(), next_tvb, 0, (attr_length < 32 ?
                                                            attr_length : 32));
       tok = strtok(test_string, " \t\r\n");
       if (tok && tok[0] == '<') {

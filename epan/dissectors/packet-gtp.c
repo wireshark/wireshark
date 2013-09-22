@@ -4603,7 +4603,7 @@ static const gchar *
 dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U_)
 {
     decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
-    return tvb_get_ephemeral_string(tvb, 0, tvb_length(tvb));
+    return tvb_get_string(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
 }
 
 #define MAX_APN_LENGTH		100
@@ -4644,7 +4644,7 @@ decode_fqdn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree)
         name_len = tvb_get_guint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_ephemeral_string(tvb, offset + 1, length - 1);
+            fqdn = tvb_get_string(wmem_packet_scope(), tvb, offset + 1, length - 1);
             for (;;) {
                 if (name_len >= length - 1)
                     break;
@@ -4653,7 +4653,7 @@ decode_fqdn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree)
                 fqdn[tmp] = '.';
             }
         } else
-            fqdn = tvb_get_ephemeral_string(tvb, offset, length);
+            fqdn = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
 
         proto_tree_add_string(tree, hf_gtp_fqdn, tvb, offset, length, fqdn);
     }

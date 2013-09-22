@@ -460,9 +460,9 @@ get_text_string(tvbuff_t *tvb, guint offset, const char **strval)
     len = tvb_strsize(tvb, offset);
     DebugLog((" [1] tvb_strsize(tvb, offset) == %u\n", len));
     if (tvb_get_guint8(tvb, offset) == MM_QUOTE)
-	*strval = (const char *)ep_tvb_memdup(tvb, offset+1, len-1);
+	*strval = (const char *)tvb_memdup(wmem_packet_scope(), tvb, offset+1, len-1);
     else
-	*strval = (const char *)ep_tvb_memdup(tvb, offset, len);
+	*strval = (const char *)tvb_memdup(wmem_packet_scope(), tvb, offset, len);
     DebugLog((" [3] Return(len) == %u\n", len));
     return len;
 }
@@ -525,7 +525,7 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, const char **strval)
 	    *strval = "";
 	} else {
 	    /* \todo	Something with "Char-set", skip for now	*/
-	    *strval = (char *)tvb_get_ephemeral_string(tvb, offset + count + 1, length - 1);
+	    *strval = (char *)tvb_get_string(wmem_packet_scope(), tvb, offset + count + 1, length - 1);
 	}
 	return count + length;
     } else
@@ -1279,7 +1279,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			    proto_tree_add_string_format(mmse_tree,
 				    hf_mmse_ffheader, tvb, offset,
 				    length + length2,
-				    tvb_get_ephemeral_string(tvb, offset,
+				    tvb_get_string(wmem_packet_scope(), tvb, offset,
 					    length + length2),
 				    "%s: %s",
 				    format_text(strval, strlen(strval)),

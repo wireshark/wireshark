@@ -94,15 +94,15 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case FMTP_TYP_IDENTIFICATION:
             proto_item_append_text(ti, " (%s)",
-                tvb_get_ephemeral_string(tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
+                tvb_get_string(wmem_packet_scope(), tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
                 val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"),
-                tvb_get_ephemeral_string(tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
+                tvb_get_string(wmem_packet_scope(), tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
             break;
 
         case FMTP_TYP_SYSTEM:
             proto_item_append_text(ti, " (%s)",
-                tvb_get_ephemeral_string(tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
+                tvb_get_string(wmem_packet_scope(), tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
                 val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"),
                 val_to_str(tvb_get_ntohs(tvb, FMTP_HEADER_LEN), system_message_names, "Unknown (0x%02x)"));

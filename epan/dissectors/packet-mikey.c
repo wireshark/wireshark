@@ -938,7 +938,7 @@ dissect_payload_id(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 		parent = proto_tree_get_parent(tree);
 		proto_item_append_text(parent, " %s: %s",
 				       val_to_str_const(type, id_type_vals, "Unknown"),
-				       tvb_get_ephemeral_string(tvb, 4, length));
+				       tvb_get_string(wmem_packet_scope(), tvb, 4, length));
 	}
 
 	return 4 + length;
@@ -968,7 +968,7 @@ dissect_payload_idr(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, p
 		parent = proto_tree_get_parent(tree);
 		proto_item_append_text(parent, " %s: %s",
 				       val_to_str_const(type, id_type_vals, "Unknown"),
-				       tvb_get_ephemeral_string(tvb, 5, length));
+				       tvb_get_string(wmem_packet_scope(), tvb, 5, length));
 	}
 
 	return 5 + length;

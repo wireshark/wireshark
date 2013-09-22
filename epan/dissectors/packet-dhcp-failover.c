@@ -569,7 +569,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * XXX - if this is truly like DHCP option 81,
 			 * we need to dissect it as such.
 			 */
-			proto_item_append_text(oi,", \"%s\"", tvb_get_ephemeral_string(tvb, offset, option_length));
+			proto_item_append_text(oi,", \"%s\"", tvb_get_string(wmem_packet_scope(), tvb, offset, option_length));
 
 			proto_tree_add_item(option_tree,
 			    hf_dhcpfo_client_identifier, tvb, offset,
@@ -634,7 +634,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_VENDOR_CLASS:
 			vendor_class_str =
-			    tvb_get_ephemeral_string(tvb, offset, option_length);
+			    tvb_get_string(wmem_packet_scope(), tvb, offset, option_length);
 			proto_item_append_text(oi,", \"%s\"",
 			    format_text(vendor_class_str, option_length));
 			proto_tree_add_string(option_tree,

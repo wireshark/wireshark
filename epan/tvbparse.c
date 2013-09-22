@@ -515,7 +515,7 @@ static int cond_hash(tvbparse_t* tt, const int offset, const tvbparse_wanted_t* 
     if (key_len < 0)
         return -1;
 
-    key = tvb_get_ephemeral_string(key_elem->tvb,key_elem->offset,key_elem->len);
+    key = tvb_get_string(wmem_packet_scope(),key_elem->tvb,key_elem->offset,key_elem->len);
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_HASH) g_warning("cond_hash: got key='%s'",key);
 #endif

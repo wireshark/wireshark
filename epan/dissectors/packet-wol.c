@@ -120,7 +120,7 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* So far so good.  Now get the next 6 bytes, which we'll assume is the
      * target's MAC address, and do 15 memory chunk comparisons, since if this
      * is a real MagicPacket, the target's MAC will be duplicated 16 times. */
-    mac = (guint8 *)ep_tvb_memdup(tvb, 6, 6);
+    mac = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 6, 6);
     for ( offset = 12; offset < 102; offset += 6 )
         if ( tvb_memeql(tvb, offset, mac, 6) != 0 )
             return (0);

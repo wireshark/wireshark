@@ -311,7 +311,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			len = dinfo->get32(tvb, offset);
 			offset += 4;
 
-			val = tvb_get_ephemeral_string(tvb, offset, len);
+			val = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
 			offset += (len + 1 /* NUL-byte */ + 3) & ~3;
 
 			if (sig == 's') {
@@ -339,7 +339,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			len = tvb_get_guint8(tvb, offset);
 			offset += 1;
 
-			val = tvb_get_ephemeral_string(tvb, offset, len);
+			val = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
 			offset += (len + 1);
 
 			ti = proto_tree_add_string_format(tree, hfi_dbus_value_str.id, tvb, org_offset, offset - org_offset, val, "SIGNATURE: %s", val);
@@ -370,7 +370,7 @@ dissect_dbus_field_signature(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree
 
 	/* sig_len = tvb_strsize(tvb, offset); */
 
-	sig = tvb_get_ephemeral_string(tvb, offset, sig_len);
+	sig = tvb_get_string(wmem_packet_scope(), tvb, offset, sig_len);
 	offset += (sig_len + 1);
 
 	ti = proto_tree_add_string(tree, &hfi_dbus_type_signature, tvb, org_offset, offset - org_offset, sig);

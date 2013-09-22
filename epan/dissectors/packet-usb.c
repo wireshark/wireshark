@@ -1423,14 +1423,14 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
         char   *str;
         guint8  str_len;
 
-        /* Make sure that tvb_get_ephemeral_unicode_string() gets an even
+        /* Make sure that tvb_get_unicode_string() gets an even
            string length even if the length field contains an (invalid)
            odd number.
          */
         str_len = (len-2) & ~0x1;
 
         /* unicode string */
-        str = tvb_get_ephemeral_unicode_string(tvb, offset, str_len, ENC_LITTLE_ENDIAN);
+        str = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, str_len, ENC_LITTLE_ENDIAN);
         proto_tree_add_string(tree, hf_usb_bString, tvb, offset, len-2, str);
         offset += len-2;
     }

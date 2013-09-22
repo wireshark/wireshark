@@ -469,7 +469,7 @@ static guint8 *
 zonenm_to_str(tvbuff_t *tvb, gint offset)
 {
     int len = tvb_get_guint8(tvb, offset);
-    return tvb_get_ephemeral_string(tvb, offset+4, len);
+    return tvb_get_string(wmem_packet_scope(), tvb, offset+4, len);
 }
 
 /* Offset points to the start of the zone object */

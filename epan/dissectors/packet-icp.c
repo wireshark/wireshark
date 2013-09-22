@@ -97,7 +97,7 @@ static void dissect_icp_payload(tvbuff_t *tvb, int offset,
 		/* null terminated URL */
 		stringlength = tvb_strsize(tvb, offset);
 		proto_tree_add_text(pload_tree, tvb, offset, stringlength,
-			"URL: %s", tvb_get_ephemeral_string(tvb, offset, stringlength));
+			"URL: %s", tvb_get_string(wmem_packet_scope(), tvb, offset, stringlength));
 		break;
 
 	case CODE_ICP_OP_SECHO:
@@ -109,14 +109,14 @@ static void dissect_icp_payload(tvbuff_t *tvb, int offset,
 	case CODE_ICP_OP_DENIED:
 		stringlength = tvb_strsize(tvb, offset);
 		proto_tree_add_text(pload_tree, tvb, offset, stringlength,
-			"URL: %s", tvb_get_ephemeral_string(tvb, offset, stringlength));
+			"URL: %s", tvb_get_string(wmem_packet_scope(), tvb, offset, stringlength));
 		break;
 
 	case CODE_ICP_OP_HIT_OBJ:
 		/* null terminated URL */
 		stringlength = tvb_strsize(tvb, offset);
 		proto_tree_add_text(pload_tree, tvb, offset, stringlength,
-			"URL: %s", tvb_get_ephemeral_string(tvb, offset, stringlength));
+			"URL: %s", tvb_get_string(wmem_packet_scope(), tvb, offset, stringlength));
 		offset += stringlength;
 
 		/* 2 byte object size */

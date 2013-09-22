@@ -349,11 +349,11 @@ static uat_t *c1222_uat;
 #define FILL_START int length, start_offset = offset;
 #define FILL_TABLE(fieldname)  \
   length = offset - start_offset; \
-  fieldname = (guint8 *)tvb_g_memdup(tvb, start_offset, length); \
+  fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
   fieldname##_len = length;
 #define FILL_TABLE_TRUNCATE(fieldname, len)  \
   length = 1 + 2*(offset - start_offset); \
-  fieldname = (guint8 *)tvb_g_memdup(tvb, start_offset, length); \
+  fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
   fieldname##_len = len;
 #else /* HAVE_LIBGCRYPT */
 #define FILL_TABLE(fieldname)
@@ -436,7 +436,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	    user_id = tvb_get_ntohs(tvb, *offset);
 	    proto_tree_add_uint(tree, hf_c1222_logon_id, tvb, *offset, 2, user_id);
 	    *offset += 2;
-	    user_name = tvb_get_ephemeral_string(tvb, *offset, 10);
+	    user_name = tvb_get_string(wmem_packet_scope(),tvb, *offset, 10);
 	    proto_tree_add_string(tree, hf_c1222_logon_user, tvb, *offset, 10, user_name);
 	    *offset += 10;
 	    *length -= 12;
@@ -448,7 +448,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	break;
     case C1222_CMD_SECURITY:
 	if (*length >= 20) {
-	    password = tvb_get_ephemeral_string(tvb, *offset, 20);
+	    password = tvb_get_string(wmem_packet_scope(),tvb, *offset, 20);
 	    proto_tree_add_string(tree, hf_c1222_security_password, tvb, *offset, 20, password);
 	    *offset += 20;
 	    *length -= 20;
@@ -967,7 +967,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
         return offset;
       encrypted = TRUE;
       if (c1222_decrypt) {
-	buffer = (guchar *)tvb_g_memdup(tvb, offset, len2);
+	buffer = (guchar *)tvb_memdup(NULL, tvb, offset, len2);
 	if (!decrypt_packet(buffer, len2, TRUE)) {
 	  g_free(buffer);
 	  crypto_bad = TRUE;
@@ -986,7 +986,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       len2 = tvb_length_remaining(tvb, offset);
       if (len2 <= 0)
         return offset;
-      buffer = (guchar *)tvb_g_memdup(tvb, offset, len2);
+      buffer = (guchar *)tvb_memdup(NULL, tvb, offset, len2);
       epsem_buffer = tvb_new_subset_remaining(tvb, offset);
       if (c1222_decrypt) {
 	if (!decrypt_packet(buffer, len2, FALSE)) {

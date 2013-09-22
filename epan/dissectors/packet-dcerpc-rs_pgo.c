@@ -207,7 +207,7 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
 	{
 	  if (check_col (pinfo->cinfo, COL_INFO))
 	    col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
-			     tvb_get_ephemeral_string(tvb, offset, string_size));
+			     tvb_get_string(wmem_packet_scope(), tvb, offset, string_size));
 	}
       offset += string_size;
     }
@@ -429,7 +429,7 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
 	{
 	  if (check_col (pinfo->cinfo, COL_INFO))
 	    col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
-			     tvb_get_ephemeral_string (tvb, offset, string_size));
+			     tvb_get_string (wmem_packet_scope(), tvb, offset, string_size));
 	}
       offset += string_size;
     }

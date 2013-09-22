@@ -1960,7 +1960,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         length -= 1;
         if (length < namelen)
             goto too_short;
-        name = (char*) tvb_get_ephemeral_string(tvb, offset, namelen);
+        name = (char*) tvb_get_string(wmem_packet_scope(), tvb, offset, namelen);
         offset += namelen;
         length -= namelen;
         if (length < 1)
@@ -1978,7 +1978,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             length -= 4;
             if (length < vallen)
                 goto too_short;
-            value  = (char*) tvb_get_ephemeral_string(tvb, offset, vallen);
+            value  = (char*) tvb_get_string(wmem_packet_scope(), tvb, offset, vallen);
             offset += vallen;
             length -= vallen;
             break;
@@ -2092,7 +2092,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
         namelen = tvb_get_guint8(tvb, offset);
         AMQP_INCREMENT(offset, 1, bound);
         length -= 1;
-        name = (char*) tvb_get_ephemeral_string(tvb, offset, namelen);
+        name = (char*) tvb_get_string(wmem_packet_scope(), tvb, offset, namelen);
         AMQP_INCREMENT(offset, namelen, bound);
         length -= namelen;
         type = tvb_get_guint8(tvb, offset);
@@ -2209,7 +2209,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
             len16 = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, bound);
             length -= 2;
-            value   = (char*) tvb_get_ephemeral_string(tvb, offset, len16);
+            value   = (char*) tvb_get_string(wmem_packet_scope(), tvb, offset, len16);
             AMQP_INCREMENT(offset, len16, bound);
             length -= len16;
             break;
@@ -8627,7 +8627,7 @@ format_amqp_0_10_str(tvbuff_t *tvb,
         return length;
     }
     AMQP_INCREMENT(offset, length, bound);
-    *value = tvb_get_ephemeral_string(tvb, offset, string_length);
+    *value = tvb_get_string(wmem_packet_scope(), tvb, offset, string_length);
     AMQP_INCREMENT(offset, string_length, bound);
     return (string_length + length);
 }

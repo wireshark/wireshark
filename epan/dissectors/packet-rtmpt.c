@@ -642,7 +642,7 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
                 if (!prop && iObjType==AMF0_STRING && remain>=3) {
                         iStringLength = tvb_get_ntohs(tvb, offset+1);
                         if (remain>=iStringLength+3) {
-                                return tvb_get_ephemeral_string(tvb, offset+3, iStringLength);
+                                return tvb_get_string(wmem_packet_scope(), tvb, offset+3, iStringLength);
                         }
                 }
 
@@ -660,7 +660,7 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
                                         iStringLength = tvb_get_ntohs(tvb, offset+2+iPropLength+1);
                                         if (remain<2+iPropLength+3+iStringLength) break;
 
-                                        return tvb_get_ephemeral_string(tvb, offset+2+iPropLength+3, iStringLength);
+                                        return tvb_get_string(wmem_packet_scope(), tvb, offset+2+iPropLength+3, iStringLength);
                                 }
 
                                 itemlen = rtmpt_get_amf_length(tvb, offset+2+iPropLength);
@@ -761,7 +761,7 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, guint32 offset, guint32 remain, rtmpt_conv_
                         slen = tvb_get_ntohs(tvb, offset+1+soff);
                 }
                 if (slen>0) {
-                        sFunc = tvb_get_ephemeral_string(tvb, offset+3+soff, slen);
+                        sFunc = tvb_get_string(wmem_packet_scope(), tvb, offset+3+soff, slen);
                         RTMPT_DEBUG("got function call '%s'\n", sFunc);
 
                         if (strcmp(sFunc, "connect")==0) {
@@ -873,7 +873,7 @@ dissect_amf0_property_list(tvbuff_t *tvb, gint offset, proto_tree *tree, guint *
                     tvb_get_guint8(tvb, offset + 2) == AMF0_END_OF_OBJECT)
                         break;
                 count++;
-                iStringValue = tvb_get_ephemeral_string(tvb, offset + 2, iStringLength);
+                iStringValue = tvb_get_string(wmem_packet_scope(), tvb, offset + 2, iStringLength);
                 prop_ti = proto_tree_add_text(tree, tvb, offset, -1,
                                               "Property '%s'",
                                               iStringValue);
@@ -984,7 +984,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 iStringLength = tvb_get_ntohs(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
                 iValueOffset += 2;
-                iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                 if (iStringLength != 0)
                         proto_tree_add_string(val_tree, hf_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
                 iValueOffset += iStringLength;
@@ -1058,7 +1058,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 iStringLength = tvb_get_ntohl(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
                 iValueOffset += 4;
-                iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                 if (iStringLength != 0)
                         proto_tree_add_string(val_tree, (iObjType==AMF0_XML) ? hf_amf_xml_doc : hf_amf_longstring, tvb, iValueOffset, iStringLength, iStringValue);
                 iValueOffset += iStringLength;
@@ -1073,7 +1073,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 iStringLength = tvb_get_ntohs(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
                 iValueOffset += 2;
-                iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                 proto_tree_add_string(val_tree, hf_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
                 iValueOffset += iStringLength;
                 iValueOffset = dissect_amf0_property_list(tvb, iValueOffset, val_tree, &count, amf3_encoding);
@@ -1240,7 +1240,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                         iStringLength = iIntegerValue >> 1;
                         proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, iValueLength, iStringLength);
                         iValueOffset += iValueLength;
-                        iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                        iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                         if (iStringLength != 0)
                                 proto_tree_add_string(val_tree, hf_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
                         iValueOffset += iStringLength;
@@ -1318,7 +1318,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                                 iValueOffset += iValueLength;
                                                 break;
                                         }
-                                        iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                        iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
                                         subval_ti = proto_tree_add_text(val_tree, tvb, iValueOffset, iStringLength, "%s:", iStringValue);
                                         subval_tree = proto_item_add_subtree(subval_ti, ett_amf_array_element);
                                         proto_tree_add_uint(subval_tree, hf_amf_stringlength, tvb, iValueOffset, iValueLength, iStringLength);
@@ -1383,7 +1383,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                         if (iIntegerValue & 0x00000001) {
                                                 /* the upper 28 bits of the integer value is a string length */
                                                 iStringLength = iIntegerValue >> 1;
-                                                iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                                iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
                                                 traits_ti = proto_tree_add_text(val_tree, tvb, iValueOffset, -1, "Traits for class %s (%u member names)", iStringValue, iTraitCount);
                                                 traits_tree = proto_item_add_subtree(traits_ti, ett_amf_traits);
                                                 name_ti = proto_tree_add_text(traits_tree, tvb,
@@ -1408,7 +1408,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                                 if (iIntegerValue & 0x00000001) {
                                                         /* the upper 28 bits of the integer value is a string length */
                                                         iStringLength = iIntegerValue >> 1;
-                                                        iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                                        iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
                                                         member_ti = proto_tree_add_text(traits_tree, tvb, iValueOffset, iValueLength+iStringLength, "Member '%s'", iStringValue);
                                                         member_tree = proto_item_add_subtree(member_ti, ett_amf_trait_member);
                                                         proto_tree_add_uint(member_tree, hf_amf_membernamelength, tvb, iValueOffset, iValueLength, iStringLength);
@@ -1436,7 +1436,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                                                         iValueOffset += iValueLength;
                                                                         break;
                                                                 }
-                                                                iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                                                iStringValue = tvb_get_string_enc(wmem_packet_scope(), tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
                                                                 subval_ti = proto_tree_add_text(traits_tree, tvb, iValueOffset, -1, "%s:", iStringValue);
                                                                 subval_tree = proto_item_add_subtree(subval_ti, ett_amf_array_element);
                                                                 name_ti = proto_tree_add_text(subval_tree, tvb,
@@ -1515,7 +1515,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                         iArrayLength = iIntegerValue >> 1;
                         proto_tree_add_uint(val_tree, hf_amf_bytearraylength, tvb, iValueOffset, iValueLength, iArrayLength);
                         iValueOffset += iValueLength;
-                        iByteArrayValue = (guint8 *)ep_tvb_memdup(tvb, iValueOffset, iArrayLength);
+                        iByteArrayValue = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, iValueOffset, iArrayLength);
                         proto_tree_add_bytes(val_tree, hf_amf_bytearray, tvb, iValueOffset, iArrayLength, iByteArrayValue);
                         proto_item_append_text(ti, " %s", bytes_to_str(iByteArrayValue, iArrayLength));
                         if (parent_ti != NULL)

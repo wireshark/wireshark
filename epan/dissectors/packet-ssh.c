@@ -1088,7 +1088,7 @@ ssh_dissect_proposal(tvbuff_t *tvb, int offset, proto_tree *tree,
 	ssh_proto_tree_add_item(tree, hf_index_value, tvb, offset, len,
 				ENC_ASCII);
 	if (store)
-		*store = tvb_get_seasonal_string(tvb, offset, len);
+		*store = tvb_get_string(wmem_file_scope(), tvb, offset, len);
 	offset += len;
 
 	return offset;

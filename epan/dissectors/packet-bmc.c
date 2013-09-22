@@ -103,7 +103,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* Needs bit-reversing. Create a new buffer, copy the message to it and bit-reverse */
     len = tvb_length(tvb);
-    reversing_buffer = (guint8 *)tvb_g_memdup(tvb, offset, len);
+    reversing_buffer = (guint8 *)tvb_memdup(NULL, tvb, offset, len);
     p_rev = reversing_buffer;
     /* Entire message is bit reversed */
     for (i=0; i<len; i++, p_rev++)

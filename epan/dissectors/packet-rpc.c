@@ -637,7 +637,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
         }
 
 	if (string_data) {
-		string_buffer = tvb_get_ephemeral_string(tvb, data_offset, string_length_copy);
+		string_buffer = tvb_get_string(wmem_packet_scope(), tvb, data_offset, string_length_copy);
 	} else {
 		string_buffer = (char *)tvb_memcpy(tvb, wmem_alloc(wmem_packet_scope(), string_length_copy+1), data_offset, string_length_copy);
 	}

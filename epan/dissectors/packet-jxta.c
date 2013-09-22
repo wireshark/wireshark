@@ -790,7 +790,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     col_set_str(pinfo->cinfo, COL_INFO, "Welcome");
 
     {
-        gchar *welcomeline = tvb_get_ephemeral_string(tvb, offset, first_linelen);
+        gchar *welcomeline = tvb_get_string(wmem_packet_scope(), tvb, offset, first_linelen);
         gchar **current_token;
         guint token_offset = offset;
         proto_item *jxta_welcome_tree_item = NULL;
@@ -1021,7 +1021,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
         if (content_type && (sizeof("content-type") - 1) == headername_len) {
             if (0 == tvb_strncaseeql(tvb, headername_offset, "content-type", sizeof("content-type") - 1)) {
-                *content_type = tvb_get_ephemeral_string(tvb, headervalue_offset, headervalue_len);
+                *content_type = tvb_get_string(wmem_packet_scope(), tvb, headervalue_offset, headervalue_len);
             }
         }
 
@@ -1376,7 +1376,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         for (each_name = 0; each_name < msg_names_count; each_name++) {
             guint16 name_len = tvb_get_ntohs(tvb, tree_offset);
 
-            names_table[2 + each_name] = tvb_get_ephemeral_string(tvb, tree_offset + (int)sizeof(name_len), name_len);
+            names_table[2 + each_name] = tvb_get_string(wmem_packet_scope(), tvb, tree_offset + (int)sizeof(name_len), name_len);
             proto_tree_add_item(jxta_msg_tree, hf_jxta_message_names_name, tvb, tree_offset, (int)sizeof(name_len), ENC_ASCII|ENC_NA);
             tree_offset += (int)sizeof(name_len) + name_len;
         }
@@ -1627,7 +1627,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, (int)sizeof(guint16), ENC_ASCII|ENC_NA);
             tree_offset += (int)sizeof(guint16);
 
-            mediatype = tvb_get_ephemeral_string(tvb, tree_offset, type_len);
+            mediatype = tvb_get_string(wmem_packet_scope(), tvb, tree_offset, type_len);
 
             tree_offset += type_len;
         }

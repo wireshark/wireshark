@@ -5265,7 +5265,7 @@ dissect_lte_rrc_warningMessageSegment(tvbuff_t *warning_msg_seg_tvb, proto_tree 
     cb_data_page_tvb = tvb_new_subset(warning_msg_seg_tvb, offset, length, length);
     cb_data_tvb = dissect_cbs_data(dataCodingScheme, cb_data_page_tvb, tree, pinfo, 0);
     if (cb_data_tvb) {
-      str = tvb_get_ephemeral_string(cb_data_tvb, 0, tvb_length(cb_data_tvb));
+      str = tvb_get_string(wmem_packet_scope(), cb_data_tvb, 0, tvb_length(cb_data_tvb));
       proto_tree_add_string_format(tree, hf_lte_rrc_warningMessageSegment_decoded_page, warning_msg_seg_tvb, offset, 83,
                                    str, "Decoded Page %u: %s", i+1, str);
     }
@@ -9329,7 +9329,7 @@ dissect_lte_rrc_T_hnb_Name(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                        1, 48, FALSE, &hnb_name_tvb);
 
   actx->created_item = proto_tree_add_unicode_string(tree, hf_index, hnb_name_tvb, 0, -1,
-                                tvb_get_ephemeral_string_enc(hnb_name_tvb, 0, tvb_length(hnb_name_tvb), ENC_UTF_8 | ENC_NA));
+                                tvb_get_string_enc(wmem_packet_scope(), hnb_name_tvb, 0, tvb_length(hnb_name_tvb), ENC_UTF_8 | ENC_NA));
 
 
   return offset;

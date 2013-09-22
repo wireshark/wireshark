@@ -4926,7 +4926,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 
     switch (item_value_type) {
     case DCM_ITEM_VALUE_TYPE_UID:
-	*item_value = (gchar *)tvb_get_ephemeral_string(tvb, offset+4, item_len);
+	*item_value = (gchar *)tvb_get_string(wmem_packet_scope(), tvb, offset+4, item_len);
 
 	uid = (dcm_uid_t *)g_hash_table_lookup(dcm_uid_table, (gpointer) *item_value);
 	if (uid) {
@@ -4944,7 +4944,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 	break;
 
     case DCM_ITEM_VALUE_TYPE_STRING:
-	*item_value = (gchar *)tvb_get_ephemeral_string(tvb, offset+4, item_len);
+	*item_value = (gchar *)tvb_get_string(wmem_packet_scope(), tvb, offset+4, item_len);
         proto_item_append_text(assoc_item_pitem, "%s", *item_value);
 	proto_tree_add_string(assoc_item_ptree, *hf_value, tvb, offset+4, item_len, *item_value);
 
@@ -4997,7 +4997,7 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
     proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_assoc_item_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_sopclassuid_len, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
-    sopclassuid_str = (gchar *)tvb_get_ephemeral_string(tvb, offset+6, sop_class_uid_len);
+    sopclassuid_str = (gchar *)tvb_get_string(wmem_packet_scope(), tvb, offset+6, sop_class_uid_len);
     sopclassuid = (dcm_uid_t *)g_hash_table_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
 
     if (sopclassuid) {
@@ -5099,7 +5099,7 @@ dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_assoc_item_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_sopclassuid_len, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
-    sopclassuid_str = (gchar *)tvb_get_ephemeral_string(tvb, offset+6, sop_class_uid_len);
+    sopclassuid_str = (gchar *)tvb_get_string(wmem_packet_scope(), tvb, offset+6, sop_class_uid_len);
     sopclassuid = (dcm_uid_t *)g_hash_table_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
 
     scu_role = tvb_get_guint8(tvb, offset+6+sop_class_uid_len);
@@ -6201,7 +6201,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    /* Controlled exit, if VR does not fit. */
 	    if (dcm_tag_is_open(pdv, offset_tag, offset_vr, endpos, 2)) return endpos;
 
-	    vr = (gchar *)tvb_get_ephemeral_string(tvb, offset, 2);
+	    vr = (gchar *)tvb_get_string(wmem_packet_scope(), tvb, offset, 2);
 	    offset += 2;
 
 	    g_free(pdv->open_tag.vr);

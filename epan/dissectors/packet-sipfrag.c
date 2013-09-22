@@ -74,7 +74,7 @@ static void dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* For now, add all lines as unparsed strings */
 
         /* Extract & add the string. */
-        string = (char*)tvb_get_ephemeral_string(tvb, offset, linelen);
+        string = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, linelen);
         proto_tree_add_string_format(sipfrag_tree, hf_sipfrag_line,
                                      tvb, offset,
                                      linelen, string,

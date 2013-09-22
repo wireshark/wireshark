@@ -154,7 +154,7 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 
 	if(next_tvb) {
 
-	ns = tvb_get_g_string(t124NSIdentifier, 0, tvb_length(t124NSIdentifier));
+	ns = tvb_get_string(NULL, t124NSIdentifier, 0, tvb_length(t124NSIdentifier));
 	if(ns != NULL) {
 		dissector_try_string(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree);
 		g_free(ns);

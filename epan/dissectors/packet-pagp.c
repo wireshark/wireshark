@@ -341,12 +341,12 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		switch (tlv) {
 		   case PAGP_TLV_DEVICE_NAME:
-			ch = tvb_get_ephemeral_string(tvb, offset+4, len-4);
+			ch = tvb_get_string(wmem_packet_scope(), tvb, offset+4, len-4);
 			proto_tree_add_string(tlv_tree, hf_pagp_tlv_device_name,
 			   tvb, offset+4, len-4, ch);
 			break;
 		   case PAGP_TLV_PORT_NAME:
-			ch = tvb_get_ephemeral_string(tvb, offset+4, len-4);
+			ch = tvb_get_string(wmem_packet_scope(), tvb, offset+4, len-4);
 			proto_tree_add_string(tlv_tree, hf_pagp_tlv_port_name,
 			   tvb, offset+4, len-4, ch);
 			break;

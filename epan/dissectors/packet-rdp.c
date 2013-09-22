@@ -842,7 +842,7 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         pi = proto_tree_add_item(tree, c->field, tvb, offset, len, ENC_LITTLE_ENDIAN);
 
       if (c->flags & RDP_FI_UNICODE) {
-        string = tvb_get_ephemeral_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
+        string = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN);
         proto_item_append_text(pi, " (%s)", string);
       }
 
@@ -957,7 +957,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     for (i = 0; i < MIN(channelCount, MAX_CHANNELS); i++) {
       if (rdp_info) {
         rdp_info->channels[i].value = -1; /* unset */
-        rdp_info->channels[i].strptr = tvb_get_ephemeral_string(tvb, offset, 8);
+        rdp_info->channels[i].strptr = tvb_get_string(wmem_packet_scope(), tvb, offset, 8);
       }
       offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields, 0);
     }

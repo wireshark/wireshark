@@ -5386,7 +5386,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     }
     proto_tree_add_item(realm_tree, hf_ieee80211_ff_anqp_nai_realm,
                         tvb, offset, nai_len, ENC_ASCII|ENC_NA);
-    realm = tvb_get_ephemeral_string(tvb, offset, nai_len);
+    realm = tvb_get_string(wmem_packet_scope(), tvb, offset, nai_len);
     if (realm) {
       proto_item_append_text(r_item, " (%s)", realm);
     }
@@ -8429,7 +8429,7 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
 
     proto_tree_add_item (ietree, hf_ieee80211_vs_aruba_apname, tvb,
                          offset, tag_len, ENC_ASCII|ENC_NA);
-    proto_item_append_text(item, " (%s)", tvb_get_ephemeral_string(tvb, offset, tag_len));
+    proto_item_append_text(item, " (%s)", tvb_get_string(wmem_packet_scope(), tvb, offset, tag_len));
     break;
 
   default:
@@ -9232,7 +9232,7 @@ dissect_ssid_list(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
     if (offset + 2 + len > end)
       break;
 
-    str = tvb_get_ephemeral_string(tvb, offset + 2, len);
+    str = tvb_get_string(wmem_packet_scope(), tvb, offset + 2, len);
     proto_item_append_text(tree, "%c %s", (first ? ':' : ','), str);
     first = FALSE;
     ssid = proto_tree_add_text(tree, tvb, offset, 2 + len, "SSID: %s", str);
@@ -10929,7 +10929,7 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
     ssid_len = MAX_SSID_LEN;
   }
 
-  ssid = tvb_get_ephemeral_string(tvb, offset + 2, ssid_len);
+  ssid = tvb_get_string(wmem_packet_scope(), tvb, offset + 2, ssid_len);
   if (ssid_len == (gint)tag_len) {
     AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, ssid_len);
   }
@@ -11193,7 +11193,7 @@ ieee80211_tag_country_info(packet_info *pinfo, proto_tree *tree,
   proto_tree_add_item(tree, hf_ieee80211_tag_country_info_code,
                       tvb, offset, 2, ENC_ASCII|ENC_NA);
   proto_item_append_text(ti, ": Country Code %s",
-                         tvb_get_ephemeral_string(tvb, offset, 2));
+                         tvb_get_string(wmem_packet_scope(), tvb, offset, 2));
   offset += 2;
 
   proto_tree_add_item(tree, hf_ieee80211_tag_country_info_env,
@@ -12655,8 +12655,8 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
         proto_tree_add_item(tree, hf_ieee80211_mesh_id, tvb, offset, tag_len, ENC_ASCII|ENC_NA);
         if (tag_len > 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", tvb_get_ephemeral_string(tvb, offset, tag_len));
-            proto_item_append_text(ti, ": %s", tvb_get_ephemeral_string(tvb, offset, tag_len));
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", tvb_get_string(wmem_packet_scope(), tvb, offset, tag_len));
+            proto_item_append_text(ti, ": %s", tvb_get_string(wmem_packet_scope(), tvb, offset, tag_len));
         }
 
       break;

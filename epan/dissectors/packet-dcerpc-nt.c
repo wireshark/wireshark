@@ -129,8 +129,8 @@ dissect_null_term_string(tvbuff_t *tvb, int offset,
 	}
 
 	len = tmp_offset - offset;
-	/* tvb_get_ephemeral_string didn't want the length with the 0*/
-	s = tvb_get_ephemeral_string(tvb, offset, len);
+	/* tvb_get_string didn't want the length with the 0*/
+	s = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
 	proto_tree_add_string(tree, hf_index, tvb, offset, len + 1, s);
 
 	return tmp_offset;
@@ -165,8 +165,8 @@ dissect_null_term_wstring(tvbuff_t *tvb, int offset,
 	}
 	len = tmp_offset - offset;
 
-	/* tvb_get_ephemeral_string didn't want the length with the 0*/
-	s = tvb_get_g_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
+	/* tvb_get_string didn't want the length with the 0*/
+	s = tvb_get_unicode_string(NULL, tvb, offset, len, ENC_LITTLE_ENDIAN);
 	proto_tree_add_string(tree, hf_index, tvb, offset, len, s);
 	g_free(s);
 
@@ -1285,7 +1285,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * some way we can get that string, rather than duplicating the
 	 * efforts of that routine?
 	 */
-	s = tvb_get_ephemeral_unicode_string(
+	s = tvb_get_unicode_string(wmem_packet_scope(),
 		tvb, start_offset + 12, end_offset - start_offset - 12,
 		ENC_LITTLE_ENDIAN);
 
@@ -1348,7 +1348,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * some way we can get that string, rather than duplicating the
 	 * efforts of that routine?
 	 */
-	s = tvb_get_ephemeral_string(
+	s = tvb_get_string(wmem_packet_scope(),
 		tvb, start_offset + 12, (end_offset - start_offset - 12) );
 
 	/* Append string to COL_INFO */

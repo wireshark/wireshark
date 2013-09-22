@@ -209,7 +209,7 @@ isis_dissect_ip_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
         if ( length != 0 ) {
                 proto_tree_add_text ( tree, tvb, offset, length,
                         "IP Authentication: %.*s", length,
-                        tvb_get_ephemeral_string(tvb, offset, length) );
+                        tvb_get_string(wmem_packet_scope(), tvb, offset, length) );
         }
 }
 
@@ -243,7 +243,7 @@ isis_dissect_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
                 proto_tree_add_text ( tree, tvb, offset, length,
                         "Hostname: --none--" );
         } else {
-		const char* value = tvb_get_ephemeral_string(tvb, offset, length);
+		const char* value = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
                 proto_tree_add_string_format ( tree, tree_id,
 			tvb, offset, length,
                         value, "Hostname: %.*s", length, value);

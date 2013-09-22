@@ -252,10 +252,10 @@ test(tvbuff_t *tvb, gchar* name,
 	}
 
 	/* Sweep across data in various sized increments checking
-	 * tvb_g_memdup() */
+	 * tvb_memdup() */
 	for (incr = 1; incr < length; incr++) {
 		for (i = 0; i < length - incr; i += incr) {
-			ptr = tvb_g_memdup(tvb, i, incr);
+			ptr = tvb_memdup(NULL, tvb, i, incr);
 			if (memcmp(ptr, &expected_data[i], incr) != 0) {
 				printf("11: Failed TVB=%s Offset=%d Length=%d "
 						"Bad memdup\n",
@@ -269,7 +269,7 @@ test(tvbuff_t *tvb, gchar* name,
 	}
 
 	/* One big memdup */
-	ptr = tvb_g_memdup(tvb, 0, -1);
+	ptr = tvb_memdup(NULL, tvb, 0, -1);
 	if (memcmp(ptr, expected_data, length) != 0) {
 		printf("12: Failed TVB=%s Offset=0 Length=-1 "
 				"Bad memdup\n", name);

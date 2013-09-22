@@ -1599,7 +1599,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
             encoid_len = tvb_length_remaining(oid_tvb,0);
             if (encoid_len > 0) {
-                encoid = (guint8*)ep_tvb_memdup(oid_tvb,0,encoid_len);
+                encoid = (guint8*)tvb_memdup(wmem_packet_scope(),oid_tvb,0,encoid_len);
                 (*pprid_subids_len) = oid_encoded2subid(encoid, encoid_len, pprid_subids);
             }
         }
@@ -1627,7 +1627,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
         /* TODO: check pc, class and tag */
 
-        encoid = (guint8*)ep_tvb_memdup(tvb,offset,encoid_len);
+        encoid = (guint8*)tvb_memdup(wmem_packet_scope(),tvb,offset,encoid_len);
 
         if (*pprid_subids) {
             /* Never tested this branch */
@@ -2858,7 +2858,7 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
 
     /* Special section for printing strings */
     if (mode==FMT_STR) {
-        codestr = tvb_get_ephemeral_string(tvb, offset, octets);
+        codestr = tvb_get_string(wmem_packet_scope(), tvb, offset, octets);
         pi = proto_tree_add_string_format(stt, *hf_proto_parameter, tvb,
                                           offset, octets, codestr, "%-28s : %s", str, codestr);
         return pi;

@@ -207,7 +207,7 @@ static void after_member(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 		tvbparse_elem_t *key_tok = tok->sub;
 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
-			char *key = tvb_get_ephemeral_string(key_tok->tvb, key_tok->offset, key_tok->len);
+			char *key = tvb_get_string(wmem_packet_scope(), key_tok->tvb, key_tok->offset, key_tok->len);
 
 			proto_item_append_text(tree, " Key: %s", key);
 		}

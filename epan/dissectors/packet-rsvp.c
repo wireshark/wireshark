@@ -6068,12 +6068,12 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
                                 "C-type: 2 (globally unique)");
             proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, "Address type: %s",
                                 val_to_str_ext(type, &address_type_vals_ext, "Unknown (%u)"));
-            str = tvb_get_ephemeral_string (tvb, offset2 + 1, 3);
+            str = tvb_get_string (wmem_packet_scope(), tvb, offset2 + 1, 3);
             proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 1, 3,
                                 "International Segment: %s", str);
             proto_item_append_text(ti, "Globally-Unique. Addr Type: %s. Intl Segment: %s. ",
                                    val_to_str_ext(type, &address_type_vals_ext, "Unknown (%u)"), str);
-            str = tvb_get_ephemeral_string (tvb, offset2 + 4, 12);
+            str = tvb_get_string (wmem_packet_scope(), tvb, offset2 + 4, 12);
             proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 4, 12,
                                 "National Segment: %s", str);
             proto_item_append_text(ti, "Natl Segment: %s. ", str);

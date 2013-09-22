@@ -430,7 +430,7 @@ dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, in
              minutes,
              seconds,
              deci_seconds,
-             tvb_get_ephemeral_string(tvb,offset+8,1),
+             tvb_get_string(wmem_packet_scope(),tvb,offset+8,1),
              hour_from_utc,
              min_from_utc);
     }else{
@@ -610,7 +610,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	pt_name = proto_item_add_subtree(pi_name,ett_name);
 
 	/* fetch ObjectName and its relative oid_info */
-	oid_bytes = (guint8*)ep_tvb_memdup(tvb, name_offset, name_len);
+	oid_bytes = (guint8*)tvb_memdup(wmem_packet_scope(), tvb, name_offset, name_len);
 	oid_info = oid_get_from_encoded(oid_bytes, name_len, &subids, &oid_matched, &oid_left);
 
 	add_oid_debug_subtree(oid_info,pt_name);
@@ -1406,8 +1406,8 @@ get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 	given_username_len = tvb_length(user_tvb);
 	given_engine_len = tvb_length(engine_tvb);
 	if (! ( given_engine_len && given_username_len ) ) return NULL;
-	given_username = (guint8*)ep_tvb_memdup(user_tvb,0,-1);
-	given_engine = (guint8*)ep_tvb_memdup(engine_tvb,0,-1);
+	given_username = (guint8*)tvb_memdup(wmem_packet_scope(),user_tvb,0,-1);
+	given_engine = (guint8*)tvb_memdup(wmem_packet_scope(),engine_tvb,0,-1);
 
 	for (a = localized_ues; a; a = a->next) {
 		if ( localized_match(a, given_username, given_username_len, given_engine, given_engine_len) ) {
@@ -1466,10 +1466,10 @@ snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_l
 		*error = "Not enough data remaining";
 		return FALSE;
 	}
-	msg = (guint8*)ep_tvb_memdup(p->msg_tvb,0,msg_len);
+	msg = (guint8*)tvb_memdup(wmem_packet_scope(),p->msg_tvb,0,msg_len);
 
 
-	auth = (guint8*)ep_tvb_memdup(p->auth_tvb,0,auth_len);
+	auth = (guint8*)tvb_memdup(wmem_packet_scope(),p->auth_tvb,0,auth_len);
 
 	start = p->auth_offset - p->start_offset;
 	end = 	start + auth_len;
@@ -1531,9 +1531,9 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 		*error = "Not enough data remaining";
 		return FALSE;
 	}
-	msg = (guint8*)ep_tvb_memdup(p->msg_tvb,0,msg_len);
+	msg = (guint8*)tvb_memdup(wmem_packet_scope(),p->msg_tvb,0,msg_len);
 
-	auth = (guint8*)ep_tvb_memdup(p->auth_tvb,0,auth_len);
+	auth = (guint8*)tvb_memdup(wmem_packet_scope(),p->auth_tvb,0,auth_len);
 
 	start = p->auth_offset - p->start_offset;
 	end = 	start + auth_len;
@@ -1579,7 +1579,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 		return NULL;
 	}
 
-	salt = (guint8*)ep_tvb_memdup(p->priv_tvb,0,salt_len);
+	salt = (guint8*)tvb_memdup(wmem_packet_scope(),p->priv_tvb,0,salt_len);
 
 	/*
 	 The resulting "salt" is XOR-ed with the pre-IV to obtain the IV.
@@ -1595,7 +1595,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 		return NULL;
 	}
 
-	cryptgrm = (guint8*)ep_tvb_memdup(encryptedData,0,-1);
+	cryptgrm = (guint8*)tvb_memdup(wmem_packet_scope(),encryptedData,0,-1);
 
 	cleartext = (guint8*)g_malloc(cryptgrm_len);
 
@@ -1667,7 +1667,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 		*error = "Not enough data remaining";
 		return NULL;
 	}
-	cryptgrm = (guint8*)ep_tvb_memdup(encryptedData,0,-1);
+	cryptgrm = (guint8*)tvb_memdup(wmem_packet_scope(),encryptedData,0,-1);
 
 	cleartext = (guint8*)g_malloc(cryptgrm_len);
 

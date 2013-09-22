@@ -129,7 +129,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         return 0;
 
     /* Make sure the packet we're dissecting is a ar_drone packet */
-    if(strcmp(tvb_get_ephemeral_string(tvb,0,3),"AT*"))
+    if(strcmp(tvb_get_string(wmem_packet_scope(),tvb,0,3),"AT*"))
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ar_drone");
@@ -146,9 +146,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         if (offset < master_offset)
             return master_offset;
 
-        command = tvb_get_ephemeral_string(tvb, master_offset, offset-master_offset);
+        command = tvb_get_string(wmem_packet_scope(), tvb, master_offset, offset-master_offset);
         sub_item = proto_tree_add_string(ar_tree, hf_command, tvb, master_offset, -1,
-            tvb_get_ephemeral_string(tvb, master_offset+3, offset-master_offset-3));
+            tvb_get_string(wmem_packet_scope(), tvb, master_offset+3, offset-master_offset-3));
 
         if(!strncmp(command,"AT*PCMD",7))
         {
@@ -541,7 +541,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             }
             ti = proto_tree_add_item(sub_tree, hf_CTRL_mode, tvb, offset, length, ENC_ASCII|ENC_NA);
             proto_item_append_text(ti, "%s",
-                    str_to_str(tvb_get_ephemeral_string(tvb, offset, length), CTRL_mode_vs, " (Unknown Mode)"));
+                    str_to_str(tvb_get_string(wmem_packet_scope(), tvb, offset, length), CTRL_mode_vs, " (Unknown Mode)"));
             offset += (length + 1);
 
             /* Add File Size */

@@ -1686,7 +1686,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
            proto_tree_add_item() with the appropriate ENC_ value? */
         /* XXX - should this ever be used with something that's *not*
            an FT_STRING? */
-        s = tvb_get_ephemeral_unicode_string(tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
+        s = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
         if (tree && buffer_len) {
             hfinfo = proto_registrar_get_nth(hfindex);
             tvb_ensure_bytes_exist(tvb, offset, buffer_len);
@@ -1701,7 +1701,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     } else {
         /*
-         * "tvb_get_ephemeral_string()" throws an exception if the entire string
+         * "tvb_get_string()" throws an exception if the entire string
          * isn't in the tvbuff.  If the length is bogus, this should
          * keep us from trying to allocate an immensely large buffer.
          * (It won't help if the length is *valid* but immensely large,
@@ -1713,7 +1713,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * octet string?  What if size_is is neither 1 nor 2?
          */
         tvb_ensure_bytes_exist(tvb, offset, buffer_len);
-        s = tvb_get_ephemeral_string(tvb, offset, buffer_len);
+        s = tvb_get_string(wmem_packet_scope(), tvb, offset, buffer_len);
         if (tree && buffer_len)
             proto_tree_add_item(string_tree, hfindex, tvb, offset,
                                 buffer_len, DREP_ENC_INTEGER(drep));
@@ -1875,7 +1875,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
            proto_tree_add_item() with the appropriate ENC_ value? */
         /* XXX - should this ever be used with something that's *not*
            an FT_STRING? */
-        s = tvb_get_ephemeral_unicode_string(tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
+        s = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
         if (tree && buffer_len) {
             hfinfo = proto_registrar_get_nth(hfindex);
             tvb_ensure_bytes_exist(tvb, offset, buffer_len);
@@ -1890,7 +1890,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     } else {
         /*
-         * "tvb_get_ephemeral_string()" throws an exception if the entire string
+         * "tvb_get_string()" throws an exception if the entire string
          * isn't in the tvbuff.  If the length is bogus, this should
          * keep us from trying to allocate an immensely large buffer.
          * (It won't help if the length is *valid* but immensely large,
@@ -1902,7 +1902,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * octet string?  What if size_is is neither 1 nor 2?
          */
         tvb_ensure_bytes_exist(tvb, offset, buffer_len);
-        s = tvb_get_ephemeral_string(tvb, offset, buffer_len);
+        s = tvb_get_string(wmem_packet_scope(), tvb, offset, buffer_len);
         if (tree && buffer_len)
             proto_tree_add_item(string_tree, hfindex, tvb, offset,
                                 buffer_len, DREP_ENC_INTEGER(drep));
@@ -4193,7 +4193,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             const guint32 conformance_count = dcerpc_tvb_get_ntohl(tvb, offset, hdr->drep);
             proto_tree_add_uint(cn_rts_command_tree, hf_dcerpc_cn_rts_command_conformancecount, tvb, offset, 4, conformance_count);
             offset += 4;
-            padding = (guint8 *)tvb_g_memdup(tvb, offset, conformance_count);
+            padding = (guint8 *)tvb_memdup(NULL, tvb, offset, conformance_count);
             proto_tree_add_bytes(cn_rts_command_tree, hf_dcerpc_cn_rts_command_padding, tvb, offset, conformance_count, padding);
             offset += conformance_count;
         } break;
@@ -4219,7 +4219,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                offset += 16;
             } break;
             }
-            padding = (guint8 *)tvb_g_memdup(tvb, offset, 12);
+            padding = (guint8 *)tvb_memdup(NULL, tvb, offset, 12);
             proto_tree_add_bytes(cn_rts_command_tree, hf_dcerpc_cn_rts_command_padding, tvb, offset, 12, padding);
             offset += 12;
         } break;

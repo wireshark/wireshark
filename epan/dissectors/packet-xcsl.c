@@ -273,7 +273,7 @@ static gboolean dissect_xcsl_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_t
     guint8 *protocol;
 
     if (tvb_length_remaining (tvb, offset) >= 5) {
-        protocol = tvb_get_ephemeral_string(tvb, offset, 5);
+        protocol = tvb_get_string(wmem_packet_scope(), tvb, offset, 5);
 
         if (strncmp(protocol,"xcsl",4) == 0 && (protocol[4] == ';' || protocol[4] == '-')) {
 

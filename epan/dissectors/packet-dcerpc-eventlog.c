@@ -368,7 +368,7 @@ eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_in
 	char *str;
 	int len;
 	len=eventlog_get_unicode_string_length(tvb, offset);
-	str=tvb_get_ephemeral_faked_unicode(tvb, offset, len, TRUE);
+	str=tvb_get_faked_unicode(wmem_packet_scope(), tvb, offset, len, TRUE);
 	proto_tree_add_string_format(tree, hf_eventlog_Record_source_name, tvb, offset, len*2, str, "source_name: %s", str);
 	offset+=len*2;
 	return offset;
@@ -379,7 +379,7 @@ eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_
 	char *str;
 	int len;
 	len=eventlog_get_unicode_string_length(tvb, offset);
-	str=tvb_get_ephemeral_faked_unicode(tvb, offset, len, TRUE);
+	str=tvb_get_faked_unicode(wmem_packet_scope(), tvb, offset, len, TRUE);
 	proto_tree_add_string_format(tree, hf_eventlog_Record_computer_name, tvb, offset, len*2, str, "computer_name: %s", str);
 	offset+=len*2;
 	return offset;
@@ -407,7 +407,7 @@ eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *
 		char *str;
 		int len;
 		len=eventlog_get_unicode_string_length(tvb, string_offset);
-		str=tvb_get_ephemeral_faked_unicode(tvb, string_offset, len, TRUE);
+		str=tvb_get_faked_unicode(wmem_packet_scope(), tvb, string_offset, len, TRUE);
 		proto_tree_add_string_format(tree, hf_eventlog_Record_string, tvb, string_offset, len*2, str, "string: %s", str);
 		string_offset+=len*2;
 	

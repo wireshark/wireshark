@@ -568,7 +568,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             reqresp_tree = proto_item_add_subtree(th, ett_msrp_reqresp);
             proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,ENC_ASCII|ENC_NA);
             proto_tree_add_uint(reqresp_tree,hf_msrp_status_code,tvb,token_3_start,token_3_len,
-                                atoi(tvb_get_ephemeral_string(tvb, token_3_start, token_3_len)));
+                                atoi(tvb_get_string(wmem_packet_scope(), tvb, token_3_start, token_3_len)));
 
         }else{
             th = proto_tree_add_item(msrp_tree,hf_msrp_request_line,tvb,0,linelen,ENC_ASCII|ENC_NA);
@@ -632,7 +632,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      * Fetch the value.
                      */
                     value_len = line_end_offset - value_offset;
-                    value = tvb_get_ephemeral_string(tvb, value_offset,
+                    value = tvb_get_string(wmem_packet_scope(), tvb, value_offset,
                                        value_len);
 
                     /*
@@ -661,11 +661,11 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                     parameter_offset++;
                                 content_type_len = semi_colon_offset - value_offset;
                                 content_type_parameter_str_len = line_end_offset - parameter_offset;
-                                content_type_parameter_str = tvb_get_ephemeral_string(tvb,
+                                content_type_parameter_str = tvb_get_string(wmem_packet_scope(), tvb,
                                              parameter_offset, content_type_parameter_str_len);
                             }
                             media_type_str_lower_case = ascii_strdown_inplace(
-                                                            (gchar *)tvb_get_ephemeral_string(tvb, value_offset, content_type_len));
+                                                            (gchar *)tvb_get_string(wmem_packet_scope(), tvb, value_offset, content_type_len));
                             break;
 
                         default:

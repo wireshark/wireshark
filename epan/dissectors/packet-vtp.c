@@ -178,7 +178,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(vtp_tree, hf_vtp_upd_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		upd_timestamp = tvb_get_ephemeral_string(tvb, offset, 12);
+		upd_timestamp = tvb_get_string(wmem_packet_scope(), tvb, offset, 12);
 		proto_tree_add_string_format(vtp_tree, hf_vtp_upd_ts, tvb,
 			offset, 12, (gchar*)upd_timestamp,
 			"Update Timestamp: %.2s-%.2s-%.2s %.2s:%.2s:%.2s",

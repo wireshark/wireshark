@@ -2791,7 +2791,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         }
         else if (ucs2)
         {
-            /* XXX, use tvb_get_ephemeral_unicode_string(.., ENC_BIG_ENDIAN); */
+            /* XXX, use tvb_get_unicode_string(.., ENC_BIG_ENDIAN); */
             if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
             {
                 guint8 rep_len = tvb_reported_length(sm_tvb);
@@ -2853,7 +2853,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 g_free(utf8_text);
                 g_iconv_close(cd);
             } else {
-                ustr = tvb_get_ephemeral_unicode_string(tvb, offset, length, ENC_BIG_ENDIAN);
+                ustr = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length, ENC_BIG_ENDIAN);
                 proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
             }
         }

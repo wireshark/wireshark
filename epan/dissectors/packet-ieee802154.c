@@ -1882,7 +1882,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
          * We will decrypt the message in-place and then use the buffer as the
          * real data for the new tvb.
          */
-        text = (guint8 *)tvb_g_memdup(tvb, offset, captured_len);
+        text = (guint8 *)tvb_memdup(NULL, tvb, offset, captured_len);
 
         /* Perform CTR-mode transformation. */
         if (!ccm_ctr_encrypt(key, tmp, rx_mic, text, captured_len)) {
@@ -1940,7 +1940,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
          * already points to contiguous memory, since we just allocated it in
          * decryption phase.
          */
-        if (!ccm_cbc_mac(key, tmp, (const gchar *)ep_tvb_memdup(tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
+        if (!ccm_cbc_mac(key, tmp, (const gchar *)tvb_memdup(wmem_packet_scope(), tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
             *status = DECRYPT_PACKET_MIC_CHECK_FAILED;
         }
         /* Compare the received MIC with the one we generated. */

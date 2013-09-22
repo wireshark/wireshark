@@ -1343,7 +1343,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Detect reassemble end character: \r for HS or \n for AG */
         length = tvb_length(tvb);
-        at_stream = tvb_get_ephemeral_string(tvb, 0, length);
+        at_stream = tvb_get_string(wmem_packet_scope(), tvb, 0, length);
 
         reassemble_start_offset = 0;
 

@@ -7982,7 +7982,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
                 }
                 crypt_rc4_init(&rc4state,vars->encryption_key,16);
                 crypt_rc4(&rc4state,(guint8*)&copyconfounder,8);
-                decrypted = (guint8*)tvb_g_memdup(tvb, offset,data_len);
+                decrypted = (guint8*)tvb_memdup(NULL, tvb, offset,data_len);
                 crypt_rc4_init(&rc4state,vars->encryption_key,16);
                 crypt_rc4(&rc4state,decrypted,data_len);
                 buf = tvb_new_child_real_data(tvb, decrypted, data_len, data_len);

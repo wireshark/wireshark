@@ -1204,7 +1204,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x76:	/* Geographical Location Parameters / IARI */
 			if (ims_event) {
 				proto_tree_add_unicode_string(elem_tree, hf_ctlv_iari, tvb, pos, len,
-					tvb_get_ephemeral_string_enc(tvb, pos, len, ENC_UTF_8 | ENC_NA));
+					tvb_get_string_enc(wmem_packet_scope(), tvb, pos, len, ENC_UTF_8 | ENC_NA));
 			}
 			break;
 		case 0x77:	/* GAD Shapes / IMPU list */
@@ -1214,7 +1214,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (tvb_get_guint8(tvb, pos+i) == 0x80) {
 						g8 = tvb_get_guint8(tvb, pos+i+1);
 						proto_tree_add_unicode_string(elem_tree, hf_ctlv_impu, tvb, pos+i+2, g8,
-							tvb_get_ephemeral_string_enc(tvb, pos+i+2, g8, ENC_UTF_8 | ENC_NA));
+							tvb_get_string_enc(wmem_packet_scope(), tvb, pos+i+2, g8, ENC_UTF_8 | ENC_NA));
 						i += 2+g8;
 					} else {
 						break;
@@ -1224,7 +1224,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case 0x78:	/* NMEA sentence / IMS Status-Code */
 			if (ims_event) {
-				guint8 *status_code = tvb_get_ephemeral_string(tvb, pos, len);
+				guint8 *status_code = tvb_get_string(wmem_packet_scope(), tvb, pos, len);
 				proto_tree_add_string_format_value(elem_tree, hf_ctlv_ims_status_code, tvb, pos, len,
 					status_code, "%s (%s)", status_code, str_to_str(status_code, ims_status_code, "Unknown"));
 			}

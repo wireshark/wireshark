@@ -1383,7 +1383,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_inf
         gchar           *name;
         device_name_t   *device_name;
 
-        name = tvb_get_ephemeral_string(tvb, offset, 248);
+        name = tvb_get_string(wmem_packet_scope(), tvb, offset, 248);
 
         k_frame_number = pinfo->fd->num;
         k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
@@ -1841,7 +1841,7 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         gchar           *name;
                         device_name_t   *device_name;
 
-                        name = tvb_get_ephemeral_string(tvb, offset+i+2, length-1);
+                        name = tvb_get_string(wmem_packet_scope(), tvb, offset+i+2, length-1);
 
                         k_frame_number = pinfo->fd->num;
                         k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
@@ -2706,7 +2706,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
                 k_adapter_id = hci_data->adapter_id;
                 k_frame_number = pinfo->fd->num;
 
-                name = tvb_get_ephemeral_string(tvb, offset, 248);
+                name = tvb_get_string(wmem_packet_scope(), tvb, offset, 248);
 
                 key[0].length = 1;
                 key[0].key    = &k_interface_id;

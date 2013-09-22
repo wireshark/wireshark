@@ -997,7 +997,7 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 					lr = new_offset - offset;
 #if 0 /* fcn'al change: defer */
 					if ( ((lr < 3) || (lr > 5)) ||
-						( lr != strspn( tvb_get_ephemeral_string( tvb, offset, lr ), "a-zA-Z0-9-_" ) ) )
+						( lr != strspn( tvb_get_string( wmem_packet_scope(), tvb, offset, lr ), "a-zA-Z0-9-_" ) ) )
 						{
 						new_offset = offset;  /* Assume rest is a comment: force exit from while */
 						break;  /* from switch */
@@ -1129,7 +1129,7 @@ aprs_item( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 
 	data_len    = 10;
 
-	info_buffer = tvb_get_ephemeral_string( tvb, offset, data_len );
+	info_buffer = tvb_get_string( wmem_packet_scope(), tvb, offset, data_len );
 
 	ch_ptr = strchr( info_buffer, '!' );
 	if ( ch_ptr != NULL )

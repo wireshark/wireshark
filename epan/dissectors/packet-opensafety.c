@@ -683,7 +683,7 @@ findFrame1Position ( tvbuff_t *message_tvb, guint16 byte_offset, guint8 dataLeng
         else
             frameCRC = tvb_get_guint8(message_tvb,  byte_offset + i_wFrame1Position + dataLength + OSS_FRAME_POS_DATA);
 
-    	bytes = (guint8*)ep_tvb_memdup(message_tvb, byte_offset + i_wFrame1Position, dataLength + 4);
+    	bytes = (guint8*)tvb_memdup(wmem_packet_scope(), message_tvb, byte_offset + i_wFrame1Position, dataLength + 4);
         if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
         {
             calcCRC = crc16_0x755B(bytes, dataLength + 4, 0);
@@ -776,7 +776,7 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
                                 /* Find CRC position and calculate checksum */
                                 crc = tvb_get_guint8(message_tvb, ctr + 3 + b_Length );
 
-                                bytes = (guint8 *)ep_tvb_memdup(message_tvb, ctr - 1, b_Length + 5 );
+                                bytes = (guint8 *)tvb_memdup(wmem_packet_scope(), message_tvb, ctr - 1, b_Length + 5 );
                                 if ( b_Length > 8 ) {
                                     crc = tvb_get_letohs ( message_tvb, ctr + 3 + b_Length );
                                     crcOffset = 1;
@@ -1626,7 +1626,7 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
 
     checksum_tree = proto_item_add_subtree(item, ett_opensafety_checksum);
 
-    bytes = (guint8*)ep_tvb_memdup(message_tvb, frameStart1, dataLength + 4);
+    bytes = (guint8*)tvb_memdup(wmem_packet_scope(), message_tvb, frameStart1, dataLength + 4);
     if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
     {
         calc1_crc = crc16_0x755B(&bytes[frameStart1], dataLength + 4, 0);

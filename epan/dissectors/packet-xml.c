@@ -235,7 +235,7 @@ static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         dissect_xml(tvb, pinfo, tree);
         return TRUE;
     } else if (pref_heuristic_unicode) {
-        const guint8 *data_str    = tvb_get_g_unicode_string(tvb, 0, tvb_length(tvb), ENC_LITTLE_ENDIAN);
+        const guint8 *data_str    = tvb_get_unicode_string(NULL, tvb, 0, tvb_length(tvb), ENC_LITTLE_ENDIAN);
         tvbuff_t     *unicode_tvb = tvb_new_child_real_data(tvb, data_str, tvb_length(tvb)/2, tvb_length(tvb)/2);
         tvb_set_free_cb(unicode_tvb, g_free);
         if (tvbparse_peek(tvbparse_init(unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
@@ -346,7 +346,7 @@ static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     proto_item      *pi;
     proto_tree      *pt;
     tvbparse_elem_t *name_tok      = tok->sub->next;
-    gchar           *name          = tvb_get_ephemeral_string(name_tok->tvb, name_tok->offset, name_tok->len);
+    gchar           *name          = tvb_get_string(wmem_packet_scope(), name_tok->tvb, name_tok->offset, name_tok->len);
     xml_ns_t        *ns            = (xml_ns_t *)g_hash_table_lookup(xmpli_names, name);
     xml_frame_t     *new_frame;
 
@@ -418,8 +418,8 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
         tvbparse_elem_t *leaf_tok = name_tok->sub->sub->next->next;
         xml_ns_t        *nameroot_ns;
 
-        root_name      = (gchar *)tvb_get_ephemeral_string(root_tok->tvb, root_tok->offset, root_tok->len);
-        name           = (gchar *)tvb_get_ephemeral_string(leaf_tok->tvb, leaf_tok->offset, leaf_tok->len);
+        root_name      = (gchar *)tvb_get_string(wmem_packet_scope(), root_tok->tvb, root_tok->offset, root_tok->len);
+        name           = (gchar *)tvb_get_string(wmem_packet_scope(), leaf_tok->tvb, leaf_tok->offset, leaf_tok->len);
         name_orig_case = name;
 
         nameroot_ns = (xml_ns_t *)g_hash_table_lookup(xml_ns.elements, root_name);
@@ -434,7 +434,7 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
         }
 
     } else {
-        name = tvb_get_ephemeral_string(name_tok->tvb, name_tok->offset, name_tok->len);
+        name = tvb_get_string(wmem_packet_scope(), name_tok->tvb, name_tok->offset, name_tok->len);
         name_orig_case = wmem_strdup(wmem_packet_scope(), name);
         ascii_strdown_inplace(name);
 
@@ -528,7 +528,7 @@ static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_,
 
     new_frame = (xml_frame_t *)wmem_alloc(wmem_packet_scope(), sizeof(xml_frame_t));
     new_frame->type           = XML_FRAME_DTD_DOCTYPE;
-    new_frame->name           = (gchar *)tvb_get_ephemeral_string(name_tok->tvb,
+    new_frame->name           = (gchar *)tvb_get_string(wmem_packet_scope(), name_tok->tvb,
                                                                   name_tok->offset,
                                                                   name_tok->len);
     new_frame->name_orig_case = new_frame->name;
@@ -587,7 +587,7 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     proto_item      *pi;
     xml_frame_t     *new_frame;
 
-    name           = tvb_get_ephemeral_string(tok->sub->tvb, tok->sub->offset, tok->sub->len);
+    name           = tvb_get_string(wmem_packet_scope(), tok->sub->tvb, tok->sub->offset, tok->sub->len);
     name_orig_case = wmem_strdup(wmem_packet_scope(), name);
     ascii_strdown_inplace(name);
 

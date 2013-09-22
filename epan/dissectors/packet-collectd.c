@@ -396,7 +396,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	*ret_offset = offset + 4;
 	*ret_length = length - 4;
 
-	*ret_string = tvb_get_ephemeral_string (tvb, *ret_offset, *ret_length);
+	*ret_string = tvb_get_string (wmem_packet_scope(), tvb, *ret_offset, *ret_length);
 
 	pi = proto_tree_add_text (tree_root, tvb, offset, length,
 				  "collectd %s segment: \"%s\"",
@@ -1008,7 +1008,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			switch (part_type) {
 			case TYPE_HOST:
-				vdispatch.host = tvb_get_ephemeral_string (tvb,
+				vdispatch.host = tvb_get_string (wmem_packet_scope(), tvb,
 						offset + 4, part_length - 4);
 				if (pkt_host == NULL)
 					pkt_host = vdispatch.host;
@@ -1017,14 +1017,14 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case TYPE_TIME_HR:
 				break;
 			case TYPE_PLUGIN:
-				vdispatch.plugin = tvb_get_ephemeral_string (tvb,
+				vdispatch.plugin = tvb_get_string (wmem_packet_scope(), tvb,
 						offset + 4, part_length - 4);
 				pkt_plugins++;
 				break;
 			case TYPE_PLUGIN_INSTANCE:
 				break;
 			case TYPE_TYPE:
-				vdispatch.type = tvb_get_ephemeral_string (tvb,
+				vdispatch.type = tvb_get_string (wmem_packet_scope(), tvb,
 						offset + 4, part_length - 4);
 				break;
 			case TYPE_TYPE_INSTANCE:

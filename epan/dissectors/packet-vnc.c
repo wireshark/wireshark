@@ -890,7 +890,7 @@ process_vendor(proto_tree *tree, gint hfindex, tvbuff_t *tvb, gint offset)
 	proto_item *ti;
 
 	if (tree) {
-		vendor = tvb_get_ephemeral_string(tvb, offset, 4);
+		vendor = tvb_get_string(wmem_packet_scope(), tvb, offset, 4);
 
 		ti = proto_tree_add_string(tree, hfindex, tvb, offset, 4, vendor);
 
@@ -923,7 +923,7 @@ process_tight_capabilities(proto_tree *tree,
 
 		offset = process_vendor(tree, vendor_index, tvb, offset);
 
-		name = tvb_get_ephemeral_string(tvb, offset, 8);
+		name = tvb_get_string(wmem_packet_scope(), tvb, offset, 8);
 		proto_tree_add_string(tree, name_index, tvb, offset, 8, name);
 		offset += 8;
 	}
@@ -1029,7 +1029,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		proto_tree_add_item(tree, hf_vnc_server_proto_ver, tvb, 4,
 				    7, ENC_ASCII|ENC_NA);
 		per_conversation_info->server_proto_ver =
-			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7), NULL);
+			g_ascii_strtod((char *)tvb_get_string(wmem_packet_scope(), tvb, 4, 7), NULL);
 		per_conversation_info->server_port = pinfo->srcport;
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -1046,7 +1046,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		proto_tree_add_item(tree, hf_vnc_client_proto_ver, tvb,
 				    4, 7, ENC_ASCII|ENC_NA);
 		per_conversation_info->client_proto_ver =
-			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7), NULL);
+			g_ascii_strtod((char *)tvb_get_string(wmem_packet_scope(), tvb, 4, 7), NULL);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "Client protocol version: %s",
@@ -1198,10 +1198,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				auth_code = tvb_get_ntohl(tvb, offset);
 				auth_item = proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
-				vendor = tvb_get_ephemeral_string(tvb, offset, 4);
+				vendor = tvb_get_string(wmem_packet_scope(), tvb, offset, 4);
 				process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
 				offset += 4;
-				signature = tvb_get_ephemeral_string(tvb, offset, 8);
+				signature = tvb_get_string(wmem_packet_scope(), tvb, offset, 8);
 				proto_tree_add_text(tree, tvb, offset, 8, "Signature: %s", signature);
 				offset += 8;
 

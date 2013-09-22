@@ -189,7 +189,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy (no LF)");
 
 	/* Get payload string */
-	rawstr = tvb_get_ephemeral_string(tvb, offset, realsize - offset);
+	rawstr = tvb_get_string(wmem_packet_scope(), tvb, offset, realsize - offset);
 
 	/* Extract command */
 	tmp = g_ascii_tolower(tvb_get_guint8(tvb, offset));

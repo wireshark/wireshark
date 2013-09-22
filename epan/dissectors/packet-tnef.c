@@ -270,7 +270,7 @@ static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packe
 		 offset += 4;
 
 		 if (unicode) {
-			 char *unicode_str = tvb_get_ephemeral_unicode_string(tvb, offset, length, ENC_LITTLE_ENDIAN);
+			 char *unicode_str = tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, length, ENC_LITTLE_ENDIAN);
 			 proto_tree_add_string(tree, hf_id, tvb, offset, length, unicode_str);
 		 } else {
 			 proto_tree_add_item(tree, hf_id, tvb, offset, length, encoding);
@@ -407,7 +407,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 
-				name_string = tvb_get_ephemeral_unicode_string (tvb, offset, tag_length, ENC_LITTLE_ENDIAN);
+				name_string = tvb_get_unicode_string (wmem_packet_scope(), tvb, offset, tag_length, ENC_LITTLE_ENDIAN);
 				proto_tree_add_string_format(tag_tree, hf_tnef_property_tag_name_string, tvb, offset,
 							     tag_length, name_string, "Name: %s", name_string);
 				offset += tag_length;
@@ -613,7 +613,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 	    case ATP_STRING:
 		    proto_tree_add_item(attr_tree, hf_tnef_attribute_string, tvb, offset, length, ENC_ASCII|ENC_NA);
-		    proto_item_append_text(attr_item, " %s", tvb_get_ephemeral_string(tvb, offset, length));
+		    proto_item_append_text(attr_item, " %s", tvb_get_string(wmem_packet_scope(), tvb, offset, length));
 		    break;
 	    default:
 		    proto_tree_add_item(attr_tree, hf_tnef_attribute_value, tvb, offset, length, ENC_NA);

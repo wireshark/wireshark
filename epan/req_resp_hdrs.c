@@ -161,7 +161,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				/*
 				 * Check if we've found Content-Length.
 				 */
-				line = tvb_get_ephemeral_string(tvb, next_offset_sav, linelen);
+				line = tvb_get_string(wmem_packet_scope(), tvb, next_offset_sav, linelen);
 				if (g_ascii_strncasecmp(line, "Content-Length:", 15) == 0) {
 					/* XXX - what if it doesn't fit in an int?
 					   (Do not "fix" that by making this
@@ -273,7 +273,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				}
 
 				/* We have a line with the chunk size in it.*/
-				chunk_string = tvb_get_ephemeral_string(tvb, next_offset,
+				chunk_string = tvb_get_string(wmem_packet_scope(), tvb, next_offset,
 				    linelen);
 				c = chunk_string;
 
@@ -348,7 +348,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					return TRUE;
 				}
 				/* Following sizeof will return the length of the string + \0 we need to not count it*/
-				tmp = tvb_get_ephemeral_string(tvb, 0, sizeof("RPC_OUT_DATA") - 1);
+				tmp = tvb_get_string(wmem_packet_scope(), tvb, 0, sizeof("RPC_OUT_DATA") - 1);
 				if ((strncmp(tmp, "RPC_IN_DATA", sizeof("RPC_IN_DATA") - 1) == 0) ||
 				    (strncmp(tmp, "RPC_OUT_DATA", sizeof("RPC_OUT_DATA") - 1) == 0)) {
 					return TRUE;

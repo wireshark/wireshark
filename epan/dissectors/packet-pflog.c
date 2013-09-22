@@ -195,7 +195,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += 1;
 
   proto_tree_add_item(pflog_tree, hf_pflog_ifname, tvb, offset, 16, ENC_ASCII|ENC_NA);
-  ifname = tvb_get_ephemeral_string(tvb, offset, 16);
+  ifname = tvb_get_string(wmem_packet_scope(), tvb, offset, 16);
   offset += 16;
 
   proto_tree_add_item(pflog_tree, hf_pflog_ruleset, tvb, offset, 16, ENC_ASCII|ENC_NA);
@@ -434,7 +434,7 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   if (tree) {
     proto_tree_add_item(pflog_tree, hf_old_pflog_ifname, tvb, offset, 16, ENC_ASCII|ENC_NA);
   }
-  ifname = tvb_get_ephemeral_string(tvb, offset, 16);
+  ifname = tvb_get_string(wmem_packet_scope(), tvb, offset, 16);
   offset +=16;
 
   if (tree) {

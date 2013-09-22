@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/ipv6-utils.h>
 #include <epan/guid-utils.h>
+#include <epan/wmem/wmem.h>
 #include "exceptions.h"
 
 #ifdef __cplusplus
@@ -327,7 +328,7 @@ WS_DLL_PUBLIC guint32 tvb_get_bits(tvbuff_t *tvb, const guint bit_offset, const 
 WS_DLL_PUBLIC
 void tvb_get_bits_buf(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, guint8 *buf, gboolean lsb0);
 WS_DLL_PUBLIC
-guint8 *ep_tvb_get_bits(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, gboolean lsb0);
+guint8 *wmem_packet_tvb_get_bits(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, gboolean lsb0);
 
 /** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
@@ -337,15 +338,11 @@ guint8 *ep_tvb_get_bits(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, gboole
  * target memory. */
 WS_DLL_PUBLIC void* tvb_memcpy(tvbuff_t*, void* target, const gint offset, size_t length);
 
-/** It is the user's responsibility to g_free() the memory allocated by
- * tvb_g_memdup(). Calls tvb_memcpy() */
-WS_DLL_PUBLIC void* tvb_g_memdup(tvbuff_t*, const gint offset, size_t length);
-
-/* Same as above but the buffer returned from this function does not have to
-* be freed. It will be automatically freed after the packet is dissected.
-* Buffers allocated by this function are NOT persistent.
-*/
-WS_DLL_PUBLIC void* ep_tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length);
+/** If scope is set to NULL it is the user's responsibility to g_free()
+ * the memory allocated by tvb_memdup(). Otherwise memory is
+ * automatically freed when the scope lifetime is reached.
+ * Calls tvb_memcpy() */
+WS_DLL_PUBLIC void* tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, size_t length);
 
 /** WARNING! This function is possibly expensive, temporarily allocating
  * another copy of the packet data. Furthermore, it's dangerous because once
@@ -419,19 +416,13 @@ WS_DLL_PUBLIC gint tvb_strnlen(tvbuff_t*, const gint offset, const guint maxleng
  * of guint16's to convert from Unicode.
  *
  * XXX - These functions have been superceded by tvb_get_unicode_string()
- *       and tvb_get_ephemeral_unicode_string()
  *
- * tvb_fake_unicode() returns a buffer allocated by g_malloc() and must
- *                    be g_free() by the caller.
- * tvb_get_ephemeral_faked_unicode() returns a buffer that does not need
- *                    to be explicitely freed. Instead this buffer is
- *                    automatically freed when wireshark starts dissecting
- *                    the next packet.
+ * If scope is set to NULL, returned buffer is allocated by g_malloc()
+ * and must be g_free by the caller. Otherwise memory is automatically
+ * freed when the scope lifetime is reached.
  */
-WS_DLL_PUBLIC char *tvb_fake_unicode(tvbuff_t *tvb, int offset, const int len,
-                              const gboolean little_endian);
-WS_DLL_PUBLIC char *tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, const int len,
-                              const gboolean little_endian);
+WS_DLL_PUBLIC char *tvb_get_faked_unicode(wmem_allocator_t *scope, tvbuff_t *tvb,
+                              int offset, const int len, const gboolean little_endian);
 
 /**
  * Format the data in the tvb from offset for size ...
@@ -465,33 +456,22 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const 
  *
  * Throws an exception if the tvbuff ends before the string does.
  *
- * tvb_get_string()  returns a string allocated by g_malloc() and therefore
- *                   MUST be g_free() by the caller in order not to leak
- *                   memory.
+ * tvb_get_string()  returns a string allocated.
  *
- * tvb_get_unicode_string() Unicode (UTF-16) version of above
+ * tvb_get_unicode_string() Unicode (UTF-16) version of above.
  *
- * tvb_get_ephemeral_string() returns a string that does not need to be freed,
- *                   instead it will automatically be freed once the next
- *                   packet is dissected.
+ * tvb_get_string_enc() takes a string encoding as well, and converts to UTF-8
+ *                   from the encoding (only UTF-8 and EBCDIC supported).
  *
- * tvb_get_ephemeral_string_enc() takes a string encoding as well, and
- *                   converts to UTF-8 from the encoding (only UTF-8 and
- *                   EBCDIC supported)
- *
- * tvb_get_ephemeral_unicode_string() Unicode (UTF-16) version of above
- *
- * tvb_get_seasonal_string() returns a string that does not need to be freed,
- *                   instead it will automatically be freed when a new capture
- *                   or file is opened.
+ * If scope is set to NULL it is the user's responsibility to g_free()
+ * the memory allocated by tvb_memdup(). Otherwise memory is
+ * automatically freed when the scope lifetime is reached.
  */
-WS_DLL_PUBLIC guint8 *tvb_get_g_string(tvbuff_t *tvb, const gint offset, const gint length);
-WS_DLL_PUBLIC gchar  *tvb_get_g_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
-WS_DLL_PUBLIC guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length);
-WS_DLL_PUBLIC guint8 *tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC guint8 *tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length);
+WS_DLL_PUBLIC gchar  *tvb_get_unicode_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length,
+    const guint encoding);
+WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
     const gint length, const guint encoding);
-extern gchar  *tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
-extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length);
 
 
 /**

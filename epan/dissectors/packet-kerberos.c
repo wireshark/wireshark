@@ -2817,7 +2817,7 @@ dissect_krb5_PAC_CLIENT_INFO_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int of
     offset+=2;
 
     /* client name */
-    name=tvb_get_ephemeral_unicode_string(tvb, offset, namelen, ENC_LITTLE_ENDIAN);
+    name=tvb_get_unicode_string(wmem_packet_scope(), tvb, offset, namelen, ENC_LITTLE_ENDIAN);
     proto_tree_add_string(tree, hf_krb_pac_clientname, tvb, offset, namelen, name);
     offset+=namelen;
 

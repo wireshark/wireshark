@@ -1149,7 +1149,7 @@ dissect_zbee_zdp_rsp_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
     else user_length = 0;
 
-    user        = tvb_get_ephemeral_string(tvb, offset, user_length);
+    user        = tvb_get_string(wmem_packet_scope(), tvb, offset, user_length);
     if (tree) {
         proto_tree_add_string(tree, hf_zbee_zdp_user, tvb, offset, user_length, user);
     }

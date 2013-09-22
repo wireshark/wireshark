@@ -100,7 +100,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 Address eth = (Address)g_malloc(sizeof(address));
                 eth->type = AT_ETHER;
                 eth->len = fi->length;
-                eth->data = tvb_g_memdup(fi->ds_tvb,fi->start,fi->length);
+                eth->data = tvb_memdup(NULL,fi->ds_tvb,fi->start,fi->length);
                 pushAddress(L,eth);
                 return 1;
             }
@@ -108,7 +108,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 Address ipv4 = (Address)g_malloc(sizeof(address));
                 ipv4->type = AT_IPv4;
                 ipv4->len = fi->length;
-                ipv4->data = tvb_g_memdup(fi->ds_tvb,fi->start,fi->length);
+                ipv4->data = tvb_memdup(NULL,fi->ds_tvb,fi->start,fi->length);
                 pushAddress(L,ipv4);
                 return 1;
             }
@@ -116,7 +116,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 Address ipv6 = (Address)g_malloc(sizeof(address));
                 ipv6->type = AT_IPv6;
                 ipv6->len = fi->length;
-                ipv6->data = tvb_g_memdup(fi->ds_tvb,fi->start,fi->length);
+                ipv6->data = tvb_memdup(NULL,fi->ds_tvb,fi->start,fi->length);
                 pushAddress(L,ipv6);
                 return 1;
             }
@@ -124,7 +124,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 Address ipx = (Address)g_malloc(sizeof(address));
                 ipx->type = AT_IPX;
                 ipx->len = fi->length;
-                ipx->data = tvb_g_memdup(fi->ds_tvb,fi->start,fi->length);
+                ipx->data = tvb_memdup(NULL,fi->ds_tvb,fi->start,fi->length);
                 pushAddress(L,ipx);
                 return 1;
             }
@@ -157,7 +157,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_PROTOCOL:
         case FT_OID: {
                 ByteArray ba = g_byte_array_new();
-                g_byte_array_append(ba, (const guint8 *)ep_tvb_memdup(fi->ds_tvb,fi->start,fi->length),fi->length);
+                g_byte_array_append(ba, (const guint8 *)tvb_memdup(wmem_packet_scope(),fi->ds_tvb,fi->start,fi->length),fi->length);
                 pushByteArray(L,ba);
                 return 1;
             }

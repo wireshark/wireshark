@@ -974,7 +974,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 10:		/* UNC SGW Fully Qualified Domain/Host Name */
 		if ( ie_len > 0){
-			string = (gchar*)tvb_get_ephemeral_string(tvb, ie_offset, ie_len);
+			string = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, ie_offset, ie_len);
 			proto_tree_add_string(urr_ie_tree, hf_uma_urr_FQDN, tvb, ie_offset, ie_len, string);
 		}else{
 			proto_tree_add_text(urr_ie_tree,tvb,offset,1,"FQDN not present");
@@ -1440,7 +1440,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 98:
 		/* UNC Fully Qualified Domain/Host Name */
 		if ( ie_len > 0){
-			string = (gchar*)tvb_get_ephemeral_string(tvb, ie_offset, ie_len);
+			string = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, ie_offset, ie_len);
 			proto_tree_add_string(urr_ie_tree, hf_uma_unc_FQDN, tvb, ie_offset, ie_len, string);
 		}else{
 			proto_tree_add_text(urr_ie_tree,tvb,offset,1,"UNC FQDN not present");

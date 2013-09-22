@@ -80,7 +80,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     }
 
     length = tvb_length(tvb);
-    string = (gchar*)tvb_get_ephemeral_string(tvb, 0, length);
+    string = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, 0, length);
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TiVoConnect");

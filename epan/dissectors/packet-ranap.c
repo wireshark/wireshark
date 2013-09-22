@@ -4776,7 +4776,7 @@ dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 		 && ! actx->pinfo->sccp_info->data.co.assoc->calling_party ) {
 
 		guint len = tvb_length(imsi_tvb);
-		guint8* bytes = (guint8 *)ep_tvb_memdup(imsi_tvb,0,len);
+		guint8* bytes = (guint8 *)tvb_memdup(wmem_packet_scope(),imsi_tvb,0,len);
 
 		actx->pinfo->sccp_info->data.co.assoc->calling_party =
 			wmem_strdup_printf(wmem_file_scope(), "IMSI: %s", bytes_to_str(bytes, len) );

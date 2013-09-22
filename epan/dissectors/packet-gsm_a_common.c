@@ -2286,7 +2286,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
         curr_offset++;
 
-        poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+        poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
         my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
             &Dgt1_9_bcd);
