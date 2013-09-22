@@ -2182,37 +2182,37 @@ add_ip_name_from_string (const char *addr, const char *name)
 static void
 ipv4_hash_table_resolved_to_list(gpointer key _U_, gpointer value, gpointer user_data)
 {
-	addrinfo_lists_t *addrinfo_lists = (addrinfo_lists_t*)user_data;
-	hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
+    addrinfo_lists_t *lists = (addrinfo_lists_t*)user_data;
+    hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
 
-	if(!ipv4_hash_table_entry->is_dummy_entry){
-		addrinfo_lists->ipv4_addr_list = g_list_prepend (addrinfo_lists->ipv4_addr_list, ipv4_hash_table_entry);
-	}
+    if(!ipv4_hash_table_entry->is_dummy_entry){
+        lists->ipv4_addr_list = g_list_prepend (lists->ipv4_addr_list, ipv4_hash_table_entry);
+    }
 
 }
 
 static void
 ipv6_hash_table_resolved_to_list(gpointer key _U_, gpointer value, gpointer user_data)
 {
-	addrinfo_lists_t *addrinfo_lists = (addrinfo_lists_t*)user_data;
+    addrinfo_lists_t *lists = (addrinfo_lists_t*)user_data;
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
 
-	if(!ipv6_hash_table_entry->is_dummy_entry){
-		addrinfo_lists->ipv6_addr_list = g_list_prepend (addrinfo_lists->ipv6_addr_list, ipv6_hash_table_entry);
-	}
+    if(!ipv6_hash_table_entry->is_dummy_entry){
+        lists->ipv6_addr_list = g_list_prepend (lists->ipv6_addr_list, ipv6_hash_table_entry);
+    }
 
 }
 
 addrinfo_lists_t *
 get_addrinfo_list(void) {
 
-	if(ipv4_hash_table){
-		g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_resolved_to_list, &addrinfo_lists);
-	}
+    if(ipv4_hash_table){
+        g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_resolved_to_list, &addrinfo_lists);
+    }
 
-	if(ipv4_hash_table){
-		g_hash_table_foreach( ipv6_hash_table, ipv6_hash_table_resolved_to_list, &addrinfo_lists);
-	}
+    if(ipv4_hash_table){
+        g_hash_table_foreach( ipv6_hash_table, ipv6_hash_table_resolved_to_list, &addrinfo_lists);
+    }
 
     return &addrinfo_lists;
 }
