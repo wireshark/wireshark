@@ -3385,7 +3385,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
 /* Arbitrary. */
 #define NRES_REC_MAX_SIZE ((WTAP_MAX_PACKET_SIZE * 4) + 16)
 static gboolean
-pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int *err)
+pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
 {
         pcapng_block_header_t bh;
         pcapng_name_resolution_block_t nrb;
@@ -3555,7 +3555,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 {
         const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
         /*interface_data_t int_data;*/
-        pcapng_dump_t *pcapng = (pcapng_dump_t *)wdh->priv;
+        /* pcapng_dump_t *pcapng = (pcapng_dump_t *)wdh->priv; */
         /*int pcap_encap;*/
 
         pcapng_debug2("pcapng_dump: encap = %d (%s)",
@@ -3563,7 +3563,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
                       wtap_encap_string(phdr->pkt_encap));
 
         /* Flush any hostname resolution info we may have */
-        pcapng_write_name_resolution_block(wdh, pcapng, err);
+        pcapng_write_name_resolution_block(wdh, err);
 
         if (!pcapng_write_enhanced_packet_block(wdh, phdr, pseudo_header, pd, err)) {
                 return FALSE;
