@@ -8022,6 +8022,7 @@ bmc-reporting    4568/tcp # BMC Reporting [Portnoy_Boxman] [Portnoy_Boxman]
 bmc-reporting    4568/udp # BMC Reporting [Portnoy_Boxman] [Portnoy_Boxman]
 iax              4569/tcp # Inter-Asterisk eXchange [Benjamin_Kowarsch] [Benjamin_Kowarsch] [RFC5456] Defined TXT keys:  auth          plaintext | md5 | rsakeys  userid        alphanumeric, additionally '_', '+', '-'  secret        any printable ASCII characters  domain        any DNS domain name or IP address  extension     alphanumeric, additionally '*', '#', '_', '+', '-'  context       alphanumeric, additionally '_', '+', '-'  trunk         yes | no | 0 | 1  welcome       alphanumeric, additionally '*', '#', '_', '+', '-'  voicemail     alphanumeric, additionally '*', '#', '_', '+', '-'  reception     alphanumeric, additionally '*', '#', '_', '+', '-'  echotest      alphanumeric, additionally '*', '#', '_', '+', '-'  ivrtest       alphanumeric, additionally '*', '#', '_', '+', '-'All of these TXT record keys are optional, they may be omitted.Further keys may be added in the future.
 iax              4569/udp # Inter-Asterisk eXchange [Benjamin_Kowarsch] [Benjamin_Kowarsch] [RFC5456] Defined TXT keys:  auth          plaintext | md5 | rsakeys  userid        alphanumeric, additionally '_', '+', '-'  secret        any printable ASCII characters  domain        any DNS domain name or IP address  extension     alphanumeric, additionally '*', '#', '_', '+', '-'  context       alphanumeric, additionally '_', '+', '-'  trunk         yes | no | 0 | 1  welcome       alphanumeric, additionally '*', '#', '_', '+', '-'  voicemail     alphanumeric, additionally '*', '#', '_', '+', '-'  reception     alphanumeric, additionally '*', '#', '_', '+', '-'  echotest      alphanumeric, additionally '*', '#', '_', '+', '-'  ivrtest       alphanumeric, additionally '*', '#', '_', '+', '-'All of these TXT record keys are optional, they may be omitted.Further keys may be added in the future.
+deploymentmap    4570/tcp # Service to distribute and update within a site deployment information for Oracle Communications Suite [Oracle_3] [Dan_Newman] 2013-09-20
 rid              4590/tcp # RID over HTTP/TLS [IESG] [IETF_Chair] [RFC6546]
 l3t-at-an        4591/tcp # HRPD L3T (AT-AN) [Avi_Lior] [Avi_Lior] 2009-02-27
 l3t-at-an        4591/udp # HRPD L3T (AT-AN) [Avi_Lior] [Avi_Lior] 2009-02-27
@@ -10557,8 +10558,11 @@ hkp             11371/udp # OpenPGP HTTP Keyserver [David_Shaw] [David_Shaw] 200
 asgcypresstcps  11489/tcp # ASG Cypress Secure Only [David_Luxford] [David_Luxford] 2010-07-01
 tempest-port    11600/tcp # Tempest Protocol Port [Francis_Cianfrocca] [Francis_Cianfrocca]
 tempest-port    11600/udp # Tempest Protocol Port [Francis_Cianfrocca] [Francis_Cianfrocca]
+emc-xsw-dconfig 11623/tcp # EMC XtremSW distributed config [EMC] [David_Erel] 2013-09-18
 h323callsigalt  11720/tcp # H.323 Call Control Signalling Alternate [ITU-T] [ITU-T_TSB] 2013-01-31
 h323callsigalt  11720/udp # H.323 Call Control Signalling Alternate [ITU-T] [ITU-T_TSB] 2013-01-31
+emc-xsw-dcache  11723/tcp # EMC XtremSW distributed cache [EMC] [David_Erel] 2013-09-18
+emc-xsw-dcache  11723/udp # EMC XtremSW distributed cache [EMC] [David_Erel] 2013-09-18
 intrepid-ssl    11751/tcp # Intrepid SSL [Robert_Eden] [Robert_Eden] 2003-03
 intrepid-ssl    11751/udp # Intrepid SSL [Robert_Eden] [Robert_Eden] 2003-03
 lanschool       11796/tcp # LanSchool [Stoneware_Inc] [Dana_Doggett] 2012-05-18
