@@ -253,11 +253,6 @@
 	</listitem>
 	<listitem>
     <para>
-	Win32 U3 (.u3 file). Special distribution for U3 capable USB memory sticks.
-    </para>
-	</listitem>
-	<listitem>
-    <para>
 	Win32 PAF (.paf.exe file). Another Windows end user method is to get a portable
 	application file which will install all the required things for him.
     </para>

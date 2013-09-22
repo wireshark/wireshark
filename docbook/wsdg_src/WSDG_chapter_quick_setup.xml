@@ -129,9 +129,6 @@
           <para>Archive/unzip</para>
         </listitem>
         <listitem>
-          <para>Archive/zip (only needed if you intend to build the U3 package)</para>
-        </listitem>
-        <listitem>
           <para>Base/dos2unix</para>
         </listitem>
         <listitem>
