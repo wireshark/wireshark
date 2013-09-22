@@ -35,32 +35,9 @@
 #include <string.h>
 #include <errno.h>
 
-/* Needed for addrinfo */
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#ifdef HAVE_NETDB_H
-# include <netdb.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif
-
-#if defined(_WIN32) && defined(INET6)
-# include <ws2tcpip.h>
-#endif
 
 #include "wtap-int.h"
+#include <epan/addr_resolv.h>
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "libpcap.h"
@@ -68,7 +45,7 @@
 #include "pcap-encap.h"
 #include "pcapng.h"
 
-#if 0
+#if 1
 #define pcapng_debug0(str) g_warning(str)
 #define pcapng_debug1(str,p1) g_warning(str,p1)
 #define pcapng_debug2(str,p1,p2) g_warning(str,p1,p2)
@@ -2436,7 +2413,6 @@ pcapng_close(wtap *wth)
 typedef struct {
         GArray *interface_data;
         guint number_of_interfaces;
-        struct addrinfo *addrinfo_list_last;
 } pcapng_dump_t;
 
 static gboolean
@@ -3413,13 +3389,13 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
 {
         pcapng_block_header_t bh;
         pcapng_name_resolution_block_t nrb;
-        struct addrinfo *ai;
-        struct sockaddr_in *sa4;
-        struct sockaddr_in6 *sa6;
         guint8 *rec_data;
         gint rec_off, namelen, tot_rec_len;
+		hashipv4_t *ipv4_hash_list_entry;
+		hashipv6_t *ipv6_hash_list_entry;
+		int i;
 
-        if (! pcapng->addrinfo_list_last || ! pcapng->addrinfo_list_last->ai_next) {
+        if ((!wdh->addrinfo_lists->ipv4_addr_list)&&(!wdh->addrinfo_lists->ipv6_addr_list)) {
                 return TRUE;
         }
 
@@ -3428,63 +3404,111 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
         bh.block_total_length = rec_off + 8; /* end-of-record + block total length */
         rec_data = (guint8 *)g_malloc(NRES_REC_MAX_SIZE);
 
-        for (; pcapng->addrinfo_list_last && pcapng->addrinfo_list_last->ai_next; pcapng->addrinfo_list_last = pcapng->addrinfo_list_last->ai_next ) {
-                ai = pcapng->addrinfo_list_last->ai_next; /* Skips over the first (dummy) entry */
-                namelen = (gint)strlen(ai->ai_canonname) + 1;
-                if (ai->ai_family == AF_INET) {
-                        nrb.record_type = NRES_IP4RECORD;
-                        nrb.record_len = 4 + namelen;
-                        tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
-                        bh.block_total_length += tot_rec_len;
+		if (wdh->addrinfo_lists->ipv4_addr_list){
+			i = 0;
+			ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(wdh->addrinfo_lists->ipv4_addr_list, i);
+			while(ipv4_hash_list_entry != NULL){
 
-                        if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE)
-                                break;
+				nrb.record_type = NRES_IP4RECORD;
+				namelen = (gint)strlen(ipv4_hash_list_entry->name) + 1;
+				nrb.record_len = 4 + namelen;
+				tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
 
-                        /*
-                         * The joys of BSD sockaddrs.  In practice, this
-                         * cast is alignment-safe.
-                         */
-                        sa4 = (struct sockaddr_in *)(void *)ai->ai_addr;
-                        memcpy(rec_data + rec_off, &nrb, sizeof(nrb));
-                        rec_off += 4;
+				if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE){
+					/* We know the total length now; copy the block header. */
+					memcpy(rec_data, &bh, sizeof(bh));
 
-                        memcpy(rec_data + rec_off, &(sa4->sin_addr.s_addr), 4);
-                        rec_off += 4;
+					/* End of record */
+					memset(rec_data + rec_off, 0, 4);
+					rec_off += 4;
 
-                        memcpy(rec_data + rec_off, ai->ai_canonname, namelen);
-                        rec_off += namelen;
+					memcpy(rec_data + rec_off, &bh.block_total_length, sizeof(bh.block_total_length));
 
-                        memset(rec_data + rec_off, 0, PADDING4(namelen));
-                        rec_off += PADDING4(namelen);
-                        pcapng_debug1("NRB: added IPv4 record for %s", ai->ai_canonname);
-                } else if (ai->ai_family == AF_INET6) {
-                        nrb.record_type = NRES_IP6RECORD;
-                        nrb.record_len = 16 + namelen;
-                        tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
-                        bh.block_total_length += tot_rec_len;
+					pcapng_debug2("pcapng_write_name_resolution_block: Write bh.block_total_length bytes %d, rec_off %u", bh.block_total_length, rec_off);
 
-                        if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE)
-                                break;
+					if (!wtap_dump_file_write(wdh, rec_data, bh.block_total_length, err)) {
+							g_free(rec_data);
+							return FALSE;
+					}
+					wdh->bytes_dumped += bh.block_total_length;
 
-                        /*
-                         * The joys of BSD sockaddrs.  In practice, this
-                         * cast is alignment-safe.
-                         */
-                        sa6 = (struct sockaddr_in6 *)(void *)ai->ai_addr;
-                        memcpy(rec_data + rec_off, &nrb, sizeof(nrb));
-                        rec_off += 4;
+					/*Start a new NRB */
+					rec_off = 8; /* block type + block total length */
+					bh.block_type = BLOCK_TYPE_NRB;
+					bh.block_total_length = rec_off + 8; /* end-of-record + block total length */
 
-                        memcpy(rec_data + rec_off, sa6->sin6_addr.s6_addr, 16);
-                        rec_off += 16;
+				}
 
-                        memcpy(rec_data + rec_off, ai->ai_canonname, namelen);
-                        rec_off += namelen;
+				bh.block_total_length += tot_rec_len;
+				memcpy(rec_data + rec_off, &nrb, sizeof(nrb));
+				rec_off += 4;
+				memcpy(rec_data + rec_off, &(ipv4_hash_list_entry->addr), 4);
+				rec_off += 4;
+				memcpy(rec_data + rec_off, ipv4_hash_list_entry->name, namelen);
+				rec_off += namelen;
+				memset(rec_data + rec_off, 0, PADDING4(namelen));
+				rec_off += PADDING4(namelen);
+				pcapng_debug1("NRB: added IPv4 record for %s", ipv4_hash_list_entry->name);
 
-                        memset(rec_data + rec_off, 0, PADDING4(namelen));
-                        rec_off += PADDING4(namelen);
-                        pcapng_debug1("NRB: added IPv6 record for %s", ai->ai_canonname);
-                }
-        }
+				i++;
+				ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(wdh->addrinfo_lists->ipv4_addr_list, i);
+			}
+			g_list_free(wdh->addrinfo_lists->ipv4_addr_list);
+			wdh->addrinfo_lists->ipv4_addr_list = NULL;
+		}
+
+		if (wdh->addrinfo_lists->ipv6_addr_list){
+			i = 0;
+			ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(wdh->addrinfo_lists->ipv6_addr_list, i);
+			while(ipv6_hash_list_entry != NULL){
+
+				nrb.record_type = NRES_IP6RECORD;
+				namelen = (gint)strlen(ipv6_hash_list_entry->name) + 1;
+				nrb.record_len = 16 + namelen;
+				tot_rec_len = 16 + nrb.record_len + PADDING4(nrb.record_len);
+
+				if (rec_off + tot_rec_len > NRES_REC_MAX_SIZE){
+					/* We know the total length now; copy the block header. */
+					memcpy(rec_data, &bh, sizeof(bh));
+
+					/* End of record */
+					memset(rec_data + rec_off, 0, 4);
+					rec_off += 4;
+
+					memcpy(rec_data + rec_off, &bh.block_total_length, sizeof(bh.block_total_length));
+
+					pcapng_debug2("pcapng_write_name_resolution_block: Write bh.block_total_length bytes %d, rec_off %u", bh.block_total_length, rec_off);
+
+					if (!wtap_dump_file_write(wdh, rec_data, bh.block_total_length, err)) {
+							g_free(rec_data);
+							return FALSE;
+					}
+					wdh->bytes_dumped += bh.block_total_length;
+
+					/*Start a new NRB */
+					rec_off = 8; /* block type + block total length */
+					bh.block_type = BLOCK_TYPE_NRB;
+					bh.block_total_length = rec_off + 8; /* end-of-record + block total length */
+
+				}
+
+				bh.block_total_length += tot_rec_len;
+				memcpy(rec_data + rec_off, &nrb, sizeof(nrb));
+				rec_off += 4;
+				memcpy(rec_data + rec_off, &(ipv6_hash_list_entry->addr), 16);
+				rec_off += 16;
+				memcpy(rec_data + rec_off, ipv6_hash_list_entry->name, namelen);
+				rec_off += namelen;
+				memset(rec_data + rec_off, 0, PADDING4(namelen));
+				rec_off += PADDING4(namelen);
+				pcapng_debug1("NRB: added IPv6 record for %s", ipv6_hash_list_entry->name);
+
+				i++;
+				ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(wdh->addrinfo_lists->ipv6_addr_list, i);
+			}
+			g_list_free(wdh->addrinfo_lists->ipv6_addr_list);
+			wdh->addrinfo_lists->ipv6_addr_list = NULL;
+		}
 
         /* We know the total length now; copy the block header. */
         memcpy(rec_data, &bh, sizeof(bh));
@@ -3538,12 +3562,8 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
                       phdr->pkt_encap,
                       wtap_encap_string(phdr->pkt_encap));
 
-        if (!pcapng->addrinfo_list_last)
-                pcapng->addrinfo_list_last = wdh->addrinfo_list;
         /* Flush any hostname resolution info we may have */
-        while (pcapng->addrinfo_list_last && pcapng->addrinfo_list_last->ai_next) {
-                pcapng_write_name_resolution_block(wdh, pcapng, err);
-        }
+        pcapng_write_name_resolution_block(wdh, pcapng, err);
 
         if (!pcapng_write_enhanced_packet_block(wdh, phdr, pseudo_header, pd, err)) {
                 return FALSE;

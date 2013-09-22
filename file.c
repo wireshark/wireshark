@@ -4467,7 +4467,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
   gchar           *fname_new = NULL;
   wtap_dumper     *pdh;
   frame_data      *fdata;
-  struct addrinfo *addrs;
+  addrinfo_lists_t *addr_lists;
   guint            framenum;
   int              err;
 #ifdef _WIN32
@@ -4482,12 +4482,11 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
 
-  addrs = get_addrinfo_list();
+  addr_lists = get_addrinfo_list();
 
   if (save_format == cf->cd_t && compressed == cf->iscompressed
       && !discard_comments && !cf->unsaved_changes
-      && !(addrs && addrs->ai_next &&
-           wtap_dump_has_name_resolution(save_format))) {
+      && !(addr_lists && wtap_dump_has_name_resolution(save_format))) {
     /* We're saving in the format it's already in, and we're
        not discarding comments, and there are no changes we have
        in memory that aren't saved to the file, and we have no name
@@ -4601,7 +4600,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
     }
 
     /* Add address resolution */
-    wtap_dump_set_addrinfo_list(pdh, addrs);
+    wtap_dump_set_addrinfo_list(pdh, addr_lists);
 
     /* Iterate through the list of packets, processing all the packets. */
     callback_args.pdh = pdh;

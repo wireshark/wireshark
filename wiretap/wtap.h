@@ -1094,6 +1094,15 @@ typedef struct wtapng_if_stats_s {
     guint64  isb_usrdeliv;
 } wtapng_if_stats_t;
 
+
+/** A struct with lists of resolved addresses.
+ *  Used when writing name resoultion blocks (NRB)
+ */
+typedef struct addrinfo_lists {
+    GList      *ipv4_addr_list; /**< A list of resolved hashipv4_t*/
+    GList      *ipv6_addr_list; /**< A list of resolved hashipv6_t*/
+} addrinfo_lists_t;
+
 struct wtap_dumper;
 
 typedef struct wtap wtap;
@@ -1322,7 +1331,7 @@ WS_DLL_PUBLIC
 void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
 struct addrinfo;
 WS_DLL_PUBLIC
-gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, struct addrinfo *addrinfo_list);
+gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
 gboolean wtap_dump_close(wtap_dumper *, int *);
 

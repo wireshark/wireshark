@@ -1704,12 +1704,12 @@ void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped)
 	wdh->bytes_dumped = bytes_dumped;
 }
 
-gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, struct addrinfo *addrinfo_list)
+gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
 {
 	if (!wdh || wdh->file_type < 0 || wdh->file_type >= wtap_num_file_types
 		|| dump_open_table[wdh->file_type].has_name_resolution == FALSE)
 			return FALSE;
-	wdh->addrinfo_list = addrinfo_list;
+	wdh->addrinfo_lists = addrinfo_lists;
 	return TRUE;
 }
 

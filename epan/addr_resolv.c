@@ -192,21 +192,6 @@ g_int64_hash (gconstpointer v)
 
 #define HASH_IPV4_ADDRESS(addr) (g_htonl(addr) & (HASHHOSTSIZE - 1))
 
-#if 0
-/*
- * XXX Some of this is duplicated in addrinfo_list. We may want to replace the
- * addr and name parts with a struct addrinfo or create our own addrinfo-like
- * struct that simply points to the data below.
- */
-typedef struct hashipv4 {
-    guint             addr;
-    gboolean          is_dummy_entry; /* name is IPv4 address in dot format */
-    gboolean          resolve;        /* already tried to resolve it */
-    struct hashipv4   *next;
-    gchar             ip[16];
-    gchar             name[MAXNAMELEN];
-} hashipv4_t;
-#endif
 
 typedef struct sub_net_hashipv4 {
     guint             addr;
@@ -217,17 +202,6 @@ typedef struct sub_net_hashipv4 {
     gchar             name[MAXNAMELEN];
 } sub_net_hashipv4_t;
 
-
-#if 0
-typedef struct hashipv6 {
-    struct e_in6_addr addr;
-    gboolean          is_dummy_entry; /* name is IPv6 address in colon format */
-    gboolean          resolve;        /* */
-    struct hashipv6   *next;
-    gchar             ip6[MAX_IP6_STR_LEN]; /* XX */
-    gchar             name[MAXNAMELEN];
-} hashipv6_t;
-#endif
 /* Array of entries of subnets of different lengths */
 typedef struct {
     gsize        mask_length;      /*1-32*/
@@ -290,6 +264,8 @@ static GHashTable   *ipxnet_hash_table = NULL;
 static GHashTable   *ipv4_hash_table = NULL;
 static GHashTable   *ipv6_hash_table = NULL;
 
+static addrinfo_lists_t addrinfo_lists = { NULL, NULL};
+
 static gchar        *cb_service;
 static port_type    cb_proto = PT_NONE;
 
@@ -304,8 +280,6 @@ static gboolean have_subnet_entry = FALSE;
 
 static gboolean new_resolved_objects = FALSE;
 
-static struct addrinfo *addrinfo_list = NULL; /* IPv4 and IPv6 */
-static struct addrinfo *addrinfo_list_last = NULL;
 static GPtrArray* extra_hosts_files = NULL;
 
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
@@ -2168,9 +2142,7 @@ add_hosts_file (const char *hosts_file)
 
     if (!found) {
         g_ptr_array_add(extra_hosts_files, g_strdup(hosts_file));
-        if (addrinfo_list) {
-            return read_hosts_file (hosts_file);
-        }
+        return read_hosts_file (hosts_file);
     }
     return TRUE;
 }
@@ -2207,9 +2179,42 @@ add_ip_name_from_string (const char *addr, const char *name)
     return TRUE;
 } /* add_ip_name_from_string */
 
-struct addrinfo *
+static void
+ipv4_hash_table_resolved_to_list(gpointer key _U_, gpointer value, gpointer user_data)
+{
+	addrinfo_lists_t *addrinfo_lists = (addrinfo_lists_t*)user_data;
+	hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
+
+	if(!ipv4_hash_table_entry->is_dummy_entry){
+		addrinfo_lists->ipv4_addr_list = g_list_prepend (addrinfo_lists->ipv4_addr_list, ipv4_hash_table_entry);
+	}
+
+}
+
+static void
+ipv6_hash_table_resolved_to_list(gpointer key _U_, gpointer value, gpointer user_data)
+{
+	addrinfo_lists_t *addrinfo_lists = (addrinfo_lists_t*)user_data;
+    hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
+
+	if(!ipv6_hash_table_entry->is_dummy_entry){
+		addrinfo_lists->ipv6_addr_list = g_list_prepend (addrinfo_lists->ipv6_addr_list, ipv6_hash_table_entry);
+	}
+
+}
+
+addrinfo_lists_t *
 get_addrinfo_list(void) {
-    return addrinfo_list;
+
+	if(ipv4_hash_table){
+		g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_resolved_to_list, &addrinfo_lists);
+	}
+
+	if(ipv4_hash_table){
+		g_hash_table_foreach( ipv6_hash_table, ipv6_hash_table_resolved_to_list, &addrinfo_lists);
+	}
+
+    return &addrinfo_lists;
 }
 
 /* Read in a list of subnet definition - name pairs.
@@ -2663,8 +2668,6 @@ void
 add_ipv4_name(const guint addr, const gchar *name)
 {
     hashipv4_t *tp;
-    struct addrinfo *ai;
-    struct sockaddr_in *sa4;
 
     /*
      * Don't add zero-length names; apparently, some resolvers will return
@@ -2693,24 +2696,6 @@ add_ipv4_name(const guint addr, const gchar *name)
     tp->resolve = TRUE;
     new_resolved_objects = TRUE;
 
-    if (!addrinfo_list) {
-        ai = se_new0(struct addrinfo);
-        addrinfo_list = addrinfo_list_last = ai;
-    }
-
-    sa4 = se_new0(struct sockaddr_in);
-    sa4->sin_family = AF_INET;
-    sa4->sin_addr.s_addr = addr;
-
-    ai = se_new0(struct addrinfo);
-    ai->ai_family = AF_INET;
-    ai->ai_addrlen = sizeof(struct sockaddr_in);
-    ai->ai_canonname = (char *) tp->name;
-    ai->ai_addr = (struct sockaddr*) sa4;
-
-    addrinfo_list_last->ai_next = ai;
-    addrinfo_list_last = ai;
-
 } /* add_ipv4_name */
 
 /* -------------------------- */
@@ -2718,8 +2703,6 @@ void
 add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
 {
     hashipv6_t *tp;
-    struct addrinfo *ai;
-    struct sockaddr_in6 *sa6;
 
     /*
      * Don't add zero-length names; apparently, some resolvers will return
@@ -2747,31 +2730,12 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
     tp->resolve = TRUE;
     new_resolved_objects = TRUE;
 
-    if (!addrinfo_list) {
-        ai = se_new0(struct addrinfo);
-        addrinfo_list = addrinfo_list_last = ai;
-    }
-
-    sa6 = se_new0(struct sockaddr_in6);
-    sa6->sin6_family = AF_INET;
-    memcpy(sa6->sin6_addr.s6_addr, addrp, 16);
-
-    ai = se_new0(struct addrinfo);
-    ai->ai_family = AF_INET6;
-    ai->ai_addrlen = sizeof(struct sockaddr_in);
-    ai->ai_canonname = (char *) tp->name;
-    ai->ai_addr = (struct sockaddr *) sa6;
-
-    addrinfo_list_last->ai_next = ai;
-    addrinfo_list_last = ai;
-
 } /* add_ipv6_name */
 
 void
 host_name_lookup_init(void)
 {
     char *hostspath;
-    struct addrinfo *ai;
     guint i;
 
 #ifdef HAVE_GNU_ADNS
@@ -2790,11 +2754,6 @@ host_name_lookup_init(void)
 
     g_assert(ipv6_hash_table == NULL);
     ipv6_hash_table = g_hash_table_new_full(ipv6_oat_hash, ipv6_equal, g_free, g_free);
-
-    if (!addrinfo_list) {
-        ai = se_new0(struct addrinfo);
-        addrinfo_list = addrinfo_list_last = ai;
-    }
 
     /*
      * Load the global hosts file, if we have one.
@@ -2907,8 +2866,6 @@ host_name_lookup_cleanup(void)
     }
 
     memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
-
-    addrinfo_list = addrinfo_list_last = NULL;
 
     have_subnet_entry = FALSE;
     new_resolved_objects = FALSE;

@@ -107,7 +107,7 @@ struct wtap_dumper {
     int                     tsprecision;    /**< timestamp precision of the lower 32bits
                                              * e.g. WTAP_FILE_TSPREC_USEC
                                              */
-    struct addrinfo         *addrinfo_list;
+    addrinfo_lists_t        *addrinfo_lists;        /**< Struct containing lists of resolved addresses */
     struct wtapng_section_s *shb_hdr;
     guint                   number_of_interfaces;   /**< The number of interfaces a capture was made on, number of IDB:s in a pcapng file or equivalent(?)*/
     GArray                  *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
