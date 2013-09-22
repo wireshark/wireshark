@@ -1978,15 +1978,15 @@ static const value_string glusterfs3_1_fop_proc_vals[] = {
 
 /* dir-entry types */
 static const value_string glusterfs_entry_type_names[] = {
-	{ DT_UNKNOWN, "DT_UNKNOWN" },
-	{ DT_FIFO, "DT_FIFO" },
-	{ DT_CHR, "DT_CHR" },
-	{ DT_DIR, "DT_DIR" },
-	{ DT_BLK, "DT_BLK" },
-	{ DT_REG, "DT_REG" },
-	{ DT_LNK, "DT_LNK" },
-	{ DT_SOCK, "DT_SOCK" },
-	{ DT_WHT, "DT_WHT" },
+	{ GLUSTER_DT_UNKNOWN, "DT_UNKNOWN" },
+	{ GLUSTER_DT_FIFO, "DT_FIFO" },
+	{ GLUSTER_DT_CHR, "DT_CHR" },
+	{ GLUSTER_DT_DIR, "DT_DIR" },
+	{ GLUSTER_DT_BLK, "DT_BLK" },
+	{ GLUSTER_DT_REG, "DT_REG" },
+	{ GLUSTER_DT_LNK, "DT_LNK" },
+	{ GLUSTER_DT_SOCK, "DT_SOCK" },
+	{ GLUSTER_DT_WHT, "DT_WHT" },
 	{ 0, NULL }
 };
 
