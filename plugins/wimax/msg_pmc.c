@@ -42,10 +42,6 @@
 extern gint man_ofdma;
 extern	gboolean include_cor2_changes;
 
-/* Forward reference */
-void dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_mac_mgmt_msg_pmc_req_decoder = -1;
 static gint proto_mac_mgmt_msg_pmc_rsp_decoder = -1;
 
@@ -171,9 +167,9 @@ void proto_register_mac_mgmt_msg_pmc_req(void)
 	};
 
 	proto_mac_mgmt_msg_pmc_req_decoder = proto_register_protocol (
-		"WiMax PMC-REQ/RSP Messages", /* name */
-		"WiMax PMC-REQ/RSP (pmc)", /* short name */
-		"wmx.pmc" /* abbrev */
+		"WiMax PMC-REQ Messages", /* name */
+		"WiMax PMC-REQ", /* short name */
+		"wmx.pmc_req" /* abbrev */
 		);
 
 	proto_register_field_array(proto_mac_mgmt_msg_pmc_req_decoder, hf, array_length(hf));
@@ -183,7 +179,11 @@ void proto_register_mac_mgmt_msg_pmc_req(void)
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_pmc_rsp(void)
 {
-	proto_mac_mgmt_msg_pmc_rsp_decoder = proto_mac_mgmt_msg_pmc_req_decoder;
+	proto_mac_mgmt_msg_pmc_rsp_decoder = proto_register_protocol (
+		"WiMax PMC-RSP Messages", /* name */
+		"WiMax PMC-RSP", /* short name */
+		"wmx.pmc_rsp" /* abbrev */
+		);
 }
 
 /* Decode PMC-REQ messages. */
@@ -278,3 +278,14 @@ void dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_,
 	}
 }
 
+void
+proto_reg_handoff_mac_mgmt_msg_pmc(void)
+{
+	dissector_handle_t pmc_handle;
+
+	pmc_handle = create_dissector_handle(dissect_mac_mgmt_msg_pmc_req_decoder, proto_mac_mgmt_msg_pmc_req_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_PMC_REQ, pmc_handle);
+
+	pmc_handle = create_dissector_handle(dissect_mac_mgmt_msg_pmc_rsp_decoder, proto_mac_mgmt_msg_pmc_rsp_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_PMC_RSP, pmc_handle);
+}

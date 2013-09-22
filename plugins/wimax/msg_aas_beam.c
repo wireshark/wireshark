@@ -360,3 +360,12 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 	register_dissector("mac_mgmt_msg_aas_beam_rsp_handler", dissect_mac_mgmt_msg_aas_beam_rsp_decoder, -1);
 #endif
 }
+
+void
+proto_reg_handoff_mac_mgmt_msg_aas_beam(void)
+{
+	dissector_handle_t aas_handle;
+
+	aas_handle = create_dissector_handle(dissect_mac_mgmt_msg_aas_beam_select_decoder, proto_mac_mgmt_msg_aas_beam_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_AAS_BEAM_SELECT, aas_handle);
+}

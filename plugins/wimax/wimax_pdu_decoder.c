@@ -36,11 +36,6 @@
 
 extern gint proto_wimax;
 
-extern void proto_register_mac_header_generic(void);
-extern void proto_register_mac_header_type_1(void);
-extern void proto_register_mac_header_type_2(void);
-
-
 /* MAC Header dissector prototypes */
 extern void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -249,8 +244,4 @@ void proto_register_wimax_pdu(void)
 	register_dissector("wimax_pdu_burst_handler", dissect_wimax_pdu_decoder, -1);
 	proto_register_field_array(proto_wimax_pdu_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	proto_register_mac_header_generic();
-	proto_register_mac_header_type_1();
-	proto_register_mac_header_type_2();
 }

@@ -39,12 +39,10 @@
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 
-extern gint proto_wimax;
-
 /* Delete the following variable as soon as possible */
 extern gboolean include_cor2_changes;
 
-gint proto_mac_mgmt_msg_dcd_decoder = -1;
+static gint proto_mac_mgmt_msg_dcd_decoder = -1;
 static gint ett_mac_mgmt_msg_dcd_decoder = -1;
 
 /* fix fields */
@@ -1320,11 +1318,19 @@ void proto_register_mac_mgmt_msg_dcd(void)
 		};
 
 	proto_mac_mgmt_msg_dcd_decoder = proto_register_protocol (
-		"WiMax DCD/UCD Messages", /* name       */
-		"WiMax DCD/UCD (cd)",     /* short name */
-		"wmx.cd"                  /* abbrev     */
+		"WiMax DCD Messages", /* name       */
+		"WiMax DCD",     /* short name */
+		"wmx.dcd"                  /* abbrev     */
 		);
 
 	proto_register_field_array(proto_mac_mgmt_msg_dcd_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void proto_reg_handoff_mac_mgmt_msg_dcd(void)
+{
+	dissector_handle_t dcd_handle;
+
+	dcd_handle = create_dissector_handle(dissect_mac_mgmt_msg_dcd_decoder, proto_mac_mgmt_msg_dcd_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DCD, dcd_handle);
 }

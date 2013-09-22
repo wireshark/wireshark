@@ -105,10 +105,19 @@ void proto_register_mac_mgmt_msg_dsx_rvd(void)
 
 	proto_mac_mgmt_msg_dsx_rvd_decoder = proto_register_protocol (
 		"WiMax DSX-RVD Message", /* name       */
-		"WiMax DSX-RVD (dsx)",   /* short name */
-		"wmx.dsx"                /* abbrev     */
+		"WiMax DSX-RVD (dsx_rvd)",   /* short name */
+		"wmx.dsx_rvd"                /* abbrev     */
 		);
 
 	proto_register_field_array(proto_mac_mgmt_msg_dsx_rvd_decoder, hf_dsx_rvd, array_length(hf_dsx_rvd));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_mac_mgmt_msg_dsx_rvd(void)
+{
+	dissector_handle_t handle;
+
+	handle = create_dissector_handle(dissect_mac_mgmt_msg_dsx_rvd_decoder, proto_mac_mgmt_msg_dsx_rvd_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSX_RVD, handle);
 }

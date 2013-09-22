@@ -59,10 +59,9 @@ extern gint  mac_sdu_length;                    /* declared in packet-wmx.c */
 extern address bs_address;			/* declared in packet-wmx.c */
 extern guint max_logical_bands;			/* declared in wimax_compact_dlmap_ie_decoder.c */
 extern gboolean is_down_link(packet_info *pinfo);/* declared in packet-wmx.c */
-extern void proto_register_mac_mgmt_msg(void);  /* defined in macmgmtmsgdecoder.c */
 extern void init_wimax_globals(void);		/* defined in msg_ulmap.c */
 
-extern void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static dissector_handle_t mac_mgmt_msg_decoder_handle;
 
 /* global variables */
 gboolean include_cor2_changes = FALSE;
@@ -1159,7 +1158,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 						else if ((mac_cid <= (2 * global_cid_max_basic)) || (mac_cid == cid_aas_ranging)
 							|| (mac_cid >= cid_normal_multicast))
 						{	/* MAC management message */
-							dissect_mac_mgmt_msg_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, tree);
+							call_dissector(mac_mgmt_msg_decoder_handle, tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, tree);
 						}
 						else /* data transport PDU */
 						{	/* update the info column */
@@ -2252,8 +2251,13 @@ void proto_register_mac_header_generic(void)
 
 	/* register the generic mac header dissector */
 	register_dissector("mac_header_generic_handler", dissect_mac_header_generic_decoder, proto_mac_header_generic_decoder);
-	/* register the mac payload dissector */
-	proto_register_mac_mgmt_msg();
+
 	/* Register the payload fragment table init routine */
 	register_init_routine(wimax_defragment_init);
+}
+
+void
+proto_reg_handoff_mac_header_generic(void)
+{
+	mac_mgmt_msg_decoder_handle = find_dissector("wmx_mac_mgmt_msg_decoder");
 }

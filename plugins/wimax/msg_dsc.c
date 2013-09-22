@@ -40,8 +40,6 @@
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 
-extern gint proto_mac_mgmt_msg_dsa_decoder;
-
 static gint proto_mac_mgmt_msg_dsc_decoder = -1;
 static gint ett_mac_mgmt_msg_dsc_req_decoder = -1;
 static gint ett_mac_mgmt_msg_dsc_rsp_decoder = -1;
@@ -226,8 +224,27 @@ void proto_register_mac_mgmt_msg_dsc(void)
 			&ett_mac_mgmt_msg_dsc_ack_decoder
 		};
 
-	proto_mac_mgmt_msg_dsc_decoder = proto_mac_mgmt_msg_dsa_decoder;
+	proto_mac_mgmt_msg_dsc_decoder = proto_register_protocol (
+		"WiMax DSC Messages", /* name       */
+		"WiMax DSC",     /* short name */
+		"wmx.dsc"        /* abbrev     */
+		);
 
 	proto_register_field_array(proto_mac_mgmt_msg_dsc_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_mac_mgmt_msg_dsc(void)
+{
+	dissector_handle_t dsc_handle;
+
+	dsc_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsc_req_decoder, proto_mac_mgmt_msg_dsc_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSC_REQ, dsc_handle);
+
+	dsc_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsc_rsp_decoder, proto_mac_mgmt_msg_dsc_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSC_RSP, dsc_handle);
+
+	dsc_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsc_ack_decoder, proto_mac_mgmt_msg_dsc_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSC_ACK, dsc_handle);
 }

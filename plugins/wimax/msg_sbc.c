@@ -3253,3 +3253,16 @@ void proto_register_mac_mgmt_msg_sbc(void)
 	proto_register_field_array(proto_mac_mgmt_msg_sbc_decoder, hf_sbc, array_length(hf_sbc));
 	proto_register_subtree_array(ett_sbc, array_length(ett_sbc));
 }
+
+void
+proto_reg_handoff_mac_mgmt_msg_sbc(void)
+{
+	dissector_handle_t sbc_handle;
+
+	sbc_handle = create_dissector_handle(dissect_mac_mgmt_msg_sbc_req_decoder, proto_mac_mgmt_msg_sbc_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_SBC_REQ, sbc_handle);
+
+	sbc_handle = create_dissector_handle(dissect_mac_mgmt_msg_sbc_rsp_decoder, proto_mac_mgmt_msg_sbc_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_SBC_RSP, sbc_handle);
+}
+

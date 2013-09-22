@@ -39,17 +39,6 @@
 #include "wimax_tlv.h"
 #include "wimax_bits.h"
 
-/* WiMax dissector function prototypes */
-extern void proto_register_wimax_cdma(void);
-extern void proto_register_wimax_fch(void);
-extern void proto_register_wimax_pdu(void);
-extern void proto_register_wimax_ffb(void);
-extern void proto_register_wimax_hack(void);
-extern void proto_register_wimax_harq_map(void);
-extern void proto_register_wimax_phy_attributes(void);
-extern void proto_register_wimax_compact_dlmap_ie(void);
-extern void proto_register_wimax_compact_ulmap_ie(void);
-
 /* Global functions */
 /* void proto_reg_handoff_wimax(void); */
 gboolean is_down_link(packet_info *pinfo);
@@ -848,17 +837,6 @@ void proto_register_wimax(void)
 
 	/* Register the WiMax dissector */
 	register_dissector("wmx", dissect_wimax, proto_wimax);
-
-	/* Register other WiMax dissectors */
-	proto_register_wimax_cdma();
-	proto_register_wimax_fch();
-	proto_register_wimax_pdu();
-	proto_register_wimax_ffb();
-	proto_register_wimax_hack();
-	proto_register_wimax_harq_map();
-	proto_register_wimax_phy_attributes();
-	proto_register_wimax_compact_dlmap_ie();
-	proto_register_wimax_compact_ulmap_ie();
 
 #if 0 /* XXX: see comment at proto_reg_handoff_wimax() */
 	wimax_module = prefs_register_protocol(proto_wimax, proto_reg_handoff_wimax);

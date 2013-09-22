@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "crc.h"
+#include "wimax_mac.h"
 #include "wimax_bits.h"
 
 extern gint proto_mac_mgmt_msg_dlmap_decoder;
@@ -2430,8 +2431,20 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 			&ett_315d,
 		};
 
-	proto_mac_mgmt_msg_ulmap_decoder = proto_mac_mgmt_msg_dlmap_decoder;
+	proto_mac_mgmt_msg_ulmap_decoder = proto_register_protocol (
+                "WiMax ULMAP Messages", /* name       */
+                "WiMax ULMAP",    /* short name */
+                "wmx.ulmap"       /* abbrev     */
+                );
 
 	proto_register_field_array(proto_mac_mgmt_msg_ulmap_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void proto_reg_handoff_mac_mgmt_msg_ulmap(void)
+{
+	dissector_handle_t ulmap_handle;
+
+	ulmap_handle = create_dissector_handle(dissect_mac_mgmt_msg_ulmap_decoder, proto_mac_mgmt_msg_ulmap_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_UL_MAP, ulmap_handle);
 }

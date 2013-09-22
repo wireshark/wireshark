@@ -44,8 +44,6 @@ extern	gboolean include_cor2_changes;
 
 /* Forward reference */
 static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len);
-void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static gint proto_mac_mgmt_msg_dreg_req_decoder = -1;
 static gint proto_mac_mgmt_msg_dreg_cmd_decoder = -1;
@@ -366,10 +364,9 @@ void proto_register_mac_mgmt_msg_dreg_req(void)
 	};
 
 	proto_mac_mgmt_msg_dreg_req_decoder = proto_register_protocol (
-		"WiMax DREG-REQ/CMD Messages",
- /* name */
-		"WiMax DREG-REQ/CMD (dreg)", /* short name */
-		"wmx.dreg" /* abbrev */
+		"WiMax DREG-REQ Messages", /* name */
+		"WiMax DREG-REQ", /* short name */
+		"wmx.dreg_req" /* abbrev */
 		);
 
 	proto_register_field_array(proto_mac_mgmt_msg_dreg_req_decoder, hf, array_length(hf));
@@ -379,7 +376,11 @@ void proto_register_mac_mgmt_msg_dreg_req(void)
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_dreg_cmd(void)
 {
-	proto_mac_mgmt_msg_dreg_cmd_decoder = proto_mac_mgmt_msg_dreg_req_decoder;
+	proto_mac_mgmt_msg_dreg_cmd_decoder = proto_register_protocol (
+		"WiMax DREG-CMD Messages", /* name */
+		"WiMax DREG-CMD", /* short name */
+		"wmx.dreg_cmd" /* abbrev */
+		);
 }
 
 /* Decode DREG-REQ messages. */
@@ -550,3 +551,14 @@ void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 	}
 }
 
+void
+proto_reg_handoff_mac_mgmt_msg_dreg(void)
+{
+	dissector_handle_t dreg_handle;
+
+	dreg_handle = create_dissector_handle(dissect_mac_mgmt_msg_dreg_req_decoder, proto_mac_mgmt_msg_dreg_req_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DREG_REQ, dreg_handle);
+
+	dreg_handle = create_dissector_handle(dissect_mac_mgmt_msg_dreg_cmd_decoder, proto_mac_mgmt_msg_dreg_cmd_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DREG_CMD, dreg_handle);
+}

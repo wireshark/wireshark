@@ -37,12 +37,11 @@
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 
-extern gint proto_wimax;
 extern gboolean include_cor2_changes;
 
 extern gint man_ofdma;
 
-gint proto_mac_mgmt_msg_rng_req_decoder = -1;
+static gint proto_mac_mgmt_msg_rng_req_decoder = -1;
 static gint ett_mac_mgmt_msg_rng_req_decoder = -1;
 
 /* RNG-REQ fields */
@@ -610,11 +609,20 @@ void proto_register_mac_mgmt_msg_rng_req(void)
 		};
 
 	proto_mac_mgmt_msg_rng_req_decoder = proto_register_protocol (
-		"WiMax RNG-REQ/RSP Messages", /* name       */
-		"WiMax RNG-REQ/RSP (rng)",    /* short name */
-		"wmx.rng"                     /* abbrev     */
+		"WiMax RNG-REQ Messages", /* name       */
+		"WiMax RNG-REQ",    /* short name */
+		"wmx.rng_req"       /* abbrev     */
 		);
 
 	proto_register_field_array(proto_mac_mgmt_msg_rng_req_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void proto_reg_handoff_mac_mgmt_msg_rng_req(void)
+{
+	dissector_handle_t rng_req_handle;
+
+	rng_req_handle = create_dissector_handle(dissect_mac_mgmt_msg_rng_req_decoder, proto_mac_mgmt_msg_rng_req_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_RNG_REQ, rng_req_handle);
+}
+

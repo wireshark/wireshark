@@ -179,3 +179,12 @@ void proto_register_mac_mgmt_msg_fpc(void)
 	proto_register_field_array(proto_mac_mgmt_msg_fpc_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_mac_mgmt_msg_fpc(void)
+{
+	dissector_handle_t fpc_handle;
+
+	fpc_handle = create_dissector_handle(dissect_mac_mgmt_msg_fpc_decoder, proto_mac_mgmt_msg_fpc_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_FPC, fpc_handle);
+}

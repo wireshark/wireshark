@@ -1680,7 +1680,7 @@ void proto_register_wimax_utility_decoders(void)
 							);
 
 		proto_register_subtree_array(ett, array_length(ett));
-		proto_register_field_array(proto_mac_mgmt_msg_reg_req_decoder, hf_sfe, array_length(hf_sfe));
+		proto_register_field_array(proto_wimax_utility_decoders, hf_sfe, array_length(hf_sfe));
 		proto_register_field_array(proto_wimax_utility_decoders, hf_csper, array_length(hf_csper));
 		proto_register_field_array(proto_wimax_utility_decoders, hf_xmac, array_length(hf_xmac));
 		proto_register_field_array(proto_wimax_utility_decoders, hf_snp, array_length(hf_snp));

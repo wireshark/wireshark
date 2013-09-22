@@ -37,7 +37,6 @@
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 
-extern gint proto_mac_mgmt_msg_rng_req_decoder;
 extern gboolean include_cor2_changes;
 
 /* external reference */
@@ -976,8 +975,21 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&ett_rng_rsp_message_tree
 		};
 
-	proto_mac_mgmt_msg_rng_rsp_decoder = proto_mac_mgmt_msg_rng_req_decoder;
+	proto_mac_mgmt_msg_rng_rsp_decoder = proto_register_protocol (
+		"WiMax RNG-RSP Messages", /* name       */
+		"WiMax RNG-RSP",    /* short name */
+		"wmx.rng_rsp"       /* abbrev     */
+		);
 
 	proto_register_field_array(proto_mac_mgmt_msg_rng_rsp_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void proto_reg_handoff_mac_mgmt_msg_rng_rsp(void)
+{
+	dissector_handle_t rng_rsp_handle;
+
+	rng_rsp_handle = create_dissector_handle(dissect_mac_mgmt_msg_rng_rsp_decoder, proto_mac_mgmt_msg_rng_rsp_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_RNG_RSP, rng_rsp_handle);
+}
+

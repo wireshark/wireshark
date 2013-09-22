@@ -356,3 +356,15 @@ void proto_register_mac_mgmt_msg_aas_fbck(void)
 	proto_register_field_array(proto_mac_mgmt_msg_aas_fbck_decoder, hf_aas_fbck, array_length(hf_aas_fbck));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_mac_mgmt_msg_aas(void)
+{
+	dissector_handle_t aas_handle;
+
+	aas_handle = create_dissector_handle(dissect_mac_mgmt_msg_aas_fbck_req_decoder, proto_mac_mgmt_msg_aas_fbck_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_AAS_FBCK_REQ, aas_handle);
+
+	aas_handle = create_dissector_handle(dissect_mac_mgmt_msg_aas_fbck_rsp_decoder, proto_mac_mgmt_msg_aas_fbck_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_AAS_FBCK_RSP, aas_handle);
+}

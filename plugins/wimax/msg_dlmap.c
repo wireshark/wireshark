@@ -32,10 +32,10 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include "wimax_mac.h"
 #include "crc.h"
 #include "wimax_bits.h"
 
-extern gint proto_wimax;
 extern	gboolean include_cor2_changes;
 
 #define MAC_MGMT_MSG_DLMAP 2
@@ -75,7 +75,7 @@ gint sub_dl_ul_map = 0;
 
 extern gint man_ofdma;
 
-gint proto_mac_mgmt_msg_dlmap_decoder = -1;
+static gint proto_mac_mgmt_msg_dlmap_decoder = -1;
 
 static gint ett_dlmap = -1;
 static gint ett_dlmap_ie = -1;
@@ -2877,11 +2877,19 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 		};
 
         proto_mac_mgmt_msg_dlmap_decoder = proto_register_protocol (
-                "WiMax DLMAP/ULMAP Messages", /* name       */
-                "WiMax DLMAP/ULMAP (map)",    /* short name */
-                "wmx.map"                     /* abbrev     */
+                "WiMax DLMAP Messages", /* name       */
+                "WiMax DLMAP",    /* short name */
+                "wmx.dlmap"       /* abbrev     */
                 );
 
         proto_register_field_array(proto_mac_mgmt_msg_dlmap_decoder, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+}
+
+void proto_reg_handoff_mac_mgmt_msg_dlmap(void)
+{
+	dissector_handle_t dlmap_handle;
+
+	dlmap_handle = create_dissector_handle(dissect_mac_mgmt_msg_dlmap_decoder, proto_mac_mgmt_msg_dlmap_decoder);
+	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DL_MAP, dlmap_handle);
 }
