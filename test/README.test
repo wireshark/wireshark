@@ -41,7 +41,9 @@ What you'll need (to do):
  - have tput (e.g. in the cygwin ncurses package)
  - you'll need a network interface with some network traffic 
    (so you can run the capture tests)
- 
+ - (for non-Windows platforms) An X server for running the capture tests with
+   the graphical Wireshark program.
+
 A Test Ride
 -----------
 

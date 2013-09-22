@@ -413,6 +413,23 @@ capture_step_snapshot() {
 wireshark_capture_suite() {
 	# k: start capture immediately
 	# WIRESHARK_QUIT_AFTER_CAPTURE needs to be set.
+
+	#
+	# NOTE: if, on OS X, we start using a native-Quartz toolkit,
+	# this would need to change to check for WS_SYSTEM being
+	# "Darwin" and, if it is, check whether the standard output
+	# of "launchctl managername" is "Aqua".
+	#
+	# This may not do the right thing if we use toolkits that
+	# use Wayland or Mir directly, unless they also depend on
+	# the DISPLAY environment variable.
+	#
+	if [[ $WS_SYSTEM != Windows ]] && [ -z "$DISPLAY" ]; then
+		echo -n ' (X server not available)'
+		test_step_skipped
+		return
+	fi
+
 	DUT="$WIRESHARK_CMD"
 	test_step_add "Capture 10 packets" capture_step_10packets
 	# piping to stdout doesn't work with Wireshark and capturing!
