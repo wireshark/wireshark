@@ -2207,11 +2207,11 @@ addrinfo_lists_t *
 get_addrinfo_list(void) {
 
     if(ipv4_hash_table){
-        g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_resolved_to_list, &addrinfo_lists);
+        g_hash_table_foreach(ipv4_hash_table, ipv4_hash_table_resolved_to_list, &addrinfo_lists);
     }
 
-    if(ipv4_hash_table){
-        g_hash_table_foreach( ipv6_hash_table, ipv6_hash_table_resolved_to_list, &addrinfo_lists);
+    if(ipv6_hash_table){
+        g_hash_table_foreach(ipv6_hash_table, ipv6_hash_table_resolved_to_list, &addrinfo_lists);
     }
 
     return &addrinfo_lists;
