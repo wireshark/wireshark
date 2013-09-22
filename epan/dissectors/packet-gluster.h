@@ -356,15 +356,15 @@ enum gf_fop_procnum {
 
 /* dir-entry types from libglusterfs/src/compat.h */
 enum gluster_entry_types {
-	DT_UNKNOWN = 0,
-	DT_FIFO = 1,
-	DT_CHR = 2,
-	DT_DIR = 4,
-	DT_BLK = 6,
-	DT_REG = 8,
-	DT_LNK = 10,
-	DT_SOCK = 12,
-	DT_WHT = 14
+	GLUSTER_DT_UNKNOWN = 0,
+	GLUSTER_DT_FIFO = 1,
+	GLUSTER_DT_CHR = 2,
+	GLUSTER_DT_DIR = 4,
+	GLUSTER_DT_BLK = 6,
+	GLUSTER_DT_REG = 8,
+	GLUSTER_DT_LNK = 10,
+	GLUSTER_DT_SOCK = 12,
+	GLUSTER_DT_WHT = 14
 };
 
 
