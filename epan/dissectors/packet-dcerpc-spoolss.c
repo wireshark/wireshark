@@ -502,7 +502,7 @@ dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				hf_string_parm_size, &buffer_len);
 
-	s = tvb_get_ephemeral_unicode_stringz(tvb, offset, &len, ENC_LITTLE_ENDIAN);
+	s = tvb_get_unicode_stringz(wmem_packet_scope(), tvb, offset, &len, ENC_LITTLE_ENDIAN);
 
 	if (tree && buffer_len) {
 		tvb_ensure_bytes_exist(tvb, offset, buffer_len);

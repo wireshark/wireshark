@@ -527,7 +527,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 		offset += 4;
 
 		/* read the key, '\0' terminated */
-		key = tvb_get_ephemeral_stringz(tvb, offset, &key_len);
+		key = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &key_len);
 		start_offset2 = offset;
 		if (tree)
 			dict_item = proto_tree_add_text(subtree, tvb, offset, -1, "%s: ", key);

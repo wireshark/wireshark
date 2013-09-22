@@ -226,7 +226,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(hash_info->state == WAIT_FOR_STDERR_PORT
 	&& tvb_length_remaining(tvb, offset)){
-		field_stringz = tvb_get_ephemeral_stringz(tvb, offset, &length);
+		field_stringz = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &length);
 
 		/* Check if this looks like the stderr_port field.
 		 * It is optional, so it may only be 1 character long
@@ -249,7 +249,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(hash_info->state == WAIT_FOR_USERNAME
 	&& tvb_length_remaining(tvb, offset)){
-		field_stringz = tvb_get_ephemeral_stringz(tvb, offset, &length);
+		field_stringz = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &length);
 
 		/* Check if this looks like the username field */
 		if(length != 1 && length <= EXEC_USERNAME_LEN
@@ -277,7 +277,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(hash_info->state == WAIT_FOR_PASSWORD
 	&& tvb_length_remaining(tvb, offset)){
-		field_stringz = tvb_get_ephemeral_stringz(tvb, offset, &length);
+		field_stringz = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &length);
 
 		/* Check if this looks like the password field */
 		if(length != 1 && length <= EXEC_PASSWORD_LEN
@@ -300,7 +300,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(hash_info->state == WAIT_FOR_COMMAND
 	&& tvb_length_remaining(tvb, offset)){
-		field_stringz = tvb_get_ephemeral_stringz(tvb, offset, &length);
+		field_stringz = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &length);
 
 		/* Check if this looks like the command field */
 		if(length != 1 && length <= EXEC_COMMAND_LEN

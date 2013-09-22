@@ -3054,7 +3054,7 @@ static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
     break;
 
   case STRUCT_ID_ZSTRING:
-    dmp.struct_id = tvb_get_ephemeral_stringz (tvb, offset, &length);
+    dmp.struct_id = tvb_get_stringz (wmem_packet_scope(), tvb, offset, &length);
     proto_tree_add_item (body_tree, hf_message_bodyid_zstring, tvb, offset, length, ENC_ASCII|ENC_NA);
     break;
 

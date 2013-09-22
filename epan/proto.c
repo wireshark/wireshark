@@ -1471,10 +1471,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (length == -1) {
 				/* This can throw an exception */
-
-
-
-				string = tvb_get_ephemeral_stringz_enc(tvb, start, &length, encoding);
+				string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, start, &length, encoding);
 			} else if (length == 0) {
 				string = "[Empty]";
 			} else {

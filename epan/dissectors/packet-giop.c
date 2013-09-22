@@ -3993,7 +3993,7 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
 
     if (sequence_length != 0 && sequence_length < ITEM_LABEL_LENGTH)
     {
-      header->exception_id = tvb_get_ephemeral_stringz(tvb,offset, &sequence_length);
+      header->exception_id = tvb_get_stringz(wmem_packet_scope(), tvb,offset, &sequence_length);
 
       proto_tree_add_string(tree, hf_giop_exception_id, tvb, offset,
                             sequence_length, header->exception_id);

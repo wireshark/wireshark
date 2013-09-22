@@ -7536,7 +7536,7 @@ dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, proto_tree *parame
     proto_tree_add_item(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-	digit_str = tvb_bcd_dig_to_ep_str( parameter_tvb, offset, parameter_length-2, NULL, FALSE);
+	digit_str = tvb_bcd_dig_to_wmem_packet_str( parameter_tvb, offset, parameter_length-2, NULL, FALSE);
 	proto_tree_add_string(parameter_tree, hf_japan_isup_contractor_number,  parameter_tvb, offset, parameter_length-offset, digit_str);
 
     proto_item_set_text(parameter_item, "Contractor Number %s",digit_str);

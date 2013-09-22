@@ -1144,7 +1144,7 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
         return 0;
     }
 
-    lua_pushstring(L, (gchar*)tvb_get_ephemeral_stringz(tvbr->tvb->ws_tvb,tvbr->offset,NULL) );
+    lua_pushstring(L, (gchar*)tvb_get_stringz(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,NULL) );
 
     WSLUA_RETURN(1); /* The zero terminated string */
 }
@@ -1176,7 +1176,7 @@ static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
         return 0;
     }
 
-    lua_pushstring(L, (gchar*)tvb_get_ephemeral_unicode_stringz(tvbr->tvb->ws_tvb,tvbr->offset,&count,(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN)) );
+    lua_pushstring(L, (gchar*)tvb_get_unicode_stringz(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,&count,(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN)) );
     lua_pushinteger(L,count);
 
     return 2; /* The zero terminated string, the length found in tvbr */

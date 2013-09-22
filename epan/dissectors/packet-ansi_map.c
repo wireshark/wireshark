@@ -1436,7 +1436,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mintype);
 
-    digit_str = tvb_bcd_dig_to_ep_str(tvb, offset, tvb_length_remaining(tvb,offset), NULL, FALSE);
+    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_length_remaining(tvb,offset), NULL, FALSE);
     proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
     proto_item_append_text(actx->created_item, " - %s", digit_str);
 }
@@ -1481,7 +1481,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             if(octet_len == 0)
                 return;
             offset++;
-            digit_str = tvb_bcd_dig_to_ep_str(tvb, offset, tvb_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
+            digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
             proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
@@ -1519,7 +1519,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         switch ((octet&0xf)){
         case 1:
             /* BCD Coding */
-            digit_str = tvb_bcd_dig_to_ep_str(tvb, offset, tvb_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
+            digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offset, tvb_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
             proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;

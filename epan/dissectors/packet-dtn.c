@@ -633,15 +633,15 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
          */
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
-                     tvb_get_ephemeral_stringz(tvb, offset + dict_data->source_scheme_offset, NULL),
-                     tvb_get_ephemeral_stringz(tvb, offset + dict_data->source_ssp_offset, NULL),
-                     tvb_get_ephemeral_stringz(tvb, offset + dict_data->dest_scheme_offset, NULL),
-                     tvb_get_ephemeral_stringz(tvb, offset + dict_data->dest_ssp_offset, NULL));
+                     tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->source_scheme_offset, NULL),
+                     tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->source_ssp_offset, NULL),
+                     tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->dest_scheme_offset, NULL),
+                     tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->dest_ssp_offset, NULL));
 
         /* remember custodian, for use in checking cteb validity */
         *bundle_custodian = wmem_strdup_printf(wmem_packet_scope(), "%s:%s",
-                                               tvb_get_ephemeral_stringz(tvb, offset + dict_data->cust_scheme_offset, NULL),
-                                               tvb_get_ephemeral_stringz(tvb, offset + dict_data->cust_ssp_offset, NULL));
+                                               tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->cust_scheme_offset, NULL),
+                                               tvb_get_stringz(wmem_packet_scope(), tvb, offset + dict_data->cust_ssp_offset, NULL));
     }
     offset += dict_data->bundle_header_dict_length;        /*Skip over dictionary*/
 

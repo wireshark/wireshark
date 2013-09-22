@@ -3215,7 +3215,7 @@ decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree 
     const gchar *imsi_str;
 
     /* Octets 2 - 9 IMSI */
-    imsi_str =  tvb_bcd_dig_to_ep_str( tvb, offset+1, 8, NULL, FALSE);
+    imsi_str =  tvb_bcd_dig_to_wmem_packet_str( tvb, offset+1, 8, NULL, FALSE);
 
     proto_tree_add_string(tree, hf_gtp_imsi, tvb, offset+1, 8, imsi_str);
 

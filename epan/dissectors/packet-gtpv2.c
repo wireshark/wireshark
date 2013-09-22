@@ -872,7 +872,7 @@ dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
-    imsi_str = tvb_bcd_dig_to_ep_str( tvb, offset, length, NULL, FALSE);
+    imsi_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, length, NULL, FALSE);
 
     proto_tree_add_string(tree, hf_gtpv2_imsi, tvb, offset, length, imsi_str);
     proto_item_append_text(item, "%s", imsi_str);
@@ -1542,7 +1542,7 @@ dissect_gtpv2_mei(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
-    mei_str = tvb_bcd_dig_to_ep_str( tvb, 0, length, NULL, FALSE);
+    mei_str = tvb_bcd_dig_to_wmem_packet_str( tvb, 0, length, NULL, FALSE);
 
     proto_tree_add_string(tree, hf_gtpv2_mei, tvb, offset, length, mei_str);
     proto_item_append_text(item, "%s", mei_str);
@@ -1573,7 +1573,7 @@ dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
-    digit_str = tvb_bcd_dig_to_ep_str( tvb, 0, length, NULL, FALSE);
+    digit_str = tvb_bcd_dig_to_wmem_packet_str( tvb, 0, length, NULL, FALSE);
 
     proto_tree_add_string(tree, hf_gtpv2_address_digits, tvb, 0, length, digit_str);
     proto_item_append_text(item, "%s", digit_str);
@@ -2942,7 +2942,7 @@ dissect_gtpv2_mm_context_common_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     if (mei_len) {
         const gchar *mei_str;
 
-        mei_str = tvb_bcd_dig_to_ep_str( tvb, offset, mei_len, NULL, FALSE);
+        mei_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, mei_len, NULL, FALSE);
         proto_tree_add_string(tree, hf_gtpv2_mei, tvb, offset, mei_len, mei_str);
         offset += mei_len;
     }

@@ -382,7 +382,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 2;
 
 				for(ii = 0; ii < num_realms; ii++) {
-					realm_name = tvb_get_ephemeral_stringz(tvb,
+					realm_name = tvb_get_stringz(wmem_packet_scope(), tvb,
 								     offset + 3,
 								     &len);
 
@@ -404,7 +404,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_string(wow_realms_tree, hf_wow_realm_name, tvb, offset, len, realm_name);
 					offset += len;
 
-					string = tvb_get_ephemeral_stringz(tvb, offset,
+					string = tvb_get_stringz(wmem_packet_scope(), tvb, offset,
 								 &len);
 					proto_tree_add_string(wow_realms_tree, hf_wow_realm_socket, tvb, offset, len, string);
 					offset += len;

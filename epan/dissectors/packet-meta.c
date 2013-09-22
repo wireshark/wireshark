@@ -356,7 +356,7 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             break;
         case META_ID_IMSI:
             imsi     = tvb_get_letoh64(tvb, offs);
-            imsi_str = tvb_bcd_dig_to_ep_str(tvb, offs, 8, NULL, FALSE);
+            imsi_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offs, 8, NULL, FALSE);
             imsi_item = proto_tree_add_string(meta_tree, hf_meta_item_imsi_digits, tvb,
                 offs, 8, imsi_str);
             imsi_tree = proto_item_add_subtree(imsi_item, ett_meta_imsi);
@@ -365,7 +365,7 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             break;
         case META_ID_IMEI:
             imei     = tvb_get_letoh64(tvb, offs);
-            imei_str = tvb_bcd_dig_to_ep_str(tvb, offs, 8, NULL, FALSE);
+            imei_str = tvb_bcd_dig_to_wmem_packet_str(tvb, offs, 8, NULL, FALSE);
             imei_item = proto_tree_add_string(meta_tree, hf_meta_item_imei_digits, tvb,
                 offs, 8, imei_str);
             imei_tree = proto_item_add_subtree(imei_item, ett_meta_imei);

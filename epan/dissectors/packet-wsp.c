@@ -1282,7 +1282,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
  * get_text_string() macro now returns wmem_alloc'd memory. */
 #define get_text_string(str,tvb,start,len,ok) \
     if (is_text_string(tvb_get_guint8(tvb,start))) { \
-        str = (gchar *)tvb_get_ephemeral_stringz(tvb,start,(gint *)&len); \
+        str = (gchar *)tvb_get_stringz(wmem_packet_scope(), tvb,start,(gint *)&len); \
         ok = TRUE; \
     } else { len = 0; str = NULL; ok = FALSE; }
 #define get_token_text(str,tvb,start,len,ok) \
@@ -1782,12 +1782,12 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
             offset += 2;
         } else if (hdr_id >= 0x20) { /* Textual header */
             /* Header name MUST be NUL-ended string ==> tvb_get_stringz() */
-            hdr_str = (gchar *)tvb_get_ephemeral_stringz(tvb, hdr_start, (gint *)&hdr_len);
+            hdr_str = (gchar *)tvb_get_stringz(wmem_packet_scope(), tvb, hdr_start, (gint *)&hdr_len);
             val_start = hdr_start + hdr_len;
             val_id = tvb_get_guint8(tvb, val_start);
             /* Call header value dissector for given header */
             if (val_id >= 0x20 && val_id <=0x7E) { /* OK! */
-                val_str = (gchar *)tvb_get_ephemeral_stringz(tvb, val_start, (gint *)&val_len);
+                val_str = (gchar *)tvb_get_stringz(wmem_packet_scope(), tvb, val_start, (gint *)&val_len);
                 offset = val_start + val_len;
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset-hdr_start);
                 proto_tree_add_text(wsp_headers,tvb,hdr_start,offset-hdr_start,
@@ -1911,7 +1911,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 #define wkh_2_TextualValue                  /* Parse Textual Value */ \
         /* END */ \
     } else if ((val_id == 0) || (val_id >= 0x20)) { /* Textual value */ \
-        val_str = (gchar *)tvb_get_ephemeral_stringz (tvb, val_start, (gint *)&val_len); \
+        val_str = (gchar *)tvb_get_stringz (wmem_packet_scope(), tvb, val_start, (gint *)&val_len); \
         offset = val_start + val_len; \
         /* Textual value processing starts HERE \
          * \
@@ -1920,7 +1920,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 #define wkh_2_TextualValueInv                   /* Parse Textual Value */ \
         /* END */ \
     } else if ((val_id == 0) || (val_id >= 0x20)) { /* Textual value */ \
-        /*val_str = (gchar *)*/tvb_get_ephemeral_stringz (tvb, val_start, (gint *)&val_len); \
+        /*val_str = (gchar *)*/tvb_get_stringz (wmem_packet_scope(), tvb, val_start, (gint *)&val_len); \
         offset = val_start + val_len; \
         /* Textual value processing starts HERE \
          * \

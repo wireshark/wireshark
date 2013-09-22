@@ -1807,7 +1807,7 @@ cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
     msglen = tvb_reported_length_remaining(tvb, offset);
     offset = cmd_delete(tvb, offset, pt);       /* decode the name */
     if (offset < msglen + hdr_stuff) {
-        string = tvb_get_ephemeral_stringz(tvb, offset, &length);
+        string = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &length);
         if (length > 1) {
             proto_tree_add_string(pt, hf_gryphon_start_arguments, tvb, offset,
                 length, string);

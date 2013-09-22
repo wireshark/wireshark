@@ -387,7 +387,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 
         if (i != 0) {
             n += 1;
-            s = tvb_get_ephemeral_stringz(tvb, n, &siz);
+            s = tvb_get_stringz(wmem_packet_scope(), tvb, n, &siz);
             hidden_item = proto_tree_add_string(tree, i, tvb, n, siz, s);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_text(
@@ -511,11 +511,11 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
 
     /* Parameter status */
     case 'S':
-        s = tvb_get_ephemeral_stringz(tvb, n, &siz);
+        s = tvb_get_stringz(wmem_packet_scope(), tvb, n, &siz);
         hidden_item = proto_tree_add_string(tree, hf_parameter_name, tvb, n, siz, s);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
         n += siz;
-        t = tvb_get_ephemeral_stringz(tvb, n, &i);
+        t = tvb_get_stringz(wmem_packet_scope(), tvb, n, &i);
         hidden_item = proto_tree_add_string(tree, hf_parameter_value, tvb, n, i, t);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_text(tree, tvb, n-siz, siz+i, "%s: %s", s, t);
@@ -595,7 +595,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
             c = tvb_get_guint8(tvb, n);
             if (c == '\0')
                 break;
-            s = tvb_get_ephemeral_stringz(tvb, n+1, &siz);
+            s = tvb_get_stringz(wmem_packet_scope(), tvb, n+1, &siz);
             i = hf_text;
             switch (c) {
             case 'S': i = hf_severity; break;

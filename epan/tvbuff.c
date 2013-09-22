@@ -47,7 +47,6 @@
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "strutil.h"
-#include "emem.h"
 #include "charsets.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
@@ -2049,34 +2048,102 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 }
 
 /*
- * Given a tvbuff, an offset, and an encoding, with the offset assumed
- * to refer to a null-terminated string, find the length of that string
- * (and throw an exception if the tvbuff ends before we find the null),
- * allocate a buffer big enough to hold the string, copy the string into
- * it, and return a pointer to the string; if the encoding is EBCDIC, map
- * the string from EBCDIC to ASCII.  Also return the length of the
+ * Given a tvbuff and an offset, with the offset assumed to refer to
+ * a null-terminated string, find the length of that string (and throw
+ * an exception if the tvbuff ends before we find the null), allocate
+ * a buffer big enough to hold the string, copy the string into it,
+ * and return a pointer to the string.	Also return the length of the
  * string (including the terminating null) through a pointer.
+ *
+ * If scope is NULL, memory is allocated with g_malloc() and user must
+ * explicitely free it with g_free().
+ * If scope is not NULL, memory is allocated with the corresponding pool
+ * lifetime.
  */
 guint8 *
-tvb_get_g_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
+tvb_get_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp)
 {
 	guint   size;
 	guint8 *strptr;
 
 	size   = tvb_strsize(tvb, offset);
-	strptr = (guint8 *)g_malloc(size);
+	strptr = (guint8 *)wmem_alloc(scope, size);
 	tvb_memcpy(tvb, strptr, offset, size);
-	if ((encoding & ENC_CHARENCODING_MASK) == ENC_EBCDIC)
-		EBCDIC_to_ASCII(strptr, size);
 	if (lengthp)
 		*lengthp = size;
 	return strptr;
 }
 
 guint8 *
-tvb_get_g_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
-	return tvb_get_g_stringz_enc(tvb, offset, lengthp, ENC_UTF_8|ENC_NA);
+	guint   size;
+	guint8 *strptr;
+
+	switch (encoding & ENC_CHARENCODING_MASK) {
+
+	case ENC_ASCII:
+	default:
+		/*
+		 * For now, we treat bogus values as meaning
+		 * "ASCII" rather than reporting an error,
+		 * for the benefit of old dissectors written
+		 * when the last argument to proto_tree_add_item()
+		 * was a gboolean for the byte order, not an
+		 * encoding value, and passed non-zero values
+		 * other than TRUE to mean "little-endian".
+		 *
+		 * XXX - should map all octets with the 8th bit
+		 * not set to a "substitute" UTF-8 character.
+		 */
+		strptr = tvb_get_stringz(scope, tvb, offset, lengthp);
+		break;
+
+	case ENC_UTF_8:
+		/*
+		 * XXX - should map all invalid UTF-8 sequences
+		 * to a "substitute" UTF-8 character.
+		 */
+		strptr = tvb_get_stringz(scope, tvb, offset, lengthp);
+		break;
+
+	case ENC_UTF_16:
+		/*
+		 * XXX - needs to handle surrogate pairs and to map
+		 * invalid characters and sequences to a "substitute"
+		 * UTF-8 character.
+		 */
+		strptr = tvb_get_unicode_stringz(scope, tvb, offset, lengthp,
+		    encoding & ENC_LITTLE_ENDIAN);
+		break;
+
+	case ENC_UCS_2:
+		/*
+		 * XXX - needs to map values that are not valid UCS-2
+		 * characters (such as, I think, values used as the
+		 * components of a UTF-16 surrogate pair) to a
+		 * "substitute" UTF-8 character.
+		 */
+		strptr = tvb_get_unicode_stringz(scope, tvb, offset, lengthp,
+		    encoding & ENC_LITTLE_ENDIAN);
+		break;
+
+	case ENC_EBCDIC:
+		/*
+		 * XXX - do the copy and conversion in one pass.
+		 *
+		 * XXX - multiple "dialects" of EBCDIC?
+		 */
+		size = tvb_strsize(tvb, offset);
+		strptr = (guint8 *)wmem_alloc(scope, size);
+		tvb_memcpy(tvb, strptr, offset, size);
+		EBCDIC_to_ASCII(strptr, size);
+		if (lengthp)
+			*lengthp = size;
+		break;
+	}
+
+	return strptr;
 }
 
 /*
@@ -2106,123 +2173,23 @@ tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 }
 
 /*
- * Given a tvbuff and an offset, with the offset assumed to refer to
- * a null-terminated string, find the length of that string (and throw
- * an exception if the tvbuff ends before we find the null), allocate
- * a buffer big enough to hold the string, copy the string into it,
- * and return a pointer to the string.	Also return the length of the
- * string (including the terminating null) through a pointer.
- *
- * This function allocates memory from a buffer with packet lifetime.
- * You do not have to free this buffer, it will be automatically freed
- * when wireshark starts decoding the next packet.
- * Do not use this function if you want the allocated memory to be persistent
- * after the current packet has been dissected.
- */
-guint8 *
-tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
-{
-	guint   size;
-	guint8 *strptr;
-
-	switch (encoding & ENC_CHARENCODING_MASK) {
-
-	case ENC_ASCII:
-	default:
-		/*
-		 * For now, we treat bogus values as meaning
-		 * "ASCII" rather than reporting an error,
-		 * for the benefit of old dissectors written
-		 * when the last argument to proto_tree_add_item()
-		 * was a gboolean for the byte order, not an
-		 * encoding value, and passed non-zero values
-		 * other than TRUE to mean "little-endian".
-		 *
-		 * XXX - should map all octets with the 8th bit
-		 * not set to a "substitute" UTF-8 character.
-		 */
-		strptr = tvb_get_ephemeral_stringz(tvb, offset, lengthp);
-		break;
-
-	case ENC_UTF_8:
-		/*
-		 * XXX - should map all invalid UTF-8 sequences
-		 * to a "substitute" UTF-8 character.
-		 */
-		strptr = tvb_get_ephemeral_stringz(tvb, offset, lengthp);
-		break;
-
-	case ENC_UTF_16:
-		/*
-		 * XXX - needs to handle surrogate pairs and to map
-		 * invalid characters and sequences to a "substitute"
-		 * UTF-8 character.
-		 */
-		strptr = tvb_get_ephemeral_unicode_stringz(tvb, offset, lengthp,
-		    encoding & ENC_LITTLE_ENDIAN);
-		break;
-
-	case ENC_UCS_2:
-		/*
-		 * XXX - needs to map values that are not valid UCS-2
-		 * characters (such as, I think, values used as the
-		 * components of a UTF-16 surrogate pair) to a
-		 * "substitute" UTF-8 character.
-		 */
-		strptr = tvb_get_ephemeral_unicode_stringz(tvb, offset, lengthp,
-		    encoding & ENC_LITTLE_ENDIAN);
-		break;
-
-	case ENC_EBCDIC:
-		/*
-		 * XXX - do the copy and conversion in one pass.
-		 *
-		 * XXX - multiple "dialects" of EBCDIC?
-		 */
-		size = tvb_strsize(tvb, offset);
-		strptr = (guint8 *)ep_alloc(size);
-		tvb_memcpy(tvb, strptr, offset, size);
-		EBCDIC_to_ASCII(strptr, size);
-		if (lengthp)
-			*lengthp = size;
-		break;
-	}
-
-	return strptr;
-}
-
-guint8 *
-tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
-{
-	guint   size;
-	guint8 *strptr;
-
-	size   = tvb_strsize(tvb, offset);
-	strptr = (guint8 *)ep_alloc(size);
-	tvb_memcpy(tvb, strptr, offset, size);
-	if (lengthp)
-		*lengthp = size;
-	return strptr;
-}
-
-/*
- * Unicode (UTF-16) version of tvb_get_ephemeral_stringz()
+ * Unicode (UTF-16) version of tvb_get_stringz()
  *
  * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
- * Returns an ep_ allocated UTF-8 string and updates lengthp pointer with length of string (in bytes)
+ * Returns an allocated UTF-8 string and updates lengthp pointer with length of string (in bytes)
  */
 gchar *
-tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
+tvb_get_unicode_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
 	gunichar2      uchar;
 	gint           size;    /* Number of UTF-16 characters */
 	gint           i;       /* Byte counter for tvbuff */
-	emem_strbuf_t *strbuf;
+	wmem_strbuf_t *strbuf;
 
 	size = tvb_unicode_strsize(tvb, offset);
 
-	strbuf = ep_strbuf_new(NULL);
+	strbuf = wmem_strbuf_new(scope, NULL);
 
 	for(i = 0; i < size; i += 2) {
 		if (encoding == ENC_BIG_ENDIAN)
@@ -2230,39 +2197,13 @@ tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *length
 		else
 			uchar = tvb_get_letohs(tvb, offset + i);
 
-		ep_strbuf_append_unichar(strbuf, uchar);
+		wmem_strbuf_append_unichar(strbuf, uchar);
 	}
 
 	if (lengthp)
 		*lengthp = i; /* Number of *bytes* processed */
 
-	return strbuf->str;
-}
-
-/*
- * Given a tvbuff and an offset, with the offset assumed to refer to
- * a null-terminated string, find the length of that string (and throw
- * an exception if the tvbuff ends before we find the null), allocate
- * a buffer big enough to hold the string, copy the string into it,
- * and return a pointer to the string.	Also return the length of the
- * string (including the terminating null) through a pointer.
- *
- * This function allocates memory from a buffer with capture session lifetime.
- * You do not have to free this buffer, it will be automatically freed
- * when wireshark starts or opens a new capture.
- */
-guint8 *
-tvb_get_seasonal_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
-{
-	guint   size;
-	guint8 *strptr;
-
-	size   = tvb_strsize(tvb, offset);
-	strptr = (guint8 *)se_alloc(size);
-	tvb_memcpy(tvb, strptr, offset, size);
-	if (lengthp)
-		*lengthp = size;
-	return strptr;
+	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
@@ -2726,7 +2667,7 @@ tvb_bytes_to_str_punct(tvbuff_t *tvb, const gint offset, const gint len, const g
  * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either
  * the low or high half byte, formating the digits according to an input digit set,
  * if NUll a default digit set of 0-9 returning "?" for overdecadic digits will be used.
- * A pointer to the EP allocated string will be returned.
+ * A pointer to the packet scope allocated string will be returned.
  * Note a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
  */
 static dgt_set_t Dgt1_9_bcd = {
@@ -2736,7 +2677,7 @@ static dgt_set_t Dgt1_9_bcd = {
 	}
 };
 const gchar *
-tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first)
+tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first)
 {
 	int     length;
 	guint8  octet;
@@ -2755,7 +2696,7 @@ tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_
 	} else {
 		length = offset + len;
 	}
-	digit_str = (char *)ep_alloc((length - offset)*2+1);
+	digit_str = (char *)wmem_alloc(wmem_packet_scope(), (length - offset)*2+1);
 
 	while (t_offset < length) {
 

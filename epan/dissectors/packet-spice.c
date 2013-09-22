@@ -1968,7 +1968,7 @@ dissect_spice_common_server_messages(tvbuff_t *tvb, proto_tree *tree, const guin
             message_len = tvb_get_letohl(tvb, offset);
             proto_tree_add_text(server_message_tree, tvb, offset, 4, "message length: %d", message_len);
             offset += 4;
-            /*TODO use proto_tree_add_string and get the stringz using tvb_get_ephemeral_stringz() */
+            /*TODO use proto_tree_add_string and get the stringz using tvb_get_stringz() */
             proto_tree_add_text(server_message_tree, tvb, offset, message_len + 1, "Message content");
             offset += (message_len + 1);
             break;

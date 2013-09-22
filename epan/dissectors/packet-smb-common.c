@@ -65,7 +65,7 @@ int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
 
 	/* display a string from the tree and return the new offset */
 
-	str = tvb_get_ephemeral_stringz(tvb, offset, &len);
+	str = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &len);
 	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
 
 	/* Return a copy of the string if requested */

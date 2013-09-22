@@ -269,13 +269,10 @@ is intended for reading UTF-16 unicode strings out of a tvbuff and
 returning them as a UTF-8 string for use in Wireshark.  The offset and
 returned length pointer are in bytes, not UTF-16 characters.
 
-guint8 *tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
-guint8 *tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
-const guint8 *tvb_get_const stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
-guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
-guint8 *tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
-gchar  *tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
-guint8 *tvb_get_seasonal_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+guint8 *tvb_get_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp);
+guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
+const guint8 *tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+gchar  *tvb_get_unicode_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 
@@ -285,29 +282,19 @@ tvbuff up to and including a terminating null character in the tvbuff.
 "*lengthp" will be set to the length of the string, including the terminating
 null.
 
-tvb_get_stringz() returns a buffer allocated by g_malloc() so you must
-g_free() it when you are finished with the string. Failure to g_free() this
-buffer will lead to memory leaks.
+tvb_get_stringz() returns a buffer allocated by g_malloc() if scope is set
+to NULL (in that case memory must be explicitely freed), or with the
+allocator lifetime if scope is not NULL.
 
 tvb_get_const_stringz() returns a pointer to the (const) string in the tvbuff.
 You do not need to free() this buffer, it will happen automatically once the
 next packet is dissected.  This function is slightly more efficient than the
 others because it does not allocate memory and copy the string.
 
-tvb_get_ephemeral_stringz() returns a buffer allocated from a special heap
-with a lifetime until the next packet is dissected. You do not need to
-free() this buffer, it will happen automatically once the next packet is
-dissected.
-
-tvb_get_ephemeral_unicode_stringz() is a unicode (UTF-16) version of
-above.  This is intended for reading UTF-16 unicode strings out of a tvbuff
+tvb_get_unicode_stringz() is a unicode (UTF-16) version of above.
+This is intended for reading UTF-16 unicode strings out of a tvbuff
 and returning them as a UTF-8 string for use in Wireshark.  The offset and
 returned length pointer are in bytes, not UTF-16 characters.
-
-tvb_get_seasonal_stringz() returns a buffer allocated from a special heap
-with a lifetime of the current capture session. You do not need to
-free() this buffer, it will happen automatically once the a new capture or
-file is opened.
 
 tvb_get_faked_unicode() has been superseded by tvb_get_string(), which
 properly handles Unicode (UTF-16) strings by converting them to UTF-8.
@@ -328,14 +315,14 @@ gchar *tvb_bytes_to_str_punct(tvbuff_t *tvb, gint offset, gint len, gchar punct)
 This function is similar to tvb_bytes_to_str(...) except that 'punct' is inserted
 between the hex representation of each byte.
 
-gchar *tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
+gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
 
 Given a tvbuff, an offset into the tvbuff, and a length that starts
 at that offset (which may be -1 for "all the way to the end of the
 tvbuff"), fetch BCD encoded digits from a tvbuff starting from either
 the low or high half byte, formatting the digits according to an input digit set,
 if NUll a default digit set of 0-9 returning "?" for overdecadic digits will be used.
-A pointer to the EP allocated string will be returned.
+A pointer to the packet scope allocated string will be returned.
 Note: a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
 
 Copying memory:
