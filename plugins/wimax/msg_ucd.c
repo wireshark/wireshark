@@ -39,7 +39,6 @@
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 
-static gint proto_mac_mgmt_msg_ucd_decoder;
 extern gboolean include_cor2_changes;
 
 guint cqich_id_size;		/* Set for CQICH_Alloc_IE */
