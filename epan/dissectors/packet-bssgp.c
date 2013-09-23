@@ -185,6 +185,7 @@ static int hf_bssgp_redir_indiction_reroute_reject_cause = -1;
 static int hf_bssgp_unconfim_send_state_var = -1;
 static int hf_bssgp_Global_ENB_ID_PDU = -1;
 static int hf_bssgp_SONtransferRequestContainer_PDU = -1;
+static int hf_bssgp_selected_plmn_id = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
@@ -436,15 +437,15 @@ static expert_field ei_bssgp_extraneous_data = EI_INIT;
 #define BSSGP_IEI_RAN_INF_APP_CONTAINER                    0x4e
 #define BSSGP_IEI_RIM_PDU_INDICATIONS                      0x4f
 #define BSSGP_IEI_NUMBER_OF_CONTAINER_UNITS                0x50
+/* x51 This value should not be used, as it has been used in earlier versions of
+this protocol. */
 #define BSSGP_IEI_PFC_FLOW_CONTROL_PARAMETERS              0x52
 #define BSSGP_IEI_GLOBAL_CN_ID                             0x53
 #define BSSGP_IEI_RIM_ROUTING_INFORMATION                  0x54
 #define BSSGP_IEI_RIM_PROTOCOL_VERSION                     0x55
 #define BSSGP_IEI_APPLICATION_ERROR_CONTAINER              0x56
-
 #define BSSGP_IEI_RAN_INF_REQUEST_RIM_CONTAINER            0x57
 #define BSSGP_IEI_RAN_INF_RIM_CONTAINER                    0x58
-
 #define BSSGP_IEI_RAN_INF_APP_ERROR_RIM_CONTAINER          0x59
 #define BSSGP_IEI_RAN_INF_ACK_RIM_CONTAINER                0x5a
 #define BSSGP_IEI_RAN_INF_ERROR_RIM_CONTAINER              0x5b
@@ -454,6 +455,7 @@ static expert_field ei_bssgp_extraneous_data = EI_INIT;
 #define BSSGP_IEI_REDIR_COMPLETE                           0x89
 #define BSSGP_IEI_UNCONFIRM_SEND_STATE_VAR                 0x8a
 
+#define BSSGP_IEI_SELECTED_PLMN_ID                         0x8e
 /*
 ETSI
 3GPP TS 48.018 version 6.16.0 Release 6 108 ETSI TS 148 018 V6.16.0 (2006-12)
@@ -509,6 +511,10 @@ x88 Redirection Indication
 x89 Redirection Completed
 x8a Unconfirmed send state variable
 x8b IRAT Measurement Configuration
+x8c SCI
+X8d GGSN/P-GW location
+x8e Selected PLMN ID
+x8f Priority Class Indicator
 */
 
 /* Macros */
@@ -3323,6 +3329,16 @@ de_bssgp_unconfim_send_state_var(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     return 2;
 }
 
+/*
+ * 11.3.118 Selected PLMN ID
+ */
+static guint16
+de_bssgp_selected_plmn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_string(tree, hf_bssgp_selected_plmn_id, tvb, offset, 3, dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, TRUE));
+    return 3;
+}
+
 typedef enum
 {
     DE_BSSGP_ALIGNMENT_OCTETS,                                  /* 11.3.1   0x00 Alignment octets */
@@ -3433,6 +3449,7 @@ typedef enum
     DE_BSSGP_REDIR_INDICATION,                                  /* 11.3.112 Redirection Indication */
     DE_BSSGP_REDIR_COMPLETE,                                    /* 11.3.113 Redirection Completed */
     DE_BSSGP_UNCONFIRM_SEND_STATE_VAR,                          /* 11.3.114 Unconfirmed send state variable */
+    DE_BSSGP_SELECTED_PLMN_ID,                                  /* 11.3.114 Unconfirmed send state variable */
     DE_BSSGP_NONE                                               /* NONE */
 }
 bssgp_elem_idx_t;
@@ -3583,6 +3600,8 @@ static const value_string bssgp_elem_strings[] = {
     { DE_BSSGP_REDIR_COMPLETE, "Redirection Completed"},                               /* 11.3.113 Redirection Completed */
     { DE_BSSGP_UNCONFIRM_SEND_STATE_VAR, "Unconfirmed Send State Variable"},                     /* 11.3.114 Unconfirmed send state variable */
 
+    { DE_BSSGP_SELECTED_PLMN_ID, "Selected PLMN ID"},                     /* 11.3.118 Selected PLMN ID */
+
     { 0, NULL }
 };
 value_string_ext bssgp_elem_strings_ext = VALUE_STRING_EXT_INIT(bssgp_elem_strings);
@@ -3698,6 +3717,7 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     de_bssgp_redir_indication,                                  /* 11.3.112 Redirection Indication */
     de_bssgp_redir_complete,                                    /* 11.3.113 Redirection Completed */
     de_bssgp_unconfim_send_state_var,                           /* 11.3.114 Unconfirmed send state variable */
+    de_bssgp_selected_plmn_id,                                  /* 11.3.118 Selected PLMN ID */
 
     NULL,   /* NONE */
 };
@@ -3986,6 +4006,7 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 }
 /*
  * 10.2.2   UL-UNITDATA
+ * Updated to 3GPP TS 48.018 version 11.3.0 Release 11
  */
 static void
 bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
@@ -4013,8 +4034,12 @@ bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     ELEM_OPT_TELV(0x26, GSM_A_PDU_TYPE_BSSMAP, BE_LSA_ID_LIST, NULL);
     /* Redirect Attempt Flag (Note 3) Redirect Attempt Flag/11.3.111 O TLV 3 */
     ELEM_OPT_TELV(BSSGP_IEI_REDIR_ATTEMP_FLG, BSSGP_PDU_TYPE, DE_BSSGP_REDIR_ATTEMPT_FLG, NULL);
+	/* IMSI (note 2) IMSI/11.3.14 O TLV 5-10 */
+	ELEM_OPT_TELV(BSSGP_IEI_IMSI, BSSGP_PDU_TYPE, DE_BSSGP_IMSI , NULL);
     /* Unconfirmed send state variable (note 4) Unconfirmed send state variable/11.3.114 O TLV 4 */
     ELEM_OPT_TELV(BSSGP_IEI_UNCONFIRM_SEND_STATE_VAR, BSSGP_PDU_TYPE, DE_BSSGP_UNCONFIRM_SEND_STATE_VAR, NULL);
+	/* Selected PLMN ID (note 5) Selected PLMN ID/11.3.118 O TLV 5 */
+	ELEM_OPT_TELV(BSSGP_IEI_SELECTED_PLMN_ID, BSSGP_PDU_TYPE, DE_BSSGP_SELECTED_PLMN_ID, NULL);
     /* Alignment octets Alignment octets/11.3.1 O TLV 2-5  */
     ELEM_OPT_TELV(0x00, BSSGP_PDU_TYPE, DE_BSSGP_ALIGNMENT_OCTETS, NULL);
     /* LLC-PDU (note) LLC-PDU/11.3.15 M TLV 2-?  */
@@ -6894,6 +6919,10 @@ proto_register_bssgp(void)
             FT_UINT32, BASE_DEC, VALS(s1ap_SONtransferRequestContainer_vals), 0,
             NULL, HFILL }},
 
+        { &hf_bssgp_selected_plmn_id,
+          { "Selected PLMN ID", "bssgp.selected_plmn_id",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
     };
 
     /* Setup protocol subtree array */
