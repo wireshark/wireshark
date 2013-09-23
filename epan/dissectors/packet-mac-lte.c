@@ -230,6 +230,7 @@ static int hf_mac_lte_sr_time_until_answer = -1;
 
 static int hf_mac_lte_drx_config = -1;
 static int hf_mac_lte_drx_config_frame_num = -1;
+static int hf_mac_lte_drx_config_previous_frame_num = -1;
 static int hf_mac_lte_drx_config_long_cycle = -1;
 static int hf_mac_lte_drx_config_cycle_offset = -1;
 static int hf_mac_lte_drx_config_onduration_timer = -1;
@@ -1226,6 +1227,12 @@ static void init_drx_state_info(drx_state_t *drx_state)
     }
 }
 
+static void mac_lte_drx_new_ulsch_data(guint16 ueid _U_);
+static void mac_lte_drx_new_dlsch_data(guint16 ueid _U_);
+static void mac_lte_drx_dl_crc_error(guint16 ueid _U_);
+
+
+
 /*******************************************************************/
 /* TODO: handlers for events that affect DRX state                 */
 /* - New UL data transmission
@@ -1283,6 +1290,14 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, g
         ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_frame_num, tvb,
                                  0, 0, drx_state_entry->config.frameNum);
         PROTO_ITEM_SET_GENERATED(ti);
+
+        /* Link back to any previous config frame (only from current config frame) */
+        if ((drx_state_entry->config.frameNum == pinfo->fd->num) &&
+            (drx_state_entry->config.previousFrameNum != 0)) {
+                ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_previous_frame_num, tvb,
+                                         0, 0, drx_state_entry->config.previousFrameNum);
+                PROTO_ITEM_SET_GENERATED(ti);
+        }
 
         /* Config fields */
         ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_long_cycle, tvb,
@@ -2926,13 +2941,31 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     tap_info->raw_length = p_mac_lte_info->length;
 
-    /* DRX information */
+    /******************************************************/
+    /* DRX information                                    */
+
+    /* Update DRX state of UE */
+    if (p_mac_lte_info->reTxCount == 0) {
+            if (p_mac_lte_info == DIRECTION_UPLINK) {
+                    mac_lte_drx_new_ulsch_data(p_mac_lte_info->ueid);
+            }
+            else {
+                    if (p_mac_lte_info->crcStatusValid != crc_success) {
+                            mac_lte_drx_dl_crc_error(p_mac_lte_info->ueid);
+                    }
+                    else {
+                            mac_lte_drx_new_dlsch_data(p_mac_lte_info->ueid);
+                    }
+            }
+    }
+
+    /* Show current DRX state in tree */
     if (global_mac_lte_show_drx) {
         /* Store DRX info to show first time around */
         if (!pinfo->fd->flags.visited) {
             set_drx_info(pinfo, p_mac_lte_info);
         }
-        /* Show stored DRX info */
+        /* Show stored DRX info every time */
         show_drx_info(pinfo, tree, tvb, p_mac_lte_info->ueid, p_mac_lte_info);
     }
 
@@ -5038,23 +5071,32 @@ static guint8 get_mac_lte_channel_priority(guint16 ueid, guint8 lcid,
     }
 }
 
-/* Configure the DRX state for this UE */
+/* Configure the DRX state for this UE (from RRC) */
 void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info *pinfo)
 {
     if (global_mac_lte_show_drx && !pinfo->fd->flags.visited) {
         drx_config_timing_t *drx_config_entry;
+        guint32 previousFrameNum = 0;
 
         /* Find or create config/timing struct for this UE */
         drx_config_entry = (drx_config_timing_t *)g_hash_table_lookup(mac_lte_drx_config_timing, GUINT_TO_POINTER((guint)ueid));
         if (drx_config_entry == NULL) {
             drx_config_entry = (drx_config_timing_t *)wmem_new(wmem_file_scope(), drx_config_timing_t);
             g_hash_table_insert(mac_lte_drx_config_timing, GUINT_TO_POINTER((guint)ueid), drx_config_entry);
+
+            /* Set time reference for this UE */
+            drx_config_entry->firstCycleStart = pinfo->fd->abs_ts;
+            drx_config_entry->firstCycleStartSet = TRUE;
+        }
+        else {
+        	previousFrameNum = drx_config_entry->config.frameNum;
         }
         /* Copy in new config */
         drx_config_entry->config = *drx_config;
-        /* Remember frame when last changed */
+        /* Remember frame when current settings set */
         drx_config_entry->config.frameNum = pinfo->fd->num;
-        /* TODO: remember previous config frame number (if any?) */
+        /* Also remember any previous config frame number */
+        drx_config_entry->config.previousFrameNum = previousFrameNum;
     }
 }
 
@@ -5069,6 +5111,20 @@ void set_mac_lte_drx_config_release(guint16 ueid, packet_info *pinfo _U_)
     }
 }
 
+static void mac_lte_drx_new_ulsch_data(guint16 ueid _U_)
+{
+        /* TODO: */
+}
+
+static void mac_lte_drx_new_dlsch_data(guint16 ueid _U_)
+{
+        /* TODO: */
+}
+
+static void mac_lte_drx_dl_crc_error(guint16 ueid _U_)
+{
+        /* TODO: */
+}
 
 
 /* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
@@ -6059,6 +6115,12 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_drx_config_frame_num,
             { "Config Frame",
               "mac-lte.drx-config.config-frame", FT_FRAMENUM, BASE_NONE,
+              0, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_drx_config_previous_frame_num,
+            { "Previous Config Frame",
+              "mac-lte.drx-config.previous-config-frame", FT_FRAMENUM, BASE_NONE,
               0, 0x0, NULL, HFILL
             }
         },

@@ -301,6 +301,8 @@ void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping);
 typedef struct drx_config_t {
     gboolean    configured;
     guint32     frameNum;
+    guint32     previousFrameNum;
+
     guint32     onDurationTimer;
     guint32     inactivityTimer;
     guint32     retransmissionTimer;
