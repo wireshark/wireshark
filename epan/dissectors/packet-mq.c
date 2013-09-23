@@ -2549,7 +2549,6 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						iHdl = tvb_get_guint32_endian(tvb, offset+4, p_mq_parm->mq_int_enc);
 						iCurSeq = tvb_get_guint32_endian(tvb, offset + 12, p_mq_parm->mq_int_enc);
 						imsegseq = tvb_get_guint16_endian(tvb, offset + 20, p_mq_parm->mq_int_enc);
-						iPayLod = tvb_get_guint32_endian(tvb, offset + 16, p_mq_parm->mq_int_enc);
 
 						if (p_mq_parm->mq_ctlf & MQ_TCF_FIRST)
 						{
@@ -3330,8 +3329,6 @@ static void reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					uHdl = tvb_get_guint32_endian(tvb, iHdrL + 4, iEnco);
 					/* Get the Current Seq Number */
 					uCurS= tvb_get_guint32_endian(tvb, iHdrL +12, iEnco);
-					/* Get the Payload Length */
-					uPayL= tvb_get_guint32_endian(tvb, iHdrL +16, iEnco);
 					/* Get the MsgSegment Number */
 					uMsgS= tvb_get_guint16_endian(tvb, iHdrL +20, iEnco);
 
