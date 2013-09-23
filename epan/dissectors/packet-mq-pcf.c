@@ -195,7 +195,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 
 				dissect_mqpcf_parm_int(tvb, tree, offset+uLenF, uPrm, uVal, hf_mq_pcf_int);
 
-				offset+=uLenF+4;
+				/*offset+=uLenF+4;*/
 			}
 			break;
 		case MQ_MQCFT_STRING:
@@ -218,7 +218,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 
 				proto_tree_add_item(tree, hf_mq_pcf_string, tvb, offset + uLenF + 8, uSLn, (uCCS!=500)?ENC_ASCII:ENC_EBCDIC);
 
-				offset+=uLenF+8+uSLn;
+				/*offset+=uLenF+8+uSLn;*/
 			}
 			break;
 		case MQ_MQCFT_INTEGER_LIST:
@@ -305,7 +305,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 
 				proto_tree_add_item(tree, hf_mq_pcf_bytestring, tvb, offset + uLenF + 4 , uSLn,bLittleEndian);
 
-				offset+=uLenF+4+uSLn;
+			/*offset+=uLenF+4+uSLn;*/
 			}
 			break;
 		case MQ_MQCFT_TRACE_ROUTE:
@@ -346,7 +346,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
 
 				proto_tree_add_item(tree, hf_mq_pcf_int64, tvb, offset + uLenF + 4, 8, bLittleEndian);
 
-				offset+=uLenF+4+8;
+				/*offset+=uLenF+4+8;*/
 			}
 			break;
 		case MQ_MQCFT_INTEGER64_LIST:
