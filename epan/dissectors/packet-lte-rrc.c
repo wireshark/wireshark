@@ -18756,11 +18756,21 @@ static const per_sequence_t RRCConnectionSetup_sequence[] = {
 
 static int
 dissect_lte_rrc_RRCConnectionSetup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  mac_lte_info* p_mac_lte_info;
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 
+  /* Look for UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  if (p_mac_lte_info != NULL) {
+    /* If found, tell MAC to release DRX config coming from a previous RRC connection */
+    /* We do release the configuration here instead of RRC Connection Release message */
+    /* as the UE could have locally dropped the previous RRC Connection */
+    set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
+  }
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionSetup, RRCConnectionSetup_sequence);
+
 
   return offset;
 }

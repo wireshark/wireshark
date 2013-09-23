@@ -1006,6 +1006,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject");
 
 #.FN_HDR RRCConnectionSetup
+  mac_lte_info* p_mac_lte_info;
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 
@@ -1499,3 +1500,13 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
   }
 
+#.FN_BODY RRCConnectionSetup
+  /* Look for UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  if (p_mac_lte_info != NULL) {
+    /* If found, tell MAC to release DRX config coming from a previous RRC connection */
+    /* We do release the configuration here instead of RRC Connection Release message */
+    /* as the UE could have locally dropped the previous RRC Connection */
+    set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
+  }
+%(DEFAULT_BODY)s
