@@ -33,8 +33,8 @@ How to do out of tree build (Unix/Linux):
 3) mkdir build
 4) cd build
 5) cmake ../<Name_of_WS_source_dir>
-6) make
-6) (as root) umask 0022 && make install
+6) make (or cmake --build .)
+7) (as root) umask 0022 && make install
 
 Note 1:
 in step 5), you may override the defaults for features:
@@ -53,6 +53,21 @@ Note 4:
   Cmake honors user umask for creating directories as of now:
   http://public.kitware.com/Bug/view.php?id=9620
   To get predictable results please set umask explicitly.
+
+How to do out of tree build (Win32/64):
+[This is early alpha and the build will most likely die during the cmake
+ stage - don't waste your time testing unless you are willing to fix things
+ yourself]
+1) Follow http://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html
+   Steps 1-9
+1a) Set WIRESHARK_BASE_DIR=c:\wireshark (the parent directory of the
+   library directory).
+2) Install cmake
+3) mkdir c:\wireshark\build
+4) cd c:\wireshark\build
+5) cmake -G "NMake Makefiles" .. (if the sources are in c:\wireshark)
+6) make (or cmake --build .)
+7) (as root) umask 0022 && make install
 
 Why cmake?
 ==========

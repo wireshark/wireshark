@@ -23,6 +23,8 @@
 #  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 
+INCLUDE(FindWSWinLibs)
+FindWSWinLibs("gtk2" "GLIB2_HINTS")
 
 IF (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
   # in cache already
@@ -69,6 +71,8 @@ ELSE (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
     ${CMAKE_LIBRARY_PATH}
   PATH_SUFFIXES
     glib-2.0/include
+  HINTS
+    "${GLIB2_HINTS}/lib"
   )
 
   FIND_PATH(
@@ -84,6 +88,8 @@ ELSE (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
     /usr/local/include
   PATH_SUFFIXES
     glib-2.0
+  HINTS
+    "${GLIB2_HINTS}/include"
   )
 
   #MESSAGE(STATUS "Glib headers: ${_glib2_include_DIR}")
@@ -101,6 +107,8 @@ ELSE (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
     /sw/lib
     /usr/lib
     /usr/local/lib
+  HINTS
+    "${GLIB2_HINTS}/lib"
   )
   IF ( _glib2_include_DIR AND _glib2_link_DIR )
       SET ( _glib2_FOUND TRUE )

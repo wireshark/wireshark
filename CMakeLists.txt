@@ -114,85 +114,112 @@ endif()
 
 include(CMakeOptions.txt)
 
+if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    set(LOCAL_CFLAGS
+        /Zi
+        /W3
+        /MD
+        /DWIN32_LEAN_AND_MEAN
+        "/DMSC_VER_REQUIRED=${MSC_VER_REQUIRED}"
+        /D_CRT_SECURE_NO_DEPRECATE
+        /D_CRT_NONSTDC_NO_DEPRECATE
+        /MP
+    )
 
-set(WIRESHARK_C_FLAGS
-	-O2
-	-g
-	-Wall
-	-W
-	-Wextra
-	-Wendif-labels
-	-Wpointer-arith
-	-Warray-bounds
-	-Wformat-security
-	-Wshorten-64-to-32
-	-Wvla
-	-Waddress
-	-Warray-bounds
-	-Wattributes
-	-Wdiv-by-zero
-	-Wignored-qualifiers
-	-Wno-overlength-strings
-	-Wwrite-strings
-	-Wno-long-long
-	-Wpragmas
-)
+    if(NOT WIN64)
+        set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/D_BIND_TO_CURRENT_CRT_VERSION=1")
+    endif()
 
-set(WIRESHARK_C_ONLY_FLAGS
-	# The following are C only, not C++
-	-Wc++-compat
-	-Wdeclaration-after-statement
-	-Wshadow
-	-Wno-pointer-sign
-	-Wold-style-definition
-	-Wstrict-prototypes
-	-Wlogical-op
-	-Wjump-misses-init
-)
+    # Additional compiler warnings to be treated as "Level 3"
+    #  when compiling Wireshark sources. (Selected from "level 4" warnings).
+    ## 4295: array is too small to include a terminating null character
+    set(WARNINGS_CFLAGS "/w34295")
 
-set(WIRESHARK_EXTRA_C_FLAGS
-	-pedantic
-	-Woverflow
-	-fstrict-overflow -Wstrict-overflow=4
-	-Wunreachable-code
-	-Wunsafe-loop-optimizations
-	-Wcast-align
-	-Wcast-qual
-	-Wformat-security
-	-Wredundant-decls
-	# All the registration functions block these for now.
-	-Wmissing-declarations
-)
+    set(WIRESHARK_C_FLAGS
+        "/DPCAP_VERSION=${PCAP_VERSION}"
+        ${LOCAL_CFLAGS}
+        ${WARNINGS_CFLAGS}
+    )
+else()
+    set(WIRESHARK_C_FLAGS
+        -O2
+        -g
+        -Wall
+        -W
+        -Wextra
+        -Wendif-labels
+        -Wpointer-arith
+        -Warray-bounds
+        -Wformat-security
+        -Wshorten-64-to-32
+        -Wvla
+        -Waddress
+        -Warray-bounds
+        -Wattributes
+        -Wdiv-by-zero
+        -Wignored-qualifiers
+        -Wno-overlength-strings
+        -Wwrite-strings
+        -Wno-long-long
+        -Wpragmas
+    )
 
-set(WIRESHARK_EXTRA_C_ONLY_FLAGS
-	# The following are C only, not C++
-	-Wbad-function-cast
-	# All the registration functions block these for now.
-	-Wmissing-prototypes
-)
+    set(WIRESHARK_C_ONLY_FLAGS
+        # The following are C only, not C++
+        -Wc++-compat
+        -Wdeclaration-after-statement
+        -Wshadow
+        -Wno-pointer-sign
+        -Wold-style-definition
+        -Wstrict-prototypes
+        -Wlogical-op
+        -Wjump-misses-init
+    )
 
-# With clang some tests don't fail properly during testing but only
-# during real compiles
+    set(WIRESHARK_EXTRA_C_FLAGS
+        -pedantic
+        -Woverflow
+        -fstrict-overflow -Wstrict-overflow=4
+        -Wunreachable-code
+        -Wunsafe-loop-optimizations
+        -Wcast-align
+        -Wcast-qual
+        -Wformat-security
+        -Wredundant-decls
+        # All the registration functions block these for now.
+        -Wmissing-declarations
+    )
 
-if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+    set(WIRESHARK_EXTRA_C_ONLY_FLAGS
+        # The following are C only, not C++
+        -Wbad-function-cast
+        # All the registration functions block these for now.
+        -Wmissing-prototypes
+    )
 
-	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
-	    -fexcess-precision=fast
-	)
+    # With clang some tests don't fail properly during testing but only
+    # during real compiles
 
-	set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS}
-	)
+    if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+
+        set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
+            -fexcess-precision=fast
+        )
+
+        set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS}
+        )
+    endif()
+
+    if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
+        set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_C_FLAGS})
+        set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_C_ONLY_FLAGS})
+    endif()
+
+    add_definitions(
+        -DG_DISABLE_DEPRECATED
+        -DG_DISABLE_SINGLE_INCLUDES
+    )
 endif()
-
-if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
-	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_C_FLAGS})
-	set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_C_ONLY_FLAGS})
-endif()
-
-add_definitions(
-	-DG_DISABLE_DEPRECATED
-	-DG_DISABLE_SINGLE_INCLUDES
-)
 
 # Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES
 include(CheckCCompilerFlag)

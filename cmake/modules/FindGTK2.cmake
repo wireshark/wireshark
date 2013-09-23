@@ -105,6 +105,9 @@
 # Version 0.5 (12/19/08)
 #   Second release to cmake mailing list
 
+INCLUDE(FindWSWinLibs)
+FindWSWinLibs("gtk2" "GTK2_HINTS")
+
 #=============================================================
 # _GTK2_GET_VERSION
 # Internal function to parse the version number in gtkversion.h
@@ -206,6 +209,9 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
             [HKEY_LOCAL_MACHINE\\SOFTWARE\\gtkmm\\2.4;Path]/lib
         PATH_SUFFIXES
             ${_suffixes}
+        HINTS
+            "${GTK2_HINTS}/include"
+            "${GTK2_HINTS}/lib"
     )
 
     if(${_var})
@@ -313,6 +319,8 @@ function(_GTK2_FIND_LIBRARY _var _lib _expand_vc _append_version)
             $ENV{GTKMM_BASEPATH}/lib
             [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]/lib
             [HKEY_LOCAL_MACHINE\\SOFTWARE\\gtkmm\\2.4;Path]/lib
+        HINTS
+            "${GTK2_HINTS}/lib"
         )
 
     if(_expand_vc AND MSVC)
@@ -419,7 +427,9 @@ endif()
 
 find_package(Freetype)
 list(APPEND GTK2_INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS})
-list(APPEND GTK2_LIBRARIES ${FREETYPE_LIBRARIES})
+if(NOT WIN32)
+    list(APPEND GTK2_LIBRARIES ${FREETYPE_LIBRARIES})
+endif(NOT WIN32)
 
 foreach(_GTK2_component ${GTK2_FIND_COMPONENTS})
     if(_GTK2_component STREQUAL "gtk")

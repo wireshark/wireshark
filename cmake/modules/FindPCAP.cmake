@@ -68,15 +68,24 @@ IF(EXISTS $ENV{PCAPDIR})
 
 
 ELSE(EXISTS $ENV{PCAPDIR})
+
+  INCLUDE(FindWSWinLibs)
+  FindWSWinLibs("WpdPack" "PCAP_HINTS")
+
   FIND_PATH(PCAP_INCLUDE_DIR
     NAMES
     pcap/pcap.h
     pcap.h
+    HINTS
+      "${PCAP_HINTS}/include"
   )
 
   FIND_LIBRARY(PCAP_LIBRARY
     NAMES
       pcap
+      wpcap
+    HINTS
+      "${PCAP_HINTS}/lib"
   )
 
 ENDIF(EXISTS $ENV{PCAPDIR})
