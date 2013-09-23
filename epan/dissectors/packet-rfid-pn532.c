@@ -661,7 +661,6 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, offset, 1, ENC_BIG_ENDIAN);
         value = tvb_get_guint8(tvb, offset);
-        item_value = value;
         offset += 1;
 
         for (item_value = 1; item_value <= value; item_value += 1) {
@@ -1065,8 +1064,8 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* TODO: implement in accordance with the specification,
          need storing additional information ("baudrate" from request) in wmem_tree */
         for (item_value = 1; item_value <= value; item_value += 1) {
-            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_target,  tvb, offset, 0, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_pn532_target);
+            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_target, tvb, offset, 0, ENC_NA);
+            /*sub_tree = proto_item_add_subtree(sub_item, ett_pn532_target);*/
             proto_item_append_text(sub_item, " %u/%u", item_value, value);
 
 
@@ -1366,7 +1365,6 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case IN_AUTO_POLL_RSP:
         proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, offset, 1, ENC_BIG_ENDIAN);
         value = tvb_get_guint8(tvb, offset);
-        item_value = value;
         offset += 1;
 
         for (item_value = 1; item_value <= value; item_value += 1) {
