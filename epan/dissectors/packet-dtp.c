@@ -1,5 +1,5 @@
 /* packet-dtp.c
- * Routines for the disassembly for Cisco Dynamic Trunking Protocol
+ * Routines for the disassembly for Cisco Dynamic Trunk Protocol
  *
  * $Id$
  *
@@ -11,6 +11,11 @@
  *
  * Additional information comes from Yersinia (http://www.yersinia.net/)
  * by Alfredo Andres and David Barroso
+ *
+ * Improved dissection for Trunk Status and Trunk Type TLVs
+ * based on DTP description in U.S. Patent #6,445,715 and
+ * consultations with Aninda Chatterjee @ Cisco
+ * by Peter Paluch <Peter.Paluch@fri.uniza.sk>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,6 +38,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 /*
  * It's incomplete, and it appears to be inaccurate in a number of places,
@@ -42,48 +48,125 @@ void proto_register_dtp(void);
 
 static int proto_dtp = -1;
 static int hf_dtp_version = -1;
+static int hf_dtp_domain = -1;
 static int hf_dtp_tlvtype = -1;
 static int hf_dtp_tlvlength = -1;
-static int hf_dtp_some_mac = -1;
-
+static int hf_dtp_senderid = -1;
+static int hf_dtp_tot = -1;
+static int hf_dtp_tat = -1;
+static int hf_dtp_tos = -1;
+static int hf_dtp_tas = -1;
 
 static gint ett_dtp = -1;
 static gint ett_dtp_tlv = -1;
+static gint ett_dtp_status = -1;
+static gint ett_dtp_type = -1;
 
-static void dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree, proto_item *ti, guint8 type);
+static expert_field ei_dtp_tlv_length_invalid = EI_INIT;
+static expert_field ei_dtp_truncated = EI_INIT;
+
+static void
+dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
+		proto_tree *tree, proto_item *ti, proto_item *tlv_length_item, guint8 type);
 
 
-#define	TYPE_DOMAIN		0x01
-#define	TYPE_STATUS		0x02
-#define	TYPE_DTPTYPE		0x03
-#define	TYPE_NEIGHBOR		0x04
+#define	DTP_TLV_DOMAIN		0x01 /* VTP Domain Name */
+#define	DTP_TLV_TRSTATUS	0x02 /* Trunk Status */
+#define	DTP_TLV_TRTYPE		0x03 /* Trunk Type */
+#define	DTP_TLV_SENDERID	0x04 /* Sender ID (MAC) */
+
+#define	DTP_TOS_SHIFT		7
+#define	DTP_TOT_SHIFT		5
+
+#define	DTP_TOS_MASK		0x80
+#define	DTP_TAS_MASK		0x07
+
+#define	DTP_TOT_MASK		0xE0
+#define	DTP_TAT_MASK		0x07
+
+#define	DTP_TOSVALUE(status)	(((status) & DTP_TOS_MASK) >> DTP_TOS_SHIFT)
+#define	DTP_TASVALUE(status)	((status) & DTP_TAS_MASK)
+
+#define	DTP_TOTVALUE(type)	(((type) & DTP_TOT_MASK) >> DTP_TOT_SHIFT)
+#define	DTP_TATVALUE(type)	((type) & DTP_TAT_MASK)
+
+/* Trunk Operating Status */
+#define	DTP_TOS_ACCESS		0x0
+#define	DTP_TOS_TRUNK		0x1
+
+/* Trunk Administrative Status */
+#define	DTP_TAS_ON		0x1
+#define	DTP_TAS_OFF		0x2
+#define	DTP_TAS_DESIRABLE	0x3
+#define	DTP_TAS_AUTO		0x4
+
+/* Trunk Operating Type */
+#define	DTP_TOT_NATIVE		0x1
+#define	DTP_TOT_ISL		0x2
+#define	DTP_TOT_DOT1Q		0x5
+
+/* Trunk Administrative Type */
+#define	DTP_TAT_NEGOTIATED	0x0
+#define	DTP_TAT_NATIVE		0x1
+#define	DTP_TAT_ISL		0x2
+#define	DTP_TAT_DOT1Q		0x5
 
 
 static const value_string dtp_tlv_type_vals[] = {
-	{ TYPE_DOMAIN,		"Domain" },
-	{ TYPE_STATUS,		"Status" },
-	{ TYPE_DTPTYPE,		"Type" },
-	{ TYPE_NEIGHBOR, 	"Neighbor" },
+	{ DTP_TLV_DOMAIN,	"Domain" },
+	{ DTP_TLV_TRSTATUS,	"Trunk Status" },
+	{ DTP_TLV_TRTYPE,	"Trunk Type" },
+	{ DTP_TLV_SENDERID, 	"Sender ID" },
 
 	{ 0,			NULL }
 };
 
+static const value_string dtp_tos_vals[] = {
+	{ DTP_TOS_ACCESS,	"Access" },
+	{ DTP_TOS_TRUNK,	"Trunk"},
+
+	{ 0,			NULL }
+};
+
+static const value_string dtp_tas_vals[] = {
+	{ DTP_TAS_ON,		"On" },
+	{ DTP_TAS_OFF,		"Off" },
+	{ DTP_TAS_DESIRABLE,	"Desirable" },
+	{ DTP_TAS_AUTO,		"Auto" },
+
+	{ 0,			NULL }
+};
+
+static const value_string dtp_tot_vals[] = {
+	{ DTP_TOT_NATIVE,	"Native" },
+	{ DTP_TOT_ISL,		"ISL" },
+	{ DTP_TOT_DOT1Q,	"802.1Q" },
+
+	{ 0,			NULL }
+};
+
+static const value_string dtp_tat_vals[] = {
+	{ DTP_TAT_NEGOTIATED,	"Negotiated" },
+	{ DTP_TAT_NATIVE,	"Native" },
+	{ DTP_TAT_ISL,		"ISL" },
+	{ DTP_TAT_DOT1Q,	"802.1Q" },
+
+	{ 0,			NULL }
+};
 
 static void
 dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_tree *dtp_tree = NULL;
-	proto_tree *tlv_tree=NULL;
+	proto_tree *dtp_tree;
+	proto_tree *tlv_tree;
 	int offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTP");
-	col_set_str(pinfo->cinfo, COL_INFO, "Dynamic Trunking Protocol");
+	col_set_str(pinfo->cinfo, COL_INFO, "Dynamic Trunk Protocol");
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_dtp, tvb, offset, -1, ENC_NA);
-		dtp_tree = proto_item_add_subtree(ti, ett_dtp);
-	}
+	ti = proto_tree_add_item(tree, proto_dtp, tvb, offset, -1, ENC_NA);
+	dtp_tree = proto_item_add_subtree(ti, ett_dtp);
 
 	/* We assume version */
 	proto_tree_add_item(dtp_tree, hf_dtp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -91,14 +174,16 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		int type, length, valuelength;
+		proto_item * tlv_length_item;
+		
+		if (tvb_length_remaining(tvb, offset) < 4) {
+			expert_add_info(pinfo, dtp_tree, &ei_dtp_truncated);
+			break;
+		}
 
 		type = tvb_get_ntohs(tvb, offset);
 		length = tvb_get_ntohs(tvb, offset + 2);
 		valuelength = (length-4);
-
-		/* make sure still in valid tlv  */
-		if ((valuelength < 1) || ( length > tvb_length_remaining(tvb, offset) ))
-			break;
 
 		ti = proto_tree_add_text(dtp_tree, tvb, offset, length, "%s",
 					 val_to_str(type, dtp_tlv_type_vals, "Unknown TLV type: 0x%02x"));
@@ -107,84 +192,96 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(tlv_tree, hf_dtp_tlvtype, tvb, offset, 2, type);
 		offset+=2;
 
-		proto_tree_add_uint(tlv_tree, hf_dtp_tlvlength, tvb, offset, 2, length);
+		tlv_length_item = proto_tree_add_uint(tlv_tree, hf_dtp_tlvlength, tvb, offset, 2, length);
 		offset+=2;
 
-
-		if (valuelength > 0) {
-			dissect_dtp_tlv(tvb, offset, valuelength, tlv_tree, ti, (guint8) type);
+		if (valuelength > tvb_length_remaining(tvb, offset)) {
+			expert_add_info(pinfo, dtp_tree, &ei_dtp_truncated);
+			break;
 		}
+
+		if (valuelength > 0) { /* No known TLVs have value length of 0 */
+			dissect_dtp_tlv(pinfo, tvb, offset, valuelength, tlv_tree, ti, tlv_length_item, (guint8) type);
+		}
+		else
+			expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_invalid);
 
 		offset += valuelength;
 	}
 }
 
 static void
-dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length,
-		proto_tree *tree, proto_item *ti, guint8 type)
+dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
+		proto_tree *tree, proto_item *ti, proto_item *tlv_length_item, guint8 type)
 {
 	switch (type) {
 
-	case TYPE_DOMAIN:
-		if (length > 0) {
-			proto_item_set_text(ti, "Domain: %s", tvb_format_text(tvb, offset, length - 1));
-			proto_tree_add_text(tree, tvb, offset, length, "Domain: %s", tvb_format_text(tvb, offset, length - 1));
-		} else {
-			proto_item_set_text(ti, "Domain: Bad length %u", length);
-			proto_tree_add_text(tree, tvb, offset, length, "Domain: Bad length %u", length);
+	case DTP_TLV_DOMAIN:
+		if (length <= 33) { /* VTP domain name is at most 32 bytes long and is null-terminated */
+			proto_item_append_text(ti, ": %s", tvb_format_text(tvb, offset, length - 1));
+			proto_tree_add_item(tree, hf_dtp_domain, tvb, offset, length, ENC_NA);
 		}
+		else
+			expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_invalid);
+
 		break;
 
-	case TYPE_STATUS:
-		if (length > 0) {
-			proto_item_set_text(ti,
-			    "Status: 0x%02x",
-			    tvb_get_guint8(tvb, offset));
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Status: 0x%02x",
-			    tvb_get_guint8(tvb, offset));
-		} else {
-			proto_item_set_text(ti,
-			    "Status: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Status: Bad length %u",
-			    length);
-		}
+	case DTP_TLV_TRSTATUS:
+		if (length == 1) { /* Value field length must be 1 byte */
+			proto_item * value_item = NULL;
+			proto_tree * field_tree = NULL;
+			guint8 trunk_status = tvb_get_guint8(tvb, offset);
+
+			proto_item_append_text(ti,
+				" (Operating/Administrative): %s/%s (0x%02x)",
+				val_to_str_const(DTP_TOSVALUE(trunk_status), dtp_tos_vals, "Unknown operating status"),
+				val_to_str_const(DTP_TASVALUE(trunk_status), dtp_tas_vals, "Unknown administrative status"),
+				trunk_status);
+			value_item = proto_tree_add_text(tree, tvb, offset, length, "Value: %s/%s (0x%02x)",
+				val_to_str_const(DTP_TOSVALUE(trunk_status), dtp_tos_vals, "Unknown operating status"),
+				val_to_str_const(DTP_TASVALUE(trunk_status), dtp_tas_vals, "Unknown administrative status"),
+				trunk_status);
+			field_tree = proto_item_add_subtree(value_item, ett_dtp_status);
+			proto_tree_add_item(field_tree, hf_dtp_tos, tvb, offset, length, ENC_NA);
+			proto_tree_add_item(field_tree, hf_dtp_tas, tvb, offset, length, ENC_NA);
+			}
+			else
+				expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_invalid);
+
 		break;
 
-	case TYPE_DTPTYPE:
-		if (length > 0) {
-			proto_item_set_text(ti,
-			    "Dtptype: 0x%02x",
-			    tvb_get_guint8(tvb, offset));
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Dtptype: 0x%02x",
-			    tvb_get_guint8(tvb, offset));
-		} else {
-			proto_item_set_text(ti,
-			    "Dtptype: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Dtptype: Bad length %u",
-			    length);
-		}
+	case DTP_TLV_TRTYPE:
+		if (length == 1) { /* Value field length must be 1 byte */
+			proto_item * value_item = NULL;
+			proto_tree * field_tree = NULL;
+			guint8 trunk_type = tvb_get_guint8(tvb, offset);
+			proto_item_append_text(ti,
+				" (Operating/Administrative): %s/%s (0x%02x)",
+				val_to_str_const(DTP_TOTVALUE(trunk_type), dtp_tot_vals, "Unknown operating type"),
+				val_to_str_const(DTP_TATVALUE(trunk_type), dtp_tat_vals, "Unknown administrative type"),
+				trunk_type);
+			value_item = proto_tree_add_text(tree, tvb, offset, length, "Value: %s/%s (0x%02x)",
+				val_to_str_const(DTP_TOTVALUE(trunk_type), dtp_tot_vals, "Unknown operating type"),
+				val_to_str_const(DTP_TATVALUE(trunk_type), dtp_tat_vals, "Unknown administrative type"),
+				trunk_type);
+			field_tree = proto_item_add_subtree(value_item, ett_dtp_type);
+			proto_tree_add_item(field_tree, hf_dtp_tot, tvb, offset, length, ENC_NA);
+			proto_tree_add_item(field_tree, hf_dtp_tat, tvb, offset, length, ENC_NA);
+			}
+			else
+				expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_invalid);
+
 		break;
 
-
-	case TYPE_NEIGHBOR:
-		if (length == 6) {
-			proto_item_set_text(ti, "Neighbor: %s",
+	case DTP_TLV_SENDERID:
+		if (length == 6) { /* Value length must be 6 bytes for a MAC address */
+			proto_item_append_text(ti, ": %s",
 				tvb_ether_to_str(tvb, offset));	/* XXX - resolve? */
-			proto_tree_add_item(tree, hf_dtp_some_mac, tvb, offset, length, ENC_NA);
-		} else {
-			proto_item_set_text(ti,
-			    "Neighbor: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Neighbor: Bad length %u",
-			    length);
+			proto_tree_add_item(tree, hf_dtp_senderid, tvb, offset, length, ENC_NA);
 		}
+		else
+			expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_invalid);
+
 		break;
 
 	default:
@@ -198,7 +295,11 @@ proto_register_dtp(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_dtp_version,
-		{ "Version",	"dtp.version", FT_UINT8, BASE_HEX,
+		{ "Version",	"dtp.version", FT_UINT8, BASE_DEC,
+		NULL, 0x0, NULL, HFILL }},
+
+	{ &hf_dtp_domain,
+		{ "Domain",	"dtp.domain", FT_STRING, BASE_NONE,
 		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_dtp_tlvtype,
@@ -209,8 +310,24 @@ proto_register_dtp(void)
 		{ "Length",	"dtp.tlv_len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
 
-	{ &hf_dtp_some_mac,
-		{ "Neighbor", "dtp.neighbor", FT_ETHER, BASE_NONE,
+	{ &hf_dtp_tos,
+		{ "Trunk Operating Status", "dtp.tos", FT_UINT8, BASE_HEX,
+		VALS(dtp_tos_vals), DTP_TOS_MASK, NULL, HFILL }},
+
+	{ &hf_dtp_tas,
+		{ "Trunk Administrative Status", "dtp.tas", FT_UINT8, BASE_HEX,
+		VALS(dtp_tas_vals), DTP_TAS_MASK, NULL, HFILL }},
+		
+	{ &hf_dtp_tot,
+		{ "Trunk Operating Type", "dtp.tot", FT_UINT8, BASE_HEX,
+		VALS(dtp_tot_vals), DTP_TOT_MASK, NULL, HFILL }},
+
+	{ &hf_dtp_tat,
+		{ "Trunk Administrative Type", "dtp.tat", FT_UINT8, BASE_HEX,
+		VALS(dtp_tat_vals), DTP_TAT_MASK, NULL, HFILL }},
+
+	{ &hf_dtp_senderid,
+		{ "Sender ID", "dtp.senderid", FT_ETHER, BASE_NONE,
 		NULL, 0x0, "MAC Address of neighbor", HFILL }},
 
 	};
@@ -218,11 +335,29 @@ proto_register_dtp(void)
 	static gint *ett[] = {
 		&ett_dtp,
 		&ett_dtp_tlv,
+		&ett_dtp_status,
+		&ett_dtp_type,
 	};
 
-	proto_dtp = proto_register_protocol("Dynamic Trunking Protocol", "DTP", "dtp");
+	static ei_register_info ei[] = {
+	{ &ei_dtp_tlv_length_invalid,
+		{ "dtp.tlv_len.invalid", PI_MALFORMED, PI_ERROR,
+		  "Indicated length does not correspond to this record type", EXPFILL }},
+
+	{ &ei_dtp_truncated,
+		{ "dtp.truncated", PI_MALFORMED, PI_ERROR,
+		  "DTP message is truncated prematurely", EXPFILL }}
+
+	};
+
+	expert_module_t *expert_dtp;
+
+	proto_dtp = proto_register_protocol("Dynamic Trunk Protocol", "DTP", "dtp");
 	proto_register_field_array(proto_dtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	expert_dtp = expert_register_protocol(proto_dtp);
+	expert_register_field_array(expert_dtp, ei, array_length(ei));
 }
 
 void
