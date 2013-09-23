@@ -1054,12 +1054,17 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	/* we have received an entire packet, defragment it and
 	 * free all fragments
 	 */
-	/* We can't free the old data because of
+	/* A slightly different fix for
 	 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9027
-	 * This is a leak, but there's too much other architectural junk
-	 * involved to make a real backport possible, and a leak is better than
-	 * a crash.
+	 * that also addresses
+	 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9169
 	 */
+	if (fd_head->data) {
+		tvbuff_t *old_tvb_data;
+
+		old_tvb_data = tvb_new_child_real_data(tvb, fd_head->data, 0, 0);
+		tvb_set_free_cb(old_tvb_data, g_free);
+	}
 	fd_head->data = (unsigned char *)g_malloc(fd_head->datalen);
 
 	/* add all data fragments */
