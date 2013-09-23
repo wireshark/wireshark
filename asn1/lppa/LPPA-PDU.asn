@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V9.4.1 (2011-03)
+-- 3GPP TS 36.455 V11.3.0 (2013-06)
 -- $Id$
 --
 
@@ -32,7 +32,9 @@ IMPORTS
 	Measurement-ID,
 	MeasurementPeriodicity,
 	MeasurementQuantities,
-	ReportCharacteristics	
+	ReportCharacteristics,
+	RequestedSRSTransmissionCharacteristics,
+	ULConfiguration
 	
 FROM LPPA-IEs
 
@@ -61,7 +63,9 @@ FROM LPPA-Containers
 	id-MeasurementPeriodicity,
 	id-MeasurementQuantities,
 	id-eNB-UE-Measurement-ID,
-	id-E-CID-MeasurementResult
+	id-E-CID-MeasurementResult,
+	id-RequestedSRSTransmissionCharacteristics,
+	id-ULConfiguration
 	
 	
 FROM LPPA-Constants;
@@ -81,7 +85,7 @@ E-CIDMeasurementInitiationRequest-IEs LPPA-PROTOCOL-IES ::= {
 	{ ID id-E-SMLC-UE-Measurement-ID	CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
 	{ ID id-ReportCharacteristics		CRITICALITY reject	TYPE ReportCharacteristics			PRESENCE mandatory}|
 	{ ID id-MeasurementPeriodicity		CRITICALITY reject	TYPE MeasurementPeriodicity			PRESENCE conditional}|
--- The IE shall be present if the Report Characteritics IE is set to "periodic" --
+-- The IE shall be present if the Report Characteritics IE is set to “periodic” --
 	{ ID id-MeasurementQuantities		CRITICALITY reject	TYPE MeasurementQuantities			PRESENCE mandatory},
 	...
 }
@@ -123,7 +127,7 @@ E-CIDMeasurementInitiationFailure ::= SEQUENCE {
 E-CIDMeasurementInitiationFailure-IEs LPPA-PROTOCOL-IES ::= {
 	{ ID id-E-SMLC-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
 	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
-	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
 	...
 }
 
@@ -204,12 +208,12 @@ OTDOAInformationRequest-IEs LPPA-PROTOCOL-IES ::= {
 OTDOA-Information-Type ::= SEQUENCE (SIZE(1..maxnoOTDOAtypes)) OF ProtocolIE-Single-Container { { OTDOA-Information-TypeIEs} }
 
 OTDOA-Information-TypeIEs	LPPA-PROTOCOL-IES ::= {
-	{ ID id-OTDOA-Information-Type-Item CRITICALITY reject 	TYPE OTDOA-Information-Type-Item	PRESENCE mandatory },
+	{ ID id-OTDOA-Information-Type-Item		CRITICALITY reject	TYPE OTDOA-Information-Type-Item	PRESENCE mandatory},
 	...
 }
 
 OTDOA-Information-Type-Item ::= SEQUENCE {
-	oTDOA-Information-Type-Item 	OTDOA-Information-Item,
+	oTDOA-Information-Type-Item		OTDOA-Information-Item,
 	iE-Extensions					ProtocolExtensionContainer { { OTDOA-Information-Type-ItemExtIEs} } OPTIONAL,
 	...
 }
@@ -231,7 +235,7 @@ OTDOAInformationResponse ::= SEQUENCE {
 
 OTDOAInformationResponse-IEs LPPA-PROTOCOL-IES ::= {
 	{ ID id-OTDOACells						CRITICALITY ignore	TYPE OTDOACells					PRESENCE mandatory}|
-	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
 	...
 }
 
@@ -249,10 +253,76 @@ OTDOAInformationFailure ::= SEQUENCE {
 
 OTDOAInformationFailure-IEs LPPA-PROTOCOL-IES ::= {
 	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
-	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
 	...
 }
 
+-- **************************************************************
+--
+-- UTDOA INFORMATION REQUEST
+--
+-- **************************************************************
+
+UTDOAInformationRequest ::= SEQUENCE {
+	protocolIEs				ProtocolIE-Container		{{UTDOAInformationRequest-IEs}},
+	...
+}
+
+UTDOAInformationRequest-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-RequestedSRSTransmissionCharacteristics		CRITICALITY ignore	TYPE RequestedSRSTransmissionCharacteristics	PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- UTDOA INFORMATION RESPONSE
+--
+-- **************************************************************
+
+UTDOAInformationResponse ::= SEQUENCE {
+	protocolIEs				ProtocolIE-Container		{{UTDOAInformationResponse-IEs}},
+	...
+}
+
+UTDOAInformationResponse-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-ULConfiguration					CRITICALITY reject	TYPE ULConfiguration			PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- UTDOA INFORMATION FAILURE
+--
+-- **************************************************************
+
+UTDOAInformationFailure ::= SEQUENCE {
+	protocolIEs				ProtocolIE-Container		{{UTDOAInformationFailure-IEs}},
+	...
+}
+
+
+UTDOAInformationFailure-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- UTDOA INFORMATION UPDATE
+--
+-- **************************************************************
+
+UTDOAInformationUpdate ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container		{{UTDOAInformationUpdate-IEs}},
+	...
+}
+
+UTDOAInformationUpdate-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-ULConfiguration		CRITICALITY ignore	TYPE ULConfiguration	PRESENCE optional},
+	...
+}
 
 -- **************************************************************
 --
@@ -267,8 +337,8 @@ ErrorIndication ::= SEQUENCE {
 
 ErrorIndication-IEs LPPA-PROTOCOL-IES ::= {
 	
-	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional} |
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional} ,
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
 	...
 }
 

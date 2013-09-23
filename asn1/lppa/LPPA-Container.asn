@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V9.4.1 (2011-03)
+-- 3GPP TS 36.455 V11.3.0 (2013-06)
 -- $Id$
 --
 
@@ -39,7 +39,7 @@ FROM LPPA-CommonDataTypes;
 -- **************************************************************
 
 LPPA-PROTOCOL-IES ::= CLASS {
-	&id				ProtocolIE-ID 			UNIQUE,
+	&id				ProtocolIE-ID			UNIQUE,
 	&criticality	Criticality,
 	&Value,
 	&presence		Presence
@@ -58,7 +58,7 @@ WITH SYNTAX {
 -- **************************************************************
 
 LPPA-PROTOCOL-IES-PAIR ::= CLASS {
-	&id						ProtocolIE-ID 		UNIQUE,
+	&id						ProtocolIE-ID		UNIQUE,
 	&firstCriticality		Criticality,
 	&FirstValue,
 	&secondCriticality		Criticality,
@@ -81,7 +81,7 @@ WITH SYNTAX {
 -- **************************************************************
 
 LPPA-PROTOCOL-EXTENSION ::= CLASS {
-	&id					ProtocolIE-ID 		UNIQUE,
+	&id					ProtocolIE-ID		UNIQUE,
 	&criticality		Criticality,
 	&Extension,
 	&presence			Presence
@@ -128,7 +128,7 @@ ProtocolIE-Single-Container { LPPA-PROTOCOL-IES : IEsSetParam} ::=
 ProtocolIE-Field { LPPA-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 	id				LPPA-PROTOCOL-IES.&id					({IEsSetParam}),
 	criticality		LPPA-PROTOCOL-IES.&criticality			({IEsSetParam}{@id}),
-	value			LPPA-PROTOCOL-IES.&Value	        	({IEsSetParam}{@id})
+	value			LPPA-PROTOCOL-IES.&Value				({IEsSetParam}{@id})
 }
 
 -- **************************************************************
@@ -144,9 +144,9 @@ ProtocolIE-ContainerPair { LPPA-PROTOCOL-IES-PAIR : IEsSetParam} ::=
 ProtocolIE-FieldPair { LPPA-PROTOCOL-IES-PAIR : IEsSetParam} ::= SEQUENCE {
 	id					LPPA-PROTOCOL-IES-PAIR.&id					({IEsSetParam}),
 	firstCriticality	LPPA-PROTOCOL-IES-PAIR.&firstCriticality	({IEsSetParam}{@id}),
-	firstValue			LPPA-PROTOCOL-IES-PAIR.&FirstValue	        ({IEsSetParam}{@id}),
+	firstValue			LPPA-PROTOCOL-IES-PAIR.&FirstValue			({IEsSetParam}{@id}),
 	secondCriticality	LPPA-PROTOCOL-IES-PAIR.&secondCriticality	({IEsSetParam}{@id}),
-	secondValue			LPPA-PROTOCOL-IES-PAIR.&SecondValue	        ({IEsSetParam}{@id})
+	secondValue			LPPA-PROTOCOL-IES-PAIR.&SecondValue			({IEsSetParam}{@id})
 }
 
 -- **************************************************************

@@ -71,36 +71,41 @@ id-e-CIDMeasurementFailureIndication ProcedureCode
 id-e-CIDMeasurementReport            ProcedureCode
 id-e-CIDMeasurementTermination       ProcedureCode
 id-oTDOAInformationExchange          ProcedureCode
+id-uTDOAInformationExchange          ProcedureCode
+id-uTDOAInformationUpdate            ProcedureCode
 
 # ProtocolIE-ID
-id-Cause                        ProtocolIE-ID
-id-CriticalityDiagnostics       ProtocolIE-ID
-id-E-SMLC-UE-Measurement-ID     ProtocolIE-ID
-id-ReportCharacteristics        ProtocolIE-ID
-id-MeasurementPeriodicity       ProtocolIE-ID
-id-MeasurementQuantities        ProtocolIE-ID
-id-eNB-UE-Measurement-ID        ProtocolIE-ID
-id-E-CID-MeasurementResult      ProtocolIE-ID
-id-OTDOACells                   ProtocolIE-ID
-id-OTDOA-Information-Type-Group ProtocolIE-ID
-id-OTDOA-Information-Type-Item  ProtocolIE-ID
-id-MeasurementQuantities-Item   ProtocolIE-ID
-
+id-Cause                                   ProtocolIE-ID
+id-CriticalityDiagnostics                  ProtocolIE-ID
+id-E-SMLC-UE-Measurement-ID                ProtocolIE-ID
+id-ReportCharacteristics                   ProtocolIE-ID
+id-MeasurementPeriodicity                  ProtocolIE-ID
+id-MeasurementQuantities                   ProtocolIE-ID
+id-eNB-UE-Measurement-ID                   ProtocolIE-ID
+id-E-CID-MeasurementResult                 ProtocolIE-ID
+id-OTDOACells                              ProtocolIE-ID
+id-OTDOA-Information-Type-Group            ProtocolIE-ID
+id-OTDOA-Information-Type-Item             ProtocolIE-ID
+id-MeasurementQuantities-Item              ProtocolIE-ID
+id-RequestedSRSTransmissionCharacteristics ProtocolIE-ID
+id-ULConfiguration                         ProtocolIE-ID
 #.REGISTER_NEW
 
 #LPPA-PROTOCOL-IES
-MeasurementQuantities-Item  N lppa.ies id-MeasurementQuantities-Item
-ReportCharacteristics       N lppa.ies id-ReportCharacteristics
-MeasurementPeriodicity      N lppa.ies id-MeasurementPeriodicity
-MeasurementQuantities       N lppa.ies id-MeasurementQuantities
-E-CID-MeasurementResult     N lppa.ies id-E-CID-MeasurementResult
-OTDOA-Information-Type      N lppa.ies id-OTDOA-Information-Type-Group
-OTDOA-Information-Type-Item N lppa.ies id-OTDOA-Information-Type-Item
-OTDOACells                  N lppa.ies id-OTDOACells
-Cause                       N lppa.ies id-Cause
-CriticalityDiagnostics      N lppa.ies id-CriticalityDiagnostics
-Measurement-ID              N lppa.ies id-E-SMLC-UE-Measurement-ID
-Measurement-ID              N lppa.ies id-eNB-UE-Measurement-ID
+MeasurementQuantities-Item              N lppa.ies id-MeasurementQuantities-Item
+ReportCharacteristics                   N lppa.ies id-ReportCharacteristics
+MeasurementPeriodicity                  N lppa.ies id-MeasurementPeriodicity
+MeasurementQuantities                   N lppa.ies id-MeasurementQuantities
+E-CID-MeasurementResult                 N lppa.ies id-E-CID-MeasurementResult
+OTDOA-Information-Type                  N lppa.ies id-OTDOA-Information-Type-Group
+OTDOA-Information-Type-Item             N lppa.ies id-OTDOA-Information-Type-Item
+OTDOACells                              N lppa.ies id-OTDOACells
+Cause                                   N lppa.ies id-Cause
+CriticalityDiagnostics                  N lppa.ies id-CriticalityDiagnostics
+Measurement-ID                          N lppa.ies id-E-SMLC-UE-Measurement-ID
+Measurement-ID                          N lppa.ies id-eNB-UE-Measurement-ID
+RequestedSRSTransmissionCharacteristics N lppa.ies id-RequestedSRSTransmissionCharacteristics
+ULConfiguration                         N lppa.ies id-ULConfiguration
 
 #LPPA-ELEMENTARY-PROCEDURE
 E-CIDMeasurementInitiationRequest  N lppa.proc.imsg id-e-CIDMeasurementInitiation
@@ -114,4 +119,7 @@ OTDOAInformationResponse           N lppa.proc.sout id-oTDOAInformationExchange
 OTDOAInformationFailure            N lppa.proc.uout id-oTDOAInformationExchange
 ErrorIndication                    N lppa.proc.imsg id-errorIndication
 PrivateMessage                     N lppa.proc.imsg id-privateMessage
-
+UTDOAInformationRequest            N lppa.proc.imsg id-uTDOAInformationExchange
+UTDOAInformationResponse           N lppa.proc.sout id-uTDOAInformationExchange
+UTDOAInformationFailure            N lppa.proc.uout id-uTDOAInformationExchange
+UTDOAInformationUpdate             N lppa.proc.imsg id-uTDOAInformationUpdate

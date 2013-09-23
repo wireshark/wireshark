@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V9.4.1 (2011-03)
+-- 3GPP TS 36.455 V11.3.0 (2013-06)
 -- $Id$
 --
 
@@ -34,11 +34,8 @@ id-e-CIDMeasurementFailureIndication							ProcedureCode ::= 3
 id-e-CIDMeasurementReport										ProcedureCode ::= 4
 id-e-CIDMeasurementTermination									ProcedureCode ::= 5
 id-oTDOAInformationExchange										ProcedureCode ::= 6
-
-
-
-
-
+id-uTDOAInformationExchange										ProcedureCode ::= 7
+id-uTDOAInformationUpdate										ProcedureCode ::= 8
 
 -- **************************************************************
 --
@@ -51,8 +48,7 @@ maxCellineNB								INTEGER ::= 256
 maxNoMeas									INTEGER ::= 63
 maxCellReport								INTEGER ::= 9
 maxnoOTDOAtypes								INTEGER ::= 63
-		
-
+maxServCell									INTEGER ::= 5
 
 
 -- **************************************************************
@@ -73,6 +69,8 @@ id-OTDOACells																ProtocolIE-ID ::= 8
 id-OTDOA-Information-Type-Group												ProtocolIE-ID ::= 9
 id-OTDOA-Information-Type-Item												ProtocolIE-ID ::= 10
 id-MeasurementQuantities-Item												ProtocolIE-ID ::= 11
+id-RequestedSRSTransmissionCharacteristics									ProtocolIE-ID ::= 12
+id-ULConfiguration															ProtocolIE-ID ::= 13
 
 
 END

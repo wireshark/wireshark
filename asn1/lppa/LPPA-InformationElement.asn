@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V9.4.1 (2011-03)
+-- 3GPP TS 36.455 V11.3.0 (2013-06)
 -- $Id$
 --
 
@@ -23,7 +23,8 @@ IMPORTS
 	maxCellReport,
 	maxNrOfErrors,
 	maxNoMeas,
-	maxnoOTDOAtypes
+	maxnoOTDOAtypes,
+	maxServCell
 
 FROM LPPA-Constants
 
@@ -119,7 +120,7 @@ E-CID-MeasurementResult ::= SEQUENCE {
 	servingCell-ID					ECGI,
 	servingCellTAC					TAC,
 	e-UTRANAccessPointPosition		E-UTRANAccessPointPosition	OPTIONAL,
-	measuredResults					MeasuredResults 	OPTIONAL, 
+	measuredResults					MeasuredResults				OPTIONAL,
 	...
 }
 
@@ -136,7 +137,7 @@ ECGI-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 
 EUTRANCellIdentifier ::= BIT STRING (SIZE (28))
 
-EARFCN ::= INTEGER (0..65535, ...)
+EARFCN ::= INTEGER (0..65535, ..., 65536..262143)
 
 E-UTRANAccessPointPosition ::= SEQUENCE {
 	latitudeSign				ENUMERATED {north, south},
@@ -183,7 +184,7 @@ MeasurementPeriodicity ::= ENUMERATED {
 MeasurementQuantities ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF ProtocolIE-Single-Container { {MeasurementQuantities-ItemIEs} }
 
 MeasurementQuantities-ItemIEs LPPA-PROTOCOL-IES ::= {
-	{ ID id-MeasurementQuantities-Item	CRITICALITY reject	TYPE MeasurementQuantities-Item 	PRESENCE mandatory	}
+	{ ID id-MeasurementQuantities-Item	CRITICALITY reject	TYPE MeasurementQuantities-Item		PRESENCE mandatory}
 }
 
 MeasurementQuantities-Item ::= SEQUENCE {
@@ -222,15 +223,15 @@ MeasuredResultsValue ::= CHOICE {
 
 NumberOfAntennaPorts ::= ENUMERATED {
 		n1-or-n2,
-	 	n4,
+		n4,
 		...
 }
 
 NumberOfDlFrames ::= ENUMERATED {
 		sf1,
-	 	sf2,
+		sf2,
 		sf4,
-	 	sf6,
+		sf6,
 		...
 }
 
@@ -266,9 +267,9 @@ OTDOACell-Information-Item ::= CHOICE {
 
 OTDOA-Information-Item ::= ENUMERATED {
 		pci,
-	 	cellid,
+		cellid,
 		tac,
-	 	earfcn,
+		earfcn,
 		prsBandwidth,
 		prsConfigIndex,
 		cpLength,
@@ -288,9 +289,9 @@ PLMN-Identity ::= OCTET STRING (SIZE(3))
 
 PRS-Bandwidth ::= ENUMERATED {
 		bw6,
-	 	bw15,
+		bw15,
 		bw25,
-	 	bw50,
+		bw50,
 		bw75,
 		bw100,
 		...
@@ -313,6 +314,12 @@ PRSMutingConfiguration ::= CHOICE {
 ReportCharacteristics ::= ENUMERATED {
 	onDemand,
 	periodic,
+	...
+}
+
+RequestedSRSTransmissionCharacteristics ::= SEQUENCE {
+	numberOfTransmissions	INTEGER (0..500, ...),
+	bandwidth				INTEGER (1..100, ...),
 	...
 }
 
@@ -350,6 +357,28 @@ ResultRSRQ-Item-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 
 SFNInitialisationTime ::= BIT STRING (SIZE (64))
 
+SRSConfigurationForAllCells ::= SEQUENCE (SIZE (1.. maxServCell)) OF SRSConfigurationForOneCell
+
+SRSConfigurationForOneCell ::= SEQUENCE {
+	pci							PCI,
+	ul-earfcn					EARFCN,
+	ul-bandwidth				ENUMERATED {n6, n15, n25, n50, n75, n100},
+	ul-cyclicPrefixLength		CPLength,
+	srs-BandwidthConfig			ENUMERATED {bw0, bw1, bw2, bw3, bw4, bw5, bw6, bw7},
+	srs-Bandwidth				ENUMERATED {bw0, bw1, bw2, bw3},
+	srs-AntennaPort				ENUMERATED {an1, an2, an4, ...},
+	srs-HoppingBandwidth		ENUMERATED {hbw0, hbw1, hbw2, hbw3},
+	srs-cyclicShift				ENUMERATED {cs0, cs1, cs2, cs3, cs4, cs5, cs6, cs7},
+	srs-ConfigIndex				INTEGER (0..1023),
+	maxUpPts					ENUMERATED {true}			OPTIONAL,	-- Cond ifTDD
+	transmissionComb			INTEGER (0..1),
+	freqDomainPosition			INTEGER (0..23),
+	groupHoppingEnabled			BOOLEAN,
+	deltaSS						INTEGER (0..29)				OPTIONAL,
+	sfnInitialisationTime		SFNInitialisationTime,
+	...
+}
+
 -- T
 
 TAC ::= OCTET STRING (SIZE(2))
@@ -364,6 +393,17 @@ TypeOfError ::= ENUMERATED {
 
 
 -- U
+
+ULConfiguration ::= SEQUENCE {
+	pci							PCI,
+	ul-earfcn					EARFCN,
+	timingAdvanceType1			INTEGER (0..7690)           OPTIONAL,
+	timingAdvanceType2			INTEGER (0..7690)			OPTIONAL,
+	numberOfTransmissions		INTEGER (0..500,...),
+	srsConfiguration			SRSConfigurationForAllCells,
+	...
+}
+
 -- V
 
 ValueRSRP ::= INTEGER (0..97, ...)

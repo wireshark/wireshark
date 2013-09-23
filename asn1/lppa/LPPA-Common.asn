@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V9.4.1 (2011-03)
+-- 3GPP TS 36.455 V11.3.0 (2013-06)
 -- $Id$
 --
 
@@ -48,10 +48,6 @@ ProcedureCode		::= INTEGER (0..255)
 
 
 ProtocolIE-ID		::= INTEGER (0..maxProtocolIEs)
-
-
-
-
 
 TriggeringMessage	::= ENUMERATED { initiating-message, successful-outcome, unsuccessful-outcome}
 

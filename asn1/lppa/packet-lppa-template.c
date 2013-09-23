@@ -22,7 +22,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.455 version 9.4.1 Release 9
+ * Ref 3GPP TS 36.455 version 11.3.0 Release 11
  * http://www.3gpp.org
  */
 
