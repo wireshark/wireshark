@@ -2073,7 +2073,9 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
 
+	tMsgProps.iOffsetEncoding = 0;
 	tMsgProps.iOffsetFormat = 0;
+	tMsgProps.iOffsetCcsid = 0;
 	if (tvb_length(tvb) >= 4)
 	{
 		p_mq_parm->mq_strucID = tvb_get_ntohl(tvb, offset);
