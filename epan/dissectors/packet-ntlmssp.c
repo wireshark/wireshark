@@ -1649,8 +1649,6 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
    *      - has the AUTHENTICATE message in a second TCP connection;
    *        (The authentication aparently succeeded).
    */
-  conv_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
-  if (conv_ntlmssp_info == NULL) {
     /*
      * There isn't any.  Is there any from this conversation?  If so,
      * it means this is the first time we've dissected this frame, so
@@ -1668,8 +1666,6 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     /* XXX: The *conv_ntlmssp_info struct attached to the frame is the
             same as the one attached to the conversation. That is: *both* point to
             the exact same struct in memory.  Is this what is indended ?  */
-    p_add_proto_data(pinfo->fd, proto_ntlmssp, conv_ntlmssp_info);
-  }
 
   if (conv_ntlmssp_info != NULL) {
     if (conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_UNICODE)
