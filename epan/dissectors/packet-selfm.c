@@ -70,6 +70,8 @@
 /* Initialize the protocol and registered fields */
 static int proto_selfm                        = -1;
 static int hf_selfm_msgtype                   = -1;
+static int hf_selfm_padbyte                   = -1;
+static int hf_selfm_checksum                  = -1;
 static int hf_selfm_relaydef_len              = -1;
 static int hf_selfm_relaydef_numproto         = -1;
 static int hf_selfm_relaydef_numfm            = -1;
@@ -993,6 +995,14 @@ dissect_relaydef_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
         offset += 2;
     }
 
+    /* Add Pad byte (if present) and checksum */
+    if (tvb_reported_length_remaining(tvb, offset) > 1) {
+        proto_tree_add_item(relaydef_tree, hf_selfm_padbyte, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    proto_tree_add_item(relaydef_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
+
     return tvb_length(tvb);
 
 }
@@ -1081,8 +1091,17 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
         proto_tree_add_item(fmconfig_calc_tree, hf_selfm_fmconfig_cblk_va_idx, tvb, offset+11, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(fmconfig_calc_tree, hf_selfm_fmconfig_cblk_vb_idx, tvb, offset+12, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(fmconfig_calc_tree, hf_selfm_fmconfig_cblk_vc_idx, tvb, offset+13, 1, ENC_BIG_ENDIAN);
+
+        offset += 14;
     }
 
+    /* Add Pad byte (if present) and checksum */
+    if (tvb_reported_length_remaining(tvb, offset) > 1) {
+        proto_tree_add_item(fmconfig_tree, hf_selfm_padbyte, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    proto_tree_add_item(fmconfig_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return tvb_length(tvb);
 
@@ -1265,8 +1284,15 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 
                     for (i=0; i < cfg_data->num_dig; i++) {
 
-                        fmdata_dig_ch_item = proto_tree_add_text(fmdata_dig_tree, tvb, offset, 1, "Digital Word Bit Row: %d", i+1);
+                        fmdata_dig_ch_item = proto_tree_add_text(fmdata_dig_tree, tvb, offset, 1, "Digital Word Bit Row: %2d", i+1);
                         fmdata_dig_ch_tree = proto_item_add_subtree(fmdata_dig_ch_item, ett_selfm_fmdata_dig_ch);
+
+                        /* Display the bit pattern on the digital channel proto_item */
+                        proto_item_append_text(fmdata_dig_ch_item, " [  %d %d %d %d %d %d %d %d  ]",
+                        ((tvb_get_guint8(tvb, offset) & 0x80) >> 7), ((tvb_get_guint8(tvb, offset) & 0x40) >> 6),
+                        ((tvb_get_guint8(tvb, offset) & 0x20) >> 5), ((tvb_get_guint8(tvb, offset) & 0x10) >> 4),
+                        ((tvb_get_guint8(tvb, offset) & 0x08) >> 3), ((tvb_get_guint8(tvb, offset) & 0x04) >> 2),
+                        ((tvb_get_guint8(tvb, offset) & 0x02) >> 1), (tvb_get_guint8(tvb, offset) & 0x01));
 
                         proto_tree_add_item(fmdata_dig_ch_tree, hf_selfm_fmdata_dig_b0, tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(fmdata_dig_ch_tree, hf_selfm_fmdata_dig_b1, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1281,6 +1307,14 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                     }
 
                 } /* digital data was available */
+
+                /* Add Pad byte (if present) and checksum */
+                if (tvb_reported_length_remaining(tvb, offset) > 1) {
+                    proto_tree_add_item(fmdata_tree, hf_selfm_padbyte, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                }
+
+                proto_tree_add_item(fmdata_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             } /* matching config frame message was found */
 
@@ -1367,6 +1401,14 @@ dissect_foconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
             offset += 2;
         }
     }
+
+    /* Add Pad byte (if present) and checksum */
+    if (tvb_reported_length_remaining(tvb, offset) > 1) {
+        proto_tree_add_item(foconfig_tree, hf_selfm_padbyte, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
+    proto_tree_add_item(foconfig_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 
     return tvb_length(tvb);
@@ -1456,6 +1498,10 @@ dissect_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 
     /* Operate Code Validation */
     proto_tree_add_item(fastop_tree, hf_selfm_fastop_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+   /* Add checksum */
+    proto_tree_add_item(fastop_tree, hf_selfm_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return tvb_length(tvb);
 
@@ -1646,8 +1692,15 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
 
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
 
-                                fmdata_dig_item = proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, 1, "8-bit Binary Items (Row: %d)", cnt);
+                                fmdata_dig_item = proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, 1, "8-bit Binary Items (Row: %2d)", cnt);
                                 fmdata_dig_tree = proto_item_add_subtree(fmdata_dig_item, ett_selfm_fmdata_dig);
+
+                                /* Display the bit pattern on the digital channel proto_item */
+                                proto_item_append_text(fmdata_dig_item, " [  %d %d %d %d %d %d %d %d  ]",
+                                ((tvb_get_guint8(payload_tvb, payload_offset) & 0x80) >> 7), ((tvb_get_guint8(payload_tvb, payload_offset) & 0x40) >> 6),
+                                ((tvb_get_guint8(payload_tvb, payload_offset) & 0x20) >> 5), ((tvb_get_guint8(payload_tvb, payload_offset) & 0x10) >> 4),
+                                ((tvb_get_guint8(payload_tvb, payload_offset) & 0x08) >> 3), ((tvb_get_guint8(payload_tvb, payload_offset) & 0x04) >> 2),
+                                ((tvb_get_guint8(payload_tvb, payload_offset) & 0x02) >> 1), (tvb_get_guint8(payload_tvb, payload_offset) & 0x01));
 
                                 proto_tree_add_item(fmdata_dig_tree, hf_selfm_fmdata_dig_b0, payload_tvb, payload_offset, 1, ENC_BIG_ENDIAN);
                                 proto_tree_add_item(fmdata_dig_tree, hf_selfm_fmdata_dig_b1, payload_tvb, payload_offset, 1, ENC_BIG_ENDIAN);
@@ -2485,6 +2538,10 @@ proto_register_selfm(void)
     static hf_register_info selfm_hf[] = {
         { &hf_selfm_msgtype,
         { "Message Type", "selfm.msgtype", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &selfm_msgtype_vals_ext, 0x0, NULL, HFILL }},
+        { &hf_selfm_padbyte,
+        { "Pad Byte", "selfm.padbyte", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_checksum,
+        { "Checksum", "selfm.checksum", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         /* "Relay Definition" specific fields */
         { &hf_selfm_relaydef_len,
         { "Length", "selfm.relaydef.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
