@@ -90,7 +90,7 @@ static void dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pin
 	proto_tree *pkm_tree;
 
 	/* display MAC payload type PKM-REQ */
-	pkm_item = pkm_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_pkm_decoder, tvb, offset, -1, "Privacy Key Management Request (PKM-REQ)");
+	pkm_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_pkm_decoder, tvb, offset, -1, "Privacy Key Management Request (PKM-REQ)");
 	/* add MAC PKM subtree */
 	pkm_tree = proto_item_add_subtree(pkm_item, ett_mac_mgmt_msg_pkm_req_decoder);
 	/* Decode and display the Privacy Key Management Request Message (PKM-REQ) (table 24) */
