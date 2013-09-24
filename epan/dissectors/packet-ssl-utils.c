@@ -4194,6 +4194,10 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
             line[bytes_read - 1] = 0;
             bytes_read--;
         }
+        if (bytes_read > 0 && line[bytes_read - 1] == '\r') {
+            line[bytes_read - 1] = 0;
+            bytes_read--;
+        }
 
         ssl_debug_printf("  checking keylog line: %s\n", line);
 
