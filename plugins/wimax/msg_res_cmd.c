@@ -44,42 +44,29 @@ static gint proto_mac_mgmt_msg_res_cmd_decoder = -1;
 static gint ett_mac_mgmt_msg_res_cmd_decoder = -1;
 
 /* fix fields */
-static gint hf_res_cmd_message_type = -1;
 static gint hf_res_cmd_unknown_type = -1;
 static gint hf_res_cmd_invalid_tlv = -1;
 
 
 /* Wimax Mac RES-CMD Message Dissector */
-void dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type;
+	guint tvb_len;
 	gint  tlv_type, tlv_len, tlv_value_offset;
-	proto_item *res_cmd_item = NULL;
-	proto_tree *res_cmd_tree = NULL;
+	proto_item *res_cmd_item;
+	proto_tree *res_cmd_tree;
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if(payload_type != MAC_MGMT_MSG_RES_CMD)
-	{
-		return;
-	}
-
-	if(tree)
 	{	/* we are being asked for details */
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type RES-CMD */
-		res_cmd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_res_cmd_decoder, tvb, offset, tvb_len, "Reset Command (RES-CMD) (%u bytes)", tvb_len);
+		res_cmd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_res_cmd_decoder, tvb, offset, -1, "Reset Command (RES-CMD)");
 		/* add MAC RES-CMD subtree */
 		res_cmd_tree = proto_item_add_subtree(res_cmd_item, ett_mac_mgmt_msg_res_cmd_decoder);
 		/* Decode and display the Reset Command (RES-CMD) */
-		/* display the Message Type */
-		proto_tree_add_item(res_cmd_tree, hf_res_cmd_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the TLV Encoded info */
-		offset++;
 		/* process the RES-CMD TLVs */
 		while(offset < tvb_len)
 		{
@@ -132,10 +119,6 @@ void proto_register_mac_mgmt_msg_res_cmd(void)
 	/* DSx display */
 	static hf_register_info hf_res_cmd[] =
 	{
-		{
-			&hf_res_cmd_message_type,
-			{"MAC Management Message Type", "wmx.macmgtmsgtype.res_cmd", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		},
 		{
 			&hf_res_cmd_invalid_tlv,
 			{"Invalid TLV", "wmx.res_cmd.invalid_tlv", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}

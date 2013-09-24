@@ -42,6 +42,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/address.h>
 #include <epan/reassemble.h>
 #include "crc.h"
@@ -61,7 +62,8 @@ extern guint max_logical_bands;			/* declared in wimax_compact_dlmap_ie_decoder.
 extern gboolean is_down_link(packet_info *pinfo);/* declared in packet-wmx.c */
 extern void init_wimax_globals(void);		/* defined in msg_ulmap.c */
 
-static dissector_handle_t mac_mgmt_msg_decoder_handle;
+static dissector_handle_t mac_mgmt_msg_decoder_handle = NULL;
+static dissector_handle_t mac_ip_handle = NULL;
 
 /* global variables */
 gboolean include_cor2_changes = FALSE;
@@ -584,6 +586,9 @@ static gint hf_mac_header_generic_arq_fb_ie_seq1_length_6 = -1;
 static gint hf_mac_header_generic_arq_fb_ie_seq2_length_6 = -1;
 static gint hf_mac_header_generic_arq_fb_ie_rsv = -1;
 
+static expert_field ei_mac_crc_malformed = EI_INIT;
+static expert_field ei_mac_crc_missing = EI_INIT;
+
 /* Last IE Indicators */
 static const value_string last_ie_msgs[] =
 {
@@ -694,7 +699,7 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 }
 
 
-void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
 	guint payload_offset;
@@ -724,15 +729,15 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	fragment_head *payload_frag;
 	gboolean first_arq_fb_payload = TRUE;
 
-	dissector_handle_t mac_payload_handle;
-
 	proto_mac_header_generic_decoder = proto_wimax;
+
+#ifdef DEBUG
+	/* update the info column */
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "GMH");
+#endif
+
 	if (tree)
 	{	/* we are being asked for details */
-#ifdef DEBUG
-		/* update the info column */
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "GMH");
-#endif
 		/* Get the frame length */
 		tvb_len =  tvb_reported_length(tvb);
 		if (tvb_len < WIMAX_MAC_HEADER_SIZE)
@@ -1193,9 +1198,8 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 								/* check the data type */
 								if (tvb_get_guint8(payload_tvb, payload_offset) == IP_HEADER_BYTE)
 								{
-									mac_payload_handle = find_dissector("ip");
-									if (mac_payload_handle)
-										call_dissector(mac_payload_handle, tvb_new_subset(payload_tvb, payload_offset, new_tvb_len, new_tvb_len), pinfo, generic_tree);
+									if (mac_ip_handle)
+										call_dissector(mac_ip_handle, tvb_new_subset(payload_tvb, payload_offset, new_tvb_len, new_tvb_len), pinfo, generic_tree);
 									else	/* display the Generic MAC Header in Hex */
 										proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_tvb_len, ENC_NA);
 								}
@@ -1211,36 +1215,37 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 			length -= frag_len;
 			offset += frag_len;
 		} /* end of payload decoding */
+	}
+
 check_crc:
-		/* Decode and display the CRC if it is present */
-		if (mac_ci)
-		{
-			/* add the CRC info */
-			proto_item_append_text(parent_item, ", CRC");
-			/* check the length */
-			if (MIN(tvb_len, tvb_reported_length(tvb)) >= mac_len)
-			{	/* get the CRC */
-				mac_crc = tvb_get_ntohl(tvb, mac_len - (int)sizeof(mac_crc));
-				/* calculate the CRC */
-        	    calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - (int)sizeof(mac_crc)), mac_len - (int)sizeof(mac_crc));
-				/* display the CRC */
-				generic_item = proto_tree_add_item(tree, hf_mac_header_generic_crc, tvb, mac_len - (int)sizeof(mac_crc), (int)sizeof(mac_crc), ENC_BIG_ENDIAN);
-				if (mac_crc != calculated_crc)
-				{
-			    		proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
-				}
-		    	}
-			else
-			{	/* display error message */
-				proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, 0, tvb_len, "CRC missing - the frame is too short (%u bytes)", tvb_len);
+	/* Decode and display the CRC if it is present */
+	if (mac_ci)
+	{
+		/* add the CRC info */
+		proto_item_append_text(parent_item, ", CRC");
+		/* check the length */
+		if (MIN(tvb_len, tvb_reported_length(tvb)) >= mac_len)
+		{	/* get the CRC */
+			mac_crc = tvb_get_ntohl(tvb, mac_len - (int)sizeof(mac_crc));
+			/* calculate the CRC */
+			calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - (int)sizeof(mac_crc)), mac_len - (int)sizeof(mac_crc));
+			/* display the CRC */
+			generic_item = proto_tree_add_item(tree, hf_mac_header_generic_crc, tvb, mac_len - (int)sizeof(mac_crc), (int)sizeof(mac_crc), ENC_BIG_ENDIAN);
+			if (mac_crc != calculated_crc)
+			{
+					proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
 			}
 		}
-		else	/* CRC is not included */
-		{	/* add the CRC info */
-			proto_item_append_text(parent_item, ", No CRC");
-			/* display message */
-			proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, 0, tvb_len, "CRC is not included in this frame!");
+		else
+		{	/* display error message */
+			expert_add_info_format(pinfo, tree, &ei_mac_crc_malformed, "CRC missing - the frame is too short (%u bytes)", tvb_len);
 		}
+	}
+	else	/* CRC is not included */
+	{	/* add the CRC info */
+		proto_item_append_text(parent_item, ", No CRC");
+		/* display message */
+		expert_add_info(pinfo, tree, &ei_mac_crc_missing);
 	}
 }
 
@@ -2232,6 +2237,13 @@ void proto_register_mac_header_generic(void)
 			&ett_mac_data_pdu_decoder,
 		};
 
+	static ei_register_info ei[] = {
+		{ &ei_mac_crc_malformed, { "wmx.genericCrc.missing", PI_MALFORMED, PI_ERROR, "CRC missing - the frame is too short", EXPFILL }},
+		{ &ei_mac_crc_missing, { "wmx.genericCrc.missing", PI_PROTOCOL, PI_NOTE, "CRC is not included in this frame!", EXPFILL }},
+	};
+
+	expert_module_t* expert_mac_header_generic;
+
 	proto_mac_header_generic_decoder = proto_register_protocol (
 		"WiMax Generic/Type1/Type2 MAC Header Messages", /* name       */
 		"WiMax Generic/Type1/Type2 MAC Header (hdr)",    /* short name */
@@ -2249,6 +2261,9 @@ void proto_register_mac_header_generic(void)
 	proto_register_field_array(proto_mac_header_generic_decoder, hf_arq,   array_length(hf_arq));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	expert_mac_header_generic = expert_register_protocol(proto_mac_header_generic_decoder);
+	expert_register_field_array(expert_mac_header_generic, ei, array_length(ei));
+
 	/* register the generic mac header dissector */
 	register_dissector("mac_header_generic_handler", dissect_mac_header_generic_decoder, proto_mac_header_generic_decoder);
 
@@ -2260,4 +2275,5 @@ void
 proto_reg_handoff_mac_header_generic(void)
 {
 	mac_mgmt_msg_decoder_handle = find_dissector("wmx_mac_mgmt_msg_decoder");
+    mac_ip_handle = find_dissector("ip");
 }

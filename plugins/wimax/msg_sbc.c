@@ -50,8 +50,6 @@ static gint ett_sbc_req_tlv_subtree = -1;
 static gint ett_sbc_rsp_tlv_subtree = -1;
 
 /* fix fields */
-static gint hf_sbc_req_message_type = -1;
-static gint hf_sbc_rsp_message_type = -1;
 static gint hf_sbc_unknown_type = -1;
 
 static gint hf_sbc_bw_alloc_support = -1;
@@ -534,14 +532,14 @@ static const value_string vals_sbc_sdma_str[ ] =
 
 
 /* Wimax Mac SBC-REQ Message Dissector */
-void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type, value;
+	guint tvb_len, value;
 	gint  tlv_type, tlv_len, tlv_value_offset;
 	/*guint num_dl_harq_chans;*/
-	proto_item *sbc_item = NULL;
-	proto_tree *sbc_tree = NULL;
+	proto_item *sbc_item;
+	proto_tree *sbc_tree;
 	proto_item *tlv_item = NULL;
 	proto_tree *tlv_tree = NULL;
 	proto_item *ti = NULL;
@@ -552,26 +550,14 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	gfloat power_qam64;
 	gfloat current_power;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if (payload_type != MAC_MGMT_MSG_SBC_REQ)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type SBC-REQ */
-		sbc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tvb_len, "SS Basic Capability Request (SBC-REQ) (%u bytes)", tvb_len);
+		sbc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, -1, "SS Basic Capability Request (SBC-REQ)");
 		/* add MAC SBC subtree */
 		sbc_tree = proto_item_add_subtree(sbc_item, ett_mac_mgmt_msg_sbc_decoder);
 		/* Decode and display the SS Basic Capability Request (SBC-REQ) */
-		/* display the Message Type */
-		proto_tree_add_item(sbc_tree, hf_sbc_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the TLV Encoded info */
-		offset++;
 		/* process the SBC TLVs */
 		while(offset < tvb_len)
 		{
@@ -1088,15 +1074,15 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 /* Wimax Mac SBC-RSP Message Dissector */
-void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type, value;
+	guint tvb_len, value;
 	gint  tlv_type, tlv_len, tlv_value_offset;
 /*	guint ssttg, ssrtg;*/
 	/*guint num_dl_harq_chans, num_ul_harq_chans;*/
-	proto_item *sbc_item = NULL;
-	proto_tree *sbc_tree = NULL;
+	proto_item *sbc_item;
+	proto_tree *sbc_tree;
 	proto_item *tlv_item = NULL;
 	proto_tree *tlv_tree = NULL;
 	proto_item *ti = NULL;
@@ -1107,26 +1093,14 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	gfloat power_qam64;
 	gfloat current_power;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if (payload_type != MAC_MGMT_MSG_SBC_RSP)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type SBC-RSP */
-		sbc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tvb_len, "SS Basic Capability Response (SBC-RSP) (%u bytes)", tvb_len);
+		sbc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, -1, "SS Basic Capability Response (SBC-RSP)");
 		/* add MAC SBC subtree */
 		sbc_tree = proto_item_add_subtree(sbc_item, ett_mac_mgmt_msg_sbc_decoder);
 		/* Decode and display the SS Basic Capability Response (SBC-RSP) */
-		/* display the Message Type */
-		proto_tree_add_item(sbc_tree, hf_sbc_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the TLV Encoded info */
-		offset++;
 		/* process the SBC TLVs */
 		while(offset < tvb_len)
 		{
@@ -3215,19 +3189,6 @@ void proto_register_mac_mgmt_msg_sbc(void)
 			}
 		},
 		{
-			&hf_sbc_req_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.sbc_req",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{	&hf_sbc_rsp_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.sbc_rsp",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
 			&hf_sbc_unknown_type,
 			{
 				"Unknown SBC type", "wmx.sbc.unknown_tlv_type",
@@ -3252,6 +3213,8 @@ void proto_register_mac_mgmt_msg_sbc(void)
 
 	proto_register_field_array(proto_mac_mgmt_msg_sbc_decoder, hf_sbc, array_length(hf_sbc));
 	proto_register_subtree_array(ett_sbc, array_length(ett_sbc));
+
+	register_dissector("mac_mgmt_msg_sbc_rsp_handler", dissect_mac_mgmt_msg_sbc_rsp_decoder, -1);
 }
 
 void

@@ -89,8 +89,6 @@ static const value_string vals_type_of_measurements[] =
 };
 
 /* fix fields */
-static gint hf_rep_req_message_type = -1;
-static gint hf_rep_rsp_message_type = -1;
 static gint hf_rep_unknown_type = -1;
 static gint hf_rep_invalid_tlv = -1;
 
@@ -255,37 +253,25 @@ static gint hf_rep_rsp_channel_selectivity_rep_frequency_c = -1;
 
 
 /* Wimax Mac REP-REQ Message Dissector */
-void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type;
+	guint tvb_len;
 	gint  tlv_type, tlv_len, tlv_value_offset, length, tlv_offset;
-	proto_item *rep_item = NULL;
-	proto_tree *rep_tree = NULL;
+	proto_item *rep_item;
+	proto_tree *rep_tree;
 	proto_tree *tlv_tree = NULL;
 	proto_tree *ti_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if(payload_type != MAC_MGMT_MSG_REP_REQ)
-	{
-		return;
-	}
-
-	if(tree)
 	{	/* we are being asked for details */
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type REP-REQ */
-		rep_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_rep_decoder, tvb, offset, tvb_len, "Report Request (REP-REQ) (%u bytes)", tvb_len);
+		rep_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_rep_decoder, tvb, offset, -1, "Report Request (REP-REQ)");
 		/* add MAC REP-REQ subtree */
 		rep_tree = proto_item_add_subtree(rep_item, ett_mac_mgmt_msg_rep_req_decoder);
-		/* Decode and display the Report Request message (REP-REQ) */
-		/* display the Message Type */
-		proto_tree_add_item(rep_tree, hf_rep_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the TLV Encoded info */
-		offset++;
+
 		/* process the REP-REQ TLVs */
 		while(offset < tvb_len)
 		{	/* get the TLV information */
@@ -420,40 +406,29 @@ void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 /* Wimax Mac REP-RSP Message Dissector */
-void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type, length, value;
+	guint tvb_len, length, value;
 	gint  tlv_type, tlv_len, tlv_value_offset, tlv_offset;
 	gint  db_val;
-	proto_item *rep_item = NULL;
-	proto_tree *rep_tree = NULL;
+	proto_item *rep_item;
+	proto_tree *rep_tree;
 	proto_tree *tlv_tree = NULL;
 	proto_item *ti = NULL;
 	proto_tree *ti_tree = NULL;
 	tlv_info_t tlv_info;
 	gfloat current_power;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if(payload_type != MAC_MGMT_MSG_REP_RSP)
-	{
-		return;
-	}
-
-	if(tree)
 	{	/* we are being asked for details */
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type REP-RSP */
-		rep_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_rep_decoder, tvb, offset, tvb_len, "Report Response (REP-RSP) (%u bytes)", tvb_len);
+		rep_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_rep_decoder, tvb, offset, -1, "Report Response (REP-RSP)");
 		/* add MAC REP-RSP subtree */
 		rep_tree = proto_item_add_subtree(rep_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 		/* Decode and display the Report Response message (REP-RSP) */
-		/* display the Message Type */
-		proto_tree_add_item(rep_tree, hf_rep_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the TLV Encoded info */
-		offset++;
+
 		/* process the REP-RSP TLVs */
 		while(offset < tvb_len)
 		{	/* get the TLV information */
@@ -871,13 +846,6 @@ void proto_register_mac_mgmt_msg_rep(void)
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
-		{
-			&hf_rep_req_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.rep_req",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
 		{	/* type 1.2 */
 			&hf_rep_req_channel_number,
 			{
@@ -1212,13 +1180,6 @@ void proto_register_mac_mgmt_msg_rep(void)
 			{
 				"Reserved", "wmx.rep_req.zone_spec_phy_cinr_request.bit19_23",
 				FT_UINT24, BASE_HEX, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_BIT19_23, NULL, HFILL
-			}
-		},
-		{
-			&hf_rep_rsp_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.rep_rsp",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{	/* 6.3 */

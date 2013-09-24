@@ -36,14 +36,11 @@
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 
-extern gint man_ofdma;
-
 static gint proto_mac_mgmt_msg_prc_lt_ctrl_decoder = -1;
 
 static gint ett_mac_mgmt_msg_prc_lt_ctrl_decoder = -1;
 
 /* PRC-LT-CTRL fields */
-static gint hf_prc_lt_ctrl_message_type = -1;
 static gint hf_prc_lt_ctrl_precoding = -1;
 static gint hf_prc_lt_ctrl_precoding_delay = -1;
 /* static gint hf_prc_lt_ctrl_invalid_tlv = -1; */
@@ -56,34 +53,19 @@ static const value_string vals_turn_on[] = {
 
 
 /* Decode PRC-LT-CTRL messages. */
-void dissect_mac_mgmt_msg_prc_lt_ctrl_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_mac_mgmt_msg_prc_lt_ctrl_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type;
-	proto_item *prc_lt_ctrl_item = NULL;
-	proto_tree *prc_lt_ctrl_tree = NULL;
+	proto_item *prc_lt_ctrl_item;
+	proto_tree *prc_lt_ctrl_tree;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, 0);
-	if(payload_type != MAC_MGMT_MSG_PRC_LT_CTRL)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type PRC-LT-CTRL */
-		prc_lt_ctrl_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_prc_lt_ctrl_decoder, tvb, 0, tvb_len, "MAC Management Message, PRC-LT-CTRL (65)");
+		prc_lt_ctrl_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_prc_lt_ctrl_decoder, tvb, 0, -1, "MAC Management Message, PRC-LT-CTRL");
 
 		/* add MAC PRC-LT-CTRL subtree */
 		prc_lt_ctrl_tree = proto_item_add_subtree(prc_lt_ctrl_item, ett_mac_mgmt_msg_prc_lt_ctrl_decoder);
-
-		/* display the Message Type */
-		proto_tree_add_item(prc_lt_ctrl_tree, hf_prc_lt_ctrl_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset ++;
 
 		/* display whether to Setup or Tear-down the
 		 * long-term MIMO precoding delay */
@@ -100,13 +82,6 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 	/* PRC-LT-CTRL fields display */
 	static hf_register_info hf[] =
 	{
-		{
-			&hf_prc_lt_ctrl_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.prc_lt_ctrl",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
 #if 0
 		{
 			&hf_prc_lt_ctrl_invalid_tlv,

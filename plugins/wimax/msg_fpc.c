@@ -36,14 +36,11 @@
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 
-extern gint man_ofdma;
-
 static gint proto_mac_mgmt_msg_fpc_decoder = -1;
 
 static gint ett_mac_mgmt_msg_fpc_decoder = -1;
 
 /* FPC fields */
-static gint hf_fpc_message_type = -1;
 static gint hf_fpc_number_of_stations = -1;
 static gint hf_fpc_basic_cid = -1;
 static gint hf_fpc_power_adjust = -1;
@@ -52,42 +49,32 @@ static gint hf_fpc_power_measurement_frame = -1;
 
 
 /* Decode FPC messages. */
-void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint i;
 	guint number_stations;
-	guint tvb_len, payload_type;
-	proto_item *fpc_item = NULL;
-	proto_tree *fpc_tree = NULL;
+	guint tvb_len;
+	proto_item *fpc_item;
+	proto_tree *fpc_tree;
 	gint8 value;
 	gfloat power_change;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, 0);
-	if(payload_type != MAC_MGMT_MSG_FPC)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type FPC */
-		fpc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_fpc_decoder, tvb, 0, tvb_len, "MAC Management Message, FPC (38)");
+		fpc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_fpc_decoder, tvb, 0, -1, "MAC Management Message, FPC");
 		/* add MAC FPC subtree */
 		fpc_tree = proto_item_add_subtree(fpc_item, ett_mac_mgmt_msg_fpc_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(fpc_tree, hf_fpc_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset ++;
+
 		/* display the Number of stations */
 		proto_tree_add_item(fpc_tree, hf_fpc_number_of_stations, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		number_stations = tvb_get_guint8(tvb, offset);
 		offset++;
-		for (i = 0; i < number_stations; i++ ) {
+		for (i = 0; ((i < number_stations) && (offset >= tvb_len)); i++ ) {
 			/* display the Basic CID*/
 			proto_tree_add_item(fpc_tree, hf_fpc_basic_cid, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
@@ -103,10 +90,6 @@ void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 			/* display the Power measurement frame */
 			proto_tree_add_item(fpc_tree, hf_fpc_power_measurement_frame, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
-
-			if ( offset >= tvb_len ) {
-				break;
-			}
 		}
 	}
 }
@@ -117,14 +100,6 @@ void proto_register_mac_mgmt_msg_fpc(void)
 	/* FPC fields display */
 	static hf_register_info hf[] =
 	{
-		{
-			&hf_fpc_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.fpc",
-				FT_UINT8, BASE_DEC, NULL, 0x0,
-				NULL, HFILL
-			}
-		},
 		{
 			&hf_fpc_basic_cid,
 			{

@@ -41,15 +41,15 @@ extern gboolean include_cor2_changes;
 
 /* external reference */
 extern void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_t *tvb, guint compound_tlv_len, packet_info *pinfo, guint offset);
-extern void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-extern void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static dissector_handle_t sbc_rsp_handle = NULL;
+static dissector_handle_t reg_rsp_handle = NULL;
 
 static gint proto_mac_mgmt_msg_rng_rsp_decoder = -1;
 static gint ett_mac_mgmt_msg_rng_rsp_decoder   = -1;
 static gint ett_rng_rsp_message_tree           = -1;
 
 /* RNG-RSP fields */
-static gint hf_rng_rsp_message_type				= -1;
 static gint hf_rng_req_reserved					= -1;
 /* static gint hf_rng_rsp_ul_channel_id				= -1; */
 static gint hf_rng_rsp_timing_adjust				= -1;
@@ -266,7 +266,7 @@ static const value_string vals_rng_rsp_location_update_response[] = {
 
 
 /* Decode RNG-RSP messages. */
-void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         proto_item *ranging_status_item = NULL;
 	proto_item *dl_freq_override_item = NULL;
@@ -276,10 +276,10 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	guint offset = 0;
 	guint tlv_offset;
-	guint tvb_len, payload_type;
-	proto_item *rng_rsp_item = NULL;
+	guint tvb_len;
+	proto_item *rng_rsp_item;
 	proto_item *tlv_item = NULL;
-	proto_tree *rng_rsp_tree = NULL;
+	proto_tree *rng_rsp_tree;
 	proto_tree *sub_tree = NULL;
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
@@ -294,26 +294,17 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	float power_level_adjust;
 	gint offset_freq_adjust;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if(payload_type != MAC_MGMT_MSG_RNG_RSP)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type RNG-RSP */
-		rng_rsp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_rng_rsp_decoder, tvb, offset, tvb_len, "MAC Management Message, RNG-RSP (5)");
+		rng_rsp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_rng_rsp_decoder, tvb, offset, tvb_len, "MAC Management Message, RNG-RSP");
 		/* add MAC RNG-RSP subtree */
 		rng_rsp_tree = proto_item_add_subtree(rng_rsp_item, ett_mac_mgmt_msg_rng_rsp_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(rng_rsp_tree, hf_rng_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rng_rsp_tree, hf_rng_req_reserved, tvb, 1, 1, ENC_BIG_ENDIAN);
-		offset += 2;
+
+		proto_tree_add_item(rng_rsp_tree, hf_rng_req_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
 
 		while(offset < tvb_len)
 		{
@@ -435,11 +426,11 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				case RNG_RSP_SBC_RSP_ENCODINGS:
 					sub_tree = add_protocol_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, proto_mac_mgmt_msg_rng_rsp_decoder, tvb, tlv_offset, tlv_len, "SBC-RSP Encodings (%u byte(s))", tlv_len);
-					dissect_mac_mgmt_msg_sbc_rsp_decoder(tvb_new_subset(tvb, tlv_offset, tlv_len, tlv_len), pinfo, sub_tree);
+					call_dissector(sbc_rsp_handle, tvb_new_subset(tvb, tlv_offset, tlv_len, tlv_len), pinfo, sub_tree);
 					break;
 				case RNG_RSP_REG_RSP_ENCODINGS:
 					sub_tree = add_protocol_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, proto_mac_mgmt_msg_rng_rsp_decoder, tvb, tlv_offset, tlv_len, "REG-RSP Encodings (%u byte(s))", tlv_len);
-					dissect_mac_mgmt_msg_reg_rsp_decoder(tvb_new_subset(tvb, tlv_offset, tlv_len, tlv_len), pinfo, sub_tree);
+					call_dissector(reg_rsp_handle, tvb_new_subset(tvb, tlv_offset, tlv_len, tlv_len), pinfo, sub_tree);
 					break;
 				/* Implemented message encoding 33 (Table 367 in IEEE 802.16e-2007) */
 				case RNG_RSP_DL_OP_BURST_PROFILE_OFDMA:
@@ -568,13 +559,6 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 	/* RNG-RSP fields display */
 	static hf_register_info hf[] =
 	{
-		{
-			&hf_rng_rsp_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.rng_rsp",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
 		{
 			&hf_rng_rsp_broadcast,
 			{
@@ -991,5 +975,8 @@ void proto_reg_handoff_mac_mgmt_msg_rng_rsp(void)
 
 	rng_rsp_handle = create_dissector_handle(dissect_mac_mgmt_msg_rng_rsp_decoder, proto_mac_mgmt_msg_rng_rsp_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_RNG_RSP, rng_rsp_handle);
+
+	sbc_rsp_handle = find_dissector("mac_mgmt_msg_sbc_rsp_handler");
+	reg_rsp_handle = find_dissector("mac_mgmt_msg_reg_rsp_handler");
 }
 

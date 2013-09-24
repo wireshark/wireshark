@@ -39,13 +39,10 @@
 
 extern gboolean include_cor2_changes;
 
-extern gint man_ofdma;
-
 static gint proto_mac_mgmt_msg_rng_req_decoder = -1;
 static gint ett_mac_mgmt_msg_rng_req_decoder = -1;
 
 /* RNG-REQ fields */
-static gint hf_rng_req_message_type                          = -1;
 static gint hf_rng_req_reserved                              = -1;
 static gint hf_rng_req_dl_burst_profile_diuc                 = -1;
 static gint hf_rng_req_dl_burst_profile_lsb_ccc              = -1;
@@ -216,38 +213,29 @@ void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_
 
 
 /* Decode RNG-REQ messages. */
-void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tlv_offset;
-	guint tvb_len, payload_type;
-	proto_item *rng_req_item = NULL;
-	proto_tree *rng_req_tree = NULL;
+	guint tvb_len;
+	proto_item *rng_req_item;
+	proto_tree *rng_req_tree;
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 	gint tlv_type;
 	gint tlv_len;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if(payload_type != MAC_MGMT_MSG_RNG_REQ)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type RNG-REQ */
-		rng_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, offset, tvb_len, "MAC Management Message, RNG-REQ (4)");
+		rng_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, offset, tvb_len, "MAC Management Message, RNG-REQ");
 		/* add MAC RNG-REQ subtree */
 		rng_req_tree = proto_item_add_subtree(rng_req_item, ett_mac_mgmt_msg_rng_req_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(rng_req_tree, hf_rng_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rng_req_tree, hf_rng_req_reserved, tvb, 1, 1, ENC_BIG_ENDIAN);
-		offset += 2;
+		proto_tree_add_item(rng_req_tree, hf_rng_req_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
+		offset += 1;
 
 		while(offset < tvb_len)
 		{
@@ -338,7 +326,7 @@ void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					}
 					break;
 				case MAC_VERSION_ENCODING:
-					offset += wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, rng_req_tree);
+					offset += wimax_common_tlv_encoding_decoder(tvb_new_subset_remaining(tvb, offset), pinfo, rng_req_tree);
 					continue;
 					break;
 				case RNG_REQ_POWER_SAVING_CLASS_PARAMETERS:
@@ -458,13 +446,6 @@ void proto_register_mac_mgmt_msg_rng_req(void)
 			{
 				"BS shall transmit at least one TRF-IND message during each listening window of the Power Saving Class", "wmx.rng.power_save.trf_ind_required",
 				FT_BOOLEAN, 8, TFS(&tfs_rng_activate), 0x04, NULL, HFILL
-			}
-		},
-		{
-			&hf_rng_req_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.rng_req",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{

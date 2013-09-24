@@ -46,7 +46,6 @@ static gint proto_mac_mgmt_msg_dcd_decoder = -1;
 static gint ett_mac_mgmt_msg_dcd_decoder = -1;
 
 /* fix fields */
-static gint hf_dcd_message_type = -1;
 static gint hf_dcd_downlink_channel_id = -1;
 static gint hf_dcd_config_change_count = -1;
 static gint hf_dcd_dl_burst_profile_rsv = -1;
@@ -331,38 +330,26 @@ static const value_string tfs_support[] =
 
 
 /* WiMax MAC Management DCD message (table 15) dissector */
-void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type, length;
+	guint tvb_len, length;
 	gint  tlv_type, tlv_len, tlv_offset, tlv_value_offset;
 	guint dl_burst_diuc, dl_num_regions;
-	proto_item *dcd_item = NULL;
-	proto_tree *dcd_tree = NULL;
+	proto_item *dcd_item;
+	proto_tree *dcd_tree;
 	proto_tree *tlv_tree = NULL;
 	proto_tree *sub_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if(payload_type != MAC_MGMT_MSG_DCD)
-	{
-		return;
-	}
-
-	if(tree)
 	{	/* we are being asked for details */
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type DCD */
-		dcd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, tvb_len, "Downlink Channel Descriptor (DCD) (%u bytes)", tvb_len);
+		dcd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, tvb_len, "Downlink Channel Descriptor (DCD)");
 		/* add MAC DCD subtree */
 		dcd_tree = proto_item_add_subtree(dcd_item, ett_mac_mgmt_msg_dcd_decoder);
 		/* Decode and display the Downlink Channel Descriptor (DCD) */
-		/* display the Message Type */
-		proto_tree_add_item(dcd_tree, hf_dcd_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the Downlink Channel ID */
-		offset++;
 		/* display the Downlink Channel ID */
 		proto_tree_add_item(dcd_tree, hf_dcd_downlink_channel_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the Configuration Change Count */
@@ -805,13 +792,6 @@ void proto_register_mac_mgmt_msg_dcd(void)
 	static hf_register_info hf[] =
 	{
 		{
-			&hf_dcd_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.dcd",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-			{
 			&hf_dcd_tlv_t_33_asr,
 			{
 				"ASR (Anchor Switch Report) Slot Length (M) and Switching Period (L)", "wmx.dcd.asr",

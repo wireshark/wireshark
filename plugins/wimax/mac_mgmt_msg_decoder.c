@@ -32,10 +32,16 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "wimax_mac.h"
 
 static gint proto_mac_mgmt_msg_decoder = -1;
 static gint ett_mac_mgmt_msg_decoder = -1;
+
+static gint hf_mac_mgmt_msg_type = -1;
+static gint hf_mac_mgmt_msg_values = -1;
+
+static expert_field ei_empty_payload = EI_INIT;
 
 static dissector_table_t  subdissector_message_table;
 
@@ -112,66 +118,50 @@ static const value_string mgt_msg_abbrv_vals[] = {
    { 0, NULL }
 };
 
-value_string_ext mgt_msg_abbrv_vals_ext = VALUE_STRING_EXT_INIT(mgt_msg_abbrv_vals);
+static value_string_ext mgt_msg_abbrv_vals_ext = VALUE_STRING_EXT_INIT(mgt_msg_abbrv_vals);
 
-static gint hf_mac_mgmt_msg_values = -1;
-static gint hf_mac_mgmt_msg_unknown_type = -1;
-
-
-void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, message_type;
-	proto_item *parent_item = NULL;
-	proto_item *message_item = NULL;
-	proto_tree *message_tree = NULL;
+	guint message_type;
+	proto_item *message_item;
+	proto_tree *message_tree;
 	const char* mgt_msg_str;
 
-	{	/* we are being asked for details */
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		if(!tvb_len)
-		{
-			/* display the error message */
-			proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_decoder, tvb, offset, tvb_len, "Error: Mac payload tvb is empty ! (%u bytes)", tvb_len);
-			return;
-		}
-		/* Get the payload type */
-		message_type = tvb_get_guint8(tvb, offset);
-		mgt_msg_str = val_to_str_ext_const(message_type, &mgt_msg_abbrv_vals_ext, "Unknown");
+	message_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_decoder, tvb, offset, -1,
+					"MAC Management Message Type (%u bytes)", tvb_reported_length(tvb));
+	message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 
-		/* Display message type in Info column */
-		col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", mgt_msg_str);
+	if (tvb_reported_length(tvb) == 0)
+	{
+		expert_add_info(pinfo, message_item, &ei_empty_payload);
+		return;
+	}
 
-		/* add the payload type into the info column */
-		if (try_val_to_str_ext(message_type, &mgt_msg_abbrv_vals_ext) == NULL)
-		{
-			/* display MAC payload types */
-			message_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_decoder, tvb, offset, tvb_len, "Unknown message type: %u (%u bytes)", message_type, tvb_len);
-			/* add MAC payload subtree */
-			message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
-			/* display the MAC payload in Hex */
-			proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
-			return;
-		}
+	/* Get the payload type */
+	message_type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(message_tree, hf_mac_mgmt_msg_type, tvb, offset, 1, ENC_NA);
+	mgt_msg_str = val_to_str_ext_const(message_type, &mgt_msg_abbrv_vals_ext, "Unknown");
 
-		/* get the parent */
-		parent_item = proto_tree_get_parent(tree);
-		/* add the MAC header info */
-		proto_item_append_text(parent_item, ", %s", mgt_msg_str);
+	/* Display message type in Info column */
+	col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", mgt_msg_str);
 
-		/* Decode and display the MAC payload */
-		if (!dissector_try_uint(subdissector_message_table, message_type, tvb, pinfo, tree))
-		{
-			/* display MAC payload types */
-			message_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_decoder, tvb, offset, tvb_len, "%s (%u bytes)", mgt_msg_str, tvb_len);
-			/* add MAC payload subtree */
-			message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
-			/* display the MAC payload in Hex */
-			proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
-			/* display the unknown message in hex */
-			proto_tree_add_item(tree, hf_mac_mgmt_msg_unknown_type, tvb, offset, (tvb_len - offset), ENC_NA);
-		}
+	/* add the payload type into the info column */
+	if (try_val_to_str_ext(message_type, &mgt_msg_abbrv_vals_ext) == NULL)
+	{
+		/* display the MAC payload in Hex */
+		proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, -1, ENC_NA);
+		return;
+	}
+
+	/* add the MAC header info to parent*/
+	proto_item_append_text(proto_tree_get_parent(tree), ", %s", mgt_msg_str);
+
+	/* Decode and display the MAC payload */
+	if (!dissector_try_uint(subdissector_message_table, message_type, 
+		tvb_new_subset_remaining(tvb, 1), pinfo, tree))
+	{
+		proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, -1, ENC_NA);
 	}
 }
 
@@ -182,6 +172,14 @@ void proto_register_mac_mgmt_msg(void)
 	static hf_register_info hf[] =
 	{
 		{
+			&hf_mac_mgmt_msg_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype",
+				FT_UINT8, BASE_DEC | BASE_EXT_STRING, &mgt_msg_abbrv_vals_ext, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
 			&hf_mac_mgmt_msg_values,
 			{
 				"Values", "wmx.values",
@@ -189,14 +187,6 @@ void proto_register_mac_mgmt_msg(void)
 				NULL, HFILL
 			}
 		},
-		{
-			&hf_mac_mgmt_msg_unknown_type,
-			{
-				"Unknown MAC Message Type", "wmx.unknown_type",
-				FT_BYTES, BASE_NONE, NULL, 0x0,
-				NULL, HFILL
-			}
-		}
 	};
 
 	/* Setup protocol subtree array */
@@ -204,6 +194,12 @@ void proto_register_mac_mgmt_msg(void)
 		{
 			&ett_mac_mgmt_msg_decoder,
 		};
+
+	static ei_register_info ei[] = {
+		{ &ei_empty_payload, { "wmx.empty_payload", PI_PROTOCOL, PI_ERROR, "Error: Mac payload tvb is empty !", EXPFILL }},
+	};
+
+	expert_module_t* expert_mac_mgmt;
 
 	proto_mac_mgmt_msg_decoder = proto_register_protocol (
 		"WiMax MAC Management Message", /* name       */
@@ -213,6 +209,8 @@ void proto_register_mac_mgmt_msg(void)
 
 	proto_register_field_array(proto_mac_mgmt_msg_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_mac_mgmt = expert_register_protocol(proto_mac_mgmt_msg_decoder);
+	expert_register_field_array(expert_mac_mgmt, ei, array_length(ei));
 
 	subdissector_message_table = register_dissector_table("wmx.mgmtmsg",
 		"WiMax MAC Management Message", FT_UINT8, BASE_DEC);

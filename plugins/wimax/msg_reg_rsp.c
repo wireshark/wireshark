@@ -42,10 +42,9 @@
 
 extern gboolean include_cor2_changes;
 
-extern gint man_ofdma;
-
 extern void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, packet_info *pinfo, guint offset, gint proto_registry);
-extern void dissect_mac_mgmt_msg_dsc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static dissector_handle_t dsc_rsp_handle = NULL;
 
 static gint proto_mac_mgmt_msg_reg_rsp_decoder = -1;
 static gint ett_mac_mgmt_msg_reg_rsp_decoder   = -1;
@@ -54,7 +53,6 @@ static gint ett_reg_rsp_message_tree           = -1;
 /* NCT messages */
 
 /* REG-RSP fields */
-static gint hf_reg_rsp_message_type                      = -1;
 static gint hf_reg_rsp_status                            = -1;
 static gint hf_tlv_type                                  = -1;
 /* static gint hf_tlv_value                                 = -1; */
@@ -76,13 +74,13 @@ static const value_string vals_reg_rsp_status [] = {
 
 
 /* Decode REG-RSP messages. */
-void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tlv_offset;
-	guint tvb_len, payload_type;
-	proto_item *reg_rsp_item = NULL;
-	proto_tree *reg_rsp_tree = NULL;
+	guint tvb_len;
+	proto_item *reg_rsp_item;
+	proto_tree *reg_rsp_tree;
 	proto_item *tlv_item = NULL;
 	proto_tree *tlv_tree = NULL;
 	proto_tree *sub_tree = NULL;
@@ -96,26 +94,16 @@ void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	gint sub_tlv_len;
 	guint sub_tlv_offset;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if (payload_type != MAC_MGMT_MSG_REG_RSP)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type REG-RSP */
-		reg_rsp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tvb_len, "MAC Management Message, REG-RSP (7)");
+		reg_rsp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tvb_len, "MAC Management Message, REG-RSP");
 		/* add MAC REG-RSP subtree */
 		reg_rsp_tree = proto_item_add_subtree(reg_rsp_item, ett_mac_mgmt_msg_reg_rsp_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(reg_rsp_tree, hf_reg_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(reg_rsp_tree, hf_reg_rsp_status, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-		offset += 2;
+		proto_tree_add_item(reg_rsp_tree, hf_reg_rsp_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
 
 		while (offset < tvb_len)
 		{
@@ -209,7 +197,7 @@ void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 							case REG_RSP_TLV_T_24_3_CID_UPDATE_ENCODINGS_CONNECTION_INFO:
 								tlv_tree = add_protocol_subtree(&sub_tlv_info, ett_reg_rsp_message_tree, sub_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, sub_tlv_offset, sub_tlv_len, "CID Update Encodings Connection Info (%u byte(s))", tlv_len);
 								/* Decode the DSC_RSP subTLV's */
-								dissect_mac_mgmt_msg_dsc_rsp_decoder(tvb_new_subset(tvb, sub_tlv_offset, sub_tlv_len, sub_tlv_len), pinfo, tlv_tree);
+								call_dissector(dsc_rsp_handle, tvb_new_subset(tvb, sub_tlv_offset, sub_tlv_len, sub_tlv_len), pinfo, tlv_tree);
 								break;
 							default:
 								tlv_tree = add_tlv_subtree(&sub_tlv_info, ett_reg_rsp_message_tree, sub_tree, hf_tlv_type, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
@@ -290,13 +278,6 @@ void proto_register_mac_mgmt_msg_reg_rsp(void)
 	/* REG-RSP fields display */
 	static hf_register_info hf[] =
 	{
-		{
-			&hf_reg_rsp_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.reg_rsp",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
 		{
 			&hf_reg_invalid_tlv,
 			{
@@ -379,11 +360,15 @@ void proto_register_mac_mgmt_msg_reg_rsp(void)
 
 	proto_register_field_array(proto_mac_mgmt_msg_reg_rsp_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+    register_dissector("mac_mgmt_msg_reg_rsp_handler", dissect_mac_mgmt_msg_reg_rsp_decoder, -1);
 }
 
 void proto_reg_handoff_mac_mgmt_msg_reg_rsp(void)
 {
 	dissector_handle_t reg_rsp_handle;
+
+	dsc_rsp_handle = find_dissector("mac_mgmt_msg_dsc_rsp_handler");
 
 	reg_rsp_handle = create_dissector_handle(dissect_mac_mgmt_msg_reg_rsp_decoder, proto_mac_mgmt_msg_reg_rsp_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_REG_RSP, reg_rsp_handle);

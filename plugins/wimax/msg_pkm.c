@@ -64,92 +64,69 @@ static const value_string vals_pkm_msg_code[] =
 	{18, "PKMv2 EAP-Transfer"},
 	{19, "PKMv2 Authenticated EAP-Transfer"},
 	{20, "PKMv2 SA TEK Challenge"},
-  	{21, "PKMv2 SA TEK Request"},
+	{21, "PKMv2 SA TEK Request"},
 	{22, "PKMv2 SA TEK Response"},
 	{23, "PKMv2 Key-Request"},
-  	{24, "PKMv2 Key-Reply"},
+	{24, "PKMv2 Key-Reply"},
 	{25, "PKMv2 Key-Reject"},
 	{26, "PKMv2 SA-Addition"},
 	{27, "PKMv2 TEK-Invalid"},
- 	{28, "PKMv2 Group-Key-Update-Command"},
+	{28, "PKMv2 Group-Key-Update-Command"},
 	{29, "PKMv2 EAP Complete"},
 	{30, "PKMv2 Authenticated EAP Start"},
 	{ 0,				NULL}
 };
 
 /* fix fields */
-static gint hf_pkm_req_message_type = -1;
-static gint hf_pkm_rsp_message_type = -1;
 static gint hf_pkm_msg_code = -1;
 static gint hf_pkm_msg_pkm_id = -1;
 
 
 /* Wimax Mac PKM-REQ Message Dissector */
-void dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, length;
-	proto_item *pkm_item = NULL;
-	proto_tree *pkm_tree = NULL;
+	proto_item *pkm_item;
+	proto_tree *pkm_tree;
 
-	{	/* we are being asked for details */
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC payload type PKM-REQ */
-		pkm_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_pkm_decoder, tvb, offset, tvb_len, "Privacy Key Management Request (PKM-REQ) (%u bytes)", tvb_len);
-		/* add MAC PKM subtree */
-		pkm_tree = proto_item_add_subtree(pkm_item, ett_mac_mgmt_msg_pkm_req_decoder);
-		/* Decode and display the Privacy Key Management Request Message (PKM-REQ) (table 24) */
-		/* display the Message Type */
-		proto_tree_add_item(pkm_tree, hf_pkm_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the PKM Code */
-		offset++;
-		/* display the PKM Code */
-		proto_tree_add_item(pkm_tree, hf_pkm_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the PKM ID */
-		offset++;
-		/* display the PKM ID */
-		proto_tree_add_item(pkm_tree, hf_pkm_msg_pkm_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the TLV Encoded info */
-		offset++;
-		/* process the PKM TLV Encoded Attributes */
-		length = tvb_len - offset;
-		wimax_pkm_tlv_encoded_attributes_decoder(tvb_new_subset(tvb, offset, length, length), pinfo, pkm_tree);
-	}
+	/* display MAC payload type PKM-REQ */
+	pkm_item = pkm_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_pkm_decoder, tvb, offset, -1, "Privacy Key Management Request (PKM-REQ)");
+	/* add MAC PKM subtree */
+	pkm_tree = proto_item_add_subtree(pkm_item, ett_mac_mgmt_msg_pkm_req_decoder);
+	/* Decode and display the Privacy Key Management Request Message (PKM-REQ) (table 24) */
+	/* display the PKM Code */
+	proto_tree_add_item(pkm_tree, hf_pkm_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+	/* set the offset for the PKM ID */
+	offset++;
+	/* display the PKM ID */
+	proto_tree_add_item(pkm_tree, hf_pkm_msg_pkm_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+	/* set the offset for the TLV Encoded info */
+	offset++;
+	wimax_pkm_tlv_encoded_attributes_decoder(tvb_new_subset_remaining(tvb, offset), pinfo, pkm_tree);
 }
 
 /* Wimax Mac PKM-RSP Message Dissector */
-void dissect_mac_mgmt_msg_pkm_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_pkm_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, length;
-	proto_item *pkm_item = NULL;
-	proto_tree *pkm_tree = NULL;
+	proto_item *pkm_item;
+	proto_tree *pkm_tree;
 
-	{	/* we are being asked for details */
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC payload type PKM-RSP */
-		pkm_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_pkm_decoder, tvb, offset, tvb_len, "Privacy Key Management Response (PKM-RSP) (%u bytes)", tvb_len);
-		/* add MAC PKM subtree */
-		pkm_tree = proto_item_add_subtree(pkm_item, ett_mac_mgmt_msg_pkm_rsp_decoder);
-		/* Decode and display the Privacy Key Management Response (PKM-RSP) (table 25) */
-		/* display the Message Type */
-		proto_tree_add_item(pkm_tree, hf_pkm_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the PKM Code */
-		offset++;
-		/* display the PKM Code */
-		proto_tree_add_item(pkm_tree, hf_pkm_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the PKM ID */
-		offset++;
-		/* display the PKM ID */
-		proto_tree_add_item(pkm_tree, hf_pkm_msg_pkm_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* set the offset for the TLV Encoded info */
-		offset++;
-		/* process the PKM TLV Encoded Attributes */
-		length = tvb_len - offset;
-		wimax_pkm_tlv_encoded_attributes_decoder(tvb_new_subset(tvb, offset, length, length), pinfo, pkm_tree);
-	}
+	/* display MAC payload type PKM-RSP */
+	pkm_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_pkm_decoder, tvb, offset, -1, "Privacy Key Management Response (PKM-RSP)");
+	/* add MAC PKM subtree */
+	pkm_tree = proto_item_add_subtree(pkm_item, ett_mac_mgmt_msg_pkm_rsp_decoder);
+	/* Decode and display the Privacy Key Management Response (PKM-RSP) (table 25) */
+	/* display the PKM Code */
+	proto_tree_add_item(pkm_tree, hf_pkm_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+	/* set the offset for the PKM ID */
+	offset++;
+	/* display the PKM ID */
+	proto_tree_add_item(pkm_tree, hf_pkm_msg_pkm_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+	/* set the offset for the TLV Encoded info */
+	offset++;
+	/* process the PKM TLV Encoded Attributes */
+	wimax_pkm_tlv_encoded_attributes_decoder(tvb_new_subset_remaining(tvb, offset), pinfo, pkm_tree);
 }
 
 /* Register Wimax Mac PKM-REQ/RSP Messages Dissectors */
@@ -166,14 +143,6 @@ void proto_register_mac_mgmt_msg_pkm(void)
 			&hf_pkm_msg_pkm_id,
 			{"PKM Identifier", "wmx.pkm.msg_pkm_identifier",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
-		{
-			&hf_pkm_req_message_type,
-			{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_req", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_pkm_rsp_message_type,
-			{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_rsp", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		}
 	};
 
 	/* Setup protocol subtree array */

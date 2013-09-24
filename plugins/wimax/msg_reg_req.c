@@ -149,8 +149,6 @@ static gint hf_reg_multi_active_power_saving_classes               = -1;
 static gint hf_reg_total_power_saving_class_instances              = -1;
 static gint hf_reg_power_saving_class_reserved                     = -1;
 
-static gint hf_reg_req_message_type                                = -1;
-
 /* STRING RESOURCES */
 
 static const true_false_string tfs_reg_ip_mgmt_mode = {
@@ -496,7 +494,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 		case CURRENT_TX_POWER:
 		case MAC_VERSION_ENCODING:
 		case CMAC_TUPLE:	/* Table 348b */
-			wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, reg_req_tree);
+			wimax_common_tlv_encoding_decoder(tvb_new_subset_remaining(tvb, offset), pinfo, reg_req_tree);
 			break;
 		default:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_registry, tvb, tlv_offset, (tvb_len - tlv_offset), FALSE);
@@ -508,11 +506,11 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 
 
 /* Decode REG-REQ messages. */
-void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tlv_offset;
-	guint tvb_len, payload_type;
+	guint tvb_len;
 	proto_item *reg_req_item = NULL;
 	proto_tree *reg_req_tree = NULL;
 	proto_tree *tlv_tree = NULL;
@@ -521,25 +519,14 @@ void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	gint tlv_type;
 	gint tlv_len;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if (payload_type != MAC_MGMT_MSG_REG_REQ)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type REG-REQ */
-		reg_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, offset, tvb_len, "MAC Management Message, REG-REQ (6)");
+		reg_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, offset, tvb_len, "MAC Management Message, REG-REQ");
 		/* add MAC REG-REQ subtree */
 		reg_req_tree = proto_item_add_subtree(reg_req_item, ett_mac_mgmt_msg_reg_req_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(reg_req_tree, hf_reg_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
 
 		while(offset < tvb_len)
 		{
@@ -1277,13 +1264,6 @@ void proto_register_mac_mgmt_msg_reg_req(void)
 			{
 				"Unknown TLV Type", "wmx.reg.unknown_tlv_type",
 				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
-			}
-		},
-		{
-			&hf_reg_req_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.reg_req",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{

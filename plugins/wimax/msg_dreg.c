@@ -39,7 +39,6 @@
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 
-extern gint man_ofdma;
 extern	gboolean include_cor2_changes;
 
 /* Forward reference */
@@ -57,8 +56,6 @@ static gint *ett[] =
 };
 
 /* DREG fields */
-static gint hf_dreg_cmd_message_type = -1;
-static gint hf_dreg_req_message_type = -1;
 /* static gint hf_ack_type_reserved = -1; */
 static gint hf_dreg_cmd_action = -1;
 static gint hf_dreg_cmd_action_cor2 = -1;
@@ -297,13 +294,6 @@ void proto_register_mac_mgmt_msg_dreg_req(void)
 			}
 		},
 		{
-			&hf_dreg_cmd_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.dreg_cmd",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
 			&hf_dreg_cmd_action,
 			{
 				"DREG-CMD Action code", "wmx.dreg_cmd.action",
@@ -322,13 +312,6 @@ void proto_register_mac_mgmt_msg_dreg_req(void)
 			{
 				"Reserved", "wmx.dreg_cmd.action_reserved",
 				FT_UINT8, BASE_DEC, NULL, 0xF8, NULL, HFILL
-			}
-		},
-		{
-			&hf_dreg_req_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.dreg_req",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
@@ -384,38 +367,27 @@ void proto_register_mac_mgmt_msg_dreg_cmd(void)
 }
 
 /* Decode DREG-REQ messages. */
-void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tlv_offset;
-	guint tvb_len, payload_type;
-	proto_item *dreg_req_item = NULL;
-	proto_tree *dreg_req_tree = NULL;
+	guint tvb_len;
+	proto_item *dreg_req_item;
+	proto_tree *dreg_req_tree;
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 	gint tlv_type;
 	gint tlv_len;
 	gboolean hmac_found = FALSE;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, 0);
-	if(payload_type != MAC_MGMT_MSG_DREG_REQ)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type DREG-REQ */
-		dreg_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dreg_req_decoder, tvb, 0, tvb_len, "MAC Management Message, DREG-REQ (49)");
+		dreg_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dreg_req_decoder, tvb, 0, -1, "MAC Management Message, DREG-REQ");
 		/* add MAC DREG REQ subtree */
 		dreg_req_tree = proto_item_add_subtree(dreg_req_item, ett_mac_mgmt_msg_dreg_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(dreg_req_tree, hf_dreg_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
 		/* display the Action Code */
 		proto_tree_add_item(dreg_req_tree, hf_dreg_req_action, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* show the Reserved bits */
@@ -467,38 +439,27 @@ void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 }
 
 /* Decode DREG-CMD messages. */
-void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tlv_offset;
-	guint tvb_len, payload_type;
-	proto_item *dreg_cmd_item = NULL;
-	proto_tree *dreg_cmd_tree = NULL;
+	guint tvb_len;
+	proto_item *dreg_cmd_item;
+	proto_tree *dreg_cmd_tree;
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 	gint tlv_type;
 	gint tlv_len;
 	gboolean hmac_found = FALSE;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, 0);
-	if(payload_type != MAC_MGMT_MSG_DREG_CMD)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type DREG-CMD */
-		dreg_cmd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dreg_cmd_decoder, tvb, 0, tvb_len, "MAC Management Message, DREG-CMD (29)");
+		dreg_cmd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dreg_cmd_decoder, tvb, 0, -1, "MAC Management Message, DREG-CMD");
 		/* add MAC DREG CMD subtree */
 		dreg_cmd_tree = proto_item_add_subtree(dreg_cmd_item, ett_mac_mgmt_msg_dreg_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(dreg_cmd_tree, hf_dreg_cmd_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset ++;
 		/* display the Action Code */
 		if (include_cor2_changes)
 			proto_tree_add_item(dreg_cmd_tree, hf_dreg_cmd_action_cor2, tvb, offset, 1, ENC_BIG_ENDIAN);

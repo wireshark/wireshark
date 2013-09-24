@@ -40,9 +40,6 @@ extern guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo
 
 extern gint proto_wimax;
 
-/* forward reference */
-void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_wimax_harq_map_decoder = -1;
 static gint ett_wimax_harq_map_decoder = -1;
 
@@ -68,7 +65,7 @@ static gint hf_harq_map_msg_crc = -1;
 
 
 /* HARQ MAP message decoder */
-void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint i, offset = 0;
 	guint tvb_len, length, dl_ie_count;
@@ -215,4 +212,6 @@ void proto_register_wimax_harq_map(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_wimax_harq_map_decoder, hf_harq_map, array_length(hf_harq_map));
+
+	register_dissector("wimax_harq_map_handler", dissector_wimax_harq_map_decoder, -1);
 }

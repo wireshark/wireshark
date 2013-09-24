@@ -38,8 +38,6 @@
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 
-extern gint man_ofdma;
-
 static gint proto_mac_mgmt_msg_arq_decoder = -1;
 
 static gint ett_mac_mgmt_msg_arq_decoder = -1;
@@ -77,8 +75,6 @@ static gint hf_arq_reset_cid		= -1;
 static gint hf_arq_reset_type		= -1;
 static gint hf_arq_reset_direction	= -1;
 static gint hf_arq_reset_reserved	= -1;
-
-static gint hf_arq_message_type = -1;
 
 /* STRING RESOURCES */
 
@@ -127,14 +123,6 @@ void proto_register_mac_mgmt_msg_arq_feedback(void)
 	/* ARQ fields display */
 	static hf_register_info hf[] =
 	{
-		/* TODO: Make three separate arq message types */
-		{
-			&hf_arq_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.arq",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
 		{
 			&hf_arq_ack_type,
 			{
@@ -309,7 +297,7 @@ void proto_register_mac_mgmt_msg_arq_feedback(void)
 }
 
 /* Decode ARQ-Feedback messages. */
-void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint arq_feedback_ie_count = 0;
@@ -318,33 +306,22 @@ void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo
 	guint arq_ack_type;
 	guint arq_bsn;
 	guint arq_num_ack_maps;
-	guint tvb_len, payload_type;
-	proto_item *arq_feedback_item = NULL;
-	proto_tree *arq_feedback_tree = NULL;
+	guint tvb_len;
+	proto_item *arq_feedback_item;
+	proto_tree *arq_feedback_tree;
 	proto_item *arq_fb_item = NULL;
 	proto_tree *arq_fb_tree = NULL;
 	proto_item *ti = NULL;
 	guint i, seq_format;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if(payload_type != MAC_MGMT_MSG_ARQ_FEEDBACK)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type ARQ-Feedback */
-		arq_feedback_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_arq_decoder, tvb, offset, tvb_len, "MAC Management Message, ARQ-Feedback (33)");
+		arq_feedback_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_arq_decoder, tvb, offset, -1, "MAC Management Message, ARQ-Feedback");
 		/* add MAC ARQ Feedback subtree */
 		arq_feedback_tree = proto_item_add_subtree(arq_feedback_item, ett_mac_mgmt_msg_arq_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(arq_feedback_tree, hf_arq_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
 
 		while(offset < tvb_len && !arq_last)
 		{
@@ -407,30 +384,17 @@ void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo
 }
 
 /* Decode ARQ-Discard messages. */
-void dissect_mac_mgmt_msg_arq_discard_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_mac_mgmt_msg_arq_discard_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint tvb_len, payload_type;
-	proto_item *arq_discard_item = NULL;
-	proto_tree *arq_discard_tree = NULL;
+	proto_item *arq_discard_item;
+	proto_tree *arq_discard_tree;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, 0);
-	if(payload_type != MAC_MGMT_MSG_ARQ_DISCARD)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type ARQ-Discard */
-		arq_discard_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_arq_decoder, tvb, 0, tvb_len, "MAC Management Message, ARQ-Discard (34)");
+		arq_discard_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_arq_decoder, tvb, 0, -1, "MAC Management Message, ARQ-Discard");
 		/* add MAC ARQ Discard subtree */
 		arq_discard_tree = proto_item_add_subtree(arq_discard_item, ett_mac_mgmt_msg_arq_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(arq_discard_tree, hf_arq_message_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(arq_discard_tree, hf_arq_discard_cid, tvb, 1, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(arq_discard_tree, hf_arq_discard_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
@@ -439,30 +403,17 @@ void dissect_mac_mgmt_msg_arq_discard_decoder(tvbuff_t *tvb, packet_info *pinfo 
 }
 
 /* Decode ARQ-Reset messages. */
-void dissect_mac_mgmt_msg_arq_reset_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_mac_mgmt_msg_arq_reset_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint tvb_len, payload_type;
-	proto_item *arq_reset_item = NULL;
-	proto_tree *arq_reset_tree = NULL;
+	proto_item *arq_reset_item;
+	proto_tree *arq_reset_tree;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, 0);
-	if(payload_type != MAC_MGMT_MSG_ARQ_RESET)
-	{
-		return;
-	}
-
-	if (tree)
 	{	/* we are being asked for details */
 
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type ARQ-Reset */
-		arq_reset_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_arq_decoder, tvb, 0, tvb_len, "MAC Management Message, ARQ-Reset (35)");
+		arq_reset_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_arq_decoder, tvb, 0, -1, "MAC Management Message, ARQ-Reset");
 		/* add MAC ARQ Reset subtree */
 		arq_reset_tree = proto_item_add_subtree(arq_reset_item, ett_mac_mgmt_msg_arq_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(arq_reset_tree, hf_arq_message_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(arq_reset_tree, hf_arq_reset_cid, tvb, 1, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(arq_reset_tree, hf_arq_reset_type, tvb, 3, 1, ENC_BIG_ENDIAN);

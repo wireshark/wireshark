@@ -50,7 +50,7 @@ extern gint proto_mac_mgmt_msg_aas_fbck_decoder;
 static gint proto_mac_mgmt_msg_aas_beam_decoder = -1;
 static gint ett_mac_mgmt_msg_aas_beam_select_decoder = -1;
 static gint ett_mac_mgmt_msg_aas_beam_req_decoder = -1;
-/* static gint ett_mac_mgmt_msg_aas_beam_rsp_decoder = -1; */
+static gint ett_mac_mgmt_msg_aas_beam_rsp_decoder = -1;
 
 #ifdef OFDM
 static const value_string vals_report_types[] =
@@ -71,7 +71,6 @@ static const value_string vals_resolution_parameter[] =
 #endif
 
 /* fix fields */
-static gint hf_aas_beam_message_type = -1;
 /* static gint hf_aas_beam_unknown_type = -1; */
 static gint hf_aas_beam_select_index = -1;
 static gint hf_aas_beam_select_reserved = -1;
@@ -88,30 +87,19 @@ static int hf_aas_beam_cinr_value = -1;
 #endif
 
 
-void dissect_mac_mgmt_msg_aas_beam_select_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_mac_mgmt_msg_aas_beam_select_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type;
-	proto_item *aas_beam_item = NULL;
-	proto_tree *aas_beam_tree = NULL;
+	proto_item *aas_beam_item;
+	proto_tree *aas_beam_tree;
 
-	if(tree)
 	{	/* we are being asked for details */
-		/* get the message type */
-		payload_type = tvb_get_guint8(tvb, offset);
-		/* ensure the message type is AAS-BEAM-SELECT */
-		if(payload_type != MAC_MGMT_MSG_AAS_BEAM_SELECT)
-			return;
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
+
 		/* display MAC message type */
-		aas_beam_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_beam_decoder, tvb, offset, tvb_len, "AAS Beam Select (AAS-BEAM-SELECT) (%u bytes)", tvb_len);
+		aas_beam_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_beam_decoder, tvb, offset, -1, "AAS Beam Select (AAS-BEAM-SELECT)");
 		/* add subtree */
 		aas_beam_tree = proto_item_add_subtree(aas_beam_item, ett_mac_mgmt_msg_aas_beam_select_decoder);
-		/* Display the AAS-BEAM-SELECT message type */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* move to next field */
-		offset++;
+
 		/* Decode and display the AAS-BEAM-SELECT message body */
 		/* display the AAS Beam Index */
 		proto_tree_add_item(aas_beam_tree, hf_aas_beam_select_index, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -124,27 +112,16 @@ void dissect_mac_mgmt_msg_aas_beam_select_decoder(tvbuff_t *tvb, packet_info *pi
 static void dissect_mac_mgmt_msg_aas_beam_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type;
-	proto_item *aas_beam_item = NULL;
-	proto_tree *aas_beam_tree = NULL;
+	proto_item *aas_beam_item;
+	proto_tree *aas_beam_tree;
 
-	if(tree)
 	{	/* we are being asked for details */
-		/* get the message type */
-		payload_type = tvb_get_guint8(tvb, offset);
-		/* ensure the message type is AAS-BEAM-REQ */
-		if(payload_type != MAC_MGMT_MSG_AAS_BEAM_REQ)
-			return;
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
+
 		/* display MAC message type */
-		aas_beam_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_beam_decoder, tvb, offset, tvb_len, "AAS Beam Request (AAS-BEAM-REQ) (%u bytes)", tvb_len);
+		aas_beam_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_beam_decoder, tvb, offset, -1, "AAS Beam Request (AAS-BEAM-REQ)");
 		/* add subtree */
 		aas_beam_tree = proto_item_add_subtree(aas_beam_item, ett_mac_mgmt_msg_aas_beam_req_decoder);
-		/* Display the AAS-BEAM-REQ message type */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* move to next field */
-		offset++;
+
 		/* Decode and display the AAS-BEAM-REQ message body */
 		/* display the Frame Number */
 		proto_tree_add_item(aas_beam_tree, hf_aas_beam_frame_number, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -168,28 +145,20 @@ static void dissect_mac_mgmt_msg_aas_beam_req_decoder(tvbuff_t *tvb, packet_info
 static void dissect_mac_mgmt_msg_aas_beam_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type, report_type;
+	guint tvb_len, report_type;
 	guint number_of_frequencies, indx;
-	proto_item *aas_beam_item = NULL;
-	proto_tree *aas_beam_tree = NULL;
+	proto_item *aas_beam_item;
+	proto_tree *aas_beam_tree;
 
-	if(tree)
 	{	/* we are being asked for details */
-		/* get the message type */
-		payload_type = tvb_get_guint8(tvb, offset);
-		/* ensure the message type is AAS-BEAM-RSP */
-		if(payload_type != MAC_MGMT_MSG_AAS_BEAM_RSP)
-			return;
+
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
-		aas_beam_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_beam_decoder, tvb, offset, tvb_len, "AAS Beam Response (AAS-BEAM-RSP) (%u bytes)", tvb_len);
+		aas_beam_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_beam_decoder, tvb, offset, -1, "AAS Beam Response (AAS-BEAM-RSP)");
 		/* add subtree */
-		aas_beam_tree = proto_item_add_subtree(aas_beam_item, ett_mac_mgmt_msg_aas_beam_req_decoder);
-		/* Display the AAS-BEAM-RSP message type */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* move to next field */
-		offset++;
+		aas_beam_tree = proto_item_add_subtree(aas_beam_item, ett_mac_mgmt_msg_aas_beam_rsp_decoder);
+
 		/* Decode and display the AAS-BEAM-RSP message body */
 		/* display the Frame Number */
 		proto_tree_add_item(aas_beam_tree, hf_aas_beam_frame_number, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -244,13 +213,6 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 	/* AAS-BEAM display */
 	static hf_register_info hf_aas_beam[] =
 	{
-		{
-			&hf_aas_beam_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.aas_beam",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
 		{
 			&hf_aas_beam_select_index,
 			{
@@ -346,10 +308,14 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 		{
 			&ett_mac_mgmt_msg_aas_beam_select_decoder,
 			&ett_mac_mgmt_msg_aas_beam_req_decoder,
-			/*	&ett_mac_mgmt_msg_aas_beam_rsp_decoder, */
+			&ett_mac_mgmt_msg_aas_beam_rsp_decoder,
 		};
 
-	proto_mac_mgmt_msg_aas_beam_decoder = proto_mac_mgmt_msg_aas_fbck_decoder;
+	proto_mac_mgmt_msg_aas_beam_decoder = proto_register_protocol (
+		"WiMax AAS-BEAM Messages", /* name       */
+		"WiMax AAS-BEAM",          /* short name */
+		"wmx.aas_beam"             /* abbrev     */
+		);
 
 	proto_register_field_array(proto_mac_mgmt_msg_aas_beam_decoder, hf_aas_beam, array_length(hf_aas_beam));
 	proto_register_subtree_array(ett, array_length(ett));

@@ -47,7 +47,6 @@ static gint proto_mac_mgmt_msg_ucd_decoder = -1;
 static gint ett_mac_mgmt_msg_ucd_decoder = -1;
 
 /* fix fields */
-static gint hf_ucd_message_type = -1;
 static gint hf_ucd_res_timeout = -1;
 static gint hf_ucd_bw_req_size = -1;
 static gint hf_ucd_ranging_req_size = -1;
@@ -203,21 +202,13 @@ static const value_string vals_yes_no_str[] =
 
 
 /* UCD dissector */
-void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type, length;
+	guint tvb_len, length;
 	gint  tlv_type, tlv_len, tlv_offset, tlv_value_offset;
 	tlv_info_t tlv_info;
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if(payload_type != MAC_MGMT_MSG_UCD)
-	{
-		return;
-	}
-
-	if(tree)
 	{	/* we are being asked for details */
 		proto_item *ucd_item;
 		proto_tree *ucd_tree;
@@ -230,14 +221,10 @@ void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type UCD */
-		ucd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_ucd_decoder, tvb, offset, tvb_len, "Uplink Channel Descriptor (UCD) (%u bytes)", tvb_len);
+		ucd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_ucd_decoder, tvb, offset, -1, "Uplink Channel Descriptor (UCD)");
 		/* add MAC UCD subtree */
 		ucd_tree = proto_item_add_subtree(ucd_item, ett_mac_mgmt_msg_ucd_decoder);
 		/* Decode and display the Uplink Channel Descriptor (UCD) */
-		/* display the Message Type */
-		proto_tree_add_item(ucd_tree, hf_ucd_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* move to next field */
-		offset++;
 		/* get the Configuration Change Count */
 		ucd_config_change_count = tvb_get_guint8(tvb, offset);
 		/* display the Configuration Change Count */
@@ -749,13 +736,6 @@ void proto_register_mac_mgmt_msg_ucd(void)
 	/* UCD display */
 	static hf_register_info hf[] =
 	{
-		{
-			&hf_ucd_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.ucd",
-				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
-			}
-		},
 		{
 			&hf_ucd_tlv_t_188_allow_aas_beam_select_message,
 			{

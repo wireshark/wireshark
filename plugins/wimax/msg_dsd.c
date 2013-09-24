@@ -48,52 +48,33 @@ static gint ett_mac_mgmt_msg_dsd_rsp_decoder = -1;
 /* static gint ett_dsd_hmac_tuple = -1;     */
 /* static gint ett_dsd_cmac_tuple = -1;     */
 
-static const value_string vals_dsd_msgs[] =
-{
-	{ MAC_MGMT_MSG_DSD_REQ, "Dynamic Service Deletion Request (DSD-REQ)" },
-	{ MAC_MGMT_MSG_DSD_RSP, "Dynamic Service Deletion Response (DSD-RSP)" },
-	{ 0,                    NULL }
-};
-
 /* fix fields */
-static gint hf_dsd_req_message_type = -1;
 static gint hf_dsd_transaction_id = -1;
 static gint hf_dsd_service_flow_id = -1;
-static gint hf_dsd_rsp_message_type = -1;
 static gint hf_dsd_confirmation_code = -1;
 static gint hf_dsd_invalid_tlv = -1;
 static gint hf_dsd_unknown_type = -1;
 
 
-void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type, tlv_len, tlv_value_offset;
+	guint tvb_len, tlv_len, tlv_value_offset;
 	gint  tlv_type;
-	proto_item *dsd_item = NULL;
-	proto_tree *dsd_tree = NULL;
+	proto_item *dsd_item;
+	proto_tree *dsd_tree;
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	if(tree)
 	{	/* we are being asked for details */
-		/* get the message type */
-		payload_type = tvb_get_guint8(tvb, offset);
-		/* ensure the message type is DSD REQ/RSP/ACK */
-		if(payload_type != MAC_MGMT_MSG_DSD_REQ)
-			return;
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
-		dsd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tvb_len,
-							  "%s (%u bytes)", val_to_str(payload_type, vals_dsd_msgs, "Unknown"), tvb_len);
+		dsd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, -1,
+							"Dynamic Service Deletion Request (DSD-REQ)");
 		/* add MAC DSx subtree */
 		dsd_tree = proto_item_add_subtree(dsd_item, ett_mac_mgmt_msg_dsd_req_decoder);
 		/* Decode and display the DSD message */
-		/* display the Message Type */
-		proto_tree_add_item(dsd_tree, hf_dsd_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/* move to next field */
-		offset++;
 		/* display the Transaction ID */
 		proto_tree_add_item(dsd_tree, hf_dsd_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* move to next field */
@@ -147,35 +128,25 @@ void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	}
 }
 
-void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint tvb_len, payload_type, tlv_len, tlv_value_offset;
+	guint tvb_len, tlv_len, tlv_value_offset;
 	gint  tlv_type;
-	proto_item *dsd_item = NULL;
-	proto_tree *dsd_tree = NULL;
+	proto_item *dsd_item;
+	proto_tree *dsd_tree;
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	if(tree)
 	{	/* we are being asked for details */
-		/* get the message type */
-		payload_type = tvb_get_guint8(tvb, offset);
-		/* ensure the message type is DSD REQ/RSP/ACK */
-		if(payload_type != MAC_MGMT_MSG_DSD_RSP)
-			return;
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
-		dsd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tvb_len,
-							  "%s (%u bytes)", val_to_str(payload_type, vals_dsd_msgs, "Unknown"), tvb_len);
+		dsd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, -1,
+							"Dynamic Service Deletion Response (DSD-RSP)");
 		/* add MAC DSx subtree */
 		dsd_tree = proto_item_add_subtree(dsd_item, ett_mac_mgmt_msg_dsd_rsp_decoder);
 		/* Decode and display the DSD message */
-		/* display the Message Type */
-		proto_tree_add_item(dsd_tree, hf_dsd_rsp_message_type, tvb, offset, 1, ENC_NA);
-		/* move to next field */
-		offset++;
 		/* display the Transaction ID */
 		proto_tree_add_item(dsd_tree, hf_dsd_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* move to next field */
@@ -239,20 +210,6 @@ void proto_register_mac_mgmt_msg_dsd(void)
 	/* DSx display */
 	static hf_register_info hf[] =
 	{
-		{
-			&hf_dsd_req_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.dsd_req", 
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_dsd_rsp_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.dsd_rsp", 
-				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
-			}
-		},
 		{
 			&hf_dsd_confirmation_code,
 			{
