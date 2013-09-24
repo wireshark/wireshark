@@ -2651,7 +2651,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tempShort = tvb_get_ntohs(tvb, offset);
 		tempType = TLV_TYPE(tempShort);
 		/* pass only TLV to dissectors, Zero offset (point to front of tlv) */
-		new_tvb = tvb_new_subset(tvb, offset, TLV_INFO_LEN(tempShort)+2, TLV_INFO_LEN(tempShort)+2); 
+		new_tvb = tvb_new_subset(tvb, offset, TLV_INFO_LEN(tempShort)+2, TLV_INFO_LEN(tempShort)+2);
 		switch (tempType)
 		{
 		case CHASSIS_ID_TLV_TYPE:
@@ -2877,11 +2877,11 @@ proto_register_lldp(void)
 		},
 		{ &hf_ieee_802_3_mac_phy_auto_neg_status_supported,
 			{ "Auto-Negotiation", "lldp.ieee.802_3.mac_phy_auto_neg_status.supported", FT_BOOLEAN, 8,
-			TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }
+			TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_mac_phy_auto_neg_status_enabled,
 			{ "Auto-Negotiation", "lldp.ieee.802_3.mac_phy_auto_neg_status.enabled", FT_BOOLEAN, 8,
-			TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }
+			TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_pmd_auto_neg_advertised_caps,
 			{ "PMD Auto-Negotiation Advertised Capability", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps", FT_UINT16, BASE_HEX,
