@@ -740,487 +740,478 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 	tvb_len =  tvb_reported_length(tvb);
 	if (tvb_len < WIMAX_MAC_HEADER_SIZE)
 	{
-		if (tree) {
-			/* display the error message */
-			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, tvb_len, "Error: the size of Generic MAC Header tvb is too small! (%u bytes)", tvb_len);
-			/* add subtree */
-			generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
-			/* display the Generic MAC Header in Hex */
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, tvb_len, ENC_NA);
-		}
+		/* display the error message */
+		generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, tvb_len, "Error: the size of Generic MAC Header tvb is too small! (%u bytes)", tvb_len);
+		/* add subtree */
+		generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
+		/* display the Generic MAC Header in Hex */
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, tvb_len, ENC_NA);
 		return;
 	}
-	if (tree)
-	{	/* we are being asked for details */
-		/* get the parent */
-		parent_item = proto_tree_get_parent(tree);
-		/* add the MAC header info */
-		proto_item_append_text(parent_item, " - Generic MAC Header");
-		/* display MAC header message */
-		generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, WIMAX_MAC_HEADER_SIZE, "Generic MAC Header (%u bytes)", WIMAX_MAC_HEADER_SIZE);
-		/* add MAC header subtree */
-		generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
-		/* Decode and display the MAC header */
-		/* Get the first byte */
-		ubyte = tvb_get_guint8(tvb, offset);
-		/* get the Header Type (HT) */
-		/*mac_ht = ((ubyte & WIMAX_MAC_HEADER_GENERIC_HT_MASK)?1:0); XX: not used ?? */
-		/* get the Encryption Control (EC) */
-		mac_ec = ((ubyte & WIMAX_MAC_HEADER_GENERIC_EC_MASK)?1:0);
-		/* get the sub types */
-		ffb_grant_mgmt_subheader = ((ubyte & GENERIC_SUB_TYPE_0)?1:0);
-		packing_subheader = ((ubyte & GENERIC_SUB_TYPE_1)?1:0);
-		fragment_subheader = ((ubyte & GENERIC_SUB_TYPE_2)?1:0);
-		extended_type = ((ubyte & GENERIC_SUB_TYPE_3)?1:0);
-		arq_fb_payload = ((ubyte & GENERIC_SUB_TYPE_4)?1:0);
-		mesh_subheader = ((ubyte & GENERIC_SUB_TYPE_5)?1:0);
-		/* Get the 2nd byte */
-		ubyte = tvb_get_guint8(tvb, (offset+1));
-		/* get the Extended subheader field (ESF) */
-		mac_esf = ((ubyte & WIMAX_MAC_HEADER_GENERIC_ESF_MASK)?1:0);
-		/* get the CRC indicator (CI) */
-		mac_ci = ((ubyte & WIMAX_MAC_HEADER_GENERIC_CI_MASK)?1:0);
-		/* get the Encryption key sequence (EKS) */
-		/*mac_eks = ((ubyte & WIMAX_MAC_HEADER_GENERIC_EKS_MASK)>>4); XX: not used ?? */
-	}
+	/* get the parent */
+	parent_item = proto_tree_get_parent(tree);
+	/* add the MAC header info */
+	proto_item_append_text(parent_item, " - Generic MAC Header");
+	/* display MAC header message */
+	generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, WIMAX_MAC_HEADER_SIZE, "Generic MAC Header (%u bytes)", WIMAX_MAC_HEADER_SIZE);
+	/* add MAC header subtree */
+	generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
+	/* Decode and display the MAC header */
+	/* Get the first byte */
+	ubyte = tvb_get_guint8(tvb, offset);
+	/* get the Header Type (HT) */
+	/*mac_ht = ((ubyte & WIMAX_MAC_HEADER_GENERIC_HT_MASK)?1:0); XX: not used ?? */
+	/* get the Encryption Control (EC) */
+	mac_ec = ((ubyte & WIMAX_MAC_HEADER_GENERIC_EC_MASK)?1:0);
+	/* get the sub types */
+	ffb_grant_mgmt_subheader = ((ubyte & GENERIC_SUB_TYPE_0)?1:0);
+	packing_subheader = ((ubyte & GENERIC_SUB_TYPE_1)?1:0);
+	fragment_subheader = ((ubyte & GENERIC_SUB_TYPE_2)?1:0);
+	extended_type = ((ubyte & GENERIC_SUB_TYPE_3)?1:0);
+	arq_fb_payload = ((ubyte & GENERIC_SUB_TYPE_4)?1:0);
+	mesh_subheader = ((ubyte & GENERIC_SUB_TYPE_5)?1:0);
+	/* Get the 2nd byte */
+	ubyte = tvb_get_guint8(tvb, (offset+1));
+	/* get the Extended subheader field (ESF) */
+	mac_esf = ((ubyte & WIMAX_MAC_HEADER_GENERIC_ESF_MASK)?1:0);
+	/* get the CRC indicator (CI) */
+	mac_ci = ((ubyte & WIMAX_MAC_HEADER_GENERIC_CI_MASK)?1:0);
+	/* get the Encryption key sequence (EKS) */
+	/*mac_eks = ((ubyte & WIMAX_MAC_HEADER_GENERIC_EKS_MASK)>>4); XX: not used ?? */
 	/* get the MAC length; this is used even if tree is null */
 	mac_len = (tvb_get_ntohs(tvb, (offset+1)) & WIMAX_MAC_HEADER_GENERIC_LEN);
-	if (tree) {
-		/* get the CID */
-		mac_cid = tvb_get_ntohs(tvb, (offset+3));
-		/* display the Header Type (HT) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_ht, tvb, offset, 3, ENC_BIG_ENDIAN);
-		/* display the Encryption Control (EC) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_ec, tvb, offset, 3, ENC_BIG_ENDIAN);
-		/* display the sub-types (Type) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_5, tvb, offset, 3, ENC_BIG_ENDIAN);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_4, tvb, offset, 3, ENC_BIG_ENDIAN);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_3, tvb, offset, 3, ENC_BIG_ENDIAN);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_2, tvb, offset, 3, ENC_BIG_ENDIAN);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_1, tvb, offset, 3, ENC_BIG_ENDIAN);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_0, tvb, offset, 3, ENC_BIG_ENDIAN);
-		/* display the Extended sub-header Field (ESF) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_esf, tvb, offset, 3, ENC_BIG_ENDIAN);
-		/* display the CRC Indicator (CI) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_ci, tvb, offset, 3, ENC_BIG_ENDIAN);
-		/* display the Encryption Key Sequence (EKS) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_eks, tvb, offset, 3, ENC_BIG_ENDIAN);
-		/* display the reserved field */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_rsv, tvb, offset, 3, ENC_BIG_ENDIAN);
-		/* display the length */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_len, tvb, offset, 3, ENC_BIG_ENDIAN);
-		/* Decode and display the CID */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_cid, tvb, (offset+3), 2, ENC_BIG_ENDIAN);
-		/* Decode and display the HCS */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_hcs, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
-		/* get the frame length without MAC header */
-		length = mac_len - WIMAX_MAC_HEADER_SIZE;
+	/* get the CID */
+	mac_cid = tvb_get_ntohs(tvb, (offset+3));
+	/* display the Header Type (HT) */
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_ht, tvb, offset, 3, ENC_BIG_ENDIAN);
+	/* display the Encryption Control (EC) */
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_ec, tvb, offset, 3, ENC_BIG_ENDIAN);
+	/* display the sub-types (Type) */
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_type_5, tvb, offset, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_type_4, tvb, offset, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_type_3, tvb, offset, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_type_2, tvb, offset, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_type_1, tvb, offset, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_type_0, tvb, offset, 3, ENC_BIG_ENDIAN);
+	/* display the Extended sub-header Field (ESF) */
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_esf, tvb, offset, 3, ENC_BIG_ENDIAN);
+	/* display the CRC Indicator (CI) */
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_ci, tvb, offset, 3, ENC_BIG_ENDIAN);
+	/* display the Encryption Key Sequence (EKS) */
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_eks, tvb, offset, 3, ENC_BIG_ENDIAN);
+	/* display the reserved field */
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_rsv, tvb, offset, 3, ENC_BIG_ENDIAN);
+	/* display the length */
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_len, tvb, offset, 3, ENC_BIG_ENDIAN);
+	/* Decode and display the CID */
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_cid, tvb, (offset+3), 2, ENC_BIG_ENDIAN);
+	/* Decode and display the HCS */
+	proto_tree_add_item(generic_tree, hf_mac_header_generic_hcs, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+	/* get the frame length without MAC header */
+	length = mac_len - WIMAX_MAC_HEADER_SIZE;
 #ifdef DEBUG
-		proto_item_append_text(parent_item, "tvb length=%u, mac length=%u, frame length=%u,", tvb_len, mac_len, length);
+	proto_item_append_text(parent_item, "tvb length=%u, mac length=%u, frame length=%u,", tvb_len, mac_len, length);
 #endif
-		/* set the offset for the frame */
-		offset += WIMAX_MAC_HEADER_SIZE;
-		/* the processing of the subheaders is order sensitive */
-		/* do not change the order */
+	/* set the offset for the frame */
+	offset += WIMAX_MAC_HEADER_SIZE;
+	/* the processing of the subheaders is order sensitive */
+	/* do not change the order */
 
-		if (mac_ec)
+	if (mac_ec)
+	{
+		if (mac_ci)
 		{
-			if (mac_ci)
+			if (length >= (gint)sizeof(mac_crc))
 			{
-				if (length >= (gint)sizeof(mac_crc))
-				{
-					length -= (int)sizeof(mac_crc);
-				}
+				length -= (int)sizeof(mac_crc);
 			}
-			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Encrypted PDU (%u bytes)", length);
-			/* add payload subtree */
-			generic_tree = proto_item_add_subtree(generic_item, ett_mac_data_pdu_decoder);
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, length, ENC_NA);
-			goto check_crc;
 		}
+		generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Encrypted PDU (%u bytes)", length);
+		/* add payload subtree */
+		generic_tree = proto_item_add_subtree(generic_item, ett_mac_data_pdu_decoder);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, length, ENC_NA);
+		goto check_crc;
+	}
 
-		/* if Extended subheader is present */
-		if (mac_esf)
-		{	/* add the Extended subheader info */
-			proto_item_append_text(parent_item, ", Extended Subheader(s)");
-			ret_length = extended_subheader_decoder(tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+	/* if Extended subheader is present */
+	if (mac_esf)
+	{	/* add the Extended subheader info */
+		proto_item_append_text(parent_item, ", Extended Subheader(s)");
+		ret_length = extended_subheader_decoder(tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+		/* update the length and offset */
+		length -= ret_length;
+		offset += ret_length;
+	}
+	/* if Mesh subheader is present */
+	if (mesh_subheader)
+	{	/* update the info column */
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Mesh subhdr");
+		/* add the Mesh subheader info */
+		proto_item_append_text(parent_item, ", Mesh Subheader");
+		/* display Mesh subheader type */
+		generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Mesh subheader (2 bytes)");
+		/* add Mesh subheader subtree */
+		generic_tree = proto_item_add_subtree(generic_item, ett_mac_mesh_subheader_decoder);
+		/* decode and display the Mesh subheader */
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_mesh_subheader, tvb, offset, 2, ENC_BIG_ENDIAN);
+		/* update the length and offset */
+		length -= 2;
+		offset += 2;
+	}
+	/* if Fast-feedback allocation (DL) subheader or Grant management (UL) subheader is present */
+	if (ffb_grant_mgmt_subheader)
+	{	/* check if it is downlink packet */
+		if (is_down_link(pinfo))
+		{	/* Fast-feedback allocation (DL) subheader is present */
+			/* update the info column */
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Fast-fb subhdr");
+			/* add the Fast-feedback subheader info */
+			proto_item_append_text(parent_item, ", Fast-feedback Subheader");
+			/* display Fast-feedback allocation subheader type */
+			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Fast-feedback allocation (DL) subheader (%u bytes)", length);
+			/* add Fast-feedback allocation subheader subtree */
+			generic_tree = proto_item_add_subtree(generic_item, ett_mac_fast_fb_subheader_decoder);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_fast_fb_subhd_alloc_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_fast_fb_subhd_fb_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* update the length and offset */
-			length -= ret_length;
-			offset += ret_length;
+			length -= 1;
+			offset += 1;
 		}
-		/* if Mesh subheader is present */
-		if (mesh_subheader)
+		else	/* Grant management (UL) subheader is present */
 		{	/* update the info column */
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Mesh subhdr");
-			/* add the Mesh subheader info */
-			proto_item_append_text(parent_item, ", Mesh Subheader");
-			/* display Mesh subheader type */
-			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Mesh subheader (2 bytes)");
-			/* add Mesh subheader subtree */
-			generic_tree = proto_item_add_subtree(generic_item, ett_mac_mesh_subheader_decoder);
-			/* decode and display the Mesh subheader */
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_mesh_subheader, tvb, offset, 2, ENC_BIG_ENDIAN);
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Grant mgmt subhdr");
+			/* add the Grant management subheader info */
+			proto_item_append_text(parent_item, ", Grant Management Subheader");
+			/* display Grant management subheader type */
+			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, 2, "Grant management (UL) subheader (2 bytes)");
+			/* add Grant management subheader subtree */
+			generic_tree = proto_item_add_subtree(generic_item, ett_mac_grant_mgmt_subheader_decoder);
+			scheduling_service_type = get_service_type();
+			switch (scheduling_service_type)
+			{
+			case SCHEDULE_SERVICE_TYPE_UGS:
+				proto_item_append_text(generic_item, ": It looks like UGS is the correct Scheduling Service Type");
+			break;
+			case SCHEDULE_SERVICE_TYPE_EXT_RTPS:
+				proto_item_append_text(generic_item, ": It looks like Extended rtPS is the correct Scheduling Service Type");
+			break;
+			case -1:
+				proto_item_append_text(generic_item, ": Cannot determine the correct Scheduling Service Type");
+			break;
+			default:
+				proto_item_append_text(generic_item, ": It looks like Piggyback Request is the correct Scheduling Service Type");
+			break;
+			}
+			/* Create tree for Scheduling Service Type (UGS) */
+			child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ugs_tree, tvb, offset, 2, ENC_BIG_ENDIAN);
+			child_tree = proto_item_add_subtree(child_item, ett_mac_grant_mgmt_subheader_decoder);
+			proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_si, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_pm, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_fli, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_fl, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+			/* Create tree for Scheduling Service Type (Extended RTPS) */
+			child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ext_rtps_tree, tvb, offset, 2, ENC_BIG_ENDIAN);
+			child_tree = proto_item_add_subtree(child_item, ett_mac_grant_mgmt_subheader_decoder);
+			proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_pbr, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_fli, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_fl, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+			/* Create tree for Scheduling Service Type (Piggyback Request) */
+			child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ext_pbr_tree, tvb, offset, 2, ENC_BIG_ENDIAN);
+			child_tree = proto_item_add_subtree(child_item, ett_mac_grant_mgmt_subheader_decoder);
+			proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_pbr, tvb, offset, 2, ENC_BIG_ENDIAN);
+
 			/* update the length and offset */
 			length -= 2;
 			offset += 2;
 		}
-		/* if Fast-feedback allocation (DL) subheader or Grant management (UL) subheader is present */
-		if (ffb_grant_mgmt_subheader)
-		{	/* check if it is downlink packet */
-			if (is_down_link(pinfo))
-			{	/* Fast-feedback allocation (DL) subheader is present */
-				/* update the info column */
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Fast-fb subhdr");
-				/* add the Fast-feedback subheader info */
-				proto_item_append_text(parent_item, ", Fast-feedback Subheader");
-				/* display Fast-feedback allocation subheader type */
-				generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Fast-feedback allocation (DL) subheader (%u bytes)", length);
-				/* add Fast-feedback allocation subheader subtree */
-				generic_tree = proto_item_add_subtree(generic_item, ett_mac_fast_fb_subheader_decoder);
-				proto_tree_add_item(generic_tree, hf_mac_header_generic_fast_fb_subhd_alloc_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(generic_tree, hf_mac_header_generic_fast_fb_subhd_fb_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-				/* update the length and offset */
-				length -= 1;
-				offset += 1;
-			}
-			else	/* Grant management (UL) subheader is present */
-			{	/* update the info column */
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Grant mgmt subhdr");
-				/* add the Grant management subheader info */
-				proto_item_append_text(parent_item, ", Grant Management Subheader");
-				/* display Grant management subheader type */
-				generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, 2, "Grant management (UL) subheader (2 bytes)");
-				/* add Grant management subheader subtree */
-				generic_tree = proto_item_add_subtree(generic_item, ett_mac_grant_mgmt_subheader_decoder);
-				scheduling_service_type = get_service_type();
-				switch (scheduling_service_type)
-				{
-				case SCHEDULE_SERVICE_TYPE_UGS:
-					proto_item_append_text(generic_item, ": It looks like UGS is the correct Scheduling Service Type");
-				break;
-				case SCHEDULE_SERVICE_TYPE_EXT_RTPS:
-					proto_item_append_text(generic_item, ": It looks like Extended rtPS is the correct Scheduling Service Type");
-				break;
-				case -1:
-					proto_item_append_text(generic_item, ": Cannot determine the correct Scheduling Service Type");
-				break;
-				default:
-					proto_item_append_text(generic_item, ": It looks like Piggyback Request is the correct Scheduling Service Type");
-				break;
-				}
-				/* Create tree for Scheduling Service Type (UGS) */
-				child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ugs_tree, tvb, offset, 2, ENC_BIG_ENDIAN);
-				child_tree = proto_item_add_subtree(child_item, ett_mac_grant_mgmt_subheader_decoder);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_si, tvb, offset, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_pm, tvb, offset, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_fli, tvb, offset, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_fl, tvb, offset, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-				/* Create tree for Scheduling Service Type (Extended RTPS) */
-				child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ext_rtps_tree, tvb, offset, 2, ENC_BIG_ENDIAN);
-				child_tree = proto_item_add_subtree(child_item, ett_mac_grant_mgmt_subheader_decoder);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_pbr, tvb, offset, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_fli, tvb, offset, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_fl, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-				/* Create tree for Scheduling Service Type (Piggyback Request) */
-				child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ext_pbr_tree, tvb, offset, 2, ENC_BIG_ENDIAN);
-				child_tree = proto_item_add_subtree(child_item, ett_mac_grant_mgmt_subheader_decoder);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_pbr, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-				/* update the length and offset */
-				length -= 2;
-				offset += 2;
-			}
+	}
+	/* if Fragmentation subheader is present */
+	if (fragment_subheader)
+	{	/* update the info column */
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Frag subhdr");
+		/* add the Fragmentation subheader info */
+		proto_item_append_text(parent_item, ", Frag Subheader");
+		/* display Fragmentation subheader type */
+		generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, ((arq_enabled|extended_type)?2:1), "Fragmentation subheader (%u bytes)", ((arq_enabled|extended_type)?2:1));
+		/* add Fragmentation subheader subtree */
+		generic_tree = proto_item_add_subtree(generic_item, ett_mac_frag_subheader_decoder);
+		/* Get the fragment type */
+		frag_type = (tvb_get_guint8(tvb, offset) & FRAGMENT_TYPE_MASK) >> 6;
+		if (arq_fb_payload)
+		{	/* get the sequence number */
+			seq_number = (tvb_get_ntohs(tvb, offset) & SEQ_NUMBER_MASK_11) >> 3;
+			/* decode and display the header */
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_bsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
+			/* update the length and offset */
+			length -= 2;
+			offset += 2;
 		}
-		/* if Fragmentation subheader is present */
-		if (fragment_subheader)
-		{	/* update the info column */
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Frag subhdr");
-			/* add the Fragmentation subheader info */
-			proto_item_append_text(parent_item, ", Frag Subheader");
-			/* display Fragmentation subheader type */
-			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, ((arq_enabled|extended_type)?2:1), "Fragmentation subheader (%u bytes)", ((arq_enabled|extended_type)?2:1));
-			/* add Fragmentation subheader subtree */
-			generic_tree = proto_item_add_subtree(generic_item, ett_mac_frag_subheader_decoder);
-			/* Get the fragment type */
-			frag_type = (tvb_get_guint8(tvb, offset) & FRAGMENT_TYPE_MASK) >> 6;
-			if (arq_fb_payload)
+		else
+		{
+			if (extended_type)
 			{	/* get the sequence number */
 				seq_number = (tvb_get_ntohs(tvb, offset) & SEQ_NUMBER_MASK_11) >> 3;
 				/* decode and display the header */
 				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_bsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
 				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* update the length and offset */
 				length -= 2;
 				offset += 2;
 			}
 			else
+			{	/* get the sequence number */
+				seq_number = (tvb_get_guint8(tvb, offset) & SEQ_NUMBER_MASK) >> 3;
+				/* decode and display the header */
+				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv, tvb, offset, 1, ENC_BIG_ENDIAN);
+				/* update the length and offset */
+				length -= 1;
+				offset += 1;
+			}
+		}
+		frag_len = length;
+	}
+	else	/* ??? default fragment type: no fragment */
+	{
+		frag_type = NO_FRAG;
+	}
+	/* Decode the MAC payload if there is any */
+	if (mac_ci)
+	{
+		if (length < (gint)sizeof(mac_crc))
+		{	/* display error message */
+			proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Error - the frame is too short (%u bytes)", length);
+			return;
+		}
+		length -= (int)sizeof(mac_crc);
+	}
+	while (length > 0)
+	{
+		frag_len = length; /* Can be changed by Packing subhdr */
+		if (packing_subheader)
+		{
+			packing_length = decode_packing_subheader(tvb, pinfo, tree, length, offset, parent_item);
+			length -= packing_length;
+			offset += packing_length;
+			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, frag_len, "Data transport PDU (%u bytes)", frag_len);
+			/* add payload subtree */
+			generic_tree = proto_item_add_subtree(generic_item, ett_mac_data_pdu_decoder);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, frag_len, ENC_NA);
+		}
+		/* defragment first if it is fragmented */
+		if (frag_type == NO_FRAG)
+		{	/* not fragmented payload */
+			payload_tvb =  tvb_new_subset(tvb, offset, frag_len, frag_len);
+			payload_length = frag_len;
+			new_payload_len = frag_len;
+		}
+		else	/* fragmented payload */
+		{	/* add the fragment */
+			/* Make sure cid will not match a previous packet with different data */
+			for (i = 0; i < MAX_CID; i++)
 			{
-				if (extended_type)
-				{	/* get the sequence number */
-					seq_number = (tvb_get_ntohs(tvb, offset) & SEQ_NUMBER_MASK_11) >> 3;
-					/* decode and display the header */
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
-					/* update the length and offset */
-					length -= 2;
-					offset += 2;
+				if (cid_list[i] == mac_cid)
+				{
+					cid_base = i * (0xFFFFFFFF / MAX_CID);
+					break;
 				}
-				else
-				{	/* get the sequence number */
-					seq_number = (tvb_get_guint8(tvb, offset) & SEQ_NUMBER_MASK) >> 3;
-					/* decode and display the header */
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn, tvb, offset, 1, ENC_BIG_ENDIAN);
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv, tvb, offset, 1, ENC_BIG_ENDIAN);
-					/* update the length and offset */
-					length -= 1;
-					offset += 1;
+				if (cid_list[i] == 0)
+				{
+					cid_list[i] = mac_cid;
+					cid_base = i * (0xFFFFFFFF / MAX_CID);
+					break;
 				}
 			}
-			frag_len = length;
-		}
-		else	/* ??? default fragment type: no fragment */
-		{
-			frag_type = NO_FRAG;
-		}
-		/* Decode the MAC payload if there is any */
-		if (mac_ci)
-		{
-			if (length < (gint)sizeof(mac_crc))
-			{	/* display error message */
-				proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Error - the frame is too short (%u bytes)", length);
-				return;
-			}
-			length -= (int)sizeof(mac_crc);
-		}
-		while (length > 0)
-		{
-			frag_len = length; /* Can be changed by Packing subhdr */
-			if (packing_subheader)
+			cid_index = i;
+			while (pinfo->fd->num > cid_adj_array_size)
 			{
-				packing_length = decode_packing_subheader(tvb, pinfo, tree, length, offset, parent_item);
-				length -= packing_length;
-				offset += packing_length;
-				generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, frag_len, "Data transport PDU (%u bytes)", frag_len);
-				/* add payload subtree */
-				generic_tree = proto_item_add_subtree(generic_item, ett_mac_data_pdu_decoder);
-				proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, frag_len, ENC_NA);
+				cid_adj_array_size += 1024;
+				cid_adj_array = (guint *)g_realloc(cid_adj_array, (int)sizeof(guint) * cid_adj_array_size);
+				frag_num_array = (guint8 *)g_realloc(frag_num_array, (int)sizeof(guint8) * cid_adj_array_size);
+				/* Clear the added memory */
+				memset(&cid_adj_array[cid_adj_array_size - 1024], 0, (int)sizeof(guint) * 1024);
 			}
-			/* defragment first if it is fragmented */
-			if (frag_type == NO_FRAG)
-			{	/* not fragmented payload */
-				payload_tvb =  tvb_new_subset(tvb, offset, frag_len, frag_len);
-				payload_length = frag_len;
-				new_payload_len = frag_len;
+			if (first_gmh)
+			{
+				/* New cid_adjust for each packet with fragment(s) */
+				cid_adjust[cid_index] += cid_vernier[cid_index];
+				/* cid_vernier must always be 0 at start of packet. */
+				cid_vernier[cid_index] = 0;
 			}
-			else	/* fragmented payload */
-			{	/* add the fragment */
-				/* Make sure cid will not match a previous packet with different data */
-				for (i = 0; i < MAX_CID; i++)
-				{
-					if (cid_list[i] == mac_cid)
-					{
-						cid_base = i * (0xFFFFFFFF / MAX_CID);
-						break;
-					}
-					if (cid_list[i] == 0)
-					{
-						cid_list[i] = mac_cid;
-						cid_base = i * (0xFFFFFFFF / MAX_CID);
-						break;
-					}
-				}
-				cid_index = i;
-				while (pinfo->fd->num > cid_adj_array_size)
-				{
-					cid_adj_array_size += 1024;
-					cid_adj_array = (guint *)g_realloc(cid_adj_array, (int)sizeof(guint) * cid_adj_array_size);
-					frag_num_array = (guint8 *)g_realloc(frag_num_array, (int)sizeof(guint8) * cid_adj_array_size);
-					/* Clear the added memory */
-					memset(&cid_adj_array[cid_adj_array_size - 1024], 0, (int)sizeof(guint) * 1024);
-				}
+			/* Create artificial sequence numbers. */
+			frag_number[cid_index]++;
+			if (frag_type == FIRST_FRAG)
+			{
+				frag_number[cid_index] = 0;
+			}
+			if (cid_adj_array[pinfo->fd->num])
+			{
+				/* We apparently just clicked on the packet again. */
+				cid_adjust[cid_index] = cid_adj_array[pinfo->fd->num];
+				/* Set the frag_number at start of packet. */
 				if (first_gmh)
 				{
-					/* New cid_adjust for each packet with fragment(s) */
-					cid_adjust[cid_index] += cid_vernier[cid_index];
-					/* cid_vernier must always be 0 at start of packet. */
-					cid_vernier[cid_index] = 0;
+					frag_number[cid_index] = frag_num_array[pinfo->fd->num];
 				}
-				/* Create artificial sequence numbers. */
-				frag_number[cid_index]++;
-				if (frag_type == FIRST_FRAG)
+			} else {
+				/* Save for next time we click on this packet. */
+				cid_adj_array[pinfo->fd->num] = cid_adjust[cid_index];
+				if (first_gmh)
 				{
-					frag_number[cid_index] = 0;
-				}
-				if (cid_adj_array[pinfo->fd->num])
-				{
-					/* We apparently just clicked on the packet again. */
-					cid_adjust[cid_index] = cid_adj_array[pinfo->fd->num];
-					/* Set the frag_number at start of packet. */
-					if (first_gmh)
-					{
-						frag_number[cid_index] = frag_num_array[pinfo->fd->num];
-					}
-				} else {
-					/* Save for next time we click on this packet. */
-					cid_adj_array[pinfo->fd->num] = cid_adjust[cid_index];
-					if (first_gmh)
-					{
-						frag_num_array[pinfo->fd->num] = frag_number[cid_index];
-					}
-				}
-				/* Reset in case we stay in this while() loop to finish the packet. */
-				first_gmh = FALSE;
-				cid = cid_base + cid_adjust[cid_index] + cid_vernier[cid_index];
-				/* Save address pointers. */
-				save_src = pinfo->src;
-				save_dst = pinfo->dst;
-				/* Use dl_src and dl_dst in defragmentation. */
-				pinfo->src = pinfo->dl_src;
-				pinfo->dst = pinfo->dl_dst;
-				payload_frag = fragment_add_seq(&payload_reassembly_table, tvb, offset, pinfo, cid, NULL, frag_number[cid_index], frag_len, ((frag_type==LAST_FRAG)?0:1), 0);
-				/* Restore address pointers. */
-				pinfo->src = save_src;
-				pinfo->dst = save_dst;
-				if (frag_type == LAST_FRAG)
-				{
-					/* Make sure fragment_add_seq() sees next one as a new frame. */
-					cid_vernier[cid_index]++;
-				}
-				/* Don't show reassembled packet until last fragment. */
-				proto_tree_add_text(tree, tvb, offset, frag_len, "Payload Fragment (%d bytes)", frag_len);
-
-				if (payload_frag && frag_type == LAST_FRAG)
-				{	/* defragmented completely */
-					payload_length = payload_frag->len;
-					/* create the new tvb for defragmented frame */
-					payload_tvb = tvb_new_chain(tvb, payload_frag->tvb_data);
-					/* add the defragmented data to the data source list */
-					add_new_data_source(pinfo, payload_tvb, "Reassembled WiMax MAC payload");
-					/* save the tvb langth */
-					new_payload_len = payload_length;
-				}
-				else /* error or defragment is not complete */
-				{
-					payload_tvb = NULL;
-#ifdef DEBUG	/* for debug only */
-/*					if (frag_type == LAST_FRAG)*/
-					{	/* error */
-						/* update the info column */
-						col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Dropped the incomplete frame");
-					}
-#endif
-#if 0
-					if (frag_type == FIRST_FRAG)
-					{	/* Set up to decode the first fragment (even though next fragment not read yet) */
-						payload_tvb =  tvb_new_subset(tvb, offset, length, length);
-						payload_length = length;
-						frag_len = length;
-					}
-#endif
+					frag_num_array[pinfo->fd->num] = frag_number[cid_index];
 				}
 			}
-			/* process the defragmented payload */
-			if (payload_tvb)
-			{	/* reset the payload_offset */
-				payload_offset = 0;
-				/* process the payload */
-				if (payload_length > 0)
-				{
-					if (!new_payload_len)
-						continue;
-					/* if ARQ Feedback payload is present, it should be the first SDU */
-					if (first_arq_fb_payload && arq_fb_payload)
-					{	/* decode and display the ARQ feedback payload */
-						first_arq_fb_payload = FALSE;
-#ifndef DEBUG
-						arq_feedback_payload_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, generic_tree, parent_item);
-#else
-						ret_length = arq_feedback_payload_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, generic_tree, parent_item);
-						if (ret_length != new_payload_len)
-						{	/* error */
-							/* update the info column */
-							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "incorrect ARQ fb payload size");
-						}
+			/* Reset in case we stay in this while() loop to finish the packet. */
+			first_gmh = FALSE;
+			cid = cid_base + cid_adjust[cid_index] + cid_vernier[cid_index];
+			/* Save address pointers. */
+			save_src = pinfo->src;
+			save_dst = pinfo->dst;
+			/* Use dl_src and dl_dst in defragmentation. */
+			pinfo->src = pinfo->dl_src;
+			pinfo->dst = pinfo->dl_dst;
+			payload_frag = fragment_add_seq(&payload_reassembly_table, tvb, offset, pinfo, cid, NULL, frag_number[cid_index], frag_len, ((frag_type==LAST_FRAG)?0:1), 0);
+			/* Restore address pointers. */
+			pinfo->src = save_src;
+			pinfo->dst = save_dst;
+			if (frag_type == LAST_FRAG)
+			{
+				/* Make sure fragment_add_seq() sees next one as a new frame. */
+				cid_vernier[cid_index]++;
+			}
+			/* Don't show reassembled packet until last fragment. */
+			proto_tree_add_text(tree, tvb, offset, frag_len, "Payload Fragment (%d bytes)", frag_len);
+
+			if (payload_frag && frag_type == LAST_FRAG)
+			{	/* defragmented completely */
+				payload_length = payload_frag->len;
+				/* create the new tvb for defragmented frame */
+				payload_tvb = tvb_new_chain(tvb, payload_frag->tvb_data);
+				/* add the defragmented data to the data source list */
+				add_new_data_source(pinfo, payload_tvb, "Reassembled WiMax MAC payload");
+				/* save the tvb langth */
+				new_payload_len = payload_length;
+			}
+			else /* error or defragment is not complete */
+			{
+				payload_tvb = NULL;
+#ifdef DEBUG	/* for debug only */
+/*				if (frag_type == LAST_FRAG)*/
+				{	/* error */
+					/* update the info column */
+					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Dropped the incomplete frame");
+				}
 #endif
+#if 0
+				if (frag_type == FIRST_FRAG)
+				{	/* Set up to decode the first fragment (even though next fragment not read yet) */
+					payload_tvb =  tvb_new_subset(tvb, offset, length, length);
+					payload_length = length;
+					frag_len = length;
+				}
+#endif
+			}
+		}
+		/* process the defragmented payload */
+		if (payload_tvb)
+		{	/* reset the payload_offset */
+			payload_offset = 0;
+			/* process the payload */
+			if (payload_length > 0)
+			{
+				if (!new_payload_len)
+					continue;
+				/* if ARQ Feedback payload is present, it should be the first SDU */
+				if (first_arq_fb_payload && arq_fb_payload)
+				{	/* decode and display the ARQ feedback payload */
+					first_arq_fb_payload = FALSE;
+#ifndef DEBUG
+					arq_feedback_payload_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, generic_tree, parent_item);
+#else
+					ret_length = arq_feedback_payload_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, generic_tree, parent_item);
+					if (ret_length != new_payload_len)
+					{	/* error */
+						/* update the info column */
+						col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "incorrect ARQ fb payload size");
 					}
-					else	/* decode SDUs */
-					{	/* check the payload type */
-						if (mac_cid == cid_padding)
-						{	/* update the info column */
-							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Padding CID");
-							/* get the parent */
-							generic_item = proto_tree_get_parent(tree);
-							/* add the MAC header info */
-							proto_item_append_text(generic_item, ", Padding CID");
-							/* display padding CID */
-							generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, payload_tvb, payload_offset, new_payload_len, "Padding CID (%u bytes)", new_payload_len);
-							/* add payload subtree */
-							generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
-							/* display the Padding CID payload  in Hex */
-							proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_payload_len, ENC_NA);
+#endif
+				}
+				else	/* decode SDUs */
+				{	/* check the payload type */
+					if (mac_cid == cid_padding)
+					{	/* update the info column */
+						col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Padding CID");
+						/* get the parent */
+						generic_item = proto_tree_get_parent(tree);
+						/* add the MAC header info */
+						proto_item_append_text(generic_item, ", Padding CID");
+						/* display padding CID */
+						generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, payload_tvb, payload_offset, new_payload_len, "Padding CID (%u bytes)", new_payload_len);
+						/* add payload subtree */
+						generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
+						/* display the Padding CID payload  in Hex */
+						proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_payload_len, ENC_NA);
+					}
+					else if ((mac_cid <= (2 * global_cid_max_basic)) || (mac_cid == cid_aas_ranging)
+						|| (mac_cid >= cid_normal_multicast))
+					{	/* MAC management message */
+						call_dissector(mac_mgmt_msg_decoder_handle, tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, tree);
+					}
+					else /* data transport PDU */
+					{	/* update the info column */
+						col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Data");
+						/* add the MAC payload info */
+						proto_item_append_text(parent_item, ", Data");
+						/* display payload info */
+						if ((new_payload_len + payload_offset) > payload_length)
+						{
+							new_tvb_len = new_payload_len - payload_offset;
 						}
-						else if ((mac_cid <= (2 * global_cid_max_basic)) || (mac_cid == cid_aas_ranging)
-							|| (mac_cid >= cid_normal_multicast))
-						{	/* MAC management message */
-							call_dissector(mac_mgmt_msg_decoder_handle, tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, tree);
+						else
+						{
+							new_tvb_len = new_payload_len;
 						}
-						else /* data transport PDU */
-						{	/* update the info column */
-							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Data");
-							/* add the MAC payload info */
-							proto_item_append_text(parent_item, ", Data");
-							/* display payload info */
-							if ((new_payload_len + payload_offset) > payload_length)
+						if (frag_type == LAST_FRAG || frag_type == NO_FRAG)
+						{
+							if (frag_type == NO_FRAG)
 							{
-								new_tvb_len = new_payload_len - payload_offset;
+								str_ptr = data_str;
+								new_payload_len = frag_len;
 							}
 							else
 							{
-								new_tvb_len = new_payload_len;
+								str_ptr = reassem_str;
 							}
-							if (frag_type == LAST_FRAG || frag_type == NO_FRAG)
+							data_pdu_tvb = tvb_new_subset(payload_tvb, payload_offset, new_tvb_len, new_tvb_len);
+							generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, data_pdu_tvb, payload_offset, new_payload_len, str_ptr, new_payload_len);
+							/* add payload subtree */
+							generic_tree = proto_item_add_subtree(generic_item, ett_mac_data_pdu_decoder);
+							/* check the data type */
+							if (tvb_get_guint8(payload_tvb, payload_offset) == IP_HEADER_BYTE)
 							{
-								if (frag_type == NO_FRAG)
-								{
-									str_ptr = data_str;
-									new_payload_len = frag_len;
-								}
-								else
-								{
-									str_ptr = reassem_str;
-								}
-								{
-								data_pdu_tvb = tvb_new_subset(payload_tvb, payload_offset, new_tvb_len, new_tvb_len);
-								generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, data_pdu_tvb, payload_offset, new_payload_len, str_ptr, new_payload_len);
-								/* add payload subtree */
-								generic_tree = proto_item_add_subtree(generic_item, ett_mac_data_pdu_decoder);
-								/* check the data type */
-								if (tvb_get_guint8(payload_tvb, payload_offset) == IP_HEADER_BYTE)
-								{
-									if (mac_ip_handle)
-										call_dissector(mac_ip_handle, tvb_new_subset(payload_tvb, payload_offset, new_tvb_len, new_tvb_len), pinfo, generic_tree);
-									else	/* display the Generic MAC Header in Hex */
-										proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_tvb_len, ENC_NA);
-								}
+								if (mac_ip_handle)
+									call_dissector(mac_ip_handle, tvb_new_subset(payload_tvb, payload_offset, new_tvb_len, new_tvb_len), pinfo, generic_tree);
 								else	/* display the Generic MAC Header in Hex */
 									proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_tvb_len, ENC_NA);
-								}
 							}
+							else	/* display the Generic MAC Header in Hex */
+								proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_tvb_len, ENC_NA);
 						}
 					}
-					payload_length -= new_payload_len;
-				}	/* end of while loop */
-			}	/* end of payload processing */
-			length -= frag_len;
-			offset += frag_len;
-		} /* end of payload decoding */
-	}
+				}
+				payload_length -= new_payload_len;
+			}	/* end of while loop */
+		}	/* end of payload processing */
+		length -= frag_len;
+		offset += frag_len;
+	} /* end of payload decoding */
 
 check_crc:
 	/* Decode and display the CRC if it is present */
@@ -1238,7 +1229,7 @@ check_crc:
 			generic_item = proto_tree_add_item(tree, hf_mac_header_generic_crc, tvb, mac_len - (int)sizeof(mac_crc), (int)sizeof(mac_crc), ENC_BIG_ENDIAN);
 			if (mac_crc != calculated_crc)
 			{
-					proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
+				proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
 			}
 		}
 		else
