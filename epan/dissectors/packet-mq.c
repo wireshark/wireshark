@@ -271,6 +271,14 @@ static int hf_mq_reset_seqnum = -1;
 static int hf_mq_status_length = -1;
 static int hf_mq_status_code = -1;
 static int hf_mq_status_value = -1;
+
+static int hf_mq_caut_structid = -1;
+static int hf_mq_caut_unknown1 = -1;
+static int hf_mq_caut_unknown2 = -1;
+static int hf_mq_caut_unknown3 = -1;
+static int hf_mq_caut_unknown4 = -1;
+static int hf_mq_caut_unknown5 = -1;
+
 static int hf_mq_od_structid = -1;
 static int hf_mq_od_version = -1;
 static int hf_mq_od_objecttype = -1;
@@ -497,7 +505,7 @@ static int hf_mq_msgreq_ccsid = -1;
 static int hf_mq_msgreq_encoding = -1;
 static int hf_mq_msgreq_unknown6 = -1;
 static int hf_mq_msgreq_unknown7 = -1;
-static int hf_mq_msgreq_unknown8 = -1;
+static int hf_mq_msgreq_xfldflag = -1;
 static int hf_mq_msgreq_msgid = -1;
 static int hf_mq_msgreq_mqmid = -1;
 
@@ -522,14 +530,15 @@ static int hf_mq_msgasy_strPad = -1;
 
 static int hf_mq_notif_vers = -1;
 static int hf_mq_notif_handle = -1;
-static int hf_mq_notif_unknown3 = -1;
-static int hf_mq_notif_unknown4 = -1;
+static int hf_mq_notif_code = -1;
+static int hf_mq_notif_mqrc = -1;
 
 static gint ett_mq = -1;
 static gint ett_mq_tsh = -1;
 static gint ett_mq_tsh_tcf = -1;
 static gint ett_mq_api = -1;
 static gint ett_mq_socket = -1;
+static gint ett_mq_caut = -1;
 static gint ett_mq_msh = -1;
 static gint ett_mq_xqh = -1;
 static gint ett_mq_id = -1;
@@ -619,6 +628,7 @@ static reassembly_table mq_reassembly_table;
 #define MQ_STRUCTID_RMH           0x524D4820
 #define MQ_STRUCTID_TM            0x544D2020
 #define MQ_STRUCTID_TMC2          0x544D4332
+#define MQ_STRUCTID_CAUT          0x43415554
 
 #define MQ_STRUCTID_TSH           0x54534820
 #define MQ_STRUCTID_TSHC          0x54534843
@@ -648,6 +658,7 @@ static reassembly_table mq_reassembly_table;
 #define MQ_STRUCTID_RMH_EBCDIC    0xD9D4C840
 #define MQ_STRUCTID_TM_EBCDIC     0xE3D44040
 #define MQ_STRUCTID_TMC2_EBCDIC   0xE3D4C3F2
+#define MQ_STRUCTID_CAUT_EBCDIC   0xC3C1E4E3
 
 #define MQ_STRUCTID_TSH_EBCDIC    0xE3E2C840
 #define MQ_STRUCTID_TSHC_EBCDIC   0xE3E2C843
@@ -906,6 +917,7 @@ static reassembly_table mq_reassembly_table;
 #define MQ_TEXT_ID    "Initial Data"
 #define MQ_TEXT_UID   "User Id Data"
 #define MQ_TEXT_MSH   "Message Segment Header"
+#define MQ_TEXT_CAUT  "Connection Authority"
 #define MQ_TEXT_CONN  "MQCONN"
 #define MQ_TEXT_INQ   "MQINQ/MQSET"
 #define MQ_TEXT_PUT   "MQPUT/MQGET"
@@ -965,6 +977,21 @@ static reassembly_table mq_reassembly_table;
 #define MQ_TEXT_OR   "Object Record"
 #define MQ_TEXT_PMR  "Put Message Record"
 #define MQ_TEXT_RR   "Response Record"
+
+/* Notification Code */
+#define MQ_NOTIF_COMPLETED   12 /* 0x0c */
+#define MQ_NOTIF_FAILED      14 /* 0x0e */
+#define MQ_NOTIF_NODATA      11 /* 0x0b */
+
+/* Msg Request Extended Field present */
+#define MQ_MSGREQ_MSGID_PRESENT 0x00000001
+#define MQ_MSGREQ_MQMID_PRESENT 0x00000002
+
+DEF_VALSB(notifcode)
+	DEF_VALS2(NOTIF_COMPLETED, "Completed"),
+	DEF_VALS2(NOTIF_FAILED, "Failed"),
+	DEF_VALS2(NOTIF_NODATA, "No Data"),
+DEF_VALSE;
 
 DEF_VALSB(opcode)
 	DEF_VALS2(TST_INITIAL, "INITIAL_DATA"),
@@ -1122,6 +1149,7 @@ DEF_VALSB(structid)
 	DEF_VALS2(STRUCTID_RMH, MQ_TEXT_RMH),
 	DEF_VALS2(STRUCTID_TM, MQ_TEXT_TM),
 	DEF_VALS2(STRUCTID_TMC2, MQ_TEXT_TMC2),
+	DEF_VALS2(STRUCTID_CAUT, MQ_TEXT_CAUT),
 	DEF_VALS2(STRUCTID_TSH, MQ_TEXT_TSH),
 	DEF_VALS2(STRUCTID_TSHC, MQ_TEXT_TSHC),
 	DEF_VALS2(STRUCTID_TSHM, MQ_TEXT_TSHM),
@@ -1159,6 +1187,7 @@ DEF_VALSB(structid)
 	DEF_VALS2(STRUCTID_RMH_EBCDIC, MQ_TEXT_RMH),
 	DEF_VALS2(STRUCTID_TM_EBCDIC, MQ_TEXT_TM),
 	DEF_VALS2(STRUCTID_TMC2_EBCDIC, MQ_TEXT_TMC2),
+	DEF_VALS2(STRUCTID_CAUT_EBCDIC, MQ_TEXT_CAUT),
 	DEF_VALS2(STRUCTID_TSH_EBCDIC, MQ_TEXT_TSH),
 	DEF_VALS2(STRUCTID_TSHC_EBCDIC, MQ_TEXT_TSHC),
 	DEF_VALS2(STRUCTID_TSHM_EBCDIC, MQ_TEXT_TSHM),
@@ -2060,7 +2089,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8  p_mq_parm->mq_ctlf     = 0;
 	guint8  p_mq_parm->mq_opcode   = 0;
 	*/
-	
+
 	p_mq_parm = wmem_new0(wmem_packet_scope(), mq_parm_t);
 
 	p_mq_parm->mq_strucID = MQ_STRUCTID_NULL;
@@ -2091,7 +2120,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			gint iSizeTSH = 28;
 			gint iSizeMultiplexFields = 0;
 
-			if ((p_mq_parm->mq_strucID & MQ_MASK_TSHx)==MQ_STRUCTID_TSHx_EBCDIC) 
+			if ((p_mq_parm->mq_strucID & MQ_MASK_TSHx)==MQ_STRUCTID_TSHx_EBCDIC)
 			{
 				bEBCDIC = TRUE;
 				p_mq_parm->mq_str_enc = ENC_EBCDIC|ENC_NA;
@@ -2220,12 +2249,12 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					if ((p_mq_parm->mq_strucID == MQ_STRUCTID_MSH || p_mq_parm->mq_strucID == MQ_STRUCTID_MSH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 20)
 					{
-						gint iSizeMSH = 20;
+						gint iSize = 20;
 						iSizePayload = tvb_get_guint32_endian(tvb, offset + 16, p_mq_parm->mq_int_enc);
 						bPayload = TRUE;
 						if (tree)
 						{
-							ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeMSH, MQ_TEXT_MSH);
+							ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSize, MQ_TEXT_MSH);
 							mq_tree = proto_item_add_subtree(ti, ett_mq_msh);
 
 							proto_tree_add_item(mq_tree, hf_mq_msh_structid, tvb, offset + 0, 4, p_mq_parm->mq_str_enc);
@@ -2234,7 +2263,25 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							proto_tree_add_item(mq_tree, hf_mq_msh_unknown1, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
 							proto_tree_add_item(mq_tree, hf_mq_msh_msglength, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
 						}
-						offset += iSizeMSH;
+						offset += iSize;
+					}
+					else if (p_mq_parm->mq_opcode == MQ_TST_CONAUTH_INFO && tvb_length_remaining(tvb, offset) >= 20)
+					{
+						gint iSize = 24;
+						if (tree)
+						{
+							ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSize, MQ_TEXT_CAUT);
+							mq_tree = proto_item_add_subtree(ti, ett_mq_caut);
+
+							proto_tree_add_item(mq_tree, hf_mq_caut_structid, tvb, offset, 4, p_mq_parm->mq_str_enc);
+							proto_tree_add_item(mq_tree, hf_mq_caut_unknown1, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
+							proto_tree_add_item(mq_tree, hf_mq_caut_unknown2, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
+							proto_tree_add_item(mq_tree, hf_mq_caut_unknown3, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
+							proto_tree_add_item(mq_tree, hf_mq_caut_unknown4, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
+							proto_tree_add_item(mq_tree, hf_mq_caut_unknown5, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
+						}
+						offset += iSize;
+						p_mq_parm->mq_strucID = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 					}
 					else if (p_mq_parm->mq_opcode == MQ_TST_SOCKET_ACTION && tvb_length_remaining(tvb, offset) >= 20)
 					{
@@ -2473,8 +2520,8 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 							proto_tree_add_item(mq_tree, hf_mq_notif_vers, tvb, offset, 4, p_mq_parm->mq_int_enc);
 							proto_tree_add_item(mq_tree, hf_mq_notif_handle, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
-							proto_tree_add_item(mq_tree, hf_mq_notif_unknown3, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
-							proto_tree_add_item(mq_tree, hf_mq_notif_unknown4, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
+							proto_tree_add_item(mq_tree, hf_mq_notif_code, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
+							proto_tree_add_item(mq_tree, hf_mq_notif_mqrc, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
 						}
 						offset+=16;
 						p_mq_parm->mq_strucID = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
@@ -2521,16 +2568,17 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								proto_tree_add_item(mq_tree, hf_mq_msgreq_encoding, tvb, offset + 48,  4, p_mq_parm->mq_int_enc);
 								proto_tree_add_item(mq_tree, hf_mq_msgreq_unknown6, tvb, offset + 52,  4, p_mq_parm->mq_int_enc);
 								proto_tree_add_item(mq_tree, hf_mq_msgreq_unknown7, tvb, offset + 56,  4, p_mq_parm->mq_int_enc);
-								proto_tree_add_item(mq_tree, hf_mq_msgreq_unknown8, tvb, offset + 60,  4, p_mq_parm->mq_int_enc);
+								proto_tree_add_item(mq_tree, hf_mq_msgreq_xfldflag, tvb, offset + 60,  4, p_mq_parm->mq_int_enc);
 								iExt=tvb_get_guint32_endian(tvb, offset + 60, p_mq_parm->mq_int_enc);
-								if (iExt>=2)
+
+								if (iExt & MQ_MSGREQ_MSGID_PRESENT)
 								{
-									proto_tree_add_item(mq_tree, hf_mq_msgreq_msgid   , tvb, offset + 64, 24, p_mq_parm->mq_str_enc);
+									proto_tree_add_item(mq_tree, hf_mq_msgreq_msgid   , tvb, offset + 64 + xOfs, 24, p_mq_parm->mq_str_enc);
 									xOfs+=24;
 								}
-								if (iExt>=3)
+								if (iExt & MQ_MSGREQ_MQMID_PRESENT)
 								{
-									proto_tree_add_item(mq_tree, hf_mq_msgreq_mqmid   , tvb, offset + 88, 24, p_mq_parm->mq_str_enc);
+									proto_tree_add_item(mq_tree, hf_mq_msgreq_mqmid   , tvb, offset + 64 + xOfs, 24, p_mq_parm->mq_str_enc);
 									xOfs+=24;
 								}
 							}
@@ -3159,7 +3207,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 							/*
 							Removed as steted in macro PROTO_ITEM_SET_HIDDEN
-							 *HIDING PROTOCOL FIELDS IS DEPRECATED, IT'S CONSIDERED TO BE BAD GUI DESIGN! 
+							 *HIDING PROTOCOL FIELDS IS DEPRECATED, IT'S CONSIDERED TO BE BAD GUI DESIGN!
 							if (tMsgProps.iOffsetFormat != 0)
 							{
 								guint8* sFormat = NULL;
@@ -3245,7 +3293,7 @@ static void reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_length(tvb) >= 28)
 	{
 		mq_parm_t mq_parm;
-		
+
 		mq_parm.mq_strucID = tvb_get_ntohl(tvb, 0);
 		mq_parm.mq_ccsid   = 0;
 		mq_parm.mq_ctlf    = 0;
@@ -3499,8 +3547,8 @@ void proto_register_mq(void)
 		{ &hf_mq_tsh_mqseglen ,{"MQSegmLen.", "mq.tsh.seglength", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH MQ Segment length", HFILL }},
 		{ &hf_mq_tsh_convid   ,{"Convers ID", "mq.tsh.convid", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Conversation ID", HFILL }},
 		{ &hf_mq_tsh_requestid,{"Request ID", "mq.tsh.requestid", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Request ID", HFILL }},
-		{ &hf_mq_tsh_byteorder,{"Byte order", "mq.tsh.byteorder", FT_UINT8, BASE_HEX, VALS(mq_byteorder_vals), 0x0, "TSH Byte order", HFILL }},
-		{ &hf_mq_tsh_opcode   ,{"SegmType..", "mq.tsh.type", FT_UINT8, BASE_HEX, VALS(mq_opcode_vals), 0x0, "TSH MQ segment type", HFILL }},
+		{ &hf_mq_tsh_byteorder,{"Byte order", "mq.tsh.byteorder", FT_UINT8, BASE_HEX, VALS(GET_VALSV(byteorder)), 0x0, "TSH Byte order", HFILL }},
+		{ &hf_mq_tsh_opcode   ,{"SegmType..", "mq.tsh.type", FT_UINT8, BASE_HEX, VALS(GET_VALSV(opcode)), 0x0, "TSH MQ segment type", HFILL }},
 		{ &hf_mq_tsh_ctlflgs1 ,{"Ctl Flag 1", "mq.tsh.cflags1", FT_UINT8, BASE_HEX, NULL, 0x0, "TSH Control flags 1", HFILL }},
 		{ &hf_mq_tsh_ctlflgs2 ,{"Ctl Flag 2", "mq.tsh.cflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "TSH Control flags 2", HFILL }},
 		{ &hf_mq_tsh_luwid    ,{"LUW Ident.", "mq.tsh.luwid", FT_BYTES, BASE_NONE, NULL, 0x0, "TSH logical unit of work identifier", HFILL }},
@@ -3518,8 +3566,8 @@ void proto_register_mq(void)
 		{ &hf_mq_tsh_tcf_dlq       ,{"DLQ used...", "mq.tsh.tcf.dlq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_DLQ_USED, "TSH TCF DLQ used", HFILL }},
 
 		{ &hf_mq_api_replylen ,{"Reply len..", "mq.api.replylength", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reply length", HFILL }},
-		{ &hf_mq_api_compcode ,{"Compl Code.", "mq.api.completioncode", FT_UINT32, BASE_DEC, VALS(mq_mqcc_vals), 0x0, "API Completion code", HFILL }},
-		{ &hf_mq_api_reascode ,{"Reason Code", "mq.api.reasoncode", FT_UINT32, BASE_DEC, VALS(mq_mqrc_vals), 0x0, "API Reason code", HFILL }},
+		{ &hf_mq_api_compcode ,{"Compl Code.", "mq.api.completioncode", FT_UINT32, BASE_DEC, VALS(GET_VALSV(mqcc)), 0x0, "API Completion code", HFILL }},
+		{ &hf_mq_api_reascode ,{"Reason Code", "mq.api.reasoncode", FT_UINT32, BASE_DEC, VALS(GET_VALSV(mqrc)), 0x0, "API Reason code", HFILL }},
 		{ &hf_mq_api_objecthdl,{"Object Hdl.", "mq.api.hobj", FT_UINT32, BASE_HEX, NULL, 0x0, "API Object handle", HFILL }},
 
 		{ &hf_mq_socket_unknown1,{"unknown1", "mq.socket.unknown1", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Socket unknown1", HFILL }},
@@ -3527,6 +3575,13 @@ void proto_register_mq(void)
 		{ &hf_mq_socket_unknown3,{"unknown3", "mq.socket.unknown3", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Socket unknown3", HFILL }},
 		{ &hf_mq_socket_unknown4,{"unknown4", "mq.socket.unknown4", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Socket unknown4", HFILL }},
 		{ &hf_mq_socket_unknown5,{"unknown5", "mq.socket.unknown5", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Socket unknown5", HFILL }},
+
+		{ &hf_mq_caut_structid ,{"structid", "mq.caut.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_mq_caut_unknown1 ,{"unknown1", "mq.caut.unknown1", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT unknown1", HFILL }},
+		{ &hf_mq_caut_unknown2 ,{"unknown2", "mq.caut.unknown2", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT unknown2", HFILL }},
+		{ &hf_mq_caut_unknown3 ,{"unknown3", "mq.caut.unknown3", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT unknown3", HFILL }},
+		{ &hf_mq_caut_unknown4 ,{"unknown4", "mq.caut.unknown4", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT unknown4", HFILL }},
+		{ &hf_mq_caut_unknown5 ,{"unknown5", "mq.caut.unknown5", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT unknown5", HFILL }},
 
 		{ &hf_mq_id_icf_msgseq  ,{"Message sequence..", "mq.id.icf.msgseq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF_MSG_SEQ, "ID ICF Message sequence", HFILL }},
 		{ &hf_mq_id_icf_convcap ,{"Conversion capable", "mq.id.icf.convcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF_CONVERSION_CAPABLE, "ID ICF Conversion capable", HFILL }},
@@ -3593,12 +3648,12 @@ void proto_register_mq(void)
 		{ &hf_mq_uid_longuserid,{"Long UID", "mq.uid.longuserid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "UID long user id", HFILL }},
 
 		{ &hf_mq_sidlen        ,{"SID Len.", "mq.uid.sidlen", FT_UINT8, BASE_DEC, NULL, 0x0, "Sid Len", HFILL }},
-		{ &hf_mq_sidtyp        ,{"SIDType.", "mq.uid.sidtyp", FT_UINT8, BASE_DEC, VALS(&mq_sidtype_vals), 0x0, "Sid Typ", HFILL }},
+		{ &hf_mq_sidtyp        ,{"SIDType.", "mq.uid.sidtyp", FT_UINT8, BASE_DEC, VALS(GET_VALSV(sidtype)), 0x0, "Sid Typ", HFILL }},
 		{ &hf_mq_securityid    ,{"SecurID.", "mq.uid.securityid", FT_BYTES, BASE_NONE, NULL, 0x0, "Security ID", HFILL }},
 
 		{ &hf_mq_conn_QMgr     ,{"QMgr....", "mq.conn.qm", FT_STRINGZ, BASE_NONE, NULL, 0x0, "CONN queue manager", HFILL }},
 		{ &hf_mq_conn_appname  ,{"ApplName", "mq.conn.appname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "CONN application name", HFILL }},
-		{ &hf_mq_conn_apptype  ,{"ApplType", "mq.conn.apptype", FT_INT32, BASE_DEC, VALS(mq_mqat_vals), 0x0, "CONN application type", HFILL }},
+		{ &hf_mq_conn_apptype  ,{"ApplType", "mq.conn.apptype", FT_INT32, BASE_DEC, VALS(GET_VALSV(mqat)), 0x0, "CONN application type", HFILL }},
 		{ &hf_mq_conn_acttoken ,{"AccntTok", "mq.conn.acttoken", FT_BYTES, BASE_NONE, NULL, 0x0, "CONN accounting token", HFILL }},
 		{ &hf_mq_conn_version  ,{"Version.", "mq.conn.version", FT_UINT32, BASE_DEC, VALS(mq_conn_version_vals), 0x0, "CONN version", HFILL }},
 		{ &hf_mq_conn_options  ,{"Options.", "mq.conn.options", FT_UINT32, BASE_HEX, NULL, 0x0, "CONN options", HFILL }},
@@ -3613,11 +3668,11 @@ void proto_register_mq(void)
 		{ &hf_mq_inq_nbsel     ,{"Selector count..", "mq.inq.nbsel", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Selector count", HFILL }},
 		{ &hf_mq_inq_nbint     ,{"Integer count...", "mq.inq.nbint", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Integer count", HFILL }},
 		{ &hf_mq_inq_charlen   ,{"Character length", "mq.inq.charlen", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Character length", HFILL }},
-		{ &hf_mq_inq_sel       ,{"Selector........", "mq.inq.sel", FT_UINT32, BASE_DEC, VALS(mq_selector_vals), 0x0, "INQ Selector", HFILL }},
+		{ &hf_mq_inq_sel       ,{"Selector........", "mq.inq.sel", FT_UINT32, BASE_DEC, VALS(GET_VALSV(selector)), 0x0, "INQ Selector", HFILL }},
 		{ &hf_mq_inq_intvalue  ,{"Integer value...", "mq.inq.intvalue", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Integer value", HFILL }},
 		{ &hf_mq_inq_charvalues,{"Char values.....", "mq.inq.charvalues", FT_STRINGZ, BASE_NONE, NULL, 0x0, "INQ Character values", HFILL }},
 
-		{ &hf_mq_spi_verb      ,{"SPI Verb", "mq.spi.verb", FT_UINT32, BASE_DEC, VALS(mq_spi_verbs_vals), 0x0, NULL, HFILL }},
+		{ &hf_mq_spi_verb      ,{"SPI Verb", "mq.spi.verb", FT_UINT32, BASE_DEC, VALS(GET_VALSV(spi_verbs)), 0x0, NULL, HFILL }},
 		{ &hf_mq_spi_version   ,{"Version", "mq.spi.version", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Version", HFILL }},
 		{ &hf_mq_spi_length    ,{"Max reply size", "mq.spi.replength", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Max reply size", HFILL }},
 
@@ -3626,13 +3681,13 @@ void proto_register_mq(void)
 		{ &hf_mq_spi_base_length  ,{"Length", "mq.spib.length", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Base Length", HFILL }},
 
 		{ &hf_mq_spi_spqo_nbverb  ,{"Number of verbs", "mq.spqo.nbverb", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Query Output Number of verbs", HFILL }},
-		{ &hf_mq_spi_spqo_verbid  ,{"Verb", "mq.spqo.verb", FT_UINT32, BASE_DEC, VALS(mq_spi_verbs_vals), 0x0, "SPI Query Output VerbId", HFILL }},
+		{ &hf_mq_spi_spqo_verbid  ,{"Verb", "mq.spqo.verb", FT_UINT32, BASE_DEC, VALS(GET_VALSV(spi_verbs)), 0x0, "SPI Query Output VerbId", HFILL }},
 		{ &hf_mq_spi_spqo_maxiover,{"Max InOut Version", "mq.spqo.maxiov", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Query Output Max InOut Version", HFILL }},
 		{ &hf_mq_spi_spqo_maxinver,{"Max In Version", "mq.spqo.maxiv", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Query Output Max In Version", HFILL }},
 		{ &hf_mq_spi_spqo_maxouver,{"Max Out Version", "mq.spqo.maxov", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Query Output Max Out Version", HFILL }},
 		{ &hf_mq_spi_spqo_flags   ,{"Flags", "mq.spqo.flags", FT_UINT32, BASE_DEC, NULL, 0x0, "SPI Query Output flags", HFILL }},
 
-		{ &hf_mq_spi_spai_mode    ,{"Mode", "mq.spai.mode", FT_UINT32, BASE_DEC, VALS(mq_spi_activate_vals), 0x0, "SPI Activate Input mode", HFILL }},
+		{ &hf_mq_spi_spai_mode    ,{"Mode", "mq.spai.mode", FT_UINT32, BASE_DEC, VALS(GET_VALSV(spi_activate)), 0x0, "SPI Activate Input mode", HFILL }},
 		{ &hf_mq_spi_spai_unknown1,{"Unknown1", "mq.spai.unknown1", FT_STRINGZ, BASE_NONE, NULL, 0x0, "SPI Activate Input unknown1", HFILL }},
 		{ &hf_mq_spi_spai_unknown2,{"Unknown2", "mq.spai.unknown2", FT_STRINGZ, BASE_NONE, NULL, 0x0, "SPI Activate Input unknown2", HFILL }},
 		{ &hf_mq_spi_spai_msgid   ,{"Message Id", "mq.spai.msgid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "SPI Activate Input message id", HFILL }},
@@ -3706,9 +3761,9 @@ void proto_register_mq(void)
 		{ &hf_mq_msgreq_encoding,{"encoding", "mq.msgreq.encoding", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ encoding", HFILL }},
 		{ &hf_mq_msgreq_unknown6,{"unknown6", "mq.msgreq.unknown6", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ unknown6", HFILL }},
 		{ &hf_mq_msgreq_unknown7,{"unknown7", "mq.msgreq.unknown7", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ unknown7", HFILL }},
-		{ &hf_mq_msgreq_unknown8,{"unknown8", "mq.msgreq.unknown8", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ unknown8", HFILL }},
-		{ &hf_mq_msgreq_msgid   ,{"msgid...", "mq.msgreq.msgid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MSGREQ msgid", HFILL }},
-		{ &hf_mq_msgreq_mqmid   ,{"mqmid...", "mq.msgreq.mqmid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MSGREQ mqmid", HFILL }},
+		{ &hf_mq_msgreq_xfldflag,{"xfldflag", "mq.msgreq.xfldflag", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ Extended Field Flag", HFILL }},
+		{ &hf_mq_msgreq_msgid   ,{"msgid...", "mq.msgreq.xfldmsgid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MSGREQ xfld msgid", HFILL }},
+		{ &hf_mq_msgreq_mqmid   ,{"mqmid...", "mq.msgreq.xfldmqmid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MSGREQ xfld mqmid", HFILL }},
 
 		{ &hf_mq_msgasy_version ,{"version.", "mq.msgasy.version", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGASYNC version", HFILL }},
 		{ &hf_mq_msgasy_handle  ,{"handle..", "mq.msgasy.handle", FT_UINT32, BASE_HEX, NULL, 0x0, "MSGASYNC handle", HFILL }},
@@ -3731,8 +3786,8 @@ void proto_register_mq(void)
 
 		{ &hf_mq_notif_vers     ,{"version.", "mq.notif.vers", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "NOTIFICATION version", HFILL }},
 		{ &hf_mq_notif_handle   ,{"handle..", "mq.notif.handle", FT_UINT32, BASE_HEX, NULL, 0x0, "NOTIFICATION handle", HFILL }},
-		{ &hf_mq_notif_unknown3 ,{"unknown3", "mq.notif.unknown3", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "NOTIFICATION unknown3", HFILL }},
-		{ &hf_mq_notif_unknown4 ,{"unknown4", "mq.notif.unknown4", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "NOTIFICATION unknown4", HFILL }},
+		{ &hf_mq_notif_code     ,{"code....", "mq.notif.code", FT_UINT32, BASE_HEX_DEC, VALS(GET_VALSV(notifcode)), 0x0, "NOTIFICATION code", HFILL }},
+		{ &hf_mq_notif_mqrc     ,{"mqrc....", "mq.notif.mqrc", FT_UINT32, BASE_HEX_DEC, VALS(GET_VALSV(mqrc)), 0x0, "NOTIFICATION MQRC", HFILL }},
 
 		{ &hf_mq_ping_length    ,{"Length", "mq.ping.length", FT_UINT32, BASE_DEC, NULL, 0x0, "PING length", HFILL }},
 		{ &hf_mq_ping_buffer    ,{"Buffer", "mq.ping.buffer", FT_BYTES, BASE_NONE, NULL, 0x0, "PING buffer", HFILL }},
@@ -3746,7 +3801,7 @@ void proto_register_mq(void)
 
 		{ &hf_mq_od_structid    ,{"structid.........", "mq.od.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mq_od_version     ,{"version..........", "mq.od.version", FT_UINT32, BASE_DEC, NULL, 0x0, "OD version", HFILL }},
-		{ &hf_mq_od_objecttype  ,{"ObjType..........", "mq.od.objtype", FT_UINT32, BASE_DEC, VALS(mq_objtype_vals), 0x0, "OD object type", HFILL }},
+		{ &hf_mq_od_objecttype  ,{"ObjType..........", "mq.od.objtype", FT_UINT32, BASE_DEC, VALS(GET_VALSV(objtype)), 0x0, "OD object type", HFILL }},
 		{ &hf_mq_od_objectname  ,{"ObjName..........", "mq.od.objname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD object name", HFILL }},
 		{ &hf_mq_od_objqmgrname ,{"ObjQMgr..........", "mq.od.objqmgrname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD object queue manager name", HFILL }},
 		{ &hf_mq_od_dynqname    ,{"DynQName.........", "mq.od.dynqname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD dynamic queue name", HFILL }},
@@ -3795,7 +3850,7 @@ void proto_register_mq(void)
 		{ &hf_mq_md_userid      ,{"UserId...", "mq.md.userid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD UserId", HFILL }},
 		{ &hf_mq_md_acttoken    ,{"AccntTok.", "mq.md.acttoken", FT_BYTES, BASE_NONE, NULL, 0x0, "MD accounting token", HFILL }},
 		{ &hf_mq_md_appliddata  ,{"AppIdData", "mq.md.appldata", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put applicationId data", HFILL }},
-		{ &hf_mq_md_putappltype ,{"PutAppTyp", "mq.md.appltype", FT_INT32, BASE_DEC, VALS(mq_mqat_vals), 0x0, "MD Put application type", HFILL }},
+		{ &hf_mq_md_putappltype ,{"PutAppTyp", "mq.md.appltype", FT_INT32, BASE_DEC, VALS(GET_VALSV(mqat)), 0x0, "MD Put application type", HFILL }},
 		{ &hf_mq_md_putapplname ,{"PutAppNme", "mq.md.applname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put application name", HFILL }},
 		{ &hf_mq_md_putdate     ,{"PutDatGMT", "mq.md.date", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put date", HFILL }},
 		{ &hf_mq_md_puttime     ,{"PutTimGMT", "mq.md.time", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Put time", HFILL }},
@@ -3815,7 +3870,7 @@ void proto_register_mq(void)
 		{ &hf_mq_dlh_encoding   ,{"Encoding.", "mq.dlh.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH encoding", HFILL }},
 		{ &hf_mq_dlh_ccsid      ,{"CCSID....", "mq.dlh.ccsid", FT_INT32, BASE_DEC, NULL, 0x0, "DLH character set", HFILL }},
 		{ &hf_mq_dlh_format     ,{"Format...", "mq.dlh.format", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH format", HFILL }},
-		{ &hf_mq_dlh_putappltype,{"PutAppTyp", "mq.dlh.putappltype", FT_INT32, BASE_DEC, VALS(mq_mqat_vals), 0x0, "DLH put application type", HFILL }},
+		{ &hf_mq_dlh_putappltype,{"PutAppTyp", "mq.dlh.putappltype", FT_INT32, BASE_DEC, VALS(GET_VALSV(mqat)), 0x0, "DLH put application type", HFILL }},
 		{ &hf_mq_dlh_putapplname,{"PutAppNme", "mq.dlh.putapplname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH put application name", HFILL }},
 		{ &hf_mq_dlh_putdate    ,{"PutDatGMT", "mq.dlh.putdate", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH put date", HFILL }},
 		{ &hf_mq_dlh_puttime    ,{"PutTimGMT", "mq.dlh.puttime", FT_STRINGZ, BASE_NONE, NULL, 0x0, "DLH put time", HFILL }},
@@ -3973,6 +4028,7 @@ void proto_register_mq(void)
 		&ett_mq_api,
 		&ett_mq_socket,
 		&ett_mq_msh,
+		&ett_mq_caut,
 		&ett_mq_xqh,
 		&ett_mq_id,
 		&ett_mq_id_icf,
