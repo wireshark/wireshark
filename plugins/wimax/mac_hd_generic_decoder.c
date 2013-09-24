@@ -736,19 +736,22 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "GMH");
 #endif
 
-	if (tree)
-	{	/* we are being asked for details */
-		/* Get the frame length */
-		tvb_len =  tvb_reported_length(tvb);
-		if (tvb_len < WIMAX_MAC_HEADER_SIZE)
-		{	/* display the error message */
+	/* Get the frame length */
+	tvb_len =  tvb_reported_length(tvb);
+	if (tvb_len < WIMAX_MAC_HEADER_SIZE)
+	{
+		if (tree) {
+			/* display the error message */
 			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, tvb_len, "Error: the size of Generic MAC Header tvb is too small! (%u bytes)", tvb_len);
 			/* add subtree */
 			generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
 			/* display the Generic MAC Header in Hex */
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, tvb_len, ENC_NA);
-			return;
 		}
+		return;
+	}
+	if (tree)
+	{	/* we are being asked for details */
 		/* get the parent */
 		parent_item = proto_tree_get_parent(tree);
 		/* add the MAC header info */
@@ -779,8 +782,10 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 		mac_ci = ((ubyte & WIMAX_MAC_HEADER_GENERIC_CI_MASK)?1:0);
 		/* get the Encryption key sequence (EKS) */
 		/*mac_eks = ((ubyte & WIMAX_MAC_HEADER_GENERIC_EKS_MASK)>>4); XX: not used ?? */
-		/* get the MAC length */
-		mac_len = (tvb_get_ntohs(tvb, (offset+1)) & WIMAX_MAC_HEADER_GENERIC_LEN);
+	}
+	/* get the MAC length; this is used even if tree is null */
+	mac_len = (tvb_get_ntohs(tvb, (offset+1)) & WIMAX_MAC_HEADER_GENERIC_LEN);
+	if (tree) {
 		/* get the CID */
 		mac_cid = tvb_get_ntohs(tvb, (offset+3));
 		/* display the Header Type (HT) */
