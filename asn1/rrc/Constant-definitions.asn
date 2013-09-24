@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V11.5.0 (2013-03)
+-- 3GPP TS 25.331 V11.7.0 (2013-09)
 -- $Id$
 --
 Constant-definitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -45,6 +45,7 @@ maxERUCCH					INTEGER ::= 256
 maxFACHPCH					INTEGER ::= 8
 maxFreq						INTEGER ::= 8
 maxFreqBandsEUTRA			INTEGER ::= 16
+maxFreqBandsEUTRA-ext		INTEGER ::= 48
 maxFreqBandsFDD				INTEGER ::= 8
 maxFreqBandsFDD2			INTEGER ::= 22
 maxFreqBandsFDD3			INTEGER ::= 86
