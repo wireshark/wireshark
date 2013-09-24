@@ -1962,7 +1962,10 @@ static gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint off
                 /* 8.4.5.3.11 PHYMOD_DL_IE */
                 nibble = PHYMOD_DL_IE(tree, bufptr, nibble, len, tvb);
                 break;
-
+            case 0x0a:
+                /* 8.4.5.3.25 Broadcast Control Pointer IE */
+                nibble = Broadcast_Control_Pointer_IE(tree, bufptr, nibble, len, tvb);
+                break;
             case 0x0b:
                 /* 8.4.5.3.13 DL PUSC Burst Allocation in Other Segment IE */
                 nibble = DL_PUSC_Burst_Allocation_in_Other_Segment_IE(tree, bufptr, nibble, len, tvb);
