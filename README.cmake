@@ -66,7 +66,7 @@ How to do out of tree build (Win32/64):
 3) mkdir c:\wireshark\build
 4) cd c:\wireshark\build
 5) cmake -G "NMake Makefiles" .. (if the sources are in c:\wireshark)
-6) make (or cmake --build .)
+6) nmake (or cmake --build .)
 7) (as root) umask 0022 && make install
 
 Why cmake?
