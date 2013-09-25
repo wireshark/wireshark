@@ -1817,7 +1817,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
         }
         else
         {
-          if (conv_ntlmssp_info->lm_response.contents == NULL) {
+          if (conv_ntlmssp_info->lm_response.contents == NULL || conv_ntlmssp_info->lm_response.length < 8) {
             memset(conv_ntlmssp_info->client_challenge, 0, 8);
           } else {
             memcpy(conv_ntlmssp_info->client_challenge, conv_ntlmssp_info->lm_response.contents, 8);
