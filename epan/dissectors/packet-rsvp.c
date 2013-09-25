@@ -282,6 +282,8 @@ static int hf_rsvp_xro_sobj_ipv6_prefix = -1;
 static int hf_rsvp_xro_sobj_ipv6_attr = -1;
 static int hf_rsvp_xro_sobj_srlg_id = -1;
 static int hf_rsvp_xro_sobj_srlg_res = -1;
+static int hf_rsvp_private_data = -1;
+static int hf_rsvp_unknown_data = -1;
 
 static dissector_table_t rsvp_dissector_table;
 
@@ -620,6 +622,11 @@ enum rsvp_classes {
     RSVP_CLASS_ASSOCIATION,
 
     /* 203-204  Unassigned */
+    /*
+        204 Proprietary Juniper LSP properties
+        https://www.juniper.net/techpubs/en_US/junos12.1/information-products/topic-collections/nog-mpls-logs/topic-20284.html
+     */
+    RSVP_CLASS_JUNIPER_PROPERTIES = 204,
     RSVP_CLASS_FAST_REROUTE      = 205,
     /* 206 Unassigned */
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
@@ -744,6 +751,7 @@ static const value_string rsvp_class_vals[] = {
 */
     { RSVP_CLASS_ASSOCIATION,           "ASSOCIATION object"},
 
+    { RSVP_CLASS_JUNIPER_PROPERTIES,    "Juniper properties object"},
     { RSVP_CLASS_FAST_REROUTE,          "FAST-REROUTE object"},
 
     { RSVP_CLASS_SESSION_ATTRIBUTE,     "SESSION ATTRIBUTE object"},
@@ -2648,7 +2656,7 @@ dissect_rsvp_error(proto_item *ti, proto_tree *rsvp_object_tree,
             proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
                                 "Error node: %s",
                             tvb_ip_to_str(tvb, offset2));
-        
+
         offset3 = offset2+4;
         }
         break;
@@ -2661,7 +2669,7 @@ dissect_rsvp_error(proto_item *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
                             "Error node: %s",
                             tvb_ip6_to_str(tvb, offset2));
-        
+
         offset3 = offset2+16;
         }
         break;
@@ -2674,7 +2682,7 @@ dissect_rsvp_error(proto_item *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
                             "Error node: %s",
                             tvb_ip_to_str(tvb, offset2));
-        
+
         offset3 = offset2+4;
         }
         break;
@@ -2690,7 +2698,7 @@ dissect_rsvp_error(proto_item *ti, proto_tree *rsvp_object_tree,
         }
         return;
     }
-    
+
     if(obj_length>4) {
         error_flags = tvb_get_guint8(tvb, offset3);
         ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_error_flags,
@@ -2712,7 +2720,7 @@ dissect_rsvp_error(proto_item *ti, proto_tree *rsvp_object_tree,
                             val_to_str_ext(error_code, &rsvp_error_codes_ext, "Unknown (%d)"));
         error_val = dissect_rsvp_error_value(rsvp_object_tree, tvb, offset3+2, error_code);
 
-    
+
 
         switch (type) {
         case 1:
@@ -7010,9 +7018,28 @@ dissect_rsvp_vendor_private_use(proto_tree *ti _U_,
     proto_tree_add_item(rsvp_object_tree,
                         hf_rsvp_filter[RSVPF_ENT_CODE],
                         tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset + 8, obj_length - 8,
-                        "Data (%d bytes)", obj_length - 8);
+    proto_tree_add_item(rsvp_object_tree, hf_rsvp_private_data, tvb, offset + 8,
+                        obj_length - 8, ENC_NA);
 }
+
+/*----------------------------------------------------------------------------
+ * UNKOWN
+ *---------------------------------------------------------------------------*/
+static void
+dissect_rsvp_unknown(proto_tree *ti _U_,
+                                proto_tree *rsvp_object_tree,
+                                tvbuff_t *tvb,
+                                int offset, int obj_length,
+                                int rsvp_class _U_, int type)
+{
+    proto_tree_add_text(rsvp_object_tree, tvb, offset + 3, 1,
+                        "C-type: %u", type);
+    if (obj_length > 4) {
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_unknown_data, tvb, offset + 4,
+                        obj_length - 4, ENC_NA);
+    }
+}
+
 
 /*------------------------------------------------------------------------------
  * Dissect a single RSVP message in a tree
@@ -7035,7 +7062,6 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int         session_off, tempfilt_off;
     int         msg_length;
     int         obj_length;
-    int         offset2;
 
     offset       = 0;
     ver_flags    = tvb_get_guint8(tvb, 0);
@@ -7159,8 +7185,6 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             "Length: %u", obj_length);
         proto_tree_add_uint(rsvp_object_tree, hf_rsvp_filter[RSVPF_OBJECT], tvb,
                             offset+2, 1, rsvp_class);
-
-        offset2 = offset+4;
 
         switch(rsvp_class) {
 
@@ -7341,10 +7365,10 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             dissect_rsvp_vendor_private_use(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
+        case RSVP_CLASS_JUNIPER_PROPERTIES:
         case RSVP_CLASS_NULL:
         default:
-            proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
-                                "Data (%d bytes)", obj_length - 4);
+            dissect_rsvp_unknown(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
         }
 
@@ -8956,6 +8980,20 @@ proto_register_rsvp(void)
         { &hf_rsvp_xro_sobj_srlg_id,
          { "SRLG Id", "rsvp.xro.sobj.srlg.id",
            FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_private_data,
+         { "Data", "rsvp.private.data",
+           FT_BYTES, BASE_NONE, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_unknown_data,
+         { "Data", "rsvp.unknown.data",
+           FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL
          }
         },
