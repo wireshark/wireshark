@@ -175,7 +175,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		int type, length, valuelength;
 		proto_item * tlv_length_item;
-		
+
 		if (tvb_length_remaining(tvb, offset) < 4) {
 			expert_add_info(pinfo, dtp_tree, &ei_dtp_truncated);
 			break;
@@ -206,7 +206,9 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else
 			expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_invalid);
 
-		offset += valuelength;
+		if (offset + valuelength > offset) {
+			offset += valuelength;
+		}
 	}
 }
 
@@ -368,3 +370,16 @@ proto_reg_handoff_dtp(void)
 	dtp_handle = create_dissector_handle(dissect_dtp, proto_dtp);
 	dissector_add_uint("llc.cisco_pid", 0x2004, dtp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
