@@ -1741,7 +1741,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		break;
     /*  2, 3GPP Specific PMIPv6 Error Code */
     case 2:
-        proto_tree_add_item(tree, hf_mip6_opt_3gpp_spec_pmipv6_err_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mip6_opt_3gpp_spec_pmipv6_err_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     /*  3, PMIPv6 PDN GW IP Address
      *     PDN GW IP address, as specified in subclause 12.1.1.4
