@@ -62,6 +62,7 @@ static gint ett_dtp_tlv = -1;
 static gint ett_dtp_status = -1;
 static gint ett_dtp_type = -1;
 
+static expert_field ei_dtp_tlv_length_too_short = EI_INIT;
 static expert_field ei_dtp_tlv_length_invalid = EI_INIT;
 static expert_field ei_dtp_truncated = EI_INIT;
 
@@ -176,14 +177,14 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		int type, length, valuelength;
 		proto_item * tlv_length_item;
 
-		if (tvb_length_remaining(tvb, offset) < 4) {
+		/* XXX - why not just let tvbuff exceptions handle this? */
+		if (tvb_reported_length_remaining(tvb, offset) < 4) {
 			expert_add_info(pinfo, dtp_tree, &ei_dtp_truncated);
 			break;
 		}
 
 		type = tvb_get_ntohs(tvb, offset);
 		length = tvb_get_ntohs(tvb, offset + 2);
-		valuelength = (length-4);
 
 		ti = proto_tree_add_text(dtp_tree, tvb, offset, length, "%s",
 					 val_to_str(type, dtp_tlv_type_vals, "Unknown TLV type: 0x%02x"));
@@ -195,20 +196,16 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tlv_length_item = proto_tree_add_uint(tlv_tree, hf_dtp_tlvlength, tvb, offset, 2, length);
 		offset+=2;
 
-		if (valuelength > tvb_length_remaining(tvb, offset)) {
-			expert_add_info(pinfo, dtp_tree, &ei_dtp_truncated);
+		if (length <= 4) {
+			/* Length includes type and length fields, so it
+			   must be >= 4, and no known TLVs have a value
+			   length of 0, so it must be > 4. */
+			expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_too_short);
 			break;
 		}
-
-		if (valuelength > 0) { /* No known TLVs have value length of 0 */
-			dissect_dtp_tlv(pinfo, tvb, offset, valuelength, tlv_tree, ti, tlv_length_item, (guint8) type);
-		}
-		else
-			expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_invalid);
-
-		if (offset + valuelength > offset) {
-			offset += valuelength;
-		}
+		valuelength = (length-4);
+		dissect_dtp_tlv(pinfo, tvb, offset, valuelength, tlv_tree, ti, tlv_length_item, (guint8) type);
+		offset += valuelength;
 	}
 }
 
@@ -342,6 +339,10 @@ proto_register_dtp(void)
 	};
 
 	static ei_register_info ei[] = {
+	{ &ei_dtp_tlv_length_too_short,
+		{ "dtp.tlv_len.too_short", PI_MALFORMED, PI_ERROR,
+		  "Indicated length is less than the minimum length", EXPFILL }},
+
 	{ &ei_dtp_tlv_length_invalid,
 		{ "dtp.tlv_len.invalid", PI_MALFORMED, PI_ERROR,
 		  "Indicated length does not correspond to this record type", EXPFILL }},
