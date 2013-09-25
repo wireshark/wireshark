@@ -1069,7 +1069,7 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 			case 5: *(b++) = ((subid & 0xF0000000) >> 28) | 0x80;
 			case 4: *(b++) = ((subid & 0x0FE00000) >> 21) | 0x80;
 			case 3: *(b++) = ((subid & 0x001FC000) >> 14) | 0x80;
-			case 2: *(b++) = ((subid & 0x00003F10) >> 7)  | 0x80;
+			case 2: *(b++) = ((subid & 0x00003F80) >> 7)  | 0x80;
 			case 1: *(b++) =   subid & 0x0000007F ; break;
 		}
 
