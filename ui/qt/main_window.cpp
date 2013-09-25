@@ -80,6 +80,7 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     main_ui_(new Ui::MainWindow),
+    master_split_(NULL),
     df_combo_box_(new DisplayFilterCombo()),
     cap_file_(NULL),
     previous_focus_(NULL),
@@ -186,9 +187,6 @@ MainWindow::MainWindow(QWidget *parent) :
     packet_list_->setProtoTree(proto_tree_);
     packet_list_->setByteViewTab(byte_view_tab_);
     packet_list_->installEventFilter(this);
-
-    master_split_ = NULL;
-    extra_split_ = NULL;
 
     main_welcome_ = main_ui_->welcomePage;
 

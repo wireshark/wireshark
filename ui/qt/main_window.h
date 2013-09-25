@@ -100,7 +100,6 @@ private:
     Ui::MainWindow *main_ui_;
     QMenu *open_recent_menu_;
     QSplitter *master_split_;
-    QSplitter *extra_split_;
     MainWelcome *main_welcome_;
     DisplayFilterCombo *df_combo_box_;
     capture_file *cap_file_;

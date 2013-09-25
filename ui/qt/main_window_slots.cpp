@@ -222,8 +222,8 @@ void MainWindow::layoutPanes()
     master_split_ = new QSplitter(main_ui_->mainStack);
     master_split_->setObjectName(QString::fromUtf8("splitterMaster"));
 
-    extra_split_ = new QSplitter(master_split_);
-    extra_split_->setObjectName(QString::fromUtf8("splitterExtra"));
+    QSplitter *extra_split = new QSplitter(master_split_);
+    extra_split->setObjectName(QString::fromUtf8("splitterExtra"));
 
     switch(prefs.gui_layout_type) {
     case(layout_type_5):
@@ -234,30 +234,30 @@ void MainWindow::layoutPanes()
         break;
     case(layout_type_2):
         master_split_->setOrientation(Qt::Vertical);
-        extra_split_->setOrientation(Qt::Horizontal);
+        extra_split->setOrientation(Qt::Horizontal);
         parents[0] = master_split_;
-        parents[1] = extra_split_;
-        parents[2] = extra_split_;
+        parents[1] = extra_split;
+        parents[2] = extra_split;
         break;
     case(layout_type_1):
         master_split_->setOrientation(Qt::Vertical);
-        extra_split_->setOrientation(Qt::Horizontal);
-        parents[0] = extra_split_;
-        parents[1] = extra_split_;
+        extra_split->setOrientation(Qt::Horizontal);
+        parents[0] = extra_split;
+        parents[1] = extra_split;
         parents[2] = master_split_;
         break;
     case(layout_type_4):
         master_split_->setOrientation(Qt::Horizontal);
-        extra_split_->setOrientation(Qt::Vertical);
+        extra_split->setOrientation(Qt::Vertical);
         parents[0] = master_split_;
-        parents[1] = extra_split_;
-        parents[2] = extra_split_;
+        parents[1] = extra_split;
+        parents[2] = extra_split;
         break;
     case(layout_type_3):
         master_split_->setOrientation(Qt::Horizontal);
-        extra_split_->setOrientation(Qt::Vertical);
-        parents[0] = extra_split_;
-        parents[1] = extra_split_;
+        extra_split->setOrientation(Qt::Vertical);
+        parents[0] = extra_split;
+        parents[1] = extra_split;
         parents[2] = master_split_;
         break;
     case(layout_type_6):
@@ -278,14 +278,14 @@ void MainWindow::layoutPanes()
     byte_view_tab_->setParent(main_ui_->mainStack);
     empty_pane_->setParent(main_ui_->mainStack);
 
-    if (parents[0] == extra_split_) {
-        master_split_->addWidget(extra_split_);
+    if (parents[0] == extra_split) {
+        master_split_->addWidget(extra_split);
     }
 
     parents[0]->addWidget(getLayoutWidget(prefs.gui_layout_content_1));
 
-    if (parents[2] == extra_split_) {
-        master_split_->addWidget(extra_split_);
+    if (parents[2] == extra_split) {
+        master_split_->addWidget(extra_split);
     }
 
     parents[1]->addWidget(getLayoutWidget(prefs.gui_layout_content_2));
@@ -296,6 +296,11 @@ void MainWindow::layoutPanes()
     if (oldMaster != NULL) {
         main_ui_->mainStack->removeWidget(oldMaster);
         delete oldMaster;
+    }
+
+    if (extra_split->count() < 1) {
+        delete extra_split;
+        extra_split = NULL;
     }
 
     main_ui_->mainStack->addWidget(master_split_);
