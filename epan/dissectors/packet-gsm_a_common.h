@@ -947,7 +947,15 @@ typedef enum
 	BE_LCLS_CORR_NOT_NEEDED,            /* LCLS-Correlation-Not-Needed         3.2.2.118    */
 	BE_LCLS_BSS_STATUS,                 /* LCLS-BSS-Status                     3.2.2.119    */
 	BE_LCLS_BREAK_REQ,                  /* LCLS-Break-Request                  3.2.2.120    */
-	BE_CSFB_IND                         /* CSFB Indication                     3.2.2.121    */
+	BE_CSFB_IND,                        /* CSFB Indication                     3.2.2.121    */
+#if 0
+	BE_CS_TO_PS_SRVCC,                  /* CS to PS SRVCC                      3.2.2.122    */
+	BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,    /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
+	BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication           3.2.2.124    */
+	BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information    3.2.2.125    */
+#endif
+	BE_SELECTED_PLMN_ID,                /* Selected PLMN ID                    3.2.2.126    */
+    BE_NONE                             /* NONE */
 }
 bssmap_elem_idx_t;
 

@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
+#include <epan/expert.h>
 #include <epan/asn1.h>
 
 #include "packet-bssap.h"
@@ -345,12 +346,12 @@ static const value_string gsm_bssmap_elem_strings[] = {
     { BE_LCLS_BREAK_REQ, "LCLS-Break-Request" },                                             /* 3.2.2.120    */
     { BE_CSFB_IND, "CSFB Indication" },                                                      /* 3.2.2.121    */
 #if 0
-    { 0x90, "CS to PS SRVCC" },                   /* 3.2.2.122 */
-    { 0x91, "Source eNB to target eNB transparent information (E-UTRAN)" },                   /*3.2.2.123    */
-    { 0x92, "CS to PS SRVCC Indication" },                   /* 3.2.2.124    */
-    { 0x93, "CN to MS transparent information" },                   /* 3.2.2.125    */
-    { 0x94, "Selected PLMN ID" },                   /* 3.2.2.126    */
+    { BE_CS_TO_PS_SRVCC, "CS to PS SRVCC" },                                                 /* 3.2.2.122    */
+    { BE_SRC_ENB_2_TGT_ENB_TRANSP_INF, "Source eNB to target eNB transparent information (E-UTRAN)" }, /*3.2.2.123    */
+    { BE_CS_TO_PS_SRVCC_IND, "CS to PS SRVCC Indication" },                                  /* 3.2.2.124    */
+    { BE_CN_TO_MS_TRANSP, "CN to MS transparent information" },                              /* 3.2.2.125    */
 #endif
+    { BE_SELECTED_PLMN_ID, "Selected PLMN ID" },                                             /* 3.2.2.126    */
     { 0, NULL }
 };
 value_string_ext gsm_bssmap_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_bssmap_elem_strings);
@@ -643,7 +644,9 @@ static int hf_gsm_a_bssmap_reroute_outcome = -1;
 static int hf_gsm_a_bssmap_lcls_conf = -1;
 static int hf_gsm_a_bssmap_lcls_con_status_control = -1;
 static int hf_gsm_a_bssmap_lcls_bss_status = -1;
+static int hf_gsm_a_bssmap_selected_plmn_id = -1;
 
+static expert_field ei_gsm_a_bssmap_extraneous_data = EI_INIT;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -820,13 +823,11 @@ typedef enum
 	BE_LCLS_BSS_STATUS,                 /* LCLS-BSS-Status                     3.2.2.119    */
 	BE_LCLS_BREAK_REQ,                  /* LCLS-Break-Request                  3.2.2.120    */
 	BE_CSFB_IND,                        /* CSFB Indication                     3.2.2.121    */
-#if 0
-    { 0x90, "CS to PS SRVCC" },                   /* 3.2.2.122 */
-    { 0x91, "Source eNB to target eNB transparent information (E-UTRAN)" },                   /*3.2.2.123    */
-    { 0x92, "CS to PS SRVCC Indication" },                   /* 3.2.2.124    */
-    { 0x93, "CN to MS transparent information" },                   /* 3.2.2.125    */
-    { 0x94, "Selected PLMN ID" },                   /* 3.2.2.126    */
-#endif
+	BE_CS_TO_PS_SRVCC,                  /* CS to PS SRVCC                      3.2.2.122    */
+	BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,    /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
+	BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication           3.2.2.124    */
+	BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information    3.2.2.125    */
+	BE_SELECTED_PLMN_ID,                /* Selected PLMN ID                    3.2.2.126    */
     BE_NONE                             /* NONE */
 }
 bssmap_elem_idx_t;
@@ -4522,6 +4523,31 @@ be_lcls_bss_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  * No data
  */
 
+/*
+ * 3.2.2.123 Source eNB to target eNB transparent information (E-UTRAN)
+ */
+
+/*
+ * 3.2.2.124 CS to PS SRVCC Indication
+ */
+
+/*
+ * 3.2.2.125 CN to MS transparent information
+ */
+
+/*
+ * 3.2.2.126 Selected PLMN ID
+ */
+static guint16
+be_selected_plmn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+
+    proto_tree_add_string(tree, hf_gsm_a_bssmap_selected_plmn_id, tvb, offset, 3, dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, TRUE));
+    return 3;
+
+}
+
+
 guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
     NULL,               /* Undefined */
     be_cic,             /* Circuit Identity Code */
@@ -4668,14 +4694,14 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 	NULL,                               /* LCLS-Break-Request                   3.2.2.120    No data */
 	NULL,                               /* CSFB Indication                      3.2.2.121    No data */
 #if 0
-    { 0x90, "CS to PS SRVCC" },                   /* 3.2.2.122 */
-    { 0x91, "Source eNB to target eNB transparent information (E-UTRAN)" },                   /*3.2.2.123    */
-    { 0x92, "CS to PS SRVCC Indication" },                   /* 3.2.2.124    */
-    { 0x93, "CN to MS transparent information" },                   /* 3.2.2.125    */
-    { 0x94, "Selected PLMN ID" },                   /* 3.2.2.126    */
+	BE_CS_TO_PS_SRVCC,                  /* CS to PS SRVCC                       3.2.2.122    */
+	BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,    /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
+	BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication            3.2.2.124    */
+	BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information     3.2.2.125    */
 #endif
+	be_selected_plmn_id,                /* Selected PLMN ID                     3.2.2.126    */
+    NULL                                /* NONE */
 
-    NULL,   /* NONE */
 };
 /* 3.2.3    Signalling Field Element Coding */
 /* 3.2.3.1  Extra information */
@@ -4953,7 +4979,8 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
             /* dissect the field element */
             curr_offset += (*bssmap_bss_to_bss_element_fcn[idx])(tvb, bss_to_bss_tree, pinfo, curr_offset, ie_len, NULL, 0);
 
-            EXTRANEOUS_DATA_CHECK(ie_len, curr_offset - fe_start_offset);
+			EXTRANEOUS_DATA_CHECK_EXPERT(ie_len, curr_offset - fe_start_offset, pinfo, &ei_gsm_a_bssmap_extraneous_data);
+
         }
     }
     return len;
@@ -5837,6 +5864,7 @@ bssmap_ciph_mode_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 
 /*
  * [2] 3.2.1.32 COMPLETE LAYER 3 INFORMATION
+ * Updated to 3GPP TS 48.008 version 11.5.0 Release 11
  */
 static void
 bssmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
@@ -5860,7 +5888,13 @@ bssmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     ELEM_OPT_TLV_E(BE_APDU, GSM_A_PDU_TYPE_BSSMAP, BE_APDU, NULL);
     /* Codec List (BSS Supported)   3.2.2.103   BSS-MSC O (note 4)  3-n */
     ELEM_OPT_TLV(BE_SPEECH_CODEC_LST, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC_LST, "(BSS Supported)");
-
+    /* Redirect Attempt Flag 3.2.2.111 BSS-MSC O (note 5) 1 */
+    ELEM_OPT_T(BE_REDIR_ATT_FLG, GSM_A_PDU_TYPE_BSSMAP, BE_REDIR_ATT_FLG, NULL);
+    /* Send Sequence Number 3.2.2.113 BSS-MSC O (note 6) 2 */
+    ELEM_OPT_TV(BE_SEND_SEQN, GSM_A_PDU_TYPE_BSSMAP, BE_SEND_SEQN, NULL);
+    /* IMSI 3.2.2.6 BSS-MSC O (note 7) 3-10 */
+    ELEM_OPT_TLV(BE_IMSI, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
+    /* Selected PLMN ID 3.2.2.126 BSS-MSC O (note 8) 4 */
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
@@ -6990,23 +7024,55 @@ bssmap_reset_ip_res_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
-#if 0
+
 /*
  * 3.2.1.89 REROUTE COMMAND
  */
+static void
+bssmap_reroute_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
 
     /* Initial Layer 3 Information 3.2.2.24 MSC-BSS M (note 1) 3-n */
+    ELEM_MAND_TLV(BE_L3_INFO, GSM_A_PDU_TYPE_BSSMAP, BE_L3_INFO, " (Initial)");
     /* Reroute Reject Cause 3.2.2.112 MSC-BSS M (note 2) 2 */
+    ELEM_MAND_TV(BE_REROUTE_REJ_CAUSE, GSM_A_PDU_TYPE_BSSMAP, BE_REROUTE_REJ_CAUSE, NULL);
     /* Layer 3 Information 3.2.2.24 MSC-BSS O (note3) 3-n */
+    ELEM_OPT_TLV(BE_L3_INFO, GSM_A_PDU_TYPE_BSSMAP, BE_L3_INFO, NULL);
     /* Send Sequence Number 3.2.2.113 MSC-BSS O (note 4) 2 */
+    ELEM_OPT_TV(BE_SEND_SEQN, GSM_A_PDU_TYPE_BSSMAP, BE_SEND_SEQN, NULL);
     /* IMSI 3.2.2.6 MSC-BSS O (note 5) 3-10 */
+    ELEM_OPT_TLV(BE_IMSI, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 /*
  * 3.2.1.90 REROUTE COMPLETE
  */
 
-    /* Reroute complete outcome 3.2.2.114 MSC-BSS M 2 */
+static void
+bssmap_reroute_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
 
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Reroute complete outcome 3.2.2.114 MSC-BSS M 2 */
+    ELEM_MAND_TV(BE_REROUTE_OUTCOME, GSM_A_PDU_TYPE_BSSMAP, BE_REROUTE_OUTCOME, NULL);
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+#if 0
 /*
  * 3.2.1.91 LCLS-CONNECT-CONTROL
  */
@@ -7160,8 +7226,8 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     NULL,                               /* 0x75 LCLS-Connect-Control-Ack */
     NULL,                               /* 0x76 LCLS-Notification */
     NULL,                               /* 0x77 Unallocated */
-    NULL,                               /* 0x78 Reroute Command */
-    NULL,                               /* 0x79 Reroute Complete */
+    bssmap_reroute_cmd,                 /* 0x78 Reroute Command */
+    bssmap_reroute_complete,            /* 0x79 Reroute Complete */
 
     NULL,   /* NONE */
 };
@@ -7999,6 +8065,18 @@ proto_register_gsm_a_bssmap(void)
             FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_lcls_bss_status_vals), 0x0f,
             NULL, HFILL }
     },
+    { &hf_gsm_a_bssmap_selected_plmn_id,
+        { "Selected PLMN ID", "gsm_a.bssmap.selected_plmn_id",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+    },
+
+    };
+
+    expert_module_t* expert_gsm_a_bssmap;
+
+    static ei_register_info ei[] = {
+        { &ei_gsm_a_bssmap_extraneous_data, { "gsm_a_bssmap.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -8034,6 +8112,9 @@ proto_register_gsm_a_bssmap(void)
     proto_register_field_array(proto_a_bssmap, hf, array_length(hf));
 
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_gsm_a_bssmap = expert_register_protocol(proto_a_bssmap);
+    expert_register_field_array(expert_gsm_a_bssmap, ei, array_length(ei));
 
     register_dissector("gsm_a_bssmap", dissect_bssmap, proto_a_bssmap);
 }
