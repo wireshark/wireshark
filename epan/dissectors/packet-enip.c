@@ -638,8 +638,8 @@ static const value_string dlr_flush_learning_update_vals[] = {
 };
 
 static const true_false_string dlr_lnknbrstatus_frame_type_vals = {
-    "Link_Status Frame",
-    "Neighbor_Status Frame"
+    "Neighbor_Status Frame",
+    "Link_Status Frame"
 };
 
 static GHashTable *enip_request_hashtable = NULL;
