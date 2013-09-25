@@ -1432,6 +1432,7 @@ DISSECTOR_INCLUDES =	\
 	packet-jxta.h	\
 	packet-kerberos.h	\
 	packet-klm.h	\
+	packet-l2tp.h	\
 	packet-ldap.h	\
 	packet-lcsap.h \
 	packet-ldp.h	\

@@ -71,6 +71,8 @@
 #include <epan/proto.h>
 #include <epan/wmem/wmem.h>
 
+#include "packet-l2tp.h"
+
 static int proto_l2tp = -1;
 static int hf_l2tp_type = -1;
 static int hf_l2tp_length_bit = -1;
@@ -1485,23 +1487,27 @@ static void process_control_avps(tvbuff_t *tvb,
                                  proto_tree *l2tp_tree,
                                  int idx,
                                  int length,
+								 guint32 ccid,
                                  l2tpv3_tunnel_t *tunnel)
 {
     proto_tree *l2tp_lcp_avp_tree, *l2tp_avp_tree = NULL, *l2tp_avp_tree_sub;
     proto_item *tf, *te;
 
-    int         msg_type  = 0;
-    gboolean    isStopCcn = FALSE;
-    int         avp_type;
-    guint32     avp_vendor_id;
-    guint16     avp_len;
-    guint16     ver_len_hidden;
-    tvbuff_t   *next_tvb, *avp_tvb;
-    int         digest_idx = 0;
-    guint16     digest_avp_len = 0;
-    proto_item *digest_item = NULL;
+    int                msg_type  = 0;
+    gboolean           isStopCcn = FALSE;
+    int                avp_type;
+    guint32            avp_vendor_id;
+    guint16            avp_len;
+    guint16            ver_len_hidden;
+    tvbuff_t          *next_tvb, *avp_tvb;
+    int                digest_idx = 0;
+    guint16            digest_avp_len = 0;
+    proto_item        *digest_item = NULL;
+    l2tp_cntrl_data_t *l2tp_cntrl_data = wmem_new0(wmem_packet_scope(), l2tp_cntrl_data_t);
 
     l2tpv3_session_t *session = NULL;
+
+	l2tp_cntrl_data->ccid = ccid;
 
     while (idx < length) {    /* Process AVP's */
         ver_len_hidden  = tvb_get_ntohs(tvb, idx);
@@ -1527,7 +1533,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
             } else {
                 /* Vendor-Specific AVP */
-                if (!dissector_try_uint(l2tp_vendor_avp_dissector_table, avp_vendor_id, avp_tvb, pinfo, l2tp_tree)){
+                if (!dissector_try_uint_new(l2tp_vendor_avp_dissector_table, avp_vendor_id, avp_tvb, pinfo, l2tp_tree, FALSE, l2tp_cntrl_data)){
                     tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
                                           avp_len, "Vendor %s AVP Type %u",
                                           val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
@@ -1602,6 +1608,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
         case CONTROL_MESSAGE:
             msg_type = tvb_get_ntohs(tvb, idx);
+            l2tp_cntrl_data->msg_type = msg_type;
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_message_type,
                                 tvb, idx, 2, ENC_BIG_ENDIAN);
 
@@ -2291,6 +2298,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     int     tmp_idx;
     guint16 length  = 0;        /* Length field */
     guint32 ccid    = 0;        /* Control Connection ID */
+    guint16 vendor_id = 0;
     guint16 avp_type;
     guint16 msg_type;
     guint16 control = 0;
@@ -2321,28 +2329,34 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             tmp_idx += 4;
         }
 
-        tmp_idx+=4;
+        tmp_idx+=2;
+
+        vendor_id = tvb_get_ntohs(tvb, tmp_idx);
+        tmp_idx+=2;
 
         avp_type = tvb_get_ntohs(tvb, tmp_idx);
         tmp_idx += 2;
 
-        if (avp_type == CONTROL_MESSAGE) {
-            /* We print message type */
-            msg_type = tvb_get_ntohs(tvb, tmp_idx);
-            col_add_fstr(pinfo->cinfo, COL_INFO,
-                            "%s - %s (tunnel id=%u)",
-                            control_msg ,
-                            val_to_str(msg_type, l2tp_message_type_short_str_vals, "Unknown (%u)"),
-                            ccid);
-        }
-        else {
-            /*
-                * This is not a control message.
-                * We never pass here except in case of bad l2tp packet!
-                */
-            col_add_fstr(pinfo->cinfo, COL_INFO,
-                            "%s (tunnel id=%u)",
-                            control_msg,  ccid);
+        /* If it's a vendor AVP let the vendor AVP dissector fill in the info column */
+        if ( vendor_id == VENDOR_IETF ) {
+            if (avp_type == CONTROL_MESSAGE) {
+                /* We print message type */
+                msg_type = tvb_get_ntohs(tvb, tmp_idx);
+                col_add_fstr(pinfo->cinfo, COL_INFO,
+                                "%s - %s (tunnel id=%u)",
+                                control_msg ,
+                                val_to_str(msg_type, l2tp_message_type_short_str_vals, "Unknown (%u)"),
+                                ccid);
+            }
+            else {
+                /*
+                    * This is not a control message.
+                    * We never pass here except in case of bad l2tp packet!
+                    */
+                col_add_fstr(pinfo->cinfo, COL_INFO,
+                                "%s (tunnel id=%u)",
+                                control_msg,  ccid);
+            }
         }
     }
 
@@ -2426,7 +2440,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         tunnel = l2tp_conv->tunnel;
     }
 
-    process_control_avps(tvb, pinfo, l2tp_tree, idx, length+baseIdx, tunnel);
+    process_control_avps(tvb, pinfo, l2tp_tree, idx, length+baseIdx, ccid, tunnel);
 
     if (tunnel == &tmp_tunnel && l2tp_conv->tunnel == NULL) {
         l2tp_conv->tunnel = wmem_new0(wmem_file_scope(), l2tpv3_tunnel_t);
@@ -2662,7 +2676,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
     if (LENGTH_BIT(control))
-        process_control_avps(tvb, pinfo, l2tp_tree, idx, length, NULL);
+        process_control_avps(tvb, pinfo, l2tp_tree, idx, length, -1, NULL);
 
     return tvb_length(tvb);
 }
