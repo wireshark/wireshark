@@ -2255,7 +2255,7 @@ Where:
 unique protocol number created with proto_register_protocol.  Protocols
 are typically registered in the proto_register_XXXX section of your
 dissector.  "data" is a pointer to the data you wish to associate with the
-conversation.  "data" usually points to "se_alloc'd" memory; the
+conversation.  "data" usually points to "wmem_alloc'd" memory; the
 memory will be automatically freed each time a new dissection begins
 and thus need not be managed (freed) by the dissector.
 Using the protocol number allows several dissectors to
@@ -2285,7 +2285,7 @@ returns a pointer to the data requested, or NULL if no data was found.
 
 After you are finished with a conversation, you can remove your association
 with this function.  Please note that ONLY the conversation entry is
-removed.  If you have allocated any memory for your data (other than with se_alloc),
+removed.  If you have allocated any memory for your data (other than with wmem_alloc),
  you must free it as well.
 
 The conversation_delete_proto_data prototype:
