@@ -687,7 +687,7 @@ static const TOP_ELEMENT_CONTROL canonifyTable[] = {
   { FALSE, FALSE, 0xA1, TRUE, &aSO_context, &aSO_context_len },
   { TRUE , FALSE, 0xA2, TRUE, &called_AP_title, &called_AP_title_len },
   { FALSE, FALSE, 0xA4, TRUE, &called_AP_invocation_id, &called_AP_invocation_id_len },
-  { FALSE, FALSE, 0xA3, TRUE, &calling_AE_qualifier, &calling_AE_qualifier_len },
+  { FALSE, FALSE, 0xA7, TRUE, &calling_AE_qualifier, &calling_AE_qualifier_len },
   { TRUE,  FALSE, 0xA8, TRUE, &calling_AP_invocation_id, &calling_AP_invocation_id_len },
   { FALSE, FALSE, 0x8B, TRUE, &mechanism_name, &mechanism_name_len },
   { FALSE, FALSE, 0xAC, TRUE, &calling_authentication_value, &calling_authentication_value_len },
