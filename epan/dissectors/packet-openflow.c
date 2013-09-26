@@ -41,7 +41,8 @@ dissector_handle_t eth_withoutfcs_handle;
 /* Initialize the protocol and registered fields */
 static int proto_openflow = -1;
 static int hf_openflow_version = -1;
-static int hf_openflow_type = -1;
+static int hf_openflow_1_0_type = -1;
+static int hf_openflow_1_3_type = -1;
 static int hf_openflow_length = -1;
 static int hf_openflow_xid = -1;
 
@@ -50,6 +51,7 @@ static int hf_openflow_datapath_mac = -1;
 static int hf_openflow_datapath_impl = -1;
 static int hf_openflow_n_buffers = -1;
 static int hf_openflow_n_tables = -1;
+static int hf_openflow_auxiliary_id = -1;
 static int hf_openflow_pad3 = -1;
 static int hf_openflow_capabilities = -1;
 static int hf_openflow_actions = -1;
@@ -122,6 +124,7 @@ static int hf_openflow_cookie = -1;
 static int hf_openflow_cookie_mask = -1;
 static int hf_openflow_padd8 = -1;
 static int hf_openflow_padd16 = -1;
+static int hf_openflow_padd32 = -1;
 static int hf_openflow_padd48 = -1;
 static int hf_openflow_actions_len = -1;
 static int hf_openflow_action_type = -1;
@@ -140,6 +143,7 @@ static int hf_openflow_priority = -1;
 static int hf_openflow_out_port = -1;
 static int hf_openflow_out_group = -1;
 static int hf_openflow_flags = -1;
+static int hf_openflow_multipart_request_type = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_openflow = -1;
@@ -165,47 +169,112 @@ static const value_string openflow_version_values[] = {
 };
 
 /* Immutable messages. */
-#define OFPT_HELLO                     0 /* Symmetric message */
-#define OFPT_ERROR                     1 /* Symmetric message */
-#define OFPT_ECHO_REQUEST              2 /* Symmetric message */
-#define OFPT_ECHO_REPLY                3 /* Symmetric message */
-#define OFPT_EXPERIMENTER              4 /* Symmetric message */
+#define OFPT_1_0_HELLO                     0 /* Symmetric message */
+#define OFPT_1_0_ERROR                     1 /* Symmetric message */
+#define OFPT_1_0_ECHO_REQUEST              2 /* Symmetric message */
+#define OFPT_1_0_ECHO_REPLY                3 /* Symmetric message */
+#define OFPT_1_0_VENDOR                    4 /* Symmetric message */
 /* Switch configuration messages. */
-#define OFPT_FEATURES_REQUEST          5 /* Controller/switch message */
-#define OFPT_FEATURES_REPLY            6 /* Controller/switch message */
-#define OFPT_GET_CONFIG_REQUEST        7 /* Controller/switch message */
-#define OFPT_GET_CONFIG_REPLY          8 /* Controller/switch message */
-#define OFPT_SET_CONFIG                9 /* Controller/switch message */
+#define OFPT_1_0_FEATURES_REQUEST          5 /* Controller/switch message */
+#define OFPT_1_0_FEATURES_REPLY            6 /* Controller/switch message */
+#define OFPT_1_0_GET_CONFIG_REQUEST        7 /* Controller/switch message */
+#define OFPT_1_0_GET_CONFIG_REPLY          8 /* Controller/switch message */
+#define OFPT_1_0_SET_CONFIG                9 /* Controller/switch message */
 /* Asynchronous messages. */
-#define OFPT_PACKET_IN                10 /* Async message */
-#define OFPT_FLOW_REMOVED             11 /* Async message */
-#define OFPT_PORT_STATUS              12 /* Async message */
+#define OFPT_1_0_PACKET_IN                10 /* Async message */
+#define OFPT_1_0_FLOW_REMOVED             11 /* Async message */
+#define OFPT_1_0_PORT_STATUS              12 /* Async message */
 /* Controller command messages. */
-#define OFPT_PACKET_OUT               13 /* Controller/switch message */
-#define OFPT_FLOW_MOD                 14 /* Controller/switch message */
-#define OFPT_GROUP_MOD                15 /* Controller/switch message */
-#define OFPT_PORT_MOD                 16 /* Controller/switch message */
-#define OFPT_TABLE_MOD                17 /* Controller/switch message */
-/* Multipart messages. */
-#define OFPT_MULTIPART_REQUEST        18 /* Controller/switch message */
-#define OFPT_MULTIPART_REPLY          19 /* Controller/switch message */
+#define OFPT_1_0_PACKET_OUT               13 /* Controller/switch message */
+#define OFPT_1_0_FLOW_MOD                 14 /* Controller/switch message */
+#define OFPT_1_0_PORT_MOD                 15 /* Controller/switch message */
+/* Statistics messages. */
+#define OFPT_1_0_STATS_REQUEST            16 /* Controller/switch message */
+#define OFPT_1_0_STATS_REPLY              17 /* Controller/switch message */
 /* Barrier messages. */
-#define OFPT_BARRIER_REQUEST          20 /* Controller/switch message */
-#define OFPT_BARRIER_REPLY            21 /* Controller/switch message */
+#define OFPT_1_0_BARRIER_REQUEST          18 /* Controller/switch message */
+#define OFPT_1_0_BARRIER_REPLY            19 /* Controller/switch message */
 /* Queue Configuration messages. */
-#define OFPT_QUEUE_GET_CONFIG_REQUEST 22 /* Controller/switch message */
-#define OFPT_QUEUE_GET_CONFIG_REPLY   23 /* Controller/switch message */
-/* Controller role change request messages. */
-#define OFPT_ROLE_REQUEST             24 /* Controller/switch message */
-#define OFPT_ROLE_REPLY               25 /* Controller/switch message */
-/* Asynchronous message configuration. */
-#define OFPT_GET_ASYNC_REQUEST        26 /* Controller/switch message */
-#define OFPT_GET_ASYNC_REPLY          27 /* Controller/switch message */
-#define OFPT_SET_ASYNC                28 /* Controller/switch message */
-/* Meters and rate limiters configuration messages. */
-#define OFPT_METER_MOD                29 /* Controller/switch message */
+#define OFPT_1_0_QUEUE_GET_CONFIG_REQUEST 20 /* Controller/switch message */
+#define OFPT_1_0_QUEUE_GET_CONFIG_REPLY   21 /* Controller/switch message */
 
-static const value_string openflow_type_values[] = {
+/* Immutable messages. */
+#define OFPT_1_3_HELLO                     0 /* Symmetric message */
+#define OFPT_1_3_ERROR                     1 /* Symmetric message */
+#define OFPT_1_3_ECHO_REQUEST              2 /* Symmetric message */
+#define OFPT_1_3_ECHO_REPLY                3 /* Symmetric message */
+#define OFPT_1_3_EXPERIMENTER              4 /* Symmetric message */
+/* Switch configuration messages. */
+#define OFPT_1_3_FEATURES_REQUEST          5 /* Controller/switch message */
+#define OFPT_1_3_FEATURES_REPLY            6 /* Controller/switch message */
+#define OFPT_1_3_GET_CONFIG_REQUEST        7 /* Controller/switch message */
+#define OFPT_1_3_GET_CONFIG_REPLY          8 /* Controller/switch message */
+#define OFPT_1_3_SET_CONFIG                9 /* Controller/switch message */
+/* Asynchronous messages. */
+#define OFPT_1_3_PACKET_IN                10 /* Async message */
+#define OFPT_1_3_FLOW_REMOVED             11 /* Async message */
+#define OFPT_1_3_PORT_STATUS              12 /* Async message */
+/* Controller command messages. */
+#define OFPT_1_3_PACKET_OUT               13 /* Controller/switch message */
+#define OFPT_1_3_FLOW_MOD                 14 /* Controller/switch message */
+#define OFPT_1_3_GROUP_MOD                15 /* Controller/switch message */
+#define OFPT_1_3_PORT_MOD                 16 /* Controller/switch message */
+#define OFPT_1_3_TABLE_MOD                17 /* Controller/switch message */
+/* Multipart messages. */
+#define OFPT_1_3_MULTIPART_REQUEST        18 /* Controller/switch message */
+#define OFPT_1_3_MULTIPART_REPLY          19 /* Controller/switch message */
+/* Barrier messages. */
+#define OFPT_1_3_BARRIER_REQUEST          20 /* Controller/switch message */
+#define OFPT_1_3_BARRIER_REPLY            21 /* Controller/switch message */
+/* Queue Configuration messages. */
+#define OFPT_1_3_QUEUE_GET_CONFIG_REQUEST 22 /* Controller/switch message */
+#define OFPT_1_3_QUEUE_GET_CONFIG_REPLY   23 /* Controller/switch message */
+/* Controller role change request messages. */
+#define OFPT_1_3_ROLE_REQUEST             24 /* Controller/switch message */
+#define OFPT_1_3_ROLE_REPLY               25 /* Controller/switch message */
+/* Asynchronous message configuration. */
+#define OFPT_1_3_GET_ASYNC_REQUEST        26 /* Controller/switch message */
+#define OFPT_1_3_GET_ASYNC_REPLY          27 /* Controller/switch message */
+#define OFPT_1_3_SET_ASYNC                28 /* Controller/switch message */
+/* Meters and rate limiters configuration messages. */
+#define OFPT_1_3_METER_MOD                29 /* Controller/switch message */
+
+static const value_string openflow_1_0_type_values[] = {
+/* Immutable messages. */
+
+/* Immutable messages. */
+    { 0, "OFPT_HELLO" },              /* Symmetric message */
+    { 1, "OFPT_ERROR" },              /* Symmetric message */
+    { 2, "OFPT_ECHO_REQUEST" },       /* Symmetric message */
+    { 3, "OFPT_ECHO_REPLY" },         /* Symmetric message */
+    { 4, "OFPT_VENDOR" },             /* Symmetric message */
+/* Switch configuration messages. */
+    { 5, "OFPT_FEATURES_REQUEST" },   /* Controller/switch message */
+    { 6, "OFPT_FEATURES_REPLY" },     /* Controller/switch message */
+    { 7, "OFPT_GET_CONFIG_REQUEST" }, /* Controller/switch message */
+    { 8, "OFPT_GET_CONFIG_REPLY" },   /* Controller/switch message */
+    { 9, "OFPT_SET_CONFIG" },         /* Controller/switch message */
+/* Asynchronous messages. */
+    { 10, "OFPT_PACKET_IN" },                /* Async message */
+    { 11, "OFPT_FLOW_REMOVED" },             /* Async message */
+    { 12, "OFPT_PORT_STATUS" },              /* Async message */
+/* Controller command messages. */
+    { 13, "OFPT_PACKET_OUT" },               /* Controller/switch message */
+    { 14, "OFPT_FLOW_MOD" },                 /* Controller/switch message */
+    { 15, "OFPT_PORT_MOD" },                 /* Controller/switch message */
+/* Statistics messages. */
+    { 16, "OFPT_STATS_REQUEST" },            /* Controller/switch message */
+    { 17, "OFPT_STATS_REPLY" },              /* Controller/switch message */
+/* Barrier messages. */
+    { 18, "OFPT_BARRIER_REQUEST" },          /* Controller/switch message */
+    { 19, "OFPT_BARRIER_REPLY" },            /* Controller/switch message */
+/* Queue Configuration messages. */
+    { 20, "OFPT_QUEUE_GET_CONFIG_REQUEST" }, /* Controller/switch message */
+    { 21, "OFPT_QUEUE_GET_CONFIG_REPLY" },   /* Controller/switch message */
+    { 0, NULL }
+};
+
+static const value_string openflow_1_3_type_values[] = {
 /* Immutable messages. */
     { 0, "OFPT_HELLO" },              /* Symmetric message */
     { 1, "OFPT_ERROR" },              /* Symmetric message */
@@ -493,28 +562,25 @@ dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 /* 
  * Switch features. 
  *
-   struct ofp_switch_features {
-   struct ofp_header header;
-   uint64_t datapath_id; * Datapath unique ID. The lower 48-bits are for
-                           a MAC address, while the upper 16-bits are
-                           implementer-defined. *
-   uint32_t n_buffers;   * Max packets buffered at once. *
-   uint8_t n_tables;     * Number of tables supported by datapath. *
-   uint8_t pad[3];       * Align to 64-bits. *
+struct ofp_switch_features {
+struct ofp_header header;
+uint64_t datapath_id; * Datapath unique ID. The lower 48-bits are for
+a MAC address, while the upper 16-bits are
+implementer-defined. *
+uint32_t n_buffers; * Max packets buffered at once. *
+uint8_t n_tables; * Number of tables supported by datapath. *
+uint8_t pad[3]; * Align to 64-bits. *
 * Features. *
-   uint32_t capabilities;  * Bitmap of support "ofp_capabilities".   *
-   uptill 1.1
-       uint32_t actions;       * Bitmap of supported "ofp_action_type"s. *
-   from 1.2
-       uint32_t reserved;
+uint32_t capabilities; * Bitmap of support "ofp_capabilities". *
+uint32_t actions; * Bitmap of supported "ofp_action_type"s. *
 * Port info.*
-  struct ofp_phy_port ports[0]; * Port definitions. The number of ports
-                                  is inferred from the length field in
-                                  the header.
-  };
+struct ofp_phy_port ports[0]; /* Port definitions. The number of ports
+is inferred from the length field in
+the header. 
 */
+
 static void
-dissect_openflow_features_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 version, guint16 length)
+dissect_openflow_features_reply_v1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
 {
     proto_item *ti;
     proto_tree *path_id_tree, *cap_tree, *act_tree;
@@ -534,12 +600,6 @@ dissect_openflow_features_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(tree, hf_openflow_n_tables, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    if(version < OFP_VERSION_1_2){
-        proto_tree_add_item(tree, hf_openflow_pad3, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset+=3;
-    }else{
-    }
-
     ti = proto_tree_add_item(tree, hf_openflow_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
     cap_tree = proto_item_add_subtree(ti, ett_openflow_cap);
 
@@ -553,25 +613,21 @@ dissect_openflow_features_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(cap_tree, hf_openflow_port_blocked,   tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    if(version < OFP_VERSION_1_1){
-        ti = proto_tree_add_item(tree, hf_openflow_actions, tvb, offset, 4, ENC_BIG_ENDIAN);
-        act_tree = proto_item_add_subtree(ti, ett_openflow_act);
-        /* Dissect flags */
-        proto_tree_add_item(act_tree, hf_openflow_output, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_set_vlan_vid, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_set_vlan_pcp, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_strip_vlan, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_set_dl_src, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_set_dl_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_set_nw_src, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_set_nw_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_set_nw_tos, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_set_tp_src, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_set_tp_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(act_tree, hf_openflow_enqueue, tvb, offset, 4, ENC_BIG_ENDIAN);
-    }else{
-        proto_tree_add_item(tree, hf_openflow_reserved32, tvb, offset, 4, ENC_BIG_ENDIAN);
-    }
+    ti = proto_tree_add_item(tree, hf_openflow_actions, tvb, offset, 4, ENC_BIG_ENDIAN);
+    act_tree = proto_item_add_subtree(ti, ett_openflow_act);
+    /* Dissect flags */
+    proto_tree_add_item(act_tree, hf_openflow_output, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_set_vlan_vid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_set_vlan_pcp, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_strip_vlan, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_set_dl_src, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_set_dl_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_set_nw_src, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_set_nw_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_set_nw_tos, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_set_tp_src, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_set_tp_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(act_tree, hf_openflow_enqueue, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
     
     length_remaining = length-32;
@@ -590,6 +646,172 @@ dissect_openflow_features_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             offset+=48;
         }
     }
+
+}
+
+/* Switch features. /
+struct ofp_switch_features {
+	struct ofp_header header;
+	uint64_t datapath_id; /* Datapath unique ID. The lower 48-bits are for
+	a MAC address, while the upper 16-bits are
+	implementer-defined. /
+	uint32_t n_buffers; / Max packets buffered at once. /
+	uint8_t n_tables; / Number of tables supported by datapath. /
+	uint8_t auxiliary_id; / Identify auxiliary connections /
+	uint8_t pad[2]; / Align to 64-bits. /
+	/ Features. /
+	uint32_t capabilities; / Bitmap of support "ofp_capabilities". /
+	uint32_t reserved;
+};
+OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);
+*/
+
+
+static void
+dissect_openflow_features_reply_v1_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
+{
+    proto_item *ti;
+    proto_tree *path_id_tree, *cap_tree;
+    
+    ti = proto_tree_add_item(tree, hf_openflow_datapath_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+    path_id_tree = proto_item_add_subtree(ti, ett_openflow_path_id);
+    proto_tree_add_item(path_id_tree, hf_openflow_datapath_mac, tvb, offset, 6, ENC_NA);
+    offset+=6;
+    proto_tree_add_item(path_id_tree, hf_openflow_datapath_impl, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    proto_tree_add_item(tree, hf_openflow_n_buffers, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+	/* Number of tables supported by datapath. */
+    proto_tree_add_item(tree, hf_openflow_n_tables, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+	/* Identify auxiliary connections */
+    proto_tree_add_item(tree, hf_openflow_auxiliary_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+	/* Align to 64-bits. */
+    proto_tree_add_item(tree, hf_openflow_padd16, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    ti = proto_tree_add_item(tree, hf_openflow_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
+    cap_tree = proto_item_add_subtree(ti, ett_openflow_cap);
+
+    /* Dissect flags */
+    proto_tree_add_item(cap_tree, hf_openflow_cap_flow_stats, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_table_stats,    tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_port_stats,     tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_group_stats,    tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_ip_reasm,       tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_queue_stats,    tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cap_tree, hf_openflow_port_blocked,   tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    proto_tree_add_item(tree, hf_openflow_padd32, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+}
+
+/* enum ofp_multipart_types { */
+/* Description of this OpenFlow switch.
+* The request body is empty.
+* The reply body is struct ofp_desc. */
+#define OFPMP_DESC  0
+/* Individual flow statistics.
+* The request body is struct ofp_flow_stats_request.
+* The reply body is an array of struct ofp_flow_stats. */
+#define OFPMP_FLOW  1
+/* Aggregate flow statistics.
+* The request body is struct ofp_aggregate_stats_request.
+* The reply body is struct ofp_aggregate_stats_reply. */
+#define OFPMP_AGGREGATE  2
+/* Flow table statistics.
+* The request body is empty.
+* The reply body is an array of struct ofp_table_stats. */
+#define OFPMP_TABLE  3
+/* Port statistics.
+* The request body is struct ofp_port_stats_request.
+* The reply body is an array of struct ofp_port_stats. */
+#define OFPMP_PORT_STATS  4
+/* Queue statistics for a port
+* The request body is struct ofp_queue_stats_request.
+* The reply body is an array of struct ofp_queue_stats */
+#define OFPMP_QUEUE  5
+/* Group counter statistics.
+* The request body is struct ofp_group_stats_request.
+* The reply is an array of struct ofp_group_stats. */
+#define OFPMP_GROUP  6
+/* Group description.
+* The request body is empty.
+* The reply body is an array of struct ofp_group_desc_stats. */
+#define OFPMP_GROUP_DESC  7
+/* Group features.
+* The request body is empty.
+* The reply body is struct ofp_group_features. */
+#define OFPMP_GROUP_FEATURES  8
+/* Meter statistics.
+* The request body is struct ofp_meter_multipart_requests.
+* The reply body is an array of struct ofp_meter_stats. */
+#define OFPMP_METER  9
+/* Meter configuration.
+* The request body is struct ofp_meter_multipart_requests.
+* The reply body is an array of struct ofp_meter_config. */
+#define OFPMP_METER_CONFIG  10
+/* Meter features.
+* The request body is empty.
+* The reply body is struct ofp_meter_features. */
+#define OFPMP_METER_FEATURES  11
+/* Table features.
+* The request body is either empty or contains an array of
+* struct ofp_table_features containing the controller's
+* desired view of the switch. If the switch is unable to
+* set the specified view an error is returned.
+* The reply body is an array of struct ofp_table_features. */
+#define OFPMP_TABLE_FEATURES  12
+/* Port description.
+* The request body is empty.
+* The reply body is an array of struct ofp_port. */
+#define OFPMP_PORT_DESC  13
+/* Experimenter extension.
+* The request and reply bodies begin with
+* struct ofp_experimenter_multipart_header.
+* The request and reply bodies are otherwise experimenter-defined. */
+#define OFPMP_EXPERIMENTER  0xffff
+
+static const value_string openflow_multipart_request_type_values[] = {
+    { OFPMP_DESC,           "OFPMP_DESC" },
+    { OFPMP_FLOW,           "OFPMP_FLOW" },
+    { OFPMP_TABLE,          "OFPMP_TABLE" },
+    { OFPMP_PORT_STATS,     "OFPMP_PORT_STATS" },
+    { OFPMP_QUEUE,          "OFPMP_QUEUE" },
+    { OFPMP_GROUP,          "OFPMP_GROUP" },
+    { OFPMP_GROUP_DESC,     "OFPMP_GROUP_DESC" },
+    { OFPMP_GROUP_FEATURES, "OFPMP_GROUP_FEATURES" },
+    { OFPMP_METER,          "OFPMP_METER" },
+    { OFPMP_METER_CONFIG,   "OFPMP_METER_CONFIG" },
+    { OFPMP_METER_FEATURES, "OFPMP_METER_FEATURES" },
+    { OFPMP_TABLE_FEATURES, "OFPMP_TABLE_FEATURES" },
+    { OFPMP_PORT_DESC,      "OFPMP_PORT_DESC" },
+    { OFPMP_EXPERIMENTER,   "OFPMP_EXPERIMENTER" },
+    { 0, NULL }
+};
+
+/*
+struct ofp_multipart_request {
+struct ofp_header header;
+uint16_t type; / One of the OFPMP_* constants. /
+uint16_t flags; / OFPMPF_REQ_* flags. /
+uint8_t pad[4];
+uint8_t body[0]; / Body of the request. /
+};
+*/
+static void
+dissect_openflow_multipart_request_v1_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
+{
+
+	/* type */
+    proto_tree_add_item(tree, hf_openflow_multipart_request_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
 
 }
 
@@ -806,9 +1028,8 @@ dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	 }
 #endif
 }
-/* Code to actually dissect the packets */
-static int
-dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+
+dissect_openflow_v_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *openflow_tree;
@@ -816,24 +1037,14 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     guint8 type, version;
     guint16 length;
 
-
-    version = tvb_get_guint8(tvb, 0);
+	version = tvb_get_guint8(tvb, 0);
     type    = tvb_get_guint8(tvb, 1);
-    /* Set the Protocol column to the constant string of openflow */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow");
-    col_clear(pinfo->cinfo,COL_INFO);
 
-    if((version&0x80)==0x80){
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow experimental version");
-        proto_tree_add_text(tree, tvb, offset, -1, "Experimental versions not dissected");
-    }else{
-        version = version & 0x7f;
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow");
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
-                  val_to_str_const(type, openflow_type_values, "Unknown Messagetype"));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
+                  val_to_str_const(type, openflow_1_0_type_values, "Unknown Messagetype"));
+   
     /* Stop the Ethernet frame from overwriting the columns */
-    if((type == OFPT_PACKET_IN) || (type == OFPT_PACKET_OUT)){
+    if((type == OFPT_1_0_PACKET_IN) || (type == OFPT_1_0_PACKET_OUT)){
         col_set_writable(pinfo->cinfo, FALSE);
     }
 
@@ -847,7 +1058,7 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset++;
 
     /* One of the OFPT_ constants. */
-    proto_tree_add_item(openflow_tree, hf_openflow_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(openflow_tree, hf_openflow_1_0_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Length including this ofp_header. */
@@ -862,35 +1073,35 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset+=4;
 
     switch(type){
-    case OFPT_HELLO: /* 0 */
+    case OFPT_1_0_HELLO: /* 0 */
         /* 5.5.1 Hello
          * The OFPT_HELLO message has no body;
          */
         break;
-    case OFPT_FEATURES_REQUEST: /* 5 */
+    case OFPT_1_0_FEATURES_REQUEST: /* 5 */
         /* 5.3.1 Handshake
          * Upon TLS session establishment, the controller sends an OFPT_FEATURES_REQUEST
          * message. This message does not contain a body beyond the OpenFlow header.
          */
         break;
-    case OFPT_FEATURES_REPLY: /* 6 */
-        dissect_openflow_features_reply(tvb, pinfo, openflow_tree, offset, version, length);
+    case OFPT_1_0_FEATURES_REPLY: /* 6 */
+        dissect_openflow_features_reply_v1_0(tvb, pinfo, openflow_tree, offset, length);
         break;
-    case OFPT_GET_CONFIG_REQUEST: /* 7 */
+    case OFPT_1_0_GET_CONFIG_REQUEST: /* 7 */
         /* A.3.2 There is no body for OFPT_GET_CONFIG_REQUEST beyond the OpenFlow header. */
         break;
-    case OFPT_GET_CONFIG_REPLY: /* 8 */
+    case OFPT_1_0_GET_CONFIG_REPLY: /* 8 */
         /* Fall trough */
-    case OFPT_SET_CONFIG: /* 9 */
+    case OFPT_1_0_SET_CONFIG: /* 9 */
         dissect_openflow_switch_config(tvb, pinfo, openflow_tree, offset, version, length);
         break;
-    case OFPT_PACKET_IN: /* 10 */
+    case OFPT_1_0_PACKET_IN: /* 10 */
         dissect_openflow_pkt_in(tvb, pinfo, openflow_tree, offset, version, length);
         break;
-    case OFPT_PACKET_OUT: /* 13 */
+    case OFPT_1_0_PACKET_OUT: /* 13 */
         dissect_openflow_pkt_out(tvb, pinfo, openflow_tree, offset, version, length);
         break;
-    case OFPT_FLOW_MOD: /* 14 */
+    case OFPT_1_0_FLOW_MOD: /* 14 */
         dissect_openflow_flow_mod(tvb, pinfo, openflow_tree, offset, version, length);
         break;
     default:
@@ -901,6 +1112,118 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
     return tvb_length(tvb);
+
+}
+
+dissect_openflow_v_1_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    proto_item *ti;
+    proto_tree *openflow_tree;
+    guint offset = 0;
+    guint8 type, version;
+    guint16 length;
+
+	version = tvb_get_guint8(tvb, 0);
+    type    = tvb_get_guint8(tvb, 1);
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
+                  val_to_str_const(type, openflow_1_3_type_values, "Unknown Messagetype"));
+   
+    /* Stop the Ethernet frame from overwriting the columns */
+    if((type == OFPT_1_3_PACKET_IN) || (type == OFPT_1_3_PACKET_OUT)){
+        col_set_writable(pinfo->cinfo, FALSE);
+    }
+
+    /* Create display subtree for the protocol */
+    ti = proto_tree_add_item(tree, proto_openflow, tvb, 0, -1, ENC_NA);
+    openflow_tree = proto_item_add_subtree(ti, ett_openflow);
+
+    /* A.1 OpenFlow Header. */
+    /* OFP_VERSION. */
+    proto_tree_add_item(openflow_tree, hf_openflow_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* One of the OFPT_ constants. */
+    proto_tree_add_item(openflow_tree, hf_openflow_1_3_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* Length including this ofp_header. */
+    length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(openflow_tree, hf_openflow_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* Transaction id associated with this packet. Replies use the same id as was in the request
+     * to facilitate pairing. 
+     */
+    proto_tree_add_item(openflow_tree, hf_openflow_xid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+    switch(type){
+    case OFPT_1_3_HELLO: /* 0 */
+        /* 5.5.1 Hello
+         * The OFPT_HELLO message has no body;
+         */
+        break;
+    case OFPT_1_3_FEATURES_REQUEST: /* 5 */
+        /* 5.3.1 Handshake
+         * Upon TLS session establishment, the controller sends an OFPT_FEATURES_REQUEST
+         * message. This message does not contain a body beyond the OpenFlow header.
+         */
+        break;
+    case OFPT_1_0_FEATURES_REPLY: /* 6 */
+        dissect_openflow_features_reply_v1_3(tvb, pinfo, openflow_tree, offset, length);
+        break;
+
+	case OFPT_1_3_MULTIPART_REQUEST: /* 18 */
+        dissect_openflow_multipart_request_v1_3(tvb, pinfo, openflow_tree, offset, length);
+		break;
+	default:
+        if(length>8){
+            proto_tree_add_text(tree, tvb, offset, -1, "Message data not dissected yet");
+        }
+		break;
+	}
+
+	return tvb_length(tvb);
+
+}
+
+/* Code to actually dissect the packets */
+static int
+dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint offset = 0;
+    guint8 version;
+
+
+    version = tvb_get_guint8(tvb, 0);
+    /* Set the Protocol column to the constant string of openflow */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow");
+    col_clear(pinfo->cinfo,COL_INFO);
+
+    if((version&0x80)==0x80){
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow experimental version");
+        proto_tree_add_text(tree, tvb, offset, -1, "Experimental versions not dissected");
+		return 0;
+	}
+    version = version & 0x7f;
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow");
+
+	switch(version){
+	case OFP_VERSION_1_0:
+		offset = dissect_openflow_v_1_0(tvb, pinfo, tree, data);
+		break;
+	case OFP_VERSION_1_3:
+		offset = dissect_openflow_v_1_3(tvb, pinfo, tree, data);
+		break;
+	default:
+		proto_tree_add_item(tree, hf_openflow_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_text(tree, tvb, offset, -1, "Unsuported version not dissected");
+		offset = tvb_length(tvb);
+		break;
+	}
+
+	return offset;
 }
 
 /* Register the protocol with Wireshark.
@@ -919,9 +1242,14 @@ proto_register_openflow(void)
                FT_UINT8, BASE_HEX, VALS(openflow_version_values), 0x7f,
                NULL, HFILL }
         },
-        { &hf_openflow_type,
-            { "Type", "openflow.type",
-               FT_UINT8, BASE_DEC, VALS(openflow_type_values), 0x0,
+        { &hf_openflow_1_0_type,
+            { "Type", "openflow_1_0.type",
+               FT_UINT8, BASE_DEC, VALS(openflow_1_0_type_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_1_3_type,
+            { "Type", "openflow_1_3.type",
+               FT_UINT8, BASE_DEC, VALS(openflow_1_3_type_values), 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_xid,
@@ -956,6 +1284,11 @@ proto_register_openflow(void)
         },
         { &hf_openflow_n_tables,
             { "n_tables", "openflow.n_tables",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_auxiliary_id,
+            { "auxiliary_id", "openflow.auxiliary_id",
                FT_UINT8, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
@@ -1274,6 +1607,11 @@ proto_register_openflow(void)
                FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+        { &hf_openflow_padd32,
+            { "Padding", "openflow.padding32",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
         { &hf_openflow_padd48,
             { "Padding", "openflow.padding48",
                FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -1361,6 +1699,11 @@ proto_register_openflow(void)
         },
         { &hf_openflow_flags,
             { "Flags", "openflow.flags",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_multipart_request_type,
+            { "Type", "openflow.multipart_request_type",
                FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
