@@ -574,7 +574,7 @@ uint8_t pad[3]; * Align to 64-bits. *
 uint32_t capabilities; * Bitmap of support "ofp_capabilities". *
 uint32_t actions; * Bitmap of supported "ofp_action_type"s. *
 * Port info.*
-struct ofp_phy_port ports[0]; /* Port definitions. The number of ports
+struct ofp_phy_port ports[0]; / Port definitions. The number of ports
 is inferred from the length field in
 the header. 
 */
@@ -652,7 +652,7 @@ dissect_openflow_features_reply_v1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /* Switch features. /
 struct ofp_switch_features {
 	struct ofp_header header;
-	uint64_t datapath_id; /* Datapath unique ID. The lower 48-bits are for
+	uint64_t datapath_id; / Datapath unique ID. The lower 48-bits are for
 	a MAC address, while the upper 16-bits are
 	implementer-defined. /
 	uint32_t n_buffers; / Max packets buffered at once. /
@@ -668,7 +668,7 @@ OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);
 
 
 static void
-dissect_openflow_features_reply_v1_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
+dissect_openflow_features_reply_v1_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_item *ti;
     proto_tree *path_id_tree, *cap_tree;
@@ -806,7 +806,7 @@ uint8_t body[0]; / Body of the request. /
 };
 */
 static void
-dissect_openflow_multipart_request_v1_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
+dissect_openflow_multipart_request_v1_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
 
 	/* type */
@@ -1029,6 +1029,7 @@ dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 #endif
 }
 
+static int
 dissect_openflow_v_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
@@ -1115,6 +1116,7 @@ dissect_openflow_v_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 }
 
+static int
 dissect_openflow_v_1_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
