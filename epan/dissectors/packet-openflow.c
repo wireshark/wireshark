@@ -22,7 +22,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref https://www.opennetworking.org/sdn-resources/onf-specifications/openflow 
+ * Ref https://www.opennetworking.org/sdn-resources/onf-specifications/openflow
  */
 
 #include "config.h"
@@ -60,7 +60,7 @@ static int hf_openflow_cap_flow_stats = -1;
 static int hf_openflow_table_stats = -1;
 static int hf_openflow_port_stats = -1;
 static int hf_openflow_group_stats = -1;
-static int hf_openflow_ip_reasm = -1; 
+static int hf_openflow_ip_reasm = -1;
 static int hf_openflow_queue_stats = -1;
 static int hf_openflow_port_blocked = -1;
 
@@ -412,7 +412,7 @@ dissect_openflow_ofp_match_v_1_0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     /* uint16_t dl_type; Ethernet frame type. */
     /* uint8_t nw_tos; IP ToS (actually DSCP field, 6 bits). */
     /* uint8_t nw_proto; IP protocol or lower 8 bits of
-     * ARP opcode. 
+     * ARP opcode.
      */
     /* uint8_t pad2[2]; Align to 64-bits */
     /* uint32_t nw_src; IP source address. */
@@ -453,7 +453,7 @@ dissect_openflow_action_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* Length of action, including this
      * header. This is the length of action,
      * including any padding to make it
-     * 64-bit aligned. 
+     * 64-bit aligned.
      */
     action_len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_openflow_action_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -559,8 +559,8 @@ dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 
 }
-/* 
- * Switch features. 
+/*
+ * Switch features.
  *
 struct ofp_switch_features {
 struct ofp_header header;
@@ -576,7 +576,7 @@ uint32_t actions; * Bitmap of supported "ofp_action_type"s. *
 * Port info.*
 struct ofp_phy_port ports[0]; / Port definitions. The number of ports
 is inferred from the length field in
-the header. 
+the header.
 */
 
 static void
@@ -586,7 +586,7 @@ dissect_openflow_features_reply_v1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree *path_id_tree, *cap_tree, *act_tree;
 
     guint16 length_remaining;
-    
+
     ti = proto_tree_add_item(tree, hf_openflow_datapath_id, tvb, offset, 8, ENC_BIG_ENDIAN);
     path_id_tree = proto_item_add_subtree(ti, ett_openflow_path_id);
     proto_tree_add_item(path_id_tree, hf_openflow_datapath_mac, tvb, offset, 6, ENC_NA);
@@ -629,7 +629,7 @@ dissect_openflow_features_reply_v1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree_add_item(act_tree, hf_openflow_set_tp_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(act_tree, hf_openflow_enqueue, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
-    
+
     length_remaining = length-32;
     if(length_remaining > 0){
         guint16 num_ports = length_remaining/48;
@@ -672,7 +672,7 @@ dissect_openflow_features_reply_v1_3(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 {
     proto_item *ti;
     proto_tree *path_id_tree, *cap_tree;
-    
+
     ti = proto_tree_add_item(tree, hf_openflow_datapath_id, tvb, offset, 8, ENC_BIG_ENDIAN);
     path_id_tree = proto_item_add_subtree(ti, ett_openflow_path_id);
     proto_tree_add_item(path_id_tree, hf_openflow_datapath_mac, tvb, offset, 6, ENC_NA);
@@ -895,7 +895,7 @@ dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_item(tree, hf_openflow_buffer_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    /* uint32_t in_port; Packet's input port or OFPP_CONTROLLER. */ 
+    /* uint32_t in_port; Packet's input port or OFPP_CONTROLLER. */
     proto_tree_add_item(tree, hf_openflow_in_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
@@ -952,7 +952,7 @@ dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         /* uint64_t cookie_mask; Mask used to restrict the cookie bits
          * that must match when the command is
          * OFPFC_MODIFY* or OFPFC_DELETE*. A value
-         * of 0 indicates no restriction. 
+         * of 0 indicates no restriction.
          */
         proto_tree_add_item(tree, hf_openflow_cookie_mask, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset+=8;
@@ -1043,7 +1043,7 @@ dissect_openflow_v_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
                   val_to_str_const(type, openflow_1_0_type_values, "Unknown Messagetype"));
-   
+
     /* Stop the Ethernet frame from overwriting the columns */
     if((type == OFPT_1_0_PACKET_IN) || (type == OFPT_1_0_PACKET_OUT)){
         col_set_writable(pinfo->cinfo, FALSE);
@@ -1068,7 +1068,7 @@ dissect_openflow_v_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     offset+=2;
 
     /* Transaction id associated with this packet. Replies use the same id as was in the request
-     * to facilitate pairing. 
+     * to facilitate pairing.
      */
     proto_tree_add_item(openflow_tree, hf_openflow_xid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
@@ -1122,15 +1122,14 @@ dissect_openflow_v_1_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_item *ti;
     proto_tree *openflow_tree;
     guint offset = 0;
-    guint8 type, version;
+    guint8 type;
     guint16 length;
 
-	version = tvb_get_guint8(tvb, 0);
     type    = tvb_get_guint8(tvb, 1);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
                   val_to_str_const(type, openflow_1_3_type_values, "Unknown Messagetype"));
-   
+
     /* Stop the Ethernet frame from overwriting the columns */
     if((type == OFPT_1_3_PACKET_IN) || (type == OFPT_1_3_PACKET_OUT)){
         col_set_writable(pinfo->cinfo, FALSE);
@@ -1155,7 +1154,7 @@ dissect_openflow_v_1_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     offset+=2;
 
     /* Transaction id associated with this packet. Replies use the same id as was in the request
-     * to facilitate pairing. 
+     * to facilitate pairing.
      */
     proto_tree_add_item(openflow_tree, hf_openflow_xid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
