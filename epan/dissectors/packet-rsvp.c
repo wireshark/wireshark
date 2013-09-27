@@ -283,6 +283,8 @@ static int hf_rsvp_xro_sobj_ipv6_attr = -1;
 static int hf_rsvp_xro_sobj_srlg_id = -1;
 static int hf_rsvp_xro_sobj_srlg_res = -1;
 static int hf_rsvp_private_data = -1;
+static int hf_rsvp_juniper_path = -1;
+static int hf_rsvp_juniper_unknown = -1;
 static int hf_rsvp_unknown_data = -1;
 
 static dissector_table_t rsvp_dissector_table;
@@ -452,6 +454,7 @@ enum {
     TT_DIFFSERV_MAP_PHBID,
     TT_CLASSTYPE,
     TT_PRIVATE_CLASS,
+    TT_JUNIPER,
     TT_UNKNOWN_CLASS,
     TT_3GPP_OBJ_FLOW,
     TT_3GPP_OBJ_QOS,
@@ -1345,6 +1348,12 @@ static const value_string rsvp_xro_sobj_ip_attr_vals[] = {
     {  0, NULL }
 };
 
+static const value_string rsvp_juniper_patch_attr_vals[] = {
+    {  0x0200, "Primary path" },
+    {  0x0300, "Secondary path" },
+    {  0, NULL }
+};
+
 /* -------------------- Stuff for MPLS/TE objects -------------------- */
 
 static const value_string proto_vals[] = {
@@ -1483,6 +1492,8 @@ enum hf_rsvp_filter_keys {
     /* Vendor Private objects */
     RSVPF_PRIVATE_OBJ,
     RSVPF_ENT_CODE,
+
+    RSVPF_JUNIPER,
 
     /* Sentinel */
     RSVPF_MAX
@@ -1708,6 +1719,8 @@ rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_EXCLUDE_ROUTE:
         return RSVPF_EXCLUDE_ROUTE;
 
+    case RSVP_CLASS_JUNIPER_PROPERTIES :
+        return RSVPF_JUNIPER;
     case RSVP_CLASS_VENDOR_PRIVATE_1:
     case RSVP_CLASS_VENDOR_PRIVATE_2:
     case RSVP_CLASS_VENDOR_PRIVATE_3:
@@ -1799,6 +1812,8 @@ rsvp_class_to_tree_type(int classnum)
         return TT_LSP_ATTRIBUTES;
     case RSVP_CLASS_ASSOCIATION :
         return TT_ASSOCIATION;
+    case RSVP_CLASS_JUNIPER_PROPERTIES :
+        return TT_JUNIPER;
     case RSVP_CLASS_SESSION_ATTRIBUTE :
         return TT_SESSION_ATTRIBUTE;
     case RSVP_CLASS_GENERALIZED_UNI :
@@ -7023,6 +7038,38 @@ dissect_rsvp_vendor_private_use(proto_tree *ti _U_,
 }
 
 /*----------------------------------------------------------------------------
+ * JUNIPER PROPRIETARY
+ *---------------------------------------------------------------------------*/
+static void
+dissect_rsvp_juniper(proto_tree *ti _U_,
+                                proto_tree *rsvp_object_tree,
+                                tvbuff_t *tvb,
+                                int offset, int obj_length,
+                                int rsvp_class _U_, int type)
+{
+    /*
+     * Juniper proprietary TLVs
+     */
+    proto_item *hidden_item;
+
+    hidden_item = proto_tree_add_item(rsvp_object_tree,
+                                      hf_rsvp_filter[RSVPF_JUNIPER],
+                                      tvb, offset, obj_length, ENC_NA);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset + 3, 1,
+                        "C-type: %u", type);
+    if (obj_length == 12) {
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_unknown, tvb,
+                offset + 4, 6, ENC_NA);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_path, tvb,
+                offset + 10, obj_length - 10, ENC_NA);
+    } else if (obj_length > 4) {
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_unknown, tvb,
+                offset + 4, obj_length - 4, ENC_NA);
+    }
+}
+
+/*----------------------------------------------------------------------------
  * UNKOWN
  *---------------------------------------------------------------------------*/
 static void
@@ -7366,6 +7413,8 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSVP_CLASS_JUNIPER_PROPERTIES:
+            dissect_rsvp_juniper(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            break;
         case RSVP_CLASS_NULL:
         default:
             dissect_rsvp_unknown(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
@@ -7965,6 +8014,12 @@ proto_register_rsvp(void)
         {&hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
          { "Extended tunnel ID", "rsvp.session.ext_tunnel_id",
            FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_filter[RSVPF_JUNIPER],
+         { "Juniper", "rsvp.juniper",
+           FT_NONE, BASE_NONE, NULL, 0x0,
            NULL, HFILL }
         },
 
@@ -8984,6 +9039,13 @@ proto_register_rsvp(void)
          }
         },
 
+        { &hf_rsvp_xro_sobj_srlg_res,
+         { "Reserved", "rsvp.xro.sobj.srlg.res",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
         { &hf_rsvp_private_data,
          { "Data", "rsvp.private.data",
            FT_BYTES, BASE_NONE, NULL, 0,
@@ -8991,16 +9053,23 @@ proto_register_rsvp(void)
          }
         },
 
-        { &hf_rsvp_unknown_data,
-         { "Data", "rsvp.unknown.data",
+        { &hf_rsvp_juniper_unknown,
+         { "JNP Unknown", "rsvp.juniper.unknown",
            FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL
          }
         },
 
-        { &hf_rsvp_xro_sobj_srlg_res,
-         { "Reserved", "rsvp.xro.sobj.srlg.res",
-           FT_UINT16, BASE_DEC, NULL, 0,
+        { &hf_rsvp_juniper_path,
+         { "JNP Path", "rsvp.juniper.path",
+           FT_UINT16, BASE_HEX, VALS(rsvp_juniper_patch_attr_vals), 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_unknown_data,
+         { "Data", "rsvp.unknown.data",
+           FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL
          }
         }
