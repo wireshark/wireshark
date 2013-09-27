@@ -5190,7 +5190,8 @@ static void mac_lte_drx_dl_crc_error(guint16 ueid)
     }
 }
 
-static void mac_lte_drx_control_element_received(guint16 ueid)
+/* TODO: make static again when called! */
+void mac_lte_drx_control_element_received(guint16 ueid)
 {
     /* Look up state of this UE */
     drx_state_t *ue_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_ue_state,
@@ -5203,7 +5204,6 @@ static void mac_lte_drx_control_element_received(guint16 ueid)
         mac_lte_drx_stop_timer(ue_state, drx_inactivity_timer, 0);
     } 
 }
-
 
 
 
