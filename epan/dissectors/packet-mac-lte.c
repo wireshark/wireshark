@@ -1297,7 +1297,7 @@ static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
 }
 
 /* Show DRX information associated with this MAC frame */
-static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, guint16 ueid,
+static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                           mac_lte_info *p_mac_lte_info)
 {
     drx_state_t *drx_state_entry;
@@ -3001,7 +3001,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             set_drx_info(pinfo, p_mac_lte_info);
         }
         /* Show stored DRX info every time */
-        show_drx_info(pinfo, tree, tvb, p_mac_lte_info->ueid, p_mac_lte_info);
+        show_drx_info(pinfo, tree, tvb, p_mac_lte_info);
     }
 
     /* For uplink frames, if this is logged as a resend, look for original tx */
