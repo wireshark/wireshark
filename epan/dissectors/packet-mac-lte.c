@@ -1257,7 +1257,8 @@ static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state _U_, drx_time
 static void mac_lte_drx_new_ulsch_data(guint16 ueid);
 static void mac_lte_drx_new_dlsch_data(guint16 ueid);
 static void mac_lte_drx_dl_crc_error(guint16 ueid);
-static void mac_lte_drx_control_element_received(guint16 ueid);
+/* TODO: make static again once called */
+void mac_lte_drx_control_element_received(guint16 ueid);
 
 /* Update the DRX state of the UE based on previous info and current time */
 static void update_drx_info(drx_state_t *ue_state, packet_info *pinfo)
