@@ -73,6 +73,12 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Files with pcap-ng Simple Packet Blocks can't be read.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9200">Bug
+          9200</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
