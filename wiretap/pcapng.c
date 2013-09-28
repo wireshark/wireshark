@@ -1114,7 +1114,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
                     wblock->data.packet.interface_id, pn->number_of_interfaces);
-                return FALSE;
+                return 0;
         }
         int_data = g_array_index(pn->interface_data, interface_data_t,
             wblock->data.packet.interface_id);
@@ -1138,7 +1138,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                                                        err,
                                                        err_info);
         if (pseudo_header_len < 0) {
-                return FALSE;
+                return 0;
         }
         block_read += pseudo_header_len;
         if (pseudo_header_len != pcap_get_phdr_size(int_data.wtap_encap, &wblock->packet_header->pseudo_header)) {
@@ -1157,7 +1157,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
 	    wblock->data.packet.cap_len - pseudo_header_len, err, err_info))
-		return FALSE;
+		return 0;
         block_read += wblock->data.packet.cap_len - pseudo_header_len;
 
         /* jump over potential padding bytes at end of the packet data */
@@ -1338,6 +1338,8 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         wblock->data.simple_packet.cap_len = bh->block_total_length
                                              - (guint32)sizeof(pcapng_simple_packet_block_t)
                                              - (guint32)sizeof(bh->block_total_length);
+        if (wblock->data.simple_packet.cap_len > wblock->data.simple_packet.packet_len)
+                wblock->data.simple_packet.cap_len = wblock->data.simple_packet.packet_len;
 
         if (wblock->data.simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
                 *err = WTAP_ERR_BAD_FILE;
@@ -1352,7 +1354,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng: interface index 0 is not less than interface count %u.",
                     pn->number_of_interfaces);
-                return FALSE;
+                return 0;
         }
         int_data = g_array_index(pn->interface_data, interface_data_t, 0);
 
@@ -1396,7 +1398,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
 	    wblock->data.simple_packet.cap_len, err, err_info))
-		return FALSE;
+		return 0;
         block_read += wblock->data.simple_packet.cap_len;
 
         /* jump over potential padding bytes at end of the packet data */
