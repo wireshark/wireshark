@@ -143,7 +143,9 @@ static int hf_openflow_priority = -1;
 static int hf_openflow_out_port = -1;
 static int hf_openflow_out_group = -1;
 static int hf_openflow_flags = -1;
-static int hf_openflow_multipart_request_type = -1;
+static int hf_openflow_multipart_type = -1;
+static int hf_openflow_multipart_request_flags = -1;
+static int hf_openflow_multipart_reply_flags = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_openflow = -1;
@@ -164,7 +166,7 @@ static const value_string openflow_version_values[] = {
     { 0x01, "1.0" },
     { 0x02, "1.1" },
     { 0x03, "1.2" },
-    { 0x04, "1.3" },
+    { 0x04, "1.3.1" },
     { 0, NULL }
 };
 
@@ -778,7 +780,7 @@ dissect_openflow_features_reply_v1_3(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 * The request and reply bodies are otherwise experimenter-defined. */
 #define OFPMP_EXPERIMENTER  0xffff
 
-static const value_string openflow_multipart_request_type_values[] = {
+static const value_string openflow_multipart_type_values[] = {
     { OFPMP_DESC,           "OFPMP_DESC" },
     { OFPMP_FLOW,           "OFPMP_FLOW" },
     { OFPMP_TABLE,          "OFPMP_TABLE" },
@@ -808,10 +810,67 @@ uint8_t body[0]; / Body of the request. /
 static void
 dissect_openflow_multipart_request_v1_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
+	guint16 type;
 
 	/* type */
-    proto_tree_add_item(tree, hf_openflow_multipart_request_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	type = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_openflow_multipart_type , tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
+
+	/* uint16_t flags OFPMPF_REQ_* flags. */
+    proto_tree_add_item(tree, hf_openflow_multipart_request_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    proto_tree_add_item(tree, hf_openflow_padd32, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+	switch(type){
+	case OFPMP_DESC: /* 0 */
+		/* The request body is empty. */
+		break;
+	case OFPMP_FLOW:
+		/* The request body is struct ofp_flow_stats_request. */
+		proto_tree_add_text(tree, tvb, offset, -1, "struct ofp_flow_stats_request - not dissected yet");
+		break;
+	default:
+		if(length>16)
+			proto_tree_add_text(tree, tvb, offset, -1, "Type - not dissected yet");
+		break;
+	}
+
+}
+
+static void
+dissect_openflow_multipart_reply_v1_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+{
+	guint16 type;
+
+	/* type */
+	type = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_openflow_multipart_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+	/* uint16_t flags OFPMPF_REPLY_* flags. */
+    proto_tree_add_item(tree, hf_openflow_multipart_reply_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    proto_tree_add_item(tree, hf_openflow_padd32, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+
+	switch(type){
+	case OFPMP_DESC: /* 0 */
+		/* The reply body is struct ofp_desc. */
+		proto_tree_add_text(tree, tvb, offset, -1, "struct ofp_desc - not dissected yet");
+		break;
+	case OFPMP_FLOW:
+		/* The reply body is an array of struct ofp_flow_stats */
+		proto_tree_add_text(tree, tvb, offset, -1, "struct ofp_flow_stats - not dissected yet");
+		break;
+	default:
+		if(length>16)
+			proto_tree_add_text(tree, tvb, offset, -1, "Type - not dissected yet");
+		break;
+	}
 
 }
 
@@ -1178,6 +1237,11 @@ dissect_openflow_v_1_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	case OFPT_1_3_MULTIPART_REQUEST: /* 18 */
         dissect_openflow_multipart_request_v1_3(tvb, pinfo, openflow_tree, offset, length);
 		break;
+
+	case OFPT_1_3_MULTIPART_REPLY: /* 19 */
+        dissect_openflow_multipart_reply_v1_3(tvb, pinfo, openflow_tree, offset, length);
+		break;
+
 	default:
         if(length>8){
             proto_tree_add_text(tree, tvb, offset, -1, "Message data not dissected yet");
@@ -1703,9 +1767,19 @@ proto_register_openflow(void)
                FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_multipart_request_type,
-            { "Type", "openflow.multipart_request_type",
-               FT_UINT16, BASE_DEC, NULL, 0x0,
+        { &hf_openflow_multipart_type,
+            { "Type", "openflow.multipart_type",
+               FT_UINT16, BASE_DEC, VALS(openflow_multipart_type_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_multipart_request_flags,
+            { "Flags", "openflow.multipart_request_flags",
+               FT_UINT16, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_multipart_reply_flags,
+            { "Flags", "openflow.multipart_request_flags",
+               FT_UINT16, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
     };
