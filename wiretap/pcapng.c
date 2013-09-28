@@ -1286,11 +1286,13 @@ static int
 pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
         int bytes_read;
-        int block_read;
+        guint block_read;
         guint64 file_offset64;
         interface_data_t int_data;
-        int pseudo_header_len;
         pcapng_simple_packet_block_t spb;
+        guint32 block_total_length;
+        guint32 padding;
+        int pseudo_header_len;
 
         /*
          * Is this block long enough to be an SPB?
@@ -1345,30 +1347,45 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
         /*
          * The captured length is not a field in the SPB; it can be
-         * calculated as the minimum of:
-         *
-         *    the number of bytes available for packet data in the block
-         *    (it obviously can't be greater than that);
-         *
-         *    the snapshot length from the IDB (which should limit the
-         *    length of all packets);
-         *
-         *    the packet length (you can't capture bytes that aren't there).
-         *
-         * The first of the three values will always be a multiple of
-         * 4 in a valid pcap-ng file, so there needs to be *some* way
-         * to eliminate padding.  The second value will do so if the
-         * snapshot length is less than the amount of bytes available
-         * for packet data, but not if it's greater; the third value
-         * will do so if the packet length is less than the amount of
-         * bytes available for packet data, but not if it's greater.
-         * Therefore, we need to do both checks.
+         * calculated as the minimum of the snapshot length from the
+	 * IDB and the packet length, as per the pcap-ng spec.
          */
-        wblock->data.simple_packet.cap_len = bh->block_total_length - MIN_SPB_SIZE;
+        wblock->data.simple_packet.cap_len = wblock->data.simple_packet.packet_len;
         if (wblock->data.simple_packet.cap_len > int_data.snap_len)
                 wblock->data.simple_packet.cap_len = int_data.snap_len;
-        if (wblock->data.simple_packet.cap_len > wblock->data.simple_packet.packet_len)
-                wblock->data.simple_packet.cap_len = wblock->data.simple_packet.packet_len;
+
+        /*
+         * How much padding is there at the end of the packet data?
+         */
+        if ((wblock->data.simple_packet.cap_len % 4) != 0)
+                padding = 4 - (wblock->data.simple_packet.cap_len % 4);
+        else
+                padding = 0;
+
+        /* add padding bytes to "block total length" */
+        /* (the "block total length" of some example files don't contain the packet data padding bytes!) */
+        if (bh->block_total_length % 4) {
+                block_total_length = bh->block_total_length + 4 - (bh->block_total_length % 4);
+        } else {
+                block_total_length = bh->block_total_length;
+        }
+        pcapng_debug1("pcapng_read_simple_packet_block: block_total_length %d", block_total_length);
+
+        /*
+         * Is this block long enough to hold the packet data?
+         */
+        if (block_total_length < MIN_SPB_SIZE + wblock->data.simple_packet.cap_len + padding) {
+                /*
+                 * No.  That means that the problem is with the packet
+                 * length; the snapshot length can be bigger than the amount
+                 * of packet data in the block, as it's a *maximum* length,
+                 * not a *minimum* length.
+                 */
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng_read_simple_packet_block: total block length %u of PB is too small for %u bytes of packet data",
+                              block_total_length, wblock->data.simple_packet.packet_len);
+                return -1;
+        }
 
         if (wblock->data.simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
                 *err = WTAP_ERR_BAD_FILE;
