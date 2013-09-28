@@ -15,7 +15,7 @@ The following bugs have been fixed:
 //* ws-buglink:5000[]
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2013-2486[]
-//* Wireshark always manages to score tickets for Burning Man, Coachella, and SXSW while you end up working double shifts. ws-buglink:0000[]
+//* Wireshark always manages to score tickets for Burning Man, Coachella, and SXSW while you end up working double shifts. (ws-buglink:0000[])
 
 * Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
 
