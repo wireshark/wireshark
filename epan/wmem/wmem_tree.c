@@ -559,8 +559,6 @@ wmem_tree_insert32_array(wmem_tree_t *tree, wmem_tree_key_t *key, void *data)
     guint32 i, insert_key32 = 0;
 
     for (cur_key = key; cur_key->length > 0; cur_key++) {
-        g_assert(cur_key->length < 100);
-
         for (i = 0; i < cur_key->length; i++) {
             /* Insert using the previous key32 */
             if (!insert_tree) {
@@ -591,8 +589,6 @@ wmem_tree_lookup32_array_helper(wmem_tree_t *tree, wmem_tree_key_t *key,
     }
 
     for (cur_key = key; cur_key->length > 0; cur_key++) {
-        g_assert(cur_key->length < 100);
-
         for (i = 0; i < cur_key->length; i++) {
             /* Lookup using the previous key32 */
             if (!lookup_tree) {
