@@ -2274,9 +2274,24 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                         return FALSE;
 
                 case(BLOCK_TYPE_PB):
-                case(BLOCK_TYPE_SPB):
                 case(BLOCK_TYPE_EPB):
                         /* packet block - we've found a packet */
+
+                        /* not an SPB: check interface ID */
+                        if (wblock.data.packet.interface_id < pcapng->number_of_interfaces) {
+                        } else {
+                                wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
+                                *err = WTAP_ERR_BAD_FILE;
+                                *err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
+                                    wblock.data.packet.interface_id, pcapng->number_of_interfaces);
+                                pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset + bytes_read);
+                                return FALSE;
+                        }
+                        goto got_packet;
+
+                case(BLOCK_TYPE_SPB):
+                        /* packet block - we've found a packet */
+                        /* SPB: no interface ID to check */
                         goto got_packet;
 
                 case(BLOCK_TYPE_IDB):
@@ -2336,15 +2351,6 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         }
 
 got_packet:
-        if (wblock.data.packet.interface_id < pcapng->number_of_interfaces) {
-        } else {
-                wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
-                *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
-                    wblock.data.packet.interface_id, pcapng->number_of_interfaces);
-                pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset + bytes_read);
-                return FALSE;
-        }
 
         /*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
         pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset + bytes_read);
