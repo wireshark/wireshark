@@ -1383,7 +1383,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
                 return 0;
         }
         wblock->packet_header->caplen = wblock->data.simple_packet.cap_len - pseudo_header_len;
-        wblock->packet_header->len = wblock->data.packet.packet_len - pseudo_header_len;
+        wblock->packet_header->len = wblock->data.simple_packet.packet_len - pseudo_header_len;
         block_read += pseudo_header_len;
         if (pseudo_header_len != pcap_get_phdr_size(int_data.wtap_encap, &wblock->packet_header->pseudo_header)) {
                 pcapng_debug1("pcapng_read_simple_packet_block: Could only read %d bytes for pseudo header.",
