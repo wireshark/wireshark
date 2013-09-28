@@ -376,6 +376,7 @@ typedef struct wtapng_block_s {
 /* Interface data in private struct */
 typedef struct interface_data_s {
         int wtap_encap;
+        guint32 snap_len;
         guint64 time_units_per_second;
 } interface_data_t;
 
@@ -1259,13 +1260,43 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         }
         block_read = bytes_read;
 
+        if (0 >= pn->number_of_interfaces) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng: SPB appeared before any IDBs");
+                return 0;
+        }
+        int_data = g_array_index(pn->interface_data, interface_data_t, 0);
+
         if (pn->byte_swapped) {
                 wblock->data.simple_packet.packet_len   = BSWAP32(spb.packet_len);
         } else {
                 wblock->data.simple_packet.packet_len   = spb.packet_len;
         }
 
+        /*
+         * The captured length is not a field in the SPB; it can be
+         * calculated as the minimum of:
+         *
+         *    the number of bytes available for packet data in the block
+         *    (it obviously can't be greater than that);
+         *
+         *    the snapshot length from the IDB (which should limit the
+         *    length of all packets);
+         *
+         *    the packet length (you can't capture bytes that aren't there).
+         *
+         * The first of the three values will always be a multiple of
+         * 4 in a valid pcap-ng file, so there needs to be *some* way
+         * to eliminate padding.  The second value will do so if the
+         * snapshot length is less than the amount of bytes available
+         * for packet data, but not if it's greater; the third value
+         * will do so if the packet length is less than the amount of
+         * bytes available for packet data, but not if it's greater.
+         * Therefore, we need to do both checks.
+         */
         wblock->data.simple_packet.cap_len = bh->block_total_length - MIN_SPB_SIZE;
+        if (wblock->data.simple_packet.cap_len > int_data.snap_len)
+                wblock->data.simple_packet.cap_len = int_data.snap_len;
         if (wblock->data.simple_packet.cap_len > wblock->data.simple_packet.packet_len)
                 wblock->data.simple_packet.cap_len = wblock->data.simple_packet.packet_len;
 
@@ -1277,14 +1308,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         }
         pcapng_debug1("pcapng_read_simple_packet_block: packet data: packet_len %u",
                        wblock->data.simple_packet.packet_len);
-
-        if (0 >= pn->number_of_interfaces) {
-                *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng: interface index 0 is not less than interface count %u.",
-                    pn->number_of_interfaces);
-                return 0;
-        }
-        int_data = g_array_index(pn->interface_data, interface_data_t, 0);
 
         pcapng_debug1("pcapng_read_simple_packet_block: Need to read pseudo header of size %d",
                       pcap_get_phdr_size(int_data.wtap_encap, wblock->pseudo_header));
@@ -2006,6 +2029,7 @@ pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
         wth->number_of_interfaces++;
 
         interface_data.wtap_encap = wblock->data.if_descr.wtap_encap;
+        interface_data.snap_len = wblock->data.if_descr.snap_len;
         interface_data.time_units_per_second = wblock->data.if_descr.time_units_per_second;
 
         g_array_append_val(pcapng->interface_data, interface_data);
