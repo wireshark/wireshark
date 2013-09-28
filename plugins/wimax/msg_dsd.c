@@ -102,28 +102,25 @@ static void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pin
 #ifdef DEBUG /* for debug only */
 			proto_tree_add_protocol_format(dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len + tlv_value_offset, "DSD-REQ TLV Type: %u (%u bytes, offset=%u, tvb_len=%u)", tlv_type, tlv_len + tlv_value_offset, offset, tvb_len);
 #endif
-			/* update the offset */
-			offset += tlv_value_offset;
 			/* process TLV */
 			switch (tlv_type)
 			{
 				case HMAC_TUPLE:	/* Table 348d */
 					/* decode and display the HMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "HMAC Tuple (%u byte(s))", tlv_len);
-					wimax_hmac_tuple_decoder(tlv_tree, tvb, offset, tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "HMAC Tuple");
+					wimax_hmac_tuple_decoder(tlv_tree, tvb, offset+tlv_value_offset, tlv_len);
 					break;
 				case CMAC_TUPLE:	/* Table 348b */
 					/* decode and display the CMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "CMAC Tuple (%u byte(s))", tlv_len);
-					wimax_cmac_tuple_decoder(tlv_tree, tvb, offset, tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "CMAC Tuple");
+					wimax_cmac_tuple_decoder(tlv_tree, tvb, offset+tlv_value_offset, tlv_len);
 					break;
 				default:
 					/* display the unknown tlv in hex */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "Unknown TLV (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_dsd_unknown_type, tvb, (offset - tlv_value_offset), (tlv_len + tlv_value_offset), ENC_NA);
+					add_tlv_subtree(&tlv_info, dsd_tree, hf_dsd_unknown_type, tvb, offset, ENC_NA);
 					break;
 			}
-			offset += tlv_len;
+			offset += (tlv_len+tlv_value_offset);
 		}	/* end of while loop */
 	}
 }
@@ -178,28 +175,24 @@ static void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 #ifdef DEBUG /* for debug only */
 			proto_tree_add_protocol_format(dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len + tlv_value_offset, "DSD-RSP TLV Type: %u (%u bytes, offset=%u, tvb_len=%u)", tlv_type, tlv_len + tlv_value_offset, offset, tvb_len);
 #endif
-			/* update the offset */
-			offset += tlv_value_offset;
 			/* process TLV */
 			switch (tlv_type)
 			{
 				case HMAC_TUPLE:	/* Table 348d */
 					/* decode and display the HMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "HMAC Tuple (%u byte(s))", tlv_len);
-					wimax_hmac_tuple_decoder(tlv_tree, tvb, offset, tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "HMAC Tuple");
+					wimax_hmac_tuple_decoder(tlv_tree, tvb, offset+tlv_value_offset, tlv_len);
 					break;
 				case CMAC_TUPLE:	/* Table 348b */
 					/* decode and display the CMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "CMAC Tuple (%u byte(s))", tlv_len);
-					wimax_cmac_tuple_decoder(tlv_tree, tvb, offset, tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "CMAC Tuple");
+					wimax_cmac_tuple_decoder(tlv_tree, tvb, offset+tlv_value_offset, tlv_len);
 					break;
 				default:
-					/* display the unknown tlv in hex */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "Unknown TLV (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_dsd_unknown_type, tvb, (offset - tlv_value_offset), (tlv_len + tlv_value_offset), ENC_NA);
+					add_tlv_subtree(&tlv_info, dsd_tree, hf_dsd_unknown_type, tvb, offset, ENC_NA);
 					break;
 			}
-			offset += tlv_len;
+			offset += (tlv_len+tlv_value_offset);
 		}	/* end of while loop */
 	}
 }

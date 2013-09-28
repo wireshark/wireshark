@@ -105,7 +105,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			/* display message */
 			pdu_item = proto_tree_add_protocol_format(tree, proto_wimax_pdu_decoder, tvb, offset, length, "Padding (%u bytes)", length);
 			/* add subtree */
-		        pdu_tree = proto_item_add_subtree(pdu_item, ett_wimax_pdu_decoder);
+			pdu_tree = proto_item_add_subtree(pdu_item, ett_wimax_pdu_decoder);
 			/* display the padding in Hex */
 			proto_tree_add_item(pdu_tree, hf_wimax_value_bytes, tvb, offset, length, ENC_NA);
 			break;
@@ -118,7 +118,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			{
 				length = 3;	/* At least 3 bytes.  This prevents endless loop */
 			}
-			call_dissector(wimax_harq_map_handle, tvb_new_subset(tvb,offset,length,length), pinfo, tree);
+			call_dissector(wimax_harq_map_handle, tvb_new_subset_length(tvb,offset,length), pinfo, tree);
 			offset += length;
 			continue;
 		}
@@ -162,7 +162,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			/* display message */
 			pdu_item = proto_tree_add_protocol_format(tree, proto_wimax_pdu_decoder, tvb, offset, WIMAX_MAC_HEADER_SIZE, "MAC Header CRC error %X (in header) and %X (calculated)", mac_hcs, mac_hcs_calculated);
 			/* add subtree */
-		        pdu_tree = proto_item_add_subtree(pdu_item, ett_wimax_pdu_decoder);
+			pdu_tree = proto_item_add_subtree(pdu_item, ett_wimax_pdu_decoder);
 			/* display the bad MAC Header in Hex */
 			proto_tree_add_item(pdu_tree, hf_wimax_value_bytes, tvb, offset, length, ENC_NA);
 			break;
@@ -183,15 +183,15 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			length = WIMAX_MAC_HEADER_SIZE;
 		}
 		/* display PDU frame info */
-        /*
+		/*
 		pdu_item = proto_tree_add_protocol_format(tree, proto_wimax_pdu_decoder, tvb, offset, length, "PDU Frame (%u bytes)", length);
-        */
+		*/
 		pdu_item = proto_tree_add_protocol_format(tree, proto_wimax_pdu_decoder, tvb, offset, length, "PDU (%u bytes)", length);
 		/* add PDU subtree */
 		pdu_tree = proto_item_add_subtree(pdu_item, ett_wimax_pdu_decoder);
 		if (length == 0) {
 			offset += 6;	/* Add header size. */
-			/* Must skip the code below or tvb_new_subset()
+			/* Must skip the code below or tvb_new_subset_length()
 			 * keeps allocating memory until it runs out. */
 			continue;
 		}

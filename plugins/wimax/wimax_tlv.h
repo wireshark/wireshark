@@ -53,7 +53,8 @@ gint   get_tlv_length_type(tlv_info_t *info);
 gint   get_tlv_size_of_length(tlv_info_t *info);
 gint   get_tlv_value_offset(tlv_info_t *info);
 gint32 get_tlv_length(tlv_info_t *info);
-proto_tree *add_tlv_subtree(tlv_info_t *info, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, gboolean little_endian);
-proto_tree *add_protocol_subtree(tlv_info_t *info, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, const char *format, ...);
+proto_item *add_tlv_subtree(tlv_info_t *info, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, const guint encoding);
+proto_tree *add_tlv_subtree_no_item(tlv_info_t *info, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start);
+proto_tree *add_protocol_subtree(tlv_info_t *info, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, const char *label);
 
 #endif /* WIMAX_TLV_H */

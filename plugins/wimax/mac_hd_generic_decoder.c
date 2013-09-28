@@ -837,7 +837,7 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 	if (mac_esf)
 	{	/* add the Extended subheader info */
 		proto_item_append_text(parent_item, ", Extended Subheader(s)");
-		ret_length = extended_subheader_decoder(tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+		ret_length = extended_subheader_decoder(tvb_new_subset_length(tvb, offset, length), pinfo, tree);
 		/* update the length and offset */
 		length -= ret_length;
 		offset += ret_length;
@@ -1008,7 +1008,7 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 		/* defragment first if it is fragmented */
 		if (frag_type == NO_FRAG)
 		{	/* not fragmented payload */
-			payload_tvb =  tvb_new_subset(tvb, offset, frag_len, frag_len);
+			payload_tvb =  tvb_new_subset_length(tvb, offset, frag_len);
 			payload_length = frag_len;
 			new_payload_len = frag_len;
 		}
@@ -1112,7 +1112,7 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 #if 0
 				if (frag_type == FIRST_FRAG)
 				{	/* Set up to decode the first fragment (even though next fragment not read yet) */
-					payload_tvb =  tvb_new_subset(tvb, offset, length, length);
+					payload_tvb =  tvb_new_subset_length(tvb, offset, length);
 					payload_length = length;
 					frag_len = length;
 				}
@@ -1133,9 +1133,9 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 				{	/* decode and display the ARQ feedback payload */
 					first_arq_fb_payload = FALSE;
 #ifndef DEBUG
-					arq_feedback_payload_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, generic_tree, parent_item);
+					arq_feedback_payload_decoder(tvb_new_subset_length(payload_tvb, payload_offset, new_payload_len), pinfo, generic_tree, parent_item);
 #else
-					ret_length = arq_feedback_payload_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, generic_tree, parent_item);
+					ret_length = arq_feedback_payload_decoder(tvb_new_subset_length(payload_tvb, payload_offset, new_payload_len), pinfo, generic_tree, parent_item);
 					if (ret_length != new_payload_len)
 					{	/* error */
 						/* update the info column */
@@ -1162,7 +1162,7 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 					else if ((mac_cid <= (2 * global_cid_max_basic)) || (mac_cid == cid_aas_ranging)
 						|| (mac_cid >= cid_normal_multicast))
 					{	/* MAC management message */
-						call_dissector(mac_mgmt_msg_decoder_handle, tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, tree);
+						call_dissector(mac_mgmt_msg_decoder_handle, tvb_new_subset_length(payload_tvb, payload_offset, new_payload_len), pinfo, tree);
 					}
 					else /* data transport PDU */
 					{	/* update the info column */
@@ -1189,7 +1189,7 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 							{
 								str_ptr = reassem_str;
 							}
-							data_pdu_tvb = tvb_new_subset(payload_tvb, payload_offset, new_tvb_len, new_tvb_len);
+							data_pdu_tvb = tvb_new_subset_length(payload_tvb, payload_offset, new_tvb_len);
 							generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, data_pdu_tvb, payload_offset, new_payload_len, str_ptr, new_payload_len);
 							/* add payload subtree */
 							generic_tree = proto_item_add_subtree(generic_item, ett_mac_data_pdu_decoder);
@@ -1197,7 +1197,7 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 							if (tvb_get_guint8(payload_tvb, payload_offset) == IP_HEADER_BYTE)
 							{
 								if (mac_ip_handle)
-									call_dissector(mac_ip_handle, tvb_new_subset(payload_tvb, payload_offset, new_tvb_len, new_tvb_len), pinfo, generic_tree);
+									call_dissector(mac_ip_handle, tvb_new_subset_length(payload_tvb, payload_offset, new_tvb_len), pinfo, generic_tree);
 								else	/* display the Generic MAC Header in Hex */
 									proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_tvb_len, ENC_NA);
 							}

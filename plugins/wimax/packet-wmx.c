@@ -53,6 +53,11 @@ extern	gboolean include_cor2_changes;
 
 address bs_address = {AT_NONE, -1, 0, NULL};
 
+
+static int hf_tlv_type = -1;
+static int hf_tlv_length = -1;
+static int hf_tlv_length_size = -1;
+
 /* The following variables are local to the function, but serve as
    elements for the global ett_tlv[] array */
 static gint ett_tlv_0 = -1;
@@ -592,94 +597,110 @@ static const gchar tlv_val_5byte[] = "TLV value: %s (0x%08x...)";
 
 /*************************************************************/
 /* add_tlv_subtree()                                         */
-/* Return a pointer to a proto_tree that already contains    */
-/* the type and length of a given TLV.                       */
+/* Return a pointer to a proto_item of a TLV value that      */
+/* already contains the type and length of the given TLV.    */
 /*   tree          - the parent to which the new tree will   */
 /*                   be attached                             */
 /*   hfindex       - the index of the item to be attached    */
 /*   tvb           - a pointer to the packet data            */
 /*   start         - offset within the packet                */
 /*   length        - length of this item                     */
-/*   little_endian - endian indicator                        */
+/*   encoding      - encoding for proto_tree_add_item        */
 /* return:                                                   */
-/*   pointer to a proto_tree                                 */
+/*   pointer to a proto_item                                 */
 /*************************************************************/
-proto_tree *add_tlv_subtree(tlv_info_t *self, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length _U_, gboolean little_endian)
+proto_item *add_tlv_subtree(tlv_info_t *self, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, const guint encoding)
 {
-	/* Declare local variables */
+	header_field_info *hf;
 	proto_tree *tlv_tree;
 	proto_item *tlv_item;
-	guint start_of_tlv;
 	gint tlv_value_length, tlv_val_offset;
 	guint8 size_of_tlv_length_field;
 	guint8 tlv_type;
-	guint32 tlv_value;
-	const gchar *hex_fmt;
-
-	/* Retrieve the necessary TLV information */
-	tlv_val_offset = get_tlv_value_offset(self);
-	start_of_tlv = start - tlv_val_offset;
-	tlv_value_length = get_tlv_length(self);
-	size_of_tlv_length_field = get_tlv_size_of_length(self);
-	tlv_type = get_tlv_type(self);
 
 	/* Make sure we're dealing with a valid TLV here */
 	if (get_tlv_type(self) < 0)
 		return tree;
 
-	/* display the TLV name and display the value in hex. Highlight type, length, and value. */
-	tlv_item = proto_tree_add_item(tree, hfindex, tvb, start, tlv_value_length, little_endian);
+	/* Retrieve the necessary TLV information */
+	tlv_val_offset = get_tlv_value_offset(self);
+	tlv_value_length = get_tlv_length(self);
+	size_of_tlv_length_field = get_tlv_size_of_length(self);
+	tlv_type = get_tlv_type(self);
 
-	if ((tlv_item == NULL) || (!PITEM_FINFO(tlv_item)))
-		return tree;
+	hf = proto_registrar_get_nth(hfindex);
 
-	/* Correct the highlighting. */
-	PITEM_FINFO(tlv_item)->start -= tlv_val_offset;
-	PITEM_FINFO(tlv_item)->length += tlv_val_offset;
-	/* add TLV subtree to contain the type, length, and value */
+	tlv_item = proto_tree_add_text(tree, tvb, start, tlv_value_length+tlv_val_offset, "%s", hf->name);
 	tlv_tree = proto_item_add_subtree(tlv_item, *ett_tlv[tlv_type]);
-	/* display the TLV type */
-	proto_tree_add_text(tlv_tree, tvb, start_of_tlv, 1, "TLV type: %u", tlv_type);
-	/* check if this is an extended TLV */
+
+	proto_tree_add_uint(tlv_tree, hf_tlv_type, tvb, start, 1, tlv_type);
 	if (size_of_tlv_length_field > 0) /* It is */
 	{
 		/* display the length of the length field TLV */
-		proto_tree_add_text(tlv_tree, tvb, start_of_tlv+1, 1, "Size of TLV length field: %u", size_of_tlv_length_field);
+		proto_tree_add_uint(tlv_tree, hf_tlv_length_size, tvb, start+1, 1, size_of_tlv_length_field);
 		/* display the TLV length */
-		proto_tree_add_text(tlv_tree, tvb, start_of_tlv+2, size_of_tlv_length_field, "TLV length: %u", tlv_value_length);
+		proto_tree_add_uint(tlv_tree, hf_tlv_length, tvb, start+2, size_of_tlv_length_field, tlv_value_length);
 	} else { /* It is not */
 		/* display the TLV length */
-		proto_tree_add_text(tlv_tree, tvb, start_of_tlv+1, 1, "TLV length: %u", tlv_value_length);
+		proto_tree_add_uint(tlv_tree, hf_tlv_length, tvb, start+1, 1, tlv_value_length);
 	}
-	/* display the TLV value and make it a subtree */
-	switch (tlv_value_length)
-	{
-		case 1:
-			tlv_value = tvb_get_guint8(tvb, start);
-			hex_fmt = tlv_val_1byte;
-			break;
-		case 2:
-			tlv_value = tvb_get_ntohs(tvb, start);
-			hex_fmt = tlv_val_2byte;
-			break;
-		case 3:
-			tlv_value = tvb_get_ntoh24(tvb, start);
-			hex_fmt = tlv_val_3byte;
-			break;
-		case 4:
-			tlv_value = tvb_get_ntohl(tvb, start);
-			hex_fmt = tlv_val_4byte;
-			break;
-		default:
-			tlv_value = tvb_get_ntohl(tvb, start);
-			hex_fmt = tlv_val_5byte;
-			break;
-	}
-	/* Show "TLV value: " */
-	tlv_item = proto_tree_add_text(tlv_tree, tvb, start, tlv_value_length, hex_fmt, PITEM_FINFO(tlv_item)->hfinfo->name, tlv_value);
-	tlv_tree = proto_item_add_subtree(tlv_item, idx);
+
+	tlv_item = proto_tree_add_item(tlv_tree, hfindex, tvb, start+tlv_val_offset, tlv_value_length, encoding);
 
 	/* Return a pointer to the value level */
+	return tlv_item;
+}
+
+/*************************************************************/
+/* add_tlv_subtree_no_item()                                 */
+/* Return a pointer to a proto_tree of a TLV value that      */
+/* already contains the type and length, but no value        */
+/*   tree          - the parent to which the new tree will   */
+/*                   be attached                             */
+/*   hfindex       - the index of the item to be attached    */
+/*   tvb           - a pointer to the packet data            */
+/*   start         - offset within the packet                */
+/*   length        - length of this item                     */
+/* return:                                                   */
+/*   pointer to a proto_tree (to then add value)             */
+/*************************************************************/
+proto_tree *add_tlv_subtree_no_item(tlv_info_t *self, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start)
+{
+	header_field_info *hf;
+	proto_tree *tlv_tree;
+	proto_item *tlv_item;
+	gint tlv_value_length, tlv_val_offset;
+	guint8 size_of_tlv_length_field;
+	guint8 tlv_type;
+
+	/* Make sure we're dealing with a valid TLV here */
+	if (get_tlv_type(self) < 0)
+		return tree;
+
+	/* Retrieve the necessary TLV information */
+	tlv_val_offset = get_tlv_value_offset(self);
+	tlv_value_length = get_tlv_length(self);
+	size_of_tlv_length_field = get_tlv_size_of_length(self);
+	tlv_type = get_tlv_type(self);
+
+	hf = proto_registrar_get_nth(hfindex);
+
+	tlv_item = proto_tree_add_text(tree, tvb, start, tlv_value_length+tlv_val_offset, "%s", hf->name);
+	tlv_tree = proto_item_add_subtree(tlv_item, *ett_tlv[tlv_type]);
+
+	proto_tree_add_uint(tlv_tree, hf_tlv_type, tvb, start, 1, tlv_type);
+	if (size_of_tlv_length_field > 0) /* It is */
+	{
+		/* display the length of the length field TLV */
+		proto_tree_add_uint(tlv_tree, hf_tlv_length_size, tvb, start+1, 1, size_of_tlv_length_field);
+		/* display the TLV length */
+		proto_tree_add_uint(tlv_tree, hf_tlv_length, tvb, start+2, size_of_tlv_length_field, tlv_value_length);
+	} else { /* It is not */
+		/* display the TLV length */
+		proto_tree_add_uint(tlv_tree, hf_tlv_length, tvb, start+1, 1, tlv_value_length);
+	}
+
+	/* Return a pointer to the tree level (to manually add item) */
 	return tlv_tree;
 }
 
@@ -698,7 +719,7 @@ proto_tree *add_tlv_subtree(tlv_info_t *self, gint idx, proto_tree *tree, int hf
 /* return:                                                   */
 /*   pointer to a proto_tree                                 */
 /*************************************************************/
-proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, const char *format, ...)
+proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, const char *label)
 {
 	/* Declare local variables */
 	proto_tree *tlv_tree;
@@ -708,14 +729,12 @@ proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, i
 	guint8 size_of_tlv_length_field;
 	guint8 tlv_type;
 	guint32 tlv_value;
-	va_list ap; /* points to each unnamed arg in turn */
-	gchar *message = NULL;
 	const gchar *hex_fmt;
 
 	/* Make sure we're dealing with a valid TLV here */
 	if (get_tlv_type(self) < 0)
 		return tree;
-    
+
 	/* Retrieve the necessary TLV information */
 	tlv_val_offset = get_tlv_value_offset(self);
 	start_of_tlv = start - tlv_val_offset;
@@ -724,58 +743,47 @@ proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, i
 	tlv_type = get_tlv_type(self);
 
 	/* display the TLV name and display the value in hex. Highlight type, length, and value. */
-	va_start(ap, format);
-	message = wmem_strdup_vprintf(wmem_packet_scope(), format, ap);
-	va_end(ap);
-	tlv_item = proto_tree_add_protocol_format(tree, hfindex, tvb, start, length, "%s", message);
-
-	if ((tlv_item == NULL) || (!PITEM_FINFO(tlv_item)))
-		return tree;
-
-	/* Correct the highlighting. */
-	PITEM_FINFO(tlv_item)->start -= tlv_val_offset;
-	PITEM_FINFO(tlv_item)->length += tlv_val_offset;
-	/* add TLV subtree to contain the type, length, and value */
+	tlv_item = proto_tree_add_protocol_format(tree, hfindex, tvb, start, tlv_value_length+tlv_val_offset, "%s (%u byte(s))", label, tlv_value_length);
 	tlv_tree = proto_item_add_subtree(tlv_item, *ett_tlv[tlv_type]);
-	/* display the TLV type */
-	proto_tree_add_text(tlv_tree, tvb, start_of_tlv, 1, "TLV type: %u", tlv_type);
-	/* check if this is an extended TLV */
+
+	proto_tree_add_uint(tlv_tree, hf_tlv_type, tvb, start, 1, tlv_type);
 	if (size_of_tlv_length_field > 0) /* It is */
 	{
 		/* display the length of the length field TLV */
-		proto_tree_add_text(tlv_tree, tvb, start_of_tlv+1, 1, "Size of TLV length field: %u", size_of_tlv_length_field);
+		proto_tree_add_uint(tlv_tree, hf_tlv_length_size, tvb, start+1, 1, size_of_tlv_length_field);
 		/* display the TLV length */
-		proto_tree_add_text(tlv_tree, tvb, start_of_tlv+2, size_of_tlv_length_field, "TLV length: %u", tlv_value_length);
+		proto_tree_add_uint(tlv_tree, hf_tlv_length, tvb, start+2, size_of_tlv_length_field, tlv_value_length);
 	} else { /* It is not */
 		/* display the TLV length */
-		proto_tree_add_text(tlv_tree, tvb, start_of_tlv+1, 1, "TLV length: %u", tlv_value_length);
+		proto_tree_add_uint(tlv_tree, hf_tlv_length, tvb, start+1, 1, tlv_value_length);
 	}
+
 	/* display the TLV value and make it a subtree */
 	switch (tlv_value_length)
 	{
 		case 1:
-			tlv_value = tvb_get_guint8(tvb, start);
+			tlv_value = tvb_get_guint8(tvb, start+tlv_val_offset);
 			hex_fmt = tlv_val_1byte;
 			break;
 		case 2:
-			tlv_value = tvb_get_ntohs(tvb, start);
+			tlv_value = tvb_get_ntohs(tvb, start+tlv_val_offset);
 			hex_fmt = tlv_val_2byte;
 			break;
 		case 3:
-			tlv_value = tvb_get_ntoh24(tvb, start);
+			tlv_value = tvb_get_ntoh24(tvb, start+tlv_val_offset);
 			hex_fmt = tlv_val_3byte;
 			break;
 		case 4:
-			tlv_value = tvb_get_ntohl(tvb, start);
+			tlv_value = tvb_get_ntohl(tvb, start+tlv_val_offset);
 			hex_fmt = tlv_val_4byte;
 			break;
 		default:
-			tlv_value = tvb_get_ntohl(tvb, start);
+			tlv_value = tvb_get_ntohl(tvb, start+tlv_val_offset);
 			hex_fmt = tlv_val_5byte;
 			break;
 	}
 	/* Show "TLV value: " */
-	tlv_item = proto_tree_add_text(tlv_tree, tvb, start, length, hex_fmt, message, tlv_value);
+	tlv_item = proto_tree_add_text(tlv_tree, tvb, start+tlv_val_offset, tlv_value_length, hex_fmt, label, tlv_value);
 	tlv_tree = proto_item_add_subtree(tlv_item, idx);
 
 	/* Return a pointer to the value level */
@@ -807,6 +815,12 @@ gboolean is_down_link(packet_info *pinfo)
 /* Register Wimax Protocol */
 void proto_register_wimax(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_tlv_type, { "TLV type", "wmx.tlv_type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_tlv_length, { "TLV length", "wmx.tlv_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_tlv_length_size, { "Size of TLV length field", "wmx.tlv_length_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	};
+
 /* Setup protocol subtree array */
 #if 0  /* XXX: not used ?? */
 	static gint *ett[] =
@@ -827,6 +841,8 @@ void proto_register_wimax(void)
 		"WiMax (wmx)",    /* short name */
 		"wmx"             /* abbrev     */
 		);
+
+	proto_register_field_array(proto_wimax, hf, array_length(hf));
 
 #if 0  /* XXX: not used ?? */
 	/* Register the WiMax protocol subtree array */

@@ -414,18 +414,18 @@ static void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pi
 			switch (tlv_type) {
 				case HMAC_TUPLE:	/* Table 348d */
 					/* decode and display the HMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_req_tree, proto_mac_mgmt_msg_dreg_req_decoder, tvb, tlv_offset, tlv_len, "HMAC Tuple (%u byte(s))", tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_req_tree, proto_mac_mgmt_msg_dreg_req_decoder, tvb, offset, tlv_len, "HMAC Tuple");
 					wimax_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
 					hmac_found = TRUE;
 					break;
 				case CMAC_TUPLE:	/* Table 348b */
 					/* decode and display the CMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_req_tree, proto_mac_mgmt_msg_dreg_req_decoder, tvb, tlv_offset, tlv_len, "CMAC Tuple (%u byte(s))", tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_req_tree, proto_mac_mgmt_msg_dreg_req_decoder, tvb, offset, tlv_len, "CMAC Tuple");
 					wimax_cmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
 					break;
 				default:
 					/* Decode DREG-REQ sub-TLV's */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_req_tree, proto_mac_mgmt_msg_dreg_req_decoder, tvb, tlv_offset, tlv_len, "DREG-REQ sub-TLV's (%u byte(s))", tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_req_tree, proto_mac_mgmt_msg_dreg_req_decoder, tvb, offset, tlv_len, "DREG-REQ sub-TLV's");
 					dissect_dreg_tlv(tlv_tree, tlv_type, tvb, tlv_offset, tlv_len);
 					break;
 			}
@@ -489,18 +489,18 @@ static void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pi
 			switch (tlv_type) {
 				case HMAC_TUPLE:	/* Table 348d */
 					/* decode and display the HMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_cmd_tree, proto_mac_mgmt_msg_dreg_cmd_decoder, tvb, tlv_offset, tlv_len, "HMAC Tuple (%u byte(s))", tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_cmd_tree, proto_mac_mgmt_msg_dreg_cmd_decoder, tvb, offset, tlv_len, "HMAC Tuple");
 					wimax_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
 					hmac_found = TRUE;
 					break;
 				case CMAC_TUPLE:	/* Table 348b */
 					/* decode and display the CMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_cmd_tree, proto_mac_mgmt_msg_dreg_cmd_decoder, tvb, tlv_offset, tlv_len, "CMAC Tuple (%u byte(s))", tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_cmd_tree, proto_mac_mgmt_msg_dreg_cmd_decoder, tvb, offset, tlv_len, "CMAC Tuple");
 					wimax_cmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
 					break;
 				default:
 					/* Decode DREG-CMD sub-TLV's */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_cmd_tree, proto_mac_mgmt_msg_dreg_cmd_decoder, tvb, tlv_offset, tlv_len, "DREG-CMD sub-TLV's (%u byte(s))", tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_cmd_tree, proto_mac_mgmt_msg_dreg_cmd_decoder, tvb, offset, tlv_len, "DREG-CMD sub-TLV's");
 					dissect_dreg_tlv(tlv_tree, tlv_type, tvb, tlv_offset, tlv_len);
 					break;
 			}

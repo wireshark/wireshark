@@ -155,19 +155,17 @@ static void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 					dissect_extended_tlv(reg_rsp_tree, tlv_type, tvb, tlv_offset, tlv_len, pinfo, offset, proto_mac_mgmt_msg_reg_rsp_decoder);
 					break;
 				case REG_RSP_SECONDARY_MGMT_CID:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, hf_reg_rsp_secondary_mgmt_cid, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_reg_rsp_secondary_mgmt_cid, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+					add_tlv_subtree(&tlv_info, reg_rsp_tree, hf_reg_rsp_secondary_mgmt_cid, tvb, offset, ENC_BIG_ENDIAN);
 					break;
 
 				case REG_RSP_TLV_T_36_TOTAL_PROVISIONED_SERVICE_FLOW_DSAs:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, hf_reg_total_provisioned_sf, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_reg_total_provisioned_sf, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+					add_tlv_subtree(&tlv_info, reg_rsp_tree, hf_reg_total_provisioned_sf, tvb, offset, ENC_BIG_ENDIAN);
 					break;
 
 				case REG_RSP_TLV_T_24_CID_UPDATE_ENCODINGS:
 					/* Display CID update encodings */
 					/* add subtree */
-					sub_tree = add_protocol_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, tlv_offset, tlv_len, "CID update encodings (%u byte(s))", tlv_len);
+					sub_tree = add_protocol_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tlv_len, "CID update encodings");
 					/* Use a local copy of tlv_offset */
 					this_offset = tlv_offset;
 					while(this_offset < tlv_len) {
@@ -187,29 +185,25 @@ static void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 						sub_tlv_offset = this_offset + get_tlv_value_offset(&sub_tlv_info);
 						switch (sub_tlv_type) {
 							case REG_RSP_TLV_T_24_1_CID_UPDATE_ENCODINGS_NEW_CID:
-								tlv_tree = add_tlv_subtree(&sub_tlv_info, ett_reg_rsp_message_tree, sub_tree, hf_reg_rsp_new_cid_after_ho, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
-								proto_tree_add_item(tlv_tree, hf_reg_rsp_new_cid_after_ho, tvb, sub_tlv_offset, sub_tlv_len, ENC_BIG_ENDIAN);
+								add_tlv_subtree(&sub_tlv_info, sub_tree, hf_reg_rsp_new_cid_after_ho, tvb, this_offset, ENC_BIG_ENDIAN);
 								break;
 							case REG_RSP_TLV_T_24_2_CID_UPDATE_ENCODINGS_SFID:
-								tlv_tree = add_tlv_subtree(&sub_tlv_info, ett_reg_rsp_message_tree, sub_tree, hf_reg_rsp_service_flow_id, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
-								proto_tree_add_item(tlv_tree, hf_reg_rsp_service_flow_id, tvb, sub_tlv_offset, sub_tlv_len, ENC_BIG_ENDIAN);
+								add_tlv_subtree(&sub_tlv_info, sub_tree, hf_reg_rsp_service_flow_id, tvb, this_offset, ENC_BIG_ENDIAN);
 								break;
 							case REG_RSP_TLV_T_24_3_CID_UPDATE_ENCODINGS_CONNECTION_INFO:
-								tlv_tree = add_protocol_subtree(&sub_tlv_info, ett_reg_rsp_message_tree, sub_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, sub_tlv_offset, sub_tlv_len, "CID Update Encodings Connection Info (%u byte(s))", tlv_len);
+								tlv_tree = add_protocol_subtree(&sub_tlv_info, ett_reg_rsp_message_tree, sub_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, this_offset, sub_tlv_len, "CID Update Encodings Connection Info");
 								/* Decode the DSC_RSP subTLV's */
-								call_dissector(dsc_rsp_handle, tvb_new_subset(tvb, sub_tlv_offset, sub_tlv_len, sub_tlv_len), pinfo, tlv_tree);
+								call_dissector(dsc_rsp_handle, tvb_new_subset_length(tvb, sub_tlv_offset, sub_tlv_len), pinfo, tlv_tree);
 								break;
 							default:
-								tlv_tree = add_tlv_subtree(&sub_tlv_info, ett_reg_rsp_message_tree, sub_tree, hf_tlv_type, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
-								proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, sub_tlv_offset, sub_tlv_len, ENC_NA);
+								add_tlv_subtree(&sub_tlv_info, sub_tree, hf_tlv_type, tvb, this_offset, ENC_NA);
 								break;
 						}
 						this_offset = sub_tlv_len + sub_tlv_offset;
 					}
 					break;
 				case REG_RSP_TLV_T_28_HO_SYSTEM_RESOURCE_RETAIN_TIME:
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, tlv_offset, tlv_len, "System Resource Retain Time (%u byte(s))", tlv_len);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_reg_rsp_system_resource_retain_time, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+					tlv_item = add_tlv_subtree(&tlv_info, reg_rsp_tree, hf_reg_rsp_system_resource_retain_time, tvb, offset, ENC_BIG_ENDIAN);
 					if (include_cor2_changes) {
 						proto_item_append_text(tlv_item, " (in units of 100 milliseconds)");
 					} else {
@@ -219,26 +213,26 @@ static void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 				case DSx_UPLINK_FLOW:
 					/* display Uplink Service Flow Encodings info */
 					/* add subtree */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, tlv_offset, tlv_len, "Uplink Service Flow Encodings (%u byte(s))", tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tlv_len, "Uplink Service Flow Encodings");
 					/* decode and display the DL Service Flow Encodings */
-					wimax_service_flow_encodings_decoder(tvb_new_subset(tvb, tlv_offset, tlv_len, tlv_len), pinfo, tlv_tree);
+					wimax_service_flow_encodings_decoder(tvb_new_subset_length(tvb, tlv_offset, tlv_len), pinfo, tlv_tree);
 					break;
 				case DSx_DOWNLINK_FLOW:
 					/* display Downlink Service Flow Encodings info */
 					/* add subtree */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, tlv_offset, tlv_len, "Downlink Service Flow Encodings (%u byte(s))", tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tlv_len, "Downlink Service Flow Encodings");
 					/* decode and display the DL Service Flow Encodings */
-					wimax_service_flow_encodings_decoder(tvb_new_subset(tvb, tlv_offset, tlv_len, tlv_len), pinfo, tlv_tree);
+					wimax_service_flow_encodings_decoder(tvb_new_subset_length(tvb, tlv_offset, tlv_len), pinfo, tlv_tree);
 					break;
 				case HMAC_TUPLE:	/* Table 348d */
 					/* decode and display the HMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, tlv_offset, tlv_len, "HMAC Tuple (%u byte(s))", tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tlv_len, "HMAC Tuple");
 					wimax_hmac_tuple_decoder(tlv_tree, tvb, offset+2, tlv_len);
 					hmac_found = TRUE;
 					break;
 				case CMAC_TUPLE:	/* Table 348b */
 					/* decode and display the CMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, tlv_offset, tlv_len, "CMAC Tuple (%u byte(s))", tlv_len);
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tlv_len, "CMAC Tuple");
 					wimax_cmac_tuple_decoder(tlv_tree, tvb, offset+2, tlv_len);
 					break;
 				case SHORT_HMAC_TUPLE:
@@ -246,22 +240,20 @@ static void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 					if ((!include_cor2_changes && (tlv_type == SHORT_HMAC_TUPLE)) ||
 						(include_cor2_changes && (tlv_type == SHORT_HMAC_TUPLE_COR2))) {
 						/* decode and display the Short HMAC Tuple */
-						tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, tlv_offset, tlv_len, "Short HMAC Tuple (%u byte(s))", tlv_len);
+						tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, offset, tlv_len, "Short HMAC Tuple");
 						wimax_short_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
 					} else {
 						/* Unknown TLV Type */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, ENC_NA);
+						add_tlv_subtree(&tlv_info, reg_rsp_tree, hf_tlv_type, tvb, offset, ENC_NA);
 					}
 					break;
 				case VENDOR_SPECIFIC_INFO:
 				case VENDOR_ID_ENCODING:
 				case MAC_VERSION_ENCODING:
-					wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, reg_rsp_tree);
+					wimax_common_tlv_encoding_decoder(tvb_new_subset_length(tvb, offset, (tvb_len - offset)), pinfo, reg_rsp_tree);
 					break;
 				default:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, ENC_NA);
+					add_tlv_subtree(&tlv_info, reg_rsp_tree, hf_tlv_type, tvb, offset, ENC_NA);
 					break;
 			}
 

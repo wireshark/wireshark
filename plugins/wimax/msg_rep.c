@@ -100,6 +100,7 @@ static gint hf_rep_req_rep_type_bit2 = -1;
 static gint hf_rep_req_rep_type_bit3_6 = -1;
 static gint hf_rep_req_rep_type_bit7 = -1;
 static gint hf_rep_req_channel_number = -1;
+static gint hf_rep_req_channel_type = -1;
 static gint hf_rep_req_channel_type_request = -1;
 static gint hf_rep_req_channel_type_reserved = -1;
 static gint hf_rep_req_zone_spec_phy_cinr_request = -1;
@@ -258,10 +259,8 @@ static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pin
 	guint offset = 0;
 	guint tvb_len;
 	gint  tlv_type, tlv_len, tlv_value_offset, length, tlv_offset;
-	proto_item *rep_item;
-	proto_tree *rep_tree;
-	proto_tree *tlv_tree = NULL;
-	proto_tree *ti_tree = NULL;
+	proto_item *rep_item, *tlv_item, *ti_item;
+	proto_tree *rep_tree, *tlv_tree, *ti_tree;
 	tlv_info_t tlv_info;
 
 	{	/* we are being asked for details */
@@ -298,7 +297,8 @@ static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pin
 			{
 				case REP_REQ_REPORT_REQUEST:
 				/* process the REP-REQ report request TLVs */
-				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, rep_tree, hf_rep_req_report_request, tvb, offset, tlv_len, FALSE);
+				tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_req_report_request, tvb, offset-tlv_value_offset, FALSE);
+				tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_rep_req_decoder);
 				for( tlv_offset = 0; tlv_offset < tlv_len;  )
 				{	/* get the TLV information */
 					init_tlv_info(&tlv_info, tvb, (offset + tlv_offset));
@@ -321,7 +321,8 @@ static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pin
 					{
 						case REP_REQ_REPORT_TYPE:
 						/* decode and display the Report type */
-						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_report_type, tvb, (offset + tlv_offset), length, FALSE);
+						ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_req_report_type, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_BIG_ENDIAN);
+						ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_req_decoder);
 						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit0, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit1, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit2, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
@@ -331,18 +332,19 @@ static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pin
 						break;
 						case REP_REQ_CHANNEL_NUMBER:
 						/* decode and display the Channel Number */
-						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_channel_number, tvb, (offset + tlv_offset), length, FALSE);
-						proto_tree_add_item(ti_tree, hf_rep_req_channel_number, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+						add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_req_channel_number, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_BIG_ENDIAN);
 						break;
 						case REP_REQ_CHANNEL_TYPE:
 						/* decode and display the Channel Type */
-						ti_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, proto_mac_mgmt_msg_rep_decoder, tvb, (offset + tlv_offset), length, "Channel Type (%u byte(s))", length);
+						ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_req_channel_type, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_BIG_ENDIAN);
+						ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_req_decoder);
 						proto_tree_add_item(ti_tree, hf_rep_req_channel_type_request, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_channel_type_reserved, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						break;
 						case REP_REQ_ZONE_SPEC_PHY_CINR_REQ:
 						/* decode and display the zone specific physical cinr request */
-						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_zone_spec_phy_cinr_request, tvb, (offset + tlv_offset), length, FALSE);
+						ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_req_zone_spec_phy_cinr_request, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+						ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_req_decoder);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit0_2, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit3, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit4, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
@@ -355,7 +357,8 @@ static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pin
 						break;
 						case REP_REQ_PREAMBLE_PHY_CINR_REQ:
 						/* decode and display the preamble phy cinr request */
-						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_preamble_phy_cinr_request, tvb, (offset + tlv_offset), length, FALSE);
+						ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_req_preamble_phy_cinr_request, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+						ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_req_decoder);
 						proto_tree_add_item(ti_tree, hf_rep_req_preamble_phy_cinr_req_bit0_1, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_preamble_phy_cinr_req_bit2_5, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_preamble_phy_cinr_req_bit6, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
@@ -363,7 +366,8 @@ static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pin
 						break;
 						case REP_REQ_ZONE_SPEC_EFF_CINR_REQ:
 						/* decode and display the zone specific effective cinr request */
-						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_zone_spec_effective_cinr_request, tvb, offset, tlv_len, FALSE);
+						ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_req_zone_spec_effective_cinr_request, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+						ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_req_decoder);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit0_2, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit3, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit4, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
@@ -375,20 +379,21 @@ static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pin
 						break;
 						case REP_REQ_PREAMBLE_EFF_CINR_REQ:
 						/* decode and display the preamble effective cinr request */
-						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_preamble_effective_cinr_request, tvb, offset, tlv_len, FALSE);
+						ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_req_preamble_effective_cinr_request, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+						ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_req_decoder);
 						proto_tree_add_item(ti_tree, hf_rep_req_preamble_effective_cinr_req_bit0_1, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_preamble_effective_cinr_req_bit2_7, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						break;
 						case REP_REQ_CHANNEL_SELECTIVITY_REPORT:
 						/* decode and display the channel selectivity report */
-						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_channel_selectivity_report, tvb, (offset + tlv_offset), length, FALSE);
+						ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_req_channel_selectivity_report, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+						ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_req_decoder);
 						proto_tree_add_item(ti_tree, hf_rep_req_channel_selectivity_rep_bit0, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_channel_selectivity_rep_bit1_7, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						break;
 						default:
 						/* display the unknown tlv in hex */
-						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
-						proto_tree_add_item(ti_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, ENC_NA);
+						add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), ENC_NA);
 						break;
 					}
 					tlv_offset += length;
@@ -396,8 +401,7 @@ static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pin
 				break;
 				default:
 				/* display the unknown tlv in hex */
-				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, rep_tree, hf_rep_unknown_type, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rep_unknown_type, tvb, offset, tlv_len, ENC_NA);
+				add_tlv_subtree(&tlv_info, rep_tree, hf_rep_unknown_type, tvb, offset-tlv_value_offset, ENC_NA);
 				break;
 			}
 			offset += tlv_len;
@@ -412,11 +416,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 	guint tvb_len, length, value;
 	gint  tlv_type, tlv_len, tlv_value_offset, tlv_offset;
 	gint  db_val;
-	proto_item *rep_item;
-	proto_tree *rep_tree;
-	proto_tree *tlv_tree = NULL;
-	proto_item *ti = NULL;
-	proto_tree *ti_tree = NULL;
+	proto_item *rep_item, *tlv_item, *ti, *ti_item;
+	proto_tree *rep_tree, *tlv_tree, *ti_tree;
 	tlv_info_t tlv_info;
 	gfloat current_power;
 
@@ -455,7 +456,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 			{
 				case REP_RSP_REPORT_TYPE:
 					/* decode and display the Report type */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, rep_tree, hf_rep_rsp_report_type, tvb, offset, tlv_len, FALSE);
+					tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_report_type, tvb, offset-tlv_value_offset, ENC_NA);
+					tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 					for( tlv_offset = 0; tlv_offset < tlv_len;  )
 					{	/* get the TLV information */
 						init_tlv_info(&tlv_info, tvb, (offset + tlv_offset));
@@ -474,19 +476,17 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 						switch (tlv_type)
 						{
 							case REP_RSP_REPORT_CHANNEL_NUMBER:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_report_type_channel_number, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_channel_number, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_report_type_channel_number, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_REPORT_START_FRAME:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_report_type_frame_number, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_frame_number, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_report_type_frame_number, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_REPORT_DURATION:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_report_type_duration, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_duration, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_report_type_duration, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_REPORT_BASIC_REPORT:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_report_type_basic_report, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_report_type_basic_report, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit0, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit1, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit2, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
@@ -494,8 +494,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_reserved, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_REPORT_CINR_REPORT:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_report_type_cinr_report, tvb, (offset + tlv_offset), length, FALSE);
-								ti = proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_cinr_report_mean, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_report_type_cinr_report, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								db_val = tvb_get_guint8(tvb, offset + tlv_offset) - 20;
 								if (db_val > 37)
 									db_val = 37;
@@ -507,7 +507,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 								proto_item_append_text(ti, " (%d dBm)", db_val);
 							break;
 							case REP_RSP_REPORT_RSSI_REPORT:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_report_type_rssi_report, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_report_type_rssi_report, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								ti = proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_rssi_report_mean, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								db_val = tvb_get_guint8(tvb, offset + tlv_offset) - 123;
 								if (db_val > -40)
@@ -521,8 +522,7 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 							break;
 							default:
 								/* display the unknown tlv in hex */
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, ENC_NA);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
 							break;
 						}
 						tlv_offset += length;
@@ -530,7 +530,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 				break;
 				case REP_RSP_CHANNEL_TYPE:
 					/* decode and display the Channel Type */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, rep_tree, hf_rep_rsp_channel_type_report, tvb, offset, tlv_len, FALSE);
+					tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_channel_type_report, tvb, offset-tlv_value_offset, ENC_NA);
+					tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 					for( tlv_offset = 0; tlv_offset < tlv_len;  )
 					{	/* get the TLV information */
 						init_tlv_info(&tlv_info, tvb, (offset + tlv_offset));
@@ -544,42 +545,36 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 							proto_tree_add_item(tlv_tree, hf_rep_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), ENC_NA);
 							break;
 						}
-						/* update the offset */
-						tlv_offset += get_tlv_value_offset(&tlv_info);
+
 						switch (tlv_type)
 						{
 							case REP_RSP_CHANNEL_TYPE_SUBCHANNEL:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_channel_type_subchannel, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_channel_type_subchannel, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_channel_type_subchannel, tvb, (offset + tlv_offset), ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_CHANNEL_TYPE_BAND_AMC:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_channel_type_band_amc, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_channel_type_band_amc, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_channel_type_band_amc, tvb, (offset + tlv_offset), ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_CHANNEL_TYPE_SAFETY_CHANNEL:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_channel_type_safety_channel, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_channel_type_safety_channel, tvb, (offset + tlv_offset), length, ENC_NA);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_channel_type_safety_channel, tvb, (offset + tlv_offset), ENC_NA);
 							break;
 							case REP_RSP_CHANNEL_TYPE_ENHANCED_BAND_AMC:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_channel_type_enhanced_band_amc, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_channel_type_enhanced_band_amc, tvb, (offset + tlv_offset), length, ENC_NA);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_channel_type_enhanced_band_amc, tvb, (offset + tlv_offset), ENC_NA);
 							break;
 							case REP_RSP_CHANNEL_TYPE_SOUNDING:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_channel_type_sounding, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_channel_type_sounding, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_channel_type_sounding, tvb, (offset + tlv_offset), ENC_BIG_ENDIAN);
 							break;
 							default:
 								/* display the unknown tlv in hex */
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, ENC_NA);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), ENC_NA);
 							break;
 						}
-						tlv_offset += length;
+						tlv_offset += (length + get_tlv_value_offset(&tlv_info));
 					}
 				break;
 				case REP_RSP_ZONE_SPECIFIC_PHY_CINR:
 					/* decode and display the zone-specific physical CINR report type */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, rep_tree, hf_rep_rsp_zone_spec_phy_cinr_report, tvb, offset, tlv_len, FALSE);
+					tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_zone_spec_phy_cinr_report, tvb, offset-tlv_value_offset, ENC_NA);
+					tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 					for( tlv_offset = 0; tlv_offset < tlv_len;  )
 					{	/* get the TLV information */
 						init_tlv_info(&tlv_info, tvb, (offset + tlv_offset));
@@ -598,7 +593,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 						switch (tlv_type)
 						{
 							case REP_RSP_ZONE_SPECIFIC_PHY_CINR_PUSC_SC0:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_pusc_sc0, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_pusc_sc0, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_mean, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_report_type, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_reserved1, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
@@ -609,7 +605,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 								}
 							break;
 							case REP_RSP_ZONE_SPECIFIC_PHY_CINR_PUSC_SC1:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_pusc_sc1, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_pusc_sc1, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_mean, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_report_type, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_reserved1, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
@@ -620,7 +617,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 								}
 							break;
 							case REP_RSP_ZONE_SPECIFIC_PHY_CINR_FUSC:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_fusc, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_fusc, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_mean, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_report_type, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_reserved1, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
@@ -631,7 +629,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 								}
 							break;
 							case REP_RSP_ZONE_SPECIFIC_PHY_CINR_OPTIONAL_FUSC:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_optional_fusc, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_optional_fusc, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_mean, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_report_type, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_reserved1, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
@@ -642,11 +641,11 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 								}
 							break;
 							case REP_RSP_ZONE_SPECIFIC_PHY_CINR_SAFETY_CHANNEL:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_safety_channel, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_safety_channel, tvb, (offset + tlv_offset), length, ENC_NA);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_safety_channel, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
 							break;
 							case REP_RSP_ZONE_SPECIFIC_PHY_CINR_AMC:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_amc, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_amc, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_mean, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_report_type, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_reserved1, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
@@ -658,8 +657,7 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 							break;
 							default:
 								/* display the unknown tlv in hex */
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, ENC_NA);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
 							break;
 						}
 						tlv_offset += length;
@@ -667,7 +665,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 				break;
 				case REP_RSP_PREAMBLE_PHY_CINR:
 					/* decode and display the preamble physical CINR report type */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, rep_tree, hf_rep_rsp_preamble_phy_cinr_report, tvb, offset, tlv_len, FALSE);
+					tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_preamble_phy_cinr_report, tvb, offset-tlv_value_offset, ENC_NA);
+					tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 					for( tlv_offset = 0; tlv_offset < tlv_len;  )
 					{	/* get the TLV information */
 						init_tlv_info(&tlv_info, tvb, (offset + tlv_offset));
@@ -681,38 +680,36 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 							proto_tree_add_item(tlv_tree, hf_rep_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), ENC_NA);
 							break;
 						}
-						/* update the offset */
-						tlv_offset += get_tlv_value_offset(&tlv_info);
+
 						switch (tlv_type)
 						{
 							case REP_RSP_PREAMBLE_PHY_CINR_CONFIGURATION1:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_preamble_phy_cinr_rep_configuration_1, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_mean, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_preamble_phy_cinr_rep_configuration_1, tvb, (offset + tlv_offset), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								if (length == 2)
-									proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_deviation, tvb, (offset + tlv_offset + 1), 1, ENC_BIG_ENDIAN);
+									proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_deviation, tvb, (offset + tlv_offset + 1)+get_tlv_value_offset(&tlv_info), 1, ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_PREAMBLE_PHY_CINR_CONFIGURATION3:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_preamble_phy_cinr_rep_configuration_3, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_mean, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_preamble_phy_cinr_rep_configuration_3, tvb, (offset + tlv_offset), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								if (length == 2)
-									proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_deviation, tvb, (offset + tlv_offset + 1), 1, ENC_BIG_ENDIAN);
+									proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_phy_cinr_rep_deviation, tvb, (offset + tlv_offset + 1)+get_tlv_value_offset(&tlv_info), 1, ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_PREAMBLE_PHY_CINR_BAND_AMC:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_preamble_phy_cinr_rep_band_amc_zone, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_preamble_phy_cinr_rep_band_amc_zone, tvb, (offset + tlv_offset), length, ENC_NA);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_preamble_phy_cinr_rep_band_amc_zone, tvb, (offset + tlv_offset), ENC_NA);
 							break;
 							default:
 								/* display the unknown tlv in hex */
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, ENC_NA);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), ENC_NA);
 							break;
 						}
-						tlv_offset += length;
+						tlv_offset += (length+get_tlv_value_offset(&tlv_info));
 					}
 				break;
 				case REP_RSP_ZONE_SPECIFIC_EFFECTIVE_CINR:
 					/* decode and display the zone-specific effective CINR report type */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, rep_tree, hf_rep_rsp_zone_spec_effective_cinr_report, tvb, offset, tlv_len, FALSE);
+					tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_zone_spec_effective_cinr_report, tvb, offset-tlv_value_offset, ENC_NA);
+					tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 					for( tlv_offset = 0; tlv_offset < tlv_len;  )
 					{	/* get the TLV information */
 						init_tlv_info(&tlv_info, tvb, (offset + tlv_offset));
@@ -731,39 +728,43 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 						switch (tlv_type)
 						{
 							case REP_RSP_ZONE_SPECIFIC_EFFECTIVE_CINR_PUSC_SC0:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_pusc_sc0, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_pusc_sc0, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_effective_cinr, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_report_type, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_cqich_id, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_ZONE_SPECIFIC_EFFECTIVE_CINR_PUSC_SC1:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_pusc_sc1, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_pusc_sc1, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_effective_cinr, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_report_type, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_cqich_id, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_ZONE_SPECIFIC_EFFECTIVE_CINR_FUSC:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_fusc, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_fusc, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_effective_cinr, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_report_type, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_cqich_id, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_ZONE_SPECIFIC_EFFECTIVE_CINR_OPTIONAL_FUSC:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_optional_fusc, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_optional_fusc, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_effective_cinr, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_report_type, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_cqich_id, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_ZONE_SPECIFIC_EFFECTIVE_CINR_AMC_AAS:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_amc_aas, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_amc_aas, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_effective_cinr, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_report_type, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_cqich_id, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 							default:
 								/* display the unknown tlv in hex */
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, ENC_NA);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
 							break;
 						}
 						tlv_offset += length;
@@ -771,7 +772,8 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 				break;
 				case REP_RSP_PREAMBLE_EFFECTIVE_CINR:
 					/* decode and display the preamble effective CINR report type */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, rep_tree, hf_rep_rsp_preamble_effective_cinr_report, tvb, offset, tlv_len, FALSE);
+					tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_preamble_effective_cinr_report, tvb, offset-tlv_value_offset, ENC_NA);
+					tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 					for( tlv_offset = 0; tlv_offset < tlv_len;  )
 					{	/* get the TLV information */
 						init_tlv_info(&tlv_info, tvb, (offset + tlv_offset));
@@ -790,42 +792,42 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 						switch (tlv_type)
 						{
 							case REP_RSP_PREAMBLE_EFFECTIVE_CINR_CONFIGURATION1:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_preamble_effective_cinr_rep_configuration_1, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_preamble_effective_cinr_rep_configuration_1, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_effective_cinr, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_preamble_effective_cinr_rep_cqich_id, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_PREAMBLE_EFFECTIVE_CINR_CONFIGURATION3:
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_preamble_effective_cinr_rep_configuration_3, tvb, (offset + tlv_offset), length, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_preamble_effective_cinr_rep_configuration_3, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_zone_spec_effective_cinr_rep_effective_cinr, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_preamble_effective_cinr_rep_cqich_id, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_CHANNEL_SELECTIVITY:
 								/* decode and display the channel selectivity report type */
-								tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, rep_tree, hf_rep_rsp_channel_selectivity_report, tvb, offset, tlv_len, FALSE);
+								ti_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_channel_selectivity_report, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
+								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								proto_tree_add_item(tlv_tree, hf_rep_rsp_channel_selectivity_rep_frequency_a, tvb, (offset + tlv_offset + 2), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(tlv_tree, hf_rep_rsp_channel_selectivity_rep_frequency_b, tvb, (offset + tlv_offset + 1), 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(tlv_tree, hf_rep_rsp_channel_selectivity_rep_frequency_c, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 							break;
 							default:
 								/* display the unknown tlv in hex */
-								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset), length, ENC_NA);
+								add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_unknown_type, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
 							break;
 						}
 						tlv_offset += length;
 					}
 				break;
 				case CURRENT_TX_POWER:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, rep_tree, hf_rep_unknown_type, tvb, offset, tlv_len, FALSE);
+					tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_current_transmitted_power, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					value = tvb_get_guint8(tvb, offset);
 					current_power = ((gfloat)value - 128) / 2;
-					ti = proto_tree_add_item(tlv_tree, hf_rep_rsp_current_transmitted_power, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
-					proto_item_append_text(ti, " (%.1f dBm)", current_power);
+					proto_item_append_text(tlv_item, " (%.1f dBm)", current_power);
 				break;
 				default:
 					/* display the unknown tlv in hex */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, rep_tree, hf_rep_unknown_type, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rep_unknown_type, tvb, offset, tlv_len, ENC_NA);
+					add_tlv_subtree(&tlv_info, rep_tree, hf_rep_unknown_type, tvb, offset-tlv_value_offset, ENC_NA);
 				break;
 			}
 			offset += tlv_len;
@@ -875,6 +877,13 @@ void proto_register_mac_mgmt_msg_rep(void)
 			}
 		},
 		{	/* type 1.3 */
+			&hf_rep_req_channel_type,
+			{
+				"Channel Type", "wmx.rep_req.channel_type",
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
 			&hf_rep_req_channel_type_request,
 			{
 				"Channel Type Request", "wmx.rep_req.channel_type.request",
