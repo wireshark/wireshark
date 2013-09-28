@@ -333,7 +333,7 @@ static const value_string assignment_type_vals[] = {
     { WCCP2_RTR_VIEW_INFO,       "Router View Info" },
     { WCCP2_WC_VIEW_INFO,        "Web-Cache View Info" },
     { WCCP2_REDIRECT_ASSIGNMENT, "Assignment Info" },
-    { WCCP2_QUERY_INFO,          "Query Info" },
+    { WCCP2_QUERY_INFO,          "Router Query Info" },
     { WCCP2_CAPABILITIES_INFO,   "Capabilities Info" },
     { WCCP2_ALT_ASSIGNMENT,      "Alternate Assignment" },
     { WCCP2_ASSIGN_MAP,          "Assignment Map" },
@@ -2502,12 +2502,13 @@ dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint l
   number_of_elements  = tvb_get_ntohl(tvb, offset);
   tl = proto_tree_add_uint(element_tree, hf_alt_assignment_mask_value_set_element_num_wc_value_elements, tvb, offset, 4, number_of_elements);
   value_tree = proto_item_add_subtree(tl, ett_alternate_mv_set_element_list);
+  total_length += 4;
   EAT(4);
 
   for (i=0; i < number_of_elements; i++) {
     new_length=dissect_wccp2_web_cache_value_element(tvb, offset, length, pinfo,  value_tree);
+    total_length += length - new_length;
     NOTE_EATEN_LENGTH(new_length);
-    total_length += new_length;
   }
   proto_item_set_len(header, total_length);
 
@@ -2807,7 +2808,7 @@ dissect_wccp2_alternate_assignment_info(tvbuff_t *tvb, int offset, gint length,
     if (length < 12)
       return length - 12*(n_routers-i);
 
-    te = proto_tree_add_text(info_tree, tvb, offset, 4,
+    te = proto_tree_add_text(info_tree, tvb, offset, 12,
                              "Router %d Assignment Element: IP address %s", i,
                              decode_wccp_encoded_address(tvb, offset, pinfo, info_tree));
 
@@ -2818,13 +2819,13 @@ dissect_wccp2_alternate_assignment_info(tvbuff_t *tvb, int offset, gint length,
 
   switch (assignment_type) {
   case WCCP2_HASH_ASSIGNMENT_TYPE:
-    return dissect_wccp2_hash_assignment_info(tvb, offset, assignment_length,
+    return dissect_wccp2_hash_assignment_info(tvb, offset, length,
                                               pinfo, info_tree);
   case WCCP2_MASK_ASSIGNMENT_TYPE:
-    return dissect_wccp2_mask_value_set_list(tvb, offset, assignment_length,
+    return dissect_wccp2_mask_value_set_list(tvb, offset, length,
                                              pinfo, info_tree);
   case WCCP2r1_ALT_MASK_ASSIGNMENT_TYPE:
-    return dissect_wccp2_alternate_mask_value_set_list(tvb, offset, assignment_length,
+    return dissect_wccp2_alternate_mask_value_set_list(tvb, offset, length,
                                                        pinfo, info_tree);
   default:
     return length;
