@@ -719,12 +719,11 @@ proto_tree *add_tlv_subtree_no_item(tlv_info_t *self, proto_tree *tree, int hfin
 /* return:                                                   */
 /*   pointer to a proto_tree                                 */
 /*************************************************************/
-proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, const char *label)
+proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length _U_, const char *label)
 {
 	/* Declare local variables */
 	proto_tree *tlv_tree;
 	proto_item *tlv_item;
-	guint start_of_tlv;
 	gint tlv_value_length, tlv_val_offset;
 	guint8 size_of_tlv_length_field;
 	guint8 tlv_type;
@@ -737,7 +736,6 @@ proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, i
 
 	/* Retrieve the necessary TLV information */
 	tlv_val_offset = get_tlv_value_offset(self);
-	start_of_tlv = start - tlv_val_offset;
 	tlv_value_length = get_tlv_length(self);
 	size_of_tlv_length_field = get_tlv_size_of_length(self);
 	tlv_type = get_tlv_type(self);

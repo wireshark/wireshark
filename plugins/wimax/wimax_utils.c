@@ -1711,7 +1711,6 @@ void wimax_error_parameter_set_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 	gint  tlv_type;
 	proto_item *ceps_item = NULL;
 	proto_tree *ceps_tree = NULL;
-	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
 	/* get the tvb reported length */
@@ -2909,7 +2908,6 @@ void wimax_tek_parameters_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	guint offset;
 	guint tvb_len, tlv_len, tlv_value_offset;
 	gint  tlv_type;
-	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
 	/* get the tvb reported length */
@@ -3198,7 +3196,6 @@ void wimax_security_capabilities_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 /******************************************************************/
 void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree *tlv_tree = NULL;
 	guint offset;
 	guint tvb_len, tlv_len, tlv_value_offset;
 	gint  tlv_type;

@@ -219,7 +219,6 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 {
 	proto_item *tlv_item;
 	proto_tree *tlv_tree;
-	proto_tree *sub_tree = NULL;
 	guint tvb_len;
 	tlv_info_t tlv_info;
 	guint tlv_end;

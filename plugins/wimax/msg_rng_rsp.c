@@ -281,7 +281,6 @@ static void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 	proto_item *tlv_item = NULL;
 	proto_tree *rng_rsp_tree;
 	proto_tree *sub_tree = NULL;
-	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 	gint tlv_type;
 	guint tlv_len;

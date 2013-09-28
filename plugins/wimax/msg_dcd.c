@@ -607,7 +607,7 @@ static void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 				}
 				case DCD_TLV_T_33_ASR:
 				{
-					tlv_tree = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_33_asr, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
+					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_33_asr, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_dcd_decoder);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_m, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " frames");

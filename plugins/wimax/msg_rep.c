@@ -499,7 +499,7 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 								db_val = tvb_get_guint8(tvb, offset + tlv_offset) - 20;
 								if (db_val > 37)
 									db_val = 37;
-								proto_item_append_text(ti, " (%d dBm)", db_val);
+								proto_item_append_text(ti_item, " (%d dBm)", db_val);
 								ti = proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_cinr_report_deviation, tvb, (offset + tlv_offset +1), 1, ENC_BIG_ENDIAN);
 								db_val = tvb_get_guint8(tvb, offset + tlv_offset + 1) - 20;
 								if (db_val > 37)

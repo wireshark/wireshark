@@ -287,7 +287,7 @@ static void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pin
 					add_tlv_subtree(&tlv_info, rng_req_tree, hf_rng_req_power_down_indicator, tvb, offset, ENC_BIG_ENDIAN);
 					break;
 				case RNG_REQ_REQUESTED_DNLK_REP_CODING_LEVEL:
-					tlv_tree = add_tlv_subtree(&tlv_info, rng_req_tree, hf_rng_req_requested_rep_coding_level, tvb, offset, ENC_BIG_ENDIAN);
+					tlv_item = add_tlv_subtree(&tlv_info, rng_req_tree, hf_rng_req_requested_rep_coding_level, tvb, offset, ENC_BIG_ENDIAN);
 					tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_rng_req_decoder);
 					proto_tree_add_item(tlv_tree, hf_rng_req_repetition_coding_level, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tlv_tree, hf_rng_req_requested_downlink_repetition_coding_level_reserved, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
