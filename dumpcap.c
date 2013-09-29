@@ -2881,7 +2881,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
             get_os_version_info(os_info_str);
 
             g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
-            successful = libpcap_write_session_header_block(libpcap_write_to_file, ld->pdh,
+            successful = libpcap_write_session_header_block(ld->pdh,
                                 (const char *)capture_opts->capture_comment,   /* Comment*/
                                 NULL,                        /* HW*/
                                 os_info_str->str,            /* OS*/
@@ -2898,7 +2898,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                 } else {
                     pcap_opts->snaplen = pcap_snapshot(pcap_opts->pcap_h);
                 }
-                successful = libpcap_write_interface_description_block(libpcap_write_to_file, global_ld.pdh,
+                successful = libpcap_write_interface_description_block(global_ld.pdh,
                                                                        NULL,                       /* OPT_COMMENT       1 */
                                                                        interface_opts.name,        /* IDB_NAME          2 */
                                                                        interface_opts.descr,       /* IDB_DESCRIPTION   3 */
@@ -2921,7 +2921,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
             } else {
                 pcap_opts->snaplen = pcap_snapshot(pcap_opts->pcap_h);
             }
-            successful = libpcap_write_file_header(libpcap_write_to_file, ld->pdh, pcap_opts->linktype, pcap_opts->snaplen,
+            successful = libpcap_write_file_header(ld->pdh, pcap_opts->linktype, pcap_opts->snaplen,
                                                    pcap_opts->ts_nsec, &ld->bytes_written, &err);
         }
         if (!successful) {
@@ -2983,7 +2983,7 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
                         isb_ifrecv = G_MAXUINT64;
                         isb_ifdrop = G_MAXUINT64;
                     }
-                    libpcap_write_interface_statistics_block(libpcap_write_to_file, ld->pdh,
+                    libpcap_write_interface_statistics_block(ld->pdh,
                                                              i,
                                                              &ld->bytes_written,
                                                              "Counters provided by dumpcap",
@@ -3374,7 +3374,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 get_os_version_info(os_info_str);
 
                 g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
-                successful = libpcap_write_session_header_block(libpcap_write_to_file, global_ld.pdh,
+                successful = libpcap_write_session_header_block(global_ld.pdh,
                                 NULL,                        /* Comment */
                                 NULL,                        /* HW */
                                 os_info_str->str,            /* OS */
@@ -3386,7 +3386,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
                     interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
                     pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
-                    successful = libpcap_write_interface_description_block(libpcap_write_to_file, global_ld.pdh,
+                    successful = libpcap_write_interface_description_block(global_ld.pdh,
                                                                            NULL,                       /* OPT_COMMENT       1 */
                                                                            interface_opts.name,        /* IDB_NAME          2 */
                                                                            interface_opts.descr,       /* IDB_DESCRIPTION   3 */
@@ -3404,7 +3404,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
 
             } else {
                 pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, 0);
-                successful = libpcap_write_file_header(libpcap_write_to_file, global_ld.pdh, pcap_opts->linktype, pcap_opts->snaplen,
+                successful = libpcap_write_file_header(global_ld.pdh, pcap_opts->linktype, pcap_opts->snaplen,
                                                        pcap_opts->ts_nsec, &global_ld.bytes_written, &global_ld.err);
             }
             if (!successful) {
@@ -4028,7 +4028,7 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
            If this fails, set "ld->go" to FALSE, to stop the capture, and set
            "ld->err" to the error. */
         if (global_capture_opts.use_pcapng) {
-            successful = libpcap_write_enhanced_packet_block(libpcap_write_to_file, global_ld.pdh,
+            successful = libpcap_write_enhanced_packet_block(global_ld.pdh,
                                                              NULL,
                                                              phdr->ts.tv_sec, (gint32)phdr->ts.tv_usec,
                                                              phdr->caplen, phdr->len,
@@ -4037,7 +4037,7 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
                                                              pd, 0,
                                                              &global_ld.bytes_written, &err);
         } else {
-            successful = libpcap_write_packet(libpcap_write_to_file, global_ld.pdh,
+            successful = libpcap_write_packet(global_ld.pdh,
                                               phdr->ts.tv_sec, (gint32)phdr->ts.tv_usec,
                                               phdr->caplen, phdr->len,
                                               pd,

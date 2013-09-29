@@ -178,19 +178,19 @@ struct option {
 #define ISB_USRDELIV      8
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
-/* Write libcap to file.  write_data_info will be a FILE* */
-gboolean libpcap_write_to_file(void* write_data_info,
-                               const guint8* data,
-                               long data_length,
-                               guint64 *bytes_written,
-                               int *err)
+/* Write to capture file */
+static gboolean
+libpcap_write_to_file(FILE* pfile,
+                      const guint8* data,
+                      size_t data_length,
+                      guint64 *bytes_written,
+                      int *err)
 {
         size_t nwritten;
-        FILE* pFile = (FILE*)write_data_info;
 
-        nwritten = fwrite(data, data_length, 1, pFile);
+        nwritten = fwrite(data, data_length, 1, pfile);
         if (nwritten != 1) {
-                if (ferror(pFile)) {
+                if (ferror(pfile)) {
                         *err = errno;
                 } else {
                         *err = 0;
@@ -206,7 +206,7 @@ gboolean libpcap_write_to_file(void* write_data_info,
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
 gboolean
-libpcap_write_file_header(libpcap_write_t write_func, void* write_data_info, int linktype, int snaplen, gboolean ts_nsecs, guint64 *bytes_written, int *err)
+libpcap_write_file_header(FILE* pfile, int linktype, int snaplen, gboolean ts_nsecs, guint64 *bytes_written, int *err)
 {
         struct pcap_hdr file_hdr;
 
@@ -219,13 +219,13 @@ libpcap_write_file_header(libpcap_write_t write_func, void* write_data_info, int
         file_hdr.snaplen = snaplen;
         file_hdr.network = linktype;
 
-        return write_func(write_data_info, (const guint8*)&file_hdr, sizeof(file_hdr), bytes_written, err);
+        return libpcap_write_to_file(pfile, (const guint8*)&file_hdr, sizeof(file_hdr), bytes_written, err);
 }
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 gboolean
-libpcap_write_packet(libpcap_write_t write_func, void* write_data_info,
+libpcap_write_packet(FILE* pfile,
                      time_t sec, guint32 usec,
                      guint32 caplen, guint32 len,
                      const guint8 *pd,
@@ -237,14 +237,14 @@ libpcap_write_packet(libpcap_write_t write_func, void* write_data_info,
         rec_hdr.ts_usec = usec;
         rec_hdr.incl_len = caplen;
         rec_hdr.orig_len = len;
-        if (!write_func(write_data_info, (const guint8*)&rec_hdr, sizeof(rec_hdr), bytes_written, err))
+        if (!libpcap_write_to_file(pfile, (const guint8*)&rec_hdr, sizeof(rec_hdr), bytes_written, err))
                 return FALSE;
 
-        return write_func(write_data_info, pd, caplen, bytes_written, err);
+        return libpcap_write_to_file(pfile, pd, caplen, bytes_written, err);
 }
 
 static gboolean
-write_string_option(libpcap_write_t write_func, void *write_data_info,
+write_string_option(FILE* pfile,
                     guint16 option_type, const char *option_value,
                     guint64 *bytes_written, int *err)
 {
@@ -260,14 +260,14 @@ write_string_option(libpcap_write_t write_func, void *write_data_info,
                 option.type = option_type;
                 option.value_length = (guint16)option_value_length;
 
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)option_value, (int) option_value_length, bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)option_value, (int) option_value_length, bytes_written, err))
                         return FALSE;
 
                 if (option_value_length % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - option_value_length % 4, bytes_written, err))
+                        if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 4 - option_value_length % 4, bytes_written, err))
                                 return FALSE;
                 }
         }
@@ -275,7 +275,7 @@ write_string_option(libpcap_write_t write_func, void *write_data_info,
 }
 
 gboolean
-libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_info,
+libpcap_write_session_header_block(FILE* pfile,
                                    const char *comment,
                                    const char *hw,
                                    const char *os,
@@ -324,35 +324,35 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
         shb.minor_version = PCAPNG_MINOR_VERSION;
         shb.section_length = section_length;
 
-        if (!write_func(write_data_info, (const guint8*)&shb, sizeof(struct shb), bytes_written, err))
+        if (!libpcap_write_to_file(pfile, (const guint8*)&shb, sizeof(struct shb), bytes_written, err))
                 return FALSE;
 
-        if (!write_string_option(write_func, write_data_info, OPT_COMMENT,
-                                 comment, bytes_written, err))
-                return FALSE;
-        if (!write_string_option(write_func, write_data_info, SHB_HARDWARE, hw,
+        if (!write_string_option(pfile, OPT_COMMENT, comment,
                                  bytes_written, err))
                 return FALSE;
-        if (!write_string_option(write_func, write_data_info, SHB_OS, os,
+        if (!write_string_option(pfile, SHB_HARDWARE, hw,
                                  bytes_written, err))
                 return FALSE;
-        if (!write_string_option(write_func, write_data_info, SHB_USERAPPL,
-                                 appname, bytes_written, err))
+        if (!write_string_option(pfile, SHB_OS, os,
+                                 bytes_written, err))
+                return FALSE;
+        if (!write_string_option(pfile, SHB_USERAPPL, appname,
+                                 bytes_written, err))
                 return FALSE;
         if (have_options) {
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
         }
 
         /* write the trailing block total length */
-        return write_func(write_data_info, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
+        return libpcap_write_to_file(pfile, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
 }
 
 gboolean
-libpcap_write_interface_description_block(libpcap_write_t write_func, void* write_data_info,
+libpcap_write_interface_description_block(FILE* pfile,
                                           const char *comment, /* OPT_COMMENT        1 */
                                           const char *name,    /* IDB_NAME           2 */
                                           const char *descr,   /* IDB_DESCRIPTION    3 */
@@ -432,7 +432,7 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
         idb.link_type = link_type;
         idb.reserved = 0;
         idb.snap_len = snap_len;
-        if (!write_func(write_data_info, (const guint8*)&idb, sizeof(struct idb), bytes_written, err))
+        if (!libpcap_write_to_file(pfile, (const guint8*)&idb, sizeof(struct idb), bytes_written, err))
                 return FALSE;
 
         /* 01 - OPT_COMMENT - write comment string if applicable */
@@ -440,14 +440,14 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.type = OPT_COMMENT;
                 option.value_length = (guint16)strlen(comment);
 
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
                         return FALSE;
 
                 if (strlen(comment) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                        if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
                                 return FALSE;
                 }
         }
@@ -457,14 +457,14 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.type = IDB_NAME;
                 option.value_length = (guint16)strlen(name);
 
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)name, (int) strlen(name), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)name, (int) strlen(name), bytes_written, err))
                         return FALSE;
 
                 if (strlen(name) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(name) % 4, bytes_written, err))
+                        if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 4 - strlen(name) % 4, bytes_written, err))
                                 return FALSE;
                 }
         }
@@ -475,14 +475,14 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.type = IDB_DESCRIPTION;
                 option.value_length = (guint16)strlen(descr);
 
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)descr, (int) strlen(descr), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)descr, (int) strlen(descr), bytes_written, err))
                         return FALSE;
 
                 if (strlen(descr) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(descr) % 4, bytes_written, err))
+                        if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 4 - strlen(descr) % 4, bytes_written, err))
                                 return FALSE;
                 }
         }
@@ -492,10 +492,10 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.type = IDB_IF_SPEED;
                 option.value_length = sizeof(guint64);
 
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)&if_speed, sizeof(guint64), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&if_speed, sizeof(guint64), bytes_written, err))
                         return FALSE;
         }
 
@@ -504,13 +504,13 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.type = IDB_TSRESOL;
                 option.value_length = sizeof(guint8);
 
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)&tsresol, sizeof(guint8), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&tsresol, sizeof(guint8), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)&padding, 3, bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 3, bytes_written, err))
                         return FALSE;
         }
 
@@ -520,16 +520,16 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
         if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
                 option.type = IDB_FILTER;
                 option.value_length = (guint16)(strlen(filter) + 1 );
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
                 /* The first byte of the Option Data keeps a code of the filter used, 0 = lipbpcap filter string */
-                if (!write_func(write_data_info, (const guint8*)&padding, 1, bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 1, bytes_written, err))
                         return FALSE;
-                if (!write_func(write_data_info, (const guint8*)filter, (int) strlen(filter), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)filter, (int) strlen(filter), bytes_written, err))
                         return FALSE;
                 if ((strlen(filter) + 1) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - (strlen(filter) + 1) % 4, bytes_written, err))
+                        if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 4 - (strlen(filter) + 1) % 4, bytes_written, err))
                                 return FALSE;
                 }
         }
@@ -538,12 +538,12 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
         if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
                 option.type = IDB_OS;
                 option.value_length = (guint16)strlen(os);
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
-                if (!write_func(write_data_info, (const guint8*)os, (int) strlen(os), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)os, (int) strlen(os), bytes_written, err))
                         return FALSE;
                 if (strlen(os) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(os) % 4, bytes_written, err))
+                        if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 4 - strlen(os) % 4, bytes_written, err))
                                 return FALSE;
                 }
         }
@@ -552,18 +552,18 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
         }
 
         /* write the trailing Block Total Length */
-        return write_func(write_data_info, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
+        return libpcap_write_to_file(pfile, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
 }
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 gboolean
-libpcap_write_enhanced_packet_block(libpcap_write_t write_func, void* write_data_info,
+libpcap_write_enhanced_packet_block(FILE* pfile,
                                     const char *comment,
                                     time_t sec, guint32 usec,
                                     guint32 caplen, guint32 len,
@@ -606,47 +606,47 @@ libpcap_write_enhanced_packet_block(libpcap_write_t write_func, void* write_data
         epb.timestamp_low = (guint32)(timestamp & 0xffffffff);
         epb.captured_len = caplen;
         epb.packet_len = len;
-        if (!write_func(write_data_info, (const guint8*)&epb, sizeof(struct epb), bytes_written, err))
+        if (!libpcap_write_to_file(pfile, (const guint8*)&epb, sizeof(struct epb), bytes_written, err))
                 return FALSE;
-        if (!write_func(write_data_info, pd, caplen, bytes_written, err))
+        if (!libpcap_write_to_file(pfile, pd, caplen, bytes_written, err))
                 return FALSE;
         if (caplen % 4) {
-                if (!write_func(write_data_info, (const guint8*)&padding, 4 - caplen % 4, bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 4 - caplen % 4, bytes_written, err))
                         return FALSE;
         }
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 option.type = OPT_COMMENT;
                 option.value_length = (guint16)strlen(comment);
 
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
                         return FALSE;
 
                 if (strlen(comment) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                        if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
                                 return FALSE;
                 }
         }
         if (flags != 0) {
                 option.type = EPB_FLAGS;
                 option.value_length = sizeof(guint32);
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
-                if (!write_func(write_data_info, (const guint8*)&flags, sizeof(guint32), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&flags, sizeof(guint32), bytes_written, err))
                         return FALSE;
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
        }
 
-       return write_func(write_data_info, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
+       return libpcap_write_to_file(pfile, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
 }
 
 gboolean
-libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write_data_info,
+libpcap_write_interface_statistics_block(FILE* pfile,
                                          guint32 interface_id,
                                          guint64 *bytes_written,
                                          const char *comment,   /* OPT_COMMENT           1 */
@@ -743,21 +743,21 @@ libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write
         isb.interface_id = interface_id;
         isb.timestamp_high = (guint32)((timestamp>>32) & 0xffffffff);
         isb.timestamp_low = (guint32)(timestamp & 0xffffffff);
-        if (!write_func(write_data_info, (const guint8*)&isb, sizeof(struct isb), bytes_written, err))
+        if (!libpcap_write_to_file(pfile, (const guint8*)&isb, sizeof(struct isb), bytes_written, err))
                 return FALSE;
 
         /* write comment string if applicable */
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 option.type = OPT_COMMENT;
                 option.value_length = (guint16)strlen(comment);
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
                         return FALSE;
 
                 if (strlen(comment) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                        if (!libpcap_write_to_file(pfile, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
                                 return FALSE;
                 }
         }
@@ -769,13 +769,13 @@ libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write
                 option.value_length = sizeof(guint64);
                 high = (guint32)((isb_starttime>>32) & 0xffffffff);
                 low = (guint32)(isb_starttime & 0xffffffff);
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)&high, sizeof(guint32), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&high, sizeof(guint32), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)&low, sizeof(guint32), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&low, sizeof(guint32), bytes_written, err))
                         return FALSE;
         }
         if (isb_endtime !=0) {
@@ -785,42 +785,42 @@ libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write
                 option.value_length = sizeof(guint64);
                 high = (guint32)((isb_endtime>>32) & 0xffffffff);
                 low = (guint32)(isb_endtime & 0xffffffff);
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)&high, sizeof(guint32), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&high, sizeof(guint32), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)&low, sizeof(guint32), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&low, sizeof(guint32), bytes_written, err))
                         return FALSE;
         }
         if (isb_ifrecv != G_MAXUINT64) {
                 option.type = ISB_IFRECV;
                 option.value_length = sizeof(guint64);
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)&isb_ifrecv, sizeof(guint64), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&isb_ifrecv, sizeof(guint64), bytes_written, err))
                         return FALSE;
         }
         if (isb_ifdrop != G_MAXUINT64) {
                 option.type = ISB_IFDROP;
                 option.value_length = sizeof(guint64);
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)&isb_ifdrop, sizeof(guint64), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&isb_ifdrop, sizeof(guint64), bytes_written, err))
                         return FALSE;
         }
         if (have_options) {
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                if (!libpcap_write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
         }
 
-        return write_func(write_data_info, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
+        return libpcap_write_to_file(pfile, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
 }
 
 /*
