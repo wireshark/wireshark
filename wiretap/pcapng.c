@@ -343,8 +343,6 @@ typedef struct wtapng_block_s {
         union {
                 wtapng_section_t        section;
                 wtapng_if_descr_t       if_descr;
-                wtapng_packet_t         packet;
-                wtapng_simple_packet_t  simple_packet;
                 wtapng_name_res_t       name_res;
                 wtapng_if_stats_t       if_stats;
         } data;
@@ -946,6 +944,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         guint64 file_offset64;
         pcapng_enhanced_packet_block_t epb;
         pcapng_packet_block_t pb;
+        wtapng_packet_t packet;
         guint32 block_total_length;
         guint32 padding;
         interface_data_t int_data;
@@ -994,22 +993,22 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 block_read = bytes_read;
 
                 if (pn->byte_swapped) {
-                        wblock->data.packet.interface_id        = BSWAP32(epb.interface_id);
-                        wblock->data.packet.drops_count         = -1; /* invalid */
-                        wblock->data.packet.ts_high             = BSWAP32(epb.timestamp_high);
-                        wblock->data.packet.ts_low              = BSWAP32(epb.timestamp_low);
-                        wblock->data.packet.cap_len             = BSWAP32(epb.captured_len);
-                        wblock->data.packet.packet_len          = BSWAP32(epb.packet_len);
+                        packet.interface_id        = BSWAP32(epb.interface_id);
+                        packet.drops_count         = -1; /* invalid */
+                        packet.ts_high             = BSWAP32(epb.timestamp_high);
+                        packet.ts_low              = BSWAP32(epb.timestamp_low);
+                        packet.cap_len             = BSWAP32(epb.captured_len);
+                        packet.packet_len          = BSWAP32(epb.packet_len);
                 } else {
-                        wblock->data.packet.interface_id        = epb.interface_id;
-                        wblock->data.packet.drops_count         = -1; /* invalid */
-                        wblock->data.packet.ts_high             = epb.timestamp_high;
-                        wblock->data.packet.ts_low              = epb.timestamp_low;
-                        wblock->data.packet.cap_len             = epb.captured_len;
-                        wblock->data.packet.packet_len          = epb.packet_len;
+                        packet.interface_id        = epb.interface_id;
+                        packet.drops_count         = -1; /* invalid */
+                        packet.ts_high             = epb.timestamp_high;
+                        packet.ts_low              = epb.timestamp_low;
+                        packet.cap_len             = epb.captured_len;
+                        packet.packet_len          = epb.packet_len;
                 }
                 pcapng_debug3("pcapng_read_packet_block: EPB on interface_id %d, cap_len %d, packet_len %d",
-                              wblock->data.packet.interface_id, wblock->data.packet.cap_len, wblock->data.packet.packet_len);
+                              packet.interface_id, packet.cap_len, packet.packet_len);
         } else {
                 /*
                  * Is this block long enough to be a PB?
@@ -1032,29 +1031,29 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 block_read = bytes_read;
 
                 if (pn->byte_swapped) {
-                        wblock->data.packet.interface_id        = BSWAP16(pb.interface_id);
-                        wblock->data.packet.drops_count         = BSWAP16(pb.drops_count);
-                        wblock->data.packet.ts_high             = BSWAP32(pb.timestamp_high);
-                        wblock->data.packet.ts_low              = BSWAP32(pb.timestamp_low);
-                        wblock->data.packet.cap_len             = BSWAP32(pb.captured_len);
-                        wblock->data.packet.packet_len          = BSWAP32(pb.packet_len);
+                        packet.interface_id        = BSWAP16(pb.interface_id);
+                        packet.drops_count         = BSWAP16(pb.drops_count);
+                        packet.ts_high             = BSWAP32(pb.timestamp_high);
+                        packet.ts_low              = BSWAP32(pb.timestamp_low);
+                        packet.cap_len             = BSWAP32(pb.captured_len);
+                        packet.packet_len          = BSWAP32(pb.packet_len);
                 } else {
-                        wblock->data.packet.interface_id        = pb.interface_id;
-                        wblock->data.packet.drops_count         = pb.drops_count;
-                        wblock->data.packet.ts_high             = pb.timestamp_high;
-                        wblock->data.packet.ts_low              = pb.timestamp_low;
-                        wblock->data.packet.cap_len             = pb.captured_len;
-                        wblock->data.packet.packet_len          = pb.packet_len;
+                        packet.interface_id        = pb.interface_id;
+                        packet.drops_count         = pb.drops_count;
+                        packet.ts_high             = pb.timestamp_high;
+                        packet.ts_low              = pb.timestamp_low;
+                        packet.cap_len             = pb.captured_len;
+                        packet.packet_len          = pb.packet_len;
                 }
                 pcapng_debug3("pcapng_read_packet_block: PB on interface_id %d, cap_len %d, packet_len %d",
-                              wblock->data.packet.interface_id, wblock->data.packet.cap_len, wblock->data.packet.packet_len);
+                              packet.interface_id, packet.cap_len, packet.packet_len);
         }
 
         /*
          * How much padding is there at the end of the packet data?
          */
-        if ((wblock->data.packet.cap_len % 4) != 0)
-                padding = 4 - (wblock->data.packet.cap_len % 4);
+        if ((packet.cap_len % 4) != 0)
+                padding = 4 - (packet.cap_len % 4);
         else
                 padding = 0;
 
@@ -1072,53 +1071,53 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
          */
         if (enhanced) {
                 if (block_total_length <
-                    MIN_EPB_SIZE + wblock->data.packet.cap_len + padding) {
+                    MIN_EPB_SIZE + packet.cap_len + padding) {
                         /*
                          * No.
                          */
                         *err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup_printf("pcapng_read_packet_block: total block length %u of EPB is too small for %u bytes of packet data",
-                                      block_total_length, wblock->data.packet.cap_len);
+                                      block_total_length, packet.cap_len);
                         return -1;
                 }
         } else {
                 if (block_total_length <
-                    MIN_PB_SIZE + wblock->data.packet.cap_len + padding) {
+                    MIN_PB_SIZE + packet.cap_len + padding) {
                         /*
                          * No.
                          */
                         *err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup_printf("pcapng_read_packet_block: total block length %u of PB is too small for %u bytes of packet data",
-                                      block_total_length, wblock->data.packet.cap_len);
+                                      block_total_length, packet.cap_len);
                         return -1;
                 }
         }
 
-        if (wblock->data.packet.cap_len > wblock->data.packet.packet_len) {
+        if (packet.cap_len > packet.packet_len) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than packet_len %u.",
-                    wblock->data.packet.cap_len, wblock->data.packet.packet_len);
+                    packet.cap_len, packet.packet_len);
                 return 0;
         }
-        if (wblock->data.packet.cap_len > WTAP_MAX_PACKET_SIZE) {
+        if (packet.cap_len > WTAP_MAX_PACKET_SIZE) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
-                    wblock->data.packet.cap_len, WTAP_MAX_PACKET_SIZE);
+                    packet.cap_len, WTAP_MAX_PACKET_SIZE);
                 return 0;
         }
         pcapng_debug3("pcapng_read_packet_block: packet data: packet_len %u captured_len %u interface_id %u",
-                      wblock->data.packet.packet_len,
-                      wblock->data.packet.cap_len,
-                      wblock->data.packet.interface_id);
+                      packet.packet_len,
+                      packet.cap_len,
+                      packet.interface_id);
 
-        if (wblock->data.packet.interface_id >= pn->number_of_interfaces) {
+        if (packet.interface_id >= pn->number_of_interfaces) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
-                    wblock->data.packet.interface_id, pn->number_of_interfaces);
+                    packet.interface_id, pn->number_of_interfaces);
                 return 0;
         }
         int_data = g_array_index(pn->interface_data, interface_data_t,
-            wblock->data.packet.interface_id);
+            packet.interface_id);
 
         wblock->packet_header->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
 
@@ -1126,14 +1125,14 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                        int_data.wtap_encap,
                        wtap_encap_string(int_data.wtap_encap),
                        pcap_get_phdr_size(int_data.wtap_encap, &wblock->packet_header->pseudo_header));
-        wblock->packet_header->interface_id = wblock->data.packet.interface_id;
+        wblock->packet_header->interface_id = packet.interface_id;
         wblock->packet_header->pkt_encap = int_data.wtap_encap;
 
         memset((void *)&wblock->packet_header->pseudo_header, 0, sizeof(union wtap_pseudo_header));
         pseudo_header_len = pcap_process_pseudo_header(fh,
                                                        WTAP_FILE_PCAPNG,
                                                        int_data.wtap_encap,
-                                                       wblock->data.packet.cap_len,
+                                                       packet.cap_len,
                                                        TRUE,
                                                        wblock->packet_header,
                                                        err,
@@ -1146,20 +1145,20 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 pcapng_debug1("pcapng_read_packet_block: Could only read %d bytes for pseudo header.",
                               pseudo_header_len);
         }
-        wblock->packet_header->caplen = wblock->data.packet.cap_len - pseudo_header_len;
-        wblock->packet_header->len = wblock->data.packet.packet_len - pseudo_header_len;
+        wblock->packet_header->caplen = packet.cap_len - pseudo_header_len;
+        wblock->packet_header->len = packet.packet_len - pseudo_header_len;
 
         /* Combine the two 32-bit pieces of the timestamp into one 64-bit value */
-        ts = (((guint64)wblock->data.packet.ts_high) << 32) | ((guint64)wblock->data.packet.ts_low);
+        ts = (((guint64)packet.ts_high) << 32) | ((guint64)packet.ts_low);
         wblock->packet_header->ts.secs = (time_t)(ts / int_data.time_units_per_second);
         wblock->packet_header->ts.nsecs = (int)(((ts % int_data.time_units_per_second) * 1000000000) / int_data.time_units_per_second);
 
         /* "(Enhanced) Packet Block" read capture data */
         errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
-	    wblock->data.packet.cap_len - pseudo_header_len, err, err_info))
+	    packet.cap_len - pseudo_header_len, err, err_info))
 		return 0;
-        block_read += wblock->data.packet.cap_len - pseudo_header_len;
+        block_read += packet.cap_len - pseudo_header_len;
 
         /* jump over potential padding bytes at end of the packet data */
         if (padding != 0) {
@@ -1276,7 +1275,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         pcap_read_post_process(WTAP_FILE_PCAPNG, int_data.wtap_encap,
             (union wtap_pseudo_header *)&wblock->packet_header->pseudo_header,
             buffer_start_ptr(wblock->frame_buffer),
-            (int) (wblock->data.packet.cap_len - pseudo_header_len),
+            (int) (packet.cap_len - pseudo_header_len),
             pn->byte_swapped, fcslen);
         return block_read;
 }
@@ -1290,6 +1289,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         guint64 file_offset64;
         interface_data_t int_data;
         pcapng_simple_packet_block_t spb;
+        wtapng_simple_packet_t simple_packet;
         guint32 block_total_length;
         guint32 padding;
         int pseudo_header_len;
@@ -1340,9 +1340,9 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         int_data = g_array_index(pn->interface_data, interface_data_t, 0);
 
         if (pn->byte_swapped) {
-                wblock->data.simple_packet.packet_len   = BSWAP32(spb.packet_len);
+                simple_packet.packet_len   = BSWAP32(spb.packet_len);
         } else {
-                wblock->data.simple_packet.packet_len   = spb.packet_len;
+                simple_packet.packet_len   = spb.packet_len;
         }
 
         /*
@@ -1350,15 +1350,15 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
          * calculated as the minimum of the snapshot length from the
 	 * IDB and the packet length, as per the pcap-ng spec.
          */
-        wblock->data.simple_packet.cap_len = wblock->data.simple_packet.packet_len;
-        if (wblock->data.simple_packet.cap_len > int_data.snap_len)
-                wblock->data.simple_packet.cap_len = int_data.snap_len;
+        simple_packet.cap_len = simple_packet.packet_len;
+        if (simple_packet.cap_len > int_data.snap_len)
+                simple_packet.cap_len = int_data.snap_len;
 
         /*
          * How much padding is there at the end of the packet data?
          */
-        if ((wblock->data.simple_packet.cap_len % 4) != 0)
-                padding = 4 - (wblock->data.simple_packet.cap_len % 4);
+        if ((simple_packet.cap_len % 4) != 0)
+                padding = 4 - (simple_packet.cap_len % 4);
         else
                 padding = 0;
 
@@ -1374,7 +1374,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         /*
          * Is this block long enough to hold the packet data?
          */
-        if (block_total_length < MIN_SPB_SIZE + wblock->data.simple_packet.cap_len + padding) {
+        if (block_total_length < MIN_SPB_SIZE + simple_packet.cap_len + padding) {
                 /*
                  * No.  That means that the problem is with the packet
                  * length; the snapshot length can be bigger than the amount
@@ -1383,18 +1383,18 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
                  */
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_simple_packet_block: total block length %u of PB is too small for %u bytes of packet data",
-                              block_total_length, wblock->data.simple_packet.packet_len);
+                              block_total_length, simple_packet.packet_len);
                 return -1;
         }
 
-        if (wblock->data.simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
+        if (simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_simple_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
-                    wblock->data.simple_packet.cap_len, WTAP_MAX_PACKET_SIZE);
+                    simple_packet.cap_len, WTAP_MAX_PACKET_SIZE);
                 return 0;
         }
         pcapng_debug1("pcapng_read_simple_packet_block: packet data: packet_len %u",
-                       wblock->data.simple_packet.packet_len);
+                       simple_packet.packet_len);
 
         pcapng_debug1("pcapng_read_simple_packet_block: Need to read pseudo header of size %d",
                       pcap_get_phdr_size(int_data.wtap_encap, &wblock->packet_header->pseudo_header));
@@ -1414,7 +1414,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         pseudo_header_len = pcap_process_pseudo_header(fh,
                                                        WTAP_FILE_PCAPNG,
                                                        int_data.wtap_encap,
-                                                       wblock->data.simple_packet.cap_len,
+                                                       simple_packet.cap_len,
                                                        TRUE,
                                                        wblock->packet_header,
                                                        err,
@@ -1422,8 +1422,8 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         if (pseudo_header_len < 0) {
                 return 0;
         }
-        wblock->packet_header->caplen = wblock->data.simple_packet.cap_len - pseudo_header_len;
-        wblock->packet_header->len = wblock->data.simple_packet.packet_len - pseudo_header_len;
+        wblock->packet_header->caplen = simple_packet.cap_len - pseudo_header_len;
+        wblock->packet_header->len = simple_packet.packet_len - pseudo_header_len;
         block_read += pseudo_header_len;
         if (pseudo_header_len != pcap_get_phdr_size(int_data.wtap_encap, &wblock->packet_header->pseudo_header)) {
                 pcapng_debug1("pcapng_read_simple_packet_block: Could only read %d bytes for pseudo header.",
@@ -1435,25 +1435,25 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         /* "Simple Packet Block" read capture data */
         errno = WTAP_ERR_CANT_READ;
 	if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
-	    wblock->data.simple_packet.cap_len, err, err_info))
+	    simple_packet.cap_len, err, err_info))
 		return 0;
-        block_read += wblock->data.simple_packet.cap_len;
+        block_read += simple_packet.cap_len;
 
         /* jump over potential padding bytes at end of the packet data */
-        if ((wblock->data.simple_packet.cap_len % 4) != 0) {
-                file_offset64 = file_seek(fh, 4 - (wblock->data.simple_packet.cap_len % 4), SEEK_CUR, err);
+        if ((simple_packet.cap_len % 4) != 0) {
+                file_offset64 = file_seek(fh, 4 - (simple_packet.cap_len % 4), SEEK_CUR, err);
                 if (file_offset64 <= 0) {
                         if (*err != 0)
                                 return -1;
                         return 0;
                 }
-                block_read += 4 - (wblock->data.simple_packet.cap_len % 4);
+                block_read += 4 - (simple_packet.cap_len % 4);
         }
 
         pcap_read_post_process(WTAP_FILE_PCAPNG, int_data.wtap_encap,
             (union wtap_pseudo_header *)&wblock->packet_header->pseudo_header,
             buffer_start_ptr(wblock->frame_buffer),
-            (int) wblock->data.simple_packet.cap_len,
+            (int) simple_packet.cap_len,
             pn->byte_swapped, pn->if_fcslen);
         return block_read;
 }
@@ -2315,24 +2315,9 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                         return FALSE;
 
                 case(BLOCK_TYPE_PB):
+                case(BLOCK_TYPE_SPB):
                 case(BLOCK_TYPE_EPB):
                         /* packet block - we've found a packet */
-
-                        /* not an SPB: check interface ID */
-                        if (wblock.data.packet.interface_id < pcapng->number_of_interfaces) {
-                        } else {
-                                wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
-                                *err = WTAP_ERR_BAD_FILE;
-                                *err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
-                                    wblock.data.packet.interface_id, pcapng->number_of_interfaces);
-                                pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset + bytes_read);
-                                return FALSE;
-                        }
-                        goto got_packet;
-
-                case(BLOCK_TYPE_SPB):
-                        /* packet block - we've found a packet */
-                        /* SPB: no interface ID to check */
                         goto got_packet;
 
                 case(BLOCK_TYPE_IDB):
