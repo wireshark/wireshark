@@ -1696,9 +1696,7 @@ proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, gui
         if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &time_of_change) < 0) {
             proto_tree_add_text(tree, tvb, offset, 5, "Time of Change : Unparseable time");
         } else {
-            proto_tree_add_time_format(tree, hf_mpeg_descr_local_time_offset_time_of_change, tvb, offset, 5,
-            &time_of_change, "Time of Change : %s UTC",
-            abs_time_to_str(&time_of_change, ABSOLUTE_TIME_UTC, FALSE));
+            proto_tree_add_time(tree, hf_mpeg_descr_local_time_offset_time_of_change, tvb, offset, 5, &time_of_change);
         }
         offset += 5;
 

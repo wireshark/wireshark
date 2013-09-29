@@ -5481,9 +5481,9 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         server_boot.nsecs = 0;
 
         if (hdr.server_boot == 0)
-            proto_tree_add_time_format(dcerpc_tree, hf_dcerpc_dg_server_boot,
+            proto_tree_add_time_format_value(dcerpc_tree, hf_dcerpc_dg_server_boot,
                                        tvb, offset, 4, &server_boot,
-                                       "Server boot time: Unknown (0)");
+                                       "Unknown (0)");
         else
             proto_tree_add_time(dcerpc_tree, hf_dcerpc_dg_server_boot,
                                 tvb, offset, 4, &server_boot);

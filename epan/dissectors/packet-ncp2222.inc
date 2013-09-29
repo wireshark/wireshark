@@ -4559,8 +4559,7 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
     if (iter_flags & DSI_PURGE_TIME) { /* Purge Time */
         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
         ns.nsecs = 0;
-        proto_tree_add_time_format(it_tree, hf_nds_purge, tvb, ioffset,
-                4, &ns, "Purge Time: %s", abs_time_secs_to_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+        proto_tree_add_time(it_tree, hf_nds_purge, tvb, ioffset, 4, &ns);
         ioffset = ioffset + 4;
     }
     if (iter_flags & DSI_DEREFERENCED_BASE_CLASS) { /* Dereference Base Class */
@@ -5377,8 +5376,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     case 0x00000010:                /*p3values.bit5 = "Purge Time"*/
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
-                        proto_tree_add_time_format(ntree, hf_nds_purge, tvb, ioffset,
-                                                   4, &ns, "Purge Time: %s", abs_time_secs_to_str(ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
+                        proto_tree_add_time(ntree, hf_nds_purge, tvb, ioffset, 4, &ns);
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000020:                /*p3values.bit6 = "Local Partition ID"*/

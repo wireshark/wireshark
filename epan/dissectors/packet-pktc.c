@@ -511,10 +511,12 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
        /* manufacturer cert revocation time */
        bignum = tvb_get_ntohl(tvb, offset);
        ts.secs = bignum;
-       proto_tree_add_time_format(tree, hf_pktc_mtafqdn_manu_cert_revoked, tvb, offset, 4,
-                                  &ts, "%s: %s",
-                                  proto_registrar_get_name(hf_pktc_mtafqdn_manu_cert_revoked),
-                                  (bignum==0) ? "not revoked" : abs_time_secs_to_str(bignum, ABSOLUTE_TIME_LOCAL, TRUE));
+       if (bignum==0) {
+           proto_tree_add_time_format_value(tree, hf_pktc_mtafqdn_manu_cert_revoked, tvb, offset, 4,
+                                  &ts, "not revoked");
+       } else {
+           proto_tree_add_time(tree, hf_pktc_mtafqdn_manu_cert_revoked, tvb, offset, 4, &ts);
+       }
        break;
 
     case PKTC_MTAFQDN_REP:

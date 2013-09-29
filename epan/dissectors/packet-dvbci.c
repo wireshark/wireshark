@@ -2757,9 +2757,8 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
     if (tag==T_DATE_TIME_ENQ) {
         nstime_set_zero(&resp_intv);
         resp_intv.secs = tvb_get_guint8(tvb, offset);
-        pi = proto_tree_add_time_format(tree, hf_dvbci_resp_intv,
-                tvb, offset, 1, &resp_intv, "Response interval is %s",
-                rel_time_to_str(&resp_intv));
+        pi = proto_tree_add_time(tree, hf_dvbci_resp_intv,
+                tvb, offset, 1, &resp_intv);
         if (resp_intv.secs==0) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "individual query");
             if (pi)
@@ -2784,9 +2783,8 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
                 "Invalid UTC time field, 2 bytes MJD, 3 bytes BCD time hhmmss");
             return;
         }
-        proto_tree_add_time_format(tree, hf_dvbci_utc_time,
-                tvb, offset, time_field_len, &utc_time,
-                "%s UTC", abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
+        proto_tree_add_time(tree, hf_dvbci_utc_time,
+                tvb, offset, time_field_len, &utc_time);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s UTC",
                 abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
         offset += time_field_len;
@@ -3245,10 +3243,8 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
                 }
                 else {
                     /* abs_time_to_str() never returns NULL */
-                    proto_tree_add_time_format(tree, hf_dvbci_pin_chg_time,
-                            tvb, offset, UTC_TIME_LEN, &utc_time,
-                            "PIN change time %s UTC",
-                            abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
+                    proto_tree_add_time(tree, hf_dvbci_pin_chg_time,
+                            tvb, offset, UTC_TIME_LEN, &utc_time);
                 }
             }
             offset += UTC_TIME_LEN;
@@ -3276,10 +3272,8 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
                 break;
             }
             else {
-                proto_tree_add_time_format(tree, hf_dvbci_pin_evt_time,
-                        tvb, offset, UTC_TIME_LEN, &utc_time,
-                        "PIN event time %s UTC",
-                        abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
+                proto_tree_add_time(tree, hf_dvbci_pin_evt_time,
+                        tvb, offset, UTC_TIME_LEN, &utc_time);
             }
             offset += UTC_TIME_LEN;
             evt_cent = tvb_get_guint8(tvb, offset);

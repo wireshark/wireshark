@@ -165,9 +165,8 @@ dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &start_time) < 0) {
                 proto_tree_add_text(tree, tvb, offset, 5, "Unparseable time");
             } else {
-                proto_tree_add_time_format(dvb_eit_event_tree, hf_dvb_eit_start_time, tvb, offset,
-                    5, &start_time,
-                    "Start Time: %s UTC", abs_time_to_str(&start_time, ABSOLUTE_TIME_UTC, FALSE));
+                proto_tree_add_time(dvb_eit_event_tree, hf_dvb_eit_start_time, tvb, offset,
+                    5, &start_time);
             }
         } else {
             proto_tree_add_text(tree, tvb, offset, 5, "Start Time: Undefined (0xFFFFFFFFFF)");
