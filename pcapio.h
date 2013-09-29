@@ -25,6 +25,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/* Writing pcap files */
+
 /** Write the file header to a dump file.
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
@@ -41,60 +43,62 @@ libpcap_write_packet(FILE* pfile,
                      const guint8 *pd,
                      guint64 *bytes_written, int *err);
 
+/* Writing pcap-ng files */
+
 /** Write a section header block (SHB)
  *
  */
 extern gboolean
-libpcap_write_session_header_block(FILE* pfile,  /**< Write information */
-                                   const char *comment,  /**< Comment on the section, Optinon 1 opt_comment
-                                                          * A UTF-8 string containing a comment that is associated to the current block.
-                                                          */
-                                   const char *hw,       /**< HW, Optinon 2 shb_hardware
-                                                          * An UTF-8 string containing the description of the hardware  used to create this section.
-                                                          */
-                                   const char *os,       /**< Operating system name, Optinon 3 shb_os
-                                                          * An UTF-8 string containing the name of the operating system used to create this section.
-                                                          */
-                                   const char *appname,  /**< Application name, Optinon 4 shb_userappl
-                                                          * An UTF-8 string containing the name of the application  used to create this section.
-                                                          */
-                                   guint64 section_length,
-                                   guint64 *bytes_written,
-                                   int *err);
+pcapng_write_session_header_block(FILE* pfile,  /**< Write information */
+                                  const char *comment,  /**< Comment on the section, Optinon 1 opt_comment
+                                                         * A UTF-8 string containing a comment that is associated to the current block.
+                                                         */
+                                  const char *hw,       /**< HW, Optinon 2 shb_hardware
+                                                         * An UTF-8 string containing the description of the hardware  used to create this section.
+                                                         */
+                                  const char *os,       /**< Operating system name, Optinon 3 shb_os
+                                                         * An UTF-8 string containing the name of the operating system used to create this section.
+                                                         */
+                                  const char *appname,  /**< Application name, Optinon 4 shb_userappl
+                                                         * An UTF-8 string containing the name of the application  used to create this section.
+                                                         */
+                                  guint64 section_length,
+                                  guint64 *bytes_written,
+                                  int *err);
 
 extern gboolean
-libpcap_write_interface_description_block(FILE* pfile,
-                                          const char *comment,  /* OPT_COMMENT           1 */
-                                          const char *name,     /* IDB_NAME              2 */
-                                          const char *descr,    /* IDB_DESCRIPTION       3 */
-                                          const char *filter,   /* IDB_FILTER           11 */
-                                          const char *os,       /* IDB_OS               12 */
-                                          int link_type,
-                                          int snap_len,
-                                          guint64 *bytes_written,
-                                          guint64 if_speed,     /* IDB_IF_SPEED          8 */
-                                          guint8 tsresol,       /* IDB_TSRESOL           9 */
-                                          int *err);
-
-extern gboolean
-libpcap_write_interface_statistics_block(FILE* pfile,
-                                         guint32 interface_id,
+pcapng_write_interface_description_block(FILE* pfile,
+                                         const char *comment,  /* OPT_COMMENT           1 */
+                                         const char *name,     /* IDB_NAME              2 */
+                                         const char *descr,    /* IDB_DESCRIPTION       3 */
+                                         const char *filter,   /* IDB_FILTER           11 */
+                                         const char *os,       /* IDB_OS               12 */
+                                         int link_type,
+                                         int snap_len,
                                          guint64 *bytes_written,
-                                         const char *comment,   /* OPT_COMMENT           1 */
-                                         guint64 isb_starttime, /* ISB_STARTTIME         2 */
-                                         guint64 isb_endtime,   /* ISB_ENDTIME           3 */
-                                         guint64 isb_ifrecv,    /* ISB_IFRECV            4 */
-                                         guint64 isb_ifdrop,    /* ISB_IFDROP            5 */
+                                         guint64 if_speed,     /* IDB_IF_SPEED          8 */
+                                         guint8 tsresol,       /* IDB_TSRESOL           9 */
                                          int *err);
 
 extern gboolean
-libpcap_write_enhanced_packet_block(FILE* pfile,
-                                    const char *comment,
-                                    time_t sec, guint32 usec,
-                                    guint32 caplen, guint32 len,
-                                    guint32 interface_id,
-                                    guint ts_mul,
-                                    const guint8 *pd,
-                                    guint32 flags,
-                                    guint64 *bytes_written,
-                                    int *err);
+pcapng_write_interface_statistics_block(FILE* pfile,
+                                        guint32 interface_id,
+                                        guint64 *bytes_written,
+                                        const char *comment,   /* OPT_COMMENT           1 */
+                                        guint64 isb_starttime, /* ISB_STARTTIME         2 */
+                                        guint64 isb_endtime,   /* ISB_ENDTIME           3 */
+                                        guint64 isb_ifrecv,    /* ISB_IFRECV            4 */
+                                        guint64 isb_ifdrop,    /* ISB_IFDROP            5 */
+                                        int *err);
+
+extern gboolean
+pcapng_write_enhanced_packet_block(FILE* pfile,
+                                   const char *comment,
+                                   time_t sec, guint32 usec,
+                                   guint32 caplen, guint32 len,
+                                   guint32 interface_id,
+                                   guint ts_mul,
+                                   const guint8 *pd,
+                                   guint32 flags,
+                                   guint64 *bytes_written,
+                                   int *err);
