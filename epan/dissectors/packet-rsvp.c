@@ -283,8 +283,18 @@ static int hf_rsvp_xro_sobj_ipv6_attr = -1;
 static int hf_rsvp_xro_sobj_srlg_id = -1;
 static int hf_rsvp_xro_sobj_srlg_res = -1;
 static int hf_rsvp_private_data = -1;
-static int hf_rsvp_juniper_path = -1;
+static int hf_rsvp_juniper_numtlvs = -1;
+static int hf_rsvp_juniper_padlength = -1;
+static int hf_rsvp_juniper_type = -1;
+static int hf_rsvp_juniper_length = -1;
+static int hf_rsvp_juniper_attrib_cos = -1;
+static int hf_rsvp_juniper_attrib_metric1 = -1;
+static int hf_rsvp_juniper_attrib_metric2 = -1;
+static int hf_rsvp_juniper_attrib_ccc_status = -1;
+static int hf_rsvp_juniper_attrib_path = -1;
+static int hf_rsvp_juniper_attrib_unknown = -1;
 static int hf_rsvp_juniper_unknown = -1;
+static int hf_rsvp_juniper_pad = -1;
 static int hf_rsvp_unknown_data = -1;
 
 static dissector_table_t rsvp_dissector_table;
@@ -1348,9 +1358,18 @@ static const value_string rsvp_xro_sobj_ip_attr_vals[] = {
     {  0, NULL }
 };
 
-static const value_string rsvp_juniper_patch_attr_vals[] = {
-    {  0x0200, "Primary path" },
-    {  0x0300, "Secondary path" },
+static const value_string rsvp_juniper_attr_vals[] = {
+    {  0x01, "Cos" },
+    {  0x02, "Metric 1" },
+    {  0x04, "Metric 2" },
+    {  0x08, "CCC Status" },
+    {  0x10, "Path Type" },
+    {  0, NULL }
+};
+
+static const value_string rsvp_juniper_path_attr_vals[] = {
+    {  0x02, "Primary" },
+    {  0x03, "Secondary" },
     {  0, NULL }
 };
 
@@ -7048,8 +7067,17 @@ dissect_rsvp_juniper(proto_tree *ti _U_,
                                 int rsvp_class _U_, int type)
 {
     /*
-     * Juniper proprietary TLVs
+     * Juniper proprietary TLVs:
+     * According to the tcpdump code, this is of the form:
+     * #TLVs (2 bytes)
+     * #Padbytes (2 bytes)
+     * per TLV:
+     *   type (1 byte)
+     *   length
+     *   value (length-2 bytes)
+     * padbytes
      */
+
     proto_item *hidden_item;
 
     hidden_item = proto_tree_add_item(rsvp_object_tree,
@@ -7058,14 +7086,66 @@ dissect_rsvp_juniper(proto_tree *ti _U_,
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_text(rsvp_object_tree, tvb, offset + 3, 1,
                         "C-type: %u", type);
-    if (obj_length == 12) {
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_unknown, tvb,
-                offset + 4, 6, ENC_NA);
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_path, tvb,
-                offset + 10, obj_length - 10, ENC_NA);
+    offset += 4;
+    if (type == 1) {
+        guint tlvs, pad;
+        tlvs = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_numtlvs, tvb,
+            offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        pad = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_padlength, tvb,
+            offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        while (tlvs > 0) {
+            guint8 t, l;
+            t = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_type, tvb,
+                offset, 1, ENC_NA);
+            offset += 1;
+            l = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_length, tvb,
+                offset, 1, ENC_NA);
+            offset += 1;
+            switch (t) {
+            case 0x01:
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_attrib_cos, tvb,
+                    offset, l-2, ENC_NA);
+                offset += (l-2);
+                break;
+            case 0x02:
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_attrib_metric1, tvb,
+                    offset, l-2, ENC_NA);
+                offset += (l-2);
+                break;
+            case 0x04:
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_attrib_metric2, tvb,
+                    offset, l-2, ENC_NA);
+                offset += (l-2);
+                break;
+            case 0x08:
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_attrib_ccc_status, tvb,
+                    offset, l-2, ENC_NA);
+                offset += (l-2);
+                break;
+            case 0x10:
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_attrib_path, tvb,
+                    offset, l-2, ENC_NA);
+                offset += (l-2);
+                break;
+            default:
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_attrib_unknown, tvb,
+                    offset, l-2, ENC_NA);
+                offset += (l-2);
+                break;
+            }
+            tlvs--;
+        }
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_pad, tvb,
+                offset, pad, ENC_NA);
     } else if (obj_length > 4) {
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_unknown, tvb,
-                offset + 4, obj_length - 4, ENC_NA);
+                offset, obj_length, ENC_NA);
     }
 }
 
@@ -9053,16 +9133,86 @@ proto_register_rsvp(void)
          }
         },
 
-        { &hf_rsvp_juniper_unknown,
-         { "JNP Unknown", "rsvp.juniper.unknown",
+        { &hf_rsvp_juniper_numtlvs,
+         { "Num TLVs", "rsvp.juniper.tlvs",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_juniper_padlength,
+         { "Padlength", "rsvp.juniper.padlength",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_juniper_type,
+         { "Juniper type", "rsvp.juniper.type",
+           FT_UINT8, BASE_HEX, VALS(rsvp_juniper_attr_vals), 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_juniper_length,
+         { "Juniper length", "rsvp.juniper.length",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_juniper_attrib_cos,
+         { "Cos", "rsvp.juniper.attrib.cos",
+           FT_UINT16, BASE_HEX, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_juniper_attrib_metric1,
+         { "Metric 1", "rsvp.juniper.attrib.metric1",
+           FT_UINT16, BASE_HEX, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_juniper_attrib_metric2,
+         { "Metric 2", "rsvp.juniper.attrib.metric2",
+           FT_UINT16, BASE_HEX, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_juniper_attrib_ccc_status,
+         { "CCC Status", "rsvp.juniper.attrib.ccc_status",
+           FT_UINT16, BASE_HEX, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_juniper_attrib_path,
+         { "Path type", "rsvp.juniper.attrib.path",
+           FT_UINT16, BASE_HEX, VALS(rsvp_juniper_path_attr_vals), 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_juniper_attrib_unknown,
+         { "Unknown", "rsvp.juniper.attrib.unknown",
+           FT_UINT16, BASE_HEX, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
+        { &hf_rsvp_juniper_pad,
+         { "Pad", "rsvp.juniper.pad",
            FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL
          }
         },
 
-        { &hf_rsvp_juniper_path,
-         { "JNP Path", "rsvp.juniper.path",
-           FT_UINT16, BASE_HEX, VALS(rsvp_juniper_patch_attr_vals), 0,
+        { &hf_rsvp_juniper_unknown,
+         { "Unknown", "rsvp.juniper.unknown",
+           FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL
          }
         },
