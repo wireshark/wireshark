@@ -159,6 +159,10 @@ const gchar*
 rval_to_str(const guint32 val, const range_string *rs, const char *fmt);
 
 WS_DLL_PUBLIC
+const gchar *
+rval_to_str_const(const guint32 val, const range_string *rs, const char *unknown_str);
+
+WS_DLL_PUBLIC
 const gchar*
 try_rval_to_str(const guint32 val, const range_string *rs);
 

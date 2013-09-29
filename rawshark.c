@@ -1360,18 +1360,18 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
                                 svalue = fvalue_get_sinteger(&finfo->value);
                                 if (hfinfo->display & BASE_RANGE_STRING) {
-                                    g_string_append(label_s, rval_to_str(svalue, RVALS(hfinfo->strings), "Unknown"));
+                                    g_string_append(label_s, rval_to_str_const(svalue, RVALS(hfinfo->strings), "Unknown"));
                                 } else if (hfinfo->display & BASE_EXT_STRING) {
-                                    g_string_append(label_s, val_to_str_ext(svalue, (const value_string_ext *) hfinfo->strings, "Unknown"));
+                                    g_string_append(label_s, val_to_str_ext_const(svalue, (const value_string_ext *) hfinfo->strings, "Unknown"));
                                 } else {
-                                    g_string_append(label_s, val_to_str(svalue, cVALS(hfinfo->strings), "Unknown"));
+                                    g_string_append(label_s, val_to_str_const(svalue, cVALS(hfinfo->strings), "Unknown"));
                                 }
                                 break;
                             case FT_INT64:
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
                                 svalue64 = (gint64)fvalue_get_integer64(&finfo->value);
                                 if (hfinfo->display & BASE_VAL64_STRING) {
-                                    g_string_append(label_s, val64_to_str(svalue64, (const val64_string *)(hfinfo->strings), "Unknown"));
+                                    g_string_append(label_s, val64_to_str_const(svalue64, (const val64_string *)(hfinfo->strings), "Unknown"));
                                 }
                                 break;
                             case FT_UINT8:
@@ -1380,18 +1380,18 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                             case FT_UINT32:
                                 uvalue = fvalue_get_uinteger(&finfo->value);
                                 if (!hfinfo->bitmask && hfinfo->display & BASE_RANGE_STRING) {
-                                    g_string_append(label_s, rval_to_str(uvalue, RVALS(hfinfo->strings), "Unknown"));
+                                    g_string_append(label_s, rval_to_str_const(uvalue, RVALS(hfinfo->strings), "Unknown"));
                                 } else if (hfinfo->display & BASE_EXT_STRING) {
-                                    g_string_append(label_s, val_to_str_ext(uvalue, (const value_string_ext *) hfinfo->strings, "Unknown"));
+                                    g_string_append(label_s, val_to_str_ext_const(uvalue, (const value_string_ext *) hfinfo->strings, "Unknown"));
                                 } else {
-                                    g_string_append(label_s, val_to_str(uvalue, cVALS(hfinfo->strings), "Unknown"));
+                                    g_string_append(label_s, val_to_str_const(uvalue, cVALS(hfinfo->strings), "Unknown"));
                                 }
                                 break;
                             case FT_UINT64:
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
                                 uvalue64 = fvalue_get_integer64(&finfo->value);
                                 if (hfinfo->display & BASE_VAL64_STRING) {
-                                    g_string_append(label_s, val64_to_str(uvalue64, (const val64_string *)(hfinfo->strings), "Unknown"));
+                                    g_string_append(label_s, val64_to_str_const(uvalue64, (const val64_string *)(hfinfo->strings), "Unknown"));
                                 }
                                 break;
                             default:

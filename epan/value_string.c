@@ -544,6 +544,22 @@ rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
     return ep_strdup_printf(fmt, val);
 }
 
+/* Like val_to_str_const except for range_string */
+const gchar *
+rval_to_str_const(const guint32 val, const range_string *rs,
+        const char *unknown_str)
+{
+    const gchar *ret = NULL;
+
+    DISSECTOR_ASSERT(unknown_str != NULL);
+
+    ret = try_rval_to_str(val, rs);
+    if(ret != NULL)
+        return ret;
+
+    return unknown_str;
+}
+
 /* Like try_val_to_str_idx except for range_string */
 const gchar *
 try_rval_to_str_idx(const guint32 val, const range_string *rs, gint *idx)
