@@ -327,11 +327,8 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
 /* Note: updates *offset */
 static void add_notification_data_ipv4addr(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf_addr)
 {
-        guint32 ipaddr;
-
         proto_tree_add_item(tree, hf_msdp_not_res, tvb, *offset, 3, ENC_BIG_ENDIAN);
         *offset += 3;
-        ipaddr = tvb_get_ipv4(tvb, *offset);
         proto_tree_add_item(tree, hf_addr, tvb, *offset, 4, ENC_BIG_ENDIAN);
         *offset += 4;
 
