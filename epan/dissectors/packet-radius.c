@@ -470,7 +470,7 @@ static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb, 
 		str = "NAS-selected";
 	else
 		str = wmem_strdup_printf(wmem_packet_scope(), "0x%08X", net);
-	proto_tree_add_ipxnet_format(tree, hf_radius_framed_ipx_network, tvb, 0,
+	proto_tree_add_ipxnet_format_value(tree, hf_radius_framed_ipx_network, tvb, 0,
 				     len, net, "Framed-IPX-Network: %s", str);
 
 	return str;
