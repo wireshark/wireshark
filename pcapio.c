@@ -243,6 +243,37 @@ libpcap_write_packet(libpcap_write_t write_func, void* write_data_info,
         return write_func(write_data_info, pd, caplen, bytes_written, err);
 }
 
+static gboolean
+write_string_option(libpcap_write_t write_func, void *write_data_info,
+                    guint16 option_type, const char *option_value,
+                    guint64 *bytes_written, int *err)
+{
+        size_t option_value_length;
+        struct option option;
+        const guint32 padding = 0;
+
+        if (option_value == NULL)
+                return TRUE; /* nothing to write */
+        option_value_length = strlen(option_value);
+        if ((option_value_length > 0) && (option_value_length < G_MAXUINT16)) {
+                /* something to write */
+                option.type = option_type;
+                option.value_length = (guint16)option_value_length;
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                        return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)option_value, (int) option_value_length, bytes_written, err))
+                        return FALSE;
+
+                if (option_value_length % 4) {
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - option_value_length % 4, bytes_written, err))
+                                return FALSE;
+                }
+        }
+        return TRUE;
+}
+
 gboolean
 libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_info,
                                    const char *comment,
@@ -256,7 +287,6 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
         struct shb shb;
         struct option option;
         guint32 block_total_length;
-        const guint32 padding = 0;
         gboolean have_options = FALSE;
 
         /* Size of base header */
@@ -297,70 +327,18 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
         if (!write_func(write_data_info, (const guint8*)&shb, sizeof(struct shb), bytes_written, err))
                 return FALSE;
 
-        if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
-                /* write opt_comment options */
-                option.type = OPT_COMMENT;
-                option.value_length = (guint16)strlen(comment);
-
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                        return FALSE;
-
-                if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
-                        return FALSE;
-
-                if (strlen(comment) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
-                                return FALSE;
-                }
-        }
-        if ((hw != NULL) && (strlen(hw) > 0) && (strlen(hw) < G_MAXUINT16)) {
-                /* write shb_hardware options */
-                option.type = SHB_HARDWARE;
-                option.value_length = (guint16)strlen(hw);
-
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                        return FALSE;
-
-                if (!write_func(write_data_info, (const guint8*)hw, (int) strlen(hw), bytes_written, err))
-                        return FALSE;
-
-                if ((strlen(hw) + 1) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(hw) % 4, bytes_written, err))
-                                return FALSE;
-                }
-        }
-        if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
-                /* write shb_os options */
-                option.type = SHB_OS;
-                option.value_length = (guint16)strlen(os);
-
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                        return FALSE;
-
-                if (!write_func(write_data_info, (const guint8*)os, (int) strlen(os), bytes_written, err))
-                        return FALSE;
-
-                if (strlen(os) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(os) % 4, bytes_written, err))
-                                return FALSE;
-                }
-        }
-        if ((appname != NULL) && (strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
-                /* write shb_userappl options */
-                option.type = SHB_USERAPPL;
-                option.value_length = (guint16)strlen(appname);
-
-                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                        return FALSE;
-
-                if (!write_func(write_data_info, (const guint8*)appname, (int) strlen(appname), bytes_written, err))
-                        return FALSE;
-
-                if (strlen(appname) % 4) {
-                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(appname) % 4, bytes_written, err))
-                                return FALSE;
-                }
-        }
+        if (!write_string_option(write_func, write_data_info, OPT_COMMENT,
+                                 comment, bytes_written, err))
+                return FALSE;
+        if (!write_string_option(write_func, write_data_info, SHB_HARDWARE, hw,
+                                 bytes_written, err))
+                return FALSE;
+        if (!write_string_option(write_func, write_data_info, SHB_OS, os,
+                                 bytes_written, err))
+                return FALSE;
+        if (!write_string_option(write_func, write_data_info, SHB_USERAPPL,
+                                 appname, bytes_written, err))
+                return FALSE;
         if (have_options) {
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
