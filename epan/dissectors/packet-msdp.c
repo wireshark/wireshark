@@ -147,7 +147,9 @@ static int hf_msdp_not_o = -1;
 static int hf_msdp_not_error = -1;
 static int hf_msdp_not_error_sub = -1;
 
-static int hf_msdp_not_ipv4 = -1;
+static int hf_msdp_not_group_address = -1;
+static int hf_msdp_not_rp_address = -1;
+static int hf_msdp_not_source_address = -1;
 static int hf_msdp_not_res = -1;
 static int hf_msdp_not_entry_count = -1;
 static int hf_msdp_not_sprefix_len = -1;
@@ -323,15 +325,14 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /* Note: updates *offset */
-static void add_notification_data_ipv4addr(tvbuff_t *tvb, proto_tree *tree, int *offset, const char *addrtype)
+static void add_notification_data_ipv4addr(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf_addr)
 {
         guint32 ipaddr;
 
         proto_tree_add_item(tree, hf_msdp_not_res, tvb, *offset, 3, ENC_BIG_ENDIAN);
         *offset += 3;
         ipaddr = tvb_get_ipv4(tvb, *offset);
-        proto_tree_add_ipv4_format(tree, hf_msdp_not_ipv4, tvb, *offset, 4, ipaddr,
-                                   "%s: %s", addrtype, ip_to_str((guint8 *)&ipaddr));
+        proto_tree_add_item(tree, hf_addr, tvb, *offset, 4, ENC_BIG_ENDIAN);
         *offset += 4;
 
         return;
@@ -387,7 +388,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
         switch (error) {
                 tvbuff_t *next_tvb;
         case SA_REQUEST_ERROR:
-                add_notification_data_ipv4addr(tvb, tree, offset, "Group address");
+                add_notification_data_ipv4addr(tvb, tree, offset, hf_msdp_not_group_address);
                 break;
         case SA_MESSAGE_SA_RESPONSE_ERROR:
                 if (error_sub == 0) {
@@ -397,13 +398,13 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                         *offset += 1;
                         break;
                 } else if (error_sub == 2) {
-                        add_notification_data_ipv4addr(tvb, tree, offset, "RP address");
+                        add_notification_data_ipv4addr(tvb, tree, offset, hf_msdp_not_rp_address);
                         break;
                 } else if (error_sub == 3 || error_sub == 8) {
-                        add_notification_data_ipv4addr(tvb, tree, offset, "Group address");
+                        add_notification_data_ipv4addr(tvb, tree, offset, hf_msdp_not_group_address);
                         break;
                 } else if (error_sub == 4) {
-                        add_notification_data_ipv4addr(tvb, tree, offset, "Source address");
+                        add_notification_data_ipv4addr(tvb, tree, offset, hf_msdp_not_source_address);
                         break;
                 } else if (error_sub == 5) {
                         proto_tree_add_item(tree, hf_msdp_not_sprefix_len, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -521,10 +522,20 @@ proto_register_msdp(void)
                         FT_UINT8, BASE_DEC, NULL, 0,
                         NULL, HFILL }
                 },
-                { &hf_msdp_not_ipv4,
-                        { "IPv4 address",           "msdp.not.ipv4",
+                { &hf_msdp_not_group_address,
+                        { "Group address",           "msdp.not.group_address",
                         FT_IPv4, BASE_NONE, NULL, 0,
-                        "Group/RP/Source address in Notification messages", HFILL }
+                        "Group address in Notification messages", HFILL }
+                },
+                { &hf_msdp_not_rp_address,
+                        { "RP address",           "msdp.not.rp_address",
+                        FT_IPv4, BASE_NONE, NULL, 0,
+                        "RP address in Notification messages", HFILL }
+                },
+                { &hf_msdp_not_source_address,
+                        { "Source address",           "msdp.not.source_address",
+                        FT_IPv4, BASE_NONE, NULL, 0,
+                        "Source address in Notification messages", HFILL }
                 },
                 { &hf_msdp_not_res,
                         { "Reserved",           "msdp.not.res",
