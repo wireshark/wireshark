@@ -910,7 +910,7 @@ static const value_string nas_eps_emm_type_of_dtatch_DL_vals[] = {
 /*
  * 9.9.3.9  EMM cause
  */
-static const value_string nas_eps_emm_cause_values[] = {
+const value_string nas_eps_emm_cause_values[] = {
     { 0x2,  "IMSI unknown in HSS"},
     { 0x3,  "Illegal UE"},
     { 0x5,  "IMEI not accepted"},
@@ -949,7 +949,7 @@ static const value_string nas_eps_emm_cause_values[] = {
     { 0x6f, "Protocol error, unspecified"},
     { 0, NULL }
 };
-static value_string_ext nas_eps_emm_cause_values_ext = VALUE_STRING_EXT_INIT(nas_eps_emm_cause_values);
+value_string_ext nas_eps_emm_cause_values_ext = VALUE_STRING_EXT_INIT(nas_eps_emm_cause_values);
 
 static guint16
 de_emm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,

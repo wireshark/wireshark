@@ -799,6 +799,7 @@ DISSECTOR_SRC = \
 	packet-macsec.c		\
 	packet-mactelnet.c	\
 	packet-manolito.c	\
+	packet-mbim.c		\
 	packet-mbtcp.c		\
 	packet-mdshdr.c		\
 	packet-media.c		\

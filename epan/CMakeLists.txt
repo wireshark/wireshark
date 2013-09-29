@@ -863,6 +863,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-macsec.c
 	dissectors/packet-mactelnet.c
 	dissectors/packet-manolito.c
+	dissectors/packet-mbim.c
 	dissectors/packet-mbtcp.c
 	dissectors/packet-mdshdr.c
 	dissectors/packet-media.c

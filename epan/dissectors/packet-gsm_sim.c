@@ -2794,6 +2794,7 @@ proto_register_gsm_sim(void)
 	register_dissector("gsm_sim", dissect_gsm_sim, proto_gsm_sim);
 	register_dissector("gsm_sim.command", dissect_gsm_sim_command, proto_gsm_sim);
 	register_dissector("gsm_sim.response", dissect_gsm_sim_response, proto_gsm_sim);
+	register_dissector("gsm_sim.bertlv", dissect_bertlv, proto_gsm_sim);
 }
 
 /* This function is called once at startup and every time the user hits

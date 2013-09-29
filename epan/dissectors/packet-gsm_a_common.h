@@ -776,6 +776,8 @@ extern const value_string tighter_cap_level_vals[];
 extern value_string_ext gsm_a_rr_rxlev_vals_ext;
 extern const value_string gsm_a_gm_type_of_ciph_alg_vals[];
 
+extern value_string_ext nas_eps_emm_cause_values_ext;
+
 typedef enum
 {
     /* Common Information Elements [3] 10.5.1 */
