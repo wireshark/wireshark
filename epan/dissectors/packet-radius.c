@@ -345,11 +345,13 @@ static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb, p
 	ip_h=g_ntohl(ip);
 
 	if (ip_h == 0xFFFFFFFF) {
+		str = "Negotiated";
 		proto_tree_add_ipv4_format_value(tree, hf_radius_framed_ip_address,
-					   tvb, 0, len, ip, "Negotiated");
+					   tvb, 0, len, ip, "%s", str);
 	} else if (ip_h == 0xFFFFFFFE) {
+		str = "Assigned";
 		proto_tree_add_ipv4_format_value(tree, hf_radius_framed_ip_address,
-					   tvb, 0, len, ip, "Assigned");
+					   tvb, 0, len, ip, "%s", str);
 	} else {
 		str = ip_to_str((guint8 *)&ip);
 		proto_tree_add_ipv4_format_value(tree, hf_radius_framed_ip_address,
@@ -374,11 +376,13 @@ static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb, packe
 	ip_h=g_ntohl(ip);
 
 	if (ip_h == 0xFFFFFFFF) {
+		str = "User-selected";
 		proto_tree_add_ipv4_format_value(tree, hf_radius_login_ip_host,
-					   tvb, 0, len, ip, "User-selected");
+					   tvb, 0, len, ip, "%s", str);
 	} else if (ip_h == 0) {
+		str = "NAS-selected";
 		proto_tree_add_ipv4_format_value(tree, hf_radius_login_ip_host,
-					   tvb, 0, len, ip, "NAS-selected");
+					   tvb, 0, len, ip, "%s", str);
 	} else {
 		str = ip_to_str((guint8 *)&ip);
 		proto_tree_add_ipv4_format_value(tree, hf_radius_login_ip_host,
