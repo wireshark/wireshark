@@ -242,7 +242,11 @@ addr_resolution_dlg (GtkAction *action _U_, gpointer data _U_)
     view = gtk_text_view_new ();
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+#if GTK_CHECK_VERSION(3, 0, 0)
+    gtk_widget_override_font(view, user_font_get_regular());
+#else
     gtk_widget_modify_font(view, user_font_get_regular());
+#endif
     gtk_widget_show (view);
 
     scroll = gtk_scrolled_window_new(NULL, NULL);
