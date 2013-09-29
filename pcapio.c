@@ -244,6 +244,17 @@ libpcap_write_packet(FILE* pfile,
 
 /* Writing pcap-ng files */
 
+static guint32
+pcapng_count_string_option(const char *option_value)
+{
+        if ((option_value != NULL) && (strlen(option_value) > 0) && (strlen(option_value) < G_MAXUINT16)) {
+                /* There's a value to write; get its length */
+                return (guint32)(sizeof(struct option) +
+                                 (guint16)ADD_PADDING(strlen(option_value)));
+	}
+	return 0; /* nothing to write */
+}
+
 static gboolean
 pcapng_write_string_option(FILE* pfile,
                            guint16 option_type, const char *option_value,
@@ -288,35 +299,22 @@ pcapng_write_session_header_block(FILE* pfile,
         struct shb shb;
         struct option option;
         guint32 block_total_length;
-        gboolean have_options = FALSE;
+        guint32 options_length;
 
         /* Size of base header */
         block_total_length = sizeof(struct shb) +
                              sizeof(guint32);
-        if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                (guint16)ADD_PADDING(strlen(comment)));
-                have_options = TRUE;
-        }
-        if ((hw != NULL) && (strlen(hw) > 0) && (strlen(hw) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                (guint16)ADD_PADDING(strlen(hw)));
-                have_options = TRUE;
-        }
-        if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                (guint16)ADD_PADDING(strlen(os)));
-                have_options = TRUE;
-        }
-        if ((appname != NULL) && (strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                (guint16)ADD_PADDING(strlen(appname)));
-                have_options = TRUE;
-        }
+        options_length = 0;
+        options_length += pcapng_count_string_option(comment);
+        options_length += pcapng_count_string_option(hw);
+        options_length += pcapng_count_string_option(os);
+        options_length += pcapng_count_string_option(appname);
         /* If we have options add size of end-of-options */
-        if (have_options) {
-                block_total_length += (guint32)sizeof(struct option);
+        if (options_length != 0) {
+                options_length += (guint32)sizeof(struct option);
         }
+        block_total_length += options_length;
+
         /* write shb header */
         shb.block_type = SECTION_HEADER_BLOCK_TYPE;
         shb.block_total_length = block_total_length;
@@ -340,7 +338,7 @@ pcapng_write_session_header_block(FILE* pfile,
         if (!pcapng_write_string_option(pfile, SHB_USERAPPL, appname,
                                         bytes_written, err))
                 return FALSE;
-        if (have_options) {
+        if (options_length != 0) {
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
@@ -369,63 +367,47 @@ pcapng_write_interface_description_block(FILE* pfile,
         struct idb idb;
         struct option option;
         guint32 block_total_length;
+        guint32 options_length;
         const guint32 padding = 0;
-        gboolean have_options = FALSE;
 
         block_total_length = (guint32)(sizeof(struct idb) + sizeof(guint32));
+        options_length = 0;
         /* 01 - OPT_COMMENT */
-        if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                (guint16)ADD_PADDING(strlen(comment)));
-                have_options = TRUE;
-        }
+        options_length += pcapng_count_string_option(comment);
 
         /* 02 - IDB_NAME */
-        if ((name != NULL) && (strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                (guint16)ADD_PADDING(strlen(name)));
-                have_options = TRUE;
-        }
+        options_length += pcapng_count_string_option(name);
 
         /* 03 - IDB_DESCRIPTION */
-        if ((descr != NULL) && (strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                (guint16)ADD_PADDING(strlen(descr)));
-                have_options = TRUE;
-        }
+        options_length += pcapng_count_string_option(descr);
 
         /* 08 - IDB_IF_SPEED */
         if (if_speed != 0) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                sizeof(guint64));
-                have_options = TRUE;
+                options_length += (guint32)(sizeof(struct option) +
+                                            sizeof(guint64));
         }
 
         /* 09 - IDB_TSRESOL */
         if (tsresol != 0) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                sizeof(struct option));
-                have_options = TRUE;
+                options_length += (guint32)(sizeof(struct option) +
+                                            sizeof(struct option));
         }
 
         /* 11 - IDB_FILTER */
         if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                (guint16)(ADD_PADDING(strlen(filter)+ 1)));
-                have_options = TRUE;
+                /* No, this isn't a string, it has an extra type byte */
+                options_length += (guint32)(sizeof(struct option) +
+                                            (guint16)(ADD_PADDING(strlen(filter)+ 1)));
         }
 
         /* 12 - IDB_OS */
-        if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                (guint16)ADD_PADDING(strlen(os)));
-                have_options = TRUE;
-        }
+        options_length += pcapng_count_string_option(os);
 
         /* If we have options add size of end-of-options */
-        if (have_options) {
-                block_total_length += (guint32)sizeof(struct option);
+        if (options_length != 0) {
+                options_length += (guint32)sizeof(struct option);
         }
+        block_total_length += options_length;
 
         /* write block header */
         idb.block_type = INTERFACE_DESCRIPTION_BLOCK_TYPE;
@@ -482,7 +464,7 @@ pcapng_write_interface_description_block(FILE* pfile,
         /* 11 - IDB_FILTER - write filter string if applicable
          * We only write version 1 of the filter, pcapng string
          */
-        if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
+        if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16 - 1)) {
                 option.type = IDB_FILTER;
                 option.value_length = (guint16)(strlen(filter) + 1 );
                 if (!write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
@@ -504,7 +486,7 @@ pcapng_write_interface_description_block(FILE* pfile,
                                         bytes_written, err))
                 return FALSE;
 
-        if (have_options) {
+        if (options_length != 0) {
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
@@ -534,26 +516,24 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
         struct option option;
         guint32 block_total_length;
         guint64 timestamp;
-        gboolean have_options = FALSE;
+        guint32 options_length;
         const guint32 padding = 0;
 
         block_total_length = (guint32)(sizeof(struct epb) +
                                        ADD_PADDING(caplen) +
                                        sizeof(guint32));
-        if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                (guint16)ADD_PADDING(strlen(comment)));
-                have_options = TRUE;
-        }
+        options_length = 0;
+        options_length += pcapng_count_string_option(comment);
         if (flags != 0) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                sizeof(guint32));
-                have_options = TRUE;
+                options_length += (guint32)(sizeof(struct option) +
+                                            sizeof(guint32));
         }
         /* If we have options add size of end-of-options */
-        if (have_options) {
-                block_total_length += (guint32)sizeof(struct option);
+        /* If we have options add size of end-of-options */
+        if (options_length != 0) {
+                options_length += (guint32)sizeof(struct option);
         }
+        block_total_length += options_length;
         timestamp = (guint64)sec * ts_mul + (guint64)usec;
         epb.block_type = ENHANCED_PACKET_BLOCK_TYPE;
         epb.block_total_length = block_total_length;
@@ -608,8 +588,9 @@ pcapng_write_interface_statistics_block(FILE* pfile,
 #endif
         struct option option;
         guint32 block_total_length;
+        guint32 options_length;
         guint64 timestamp;
-        gboolean have_options = FALSE;
+
 #ifdef _WIN32
         /*
          * Current time, represented as 100-nanosecond intervals since
@@ -650,36 +631,30 @@ pcapng_write_interface_statistics_block(FILE* pfile,
                     (guint64)(now.tv_usec);
 #endif
         block_total_length = (guint32)(sizeof(struct isb) + sizeof(guint32));
+        options_length = 0;
         if (isb_ifrecv != G_MAXUINT64) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                sizeof(guint64));
-                have_options = TRUE;
+                options_length += (guint32)(sizeof(struct option) +
+                                            sizeof(guint64));
         }
         if (isb_ifdrop != G_MAXUINT64) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                                sizeof(guint64));
-                have_options = TRUE;
+                options_length += (guint32)(sizeof(struct option) +
+                                            sizeof(guint64));
         }
         /* OPT_COMMENT */
-        if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                      (guint16)ADD_PADDING(strlen(comment)));
-                have_options = TRUE;
-        }
+        options_length += pcapng_count_string_option(comment);
         if (isb_starttime !=0) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                      sizeof(guint64)); /* ISB_STARTTIME */
-                have_options = TRUE;
+                options_length += (guint32)(sizeof(struct option) +
+                                            sizeof(guint64)); /* ISB_STARTTIME */
         }
         if (isb_endtime !=0) {
-                block_total_length += (guint32)(sizeof(struct option) +
-                                      sizeof(guint64)); /* ISB_ENDTIME */
-                have_options = TRUE;
+                options_length += (guint32)(sizeof(struct option) +
+                                            sizeof(guint64)); /* ISB_ENDTIME */
         }
         /* If we have options add size of end-of-options */
-        if (have_options) {
-                block_total_length += (guint32)sizeof(struct option);
+        if (options_length != 0) {
+                options_length += (guint32)sizeof(struct option);
         }
+        block_total_length += options_length;
 
         isb.block_type = INTERFACE_STATISTICS_BLOCK_TYPE;
         isb.block_total_length = block_total_length;
@@ -744,7 +719,7 @@ pcapng_write_interface_statistics_block(FILE* pfile,
                 if (!write_to_file(pfile, (const guint8*)&isb_ifdrop, sizeof(guint64), bytes_written, err))
                         return FALSE;
         }
-        if (have_options) {
+        if (options_length != 0) {
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
