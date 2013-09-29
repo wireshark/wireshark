@@ -529,7 +529,6 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
                                             sizeof(guint32));
         }
         /* If we have options add size of end-of-options */
-        /* If we have options add size of end-of-options */
         if (options_length != 0) {
                 options_length += (guint32)sizeof(struct option);
         }
@@ -564,7 +563,14 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
                 option.value_length = 0;
                 if (!write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                         return FALSE;
-       }
+        }
+        if (options_length != 0) {
+                /* write end of options */
+                option.type = OPT_ENDOFOPT;
+                option.value_length = 0;
+                if (!write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                        return FALSE;
+        }
 
        return write_to_file(pfile, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
 }
