@@ -853,8 +853,8 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 			buff[NTP_TS_SIZE-1]=0;
 		}
 	}
-	proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, tvb, 12, 4,
-				    NULL, "Reference ID: %s", buff);
+	proto_tree_add_bytes_format_value(ntp_tree, hf_ntp_refid, tvb, 12, 4,
+					NULL, "%s", buff);
 
 	/* Reference Timestamp: This is the time at which the local clock was
 	 * last set or corrected.

@@ -251,11 +251,11 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             proto_tree_add_ether(mac_tree, hf_wol_mac, tvb, offset, 6, mac);
 
         if ( len == 106 )
-            proto_tree_add_bytes_format(wol_tree, hf_wol_passwd, tvb, offset,
-                4, passwd, "Password: %s", passwd);
+            proto_tree_add_bytes_format_value(wol_tree, hf_wol_passwd, tvb, offset,
+                4, passwd, "%s", passwd);
         else if ( len == 108 )
-            proto_tree_add_bytes_format(wol_tree, hf_wol_passwd, tvb, offset,
-                6, passwd, "Password: %s", passwd);
+            proto_tree_add_bytes_format_value(wol_tree, hf_wol_passwd, tvb, offset,
+                6, passwd, "%s", passwd);
     }
 
 /* If this protocol has a sub-dissector call it here, see section 1.8 */

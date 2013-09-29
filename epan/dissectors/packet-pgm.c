@@ -523,9 +523,9 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 						soffset = 0;
 						firsttime = FALSE;
 					} else {
-						proto_tree_add_bytes_format(opt_tree,
+						proto_tree_add_bytes_format_value(opt_tree,
 							hf_pgm_opt_nak_list, tvb, ptvcursor_current_offset(cursor), j*4,
-							nakbuf, "List: %s", nakbuf);
+							nakbuf, "%s", nakbuf);
 						soffset = 0;
 					}
 					ptvcursor_advance(cursor, j*4);
@@ -538,9 +538,9 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 						hf_pgm_opt_nak_list, tvb, ptvcursor_current_offset(cursor), j*4,
 						nakbuf, "List(%d): %s", naks, nakbuf);
 				} else {
-					proto_tree_add_bytes_format(opt_tree,
+					proto_tree_add_bytes_format_value(opt_tree,
 						hf_pgm_opt_nak_list, tvb, ptvcursor_current_offset(cursor), j*4,
-						nakbuf, "List: %s", nakbuf);
+						nakbuf, "%s", nakbuf);
 				}
 				ptvcursor_advance(cursor, j*4);
 			}

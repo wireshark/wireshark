@@ -1125,9 +1125,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* We are handling a range */
             guint16 end_seq_no = tvb_get_ntohs (tvb, offset + 4);
 
-            en = proto_tree_add_bytes_format (field_tree, hf_miss_seq_range,
+            en = proto_tree_add_bytes_format_value(field_tree, hf_miss_seq_range,
                                               tvb, offset, 6, NULL,
-                                             "Missing Data PDU Seq Range: %d - %d",
+                                             "%d - %d",
                                              ack_seq_no, end_seq_no);
             if (ack_seq_no >= end_seq_no) {
               proto_item_append_text (en, "    (invalid)");

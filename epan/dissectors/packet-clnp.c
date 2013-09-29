@@ -395,9 +395,9 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     nsel     = tvb_get_guint8(tvb, offset + dst_len - 1);
     SET_ADDRESS(&pinfo->net_dst, AT_OSI, dst_len, dst_addr);
     SET_ADDRESS(&pinfo->dst, AT_OSI, dst_len, dst_addr);
-    proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, tvb, offset, dst_len,
+    proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_dest, tvb, offset, dst_len,
             dst_addr,
-            " DA : %s",
+            "%s",
             print_nsap_net(dst_addr, dst_len));
     offset += dst_len;
     opt_len -= dst_len;
@@ -432,10 +432,10 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     src_addr = tvb_get_ptr(tvb, offset, src_len);
     SET_ADDRESS(&pinfo->net_src, AT_OSI, src_len, src_addr);
     SET_ADDRESS(&pinfo->src, AT_OSI, src_len, src_addr);
-    proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, tvb,
+    proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_src, tvb,
             offset, src_len,
             src_addr,
-            " SA : %s",
+            "%s",
             print_nsap_net(src_addr, src_len));
 
     offset += src_len;

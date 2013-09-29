@@ -1183,10 +1183,10 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                          hf_atmarp_src_atm_num_nsap, arp_tree);
 
     if (ar_ssl != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_atmarp_src_atm_subaddr, tvb, ssa_offset,
+      proto_tree_add_bytes_format_value(arp_tree, hf_atmarp_src_atm_subaddr, tvb, ssa_offset,
                                   ar_ssl,
                                   ssa_val,
-                                  "Sender ATM subaddress: %s", ssa_str);
+                                  "%s", ssa_str);
 
     if (ar_spln != 0) {
       proto_tree_add_item(arp_tree,
@@ -1200,10 +1200,10 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                          hf_atmarp_dst_atm_num_nsap, arp_tree);
 
     if (ar_tsl != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_atmarp_dst_atm_subaddr, tvb, tsa_offset,
+      proto_tree_add_bytes_format_value(arp_tree, hf_atmarp_dst_atm_subaddr, tvb, tsa_offset,
                                   ar_tsl,
                                   tsa_val,
-                                  "Target ATM subaddress: %s", tsa_str);
+                                  "%s", tsa_str);
 
     if (ar_tpln != 0) {
       proto_tree_add_item(arp_tree,

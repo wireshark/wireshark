@@ -614,9 +614,9 @@ dissect_hello_restart_clv(tvbuff_t *tvb,
 	 */
 	if (length >= 3 + id_length && ISIS_MASK_RESTART_RA(restart_options)) {
 	    neighbor_id = tvb_get_ptr(tvb, offset+3, id_length);
-	    proto_tree_add_bytes_format( tree,
+	    proto_tree_add_bytes_format_value( tree,
 		    hf_isis_hello_clv_restart_neighbor, tvb, offset+3,
-		    id_length, neighbor_id, "Restarting Neighbor ID: %s",
+		    id_length, neighbor_id, "%s",
 		    print_system_id( neighbor_id, id_length ) );
 	}
 }
@@ -1032,10 +1032,9 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	if (tree) {
 		source_id = tvb_get_ptr(tvb, offset, id_length);
-		proto_tree_add_bytes_format(hello_tree, hf_isis_hello_source_id, tvb,
+		proto_tree_add_bytes_format_value(hello_tree, hf_isis_hello_source_id, tvb,
 			            offset, id_length, source_id,
-			            "System-ID {Sender of PDU} : %s",
-			            print_system_id( source_id, id_length ) );
+			            "%s", print_system_id( source_id, id_length ) );
 	}
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ) );
@@ -1074,10 +1073,9 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 		if (tree) {
 			lan_id = tvb_get_ptr(tvb, offset, id_length+1);
-			proto_tree_add_bytes_format(hello_tree, hf_isis_hello_lan_id, tvb,
+			proto_tree_add_bytes_format_value(hello_tree, hf_isis_hello_lan_id, tvb,
 				     offset, id_length + 1, lan_id,
-					 "System-ID {Designated IS} : %s",
-					      print_system_id( lan_id, id_length + 1 ) );
+					 "%s", print_system_id( lan_id, id_length + 1 ) );
 		}
 		offset += id_length + 1;
 	}
@@ -1129,7 +1127,7 @@ isis_register_hello(int proto_isis) {
 			FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_source_id,
-		{ "SystemID{ Sender of PDU }", "isis.hello.source_id",
+		{ "SystemID {Sender of PDU}", "isis.hello.source_id",
 			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_holding_timer,
@@ -1145,7 +1143,7 @@ isis_register_hello(int proto_isis) {
 			FT_UINT8, BASE_DEC, NULL, ISIS_HELLO_P_RESERVED_MASK, NULL, HFILL }},
 
 		{ &hf_isis_hello_lan_id,
-		{ "SystemID{ Designated IS }", "isis.hello.lan_id",
+		{ "SystemID {Designated IS}", "isis.hello.lan_id",
 			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_hello_local_circuit_id,

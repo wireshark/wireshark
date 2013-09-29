@@ -353,13 +353,13 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		offset += 2;
 		if (num_neighbors > 0)
 		{
-			edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb,
-								       offset, num_neighbors*10, NULL, "Neighbors:");
+			edp_neighbors_ti = proto_tree_add_bytes(edp_tree, hf_ismp_edp_neighbors, tvb,
+										offset, num_neighbors*10, NULL);
 			edp_neighbors_tree = proto_item_add_subtree(edp_neighbors_ti, ett_ismp_edp_neighbors);
 			while ( neighbors_count < num_neighbors && tvb_reported_length_remaining(tvb, offset) >= 10)
 			{
 				edp_neighbors_leaf_ti = proto_tree_add_text(edp_neighbors_tree, tvb, offset, 10,
-                        		        "Neighbor%d", (neighbors_count+1));
+										"Neighbor%d", (neighbors_count+1));
 				edp_neighbors_leaf_tree = proto_item_add_subtree(edp_neighbors_leaf_ti, ett_ismp_edp_neighbors_leaf);
 
 				proto_tree_add_text(edp_neighbors_leaf_tree, tvb, offset, 6,

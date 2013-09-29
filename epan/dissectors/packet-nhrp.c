@@ -944,8 +944,8 @@ void dissect_nhrp_ext(tvbuff_t    *tvb,
                         "Extension Data: Vendor ID=%s, Data=%s", get_manuf_name(manuf),
                         tvb_bytes_to_str(tvb, offset + 3, len - 3));
                     vendor_tree = proto_item_add_subtree(vendor_item, ett_nhrp_vendor_ext);
-                    proto_tree_add_bytes_format(vendor_tree, hf_nhrp_vendor_ext_id, tvb,
-                        offset, 3, manuf, "Vendor ID: %s", get_manuf_name(manuf));
+                    proto_tree_add_bytes_format_value(vendor_tree, hf_nhrp_vendor_ext_id, tvb,
+                        offset, 3, manuf, "%s", get_manuf_name(manuf));
                     if (len > 3) {
                         proto_tree_add_text(vendor_tree, tvb, offset + 3, len - 3,
                             "Data: %s", tvb_bytes_to_str(tvb, offset + 3, len - 3));

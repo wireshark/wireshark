@@ -1190,18 +1190,18 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			manuf_name = tvb_get_manuf_name(tvb, offset);
 			subns = tvb_get_guint8(tvb, offset+3);
 
-			vt = proto_tree_add_bytes_format(radiotap_tree,
+			vt = proto_tree_add_bytes_format_value(radiotap_tree,
 							 hf_radiotap_vendor_ns,
 							 tvb, offset,
 							 iter.this_arg_size,
 							 NULL,
-							 "Vendor namespace: %s-%d",
+							 "%s-%d",
 							 manuf_name, subns);
 			ven_tree = proto_item_add_subtree(vt, ett_radiotap_vendor);
-			proto_tree_add_bytes_format(ven_tree,
+			proto_tree_add_bytes_format_value(ven_tree,
 						    hf_radiotap_ven_oui, tvb,
 						    offset, 3, NULL,
-						    "Vendor: %s", manuf_name);
+						    "%s", manuf_name);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_subns,
 					    tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_skip, tvb,

@@ -860,8 +860,8 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
          switch (pinfo->fd->lnk_t) {
            case WTAP_ENCAP_ETHERNET:
-             proto_tree_add_bytes_format( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32,
-                                          NULL, "Client Hardware Address: %s",
+             proto_tree_add_bytes_format_value( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32,
+                                          NULL, "%s",
                                           tvb_ether_to_str(tvb, offset));
              break;
 

@@ -740,8 +740,8 @@ dissect_swils_elp(tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         } else {
             flags="Class F Invld";
         }
-        proto_tree_add_bytes_format(elp_tree, hf_swils_elp_clsf_svcp, tvb, offset, 6,
-                                    &elp.clsf_svcparm[0], "Class F Svc Parameters: (%s)", flags);
+        proto_tree_add_bytes_format_value(elp_tree, hf_swils_elp_clsf_svcp, tvb, offset, 6,
+                                    &elp.clsf_svcparm[0], "(%s)", flags);
         offset += 6;
 
         proto_tree_add_item(elp_tree, hf_swils_elp_clsf_rcvsz, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -781,8 +781,8 @@ dissect_swils_elp(tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
             flags="Class 1 Invalid";
         }
 
-        proto_tree_add_bytes_format(elp_tree, hf_swils_elp_cls1_svcp, tvb, offset, 2,
-                                    NULL, "Class 1 Svc Parameters: (%s)", flags);
+        proto_tree_add_bytes_format_value(elp_tree, hf_swils_elp_cls1_svcp, tvb, offset, 2,
+                                    NULL, "(%s)", flags);
         offset += 2;
         if (elp.cls1_svcparm[0] & 0x80) {
             proto_tree_add_item(elp_tree, hf_swils_elp_cls1_rcvsz, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -801,9 +801,9 @@ dissect_swils_elp(tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
             flags="Class 2 Invld";
         }
 
-        proto_tree_add_bytes_format(elp_tree, hf_swils_elp_cls2_svcp, tvb, offset, 2,
+        proto_tree_add_bytes_format_value(elp_tree, hf_swils_elp_cls2_svcp, tvb, offset, 2,
                                     &elp.cls2_svcparm[0],
-                                    "Class 2 Svc Parameters: (%s)", flags);
+                                    "(%s)", flags);
         offset += 2;
 
         if (elp.cls2_svcparm[0] & 0x80) {
@@ -822,9 +822,9 @@ dissect_swils_elp(tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         else {
             flags="Class 3 Invld";
         }
-        proto_tree_add_bytes_format(elp_tree, hf_swils_elp_cls3_svcp, tvb, offset, 2,
+        proto_tree_add_bytes_format_value(elp_tree, hf_swils_elp_cls3_svcp, tvb, offset, 2,
                                     &elp.cls3_svcparm[0],
-                                    "Class 3 Svc Parameters: (%s)", flags);
+                                    "(%s)", flags);
         offset += 2;
 
         if (elp.cls3_svcparm[0] & 0x80) {
@@ -1925,7 +1925,7 @@ proto_register_fcswils(void)
            NULL, HFILL}},
 
         { &hf_swils_elp_clsf_svcp,
-          {"Class F Svc Param", "swils.elp.clsfp",
+          {"Class F Svc Parameters", "swils.elp.clsfp",
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
@@ -1950,7 +1950,7 @@ proto_register_fcswils(void)
            NULL, HFILL}},
 
         { &hf_swils_elp_cls1_svcp,
-          {"Class 1 Svc Param", "swils.elp.cls1p",
+          {"Class 1 Svc Parameters", "swils.elp.cls1p",
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
@@ -1960,7 +1960,7 @@ proto_register_fcswils(void)
            NULL, HFILL}},
 
         { &hf_swils_elp_cls2_svcp,
-          {"Class 2 Svc Param", "swils.elp.cls2p",
+          {"Class 2 Svc Parameters", "swils.elp.cls2p",
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
@@ -1970,7 +1970,7 @@ proto_register_fcswils(void)
            NULL, HFILL}},
 
         { &hf_swils_elp_cls3_svcp,
-          {"Class 3 Svc Param", "swils.elp.cls3p",
+          {"Class 3 Svc Parameters", "swils.elp.cls3p",
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
