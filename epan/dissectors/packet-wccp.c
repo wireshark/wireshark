@@ -2794,7 +2794,6 @@ dissect_wccp2_alternate_assignment_info(tvbuff_t *tvb, int offset, gint length,
     expert_add_info_format(pinfo, tf, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but %d remain in the packet. Assuming that the assignment length is wrong and setting it to %d.",
                            assignment_length, length, length);
-    assignment_length = length;
   }
 
   new_length=dissect_wccp2_assignment_key_element(tvb, offset, length, pinfo,  info_tree);
