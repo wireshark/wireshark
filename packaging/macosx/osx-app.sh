@@ -484,7 +484,7 @@ rpathify_file () {
 				#
 				# Change the reference to that library.
 				#
-				echo "Changing reference to $lib in $1"
+				echo "Changing reference to $lib to $to in $1"
 				/usr/bin/install_name_tool -change $lib $to $1
 			done
 			;;
