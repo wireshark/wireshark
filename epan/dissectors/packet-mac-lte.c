@@ -1289,8 +1289,8 @@ static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
         /* Update start of UE to now */
         update_drx_info(ue_state, pinfo);
 
-        /* Copy this snapshot for this frame */
-        frame_result = ue_state;
+        /* Deep-copy this snapshot for this frame */
+        *frame_result = *ue_state;
 
         /* And store in table */
         g_hash_table_insert(mac_lte_drx_frame_result, GUINT_TO_POINTER(pinfo->fd->num), frame_result);
