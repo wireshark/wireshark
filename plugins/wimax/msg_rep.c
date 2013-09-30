@@ -807,9 +807,9 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 								/* decode and display the channel selectivity report type */
 								ti_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_channel_selectivity_report, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
 								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
-								proto_tree_add_item(tlv_tree, hf_rep_rsp_channel_selectivity_rep_frequency_a, tvb, (offset + tlv_offset + 2), 1, ENC_BIG_ENDIAN);
-								proto_tree_add_item(tlv_tree, hf_rep_rsp_channel_selectivity_rep_frequency_b, tvb, (offset + tlv_offset + 1), 1, ENC_BIG_ENDIAN);
-								proto_tree_add_item(tlv_tree, hf_rep_rsp_channel_selectivity_rep_frequency_c, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_rep_rsp_channel_selectivity_rep_frequency_a, tvb, (offset + tlv_offset + 2), 1, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_rep_rsp_channel_selectivity_rep_frequency_b, tvb, (offset + tlv_offset + 1), 1, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_rep_rsp_channel_selectivity_rep_frequency_c, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 							break;
 							default:
 								/* display the unknown tlv in hex */
