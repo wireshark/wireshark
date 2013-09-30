@@ -1084,7 +1084,7 @@ install_desktop_files:
 
 # Used by svr4-package and osx-package
 # We load top_stagedir with an explicit path so that libtool doesn't freak.
-top_stagedir=`cd $(top_srcdir) && pwd`/packaging/staging
+top_stagedir=`cd $(top_builddir) && pwd`/packaging/staging
 stagedir=$(top_stagedir)/$(PACKAGE).inst
 
 host_cpu=@host_cpu@

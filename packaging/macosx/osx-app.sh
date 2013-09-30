@@ -264,9 +264,10 @@ chmod -R g-w "$chmodbpf_dir"
 # The rest of the Wireshark installation (we handled bin above)
 rsync -av \
 	--exclude bin/ \
-	--exclude lib/wireshark/plugins/ \
-	--exclude lib/wireshark/python/ \
+	--exclude lib/ \
 	"$binary_path/.."/* "$pkgres"
+
+rsync -av $binary_path/../lib/*.dylib "$pkglib/"
 
 # Remove the version number from the plugin path
 find "$binary_path/../lib/wireshark/plugins" -type f \
