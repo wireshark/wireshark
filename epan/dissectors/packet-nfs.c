@@ -10951,7 +10951,7 @@ proto_register_nfs(void)
 			&names_nfs4_operation_ext, 0, "Main Operation number", HFILL }},
 
 		{ &hf_nfs4_linktext, {
-			"Name", "nfs.symlink.linktext", FT_STRING, BASE_NONE,
+			"Link Contents", "nfs.symlink.linktext", FT_STRING, BASE_NONE,
 			NULL, 0, "Symbolic link contents", HFILL }},
 
 		{ &hf_nfs4_dir_entry_name, {
