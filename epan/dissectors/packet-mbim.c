@@ -32,6 +32,7 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include <epan/wmem/wmem.h>
+#include <epan/conversation.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -440,6 +441,8 @@ static int hf_mbim_set_dss_connect_dss_session_id = -1;
 static int hf_mbim_set_dss_connect_dss_link_state = -1;
 static int hf_mbim_fragmented_payload = -1;
 static int hf_mbim_remaining_payload = -1;
+static int hf_mbim_request_in = -1;
+static int hf_mbim_response_in = -1;
 
 static expert_field ei_mbim_max_ctrl_transfer = EI_INIT;
 static expert_field ei_mbim_unexpected_msg = EI_INIT;
@@ -459,6 +462,15 @@ static gint ett_mbim_buffer = -1;
 
 static dissector_handle_t proactive_handle = NULL;
 static dissector_handle_t etsi_cat_handle = NULL;
+
+struct mbim_info {
+    guint32 req_frame;
+    guint32 resp_frame;
+};
+
+struct mbim_conv_info {
+    wmem_tree_t *trans;
+};
 
 #define MBIM_OPEN_MSG            0x00000001
 #define MBIM_CLOSE_MSG           0x00000002
@@ -2869,9 +2881,12 @@ static int
 dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
-    proto_tree *mbim_tree, *subtree;
+    proto_tree *mbim_tree, *header_tree, *subtree;
     gint offset = 0;
-    guint32 msg_type;
+    guint32 msg_type, trans_id;
+    conversation_t *conversation;
+    struct mbim_conv_info *mbim_conv;
+    struct mbim_info *mbim_info;
 
     if (tvb_length(tvb) < 12) {
         return 0;
@@ -2880,18 +2895,27 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MBIM");
     col_clear(pinfo->cinfo, COL_INFO);
 
+    conversation = find_or_create_conversation(pinfo);
+    mbim_conv = conversation_get_proto_data(conversation, proto_mbim);
+    if (!mbim_conv) {
+        mbim_conv = wmem_new(wmem_file_scope(), struct mbim_conv_info);
+        mbim_conv->trans = wmem_tree_new(wmem_file_scope());
+        conversation_add_proto_data(conversation, proto_mbim, mbim_conv);
+    }
+
     ti = proto_tree_add_item(tree, proto_mbim, tvb, 0, -1, ENC_NA);
     mbim_tree = proto_item_add_subtree(ti, ett_mbim);
 
     ti = proto_tree_add_text(mbim_tree, tvb, offset, 12, "Message Header");
-    subtree = proto_item_add_subtree(ti, ett_mbim_msg_header);
+    header_tree = proto_item_add_subtree(ti, ett_mbim_msg_header);
     msg_type = tvb_get_letohl(tvb, offset);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(msg_type, mbim_msg_type_vals, "Unknown"));
-    proto_tree_add_uint(subtree, hf_mbim_header_message_type, tvb, offset, 4, msg_type);
+    proto_tree_add_uint(header_tree, hf_mbim_header_message_type, tvb, offset, 4, msg_type);
     offset += 4;
-    proto_tree_add_item(subtree, hf_mbim_header_message_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(header_tree, hf_mbim_header_message_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item(subtree, hf_mbim_header_transaction_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    trans_id = tvb_get_letohl(tvb, offset);
+    proto_tree_add_uint(header_tree, hf_mbim_header_transaction_id, tvb, offset, 4, trans_id);
     offset += 4;
 
     switch(msg_type) {
@@ -2931,6 +2955,22 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     offset = tvb_length(tvb);
                     break;
                 }
+
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    mbim_info = wmem_new(wmem_file_scope(), struct mbim_info);
+                    mbim_info->req_frame = PINFO_FD_NUM(pinfo);
+                    mbim_info->resp_frame = 0;
+                    wmem_tree_insert32(mbim_conv->trans, trans_id, mbim_info);
+                } else {
+                    mbim_info = wmem_tree_lookup32(mbim_conv->trans, trans_id);
+                    if (mbim_info && mbim_info->resp_frame) {
+                        proto_item *resp_it;
+
+                        resp_it = proto_tree_add_uint(header_tree, hf_mbim_response_in, tvb, 0, 0, mbim_info->resp_frame);
+                        PROTO_ITEM_SET_GENERATED(resp_it);
+                    }
+                }
+
                 uuid_idx = mbim_dissect_service_id_uuid(tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset);
                 cid = mbim_dissect_cid(tvb, pinfo, mbim_tree, &offset, uuid_idx);
                 cmd_type = tvb_get_letohl(tvb, offset);
@@ -3326,6 +3366,24 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     offset = tvb_length(tvb);
                     break;
                 }
+
+                if (msg_type == MBIM_COMMAND_DONE) {
+                    if (!PINFO_FD_VISITED(pinfo)) {
+                        mbim_info = wmem_tree_lookup32(mbim_conv->trans, trans_id);
+                        if (mbim_info) {
+                            mbim_info->resp_frame = PINFO_FD_NUM(pinfo);
+                        }
+                    } else {
+                        mbim_info = wmem_tree_lookup32(mbim_conv->trans, trans_id);
+                        if (mbim_info && mbim_info->req_frame) {
+                            proto_item *req_it;
+
+                            req_it = proto_tree_add_uint(header_tree, hf_mbim_request_in, tvb, 0, 0, mbim_info->req_frame);
+                            PROTO_ITEM_SET_GENERATED(req_it);
+                        }
+                    }
+                }
+
                 uuid_idx = mbim_dissect_service_id_uuid(tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset);
                 cid = mbim_dissect_cid(tvb, pinfo, mbim_tree, &offset, uuid_idx);
                 if (msg_type == MBIM_COMMAND_DONE) {
@@ -5657,6 +5715,16 @@ proto_register_mbim(void)
         { &hf_mbim_remaining_payload,
             { "Remaining Payload", "mbim.remaining_payload",
                FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_request_in,
+            { "Request In", "mbim.request_in",
+               FT_FRAMENUM, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_response_in,
+            { "Response In", "mbim.response_in",
+               FT_FRAMENUM, BASE_NONE, NULL, 0,
               NULL, HFILL }
         }
     };
