@@ -79,9 +79,9 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     ti = proto_tree_add_item(tree, proto_radio, tvb, 0, 0, ENC_NA);
     radio_tree = proto_item_add_subtree (ti, ett_radio);
 
-    proto_tree_add_uint64_format(radio_tree, hf_data_rate, tvb, 0, 0,
+    proto_tree_add_uint64_format_value(radio_tree, hf_data_rate, tvb, 0, 0,
              (guint64)pinfo->pseudo_header->ieee_802_11.data_rate * 500000,
-             "Data Rate: %u.%u Mb/s",
+             "%u.%u Mb/s",
              pinfo->pseudo_header->ieee_802_11.data_rate / 2,
              pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
 

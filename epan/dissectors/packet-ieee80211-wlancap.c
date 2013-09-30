@@ -418,9 +418,9 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    datarate / 1000000,
                    ((datarate % 1000000) > 500000) ? 5 : 0);
     if (tree) {
-      proto_tree_add_uint64_format(wlan_tree, hf_data_rate, tvb, offset, 4,
+      proto_tree_add_uint64_format_value(wlan_tree, hf_data_rate, tvb, offset, 4,
                                    datarate,
-                                   "Data Rate: %u.%u Mb/s",
+                                   "%u.%u Mb/s",
                                    datarate/1000000,
                                    ((datarate % 1000000) > 500000) ? 5 : 0);
     }

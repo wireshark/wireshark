@@ -413,9 +413,9 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (tree) {
             if (vw_times_tree != NULL) {
-            proto_tree_add_uint64_format(vw_times_tree, hf_ixveriwave_vw_startt,
+            proto_tree_add_uint64_format_value(vw_times_tree, hf_ixveriwave_vw_startt,
                 tvb, offset, 8, vw_startt,
-                "Frame start timestamp: %" G_GINT64_MODIFIER "u usec", vw_startt);
+                "%" G_GINT64_MODIFIER "u usec", vw_startt);
             }
         }
 
@@ -429,9 +429,9 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (tree) {
             if (vw_times_tree != NULL) {
-            proto_tree_add_uint64_format(vw_times_tree, hf_ixveriwave_vw_endt,
+            proto_tree_add_uint64_format_value(vw_times_tree, hf_ixveriwave_vw_endt,
                 tvb, offset, 8, vw_endt,
-                "Frame end timestamp: %" G_GINT64_MODIFIER "u usec", vw_endt);
+                "%" G_GINT64_MODIFIER "u usec", vw_endt);
             }
         }
 
@@ -1064,11 +1064,11 @@ void proto_register_ixveriwave(void)
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_ixveriwave_vw_startt,
-        { "Starting frame timestamp", "ixveriwave.startt",
+        { "Frame start timestamp", "ixveriwave.startt",
         FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_ixveriwave_vw_endt,
-        { "Ending frame timestamp", "ixveriwave.endt",
+        { "Frame end timestamp", "ixveriwave.endt",
         FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_ixveriwave_vw_pktdur,

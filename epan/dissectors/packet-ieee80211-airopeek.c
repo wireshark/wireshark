@@ -61,9 +61,9 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                data_rate / 2,
                data_rate & 1 ? 5 : 0);
   if (tree) {
-    proto_tree_add_uint64_format(airopeek_tree, hf_data_rate, tvb, 0, 1,
+    proto_tree_add_uint64_format_value(airopeek_tree, hf_data_rate, tvb, 0, 1,
                                  (guint64)data_rate * 500000,
-                                 "Data Rate: %u.%u Mb/s",
+                                 "%u.%u Mb/s",
                                  data_rate / 2,
                                  data_rate & 1 ? 5 : 0);
   }

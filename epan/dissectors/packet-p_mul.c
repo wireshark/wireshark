@@ -1180,9 +1180,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       guint64 timestamp;
 
       timestamp = tvb_get_ntoh64 (tvb, offset);
-      proto_tree_add_uint64_format (p_mul_tree, hf_timestamp_option, tvb,
+      proto_tree_add_uint64_format_value(p_mul_tree, hf_timestamp_option, tvb,
                                     offset, 8, timestamp,
-                                    "Timestamp: %" G_GINT64_MODIFIER "d.%d second%s (%" G_GINT64_MODIFIER "u)",
+                                    "%" G_GINT64_MODIFIER "d.%d second%s (%" G_GINT64_MODIFIER "u)",
                                     timestamp / 10, (int) timestamp % 10,
                                     (timestamp == 10) ? "" : "s", timestamp);
       offset += 8;
@@ -1427,7 +1427,7 @@ void proto_register_p_mul (void)
         "p_mul.no_missing_seq_no", FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
     { &hf_timestamp_option,
-      { "Timestamp Option", "p_mul.timestamp", FT_UINT64, BASE_DEC,
+      { "Timestamp", "p_mul.timestamp", FT_UINT64, BASE_DEC,
         NULL, 0x0, "Timestamp Option (in units of 100ms)", HFILL } },
     { &hf_dest_entry,
       { "Destination Entry", "p_mul.dest_entry", FT_NONE, BASE_NONE,
