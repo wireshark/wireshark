@@ -1976,11 +1976,11 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset
 
         curr_offset += len - (curr_offset - offset);
 
-        proto_tree_add_string_format(tree,
+        proto_tree_add_string_format_value(tree,
             hf_ansi_a_meid,
             tvb, offset + 1, len - 1,
             a_bigbuf,
-            "MEID: %s",
+            "%s",
             a_bigbuf);
 
         g_snprintf(add_string, string_len, " - %s (%s)",

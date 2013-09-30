@@ -408,8 +408,8 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				offset += 4;
 
 				name_string = tvb_get_unicode_string (wmem_packet_scope(), tvb, offset, tag_length, ENC_LITTLE_ENDIAN);
-				proto_tree_add_string_format(tag_tree, hf_tnef_property_tag_name_string, tvb, offset,
-							     tag_length, name_string, "Name: %s", name_string);
+				proto_tree_add_string_format_value(tag_tree, hf_tnef_property_tag_name_string, tvb, offset,
+							     tag_length, name_string, "%s", name_string);
 				offset += tag_length;
 
 				if((padding = (4 - tag_length % 4)) != 4) {

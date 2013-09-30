@@ -398,8 +398,8 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 offset++;
                                 tvb_memcpy(tvb, auth_buf, offset, 8);
                                 auth_buf[sizeof auth_buf - 1] = '\0';
-                                proto_tree_add_string_format(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
-                                                     "Authentication Data: %sDefault (%s)",
+                                proto_tree_add_string_format_value(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
+                                                     "%sDefault (%s)",
                                                      (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
                                                      auth_buf);
                                 offset += 8;
@@ -546,8 +546,8 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                                         tvb_memcpy(tvb, auth_buf, offset, 8);
                                         auth_buf[sizeof auth_buf - 1] = '\0';
-                                        proto_tree_add_string_format(text_auth_tlv, hf_hsrp2_auth_data, tvb, offset, 8, auth_buf,
-                                                             "Authentication Data: %sDefault (%s)",
+                                        proto_tree_add_string_format_value(text_auth_tlv, hf_hsrp2_auth_data, tvb, offset, 8, auth_buf,
+                                                             "%sDefault (%s)",
                                                              (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
                                                              auth_buf);
                                         /* offset += 8; */

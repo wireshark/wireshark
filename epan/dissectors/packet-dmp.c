@@ -1730,9 +1730,9 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
 
     value = tvb_get_ntohs (tvb, offset);
     failure = dmp_dec_xbyte_sic (value, sic, 3, FALSE);
-    sf = proto_tree_add_string_format (message_tree, hf_message_sic, tvb,
+    sf = proto_tree_add_string_format_value(message_tree, hf_message_sic, tvb,
                                        offset, 2, sic,
-                                       "SIC: %s [A-Z0-9 only]%s", sic,
+                                       "%s [A-Z0-9 only]%s", sic,
                                        failure ? " (invalid)": "");
     if (failure) {
       expert_add_info(pinfo, sf, &ei_message_sic_illegal);
@@ -1745,9 +1745,9 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
     value = tvb_get_ntohl (tvb, offset);
     value = (value >> 8) & 0x48FFFF;
     failure = dmp_dec_xbyte_sic (value, sic, 3, TRUE);
-    sf = proto_tree_add_string_format (message_tree, hf_message_sic, tvb,
+    sf = proto_tree_add_string_format_value(message_tree, hf_message_sic, tvb,
                                        offset, 3, sic,
-                                       "SIC: %s [any character]%s", sic,
+                                       "%s [any character]%s", sic,
                                        failure ? " (invalid)": "");
     if (failure) {
       expert_add_info(pinfo, sf, &ei_message_sic_illegal);

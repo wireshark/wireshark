@@ -607,8 +607,8 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           type_str = "Unknown";
       }
     }
-    proto_tree_add_string_format(rtmac_tree, hf_rtmac_header_type, tvb, offset, 2,
-                                 type_str, "Type: %s (0x%04x)", type_str, type);
+    proto_tree_add_string_format_value(rtmac_tree, hf_rtmac_header_type, tvb, offset, 2,
+                                 type_str, "%s (0x%04x)", type_str, type);
     offset += 2;
 
     proto_tree_add_item(rtmac_tree, hf_rtmac_header_ver, tvb, offset, 1, ENC_BIG_ENDIAN);

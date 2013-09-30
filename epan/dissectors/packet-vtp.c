@@ -179,9 +179,9 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 4;
 
 		upd_timestamp = tvb_get_string(wmem_packet_scope(), tvb, offset, 12);
-		proto_tree_add_string_format(vtp_tree, hf_vtp_upd_ts, tvb,
+		proto_tree_add_string_format_value(vtp_tree, hf_vtp_upd_ts, tvb,
 			offset, 12, (gchar*)upd_timestamp,
-			"Update Timestamp: %.2s-%.2s-%.2s %.2s:%.2s:%.2s",
+			"%.2s-%.2s-%.2s %.2s:%.2s:%.2s",
 			&upd_timestamp[0], &upd_timestamp[2], &upd_timestamp[4],
 			&upd_timestamp[6], &upd_timestamp[8], &upd_timestamp[10]);
 		offset += 12;

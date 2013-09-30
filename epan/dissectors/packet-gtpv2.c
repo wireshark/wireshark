@@ -4534,7 +4534,7 @@ dissect_gtpv2_mbms_service_area(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     real_nr = (guint16)binary_nr + 1;
 
     /* 3GPP TS 29.061 17.7.6 MBMS-Service-Area AVP */
-    proto_tree_add_string_format(tree, hf_gtpv2_mbms_service_area_nr, tvb, offset, 1, "", "Number of MBMS Service Area codes: %d", real_nr);
+    proto_tree_add_uint(tree, hf_gtpv2_mbms_service_area_nr, tvb, offset, 1, real_nr);
     offset += 1;
 
     /* A consecutive list of MBMS Service Area Identities follow, each with a length of two octets. */
@@ -4747,7 +4747,7 @@ dissect_gtpv2_mbms_time_to_data_xfer(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     binary_secs = tvb_get_guint8(tvb, offset);
     real_secs = (guint16)binary_secs + 1;
 
-    proto_tree_add_string_format(tree, hf_gtpv2_time_to_data_xfer, tvb, offset, 1, "", "MBMS Time to Data Transfer: %d second(s)", real_secs);
+    proto_tree_add_string_format_value(tree, hf_gtpv2_time_to_data_xfer, tvb, offset, 1, "", "%d second(s)", real_secs);
     proto_item_append_text(item, " %u second(s)", real_secs);
     offset += 1;
     if (length > 1)
@@ -6753,7 +6753,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_mbms_service_area_nr,
           {"Number of MBMS Service Area codes", "gtpv2.mbms_service_area_nr",
-          FT_STRING, BASE_NONE, NULL, 0x0,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
         { &hf_gtpv2_mbms_service_area_id,

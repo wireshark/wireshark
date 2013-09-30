@@ -2703,9 +2703,9 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	if (tree) {
 	        char* value = print_system_id( tvb_get_ptr(tvb, offset, id_length+2),
 				    id_length+2);
-		proto_tree_add_string_format(lsp_tree, hf_isis_lsp_lsp_id,
+		proto_tree_add_string_format_value(lsp_tree, hf_isis_lsp_lsp_id,
 			tvb, offset, id_length + 2,
-			value, "LSP-ID: %s", value);
+			value, "%s", value);
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP-ID: %s",

@@ -1178,8 +1178,8 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 				0, 0, nns->name);
 			PROTO_ITEM_SET_HIDDEN(fh_item);
 		} else {
-			fh_item=proto_tree_add_string_format(tree, hf_nfs_name, tvb,
-				fh_offset, 0, nns->name, "Name: %s", nns->name);
+			fh_item=proto_tree_add_string_format_value(tree, hf_nfs_name, tvb,
+				fh_offset, 0, nns->name, "%s", nns->name);
 		}
 		PROTO_ITEM_SET_GENERATED(fh_item);
 
@@ -1189,8 +1189,8 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 					0, 0, nns->full_name);
 				PROTO_ITEM_SET_HIDDEN(fh_item);
 			} else {
-				fh_item=proto_tree_add_string_format(tree, hf_nfs_full_name, tvb,
-					fh_offset, 0, nns->full_name, "Full Name: %s", nns->full_name);
+				fh_item=proto_tree_add_string_format_value(tree, hf_nfs_full_name, tvb,
+					fh_offset, 0, nns->full_name, "%s", nns->full_name);
 			}
 			PROTO_ITEM_SET_GENERATED(fh_item);
 		}

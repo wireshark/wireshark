@@ -2847,13 +2847,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					 * lookup in "media_type" dissector table.
 					 */
 					case POS_CONTENT_TYPE :
-						if(hdr_tree) {
-							proto_tree_add_string_format(hdr_tree,
+						proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
 							                             tvb_format_text(tvb, offset, linelen));
-						}
 						content_type_len = value_len;
 						semi_colon_offset = tvb_find_guint8(tvb, value_offset, value_len, ';');
 						/* Content-Type     =  ( "Content-Type" / "c" ) HCOLON media-type
@@ -2911,15 +2909,14 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						 *                   ( STAR / (contact-param *(COMMA contact-param)))
 						 * contact-param  =  (name-addr / addr-spec) *(SEMI contact-params)
 						 */
-						if(hdr_tree) {
-							sip_element_item = proto_tree_add_string_format(hdr_tree,
+						sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                   hf_header_array[hf_index], tvb,
 							                   offset, next_offset - offset,
 							                   value, "%s",
 							                   tvb_format_text(tvb, offset, linelen));
-							sip_element_tree = proto_item_add_subtree( sip_element_item,
+						sip_element_tree = proto_item_add_subtree( sip_element_item,
 							                   ett_sip_element);
-						}
+
 						/* value_offset points to the first non SWS character after ':' */
 						c = tvb_get_guint8(tvb, value_offset);
 						if (c =='*'){
@@ -3078,26 +3075,23 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						/* Content-Encoding  =  ( "Content-Encoding" / "e" ) HCOLON
 						 * content-coding *(COMMA content-coding)
 						 */
-						if(hdr_tree) {
-							proto_tree_add_string_format(hdr_tree,
+						proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
 							                             tvb_format_text(tvb, offset, linelen));
-						}
+
 						content_encoding_parameter_str = ascii_strdown_inplace(tvb_get_string(wmem_packet_scope(), tvb, value_offset,
 							                             (line_end_offset-value_offset)));
 						break;
 					default :
 						/* Default case is to assume it's an FT_STRING field */
-						if(hdr_tree) {
-							proto_tree_add_string_format(hdr_tree,
+						proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
 							                             tvb_format_text(tvb, offset, linelen));
-						}
-					break;
+						break;
 				}/* end switch */
 			}/*if HF_index */
 		}/* if colon_offset */

@@ -511,8 +511,8 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     str_num = t30_get_string_numbers(tvb, offset, len);
     if (str_num) {
-        proto_tree_add_string_format(tree, hf_t30_fif_number, tvb, offset, LENGTH_T30_NUM, str_num,
-                                     "Number: %s", str_num);
+        proto_tree_add_string_format_value(tree, hf_t30_fif_number, tvb, offset, LENGTH_T30_NUM, str_num,
+                                     "%s", str_num);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " - Number:%s", str_num );
 
@@ -640,8 +640,8 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     proto_tree_add_uint(tree, hf_t30_partial_page_request_frame_count, tvb, offset, 1, frame_count);
     if (buf_top > buf+1) {
         buf_top[-2] = '\0';
-        proto_tree_add_string_format(tree, hf_t30_partial_page_request_frames, tvb, offset, (gint)(buf_top-buf),
-                                     buf, "Frames: %s", buf);
+        proto_tree_add_string_format_value(tree, hf_t30_partial_page_request_frames, tvb, offset, (gint)(buf_top-buf),
+                                     buf, "%s", buf);
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %d frames", frame_count);

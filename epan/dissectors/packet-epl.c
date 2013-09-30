@@ -682,6 +682,15 @@ gboolean show_soc_flags = FALSE;
 /* Define the tap for epl */
 /*static gint epl_tap = -1;*/
 
+static void
+elp_version( gchar *result, guint32 version )
+{
+/*
+    proto_tree_add_string_format_value(epl_tree, hf_epl_soa_eplv, tvb, offset,
+        1, "", "EPLVersion %d.%d",  hi_nibble(eplversion), lo_nibble(eplversion));
+*/
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d", hi_nibble(version), lo_nibble(version));
+}
 
 /* Code to actually dissect the packets */
 static int
@@ -927,8 +936,7 @@ dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
     offset += 2;
 
     pdoversion = tvb_get_guint8(tvb, offset);
-    proto_tree_add_string_format(epl_tree, hf_epl_preq_pdov, tvb, offset,
-        1, "", "PDOVersion %d.%d",  hi_nibble(pdoversion), lo_nibble(pdoversion));
+    proto_tree_add_item(epl_tree, hf_epl_preq_pdov, tvb, offset, 1, ENC_NA);
     offset += 2;
 
     /* get size of payload */
@@ -979,8 +987,7 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
     offset += 1;
 
     pdoversion = tvb_get_guint8(tvb, offset);
-    proto_tree_add_string_format(epl_tree, hf_epl_pres_pdov, tvb, offset,
-        1, "", "PDOVersion %d.%d",  hi_nibble(pdoversion), lo_nibble(pdoversion));
+    proto_tree_add_item(epl_tree, hf_epl_pres_pdov, tvb, offset, 1, ENC_NA);
     offset += 2;
 
     /* get size of payload */
@@ -1005,7 +1012,6 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 gint
 dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset)
 {
-    guint8 eplversion;
     guint8 svid, target;
 
     if (epl_src != EPL_MN_NODEID)   /* check if CN or MN */
@@ -1036,9 +1042,7 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
                         target, val_to_str(svid, soa_svid_vals, "Unknown (%d)"));
     }
 
-    eplversion = tvb_get_guint8(tvb, offset);
-    proto_tree_add_string_format(epl_tree, hf_epl_soa_eplv, tvb, offset,
-        1, "", "EPLVersion %d.%d",  hi_nibble(eplversion), lo_nibble(eplversion));
+    proto_tree_add_item(epl_tree, hf_epl_soa_eplv, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     return offset;
@@ -1092,7 +1096,7 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 gint
 dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset)
 {
-    guint8 svid, svtg, eplversion;
+    guint8 svid;
     proto_item *item;
     proto_tree *subtree;
 
@@ -1138,14 +1142,9 @@ dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
             break;
 
         case EPL_SOA_UNSPECIFIEDINVITE:
-            svtg = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint (epl_tree, hf_epl_asnd_svtg, tvb, offset, 1, svtg );
+            proto_tree_add_item(epl_tree, hf_epl_asnd_svtg, tvb, offset, 1, ENC_NA );
             offset += 1;
-
-            eplversion = tvb_get_guint8(tvb, offset);
-            proto_tree_add_string_format(epl_tree, hf_epl_soa_eplv, tvb, offset,
-                1, "", "EPLVersion %d.%d",  hi_nibble(eplversion), lo_nibble(eplversion));
-
+            proto_tree_add_item(epl_tree, hf_epl_soa_eplv, tvb, offset, 1, ENC_NA);
             break;
 
         case EPL_ASND_SDO:
@@ -1220,7 +1219,6 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 gint
 dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset)
 {
-    guint8  eplversion;
     guint16 profile,additional;
     guint32 epl_asnd_identresponse_ipa, epl_asnd_identresponse_snm, epl_asnd_identresponse_gtw;
     guint32 epl_asnd_ires_feat;
@@ -1245,9 +1243,7 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     }
     offset += 2;
 
-    eplversion = tvb_get_guint8(tvb, offset);
-    proto_tree_add_string_format(epl_tree, hf_epl_asnd_identresponse_ever, tvb, offset,
-                                 1, "", "EPLVersion %d.%d",  hi_nibble(eplversion), lo_nibble(eplversion));
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_ever, tvb, offset, 1, ENC_NA);
     offset += 2;
 
     /* decode FeatureFlags */
@@ -1284,8 +1280,8 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
     profile    = tvb_get_letohs(tvb, offset);
     additional = tvb_get_letohs(tvb, offset+2);
-    proto_tree_add_string_format(epl_tree, hf_epl_asnd_identresponse_dt, tvb, offset,
-                                 4, "", "Device Type: Profile %d (%s), Additional Information: 0x%4.4X",
+    proto_tree_add_string_format_value(epl_tree, hf_epl_asnd_identresponse_dt, tvb, offset,
+                                 4, "", "Profile %d (%s), Additional Information: 0x%4.4X",
                                  profile, val_to_str_const(profile, epl_device_profiles, "Unknown Profile"), additional);
 
     proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_profile, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1821,7 +1817,7 @@ proto_register_epl(void)
         },
         { &hf_epl_preq_pdov,
           { "PDOVersion", "epl.preq.pdov",
-            FT_STRING, BASE_NONE, NULL, 0x00,
+            FT_UINT8, BASE_CUSTOM, elp_version, 0x00,
             NULL, HFILL }
         },
         { &hf_epl_preq_size,
@@ -1920,7 +1916,7 @@ proto_register_epl(void)
         },
         { &hf_epl_soa_eplv,
           { "EPLVersion", "epl.soa.eplv",
-            FT_STRING, BASE_NONE, NULL, 0x00,
+            FT_UINT8, BASE_CUSTOM, elp_version, 0x00,
             NULL, HFILL }
         },
 
@@ -1975,7 +1971,7 @@ proto_register_epl(void)
         },
         { &hf_epl_asnd_identresponse_ever,
           { "EPLVersion", "epl.asnd.ires.eplver",
-            FT_STRING, BASE_NONE, NULL, 0x00,
+            FT_UINT8, BASE_CUSTOM, elp_version, 0x00,
             NULL, HFILL }
         },
         { &hf_epl_asnd_identresponse_feat,

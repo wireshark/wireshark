@@ -401,7 +401,6 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
       const gchar *hval;
       guint16 hval_len, hname_len;
       const gchar* hname = NULL;
-      header_field_info *hfinfo;
       int hpos = pos;
       /* int cl = 0; TODO: Content-Length header (encoded by 0x08) is special */
 
@@ -419,12 +418,9 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
         hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-        if (ajp13_tree) {
-          hfinfo = proto_registrar_get_nth(*rsp_headers[hid]);
-          proto_tree_add_string_format(ajp13_tree, *rsp_headers[hid],
+        proto_tree_add_string_format_value(ajp13_tree, *rsp_headers[hid],
                                        tvb, hpos, 2+hval_len+2, hval,
-                                       "%s: %s", hfinfo->name, hval);
-        }
+                                       "%s", hval);
         pos+=hval_len+2;
 #if 0
         /* TODO: Content-Length header (encoded by 0x08) is special */
@@ -437,12 +433,10 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
         hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-        if (ajp13_tree) {
-          proto_tree_add_string_format(ajp13_tree, hf_ajp13_additional_header,
+        proto_tree_add_string_format(ajp13_tree, hf_ajp13_additional_header,
                                 tvb, hpos, hname_len+2+hval_len+2,
                                 wmem_strdup_printf(wmem_packet_scope(), "%s: %s", hname, hval),
                                 "%s: %s", hname, hval);
-        }
         pos+=hval_len+2;
       }
     }
@@ -650,7 +644,6 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     guint8 hcd;
     guint8 hid;
     const gchar* hname = NULL;
-    header_field_info *hfinfo;
     int hpos = pos;
     int cl = 0;
     const gchar *hval;
@@ -670,12 +663,9 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
       hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-      if (ajp13_tree) {
-        hfinfo = proto_registrar_get_nth(*req_headers[hid]);
-        proto_tree_add_string_format(ajp13_tree, *req_headers[hid],
+      proto_tree_add_string_format(ajp13_tree, *req_headers[hid],
                                      tvb, hpos, 2+hval_len+2, hval,
-                                     "%s: %s", hfinfo->name, hval);
-      }
+                                     "%s", hval);
       pos+=hval_len+2;
 
       if (hid == 0x08)
@@ -686,12 +676,10 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
       hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-      if (ajp13_tree) {
-        proto_tree_add_string_format(ajp13_tree, hf_ajp13_additional_header,
+      proto_tree_add_string_format(ajp13_tree, hf_ajp13_additional_header,
                                      tvb, hpos, hname_len+2+hval_len+2,
                                      wmem_strdup_printf(wmem_packet_scope(), "%s: %s", hname, hval),
                                      "%s: %s", hname, hval);
-      }
       pos+=hval_len+2;
     }
 
@@ -709,7 +697,6 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     const gchar* aval;
     guint16 aval_len, aname_len;
 
-    header_field_info *hfinfo;
     int apos = pos;
 
     /* ATTRIBUTE CODE/NAME
@@ -730,12 +717,10 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       aval = ajp13_get_nstring(tvb, pos, &aval_len);
       pos+=aval_len+2;
 
-      if (ajp13_tree) {
-        proto_tree_add_string_format(ajp13_tree, hf_ajp13_req_attribute,
+      proto_tree_add_string_format(ajp13_tree, hf_ajp13_req_attribute,
                                      tvb, apos, 1+aname_len+2+aval_len+2,
                                      wmem_strdup_printf(wmem_packet_scope(), "%s: %s", aname, aval),
                                      "%s: %s", aname, aval);
-      }
     } else if (aid == 0x0B ) {
       /* ssl_key_length */
       if (ajp13_tree) {
@@ -748,15 +733,12 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       if (aid >= array_length(req_attributes))
         aid = 0;
 
-      hfinfo = proto_registrar_get_nth(*req_attributes[aid]);
       aval = ajp13_get_nstring(tvb, pos, &aval_len);
       pos+=aval_len+2;
 
-      if (ajp13_tree) {
-        proto_tree_add_string_format(ajp13_tree, *req_attributes[aid],
+      proto_tree_add_string_format(ajp13_tree, *req_attributes[aid],
                                      tvb, apos, 1+aval_len+2, aval,
-                                     "%s: %s", hfinfo->name, aval);
-      }
+                                     "%s", aval);
     }
   }
 }

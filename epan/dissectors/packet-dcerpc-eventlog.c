@@ -408,7 +408,7 @@ eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *
 		int len;
 		len=eventlog_get_unicode_string_length(tvb, string_offset);
 		str=tvb_get_faked_unicode(wmem_packet_scope(), tvb, string_offset, len, TRUE);
-		proto_tree_add_string_format(tree, hf_eventlog_Record_string, tvb, string_offset, len*2, str, "string: %s", str);
+		proto_tree_add_string_format_value(tree, hf_eventlog_Record_string, tvb, string_offset, len*2, str, "%s", str);
 		string_offset+=len*2;
 	
 		num_of_strings--;

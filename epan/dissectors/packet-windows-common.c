@@ -1698,8 +1698,8 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		tvb, offset_sid_start+2, 6, authority, "%" G_GINT64_MODIFIER "u", authority);
 
 	/* Add subauthorities */
-	proto_tree_add_string_format (subtree, hf_nt_sid_subauth, tvb, sa_offset,
-		num_auth*4, wmem_strbuf_get_str(sa_str), "Subauthorities: %s", wmem_strbuf_get_str(sa_str));
+	proto_tree_add_string_format_value(subtree, hf_nt_sid_subauth, tvb, sa_offset,
+		num_auth*4, wmem_strbuf_get_str(sa_str), "%s", wmem_strbuf_get_str(sa_str));
 
 	if (rid) {
 		item = proto_tree_add_item (subtree,
@@ -1709,23 +1709,23 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 	/* Add well-known SID and domain strings if present */
 	if (wmem_strbuf_get_len(wkwn_sid1_str) > 0) {
-		hidden_item = proto_tree_add_string_format(
+		hidden_item = proto_tree_add_string_format_value(
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid1_len,
-			wmem_strbuf_get_str(wkwn_sid1_str), "Well-known SID: %s", wmem_strbuf_get_str(wkwn_sid1_str));
+			wmem_strbuf_get_str(wkwn_sid1_str), "%s", wmem_strbuf_get_str(wkwn_sid1_str));
 		proto_item_append_text(hidden_item, "  (%s)", mapped_name);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 	if (wmem_strbuf_get_len(wkwn_sid2_str) > 0) {
-		hidden_item = proto_tree_add_string_format(
+		hidden_item = proto_tree_add_string_format_value(
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid2_len,
-			wmem_strbuf_get_str(wkwn_sid2_str), "Well-known SID: %s", wmem_strbuf_get_str(wkwn_sid2_str));
+			wmem_strbuf_get_str(wkwn_sid2_str), "%s", wmem_strbuf_get_str(wkwn_sid2_str));
 		proto_item_append_text(hidden_item, "  (%s)", wmem_strbuf_get_str(label_str));
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 	if (domain_sid && wmem_strbuf_get_len(domain_str) > 0) {
-		hidden_item = proto_tree_add_string_format(
+		hidden_item = proto_tree_add_string_format_value(
 			subtree, hf_nt_sid_domain, tvb, offset_sid_start + 12, 12,
-			wmem_strbuf_get_str(domain_str), "Domain: %s", wmem_strbuf_get_str(domain_str));
+			wmem_strbuf_get_str(domain_str), "%s", wmem_strbuf_get_str(domain_str));
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
@@ -2892,7 +2892,7 @@ proto_do_register_windows_common(int proto_smb)
 		  NULL, 0, NULL, HFILL }},
 
 		{ &hf_nt_sid_domain,
-		  { "Domain:", "nt.sid.domain", FT_STRING, BASE_NONE,
+		  { "Domain", "nt.sid.domain", FT_STRING, BASE_NONE,
 		  NULL, 0, NULL, HFILL }},
 
 		/* ACLs */

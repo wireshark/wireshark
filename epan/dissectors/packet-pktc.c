@@ -431,9 +431,8 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
     /* Timestamp: YYMMDDhhmmssZ */
     /* They really came up with a two-digit year in late 1990s! =8o */
     timestr=tvb_get_ptr(tvb, offset, 13);
-    proto_tree_add_string_format(tree, hf_pktc_timestamp, tvb, offset, 13, timestr,
-                                "%s: %.2s-%.2s-%.2s %.2s:%.2s:%.2s",
-                                proto_registrar_get_name(hf_pktc_timestamp),
+    proto_tree_add_string_format_value(tree, hf_pktc_timestamp, tvb, offset, 13, timestr,
+                                "%.2s-%.2s-%.2s %.2s:%.2s:%.2s",
 				 timestr, timestr+2, timestr+4, timestr+6, timestr+8, timestr+10);
     offset+=13;
 
