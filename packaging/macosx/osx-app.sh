@@ -209,7 +209,8 @@ resdir=`pwd`
 pkgexec="$package/Contents/MacOS"
 pkgres="$package/Contents/Resources"
 pkgbin="$pkgres/bin"
-pkglib="$package/Contents/Frameworks"
+# Should pkglib be Contents/Frameworks instead?
+pkglib="$pkgres/lib"
 pkgplugin="$pkglib/wireshark/plugins"
 pkgpython="$pkglib/wireshark/python"
 
@@ -400,7 +401,7 @@ elif [ "$ui_toolkit" = "qt" ] ; then
 	lib_dep_search_list="
 		$pkgexec/Wireshark
 		$lib_dep_search_list
-		$pkglib/Qt*.framework/Versions/[0-9]*/*
+		$pkglib/Qt*.framework/Versions/[0-9]*/Qt*
 		"
 fi
 
@@ -493,6 +494,29 @@ rpathify_file () {
 				echo "Changing reference to $lib in $1"
 				/usr/bin/install_name_tool -change $lib $to $1
 			done
+			#
+			# Rewrite framework paths
+			#
+			if [ "$ui_toolkit" = "qt" ] ; then
+				frameworks="`otool -L $1 | egrep "Qt.*framework/.* \(compatibility" | cut -d\( -f1`"
+				for fwk in $frameworks ; do
+					#
+					# Get the file name of the framework.
+					#
+					base=`echo $fwk | awk 'BEGIN{FS="/";OFS="/"} {print $(NF-3), $(NF-2), $(NF-1), $NF}'`
+					#
+					# The library will end up in a directory in
+					# the rpath; this is what we should change its
+					# file name to.
+					#
+					to=@rpath/$base
+					#
+					# Change the reference to that library.
+					#
+					echo "Changing reference to $fwk in $1"
+					/usr/bin/install_name_tool -change $fwk $to $1
+				done
+			fi
 			;;
 		esac
 	fi
@@ -534,8 +558,8 @@ rpathify_files () {
 	rpathify_dir "$pkgbin" "*"
 	if [ "$ui_toolkit" = "qt" ] ; then
 		rpathify_dir "$pkgexec" "Wireshark"
-		for fwk_dir in "$pkglib/Qt*.framework/Versions/[0-9]*" ; do
-			rpathify_dir "$fwk_dir" "*"
+		for fwk_dir in $pkglib/Qt*.framework/Versions/[0-9]* ; do
+			rpathify_dir "$fwk_dir" "Qt*"
 		done
 	fi
 }

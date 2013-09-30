@@ -1075,7 +1075,7 @@ darwin*)
 	# libraries in the rpath, rather than having a script tweak
 	# DYLD_LIBRARY_PATH.
 	#
-	LDFLAGS="-Wl,-search_paths_first -Wl,-rpath,@executable_path/../lib -Wl,-rpath,/usr/local/lib $LDFLAGS"
+	LDFLAGS="-Wl,-search_paths_first -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../Resources/lib -Wl,-rpath,/usr/local/lib $LDFLAGS"
 	AC_MSG_RESULT([Apple linker - added -Wl,-single_module and -Wl,-search_paths_first, and rpaths])
 	;;
 cygwin*)
