@@ -207,7 +207,7 @@ resdir=`pwd`
 #----------------------------------------------------------
 pkgexec="$package/Contents/MacOS"
 pkgres="$package/Contents/Resources"
-pkgbin="$pkgres/bin"
+pkgbin="$pkgexec"
 # Should pkglib be Contents/Frameworks instead?
 #pkglib="$pkgres/lib"
 pkglib="$package/Contents/Frameworks"
@@ -245,16 +245,23 @@ fi
 echo -e "\nFilling app bundle and utility directory...\n"
 
 # Wireshark executables
-cp -v utility-launcher "$cli_dir/$binary"
-for binary in $binary_list ; do
-	# Copy the binary to its destination
-	dest_path="$pkgbin/$binary-bin"
-	cp -v "$binary_path/$binary" "$dest_path"
-	# TODO Add a "$verbose" variable and command line switch, which sets wether these commands are verbose or not
+if [ "$ui_toolkit" = "gtk" ] ; then
+	cp -v utility-launcher "$cli_dir/$binary"
+	for binary in $binary_list ; do
+		# Copy the binary to its destination
+		dest_path="$pkgbin/$binary-bin"
+		cp -v "$binary_path/$binary" "$dest_path"
+		# TODO Add a "$verbose" variable and command line switch, which sets wether these commands are verbose or not
 
-	ln -sv ./wireshark "$pkgbin/$binary"
-	ln -sv ./wireshark "$cli_dir/$binary"
-done
+		ln -sv ./wireshark "$pkgbin/$binary"
+		ln -sv ./wireshark "$cli_dir/$binary"
+	done
+elif [ "$ui_toolkit" = "qt" ] ; then
+	for binary in $binary_list ; do
+		# Copy the binary to its destination
+		cp -v "$binary_path/$binary" "$pkgexec"
+	done
+fi
 
 # ChmodBPF
 mkdir -p "$chmodbpf_dir"
