@@ -25,7 +25,7 @@
 
 /* Dissector based on MBIM specification 1.0 Errata-1
  * http://www.usb.org/developers/devclass_docs/MBIM10Errata1_073013.zip */
- 
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -589,7 +589,7 @@ static const value_string mbim_service_id_vals[] = {
 
 #define MBIM_CID_DEVICE_CAPS                   1
 #define MBIM_CID_SUBSCRIBER_READY_STATUS       2
-#define MBIM_CID_RADIO_STATE                   3 
+#define MBIM_CID_RADIO_STATE                   3
 #define MBIM_CID_PIN                           4
 #define MBIM_CID_PIN_LIST                      5
 #define MBIM_CID_HOME_PROVIDER                 6
@@ -1181,7 +1181,7 @@ mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     tvb_get_ntohguid(tvb, *offset, &uuid);
 
-    for (i = 0; i < (sizeof(mbim_uuid_service_id_vals)/sizeof(struct mbim_uuid)); i++) {
+    for (i = 0; i < array_length(mbim_uuid_service_id_vals); i++) {
         if (memcmp(&uuid, &(mbim_uuid_service_id_vals[i].uuid), sizeof(e_guid_t)) == 0) {
             break;
         }
@@ -1656,7 +1656,7 @@ mbim_dissect_context_type_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     tvb_get_ntohguid(tvb, *offset, &uuid);
 
-    for (i = 0; i < (sizeof(mbim_uuid_context_type_vals)/sizeof(struct mbim_uuid)); i++) {
+    for (i = 0; i < array_length(mbim_uuid_context_type_vals); i++) {
         if (memcmp(&uuid, &(mbim_uuid_context_type_vals[i].uuid), sizeof(e_guid_t)) == 0) {
             break;
         }
@@ -2879,7 +2879,7 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MBIM");
     col_clear(pinfo->cinfo, COL_INFO);
-    
+
     ti = proto_tree_add_item(tree, proto_mbim, tvb, 0, -1, ENC_NA);
     mbim_tree = proto_item_add_subtree(ti, ett_mbim);
 
@@ -5707,3 +5707,16 @@ proto_reg_handoff_mbim(void)
     proactive_handle = find_dissector("gsm_sim.bertlv");
     etsi_cat_handle = find_dissector("etsi_cat");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
