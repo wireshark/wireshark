@@ -96,10 +96,6 @@ unix {
     PKGCONFIG += \
         glib-2.0
 
-    packagesExist(portaudio-2.0) {
-        PKGCONFIG += portaudio-2.0
-    }
-
     # Some versions of Ubuntu don't ship with zlib.pc
     !macx {
         eval(PKGCONFIG += zlib) {
@@ -232,27 +228,6 @@ FORMS += \
     uat_dialog.ui \
     tcp_stream_dialog.ui
 
-win32 { ## These should be in config.pri ??
-    !isEmpty(PORTAUDIO_DIR) {
-        PA_OBJECTS = \
-            ../gtk/pa_allocation.obj \
-            ../gtk/pa_converters.obj \
-            ../gtk/pa_cpuload.obj \
-            ../gtk/pa_dither.obj \
-            ../gtk/pa_front.obj \
-            ../gtk/pa_process.obj \
-            ../gtk/pa_skeleton.obj \
-            ../gtk/pa_stream.obj \
-            ../gtk/pa_trace.obj \
-            ../gtk/pa_win_wmme.obj \
-            ../gtk/pa_win_hostapis.obj \
-            ../gtk/pa_win_util.obj \
-            ../gtk/pa_win_waveformat.obj \
-            ../gtk/pa_x86_plain_converters.obj
-        PA_OBJECTS ~= s,/,\\,g
-    }
-}
-
 HEADERS += $$HEADERS_WS_C \
     accordion_frame.h \
     capture_preferences_frame.h \
@@ -278,7 +253,6 @@ HEADERS += $$HEADERS_WS_C \
     uat_dialog.h \
     elided_label.h \
     tcp_stream_dialog.h
-
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C

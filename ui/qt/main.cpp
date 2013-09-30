@@ -36,10 +36,6 @@
 #  include <getopt.h>
 #endif
 
-#ifdef HAVE_LIBPORTAUDIO
-#  include <portaudio.h>
-#endif /* HAVE_LIBPORTAUDIO */
-
 #include <wsutil/crash_info.h>
 #include <wsutil/u3.h>
 #include <wsutil/file_util.h>
@@ -418,16 +414,7 @@ get_gui_compiled_info(GString *str)
   epan_get_compiled_version_info(str);
 
   g_string_append(str, ", ");
-#ifdef HAVE_LIBPORTAUDIO
-#ifdef PORTAUDIO_API_1
-  g_string_append(str, "with PortAudio <= V18");
-#else /* PORTAUDIO_API_1 */
-  g_string_append(str, "with ");
-  g_string_append(str, Pa_GetVersionText());
-#endif /* PORTAUDIO_API_1 */
-#else /* HAVE_LIBPORTAUDIO */
   g_string_append(str, "without PortAudio");
-#endif /* HAVE_LIBPORTAUDIO */
 
   g_string_append(str, ", ");
 #ifdef HAVE_AIRPCAP
