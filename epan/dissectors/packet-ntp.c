@@ -797,9 +797,9 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 * local clock, in seconds to the nearest power of two.
 	 */
 	precision = tvb_get_guint8(tvb, 3);
-	proto_tree_add_int_format(ntp_tree, hf_ntp_precision, tvb, 3, 1,
+	proto_tree_add_int_format_value(ntp_tree, hf_ntp_precision, tvb, 3, 1,
 				   precision,
-				   "Peer Clock Precision: %8.6f sec",
+				   "%8.6f sec",
 				   pow(2, precision));
 
 	/* Root Delay is a 32-bit signed fixed-point number indicating

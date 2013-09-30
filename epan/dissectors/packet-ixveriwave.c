@@ -783,35 +783,35 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
     col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
     if (tree) {
-        proto_tree_add_int_format(tap_tree,
+        proto_tree_add_int_format_value(tap_tree,
                                   hf_radiotap_dbm_antsignal,
                                   tvb, offset, 1, dbm,
-                                  "Signal Power: %d dBm", dbm);
+                                  "%d dBm", dbm);
     }
 
     offset++;
     dbm = (gint8) tvb_get_guint8(tvb, offset);
     if (tree && dbm != 100) {
-        proto_tree_add_int_format(tap_tree,
+        proto_tree_add_int_format_value(tap_tree,
                                   hf_radiotap_dbm_antb,
                                   tvb, offset, 1, dbm,
-                                  "Signal Power for Antenna B: %d dBm", dbm);
+                                  "%d dBm", dbm);
     }
     offset++;
     dbm = (gint8) tvb_get_guint8(tvb, offset);
     if (tree && dbm != 100) {
-        proto_tree_add_int_format(tap_tree,
+        proto_tree_add_int_format_value(tap_tree,
                                   hf_radiotap_dbm_antc,
                                   tvb, offset, 1, dbm,
-                                  "Signal Power for Antenna C: %d dBm", dbm);
+                                  "%d dBm", dbm);
     }
     offset++;
     dbm = (gint8) tvb_get_guint8(tvb, offset);
     if (tree && dbm != 100) {
-        proto_tree_add_int_format(tap_tree,
+        proto_tree_add_int_format_value(tap_tree,
                                   hf_radiotap_dbm_antd,
                                   tvb, offset, 1, dbm,
-                                  "Signal Power for Antenna D: %d dBm", dbm);
+                                  "%d dBm", dbm);
     }
     offset+=2;
 
@@ -1267,22 +1267,22 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_SHORTGI, NULL, HFILL } },
 
     { &hf_radiotap_dbm_antsignal,
-        { "SSI Signal (dBm)", "ixveriwave.dbm_antsignal",
+        { "SSI Signal", "ixveriwave.dbm_antsignal",
         FT_INT32, BASE_DEC, NULL, 0x0,
         "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
 
     { &hf_radiotap_dbm_antb,
-        { "SSI Signal (dBm) from antenna b", "ixveriwave.dbm_antb",
+        { "SSI Signal for Antenna B", "ixveriwave.dbm_antb",
         FT_INT32, BASE_DEC, NULL, 0x0,
         "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
 
     { &hf_radiotap_dbm_antc,
-        { "SSI Signal (dBm) from antenna c", "ixveriwave.dbm_antc",
+        { "SSI Signal for Antenna C", "ixveriwave.dbm_antc",
         FT_INT32, BASE_DEC, NULL, 0x0,
         "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
 
     { &hf_radiotap_dbm_antd,
-        { "SSI Signal (dBm) from antenna d", "ixveriwave.dbm_antd",
+        { "SSI Signal for Antenna D", "ixveriwave.dbm_antd",
         FT_INT32, BASE_DEC, NULL, 0x0,
         "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
 

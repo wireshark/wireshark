@@ -1408,23 +1408,21 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
 			dbm = (gint8)tvb_get_guint8(tvb, offset);
 			col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
-			if (tree) {
-				proto_tree_add_int_format(radiotap_tree,
+			proto_tree_add_int_format_value(radiotap_tree,
 							  hf_radiotap_dbm_antsignal,
 							  tvb, offset, 1, dbm,
-							  "SSI Signal: %d dBm",
+							  "%d dBm",
 							  dbm);
-			}
 			radiotap_info->dbm_antsignal = dbm;
 			break;
 
 		case IEEE80211_RADIOTAP_DBM_ANTNOISE:
 			dbm = (gint8) tvb_get_guint8(tvb, offset);
 			if (tree) {
-				proto_tree_add_int_format(radiotap_tree,
+				proto_tree_add_int_format_value(radiotap_tree,
 							  hf_radiotap_dbm_antnoise,
 							  tvb, offset, 1, dbm,
-							  "SSI Noise: %d dBm",
+							  "%d dBm",
 							  dbm);
 			}
 			radiotap_info->dbm_antnoise = dbm;
@@ -2394,7 +2392,7 @@ void proto_register_radiotap(void)
 		  "Antenna number this frame was sent/received over (starting at 0)", HFILL}},
 
 		{&hf_radiotap_dbm_antsignal,
-		 {"SSI Signal (dBm)", "radiotap.dbm_antsignal",
+		 {"SSI Signal", "radiotap.dbm_antsignal",
 		  FT_INT32, BASE_DEC, NULL, 0x0,
 		  "RF signal power at the antenna from a fixed,"
                   " arbitrary value in decibels from one milliwatt", HFILL}},
@@ -2405,7 +2403,7 @@ void proto_register_radiotap(void)
 		  "RF signal power at the antenna from a fixed, arbitrary value in decibels", HFILL}},
 
 		{&hf_radiotap_dbm_antnoise,
-		 {"SSI Noise (dBm)", "radiotap.dbm_antnoise",
+		 {"SSI Noise", "radiotap.dbm_antnoise",
 		  FT_INT32, BASE_DEC, NULL, 0x0,
 		  "RF noise power at the antenna from a fixed, arbitrary value"
                   " in decibels per one milliwatt", HFILL}},

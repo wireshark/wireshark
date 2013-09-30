@@ -4348,8 +4348,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         override_with_pref = TRUE;
                     }
 
-                    scaled_pi = proto_tree_add_int_format(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2,
-                                                          win_scale, "Window size scaling factor: %d (%s)",
+                    scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2,
+                                                          win_scale, "%d (%s)",
                                                           win_scale,
                                                           (override_with_pref) ? "missing - taken from preference" : "unknown");
                     PROTO_ITEM_SET_GENERATED(scaled_pi);
@@ -4357,12 +4357,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
 
             case -2:
-                scaled_pi = proto_tree_add_int_format(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, tcpd->fwd->win_scale, "Window size scaling factor: %d (no window scaling used)", tcpd->fwd->win_scale);
+                scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, tcpd->fwd->win_scale, "%d (no window scaling used)", tcpd->fwd->win_scale);
                 PROTO_ITEM_SET_GENERATED(scaled_pi);
                 break;
 
             default:
-                scaled_pi = proto_tree_add_int_format(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, 1<<tcpd->fwd->win_scale, "Window size scaling factor: %d", 1<<tcpd->fwd->win_scale);
+                scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, 1<<tcpd->fwd->win_scale, "%d", 1<<tcpd->fwd->win_scale);
                 PROTO_ITEM_SET_GENERATED(scaled_pi);
             }
         }

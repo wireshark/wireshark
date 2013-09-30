@@ -248,9 +248,9 @@ static void dissect_wlan_if_stats(guint32 starting_offset, proto_item *parent_tr
             hf_waveagent_ifwlannoise, tvb, starting_offset + 48, 4, ENC_BIG_ENDIAN);
     }
     else {
-        proto_tree_add_int_format(parent_tree,
+        proto_tree_add_int_format_value(parent_tree,
             hf_waveagent_ifwlannoise, tvb, starting_offset + 48, 4, noise_floor,
-            "WLAN Interface Noise Floor (dBm): Not Reported");
+            "Not Reported");
     }
 
     phy_types_bitfield = tvb_get_ntohl(tvb, starting_offset + 52);
