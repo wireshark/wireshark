@@ -710,7 +710,7 @@ dissect_openflow_features_reply_v1_3(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     offset+=4;
 
     proto_tree_add_item(tree, hf_openflow_padd32, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset+=4;
+    /*offset+=4;*/
 
 }
 
