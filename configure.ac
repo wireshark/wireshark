@@ -1137,7 +1137,6 @@ esac
 AC_SUBST(APPLICATIONSERVICES_FRAMEWORKS)
 AC_SUBST(SYSTEMCONFIGURATION_FRAMEWORKS)
 AC_SUBST(COREFOUNDATION_FRAMEWORKS)
-AC_SUBST(OSX_APP_FLAGS)
 
 #
 # On Solaris, check whether we have getexecname().
@@ -1346,6 +1345,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
 			have_qt=yes		
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-qt"
+			OSX_APP_FLAGS="$OSX_APP_FLAGS -qt"
 		],
 		[AC_MSG_ERROR([Qt is not available])])
 
@@ -1700,6 +1700,7 @@ AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
 AM_CONDITIONAL(HAVE_Qt, test "$have_qt" = "yes")
 AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
+AC_SUBST(OSX_APP_FLAGS)
 
 
 # Enable/disable tshark
