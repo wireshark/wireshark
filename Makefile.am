@@ -809,10 +809,12 @@ EXTRA_DIST = \
 	image/minus-8.png			\
 	image/nsis-checked.bmp			\
 	image/nsis-unchecked.bmp		\
+	image/openhand-16.png			\
 	image/plus-8.png			\
 	image/rawshark.rc.in			\
 	image/README.image			\
 	image/reordercap.rc.in			\
+	image/rubberband-16.png			\
 	image/status.qrc			\
 	image/stock_dialog_error_48.xpm		\
 	image/stock_dialog_info_48.xpm		\
