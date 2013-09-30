@@ -445,9 +445,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 
 		if (show_file_off) {
-			proto_tree_add_int64_format(fh_tree, hf_frame_file_off, tvb,
+			proto_tree_add_int64_format_value(fh_tree, hf_frame_file_off, tvb,
 						    0, 0, pinfo->fd->file_off,
-						    "File Offset: %" G_GINT64_MODIFIER "d (0x%" G_GINT64_MODIFIER "x)",
+						    "%" G_GINT64_MODIFIER "d (0x%" G_GINT64_MODIFIER "x)",
 						    pinfo->fd->file_off, pinfo->fd->file_off);
 		}
 
