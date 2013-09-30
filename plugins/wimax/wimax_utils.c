@@ -2215,7 +2215,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				/* TODO: Find a way to get the correct service type from the TLV */
 				tlv_value = tvb_get_guint8(tvb, offset);
 				set_service_type( tlv_value );
-				tlv_tree = add_tlv_subtree(&tlv_info, tree, hf_sfe_ul_grant_scheduling, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
+				add_tlv_subtree(&tlv_info, tree, hf_sfe_ul_grant_scheduling, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_TX_POLICY:
 				/* add TLV subtree */
@@ -2817,7 +2817,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				wimax_sa_descriptor_decoder(tvb_new_subset_length(tvb, offset, tlv_len), pinfo, tlv_tree);
 			break;
 			case PKM_ATTR_SA_TYPE:
-				tlv_tree = add_tlv_subtree(&tlv_info, tree, hf_pkm_sa_type, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
+				add_tlv_subtree(&tlv_info, tree, hf_pkm_sa_type, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETERS:
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, proto_wimax_utility_decoders, tvb, offset-tlv_value_offset, tlv_len, "Security Negotiation Parameters");
