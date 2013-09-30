@@ -2896,7 +2896,7 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_clear(pinfo->cinfo, COL_INFO);
 
     conversation = find_or_create_conversation(pinfo);
-    mbim_conv = conversation_get_proto_data(conversation, proto_mbim);
+    mbim_conv = (struct mbim_conv_info *)conversation_get_proto_data(conversation, proto_mbim);
     if (!mbim_conv) {
         mbim_conv = wmem_new(wmem_file_scope(), struct mbim_conv_info);
         mbim_conv->trans = wmem_tree_new(wmem_file_scope());
@@ -2962,7 +2962,7 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     mbim_info->resp_frame = 0;
                     wmem_tree_insert32(mbim_conv->trans, trans_id, mbim_info);
                 } else {
-                    mbim_info = wmem_tree_lookup32(mbim_conv->trans, trans_id);
+                    mbim_info = (struct mbim_info *)wmem_tree_lookup32(mbim_conv->trans, trans_id);
                     if (mbim_info && mbim_info->resp_frame) {
                         proto_item *resp_it;
 
@@ -3369,12 +3369,12 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                 if (msg_type == MBIM_COMMAND_DONE) {
                     if (!PINFO_FD_VISITED(pinfo)) {
-                        mbim_info = wmem_tree_lookup32(mbim_conv->trans, trans_id);
+                        mbim_info = (struct mbim_info *)wmem_tree_lookup32(mbim_conv->trans, trans_id);
                         if (mbim_info) {
                             mbim_info->resp_frame = PINFO_FD_NUM(pinfo);
                         }
                     } else {
-                        mbim_info = wmem_tree_lookup32(mbim_conv->trans, trans_id);
+                        mbim_info = (struct mbim_info *)wmem_tree_lookup32(mbim_conv->trans, trans_id);
                         if (mbim_info && mbim_info->req_frame) {
                             proto_item *req_it;
 
