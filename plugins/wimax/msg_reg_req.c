@@ -305,7 +305,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 			add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_max_classifiers, tvb, offset, ENC_BIG_ENDIAN);
 			break;
 		case REG_PHS_SUPPORT:
-			tlv_tree = add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_phs, tvb, offset, ENC_BIG_ENDIAN);
+			add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_phs, tvb, offset, ENC_BIG_ENDIAN);
 			break;
 		case REG_ARQ_SUPPORT:
 			add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_arq, tvb, offset, ENC_BIG_ENDIAN);
