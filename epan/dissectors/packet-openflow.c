@@ -374,7 +374,7 @@ static const value_string openflow_1_3_type_values[] = {
 
 
 #define OFPAT_OUTPUT         0 /* Output to switch port. */
-#define OFPAT_SET_VLAN_VID	 1 /* Set the 802.1q VLAN id. */
+#define OFPAT_SET_VLAN_VID   1 /* Set the 802.1q VLAN id. */
 #define OFPAT_SET_VLAN_PCP   2 /* Set the 802.1q priority. */
 #define OFPAT_STRIP_VLAN     3 /* Strip the 802.1q header. */
 #define OFPAT_SET_DL_SRC     4 /* Ethernet source address. */
@@ -424,7 +424,7 @@ dissect_openflow_ofp_match_v_1_0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_text(tree, tvb, offset, 18, "Data not dissected yet");
     offset +=18;
 
-	return offset;
+    return offset;
 }
 
 
@@ -653,17 +653,17 @@ dissect_openflow_features_reply_v1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 /* Switch features. /
 struct ofp_switch_features {
-	struct ofp_header header;
-	uint64_t datapath_id; / Datapath unique ID. The lower 48-bits are for
-	a MAC address, while the upper 16-bits are
-	implementer-defined. /
-	uint32_t n_buffers; / Max packets buffered at once. /
-	uint8_t n_tables; / Number of tables supported by datapath. /
-	uint8_t auxiliary_id; / Identify auxiliary connections /
-	uint8_t pad[2]; / Align to 64-bits. /
-	/ Features. /
-	uint32_t capabilities; / Bitmap of support "ofp_capabilities". /
-	uint32_t reserved;
+    struct ofp_header header;
+    uint64_t datapath_id; / Datapath unique ID. The lower 48-bits are for
+    a MAC address, while the upper 16-bits are
+    implementer-defined. /
+    uint32_t n_buffers; / Max packets buffered at once. /
+    uint8_t n_tables; / Number of tables supported by datapath. /
+    uint8_t auxiliary_id; / Identify auxiliary connections /
+    uint8_t pad[2]; / Align to 64-bits. /
+    / Features. /
+    uint32_t capabilities; / Bitmap of support "ofp_capabilities". /
+    uint32_t reserved;
 };
 OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);
 */
@@ -685,14 +685,14 @@ dissect_openflow_features_reply_v1_3(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     proto_tree_add_item(tree, hf_openflow_n_buffers, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-	/* Number of tables supported by datapath. */
+    /* Number of tables supported by datapath. */
     proto_tree_add_item(tree, hf_openflow_n_tables, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-	/* Identify auxiliary connections */
+    /* Identify auxiliary connections */
     proto_tree_add_item(tree, hf_openflow_auxiliary_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-	/* Align to 64-bits. */
+    /* Align to 64-bits. */
     proto_tree_add_item(tree, hf_openflow_padd16, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
@@ -810,67 +810,67 @@ uint8_t body[0]; / Body of the request. /
 static void
 dissect_openflow_multipart_request_v1_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-	guint16 type;
+    guint16 type;
 
-	/* type */
-	type = tvb_get_ntohs(tvb, offset);
+    /* type */
+    type = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_openflow_multipart_type , tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
-	/* uint16_t flags OFPMPF_REQ_* flags. */
+    /* uint16_t flags OFPMPF_REQ_* flags. */
     proto_tree_add_item(tree, hf_openflow_multipart_request_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     proto_tree_add_item(tree, hf_openflow_padd32, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-	switch(type){
-	case OFPMP_DESC: /* 0 */
-		/* The request body is empty. */
-		break;
-	case OFPMP_FLOW:
-		/* The request body is struct ofp_flow_stats_request. */
-		proto_tree_add_text(tree, tvb, offset, -1, "struct ofp_flow_stats_request - not dissected yet");
-		break;
-	default:
-		if(length>16)
-			proto_tree_add_text(tree, tvb, offset, -1, "Type - not dissected yet");
-		break;
-	}
+    switch(type){
+    case OFPMP_DESC: /* 0 */
+        /* The request body is empty. */
+        break;
+    case OFPMP_FLOW:
+        /* The request body is struct ofp_flow_stats_request. */
+        proto_tree_add_text(tree, tvb, offset, -1, "struct ofp_flow_stats_request - not dissected yet");
+        break;
+    default:
+        if(length>16)
+            proto_tree_add_text(tree, tvb, offset, -1, "Type - not dissected yet");
+        break;
+    }
 
 }
 
 static void
 dissect_openflow_multipart_reply_v1_3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
-	guint16 type;
+    guint16 type;
 
-	/* type */
-	type = tvb_get_ntohs(tvb, offset);
+    /* type */
+    type = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_openflow_multipart_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
-	/* uint16_t flags OFPMPF_REPLY_* flags. */
+    /* uint16_t flags OFPMPF_REPLY_* flags. */
     proto_tree_add_item(tree, hf_openflow_multipart_reply_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     proto_tree_add_item(tree, hf_openflow_padd32, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-	switch(type){
-	case OFPMP_DESC: /* 0 */
-		/* The reply body is struct ofp_desc. */
-		proto_tree_add_text(tree, tvb, offset, -1, "struct ofp_desc - not dissected yet");
-		break;
-	case OFPMP_FLOW:
-		/* The reply body is an array of struct ofp_flow_stats */
-		proto_tree_add_text(tree, tvb, offset, -1, "struct ofp_flow_stats - not dissected yet");
-		break;
-	default:
-		if(length>16)
-			proto_tree_add_text(tree, tvb, offset, -1, "Type - not dissected yet");
-		break;
-	}
+    switch(type){
+    case OFPMP_DESC: /* 0 */
+        /* The reply body is struct ofp_desc. */
+        proto_tree_add_text(tree, tvb, offset, -1, "struct ofp_desc - not dissected yet");
+        break;
+    case OFPMP_FLOW:
+        /* The reply body is an array of struct ofp_flow_stats */
+        proto_tree_add_text(tree, tvb, offset, -1, "struct ofp_flow_stats - not dissected yet");
+        break;
+    default:
+        if(length>16)
+            proto_tree_add_text(tree, tvb, offset, -1, "Type - not dissected yet");
+        break;
+    }
 
 }
 
@@ -887,13 +887,13 @@ dissect_openflow_switch_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 }
 
-#define OFPR_NO_MATCH		0		/* No matching flow (table-miss flow entry). */
-#define OFPR_ACTION			1		/* Action explicitly output to controller. */
-#define OFPR_INVALID_TTL	2		/* Packet has invalid TTL */
+#define OFPR_NO_MATCH       0        /* No matching flow (table-miss flow entry). */
+#define OFPR_ACTION         1        /* Action explicitly output to controller. */
+#define OFPR_INVALID_TTL    2        /* Packet has invalid TTL */
 
 static const value_string openflow_reason_values[] = {
-    { OFPR_NO_MATCH,	"No matching flow (table-miss flow entry)" },
-    { OFPR_ACTION,		"Action explicitly output to controller" },
+    { OFPR_NO_MATCH,    "No matching flow (table-miss flow entry)" },
+    { OFPR_ACTION,      "Action explicitly output to controller" },
     { OFPR_INVALID_TTL, "Packet has invalid TTL" },
     { 0, NULL }
 };
@@ -980,18 +980,18 @@ dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     }
 }
 
-#define OFPFC_ADD	          0 /* New flow. */
+#define OFPFC_ADD             0 /* New flow. */
 #define OFPFC_MODIFY          1 /* Modify all matching flows. */
 #define OFPFC_MODIFY_STRICT   2 /* Modify entry strictly matching wildcards */
 #define OFPFC_DELETE          3 /* Delete all matching flows. */
 #define OFPFC_DELETE_STRICT   4 /* Strictly match wildcards and priority. */
 
 static const value_string openflow_command_values[] = {
-    { OFPFC_ADD,			"New flow" },
-    { OFPFC_MODIFY,			"Modify all matching flows" },
-    { OFPFC_MODIFY_STRICT,	"Modify entry strictly matching wildcards" },
-    { OFPFC_DELETE,			"Delete all matching flows" },
-    { OFPFC_DELETE_STRICT,	"Strictly match wildcards and priority" },
+    { OFPFC_ADD,            "New flow" },
+    { OFPFC_MODIFY,         "Modify all matching flows" },
+    { OFPFC_MODIFY_STRICT,  "Modify entry strictly matching wildcards" },
+    { OFPFC_DELETE,         "Delete all matching flows" },
+    { OFPFC_DELETE_STRICT,  "Strictly match wildcards and priority" },
     { 0, NULL }
 };
 
@@ -1077,14 +1077,14 @@ dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 #if 0
     offset+=2;
-	if(version < OFP_VERSION_1_2){
-	    /* The action length is inferred
-	       from the length field in the
-	       header. */
-	    /*struct ofp_action_header actions[0]; */
-	 }else{
-		 /* struct ofp_match match;  Fields to match. Variable size. */
-	 }
+    if(version < OFP_VERSION_1_2){
+        /* The action length is inferred
+           from the length field in the
+           header. */
+        /*struct ofp_action_header actions[0]; */
+     }else{
+         /* struct ofp_match match;  Fields to match. Variable size. */
+     }
 #endif
 }
 
@@ -1097,7 +1097,7 @@ dissect_openflow_v_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint8 type, version;
     guint16 length;
 
-	version = tvb_get_guint8(tvb, 0);
+    version = tvb_get_guint8(tvb, 0);
     type    = tvb_get_guint8(tvb, 1);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
@@ -1234,22 +1234,22 @@ dissect_openflow_v_1_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         dissect_openflow_features_reply_v1_3(tvb, pinfo, openflow_tree, offset, length);
         break;
 
-	case OFPT_1_3_MULTIPART_REQUEST: /* 18 */
+    case OFPT_1_3_MULTIPART_REQUEST: /* 18 */
         dissect_openflow_multipart_request_v1_3(tvb, pinfo, openflow_tree, offset, length);
-		break;
+        break;
 
-	case OFPT_1_3_MULTIPART_REPLY: /* 19 */
+    case OFPT_1_3_MULTIPART_REPLY: /* 19 */
         dissect_openflow_multipart_reply_v1_3(tvb, pinfo, openflow_tree, offset, length);
-		break;
+        break;
 
-	default:
+    default:
         if(length>8){
             proto_tree_add_text(tree, tvb, offset, -1, "Message data not dissected yet");
         }
-		break;
-	}
+        break;
+    }
 
-	return tvb_length(tvb);
+    return tvb_length(tvb);
 
 }
 
@@ -1269,26 +1269,26 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     if((version&0x80)==0x80){
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow experimental version");
         proto_tree_add_text(tree, tvb, offset, -1, "Experimental versions not dissected");
-		return 0;
-	}
+        return 0;
+    }
     version = version & 0x7f;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow");
 
-	switch(version){
-	case OFP_VERSION_1_0:
-		offset = dissect_openflow_v_1_0(tvb, pinfo, tree, data);
-		break;
-	case OFP_VERSION_1_3:
-		offset = dissect_openflow_v_1_3(tvb, pinfo, tree, data);
-		break;
-	default:
-		proto_tree_add_item(tree, hf_openflow_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_text(tree, tvb, offset, -1, "Unsuported version not dissected");
-		offset = tvb_length(tvb);
-		break;
-	}
+    switch(version){
+    case OFP_VERSION_1_0:
+        offset = dissect_openflow_v_1_0(tvb, pinfo, tree, data);
+        break;
+    case OFP_VERSION_1_3:
+        offset = dissect_openflow_v_1_3(tvb, pinfo, tree, data);
+        break;
+    default:
+        proto_tree_add_item(tree, hf_openflow_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_text(tree, tvb, offset, -1, "Unsuported version not dissected");
+        offset = tvb_length(tvb);
+        break;
+    }
 
-	return offset;
+    return offset;
 }
 
 /* Register the protocol with Wireshark.
