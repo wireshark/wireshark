@@ -59,6 +59,11 @@ then
 	PATH=$PATH:$developer_path/Tools:$developer_path/usr/bin
 fi
 
+if [ ! -f "$ws_bin" ] ; then
+	# Assume it's a native (Qt) build
+	ws_bin="$app_bundle/Contents/MacOS/Wireshark"
+fi
+
 # Help message
 #----------------------------------------------------------
 help()

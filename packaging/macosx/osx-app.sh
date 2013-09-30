@@ -43,7 +43,6 @@ plist="./Info.plist"
 util_dir="./Utilities"
 cli_dir="$util_dir/Command Line"
 chmodbpf_dir="$util_dir/ChmodBPF"
-frameworks=""
 
 # "qt" or "gtk"
 ui_toolkit="gtk"
@@ -210,12 +209,15 @@ pkgexec="$package/Contents/MacOS"
 pkgres="$package/Contents/Resources"
 pkgbin="$pkgres/bin"
 # Should pkglib be Contents/Frameworks instead?
-pkglib="$pkgres/lib"
+#pkglib="$pkgres/lib"
+pkglib="$package/Contents/Frameworks"
+pkgqtplugin="$package/Contents/PlugIns"
 pkgplugin="$pkglib/wireshark/plugins"
 pkgpython="$pkglib/wireshark/python"
 
 mkdir -p "$pkgexec"
 mkdir -p "$pkgbin"
+mkdir -p "$pkgqtplugin"
 mkdir -p "$pkgplugin"
 mkdir -p "$pkgpython"
 
@@ -369,14 +371,6 @@ END_PANGO
 		fi
 		cp -r $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders/* $pkglib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders
 	fi
-elif [ "$ui_toolkit" = "qt" ] ; then
-	frameworks="`otool -L $pkgexec/Wireshark 2>/dev/null | grep 'Qt.*framework' | sed -e 's:.framework/.*:.framework:' | sort | uniq`"
-	for fwk in $frameworks ; do
-		rsync -av \
-		--exclude "Headers/" \
-		--exclude "*_debug*" \
-		$fwk "$pkglib"
-	done
 fi # GTK+ / Qt
 
 # Find out libs we need from Fink, MacPorts, or from a custom install
@@ -401,7 +395,6 @@ elif [ "$ui_toolkit" = "qt" ] ; then
 	lib_dep_search_list="
 		$pkgexec/Wireshark
 		$lib_dep_search_list
-		$pkglib/Qt*.framework/Versions/[0-9]*/Qt*
 		"
 fi
 
@@ -494,29 +487,6 @@ rpathify_file () {
 				echo "Changing reference to $lib in $1"
 				/usr/bin/install_name_tool -change $lib $to $1
 			done
-			#
-			# Rewrite framework paths
-			#
-			if [ "$ui_toolkit" = "qt" ] ; then
-				frameworks="`otool -L $1 | egrep "Qt.*framework/.* \(compatibility" | cut -d\( -f1`"
-				for fwk in $frameworks ; do
-					#
-					# Get the file name of the framework.
-					#
-					base=`echo $fwk | awk 'BEGIN{FS="/";OFS="/"} {print $(NF-3), $(NF-2), $(NF-1), $NF}'`
-					#
-					# The library will end up in a directory in
-					# the rpath; this is what we should change its
-					# file name to.
-					#
-					to=@rpath/$base
-					#
-					# Change the reference to that library.
-					#
-					echo "Changing reference to $fwk in $1"
-					/usr/bin/install_name_tool -change $fwk $to $1
-				done
-			fi
 			;;
 		esac
 	fi
@@ -556,12 +526,6 @@ rpathify_files () {
 		rpathify_dir "$pkglib/pango/$pango_version/modules" "*.so"
 	fi
 	rpathify_dir "$pkgbin" "*"
-	if [ "$ui_toolkit" = "qt" ] ; then
-		rpathify_dir "$pkgexec" "Wireshark"
-		for fwk_dir in $pkglib/Qt*.framework/Versions/[0-9]* ; do
-			rpathify_dir "$fwk_dir" "Qt*"
-		done
-	fi
 }
 
 PATHLENGTH=`echo $LIBPREFIX | wc -c`
@@ -579,6 +543,10 @@ else
 	echo '        export DYLD_LIBRARY_PATH="$TOP/lib"' >&2
 	exit 1
 
+fi
+
+if [ "$ui_toolkit" = "qt" ] ; then
+	macdeployqt "$package" -verbose=2
 fi
 
 exit 0
