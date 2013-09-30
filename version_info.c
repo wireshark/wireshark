@@ -480,6 +480,9 @@ void get_os_version_info(GString *str)
 			case 2:
 				g_string_append_printf(str, is_nt_workstation ? "Windows 8" : "Windows Server 2012");
 				break;
+			case 3:
+				g_string_append_printf(str, is_nt_workstation ? "Windows 8.1" : "Windows Server 2012 R2");
+				break;
 			default:
 				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
 						       info.dwMajorVersion, info.dwMinorVersion);
