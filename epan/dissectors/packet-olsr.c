@@ -296,8 +296,8 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
 
   /*---------------------Dissect Hello Emission Invertal-------------------*/
   hTime = getOlsrTime(tvb_get_guint8(tvb, offset));
-  proto_tree_add_double_format(olsr_tree, hf_olsr_htime, tvb, offset, 1, hTime,
-      "Hello Emission Interval: %.3f (in seconds)", hTime);
+  proto_tree_add_double_format_value(olsr_tree, hf_olsr_htime, tvb, offset, 1, hTime,
+      "%.3f (in seconds)", hTime);
   offset++;
 
   /*-------------------------Dissect Willingness---------------------------*/
@@ -587,8 +587,8 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       offset++;
 
       /*-------------Dissect Validity Time-------------------------*/
-      proto_tree_add_double_format(message_tree, hf_olsr_vtime, tvb, offset, 1, vTime,
-          "Validity Time: %.3f (in seconds)", vTime);
+      proto_tree_add_double_format_value(message_tree, hf_olsr_vtime, tvb, offset, 1, vTime,
+          "%.3f (in seconds)", vTime);
       offset++;
 
       /*-------------Dissect Message Size---------------------------*/
@@ -736,7 +736,7 @@ void proto_register_olsr(void) {
     },
 
     { &hf_olsr_htime,
-      { "Hello emission interval", "olsr.htime",
+      { "Hello Emission Interval", "olsr.htime",
         FT_DOUBLE, BASE_NONE, NULL, 0,
         "Hello emission interval in seconds", HFILL
       }

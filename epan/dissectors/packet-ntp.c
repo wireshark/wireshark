@@ -808,9 +808,9 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	rootdelay = ((gint16)tvb_get_ntohs(tvb, 4)) +
 			(tvb_get_ntohs(tvb, 6) / 65536.0);
-	proto_tree_add_double_format(ntp_tree, hf_ntp_rootdelay, tvb, 4, 4,
+	proto_tree_add_double_format_value(ntp_tree, hf_ntp_rootdelay, tvb, 4, 4,
 				   rootdelay,
-				   "Root Delay: %9.4f sec",
+				   "%9.4f sec",
 				   rootdelay);
 
 	/* Root Dispersion, 32-bit unsigned fixed-point number indicating
@@ -819,9 +819,9 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	rootdispersion = ((gint16)tvb_get_ntohs(tvb, 8)) +
 				(tvb_get_ntohs(tvb, 10) / 65536.0);
-	proto_tree_add_double_format(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4,
+	proto_tree_add_double_format_value(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4,
 				   rootdispersion,
-				   "Root Dispersion: %9.4f sec",
+				   "%9.4f sec",
 				   rootdispersion);
 
 	/* Now, there is a problem with secondary servers.  Standards

@@ -2042,31 +2042,31 @@ dissect_tlv_traffic(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
         /* PDR */
         val_f = tvb_get_ntohieee_float (tvb, offset);
-        proto_tree_add_double_format(val_tree, hf_ldp_tlv_pdr, tvb, offset,
-                                     4, val_f, "PDR: %.10g Bps", val_f);
+        proto_tree_add_double_format_value(val_tree, hf_ldp_tlv_pdr, tvb, offset,
+                                     4, val_f, "%.10g Bps", val_f);
         offset += 4;
         /* PBS */
         val_f = tvb_get_ntohieee_float (tvb, offset);
-        proto_tree_add_double_format(val_tree, hf_ldp_tlv_pbs, tvb, offset,
-                                     4, val_f, "PBS: %.10g Bytes", val_f);
+        proto_tree_add_double_format_value(val_tree, hf_ldp_tlv_pbs, tvb, offset,
+                                     4, val_f, "%.10g Bytes", val_f);
         offset += 4;
 
         /* CDR */
         val_f = tvb_get_ntohieee_float (tvb, offset);
-        proto_tree_add_double_format(val_tree, hf_ldp_tlv_cdr, tvb, offset,
-                                     4, val_f, "CDR: %.10g Bps", val_f);
+        proto_tree_add_double_format_value(val_tree, hf_ldp_tlv_cdr, tvb, offset,
+                                     4, val_f, "%.10g Bps", val_f);
         offset += 4;
 
         /* CBS */
         val_f = tvb_get_ntohieee_float (tvb, offset);
-        proto_tree_add_double_format(val_tree, hf_ldp_tlv_cbs, tvb, offset,
-                                     4, val_f, "CBS: %.10g Bytes", val_f);
+        proto_tree_add_double_format_value(val_tree, hf_ldp_tlv_cbs, tvb, offset,
+                                     4, val_f, "%.10g Bytes", val_f);
         offset += 4;
 
         /* EBS */
         val_f = tvb_get_ntohieee_float (tvb, offset);
-        proto_tree_add_double_format(val_tree, hf_ldp_tlv_ebs, tvb, offset,
-                                     4, val_f, "EBS: %.10g Bytes", val_f);
+        proto_tree_add_double_format_value(val_tree, hf_ldp_tlv_ebs, tvb, offset,
+                                     4, val_f, "%.10g Bytes", val_f);
 
     }
 }
