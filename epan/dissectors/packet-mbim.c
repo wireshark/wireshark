@@ -24,7 +24,9 @@
  */
 
 /* Dissector based on MBIM specification 1.0 Errata-1
- * http://www.usb.org/developers/devclass_docs/MBIM10Errata1_073013.zip */
+ * http://www.usb.org/developers/devclass_docs/MBIM10Errata1_073013.zip
+ * http://compliance.usb.org/mbim/
+ */
 
 #include "config.h"
 
@@ -54,6 +56,9 @@ static int hf_mbim_uuid_phonebook_cid = -1;
 static int hf_mbim_uuid_stk_cid = -1;
 static int hf_mbim_uuid_auth_cid = -1;
 static int hf_mbim_uuid_dss_cid = -1;
+static int hf_mbim_uuid_multicarrier_cid = -1;
+static int hf_mbim_uuid_ms_hostshutdown_cid = -1;
+static int hf_mbim_uuid_msfwid_cid = -1;
 static int hf_mbim_cid = -1;
 static int hf_mbim_command_type = -1;
 static int hf_mbim_info_buffer_len = -1;
@@ -439,6 +444,14 @@ static int hf_mbim_sim_auth_info_n = -1;
 static int hf_mbim_set_dss_connect_device_service_id = -1;
 static int hf_mbim_set_dss_connect_dss_session_id = -1;
 static int hf_mbim_set_dss_connect_dss_link_state = -1;
+static int hf_mbim_multicarrier_capabilities_info_capabilities = -1;
+static int hf_mbim_multicarrier_capabilities_info_capabilities_static_scan = -1;
+static int hf_mbim_multicarrier_capabilities_info_capabilities_fw_requires_reboot = -1;
+static int hf_mbim_location_info_country = -1;
+static int hf_mbim_multicarrier_current_cid_list_req_uuid = -1;
+static int hf_mbim_multicarrier_current_cid_list_info_cid_count = -1;
+static int hf_mbim_multicarrier_current_cid_list_info_cid = -1;
+static int hf_mbim_msfwid_firmwareid_info_firmware_id = -1;
 static int hf_mbim_fragmented_payload = -1;
 static int hf_mbim_remaining_payload = -1;
 static int hf_mbim_request_in = -1;
@@ -449,6 +462,7 @@ static expert_field ei_mbim_unexpected_msg = EI_INIT;
 static expert_field ei_mbim_unexpected_info_buffer = EI_INIT;
 static expert_field ei_mbim_illegal_on_link_prefix_length = EI_INIT;
 static expert_field ei_mbim_unknown_sms_format = EI_INIT;
+static expert_field ei_mbim_unexpected_uuid_value = EI_INIT;
 
 /* Initialize the subtree pointers */
 static gint ett_mbim = -1;
@@ -570,13 +584,16 @@ struct mbim_uuid {
     e_guid_t uuid;
 };
 
-#define UUID_BASIC_CONNECT 0
-#define UUID_SMS           1
-#define UUID_USSD          2
-#define UUID_PHONEBOOK     3
-#define UUID_STK           4
-#define UUID_AUTH          5
-#define UUID_DSS           6
+#define UUID_BASIC_CONNECT   0
+#define UUID_SMS             1
+#define UUID_USSD            2
+#define UUID_PHONEBOOK       3
+#define UUID_STK             4
+#define UUID_AUTH            5
+#define UUID_DSS             6
+#define UUID_MULTICARRIER    7
+#define UUID_MS_HOSTSHUTDOWN 8
+#define UUID_MSFWID          9
 
 static const struct mbim_uuid mbim_uuid_service_id_vals[] = {
     { UUID_BASIC_CONNECT, {0xa289cc33, 0xbcbb, 0x8b4f, { 0xb6, 0xb0, 0x13, 0x3e, 0xc2, 0xaa, 0xe6, 0xdf}}},
@@ -585,7 +602,10 @@ static const struct mbim_uuid mbim_uuid_service_id_vals[] = {
     { UUID_PHONEBOOK, {0x4bf38476, 0x1e6a, 0x41db, {0xb1, 0xd8, 0xbe, 0xd2, 0x89, 0xc2, 0x5b, 0xdb}}},
     { UUID_STK, {0xd8f20131, 0xfcb5, 0x4e17, {0x86, 0x02, 0xd6, 0xed, 0x38, 0x16, 0x16, 0x4c}}},
     { UUID_AUTH, {0x1d2b5ff7, 0x0aa1, 0x48b2, {0xaa, 0x52, 0x50, 0xf1, 0x57, 0x67, 0x17, 0x4e}}},
-    { UUID_DSS, {0xc08a26dd, 0x7718, 0x4382, {0x84, 0x82, 0x6e, 0x0d, 0x58, 0x3c, 0x4d, 0x0e}}}
+    { UUID_DSS, {0xc08a26dd, 0x7718, 0x4382, {0x84, 0x82, 0x6e, 0x0d, 0x58, 0x3c, 0x4d, 0x0e}}},
+    { UUID_MULTICARRIER, {0x8b569648, 0x628d, 0x4653, {0x9b, 0x9f, 0x10, 0x25, 0x40, 0x44, 0x24, 0xe1}}},
+    { UUID_MS_HOSTSHUTDOWN, {0x883b7c26, 0x985f, 0x43fa, {0x98, 0x04, 0x27, 0xd7, 0xfb, 0x80, 0x95, 0x9c}}},
+    { UUID_MSFWID, {0xe9f7dea2, 0xfeaf, 0x4009, {0x93, 0xce, 0x90, 0xa3, 0x69, 0x41, 0x03, 0xb6}}}
 };
 
 static const value_string mbim_service_id_vals[] = {
@@ -596,6 +616,9 @@ static const value_string mbim_service_id_vals[] = {
     { 4, "UUID_STK"},
     { 5, "UUID_AUTH"},
     { 6, "UUID_DSS"},
+    { 7, "UUID_MULTICARRIER"},
+    { 8, "UUID_MS_HOSTSHUTDOWN"},
+    { 9, "UUID_MSFWID"},
     { 0, NULL}
 };
 
@@ -710,6 +733,31 @@ static const value_string mbim_uuid_auth_cid_vals[] = {
 
 static const value_string mbim_uuid_dss_cid_vals[] = {
     { MBIM_CID_DSS_CONNECT, "DSS_CONNECT"},
+    { 0, NULL}
+};
+
+#define MBIM_CID_MULTICARRIER_CAPABILITIES     1
+#define MBIM_CID_LOCATION_INFO                 2
+#define MBIM_CID_MULTICARRIER_CURRENT_CID_LIST 3
+
+static const value_string mbim_uuid_multicarrier_cid_vals[] = {
+    { MBIM_CID_MULTICARRIER_CAPABILITIES, "MULTICARRIER_CAPABILITIES"},
+    { MBIM_CID_LOCATION_INFO, "LOCATION_INFO"},
+    { MBIM_CID_MULTICARRIER_CURRENT_CID_LIST, "MULTICARRIER_CURRENT_CID_LIST"},
+    { 0, NULL}
+};
+
+#define MBIM_CID_MS_HOSTSHUTDOWN 1
+
+static const value_string mbim_uuid_ms_hostshutdown_cid_vals[] = {
+    { MBIM_CID_MS_HOSTSHUTDOWN, "MS_HOSTSHUTDOWN"},
+    { 0, NULL}
+};
+
+#define MBIM_CID_MSFWID_FIRMWAREID 1
+
+static const value_string mbim_uuid_msfwid_cid_vals[] = {
+    { MBIM_CID_MSFWID_FIRMWAREID, "MSFWID_FIRMWAREID"},
     { 0, NULL}
 };
 
@@ -1185,6 +1233,286 @@ static const value_string mbim_dss_link_state_vals[] = {
     { 0, NULL}
 };
 
+static const int *mbim_multicarrier_capabilities_fields[] = {
+    &hf_mbim_multicarrier_capabilities_info_capabilities_static_scan,
+    &hf_mbim_multicarrier_capabilities_info_capabilities_fw_requires_reboot,
+    NULL
+};
+
+static const value_string mbim_geoid_vals[] = {
+    {       0x2, "Antigua and Barbuda"},
+    {       0x3, "Afghanistan"},
+    {       0x4, "Algeria"},
+    {       0x5, "Azerbaijan"},
+    {       0x6, "Albania"},
+    {       0x7, "Armenia"},
+    {       0x8, "Andorra"},
+    {       0x9, "Angola"},
+    {       0xA, "American Samoa"},
+    {       0xB, "Argentina"},
+    {       0xC, "Australia"},
+    {       0xE, "Austria"},
+    {      0x11, "Bahrain"},
+    {      0x12, "Barbados"},
+    {      0x13, "Botswana"},
+    {      0x14, "Bermuda"},
+    {      0x15, "Belgium"},
+    {      0x16, "Bahamas, The"},
+    {      0x17, "Bangladesh"},
+    {      0x18, "Belize"},
+    {      0x19, "Bosnia and Herzegovina"},
+    {      0x1A, "Bolivia"},
+    {      0x1B, "Myanmar"},
+    {      0x1C, "Benin"},
+    {      0x1D, "Belarus"},
+    {      0x1E, "Solomon Islands"},
+    {      0x20, "Brazil"},
+    {      0x22, "Bhutan"},
+    {      0x23, "Bulgaria"},
+    {      0x25, "Brunei"},
+    {      0x26, "Burundi"},
+    {      0x27, "Canada"},
+    {      0x28, "Cambodia"},
+    {      0x29, "Chad"},
+    {      0x2A, "Sri Lanka"},
+    {      0x2B, "Congo"},
+    {      0x2C, "Congo (DRC)"},
+    {      0x2D, "China"},
+    {      0x2E, "Chile"},
+    {      0x31, "Cameroon"},
+    {      0x32, "Comoros"},
+    {      0x33, "Colombia"},
+    {      0x36, "Costa Rica"},
+    {      0x37, "Central African Republic"},
+    {      0x38, "Cuba"},
+    {      0x39, "Cape Verde"},
+    {      0x3B, "Cyprus"},
+    {      0x3D, "Denmark"},
+    {      0x3E, "Djibouti"},
+    {      0x3F, "Dominica"},
+    {      0x41, "Dominican Republic"},
+    {      0x42, "Ecuador"},
+    {      0x43, "Egypt"},
+    {      0x44, "Ireland"},
+    {      0x45, "Equatorial Guinea"},
+    {      0x46, "Estonia"},
+    {      0x47, "Eritrea"},
+    {      0x48, "El Salvador"},
+    {      0x49, "Ethiopia"},
+    {      0x4B, "Czech Republic"},
+    {      0x4D, "Finland"},
+    {      0x4E, "Fiji Islands"},
+    {      0x50, "Micronesia"},
+    {      0x51, "Faroe Islands"},
+    {      0x54, "France"},
+    {      0x56, "Gambia, The"},
+    {      0x57, "Gabon"},
+    {      0x58, "Georgia"},
+    {      0x59, "Ghana"},
+    {      0x5A, "Gibraltar"},
+    {      0x5B, "Grenada"},
+    {      0x5D, "Greenland"},
+    {      0x5E, "Germany"},
+    {      0x62, "Greece"},
+    {      0x63, "Guatemala"},
+    {      0x64, "Guinea"},
+    {      0x65, "Guyana"},
+    {      0x67, "Haiti"},
+    {      0x68, "Hong Kong S.A.R."},
+    {      0x6A, "Honduras"},
+    {      0x6C, "Croatia"},
+    {      0x6D, "Hungary"},
+    {      0x6E, "Iceland"},
+    {      0x6F, "Indonesia"},
+    {      0x71, "India"},
+    {      0x72, "British Indian Ocean Territory"},
+    {      0x74, "Iran"},
+    {      0x75, "Israel"},
+    {      0x76, "Italy"},
+    {      0x77, "Cote d'Ivoire"},
+    {      0x79, "Iraq"},
+    {      0x7A, "Japan"},
+    {      0x7C, "Jamaica"},
+    {      0x7D, "Jan Mayen"},
+    {      0x7E, "Jordan"},
+    {      0x7F, "Johnston Atoll"},
+    {      0x81, "Kenya"},
+    {      0x82, "Kyrgyzstan"},
+    {      0x83, "North Korea"},
+    {      0x85, "Kiribati"},
+    {      0x86, "Korea"},
+    {      0x88, "Kuwait"},
+    {      0x89, "Kazakhstan"},
+    {      0x8A, "Laos"},
+    {      0x8B, "Lebanon"},
+    {      0x8C, "Latvia"},
+    {      0x8D, "Lithuania"},
+    {      0x8E, "Liberia"},
+    {      0x8F, "Slovakia"},
+    {      0x91, "Liechtenstein"},
+    {      0x92, "Lesotho"},
+    {      0x93, "Luxembourg"},
+    {      0x94, "Libya"},
+    {      0x95, "Madagascar"},
+    {      0x97, "Macao S.A.R."},
+    {      0x98, "Moldova"},
+    {      0x9A, "Mongolia"},
+    {      0x9C, "Malawi"},
+    {      0x9D, "Mali"},
+    {      0x9E, "Monaco"},
+    {      0x9F, "Morocco"},
+    {      0xA0, "Mauritius"},
+    {      0xA2, "Mauritania"},
+    {      0xA3, "Malta"},
+    {      0xA4, "Oman"},
+    {      0xA5, "Maldives"},
+    {      0xA6, "Mexico"},
+    {      0xA7, "Malaysia"},
+    {      0xA8, "Mozambique"},
+    {      0xAD, "Niger"},
+    {      0xAE, "Vanuatu"},
+    {      0xAF, "Nigeria"},
+    {      0xB0, "Netherlands"},
+    {      0xB1, "Norway"},
+    {      0xB2, "Nepal"},
+    {      0xB4, "Nauru"},
+    {      0xB5, "Suriname"},
+    {      0xB6, "Nicaragua"},
+    {      0xB7, "New Zealand"},
+    {      0xB8, "Palestinian Authority"},
+    {      0xB9, "Paraguay"},
+    {      0xBB, "Peru"},
+    {      0xBE, "Pakistan"},
+    {      0xBF, "Poland"},
+    {      0xC0, "Panama"},
+    {      0xC1, "Portugal"},
+    {      0xC2, "Papua New Guinea"},
+    {      0xC3, "Palau"},
+    {      0xC4, "Guinea-Bissau"},
+    {      0xC5, "Qatar"},
+    {      0xC6, "Reunion"},
+    {      0xC7, "Marshall Islands"},
+    {      0xC8, "Romania"},
+    {      0xC9, "Philippines"},
+    {      0xCA, "Puerto Rico"},
+    {      0xCB, "Russia"},
+    {      0xCC, "Rwanda"},
+    {      0xCD, "Saudi Arabia"},
+    {      0xCE, "St. Pierre and Miquelon"},
+    {      0xCF, "St. Kitts and Nevis"},
+    {      0xD0, "Seychelles"},
+    {      0xD1, "South Africa"},
+    {      0xD2, "Senegal"},
+    {      0xD4, "Slovenia"},
+    {      0xD5, "Sierra Leone"},
+    {      0xD6, "San Marino"},
+    {      0xD7, "Singapore"},
+    {      0xD8, "Somalia"},
+    {      0xD9, "Spain"},
+    {      0xDA, "St. Lucia"},
+    {      0xDB, "Sudan"},
+    {      0xDC, "Svalbard"},
+    {      0xDD, "Sweden"},
+    {      0xDE, "Syria"},
+    {      0xDF, "Switzerland"},
+    {      0xE0, "United Arab Emirates"},
+    {      0xE1, "Trinidad and Tobago"},
+    {      0xE3, "Thailand"},
+    {      0xE4, "Tajikistan"},
+    {      0xE7, "Tonga"},
+    {      0xE8, "Togo"},
+    {      0xE9, "Sao Tome and Principe"},
+    {      0xEA, "Tunisia"},
+    {      0xEB, "Turkey"},
+    {      0xEC, "Tuvalu"},
+    {      0xED, "Taiwan"},
+    {      0xEE, "Turkmenistan"},
+    {      0xEF, "Tanzania"},
+    {      0xF0, "Uganda"},
+    {      0xF1, "Ukraine"},
+    {      0xF2, "United Kingdom"},
+    {      0xF4, "United States"},
+    {      0xF5, "Burkina Faso"},
+    {      0xF6, "Uruguay"},
+    {      0xF7, "Uzbekistan"},
+    {      0xF8, "St. Vincent and the Grenadines"},
+    {      0xF9, "Venezuela"},
+    {      0xFB, "Vietnam"},
+    {      0xFC, "Virgin Islands"},
+    {      0xFD, "Vatican City"},
+    {      0xFE, "Namibia"},
+    {     0x101, "Western Sahara (disputed)"},
+    {     0x102, "Wake Island"},
+    {     0x103, "Samoa"},
+    {     0x104, "Swaziland"},
+    {     0x105, "Yemen"},
+    {     0x107, "Zambia"},
+    {     0x108, "Zimbabwe"},
+    {     0x10D, "Serbia and Montenegro (Former)"},
+    {     0x10E, "Montenegro"},
+    {     0x10F, "Serbia"},
+    {     0x111, "Curacao"},
+    {     0x114, "South Sudan"},
+    {     0x12C, "Anguilla"},
+    {     0x12D, "Antarctica"},
+    {     0x12E, "Aruba"},
+    {     0x12F, "Ascension Island"},
+    {     0x130, "Ashmore and Cartier Islands"},
+    {     0x131, "Baker Island"},
+    {     0x132, "Bouvet Island"},
+    {     0x133, "Cayman Islands"},
+    {     0x135, "Christmas Island"},
+    {     0x136, "Clipperton Island"},
+    {     0x137, "Cocos (Keeling) Islands"},
+    {     0x138, "Cook Islands"},
+    {     0x139, "Coral Sea Islands"},
+    {     0x13A, "Diego Garcia"},
+    {     0x13B, "Falkland Islands (Islas Malvinas)"},
+    {     0x13D, "French Guiana"},
+    {     0x13E, "French Polynesia"},
+    {     0x13F, "French Southern and Antarctic Lands"},
+    {     0x141, "Guadeloupe"},
+    {     0x142, "Guam"},
+    {     0x143, "Guantanamo Bay"},
+    {     0x144, "Guernsey"},
+    {     0x145, "Heard Island and McDonald Islands"},
+    {     0x146, "Howland Island"},
+    {     0x147, "Jarvis Island"},
+    {     0x148, "Jersey"},
+    {     0x149, "Kingman Reef"},
+    {     0x14A, "Martinique"},
+    {     0x14B, "Mayotte"},
+    {     0x14C, "Montserrat"},
+    {     0x14E, "New Caledonia"},
+    {     0x14F, "Niue"},
+    {     0x150, "Norfolk Island"},
+    {     0x151, "Northern Mariana Islands"},
+    {     0x152, "Palmyra Atoll"},
+    {     0x153, "Pitcairn Islands"},
+    {     0x154, "Rota Island"},
+    {     0x155, "Saipan"},
+    {     0x156, "South Georgia and the South Sandwich Islands"},
+    {     0x157, "St. Helena"},
+    {     0x15A, "Tinian Island"},
+    {     0x15B, "Tokelau"},
+    {     0x15C, "Tristan da Cunha"},
+    {     0x15D, "Turks and Caicos Islands"},
+    {     0x15F, "Virgin Islands, British"},
+    {     0x160, "Wallis and Futuna"},
+    {    0x3B16, "Man, Isle of"},
+    {    0x4CA2, "Macedonia, Former Yugoslav Republic of"},
+    {    0x52FA, "Midway Islands"},
+    {    0x78F7, "Sint Maarten (Dutch part)"},
+    {    0x7BDA, "Saint Martin (French part)"},
+    {  0x6F60E7, "Democratic Republic of Timor-Leste"},
+    {  0x9906F5, "Aland Islands"},
+    { 0x9A55C4F, "Saint Barthelemy"},
+    { 0x9A55D40, "U.S. Minor Outlying Islands"},
+    { 0x9A55D42, "Bonaire, Saint Eustatius and Saba"},
+    {0, NULL}
+};
+static value_string_ext mbim_geoid_vals_ext = VALUE_STRING_EXT_INIT(mbim_geoid_vals);
+
 static guint8
 mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint hf, gint *offset)
 {
@@ -1240,6 +1568,18 @@ mbim_dissect_cid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offs
         case UUID_DSS:
             proto_tree_add_uint(tree, hf_mbim_uuid_dss_cid, tvb, *offset, 4, cid);
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(cid, mbim_uuid_dss_cid_vals, "Unknown"));
+            break;
+        case UUID_MULTICARRIER:
+            proto_tree_add_uint(tree, hf_mbim_uuid_multicarrier_cid, tvb, *offset, 4, cid);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(cid, mbim_uuid_multicarrier_cid_vals, "Unknown"));
+            break;
+        case UUID_MS_HOSTSHUTDOWN:
+            proto_tree_add_uint(tree, hf_mbim_uuid_ms_hostshutdown_cid, tvb, *offset, 4, cid);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(cid, mbim_uuid_ms_hostshutdown_cid_vals, "Unknown"));
+            break;
+        case UUID_MSFWID:
+            proto_tree_add_uint(tree, hf_mbim_uuid_msfwid_cid, tvb, *offset, 4, cid);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(cid, mbim_uuid_msfwid_cid_vals, "Unknown"));
             break;
         default:
             proto_tree_add_uint(tree, hf_mbim_cid, tvb, *offset, 4, cid);
@@ -2018,6 +2358,18 @@ mbim_dissect_device_service_element(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                 proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
                                                  val_to_str_const(cid, mbim_uuid_dss_cid_vals, "Unknown"), cid);
                 break;
+            case UUID_MULTICARRIER:
+                proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+                                                 val_to_str_const(cid, mbim_uuid_multicarrier_cid_vals, "Unknown"), cid);
+                break;
+            case UUID_MS_HOSTSHUTDOWN:
+                proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+                                                 val_to_str_const(cid, mbim_uuid_ms_hostshutdown_cid_vals, "Unknown"), cid);
+                break;
+            case UUID_MSFWID:
+                proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+                                                 val_to_str_const(cid, mbim_uuid_msfwid_cid_vals, "Unknown"), cid);
+                break;
             default:
                 proto_tree_add_uint(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid);
                 break;
@@ -2106,6 +2458,18 @@ mbim_dissect_event_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             case UUID_DSS:
                 proto_tree_add_uint_format_value(tree, hf_mbim_event_entry_cid, tvb, offset, 4, cid, "%s (%u)",
                                                  val_to_str_const(cid, mbim_uuid_dss_cid_vals, "Unknown"), cid);
+                break;
+            case UUID_MULTICARRIER:
+                proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+                                                 val_to_str_const(cid, mbim_uuid_multicarrier_cid_vals, "Unknown"), cid);
+                break;
+            case UUID_MS_HOSTSHUTDOWN:
+                proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+                                                 val_to_str_const(cid, mbim_uuid_ms_hostshutdown_cid_vals, "Unknown"), cid);
+                break;
+            case UUID_MSFWID:
+                proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+                                                 val_to_str_const(cid, mbim_uuid_msfwid_cid_vals, "Unknown"), cid);
                 break;
             default:
                 proto_tree_add_uint(tree, hf_mbim_event_entry_cid, tvb, offset, 4, cid);
@@ -2877,6 +3241,34 @@ mbim_dissect_set_dss_connect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_item(tree, hf_mbim_set_dss_connect_dss_link_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
 
+static void
+mbim_dissect_muticarrier_current_cid_list_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+    guint8 service_idx;
+
+    service_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_multicarrier_current_cid_list_req_uuid, &offset);
+    if (service_idx != UUID_MULTICARRIER) {
+        expert_add_info_format(pinfo, NULL, &ei_mbim_unexpected_uuid_value,
+                               "Unexpected UUID value, should be UUID_MULTICARRIER");
+    }
+}
+
+static void
+mbim_dissect_muticarrier_current_cid_list_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+    guint32 i, cid_count;
+
+    cid_count = tvb_get_letohl(tvb, offset);
+    proto_tree_add_item(tree, hf_mbim_multicarrier_current_cid_list_info_cid_count,
+                        tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    for (i = 0; i < cid_count; i++) {
+        proto_tree_add_item(tree, hf_mbim_multicarrier_current_cid_list_info_cid,
+                            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+}
+
 static int
 dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -3275,10 +3667,8 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                         env_tvb = tvb_new_subset(tvb, offset, info_buff_len, info_buff_len);
                                         call_dissector(etsi_cat_handle, env_tvb, pinfo, env_tree);
                                     }
-                                } else {
-                                    if (info_buff_len) {
+                                } else if (info_buff_len) {
                                         proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, tvb, offset, info_buff_len);
-                                    }
                                 }
                                 break;
                             default:
@@ -3321,6 +3711,64 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                     mbim_dissect_set_dss_connect(tvb, pinfo, subtree, offset);
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                }
+                                break;
+                            default:
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                break;
+                        }
+                        break;
+                    case UUID_MULTICARRIER:
+                        switch (cid) {
+                            case MBIM_CID_MULTICARRIER_CAPABILITIES:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, tvb, offset, info_buff_len);
+                                }
+                                break;
+                            case MBIM_CID_LOCATION_INFO:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_item(subtree, hf_mbim_location_info_country, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, tvb, offset, info_buff_len);
+                                }
+                                break;
+                            case MBIM_CID_MULTICARRIER_CURRENT_CID_LIST:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, info_buff_len);
+                                } else {
+                                    mbim_dissect_muticarrier_current_cid_list_req(tvb, pinfo, subtree, offset);
+                                }
+                                break;
+                            default:
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                break;
+                        }
+                        break;
+                    case UUID_MS_HOSTSHUTDOWN:
+                        switch (cid) {
+                            case MBIM_CID_MS_HOSTSHUTDOWN:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    if (info_buff_len) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, tvb, offset, info_buff_len);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                }
+                                break;
+                            default:
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                break;
+                        }
+                        break;
+                    case UUID_MSFWID:
+                        switch (cid) {
+                            case MBIM_CID_MSFWID_FIRMWAREID:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, tvb, offset, info_buff_len);
                                 }
                                 break;
                             default:
@@ -3688,6 +4136,65 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 break;
                         }
                         break;
+                    case UUID_MULTICARRIER:
+                        switch (cid) {
+                            case MBIM_CID_MULTICARRIER_CAPABILITIES:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    proto_tree_add_bitmask(subtree, tvb, offset, hf_mbim_multicarrier_capabilities_info_capabilities,
+                                                           ett_mbim_bitmap, mbim_multicarrier_capabilities_fields, ENC_LITTLE_ENDIAN);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                }
+                                break;
+                            case MBIM_CID_LOCATION_INFO:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    proto_tree_add_item(subtree, hf_mbim_location_info_country, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, tvb, offset, info_buff_len);
+                                }
+                                break;
+                            case MBIM_CID_MULTICARRIER_CURRENT_CID_LIST:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    mbim_dissect_muticarrier_current_cid_list_info(tvb, pinfo, subtree, offset);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, tvb, offset, info_buff_len);
+                                }
+                                break;
+                            default:
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                break;
+                        }
+                        break;
+                    case UUID_MS_HOSTSHUTDOWN:
+                        switch (cid) {
+                            case MBIM_CID_MS_HOSTSHUTDOWN:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (info_buff_len) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, tvb, offset, info_buff_len);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                }
+                                break;
+                            default:
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                break;
+                        }
+                        break;
+                    case UUID_MSFWID:
+                        switch (cid) {
+                            case MBIM_CID_MSFWID_FIRMWAREID:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    proto_tree_add_item(subtree, hf_mbim_msfwid_firmwareid_info_firmware_id, tvb, offset, 16, ENC_NA);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, tvb, offset, info_buff_len);
+                                }
+                                break;
+                            default:
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
+                                break;
+                        }
+                        break;
                     default:
                         proto_tree_add_item(subtree, hf_mbim_info_buffer, tvb, offset, info_buff_len, ENC_NA);
                         break;
@@ -3780,6 +4287,21 @@ proto_register_mbim(void)
         { &hf_mbim_uuid_dss_cid,
             { "CID", "mbim.cid",
                FT_UINT32, BASE_DEC, VALS(mbim_uuid_dss_cid_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_uuid_multicarrier_cid,
+            { "CID", "mbim.cid",
+               FT_UINT32, BASE_DEC, VALS(mbim_uuid_multicarrier_cid_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_uuid_ms_hostshutdown_cid,
+            { "CID", "mbim.cid",
+               FT_UINT32, BASE_DEC, VALS(mbim_uuid_ms_hostshutdown_cid_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_uuid_msfwid_cid,
+            { "CID", "mbim.cid",
+               FT_UINT32, BASE_DEC, VALS(mbim_uuid_msfwid_cid_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_cid,
@@ -5707,6 +6229,46 @@ proto_register_mbim(void)
                FT_UINT32, BASE_DEC, VALS(mbim_dss_link_state_vals), 0,
               NULL, HFILL }
         },
+        { &hf_mbim_multicarrier_capabilities_info_capabilities,
+            { "Capabilities", "mbim.multicarrier_capabilities_info.capabilities",
+               FT_UINT32, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multicarrier_capabilities_info_capabilities_static_scan,
+            { "Static Scan", "mbim.multicarrier_capabilities_info.capabilities.static_scan",
+               FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multicarrier_capabilities_info_capabilities_fw_requires_reboot,
+            { "FW Requires Reboot", "mbim.multicarrier_capabilities_info.capabilities.fw_requires_reboot",
+               FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
+              NULL, HFILL }
+        },
+        { &hf_mbim_location_info_country,
+            { "Country", "mbim.location_info.country",
+               FT_UINT32, BASE_HEX|BASE_EXT_STRING, &mbim_geoid_vals_ext, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multicarrier_current_cid_list_req_uuid,
+            { "UUID", "mbim.multicarrier_current_cid_list_req.uuid",
+               FT_GUID, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multicarrier_current_cid_list_info_cid_count,
+            { "CID Count", "mbim.multicarrier_current_cid_list_info.cid_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multicarrier_current_cid_list_info_cid,
+            { "CID", "mbim.multicarrier_current_cid_list_info.cid",
+               FT_UINT32, BASE_DEC, VALS(mbim_uuid_multicarrier_cid_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_msfwid_firmwareid_info_firmware_id,
+            { "Firmware Id", "mbim.msfwid_firmwareid_info.firmware_id",
+               FT_GUID, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_fragmented_payload,
             { "Fragmented Payload", "mbim.fragmented_payload",
                FT_BYTES, BASE_NONE, NULL, 0,
@@ -5754,8 +6316,11 @@ proto_register_mbim(void)
             { "mbim.illegal_on_link_prefix_length", PI_MALFORMED, PI_WARN,
                 "Illegal On Link Prefix Length", EXPFILL }},
         { &ei_mbim_unknown_sms_format,
-            { "mbim.unknown_sms_format", PI_MALFORMED, PI_WARN,
+            { "mbim.unknown_sms_format", PI_PROTOCOL, PI_WARN,
                 "Unknown SMS format", EXPFILL }},
+        { &ei_mbim_unexpected_uuid_value,
+            { "mbim.ei_mbim_unexpected_uuid_value", PI_PROTOCOL, PI_WARN,
+                "Unexpected UUID value", EXPFILL }}
     };
 
     proto_mbim = proto_register_protocol("Mobile Broadband Interface Model",
