@@ -3172,7 +3172,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		 */
 		proto_item_set_end(th, tvb, offset);
 		if(content_encoding_parameter_str != NULL &&
-			!strncmp(content_encoding_parameter_str, "gzip", 4)){
+			(!strncmp(content_encoding_parameter_str, "gzip", 4) || 
+			 !strncmp(content_encoding_parameter_str,"deflate",7))){
 			/* The body is gzip:ed */
 			next_tvb = tvb_uncompress(tvb, offset,  datalen);
 			add_new_data_source(pinfo, next_tvb, "gunziped data");
