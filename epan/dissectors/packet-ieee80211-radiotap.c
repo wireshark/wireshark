@@ -1028,6 +1028,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				    tvb, 2, 2, length);
 	}
 
+	if (length < sizeof(struct ieee80211_radiotap_header)) {
+		length = sizeof(struct ieee80211_radiotap_header);
+	}
 	data = tvb_memdup(wmem_packet_scope(), tvb, 0, length);
 	if (!data)
 		return;

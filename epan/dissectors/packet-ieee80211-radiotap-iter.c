@@ -74,7 +74,7 @@ static const struct ieee80211_radiotap_namespace radiotap_ns = {
  */
 #define ITERATOR_VALID(iterator, size) \
     (((iterator)->_arg + (size) - (unsigned char *)((iterator)->_rtheader)) <= \
-        (ptrdiff_t)(iterator)->_max_length)
+        (ptrdiff_t)((iterator)->_max_length - sizeof(guint32)))
 
 /**
  * ieee80211_radiotap_iterator_init - radiotap parser iterator initialization
@@ -145,6 +145,8 @@ int ieee80211_radiotap_iterator_init(
 #endif
 
 	/* find payload start allowing for extended bitmap(s) */
+	if (!ITERATOR_VALID(iterator, 0))
+		return -EINVAL;
 
 	if (iterator->_bitmap_shifter & (1<<IEEE80211_RADIOTAP_EXT)) {
 		while (get_unaligned_le32(iterator->_arg) &
@@ -403,3 +405,16 @@ int ieee80211_radiotap_iterator_next(
 			return 0;
 	}
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
