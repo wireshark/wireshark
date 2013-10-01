@@ -571,7 +571,7 @@ efs_dissect_EfsRpcOpenFileRaw_response(tvbuff_t *tvb _U_, int offset _U_, packet
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -616,7 +616,7 @@ efs_dissect_EfsRpcReadFileRaw_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	pinfo->dcerpc_procedure_name="EfsRpcReadFileRaw";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -659,7 +659,7 @@ efs_dissect_EfsRpcWriteFileRaw_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	pinfo->dcerpc_procedure_name="EfsRpcWriteFileRaw";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -736,7 +736,7 @@ efs_dissect_EfsRpcEncryptFileSrv_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	pinfo->dcerpc_procedure_name="EfsRpcEncryptFileSrv";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -783,7 +783,7 @@ efs_dissect_EfsRpcDecryptFileSrv_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	pinfo->dcerpc_procedure_name="EfsRpcDecryptFileSrv";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -851,7 +851,7 @@ efs_dissect_EfsRpcQueryUsersOnFile_response(tvbuff_t *tvb _U_, int offset _U_, p
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -917,7 +917,7 @@ efs_dissect_EfsRpcQueryRecoveryAgents_response(tvbuff_t *tvb _U_, int offset _U_
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -955,7 +955,7 @@ efs_dissect_EfsRpcRemoveUsersFromFile_response(tvbuff_t *tvb _U_, int offset _U_
 	pinfo->dcerpc_procedure_name="EfsRpcRemoveUsersFromFile";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -993,7 +993,7 @@ efs_dissect_EfsRpcAddUsersToFile_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	pinfo->dcerpc_procedure_name="EfsRpcAddUsersToFile";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -1036,7 +1036,7 @@ efs_dissect_EfsRpcSetFileEncryptionKey_response(tvbuff_t *tvb _U_, int offset _U
 	pinfo->dcerpc_procedure_name="EfsRpcSetFileEncryptionKey";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -1063,7 +1063,7 @@ efs_dissect_EfsRpcNotSupported_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	pinfo->dcerpc_procedure_name="EfsRpcNotSupported";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -1088,7 +1088,7 @@ efs_dissect_EfsRpcFileKeyInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	pinfo->dcerpc_procedure_name="EfsRpcFileKeyInfo";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -1113,7 +1113,7 @@ efs_dissect_EfsRpcDuplicateEncryptionInfoFile_response(tvbuff_t *tvb _U_, int of
 	pinfo->dcerpc_procedure_name="EfsRpcDuplicateEncryptionInfoFile";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_efs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;

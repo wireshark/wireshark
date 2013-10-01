@@ -2661,7 +2661,7 @@ dnsserver_dissect_DnssrvOperation_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	pinfo->dcerpc_procedure_name="DnssrvOperation";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_dnsserver_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -2686,7 +2686,7 @@ dnsserver_dissect_DnssrvQuery_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	pinfo->dcerpc_procedure_name="DnssrvQuery";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_dnsserver_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -2711,7 +2711,7 @@ dnsserver_dissect_DnssrvComplexOperation_response(tvbuff_t *tvb _U_, int offset 
 	pinfo->dcerpc_procedure_name="DnssrvComplexOperation";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_dnsserver_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -2736,7 +2736,7 @@ dnsserver_dissect_DnssrvEnumRecords_response(tvbuff_t *tvb _U_, int offset _U_, 
 	pinfo->dcerpc_procedure_name="DnssrvEnumRecords";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_dnsserver_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -2761,7 +2761,7 @@ dnsserver_dissect_DnssrvUpdateRecord_response(tvbuff_t *tvb _U_, int offset _U_,
 	pinfo->dcerpc_procedure_name="DnssrvUpdateRecord";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_dnsserver_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -2786,7 +2786,7 @@ dnsserver_dissect_DnssrvOperation2_response(tvbuff_t *tvb _U_, int offset _U_, p
 	pinfo->dcerpc_procedure_name="DnssrvOperation2";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_dnsserver_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -2928,7 +2928,7 @@ dnsserver_dissect_DnssrvQuery2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_dnsserver_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -2963,7 +2963,7 @@ dnsserver_dissect_DnssrvComplexOperation2_response(tvbuff_t *tvb _U_, int offset
 	pinfo->dcerpc_procedure_name="DnssrvComplexOperation2";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_dnsserver_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -3200,7 +3200,7 @@ dnsserver_dissect_DnssrvEnumRecords2_response(tvbuff_t *tvb _U_, int offset _U_,
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_dnsserver_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -3245,7 +3245,7 @@ dnsserver_dissect_DnssrvUpdateRecord2_response(tvbuff_t *tvb _U_, int offset _U_
 	pinfo->dcerpc_procedure_name="DnssrvUpdateRecord2";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_dnsserver_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;

@@ -276,7 +276,7 @@ initshutdown_dissect_Init_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	pinfo->dcerpc_procedure_name="Init";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_initshutdown_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -327,7 +327,7 @@ initshutdown_dissect_Abort_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	pinfo->dcerpc_procedure_name="Abort";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_initshutdown_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -423,7 +423,7 @@ initshutdown_dissect_InitEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	pinfo->dcerpc_procedure_name="InitEx";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_initshutdown_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;

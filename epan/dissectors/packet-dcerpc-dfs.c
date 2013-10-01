@@ -3354,7 +3354,7 @@ netdfs_dissect_dfs_Add_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	pinfo->dcerpc_procedure_name="dfs_Add";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3448,7 +3448,7 @@ netdfs_dissect_dfs_Remove_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	pinfo->dcerpc_procedure_name="dfs_Remove";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3556,7 +3556,7 @@ netdfs_dissect_dfs_SetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	pinfo->dcerpc_procedure_name="dfs_SetInfo";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3671,7 +3671,7 @@ netdfs_dissect_dfs_GetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3761,7 +3761,7 @@ netdfs_dissect_dfs_Enum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3794,7 +3794,7 @@ netdfs_dissect_dfs_Rename_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	pinfo->dcerpc_procedure_name="dfs_Rename";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3819,7 +3819,7 @@ netdfs_dissect_dfs_Move_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	pinfo->dcerpc_procedure_name="dfs_Move";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3844,7 +3844,7 @@ netdfs_dissect_dfs_ManagerGetConfigInfo_response(tvbuff_t *tvb _U_, int offset _
 	pinfo->dcerpc_procedure_name="dfs_ManagerGetConfigInfo";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3869,7 +3869,7 @@ netdfs_dissect_dfs_ManagerSendSiteInfo_response(tvbuff_t *tvb _U_, int offset _U
 	pinfo->dcerpc_procedure_name="dfs_ManagerSendSiteInfo";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4011,7 +4011,7 @@ netdfs_dissect_dfs_AddFtRoot_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4138,7 +4138,7 @@ netdfs_dissect_dfs_RemoveFtRoot_response(tvbuff_t *tvb _U_, int offset _U_, pack
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4219,7 +4219,7 @@ netdfs_dissect_dfs_AddStdRoot_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	pinfo->dcerpc_procedure_name="dfs_AddStdRoot";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4284,7 +4284,7 @@ netdfs_dissect_dfs_RemoveStdRoot_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	pinfo->dcerpc_procedure_name="dfs_RemoveStdRoot";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4343,7 +4343,7 @@ netdfs_dissect_dfs_ManagerInitialize_response(tvbuff_t *tvb _U_, int offset _U_,
 	pinfo->dcerpc_procedure_name="dfs_ManagerInitialize";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4419,7 +4419,7 @@ netdfs_dissect_dfs_AddStdRootForced_response(tvbuff_t *tvb _U_, int offset _U_, 
 	pinfo->dcerpc_procedure_name="dfs_AddStdRootForced";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4452,7 +4452,7 @@ netdfs_dissect_dfs_GetDcAddress_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	pinfo->dcerpc_procedure_name="dfs_GetDcAddress";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4477,7 +4477,7 @@ netdfs_dissect_dfs_SetDcAddress_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	pinfo->dcerpc_procedure_name="dfs_SetDcAddress";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4525,7 +4525,7 @@ netdfs_dissect_dfs_FlushFtTable_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	pinfo->dcerpc_procedure_name="dfs_FlushFtTable";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4554,7 +4554,7 @@ netdfs_dissect_dfs_Add2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	pinfo->dcerpc_procedure_name="dfs_Add2";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4579,7 +4579,7 @@ netdfs_dissect_dfs_Remove2_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	pinfo->dcerpc_procedure_name="dfs_Remove2";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4673,7 +4673,7 @@ netdfs_dissect_dfs_EnumEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -4708,7 +4708,7 @@ netdfs_dissect_dfs_SetInfo2_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	pinfo->dcerpc_procedure_name="dfs_SetInfo2";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netdfs_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;

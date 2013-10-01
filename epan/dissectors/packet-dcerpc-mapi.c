@@ -4001,10 +4001,9 @@ mapi_dissect_struct_EcDoRpc_MAPI_REQ(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	opnum = tvb_get_guint8(tvb, offset);
 	offset += 1;
 	proto_tree_add_text(tree, tvb, cur_offset, offset - cur_offset, "opnum: %s", val_to_str(opnum, mapi_MAPI_OPNUM_vals, "Unknown MAPI operation"));
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	   	 col_append_fstr(pinfo->cinfo, COL_INFO, " + %s", val_to_str(opnum, mapi_MAPI_OPNUM_vals, "Unknown MAPI operation"));
-        }
-	cur_offset = offset;
+	col_append_fstr(pinfo->cinfo, COL_INFO, " + %s", val_to_str(opnum, mapi_MAPI_OPNUM_vals, "Unknown MAPI operation"));
+
+    cur_offset = offset;
 	mapi_flags = tvb_get_guint8(tvb, offset);
 	offset += 1;
 	proto_tree_add_text(tree, tvb, cur_offset, offset - cur_offset, "mapi_flags: 0x%x", mapi_flags);
@@ -4238,9 +4237,8 @@ mapi_dissect_struct_EcDoRpc_MAPI_REPL(tvbuff_t *tvb _U_, int offset _U_, packet_
 	opnum = tvb_get_guint8(tvb, offset);
 	offset += 1;
 	proto_tree_add_text(tree, tvb, cur_offset, offset - cur_offset, "opnum: %s", val_to_str(opnum, mapi_MAPI_OPNUM_vals, "Unknown MAPI operation: 0x%02x"));
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " + %s", val_to_str(opnum, mapi_MAPI_OPNUM_vals, "Unknown MAPI operation: 0x%02x"));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " + %s", val_to_str(opnum, mapi_MAPI_OPNUM_vals, "Unknown MAPI operation: 0x%02x"));
+
 	if (opnum != op_MAPI_Notify) {
 		cur_offset = offset;
 		handle_idx = tvb_get_guint8(tvb, offset);
@@ -9647,7 +9645,7 @@ mapi_dissect_EcDoConnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_MAPISTATUS_status, &status);
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, mapi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
@@ -9706,7 +9704,7 @@ mapi_dissect_EcDoDisconnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_MAPISTATUS_status, &status);
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, mapi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
@@ -9809,7 +9807,7 @@ mapi_dissect_EcDoRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_MAPISTATUS_status, &status);
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, mapi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
@@ -9972,7 +9970,7 @@ mapi_dissect_EcRRegisterPushNotification_response(tvbuff_t *tvb _U_, int offset 
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_MAPISTATUS_status, &status);
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, mapi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
@@ -10048,7 +10046,7 @@ mapi_dissect_EcRUnregisterPushNotification_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_mapi_MAPISTATUS_status, &status);
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, mapi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;

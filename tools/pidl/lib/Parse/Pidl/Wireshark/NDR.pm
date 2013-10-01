@@ -527,12 +527,12 @@ sub Function($$$)
 	if (not defined($fn->{RETURN_TYPE})) {
 	} elsif ($fn->{RETURN_TYPE} eq "NTSTATUS") {
 		$self->pidl_code("offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf\_$ifname\_status, &status);\n");
-		$self->pidl_code("if (status != 0 && check_col(pinfo->cinfo, COL_INFO))");
+		$self->pidl_code("if (status != 0)");
 		$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str(status, NT_errors, \"Unknown NT status 0x%08x\"));\n");
 		$return_types{$ifname}->{"status"} = ["NTSTATUS", "NT Error"];
 	} elsif ($fn->{RETURN_TYPE} eq "WERROR") {
 		$self->pidl_code("offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf\_$ifname\_werror, &status);\n");
-		$self->pidl_code("if (status != 0 && check_col(pinfo->cinfo, COL_INFO))");
+		$self->pidl_code("if (status != 0)");
 		$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str(status, WERR_errors, \"Unknown DOS error 0x%08x\"));\n");
 		
 		$return_types{$ifname}->{"werror"} = ["WERROR", "Windows Error"];
@@ -542,12 +542,12 @@ sub Function($$$)
 			my $return_dissect = "dissect_ndr_" .Parse::Pidl::Typelist::enum_type_fn($type->{DATA});
 
 			$self->pidl_code("offset = $return_dissect(tvb, offset, pinfo, tree, drep, hf\_$ifname\_$fn->{RETURN_TYPE}_status, &status);");
-			$self->pidl_code("if (status != 0 && check_col(pinfo->cinfo, COL_INFO))");
+			$self->pidl_code("if (status != 0)");
 			$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Status: %s\", val_to_str(status, $ifname\_$fn->{RETURN_TYPE}\_vals, \"Unknown " . $fn->{RETURN_TYPE} . " error 0x%08x\"));\n");
 			$return_types{$ifname}->{$fn->{RETURN_TYPE}."_status"} = [$fn->{RETURN_TYPE}, $fn->{RETURN_TYPE}];
 		} elsif ($type->{DATA}->{TYPE} eq "SCALAR") {
 			$self->pidl_code("offset = dissect_ndr_$fn->{RETURN_TYPE}(tvb, offset, pinfo, tree, drep, hf\_$ifname\_$fn->{RETURN_TYPE}_status, &status);");
-			$self->pidl_code("if (status != 0 && check_col(pinfo->cinfo, COL_INFO))");
+			$self->pidl_code("if (status != 0)");
 			$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Status: %d\", status);\n");
 			$return_types{$ifname}->{$fn->{RETURN_TYPE}."_status"} = [$fn->{RETURN_TYPE}, $fn->{RETURN_TYPE}];
 		}

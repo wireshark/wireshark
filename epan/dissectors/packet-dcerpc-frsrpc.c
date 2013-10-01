@@ -705,7 +705,7 @@ frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 			s = frsrpc_frsrpc_CommPktCommand_vals[i].strptr;
 		}
 	}
-	if (s!= NULL && check_col(pinfo->cinfo, COL_INFO))
+	if (s!= NULL)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ",command = %s",
 				s);
 	if(param){
@@ -3087,7 +3087,7 @@ frsrpc_dissect_FrsSendCommPkt_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	pinfo->dcerpc_procedure_name="FrsSendCommPkt";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_frsrpc_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3211,7 +3211,7 @@ frsrpc_dissect_FrsVerifyPromotionParent_response(tvbuff_t *tvb _U_, int offset _
 	pinfo->dcerpc_procedure_name="FrsVerifyPromotionParent";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_frsrpc_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3513,7 +3513,7 @@ frsrpc_dissect_FrsStartPromotionParent_response(tvbuff_t *tvb _U_, int offset _U
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_frsrpc_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
@@ -3562,7 +3562,7 @@ frsrpc_dissect_FrsNOP_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	pinfo->dcerpc_procedure_name="FrsNOP";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_frsrpc_werror, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
 
 	return offset;
