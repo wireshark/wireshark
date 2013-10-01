@@ -247,7 +247,7 @@ echo -e "\nFilling app bundle and utility directory...\n"
 # Wireshark executables
 if [ "$ui_toolkit" = "gtk" ] ; then
 	cp -v utility-launcher "$cli_dir/$binary"
-	for binary in $binary_list ; do
+	for binary in wireshark $binary_list ; do
 		# Copy the binary to its destination
 		dest_path="$pkgbin/$binary-bin"
 		cp -v "$binary_path/$binary" "$dest_path"
