@@ -44,8 +44,8 @@ Quick Setup\
 \i /dev/bpf
 \i0 *) when the system starts up.\
 {\listtext	\'95	}
-\i /Library/Wireshark
-\i0 . A wrapper script and symbolic links which will let you run Wireshark and its associated utilities from the command line. You can access them directly or by adding /Library/Wireshark to your PATH.\
+\i /usr/local/bin
+\i0 . A wrapper script and symbolic links which will let you run Wireshark and its associated utilities from the command line. You can access them directly or by adding /usr/local/bin to your PATH if it's not already in your PATH.\
 \pard\tx560\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
 \cf0 \
 Additionally a group named 
@@ -63,8 +63,8 @@ Additionally a group named
 \f1 \cf0 {\listtext	1.	}Remove 
 \i /Applications/Wireshark
 \i0 \
-{\listtext	2.	}Remove 
-\i /Library/Wireshark
+{\listtext	2.	}Remove the wrapper scripts from 
+\i /usr/local/bin
 \i0 \
 {\listtext	3.	}Remove 
 \i /Library/StartupItems/ChmodBPF
