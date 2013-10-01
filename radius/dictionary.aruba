@@ -1,7 +1,5 @@
 # -*- text -*-
 #
-#	As posted to the list.
-#
 #	Version: $Id$
 #
 VENDOR		Aruba				14823
@@ -13,10 +11,11 @@ ATTRIBUTE	Aruba-Priv-Admin-User			3	integer
 ATTRIBUTE	Aruba-Admin-Role			4	string
 ATTRIBUTE	Aruba-Essid-Name			5	string
 ATTRIBUTE	Aruba-Location-Id			6	string
-ATTRIBUTE	Aruba-Port-Identifier			7	string
+ATTRIBUTE	Aruba-Port-Id   			7	string
 ATTRIBUTE	Aruba-Template-User			8	string
 ATTRIBUTE	Aruba-Named-User-Vlan			9	string
 ATTRIBUTE	Aruba-AP-Group				10	string
+
 ATTRIBUTE	Aruba-Framed-IPv6-Address		11	string
 ATTRIBUTE	Aruba-Device-Type			12	string
 ATTRIBUTE	Aruba-AP-Name				13	string
@@ -27,6 +26,7 @@ ATTRIBUTE	Aruba-Mdps-Device-Iccid			17	string
 ATTRIBUTE	Aruba-Mdps-Max-Devices			18	integer
 ATTRIBUTE	Aruba-Mdps-Device-Name			19	string
 ATTRIBUTE	Aruba-Mdps-Device-Product		20	string
+
 ATTRIBUTE	Aruba-Mdps-Device-Version		21	string
 ATTRIBUTE	Aruba-Mdps-Device-Serial		22	string
 ATTRIBUTE	Aruba-CPPM-Role				23	string
@@ -34,5 +34,17 @@ ATTRIBUTE	Aruba-AirGroup-User-Name		24	string
 ATTRIBUTE	Aruba-AirGroup-Shared-User		25	string
 ATTRIBUTE	Aruba-AirGroup-Shared-Role		26	string
 ATTRIBUTE	Aruba-AirGroup-Device-Type		27	integer
+ATTRIBUTE	Aruba-Auth-Survivability		28	string
+ATTRIBUTE	Aruba-AS-User-Name			29	string
+ATTRIBUTE	Aruba-AS-Credential-Hash		30	string
+
+ATTRIBUTE	Aruba-WorkSpace-App-Name		31	string
+ATTRIBUTE	Aruba-Mdps-Provisioning-Settings	32	string
+ATTRIBUTE	Aruba-Mdps-Device-Profile		33	string
+
+ATTRIBUTE	Aruba-AP-IP-Address			34	ipaddr
+
+VALUE 		Aruba-AirGroup-Device-Type	Personal-Device	1
+VALUE		Aruba-AirGroup-Device-Type	Shared-Device	2
 
 END-VENDOR	Aruba
