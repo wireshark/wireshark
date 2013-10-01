@@ -145,12 +145,6 @@ col_set_writable(column_info *cinfo, const gboolean writable)
       /* There is at least one column in that format */ \
     ((cinfo)->col_first[el] >= 0))
 
-gint
-check_col(column_info *cinfo, const gint el)
-{
-  return CHECK_COL(cinfo, el);
-}
-
 /* Sets the fence for a column to be at the end of the column. */
 void
 col_set_fence(column_info *cinfo, const gint el)

@@ -96,17 +96,6 @@ WS_DLL_PUBLIC gboolean	col_get_writable(column_info *cinfo);
  */
 WS_DLL_PUBLIC void	col_set_writable(column_info *cinfo, const gboolean writable);
 
-/** 
- * Checks if the given column can be filled with data.
- *
- * @param cinfo the current packet row
- * @param col the column to use, e.g. COL_INFO
- *
- * @deprecated Not needed in new code the check is done in 
- * in the column function calls.
- */
-WS_DLL_PUBLIC gint	check_col(column_info *cinfo, const gint col);
-
 /** Sets a fence for the current column content,
  * so this content won't be affected by further col_... function calls.
  *
