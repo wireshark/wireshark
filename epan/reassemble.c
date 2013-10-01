@@ -2316,11 +2316,8 @@ show_fragment_errs_in_col(fragment_head *fd_head, const fragment_items *fit,
 {
 	if (fd_head->flags & (FD_OVERLAPCONFLICT
 		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
-				"[Illegal %s]", fit->tag);
-			return TRUE;
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[Illegal %s]", fit->tag);
+		return TRUE;
 	}
 
 	return FALSE;

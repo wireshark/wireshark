@@ -692,8 +692,7 @@ WSLUA_METHOD Column_prepend(lua_State *L) {
 
     if (!s) WSLUA_ARG_ERROR(Column_prepend,TEXT,"must be a string");
 
-    if (check_col(c->cinfo, c->col))
-        col_prepend_fstr(c->cinfo, c->col, "%s",s);
+    col_prepend_fstr(c->cinfo, c->col, "%s",s);
 
     return 0;
 }

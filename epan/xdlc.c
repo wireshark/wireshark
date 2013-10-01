@@ -296,12 +296,11 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 	frame_type,
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT);
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    if (append_info) {
-	    	col_append_str(pinfo->cinfo, COL_INFO, ", ");
-		col_append_str(pinfo->cinfo, COL_INFO, info);
-	    } else
-		col_add_str(pinfo->cinfo, COL_INFO, info);
+	if (append_info) {
+	    col_append_str(pinfo->cinfo, COL_INFO, ", ");
+	    col_append_str(pinfo->cinfo, COL_INFO, info);
+	} else {
+	    col_add_str(pinfo->cinfo, COL_INFO, info);
 	}
 	if (xdlc_tree) {
 	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
@@ -355,12 +354,11 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    (is_response ? " F" : " P") :
 		    ""),
 		modifier);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    if (append_info) {
-	    	col_append_str(pinfo->cinfo, COL_INFO, ", ");
-		col_append_str(pinfo->cinfo, COL_INFO, info);
-	    } else
-		col_add_str(pinfo->cinfo, COL_INFO, info);
+	if (append_info) {
+	    col_append_str(pinfo->cinfo, COL_INFO, ", ");
+    	col_append_str(pinfo->cinfo, COL_INFO, info);
+	} else {
+	    col_add_str(pinfo->cinfo, COL_INFO, info);
 	}
 	if (xdlc_tree) {
 	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control,	tvb,
@@ -407,12 +405,11 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT,
 			(control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT);
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    if (append_info) {
-	    	col_append_str(pinfo->cinfo, COL_INFO, ", ");
-		col_append_str(pinfo->cinfo, COL_INFO, info);
-	    } else
-		col_add_str(pinfo->cinfo, COL_INFO, info);
+	if (append_info) {
+	    col_append_str(pinfo->cinfo, COL_INFO, ", ");
+    	col_append_str(pinfo->cinfo, COL_INFO, info);
+	} else {
+	    col_add_str(pinfo->cinfo, COL_INFO, info);
 	}
 	if (xdlc_tree) {
 	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
