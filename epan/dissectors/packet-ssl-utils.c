@@ -1751,8 +1751,8 @@ ssl_cipher_suite_dig(SslCipherSuite *cs) {
 static const gchar *ciphers[]={
     "DES",
     "3DES",
-    "ARCFOUR", /* gnutls does not support rc4, but this should be 100% compatible*/
-    "RC2",
+    "ARCFOUR", /* libgcrypt does not support rc4, but this should be 100% compatible*/
+    "RFC2268_128", /* libgcrypt name for RC2 with a 128-bit key */
     "IDEA",
     "AES",
     "AES256",
