@@ -1257,8 +1257,7 @@ static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state _U_, drx_time
 static void mac_lte_drx_new_ulsch_data(guint16 ueid);
 static void mac_lte_drx_new_dlsch_data(guint16 ueid);
 static void mac_lte_drx_dl_crc_error(guint16 ueid);
-/* TODO: make static again once called */
-void mac_lte_drx_control_element_received(guint16 ueid);
+static void mac_lte_drx_control_element_received(guint16 ueid);
 
 /* Update the DRX state of the UE based on previous info and current time */
 static void update_drx_info(drx_state_t *ue_state, packet_info *pinfo)
@@ -3497,6 +3496,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     break;
                 case DRX_COMMAND_LCID:
                     /* No payload */
+                    mac_lte_drx_control_element_received(p_mac_lte_info->ueid);
                     break;
                 case PADDING_LCID:
                     /* No payload (in this position) */
@@ -5191,14 +5191,14 @@ static void mac_lte_drx_dl_crc_error(guint16 ueid)
     }
 }
 
-/* TODO: make static again when called! */
-void mac_lte_drx_control_element_received(guint16 ueid)
+/* A DRX control element has been received */
+static void mac_lte_drx_control_element_received(guint16 ueid)
 {
     /* Look up state of this UE */
     drx_state_t *ue_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_ue_state,
                                                                GUINT_TO_POINTER((guint)ueid));
 
-    /* Start timer */
+    /* Start timers */
     if (ue_state != NULL) {
         /* TODO: spec says stop onDurationTimer, but we don't really record that its running... */
 
