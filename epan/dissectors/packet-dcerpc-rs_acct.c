@@ -69,10 +69,8 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 		keyx_t = tvb_get_string(wmem_packet_scope(), tvb, offset, key_size);
 		offset += key_size;
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 				" Request for: %s ", keyx_t);
-		}
 	} else {
 		col_append_str(pinfo->cinfo, COL_INFO,
 				" Request (other)");
@@ -100,10 +98,8 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 	keyx_t = tvb_get_string(wmem_packet_scope(), tvb, offset, key_size);
 	offset += key_size;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 			" Request for: %s", keyx_t);
-	}
 
 	return offset;
 }

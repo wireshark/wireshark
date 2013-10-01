@@ -231,10 +231,8 @@ static const guint8 *st_str;
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_error_st, &st); \
   st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u");              \
   if (st){                                                              \
-    if (check_col (pinfo->cinfo, COL_INFO))                             \
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
   } else{                                                                \
-    if (check_col (pinfo->cinfo, COL_INFO))                             \
       col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str);      \
   }
 
@@ -267,7 +265,6 @@ dissect_afsnetaddr (tvbuff_t * tvb, int offset,
 
   if (type)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " Type:%u ", type);
 
 
@@ -284,25 +281,20 @@ dissect_afsnetaddr (tvbuff_t * tvb, int offset,
 	    case 1:
 	      if (data)
 		{
-		  if (check_col (pinfo->cinfo, COL_INFO))
-		    col_append_fstr (pinfo->cinfo, COL_INFO, " Port:%u",
+		  col_append_fstr (pinfo->cinfo, COL_INFO, " Port:%u",
 				     data);
 		}
 	      break;
 	    case 2:
-	      if (check_col (pinfo->cinfo, COL_INFO))
 		col_append_fstr (pinfo->cinfo, COL_INFO, " IP:%u.", data);
 	      break;
 	    case 3:
-	      if (check_col (pinfo->cinfo, COL_INFO))
 		col_append_fstr (pinfo->cinfo, COL_INFO, "%u.", data);
 	      break;
 	    case 4:
-	      if (check_col (pinfo->cinfo, COL_INFO))
 		col_append_fstr (pinfo->cinfo, COL_INFO, "%u.", data);
 	      break;
 	    case 5:
-	      if (check_col (pinfo->cinfo, COL_INFO))
 		col_append_fstr (pinfo->cinfo, COL_INFO, "%u", data);
 	      break;
 	    }
@@ -351,8 +343,7 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
   proto_tree_add_item (tree, hf_fldb_vlconf_cell_name, tvb, offset, 114, ENC_ASCII|ENC_NA);
   name = tvb_get_string (wmem_packet_scope(), tvb, offset, MAXVLCELLCHARS); /* XXX why 114 above and 128 here?? */
   offset += MAXVLCELLCHARS;	/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", name);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", name);
 
 
   /* afsHyper CellID;                     identifier for that cell  */
@@ -363,8 +354,7 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vlconf_cell_cellid_low, &cellid_low);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " CellID:%u-%u", cellid_high,
+  col_append_fstr (pinfo->cinfo, COL_INFO, " CellID:%u-%u", cellid_high,
 		     cellid_low);
 
 
@@ -372,8 +362,7 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vlconf_cell_numservers, &numservers);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " numServers:%u", numservers);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " numServers:%u", numservers);
 
   /*    afsNetAddr hostAddr[MAXVLHOSTSPERCELL]; *addresses for cell's servers */
   for (i = 0; i < MAXVLHOSTSPERCELL; i++)
@@ -390,46 +379,40 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
 			     64, ENC_ASCII|ENC_NA);
       hostname = tvb_get_string (wmem_packet_scope(), tvb, offset, 64);
       offset += 64;		/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_fstr (pinfo->cinfo, COL_INFO, " hostName: %s", hostname);
+      col_append_fstr (pinfo->cinfo, COL_INFO, " hostName: %s", hostname);
     }
 
   /*     unsigned32 spare1; */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vlconf_cell_spare1, &spare1);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " spare1:%u", spare1);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " spare1:%u", spare1);
 
 
   /*     unsigned32 spare2; */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vlconf_cell_spare2, &spare2);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " spare2:%u", spare2);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " spare2:%u", spare2);
 
   /*     unsigned32 spare3; */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vlconf_cell_spare3, &spare3);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " spare3:%u", spare3);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " spare3:%u", spare3);
 
 
   /*     unsigned32 spare4; */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vlconf_cell_spare4, &spare4);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " spare4:%u", spare4);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " spare4:%u", spare4);
 
   /*     unsigned32 spare5; */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vlconf_cell_spare5, &spare5);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " spare5:%u", spare5);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " spare5:%u", spare5);
 
 
   proto_item_set_len (item, offset - old_offset);
@@ -472,8 +455,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			       hf_fldb_afsNameString_t_principalName_size,
 			       &string_size);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < AFS_NAMEMAX)
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
@@ -482,12 +464,10 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 			     tvb, offset, string_size, ENC_ASCII|ENC_NA);
       namestring = tvb_get_string (wmem_packet_scope(), tvb, offset, string_size);
       offset += string_size;
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", namestring);
     }
   else
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO,
 			 " :FIXME!: Invalid string length of  %u",
 			 string_size);
@@ -708,28 +688,24 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 		       ENC_ASCII|ENC_NA);
   volumename = tvb_get_string (wmem_packet_scope(), tvb, offset, 114);
   offset += 110;		/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", volumename);
 
   /* unsigned32      volumeType; */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_volumetype, &volumetype);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " Type:%u", volumetype);
 
   /*unsigned32      nServers; */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_nservers, &nservers);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " nServers:%u", nservers);
 
   /* afsNetAddr      siteAddr[MAXNSERVERS]; 16 */
   for (i = 0; i < MAXNSERVERS; i++)
     {
-      /* if (check_col (pinfo->cinfo, COL_INFO))
-         col_append_fstr (pinfo->cinfo, COL_INFO, " Site:%u", i); */
+      /* col_append_fstr (pinfo->cinfo, COL_INFO, " Site:%u", i); */
 
       offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, drep);
     }
@@ -742,7 +718,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 			    hf_fldb_vldbentry_sitepartition, &sitepartition);
       if (sitepartition)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
 	    col_append_fstr (pinfo->cinfo, COL_INFO, " LFS:%u",
 			     sitepartition);
 	}
@@ -764,7 +739,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 			    &sitemaxreplicalatency);
       if (sitemaxreplicalatency)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
 	    col_append_fstr (pinfo->cinfo, COL_INFO, " MaxRepLat%d:%u", i,
 			     sitemaxreplicalatency);
 	}
@@ -776,7 +750,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 			   offset, 64, ENC_ASCII|ENC_NA);
       siteprincipal = tvb_get_string (wmem_packet_scope(), tvb, offset, 64);
       offset += 64;
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " Princ: %s", siteprincipal);
     }
 
@@ -787,7 +760,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
       offset =
 	dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
 			    hf_fldb_vldbentry_siteowner, &siteowner);
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO,
 			 " SiteOwner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 			 siteowner.Data1, siteowner.Data2, siteowner.Data3,
@@ -804,7 +776,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
       offset =
 	dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
 			    hf_fldb_vldbentry_siteobjid, &siteobjid);
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO,
 			 " SiteObjID - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 			 siteobjid.Data1, siteobjid.Data2, siteobjid.Data3,
@@ -826,7 +797,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
       offset =
 	dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			    hf_fldb_vldbentry_volids_low, &volids_low);
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " VolIDs%d:%u", i,
 			 volids_low);
     }
@@ -840,7 +810,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 			    hf_fldb_vldbentry_voltypes, &voltypes);
       if (voltypes)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
 	    col_append_fstr (pinfo->cinfo, COL_INFO, " VolTypes:%d:%u", i,
 			     voltypes);
 	}
@@ -855,7 +824,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 			hf_fldb_vldbentry_cloneid_low, &cloneid_low);
   if (cloneid_low)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " CloneId:%u", cloneid_low);
     }
 
@@ -868,7 +836,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_maxtotallatency, &maxtotallatency);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " MaxTotLat:%u",
 		     maxtotallatency);
 
@@ -878,7 +845,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_hardmaxtotallatency,
 			&hardmaxtotallatency);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " HardMaxTotLat:%u",
 		     hardmaxtotallatency);
 
@@ -888,7 +854,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_minimumpouncedally,
 			&minimumpouncedally);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " minPounceDally:%u",
 		     minimumpouncedally);
 
@@ -898,7 +863,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_defaultmaxreplicalatency,
 			&defaultmaxreplicalatency);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " defaultMaxReplicaLatency:%u",
 		     defaultmaxreplicalatency);
 
@@ -906,7 +870,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_reclaimdally, &reclaimdally);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " reclaimDally:%u",
 		     reclaimdally);
 
@@ -915,7 +878,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_whenlocked, &whenlocked);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " WhenLocked:%u", whenlocked);
 
 
@@ -923,14 +885,12 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_spare1, &spare1);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare1:%u", spare1);
 
   /*                unsigned32      spare2; */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_spare2, &spare2);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare2:%u", spare2);
 
 
@@ -938,14 +898,12 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_spare3, &spare3);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare3:%u", spare3);
 
   /*                unsigned32      spare4; */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_vldbentry_spare4, &spare4);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " spare4:%u", spare4);
 
 
@@ -954,7 +912,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 		       MAXLOCKNAMELEN, ENC_ASCII|ENC_NA);
   lockername = tvb_get_string (wmem_packet_scope(), tvb, offset, MAXLOCKNAMELEN);
   offset += MAXLOCKNAMELEN;	/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " LockerName: %s", lockername);
 
   /*     byte            charSpares[50]; */
@@ -962,7 +919,6 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 		       ENC_ASCII|ENC_NA);
   charspares = tvb_get_string (wmem_packet_scope(), tvb, offset, 50);
   offset += 50;			/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " charSpares:%s", charspares);
 
 
@@ -1120,12 +1076,10 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
   proto_tree_add_item (tree, hf_fldb_namestring, tvb, offset, 64, ENC_ASCII|ENC_NA);
   namestring = tvb_get_string (wmem_packet_scope(), tvb, offset, 64);
   offset += 64;
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " %s", namestring);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " %s", namestring);
 
   offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fldb_uuid_owner, &owner);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " Owner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 		     owner.Data1, owner.Data2, owner.Data3, owner.Data4[0],
 		     owner.Data4[1], owner.Data4[2], owner.Data4[3],
@@ -1135,8 +1089,7 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fldb_uuid_objid,
 			&objid);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " ObjID - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 		     objid.Data1, objid.Data2, objid.Data3, objid.Data4[0],
 		     objid.Data4[1], objid.Data4[2], objid.Data4[3],
@@ -1165,8 +1118,7 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_spare5,
 			&spare5);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " CreationQuota:%u CreationUses:%u DeletedFlag:%u Spare2:%u Spare3:%u Spare4:%u Spare5:%u",
 		     creationquota, creationuses, deletedflag, spare2, spare3,
 		     spare4, spare5);
@@ -1209,8 +1161,7 @@ fldb_dissect_listentry_rqst (tvbuff_t * tvb, int offset,
 			hf_fldb_listentry_rqst_var1, &var1);
 
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " :PrevIndex: %u",
+  col_append_fstr (pinfo->cinfo, COL_INFO, " :PrevIndex: %u",
 		     previous_index);
 
 
@@ -1278,8 +1229,7 @@ fldb_dissect_setlock_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_setlock_rqst_voloper, &voloper);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " :FSID:%u/%u VolType:0x%x VolOper:%u", fsid_high,
 		     fsid_low, voltype, voloper);
 
@@ -1359,8 +1309,7 @@ fldb_dissect_deleteentry_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_deleteentry_rqst_voloper, &voloper);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u/%u", fsid_high,
+  col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u/%u", fsid_high,
 		     fsid_low);
 
 
@@ -1438,8 +1387,7 @@ fldb_dissect_getentrybyid_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_voltype,
 			&voltype);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " VolID:%u/%u VolType:0x%x",
+  col_append_fstr (pinfo->cinfo, COL_INFO, " VolID:%u/%u VolType:0x%x",
 		     volid_high, volid_low, voltype);
 
   return offset;
@@ -1466,8 +1414,7 @@ fldb_dissect_getnewvolumeids_rqst (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_numwanted,
 			&numwanted);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " numWanted:%u", numwanted);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " numWanted:%u", numwanted);
 
 
   offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, drep);
@@ -1543,8 +1490,7 @@ fldb_dissect_releaselock_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fldb_releaselock_rqst_voloper, &voloper);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u/%u", fsid_high,
+  col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u/%u", fsid_high,
 		     fsid_low);
 
   return offset;
@@ -1593,8 +1539,7 @@ fldb_dissect_getnextserversbyid_resp (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_nextstartp,
 			&nextstartp);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " nextStartP:%u", nextstartp);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " nextStartP:%u", nextstartp);
 
 
   /*  [out] vldbentry *entry, */
@@ -1607,8 +1552,7 @@ fldb_dissect_getnextserversbyid_resp (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_flagsp,
 			&flagsp);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " flagsp:%u", flagsp);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " flagsp:%u", flagsp);
 
   return offset;
 }
@@ -1645,8 +1589,7 @@ fldb_dissect_replaceentry_rqst (tvbuff_t * tvb, int offset,
 			hf_fldb_replaceentry_rqst_voltype, &voltype);
 
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " FSID:%u/%u Name:", fsid_high,
+  col_append_fstr (pinfo->cinfo, COL_INFO, " FSID:%u/%u Name:", fsid_high,
 		     fsid_low);
 
   offset = dissect_vldbentry (tvb, offset, pinfo, tree, drep);

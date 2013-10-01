@@ -107,9 +107,7 @@ PIDL_dissect_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             REPORT_DISSECTOR_BUG("Invalid hf->display value");
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
     }
 
     return offset;
@@ -191,9 +189,7 @@ PIDL_dissect_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             REPORT_DISSECTOR_BUG("Invalid hf->display value");
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
     }
 
     return offset;
@@ -322,9 +318,7 @@ PIDL_dissect_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             REPORT_DISSECTOR_BUG("Invalid hf->display value");
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
     }
 
     return offset;
@@ -439,9 +433,7 @@ PIDL_dissect_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             REPORT_DISSECTOR_BUG("Invalid hf->display value");
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
     }
 
     return offset;

@@ -540,8 +540,7 @@ svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset,
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->fd->num);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
 	return offset;

@@ -196,9 +196,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
             proto_item_append_text(item, " Service:%s ", str);
             proto_item_append_text(tree->parent, " Service:%s ", str);
         }
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Service:%s", str);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Service:%s", str);
     }
 
     proto_item_set_len(item, offset-old_offset);

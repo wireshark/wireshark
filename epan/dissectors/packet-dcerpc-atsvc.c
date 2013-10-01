@@ -1137,7 +1137,7 @@ atsvc_dissect_JobAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -1203,7 +1203,7 @@ atsvc_dissect_JobDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	pinfo->dcerpc_procedure_name="JobDel";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -1322,7 +1322,7 @@ atsvc_dissect_JobEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;
@@ -1411,7 +1411,7 @@ atsvc_dissect_JobGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_atsvc_status, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
 
 	return offset;

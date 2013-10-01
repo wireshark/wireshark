@@ -357,8 +357,7 @@ static void cb_byte_array_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	/* Append string to COL_INFO */
 
 	if (options & CB_STR_COL_INFO) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
 	}
 
 	/* Append string to upper-level proto_items */
@@ -940,7 +939,7 @@ dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hfindex, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str(status, NT_errors,
 					   "Unknown error 0x%08x"));
@@ -962,7 +961,7 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hfindex, &status);
 
-	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str(status, DOS_errors,
 					   "Unknown error 0x%08x"));
@@ -1292,8 +1291,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	/* Append string to COL_INFO */
 
 	if (options & CB_STR_COL_INFO) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
 	}
 
 	/* Append string to upper-level proto_items */
@@ -1354,8 +1352,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	/* Append string to COL_INFO */
 
 	if (options & CB_STR_COL_INFO) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
 	}
 
 	/* Append string to upper-level proto_items */
@@ -1473,8 +1470,7 @@ dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 			   while we just do a conformance run,	 this might
 			   have sideeffects so it needs some more thoughts first.
 			*/
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
 		}
 
 		/* Append string to upper-level proto_items */

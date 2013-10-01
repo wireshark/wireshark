@@ -87,10 +87,8 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 	offset += key_size2;
 
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 				" Request for: %s in %s ", key_t2, key_t1);
-	}
 
 	return offset;
 

@@ -512,8 +512,7 @@ dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	offset += buffer_len;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
 
 	/* Append string to upper level item */
 	if (tree && item) {
@@ -643,7 +642,7 @@ SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->fd->num);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
@@ -704,8 +703,7 @@ dissect_printerdata_data(tvbuff_t *tvb, int offset,
 
 			proto_item_append_text(item, ": %s", data);
 
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(
+			col_append_fstr(
 					pinfo->cinfo, COL_INFO, " = %s", data);
 
 			hidden_item = proto_tree_add_string(
@@ -722,8 +720,7 @@ dissect_printerdata_data(tvbuff_t *tvb, int offset,
 
 			proto_item_append_text(item, ": 0x%08x", data);
 
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(
+			col_append_fstr(
 					pinfo->cinfo, COL_INFO, " = 0x%08x",
 					data);
 
@@ -788,8 +785,7 @@ SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
@@ -806,6 +802,7 @@ SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 type;
 	proto_item *hidden_item;
+	const char *data;
 
 	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
@@ -816,11 +813,9 @@ SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_printerdata_type, &type);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		const char *data = (const char *)(dcv->se_data ? dcv->se_data : "????");
+	data = (const char *)(dcv->se_data ? dcv->se_data : "????");
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
 
 	offset = dissect_printerdata_data(
 		tvb, offset, pinfo, tree, drep, type);
@@ -878,7 +873,7 @@ SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO) && dcv->se_data)
+	if (dcv->se_data)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				(char *)dcv->se_data);
 
@@ -910,7 +905,7 @@ SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_returned, &size);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && dcv->se_data) {
+	if (dcv->se_data) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", (char *)dcv->se_data);
 	}
 
@@ -967,7 +962,7 @@ SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	}
 
 
-	if (check_col(pinfo->cinfo, COL_INFO) && dcv->se_data){
+	if (dcv->se_data){
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", (char *)dcv->se_data);
 	}
 
@@ -1037,8 +1032,7 @@ SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
 		hf_printerdata_value, TRUE, &value_name);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
 				key_name, value_name);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3281,7 +3275,7 @@ SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO) && name)
+	if (name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", name);
 
 	offset = dissect_ndr_uint32(
@@ -3370,8 +3364,7 @@ SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_spoolss_buffer(
 		tvb, offset, pinfo, tree, drep, NULL);
@@ -3395,8 +3388,7 @@ SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item;
 	proto_tree *subtree = NULL;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	/* Parse packet */
 
@@ -3603,8 +3595,7 @@ SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_SPOOL_PRINTER_INFO(
 		tvb, offset, pinfo, tree, drep);
@@ -3728,8 +3719,7 @@ SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			dcv->se_data = GINT_TO_POINTER((int)level);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_spoolss_buffer(
 		tvb, offset, pinfo, tree, drep, NULL);
@@ -3763,8 +3753,7 @@ SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_needed, NULL);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_enumforms_num, &count);
@@ -3897,8 +3886,7 @@ SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep,
 		hf_enumprinterdata_enumindex, &ndx);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", index %d", ndx);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", index %d", ndx);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -3944,7 +3932,7 @@ SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 
 		offset += value_len * 2;
 
-		if (check_col(pinfo->cinfo, COL_INFO) && value && value[0])
+		if (value && value[0])
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value);
 
 		proto_item_append_text(value_item, ": %s", value);
@@ -4055,8 +4043,7 @@ SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		dcv->se_data = GINT_TO_POINTER((int)level);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_spoolss_buffer(
 		tvb, offset, pinfo, tree, drep, NULL);
@@ -4079,8 +4066,7 @@ SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item;
 	proto_tree *subtree = NULL;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	/* Parse packet */
 
@@ -4285,8 +4271,7 @@ SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_form_level, &level);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	/* AddForm() stores the level in se_data */
 	if(!pinfo->fd->flags.visited){
@@ -4341,7 +4326,7 @@ SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		sizeof(guint16), hf_form_name, TRUE, &name);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && name)
+	if (name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", name);
 
 	return offset;
@@ -4391,14 +4376,13 @@ SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		sizeof(guint16), hf_form_name, TRUE, &name);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && name)
+	if (name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", name);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_form_level, &level);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_FORM_CTR(tvb, offset, pinfo, tree, drep);
 
@@ -4451,8 +4435,7 @@ SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		sizeof(guint16), hf_form_name, TRUE, &name);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", name);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", name);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_form_level, &level);
@@ -4462,8 +4445,7 @@ SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d",
 				level);
 
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
@@ -4496,8 +4478,7 @@ SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_needed, NULL);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	if (buffer.tvb) {
 		int buffer_offset = 0;
@@ -4770,8 +4751,7 @@ SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
 
@@ -4869,8 +4849,7 @@ SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_setjob_cmd, &cmd);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(
+	col_append_fstr(
 			pinfo->cinfo, COL_INFO, ", %s jobid %d",
 			val_to_str(cmd, setjob_commands, "Unknown (%d)"),
 			jobid);
@@ -4919,8 +4898,7 @@ SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d, jobid %d",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d, jobid %d",
 				level, jobid);
 
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
@@ -4993,7 +4971,7 @@ SpoolssStartPagePrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->fd->num);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
@@ -5034,7 +5012,7 @@ SpoolssEndPagePrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->fd->num);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
@@ -5177,7 +5155,7 @@ SpoolssStartDocPrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->fd->num);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
@@ -5223,7 +5201,7 @@ SpoolssEndDocPrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->fd->num);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
@@ -5271,15 +5249,14 @@ SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->fd->num);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_buffer_size, &size);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %d bytes", size);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %d bytes", size);
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "Buffer");
 
@@ -5308,8 +5285,7 @@ SpoolssWritePrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_writeprinter_numwritten,
 		&size);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(
+	col_append_fstr(
 			pinfo->cinfo, COL_INFO, ", %d bytes written", size);
 
 	offset = dissect_doserror(
@@ -5344,8 +5320,7 @@ SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
 		hf_printerdata_value, TRUE, &value_name);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
 
 	return offset;
 }
@@ -5674,8 +5649,7 @@ SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
 
@@ -5777,8 +5751,7 @@ SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->fd->num);
 
-	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
 	offset = dissect_ndr_str_pointer_item(
@@ -5793,8 +5766,7 @@ SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
 
@@ -6377,7 +6349,7 @@ dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_notify_info_count, &count);
 
-	if (!di->conformant_run && check_col(pinfo->cinfo, COL_INFO))
+	if (!di->conformant_run)
 		col_append_fstr(
 			pinfo->cinfo, COL_INFO, ", %d %s", count,
 			notify_plural(count));
@@ -6407,8 +6379,7 @@ SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_rrpcn_changelow, &changeid);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(
+	col_append_fstr(
 			pinfo->cinfo, COL_INFO, ", changeid %d", changeid);
 
 	offset = dissect_ndr_pointer(
@@ -6455,8 +6426,7 @@ SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_rrpcn_changelow, &changeid);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(
+	col_append_fstr(
 			pinfo->cinfo, COL_INFO, ", changeid %d", changeid);
 
 	offset = dissect_ndr_uint32(
@@ -6655,14 +6625,10 @@ SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
 		hf_printerdata_key, TRUE, &key_name);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		const char *kn = key_name;
+	if (!key_name[0])
+		key_name = "\"\"";
 
-		if (!key_name[0])
-			kn = "\"\"";
-
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", kn);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_needed, NULL);
@@ -6717,8 +6683,7 @@ SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
 		hf_printerdata_key, TRUE, &key_name);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);

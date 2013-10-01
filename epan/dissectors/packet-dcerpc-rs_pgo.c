@@ -128,8 +128,8 @@ dissect_error_status_t (tvbuff_t * tvb, int offset,
 			packet_info * pinfo, proto_tree * parent_tree,
 			guint8 * drep)
 {
-  proto_item *item = NULL;
-  proto_tree *tree = NULL;
+  proto_item *item;
+  proto_tree *tree;
   int old_offset = offset;
   guint32 st;
   dcerpc_info *di;
@@ -137,24 +137,19 @@ dissect_error_status_t (tvbuff_t * tvb, int offset,
 
   di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
-    {
-      return offset;
-    }
+  {
+    return offset;
+  }
 
-  if (parent_tree)
-    {
-      item = proto_tree_add_text (parent_tree, tvb, offset, -1,
-				  "error_status_t");
-      tree = proto_item_add_subtree (item, ett_error_status_t);
-    }
+  item = proto_tree_add_text (parent_tree, tvb, offset, -1, "error_status_t");
+  tree = proto_item_add_subtree (item, ett_error_status_t);
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_error_status_t,
 			&st);
   st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u");
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -195,8 +190,7 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
 
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			       hf_sec_rgy_pname_t_size, &string_size);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < sec_rgy_pname_t_size)
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
@@ -205,15 +199,13 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
 			   tvb, offset, string_size, ENC_ASCII|ENC_NA);
       if (string_size > 1)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
+	  col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
 			     tvb_get_string(wmem_packet_scope(), tvb, offset, string_size));
 	}
       offset += string_size;
     }
   else
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO,
 			 " :FIXME!: Invalid string length of  %u",
 			 string_size);
@@ -371,8 +363,7 @@ dissect_rs_cache_data_t (tvbuff_t * tvb, int offset,
     dissect_dcerpc_time_t (tvb, offset, pinfo, tree, drep, hf_rs_timeval,
 			   &org_dtm);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " siteid %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x person_dtm:%u group_dtm:%u org_dtm:%u",
 		     uuid1.Data1, uuid1.Data2, uuid1.Data3, uuid1.Data4[0],
 		     uuid1.Data4[1], uuid1.Data4[2], uuid1.Data4[3],
@@ -417,8 +408,7 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_sec_rgy_name_t_size, &string_size);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < sec_rgy_name_t_size)
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
@@ -427,15 +417,13 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
 			   tvb, offset, string_size, ENC_ASCII|ENC_NA);
       if (string_size > 1)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
+	  col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
 			     tvb_get_string (wmem_packet_scope(), tvb, offset, string_size));
 	}
       offset += string_size;
     }
   else
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO,
 			 " :FIXME!: Invalid string length of  %u",
 			 string_size);
@@ -481,8 +469,7 @@ dissect_sec_rgy_domain_t (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_sec_rgy_domain_t,
 			&domain_t);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " sec_rgy_domain_t:%u",
+  col_append_fstr (pinfo->cinfo, COL_INFO, " sec_rgy_domain_t:%u",
 		     domain_t);
 
 
@@ -541,8 +528,7 @@ dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
   offset += 4;			/* XXX */
   offset = dissect_sec_rgy_pname_t (tvb, offset, pinfo, tree, drep);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " sec_rgy_pgo_item_t - id %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x unix_num:%u quota:%u",
 		     id.Data1, id.Data2, id.Data3, id.Data4[0],
 		     id.Data4[1], id.Data4[2], id.Data4[3],
@@ -603,8 +589,7 @@ dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_rs_sec_rgy_pgo_item_t_quota, &valid);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " sec_rgy_cursor_t - source %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x handle:%u valid:%u",
 		     source.Data1, source.Data2, source.Data3,
 		     source.Data4[0], source.Data4[1], source.Data4[2],
@@ -673,8 +658,7 @@ dissect_rs_pgo_query_t (tvbuff_t * tvb, int offset,
       col_append_str (pinfo->cinfo, COL_INFO, "NONE");
       break;
     default:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_fstr (pinfo->cinfo, COL_INFO, " unknown:%u", query_t);
+	  col_append_fstr (pinfo->cinfo, COL_INFO, " unknown:%u", query_t);
       break;
       ;
     }
@@ -722,8 +706,7 @@ dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
     dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_rs_uuid1, &id);
   offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " rs_pgo_id_key_t - id %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 		     id.Data1, id.Data2, id.Data3, id.Data4[0],
 		     id.Data4[1], id.Data4[2], id.Data4[3],
@@ -820,8 +803,7 @@ r
 			hf_rs_pgo_unix_num_key_t, &rs_pgo_unix_num_key_t);
   offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " rs_pgo_unix_num_key_t:%u", rs_pgo_unix_num_key_t);
 
   proto_item_set_len (item, offset - old_offset);
@@ -912,9 +894,8 @@ dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
       break;
 
     default:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_fstr (pinfo->cinfo, COL_INFO, " unknown:%u", query_t);
-      ;
+      col_append_fstr (pinfo->cinfo, COL_INFO, " unknown:%u", query_t);
+      break;
     }
 
   proto_item_set_len (item, offset - old_offset);
@@ -964,8 +945,7 @@ dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
 			hf_rs_pgo_query_result_t, &st);
   status = val_to_str_ext (st, &dce_error_vals_ext, "%u");
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " status:%s ", status);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " status:%s ", status);
 
   offset += 4;			/* XXX */
 
@@ -1356,8 +1336,7 @@ rs_pgo_dissect_get_members_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rs_var1,
 			&max_members);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " :max_members:%u", max_members);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " :max_members:%u", max_members);
 
   return offset;
 }
@@ -1518,8 +1497,7 @@ rs_pgo_dissect_get_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rs_var1,
 			&allow_aliases);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " :allow_aliases:%u",
+  col_append_fstr (pinfo->cinfo, COL_INFO, " :allow_aliases:%u",
 		     allow_aliases);
 
 

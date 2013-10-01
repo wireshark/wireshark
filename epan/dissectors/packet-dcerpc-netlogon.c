@@ -4969,7 +4969,7 @@ netlogon_dissect_netrlogoncontrol2_reply(tvbuff_t *tvb, int offset,
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netlogon_werr_rc, &status);
 
-    if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+    if (status != 0)
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown WERR error 0x%08x"));
 
 

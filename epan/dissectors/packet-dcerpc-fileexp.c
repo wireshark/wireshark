@@ -311,11 +311,9 @@ inode, volume, etc all will be garbage.
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_error_st, &st); \
     st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u"); \
     if (st){ \
-      if (check_col (pinfo->cinfo, COL_INFO)) \
-        col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
+      col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
     }else{ \
-      if (check_col (pinfo->cinfo, COL_INFO)) \
-        col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str); \
+      col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str); \
     } \
   }
 
@@ -371,8 +369,7 @@ dissect_afsFid (tvbuff_t * tvb, int offset,
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			       hf_fileexp_afsFid_Unique, &unique);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u ", volume_low);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u ", volume_low);
 
   if ((vnode == 1) || (vnode == 2))
     {
@@ -381,8 +378,7 @@ dissect_afsFid (tvbuff_t * tvb, int offset,
   else
     {
       inode = ((volume_low << 16) + vnode) & 0x7fffffff;
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_fstr (pinfo->cinfo, COL_INFO, " inode:%u ", inode);
+      col_append_fstr (pinfo->cinfo, COL_INFO, " inode:%u ", inode);
     }
 
   proto_item_set_len (item, offset - old_offset);
@@ -534,8 +530,7 @@ dissect_afsConnParams (tvbuff_t * tvb, int offset,
     {
       col_append_str (pinfo->cinfo, COL_INFO, ":512BYTE_BLOCKS");
     }
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " Values:%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u%u",
 		     Values[0], Values[1], Values[2], Values[3],
 		     Values[4], Values[5], Values[6], Values[7], Values[8],
@@ -584,19 +579,16 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_afsNameString_t_principalName_size,
 			&string_size);
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < AFS_NAMEMAX)
     {
       proto_tree_add_item (tree, hf_fileexp_afsNameString_t_principalName_string, tvb, offset, string_size, ENC_ASCII|ENC_NA);
       namestring = tvb_get_string (wmem_packet_scope(), tvb, offset, string_size);
       offset += string_size;
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", namestring);
     }
   else
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO,
 			 " :FIXME!: Invalid string length of  %u",
 			 string_size);
@@ -644,7 +636,6 @@ dissect_afsNetAddr (tvbuff_t * tvb, int offset,
 
   if (type)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " Type:%u ", type);
 
 
@@ -661,25 +652,20 @@ dissect_afsNetAddr (tvbuff_t * tvb, int offset,
 	    case 1:
 	      if (data)
 		{
-		  if (check_col (pinfo->cinfo, COL_INFO))
 		    col_append_fstr (pinfo->cinfo, COL_INFO, " Port:%u",
 				     data);
 		}
 	      break;
 	    case 2:
-	      if (check_col (pinfo->cinfo, COL_INFO))
 		col_append_fstr (pinfo->cinfo, COL_INFO, " IP:%u.", data);
 	      break;
 	    case 3:
-	      if (check_col (pinfo->cinfo, COL_INFO))
 		col_append_fstr (pinfo->cinfo, COL_INFO, "%u.", data);
 	      break;
 	    case 4:
-	      if (check_col (pinfo->cinfo, COL_INFO))
 		col_append_fstr (pinfo->cinfo, COL_INFO, "%u.", data);
 	      break;
 	    case 5:
-	      if (check_col (pinfo->cinfo, COL_INFO))
 		col_append_fstr (pinfo->cinfo, COL_INFO, "%u", data);
 	      break;
 	    }
@@ -780,8 +766,7 @@ dissect_afsTaggedPath (tvbuff_t * tvb, int offset,
 		       tp_length, ENC_ASCII|ENC_NA);
   tp_chars = tvb_get_string (wmem_packet_scope(), tvb, offset, 1025);
   offset += 1025;
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " :tp_chars %s", tp_chars);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " :tp_chars %s", tp_chars);
 
 
   proto_item_set_len (item, offset - old_offset);
@@ -828,8 +813,7 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_afsacl_uuid1, &uuid1);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 		     uuid1.Data1, uuid1.Data2, uuid1.Data3, uuid1.Data4[0],
 		     uuid1.Data4[1], uuid1.Data4[2], uuid1.Data4[3],
@@ -839,8 +823,7 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_afsacl_defaultcell_uuid, &defaultcell);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     "  %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 		     defaultcell.Data1, defaultcell.Data2, defaultcell.Data3,
 		     defaultcell.Data4[0], defaultcell.Data4[1],
@@ -888,8 +871,7 @@ dissect_afsErrorStatus (tvbuff_t * tvb, int offset,
 			&st);
   st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u");
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -1107,34 +1089,28 @@ dissect_afsstorestatus (tvbuff_t * tvb, int offset,
   col_append_str (pinfo->cinfo, COL_INFO, " Mask=");
   if ((mask & AFS_SETMODTIME) == AFS_SETMODTIME)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, ":SETMODTIME-%u.%u",
 			 modtime_sec, modtime_usec);
     }
   if ((mask & AFS_SETOWNER) == AFS_SETOWNER)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, ":SETOWNER-%u", owner);
     }
   if ((mask & AFS_SETGROUP) == AFS_SETGROUP)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, ":SETGROUP-%u", group);
     }
   if ((mask & AFS_SETMODE) == AFS_SETMODE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, ":SETMODE-%o", mode);
     }
   if ((mask & AFS_SETACCESSTIME) == AFS_SETACCESSTIME)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, ":SETACCESSTIME-%u.%u",
 			 accesstime_sec, accesstime_usec);
     }
   if ((mask & AFS_SETCHANGETIME) == AFS_SETCHANGETIME)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, ":SETCHANGETIME-%u.%u",
 			 changetime_sec, changetime_usec);
     }
@@ -1228,7 +1204,6 @@ dissect_afstoken (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_endrangeext, &endrangeext);
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO,
 		     "  :Tokenid:%u/%u ExpirationTime:%u beginrange:%u endrange:%u beginrangeext:%u endrangeext:%u",
 		     tokenid_hi, tokenid_low, expirationtime, beginrange,
@@ -1360,12 +1335,10 @@ dissect_afstaggedname (tvbuff_t * tvb, int offset,
 			     tn_length, ENC_ASCII|ENC_NA);
       tn_string = tvb_get_string (wmem_packet_scope(), tvb, offset, 257);
       offset += 257;
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " :tn_tag: %s", tn_string);
     }
   else
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO,
 			 " :FIXME!: Invalid string length of  %u", tn_length);
     }
@@ -1444,7 +1417,6 @@ dissect_minvvp (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_minvvp_low,
 			&minvvp_low);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " minVVp:%u/%u", minvvp_high,
 		     minvvp_low);
 
@@ -1486,7 +1458,7 @@ dissect_afsuuid (tvbuff_t * tvb, int offset,
   offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fileexp_afsuuid_uuid, &uuid1);
 
 
-if (check_col (pinfo->cinfo, COL_INFO)) col_append_fstr (pinfo->cinfo, COL_INFO, ":%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", uuid1.Data1, uuid1.Data2, uuid1.Data3, uuid1.Data4[0], uuid1.Data4[1], uuid1.Data4[2], uuid1.Data4[3], uuid1.Data4[4], uuid1.Data4[5], uuid1.Data4[6], uuid1.Data4[7]);
+  col_append_fstr (pinfo->cinfo, COL_INFO, ":%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", uuid1.Data1, uuid1.Data2, uuid1.Data3, uuid1.Data4[0], uuid1.Data4[1], uuid1.Data4[2], uuid1.Data4[3], uuid1.Data4[4], uuid1.Data4[5], uuid1.Data4[6], uuid1.Data4[7]);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -1527,7 +1499,6 @@ dissect_offsetp (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_offsetp_low,
                         &offsetp_low);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " offsetp:%u/%u", offsetp_high,
                      offsetp_low);
 
@@ -1571,8 +1542,7 @@ dissect_returntokenidp (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_returntokenidp_low,
                         &returntokenidp_low);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " returnTokenIDp:%u/%u", returntokenidp_high,
+  col_append_fstr (pinfo->cinfo, COL_INFO, " returnTokenIDp:%u/%u", returntokenidp_high,
                      returntokenidp_low);
 
 
@@ -1642,8 +1612,7 @@ dissect_volsync (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vvspare2,
 			&vvspare2);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " volid_hi:%u volid_low:%u vv_hi:%u vv_low:%u vvage:%u vvpingage:%u vvpspare1:%u vvspare2:%u",
 		     volid_hi, volid_low, vv_hi, vv_low, vvage, vvpingage,
 		     vvspare1, vvspare2);
@@ -1957,8 +1926,7 @@ dissect_fetchstatus (tvbuff_t * tvb, int offset,
 			&spare6);
 
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO,
+  col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " :interfacever:%u filetype:%u linkcount:%u length:%u dataver:%u author:%u owner:%u group:%u calleraccess:%u anonaccess:%u aclexpire:%u mode:%u parentvnode:%u parentunique:%u modtimesec:%u changetime_sec:%u accesstime_sec:%u servermodtimesec:%u devicenumber:%u blocksused:%u clientspare:%u devicehighbits:%u agtypeunique:%u",
 		     interfaceversion, filetype, linkcount, length_low,
 		     dataversion_low, author, owner, group, calleraccess,
@@ -2019,8 +1987,7 @@ dissect_afsReturnDesc (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_afsreturndesc_type_low, &type_low);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " TokenId:%u/%u Type:%u/%u",
+  col_append_fstr (pinfo->cinfo, COL_INFO, " TokenId:%u/%u Type:%u/%u",
 		     tokenid_high, tokenid_low, type_high, type_low);
 
   offset =
@@ -2227,8 +2194,7 @@ fileexp_dissect_storedata_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_length, &length);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " Position:%u/%u Length:%u",
+  col_append_fstr (pinfo->cinfo, COL_INFO, " Position:%u/%u Length:%u",
 		     position_high, position_low, length);
 
   offset =
@@ -2398,8 +2364,7 @@ fileexp_dissect_fetchdata_rqst (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_length, &length);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " Position:%u/%u Length:%u",
+  col_append_fstr (pinfo->cinfo, COL_INFO, " Position:%u/%u Length:%u",
 		     position_high, position_low, length);
 
   offset =
@@ -2532,8 +2497,7 @@ fileexp_dissect_storeacl_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " aclType:%u",acltype);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " aclType:%u",acltype);
 
   return offset;
 }
@@ -2757,8 +2721,7 @@ fileexp_dissect_readdir_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_readdir_size, &size);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " Size:%u", size);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " Size:%u", size);
 
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
@@ -2845,8 +2808,7 @@ fileexp_dissect_removedir_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_returntokenidp_low, &returntokenidp_low);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " returnTokenIDp:%u/%u",
+  col_append_fstr (pinfo->cinfo, COL_INFO, " returnTokenIDp:%u/%u",
 		     returntokenidp_high, returntokenidp_low);
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
@@ -2991,8 +2953,7 @@ fileexp_dissect_makemountpoint_rqst (tvbuff_t * tvb, int offset,
 
   offset = dissect_afsFlags (tvb, offset, pinfo, tree, drep);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " Type:%u", type);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " Type:%u", type);
 
   return offset;
 
@@ -3044,7 +3005,7 @@ col_append_str (pinfo->cinfo, COL_INFO, " setObjectID");
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_setcontext_rqst_parm7, &parm7);
 
-if (check_col (pinfo->cinfo, COL_INFO)) col_append_fstr (pinfo->cinfo, COL_INFO, " epochTime:%u clientSizesAttrs:%u parm7:%u", epochtime, clientsizesattrs, parm7);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " epochTime:%u clientSizesAttrs:%u parm7:%u", epochtime, clientsizesattrs, parm7);
 
   return offset;
 }
@@ -3647,8 +3608,7 @@ static int
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_nextoffsetp_low, &nextoffsetp_low);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " NextOffsetp:%u/%u",
+  col_append_fstr (pinfo->cinfo, COL_INFO, " NextOffsetp:%u/%u",
 		     nextoffsetp_high, nextoffsetp_low);
 
   /* all packets seem to have SKIPTOKEN/SKIPSTATUS sent, and thus these structures are missing on calls holding tokens. */
@@ -3741,7 +3701,7 @@ static int
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_gettime_syncdispersion, &syncdispersion);
 
-  if (check_col (pinfo->cinfo, COL_INFO)) col_append_fstr (pinfo->cinfo, COL_INFO, " Secondsp:%u  Usecondsp:%u SyncDistance:/%u SyncDispersion:%u", secondsp, usecondsp, syncdistance, syncdispersion);
+  col_append_fstr (pinfo->cinfo, COL_INFO, " Secondsp:%u  Usecondsp:%u SyncDistance:/%u SyncDispersion:%u", secondsp, usecondsp, syncdistance, syncdispersion);
 
   MACRO_ST_CLEAR ("GetTime reply");
 
@@ -4028,8 +3988,7 @@ static int
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_cellidp_low, &cellidp_low);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " CellIDp:%u/%u", cellidp_high,
+  col_append_fstr (pinfo->cinfo, COL_INFO, " CellIDp:%u/%u", cellidp_high,
 		     cellidp_low);
 
   /* XXX figure out the afsBulkVolIDS */
@@ -4163,8 +4122,7 @@ static int
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_offsetp_low, &offsetp_low);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " Offsetp:%u/%u", offsetp_high,
+  col_append_fstr (pinfo->cinfo, COL_INFO, " Offsetp:%u/%u", offsetp_high,
 		     offsetp_low);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -4213,8 +4171,7 @@ static int
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_nextoffsetp_low, &nextoffsetp_low);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " NextOffsetp:%u/%u",
+  col_append_fstr (pinfo->cinfo, COL_INFO, " NextOffsetp:%u/%u",
 		     nextoffsetp_high, nextoffsetp_low);
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_fetchstatus,
