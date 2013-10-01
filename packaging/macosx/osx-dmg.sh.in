@@ -46,6 +46,7 @@ tmp_dir="/tmp/dmg-$$"
 auto_open_opt=
 utilities="Utilities"
 ws_bin="$app_bundle/Contents/Resources/bin/wireshark-bin"
+readme_name="Read_me_first_gtk.rtf"
 
 if [ -d /Applications/Xcode.app/Developer ]
 then
@@ -57,11 +58,6 @@ fi
 if [ ! -z $developer_path ]
 then
 	PATH=$PATH:$developer_path/Tools:$developer_path/usr/bin
-fi
-
-if [ ! -f "$ws_bin" ] ; then
-	# Assume it's a native (Qt) build
-	ws_bin="$app_bundle/Contents/MacOS/Wireshark"
 fi
 
 # Help message
@@ -82,6 +78,8 @@ OPTIONS
 	-b,--app-bundle
 		set the path to the Wireshark.app that should be copied
 		in the dmg
+	-qt,--qt-flavor
+		use the Qt flavor
 "
 }
 
@@ -97,6 +95,10 @@ do
 	  	-b|--app-bundle)
 			app_bundle="$2"
 			shift 1 ;;
+		-qt|--qt-flavor)
+			readme_name="Read_me_first_qt.rtf"
+			ws_bin="$app_bundle/Contents/MacOS/Wireshark"
+			;;
 		*)
 			echo "Invalid command line option"
 			exit 2 ;;
@@ -169,7 +171,7 @@ cp -rf "$pkg_file" "$tmp_dir"/ || exit 1
 #cp -rf "$utilities" "$tmp_dir"/
 #ln -sf /Library/StartupItems "$tmp_dir/$utilities"/
 # Copy the readme
-cp -rf  Read_me_first.rtf "$tmp_dir"/"Read me first.rtf" || exit 1
+cp -rf  "$readme_name" "$tmp_dir"/"Read me first.rtf" || exit 1
 
 # If the appearance settings are not to be modified we just copy them
 if [ ${set_ds_store} = "false" ]; then

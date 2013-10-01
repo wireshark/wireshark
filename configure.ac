@@ -1346,6 +1346,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			have_qt=yes		
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-qt"
 			OSX_APP_FLAGS="$OSX_APP_FLAGS -qt"
+			OSX_DMG_FLAGS="-qt"
 		],
 		[AC_MSG_ERROR([Qt is not available])])
 
@@ -1701,6 +1702,7 @@ AC_SUBST(wireshark_man)
 AM_CONDITIONAL(HAVE_Qt, test "$have_qt" = "yes")
 AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
 AC_SUBST(OSX_APP_FLAGS)
+AC_SUBST(OSX_DMG_FLAGS)
 
 
 # Enable/disable tshark

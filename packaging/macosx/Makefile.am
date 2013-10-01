@@ -27,7 +27,8 @@ EXTRA_DIST = \
 	native-gtk/glibconfig.h	\
 	osx-app.sh	\
 	osx-dmg.sh.in	\
-	Read_me_first.rtf	\
+	Read_me_first_gtk.rtf	\
+	Read_me_first_qt.rtf	\
 	Resources/bin/getdisplay.sh	\
 	Resources/bin/wireshark	\
 	Resources/etc/fonts/fonts.conf	\

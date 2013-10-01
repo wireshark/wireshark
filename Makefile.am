@@ -1150,7 +1150,7 @@ osx-package: osx-app packaging/macosx/COPYING.txt
 	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
 		cd $(srcdir)/packaging/macosx ;  \
 		chmod +x ./osx-dmg.sh ; \
-		./osx-dmg.sh ; \
+		./osx-dmg.sh @OSX_DMG_FLAGS@ ; \
 	fi
 
 osx-install: osx-app
