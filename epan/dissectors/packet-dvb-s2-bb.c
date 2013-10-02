@@ -144,7 +144,7 @@ static const value_string modeadapt_modcods[] = {
     { 6, "QPSK 2/3"},
     { 7, "QPSK 3/4"},
     { 8, "QPSK 4/5"},
-    { 9, "QPSK 5/9"},
+    { 9, "QPSK 5/6"},
     {10, "QPSK 8/9"},
     {11, "QPSK 9/10"},
     {12, "8PSK 3/5"},
