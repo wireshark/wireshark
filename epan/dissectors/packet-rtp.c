@@ -1370,9 +1370,9 @@ dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
 		/* Skip bytes with the value 0, they are padding */
 		start_ext_offset = ext_offset;
 		while (tvb_get_guint8 (tvb, ext_offset) == 0) {
+			ext_offset ++;
 			if (ext_offset >= tvb_length (tvb))
 				return;
-			ext_offset ++;
 		}
 
 		/* Add padding */
