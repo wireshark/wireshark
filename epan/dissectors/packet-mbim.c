@@ -484,7 +484,6 @@ struct mbim_info {
 
 struct mbim_conv_info {
     wmem_tree_t *trans;
-    guint32 cellular_class;
 };
 
 #define MBIM_OPEN_MSG            0x00000001
@@ -770,12 +769,9 @@ static const value_string mbim_device_caps_info_device_type_vals[] = {
     { 0, NULL}
 };
 
-#define MBIM_CELLULAR_CLASS_GSM  1
-#define MBIM_CELLULAR_CLASS_CDMA 2
-
 static const value_string mbim_cellular_class_vals[] = {
-    { MBIM_CELLULAR_CLASS_GSM, "GSM"},
-    { MBIM_CELLULAR_CLASS_CDMA, "CDMA"},
+    { 1, "GSM"},
+    { 2, "CDMA"},
     { 0, NULL}
 };
 
@@ -1594,8 +1590,7 @@ mbim_dissect_cid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offs
 }
 
 static void
-mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
-                              struct mbim_conv_info *mbim_conv)
+mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
     gint base_offset;
     guint32 custom_class_offset, custom_class_size, device_id_offset, device_id_size,
@@ -1604,9 +1599,7 @@ mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_device_caps_info_device_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    mbim_conv->cellular_class = tvb_get_letohl(tvb, offset);
-    proto_tree_add_uint(tree, hf_mbim_device_caps_info_cellular_class, tvb, offset, 4,
-                        mbim_conv->cellular_class);
+    proto_tree_add_item(tree, hf_mbim_device_caps_info_cellular_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_device_caps_info_voice_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -3299,7 +3292,6 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if (!mbim_conv) {
         mbim_conv = wmem_new(wmem_file_scope(), struct mbim_conv_info);
         mbim_conv->trans = wmem_tree_new(wmem_file_scope());
-        mbim_conv->cellular_class = 0;
         conversation_add_proto_data(conversation, proto_mbim, mbim_conv);
     }
 
@@ -3859,7 +3851,7 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         switch (cid) {
                             case MBIM_CID_DEVICE_CAPS:
                                 if (msg_type == MBIM_COMMAND_DONE) {
-                                    mbim_dissect_device_caps_info(tvb, pinfo, subtree, offset, mbim_conv);
+                                    mbim_dissect_device_caps_info(tvb, pinfo, subtree, offset);
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
                                 }

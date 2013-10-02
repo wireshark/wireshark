@@ -3782,7 +3782,7 @@ proto_register_gsm_sms(void)
                                     "Whether the dissector should reassemble SMS spanning multiple packets",
                                     &reassemble_sms);
 
-    register_dissector("gsm_sms", dissect_gsm_sms, proto_gsm_sms);
+    /* register_dissector("gsm_sms", dissect_gsm_sms, proto_gsm_sms); */
 
     /* GSM SMS UD dissector initialization routines */
     register_init_routine (gsm_sms_defragment_init);
