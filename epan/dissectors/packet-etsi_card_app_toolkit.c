@@ -44,7 +44,7 @@ void proto_reg_handoff_card_app_toolkit(void);
 
 static int proto_cat = -1;
 
-static dissector_table_t sms_dissector_table;	/* SMS TPDU */
+static dissector_handle_t gsm_sms_handle;	/* SMS TPDU */
 
 static int hf_cat_tlv = -1;
 
@@ -976,7 +976,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x0b:	/* sms tpdu */
 			new_tvb = tvb_new_subset(tvb, pos, len, len);
 			if (new_tvb) {
-				dissector_try_uint(sms_dissector_table, 0, new_tvb, pinfo, elem_tree);
+				call_dissector_only(gsm_sms_handle, new_tvb, pinfo, elem_tree, NULL);
 			}
 			break;
 		case 0x0d:	/* text string */
@@ -1673,7 +1673,5 @@ proto_register_card_app_toolkit(void)
 void
 proto_reg_handoff_card_app_toolkit(void)
 {
-	sms_dissector_table =
-		register_dissector_table("etsi_cat.sms_tpdu",
-		"ETSI CAT SMS TPDU", FT_UINT8, BASE_DEC);
+	gsm_sms_handle = find_dissector("gsm_sms");
 }

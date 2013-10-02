@@ -2384,7 +2384,7 @@ static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
 static expert_field ei_gsm_map_unknown_parameter = EI_INIT;
 static expert_field ei_gsm_map_unknown_invokeData = EI_INIT;
 
-static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
+static dissector_handle_t	gsm_sms_handle;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
 static dissector_handle_t	ranap_handle;
 static dissector_handle_t	dtap_handle;
@@ -5190,7 +5190,7 @@ dissect_gsm_map_er_SM_DeliveryFailureCause(gboolean implicit_tag _U_, tvbuff_t *
   /* Detailed diagnostic information contains either a SMS-SUBMIT-REPORT or a SMS-DELIVERY-REPORT */
   oct = tvb_get_guint8((tvbuff_t*)actx->value_ptr, 0);
   actx->pinfo->p2p_dir = ((oct & 0x03) == 0) ? P2P_DIR_RECV : P2P_DIR_SENT;
-  dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
+  call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
 
 
 
@@ -6223,7 +6223,7 @@ dissect_gsm_map_sm_MO_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
+	call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
 
 
 
@@ -6248,7 +6248,7 @@ dissect_gsm_map_sm_MO_ForwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
+        call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
 
 
 
@@ -6279,7 +6279,7 @@ dissect_gsm_map_sm_MT_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
+	call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
 
 
 
@@ -6304,7 +6304,7 @@ dissect_gsm_map_sm_MT_ForwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
+        call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
 
 
 
@@ -6489,7 +6489,7 @@ dissect_gsm_map_sm_MT_ForwardSM_VGCS_Arg(gboolean implicit_tag _U_, tvbuff_t *tv
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
+        call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
 
 
 
@@ -6543,7 +6543,7 @@ dissect_gsm_map_sm_MT_ForwardSM_VGCS_Res(gboolean implicit_tag _U_, tvbuff_t *tv
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
+        call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
 
 
 
@@ -17396,7 +17396,7 @@ dissect_gsm_old_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
+	call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
 
 
 
@@ -20056,6 +20056,7 @@ void proto_reg_handoff_gsm_map(void) {
         data_handle = find_dissector("data");
         ranap_handle = find_dissector("ranap");
         dtap_handle = find_dissector("gsm_a_dtap");
+        gsm_sms_handle = find_dissector("gsm_sms");
 
         map_handle = find_dissector("gsm_map");
 		oid_add_from_string("itu(0) administration(2) japan(440)","0.2.440" );
@@ -26586,7 +26587,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2607 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2608 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -27230,7 +27231,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ericsson_EnhancedCheckIMEI_Arg,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2638 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2639 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -27259,10 +27260,6 @@ void proto_register_gsm_map(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_gsm_map = expert_register_protocol(proto_gsm_map);
   expert_register_field_array(expert_gsm_map, ei, array_length(ei));
-
-  sms_dissector_table = register_dissector_table("gsm_map.sms_tpdu",
-						 "GSM SMS TPDU", FT_UINT8,
-						 BASE_DEC);
 
   map_prop_arg_opcode_table = register_dissector_table("gsm_map.prop.arg.opcode", "GSM_MAP Proprietary Arg Opcodes", FT_UINT8, BASE_DEC);
   map_prop_res_opcode_table = register_dissector_table("gsm_map.prop.res.opcode", "GSM_MAP Proprietary Res Opcodes", FT_UINT8, BASE_DEC);
@@ -27332,7 +27329,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2678 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2675 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

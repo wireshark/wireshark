@@ -89,7 +89,7 @@ static gint ett_rp_msg = -1;
 
 static char a_bigbuf[1024];
 
-static dissector_table_t sms_dissector_table;	/* SMS TPDU */
+static dissector_handle_t gsm_sms_handle;	/* SMS TPDU */
 
 static proto_tree *g_tree;
 
@@ -159,7 +159,7 @@ de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 	 */
 	tpdu_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 
-	dissector_try_uint(sms_dissector_table, 0, tpdu_tvb, pinfo, g_tree);
+	call_dissector_only(gsm_sms_handle, tpdu_tvb, pinfo, g_tree, NULL);
 
 	curr_offset += len;
 
@@ -563,10 +563,6 @@ proto_register_gsm_a_rp(void)
 
 	proto_register_field_array(proto_a_rp, hf, array_length(hf));
 
-	sms_dissector_table =
-		register_dissector_table("gsm_a.sms_tpdu", "GSM SMS TPDU",
-		FT_UINT8, BASE_DEC);
-
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("gsm_a_rp", dissect_rp, proto_a_rp);
@@ -580,5 +576,5 @@ proto_reg_handoff_gsm_a_rp(void)
 	gsm_a_rp_handle = create_dissector_handle(dissect_rp, proto_a_rp);
 	/* Dissect messages embedded in SIP */
 	dissector_add_string("media_type","application/vnd.3gpp.sms", gsm_a_rp_handle);
-
+	gsm_sms_handle = find_dissector("gsm_sms");
 }

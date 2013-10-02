@@ -3782,7 +3782,7 @@ proto_register_gsm_sms(void)
                                     "Whether the dissector should reassemble SMS spanning multiple packets",
                                     &reassemble_sms);
 
-    /* register_dissector("gsm_sms", dissect_gsm_sms, proto_gsm_sms); */
+    register_dissector("gsm_sms", dissect_gsm_sms, proto_gsm_sms);
 
     /* GSM SMS UD dissector initialization routines */
     register_init_routine (gsm_sms_defragment_init);
@@ -3792,11 +3792,4 @@ proto_register_gsm_sms(void)
 void
 proto_reg_handoff_gsm_sms(void)
 {
-    dissector_handle_t             gsm_sms_handle;
-
-    gsm_sms_handle = create_dissector_handle(dissect_gsm_sms, proto_gsm_sms);
-
-    dissector_add_uint("gsm_a.sms_tpdu", 0, gsm_sms_handle);
-    dissector_add_uint("gsm_map.sms_tpdu", 0, gsm_sms_handle);
-    dissector_add_uint("etsi_cat.sms_tpdu", 0, gsm_sms_handle);
 }

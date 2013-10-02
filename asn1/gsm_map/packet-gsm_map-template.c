@@ -188,7 +188,7 @@ static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
 static expert_field ei_gsm_map_unknown_parameter = EI_INIT;
 static expert_field ei_gsm_map_unknown_invokeData = EI_INIT;
 
-static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
+static dissector_handle_t	gsm_sms_handle;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
 static dissector_handle_t	ranap_handle;
 static dissector_handle_t	dtap_handle;
@@ -2208,6 +2208,7 @@ void proto_reg_handoff_gsm_map(void) {
         data_handle = find_dissector("data");
         ranap_handle = find_dissector("ranap");
         dtap_handle = find_dissector("gsm_a_dtap");
+        gsm_sms_handle = find_dissector("gsm_sms");
 
         map_handle = find_dissector("gsm_map");
 		oid_add_from_string("itu(0) administration(2) japan(440)","0.2.440" );
@@ -2663,10 +2664,6 @@ void proto_register_gsm_map(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_gsm_map = expert_register_protocol(proto_gsm_map);
   expert_register_field_array(expert_gsm_map, ei, array_length(ei));
-
-  sms_dissector_table = register_dissector_table("gsm_map.sms_tpdu",
-						 "GSM SMS TPDU", FT_UINT8,
-						 BASE_DEC);
 
   map_prop_arg_opcode_table = register_dissector_table("gsm_map.prop.arg.opcode", "GSM_MAP Proprietary Arg Opcodes", FT_UINT8, BASE_DEC);
   map_prop_res_opcode_table = register_dissector_table("gsm_map.prop.res.opcode", "GSM_MAP Proprietary Res Opcodes", FT_UINT8, BASE_DEC);
