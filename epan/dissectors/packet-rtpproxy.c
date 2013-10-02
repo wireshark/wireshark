@@ -258,7 +258,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_reply, tvb, offset, -1, ENC_NA);
 
 				rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_reply);
-				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_status, tvb, offset, realsize - offset, ENC_NA);
+				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_status, tvb, offset, realsize - offset, ENC_ASCII | ENC_NA);
 				break;
 			}
 		case 'i':
@@ -376,7 +376,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Extract Notification address */
 			if (tmp == 'u'){
 				new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-				ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify, tvb, offset, realsize - offset, ENC_NA);
+				ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify, tvb, offset, realsize - offset, ENC_ASCII | ENC_NA);
 				proto_item_set_text(ti, "Notify");
 				rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_notify);
 				if(new_offset == -1){
@@ -431,7 +431,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (tmp == 'a'){
 				/* A specific case - short statistics answer */
 				/* %COOKIE% active sessions: %NUM1% */
-				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_status, tvb, offset, realsize - offset, ENC_NA);
+				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_status, tvb, offset, realsize - offset, ENC_ASCII | ENC_NA);
 				break;
 			}
 			if ((tmp == '0')&& ((tvb_reported_length(tvb) == offset+1)||(tvb_reported_length(tvb) == offset+2))){
