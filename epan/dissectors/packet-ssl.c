@@ -2154,14 +2154,15 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
                         size = (int)strlen(ssl_psk);
 
-                        /* psk must be 0 to 16 bytes*/
-                        if (size < 0 || size > 32 || size % 2 != 0)
+                        /* The length of PSK ranges from 0..2^16-1 octets (times two for hex string) */
+                        if (size < 0 || size % 2 != 0 || size >= (2 << 16))
                         {
+                            ssl_debug_printf("dissect_ssl3_handshake: length of ssl.psk must be multiple of two");
                             break;
                         }
 
                         /* convert hex string into char*/
-                        out = (unsigned char*) wmem_alloc(wmem_packet_scope(), size > 0 ? size / 2 : 0);
+                        out = (unsigned char*) wmem_alloc(wmem_packet_scope(), size / 2);
 
                         for (i = 0; i < size; i+=2)
                         {
@@ -2172,7 +2173,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
                         ssl->psk = (guchar*) out;
 
-                        psk_len = size > 0 ? size / 2 : 0;
+                        psk_len = size / 2;
                         pre_master_len = psk_len * 2 + 4;
 
                         pre_master_secret.data = (guchar *)wmem_alloc(wmem_file_scope(), pre_master_len);
