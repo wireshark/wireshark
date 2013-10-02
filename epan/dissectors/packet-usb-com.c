@@ -78,6 +78,7 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     usb_conv_info_t *usb_conv_info;
     proto_tree *subtree;
     proto_item *ti;
+    gint offset = 0;
 
     usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
 
@@ -94,7 +95,7 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         {
             case COM_SUBCLASS_MBIM:
                 if (mbim_handle) {
-                    return call_dissector(mbim_handle, tvb, pinfo, tree);
+                    offset = call_dissector_only(mbim_handle, tvb, pinfo, tree, NULL);
                 }
                 break;
             default:
@@ -102,7 +103,9 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
     }
 
-    proto_tree_add_item(subtree, hf_usb_com_payload, tvb, 0, -1, ENC_NA);
+    if (tvb_reported_length_remaining(tvb, offset) != 0) {
+        proto_tree_add_item(subtree, hf_usb_com_payload, tvb, offset, -1, ENC_NA);
+    }
     return tvb_length(tvb);
 }
 

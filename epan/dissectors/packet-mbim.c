@@ -474,8 +474,10 @@ static gint ett_mbim_pair_list = -1;
 static gint ett_mbim_pin = -1;
 static gint ett_mbim_buffer = -1;
 
-static dissector_handle_t proactive_handle = NULL;
-static dissector_handle_t etsi_cat_handle = NULL;
+static dissector_handle_t proactive_handle;
+static dissector_handle_t etsi_cat_handle;
+static dissector_handle_t gsm_sms_handle;
+static dissector_handle_t cdma_sms_handle;
 
 struct mbim_info {
     guint32 req_frame;
@@ -484,6 +486,7 @@ struct mbim_info {
 
 struct mbim_conv_info {
     wmem_tree_t *trans;
+    guint32 cellular_class;
 };
 
 #define MBIM_OPEN_MSG            0x00000001
@@ -769,9 +772,12 @@ static const value_string mbim_device_caps_info_device_type_vals[] = {
     { 0, NULL}
 };
 
+#define MBIM_CELLULAR_CLASS_GSM  1
+#define MBIM_CELLULAR_CLASS_CDMA 2
+
 static const value_string mbim_cellular_class_vals[] = {
-    { 1, "GSM"},
-    { 2, "CDMA"},
+    { MBIM_CELLULAR_CLASS_GSM, "GSM"},
+    { MBIM_CELLULAR_CLASS_CDMA, "CDMA"},
     { 0, NULL}
 };
 
@@ -1590,7 +1596,8 @@ mbim_dissect_cid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offs
 }
 
 static void
-mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
+                              struct mbim_conv_info *mbim_conv)
 {
     gint base_offset;
     guint32 custom_class_offset, custom_class_size, device_id_offset, device_id_size,
@@ -1599,7 +1606,9 @@ mbim_dissect_device_caps_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_device_caps_info_device_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_mbim_device_caps_info_cellular_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    mbim_conv->cellular_class = tvb_get_letohl(tvb, offset);
+    proto_tree_add_uint(tree, hf_mbim_device_caps_info_cellular_class, tvb, offset, 4,
+                        mbim_conv->cellular_class);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_device_caps_info_voice_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -2653,10 +2662,14 @@ mbim_dissect_sms_configuration_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 }
 
 static void
-mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+                            struct mbim_conv_info *mbim_conv)
 {
     gint base_offset;
     guint32 pdu_data_offset, pdu_data_size;
+    tvbuff_t *sms_tvb;
+    proto_item *ti;
+    proto_tree *subtree;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_sms_pdu_record_message_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2670,8 +2683,15 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_uint(tree, hf_mbim_sms_pdu_record_pdu_data_size, tvb, offset, 4, pdu_data_size);
     offset += 4;
     if (pdu_data_offset && pdu_data_size) {
-        proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
-                            pdu_data_size, ENC_NA);
+        ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
+                                 pdu_data_size, ENC_NA);
+        subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
+        sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset, pdu_data_size, pdu_data_size);
+        if (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) {
+            call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
+        } else if (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) {
+            call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
+        }
     }
 }
 
@@ -2737,7 +2757,8 @@ mbim_dissect_sms_read_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 static void
-mbim_dissect_sms_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+mbim_dissect_sms_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+                           struct mbim_conv_info *mbim_conv)
 {
     proto_item *ti;
     proto_tree *subtree;
@@ -2771,7 +2792,7 @@ mbim_dissect_sms_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                                          sms_size, "SMS Element #%u", i+1);
                 subtree = proto_item_add_subtree(ti, ett_mbim_pair_list);
                 if (format == MBIM_SMS_FORMAT_PDU) {
-                    mbim_dissect_sms_pdu_record(tvb, pinfo, subtree, base_offset + sms_offset);
+                    mbim_dissect_sms_pdu_record(tvb, pinfo, subtree, base_offset + sms_offset, mbim_conv);
                 } else if (format == MBIM_SMS_FORMAT_CDMA) {
                     mbim_dissect_sms_cdma_record(tvb, pinfo, subtree, base_offset + sms_offset);
                 } else {
@@ -2784,10 +2805,14 @@ mbim_dissect_sms_read_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static void
-mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+                          struct mbim_conv_info *mbim_conv)
 {
     gint base_offset;
     guint32 pdu_data_offset, pdu_data_size;
+    tvbuff_t *sms_tvb;
+    proto_item *ti;
+    proto_tree *subtree;
 
     base_offset = offset;
     pdu_data_offset = tvb_get_letohl(tvb, offset);
@@ -2797,8 +2822,15 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_tree_add_uint(tree, hf_mbim_sms_send_pdu_pdu_data_size, tvb, offset, 4, pdu_data_size);
     offset += 4;
     if (pdu_data_offset && pdu_data_size) {
-        proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
-                            pdu_data_size, ENC_NA);
+        ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
+                                 pdu_data_size, ENC_NA);
+        subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
+        sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset, pdu_data_size, pdu_data_size);
+        if (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) {
+            call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
+        } else if (mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_CDMA) {
+            call_dissector(cdma_sms_handle, sms_tvb, pinfo, subtree);
+        }
     }
 }
 
@@ -2839,7 +2871,8 @@ mbim_dissect_sms_send_cdma(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 static void
-mbim_dissect_set_sms_send(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+mbim_dissect_set_sms_send(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+                          struct mbim_conv_info *mbim_conv)
 {
     guint32 format;
 
@@ -2847,7 +2880,7 @@ mbim_dissect_set_sms_send(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_tree_add_uint(tree, hf_mbim_set_sms_send_format, tvb, offset, 4, format);
     offset += 4;
     if (format == MBIM_SMS_FORMAT_PDU) {
-        mbim_dissect_sms_send_pdu(tvb, pinfo, tree, offset);
+        mbim_dissect_sms_send_pdu(tvb, pinfo, tree, offset, mbim_conv);
     } else if (format == MBIM_SMS_FORMAT_CDMA) {
         mbim_dissect_sms_send_cdma(tvb, pinfo, tree, offset);
     } else {
@@ -3292,6 +3325,7 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if (!mbim_conv) {
         mbim_conv = wmem_new(wmem_file_scope(), struct mbim_conv_info);
         mbim_conv->trans = wmem_tree_new(wmem_file_scope());
+        mbim_conv->cellular_class = 0;
         conversation_add_proto_data(conversation, proto_mbim, mbim_conv);
     }
 
@@ -3556,7 +3590,7 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 break;
                             case MBIM_CID_SMS_SEND:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    mbim_dissect_set_sms_send(tvb, pinfo, subtree, offset);
+                                    mbim_dissect_set_sms_send(tvb, pinfo, subtree, offset, mbim_conv);
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
                                 }
@@ -3851,7 +3885,7 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         switch (cid) {
                             case MBIM_CID_DEVICE_CAPS:
                                 if (msg_type == MBIM_COMMAND_DONE) {
-                                    mbim_dissect_device_caps_info(tvb, pinfo, subtree, offset);
+                                    mbim_dissect_device_caps_info(tvb, pinfo, subtree, offset, mbim_conv);
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
                                 }
@@ -3985,7 +4019,7 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 mbim_dissect_sms_configuration_info(tvb, pinfo, subtree, offset);
                                 break;
                             case MBIM_CID_SMS_READ:
-                                mbim_dissect_sms_read_info(tvb, pinfo, subtree, offset);
+                                mbim_dissect_sms_read_info(tvb, pinfo, subtree, offset, mbim_conv);
                                 break;
                             case MBIM_CID_SMS_SEND:
                                 if (msg_type == MBIM_COMMAND_DONE) {
@@ -6339,6 +6373,8 @@ proto_reg_handoff_mbim(void)
 {
     proactive_handle = find_dissector("gsm_sim.bertlv");
     etsi_cat_handle = find_dissector("etsi_cat");
+    gsm_sms_handle = find_dissector("gsm_sms_handle");
+    cdma_sms_handle = find_dissector("ansi_637_trans");
 }
 
 /*
