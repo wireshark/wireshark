@@ -5237,11 +5237,11 @@ void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info 
             /* The signalling protocol (i.e. RRC) won't know the current SFN/SF, so
                don't try to set a time reference yet */
             /* Set time reference for this UE */
-//            ue_state->firstCycleStart = pinfo->fd->abs_ts;
-//            ue_state->firstCycleStartSet = TRUE;
+/*            ue_state->firstCycleStart = pinfo->fd->abs_ts;
+            ue_state->firstCycleStartSet = TRUE;*/
 
             /* Current time starts off here */
-//            ue_state->currentTime = pinfo->fd->abs_ts;
+/*            ue_state->currentTime = pinfo->fd->abs_ts;*/
         }
         else {
         	previousFrameNum = ue_state->config.frameNum;
