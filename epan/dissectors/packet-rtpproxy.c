@@ -32,6 +32,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/conversation.h>
 
 static int proto_rtpproxy = -1;
 
@@ -59,6 +60,19 @@ static int hf_rtpproxy_mediaid = -1;
 static int hf_rtpproxy_reply = -1;
 static int hf_rtpproxy_version_request = -1;
 static int hf_rtpproxy_version_supported = -1;
+
+/* Request/response tracking */
+static int hf_rtpproxy_request_in = -1;
+static int hf_rtpproxy_response_in = -1;
+
+typedef struct _rtpproxy_info {
+	guint32 req_frame;
+	guint32 resp_frame;
+} rtpproxy_info_t;
+
+typedef struct _rtpproxy_conv_info {
+	wmem_tree_t *trans;
+} rtpproxy_conv_info_t;
 
 static const value_string commandtypenames[] = {
 	{ 'V', "Handshake/Ping" },
@@ -150,6 +164,33 @@ rtpptoxy_add_tag(proto_tree *rtpproxy_tree, tvbuff_t *tvb, guint begin, guint re
 	return (end == realsize ? -1 : (gint)end);
 }
 
+void
+rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree, rtpproxy_conv_info_t *rtpproxy_conv, gchar* cookie)
+{
+	rtpproxy_info_t *rtpproxy_info;
+	proto_item *pi;
+
+	if (!PINFO_FD_VISITED(pinfo)) {
+		if (is_request){
+			rtpproxy_info = wmem_new(wmem_file_scope(), rtpproxy_info_t);
+			rtpproxy_info->req_frame = PINFO_FD_NUM(pinfo);
+			rtpproxy_info->resp_frame = 0;
+			wmem_tree_insert_string(rtpproxy_conv->trans, cookie, rtpproxy_info, 0);
+		} else {
+			rtpproxy_info = (rtpproxy_info_t *)wmem_tree_lookup_string(rtpproxy_conv->trans, cookie, 0);
+			if (rtpproxy_info) {
+				rtpproxy_info->resp_frame = PINFO_FD_NUM(pinfo);
+			}
+		}
+	} else {
+		rtpproxy_info = (rtpproxy_info_t *)wmem_tree_lookup_string(rtpproxy_conv->trans, cookie, 0);
+		if (rtpproxy_info && (is_request ? rtpproxy_info->resp_frame : rtpproxy_info->req_frame)) {
+			pi = proto_tree_add_uint(rtpproxy_tree, is_request ? hf_rtpproxy_response_in : hf_rtpproxy_request_in, tvb, 0, 0, is_request ? rtpproxy_info->resp_frame : rtpproxy_info->req_frame);
+			PROTO_ITEM_SET_GENERATED(pi);
+		}
+	}
+}
+
 static void
 dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -161,6 +202,9 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8* rawstr;
 	proto_item *ti;
 	proto_tree *rtpproxy_tree;
+	conversation_t *conversation;
+	rtpproxy_conv_info_t *rtpproxy_conv;
+	gchar* cookie = NULL;
 
 	/* Clear out stuff in the info column - we''l set it later */
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -171,6 +215,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Extract Cookie */
 	offset = tvb_find_guint8(tvb, offset, -1, ' ');
 	proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_cookie, tvb, 0, offset, ENC_ASCII | ENC_NA);
+	cookie = tvb_get_string(wmem_packet_scope(), tvb, 0, offset);
 
 	/* Skip whitespace */
 	offset = tvb_skip_wsp(tvb, offset+1, -1);
@@ -188,6 +233,15 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy (no LF)");
 
+	/* Try to create conversation */
+	conversation = find_or_create_conversation(pinfo);
+	rtpproxy_conv = (rtpproxy_conv_info_t *)conversation_get_proto_data(conversation, proto_rtpproxy);
+	if (!rtpproxy_conv) {
+		rtpproxy_conv = wmem_new(wmem_file_scope(), rtpproxy_conv_info_t);
+		rtpproxy_conv->trans = wmem_tree_new(wmem_file_scope());
+		conversation_add_proto_data(conversation, proto_rtpproxy, rtpproxy_conv);
+	}
+
 	/* Get payload string */
 	rawstr = tvb_get_string(wmem_packet_scope(), tvb, offset, realsize - offset);
 
@@ -198,6 +252,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 's':
 			/* A specific case - long statistics answer */
 			/* %COOKIE% sessions created %NUM0% active sessions: %NUM1% */
+			rtpproxy_add_tid(FALSE, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
 			if ('e' == tvb_get_guint8(tvb, offset+1)){
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Reply: %s", rawstr);
 				ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_reply, tvb, offset, -1, ENC_NA);
@@ -216,6 +271,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 'r':
 		case 'c':
 		case 'q':
+			rtpproxy_add_tid(TRUE, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", rawstr);
 			ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_request, tvb, offset, -1, ENC_NA);
 			rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_request);
@@ -358,6 +414,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case '7':
 		case '8':
 		case '9':
+			rtpproxy_add_tid(FALSE, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
 			if (tmp == 'e')
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Error reply: %s", rawstr);
 			else
@@ -728,6 +785,33 @@ proto_register_rtpproxy(void)
 				HFILL
 			}
 		},
+		{
+			&hf_rtpproxy_request_in,
+			{
+				"Request In",
+				"rtpproxy.request_in",
+				FT_FRAMENUM,
+				BASE_NONE,
+				NULL,
+				0x0,
+				NULL,
+				HFILL
+			}
+
+		},
+		{
+			&hf_rtpproxy_response_in,
+			{
+				"Response In",
+				"rtpproxy.response_in",
+				FT_FRAMENUM,
+				BASE_NONE,
+				NULL,
+				0x0,
+				NULL,
+				HFILL
+			}
+		}
 	};
 
 	/* Setup protocol subtree array */
