@@ -3322,27 +3322,27 @@ proto_register_enip(void)
    static hf_register_info hfdlr[] = {
       /* Ring Sub-type */
       { &hf_dlr_ringsubtype,
-        { "Subtype", "enip.dlr.ringsubtype",
+        { "Ring Sub-Type", "enip.dlr.ringsubtype",
           FT_UINT8, BASE_HEX, NULL, 0,
-          "Ring Sub-Type", HFILL }
+          NULL, HFILL }
       },
       /* Ring Protocol Version */
       { &hf_dlr_ringprotoversion,
-        { "Version", "enip.dlr.protversion",
+        { "Ring Protocol Version", "enip.dlr.protversion",
           FT_UINT8, BASE_DEC, NULL, 0,
-          "Ring Protocol Version", HFILL }
+          NULL, HFILL }
       },
       /* Frame Type */
       { &hf_dlr_frametype,
-        { "Frametype", "enip.dlr.frametype",
+        { "Frame Type", "enip.dlr.frametype",
           FT_UINT8, BASE_HEX, VALS(dlr_frame_type_vals), 0,
-          "Frame Type", HFILL }
+          NULL, HFILL }
       },
       /* Source Port */
       { &hf_dlr_sourceport,
-        { "Sourceport", "enip.dlr.sourceport",
+        { "Source Port", "enip.dlr.sourceport",
           FT_UINT8, BASE_HEX, VALS(dlr_source_port_vals), 0,
-          "Source Port", HFILL }
+          NULL, HFILL }
       },
       /* Source IP Address */
       { &hf_dlr_sourceip,
@@ -3394,7 +3394,7 @@ proto_register_enip(void)
       },
       /* Neighbor_Check_Response Source Port */
       { &hf_dlr_nressourceport,
-        { "Sourceport", "enip.dlr.nressourceport",
+        { "Request Source Port", "enip.dlr.nressourceport",
           FT_UINT8, BASE_HEX, VALS(dlr_source_port_vals), 0,
           "Neighbor_Check_Response Source Port", HFILL }
       },
