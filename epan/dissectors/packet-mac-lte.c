@@ -1260,6 +1260,7 @@ static void mac_lte_drx_start_timer(drx_state_t *p_state, drx_timer_type_t timer
             timerLength = p_state->config.retransmissionTimer;
             break;
         case drx_short_cycle_timer:
+        default:
             pTimer = &(p_state->shortCycleTimer);
             timerLength = p_state->config.shortCycle * p_state->config.shortCycleTimer;
             break;
