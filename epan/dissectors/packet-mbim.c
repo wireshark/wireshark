@@ -1763,9 +1763,10 @@ static void
 mbim_dissect_pin_list_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
     const char *pin_list[10] = { "PIN 1", "PIN 2", "Device SIM PIN", "Device First SIM PIN", "Network PIN",
-                                 "Network Subset PIN", "Service Provider PIN", "Corporate PIN", "Subsidy Lock"
+                                 "Network Subset PIN", "Service Provider PIN", "Corporate PIN", "Subsidy Lock",
                                  "Custom"};
     guint i;
+    guint32 length;
     proto_item *ti;
     proto_tree *subtree;
 
@@ -1776,9 +1777,21 @@ mbim_dissect_pin_list_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         offset += 4;
         proto_tree_add_item(subtree, hf_mbim_pin_list_pin_format, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
-        proto_tree_add_item(subtree, hf_mbim_pin_list_pin_length_min, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        length = tvb_get_letohl(tvb, offset);
+        if (length == 0xffffffff) {
+            proto_tree_add_uint_format_value(subtree, hf_mbim_pin_list_pin_length_min, tvb, offset, 4,
+                                             length, "Not available (0xffffffff)");
+        } else {
+            proto_tree_add_uint(subtree, hf_mbim_pin_list_pin_length_min, tvb, offset, 4, length);
+        }
         offset += 4;
-        proto_tree_add_item(subtree, hf_mbim_pin_list_pin_length_max, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        length = tvb_get_letohl(tvb, offset);
+        if (length == 0xffffffff) {
+            proto_tree_add_uint_format_value(subtree, hf_mbim_pin_list_pin_length_max, tvb, offset, 4,
+                                             length, "Not available (0xffffffff)");
+        } else {
+            proto_tree_add_uint(subtree, hf_mbim_pin_list_pin_length_max, tvb, offset, 4, length);
+        }
         offset += 4;
     }
 }
@@ -3900,11 +3913,19 @@ dissect_mbim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 break;
                             case MBIM_CID_PIN:
                                 if (msg_type == MBIM_COMMAND_DONE) {
+                                    guint32 attempts;
+
                                     proto_tree_add_item(subtree, hf_mbim_pin_info_pin_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                                     offset += 4;
                                     proto_tree_add_item(subtree, hf_mbim_pin_info_pin_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                                     offset += 4;
-                                    proto_tree_add_item(subtree, hf_mbim_pin_info_remaining_attempts, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                    attempts = tvb_get_letohl(tvb, offset);
+                                    if (attempts == 0xffffffff) {
+                                        proto_tree_add_uint_format(subtree, hf_mbim_pin_info_remaining_attempts, tvb, offset, 4,
+                                                                   attempts, "Not supported (0xffffffff)");
+                                    } else {
+                                        proto_tree_add_uint(subtree, hf_mbim_pin_info_remaining_attempts, tvb, offset, 4, attempts);
+                                    }
                                 } else {
                                      proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, tvb, offset, -1);
                                 }
