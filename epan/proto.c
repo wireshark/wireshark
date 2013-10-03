@@ -221,11 +221,12 @@ static void
 proto_tree_set_eui64(field_info *fi, const guint64 value);
 static void
 proto_tree_set_eui64_tvb(field_info *fi, tvbuff_t *tvb, gint start, const guint encoding);
-static gboolean
-proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
-			    const int len, const gint ett, const gint **fields,
-			    const guint encoding, const int flags,
-			    gboolean first);
+
+/* Handle type length mismatch (now filterable) expert info */
+static int proto_type_length_mismatch = -1;
+static expert_field ei_type_length_mismatch_error = EI_INIT;
+static expert_field ei_type_length_mismatch_warn = EI_INIT;
+static void register_type_length_mismatch(void);
 
 static int proto_register_field_init(header_field_info *hfinfo, const int parent);
 
@@ -348,6 +349,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 
 	/* Register the pseudo-protocols used for exceptions. */
 	register_show_exception();
+	register_type_length_mismatch();
 
 	/* Have each built-in dissector register its protocols, fields,
 	   dissector tables, and dissectors to be called through a
@@ -1045,15 +1047,25 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 /* We could probably get away with changing is_error to a minimum length value. */
 static void
 report_type_length_mismatch(proto_tree *tree, const gchar *descr, int length, gboolean is_error) {
+
+	tree_data_t *tree_data = NULL;
+	field_info *fi_save = NULL;
+
 	if (tree) {
-		tree_data_t *tree_data = PTREE_DATA(tree);
-		field_info *fi_save = tree_data->fi_tmp;
+		tree_data = PTREE_DATA(tree);
+		fi_save = tree_data->fi_tmp;
 
 		/* Keep the current item from getting freed by proto_tree_new_item. */
 		tree_data->fi_tmp = NULL;
+	}
 
-		expert_add_info_format_internal(NULL, tree, PI_MALFORMED, is_error ? PI_ERROR : PI_WARN, "Trying to fetch %s with length %d", descr, length);
+	if (is_error) {
+		expert_add_info_format(NULL, tree, &ei_type_length_mismatch_error, "Trying to fetch %s with length %d", descr, length);
+	} else {
+		expert_add_info_format(NULL, tree, &ei_type_length_mismatch_warn, "Trying to fetch %s with length %d", descr, length);
+	}
 
+	if (tree) {
 		tree_data->fi_tmp = fi_save;
 	}
 
@@ -4997,6 +5009,26 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	}
 }
 
+static void
+register_type_length_mismatch(void)
+{
+	static ei_register_info ei[] = {
+		{ &ei_type_length_mismatch_error, { "type_length.mismatch", PI_MALFORMED, PI_ERROR, "Trying to fetch X with length Y", EXPFILL }},
+		{ &ei_type_length_mismatch_warn, { "type_length.mismatch", PI_MALFORMED, PI_WARN, "Trying to fetch X with length Y", EXPFILL }},
+	};
+
+	expert_module_t* expert_type_length_mismatch;
+
+	proto_type_length_mismatch = proto_register_protocol("Type Length Mismatch", "Type length mismatch", "type_length");
+
+	expert_type_length_mismatch = expert_register_protocol(proto_type_length_mismatch);
+	expert_register_field_array(expert_type_length_mismatch, ei, array_length(ei));
+
+	/* "Type Length Mismatch" isn't really a protocol, it's an error indication;
+	   disabling them makes no sense. */
+	proto_set_cant_toggle(proto_type_length_mismatch);
+}
+
 #define PROTO_PRE_ALLOC_HF_FIELDS_MEM (120000+PRE_ALLOC_EXPERT_FIELDS_MEM)
 static int
 proto_register_field_init(header_field_info *hfinfo, const int parent)
@@ -6908,44 +6940,45 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 proto_item *
 proto_tree_add_bitmask_len(proto_tree *parent_tree, tvbuff_t *tvb,
 		       const guint offset,  const guint len, const int hf_hdr,
-		       const gint ett, const int **fields,
+		       const gint ett, const int **fields, struct expert_field* exp,
 		       const guint encoding)
 {
 	proto_item        *item = NULL;
 	header_field_info *hf;
+	guint   decodable_len;
+	guint   decodable_offset;
+	guint32 decodable_value;
 
 	hf = proto_registrar_get_nth(hf_hdr);
 	DISSECTOR_ASSERT(IS_FT_INT(hf->type) || IS_FT_UINT(hf->type));
 
+	decodable_offset = offset;
+	decodable_len = MIN(len, (guint) ftype_length(hf->type));
+
+	/* If we are ftype_length-limited,
+	 * make sure we decode as many LSBs as possible.
+	 */
+	if (encoding == ENC_BIG_ENDIAN) {
+		decodable_offset += (len - decodable_len);
+	}
+
 	if (parent_tree) {
-		guint   decodable_len;
-		guint   decodable_offset;
-		guint32 decodable_value;
-
-		decodable_offset = offset;
-		decodable_len = MIN(len, (guint) ftype_length(hf->type));
-
-		/* If we are ftype_length-limited,
-		 * make sure we decode as many LSBs as possible.
-		 */
-		if (encoding == ENC_BIG_ENDIAN) {
-			decodable_offset += (len - decodable_len);
-		}
-
 		decodable_value = get_uint_value(parent_tree, tvb, decodable_offset,
 						 decodable_len, encoding);
 
 		/* The root item covers all the bytes even if we can't decode them all */
 		item = proto_tree_add_uint(parent_tree, hf_hdr, tvb, offset, len,
 					   decodable_value);
+	}
 
-		if (decodable_len < len) {
-			/* Dissector likely requires updating for new protocol revision */
-			expert_add_info_format_internal(NULL, item, PI_UNDECODED, PI_WARN,
-					       "Only least-significant %d of %d bytes decoded",
-					       decodable_len, len);
-		}
+	if (decodable_len < len) {
+		/* Dissector likely requires updating for new protocol revision */
+		expert_add_info_format(NULL, item, exp,
+				       "Only least-significant %d of %d bytes decoded",
+				       decodable_len, len);
+	}
 
+	if (item) {
 		proto_item_add_bitmask_tree(item, tvb, decodable_offset, decodable_len,
 					    ett, fields, encoding, BMT_NO_INT|BMT_NO_TFS, FALSE);
 	}

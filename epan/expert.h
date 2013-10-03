@@ -188,7 +188,7 @@ proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field* eiinde
  Add an expert info tree to a protocol item, using registered expert info item,
  but with a formatted message.
  This function is intended to replace places where 
- proto_tree_add_text or proto_tree_add_none_format + expert_add_info_format_text
+ proto_tree_add_text or proto_tree_add_none_format + expert_add_info_format
  would be used.
  @param tree Current protocol item (or NULL)
  @param pinfo Packet info of the currently processed packet. May be NULL if tree is supplied

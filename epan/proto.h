@@ -76,6 +76,7 @@ WS_DLL_PUBLIC int hf_text_only;
 #define ITEM_LABEL_LENGTH	240
 
 struct _value_string;
+struct expert_field;
 
 /** Make a const value_string[] look like a _value_string pointer, used to set header_field_info.strings */
 #define VALS(x)	(const struct _value_string*)(x)
@@ -1936,11 +1937,13 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
         FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
         FT_integer fields that have a value_string attached will have the
         matched string displayed on the expansion line.
+ @param exp expert info field used when decodable_len < len.  This also means this function
+        should be called even when tree == NULL
  @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN)
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_len(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint len,
-		const int hf_hdr, const gint ett, const int **fields, const guint encoding);
+		const int hf_hdr, const gint ett, const int **fields, struct expert_field* exp, const guint encoding);
 
 /** Add a text with a subtree of bitfields.
  @param tree the tree to append this item to

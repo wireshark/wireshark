@@ -348,6 +348,7 @@ static gint ett_video_standards = -1;
 static gint ett_control_capabilities = -1;
 
 static expert_field ei_usb_vid_subtype_unknown = EI_INIT;
+static expert_field ei_usb_vid_bitmask_len = EI_INIT;
 
 /* Lookup tables */
 static const value_string vc_ep_descriptor_subtypes[] = {
@@ -690,7 +691,7 @@ dissect_bmControl(proto_tree *tree, tvbuff_t *tvb, int offset,
     if (bm_size > 0)
     {
         proto_tree_add_bitmask_len(tree, tvb, offset, bm_size, hf_usb_vid_bmControl,
-                                   ett_subtree, bm_items, ENC_LITTLE_ENDIAN);
+                                   ett_subtree, bm_items, &ei_usb_vid_bitmask_len, ENC_LITTLE_ENDIAN);
         offset += bm_size;
     }
 
@@ -1120,7 +1121,7 @@ dissect_usb_video_streaming_input_header(proto_tree *tree, tvbuff_t *tvb, int of
         for (i=0; i<num_formats; ++i)
         {
             proto_tree_add_bitmask_len(tree, tvb, offset, bm_size, hf_usb_vid_bmControl,
-                                       ett_streaming_controls, control_bits,
+                                       ett_streaming_controls, control_bits, &ei_usb_vid_bitmask_len,
                                        ENC_LITTLE_ENDIAN);
             offset += bm_size;
         }
@@ -1350,23 +1351,19 @@ static int
 dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
                                                  guint8 descriptor_len)
 {
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    proto_item *item;
+    proto_tree *tree;
     int offset = 0;
+    const gchar* subtype_str;
     guint8 subtype;
 
     subtype = tvb_get_guint8(tvb, offset+2);
 
-    if (parent_tree)
-    {
-        const gchar* subtype_str;
-
-        subtype_str = val_to_str_ext(subtype, &vs_if_descriptor_subtypes_ext, "Unknown (0x%x)");
-        item = proto_tree_add_text(parent_tree, tvb, offset, descriptor_len,
-                "VIDEO STREAMING INTERFACE DESCRIPTOR [%s]",
-                subtype_str);
-        tree = proto_item_add_subtree(item, ett_descriptor_video_streaming);
-    }
+    subtype_str = val_to_str_ext(subtype, &vs_if_descriptor_subtypes_ext, "Unknown (0x%x)");
+    item = proto_tree_add_text(parent_tree, tvb, offset, descriptor_len,
+            "VIDEO STREAMING INTERFACE DESCRIPTOR [%s]",
+            subtype_str);
+    tree = proto_item_add_subtree(item, ett_descriptor_video_streaming);
 
     dissect_usb_descriptor_header(tree, tvb, offset, &vid_descriptor_type_vals_ext);
     proto_tree_add_item(tree, hf_usb_vid_streaming_ifdesc_subtype, tvb, offset+2, 1, ENC_NA);
@@ -3227,6 +3224,7 @@ proto_register_usb_vid(void)
 
     static ei_register_info ei[] = {
         { &ei_usb_vid_subtype_unknown, { "usbvideo.subtype.unknown", PI_UNDECODED, PI_WARN, "Unknown VC subtype", EXPFILL }},
+        { &ei_usb_vid_bitmask_len, { "usbvideo.bitmask_len_error", PI_UNDECODED, PI_WARN, "Only least-significant bytes decoded", EXPFILL }},
     };
 
     expert_module_t* expert_usb_vid;
