@@ -242,7 +242,8 @@ static int hf_mac_lte_drx_config_short_cycle_timer = -1;
 static int hf_mac_lte_drx_state = -1;
 static int hf_mac_lte_drx_state_long_cycle_offset = -1;
 static int hf_mac_lte_drx_state_long_cycle_on = -1;
-
+static int hf_mac_lte_drx_state_short_cycle_offset = -1;
+static int hf_mac_lte_drx_state_short_cycle_on = -1;
 
 /* Subtrees. */
 static int ett_mac_lte = -1;
@@ -1204,6 +1205,8 @@ typedef struct drx_state_t {
     guint16      currentSFN;
     guint16      currentSF;
 
+    gboolean     inOnDuration;
+    guint64      onDurationTimer;
     guint64      inactivityTimer;
     guint64      RTT[8];
     guint64      retransmissionTimer[8];
@@ -1220,6 +1223,7 @@ static void init_drx_ue_state(drx_state_t *drx_state)
 {
     int i;
     drx_state->inShortCycle = FALSE;
+    drx_state->onDurationTimer = G_GUINT64_CONSTANT(0);
     drx_state->inactivityTimer = G_GUINT64_CONSTANT(0);
     for (i=0; i < 8; i++) {
         drx_state->RTT[i] = G_GUINT64_CONSTANT(0);
@@ -1229,6 +1233,7 @@ static void init_drx_ue_state(drx_state_t *drx_state)
 }
 
 typedef enum drx_timer_type_t {
+    drx_onduration_timer,
     drx_inactivity_timer,
     drx_rtt_timer,
     drx_retx_timer,
@@ -1247,6 +1252,10 @@ static void mac_lte_drx_start_timer(drx_state_t *p_state, drx_timer_type_t timer
 
     /* Get pointer to timer value, and fetch from config how much to add to it */
     switch (timer_type) {
+        case drx_onduration_timer:
+            pTimer = &(p_state->onDurationTimer);
+            timerLength = p_state->config.onDurationTimer;
+            break;
         case drx_inactivity_timer:
             pTimer = &(p_state->inactivityTimer);
             timerLength = p_state->config.inactivityTimer;
@@ -1275,6 +1284,9 @@ static void mac_lte_drx_stop_timer(drx_state_t *p_state _U_, drx_timer_type_t ti
 {
     /* Set indicated timer value to 0 */
     switch (timer_type) {
+        case drx_onduration_timer:
+            p_state->onDurationTimer = G_GUINT64_CONSTANT(0);
+            break;
         case drx_inactivity_timer:
             p_state->inactivityTimer = G_GUINT64_CONSTANT(0);
             break;
@@ -1291,7 +1303,8 @@ static void mac_lte_drx_stop_timer(drx_state_t *p_state _U_, drx_timer_type_t ti
 }
 
 /* Has the specified timer expired?  */
-static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_type_t timer_type, guint8 timer_id)
+static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_type_t timer_type, guint8 timer_id,
+                                              guint64 *time_until_expires)
 {
     /* Get current time in ms */
     /* TODO: should this be relative to firstCycleStart to avoid overflowing? */
@@ -1301,6 +1314,9 @@ static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_ty
 
     /* Get pointer to timer value */
     switch (timer_type) {
+        case drx_onduration_timer:
+            pTimer = &(p_state->onDurationTimer);
+            break;        
         case drx_inactivity_timer:
             pTimer = &(p_state->inactivityTimer);
             break;
@@ -1319,7 +1335,13 @@ static gboolean mac_lte_drx_has_timer_expired(drx_state_t *p_state, drx_timer_ty
     }
 
     /* TODO: verify using SFN/SF ? */
-    return (currentTime >= *pTimer);
+    if (currentTime >= *pTimer) {
+        return TRUE;
+    }
+    else {
+        *time_until_expires = *pTimer - currentTime;
+        return FALSE;
+    }
 }
 
 
@@ -1369,8 +1391,7 @@ static void mac_lte_drx_control_element_received(guint16 ueid)
 
     /* Start timers */
     if (ue_state != NULL) {
-        /* TODO: spec says stop onDurationTimer, but we don't really record that its running... */
-
+        mac_lte_drx_stop_timer(ue_state, drx_onduration_timer, 0);
         mac_lte_drx_stop_timer(ue_state, drx_inactivity_timer, 0);
     } 
 }
@@ -1381,9 +1402,12 @@ static void mac_lte_drx_control_element_received(guint16 ueid)
 static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
 {
     int harq_id;
+    guint64 time_until_expires;
+
     /* Look up state of this UE */
     drx_state_t *ue_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_ue_state,
                                                                GUINT_TO_POINTER((guint)p_mac_lte_info->ueid));
+    
     if (ue_state != NULL) {
         guint16 SFN = p_mac_lte_info->sysframeNumber;
         guint16 SF = p_mac_lte_info->subframeNumber;
@@ -1421,24 +1445,46 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
             
             /* TODO check for timers that have expired and change state accordingly */
             
+            /* See if onDuration timer should be started */
+            guint16 subframes = SFN*10 + SF;
+            if (!ue_state->inShortCycle) {
+                if ((subframes % ue_state->config.longCycle) == ue_state->config.onDurationTimer) {
+                    mac_lte_drx_start_timer(ue_state, drx_onduration_timer, 0);
+                    ue_state->inOnDuration = TRUE;
+                }
+            }
+            else {
+                if ((subframes % ue_state->config.shortCycle) == ue_state->config.onDurationTimer) {
+                    mac_lte_drx_start_timer(ue_state, drx_onduration_timer, 0);
+                    ue_state->inOnDuration = TRUE;
+                }                
+            }
+
+            /* See if onDuration has expired */
+            if (mac_lte_drx_has_timer_expired(ue_state, drx_onduration_timer, 0, &time_until_expires)) {
+                ue_state->inOnDuration = FALSE;
+            }
+
             /* Check for HARQ RTT Timer expiring.
                In practice only one could expire in any given subframe... */
             for (harq_id = 0 ; harq_id < 8; harq_id++) {
-                if (mac_lte_drx_has_timer_expired(ue_state, drx_rtt_timer, harq_id)) {
-                mac_lte_drx_start_timer(ue_state, drx_retx_timer, harq_id);
+                if (mac_lte_drx_has_timer_expired(ue_state, drx_rtt_timer, harq_id, &time_until_expires)) {
+                    /* Start the Retransmission timer */
+                    mac_lte_drx_start_timer(ue_state, drx_retx_timer, harq_id);
                 }
             }
             
             /* Reception of DRX command is dealt with separately at the moment... */
             
             /* Inactivity timer expired */
-            if (mac_lte_drx_has_timer_expired(ue_state, drx_inactivity_timer, 0)) {
+            if (mac_lte_drx_has_timer_expired(ue_state, drx_inactivity_timer, 0, &time_until_expires)) {
                 if (ue_state->config.shortCycleConfigured) {
                 ue_state->inShortCycle = TRUE;
                 mac_lte_drx_start_timer(ue_state, drx_short_cycle_timer, 0);
                 }
             }
-        
+
+
             /* Move subframe along by one */
             if (ue_state->currentSFN == 1023) {
                 ue_state->currentSFN = 0;
@@ -1490,9 +1536,6 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
     /* Show available information */
     if (drx_state_entry != NULL) {
-        guint16 offset_into_long_cycle;
-        gboolean inside_long_on_duration;
-
         proto_tree *drx_config_tree, *drx_state_tree;
         proto_item *drx_config_ti, *drx_state_ti, *ti;
 
@@ -1558,24 +1601,41 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
         drx_state_tree = proto_item_add_subtree(drx_state_ti, ett_mac_lte_drx_state);
         PROTO_ITEM_SET_GENERATED(drx_state_ti);
 
-        /* TODO: should check cycle and state of timers */
+        /* Show cycle information */
 
-        /* Show where we are in current long cycle */
-        offset_into_long_cycle = ((p_mac_lte_info->sysframeNumber*10) + p_mac_lte_info->subframeNumber) %
-                                  drx_state_entry->config.longCycle;
-        ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_long_cycle_offset, tvb,
-                                 0, 0, offset_into_long_cycle);
-        PROTO_ITEM_SET_GENERATED(ti);
+        if (!drx_state_entry->inShortCycle) {
+            /* Show where we are in current long cycle */
+            guint16 offset_into_long_cycle = ((p_mac_lte_info->sysframeNumber*10) + p_mac_lte_info->subframeNumber) %
+                                              drx_state_entry->config.longCycle;
+            ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_long_cycle_offset, tvb,
+                                     0, 0, offset_into_long_cycle);
+            PROTO_ITEM_SET_GENERATED(ti);
 
-        /* Work out if we're inside long cycle on-duration */
-        inside_long_on_duration = (offset_into_long_cycle >= drx_state_entry->config.cycleOffset) &&
-                                  (offset_into_long_cycle <= (drx_state_entry->config.cycleOffset+drx_state_entry->config.onDurationTimer));
-        ti = proto_tree_add_boolean(drx_state_tree, hf_mac_lte_drx_state_long_cycle_on, tvb,
-                                    0, 0, inside_long_on_duration);
-        PROTO_ITEM_SET_GENERATED(ti);
+            /* Show whether we're inside long cycle on-duration */
+            ti = proto_tree_add_boolean(drx_state_tree, hf_mac_lte_drx_state_long_cycle_on, tvb,
+                                        0, 0, drx_state_entry->inOnDuration);
+            PROTO_ITEM_SET_GENERATED(ti);
+    
+            proto_item_append_text(drx_state_ti, " (Offset-into-Long=%u, Long-cycle-on=%s)",
+                                   offset_into_long_cycle, drx_state_entry->inOnDuration ? "True" : "False");
+        }
+        else {
+            /* Show where we are inside short cycle */
+            guint16 offset_into_short_cycle = ((p_mac_lte_info->sysframeNumber*10) + p_mac_lte_info->subframeNumber) %
+                                                drx_state_entry->config.shortCycle;
 
-        proto_item_append_text(drx_state_ti, " (Offset-into-Long=%u, Long-cycle-on=%s)",
-                               offset_into_long_cycle, inside_long_on_duration ? "True" : "False");
+            ti = proto_tree_add_uint(drx_state_tree, hf_mac_lte_drx_state_short_cycle_offset, tvb,
+                                     0, 0, offset_into_short_cycle);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            /* Show whether we're inside short cycle on-duration */
+            ti = proto_tree_add_boolean(drx_state_tree, hf_mac_lte_drx_state_short_cycle_on, tvb,
+                                        0, 0, drx_state_entry->inOnDuration);
+            PROTO_ITEM_SET_GENERATED(ti);
+    
+            proto_item_append_text(drx_state_ti, " (Offset-into-Short=%u, Long-cycle-on=%s)",
+                                   offset_into_short_cycle, drx_state_entry->inOnDuration ? "True" : "False");
+        }
 
         /* TODO: Show which timers are still running and how long they have to go.
            Or complain if DRX looks like it should be on. */
@@ -6409,6 +6469,18 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_drx_state_long_cycle_on,
             { "Long cycle current on",
               "mac-lte.drx-state.long-cycle-on", FT_BOOLEAN, BASE_NONE,
+              0, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_drx_state_short_cycle_offset,
+            { "Short cycle offset",
+              "mac-lte.drx-state.short-cycle-offset", FT_UINT16, BASE_DEC,
+              0, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_drx_state_short_cycle_on,
+            { "Short cycle current on",
+              "mac-lte.drx-state.short-cycle-on", FT_BOOLEAN, BASE_NONE,
               0, 0x0, NULL, HFILL
             }
         },
