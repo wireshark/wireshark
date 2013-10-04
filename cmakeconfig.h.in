@@ -407,3 +407,7 @@
 /* _U_ isn't needed for C++, simply don't name the variable.
    However, we do need it for some headers that are shared between C and C++. */
 #define _U_ ${C_UNUSED}
+
+#if defined(_WIN32)
+typedef long ssize_t;
+#endif
