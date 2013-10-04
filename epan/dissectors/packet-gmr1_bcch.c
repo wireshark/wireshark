@@ -1049,6 +1049,10 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (is_si1) {
 		SystemInformation1_t *data;
 		data = wmem_new(wmem_packet_scope(), SystemInformation1_t);
+		/* Initialize the type to the last element, which is an
+		 * "Unknown", in case the dissector bails before getting this
+		 * far. */
+		data->SegmentType = array_length(SI1_SegmentChoice) - 1;
 		csnStreamDissector(bcch_tree, &ar, CSNDESCR(SystemInformation1_t), tvb, data, ett_gmr1_bcch);
 		col_append_fstr(
 			pinfo->cinfo, COL_INFO,
@@ -1058,6 +1062,10 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 		SystemInformation2_t *data;
 		data = wmem_new(wmem_packet_scope(), SystemInformation2_t);
+		/* Initialize the type to the last element, which is an
+		 * "Unknown", in case the dissector bails before getting this
+		 * far. */
+		data->SegmentType = array_length(SI2_SegmentChoice) - 1;
 		csnStreamDissector(bcch_tree, &ar, CSNDESCR(SystemInformation2_t), tvb, data, ett_gmr1_bcch);
 		col_append_fstr(
 			pinfo->cinfo, COL_INFO,
@@ -1427,3 +1435,16 @@ proto_reg_handoff_gmr1_bcch(void)
 {
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
