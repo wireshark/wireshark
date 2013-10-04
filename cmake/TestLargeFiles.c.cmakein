@@ -1,4 +1,6 @@
-/* This code was copied from http://www.gromacs.org/
+/*
+ * $Id$
+ * This code was copied from http://www.gromacs.org/
  * and its toplevel COPYING file starts with:
  *
  * GROMACS is free software, distributed under the GNU General Public License
