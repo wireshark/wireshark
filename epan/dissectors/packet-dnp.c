@@ -7,6 +7,8 @@
  *
  * Major updates: tcp and application layer defragmentation, more object dissections by Graham Bloice
  *
+ * Device attribute dissection added by Chris Bontje (chris_bontje@selinc.com)
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -236,14 +238,52 @@
 /* Application Layer Data Object Definitions                               */
 /***************************************************************************/
 /* Device Attributes */
-#define AL_OBJ_DA_SWVER    0x00F2   /* 00 242 Device Attributes - Device Manufacturers SW Version */
-#define AL_OBJ_DA_HWVER    0x00F3   /* 00 243 Device Attributes - Device Manufacturers HW Version */
-#define AL_OBJ_DA_ID       0x00F6   /* 00 246 Device Attributes - User-Assigned ID code/number    */
-#define AL_OBJ_DA_SERNUM   0x00F8   /* 00 248 Device Attributes - Device Serial Number            */
-#define AL_OBJ_DA_PROD     0x00FA   /* 00 250 Device Attributes - Device Product Name and Model   */
-#define AL_OBJ_DA_MFG      0x00FC   /* 00 252 Device Attributes - Device Manufacturers Name       */
-#define AL_OBJ_DA_ALL      0x00FE   /* 00 254 Device Attributes - Non-specific All-attributes Req */
-#define AL_OBJ_DA_LVAR     0x00FF   /* 00 255 Device Attributes - List of Attribute Variations    */
+#define AL_OBJ_DA_GRP      0x0000   /* 00 00 Device Attributes Group and null variation */
+#define AL_OBJ_DA_USR_ATTR 0x00D3   /* 00 211 Device Attributes - Identifier of support for user-specific attributes */
+#define AL_OBJ_DA_MSTR_DSP 0x00D4   /* 00 212 Device Attributes - Number of master-defined data set prototypes  */
+#define AL_OBJ_DA_OS_DSP   0x00D5   /* 00 213 Device Attributes - Number of outstation-defined data set prototypes */
+#define AL_OBJ_DA_MSTR_DS  0x00D6   /* 00 214 Device Attributes - Number of master-defined data sets  */
+#define AL_OBJ_DA_OS_DS    0x00D7   /* 00 215 Device Attributes - Number of outstation-defined data sets  */
+#define AL_OBJ_DA_BO_REQ   0x00D8   /* 00 216 Device Attributes - Max number of binary outputs per request  */
+#define AL_OBJ_DA_LOC_TA   0x00D9   /* 00 217 Device Attributes - Local timing accuracy  */
+#define AL_OBJ_DA_DUR_TA   0x00DA   /* 00 218 Device Attributes - Duration of timing accuraccy  */
+#define AL_OBJ_DA_AO_EVT   0x00DB   /* 00 219 Device Attributes - Support for analog output events  */
+#define AL_OBJ_DA_MAX_AO   0x00DC   /* 00 220 Device Attributes - Max analog output index  */
+#define AL_OBJ_DA_NUM_AO   0x00DD   /* 00 221 Device Attributes - Number of analog outputs  */
+#define AL_OBJ_DA_BO_EVT   0x00DE   /* 00 222 Device Attributes - Support for binary output events  */
+#define AL_OBJ_DA_MAX_BO   0x00DF   /* 00 223 Device Attributes - Max binary output index  */
+#define AL_OBJ_DA_NUM_BO   0x00E0   /* 00 224 Device Attributes - Number of binary outputs  */
+#define AL_OBJ_DA_FCTR_EVT 0x00E1   /* 00 225 Device Attributes - Support for frozen counter events */
+#define AL_OBJ_DA_FCTR     0x00E2   /* 00 226 Device Attributes - Support for frozen counters       */
+#define AL_OBJ_DA_CTR_EVT  0x00E3   /* 00 227 Device Attributes - Support for counter events        */
+#define AL_OBJ_DA_MAX_CTR  0x00E4   /* 00 228 Device Attributes - Max counter index                 */
+#define AL_OBJ_DA_NUM_CTR  0x00E5   /* 00 229 Device Attributes - Number of counter points          */
+#define AL_OBJ_DA_AIF      0x00E6   /* 00 230 Device Attributes - Support for frozen analog inputs  */
+#define AL_OBJ_DA_AI_EVT   0x00E7   /* 00 231 Device Attributes - Support for analog input events   */
+#define AL_OBJ_DA_MAX_AI   0x00E8   /* 00 232 Device Attributes - Maximum analog input index        */
+#define AL_OBJ_DA_NUM_AI   0x00E9   /* 00 233 Device Attributes - Number of analog input points     */
+#define AL_OBJ_DA_2BI_EVT  0x00EA   /* 00 234 Device Attributes - Support for Double-Bit BI Events  */
+#define AL_OBJ_DA_MAX_2BI  0x00EB   /* 00 235 Device Attributes - Max Double-bit BI Point Index     */
+#define AL_OBJ_DA_NUM_2BI  0x00EC   /* 00 236 Device Attributes - Number of Double-bit BI Points    */
+#define AL_OBJ_DA_BI_EVT   0x00ED   /* 00 237 Device Attributes - Support for Binary Input Events   */
+#define AL_OBJ_DA_MAX_BI   0x00EE   /* 00 238 Device Attributes - Max Binary Input Point Index      */
+#define AL_OBJ_DA_NUM_BI   0x00EF   /* 00 239 Device Attributes - Number of Binary Input Points     */
+#define AL_OBJ_DA_MXTX_FR  0x00F0   /* 00 240 Device Attributes - Maximum Transmit Fragment Size    */
+#define AL_OBJ_DA_MXRX_FR  0x00F1   /* 00 241 Device Attributes - Maximum Receive Fragment Size     */
+#define AL_OBJ_DA_SWVER    0x00F2   /* 00 242 Device Attributes - Device Manufacturers SW Version   */
+#define AL_OBJ_DA_HWVER    0x00F3   /* 00 243 Device Attributes - Device Manufacturers HW Version   */
+                                    /* 00 244 Future Assignment                                     */
+#define AL_OBJ_DA_LOC      0x00F5   /* 00 245 Device Attributes - User-Assigned Location            */
+#define AL_OBJ_DA_ID       0x00F6   /* 00 246 Device Attributes - User-Assigned ID code/number      */
+#define AL_OBJ_DA_DEVNAME  0x00F7   /* 00 247 Device Attributes - User-Assigned Device Name         */
+#define AL_OBJ_DA_SERNUM   0x00F8   /* 00 248 Device Attributes - Device Serial Number              */
+#define AL_OBJ_DA_CONF     0x00F9   /* 00 249 Device Attributes - DNP Subset and Conformance        */
+#define AL_OBJ_DA_PROD     0x00FA   /* 00 250 Device Attributes - Device Product Name and Model     */
+                                    /* 00 251 Future Assignment                                     */
+#define AL_OBJ_DA_MFG      0x00FC   /* 00 252 Device Attributes - Device Manufacturers Name         */
+                                    /* 00 253 Future Assignment                                     */
+#define AL_OBJ_DA_ALL      0x00FE   /* 00 254 Device Attributes - Non-specific All-attributes Req   */
+#define AL_OBJ_DA_LVAR     0x00FF   /* 00 255 Device Attributes - List of Attribute Variations      */
 
 /* Binary Input Objects */
 #define AL_OBJ_BI_ALL      0x0100   /* 01 00 Binary Input Default Variation */
@@ -671,6 +711,10 @@ static int hf_dnp3_al_file_data = -1;
 static int hf_dnp3_ctlobj_code_c = -1;
 static int hf_dnp3_ctlobj_code_m = -1;
 static int hf_dnp3_ctlobj_code_tc = -1;
+static int hf_dnp3_al_datatype = -1;
+static int hf_dnp3_al_da_length = -1;
+static int hf_dnp3_al_da_int8 = -1;
+static int hf_dnp3_al_da_int32 = -1;
 
 /***************************************************************************/
 /* Value String Look-Ups */
@@ -829,10 +873,44 @@ static value_string_ext dnp3_al_objq_code_vals_ext = VALUE_STRING_EXT_INIT(dnp3_
 
 /* Application Layer Data Object Values */
 static const value_string dnp3_al_obj_vals[] = {
+  { AL_OBJ_DA_USR_ATTR,"Device Attributes - Identifier of support for user-specific attributes (Obj:00, Var:211)" },
+  { AL_OBJ_DA_MSTR_DSP,"Device Attributes - Number of master-defined data set prototypes (Obj:00, Var:212)" },
+  { AL_OBJ_DA_OS_DSP,  "Device Attributes - Number of outstation-defined data set prototypes (Obj:00, Var:213)" },
+  { AL_OBJ_DA_MSTR_DS, "Device Attributes - Number of master-defined data sets (Obj:00, Var:214)" },
+  { AL_OBJ_DA_OS_DS,   "Device Attributes - Number of outstation-defined data sets (Obj:00, Var:215)" },
+  { AL_OBJ_DA_BO_REQ,  "Device Attributes - Max number of binary outputs per request (Obj:00, Var:216)" },
+  { AL_OBJ_DA_LOC_TA,  "Device Attributes - Local timing accuracy (Obj:00, Var:217)" },
+  { AL_OBJ_DA_DUR_TA,  "Device Attributes - Duration of timing accuraccy (Obj:00, Var:218)" },
+  { AL_OBJ_DA_AO_EVT,  "Device Attributes - Support for analog output events (Obj:00, Var:219)" },
+  { AL_OBJ_DA_MAX_AO,  "Device Attributes - Max analog output index (Obj:00, Var:220)" },
+  { AL_OBJ_DA_NUM_AO,  "Device Attributes - Number of analog outputs (Obj:00, Var:221)" },
+  { AL_OBJ_DA_BO_EVT,  "Device Attributes - Support for binary output events (Obj:00, Var:222)" },
+  { AL_OBJ_DA_MAX_BO,  "Device Attributes - Max binary output index (Obj:00, Var:223)" },
+  { AL_OBJ_DA_NUM_BO,  "Device Attributes - Number of binary outputs (Obj:00, Var:224)" },
+  { AL_OBJ_DA_FCTR_EVT,"Device Attributes - Support for frozen counter events (Obj:00, Var:225)" },
+  { AL_OBJ_DA_FCTR,    "Device Attributes - Support for frozen counters (Obj:00, Var:226)" },
+  { AL_OBJ_DA_CTR_EVT, "Device Attributes - Support for counter events (Obj:00, Var:227)" },
+  { AL_OBJ_DA_MAX_CTR, "Device Attributes - Max counter index (Obj:00, Var:228)" },
+  { AL_OBJ_DA_NUM_CTR, "Device Attributes - Number of counter points (Obj:00, Var:229)" },
+  { AL_OBJ_DA_AIF,     "Device Attributes - Support for frozen analog inputs (Obj:00, Var:230)" },
+  { AL_OBJ_DA_AI_EVT,  "Device Attributes - Support for analog input events (Obj:00, Var:231)" },
+  { AL_OBJ_DA_MAX_AI,  "Device Attributes - Maximum analog input index (Obj:00, Var:232)" },
+  { AL_OBJ_DA_NUM_AI,  "Device Attributes - Number of analog input points (Obj:00, Var:233)" },
+  { AL_OBJ_DA_2BI_EVT, "Device Attributes - Support for Double-Bit BI Events (Obj:00, Var:234)" },
+  { AL_OBJ_DA_MAX_2BI, "Device Attributes - Max Double-bit BI Point Index (Obj:00, Var:235)" },
+  { AL_OBJ_DA_NUM_2BI, "Device Attributes - Number of Double-bit BI Points (Obj:00, Var:236)" },
+  { AL_OBJ_DA_BI_EVT,  "Device Attributes - Support for Binary Input Events (Obj:00, Var:237)" },
+  { AL_OBJ_DA_MAX_BI,  "Device Attributes - Max Binary Input Point Index (Obj:00, Var:238)" },
+  { AL_OBJ_DA_NUM_BI,  "Device Attributes - Number of Binary Input Points (Obj:00, Var:239)" },
+  { AL_OBJ_DA_MXTX_FR, "Device Attributes - Maximum Transmit Fragment Size (Obj:00, Var:240)" },
+  { AL_OBJ_DA_MXRX_FR, "Device Attributes - Maximum Receive Fragment Size (Obj:00, Var:241)" },
   { AL_OBJ_DA_SWVER,   "Device Attributes - Device Manufacturers SW Version (Obj:00, Var:242)" },
   { AL_OBJ_DA_HWVER,   "Device Attributes - Device Manufacturers HW Version (Obj:00, Var:243)" },
+  { AL_OBJ_DA_LOC,     "Device Attributes - User-Assigned Location (Obj:00, Var:245)" },
   { AL_OBJ_DA_ID,      "Device Attributes - User-Assigned ID code/number (Obj:00, Var:246)" },
+  { AL_OBJ_DA_DEVNAME, "Device Attributes - User-Assigned Device Name (Obj:00, Var:247)" },
   { AL_OBJ_DA_SERNUM,  "Device Attributes - Device Serial Number (Obj:00, Var:248)" },
+  { AL_OBJ_DA_CONF,    "Device Attributes - DNP Subset and Conformance (Obj:00, Var:249)" },
   { AL_OBJ_DA_PROD,    "Device Attributes - Device Product Name and Model (Obj:00, Var:250)" },
   { AL_OBJ_DA_MFG,     "Device Attributes - Device Manufacturers Name (Obj:00, Var:252)" },
   { AL_OBJ_DA_ALL,     "Device Attributes - Non-specific All-attributes Request (Obj:00, Var:254)" },
@@ -1087,6 +1165,23 @@ static const value_string dnp3_al_file_status_vals[] = {
   { 0, NULL }
 };
 static value_string_ext dnp3_al_file_status_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_file_status_vals);
+
+/* Application Layer Data Type values */
+static const value_string dnp3_al_data_type_vals[] = {
+  { 0x00,    "NONE (Placeholder)" },
+  { 0x01,    "VSTR (Visible ASCII String)" },
+  { 0x02,    "UINT (Unsigned Integer)" },
+  { 0x03,    "INT (Signed Integer)" },
+  { 0x04,    "FLT (Floating Point)" },
+  { 0x05,    "OSTR (Octet String)" },
+  { 0x06,    "BSTR (Bit String)" },
+  { 0x07,    "TIME (DNP3 Time UINT48)" },
+  { 0x08,    "UNCD (Unicode String)" },
+  { 0xFE,    "U8BS8LIST (List of UINT8 - BSTR8 pairs)" },
+  { 0xFF,    "U8BS8EXLIST (Extended List of UINT8 - BSTR8 pairs)" },
+  { 0, NULL }
+};
+
 
 /* Initialize the subtree pointers */
 static gint ett_dnp3 = -1;
@@ -1718,7 +1813,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       data_pos += indexbytes;
 
       if (!header_only || (AL_OBJQL_IDX_1OS <= al_objq_index && al_objq_index <= AL_OBJQL_IDX_4OS)) {
-        guint8       al_2bit, al_ptflags, al_ctlobj_count, al_bi_val, al_tcc_code;
+        guint8       al_2bit, al_ptflags, al_ctlobj_count, al_bi_val, al_tcc_code, da_len;
         guint16      al_val16, al_ctlobj_stat;
         guint16      al_relms, al_filename_offs, al_filename_len, al_file_ctrl_mode;
         guint32      al_val32, al_ctlobj_on, al_ctlobj_off, file_data_size;
@@ -1746,6 +1841,83 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             offset = data_pos;
             break;
 
+          /* Device Attributes - Integers */
+          case AL_OBJ_DA_MSTR_DSP:  /* Device Attributes - Number of master-defined data set prototypes (Obj:00, Var:212) */
+          case AL_OBJ_DA_OS_DSP:    /* Device Attributes - Number of outstation-defined data set prototypes (Obj:00, Var:213) */
+          case AL_OBJ_DA_MSTR_DS:   /* Device Attributes - Number of master-defined data sets (Obj:00, Var:214) */
+          case AL_OBJ_DA_OS_DS:     /* Device Attributes - Number of outstation-defined data sets (Obj:00, Var:215) */
+          case AL_OBJ_DA_BO_REQ:    /* Device Attributes - Max number of binary outputs per request (Obj:00, Var:216) */
+          case AL_OBJ_DA_LOC_TA:    /* Device Attributes - Local timing accuracy (Obj:00, Var:217) */
+          case AL_OBJ_DA_DUR_TA:    /* Device Attributes - Duration of timing accuraccy (Obj:00, Var:218) */
+          case AL_OBJ_DA_AO_EVT:    /* Device Attributes - Support for analog output events (Obj:00, Var:219) */
+          case AL_OBJ_DA_MAX_AO:    /* Device Attributes - Max analog output index (Obj:00, Var:220) */
+          case AL_OBJ_DA_NUM_AO:    /* Device Attributes - Number of analog outputs (Obj:00, Var:221) */
+          case AL_OBJ_DA_BO_EVT:    /* Device Attributes - Support for binary output events (Obj:00, Var:222) */
+          case AL_OBJ_DA_MAX_BO:    /* Device Attributes - Max binary output index (Obj:00, Var:223) */
+          case AL_OBJ_DA_NUM_BO:    /* Device Attributes - Number of binary outputs (Obj:00, Var:224) */
+          case AL_OBJ_DA_FCTR_EVT:  /* Device Attributes - Support for frozen counter events (Obj:00, Var:225) */
+          case AL_OBJ_DA_FCTR:      /* Device Attributes - Support for frozen counters (Obj:00, Var:226) */
+          case AL_OBJ_DA_CTR_EVT:   /* Device Attributes - Support for counter events (Obj:00, Var:227) */
+          case AL_OBJ_DA_MAX_CTR:   /* Device Attributes - Max counter index (Obj:00, Var:228) */
+          case AL_OBJ_DA_NUM_CTR:   /* Device Attributes - Number of counter points (Obj:00, Var:229) */
+          case AL_OBJ_DA_AIF:       /* Device Attributes - Support for frozen analog inputs (Obj:00, Var:230) */
+          case AL_OBJ_DA_AI_EVT:    /* Device Attributes - Support for analog input events (Obj:00, Var:231) */
+          case AL_OBJ_DA_MAX_AI:    /* Device Attributes - Maximum analog input index (Obj:00, Var:232) */
+          case AL_OBJ_DA_NUM_AI:    /* Device Attributes - Number of analog input points (Obj:00, Var:233) */
+          case AL_OBJ_DA_2BI_EVT:   /* Device Attributes - Support for Double-Bit BI Events (Obj:00, Var:234) */
+          case AL_OBJ_DA_MAX_2BI:   /* Device Attributes - Max Double-bit BI Point Index (Obj:00, Var:235) */
+          case AL_OBJ_DA_NUM_2BI:   /* Device Attributes - Number of Double-bit BI Points (Obj:00, Var:236) */
+          case AL_OBJ_DA_BI_EVT:    /* Device Attributes - Support for Binary Input Events (Obj:00, Var:237) */
+          case AL_OBJ_DA_MAX_BI:    /* Device Attributes - Max Binary Input Point Index (Obj:00, Var:238) */
+          case AL_OBJ_DA_NUM_BI:    /* Device Attributes - Number of Binary Input Points (Obj:00, Var:239) */
+          case AL_OBJ_DA_MXTX_FR:   /* Device Attributes - Maximum Transmit Fragment Size (Obj:00, Var:240) */
+          case AL_OBJ_DA_MXRX_FR:   /* Device Attributes - Maximum Receive Fragment Size (Obj:00, Var:241) */
+
+            proto_tree_add_item(point_tree, hf_dnp3_al_datatype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+            da_len = tvb_get_guint8(tvb, offset+1);
+            proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+
+            if (da_len == 1) {
+                proto_tree_add_item(point_tree, hf_dnp3_al_da_int8, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(object_item, ", Value: %u", tvb_get_guint8(tvb, offset+2));
+
+            }
+            else if (da_len == 4) {
+                proto_tree_add_item(point_tree, hf_dnp3_al_da_int32, tvb, offset+2, 4, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(object_item, ", Value: %u", tvb_get_letohl(tvb, offset+2));
+            }
+
+            offset += 2 + da_len;
+
+            break;
+
+
+          /* Device Attributes - Strings */
+          case AL_OBJ_DA_USR_ATTR:
+          case AL_OBJ_DA_SWVER:   /* Device Attributes - Device Manufacturers SW Version (Obj:00, Var:242) */
+          case AL_OBJ_DA_HWVER:   /* Device Attributes - Device Manufacturers HW Version (Obj:00, Var:243) */
+          case AL_OBJ_DA_LOC:     /* Device Attributes - User-Assigned Location (Obj:00, Var:245) */
+          case AL_OBJ_DA_ID:      /* Device Attributes - User-Assigned ID code/number (Obj:00, Var:246) */
+          case AL_OBJ_DA_DEVNAME: /* Device Attributes - User-Assigned Device Name (Obj:00, Var:247) */
+          case AL_OBJ_DA_SERNUM:  /* Device Attributes - Device Serial Number (Obj:00, Var:248) */
+          case AL_OBJ_DA_CONF:    /* Device Attributes - DNP Subset and Conformance (Obj:00, Var:249) */
+          case AL_OBJ_DA_PROD:    /* Device Attributes - Device Product Name and Model (Obj:00, Var:250) */
+          case AL_OBJ_DA_MFG:     /* Device Attributes - Device Manufacturers Name (Obj:00, Var:252) */
+
+            proto_tree_add_item(point_tree, hf_dnp3_al_datatype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+            da_len = tvb_get_guint8(tvb, offset+1);
+            proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+
+            proto_tree_add_text(point_tree, tvb, offset+2, da_len, "Value: %s", tvb_get_string(wmem_packet_scope(), tvb, offset+2, da_len));
+            proto_item_append_text(object_item, ", Value: %s", tvb_get_string(wmem_packet_scope(), tvb, offset+2, da_len));
+
+            offset += 2 + da_len;
+
+            break;
+
+          /* Bit-based Data objects here */
           case AL_OBJ_BI_1BIT:    /* Single-Bit Binary Input (Obj:01, Var:01) */
           case AL_OBJ_BO:         /* Binary Output (Obj:10, Var:01) */
 
@@ -2546,14 +2718,16 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             offset = data_pos;
             break;
 
-          case AL_OBJ_IIN:     /* IIN Data Object */
+          case AL_OBJ_IIN:        /* Internal Indications - IIN (Obj: 80, Var:01) */
 
-            /* Single byte of data here */
-            proto_tree_add_text(object_tree, tvb, data_pos, 1, "Value: %u", tvb_get_guint8(tvb, data_pos));
-            data_pos += 1;
-            proto_item_set_len(point_item, data_pos - offset);
+            /* Process IIN bit object as per standard Response message */
+            dnp3_al_process_iin(tvb, pinfo, offset, object_tree);
 
-            offset = data_pos;
+            offset += 2;
+
+            /* skip over the rest of the items */
+            item_num = 15;
+
             break;
 
           case AL_OBJ_OCT:      /* Octet string */
@@ -2701,6 +2875,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* For reads for specific object types, bit-mask out the first byte and use that to determine the column info to add */
       switch(obj_type & 0xFF00) {
+        case (AL_OBJ_DA_GRP    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Device Attribute");            break;
         case (AL_OBJ_BI_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Input");                break;
         case (AL_OBJ_BIC_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Input Change");         break;
         case (AL_OBJ_2BI_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Double-bit Input");            break;
@@ -2789,6 +2964,22 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
         offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+      }
+
+      break;
+
+    case AL_FUNC_FRZ:        /* Immediate Freeze Function Code 0x07 */
+    case AL_FUNC_FRZNACK:    /* Immediate Freeze No ACK Function Code 0x08 */
+    case AL_FUNC_FRZCLR:     /* Freeze and Clear Function Code 0x09 */
+    case AL_FUNC_FRZCLRNACK: /* Freeze and Clear No ACK Function Code 0x0A */
+
+      /* Create Freeze Request Data Objects Tree */
+      t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Freeze Request Data Objects");
+      robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+
+      /* Process Data Object Details */
+      while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, TRUE, &obj_type, &al_cto);
       }
 
       break;
@@ -4105,6 +4296,30 @@ proto_register_dnp3(void)
       { "Relative Timestamp", "dnp3.al.reltimestamp",
           FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
           "Object Relative Timestamp", HFILL }
+    },
+
+    { &hf_dnp3_al_datatype,
+      { "Data Type", "dnp3.al.datatype",
+          FT_UINT8, BASE_HEX, VALS(dnp3_al_data_type_vals), 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_da_length,
+      { "Device Attribute Length", "dnp3.al.da.length",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_da_int8,
+      { "8-Bit Integer Value", "dnp3.al.da.int8",
+          FT_INT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_da_int32,
+      { "32-Bit Integer Value", "dnp3.al.da.int32",
+          FT_INT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }
     },
 
     { &hf_dnp3_fragment,
