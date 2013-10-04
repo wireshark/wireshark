@@ -291,8 +291,10 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     guint8      prot_disc;
     guint       reserved;
     guint8      adaptation_len;
-    guint       len = 0;
+    guint       offset_start;
     int         msg_id, tx_id;
+
+    offset_start = offset;
 
     prot_disc = tvb_get_guint8(tvb, offset);
     reserved = tvb_get_guint8(tvb, 8+offset);
@@ -338,14 +340,13 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    len = 12;
     if (0 < adaptation_len) {
         sub_tvb = tvb_new_subset(tvb, offset, adaptation_len, adaptation_len);
         dissect_dsmcc_adaptation_header(sub_tvb, pinfo, sub_tree);
-        /*offset += adaptation_len;*/
+        offset += adaptation_len;
     }
 
-    return len;
+    return offset-offset_start;
 }
 
 
