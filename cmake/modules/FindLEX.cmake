@@ -35,8 +35,7 @@ MACRO(ADD_LEX_FILES _sources )
 
       ADD_CUSTOM_COMMAND(
         OUTPUT ${_outc}
-#       COMMAND ${LEX_EXECUTABLE}
-        COMMAND ${CMAKE_SOURCE_DIR}/tools/runlex.sh ${LEX_EXECUTABLE}
+        COMMAND ${SH_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/runlex.sh ${LEX_EXECUTABLE}
           -o${_outc}
           --header-file=${_outh}
           ${_in}
