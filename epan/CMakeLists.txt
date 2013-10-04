@@ -1094,7 +1094,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rudp.c
 	dissectors/packet-rwall.c
 	dissectors/packet-rx.c
-	dissectors/packet-s5066.c
+	dissectors/packet-s5066sis.c
 	dissectors/packet-sadmind.c
 	dissectors/packet-sametime.c
 	dissectors/packet-sap.c
