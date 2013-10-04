@@ -227,11 +227,11 @@ static void
 dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t   *sub_tvb;
-    guint		offset = 0;
+    guint       offset = 0;
     proto_item *pi;
     proto_tree *sub_tree;
-    guint8		type, tmp;
-    guint16		ca_len;
+    guint8      type, tmp;
+    guint16     ca_len;
 
     type = tvb_get_guint8(tvb, offset);
 
@@ -288,11 +288,11 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     tvbuff_t   *sub_tvb;
     proto_item *pi;
     proto_tree *sub_tree;
-    guint8		prot_disc;
-    guint		reserved;
-    guint8		adaptation_len;
-    guint		len = 0;
-    int			msg_id, tx_id;
+    guint8      prot_disc;
+    guint       reserved;
+    guint8      adaptation_len;
+    guint       len = 0;
+    int         msg_id, tx_id;
 
     prot_disc = tvb_get_guint8(tvb, offset);
     reserved = tvb_get_guint8(tvb, 8+offset);
@@ -353,9 +353,9 @@ static guint
 dissect_dsmcc_dii_compat_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint offset)
 {
-    gint		i, j;
-    guint8		sub_count, sub_len;
-    guint16		len, count;
+    gint        i, j;
+    guint8      sub_count, sub_len;
+    guint16     len, count;
     proto_item *pi;
     proto_tree *compat_tree;
     proto_tree *desc_sub_tree;
@@ -426,12 +426,12 @@ static void
 dissect_dsmcc_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint offset)
 {
-    guint8		module_info_len;
-    guint16		modules, private_data_len;
-    guint16		module_id;
-    guint8		module_version;
-    guint		module_size;
-    guint		i;
+    guint8      module_info_len;
+    guint16     modules, private_data_len;
+    guint16     module_id;
+    guint8      module_version;
+    guint       module_size;
+    guint       i;
     proto_item *pi;
     proto_tree *mod_tree;
 
@@ -496,7 +496,7 @@ dissect_dsmcc_ddb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     tvbuff_t   *sub_tvb;
     proto_item *pi;
-    guint8		reserved;
+    guint8      reserved;
 
     proto_tree_add_item(tree, hf_dsmcc_ddb_module_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -524,8 +524,8 @@ dissect_dsmcc_un_download(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *pi;
     proto_tree *sub_tree;
-    guint16		msg_id;
-    guint		offset = 0;
+    guint16     msg_id;
+    guint       offset = 0;
 
     msg_id = tvb_get_ntohs(tvb, offset+2);
 
@@ -592,14 +592,14 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
 {
     proto_item *pi;
     proto_tree *tree;
-    guint		crc_len;
-    guint8		tid;
-    guint16		sect_len;
-    guint32		crc, calculated_crc;
+    guint       crc_len;
+    guint8      tid;
+    guint16     sect_len;
+    guint32     crc, calculated_crc;
     const char *label;
     tvbuff_t   *sub_tvb;
-    guint16		ssi;
-    guint		offset = 0;
+    guint16     ssi;
+    guint       offset = 0;
 
     pi = proto_tree_add_item(tree_in, proto_dsmcc, tvb, 0, -1, ENC_NA);
     tree = proto_item_add_subtree(pi, ett_dsmcc);
