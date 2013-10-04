@@ -52,8 +52,6 @@ find_path( GLIB2_MAIN_INCLUDE_DIR
 		/usr/local/include
 )
 
-message( STATUS "H: ${GLIB2_HINTS}\nMI: ${GLIB2_MAIN_INCLUDE_DIR}, L: ${GLIB2_LIBRARY}\nII: ${GLIB2_INTERNAL_INCLUDE_DIR}\n" )
-
 find_library( GLIB2_LIBRARY
 	NAMES
 		glib-2.0
