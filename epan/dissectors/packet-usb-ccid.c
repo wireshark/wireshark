@@ -42,6 +42,8 @@ static int hf_ccid_bSlot = -1;
 static int hf_ccid_bSeq = -1;
 static int hf_ccid_bStatus = -1;
 static int hf_ccid_bError = -1;
+static int hf_ccid_bRFU = -1;
+static int hf_ccid_abRFU = -1;
 static int hf_ccid_bChainParameter = -1;
 static int hf_ccid_bPowerSelect = -1;
 static int hf_ccid_bClockStatus = -1;
@@ -58,8 +60,18 @@ static int hf_ccid_dwProtocols = -1;
 static int hf_ccid_dwDefaultClock = -1;
 static int hf_ccid_dwMaximumClock = -1;
 static int hf_ccid_bNumClockSupported = -1;
-static int hf_ccid_bRFU = -1;
-static int hf_ccid_abRFU = -1;
+static int hf_ccid_dwDataRate = -1;
+static int hf_ccid_dwMaxDataRate = -1;
+static int hf_ccid_bNumDataRatesSupported = -1;
+static int hf_ccid_dwSynchProtocols = -1;
+static int hf_ccid_dwMechanical = -1;
+static int hf_ccid_dwFeatures = -1;
+static int hf_ccid_dwMaxCCIDMessageLength = -1;
+static int hf_ccid_bClassGetResponse = -1;
+static int hf_ccid_bClassEnvelope = -1;
+static int hf_ccid_wLcdLayout = -1;
+static int hf_ccid_bPINSupport = -1;
+static int hf_ccid_bMaxCCIDBusySlots = -1;
 
 static const int *bVoltageLevel_fields[] = {
     &hf_ccid_bVoltageSupport50,
@@ -276,8 +288,56 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
             offset, 1, ENC_LITTLE_ENDIAN);
     if (num_clock_supp==0)
         proto_item_append_text(freq_item, " (only default and maximum)");
+    offset++;
+
+    proto_tree_add_item(desc_tree, hf_ccid_dwDataRate,
+            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(desc_tree, hf_ccid_dwMaxDataRate,
+            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(desc_tree, hf_ccid_bNumDataRatesSupported,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    /* skip dwMaxIFSD */
+    offset += 4;
+
+    proto_tree_add_item(desc_tree, hf_ccid_dwSynchProtocols,
+            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(desc_tree, hf_ccid_dwMechanical,
+            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
     
-    return descriptor_len;
+    proto_tree_add_item(desc_tree, hf_ccid_dwFeatures,
+            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(desc_tree, hf_ccid_dwMaxCCIDMessageLength,
+            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(desc_tree, hf_ccid_bClassGetResponse,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(desc_tree, hf_ccid_bClassEnvelope,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(desc_tree, hf_ccid_wLcdLayout,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(desc_tree, hf_ccid_bPINSupport,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(desc_tree, hf_ccid_bMaxCCIDBusySlots,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    return offset;
 }
 
 
@@ -539,7 +599,43 @@ proto_register_ccid(void)
              FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bNumClockSupported,
          { "number of supported clock frequencies", "usbccid.bNumClockSupported",
-             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }}
+             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_dwDataRate,
+         { "default ICC I/O data rate in bps", "usbccid.dwDataRate",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_dwMaxDataRate,
+         { "maximum ICC I/O data rate in bps", "usbccid.dwMaxDataRate",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bNumDataRatesSupported,
+         { "number of supported data rates", "usbccid.bNumDataRatesSupported",
+             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_dwSynchProtocols,
+         { "supported protocol types", "usbccid.dwSynchProtocols",
+             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_dwMechanical,
+         { "mechanical characteristics", "usbccid.dwMechanical",
+             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_dwFeatures,
+         { "intelligent features", "usbccid.dwFeatures",
+             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_dwMaxCCIDMessageLength,
+         { "maximum CCID message length", "usbccid.dwMaxCCIDMessageLength",
+             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bClassGetResponse,
+         { "default class for Get Response", "usbccid.hf_ccid_bClassGetResponse",
+             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bClassEnvelope,
+         { "default class for Envelope", "usbccid.hf_ccid_bClassEnvelope",
+             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_wLcdLayout,
+         { "LCD layout", "usbccid.hf_ccid_wLcdLayout",
+             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bPINSupport,
+         { "PIN support", "usbccid.hf_ccid_bPINSupport",
+             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_bMaxCCIDBusySlots,
+         { "maximum number of busy slots", "usbccid.hf_ccid_bMaxCCIDBusySlots",
+             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }}
     };
 
     static gint *ett[] = {
