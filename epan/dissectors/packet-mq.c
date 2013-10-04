@@ -274,10 +274,12 @@ static int hf_mq_status_value = -1;
 
 static int hf_mq_caut_structid = -1;
 static int hf_mq_caut_unknown1 = -1;
-static int hf_mq_caut_unknown2 = -1;
-static int hf_mq_caut_unknown3 = -1;
-static int hf_mq_caut_unknown4 = -1;
-static int hf_mq_caut_unknown5 = -1;
+static int hf_mq_caut_userlen1 = -1;
+static int hf_mq_caut_pswdlen1 = -1;
+static int hf_mq_caut_userlen2 = -1;
+static int hf_mq_caut_pswdlen2 = -1;
+static int hf_mq_caut_usr = -1;
+static int hf_mq_caut_psw = -1;
 
 static int hf_mq_od_structid = -1;
 static int hf_mq_od_version = -1;
@@ -2268,6 +2270,12 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					else if (p_mq_parm->mq_opcode == MQ_TST_CONAUTH_INFO && tvb_length_remaining(tvb, offset) >= 20)
 					{
 						gint iSize = 24;
+						gint iUsr = 0;
+						gint iPsw = 0;
+
+						iUsr=tvb_get_guint32_endian(tvb, offset + 8, p_mq_parm->mq_int_enc);
+						iPsw=tvb_get_guint32_endian(tvb, offset + 12, p_mq_parm->mq_int_enc);
+
 						if (tree)
 						{
 							ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSize, MQ_TEXT_CAUT);
@@ -2275,17 +2283,22 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 							proto_tree_add_item(mq_tree, hf_mq_caut_structid, tvb, offset, 4, p_mq_parm->mq_str_enc);
 							proto_tree_add_item(mq_tree, hf_mq_caut_unknown1, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
-							proto_tree_add_item(mq_tree, hf_mq_caut_unknown2, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
-							proto_tree_add_item(mq_tree, hf_mq_caut_unknown3, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
-							proto_tree_add_item(mq_tree, hf_mq_caut_unknown4, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
-							proto_tree_add_item(mq_tree, hf_mq_caut_unknown5, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
-						}
-						offset += iSize;
+							proto_tree_add_item(mq_tree, hf_mq_caut_userlen1, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
+							proto_tree_add_item(mq_tree, hf_mq_caut_pswdlen1, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
+							proto_tree_add_item(mq_tree, hf_mq_caut_userlen2, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
+							proto_tree_add_item(mq_tree, hf_mq_caut_pswdlen2, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
+
+							if (iUsr)
+								proto_tree_add_item(mq_tree, hf_mq_caut_usr, tvb, offset + 24, iUsr, p_mq_parm->mq_str_enc);
+							if (iPsw)
+								proto_tree_add_item(mq_tree, hf_mq_caut_psw, tvb, offset + 24 + iUsr, iPsw, p_mq_parm->mq_str_enc);
+}
+						offset += iSize + iUsr + iPsw;
 						p_mq_parm->mq_strucID = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 					}
 					else if (p_mq_parm->mq_opcode == MQ_TST_SOCKET_ACTION && tvb_length_remaining(tvb, offset) >= 20)
 					{
-						gint iSizeSocket = 20;
+						gint iSize = 20;
 						if (tree)
 						{
 							ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeAPI, MQ_TEXT_SOCKET);
@@ -2297,14 +2310,15 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							proto_tree_add_item(mq_tree, hf_mq_socket_unknown4, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
 							proto_tree_add_item(mq_tree, hf_mq_socket_unknown5, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
 						}
-						offset += iSizeSocket;
+						offset += iSize;
 						p_mq_parm->mq_strucID = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 					}
 					else if (p_mq_parm->mq_opcode == MQ_TST_STATUS && tvb_length_remaining(tvb, offset) >= 8)
 					{
 						/* Some status are 28 bytes long and some are 36 bytes long */
-						guint32 iStatus = 0;
+						gint iStatus = 0;
 						gint iStatusLength = 0;
+
 						iStatus = tvb_get_guint32_endian(tvb, offset + 4, p_mq_parm->mq_int_enc);
 						iStatusLength = tvb_get_guint32_endian(tvb, offset, p_mq_parm->mq_int_enc);
 
@@ -3578,10 +3592,12 @@ void proto_register_mq(void)
 
 		{ &hf_mq_caut_structid ,{"structid", "mq.caut.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_mq_caut_unknown1 ,{"unknown1", "mq.caut.unknown1", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT unknown1", HFILL }},
-		{ &hf_mq_caut_unknown2 ,{"unknown2", "mq.caut.unknown2", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT unknown2", HFILL }},
-		{ &hf_mq_caut_unknown3 ,{"unknown3", "mq.caut.unknown3", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT unknown3", HFILL }},
-		{ &hf_mq_caut_unknown4 ,{"unknown4", "mq.caut.unknown4", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT unknown4", HFILL }},
-		{ &hf_mq_caut_unknown5 ,{"unknown5", "mq.caut.unknown5", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT unknown5", HFILL }},
+		{ &hf_mq_caut_userlen1 ,{"userlen1", "mq.caut.userlen1", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT userid length 1", HFILL }},
+		{ &hf_mq_caut_pswdlen1 ,{"pswdlen1", "mq.caut.pswdlen1", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT password length 1", HFILL }},
+		{ &hf_mq_caut_userlen2 ,{"userlen2", "mq.caut.userlen2", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT userid length 2", HFILL }},
+		{ &hf_mq_caut_pswdlen2 ,{"pswdlen2", "mq.caut.pswdlen2", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "CAUT password length 5", HFILL }},
+		{ &hf_mq_caut_usr      ,{"userid..", "mq.msh.userid"   , FT_STRINGZ, BASE_NONE, NULL, 0x0, "CAUT UserId", HFILL }},
+		{ &hf_mq_caut_psw      ,{"password", "mq.msh.password" , FT_STRINGZ, BASE_NONE, NULL, 0x0, "CAUT PAssword", HFILL }},
 
 		{ &hf_mq_id_icf_msgseq  ,{"Message sequence..", "mq.id.icf.msgseq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF_MSG_SEQ, "ID ICF Message sequence", HFILL }},
 		{ &hf_mq_id_icf_convcap ,{"Conversion capable", "mq.id.icf.convcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF_CONVERSION_CAPABLE, "ID ICF Conversion capable", HFILL }},
