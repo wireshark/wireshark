@@ -55,7 +55,7 @@ Note 4:
   To get predictable results please set umask explicitly.
 
 How to do out of tree build (Win32/64):
-[This is early alpha and the build will most likely die during the cmake
+[This is early alpha and while the build no longer always dies during the cmake
  stage - don't waste your time testing unless you are willing to fix things
  yourself]
 1) Follow http://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html
@@ -66,7 +66,7 @@ How to do out of tree build (Win32/64):
 3) mkdir c:\wireshark\build
 4) cd c:\wireshark\build
 5) cmake -G "NMake Makefiles" .. (if the sources are in c:\wireshark)
-6) nmake (or cmake --build .)
+6) nmake VERBOSE=1 (or cmake --build . -- VERBOSE=1 )
 7) (as root) umask 0022 && make install
 
 Why cmake?
