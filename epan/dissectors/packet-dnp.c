@@ -1,13 +1,12 @@
 /* packet-dnp.c
  * Routines for DNP dissection
- * Copyright 2003, 2006, 2007, Graham Bloice <graham.bloice@trihedral.com>
+ * Copyright 2003, 2006, 2007, 2013 Graham Bloice <graham.bloice<at>trihedral.com>
  *
- * DNP3.0 Application Layer Object dissection added by Chris Bontje (chrisbontje@shaw.ca)
- * Copyright 2005
+ * DNP3.0 Application Layer Object dissection added by Chris Bontje (cbontje<at>gmail.com)
+ * Device attribute dissection added by Chris Bontje
+ * Copyright 2005, 2013
  *
  * Major updates: tcp and application layer defragmentation, more object dissections by Graham Bloice
- *
- * Device attribute dissection added by Chris Bontje (chris_bontje@selinc.com)
  *
  * $Id$
  *
