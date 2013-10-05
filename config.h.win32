@@ -224,7 +224,7 @@
 /* Define to have ntddndis.h */
 @HAVE_NTDDNDIS_H@
 
-#define HAVE_INET_ATON_H    0
+/* #undef HAVE_INET_ATON_H */
 #define NEED_INET_V6DEFS_H  1
 #define NEED_STRPTIME_H     1
 

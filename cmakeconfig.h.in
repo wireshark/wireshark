@@ -329,7 +329,7 @@
 #cmakedefine INTTYPES_H_DEFINES_FORMATS 1
 
 /* Define unless inet/aton.h needs to be included */
-#cmakedefine HAVE_INET_ATON_H 0
+#cmakedefine HAVE_INET_ATON_H
 
 /* Define if inet/v6defs.h needs to be included */
 #cmakedefine NEED_INET_V6DEFS_H 1
