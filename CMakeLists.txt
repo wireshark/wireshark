@@ -465,6 +465,9 @@ foreach(PACKAGE ${PACKAGELIST})
 	endif()
 endforeach()
 
+# Provide Windows system lib names
+include( UseWinLibs )
+
 #packaging
 include(CPackConfig.txt)
 
