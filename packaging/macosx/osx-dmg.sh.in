@@ -133,7 +133,8 @@ case `file $ws_bin` in
 		architecture="PPC 32"
 		;;
 	*)
-		echo "Cannot determine architecture of $ws_bin"
+		echo "Cannot determine architecture of $ws_bin; file reports:"
+		file $ws_bin
 		exit 1
 		;;
 esac
