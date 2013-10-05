@@ -301,18 +301,17 @@ static void
 decode_iei_cause(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint8 cause;
 
-  if (bi->nsip_tree) {
-    cause = tvb_get_guint8(bi->tvb, bi->offset);
-    proto_tree_add_uint(bi->nsip_tree, hf_nsip_cause,
-                               bi->tvb, ie_start_offset, ie->total_length,
-                               cause);
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
-        "Cause: %s",
-        val_to_str(cause, tab_nsip_cause_values, "Unknown (0x%02x)"));
+  cause = tvb_get_guint8(bi->tvb, bi->offset);
+  proto_tree_add_uint(bi->nsip_tree, hf_nsip_cause,
+      bi->tvb, ie_start_offset, ie->total_length,
+      cause);
+  col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
+      "Cause: %s",
+      val_to_str(cause, tab_nsip_cause_values, "Unknown (0x%02x)"));
 
-    proto_item_append_text(bi->ti, ", Cause: %s",
+  proto_item_append_text(bi->ti, ", Cause: %s",
             val_to_str(cause, tab_nsip_cause_values, "Unknown (0x%02x)"));
-  }
+
   bi->offset += ie->value_length;
 }
 
@@ -320,16 +319,15 @@ static void
 decode_iei_ns_vci(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint16 ns_vci;
 
-  if (bi->nsip_tree) {
-    ns_vci = tvb_get_ntohs(bi->tvb, bi->offset);
+  ns_vci = tvb_get_ntohs(bi->tvb, bi->offset);
 
-    proto_tree_add_uint(bi->nsip_tree, hf_nsip_ns_vci,
-                               bi->tvb, ie_start_offset, ie->total_length,
-                               ns_vci);
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
-        "NS VCI: %#04x", ns_vci);
-    proto_item_append_text(bi->ti, ", NS VCI: %#04x", ns_vci);
-  }
+  proto_tree_add_uint(bi->nsip_tree, hf_nsip_ns_vci,
+      bi->tvb, ie_start_offset, ie->total_length,
+      ns_vci);
+  col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
+      "NS VCI: %#04x", ns_vci);
+  proto_item_append_text(bi->ti, ", NS VCI: %#04x", ns_vci);
+
   bi->offset += ie->value_length;
 }
 
@@ -544,20 +542,16 @@ decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   case NSIP_IP_ADDRESS_TYPE_IPV4:
     ie->total_length = 2 + ipv4_element.address_length;
     ip4_addr = tvb_get_ipv4(bi->tvb, bi->offset+1);
-    if (bi->nsip_tree) {
-      proto_tree_add_ipv4(bi->nsip_tree, hf_nsip_ip_address_ipv4,
-                          bi->tvb, ie_start_offset, ie->total_length,
-                          ip4_addr);
-    }
+    proto_tree_add_ipv4(bi->nsip_tree, hf_nsip_ip_address_ipv4,
+        bi->tvb, ie_start_offset, ie->total_length,
+        ip4_addr);
     break;
   case NSIP_IP_ADDRESS_TYPE_IPV6:
     ie->total_length = 2 + ipv6_element.address_length;
     tvb_get_ipv6(bi->tvb, bi->offset+1, &ip6_addr);
-    if (bi->nsip_tree) {
-      proto_tree_add_ipv6(bi->nsip_tree, hf_nsip_ip_address_ipv4,
-                          bi->tvb, ie_start_offset, ie->total_length,
-                          (guint8 *)&ip6_addr);
-    }
+    proto_tree_add_ipv6(bi->nsip_tree, hf_nsip_ip_address_ipv4,
+        bi->tvb, ie_start_offset, ie->total_length,
+        (guint8 *)&ip6_addr);
     break;
   default:
     return; /* error */
