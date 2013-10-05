@@ -1198,3 +1198,16 @@ proto_reg_handoff_nsip(void) {
   dissector_add_uint_range("udp.port", nsip_udp_port_range, nsip_handle);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=4 expandtab:
+ * :indentSize=2:tabSize=4:noTabs=true:
+ */
