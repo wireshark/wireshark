@@ -93,7 +93,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
                       )
                       .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Text color
                       .arg(tango_sky_blue_4,  6, 16, QChar('0'))   // Selected background
-                      .arg(tango_aluminium_2, 6, 16, QChar('0'))   // Hover background
+                      .arg(tango_sky_blue_1, 6, 16, QChar('0'))   // Hover background
                       .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Hover foreground
                 );
 
@@ -117,7 +117,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
                                   "  border: 1px solid #%2;"
                                   "}"
                                   )
-                              .arg(tango_aluminium_2, 6, 16, QChar('0'))   // Default border
+                              .arg(tango_sky_blue_4, 6, 16, QChar('0'))   // Default border
                               .arg(tango_sky_blue_4,  6, 16, QChar('0'))   // Selected border
                               );
 
