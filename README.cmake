@@ -62,12 +62,15 @@ How to do out of tree build (Win32/64):
    Steps 1-9
 1a) Set WIRESHARK_BASE_DIR=c:\wireshark (the parent directory of the
    library directory).
+1b) set WIRESHARK_TARGET_PLATFORM=win32 (or win64)
 2) Install cmake
 3) mkdir c:\wireshark\build
 4) cd c:\wireshark\build
 5) cmake -G "NMake Makefiles" .. (if the sources are in c:\wireshark)
+5a) cmake path\to\sources (this will build for the latest Visual Studio version found)
 6) nmake VERBOSE=1 (or cmake --build . -- VERBOSE=1 )
-7) (as root) umask 0022 && make install
+6a) Wireshark.sln (this will run up Visual Studio with the cmake built solution
+7)
 
 Why cmake?
 ==========
