@@ -21,8 +21,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-# todo: result for NEED_... is wrong (inverted)
-
 #check system for includes
 include(CheckIncludeFile)
 check_include_file("arpa/inet.h"         HAVE_ARPA_INET_H)
@@ -33,8 +31,7 @@ check_include_file("dlfcn.h"             HAVE_DLFCN_H)
 check_include_file("fcntl.h"             HAVE_FCNTL_H)
 check_include_file("getopt.h"            HAVE_GETOPT_H)
 check_include_file("grp.h"               HAVE_GRP_H)
-check_include_file("g_ascii_strtoull.h"  NEED_G_ASCII_STRTOULL_H)
-check_include_file("inet/aton.h"         NEED_INET_ATON_H)
+check_include_file("inet/aton.h"         HAVE_INET_ATON_H)
 check_include_file("inttypes.h"          HAVE_INTTYPES_H)
 check_include_file("lauxlib.h"           HAVE_LAUXLIB_H)
 check_include_file("memory.h"            HAVE_MEMORY_H)

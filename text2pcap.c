@@ -149,7 +149,7 @@
 #include <winsock2.h>       /* needed to define AF_ values on Windows */
 #endif
 
-#ifdef NEED_INET_ATON_H
+#ifndef HAVE_INET_ATON_H
 # include "wsutil/inet_aton.h"
 #endif
 

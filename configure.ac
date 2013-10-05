@@ -2490,7 +2490,7 @@ AC_SEARCH_LIBS(inet_aton, [socket nsl], have_inet_aton=yes,
     have_inet_aton=no)
 if test "$have_inet_aton" = no; then
   INET_ATON_LO="inet_aton.lo"
-  AC_DEFINE(NEED_INET_ATON_H, 1, [Define if inet/aton.h needs to be included])
+  AC_DEFINE(HAVE_INET_ATON_H, 0, [Define unless inet/aton.h needs to be included])
 else
   INET_ATON_LO=""
 fi
