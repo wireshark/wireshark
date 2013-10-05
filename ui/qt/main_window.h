@@ -99,17 +99,20 @@ private:
 
     Ui::MainWindow *main_ui_;
     QMenu *open_recent_menu_;
-    QSplitter *master_split_;
+    QSplitter master_split_;
+    QSplitter extra_split_;
     MainWelcome *main_welcome_;
     DisplayFilterCombo *df_combo_box_;
     capture_file *cap_file_;
+    // XXX - packet_list_, proto_tree_, and byte_view_tab_ should
+    // probably be full-on values instead of pointers.
     PacketList *packet_list_;
     ProtoTree *proto_tree_;
     QWidget *previous_focus_;
     FileSetDialog file_set_dialog_;
     SummaryDialog summary_dialog_;
     ByteViewTab *byte_view_tab_;
-    QWidget *empty_pane_;
+    QWidget empty_pane_;
     FollowStreamDialog follow_stream_dialog_;
 
     bool capture_stopping_;

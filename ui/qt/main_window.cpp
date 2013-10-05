@@ -80,7 +80,6 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     main_ui_(new Ui::MainWindow),
-    master_split_(NULL),
     df_combo_box_(new DisplayFilterCombo()),
     cap_file_(NULL),
     previous_focus_(NULL),
@@ -172,15 +171,20 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->menuHelp->insertAction(update_sep, update_action);
     connect(update_action, SIGNAL(triggered()), this, SLOT(on_actionHelpCheckForUpdates_triggered()));
 #endif
-    empty_pane_ = new QWidget(main_ui_->mainStack);
+    master_split_.setObjectName(tr("splitterMaster"));
+    extra_split_.setObjectName(tr("splitterExtra"));
+    empty_pane_.setObjectName(tr("emptyPane"));
 
-    packet_list_ = new PacketList(main_ui_->mainStack);
+    empty_pane_.setParent(&master_split_);
 
-    proto_tree_ = new ProtoTree(main_ui_->mainStack);
+    packet_list_ = new PacketList(&master_split_);
+    packet_list_->setParent(&master_split_);
+
+    proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->setHeaderHidden(true);
     proto_tree_->installEventFilter(this);
 
-    byte_view_tab_ = new ByteViewTab(main_ui_->mainStack);
+    byte_view_tab_ = new ByteViewTab(&master_split_);
     byte_view_tab_->setTabPosition(QTabWidget::South);
     byte_view_tab_->setDocumentMode(true);
 
@@ -188,7 +192,10 @@ MainWindow::MainWindow(QWidget *parent) :
     packet_list_->setByteViewTab(byte_view_tab_);
     packet_list_->installEventFilter(this);
 
+    main_ui_->mainStack->addWidget(&master_split_);
+
     main_welcome_ = main_ui_->welcomePage;
+
 
 #ifdef HAVE_LIBPCAP
     connect(wsApp, SIGNAL(captureCapturePrepared(capture_session *)),
@@ -409,7 +416,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {
     switch (type) {
         case layout_pane_content_none:
-            return empty_pane_;
+            return &empty_pane_;
         case layout_pane_content_plist:
             return packet_list_;
         case layout_pane_content_pdetails:

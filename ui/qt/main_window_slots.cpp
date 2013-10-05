@@ -216,97 +216,78 @@ void MainWindow::filterPackets(QString& new_filter, bool force)
 void MainWindow::layoutPanes()
 {
     QSplitter *parents[3];
-    QWidget   *oldMaster = master_split_;
-    QWidget   *current = main_ui_->mainStack->currentWidget();
 
-    master_split_ = new QSplitter(main_ui_->mainStack);
-    master_split_->setObjectName(QString::fromUtf8("splitterMaster"));
-
-    QSplitter *extra_split = new QSplitter(master_split_);
-    extra_split->setObjectName(QString::fromUtf8("splitterExtra"));
+    // Reparent all widgets and add them back in the proper order below.
+    // This hides each widget as well.
+    packet_list_->setParent(main_ui_->mainStack);
+    proto_tree_->setParent(main_ui_->mainStack);
+    byte_view_tab_->setParent(main_ui_->mainStack);
+    empty_pane_.setParent(main_ui_->mainStack);
+    extra_split_.setParent(main_ui_->mainStack);
 
     switch(prefs.gui_layout_type) {
     case(layout_type_5):
-        master_split_->setOrientation(Qt::Vertical);
-        parents[0] = master_split_;
-        parents[1] = master_split_;
-        parents[2] = master_split_;
+        master_split_.setOrientation(Qt::Vertical);
+        parents[0] = &master_split_;
+        parents[1] = &master_split_;
+        parents[2] = &master_split_;
         break;
     case(layout_type_2):
-        master_split_->setOrientation(Qt::Vertical);
-        extra_split->setOrientation(Qt::Horizontal);
-        parents[0] = master_split_;
-        parents[1] = extra_split;
-        parents[2] = extra_split;
+        master_split_.setOrientation(Qt::Vertical);
+        extra_split_.setOrientation(Qt::Horizontal);
+        parents[0] = &master_split_;
+        parents[1] = &extra_split_;
+        parents[2] = &extra_split_;
         break;
     case(layout_type_1):
-        master_split_->setOrientation(Qt::Vertical);
-        extra_split->setOrientation(Qt::Horizontal);
-        parents[0] = extra_split;
-        parents[1] = extra_split;
-        parents[2] = master_split_;
+        master_split_.setOrientation(Qt::Vertical);
+        extra_split_.setOrientation(Qt::Horizontal);
+        parents[0] = &extra_split_;
+        parents[1] = &extra_split_;
+        parents[2] = &master_split_;
         break;
     case(layout_type_4):
-        master_split_->setOrientation(Qt::Horizontal);
-        extra_split->setOrientation(Qt::Vertical);
-        parents[0] = master_split_;
-        parents[1] = extra_split;
-        parents[2] = extra_split;
+        master_split_.setOrientation(Qt::Horizontal);
+        extra_split_.setOrientation(Qt::Vertical);
+        parents[0] = &master_split_;
+        parents[1] = &extra_split_;
+        parents[2] = &extra_split_;
         break;
     case(layout_type_3):
-        master_split_->setOrientation(Qt::Horizontal);
-        extra_split->setOrientation(Qt::Vertical);
-        parents[0] = extra_split;
-        parents[1] = extra_split;
-        parents[2] = master_split_;
+        master_split_.setOrientation(Qt::Horizontal);
+        extra_split_.setOrientation(Qt::Vertical);
+        parents[0] = &extra_split_;
+        parents[1] = &extra_split_;
+        parents[2] = &master_split_;
         break;
     case(layout_type_6):
-        master_split_->setOrientation(Qt::Horizontal);
-        parents[0] = master_split_;
-        parents[1] = master_split_;
-        parents[2] = master_split_;
+        master_split_.setOrientation(Qt::Horizontal);
+        parents[0] = &master_split_;
+        parents[1] = &master_split_;
+        parents[2] = &master_split_;
         break;
     default:
         g_assert_not_reached();
     }
 
-    // We reparent all widgets immediately, because if one of them is left
-    // unused then it would be deleted when we delete oldMaster, which would
-    // lead to a crash next time we tried to use it.
-    packet_list_->setParent(main_ui_->mainStack);
-    proto_tree_->setParent(main_ui_->mainStack);
-    byte_view_tab_->setParent(main_ui_->mainStack);
-    empty_pane_->setParent(main_ui_->mainStack);
-
-    if (parents[0] == extra_split) {
-        master_split_->addWidget(extra_split);
+    if (parents[0] == &extra_split_) {
+        master_split_.addWidget(&extra_split_);
     }
 
     parents[0]->addWidget(getLayoutWidget(prefs.gui_layout_content_1));
 
-    if (parents[2] == extra_split) {
-        master_split_->addWidget(extra_split);
+    if (parents[2] == &extra_split_) {
+        master_split_.addWidget(&extra_split_);
     }
 
     parents[1]->addWidget(getLayoutWidget(prefs.gui_layout_content_2));
     parents[2]->addWidget(getLayoutWidget(prefs.gui_layout_content_3));
 
-    // We must do this near the end to avoid reparenting signals going to
-    // already-deleted widgets.
-    if (oldMaster != NULL) {
-        main_ui_->mainStack->removeWidget(oldMaster);
-        delete oldMaster;
+    for (int i = 0; i < master_split_.count(); i++) {
+        master_split_.widget(i)->show();
     }
-
-    if (extra_split->count() < 1) {
-        delete extra_split;
-        extra_split = NULL;
-    }
-
-    main_ui_->mainStack->addWidget(master_split_);
-
-    if (current == oldMaster) {
-        main_ui_->mainStack->setCurrentWidget(master_split_);
+    for (int i = 0; i < extra_split_.count(); i++) {
+        extra_split_.widget(i)->show();
     }
 }
 
@@ -329,7 +310,7 @@ void MainWindow::captureCapturePrepared(capture_session *cap_session) {
 
 //    /* Don't set up main window for a capture file. */
 //    main_set_for_capture_file(FALSE);
-    main_ui_->mainStack->setCurrentWidget(master_split_);
+    main_ui_->mainStack->setCurrentWidget(&master_split_);
     cap_file_ = (capture_file *) cap_session->cf;
 }
 void MainWindow::captureCaptureUpdateStarted(capture_session *cap_session) {
@@ -411,7 +392,7 @@ void MainWindow::captureFileReadStarted(const capture_file *cf) {
     main_ui_->statusBar->popFileStatus();
     QString msg = QString(tr("Loading: %1")).arg(get_basename(cf->filename));
     main_ui_->statusBar->pushFileStatus(msg);
-    main_ui_->mainStack->setCurrentWidget(master_split_);
+    main_ui_->mainStack->setCurrentWidget(&master_split_);
     WiresharkApplication::processEvents();
 }
 
@@ -1958,7 +1939,7 @@ void MainWindow::on_actionStartCapture_triggered()
 //      return;   /* error in options dialog */
 //  }
 
-    main_ui_->mainStack->setCurrentWidget(master_split_);
+    main_ui_->mainStack->setCurrentWidget(&master_split_);
 
     if (global_capture_opts.num_selected == 0) {
         QString err_msg = tr("No Interface Selected");

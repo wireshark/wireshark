@@ -88,9 +88,11 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
                       "}"
                       ));
 
+#ifndef THROTTLE_STARTUP
     // Check for a remote connection
     if (strlen (get_conn_cfilter()) > 0)
         info_update_freq_ = 1000;
+#endif
 
     connect(wsApp, SIGNAL(splashUpdate(register_action_e,const char*)),
             this, SLOT(splashUpdate(register_action_e,const char*)));
@@ -119,7 +121,7 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
     QString action_msg = UTF8_HORIZONTAL_ELLIPSIS;
 
 #ifdef THROTTLE_STARTUP
-    ThrottleThread::msleep(2);
+    ThrottleThread::msleep(100);
 #endif
 
     register_cur_++;
