@@ -24,17 +24,17 @@
 IF(WIN32)
   set(WSUTIL_PLATFORM_FILES
     file_util.c
+    inet_aton.c
+    inet_ntop.c
+    inet_pton.c
+    strncasecmp.c
+    strptime.c
     unicode-utils.c
+    wsgetopt.c
   )
 ENDIF(WIN32)
 
 set(WSUTIL_FILES
-#		@GETOPT_LO@	# wsgetopt.c
-#		@INET_ATON_LO@	# inet_aton.c
-#		@INET_NTOP_LO@	# inet_ntop.c
-#		@INET_PTON_LO@	# inet_pton.c
-#		@STRNCASECMP_LO@ # strncasecmp.c
-#		@STRPTIME_LO@	# strptime.c
   aes.c
   airpdcap_wep.c
   crash_info.c
@@ -71,6 +71,7 @@ set(wsutil_LIBS
   ${GMODULE2_LIBRARIES}
   ${GLIB2_LIBRARIES}
   ${GCRYPT_LIBRARIES}
+  ${WIN_WSOCK32_LIBRARY}
 )
 
 set(CLEAN_FILES
