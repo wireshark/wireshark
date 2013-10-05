@@ -540,6 +540,8 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	char strbuf[56];
 
 	opt_jump = tvb_get_guint8(tvb, offset);
+	if (0xff == opt_jump)
+		return offset;
 	offset++;
 
 	/*
