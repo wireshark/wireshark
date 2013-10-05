@@ -337,11 +337,9 @@ static void
 decode_iei_ns_pdu(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   tvbuff_t * next_tvb;
 
-  if (bi->nsip_tree) {
-    proto_tree_add_text(bi->nsip_tree, bi->tvb, ie_start_offset,
-                        ie->total_length,
-                        "NS PDU (%u bytes)", ie->value_length);
-  }
+  proto_tree_add_text(bi->nsip_tree, bi->tvb, ie_start_offset,
+                      ie->total_length,
+                      "NS PDU (%u bytes)", ie->value_length);
   next_tvb = tvb_new_subset(bi->tvb, bi->offset, ie->value_length, -1);
   if (nsip_handle) {
     gboolean was_recursive;
@@ -357,10 +355,8 @@ static void
 decode_iei_nsei(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint16 nsei = tvb_get_ntohs(bi->tvb, bi->offset);
 
-  if (bi->nsip_tree) {
-    proto_tree_add_uint(bi->nsip_tree, hf_nsip_nsei, bi->tvb,
-                        ie_start_offset, ie->total_length, nsei);
-  }
+  proto_tree_add_uint(bi->nsip_tree, hf_nsip_nsei, bi->tvb,
+                      ie_start_offset, ie->total_length, nsei);
   bi->offset += ie->value_length;
 
   col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
@@ -373,10 +369,8 @@ static void
 decode_iei_bvci(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint16 bvci = tvb_get_ntohs(bi->tvb, bi->offset);
 
-  if (bi->nsip_tree) {
-    proto_tree_add_uint(bi->nsip_tree, hf_nsip_bvci, bi->tvb,
-                        ie_start_offset, ie->total_length, bvci);
-  }
+  proto_tree_add_uint(bi->nsip_tree, hf_nsip_bvci, bi->tvb,
+                      ie_start_offset, ie->total_length, bvci);
   bi->offset += ie->value_length;
 
   col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
@@ -574,14 +568,12 @@ decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 static void
 decode_iei_transaction_id(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint8 id;
-  if (bi->nsip_tree) {
-    id = tvb_get_guint8(bi->tvb, bi->offset);
-    proto_tree_add_uint(bi->nsip_tree, hf_nsip_transaction_id,
-                        bi->tvb, ie_start_offset, ie->total_length, id);
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
-              "Transaction Id: %d", id);
-  }
- bi->offset += 1;
+  id = tvb_get_guint8(bi->tvb, bi->offset);
+  proto_tree_add_uint(bi->nsip_tree, hf_nsip_transaction_id,
+                      bi->tvb, ie_start_offset, ie->total_length, id);
+  col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
+            "Transaction Id: %d", id);
+  bi->offset += 1;
 }
 
 static void
