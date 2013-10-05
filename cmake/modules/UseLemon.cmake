@@ -14,7 +14,7 @@ MACRO(ADD_LEMON_FILES _sources )
 	  ${_out}
          COMMAND lemon
            t=${_lemonpardir}/lempar.c
-           ${srcdir}/${_in}
+           ${_in}
          DEPENDS ${_in}
       )
 
