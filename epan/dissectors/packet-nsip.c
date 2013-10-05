@@ -228,6 +228,8 @@ static const value_string ip_address_type_vals[] = {
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t nsip_handle;
 
+static gboolean nsip_is_recursive = FALSE;
+
 typedef struct {
   guint8        iei;
   guint8        presence_req;
@@ -342,11 +344,13 @@ decode_iei_ns_pdu(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
   next_tvb = tvb_new_subset(bi->tvb, bi->offset, ie->value_length, -1);
   if (nsip_handle) {
+    gboolean was_recursive;
+    was_recursive = nsip_is_recursive;
+    nsip_is_recursive = TRUE;
     call_dissector(nsip_handle, next_tvb, bi->pinfo, bi->nsip_tree);
+    nsip_is_recursive = was_recursive;
   }
-  else {
-    bi->offset += ie->value_length;
-  }
+  bi->offset += ie->value_length;
 }
 
 static void
@@ -975,9 +979,10 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   pinfo->current_proto = "GPRS-NS";
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS-NS");
-
-  col_clear(pinfo->cinfo, COL_INFO);
+  if (!nsip_is_recursive) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS-NS");
+    col_clear(pinfo->cinfo, COL_INFO);
+  }
 
   pdu_type = tvb_get_guint8(tvb, 0);
   bi.offset++;
@@ -992,8 +997,13 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     bi.nsip_tree = nsip_tree;
   }
 
-  col_add_str(pinfo->cinfo, COL_INFO,
-              val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
+  if (!nsip_is_recursive) {
+    col_add_str(pinfo->cinfo, COL_INFO,
+                val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
+  } else {
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NSIP_SEP, "%s",
+                val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
+  }
   decode_pdu(pdu_type, &bi);
 }
 
