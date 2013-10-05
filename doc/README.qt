@@ -142,6 +142,12 @@ should provide everything you need. Build the top-level directory using CMake
 (see section "Using cmake" above). As an alternative do an in-tree build without
 QT and then inside ui/qt/ do "qtcreate QtShark.pro".
 
+1.2 Other tools
+
+GammaRay lets you inspect the internals of a running Qt application
+similar to Spy++ on Windows.
+
+http://www.kdab.com/kdab-products/gammaray/
 
 2. Going forward
 
