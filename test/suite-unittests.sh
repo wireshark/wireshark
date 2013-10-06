@@ -48,7 +48,7 @@ unittests_step_test() {
 			test_step_failed "install $DUT failed"
 			return
 		fi
-		DUT=../wireshark-gtk2/`basename $DUT`
+		DUT=$SOURCE_DIR/wireshark-gtk2/`basename $DUT`
 	fi
 
 	$DUT $ARGS > testout.txt 2>&1
