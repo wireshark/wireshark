@@ -205,8 +205,12 @@
 /* Define to 1 if you have the `pcap_breakloop' function. */
 #cmakedefine HAVE_PCAP_BREAKLOOP 1
 
+/* FIXME: The code (at least) in dumpcap assumes that PCAP_CREATE is not
+ *        available on Windows - but we detect it in winpcap */
+#ifndef _WIN32
 /* Define to 1 if you have the `pcap_create' function. */
 #cmakedefine HAVE_PCAP_CREATE 1
+#endif
 
 /* Define to 1 if you have the `pcap_datalink_name_to_val' function. */
 #cmakedefine HAVE_PCAP_DATALINK_NAME_TO_VAL 1
