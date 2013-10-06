@@ -426,6 +426,7 @@ typedef struct mimo_control
 /*
  * COMPOSE_FRAME_TYPE() values for control frames.
  */
+#define CTRL_VHT_NDP_ANNC    0x15  /* VHT NDP Announcement          */
 #define CTRL_CONTROL_WRAPPER 0x17  /* Control Wrapper        */
 #define CTRL_BLOCK_ACK_REQ   0x18  /* Block ack Request        */
 #define CTRL_BLOCK_ACK       0x19  /* Block ack          */
@@ -1059,6 +1060,7 @@ static const value_string frame_type_subtype_vals[] = {
   {MGT_ACTION_NO_ACK,         "Action No Ack"},
   {MGT_ARUBA_WLAN,            "Aruba Management"},
 
+  {CTRL_VHT_NDP_ANNC,         "VHT NDP Announcement"},
   {CTRL_CONTROL_WRAPPER,      "Control Wrapper"},
   {CTRL_BLOCK_ACK_REQ,        "802.11 Block Ack Req"},
   {CTRL_BLOCK_ACK,            "802.11 Block Ack"},
@@ -2224,6 +2226,10 @@ static const value_string vht_tpe_pwr_units[] = {
   {0x00, NULL}
 };
 
+static const true_false_string vht_ndp_annc_sta_info_feedback_type = {
+  "MU feedback requested",
+  "SU feedback requested"
+};
 
 static const true_false_string ht_delayed_block_ack_flag = {
   "Transmitter supports HT-Delayed BlockAck",
@@ -3615,6 +3621,15 @@ static int hf_ieee80211_vht_tpe_pwr_constr_40 = -1;
 static int hf_ieee80211_vht_tpe_pwr_constr_80 = -1;
 static int hf_ieee80211_vht_tpe_pwr_constr_160 = -1;
 
+static int hf_ieee80211_vht_ndp_annc_token = -1;
+static int hf_ieee80211_vht_ndp_annc_token_number = -1;
+static int hf_ieee80211_vht_ndp_annc_token_reserved = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_aid12 = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_feedback_type = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_nc_index = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_reserved = -1;
+
 static int hf_ieee80211_tag_neighbor_report_bssid = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_reachability = -1;
@@ -4190,6 +4205,9 @@ static gint ett_vht_tpe_info_tree = -1;
 
 static gint ett_vht_op_tree = -1;
 
+static gint ett_vht_ndp_annc_token_tree = -1;
+static gint ett_vht_ndp_annc_sta_info_tree = -1;
+
 static gint ett_ht_info_delimiter1_tree = -1;
 static gint ett_ht_info_delimiter2_tree = -1;
 static gint ett_ht_info_delimiter3_tree = -1;
@@ -4443,6 +4461,12 @@ find_header_length (guint16 fcf, guint16 ctrl_fcf, gboolean is_ht)
     case CTRL_CTS:
     case CTRL_ACKNOWLEDGEMENT:
       return len + 10;
+
+    case CTRL_VHT_NDP_ANNC:
+      len += 17;
+      /* TODO: for now we only consider a single STA, add support for more */
+      len += 2;
+      return len;
 
     case CTRL_RTS:
     case CTRL_PS_POLL:
@@ -13570,6 +13594,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           addr1_hf_resolved = hf_ieee80211_addr_bssid_resolved;
 
           break;
+        case CTRL_VHT_NDP_ANNC:
         case CTRL_RTS:
         case CTRL_CTS:
         case CTRL_ACKNOWLEDGEMENT:
@@ -13639,6 +13664,61 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             PROTO_ITEM_SET_HIDDEN(hidden_item);
           }
           break;
+        }
+
+        case CTRL_VHT_NDP_ANNC:
+        {
+          src = tvb_get_ptr (tvb, offset, 6);
+          set_src_addr_cols(pinfo, src, "TA");
+          if (tree) {
+            guint16 sta_info;
+            proto_tree *dialog_token_tree;
+            proto_item *dialog_token_item;
+            proto_tree *sta_info_tree;
+            proto_item *sta_info_item;
+
+            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6,
+              get_ether_name(tvb_get_ptr(tvb, offset, 6)));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6,
+             get_ether_name(src));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            offset += 6;
+
+            dialog_token_item = proto_tree_add_item(hdr_tree, hf_ieee80211_vht_ndp_annc_token,
+                                                    tvb, offset, 1, ENC_NA);
+            dialog_token_tree = proto_item_add_subtree(dialog_token_item, ett_vht_ndp_annc_token_tree);
+            proto_tree_add_item(dialog_token_tree, hf_ieee80211_vht_ndp_annc_token_number,
+                                tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(dialog_token_tree, hf_ieee80211_vht_ndp_annc_token_reserved,
+                                tvb, offset, 1, ENC_NA);
+            offset++;
+
+            while (tvb_length_remaining(tvb, offset) > 0) {
+              sta_info_item = proto_tree_add_item(hdr_tree, hf_ieee80211_vht_ndp_annc_sta_info,
+                                                  tvb, offset, 2, ENC_NA);
+              sta_info_tree = proto_item_add_subtree(sta_info_item, ett_vht_ndp_annc_sta_info_tree);
+              proto_tree_add_item(sta_info_tree, hf_ieee80211_vht_ndp_annc_sta_info_aid12,
+                                  tvb, offset, 2, ENC_NA);
+              proto_tree_add_item(sta_info_tree, hf_ieee80211_vht_ndp_annc_sta_info_feedback_type,
+                                  tvb, offset, 2, ENC_NA);
+
+              sta_info = tvb_get_letohs(tvb, offset);
+
+              if (sta_info & 0x0010)
+                proto_tree_add_uint(sta_info_tree,
+                                    hf_ieee80211_vht_ndp_annc_sta_info_nc_index,
+                                    tvb, offset, 2, sta_info);
+              else
+                proto_tree_add_item(sta_info_tree, hf_ieee80211_vht_ndp_annc_sta_info_reserved,
+                                    tvb, offset, 2, ENC_NA);
+              offset += 2;
+            }
+          }
+        break;
         }
 
         case CTRL_RTS:
@@ -15677,6 +15757,46 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_block_ack_bitmap_missing_frame,
      {"Missing frame", "wlan.ba.bm.missing_frame",
       FT_UINT32, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_token,
+     {"Sounding Dialog Token", "wlan.vht_ndp.token",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_token_number,
+     {"Sounding Dialog Token Number", "wlan.vht_ndp.token.number",
+      FT_UINT8, BASE_DEC, NULL, 0xFC,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_token_reserved,
+     {"Reserved", "wlan.vht_ndp.token.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x03,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info,
+     {"STA Info", "wlan.vht_ndp.sta_info",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_aid12,
+     {"AID12", "wlan.vht_ndp.sta_info.aid12",
+      FT_UINT16, BASE_HEX, NULL, 0x0FFF,
+      "12 least significant bits of the AID of the target STA", HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_feedback_type,
+     {"Feedback Type", "wlan.vht_ndp.sta_info.feedback_type",
+      FT_BOOLEAN, 16, TFS(&vht_ndp_annc_sta_info_feedback_type), 0x1000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_nc_index,
+     {"Nc Index", "wlan.vht_ndp.sta_info.nc_index",
+      FT_UINT16, BASE_DEC, VALS(num_plus_one_3bit_flag), 0xE000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_reserved,
+     {"Reserved", "wlan.vht_ndp.sta_info.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xE000,
       NULL, HFILL }},
 
     {&hf_ieee80211_data_encap_payload_type,
@@ -21313,6 +21433,8 @@ proto_register_ieee80211 (void)
     &ett_vht_basic_mcsbit_tree,
     &ett_vht_op_tree,
     &ett_vht_tpe_info_tree,
+    &ett_vht_ndp_annc_token_tree,
+    &ett_vht_ndp_annc_sta_info_tree,
     &ett_ht_info_delimiter1_tree,
     &ett_ht_info_delimiter2_tree,
     &ett_ht_info_delimiter3_tree,
