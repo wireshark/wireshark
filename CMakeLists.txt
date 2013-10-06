@@ -136,6 +136,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
     set(WARNINGS_CFLAGS "/w34295")
 
     set(WIRESHARK_C_FLAGS
+	# FIXME: This doen't work as PCAP_VERSION will be determined later
         "/DPCAP_VERSION=${PCAP_VERSION}"
         ${LOCAL_CFLAGS}
         ${WARNINGS_CFLAGS}
