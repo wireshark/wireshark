@@ -154,8 +154,7 @@ tshark_name_resolution_suite() {
 }
 
 name_resolution_cleanup_step() {
-	rm -rf fakehome
-	rm -f ../hosts
+	rm -f $WS_BIN_PATH/hosts
 }
 
 name_resolution_prep_step() {
