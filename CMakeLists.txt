@@ -118,7 +118,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
     set(LOCAL_CFLAGS
         /Zi
         /W3
-        /MD
+        /MDd
         /DWIN32_LEAN_AND_MEAN
         "/DMSC_VER_REQUIRED=${MSC_VER_REQUIRED}"
         /D_CRT_SECURE_NO_DEPRECATE
