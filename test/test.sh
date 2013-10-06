@@ -65,13 +65,6 @@ fi
 source test-backend.sh
 
 source config.sh
-source suite-clopts.sh
-source suite-io.sh
-source suite-capture.sh
-source suite-unittests.sh
-source suite-fileformats.sh
-source suite-decryption.sh
-source suite-nameres.sh
 
 # needed by some tests
 TEST_OUTDIR=$(mktemp -d)
@@ -83,6 +76,14 @@ if [ -z "$TEST_OUTDIR" ] || ! cd "$TEST_OUTDIR"; then
 fi
 
 test_build_paths
+
+source $TESTS_DIR/suite-clopts.sh
+source $TESTS_DIR/suite-io.sh
+source $TESTS_DIR/suite-capture.sh
+source $TESTS_DIR/suite-unittests.sh
+source $TESTS_DIR/suite-fileformats.sh
+source $TESTS_DIR/suite-decryption.sh
+source $TESTS_DIR/suite-nameres.sh
 
 test_cleanup() {
 	if [ $TEST_OUTDIR_CLEAN = 1 ]; then
