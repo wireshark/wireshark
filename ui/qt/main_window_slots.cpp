@@ -226,44 +226,41 @@ void MainWindow::layoutPanes()
     extra_split_.setParent(main_ui_->mainStack);
 
     switch(prefs.gui_layout_type) {
+    case(layout_type_2):
+    case(layout_type_1):
+        extra_split_.setOrientation(Qt::Horizontal);
     case(layout_type_5):
         master_split_.setOrientation(Qt::Vertical);
+        break;
+
+    case(layout_type_4):
+    case(layout_type_3):
+        extra_split_.setOrientation(Qt::Vertical);
+    case(layout_type_6):
+        master_split_.setOrientation(Qt::Horizontal);
+        break;
+
+    default:
+        g_assert_not_reached();
+    }
+
+    switch(prefs.gui_layout_type) {
+    case(layout_type_5):
+    case(layout_type_6):
         parents[0] = &master_split_;
         parents[1] = &master_split_;
         parents[2] = &master_split_;
         break;
     case(layout_type_2):
-        master_split_.setOrientation(Qt::Vertical);
-        extra_split_.setOrientation(Qt::Horizontal);
+    case(layout_type_4):
         parents[0] = &master_split_;
         parents[1] = &extra_split_;
         parents[2] = &extra_split_;
         break;
     case(layout_type_1):
-        master_split_.setOrientation(Qt::Vertical);
-        extra_split_.setOrientation(Qt::Horizontal);
-        parents[0] = &extra_split_;
-        parents[1] = &extra_split_;
-        parents[2] = &master_split_;
-        break;
-    case(layout_type_4):
-        master_split_.setOrientation(Qt::Horizontal);
-        extra_split_.setOrientation(Qt::Vertical);
-        parents[0] = &master_split_;
-        parents[1] = &extra_split_;
-        parents[2] = &extra_split_;
-        break;
     case(layout_type_3):
-        master_split_.setOrientation(Qt::Horizontal);
-        extra_split_.setOrientation(Qt::Vertical);
         parents[0] = &extra_split_;
         parents[1] = &extra_split_;
-        parents[2] = &master_split_;
-        break;
-    case(layout_type_6):
-        master_split_.setOrientation(Qt::Horizontal);
-        parents[0] = &master_split_;
-        parents[1] = &master_split_;
         parents[2] = &master_split_;
         break;
     default:
