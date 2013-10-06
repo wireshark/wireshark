@@ -66,7 +66,8 @@ FT_IPXNET,
 FT_FRAMENUM,
 FT_PCRE,
 FT_GUID,
-FT_OID) = map(int, range(31))
+FT_OID,
+FT_REL_OID) = map(int, range(32))
 
 # hf_register_info from usual dissectors
 class register_info(object):

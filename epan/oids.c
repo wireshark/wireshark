@@ -829,11 +829,16 @@ void oids_cleanup(void) {
 }
 
 const char* oid_subid2string(guint32* subids, guint len) {
+    return rel_oid_subid2string(subids, len, TRUE);
+}
+const char* rel_oid_subid2string(guint32* subids, guint len, gboolean is_absolute) {
 	char* s = (char *)ep_alloc0(((len)*11)+1);
 	char* w = s;
 
 	if(!subids)
 		return "*** Empty OID ***";
+	if (!is_absolute)
+		*w++ = '.';
 
 	do {
 		w += g_snprintf(w,12,"%u.",*subids++);
@@ -919,9 +924,12 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 
 
 guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_p) {
+	return oid_encoded2subid_sub(oid_bytes, oid_len, subids_p, TRUE);
+}
+guint oid_encoded2subid_sub(const guint8 *oid_bytes, gint oid_len, guint32** subids_p,
+		gboolean is_first) {
 	gint i;
-	guint n = 1;
-	gboolean is_first = TRUE;
+	guint n = is_first ? 1 : 0;
 	guint32* subids;
 	guint32* subid_overflow;
 	/*
@@ -939,7 +947,7 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 	 * so initialize our one byte to zero and return. This *seems* to be
 	 * the right thing to do in this situation, and at the very least it
 	 * avoids uninitialized memory errors that would otherwise occur. */
-	if (n == 1) {
+	if ((is_first && n == 0) || (!is_first && n == 1)) {
 		*subids = 0;
 		return n;
 	}
@@ -1019,6 +1027,13 @@ const gchar *oid_resolved_from_encoded(const guint8 *oid, gint oid_len) {
 	return oid_resolved(subid_oid_length, subid_oid);
 }
 
+const gchar *rel_oid_resolved_from_encoded(const guint8 *oid, gint oid_len) {
+	guint32 *subid_oid;
+	guint subid_oid_length = oid_encoded2subid_sub(oid, oid_len, &subid_oid, FALSE);
+
+	return rel_oid_subid2string(subid_oid, subid_oid_length, FALSE);
+}
+
 
 guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 	guint bytelen = 0;
@@ -1090,7 +1105,16 @@ const gchar* oid_encoded2string(const guint8* encoded, guint len) {
 	}
 }
 
+const gchar* rel_oid_encoded2string(const guint8* encoded, guint len) {
+	guint32* subids;
+	guint subids_len = oid_encoded2subid_sub(encoded, len, &subids, FALSE);
 
+	if (subids_len) {
+		return rel_oid_subid2string(subids,subids_len, FALSE);
+	} else {
+		return "";
+	}
+}
 
 guint oid_string2encoded(const char *oid_str, guint8 **bytes) {
 	guint32* subids;

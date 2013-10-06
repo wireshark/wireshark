@@ -77,6 +77,8 @@ bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
  * OID_REPR_LEN:
  *
  * 5 for the first byte ([0-2].[0-39].)
+ *
+ * REL_OID_REPR_LEN:
  * for each extra byte if the sub-id is:
  *   1 byte it can be at most "127." (4 bytes we give it 4)
  *   2 bytes it can be at most "16383." (6 bytes we give it 8)
@@ -87,7 +89,8 @@ bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
  *  a 5 bytes encoded subid can already overflow the guint32 that holds a sub-id,
  *  making it a completely different issue!
  */
-#define OID_REPR_LEN(fv) (5 + (4 * ((fv)->value.bytes->len-1)))
+#define REL_OID_REPR_LEN(fv) (4 * ((fv)->value.bytes->len))
+#define OID_REPR_LEN(fv) (1 + REL_OID_REPR_LEN(fv))
 
 static int
 oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
@@ -107,6 +110,27 @@ oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 	 *    -- lego
 	 */
 	strncpy(buf,oid_str,OID_REPR_LEN(fv));
+}
+
+static int
+rel_oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	return REL_OID_REPR_LEN(fv);
+}
+
+static void
+rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	const char* oid_str = rel_oid_encoded2string(fv->value.bytes->data,fv->value.bytes->len);
+	/*
+	 * XXX:
+	 * I'm assuming that oid_repr_len is going to be called before to set buf's size.
+	 * or else we might have a BO.
+	 * I guess that is why this callback is not passed a length.
+	 *    -- lego
+	 */
+	*buf++ = '.';
+	strncpy(buf,oid_str,REL_OID_REPR_LEN(fv));
 }
 
 static void
@@ -367,6 +391,34 @@ oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	if (!res) {
 		if (logfunc != NULL)
 			logfunc("\"%s\" is not a valid OBJECT IDENTIFIER.", s);
+		g_byte_array_free(bytes, TRUE);
+		return FALSE;
+	}
+
+	/* Free up the old value, if we have one */
+	bytes_fvalue_free(fv);
+	fv->value.bytes = bytes;
+
+	return TRUE;
+}
+
+static gboolean
+rel_oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+{
+	GByteArray	*bytes;
+	gboolean	res;
+
+
+	/*
+	 * Don't log a message if this fails; we'll try looking it
+	 * up as an OID if it does, and if that fails,
+	 * we'll log a message.
+	 */
+	bytes = g_byte_array_new();
+	res = rel_oid_str_to_bytes(s, bytes, FALSE);
+	if (!res) {
+		if (logfunc != NULL)
+			logfunc("\"%s\" is not a valid RELATIVE-OID.", s);
 		g_byte_array_free(bytes, TRUE);
 		return FALSE;
 	}
@@ -811,10 +863,49 @@ ftype_register_bytes(void)
 		slice,
 	};
 
+	static ftype_t rel_oid_type = {
+		FT_REL_OID,			/* ftype */
+		"FT_REL_OID",			/* name */
+		"ASN.1 relative object identifier",	/* pretty_name */
+		0,			/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		rel_oid_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		rel_oid_to_repr,		/* val_to_string_repr */
+		rel_oid_repr_len,		/* len_string_repr */
+
+		oid_fvalue_set,		/* set_value (same as full oid) */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
+
+		value_get,			/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
+		cmp_bitwise_and,
+		cmp_contains,
+		NULL,				/* cmp_matches */
+
+		len,
+		slice,
+	};
+
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_AX25, &ax25_type);
 	ftype_register(FT_VINES, &vines_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_OID, &oid_type);
+	ftype_register(FT_REL_OID, &rel_oid_type);
 }

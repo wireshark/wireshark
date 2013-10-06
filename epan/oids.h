@@ -142,14 +142,20 @@ guint oid_string2encoded(const gchar *oid_str, guint8** encoded_p);
 WS_DLL_PUBLIC
 guint oid_encoded2subid(const guint8 *oid, gint len, guint32** subids_p);
 WS_DLL_PUBLIC
+guint oid_encoded2subid_sub(const guint8 *oid_bytes, gint oid_len, guint32** subids_pi,
+		gboolean is_first);
+WS_DLL_PUBLIC
 guint oid_string2subid(const gchar *oid_str, guint32** subids_p);
 
 WS_DLL_PUBLIC const gchar* oid_encoded2string(const guint8* encoded, guint len);
+WS_DLL_PUBLIC const gchar* rel_oid_encoded2string(const guint8* encoded, guint len);
 WS_DLL_PUBLIC const gchar* oid_subid2string(guint32 *subids, guint len);
+WS_DLL_PUBLIC const gchar* rel_oid_subid2string(guint32 *subids, guint len, gboolean is_relative);
 
 /* these return a formated string as human readable as posible */
 WS_DLL_PUBLIC const gchar *oid_resolved(guint len, guint32 *subids);
 WS_DLL_PUBLIC const gchar *oid_resolved_from_encoded(const guint8 *oid, gint len);
+WS_DLL_PUBLIC const gchar *rel_oid_resolved_from_encoded(const guint8 *oid, gint len);
 WS_DLL_PUBLIC const gchar *oid_resolved_from_string(const gchar *oid_str);
 
 /* these yield two formated strings one resolved and one numeric */

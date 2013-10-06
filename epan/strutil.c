@@ -617,6 +617,10 @@ byte_array_dup(GByteArray *ba) {
 #define SUBID_BUF_LEN 5
 gboolean
 oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
+    return rel_oid_str_to_bytes(oid_str, bytes, TRUE);
+}
+gboolean
+rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, gboolean is_absolute) {
     guint32 subid0, subid, sicnt, i;
     const char *p, *dot;
     guint8 buf[SUBID_BUF_LEN];
@@ -629,7 +633,7 @@ oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
     while (*p) {
         if (!isdigit((guchar)*p) && (*p != '.')) return FALSE;
         if (*p == '.') {
-            if (p == oid_str) return FALSE;
+            if (p == oid_str && is_absolute) return FALSE;
             if (!*(p+1)) return FALSE;
             if ((p-1) == dot) return FALSE;
             dot = p;
@@ -639,7 +643,8 @@ oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
     if (!dot) return FALSE;
 
     p = oid_str;
-    sicnt = 0;
+    sicnt = is_absolute ? 0 : 2;
+    if (!is_absolute) p++;
     subid0 = 0;    /* squelch GCC complaints */
     while (*p) {
         subid = 0;

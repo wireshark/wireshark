@@ -43,6 +43,7 @@
 	'FT_PCRE',		'Perl Compatible Regular Expression',
 	'FT_GUID',		'Globally Unique Identifier',
 	'FT_OID',		'Object Identifier',
+	'FT_REL_OID',		'Relative Object Identifier',
 );
 
 # Read all the data into memory

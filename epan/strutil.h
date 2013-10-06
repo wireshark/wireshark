@@ -156,6 +156,17 @@ const gchar* format_uri(const GByteArray *bytes, const gchar *reserved_chars);
  * @param oid_str The OID string (dot notaion).
  * @param bytes The GByteArray that will receive the bytes.  This
  *        must be initialized by the caller.
+ * @param is_absolute True if this is an absolute OID; false for relative OID.
+ * @return True if the string was converted successfully
+ */
+WS_DLL_PUBLIC
+gboolean   rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, gboolean is_absolute);
+
+/** Turn a OID string representation (dot notation) into a byte array.
+ *
+ * @param oid_str The OID string (dot notaion).
+ * @param bytes The GByteArray that will receive the bytes.  This
+ *        must be initialized by the caller.
  * @return True if the string was converted successfully
  */
 WS_DLL_PUBLIC

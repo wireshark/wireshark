@@ -113,7 +113,8 @@ FIELDTYPE       FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
                 FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
                 FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_EUI64,
                 FT_UINT_STRING, FT_ETHER, FT_BYTES, FT_UINT_BYTES, FT_IPv4,
-                FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
+                FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID,
+                FT_REL_OID
 FIELDDISPLAY    --For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
 
                   BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC,
@@ -725,6 +726,7 @@ The type of value this field holds. The current field types are:
                 address.
     FT_GUID     A Globally Unique Identifier
     FT_OID      An ASN.1 Object Identifier
+    FT_REL_OID  An ASN.1 Relative Object Identifier
     FT_EUI64   A EUI-64 Address
 
 Some of these field types are still not handled in the display filter
@@ -1331,8 +1333,8 @@ proto_register_*() function) and a value.  The value will be fetched
 from the tvbuff by proto_tree_add_item(), based on the type of the field
 and the encoding of the value as specified by the "encoding" argument.
 
-For FT_NONE, FT_BYTES, FT_ETHER, FT_IPv6, FT_IPXNET, FT_OID fields,
-and 'protocol' fields the encoding is not relevant; the 'encoding'
+For FT_NONE, FT_BYTES, FT_ETHER, FT_IPv6, FT_IPXNET, FT_OID, FT_REL_OID 
+fields, and 'protocol' fields the encoding is not relevant; the 'encoding'
 argument should be ENC_NA (Not Applicable).
 
 For integral, floating-point, Boolean, FT_GUID, and FT_EUI64 fields,

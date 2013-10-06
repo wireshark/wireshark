@@ -83,8 +83,9 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_OID:
 		case FT_AX25:
 		case FT_VINES:
+		case FT_REL_OID:
 
-			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_GUID || b == FT_OID || b == FT_AX25 || b == FT_VINES);
+			return (b == FT_ETHER || b == FT_BYTES || b == FT_UINT_BYTES || b == FT_GUID || b == FT_OID || b == FT_AX25 || b == FT_VINES || b == FT_REL_OID);
 
 		case FT_BOOLEAN:
 		case FT_FRAMENUM:
@@ -189,6 +190,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_PCRE:
 		case FT_GUID:
 		case FT_OID:
+		case FT_REL_OID:
 			return NULL;
 
 		case FT_BOOLEAN:
@@ -296,6 +298,7 @@ is_bytes_type(enum ftenum type)
 		case FT_IPv6:
 		case FT_GUID:
 		case FT_OID:
+		case FT_REL_OID:
 			return TRUE;
 
 		case FT_NONE:

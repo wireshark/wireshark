@@ -1406,6 +1406,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_OID:
+		case FT_REL_OID:
 			proto_tree_set_oid_tvb(new_fi, tvb, start, length);
 			break;
 
@@ -3876,6 +3877,17 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 							   size-offset_r);
 				break;
 
+			case FT_REL_OID:
+				bytes = (guint8 *)fvalue_get(&finfo->value);
+				offset_r += protoo_strlcpy(result+offset_r,
+							   rel_oid_resolved_from_encoded(bytes,
+										     fvalue_length(&finfo->value)),
+							   size-offset_r);
+				offset_e += protoo_strlcpy(expr+offset_e,
+							   rel_oid_encoded2string(bytes, fvalue_length(&finfo->value)),
+							   size-offset_e);
+				break;
+
 			case FT_OID:
 				bytes = (guint8 *)fvalue_get(&finfo->value);
 				offset_r += protoo_strlcpy(result+offset_r,
@@ -3933,6 +3945,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 		case FT_INT24:
 		case FT_INT32:
 		case FT_OID:
+		case FT_REL_OID:
 			/* for these types, "expr" is filled in the loop above */
 			break;
 
@@ -4785,6 +4798,7 @@ static const value_string hf_types[] = {
 	{ FT_PCRE,	    "FT_PCR"	       },
 	{ FT_GUID,	    "FT_GUID"	       },
 	{ FT_OID,	    "FT_OID"	       },
+	{ FT_REL_OID,	    "FT_REL_OID"       },
 	{ 0,		    NULL } };
 
 static const value_string hf_display[] = {
@@ -5385,6 +5399,19 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 					 oid_encoded2string(bytes, fvalue_length(&fi->value)));
 			}
 			break;
+
+		case FT_REL_OID:
+			bytes = (guint8 *)fvalue_get(&fi->value);
+			name = rel_oid_resolved_from_encoded(bytes, fvalue_length(&fi->value));
+			if (name) {
+				label_fill_descr(label_str, 0, hfinfo,
+					 rel_oid_encoded2string(bytes, fvalue_length(&fi->value)), name);
+			} else {
+				label_fill(label_str, 0, hfinfo,
+					 rel_oid_encoded2string(bytes, fvalue_length(&fi->value)));
+			}
+			break;
+
 		case FT_EUI64:
 			integer64 = fvalue_get_integer64(&fi->value);
 			label_fill_descr(label_str, 0, hfinfo,

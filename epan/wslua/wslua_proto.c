@@ -459,6 +459,7 @@ static const wslua_ft_types_t ftenums[] = {
     {"ftypes.FRAMENUM", FT_FRAMENUM},
     {"ftypes.GUID", FT_GUID},
     {"ftypes.OID", FT_OID},
+    {"ftypes.REL_OID", FT_REL_OID},
     {NULL, FT_NONE}
 };
 
@@ -1185,6 +1186,7 @@ PROTOFIELD_OTHER(bytes,FT_BYTES)
 PROTOFIELD_OTHER(ubytes,FT_UINT_BYTES)
 PROTOFIELD_OTHER(guid,FT_GUID)
 PROTOFIELD_OTHER(oid,FT_OID)
+PROTOFIELD_OTHER(rel_oid,FT_REL_OID)
 
 WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes) */
@@ -1246,6 +1248,7 @@ static const luaL_Reg ProtoField_methods[] = {
     {"ubytes",ProtoField_ubytes},
     {"guid",ProtoField_guid},
     {"oid",ProtoField_oid},
+    {"rel_oid",ProtoField_rel_oid},
     { NULL, NULL }
 };
 

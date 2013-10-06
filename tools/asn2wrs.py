@@ -5301,7 +5301,7 @@ class RelativeOIDType (Type):
         return 'RELATIVE_OID'
 
     def eth_ftype(self, ectx):
-        return ('FT_BYTES', 'BASE_NONE')
+        return ('FT_REL_OID', 'BASE_NONE')
 
     def GetTTag(self, ectx):
         return ('BER_CLASS_UNI', 'BER_UNI_TAG_RELATIVE_OID')

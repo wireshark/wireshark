@@ -1239,6 +1239,8 @@ static const char* ftenum_to_string(header_field_info *hfi)
             return "FT_GUID";
         case FT_OID:
             return "FT_OID";
+        case FT_REL_OID:
+            return "FT_REL_OID";
         case FT_NUM_TYPES:
             return "FT_NUM_TYPES";
         default:

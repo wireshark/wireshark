@@ -92,7 +92,7 @@ resolve_column (gint col, capture_file *cf)
             /* Check if this is a valid field */
             if (hfi != NULL) {
                 /* Check if we have an OID or a strings table with integer values */
-                if ((hfi->type == FT_OID) ||
+                if ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) ||
                         ((hfi->strings != NULL) &&
                          ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
                           IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
