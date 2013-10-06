@@ -21,6 +21,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+include(CMakePushCheckState)
+
 #check system for includes
 include(CheckIncludeFile)
 check_include_file("arpa/inet.h"         HAVE_ARPA_INET_H)
@@ -37,8 +39,11 @@ check_include_file("lauxlib.h"           HAVE_LAUXLIB_H)
 check_include_file("memory.h"            HAVE_MEMORY_H)
 check_include_file("netinet/in.h"        HAVE_NETINET_IN_H)
 check_include_file("netdb.h"             HAVE_NETDB_H)
-# XXX: We need to set the path to Wpdpack in order to find Ntddndis.h
-check_include_file("Ntddndis.h"          HAVE_NTDDNDIS_H)
+# We need to set the path to Wpdpack in order to find Ntddndis.h
+#cmake_push_check_state()
+#set(CMAKE_REQUIRED_INCLUDES %{PCAP_INCLUDE_DIRS})
+#check_include_file("Ntddndis.h"          HAVE_NTDDNDIS_H)
+#cmake_pop_check_state()
 check_include_file("portaudio.h"         HAVE_PORTAUDIO_H)
 check_include_file("pwd.h"               HAVE_PWD_H)
 check_include_file("stdarg.h"            HAVE_STDARG_H)
@@ -62,11 +67,10 @@ check_include_file("winsock2.h"          HAVE_WINSOCK2_H)
 
 #Functions
 include(CheckFunctionExists)
-include(CMakePushCheckState)
 check_function_exists("chown"            HAVE_CHOWN)
 
 cmake_push_check_state()
-set(CMAKE_REQUIRED_LIBRARIES ¼{CMAKE_DL_LIBS})
+set(CMAKE_REQUIRED_LIBRARIES %{CMAKE_DL_LIBS})
 check_function_exists("dladdr"           HAVE_DLADDR)
 cmake_pop_check_state()
 

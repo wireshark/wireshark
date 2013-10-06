@@ -406,5 +406,16 @@
 #define _U_ ${C_UNUSED}
 
 #if defined(_WIN32)
-typedef long ssize_t;
+#  if !defined(QT_VERSION) || !defined(_SSIZE_T_DEFINED)
+   typedef int ssize_t;
+#  endif
+   /* FIXME: Detection doesn't work */
+#  define HAVE_NTDDNDIS_H 1
+#  define strncasecmp strnicmp
+#  ifndef __STDC__
+#    define __STDC__ 0
+#  endif
+   /* Use Unicode in Windows runtime functions. */
+#  define UNICODE 1
+#  define _UNICODE 1
 #endif
