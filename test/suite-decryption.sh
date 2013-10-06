@@ -56,14 +56,8 @@ fi
 
 #TS_ARGS="-Tfields -e frame.number -e frame.time_epoch -e frame.time_delta"
 TS_DC_ARGS=""
-TS_DC_ENV="${HOME_ENV}=${TEST_HOME}"
 
 DIFF_OUT=./diff-output.txt
-
-# We create UATs in the source directory. Add a unique ID so we can avoid
-# deleting files we shouldn't.
-DC_ID="suite-decryption.sh-$$"
-
 
 # WPA PSK
 # http://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=wpa-Induction.pcap
@@ -135,27 +129,21 @@ tshark_decryption_suite() {
 }
 
 decryption_cleanup_step() {
-	for UAT in $UAT_FILES ; do
-		grep $DC_ID $WS_BIN_PATH/$UAT > /dev/null 2>&1
-		RETURNVALUE=$?
-		if [ $RETURNVALUE -eq $EXIT_OK ]; then
-			rm -f $WS_BIN_PATH/$UAT
-		fi
-	done
-	rm -rf fakehome
+	rm -rf "$TEST_HOME"
 }
 
 decryption_prep_step() {
 	decryption_cleanup_step
-	mkdir fakehome
+
+	TEST_HOME="$TEST_OUTDIR/home"
+	DOTWS_DIR="$TEST_HOME/.wireshark"
+	TS_DC_ENV="${HOME_ENV}=${TEST_HOME}"
+	mkdir -p "$DOTWS_DIR"
 
 	for UAT in $UAT_FILES ; do
-		if [ -f $WS_BIN_PATH/$UAT ] ; then
-			test_remark_add "$WS_BIN_PATH/$UAT exists. One or more tests may fail."
-		else
-			echo "# Created by $DC_ID" > $WS_BIN_PATH/$UAT
-			sed -e "s|TEST_KEYS_DIR|${TEST_KEYS_DIR//\\/\\\\x5c}|" < "$TESTS_DIR/config/$UAT.tmpl" >> "$WS_BIN_PATH/$UAT"
-		fi
+		sed -e "s|TEST_KEYS_DIR|${TEST_KEYS_DIR//\\/\\\\x5c}|" \
+			< "$TESTS_DIR/config/$UAT.tmpl" \
+			> "$DOTWS_DIR/$UAT"
 	done
 }
 

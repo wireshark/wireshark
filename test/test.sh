@@ -84,10 +84,12 @@ fi
 
 test_cleanup() {
 	if [ $TEST_OUTDIR_CLEAN = 1 ]; then
-		# display contents of test outputs
-		grep -r . .
+		# display contents of test outputs, ignore directory:
+		# home (decryption suite)
+		grep -r . --exclude-dir=home .
 		rm -rf "$TEST_OUTDIR"
-	else
+	elif ! rmdir "$TEST_OUTDIR" 2>/dev/null; then
+		# if directory is non-empty, print directory
 		echo "Test results are available in $TEST_OUTDIR"
 	fi
 }

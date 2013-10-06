@@ -30,16 +30,8 @@ EXIT_ERROR=2
 
 #TS_ARGS="-Tfields -e frame.number -e frame.time_epoch -e frame.time_delta"
 TS_NR_ARGS="-r $CAPTURE_DIR/dns+icmp.pcapng.gz"
-TS_NR_ENV="WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ${HOME_ENV}=${TEST_HOME}"
-
-if [ "$WS_SYSTEM" == "Windows" ] ; then
-	CONF_PATH="$TEST_HOME/Wireshark"
-else
-	CONF_PATH="$TEST_HOME/.wireshark"
-fi
 
 CUSTOM_PROFILE_NAME="Custom-$$"
-CUSTOM_PROFILE_PATH="$CONF_PATH/profiles/$CUSTOM_PROFILE_NAME"
 
 # nameres.network_name: True
 # nameres.use_external_name_resolver: False
@@ -167,6 +159,14 @@ name_resolution_cleanup_step() {
 }
 
 name_resolution_prep_step() {
+	if [ "$WS_SYSTEM" == "Windows" ] ; then
+		CONF_PATH="$TEST_OUTDIR/home/Wireshark"
+	else
+		CONF_PATH="$TEST_OUTDIR/home/.wireshark"
+	fi
+	CUSTOM_PROFILE_PATH="$CONF_PATH/profiles/$CUSTOM_PROFILE_NAME"
+	TS_NR_ENV="WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ${HOME_ENV}=${TEST_OUTDIR}/home"
+
 	name_resolution_cleanup_step
 	mkdir -p "$CUSTOM_PROFILE_PATH"
 	cp "$TESTS_DIR/hosts.global" "$WS_BIN_PATH/hosts"

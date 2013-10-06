@@ -100,11 +100,9 @@ export WIRESHARK_QUIT_AFTER_CAPTURE="True"
 CAPTURE_DIR="$TESTS_DIR/captures/"
 
 # Configuration paths
-TEST_HOME="$PWD/fakehome"
 HOME_ENV="HOME"
 
 if [ "$WS_SYSTEM" == "Windows" ] ; then
-	TEST_HOME="`cygpath -w $TEST_HOME`"
 	HOME_ENV="APPDATA"
 	CAPTURE_DIR="`cygpath -w $CAPTURE_DIR`"
 fi
