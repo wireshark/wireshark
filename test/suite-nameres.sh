@@ -158,13 +158,8 @@ name_resolution_cleanup_step() {
 }
 
 name_resolution_prep_step() {
-	if [ "$WS_SYSTEM" == "Windows" ] ; then
-		CONF_PATH="$TEST_OUTDIR/home/Wireshark"
-	else
-		CONF_PATH="$TEST_OUTDIR/home/.wireshark"
-	fi
 	CUSTOM_PROFILE_PATH="$CONF_PATH/profiles/$CUSTOM_PROFILE_NAME"
-	TS_NR_ENV="WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ${HOME_ENV}=${TEST_OUTDIR}/home"
+	TS_NR_ENV="WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ${HOME_ENV}=${HOME_PATH}"
 
 	name_resolution_cleanup_step
 	mkdir -p "$CUSTOM_PROFILE_PATH"

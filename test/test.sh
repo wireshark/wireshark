@@ -82,6 +82,8 @@ if [ -z "$TEST_OUTDIR" ] || ! cd "$TEST_OUTDIR"; then
 	TEST_OUTDIR_CLEAN=0
 fi
 
+test_build_paths
+
 test_cleanup() {
 	if [ $TEST_OUTDIR_CLEAN = 1 ]; then
 		# display contents of test outputs, ignore directory:

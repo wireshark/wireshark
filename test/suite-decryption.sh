@@ -135,15 +135,12 @@ decryption_cleanup_step() {
 decryption_prep_step() {
 	decryption_cleanup_step
 
-	TEST_HOME="$TEST_OUTDIR/home"
-	DOTWS_DIR="$TEST_HOME/.wireshark"
-	TS_DC_ENV="${HOME_ENV}=${TEST_HOME}"
-	mkdir -p "$DOTWS_DIR"
+	TS_DC_ENV="${HOME_ENV}=${HOME_PATH}"
 
 	for UAT in $UAT_FILES ; do
 		sed -e "s|TEST_KEYS_DIR|${TEST_KEYS_DIR//\\/\\\\x5c}|" \
 			< "$TESTS_DIR/config/$UAT.tmpl" \
-			> "$DOTWS_DIR/$UAT"
+			> "$CONF_PATH/$UAT"
 	done
 }
 
