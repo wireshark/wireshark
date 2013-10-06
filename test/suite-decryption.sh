@@ -49,7 +49,7 @@ UAT_FILES="
 	ssl_keys
 "
 
-TEST_KEYS_DIR="$PWD/keys/"
+TEST_KEYS_DIR="$TESTS_DIR/keys/"
 if [ "$WS_SYSTEM" == "Windows" ] ; then
 	TEST_KEYS_DIR="`cygpath -w $TEST_KEYS_DIR`"
 fi
@@ -71,7 +71,7 @@ decryption_step_80211_wpa_psk() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-o "wlan.enable_decryption: TRUE" \
 		-Tfields -e http.request.uri \
-		-r captures/wpa-Induction.pcap.gz \
+		-r "$CAPTURE_DIR/wpa-Induction.pcap.gz" \
 		-Y http \
 		| grep favicon.ico > /dev/null 2>&1
 	RETURNVALUE=$?
@@ -87,7 +87,7 @@ decryption_step_80211_wpa_psk() {
 decryption_step_dtls() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-Tfields -e data.data \
-		-r captures/snakeoil-dtls.pcap -Y http \
+		-r "$CAPTURE_DIR/snakeoil-dtls.pcap" -Y http \
 		| grep "69:74:20:77:6f:72:6b:20:21:0a" > /dev/null 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -100,7 +100,9 @@ decryption_step_dtls() {
 # SSL
 # http://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
 decryption_step_ssl() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri -r captures/rsasnakeoil2.pcap -Y http | grep favicon.ico > /dev/null 2>&1
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
+		-r "$CAPTURE_DIR/rsasnakeoil2.pcap" -Y http \
+		| grep favicon.ico > /dev/null 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "Failed to decrypt SSL"
@@ -113,7 +115,7 @@ decryption_step_ssl() {
 # https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7022
 decryption_step_zigbee() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
-		-r captures/sample_control4_2012-03-24.pcap \
+		-r "$CAPTURE_DIR/sample_control4_2012-03-24.pcap" \
 		-Tfields -e data.data \
 		-Y zbee_aps \
 		| grep "30:67:63:63:38:65:20:63:34:2e:64:6d:2e:74:76:20" > /dev/null 2>&1
@@ -152,7 +154,7 @@ decryption_prep_step() {
 			test_remark_add "$WS_BIN_PATH/$UAT exists. One or more tests may fail."
 		else
 			echo "# Created by $DC_ID" > $WS_BIN_PATH/$UAT
-			sed -e "s|TEST_KEYS_DIR|${TEST_KEYS_DIR//\\/\\\\x5c}|" < ./config/$UAT.tmpl >> $WS_BIN_PATH/$UAT
+			sed -e "s|TEST_KEYS_DIR|${TEST_KEYS_DIR//\\/\\\\x5c}|" < "$TESTS_DIR/config/$UAT.tmpl" >> "$WS_BIN_PATH/$UAT"
 		fi
 	done
 }

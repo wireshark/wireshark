@@ -64,25 +64,25 @@ unittests_step_test() {
 
 
 unittests_step_exntest() {
-	DUT=../epan/exntest
+	DUT=$SOURCE_DIR/epan/exntest
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_reassemble_test() {
-	DUT=../epan/reassemble_test
+	DUT=$SOURCE_DIR/epan/reassemble_test
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_tvbtest() {
-	DUT=../epan/tvbtest
+	DUT=$SOURCE_DIR/epan/tvbtest
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_wmem_test() {
-	DUT=../epan/wmem/wmem_test
+	DUT=$SOURCE_DIR/epan/wmem/wmem_test
 	ARGS=--verbose
 	unittests_step_test
 }

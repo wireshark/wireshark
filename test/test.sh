@@ -73,6 +73,25 @@ source suite-fileformats.sh
 source suite-decryption.sh
 source suite-nameres.sh
 
+# needed by some tests
+TEST_OUTDIR=$(mktemp -d)
+TEST_OUTDIR_CLEAN=${TEST_OUTDIR_CLEAN:-1}
+if [ -z "$TEST_OUTDIR" ] || ! cd "$TEST_OUTDIR"; then
+	# If for any reason the temporary tests output directory cannot be created...
+	TEST_OUTDIR=.
+	TEST_OUTDIR_CLEAN=0
+fi
+
+test_cleanup() {
+	if [ $TEST_OUTDIR_CLEAN = 1 ]; then
+		# display contents of test outputs
+		grep -r . .
+		rm -rf "$TEST_OUTDIR"
+	else
+		echo "Test results are available in $TEST_OUTDIR"
+	fi
+}
+trap test_cleanup EXIT
 
 #check prerequisites
 test_step_prerequisites() {

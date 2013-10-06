@@ -40,17 +40,23 @@ if [ $? -eq 0 ] ; then
 	ENDIANNESS="big"
 fi
 
-# Path to the Wireshark binaries, only used for the settings below
-WS_BIN_PATH=..
+# Absolute path to the source tree
+SOURCE_DIR="$(cd "$(dirname "$0")" && cd .. && pwd)"
+
+# Absolute path to this test directory (for capture and config files)
+TESTS_DIR="$SOURCE_DIR/test"
 
 # Are we allowed to open interfaces or capture on this system?
 SKIP_CAPTURE=${SKIP_CAPTURE:-1}
 
 # Override the last two items if we're running Windows
 if [ "$WS_SYSTEM" = "Windows" ] ; then
-	WS_BIN_PATH=../wireshark-gtk2
+	WS_BIN_PATH=${WS_BIN_PATH:-$SOURCE_DIR/wireshark-gtk2}
 	SKIP_CAPTURE=0
 fi
+
+# Path to the Wireshark binaries, default to source dir if unset
+WS_BIN_PATH=${WS_BIN_PATH:-$SOURCE_DIR}
 
 # Tweak the following to your liking.
 WIRESHARK=$WS_BIN_PATH/wireshark
@@ -91,7 +97,7 @@ fi
 # Tell Wireshark to quit after capuring packets.
 export WIRESHARK_QUIT_AFTER_CAPTURE="True"
 
-CAPTURE_DIR="captures/"
+CAPTURE_DIR="$TESTS_DIR/captures/"
 
 # Configuration paths
 TEST_HOME="$PWD/fakehome"

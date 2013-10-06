@@ -29,7 +29,7 @@ EXIT_OK=0
 EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
-IO_RAWSHARK_DHCP_PCAP_BASELINE=./baseline/io-rawshark-dhcp-pcap.txt
+IO_RAWSHARK_DHCP_PCAP_BASELINE="$TESTS_DIR/baseline/io-rawshark-dhcp-pcap.txt"
 IO_RAWSHARK_DHCP_PCAP_TESTOUT=./io-rawshark-dhcp-pcap-testout.txt
 
 # input of file

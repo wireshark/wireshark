@@ -29,13 +29,13 @@ EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
 #TS_ARGS="-Tfields -e frame.number -e frame.time_epoch -e frame.time_delta"
-TS_NR_ARGS="-r captures/dns+icmp.pcapng.gz"
+TS_NR_ARGS="-r $CAPTURE_DIR/dns+icmp.pcapng.gz"
 TS_NR_ENV="WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ${HOME_ENV}=${TEST_HOME}"
 
 if [ "$WS_SYSTEM" == "Windows" ] ; then
-	CONF_PATH="fakehome/Wireshark"
+	CONF_PATH="$TEST_HOME/Wireshark"
 else
-	CONF_PATH="fakehome/.wireshark"
+	CONF_PATH="$TEST_HOME/.wireshark"
 fi
 
 CUSTOM_PROFILE_NAME="Custom-$$"
@@ -169,9 +169,9 @@ name_resolution_cleanup_step() {
 name_resolution_prep_step() {
 	name_resolution_cleanup_step
 	mkdir -p "$CUSTOM_PROFILE_PATH"
-	cp hosts.global $WS_BIN_PATH/hosts
-	cp hosts.personal "$CONF_PATH/hosts"
-	cp hosts.custom "$CUSTOM_PROFILE_PATH/hosts"
+	cp "$TESTS_DIR/hosts.global" "$WS_BIN_PATH/hosts"
+	cp "$TESTS_DIR/hosts.personal" "$CONF_PATH/hosts"
+	cp "$TESTS_DIR/hosts.custom" "$CUSTOM_PROFILE_PATH/hosts"
 }
 
 name_resolution_suite() {
