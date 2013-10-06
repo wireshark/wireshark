@@ -58,7 +58,7 @@ if( NOT PC_GTK3_FOUND )
     )
 else()
     set( GTK3_LIBRARY ${PC_GTK3_LIBRARIES} )
-    set( GTK3_INCLUDE_DIRS ${PC_GTK3_INCLUDEDIR} ${PC_GTK3_INCLUDE_DIRS} )
+    set( GTK3_INCLUDE_DIR ${PC_GTK3_INCLUDEDIR} ${PC_GTK3_INCLUDE_DIRS} )
 endif()
 # handle the QUIETLY and REQUIRED arguments and set GTK3_FOUND to TRUE if
 # all listed variables are TRUE
