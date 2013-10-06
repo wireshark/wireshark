@@ -1050,7 +1050,6 @@ endif()
 
 if(BUILD_dumpcap AND PCAP_FOUND)
 	set(dumpcap_LIBS
-#		@INET_NTOP_LO@
 		wsutil
 		${PCAP_LIBRARIES}
 		${CAP_LIBRARIES}
