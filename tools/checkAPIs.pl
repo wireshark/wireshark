@@ -1376,6 +1376,8 @@ sub checkAddTextCalls($$)
         my $add_text_count = 0;
         my $okay_add_text_count = 0;
         my $add_xxx_count = 0;
+        my $total_count = 0;
+        my $aggressive = 0;
         my $percentage = 100;
 
         # The 3 loops here are slow, but trying a single loop with capturing
@@ -1399,17 +1401,30 @@ sub checkAddTextCalls($$)
         $add_xxx_count -= $add_text_count;
         $add_text_count -= $okay_add_text_count;
 
+        $total_count = $add_text_count+$add_xxx_count;
+
         # Don't bother with files with small counts
-        if (($add_xxx_count < 10 || $add_text_count < 10) && ($add_text_count+$add_xxx_count < 20)) {
+        if (($add_xxx_count < 10 || $add_text_count < 10) && ($total_count < 20)) {
                 return;
         }
 
         if ($add_xxx_count > 0) {
             $percentage = 100*$add_text_count/$add_xxx_count;
         }
-        if ($percentage > 50) {
+
+        if ($aggressive > 0) {
+            if ((($total_count <= 50) && ($percentage > 50)) ||
+                (($total_count > 50) && ($total_count <= 100) && ($percentage > 40)) ||
+                (($total_count > 100) && ($total_count <= 200) && ($percentage > 30)) ||
+                (($total_count > 200) && ($percentage > 20))) {
+                    printf "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
+                        $filename, $add_text_count, $add_xxx_count, $percentage;
+            }
+        } else {
+            if ($percentage > 50) {
                 printf "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
                         $filename, $add_text_count, $add_xxx_count, $percentage;
+            }
         }
 }
 
