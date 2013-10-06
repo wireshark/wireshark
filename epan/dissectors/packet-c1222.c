@@ -8,7 +8,7 @@
 #line 1 "../../asn1/c1222/packet-c1222-template.c"
 /* packet-c1222.c
  * Routines for ANSI C12.22 packet dissection
- * Copyright 2010, Edward J. Beroset, edward.j.beroset@us.elster.com
+ * Copyright 2010, Edward J. Beroset, edward.beroset@elster.com
  *
  * $Id$
  *
@@ -45,6 +45,7 @@
 #include <epan/dissectors/packet-ber.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/uat.h>
+#include <epan/oids.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -96,6 +97,9 @@ static int proto_c1222 = -1;
 static int global_c1222_port = C1222_PORT;
 static gboolean c1222_desegment = TRUE;
 static gboolean c1222_decrypt = TRUE;
+static const gchar *c1222_baseoid_str = NULL;
+static guint8 *c1222_baseoid = NULL;
+static guint c1222_baseoid_len = 0;
 
 
 /*--- Included file: packet-c1222-hf.c ---*/
@@ -110,8 +114,10 @@ static int hf_c1222_calling_AP_invocation_id = -1;  /* Calling_AP_invocation_id 
 static int hf_c1222_mechanism_name = -1;          /* Mechanism_name */
 static int hf_c1222_calling_authentication_value = -1;  /* Calling_authentication_value */
 static int hf_c1222_user_information = -1;        /* User_information */
-static int hf_c1222_ap_title_form2 = -1;          /* OBJECT_IDENTIFIER */
-static int hf_c1222_ap_title_form4 = -1;          /* OBJECT_IDENTIFIER */
+static int hf_c1222_called_ap_title_abs = -1;     /* OBJECT_IDENTIFIER */
+static int hf_c1222_called_ap_title_rel = -1;     /* RELATIVE_OID */
+static int hf_c1222_calling_ap_title_abs = -1;    /* OBJECT_IDENTIFIER */
+static int hf_c1222_calling_ap_title_rel = -1;    /* RELATIVE_OID */
 static int hf_c1222_calling_authentication_value_indirect = -1;  /* INTEGER */
 static int hf_c1222_calling_authentication_value_encoding = -1;  /* Authentication_value_encoding */
 static int hf_c1222_calling_authentication_value_single_asn1 = -1;  /* Calling_authentication_value_single_asn1 */
@@ -125,7 +131,7 @@ static int hf_c1222_c1221_auth_request = -1;      /* OCTET_STRING_SIZE_1_255 */
 static int hf_c1222_c1221_auth_response = -1;     /* OCTET_STRING_SIZE_CONSTR002 */
 
 /*--- End of included file: packet-c1222-hf.c ---*/
-#line 93 "../../asn1/c1222/packet-c1222-template.c"
+#line 97 "../../asn1/c1222/packet-c1222-template.c"
 /* These are the EPSEM pieces */
 /* first, the flag components */
 static int hf_c1222_epsem_flags = -1;
@@ -222,7 +228,8 @@ static guint32 iv_element_len = 0;
 /*--- Included file: packet-c1222-ett.c ---*/
 #line 1 "../../asn1/c1222/packet-c1222-ett.c"
 static gint ett_c1222_MESSAGE_U = -1;
-static gint ett_c1222_AP_title = -1;
+static gint ett_c1222_Called_AP_title = -1;
+static gint ett_c1222_Calling_AP_title = -1;
 static gint ett_c1222_Calling_authentication_value_U = -1;
 static gint ett_c1222_Authentication_value_encoding = -1;
 static gint ett_c1222_Calling_authentication_value_single_asn1 = -1;
@@ -230,7 +237,7 @@ static gint ett_c1222_Calling_authentication_value_c1222_U = -1;
 static gint ett_c1222_Calling_authentication_value_c1221_U = -1;
 
 /*--- End of included file: packet-c1222-ett.c ---*/
-#line 186 "../../asn1/c1222/packet-c1222-template.c"
+#line 190 "../../asn1/c1222/packet-c1222-template.c"
 
 static expert_field ei_c1222_command_truncated = EI_INIT;
 static expert_field ei_c1222_bad_checksum = EI_INIT;
@@ -349,15 +356,34 @@ static uat_t *c1222_uat;
 #define FILL_START int length, start_offset = offset;
 #define FILL_TABLE(fieldname)  \
   length = offset - start_offset; \
+  if (fieldname != NULL) g_free(fieldname); \
   fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
   fieldname##_len = length;
 #define FILL_TABLE_TRUNCATE(fieldname, len)  \
   length = 1 + 2*(offset - start_offset); \
   fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
   fieldname##_len = len;
+#define FILL_TABLE_APTITLE(fieldname) \
+  length = offset - start_offset; \
+  switch (tvb_get_guint8(tvb, start_offset)) { \
+    case 0x80: /* relative OID */ \
+      fieldname##_len = length + c1222_baseoid_len; \
+      fieldname = (guint8 *)wmem_alloc(NULL, fieldname##_len); \
+      fieldname[0] = 0x06;  /* create absolute OID tag */ \
+      fieldname[1] = (fieldname##_len - 2) & 0xff;  \
+      memcpy(&(fieldname[2]), c1222_baseoid, c1222_baseoid_len); \
+      tvb_memcpy(tvb, &(fieldname[c1222_baseoid_len+2]), start_offset+2, length-2); \
+      break; \
+    case 0x06:  /* absolute OID */ \
+    default: \
+      fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
+      fieldname##_len = length; \
+      break; \
+  } 
 #else /* HAVE_LIBGCRYPT */
 #define FILL_TABLE(fieldname)
 #define FILL_TABLE_TRUNCATE(fieldname, len)
+#define FILL_TABLE_APTITLE(fieldname) 
 #define FILL_START
 #endif /* HAVE_LIBGCRYPT */
 
@@ -793,8 +819,10 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
       }
       memcpy(&buff[*offset], *(t->element), len);
       (*offset) += len;
-      g_free(*(t->element));
-      *(t->element) = NULL;
+      if (t->addtag) {
+	  g_free(*(t->element));
+	  *(t->element) = NULL;
+      }
     }
   }
   return TRUE;
@@ -1091,36 +1119,36 @@ dissect_c1222_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const value_string c1222_AP_title_vals[] = {
-  {   0, "ap-title-form2" },
-  {   1, "ap-title-form4" },
-  { 0, NULL }
-};
-
-static const ber_choice_t AP_title_choice[] = {
-  {   0, &hf_c1222_ap_title_form2, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_c1222_OBJECT_IDENTIFIER },
-  {   1, &hf_c1222_ap_title_form4, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_c1222_OBJECT_IDENTIFIER },
-  { 0, NULL, 0, 0, 0, NULL }
-};
 
 static int
-dissect_c1222_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 AP_title_choice, hf_index, ett_c1222_AP_title,
-                                 NULL);
+dissect_c1222_RELATIVE_OID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_relative_oid(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
 
 
+static const value_string c1222_Called_AP_title_vals[] = {
+  {   0, "called-ap-title-abs" },
+  {   1, "called-ap-title-rel" },
+  { 0, NULL }
+};
+
+static const ber_choice_t Called_AP_title_choice[] = {
+  {   0, &hf_c1222_called_ap_title_abs, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_c1222_OBJECT_IDENTIFIER },
+  {   1, &hf_c1222_called_ap_title_rel, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_c1222_RELATIVE_OID },
+  { 0, NULL, 0, 0, 0, NULL }
+};
 
 static int
 dissect_c1222_Called_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 57 "../../asn1/c1222/c1222.cnf"
   FILL_START;
-    offset = dissect_c1222_AP_title(implicit_tag, tvb, offset, actx, tree, hf_index);
+    offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Called_AP_title_choice, hf_index, ett_c1222_Called_AP_title,
+                                 NULL);
 
-  FILL_TABLE(called_AP_title);
+  FILL_TABLE_APTITLE(called_AP_title);
 
 
 
@@ -1153,14 +1181,27 @@ dissect_c1222_Called_AP_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _
 }
 
 
+static const value_string c1222_Calling_AP_title_vals[] = {
+  {   0, "calling-ap-title-abs" },
+  {   1, "calling-ap-title-rel" },
+  { 0, NULL }
+};
+
+static const ber_choice_t Calling_AP_title_choice[] = {
+  {   0, &hf_c1222_calling_ap_title_abs, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_c1222_OBJECT_IDENTIFIER },
+  {   1, &hf_c1222_calling_ap_title_rel, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_c1222_RELATIVE_OID },
+  { 0, NULL, 0, 0, 0, NULL }
+};
 
 static int
 dissect_c1222_Calling_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 87 "../../asn1/c1222/c1222.cnf"
   FILL_START;
-    offset = dissect_c1222_AP_title(implicit_tag, tvb, offset, actx, tree, hf_index);
+    offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Calling_AP_title_choice, hf_index, ett_c1222_Calling_AP_title,
+                                 NULL);
 
-  FILL_TABLE(calling_AP_title);
+  FILL_TABLE_APTITLE(calling_AP_title);
 
 
 
@@ -1513,7 +1554,7 @@ static void dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 1019 "../../asn1/c1222/packet-c1222-template.c"
+#line 1044 "../../asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1808,7 +1849,7 @@ void proto_register_c1222(void) {
         "ASO_qualifier", HFILL }},
     { &hf_c1222_called_AP_title,
       { "called-AP-title", "c1222.called_AP_title",
-        FT_UINT32, BASE_DEC, VALS(c1222_AP_title_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(c1222_Called_AP_title_vals), 0,
         NULL, HFILL }},
     { &hf_c1222_called_AP_invocation_id,
       { "called-AP-invocation-id", "c1222.called_AP_invocation_id",
@@ -1816,7 +1857,7 @@ void proto_register_c1222(void) {
         NULL, HFILL }},
     { &hf_c1222_calling_AP_title,
       { "calling-AP-title", "c1222.calling_AP_title",
-        FT_UINT32, BASE_DEC, VALS(c1222_AP_title_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(c1222_Calling_AP_title_vals), 0,
         NULL, HFILL }},
     { &hf_c1222_calling_AE_qualifier,
       { "calling-AE-qualifier", "c1222.calling_AE_qualifier",
@@ -1838,14 +1879,22 @@ void proto_register_c1222(void) {
       { "user-information", "c1222.user_information_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_c1222_ap_title_form2,
-      { "ap-title-form2", "c1222.ap_title_form2",
+    { &hf_c1222_called_ap_title_abs,
+      { "called-ap-title-abs", "c1222.called_ap_title_abs",
         FT_OID, BASE_NONE, NULL, 0,
         "OBJECT_IDENTIFIER", HFILL }},
-    { &hf_c1222_ap_title_form4,
-      { "ap-title-form4", "c1222.ap_title_form4",
+    { &hf_c1222_called_ap_title_rel,
+      { "called-ap-title-rel", "c1222.called_ap_title_rel",
+        FT_REL_OID, BASE_NONE, NULL, 0,
+        "RELATIVE_OID", HFILL }},
+    { &hf_c1222_calling_ap_title_abs,
+      { "calling-ap-title-abs", "c1222.calling_ap_title_abs",
         FT_OID, BASE_NONE, NULL, 0,
         "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_c1222_calling_ap_title_rel,
+      { "calling-ap-title-rel", "c1222.calling_ap_title_rel",
+        FT_REL_OID, BASE_NONE, NULL, 0,
+        "RELATIVE_OID", HFILL }},
     { &hf_c1222_calling_authentication_value_indirect,
       { "calling-authentication-value-indirect", "c1222.calling_authentication_value_indirect",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -1892,7 +1941,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1301 "../../asn1/c1222/packet-c1222-template.c"
+#line 1326 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1906,7 +1955,8 @@ void proto_register_c1222(void) {
 /*--- Included file: packet-c1222-ettarr.c ---*/
 #line 1 "../../asn1/c1222/packet-c1222-ettarr.c"
     &ett_c1222_MESSAGE_U,
-    &ett_c1222_AP_title,
+    &ett_c1222_Called_AP_title,
+    &ett_c1222_Calling_AP_title,
     &ett_c1222_Calling_authentication_value_U,
     &ett_c1222_Authentication_value_encoding,
     &ett_c1222_Calling_authentication_value_single_asn1,
@@ -1914,7 +1964,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1311 "../../asn1/c1222/packet-c1222-template.c"
+#line 1336 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1956,6 +2006,9 @@ void proto_register_c1222(void) {
 	"Reassemble all C12.22 messages spanning multiple TCP segments",
 	"Whether the C12.22 dissector should reassemble all messages spanning multiple TCP segments",
 	&c1222_desegment);
+  prefs_register_string_preference(c1222_module, "baseoid", "Base OID to use for relative OIDs", 
+	"Base object identifier for use in resolving relative object identifiers",
+	&c1222_baseoid_str);
 #ifdef HAVE_LIBGCRYPT
   prefs_register_bool_preference(c1222_module, "decrypt",
 	"Verify crypto for all applicable C12.22 messages",
@@ -1997,4 +2050,5 @@ proto_reg_handoff_c1222(void)
         dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
         initialized = TRUE;
     }
+    c1222_baseoid_len = oid_string2encoded(c1222_baseoid_str, &c1222_baseoid);
 }

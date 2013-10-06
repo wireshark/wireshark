@@ -17,12 +17,15 @@ MESSAGE  ::= [APPLICATION 0] IMPLICIT SEQUENCE {
 }
 
 ASO-qualifier ::= OBJECT IDENTIFIER
-AP-title ::= CHOICE {
-    ap-title-form2 OBJECT IDENTIFIER,
-    ap-title-form4 [0] IMPLICIT OBJECT IDENTIFIER -- RELATIVE-OID
+
+Called-AP-title ::= CHOICE {
+    called-ap-title-abs OBJECT IDENTIFIER,
+    called-ap-title-rel [0] IMPLICIT RELATIVE-OID
 }
-Called-AP-title ::= AP-title
-Calling-AP-title ::= AP-title
+Calling-AP-title ::= CHOICE {
+    calling-ap-title-abs OBJECT IDENTIFIER,
+    calling-ap-title-rel [0] IMPLICIT RELATIVE-OID
+}
 AP-invocation-id ::= INTEGER
 Called-AP-invocation-id ::= AP-invocation-id
 Calling-AP-invocation-id ::= AP-invocation-id

@@ -1,6 +1,6 @@
 # c1222.cnf
 # C1222 conformation file
-# Copyright 2010, Edward J. Beroset, edward.j.beroset@us.elster.com
+# Copyright 2010, Edward J. Beroset, edward.beroset@elster.com
 
 # $Id$
 
@@ -56,7 +56,7 @@ AE-qualifier TYPE=FT_UINT32
 #.FN_BODY Called-AP-title
   FILL_START;
   %(DEFAULT_BODY)s
-  FILL_TABLE(called_AP_title);
+  FILL_TABLE_APTITLE(called_AP_title);
 
 #.FN_BODY Called-AP-invocation-id
   FILL_START;
@@ -86,7 +86,7 @@ AE-qualifier TYPE=FT_UINT32
 #.FN_BODY Calling-AP-title
   FILL_START;
   %(DEFAULT_BODY)s
-  FILL_TABLE(calling_AP_title);
+  FILL_TABLE_APTITLE(calling_AP_title);
 
 #.FN_BODY Key-id-element
   FILL_START;

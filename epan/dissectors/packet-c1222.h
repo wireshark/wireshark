@@ -8,7 +8,7 @@
 #line 1 "../../asn1/c1222/packet-c1222-template.h"
 /* packet-c1222.h
  * Routines for ANSI C12.22 packet dissection
- * Copyright 2010, Edward J. Beroset, edward.j.beroset@us.elster.com
+ * Copyright 2010, Edward J. Beroset, edward.beroset@elster.com
  *
  * $Id$
  *

@@ -1,6 +1,6 @@
 /* packet-c1222.c
  * Routines for ANSI C12.22 packet dissection
- * Copyright 2010, Edward J. Beroset, edward.j.beroset@us.elster.com
+ * Copyright 2010, Edward J. Beroset, edward.beroset@elster.com
  *
  * $Id$
  *
@@ -37,6 +37,7 @@
 #include <epan/dissectors/packet-ber.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/uat.h>
+#include <epan/oids.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -88,6 +89,9 @@ static int proto_c1222 = -1;
 static int global_c1222_port = C1222_PORT;
 static gboolean c1222_desegment = TRUE;
 static gboolean c1222_decrypt = TRUE;
+static const gchar *c1222_baseoid_str = NULL;
+static guint8 *c1222_baseoid = NULL;
+static guint c1222_baseoid_len = 0;
 
 #include "packet-c1222-hf.c"
 /* These are the EPSEM pieces */
@@ -301,15 +305,34 @@ static uat_t *c1222_uat;
 #define FILL_START int length, start_offset = offset;
 #define FILL_TABLE(fieldname)  \
   length = offset - start_offset; \
+  if (fieldname != NULL) g_free(fieldname); \
   fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
   fieldname##_len = length;
 #define FILL_TABLE_TRUNCATE(fieldname, len)  \
   length = 1 + 2*(offset - start_offset); \
   fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
   fieldname##_len = len;
+#define FILL_TABLE_APTITLE(fieldname) \
+  length = offset - start_offset; \
+  switch (tvb_get_guint8(tvb, start_offset)) { \
+    case 0x80: /* relative OID */ \
+      fieldname##_len = length + c1222_baseoid_len; \
+      fieldname = (guint8 *)wmem_alloc(NULL, fieldname##_len); \
+      fieldname[0] = 0x06;  /* create absolute OID tag */ \
+      fieldname[1] = (fieldname##_len - 2) & 0xff;  \
+      memcpy(&(fieldname[2]), c1222_baseoid, c1222_baseoid_len); \
+      tvb_memcpy(tvb, &(fieldname[c1222_baseoid_len+2]), start_offset+2, length-2); \
+      break; \
+    case 0x06:  /* absolute OID */ \
+    default: \
+      fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
+      fieldname##_len = length; \
+      break; \
+  } 
 #else /* HAVE_LIBGCRYPT */
 #define FILL_TABLE(fieldname)
 #define FILL_TABLE_TRUNCATE(fieldname, len)
+#define FILL_TABLE_APTITLE(fieldname) 
 #define FILL_START
 #endif /* HAVE_LIBGCRYPT */
 
@@ -745,8 +768,10 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
       }
       memcpy(&buff[*offset], *(t->element), len);
       (*offset) += len;
-      g_free(*(t->element));
-      *(t->element) = NULL;
+      if (t->addtag) {
+	  g_free(*(t->element));
+	  *(t->element) = NULL;
+      }
     }
   }
   return TRUE;
@@ -1349,6 +1374,9 @@ void proto_register_c1222(void) {
 	"Reassemble all C12.22 messages spanning multiple TCP segments",
 	"Whether the C12.22 dissector should reassemble all messages spanning multiple TCP segments",
 	&c1222_desegment);
+  prefs_register_string_preference(c1222_module, "baseoid", "Base OID to use for relative OIDs", 
+	"Base object identifier for use in resolving relative object identifiers",
+	&c1222_baseoid_str);
 #ifdef HAVE_LIBGCRYPT
   prefs_register_bool_preference(c1222_module, "decrypt",
 	"Verify crypto for all applicable C12.22 messages",
@@ -1390,4 +1418,5 @@ proto_reg_handoff_c1222(void)
         dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
         initialized = TRUE;
     }
+    c1222_baseoid_len = oid_string2encoded(c1222_baseoid_str, &c1222_baseoid);
 }
