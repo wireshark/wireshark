@@ -6,7 +6,7 @@ MACRO(REGISTER_TAP_FILES _outputfile )
     ADD_CUSTOM_COMMAND(
         OUTPUT
           ${_outputfile}
-        COMMAND ${SHELL}
+        COMMAND ${SH_EXECUTABLE} ${SH_FLAGS1} ${SH_FLAGS2}
           ${CMAKE_SOURCE_DIR}/tools/make-tapreg-dotc
           ${_outputfile}
           ${CMAKE_CURRENT_SOURCE_DIR}
