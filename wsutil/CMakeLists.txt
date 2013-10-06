@@ -27,7 +27,6 @@ IF(WIN32)
     inet_aton.c
     inet_ntop.c
     inet_pton.c
-    strncasecmp.c
     strptime.c
     unicode-utils.c
     wsgetopt.c
