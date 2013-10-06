@@ -55,8 +55,8 @@ Note 4:
   To get predictable results please set umask explicitly.
 
 How to do out of tree build (Win32/64):
-[This is early alpha and while the build no longer always dies during the cmake
- stage - don't waste your time testing unless you are willing to fix things
+[This is early alpha and while the build should build all executables except
+ the GUIs don't waste your time testing unless you are willing to fix things
  yourself]
 1) Follow http://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html
    Steps 1-9
@@ -66,7 +66,8 @@ How to do out of tree build (Win32/64):
 2) Install cmake
 3) mkdir c:\wireshark\build
 4) cd c:\wireshark\build
-5) cmake -G "NMake Makefiles" .. (if the sources are in c:\wireshark)
+5) cmake -G "NMake Makefiles" -DBUILD_wireshark=OFF path\to\sources
+  (i.e. in case your sources are locaated at c:\wireshark\trunk, use "..\trunk")
 5a) cmake path\to\sources (this will build for the latest Visual Studio version found)
 6) nmake VERBOSE=1 (or cmake --build . -- VERBOSE=1 )
 6a) Wireshark.sln (this will run up Visual Studio with the cmake built solution
