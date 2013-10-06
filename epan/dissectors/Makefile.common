@@ -1172,7 +1172,6 @@ DISSECTOR_SRC = \
 	packet-vcdu.c		\
 	packet-vicp.c		\
 	packet-vines.c		\
-	packet-vj.c		\
 	packet-vlan.c		\
 	packet-vmlab.c		\
 	packet-vnc.c		\
