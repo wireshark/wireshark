@@ -27,7 +27,7 @@
 struct _ddict_namecode_t {
 	char* name;
 	guint code;
-	struct _ddict_namecode_t* next;	
+	struct _ddict_namecode_t* next;
 };
 
 typedef struct _ddict_namecode_t ddict_gavp_t;
@@ -38,7 +38,7 @@ typedef struct _ddict_vendor_t {
 	char* name;
 	char* desc;
 	guint code;
-	struct _ddict_vendor_t* next;	
+	struct _ddict_vendor_t* next;
 } ddict_vendor_t;
 
 typedef struct _ddict_avp_t {
