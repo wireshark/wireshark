@@ -409,13 +409,35 @@
 #  if !defined(QT_VERSION) || !defined(_SSIZE_T_DEFINED)
    typedef int ssize_t;
 #  endif
+
    /* FIXME: Detection doesn't work */
 #  define HAVE_NTDDNDIS_H 1
+   /* Visual C 9 (2008), Visual C 10 (2010) and Visual C 11 (2012) need these
+    * prototypes
+    * XXX: Can we use MSC_VER >= 1500 ?? */
+#  if _MSC_VER == 1500 || _MSC_VER == 1600 || _MSC_VER == 1700
+#    define NTDDI_VERSION NTDDI_WIN2K
+#    define _WIN32_WINNT _WIN32_WINNT_WIN2K
+#  endif
+
+   /*
+    * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h
+    */
+#  define YY_NO_UNISTD_H
+
+
 #  define strncasecmp strnicmp
+#  define popen       _popen
+#  define pclose      _pclose
+
 #  ifndef __STDC__
 #    define __STDC__ 0
 #  endif
    /* Use Unicode in Windows runtime functions. */
 #  define UNICODE 1
 #  define _UNICODE 1
+
+#  define INET6 1
+#  define NEED_INET_V6DEFS_H 1
+#  define HTML_VIEWER "mozilla"
 #endif
