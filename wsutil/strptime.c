@@ -1,4 +1,7 @@
-/* Convert a string representation of time to a time value.
+/*
+   $Id$
+
+   Convert a string representation of time to a time value.
    Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
