@@ -10,6 +10,7 @@ if( WIN32 )
 	# We might need something like "if (CMAKE_COMPILER_ID MATCHES "MSVC")"
 	# here to support other compilers on Windows.
 
+	set( WIN_PSAPI_LIBRARY    psapi.lib )
 	set( WIN_WSOCK32_LIBRARY  wsock32.lib )
 
 	set( WIN_SETARGV_OBJECT   setargv.obj )
