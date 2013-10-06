@@ -5592,7 +5592,7 @@ void proto_register_atn_cpdlc (void)
         "ProtectedUplinkMessage", HFILL }},
     { &hf_atn_cpdlc_algorithmIdentifier,
       { "algorithmIdentifier", "atn-cpdlc.algorithmIdentifier",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_REL_OID, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_atn_cpdlc_protectedMessage,
       { "protectedMessage", "atn-cpdlc.protectedMessage",
