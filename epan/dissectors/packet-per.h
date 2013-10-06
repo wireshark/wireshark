@@ -95,6 +95,9 @@ WS_DLL_PUBLIC guint32 dissect_per_set_of(tvbuff_t *tvb, guint32 offset, asn1_ctx
 WS_DLL_PUBLIC guint32 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
 WS_DLL_PUBLIC guint32 dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx);
 
+WS_DLL_PUBLIC guint32 dissect_per_relative_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
+WS_DLL_PUBLIC guint32 dissect_per_relative_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx);
+
 WS_DLL_PUBLIC guint32 dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gboolean *bool_val);
 
 WS_DLL_PUBLIC guint32 dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value);

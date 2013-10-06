@@ -941,7 +941,8 @@ DEBUG_ENTRY("dissect_per_set_of");
 
 /* 23 Encoding the object identifier type */
 guint32
-dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
+dissect_per_any_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb,
+                    gboolean is_absolute)
 {
   guint length;
   const char *str;
@@ -955,7 +956,7 @@ DEBUG_ENTRY("dissect_per_object_identifier");
   val_tvb = new_octet_aligned_subset(tvb, offset, actx, length);
 
   hfi = proto_registrar_get_nth(hf_index);
-  if (hfi->type == FT_OID) {
+  if ((is_absolute && hfi->type == FT_OID) || (is_absolute && hfi->type == FT_REL_OID)) {
     actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, ENC_BIG_ENDIAN);
   } else if (IS_FT_STRING(hfi->type)) {
     str = oid_encoded2string(tvb_get_ptr(val_tvb, 0, length), length);
@@ -972,12 +973,25 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 }
 
 guint32
-dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx)
+dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
+{
+  return dissect_per_any_oid(tvb, offset, actx, tree, hf_index, value_tvb, TRUE);
+}
+
+guint32
+dissect_per_relative_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
+{
+  return dissect_per_any_oid(tvb, offset, actx, tree, hf_index, value_tvb, FALSE);
+}
+
+guint32
+dissect_per_any_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx,
+                        gboolean is_absolute)
 {
   tvbuff_t *value_tvb = NULL;
   guint length;
 
-  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, (value_stringx) ? &value_tvb : NULL);
+  offset = dissect_per_any_oid(tvb, offset, actx, tree, hf_index, (value_stringx) ? &value_tvb : NULL, is_absolute);
 
   if (value_stringx) {
     if (value_tvb && (length = tvb_length(value_tvb))) {
@@ -990,6 +1004,17 @@ dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *act
   return offset;
 }
 
+guint32
+dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx)
+{
+  return dissect_per_any_oid_str(tvb, offset, actx, tree, hf_index, value_stringx, TRUE);
+}
+
+guint32
+dissect_per_relative_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx)
+{
+  return dissect_per_any_oid_str(tvb, offset, actx, tree, hf_index, value_stringx, FALSE);
+}
 
 
 /* this function reads a single bit */
