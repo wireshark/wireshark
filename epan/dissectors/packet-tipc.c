@@ -171,8 +171,13 @@ static int hf_tipcv2_dist_scope = -1;
 static int hf_tipcv2_name_dist_port_id_node = -1;
 static int hf_tipcv2_media_id = -1;
 
+/* added in minor PV 1 */
+static int hf_tipcv2_syn = -1;
+
+
 static gint ett_tipc_msg_fragment = -1;
 static gint ett_tipc_msg_fragments = -1;
+
 
 /* Initialize the subtree pointer */
 static gint ett_tipc = -1;
@@ -1642,6 +1647,8 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 		proto_tree_add_item(tipc_tree, hf_tipc_destdrop, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 		/* Source Droppable: 1 bit */
 		proto_tree_add_item(tipc_tree, hf_tipcv2_srcdrop, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
+		/* SYN: 1 bit */
+		proto_tree_add_item(tipc_tree, hf_tipcv2_syn, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 	}
 	/* Reserved: 1 bits */
 
@@ -2553,6 +2560,11 @@ proto_register_tipc(void)
 		{ &hf_tipcv2_srcdrop,
 			{ "Source Droppable", "tipc.srcdrop",
 				FT_UINT32, BASE_DEC, NULL, 0x00040000,
+				"Destination Droppable Bit", HFILL }
+		},
+		{ &hf_tipcv2_syn,
+			{ "Connection request (SYN)", "tipc.syn",
+				FT_UINT32, BASE_DEC, NULL, 0x00020000,
 				"Destination Droppable Bit", HFILL }
 		},
 		{ &hf_tipcv2_data_msg_type,
