@@ -910,6 +910,7 @@ EXTRA_DIST = \
 	image/wsicon16.png	\
 	image/wsicon24.png	\
 	image/wsicon32.png	\
+	image/wsicon32.xpm	\
 	image/wsicon48.png	\
 	image/wsicon64.png	\
 	image/wsicon128.png	\
