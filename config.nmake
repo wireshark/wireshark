@@ -1073,9 +1073,11 @@ VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 # with Visual Studio 2010.
 #
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 10.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC100.CRT\*.*
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2012"
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" || "$(MSVC_VARIANT)" == "MSVC2012EE"
 #
-# For MSVC 2012 non-Express Edition, we "Install a particular Visual C++
+# EE version added as per bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9227
+#
+# For MSVC 2012, we "Install a particular Visual C++
 # assembly as a private assembly for the application", by copying
 # the contents of the Microsoft.VC110.CRT folder to the target directory.
 # This is done to reduce the size of the installer; it also makes
