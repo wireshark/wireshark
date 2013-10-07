@@ -949,7 +949,7 @@ dissect_per_any_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
   tvbuff_t *val_tvb = NULL;
   header_field_info *hfi;
 
-DEBUG_ENTRY("dissect_per_object_identifier");
+DEBUG_ENTRY("dissect_per_any_oid");
 
   offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_object_identifier_length, &length);
   if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
