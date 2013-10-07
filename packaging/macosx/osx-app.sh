@@ -208,6 +208,9 @@ resdir=`pwd`
 pkgexec="$package/Contents/MacOS"
 pkgres="$package/Contents/Resources"
 pkgbin="$pkgexec"
+if [ "$ui_toolkit" = "gtk" ] ; then
+	pkgbin="$pkgres/bin"
+fi
 # Should pkglib be Contents/Frameworks instead?
 #pkglib="$pkgres/lib"
 pkglib="$package/Contents/Frameworks"
@@ -247,14 +250,16 @@ echo -e "\nFilling app bundle and utility directory...\n"
 # Wireshark executables
 if [ "$ui_toolkit" = "gtk" ] ; then
 	cp -v utility-launcher "$cli_dir/$binary"
-	for binary in wireshark $binary_list ; do
+	for binary in $binary_list wireshark ; do
 		# Copy the binary to its destination
 		dest_path="$pkgbin/$binary-bin"
 		cp -v "$binary_path/$binary" "$dest_path"
 		# TODO Add a "$verbose" variable and command line switch, which sets wether these commands are verbose or not
 
-		ln -sv ./wireshark "$pkgbin/$binary"
-		ln -sv ./wireshark "$cli_dir/$binary"
+		if [ "$binary" != "wireshark" ] ; then
+			ln -sv ./wireshark "$pkgbin/$binary"
+			ln -sv ./wireshark "$cli_dir/$binary"
+		fi
 	done
 elif [ "$ui_toolkit" = "qt" ] ; then
 	for binary in $binary_list ; do
