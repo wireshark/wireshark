@@ -40,6 +40,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
+#include "packet-usb.h"
 
 void proto_reg_handoff_mbim(void);
 
@@ -4513,6 +4514,15 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static gboolean
 dissect_mbim_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    usb_conv_info_t *usb_conv_info;
+
+    usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
+    if (usb_conv_info &&
+        (usb_conv_info->interfaceClass != IF_CLASS_CDC_DATA) &&
+        (usb_conv_info->interfaceClass != IF_CLASS_UNKNOWN)) {
+        return FALSE;
+    }
+
     if (dissect_mbim_bulk(tvb, pinfo, tree, data)) {
         return TRUE;
     }
