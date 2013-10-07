@@ -1674,6 +1674,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
         }
 
         strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "%s", val_to_str_const(uuid, vs_service_classes, "Unknown"));
+        if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
         proto_item_append_text(feature_item, ": %s", val_to_str_const(uuid, vs_service_classes, "Unknown"));
         proto_item_append_text(entry_item, ": %s", val_to_str_const(uuid, vs_service_classes, "Unknown"));
 
@@ -1687,6 +1688,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
             if (uuid == BTSDP_L2CAP_PROTOCOL_UUID) {
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ":%u", value);
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 proto_item_append_text(feature_item, ", PSM: %u", value);
                 proto_item_append_text(entry_item, ", PSM: %u", value);
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_psm, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
@@ -1695,6 +1697,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                 *protocol_order += 1;
             } else if (uuid == BTSDP_RFCOMM_PROTOCOL_UUID) {
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ":%u", value);
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 proto_item_append_text(feature_item, ", RFCOMM Channel: %u", value);
                 proto_item_append_text(entry_item, ", RFCOMM Channel: %u", value);
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_channel, tvb, entry_offset, 1, ENC_BIG_ENDIAN);
@@ -1705,6 +1708,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                 proto_item_append_text(feature_item, ", GATT Handle Start: 0x%04x", value);
                 proto_item_append_text(entry_item, ", GATT Handle Start: 0x%04x", value);
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ":0x%04x.", value);
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_gatt_handle_start, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
 
                 if ((entry_offset - list_offset) + length <= entry_length) {
@@ -1715,12 +1719,14 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                     value = get_int_by_size(tvb, entry_offset, length / 2);
 
                     strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ".0x%04x", value);
+                    if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                     proto_item_append_text(feature_item, ", GATT Handle End: 0x%04x", value);
                     proto_item_append_text(entry_item, ", GATT Handle End: 0x%04x", value);
                     proto_tree_add_item(sub_tree, hf_sdp_protocol_gatt_handle_end, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
                 }
             } else {
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, " (%x.%x)", value >> 8, value & 0xFF);
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 proto_item_append_text(feature_item, ", Version %x.%x", value >> 8, value & 0xFF);
                 proto_item_append_text(entry_item, ", Version 0x%03x", value);
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_version, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
@@ -1738,6 +1744,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
             if (uuid == BTSDP_BNEP_PROTOCOL_UUID) {
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, " (");
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 value_offset = new_offset;
                 while (value_offset - new_offset < length) {
                     gint next_offset;
@@ -1747,12 +1754,16 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
                     proto_tree_add_item(last_tree, hf_sdp_protocol_bnep_type, tvb, next_offset, 2, ENC_BIG_ENDIAN);
                     strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "%s", val_to_str_const(value, etype_vals, "Unknown"));
+                    if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                     value_offset = next_offset + len;
 
-                    if (value_offset - new_offset < length)
+                    if (value_offset - new_offset < length) {
                         strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, " ");
+                        if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
+                    }
                 }
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ")");
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
             }
 
             entry_offset = new_offset + length;
@@ -1761,8 +1772,10 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
         i_protocol += 1;
         list_offset = entry_offset;
 
-        if (list_offset - offset < size)
+        if (list_offset - offset < size) {
             strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, " -> ");
+            if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
+        }
     }
 
     return strpos;
@@ -1926,6 +1939,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         value = tvb_get_guint8(tvb, list_offset);
 
                         strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "%s ", val_to_str_const(value, synch_supported_data_store_vals, "Unknown"));
+                        if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                         list_offset += list_length;
                     }
                     break;
@@ -2208,6 +2222,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         proto_tree_add_item(next_tree, hf_hdp_supported_features_mdep_role, tvb, entry_offset, 1, ENC_BIG_ENDIAN);
                         value = tvb_get_guint8(tvb, entry_offset);
                         strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "MDEP ID: %u (Role: %s) ", mdep_id, val_to_str_const(value, hdp_mdep_role_vals ,"Unknown"));
+                        if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                         proto_item_append_text(entry_item, ": %s", val_to_str_const(value, hdp_mdep_role_vals ,"Unknown"));
                         entry_offset += length;
 
@@ -2335,6 +2350,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         value = tvb_get_guint8(tvb, list_offset);
 
                         strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "%s ", val_to_str_const(value, opp_supported_format_vals, "Unknown"));
+                        if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                         list_offset += list_length;
                     }
                     break;
@@ -2462,6 +2478,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         proto_tree_add_item(last_tree, hf_hid_descriptor_list_type, tvb, list_offset, 1, ENC_BIG_ENDIAN);
                         value = tvb_get_guint8(tvb, list_offset);
                         strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "%s", val_to_str_const(value, descriptor_list_type_vals, "Unknown"));
+                        if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                         proto_item_append_text(entry_item, ": %s", val_to_str_const(value, descriptor_list_type_vals, "Unknown"));
                         list_offset += entry_length;
 
@@ -2472,8 +2489,10 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
                         i_feature += 1;
 
-                        if (list_offset - offset < size)
+                        if (list_offset - offset < size) {
                             strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ", ");
+                            if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
+                        }
                     }
                     break;
                 case 0x207:
@@ -2481,6 +2500,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     i_feature = 1;
                     while (list_offset - offset < size) {
                         strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "[");
+                        if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                         entry_item = proto_tree_add_text(next_tree, tvb, list_offset, size, "Language #%u", i_feature);
                         entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_data_element);
 
@@ -2491,6 +2511,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         list_offset = get_type_length(tvb, list_offset, &entry_length);
                         value = tvb_get_ntohs(tvb, list_offset);
                         strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "Lang ID: %s", val_to_str_ext_const(value, &usb_langid_vals_ext, "Unknown"));
+                        if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                         proto_item_append_text(entry_item, ": Lang ID: %s", val_to_str_ext_const(value, &usb_langid_vals_ext, "Unknown"));
                         proto_tree_add_item(last_tree, hf_sdp_lang_id, tvb, list_offset, entry_length, ENC_ASCII | ENC_NA);
                         list_offset += entry_length;
@@ -2499,15 +2520,20 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         list_offset = get_type_length(tvb, list_offset, &entry_length);
                         value = tvb_get_ntohs(tvb, list_offset);
                         strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ", Attribute Base: 0x%04x", value);
+                        if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                         proto_item_append_text(entry_item, ", Attribute Base: 0x%04x", value);
                         proto_tree_add_item(last_tree, hf_sdp_lang_attribute_base, tvb, list_offset, 2, ENC_BIG_ENDIAN);
                         list_offset += entry_length;
                         i_feature += 1;
 
-                        if (list_offset - offset < size)
+                        if (list_offset - offset < size) {
                             strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "], ");
-                        else
+                            if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
+                        }
+                        else {
                             strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "]");
+                            if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
+                        }
                     }
                     break;
                 case 0x208:
@@ -2855,10 +2881,13 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 }
 
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "%s", val_to_str_const(value, vs_service_classes, "Unknown"));
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 list_offset += list_length;
 
-                if (list_offset - offset < size)
+                if (list_offset - offset < size) {
                     strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, " -> ");
+                    if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
+                }
             }
             break;
         case 0x002:
@@ -2896,10 +2925,13 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 }
 
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "%s", val_to_str_const(value, vs_service_classes, "Unknown"));
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 list_offset += list_length;
 
-                if (list_offset - offset < size)
+                if (list_offset - offset < size) {
                     strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ", ");
+                    if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
+                }
             }
             break;
         case 0x006:
@@ -2907,6 +2939,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             i_feature = 1;
             while (list_offset - offset < size) {
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "(");
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 entry_item = proto_tree_add_text(next_tree, tvb, list_offset, size, "Language #%u", i_feature);
                 entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_data_element);
 
@@ -2914,6 +2947,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 list_offset = get_type_length(tvb, list_offset, &entry_length);
                 new_str = tvb_get_ephemeral_string(tvb, list_offset, entry_length);
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "Lang: %s", new_str);
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 proto_item_append_text(entry_item, ": Lang: %s", new_str);
                 proto_tree_add_item(sub_tree, hf_sdp_lang_code, tvb, list_offset, entry_length, ENC_ASCII | ENC_NA);
                 list_offset += entry_length;
@@ -2922,6 +2956,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 list_offset = get_type_length(tvb, list_offset, &entry_length);
                 value = tvb_get_ntohs(tvb, list_offset);
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ", Encoding: %s", val_to_str_ext_const(value, &wap_mib_enum_vals_character_sets_ext, "Unknown"));
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 proto_item_append_text(entry_item, ", Encoding: %s", val_to_str_ext_const(value, &wap_mib_enum_vals_character_sets_ext, "Unknown"));
                 proto_tree_add_item(sub_tree, hf_sdp_lang_encoding, tvb, list_offset, 2, ENC_BIG_ENDIAN);
                 list_offset += entry_length;
@@ -2930,15 +2965,20 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 list_offset = get_type_length(tvb, list_offset, &entry_length);
                 value = tvb_get_ntohs(tvb, list_offset);
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ", Attribute Base: 0x%04x", value);
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 proto_item_append_text(entry_item, ", Attribute Base: 0x%04x", value);
                 proto_tree_add_item(sub_tree, hf_sdp_lang_attribute_base, tvb, list_offset, 2, ENC_BIG_ENDIAN);
                 list_offset += entry_length;
                 i_feature += 1;
 
-                if (list_offset - offset < size)
+                if (list_offset - offset < size) {
                     strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "), ");
-                else
+                    if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
+                }
+                else {
                     strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ")");
+                    if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
+                }
             }
             break;
         case 0x007:
@@ -2972,6 +3012,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 }
 
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "%s", val_to_str_const(value, vs_service_classes, "Unknown"));
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 proto_item_append_text(entry_item, ": %s", val_to_str_const(value, vs_service_classes, "Unknown"));
 
                 entry_offset += entry_length;
@@ -2981,6 +3022,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 value = tvb_get_ntohs(tvb, entry_offset);
 
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, " %x.%x", value >> 8, value & 0xFF);
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 proto_item_append_text(entry_item, ", Version %x.%x", value >> 8, value & 0xFF);
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_version, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
 
@@ -2988,8 +3030,10 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
                 list_offset = entry_offset;
 
-                if (list_offset - offset < size)
+                if (list_offset - offset < size) {
                     strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ", ");
+                    if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
+                }
                 i_protocol += 1;
             }
             break;
@@ -3021,13 +3065,16 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 list_offset = get_type_length(tvb, list_offset, &list_length);
 
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "[");
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 strpos = dissect_protocol_descriptor_list(entry_tree, tvb,
                         pinfo, list_offset, list_length, str, strpos,
                         service_info, &protocol_order);
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
 
                 list_offset += list_length;
 
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "] ");
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 i_protocol += 1;
             }
             break;
@@ -3131,12 +3178,14 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
         if (strpos < MAX_SDP_LEN) {
             strpos += g_snprintf(str+strpos, MAX_SDP_LEN - strpos, "{ ");
+            if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
         }
 
         while (bytes_to_go > 0) {
             if (!first) {
                 if (strpos < MAX_SDP_LEN) {
                     strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ", ");
+                    if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
                 }
             } else {
                 first = 0;
@@ -3148,6 +3197,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             }
             if (strpos < MAX_SDP_LEN) {
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "%s ", substr);
+                if (strpos > MAX_SDP_LEN) strpos = MAX_SDP_LEN;
             }
             offset += size ;
             bytes_to_go -= size;
