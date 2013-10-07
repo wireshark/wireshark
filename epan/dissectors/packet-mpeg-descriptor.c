@@ -275,6 +275,25 @@ proto_mpeg_descriptor_dissect_audio_stream(tvbuff_t *tvb, guint offset, proto_tr
     proto_tree_add_item(tree, hf_mpeg_descr_audio_stream_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
+/* 0x05 Registration Descriptor */
+static int hf_mpeg_descr_reg_form_id = -1;
+static int hf_mpeg_descr_reg_add_id_inf = -1;
+
+static void
+proto_mpeg_descriptor_dissect_registration(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint  offset_start;
+
+    offset_start = offset;
+    proto_tree_add_item(tree, hf_mpeg_descr_reg_form_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    while (offset-offset_start<len) {
+        proto_tree_add_item(tree, hf_mpeg_descr_reg_add_id_inf, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
+}
+
 /* 0x06 Data Stream Alignment Descriptor */
 static int hf_mpeg_descr_data_stream_alignment = -1;
 
@@ -2653,6 +2672,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
         case 0x03: /* Audio Stream Descriptor */
             proto_mpeg_descriptor_dissect_audio_stream(tvb, offset, descriptor_tree);
             break;
+        case 0x05: /* Registration Descriptor */
+            proto_mpeg_descriptor_dissect_registration(tvb, offset, len, descriptor_tree);
+            break;
         case 0x06: /* Data Stream Alignment Descriptor */
             proto_mpeg_descriptor_dissect_data_stream_alignment(tvb, offset, descriptor_tree);
             break;
@@ -2925,6 +2947,17 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_audio_stream_reserved, {
             "Reserved", "mpeg_descr.audio_stream.reserved",
             FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_AUDIO_STREAM_RESERVED_MASK, NULL, HFILL
+        } },
+
+        /* 0x05 Registration Descriptor */
+        { &hf_mpeg_descr_reg_form_id, {
+            "Format identifier", "mpeg_descr.registration.format_identifier",
+            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_reg_add_id_inf, {
+            "Additional identification info", "mpeg_descr.registration.add_id_info",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
         } },
 
         /* 0x06 Data Stream Alignment Descriptor */
