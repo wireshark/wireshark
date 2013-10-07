@@ -35,13 +35,17 @@
 #include <epan/asn1.h>
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
+#include <epan/prefs.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
 
+void proto_reg_handoff_mbim(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_mbim = -1;
+static int hf_mbim_control = -1;
 static int hf_mbim_header_message_type = -1;
 static int hf_mbim_header_message_length = -1;
 static int hf_mbim_header_transaction_id = -1;
@@ -456,6 +460,7 @@ static int hf_mbim_fragmented_payload = -1;
 static int hf_mbim_remaining_payload = -1;
 static int hf_mbim_request_in = -1;
 static int hf_mbim_response_in = -1;
+static int hf_mbim_descriptor = -1;
 static int hf_mbim_descriptor_version = -1;
 static int hf_mbim_descriptor_max_control_message = -1;
 static int hf_mbim_descriptor_number_filters = -1;
@@ -467,6 +472,28 @@ static int hf_mbim_descriptor_network_capabilities_ntb_input_size = -1;
 static int hf_mbim_descriptor_extended_version = -1;
 static int hf_mbim_descriptor_max_outstanding_command_messages = -1;
 static int hf_mbim_descriptor_mtu = -1;
+static int hf_mbim_bulk = -1;
+static int hf_mbim_bulk_nth_signature = -1;
+static int hf_mbim_bulk_nth_header_length = -1;
+static int hf_mbim_bulk_nth_sequence_number = -1;
+static int hf_mbim_bulk_nth_block_length = -1;
+static int hf_mbim_bulk_nth_block_length_32 = -1;
+static int hf_mbim_bulk_nth_ndp_index = -1;
+static int hf_mbim_bulk_nth_ndp_index_32 = -1;
+static int hf_mbim_bulk_ndp_signature = -1;
+static int hf_mbim_bulk_ndp_signature_ips_session_id = -1;
+static int hf_mbim_bulk_ndp_signature_dss_session_id = -1;
+static int hf_mbim_bulk_ndp_length = -1;
+static int hf_mbim_bulk_ndp_next_ndp_index = -1;
+static int hf_mbim_bulk_ndp_next_ndp_index_32 = -1;
+static int hf_mbim_bulk_ndp_reserved = -1;
+static int hf_mbim_bulk_ndp_datagram_index = -1;
+static int hf_mbim_bulk_ndp_datagram_index_32 = -1;
+static int hf_mbim_bulk_ndp_datagram_length = -1;
+static int hf_mbim_bulk_ndp_datagram_length_32 = -1;
+static int hf_mbim_bulk_ndp_datagram = -1;
+static int hf_mbim_bulk_ndp_nb_datagrams = -1;
+static int hf_mbim_bulk_total_nb_datagrams = -1;
 
 static expert_field ei_mbim_max_ctrl_transfer = EI_INIT;
 static expert_field ei_mbim_unexpected_msg = EI_INIT;
@@ -489,6 +516,12 @@ static dissector_handle_t proactive_handle;
 static dissector_handle_t etsi_cat_handle;
 static dissector_handle_t gsm_sms_handle;
 static dissector_handle_t cdma_sms_handle;
+static dissector_handle_t eth_handle;
+static dissector_handle_t eth_fcs_handle;
+static dissector_handle_t ip_handle;
+static dissector_handle_t data_handle;
+
+static gboolean mbim_bulk_heuristic = TRUE;
 
 struct mbim_info {
     guint32 req_frame;
@@ -3361,6 +3394,8 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     ti = proto_tree_add_item(tree, proto_mbim, tvb, 0, -1, ENC_NA);
     mbim_tree = proto_item_add_subtree(ti, ett_mbim);
+    ti = proto_tree_add_item(mbim_tree, hf_mbim_control, tvb, 0, 0, ENC_NA);
+    PROTO_ITEM_SET_HIDDEN(ti);
 
     ti = proto_tree_add_text(mbim_tree, tvb, offset, 12, "Message Header");
     header_tree = proto_item_add_subtree(ti, ett_mbim_msg_header);
@@ -3395,17 +3430,17 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             break;
         case MBIM_COMMAND_MSG:
             {
-                guint32 info_buff_len, curr_frag, cid, cmd_type;
+                guint32 info_buff_len, total_frag, cid, cmd_type;
                 guint8 uuid_idx;
 
                 ti = proto_tree_add_text(mbim_tree, tvb, offset, 8, "Fragment Header");
                 subtree = proto_item_add_subtree(ti, ett_mbim_frag_header);
-                proto_tree_add_item(subtree, hf_mbim_fragment_total, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                total_frag = tvb_get_letohl(tvb, offset);
+                proto_tree_add_uint(subtree, hf_mbim_fragment_total, tvb, offset, 4, total_frag);
                 offset += 4;
-                curr_frag = tvb_get_letohl(tvb, offset);
-                proto_tree_add_uint(subtree, hf_mbim_fragment_current, tvb, offset, 4, curr_frag);
+                proto_tree_add_item(subtree, hf_mbim_fragment_current, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
-                if (curr_frag != 0) {
+                if (total_frag > 1) {
                     /* Fragmentation not supported yet */
                     proto_tree_add_item(mbim_tree, hf_mbim_fragmented_payload, tvb, offset, -1, ENC_NA);
                     offset = tvb_length(tvb);
@@ -3862,17 +3897,17 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         case MBIM_COMMAND_DONE:
         case MBIM_INDICATE_STATUS_MSG:
             {
-                guint32 info_buff_len, curr_frag, cid;
+                guint32 info_buff_len, total_frag, cid;
                 guint8 uuid_idx;
 
                 ti = proto_tree_add_text(mbim_tree, tvb, offset, 8, "Fragment Header");
                 subtree = proto_item_add_subtree(ti, ett_mbim_frag_header);
-                proto_tree_add_item(subtree, hf_mbim_fragment_total, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                total_frag = tvb_get_letohl(tvb, offset);
+                proto_tree_add_uint(subtree, hf_mbim_fragment_total, tvb, offset, 4, total_frag);
                 offset += 4;
-                curr_frag = tvb_get_letohl(tvb, offset);
-                proto_tree_add_uint(subtree, hf_mbim_fragment_current, tvb, offset, 4, curr_frag);
+                proto_tree_add_item(subtree, hf_mbim_fragment_current, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
-                if (curr_frag != 0) {
+                if (total_frag > 1) {
                     /* Fragmentation not supported yet */
                     proto_tree_add_item(mbim_tree, hf_mbim_fragmented_payload, tvb, offset, -1, ENC_NA);
                     offset = tvb_length(tvb);
@@ -4288,6 +4323,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static int
 dissect_mbim_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
+    proto_item *ti;
     guint8 length, type, subtype;
 
     length = tvb_get_guint8(tvb, 0);
@@ -4298,6 +4334,9 @@ dissect_mbim_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         !(((subtype == 0x1b) && (length == 12)) || ((subtype == 0x1c) && (length == 8)))){
         return 0;
     }
+
+    ti = proto_tree_add_item(tree, hf_mbim_descriptor, tvb, 0, 0, ENC_NA);
+    PROTO_ITEM_SET_HIDDEN(ti);
 
     if (subtype == 0x1b) {
         proto_tree_add_item(tree, hf_mbim_descriptor_version, tvb, 3, 2, ENC_LITTLE_ENDIAN);
@@ -4316,12 +4355,182 @@ dissect_mbim_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     return length;
 }
 
+static int
+dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    proto_item *ti, *sig_ti;
+    proto_tree *mbim_tree, *subtree, *sig_tree;
+    gboolean is_32bits;
+    guint32 length, next_index, base_offset, offset, datagram_index, datagram_length, nb,
+            total = 0;
+    guint8 *signature;
+    dissector_handle_t dissector;
+    tvbuff_t *datagram_tvb;
+    const guchar NTH16[4] = {'N', 'C', 'M', 'H'};
+    const guchar NTH32[4] = {'n', 'c', 'm', 'h'};
+
+    if (tvb_memeql(tvb, 0, NTH16, sizeof(NTH16)) == 0) {
+        is_32bits = FALSE;
+    } else if (tvb_memeql(tvb, 0, NTH32, sizeof(NTH32)) == 0) {
+        is_32bits = TRUE;
+    } else {
+        return 0;
+    }
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MBIM");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    ti = proto_tree_add_item(tree, proto_mbim, tvb, 0, -1, ENC_NA);
+    mbim_tree = proto_item_add_subtree(ti, ett_mbim);
+    ti =proto_tree_add_item(mbim_tree, hf_mbim_bulk, tvb, 0, 0, ENC_NA);
+    PROTO_ITEM_SET_HIDDEN(ti);
+
+    ti = proto_tree_add_text(mbim_tree, tvb, 0, 0, "NCM Transfer Header");
+    subtree = proto_item_add_subtree(ti, ett_mbim_msg_header);
+    proto_tree_add_item(subtree, hf_mbim_bulk_nth_signature, tvb, 0, 4, ENC_ASCII|ENC_NA);
+    length = tvb_get_letohs(tvb, 4);
+    proto_tree_add_uint(subtree, hf_mbim_bulk_nth_header_length, tvb, 4, 2, length);
+    proto_item_set_len(ti, length);
+    proto_tree_add_item(subtree, hf_mbim_bulk_nth_sequence_number, tvb, 6, 2, ENC_LITTLE_ENDIAN);
+    if (!is_32bits) {
+        proto_tree_add_item(subtree, hf_mbim_bulk_nth_block_length, tvb, 8, 2, ENC_LITTLE_ENDIAN);
+        next_index = tvb_get_letohs(tvb, 10);
+        proto_tree_add_uint(subtree, hf_mbim_bulk_nth_ndp_index, tvb, 10, 2, next_index);
+    } else {
+        proto_tree_add_item(subtree, hf_mbim_bulk_nth_block_length_32, tvb, 8, 4, ENC_LITTLE_ENDIAN);
+        next_index = tvb_get_letohl(tvb, 12);
+        proto_tree_add_uint(subtree, hf_mbim_bulk_nth_ndp_index_32, tvb, 12, 4, next_index);
+    }
+
+    while (next_index) {
+        base_offset = offset = next_index;
+        nb = 0;
+        ti = proto_tree_add_text(mbim_tree, tvb, offset, 0, "NCM Datagram Pointer");
+        subtree = proto_item_add_subtree(ti, ett_mbim_msg_header);
+        signature = tvb_get_string(wmem_packet_scope(), tvb, offset, 4);
+        if ((!is_32bits && !strcmp(signature, "IPS")) ||
+            (is_32bits && !strcmp(signature, "ips"))) {
+            sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,
+                                                      4, tvb_get_letohl(tvb, offset), "%c%c%c%u", signature[0],
+                                                      signature[1], signature[2], signature[3]);
+            sig_tree = proto_item_add_subtree(sig_ti, ett_mbim_msg_header);
+            proto_tree_add_item(sig_tree, hf_mbim_bulk_ndp_signature_ips_session_id, tvb, offset+3, 1, ENC_NA);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%c%c%c%u", signature[0], signature[1],
+                                signature[2], signature[3]);
+            dissector = ip_handle;
+        } else if ((!is_32bits && !strcmp(signature, "DSS")) ||
+                   (is_32bits && !strcmp(signature, "dss"))) {
+            sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,
+                                                      4, tvb_get_letohl(tvb, offset), "%c%c%c%u", signature[0],
+                                                      signature[1], signature[2], signature[3]);
+            sig_tree = proto_item_add_subtree(sig_ti, ett_mbim_msg_header);
+            proto_tree_add_item(sig_tree, hf_mbim_bulk_ndp_signature_dss_session_id, tvb, offset+3, 1, ENC_NA);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%c%c%c%u", signature[0], signature[1],
+                                signature[2], signature[3]);
+            dissector = data_handle;
+        } else if ((!is_32bits && !strcmp(signature, "NCM0")) ||
+                   (is_32bits && !strcmp(signature, "ncm0"))) {
+            proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset, 4,
+                                             tvb_get_letohl(tvb, offset), "%s", signature);
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, signature);
+            dissector = eth_handle;
+        } else if ((!is_32bits && !strcmp(signature, "NCM1")) ||
+                   (is_32bits && !strcmp(signature, "ncm1"))) {
+            proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset, 4,
+                                             tvb_get_letohl(tvb, offset), "%s", signature);
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, signature);
+            dissector = eth_fcs_handle;
+        } else {
+            proto_tree_add_item(subtree, hf_mbim_bulk_ndp_signature, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, signature);
+            dissector = data_handle;
+        }
+        offset += 4;
+        length = tvb_get_letohs(tvb, offset);
+        proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_length, tvb, offset, 2, length);
+        proto_item_set_len(ti, length);
+        offset += 2;
+        if (!is_32bits) {
+            next_index = tvb_get_letohs(tvb, offset);
+            proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_next_ndp_index, tvb,
+                                offset, 2, next_index);
+            offset += 2;
+        } else {
+            proto_tree_add_item(subtree, hf_mbim_bulk_ndp_reserved, tvb,
+                                offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            next_index = tvb_get_letohl(tvb, offset);
+            proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_next_ndp_index_32,
+                                tvb, offset, 4, next_index);
+            offset += 4;
+        }
+        while ((offset - base_offset) < length) {
+            if (!is_32bits) {
+                datagram_index = tvb_get_letohs(tvb, offset);
+                proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_index,
+                                    tvb, offset, 2, datagram_index);
+                offset += 2;
+                datagram_length = tvb_get_letohs(tvb, offset);
+                proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_length,
+                                    tvb, offset, 2, datagram_length);
+                offset += 2;
+            } else {
+                datagram_index = tvb_get_letohl(tvb, offset);
+                proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_index_32,
+                                    tvb, offset, 4, datagram_index);
+                offset += 4;
+                datagram_length = tvb_get_letohl(tvb, offset);
+                proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_length_32,
+                                    tvb, offset, 3, datagram_length);
+                offset += 4;
+            }
+            if (datagram_index && datagram_length) {
+                proto_tree_add_item(subtree, hf_mbim_bulk_ndp_datagram, tvb,
+                                    datagram_index, datagram_length, ENC_NA);
+                datagram_tvb = tvb_new_subset_length(tvb, datagram_index, datagram_length);
+                if (total) {
+                    col_add_str(pinfo->cinfo, COL_PROTOCOL, "|");
+                    col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+                    col_add_str(pinfo->cinfo, COL_INFO, " | ");
+                    col_set_fence(pinfo->cinfo, COL_INFO);
+                }
+                call_dissector(dissector, datagram_tvb, pinfo, tree);
+                col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+                col_set_fence(pinfo->cinfo, COL_INFO);
+                nb++;
+                total++;
+             }
+        }
+        ti = proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_nb_datagrams, tvb, 0, 0, nb);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+    ti = proto_tree_add_uint(mbim_tree, hf_mbim_bulk_total_nb_datagrams, tvb, 0, 0, total);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    return tvb_length(tvb);
+}
+
+static gboolean
+dissect_mbim_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    if (dissect_mbim_bulk(tvb, pinfo, tree, data)) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
 void
 proto_register_mbim(void)
 {
+    module_t *mbim_module;
     expert_module_t* expert_mbim;
 
     static hf_register_info hf[] = {
+        { &hf_mbim_control,
+            { "Control", "mbim.control",
+               FT_NONE, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_header_message_type,
             { "Message Type", "mbim.control.header.message_type",
                FT_UINT32, BASE_HEX, VALS(mbim_msg_type_vals), 0,
@@ -6392,6 +6601,11 @@ proto_register_mbim(void)
                FT_FRAMENUM, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_mbim_descriptor,
+            { "Descriptor", "mbim.descriptor",
+               FT_NONE, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_descriptor_version,
             { "bcdMBIMVersion", "mbim.descriptor.version",
                FT_UINT16, BASE_HEX, NULL, 0,
@@ -6447,6 +6661,116 @@ proto_register_mbim(void)
                FT_UINT16, BASE_DEC, NULL, 0,
               "MTU", HFILL }
         },
+        { &hf_mbim_bulk,
+            { "Bulk", "mbim.bulk",
+               FT_NONE, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_nth_signature,
+            { "Signature", "mbim.bulk.nth.signature",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_nth_header_length,
+            { "Header Length", "mbim.bulk.nth.header_length",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_nth_sequence_number,
+            { "Sequence Number", "mbim.bulk.nth.sequence_number",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_nth_block_length,
+            { "Block Length", "mbim.bulk.nth.block_length",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_nth_block_length_32,
+            { "Block Length", "mbim.bulk.nth.block_length",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_nth_ndp_index,
+            { "NDP Index", "mbim.bulk.nth.ndp_index",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_nth_ndp_index_32,
+            { "NDP Index", "mbim.bulk.nth.ndp_index",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_signature,
+            { "Signature", "mbim.bulk.ndp.signature",
+               FT_UINT32, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_signature_ips_session_id,
+            { "IPS Session Id", "mbim.bulk.ndp.signature.ips_session_id",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_signature_dss_session_id,
+            { "DSS Session Id", "mbim.bulk.ndp.signature.dss_session_id",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_length,
+            { "Length", "mbim.bulk.ndp.length",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_next_ndp_index,
+            { "Next NDP Index", "mbim.bulk.ndp.next_ndp_index",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_next_ndp_index_32,
+            { "Next NDP Index", "mbim.bulk.ndp.next_ndp_index",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_reserved,
+            { "Reserved", "mbim.bulk.ndp.reserved",
+               FT_UINT16, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_datagram_index,
+            { "Datagram Index", "mbim.bulk.ndp.datagram.index",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_datagram_index_32,
+            { "Datagram Index", "mbim.bulk.ndp.datagram.index",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_datagram_length,
+            { "Datagram Length", "mbim.bulk.ndp.datagram.length",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_datagram_length_32,
+            { "Datagram Length", "mbim.bulk.ndp.datagram.length",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_datagram,
+            { "Datagram", "mbim.bulk.ndp.datagram",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_nb_datagrams,
+            { "Number Of Datagrams", "mbim.bulk.ndp.nb_datagrams",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_total_nb_datagrams,
+            { "Total Number Of Datagrams", "mbim.bulk.total_nb_datagrams",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        }
     };
 
     static gint *ett[] = {
@@ -6491,15 +6815,33 @@ proto_register_mbim(void)
 
     new_register_dissector("mbim.control", dissect_mbim_control, proto_mbim);
     new_register_dissector("mbim.descriptor", dissect_mbim_descriptor, proto_mbim);
+    new_register_dissector("mbim.bulk", dissect_mbim_bulk, proto_mbim);
+
+    mbim_module = prefs_register_protocol(proto_mbim, proto_reg_handoff_mbim);
+    prefs_register_bool_preference(mbim_module, "bulk_heuristic",
+        "Try to identify data traffic with heuristic",
+        "Try to identify MBIM data packets on \"usb.bulk\" using heuristic",
+        &mbim_bulk_heuristic);
 }
 
 void
 proto_reg_handoff_mbim(void)
 {
-    proactive_handle = find_dissector("gsm_sim.bertlv");
-    etsi_cat_handle = find_dissector("etsi_cat");
-    gsm_sms_handle = find_dissector("gsm_sms_handle");
-    cdma_sms_handle = find_dissector("ansi_637_trans");
+    static gboolean initialized = FALSE;
+
+    if (!initialized) {
+        proactive_handle = find_dissector("gsm_sim.bertlv");
+        etsi_cat_handle = find_dissector("etsi_cat");
+        gsm_sms_handle = find_dissector("gsm_sms_handle");
+        cdma_sms_handle = find_dissector("ansi_637_trans");
+        eth_handle = find_dissector("eth_withoutfcs");
+        eth_fcs_handle = find_dissector("eth_withfcs");
+        ip_handle = find_dissector("ip");
+        data_handle = find_dissector("data");
+        heur_dissector_add("usb.bulk", dissect_mbim_bulk_heur, proto_mbim);
+        initialized = TRUE;
+    }
+    heur_dissector_set_enabled("usb.bulk", dissect_mbim_bulk_heur, proto_mbim, mbim_bulk_heuristic);
 }
 
 /*
