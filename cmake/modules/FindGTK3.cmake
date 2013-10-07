@@ -27,6 +27,7 @@ FindWSWinLibs("gtk3" "GTK3_HINTS")
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
 FIND_PACKAGE(PkgConfig)
+set( ENV{PKG_CONFIG_PATH} ${GTK3_HINTS}/lib/pkgconfig )
 PKG_CHECK_MODULES(PC_GTK3 gtk+-3.0 QUIET)
 
 # MESSAGE(STATUS "PC_GTK3_LIBRARIES: ${PC_GTK3_LIBRARIES}")
@@ -40,7 +41,6 @@ if( NOT PC_GTK3_FOUND )
     FIND_PATH(GTK3_INCLUDE_DIR
         NAMES
             "gtk/gtk.h"
-            "gtk.h"
         HINTS
             ${GTK3_HINTS}/include
             ${PC_GTK3_INCLUDEDIR}
