@@ -157,7 +157,8 @@ static int hf_tipcv2_transport_seq_no = -1;
 static int hf_tipcv2_redundant_link = -1;
 static int hf_tipcv2_bearer_id = -1;
 static int hf_tipcv2_conn_mgr_msg_ack = -1;
-static int hf_tipcv2_req_links = -1;
+static int hf_tipcv2_minor_pv = -1;
+static int hf_tipcv2_node_sig = -1;
 
 /* added for TIPC v1.7 */
 static int hf_tipcv2_timestamp = -1;
@@ -1437,7 +1438,7 @@ uses a special message format, with the following generic structure:
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 w0:|vers |msg usr|hdr sz |n|resrv|            packet size          |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-w1:|m typ|0| requested links       |       broadcast ack no        |
+w1:|m typ|00000|     minor_pv      |        node signature         |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 w2:|                      destination domain                       |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1462,9 +1463,10 @@ w9:|                                                               |
 */
 			/* W1 */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_neighbour_mtype, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
-			/* Requested Links (12 bits) */
-			proto_tree_add_item(tipc_tree, hf_tipcv2_req_links, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
+			/* Reserved 5 bits */
+			/* Minor pv 8 bits */
+			proto_tree_add_item(tipc_tree, hf_tipcv2_minor_pv, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tipc_tree, hf_tipcv2_node_sig, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset = offset + 4;
 			/* W2 */
 			/* Destination Domain */
@@ -2805,9 +2807,14 @@ proto_register_tipc(void)
 				FT_UINT32, BASE_DEC, NULL, 0xffff0000,
 				NULL, HFILL }
 		},
-		{ &hf_tipcv2_req_links,
-			{ "Requested Links", "tipcv2.req_links",
-				FT_UINT32, BASE_DEC, NULL, 0x0fff0000,
+		{ &hf_tipcv2_minor_pv,
+			{ "Minor protocol version", "tipcv2.minor_pv",
+				FT_UINT32, BASE_DEC, NULL, 0x00ff0000,
+				NULL, HFILL }
+		},
+		{ &hf_tipcv2_node_sig,
+			{ "Node signature", "tipcv2.node_sig",
+				FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 				NULL, HFILL }
 		},
 		{ &hf_tipcv2_timestamp,
