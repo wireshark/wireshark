@@ -444,4 +444,5 @@
 #  define INET6 1
 #  define NEED_INET_V6DEFS_H 1
 #  define HTML_VIEWER "mozilla"
+#  define NEED_STRPTIME_H 1
 #endif
