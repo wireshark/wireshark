@@ -557,8 +557,10 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+!IFDEF QT_DIR
 	cd ../qt
 	$(MAKE) clean
+!ENDIF
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../cli
@@ -609,8 +611,10 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+!IFDEF QT_DIR
 	cd ../qt
 	$(MAKE) distclean
+!ENDIF
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../cli
@@ -654,8 +658,10 @@ maintainer-clean: maintainer-clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+!IFDEF QT_DIR
 	cd ../qt
 	$(MAKE) distclean
+!ENDIF
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../cli
@@ -772,10 +778,12 @@ gtk:: help config.h svnversion.h doxygen
 	cd ../..
 
 qt:: help config.h svnversion.h doxygen
+!IFDEF QT_DIR
 	cd ui/qt
 	$(QT_DIR)\bin\qmake CONFIG+=release QtShark.pro
 	nmake
 	cd ../..
+!ENDIF
 
 win32::
 	cd ui/win32
