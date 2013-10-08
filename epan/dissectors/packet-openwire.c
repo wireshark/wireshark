@@ -946,6 +946,9 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                         /* Value */
                         offset += dissect_openwire_type(tvb, pinfo, entry_tree, offset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, FALSE);
                         proto_item_set_len(map_entry, offset - entryStartOffset);
+                        if (offset - entryStartOffset <= 0) {
+                            break;
+                        }
                     }
                 }
             }
