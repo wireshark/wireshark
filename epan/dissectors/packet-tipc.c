@@ -195,7 +195,10 @@ static guint tipc_alternate_tcp_port = 0;
 static gboolean tipc_tcp_desegment = TRUE;
 
 static dissector_handle_t tipc_handle;
+
+/* IANA have assigned port 6118 port for TIPC UDP transport. */
 #define DEFAULT_TIPC_PORT_RANGE   "0"
+
 static range_t *global_tipc_udp_port_range;
 
 /* this is used to find encapsulated protocols */
@@ -2930,7 +2933,8 @@ proto_register_tipc(void)
 
 	prefs_register_range_preference(tipc_module, "udp.ports", "TIPC UDP ports",
 								  "UDP ports to be decoded as TIPC (default: "
-								  DEFAULT_TIPC_PORT_RANGE ")",
+								  DEFAULT_TIPC_PORT_RANGE ")"
+								  "IANA have assigned port 6118 port for TIPC UDP transport.",
 								  &global_tipc_udp_port_range, MAX_UDP_PORT);
 
 	prefs_register_bool_preference(tipc_module, "defragment",
