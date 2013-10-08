@@ -832,11 +832,14 @@ const char* oid_subid2string(guint32* subids, guint len) {
     return rel_oid_subid2string(subids, len, TRUE);
 }
 const char* rel_oid_subid2string(guint32* subids, guint len, gboolean is_absolute) {
-	char* s = (char *)ep_alloc0(((len)*11)+1);
-	char* w = s;
+	char *s, *w;
 
-	if(!subids)
+	if(!subids || len == 0)
 		return "*** Empty OID ***";
+
+	s = (char *)ep_alloc0(((len)*11)+2);
+	w = s;
+
 	if (!is_absolute)
 		*w++ = '.';
 
