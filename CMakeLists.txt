@@ -455,6 +455,7 @@ foreach(PACKAGE ${PACKAGELIST})
 	if (${PACKAGE_VAR}_FOUND)
 		set(HAVE_LIB${PACKAGE_VAR} 1)
 		include_directories(${${PACKAGE_VAR}_INCLUDE_DIRS})
+		set(WS_ALL_LIBS ${WS_ALL_LIBS} ${${PACKAGE_VAR}_LIBRARIES})
 		message(STATUS "${PACKAGE} includes: ${${PACKAGE_VAR}_INCLUDE_DIRS}")
 		message(STATUS "${PACKAGE} libs: ${${PACKAGE_VAR}_LIBRARIES}")
 		if (${PACKAGE}_DEFINITIONS)
@@ -465,6 +466,27 @@ foreach(PACKAGE ${PACKAGELIST})
 		endif()
 	endif()
 endforeach()
+
+# Add paths required to run the executables inside the build dir
+
+if(WIN32)
+	if( "$ENV{PATH}" MATCHES "${CMAKE_BINARY_DIR}/lib")
+		message( STATUS "Build dir (${CMAKE_BINARY_DIR}/lib) already in path." )
+	else()
+		# message( STATUS "All libs: ${WS_ALL_LIBS}\n" )
+		foreach( THIS_LIB_PATH ${WS_ALL_LIBS} )
+			get_filename_component( LIB_PATH ${THIS_LIB_PATH} PATH )
+			# message( STATUS "Raw path ${THIS_LIB_PATH} processed to ${LIB_PATH}." )
+			set( WS_LOCAL_LIB_PATHS ${WS_LOCAL_LIB_PATHS} ${LIB_PATH} )
+		endforeach()
+		list(REMOVE_DUPLICATES WS_LOCAL_LIB_PATHS)
+		# All generated libs go here, so start our libsearch in this place
+		set(WS_LOCAL_LIB_PATHS "${CMAKE_BINARY_DIR}/lib" ${WS_LOCAL_LIB_PATHS})
+		message( STATUS "Adding paths: ${WS_LOCAL_LIB_PATHS}" )
+		set( ENV{PATH} $ENV{PATH} ${WS_LOCAL_LIB_PATHS} )
+	endif()
+endif()
+
 
 # Provide Windows system lib names
 include( UseWinLibs )
