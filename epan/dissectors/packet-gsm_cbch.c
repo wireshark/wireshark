@@ -214,7 +214,13 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                 else if ((octet1 & 0xC0) == 0)
                 {
                     /* MDT 00 */
-                    if (octet1 < new_slots[i])
+                    if (octet1 == 0)
+                    {
+                        proto_tree_add_text(sched_subtree, tvb, offset++, 1,
+                                            "Slot: %d, Repeat of non-existant slot %d",
+                                            new_slots[i], octet1);
+                    }
+                    else if (octet1 < new_slots[i])
                     {
                         proto_tree_add_text(sched_subtree, tvb, offset++, 1,
                                             "Slot: %d, Message ID: %d, Repeat of Slot %d",
