@@ -2851,7 +2851,28 @@
 		<!-- Ref 3GPP TS 29.209 version 6.7.0 Release 6
 		NOTE AVP 500 - 523 is in gqpolicy.xml
 		AVP 524 - 532 is in TGPPRx.xml (3GPP TS 29.214)
-		Note: The AVP codes from 533 to 599 are reserved for TS 29.209 and TS 29.211
+    -->
+    <avp name="Rx-Request-Type" code="533" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="INITIAL_REQUEST" code="0"/>
+      <enum name="UPDATE_REQUEST" code="1"/>
+    </avp>
+    <avp name="Min-Requested-Bandwidth-DL" code="534" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Min-Requested-Bandwidth-UL" code="535" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Rx-Request-Type" code="536" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="USER_LOCATION" code="0"/>
+      <enum name="MS_TIME_ZONE" code="1"/>
+    </avp>
+    <avp name="IP-Domain-Id" code="537" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+
+    <!--		Note: The AVP codes from 533 to 599 are reserved for TS 29.209 and TS 29.211
 		NOTE AVP 600 - 652 is in imscxdx.xml
 
 		Note: The AVP codes from 652 to 699 are reserved for TS 29.229.
