@@ -1887,16 +1887,22 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 	 */
 	if ((flags & REASSEMBLE_FLAGS_CHECK_DATA_PRESENT) &&
 		!tvb_bytes_exist(tvb, offset, frag_data_len)) {
-		if (!more_frags) {
-			/*
-			 * Remove this from the table of in-progress
-			 * reassemblies, and free up any memory used for
-			 * it in that table.
-			 */
-			fragment_unhash(table, *orig_keyp);
-		}
 		fd_head -> flags |= FD_DATA_NOT_PRESENT;
-		return frag_number == 0 ? fd_head : NULL;
+		if (frag_number == 0) {
+			return fd_head;
+		}
+		else {
+			if (!more_frags) {
+				/*
+				 * Remove this from the table of in-progress
+				 * reassemblies, and free up any memory used for
+				 * it in that table.
+				 */
+				fragment_unhash(table, *orig_keyp);
+				free_all_fragments(NULL, fd_head, NULL);
+			}
+			return NULL;
+		}
 	}
 
 	if (fragment_add_seq_work(fd_head, tvb, offset, pinfo,
