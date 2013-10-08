@@ -679,9 +679,9 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 static int
 dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int field, int type, int parentType, gboolean nullable)
 {
-    gint           startOffset  = offset;
-    proto_item    *boolean_item = NULL;
-    wmem_strbuf_t *cache_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+    gint        startOffset  = offset;
+    proto_item *boolean_item = NULL;
+    const char *cache_str = "";
 
     if (type == OPENWIRE_TYPE_CACHED && retrieve_caching(pinfo) == TRUE && tvb_length_remaining(tvb, offset) >= 3)
     {
@@ -690,7 +690,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         proto_item * cached_item = NULL;
         inlined = tvb_get_guint8(tvb, offset + 0) == TRUE ? TRUE : FALSE;
         cachedID = tvb_get_ntohs(tvb, offset + 1);
-        wmem_strbuf_append_printf(cache_strbuf, " (CachedID: %d)", cachedID);
+        cache_str = wmem_strdup_printf(wmem_packet_scope(), " (CachedID: %d)", cachedID);
         if (openwire_verbose_type)
         {
             proto_tree_add_item(tree, hf_openwire_cached_inlined, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -705,7 +705,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         {
             proto_item    *ti;
             ti = proto_tree_add_item(tree, particularize(field, hf_openwire_type_object), tvb, startOffset, 3, ENC_NA);
-            proto_item_append_text(ti, "%s", wmem_strbuf_get_str(cache_strbuf));
+            proto_item_append_text(ti, "%s", cache_str);
             return 3;
         }
         else
@@ -896,7 +896,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         proto_item    *ti;
         ti = proto_tree_add_item(tree, particularize(field, hf_openwire_type_object), tvb, startOffset, -1, ENC_NA);
         proto_item_append_text(ti, ": %s", val_to_str_ext(type, &openwire_type_vals_ext, "Unknown (0x%02x)"));
-        proto_item_append_text(ti, "%s", wmem_strbuf_get_str(cache_strbuf));
+        proto_item_append_text(ti, "%s", cache_str);
 
         object_tree = proto_item_add_subtree(ti, ett_openwire_type);
 
