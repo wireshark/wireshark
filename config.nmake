@@ -297,7 +297,15 @@ GTK_INST_VERSION=3.4
 !ENDIF
 
 #
-# Optional: WinPcap developer's pack to capture network traffic.
+# Recommended: Qt
+#
+# This must point to a top-level Qt directory. QMake should be in
+# $(QT_DIR)\bin
+#
+#QT_DIR=C:\Qt\5.1.1-MSVC2010-win32
+
+#
+# Recommended: WinPcap developer's pack to capture network traffic.
 #
 # If you have the WinPcap developer's pack (at least version 3.0),
 # set this to the directory in which the WinPcap developer's pack resides.
@@ -518,7 +526,15 @@ GTK_INST_VERSION=3.4
 !ENDIF
 
 #
-# Optional: WinPcap developer's pack to capture network traffic.
+# Recommended: Qt
+#
+# This must point to a top-level Qt directory. QMake should be in
+# $(QT_DIR)\bin
+#
+#QT_DIR=C:\Qt\5.1.1-MSVC2010-win64
+
+#
+# Recommended: WinPcap developer's pack to capture network traffic.
 #
 # If you have the WinPcap developer's pack (at least version 3.0),
 # set this to the directory in which the WinPcap developer's pack resides.

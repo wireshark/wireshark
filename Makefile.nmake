@@ -192,6 +192,10 @@ EXECUTABLES=wireshark.exe tshark.exe rawshark.exe \
 	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe \
 	reordercap.exe dumpcap.exe dftest.exe
 
+!IFDEF QT_DIR
+EXECUTABLES=$(EXECUTABLES) qtshark.exe
+!ENDIF
+
 RESOURCES=image\wireshark.res image\file_dlg_win32.res \
 	image\libwireshark.res image\tshark.res image\capinfos.res \
 	image\editcap.res image\mergecap.res image\text2pcap.res \
@@ -308,6 +312,8 @@ wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan ui gtk w
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:$(PROGRAM_NAME).exe;1
 !ENDIF
+
+qtshark.exe	: install-generated-files $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 
 tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
@@ -536,6 +542,7 @@ clean-local:
 		libwsutil.dll \
 		wireshark.bsc
 	rm -rf $(INSTALL_DIR)
+	rm -rf wireshark-qt-release
 
 clean: clean-local
 	cd asn1
@@ -550,6 +557,8 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../qt
+	$(MAKE) clean
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../cli
@@ -600,6 +609,8 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../qt
+	$(MAKE) distclean
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../cli
@@ -643,6 +654,8 @@ maintainer-clean: maintainer-clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../qt
+	$(MAKE) distclean
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../cli
@@ -756,6 +769,12 @@ ui:: help config.h svnversion.h doxygen
 gtk:: help config.h svnversion.h doxygen
 	cd ui/gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libgtkui.lib
+	cd ../..
+
+qt:: help config.h svnversion.h doxygen
+	cd ui/qt
+	$(QT_DIR)\bin\qmake CONFIG+=release QtShark.pro
+	nmake
 	cd ../..
 
 win32::
