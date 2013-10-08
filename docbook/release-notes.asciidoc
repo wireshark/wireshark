@@ -24,6 +24,9 @@ The following bugs have been fixed:
 The following features are new (or have been significantly updated)
 since version 1.10:
 
+* Wireshark now uses the Qt application framework. The new UI should provide
+  a significantly better user experience, particularly on Mac OS X and Windows.
+* A more flexible, modular memory manger (wmem) has been added.
 * Expert info is now filterable (if the dissector has been updated to support
   the new API).
 * The Windows installer now uninstalls the previous version of Wireshark
@@ -115,6 +118,8 @@ Summary pane selected frame highlighting not maintained.
 
 Wireshark and TShark will display incorrect delta times in some cases.
 (ws-buglink:4985[])
+
+The 64-bit Mac OS X installer doesn't support Mac OS X 10.9 (ws-buglink:9242[])
 
 == Getting Help
 
