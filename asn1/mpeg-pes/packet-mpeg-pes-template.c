@@ -312,8 +312,8 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (flags2 & PRIVATE_DATA_FLAG) {
 			proto_tree_add_item(tree, hf_mpeg_pes_private_data, tvb,
-					offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;
+					offset, 16, ENC_BIG_ENDIAN);
+			offset += 16;
 		}
 		if (flags2 & PACK_LENGTH_FLAG) {
 			proto_tree_add_item(tree, hf_mpeg_pes_pack_length, tvb,
@@ -621,7 +621,7 @@ proto_register_mpeg_pes(void)
 				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_mpeg_pes_private_data,
 			{ "private data", "mpeg-pes.private-data",
-				FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_mpeg_pes_pack_length,
 			{ "pack length", "mpeg-pes.pack-length",
 				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
