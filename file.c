@@ -195,7 +195,7 @@ cf_callback_add(cf_callback_t func, gpointer user_data)
   cb->cb_fct = func;
   cb->user_data = user_data;
 
-  cf_callbacks = g_list_append(cf_callbacks, cb);
+  cf_callbacks = g_list_prepend(cf_callbacks, cb);
 }
 
 void
