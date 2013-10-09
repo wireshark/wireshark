@@ -124,12 +124,16 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_item *ti, *sub_item;
     proto_tree *ar_tree, *sub_tree;
     char *command;
+	guint32 dword;
 
     if (tvb_length(tvb) < 4)
         return 0;
 
-    /* Make sure the packet we're dissecting is a ar_drone packet */
-    if(strcmp(tvb_get_string(wmem_packet_scope(),tvb,0,3),"AT*"))
+    /* Make sure the packet we're dissecting is a ar_drone packet
+	 *  Cheap string check for 'AT*'
+	 */
+	dword = tvb_get_ntoh24(tvb,0);
+    if(dword != 0x41542a)
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ar_drone");

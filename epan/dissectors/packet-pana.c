@@ -668,13 +668,8 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                return 0;
        }
 
-       /* Get header fields */
-       pana_res   = tvb_get_ntohs(tvb, 0);
+	   /* Check minimum packet length */
        msg_length = tvb_get_ntohs(tvb, 2);
-       flags      = tvb_get_ntohs(tvb, 4);
-       msg_type   = tvb_get_ntohs(tvb, 6);
-
-       /* Check minimum packet length */
        if(msg_length < 16) {
                return 0;
        }
@@ -685,16 +680,19 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        }
 
        /* check that the reserved field is zero */
+       pana_res   = tvb_get_ntohs(tvb, 0);
        if (pana_res != 0) {
                return 0;
        }
 
        /* verify that none of the reserved bits are set */
+       flags      = tvb_get_ntohs(tvb, 4);
        if (flags & PANA_FLAG_RESERVED) {
                return 0;
        }
 
        /* verify that we recognize the message type */
+       msg_type   = tvb_get_ntohs(tvb, 6);
        if ((msg_type > MSG_TYPE_MAX) || (msg_type == 0)) {
                return 0;
        }

@@ -148,6 +148,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
 {
   guint8 *sync;
   proto_tree *dcp_tree = NULL;
+  guint16 word;
 
   /* 6.1 AF packet structure
    *
@@ -179,9 +180,10 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
   if(tvb_length(tvb) < 11)
     return FALSE;
 
-  sync = tvb_get_string (wmem_packet_scope(), tvb, 0, 2);
-  if((sync[0]!='A' && sync[0]!='P') || sync[1]!='F')
-    return FALSE;
+  word = tvb_get_ntohs(tvb,0);
+  /* Check for 'AF or 'PF' */
+  if(word != 0x4146 && word != 0x5046)
+	  return FALSE;
 
   pinfo->current_proto = "DCP (ETSI)";
 
@@ -196,6 +198,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
     dcp_tree = proto_item_add_subtree (ti, ett_edcp);
   }
 
+  sync = tvb_get_string (wmem_packet_scope(), tvb, 0, 2);
   dissector_try_string(dcp_dissector_table, (char*)sync, tvb, pinfo, dcp_tree);
   return TRUE;
 }

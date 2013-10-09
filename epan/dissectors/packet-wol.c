@@ -85,9 +85,9 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint         len;
     gint          offset;
-    guint8        sync[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
     guint8       *mac;
     const guint8 *passwd;
+	guint64       qword;
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
@@ -114,7 +114,8 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * tvb for the synchronization stream.  My feeling is that this could be
      * quite expensive and seriously hinder Wireshark performance.  For now,
      * unless we need to change it later, just compare the 1st 6 bytes. */
-    if ( tvb_memeql(tvb, 0, sync, 6) != 0 )
+	qword = tvb_get_ntoh48(tvb,0);
+	if(qword != 0xffffffffffff)
         return (0);
 
     /* So far so good.  Now get the next 6 bytes, which we'll assume is the
