@@ -197,10 +197,10 @@ static int
 dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gboolean has_lf = FALSE;
-	guint offset = 0;
+	gint offset = 0;
 	gint new_offset = 0;
 	guint tmp;
-	guint realsize = 0;
+	gint realsize = 0;
 	guint8* rawstr;
 	proto_item *ti;
 	proto_tree *rtpproxy_tree;
@@ -306,9 +306,9 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 			/* Extract parameters */
 			/* Parameters should be right after the command and before EOL (in case of Info command) or before whitespace */
-			new_offset = (tmp == 'i' ? (gint)(realsize - 1 > offset ? offset + strlen("Ib") : offset + strlen("I")) : tvb_find_guint8(tvb, offset, -1, ' '));
+			new_offset = (tmp == 'i' ? (realsize - 1 > offset ? offset + (gint)strlen("Ib") : offset + (gint)strlen("I")) : tvb_find_guint8(tvb, offset, -1, ' '));
 
-			if (new_offset != (gint)offset + 1){
+			if (new_offset != offset + 1){
 				rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_command);
 				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_command_parameters, tvb, offset+1, new_offset - (offset+1), ENC_ASCII | ENC_NA);
 				rtpproxy_tree = proto_item_get_parent(ti);
