@@ -24,7 +24,6 @@
 #
 
 # To do:
-#   ANSI C12.22
 #   DVB-CI
 #   IEEE 802.15.4
 #   IPsec / ESP
@@ -47,6 +46,7 @@ UAT_FILES="
 	80211_keys
 	dtlsdecrypttablefile
 	ssl_keys
+	c1222_decryption_table
 "
 
 TEST_KEYS_DIR="$TESTS_DIR/keys/"
@@ -121,11 +121,29 @@ decryption_step_zigbee() {
 	test_step_ok
 }
 
+# ANSI C12.22
+# https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9196
+decryption_step_c1222() {
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-o "c1222.decrypt: TRUE" \
+		-o "c1222.baseoid:2.16.124.113620.1.22.0" \
+		-r "$CAPTURE_DIR/c1222_std_example8.pcap" \
+		-Tfields -e c1222.data \
+		| grep "00:10:4d:41:4e:55:46:41:43:54:55:52:45:52:20:53:4e:20:92" >  /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt C12.22 $RETURNVALUE"
+		return
+	fi
+	test_step_ok
+}
+
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
 	test_step_add "DTLS Decryption" decryption_step_dtls
 	test_step_add "SSL Decryption" decryption_step_ssl
 	test_step_add "ZigBee Decryption" decryption_step_zigbee
+	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
 }
 
 decryption_cleanup_step() {
