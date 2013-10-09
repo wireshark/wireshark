@@ -1653,8 +1653,8 @@ assignment_bucket_name(guint8 bucket)
   if (bucket == 0xff) {
     cur= (gchar *) "Unassigned";
   } else {
-    cur=wmem_strdup_printf(wmem_packet_scope(), "%u%s", bucket >> 1,
-                         (bucket & 0x01) ? " (Alt)" : "");
+    cur=wmem_strdup_printf(wmem_packet_scope(), "%u%s", bucket & 0x7F,
+                         (bucket & 0x80) ? " (Alt)" : "");
   }
   return cur;
 }
@@ -1758,7 +1758,7 @@ static gint dissect_wccp2_hash_buckets_assignment_element(tvbuff_t *tvb, int off
       return length - (256-i);
 
     proto_tree_add_text(element_tree, tvb, offset, 4,
-                        "Buckets %d - %d: %10s %10s %10s %10s",
+                        "Buckets %3d - %3d: %10s %10s %10s %10s",
                         i, i + 3,
                         assignment_bucket_name(tvb_get_guint8(tvb, offset)),
                         assignment_bucket_name(tvb_get_guint8(tvb, offset+1)),
@@ -2921,11 +2921,11 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_service_info_id_standard,
-      { "WCCP Serivce ID (Standard)", "wccp.service_info_std_id", FT_UINT8, BASE_DEC, VALS(service_id_vals) , 0x0,
+      { "WCCP Service ID (Standard)", "wccp.service_info_std_id", FT_UINT8, BASE_DEC, VALS(service_id_vals) , 0x0,
         "The WCCP Service id (Standard)", HFILL }
     },
     { &hf_service_info_id_dynamic,
-      { "WCCP Serivce ID ( Dynamic)", "wccp.service_info_dyn_id", FT_UINT8, BASE_DEC, NULL , 0x0,
+      { "WCCP Service ID ( Dynamic)", "wccp.service_info_dyn_id", FT_UINT8, BASE_DEC, NULL , 0x0,
         "The WCCP Service id (Dynamic)", HFILL }
     },
     { &hf_service_info_priority,
@@ -3108,7 +3108,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_hash_buckets_assignment_wc_num,
-      { "Number of Routers", "wccp.hash_buckets_assignment.wc_num", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "Number of WC", "wccp.hash_buckets_assignment.wc_num", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_hash_buckets_assignment_wc_ip,
