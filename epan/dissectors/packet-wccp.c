@@ -996,8 +996,8 @@ assignment_bucket_name(guint8 bucket)
 	if (bucket == 0xff) {
 		cur="Unassigned";
 	} else {
-		cur=ep_strdup_printf("%u%s", bucket >> 1,
-		    (bucket & 0x01) ? " (Alt)" : "");
+		cur=ep_strdup_printf("%u%s", bucket & 0x7F,
+		    (bucket & 0x80) ? " (Alt)" : "");
 	}
 	return cur;
 }
@@ -1052,7 +1052,7 @@ dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset, int length,
 
 	for (i = 0; i < 256; i += 4) {
 		proto_tree_add_text(info_tree, tvb, offset, 4,
-		    "Buckets %d - %d: %10s %10s %10s %10s",
+		    "Buckets %3d - %3d: %10s %10s %10s %10s",
 		    i, i + 3,
 		    assignment_bucket_name(tvb_get_guint8(tvb, offset)),
 		    assignment_bucket_name(tvb_get_guint8(tvb, offset+1)),
