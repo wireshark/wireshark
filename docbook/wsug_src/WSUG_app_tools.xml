@@ -87,7 +87,7 @@ Output:
   -x                       add output of hex and ASCII dump (Packet Bytes)
   -T pdml|ps|psml|text|fields
                            format of text output (def: text)
-  -e &lt;field&gt;               field to print if -Tfields selected (e.g. tcp.port, col.Info);
+  -e &lt;field&gt;               field to print if -Tfields selected (e.g. tcp.port, _ws.col.Info);
                            this option can be repeated to print multiple fields
   -E&lt;fieldsoption&gt;=&lt;value&gt; set options for output when -Tfields selected:
      header=y|n            switch headers on and off

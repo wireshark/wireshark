@@ -1382,7 +1382,7 @@ void output_fields_free(output_fields_t* fields)
     g_free(fields);
 }
 
-#define COLUMN_FIELD_FILTER  "col."
+#define COLUMN_FIELD_FILTER  "_ws.col."
 
 void output_fields_add(output_fields_t *fields, const gchar *field)
 {

@@ -291,9 +291,9 @@ from such an account, it will not list any interfaces.
 Add a field to the list of fields to display if B<-T fields> is
 selected.  This option can be used multiple times on the command line.
 At least one field must be provided if the B<-T fields> option is
-selected. Column names may be used prefixed with "col."
+selected. Column names may be used prefixed with "_ws.col."
 
-Example: B<-e frame.number -e ip.addr -e udp -e col.info>
+Example: B<-e frame.number -e ip.addr -e udp -e _ws.col.info>
 
 Giving a protocol rather than a single field will print multiple items
 of data about the protocol as a single field.  Fields are separated by
