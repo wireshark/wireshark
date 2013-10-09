@@ -355,7 +355,7 @@ typedef struct _fragment_items {
     gint       *ett_fragment;
     gint       *ett_fragments;
 
-    int        *hf_fragments;                  /* FT_BOOLEAN  */
+    int        *hf_fragments;                  /* FT_NONE     */
     int        *hf_fragment;                   /* FT_FRAMENUM */
     int        *hf_fragment_overlap;           /* FT_BOOLEAN  */
     int        *hf_fragment_overlap_conflict;  /* FT_BOOLEAN  */
