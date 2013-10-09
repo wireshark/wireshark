@@ -4924,8 +4924,8 @@ set_menus_for_selected_packet(capture_file *cf)
             hfinfo =  v->hfinfo;
 
             if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
-                !g_str_has_prefix(hfinfo->abbrev, "expert") &&
-                !g_str_has_prefix(hfinfo->abbrev, "malformed")) {
+                !g_str_has_prefix(hfinfo->abbrev, "_ws.expert") &&
+                !g_str_has_prefix(hfinfo->abbrev, "_ws.malformed")) {
 
                 if (hfinfo->parent == -1) {
                     abbrev = hfinfo->abbrev;

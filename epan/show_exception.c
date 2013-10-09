@@ -42,19 +42,19 @@ void
 register_show_exception(void)
 {
 	static ei_register_info ei[] = {
-		{ &ei_malformed_dissector_bug, { "malformed.dissector_bug", PI_MALFORMED, PI_ERROR, "Dissector bug", EXPFILL }},
-		{ &ei_malformed_reassembly, { "malformed.reassembly", PI_MALFORMED, PI_ERROR, "Reassembly error", EXPFILL }},
-		{ &ei_malformed, { "malformed.expert", PI_MALFORMED, PI_ERROR, "Malformed Packet (Exception occurred)", EXPFILL }},
+		{ &ei_malformed_dissector_bug, { "_ws.malformed.dissector_bug", PI_MALFORMED, PI_ERROR, "Dissector bug", EXPFILL }},
+		{ &ei_malformed_reassembly, { "_ws.malformed.reassembly", PI_MALFORMED, PI_ERROR, "Reassembly error", EXPFILL }},
+		{ &ei_malformed, { "_ws.malformed.expert", PI_MALFORMED, PI_ERROR, "Malformed Packet (Exception occurred)", EXPFILL }},
 	};
 
 	expert_module_t* expert_malformed;
 
-	proto_short = proto_register_protocol("Short Frame", "Short frame", "short");
+	proto_short = proto_register_protocol("Short Frame", "Short frame", "_ws.short");
 	proto_malformed = proto_register_protocol("Malformed Packet",
-	    "Malformed packet", "malformed");
+	    "Malformed packet", "_ws.malformed");
 	proto_unreassembled = proto_register_protocol(
 	    "Unreassembled Fragmented Packet",
-	    "Unreassembled fragmented packet", "unreassembled");
+	    "Unreassembled fragmented packet", "_ws.unreassembled");
 
 	expert_malformed = expert_register_protocol(proto_malformed);
 	expert_register_field_array(expert_malformed, ei, array_length(ei));

@@ -45,6 +45,9 @@ struct _wslua_treeitem* lua_tree;
 tvbuff_t* lua_tvb;
 int lua_dissectors_table_ref;
 
+static int proto_lua = -1;
+static expert_field ei_lua_error = EI_INIT;
+
 dissector_handle_t lua_data_handle;
 
 static void lua_frame_end(void)
@@ -96,10 +99,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
         push_TreeItem(L,lua_tree);
 
         if  ( lua_pcall(L,3,1,0) ) {
-            const gchar* error = lua_tostring(L,-1);
-
-            proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: %s",error);
-            expert_add_info_format_internal(pinfo, pi, PI_UNDECODED, PI_ERROR ,"Lua Error");
+            proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0, "Lua Error: %s", lua_tostring(L,-1));
         } else {
 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
@@ -111,10 +111,8 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
         }
 
     } else {
-        proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: did not find the %s dissector"
-                                             " in the dissectors table",pinfo->current_proto);
-
-        expert_add_info_format_internal(pinfo, pi, PI_UNDECODED, PI_ERROR ,"Lua Error");
+        proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
+                    "Lua Error: did not find the %s dissector in the dissectors table", pinfo->current_proto);
     }
 
     register_frame_end_routine(pinfo, lua_frame_end);
@@ -366,6 +364,11 @@ int wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
     gboolean run_anyway = FALSE;
+    expert_module_t* expert_lua;
+
+    static ei_register_info ei[] = {
+        { &ei_lua_error, { "_ws.lua.error", PI_UNDECODED, PI_ERROR ,"Lua Error", EXPFILL }},
+    };
 
     /* set up the logger */
     g_log_set_handler(LOG_DOMAIN_LUA, (GLogLevelFlags)(G_LOG_LEVEL_CRITICAL|
@@ -381,6 +384,10 @@ int wslua_init(register_cb cb, gpointer client_data) {
     }
 
     WSLUA_INIT(L);
+
+    proto_lua = proto_register_protocol("Lua Dissection", "Lua Dissection", "_ws.lua");
+    expert_lua = expert_register_protocol(proto_lua);
+    expert_register_field_array(expert_lua, ei, array_length(ei));
 
     lua_atpanic(L,wslua_panic);
 

@@ -129,7 +129,7 @@ packet_cache_proto_handles(void)
 	data_handle = find_dissector("data");
 	g_assert(data_handle != NULL);
 
-	proto_malformed = proto_get_id_by_filter_name("malformed");
+	proto_malformed = proto_get_id_by_filter_name("_ws.malformed");
 	g_assert(proto_malformed != -1);
 }
 

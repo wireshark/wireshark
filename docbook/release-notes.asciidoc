@@ -27,8 +27,7 @@ since version 1.10:
 * Wireshark now uses the Qt application framework. The new UI should provide
   a significantly better user experience, particularly on Mac OS X and Windows.
 * A more flexible, modular memory manger (wmem) has been added.
-* Expert info is now filterable (if the dissector has been updated to support
-  the new API).
+* Expert info is now filterable and now requires a new API.
 * The Windows installer now uninstalls the previous version of Wireshark
   silently.  You can still run the uninstaller manually beforehand if you wish
   to run it interactively.
@@ -43,6 +42,9 @@ since version 1.10:
 * You can now specify an optional offset to the -C option for editcap, which
   allows you to start chopping from that offset instead of from the absolute
   packet beginning or end.
+* "malformed" display filter has been renamed to "_ws.malformed".  A handful of
+  other filters have been given the "_ws." prefix to note they are Wireshark
+  application specific filters and not dissector filters.
 
 === New Protocol Support
 

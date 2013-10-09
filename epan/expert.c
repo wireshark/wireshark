@@ -87,13 +87,13 @@ expert_packet_init(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_expert_msg,
-			{ "Message", "expert.message", FT_STRING, BASE_NONE, NULL, 0, "Wireshark expert information", HFILL }
+			{ "Message", "_ws.expert.message", FT_STRING, BASE_NONE, NULL, 0, "Wireshark expert information", HFILL }
 		},
 		{ &hf_expert_group,
-			{ "Group", "expert.group", FT_UINT32, BASE_HEX, VALS(expert_group_vals), 0, "Wireshark expert group", HFILL }
+			{ "Group", "_ws.expert.group", FT_UINT32, BASE_HEX, VALS(expert_group_vals), 0, "Wireshark expert group", HFILL }
 		},
 		{ &hf_expert_severity,
-			{ "Severity level", "expert.severity", FT_UINT32, BASE_HEX, VALS(expert_severity_vals), 0, "Wireshark expert severity level", HFILL }
+			{ "Severity level", "_ws.expert.severity", FT_UINT32, BASE_HEX, VALS(expert_severity_vals), 0, "Wireshark expert severity level", HFILL }
 		}
 	};
 	static gint *ett[] = {
@@ -106,7 +106,7 @@ expert_packet_init(void)
 	}
 
 	if (proto_expert == -1) {
-		proto_expert = proto_register_protocol("Expert Info", "Expert", "expert");
+		proto_expert = proto_register_protocol("Expert Info", "Expert", "_ws.expert");
 		proto_register_field_array(proto_expert, hf, array_length(hf));
 		proto_register_subtree_array(ett, array_length(ett));
 		proto_set_cant_toggle(proto_expert);
@@ -114,7 +114,7 @@ expert_packet_init(void)
 
 	highest_severity = 0;
 
-	proto_malformed = proto_get_id_by_filter_name("malformed");
+	proto_malformed = proto_get_id_by_filter_name("_ws.malformed");
 }
 
 void
