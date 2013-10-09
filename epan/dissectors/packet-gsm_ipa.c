@@ -75,6 +75,7 @@
  */
 #define IPA_TCP_PORTS "3002,3003,3006,4249,4250,5000"
 #define IPA_UDP_PORTS "3006"
+#define IPA_UDP_PORTS_DEFAULT "0"
 
 static dissector_handle_t ipa_handle;
 static range_t *global_ipa_tcp_ports = NULL;
@@ -448,7 +449,7 @@ void proto_register_ipa(void)
 
 
 	range_convert_str(&global_ipa_tcp_ports, IPA_TCP_PORTS, MAX_TCP_PORT);
-	range_convert_str(&global_ipa_udp_ports, IPA_UDP_PORTS, MAX_UDP_PORT);
+	range_convert_str(&global_ipa_udp_ports, IPA_UDP_PORTS_DEFAULT, MAX_UDP_PORT);
 	ipa_module = prefs_register_protocol(proto_ipa,
 					     proto_reg_handoff_gsm_ipa);
 
@@ -460,7 +461,7 @@ void proto_register_ipa(void)
 	prefs_register_range_preference(ipa_module, "udp_ports",
 					"GSM IPA UDP Port(s)",
 					"Set the port(s) for ip.access IPA"
-					" (default: " IPA_UDP_PORTS ")",
+					" (usually: " IPA_UDP_PORTS ")",
 					&global_ipa_udp_ports, MAX_UDP_PORT);
 
 	prefs_register_bool_preference(ipa_module, "hsl_debug_in_root_tree",
