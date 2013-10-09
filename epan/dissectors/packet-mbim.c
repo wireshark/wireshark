@@ -523,6 +523,7 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
 
 static gboolean mbim_bulk_heuristic = TRUE;
+static gboolean mbim_control_decode_unknown_itf = FALSE;
 
 struct mbim_info {
     guint32 req_frame;
@@ -6832,12 +6833,18 @@ proto_register_mbim(void)
         "Try to identify data traffic with heuristic",
         "Try to identify MBIM data packets on \"usb.bulk\" using heuristic",
         &mbim_bulk_heuristic);
+    prefs_register_bool_preference(mbim_module, "control_decode_unknown_itf",
+        "Force decoding of unknown USB control data as MBIM",
+        "Decode control data received on \"usb.control\" with an "
+        "unknown interface class as MBIM",
+        &mbim_control_decode_unknown_itf);
 }
 
 void
 proto_reg_handoff_mbim(void)
 {
     static gboolean initialized = FALSE;
+    dissector_handle_t mbim_control_handle;
 
     if (!initialized) {
         proactive_handle = find_dissector("gsm_sim.bertlv");
@@ -6852,6 +6859,12 @@ proto_reg_handoff_mbim(void)
         initialized = TRUE;
     }
     heur_dissector_set_enabled("usb.bulk", dissect_mbim_bulk_heur, proto_mbim, mbim_bulk_heuristic);
+    mbim_control_handle = find_dissector("mbim.control");
+    if (mbim_control_decode_unknown_itf) {
+        dissector_add_uint("usb.control", IF_CLASS_UNKNOWN, mbim_control_handle);
+    } else {
+        dissector_delete_uint("usb.control", IF_CLASS_UNKNOWN, mbim_control_handle);
+    }
 }
 
 /*
