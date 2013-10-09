@@ -28,6 +28,7 @@
 #include "ui/utf8_entities.h"
 #include "ui/ui_util.h"
 
+#include "qt_ui_utils.h"
 #include "sparkline_delegate.h"
 #include "wireshark_application.h"
 
@@ -122,9 +123,12 @@ void InterfaceTree::getInterfaceList()
 
     if (if_list == NULL) {
         QTreeWidgetItem *ti = new QTreeWidgetItem();
-        ti->setText(0, QString(tr("%1")).arg(QString().fromUtf8(err_str)));
-        g_free(err_str);
+        QLabel *err_label = new QLabel(gchar_free_to_qstring(err_str));
+        err_label->setWordWrap(true);
+
+        setColumnCount(1);
         addTopLevelItem(ti);
+        setItemWidget(ti, 0, err_label);
         resizeColumnToContents(0);
         return;
     } else if (err_str) {
