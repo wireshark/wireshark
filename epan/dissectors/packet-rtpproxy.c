@@ -286,7 +286,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_request);
 
 			/* A specific case - version request */
-			if ((tmp == 'v') && (offset + strlen("VF YYYMMDD") + 1 == realsize)){
+			if ((tmp == 'v') && (offset + (gint)strlen("VF YYYMMDD") + 1 == realsize)){
 				/* Skip whitespace */
 				new_offset = tvb_skip_wsp(tvb, offset + ((guint)strlen("VF") + 1), -1);
 				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, (gint)strlen("YYYYMMDD"), ENC_ASCII | ENC_NA);
@@ -443,15 +443,15 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_status, tvb, offset, realsize - offset, ENC_ASCII | ENC_NA);
 				break;
 			}
-			if ((tmp == '0')&& ((tvb_reported_length(tvb) == offset+1)||(tvb_reported_length(tvb) == offset+2))){
+			if ((tmp == '0')&& ((tvb_reported_length(tvb) == (guint)(offset+1))||(tvb_reported_length(tvb) == (guint)(offset+2)))){
 				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ok, tvb, offset, 1, ENC_ASCII | ENC_NA);
 				break;
 			}
-			if ((tmp == '1') && ((tvb_reported_length(tvb) == offset+1)||(tvb_reported_length(tvb) == offset+2))){
+			if ((tmp == '1') && ((tvb_reported_length(tvb) == (guint)(offset+1))||(tvb_reported_length(tvb) == (guint)(offset+2)))){
 				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ok, tvb, offset, 1, ENC_ASCII | ENC_NA);
 				break;
 			}
-			if (tvb_reported_length(tvb) == offset+9){
+			if (tvb_reported_length(tvb) == (guint)(offset+9)){
 				proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_version_supported, tvb, offset, 8, ENC_ASCII | ENC_NA);
 				break;
 			}
