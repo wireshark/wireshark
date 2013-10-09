@@ -818,10 +818,11 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         {
             proto_tree_add_item(tree, hf_openwire_type_short, tvb, offset, 2, ENC_BIG_ENDIAN);
         }
-        if (tvb_length_remaining(tvb, offset) >= 2 + iStringLength)
+        offset += 2;
+        if (tvb_length_remaining(tvb, offset) >= iStringLength)
         {
-            proto_tree_add_item(tree, particularize(field, hf_openwire_type_string), tvb, offset + 2, iStringLength, ENC_NA);
-            offset += 2 + iStringLength;
+            proto_tree_add_item(tree, particularize(field, hf_openwire_type_string), tvb, offset, iStringLength, ENC_NA);
+            offset += iStringLength;
         }
     }
     else if (type == OPENWIRE_TYPE_BIG_STRING && tvb_length_remaining(tvb, offset) >= 4)
@@ -832,10 +833,11 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         {
             proto_tree_add_item(tree, hf_openwire_type_integer, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
-        if (tvb_length_remaining(tvb, offset) >= 4 + iStringLength)
+        offset += 4;
+        if (tvb_length_remaining(tvb, offset) >= iStringLength)
         {
-            proto_tree_add_item(tree, particularize(field, hf_openwire_type_string), tvb, offset + 4, iStringLength, ENC_NA);
-            offset += 4 + iStringLength;
+            proto_tree_add_item(tree, particularize(field, hf_openwire_type_string), tvb, offset, iStringLength, ENC_NA);
+            offset += iStringLength;
         }
     }
     else if (type == OPENWIRE_TYPE_BYTE_ARRAY && tvb_length_remaining(tvb, offset) >= 4)
@@ -846,29 +848,30 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         {
             proto_tree_add_item(tree, hf_openwire_type_integer, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
-        if (tvb_length_remaining(tvb, offset) >= 4 + iArrayLength)
+        offset += 4;
+        if (tvb_length_remaining(tvb, offset) >= iArrayLength)
         {
             proto_item * array_item = NULL;
             proto_tree * object_tree = NULL;
-            array_item = proto_tree_add_item(tree, particularize(field, hf_openwire_type_bytes), tvb, offset + 4, iArrayLength, ENC_NA);
+            array_item = proto_tree_add_item(tree, particularize(field, hf_openwire_type_bytes), tvb, offset, iArrayLength, ENC_NA);
             object_tree = proto_item_add_subtree(array_item, ett_openwire_type);
             if (field == hf_openwire_message_body)
             {
                 tvbuff_t* next_tvb = NULL;
                 if (parentType == OPENWIRE_ACTIVEMQ_TEXT_MESSAGE)
                 {
-                    dissect_openwire_type(tvb, pinfo, object_tree, offset + 4, hf_openwire_none, OPENWIRE_TYPE_BIG_STRING, type, FALSE);
-                    next_tvb = tvb_new_subset(tvb, offset + 4, iArrayLength, iArrayLength);
+                    dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_BIG_STRING, type, FALSE);
+                    next_tvb = tvb_new_subset(tvb, offset, iArrayLength, iArrayLength);
                     add_new_data_source(pinfo, next_tvb, "Body");
                 }
                 else if (parentType == OPENWIRE_ACTIVEMQ_MAP_MESSAGE)
                 {
-                    dissect_openwire_type(tvb, pinfo, object_tree, offset + 4, hf_openwire_none, OPENWIRE_TYPE_MAP, type, FALSE);
+                    dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_MAP, type, FALSE);
                 }
                 else if (parentType == OPENWIRE_ACTIVEMQ_STREAM_MESSAGE)
                 {
-                    gint streamOffset = offset + 4;
-                    while (streamOffset < offset + 4 + iArrayLength)
+                    gint streamOffset = offset;
+                    while (streamOffset < offset + iArrayLength)
                     {
                         streamOffset += dissect_openwire_type(tvb, pinfo, object_tree, streamOffset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, FALSE);
                     }
@@ -877,16 +880,16 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                     || parentType == OPENWIRE_ACTIVEMQ_OBJECT_MESSAGE
                     || parentType == OPENWIRE_ACTIVEMQ_BLOB_MESSAGE)
                 {
-                    next_tvb = tvb_new_subset(tvb, offset + 4, iArrayLength, iArrayLength);
+                    next_tvb = tvb_new_subset(tvb, offset, iArrayLength, iArrayLength);
                     add_new_data_source(pinfo, next_tvb, "Body");
                     expert_add_info(pinfo, array_item, &ei_openwire_body_type_not_supported);
                 }
             }
             else if (field == hf_openwire_message_properties)
             {
-                dissect_openwire_type(tvb, pinfo, object_tree, offset + 4, hf_openwire_none, OPENWIRE_TYPE_MAP, type, FALSE);
+                dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_MAP, type, FALSE);
             }
-            offset += 4 + iArrayLength;
+            offset += iArrayLength;
         }
     }
     else if (tvb_length_remaining(tvb, offset) >= 1)
@@ -930,27 +933,20 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             }
             proto_item_append_text(ti, " (Size : %d)", iMapLength);
             offset += 4;
-            if (iMapLength  > 0)
+            for (iMapItem = 0; (iMapItem < iMapLength) && (tvb_length_remaining(tvb, offset) > 0); iMapItem++)
             {
-                for (iMapItem = 0; iMapItem < iMapLength; iMapItem++)
-                {
-                    proto_item * map_entry = NULL;
-                    proto_tree * entry_tree = NULL;
-                    map_entry = proto_tree_add_item(object_tree, hf_openwire_map_entry, tvb, offset, 0, ENC_NA);
-                    entry_tree = proto_item_add_subtree(map_entry, ett_openwire_type);
-                    if (tvb_length_remaining(tvb, offset) >= 0)
-                    {
-                        gint entryStartOffset = offset;
-                        /* Key */
-                        offset += dissect_openwire_type(tvb, pinfo, entry_tree, offset, hf_openwire_map_key, OPENWIRE_TYPE_STRING, type, FALSE);
-                        /* Value */
-                        offset += dissect_openwire_type(tvb, pinfo, entry_tree, offset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, FALSE);
-                        proto_item_set_len(map_entry, offset - entryStartOffset);
-                        if (offset - entryStartOffset <= 0) {
-                            break;
-                        }
-                    }
-                }
+                proto_item * map_entry;
+                proto_tree * entry_tree;
+                gint entryStartOffset = offset;
+
+                map_entry = proto_tree_add_item(object_tree, hf_openwire_map_entry, tvb, offset, 0, ENC_NA);
+                entry_tree = proto_item_add_subtree(map_entry, ett_openwire_type);
+
+                /* Key */
+                offset += dissect_openwire_type(tvb, pinfo, entry_tree, offset, hf_openwire_map_key, OPENWIRE_TYPE_STRING, type, FALSE);
+                /* Value */
+                offset += dissect_openwire_type(tvb, pinfo, entry_tree, offset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, FALSE);
+                proto_item_set_len(map_entry, offset - entryStartOffset);
             }
         }
         else if (type == OPENWIRE_TYPE_THROWABLE && tvb_length_remaining(tvb, offset) >= 2)
