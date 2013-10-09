@@ -7,7 +7,7 @@ rem http://qt.nokia.com/downloads/downloads#qt-lib
 
 rem Unpack the archive and run this script from the archive directory.
 
-rem The default installation prefix is c:\Qt\4.8.3-... You can change
+rem The default installation prefix is c:\Qt\5.1.1-... You can change
 rem it below.
 
 echo "%PATH%" | find "cygwin"
