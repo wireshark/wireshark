@@ -43,6 +43,8 @@ plist="./Info.plist"
 util_dir="./Utilities"
 cli_dir="$util_dir/Command Line"
 chmodbpf_dir="$util_dir/ChmodBPF"
+exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@rpath|@executable_path"
+
 
 # "qt" or "gtk"
 ui_toolkit="gtk"
@@ -413,7 +415,14 @@ fi
 
 while $endl; do
 	echo -e "Looking for dependencies. Round" $a
-	libs="`otool -L $lib_dep_search_list 2>/dev/null | fgrep compatibility | cut -d\( -f1 | grep $LIBPREFIX | sort | uniq`"
+	libs="`\
+		otool -L $lib_dep_search_list 2>/dev/null \
+		| fgrep compatibility \
+		| cut -d\( -f1 \
+		| egrep -v "$exclude_prefixes" \
+		| sort \
+		| uniq \
+		`"
 	cp -vn $libs "$pkglib"
 	let "a+=1"
 	nnfiles=`ls "$pkglib" | wc -l`
@@ -482,7 +491,15 @@ rpathify_file () {
 			# system on which the bundle will be installed,
 			# and should be referred to by their full pathnames.
 			#
-			libs="`otool -L $1 | egrep "$LIBPREFIX.* \(compatibility" | cut -d\( -f1`"
+			libs="`\
+				otool -L $1 \
+				| fgrep compatibility \
+				| cut -d\( -f1 \
+				| egrep -v "$exclude_prefixes" \
+				| sort \
+				| uniq \
+				`"
+
 			for lib in $libs; do
 				#
 				# Get the file name of the library.
@@ -541,6 +558,10 @@ rpathify_files () {
 	rpathify_dir "$pkgbin" "*"
 }
 
+if [ "$ui_toolkit" = "qt" ] ; then
+	macdeployqt "$package" -verbose=2
+fi
+
 PATHLENGTH=`echo $LIBPREFIX | wc -c`
 if [ "$PATHLENGTH" -ge "6" ]; then
 	# If the LIBPREFIX path is long enough to allow 
@@ -556,10 +577,6 @@ else
 	echo '        export DYLD_LIBRARY_PATH="$TOP/lib"' >&2
 	exit 1
 
-fi
-
-if [ "$ui_toolkit" = "qt" ] ; then
-	macdeployqt "$package" -verbose=2
 fi
 
 exit 0
