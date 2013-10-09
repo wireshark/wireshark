@@ -26,6 +26,8 @@
 
 #include "config.h"
 
+#include <ctype.h>
+
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
 
@@ -97,6 +99,10 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   guint32     payload_len;
   guint8      dev_type, cmd_code;
   gchar      *info;
+
+  /* If it does not start with a printable character it's not BJNP */
+  if(!isprint(tvb_get_guint8(tvb, 0)))
+    return 0;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear (pinfo->cinfo, COL_INFO);
