@@ -99,23 +99,6 @@ export WIRESHARK_QUIT_AFTER_CAPTURE="True"
 
 CAPTURE_DIR="$TESTS_DIR/captures/"
 
-test_build_paths() {
-
-	# Configuration paths
-	HOME_ENV="HOME"
-	HOME_PATH="$TEST_OUTDIR/home"
-	CONF_PATH="$HOME_PATH/.wireshark"
-
-	if [ "$WS_SYSTEM" == "Windows" ] ; then
-		HOME_ENV="APPDATA"
-		HOME_PATH="`cygpath -w $HOME_PATH`"
-		CONF_PATH="$HOME_PATH/Wireshark"
-		CAPTURE_DIR="`cygpath -w $CAPTURE_DIR`"
-	fi
-
-	mkdir -p $CONF_PATH
-}
-
 # Display our environment
 
 ##printf "\n ------- Info =-----------------\n"
