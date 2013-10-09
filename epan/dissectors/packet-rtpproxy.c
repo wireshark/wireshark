@@ -30,6 +30,8 @@
 
 #include "config.h"
 
+#include <ctype.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
@@ -191,8 +193,8 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 	}
 }
 
-static void
-dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gboolean has_lf = FALSE;
 	guint offset = 0;
@@ -206,14 +208,21 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rtpproxy_conv_info_t *rtpproxy_conv;
 	gchar* cookie = NULL;
 
+	/* If it does not start with a printable character it's not RTPProxy */
+	if(!isprint(tvb_get_guint8(tvb, 0)))
+		return 0;
+
+	/* Extract Cookie */
+	offset = tvb_find_guint8(tvb, offset, -1, ' ');
+	if(offset == -1)
+		return 0;
+
 	/* Clear out stuff in the info column - we''l set it later */
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	ti = proto_tree_add_item(tree, proto_rtpproxy, tvb, 0, -1, ENC_NA);
 	rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy);
 
-	/* Extract Cookie */
-	offset = tvb_find_guint8(tvb, offset, -1, ' ');
 	proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_cookie, tvb, 0, offset, ENC_ASCII | ENC_NA);
 	cookie = tvb_get_string(wmem_packet_scope(), tvb, 0, offset);
 
@@ -465,6 +474,8 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if (has_lf)
 		proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_lf, tvb, realsize, 1, ENC_NA);
+
+	return tvb_length(tvb);
 }
 
 void
@@ -858,8 +869,8 @@ proto_reg_handoff_rtpproxy(void)
 	static dissector_handle_t rtpproxy_tcp_handle, rtpproxy_udp_handle;
 
 	if(!rtpproxy_initialized){
-		rtpproxy_tcp_handle = create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
-		rtpproxy_udp_handle = create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
+		rtpproxy_tcp_handle = new_create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
+		rtpproxy_udp_handle = new_create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
 		rtpproxy_initialized = TRUE;
 	}
 
