@@ -9,11 +9,24 @@ if [ -z "$WIRESHARK_APP_DIR" ] ; then
 fi
 
 if [ ! -d "$WIRESHARK_APP_DIR" ] ; then
+	WIRESHARK_APP_DIR=`mdfind "kMDItemCFBundleIdentifier == 'org.wireshark.Wireshark'" | head -n 1`
+fi
+
+if [ ! -d "$WIRESHARK_APP_DIR" ] ; then
 	echo "Wireshark doesn't appear to be located at $WIRESHARK_APP_DIR."
 	echo "Please set WIRESHARK_APP_DIR to its proper location and try again."
 	exit 1
 fi
 
 APPNAME=`basename "$0"`
-exec "$WIRESHARK_APP_DIR/Contents/Resources/bin/$APPNAME" "$@"
 
+if [ -f "$WIRESHARK_APP_DIR/Frameworks/QtWidgets" -o -d "$WIRESHARK_APP_DIR/Frameworks/QtWidgets.framework" ] ; then
+	# Qt
+	if [ "$APPNAME" = "wireshark" ] ; then
+		APPNAME=Wireshark
+	fi
+	exec "$WIRESHARK_APP_DIR/Contents/MacOS/$APPNAME" "$@"
+else
+	# GTK+
+	exec "$WIRESHARK_APP_DIR/Contents/Resources/bin/$APPNAME" "$@"
+fi

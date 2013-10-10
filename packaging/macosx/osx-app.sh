@@ -297,14 +297,14 @@ cp "$plist" "$package/Contents/Info.plist"
 res_list="
 	Wireshark.icns
 	Wiresharkdoc.icns
-	bin
-	openDoc
 "
 
 if [ "$ui_toolkit" = "gtk" ] ; then
 	res_list="
 		$res_list
+		bin
 		etc
+		openDoc
 		script
 		MenuBar.nib
 		ProgressWindow.nib
