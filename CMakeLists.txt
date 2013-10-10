@@ -355,6 +355,11 @@ if(BUILD_qtshark)
 	if(ENABLE_QT5)
 		set(PACKAGELIST ${PACKAGELIST} Qt5Widgets Qt5PrintSupport Qt5LinguistTools)
 		set(QT_VERSION 5)
+		# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
+		# somewhere. The if WIN32 in this place is annoying as well.
+		if( WIN32 )
+			set(CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.1.1\\5.1.1\\msvc2010\\")
+		endif()
 	else()
 		set(PACKAGELIST ${PACKAGELIST} Qt4)
 		# set(Qt4_OPTIONS 4.7.1 REQUIRED QtCore QtGui)
@@ -466,27 +471,6 @@ foreach(PACKAGE ${PACKAGELIST})
 		endif()
 	endif()
 endforeach()
-
-# Add paths required to run the executables inside the build dir
-
-if(WIN32)
-	if( "$ENV{PATH}" MATCHES "${CMAKE_BINARY_DIR}/lib")
-		message( STATUS "Build dir (${CMAKE_BINARY_DIR}/lib) already in path." )
-	else()
-		# message( STATUS "All libs: ${WS_ALL_LIBS}\n" )
-		foreach( THIS_LIB_PATH ${WS_ALL_LIBS} )
-			get_filename_component( LIB_PATH ${THIS_LIB_PATH} PATH )
-			# message( STATUS "Raw path ${THIS_LIB_PATH} processed to ${LIB_PATH}." )
-			set( WS_LOCAL_LIB_PATHS ${WS_LOCAL_LIB_PATHS} ${LIB_PATH} )
-		endforeach()
-		list(REMOVE_DUPLICATES WS_LOCAL_LIB_PATHS)
-		# All generated libs go here, so start our libsearch in this place
-		set(WS_LOCAL_LIB_PATHS "${CMAKE_BINARY_DIR}/lib" ${WS_LOCAL_LIB_PATHS})
-		message( STATUS "Adding paths: ${WS_LOCAL_LIB_PATHS}" )
-		set( ENV{PATH} $ENV{PATH} ${WS_LOCAL_LIB_PATHS} )
-	endif()
-endif()
-
 
 # Provide Windows system lib names
 include( UseWinLibs )
