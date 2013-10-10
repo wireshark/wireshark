@@ -305,19 +305,18 @@ static uat_t *c1222_uat;
 #define FILL_START int length, start_offset = offset;
 #define FILL_TABLE(fieldname)  \
   length = offset - start_offset; \
-  if (fieldname != NULL) g_free(fieldname); \
-  fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
+  fieldname = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start_offset, length); \
   fieldname##_len = length;
 #define FILL_TABLE_TRUNCATE(fieldname, len)  \
   length = 1 + 2*(offset - start_offset); \
-  fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
+  fieldname = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start_offset, length); \
   fieldname##_len = len;
 #define FILL_TABLE_APTITLE(fieldname) \
   length = offset - start_offset; \
   switch (tvb_get_guint8(tvb, start_offset)) { \
     case 0x80: /* relative OID */ \
       fieldname##_len = length + c1222_baseoid_len; \
-      fieldname = (guint8 *)wmem_alloc(NULL, fieldname##_len); \
+      fieldname = (guint8 *)wmem_alloc(wmem_packet_scope(), fieldname##_len); \
       fieldname[0] = 0x06;  /* create absolute OID tag */ \
       fieldname[1] = (fieldname##_len - 2) & 0xff;  \
       memcpy(&(fieldname[2]), c1222_baseoid, c1222_baseoid_len); \
@@ -325,7 +324,7 @@ static uat_t *c1222_uat;
       break; \
     case 0x06:  /* absolute OID */ \
     default: \
-      fieldname = (guint8 *)tvb_memdup(NULL, tvb, start_offset, length); \
+      fieldname = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start_offset, length); \
       fieldname##_len = length; \
       break; \
   } 
@@ -673,6 +672,17 @@ static const TOP_ELEMENT_CONTROL canonifyTable[] = {
   { FALSE, FALSE, 0x0,  TRUE, NULL, NULL }
 };
 
+static void 
+clear_canon(void)
+{
+  const TOP_ELEMENT_CONTROL *t = canonifyTable;
+
+  for (t = canonifyTable; t->element != NULL; t++) {
+    *(t->length) = 0;
+    *(t->element) = NULL;
+  }
+}
+
 /**
  * Calculates the size of the passed number n as encoded as a BER length field.
  *
@@ -769,7 +779,6 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
       memcpy(&buff[*offset], *(t->element), len);
       (*offset) += len;
       if (t->addtag) {
-	  g_free(*(t->element));
 	  *(t->element) = NULL;
       }
     }
@@ -944,9 +953,8 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
         return offset;
       encrypted = TRUE;
       if (c1222_decrypt) {
-	buffer = (guchar *)tvb_memdup(NULL, tvb, offset, len2);
+	buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
 	if (!decrypt_packet(buffer, len2, TRUE)) {
-	  g_free(buffer);
 	  crypto_bad = TRUE;
 	} else {
 	  epsem_buffer = tvb_new_real_data(buffer, len2, len2);
@@ -963,7 +971,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       len2 = tvb_length_remaining(tvb, offset);
       if (len2 <= 0)
         return offset;
-      buffer = (guchar *)tvb_memdup(NULL, tvb, offset, len2);
+      buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
       epsem_buffer = tvb_new_subset_remaining(tvb, offset);
       if (c1222_decrypt) {
 	if (!decrypt_packet(buffer, len2, FALSE)) {
@@ -1410,6 +1418,7 @@ void
 proto_reg_handoff_c1222(void)
 {
     static gboolean initialized = FALSE;
+    guint8 *temp = NULL;
 
     if( !initialized ) {
         c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
@@ -1418,5 +1427,7 @@ proto_reg_handoff_c1222(void)
         dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
         initialized = TRUE;
     }
-    c1222_baseoid_len = oid_string2encoded(c1222_baseoid_str, &c1222_baseoid);
+    c1222_baseoid_len = oid_string2encoded(c1222_baseoid_str, &temp);
+    c1222_baseoid = (guint8 *)wmem_realloc(wmem_epan_scope(), c1222_baseoid, c1222_baseoid_len);
+    memcpy(c1222_baseoid, temp, c1222_baseoid_len);
 }

@@ -98,4 +98,7 @@ AE-qualifier TYPE=FT_UINT32
   %(DEFAULT_BODY)s
   FILL_TABLE(iv_element);
 
+#.FN_BODY MESSAGE
+    clear_canon();
+    %(DEFAULT_BODY)s
 #.END

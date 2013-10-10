@@ -1044,15 +1044,13 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 	guint32 subid;
 	guint8* b;
 
-	if ( !subids || subids_len <= 0) {
+	if ( !subids || subids_len <= 1) {
 		*bytes_p = NULL;
 		return 0;
 	}
 
-	subid = (subids[0] * 40) + subids[1];
-	i = 2;
-
-	do {
+	for (subid=subids[0] * 40, i = 1; i<subids_len; i++, subid=0) {
+		subid += subids[i];
 		if (subid <= 0x0000007F) {
 			bytelen += 1;
 		} else if (subid <= 0x00003FFF ) {
@@ -1064,18 +1062,14 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 		} else {
 			bytelen += 5;
 		}
-
-			subid = subids[i];
-	} while ( i++ < subids_len );
+	} 
 
 	*bytes_p = b = (guint8 *)ep_alloc(bytelen);
 
-	subid = (subids[0] * 40) + subids[1];
-	i = 2;
-
-	do {
+	for (subid=subids[0] * 40, i = 1; i<subids_len; i++, subid=0) {
 		guint len;
 
+		subid += subids[i];
 		if ((subid <= 0x0000007F )) len = 1;
 		else if ((subid <= 0x00003FFF )) len = 2;
 		else if ((subid <= 0x001FFFFF )) len = 3;
@@ -1090,9 +1084,7 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 			case 2: *(b++) = ((subid & 0x00003F80) >> 7)  | 0x80;
 			case 1: *(b++) =   subid & 0x0000007F ; break;
 		}
-
-		subid = subids[i];
-	} while ( i++ < subids_len);
+	} 
 
 	return bytelen;
 }
