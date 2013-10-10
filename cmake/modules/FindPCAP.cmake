@@ -68,6 +68,7 @@ check_function_exists( "pcap_get_selectable_fd" HAVE_PCAP_GET_SELECTABLE_FD )
 check_function_exists( "pcap_lib_version" HAVE_PCAP_LIB_VERSION )
 check_function_exists( "pcap_list_datalinks" HAVE_PCAP_LIST_DATALINKS )
 check_function_exists( "pcap_set_datalink" HAVE_PCAP_SET_DATALINK )
+check_function_exists( "bpf_image" HAVE_BPF_IMAGE )
 # Remote pcap checks
 check_function_exists( "pcap_open" H_PCAP_OPEN )
 check_function_exists( "pcap_findalldevs_ex" H_FINDALLDEVS_EX )

@@ -36,6 +36,9 @@
 /* Define to 1 if you have the <arpa/nameser.h> header file. */
 #cmakedefine HAVE_ARPA_NAMESER_H 1
 
+/* Define to 1 if you have the `bpf_image' function. */
+#cmakedefine HAVE_BPF_IMAGE 1
+
 /* Define to 1 if you have the <direct.h> header file. */
 #cmakedefine HAVE_DIRECT_H 1
 
