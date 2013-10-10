@@ -141,15 +141,6 @@
 /* Define to 1 if you have the `inflatePrime' function */
 #cmakedefine HAVE_INFLATEPRIME 1
 
-/* Define to 1 if you have the <lua5.1/lauxlib.h> header file. */
-#cmakedefine HAVE_LUA5_1_LAUXLIB_H 1
-
-/* Define to 1 if you have the <lua5.1/lualib.h> header file. */
-#cmakedefine HAVE_LUA5_1_LUALIB_H 1
-
-/* Define to 1 if you have the <lua5.1/lua.h> header file. */
-#cmakedefine HAVE_LUA5_1_LUA_H 1
-
 /* Define to 1 if you have the <lualib.h> header file. */
 #cmakedefine HAVE_LUALIB_H 1
 
