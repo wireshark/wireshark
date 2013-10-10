@@ -83,11 +83,14 @@ check_function_exists("mmap"             HAVE_MMAP)
 check_function_exists("mprotect"         HAVE_MPROTECT)
 check_function_exists("mkdtemp"          HAVE_MKDTEMP)
 check_function_exists("mkstemp"          HAVE_MKSTEMP)
+check_function_exists("setresgid"        HAVE_SETRESGID)
+check_function_exists("setresuid"        HAVE_SETRESUID)
 check_function_exists("sysconf"          HAVE_SYSCONF)
 
 #Struct members
 include(CheckStructHasMember)
-check_struct_has_member("struct tm"  tm_zone  time.h  HAVE_TM_ZONE)
+check_struct_has_member("struct stat" st_flags sys/stat.h HAVE_ST_FLAGS)
+check_struct_has_member("struct tm"   tm_zone  time.h     HAVE_TM_ZONE)
 
 #Symbols but NOT enums or types
 include(CheckSymbolExists)

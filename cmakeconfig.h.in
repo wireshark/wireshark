@@ -135,9 +135,6 @@
 /* Define to use libportaudio library */
 #cmakedefine HAVE_LIBPORTAUDIO 1
 
-/* Define if we have QtMacExtras */
-#cmakedefine QT_MACEXTRAS_LIB 1
-
 /* Define to 1 if you have the `smi' library (-lsmi). */
 #cmakedefine HAVE_LIBSMI 1
 
@@ -255,6 +252,12 @@
 /* Define if sa_len field exists in struct sockaddr */
 #cmakedefine HAVE_SA_LEN 1
 
+/* Define to 1 if you have the `setresgid' function. */
+#cmakedefine HAVE_SETRESGID 1
+
+/* Define to 1 if you have the `setresuid' function. */
+#cmakedefine HAVE_SETRESUID 1
+
 /* Define to 1 if you have the <stdarg.h> header file. */
 #cmakedefine HAVE_STDARG_H 1
 
@@ -272,6 +275,9 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #cmakedefine HAVE_STRING_H 1
+
+/* Define if st_flags field exists in struct stat */
+#cmakedefine HAVE_ST_FLAGS 1
 
 /* Define to 1 if you have the `sysconf' function. */
 #cmakedefine HAVE_SYSCONF 1
@@ -321,10 +327,6 @@
 /* HTML viewer, e.g. mozilla */
 #cmakedefine HTML_VIEWER
 
-/* Define if <inttypes.h> defines PRI[doxu]64 macros */
-/* Note: always defines  PRI[doxu]64 macros so inttypes.h becomes useless.*/
-#cmakedefine INTTYPES_H_DEFINES_FORMATS 1
-
 /* Define if inet/v6defs.h needs to be included */
 #cmakedefine NEED_INET_V6DEFS_H 1
 
@@ -358,9 +360,8 @@
 /* Define if we are using version of of the Portaudio library API */
 #cmakedefine PORTAUDIO_API_1 1
 
-/* Define to 1 if you have the ANSI C header files. */
-/* Note: not use in the code */
-#cmakedefine STDC_HEADERS 1
+/* Define if we have QtMacExtras */
+#cmakedefine QT_MACEXTRAS_LIB 1
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
