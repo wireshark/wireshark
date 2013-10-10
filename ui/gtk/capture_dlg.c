@@ -5352,7 +5352,8 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
       return;  /* Building options window: ignore "capture start" */
     }
     success = capture_dlg_prep(cap_open_w);
-    window_destroy(GTK_WIDGET(cap_open_w));
+    if (success)
+      window_destroy(GTK_WIDGET(cap_open_w));
     if (!success)
       return;   /* error in options dialog */
   }
