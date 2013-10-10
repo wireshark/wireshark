@@ -475,6 +475,9 @@ endforeach()
 # Provide Windows system lib names
 include( UseWinLibs )
 
+# Create file to set paths to run binaries from build dir
+WSExtendPath( "${WS_ALL_LIBS}" "${CMAKE_BINARY_DIR}/setpath.bat" )
+
 #packaging
 include(CPackConfig.txt)
 
