@@ -67,10 +67,6 @@
 #include "ui/gtk/follow_stream.h"
 #include "ws_symbol_export.h"
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
-
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
 WS_DLL_PUBLIC FILE *data_out_file;
 
@@ -355,13 +351,6 @@ follow_read_tcp_stream(follow_info_t *follow_info,
     char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
     size_t              nchars;
     frs_return_t        frs_return;
-#ifdef HAVE_LIBZ
-    char                outbuffer[FLT_BUF_SIZE+1];
-    z_stream            strm;
-    gboolean            gunzip = FALSE;
-    int                 ret;
-#endif
-
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
 
@@ -414,77 +403,6 @@ follow_read_tcp_stream(follow_info_t *follow_info,
             /* XXX - if we don't get "bcount" bytes, is that an error? */
             bytes_read += nchars;
 
-#ifdef HAVE_LIBZ
-            /* If we are on the first packet of an HTTP response, check if data is gzip
-            * compressed.
-            */
-            if (is_server && bytes_read == nchars && !memcmp(buffer, "HTTP", 4)) {
-                size_t header_len;
-                gunzip = parse_http_header(buffer, nchars, &header_len);
-                if (gunzip) {
-                    /* show header (which is not gzipped)*/
-                    frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
-                        header_len, is_server, arg, global_pos,
-                        &server_packet_count, &client_packet_count);
-                    if (frs_return == FRS_PRINT_ERROR) {
-                        fclose(data_out_file);
-                        data_out_file = NULL;
-                        return frs_return;
-                    }
-
-                    /* init gz_stream*/
-                    strm.next_in = Z_NULL;
-                    strm.avail_in = 0;
-                    strm.next_out = Z_NULL;
-                    strm.avail_out = 0;
-                    strm.zalloc = Z_NULL;
-                    strm.zfree = Z_NULL;
-                    strm.opaque = Z_NULL;
-                    ret = inflateInit2(&strm, MAX_WBITS+16);
-                    if (ret != Z_OK) {
-                        fclose(data_out_file);
-                        data_out_file = NULL;
-                        return FRS_READ_ERROR;
-                    }
-
-                    /* prepare remainder of buffer to be inflated below */
-                    memmove(buffer, buffer+header_len, nchars-header_len);
-                    nchars -= header_len;
-                }
-            }
-
-            if (gunzip) {
-                strm.next_in = buffer;
-                strm.avail_in = (int)nchars;
-                do {
-                    strm.next_out = outbuffer;
-                    strm.avail_out = FLT_BUF_SIZE;
-
-                    ret = inflate(&strm, Z_NO_FLUSH);
-                    if (ret < 0 || ret == Z_NEED_DICT) {
-                        inflateEnd(&strm);
-                        fclose(data_out_file);
-                        data_out_file = NULL;
-                        return FRS_READ_ERROR;
-                    } else if (ret == Z_STREAM_END) {
-                        inflateEnd(&strm);
-                    }
-
-                    frs_return = follow_show(follow_info, print_line_fcn_p, outbuffer,
-                                            FLT_BUF_SIZE-strm.avail_out, is_server,
-                                            arg, global_pos,
-                                            &server_packet_count,
-                                            &client_packet_count);
-                    if(frs_return == FRS_PRINT_ERROR) {
-                        inflateEnd(&strm);
-                        fclose(data_out_file);
-                        data_out_file = NULL;
-                        return frs_return;
-                    }
-                } while (strm.avail_out == 0);
-                skip = TRUE;
-            }
-#endif
             if (!skip) {
                 frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
                                         nchars, is_server, arg, global_pos,
