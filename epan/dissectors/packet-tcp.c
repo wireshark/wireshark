@@ -2092,7 +2092,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *item=NULL;
     void *pd_save;
 
-    while (tvb_reported_length_remaining(tvb, offset) != 0) {
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /*
          * We use "tvb_ensure_length_remaining()" to make sure there actually
          * *is* data remaining.  The protocol we're handling could conceivably
@@ -4563,37 +4563,37 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* If there's more than just the fixed-length header (20 bytes), decode the options. */
     tcph->num_sack_ranges = 0;
     if (tcph->th_hlen > TCPH_MIN_LEN) {
-		guint bc = (guint)tvb_length_remaining(tvb, offset + 20);
+        guint bc = (guint)tvb_length_remaining(tvb, offset + 20);
 
         optlen = tcph->th_hlen - TCPH_MIN_LEN; /* length of options, in bytes */
-		
-		if (tcp_tree != NULL) {
-			/* If the frame has been sliced but the options field is at least 4 bytes, decode as much
-			 * of it as possible; otherwise, set optlen to zero. */
-			if (bc < optlen) { 
-				if (bc >= 4) {
-					guint8 *p_options = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset + 20, bc);
-				
-					tf = proto_tree_add_bytes_format(tcp_tree, hf_tcp_options, tvb, offset + 20,
-							optlen, p_options, "Options: (%u bytes but truncated to %u bytes)", optlen, bc);
-					optlen = bc;
-				} else {
-					optlen = 0;
-				}
-			} else {
-				guint8 *p_options = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset + 20, optlen);
 
-				tf = proto_tree_add_bytes_format(tcp_tree, hf_tcp_options, tvb, offset +  20,
-												 optlen, p_options, "Options: (%u bytes)", optlen);
-			}
-			field_tree = proto_item_add_subtree(tf, ett_tcp_options);
-		} else {
-			tf = NULL;
-			field_tree = NULL;
-		}
-		if (optlen)
-			dissect_ip_tcp_options(tvb, offset + 20, optlen, tcpopts, N_TCP_OPTS, TCPOPT_EOL,
-				&TCP_OPT_TYPES, &ei_tcp_opt_len_invalid, pinfo, field_tree, tf, tcph);	
+        if (tcp_tree != NULL) {
+            /* If the frame has been sliced but the options field is at least 4 bytes, decode as much
+             * of it as possible; otherwise, set optlen to zero. */
+            if (bc < optlen) {
+                if (bc >= 4) {
+                    guint8 *p_options = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset + 20, bc);
+
+                    tf = proto_tree_add_bytes_format(tcp_tree, hf_tcp_options, tvb, offset + 20,
+                            optlen, p_options, "Options: (%u bytes but truncated to %u bytes)", optlen, bc);
+                    optlen = bc;
+                } else {
+                    optlen = 0;
+                }
+            } else {
+                guint8 *p_options = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset + 20, optlen);
+
+                tf = proto_tree_add_bytes_format(tcp_tree, hf_tcp_options, tvb, offset +  20,
+                                                 optlen, p_options, "Options: (%u bytes)", optlen);
+            }
+            field_tree = proto_item_add_subtree(tf, ett_tcp_options);
+        } else {
+            tf = NULL;
+            field_tree = NULL;
+        }
+        if (optlen)
+            dissect_ip_tcp_options(tvb, offset + 20, optlen, tcpopts, N_TCP_OPTS, TCPOPT_EOL,
+                &TCP_OPT_TYPES, &ei_tcp_opt_len_invalid, pinfo, field_tree, tf, tcph);
     }
 
     if(!pinfo->fd->flags.visited) {
