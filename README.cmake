@@ -4,7 +4,7 @@
 
                            Notice
 
-   To find out the current state of the cmake implementaion for
+   To find out the current state of the cmake implementation for
    Wireshark, please take a look at "What needs to be done?" below.
    Basically this is an experiment and if we find out that it works
    and we like cmake more than autofoo we might switch one day.
@@ -67,7 +67,7 @@ How to do out of tree build (Win32/64):
 3) mkdir c:\wireshark\build
 4) cd c:\wireshark\build
 5) cmake -G "NMake Makefiles" -DBUILD_wireshark=OFF path\to\sources
-  (i.e. in case your sources are locaated at c:\wireshark\trunk, use "..\trunk")
+  (i.e. in case your sources are located at c:\wireshark\trunk, use "..\trunk")
 5a) cmake path\to\sources (this will build for the latest Visual Studio version found)
 6) nmake VERBOSE=1 (or cmake --build . -- VERBOSE=1 )
 6a) Wireshark.sln (this will run up Visual Studio with the cmake built solution
