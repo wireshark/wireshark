@@ -28,7 +28,11 @@ option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
 # whether the AirPcap SDK is available, and turn AirPcap support on
 # only if it is.
 #
-option(ENABLE_AIRPCAP    "Enable AirPcap support" OFF)
+if(WIN32)
+	option(ENABLE_AIRPCAP    "Enable AirPcap support" ON)
+else()
+	option(ENABLE_AIRPCAP    "Enable AirPcap support" OFF)
+endif()
 # todo
 option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)" OFF)
 option(ENABLE_ECHLD      "Enable echld support" OFF)

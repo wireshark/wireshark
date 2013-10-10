@@ -124,6 +124,9 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
         /D_CRT_SECURE_NO_DEPRECATE
         /D_CRT_NONSTDC_NO_DEPRECATE
         /MP
+	# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
+	# This avoids conflicts with the C++ standard library.
+	/DNOMINMAX
     )
 
     if(NOT WIN64)
@@ -279,12 +282,19 @@ else()
 	set (C_UNUSED "" )
 endif()
 
-set(WIRESHARK_LD_FLAGS
-	-Wl,--as-needed
-	# -flto
-	# -fwhopr
-	# -fwhole-program
-)
+
+if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
+	set(WIRESHARK_LD_FLAGS
+		/LARGEADDRESSAWARE
+	)
+else()
+	set(WIRESHARK_LD_FLAGS
+		-Wl,--as-needed
+		# -flto
+		# -fwhopr
+		# -fwhole-program
+	)
+endif()
 
 include(CheckCLinkerFlag)
 set(C 0)
@@ -327,7 +337,6 @@ set(PACKAGELIST GLIB2 GMODULE2 GTHREAD2 M LEX YACC Perl SH PythonInterp)
 set(GLIB2_FIND_REQUIRED)
 set(GLIB2_MIN_VERSION 2.14.0)
 set(GTHREAD2_REQUIRED)
-set(PCAP_REQUIRED)
 set(M_REQUIRED)
 set(PythonInterp_FIND_VERSION 2)
 set(Python_ADDITIONAL_VERSIONS 3)
@@ -336,6 +345,10 @@ set(PACKAGELIST ${PACKAGELIST} HtmlViewer)
 
 if(ENABLE_PCAP)
 	set(PACKAGELIST ${PACKAGELIST} PCAP)
+endif()
+
+if(ENABLE_AIRPCAP)
+	set(PACKAGELIST ${PACKAGELIST} AIRPCAP)
 endif()
 
 # Build the GTK-GUI?
@@ -365,6 +378,16 @@ if(BUILD_qtshark)
 		# set(Qt4_OPTIONS 4.7.1 REQUIRED QtCore QtGui)
 		set(QT_VERSION 4)
 	endif()
+
+	# We need GTK includes to compile Qt version thanks to
+	# ui/win32/file_dlg_win32.c
+	if (WIN32)
+		if(ENABLE_GTK3)
+			set(PACKAGELIST ${PACKAGELIST} GTK3)
+		else()
+			set(PACKAGELIST ${PACKAGELIST} GTK2)
+		endif()
+	endif()
 endif()
 
 # SMI SNMP
@@ -388,7 +411,7 @@ if(ENABLE_KERBEROS)
 endif()
 
 # Portable audio
-if(ENABLE_PORTAUDIO)
+if(ENABLE_PORTAUDIO AND BUILD_wireshark)
 	set(PACKAGELIST ${PACKAGELIST} PORTAUDIO)
 endif()
 
@@ -504,10 +527,7 @@ endif()
 if(HAVE_LIBADNS)
 	set(HAVE_GNU_ADNS 1)
 endif()
-if(ENABLE_AIRPCAP)
-	set(HAVE_AIRPCAP 1)
-endif()
-if(HAVE_LIBNL AND ENABLE_AIRPCAP)
+if(HAVE_LIBNL AND HAVE_AIRPCAP)
 	message(ERROR "Airpcap and Libnl support are mutually exclusive")
 endif()
 # No matter which version of GTK is present
@@ -691,7 +711,11 @@ endif()
 
 if(WIN32)
 	set(PLATFORM_SRC
-		capture-wpcap.c capture_wpcap_packet.c capture_win_ifnames.c
+		capture_win_ifnames.c
+		capture-wpcap.c
+		capture_wpcap_packet.c
+		ui/win32/console_win32.c
+		ui/win32/file_dlg_win32.c
 	)
 endif()
 
@@ -803,6 +827,7 @@ set(LIBEPAN_LIBS
 #		@SSL_LIBS@	# -lcrypto
 		epan
 #		$(plugin_ldadd)	# in case of static
+		${AIRPCAP_LIBRARIES}
 		${PCAP_LIBRARIES}
 		${CARES_LIBRARIES}
 		${ADNS_LIBRARIES}
