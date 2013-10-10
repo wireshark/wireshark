@@ -21,14 +21,14 @@
 /* Directory where plugins reside */
 #define PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}"
 
-/* Define to 1 if we want to use pcap-ng as our default file format */
-#cmakedefine PCAP_NG_DEFAULT 1
-
 /* Define to 1 if we want to enable plugins */
 #cmakedefine HAVE_PLUGINS 1
 
 /* Link plugins statically into Wireshark */
 #cmakedefine ENABLE_STATIC 1
+
+/* Enable AirPcap */
+#cmakedefine HAVE_AIRPCAP 1
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #cmakedefine HAVE_ARPA_INET_H 1
@@ -39,74 +39,59 @@
 /* Define to 1 if you have the `bpf_image' function. */
 #cmakedefine HAVE_BPF_IMAGE 1
 
+/* Define to use c-ares library */
+#cmakedefine HAVE_C_ARES 1
+
 /* Define to 1 if you have the <direct.h> header file. */
 #cmakedefine HAVE_DIRECT_H 1
 
 /* Define to 1 if you have the <dirent.h> header file. */
 #cmakedefine HAVE_DIRENT_H 1
 
+/* Define to 1 if you have the `dladdr' function. */
+#cmakedefine HAVE_DLADDR 1
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #cmakedefine HAVE_DLFCN_H 1
-
-/* Define to 1 if you have the dladdr function */
-#cmakedefine HAVE_DLADDR 1
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H 1
 
-/* Define to 1 if you have the 'getopt' function. */
+/* Define to use GeoIP library */
+#cmakedefine HAVE_GEOIP 1
+
+/* Define if GeoIP supports IPv6 (GeoIP 1.4.5 and later) */
+#cmakedefine HAVE_GEOIP_V6 1
+
+/* Define to 1 if you have the `gethostbyname2' function. */
+#cmakedefine HAVE_GETHOSTBYNAME2 1
+
+/* Define to 1 if you have the getopt function. */
 #cmakedefine HAVE_GETOPT 1
 
 /* Define to 1 if you have the <getopt.h> header file. */
 #cmakedefine HAVE_GETOPT_H 1
 
-/* Define to 1 if you have the `chown' function. */
-#cmakedefine HAVE_CHOWN 1
-
-/* Define to 1 if you have the `gethostbyname2' function. */
-#cmakedefine HAVE_GETHOSTBYNAME2 1
-
 /* Define to 1 if you have the `getprotobynumber' function. */
 #cmakedefine HAVE_GETPROTOBYNUMBER 1
-
-/* Define to use the airpcap library */
-#cmakedefine HAVE_AIRPCAP 1
-
-/* Define to use the libnl library */
-#cmakedefine HAVE_LIBNL 1
-
-/* Define to use the libnl library */
-#cmakedefine HAVE_LIBNL1 1
-
-/* Define to use the libnl library */
-#cmakedefine HAVE_LIBNL2 1
-
-/* Define to use the libnl library */
-#cmakedefine HAVE_LIBNL3 1
-
-/* Define to use C ares library */
-#cmakedefine HAVE_C_ARES 1
-
-/* Define to use SMI SNMP library */
-#cmakedefine HAVE_LIBSMI 1
-
-/* Define to use GEOIP library */
-#cmakedefine HAVE_GEOIP 1
-
-/* Define if GEOIP library supports IPv6 (GeoIP 1.4.5 and later) */
-#cmakedefine HAVE_GEOIP_V6 1
-
-/* Define to use capabilities library */
-#cmakedefine HAVE_LIBCAP 1
 
 /* Define to use GNU ADNS library */
 #cmakedefine HAVE_GNU_ADNS 1
 
+/* Define to 1 if you have the <grp.h> header file. */
+#cmakedefine HAVE_GRP_H 1
+
 /* Define to use heimdal kerberos */
 #cmakedefine HAVE_HEIMDAL_KERBEROS 1
 
+/* Define unless inet/aton.h needs to be included */
+#cmakedefine HAVE_INET_ATON_H 1
+
 /* Define if inet_ntop() prototype exists */
 #cmakedefine HAVE_INET_NTOP_PROTO 1
+
+/* Define to 1 if you have the `inflatePrime' function. */
+#cmakedefine HAVE_INFLATEPRIME 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #cmakedefine HAVE_INTTYPES_H 1
@@ -123,26 +108,38 @@
 /* Define to 1 if you have the <lauxlib.h> header file. */
 #cmakedefine HAVE_LAUXLIB_H 1
 
+/* Define to use the libcap library */
+#cmakedefine HAVE_LIBCAP 1
+
 /* Define to use libgcrypt */
 #cmakedefine HAVE_LIBGCRYPT 1
 
-/* Define to use gnutls library */
+/* Define to use GnuTLS library */
 #cmakedefine HAVE_LIBGNUTLS 1
+
+/* Enable libnl support */
+#cmakedefine HAVE_LIBNL 1
+
+/* libnl version 1 */
+#cmakedefine HAVE_LIBNL1 1
+
+/* libnl version 2 */
+#cmakedefine HAVE_LIBNL2 1
+
+/* libnl version 3 */
+#cmakedefine HAVE_LIBNL3 1
 
 /* Define to use libpcap library */
 #cmakedefine HAVE_LIBPCAP 1
 
-/* Define to use dbus-glib library */
-#cmakedefine HAVE_LIBDBUS 1
-
 /* Define to use libportaudio library */
 #cmakedefine HAVE_LIBPORTAUDIO 1
 
+/* Define to 1 if you have the `smi' library (-lsmi). */
+#cmakedefine HAVE_LIBSMI 1
+
 /* Define to use libz library */
 #cmakedefine HAVE_LIBZ 1
-
-/* Define to 1 if you have the `inflatePrime' function */
-#cmakedefine HAVE_INFLATEPRIME 1
 
 /* Define to use Lua */
 #cmakedefine HAVE_LUA 1
@@ -152,9 +149,6 @@
 
 /* Define to 1 if you have the <lua.h> header file. */
 #cmakedefine HAVE_LUA_H 1
-
-/* Define to 1 if you have libpython. */
-#cmakedefine HAVE_PYTHON 1
 
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine HAVE_MEMORY_H 1
@@ -180,15 +174,11 @@
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #cmakedefine HAVE_NETINET_IN_H 1
 
-/* Define to enable support for Net-SNMP */
-#cmakedefine HAVE_NET_SNMP 1
+/* nl80211.h is new enough */
+#cmakedefine HAVE_NL80211 1
 
-/* Define to 1 if you have the <net-snmp/library/default_store.h> header file.
-   */
-#cmakedefine HAVE_NET_SNMP_LIBRARY_DEFAULT_STORE_H 1
-
-/* Define to 1 if you have the <net-snmp/net-snmp-config.h> header file. */
-#cmakedefine HAVE_NET_SNMP_NET_SNMP_CONFIG_H 1
+/* SET_CHANNEL is supported */
+#cmakedefine HAVE_NL80211_CMD_SET_CHANNEL 1
 
 /* Define to 1 if you have the <Ntddndis.h> header file. */
 #cmakedefine HAVE_NTDDNDIS_H 1
@@ -196,7 +186,7 @@
 /* Define to 1 if you have OS X frameworks */
 #cmakedefine HAVE_OS_X_FRAMEWORKS 1
 
-/* Define to 1 if you have the `pcap_breakloop' function. */
+/* Define if pcap_breakloop is known */
 #cmakedefine HAVE_PCAP_BREAKLOOP 1
 
 /* FIXME: The code (at least) in dumpcap assumes that PCAP_CREATE is not
@@ -237,21 +227,27 @@
 /* Define to 1 if you have the `pcap_open_dead' function. */
 #cmakedefine HAVE_PCAP_OPEN_DEAD 1
 
+/* Define to 1 if you have WinPcap remote capturing support and prefer to use
+   these new API features. */
+#cmakedefine HAVE_PCAP_REMOTE 1
+
 /* Define to 1 if you have the `pcap_set_datalink' function. */
 #cmakedefine HAVE_PCAP_SET_DATALINK 1
-
-/* Define if libpcap version is known */
-#cmakedefine HAVE_PCAP_VERSION 1
 
 /* Define if plugins are enabled */
 #cmakedefine HAVE_PLUGINS 1
 
-/* Define if rpcap:// type remote capture is supported */
-#cmakedefine HAVE_PCAP_REMOTE 1
-#cmakedefine HAVE_REMOTE 1
-
 /* Define to 1 if you have the <portaudio.h> header file. */
 #cmakedefine HAVE_PORTAUDIO_H 1
+
+/* Define to 1 if you have the <pwd.h> header file. */
+#cmakedefine HAVE_PWD_H 1
+
+/* Define if python devel package available */
+#cmakedefine HAVE_PYTHON 1
+
+/* Define to 1 to enable remote capturing feature in WinPcap library */
+#cmakedefine HAVE_REMOTE 1
 
 /* Define if sa_len field exists in struct sockaddr */
 #cmakedefine HAVE_SA_LEN 1
@@ -304,6 +300,12 @@
 /* Define to 1 if you have the <sys/wait.h> header file. */
 #cmakedefine HAVE_SYS_WAIT_H 1
 
+/* Define if tm_zone field exists in struct tm */
+#cmakedefine HAVE_TM_ZONE 1
+
+/* Define if tzname array exists */
+#cmakedefine HAVE_TZNAME 1
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
 
@@ -313,12 +315,6 @@
 /* Define to 1 if you have the <winsock2.h> header file. */
 #cmakedefine HAVE_WINSOCK2_H 1
 
-/* Define to 1 if tm_zone field exists in struct tm. */
-#cmakedefine HAVE_TM_ZONE 1
-
-/* Define to 1 if tzname array exists. */
-#cmakedefine HAVE_TZNAME 1
-
 /* HTML viewer, e.g. mozilla */
 #cmakedefine HTML_VIEWER
 
@@ -326,20 +322,11 @@
 /* Note: always defines  PRI[doxu]64 macros so inttypes.h becomes useless.*/
 #cmakedefine INTTYPES_H_DEFINES_FORMATS 1
 
-/* Define unless inet/aton.h needs to be included */
-#cmakedefine HAVE_INET_ATON_H
-
 /* Define if inet/v6defs.h needs to be included */
 #cmakedefine NEED_INET_V6DEFS_H 1
 
 /* Define if strptime.h needs to be included */
 #cmakedefine NEED_STRPTIME_H 1
-
-/* Define if linux/nl80211.h defines NL80211_CMD_SET_CHANNEL */
-#cmakedefine HAVE_NL80211_CMD_SET_CHANNEL 1
-
-/* Define if linux/nl80211.h is new enough */
-#cmakedefine HAVE_NL80211 1
 
 /* Name of package */
 #cmakedefine PACKAGE
@@ -359,17 +346,14 @@
 /* Define to the version of this package. */
 #cmakedefine PACKAGE_VERSION
 
+/* Support for pcap-ng */
+#cmakedefine PCAP_NG_DEFAULT 1
+
 /* Plugin installation directory */
 #cmakedefine PLUGIN_DIR
 
 /* Define if we are using version of of the Portaudio library API */
 #cmakedefine PORTAUDIO_API_1 1
-
-/* Define to 1 if you have the <pwd.h> header file. */
-#cmakedefine HAVE_PWD_H 1
-
-/* Define to 1 if you have the <grp.h> header file. */
-#cmakedefine HAVE_GRP_H 1
 
 /* Define to 1 if you have the ANSI C header files. */
 /* Note: not use in the code */

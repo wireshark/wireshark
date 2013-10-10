@@ -48,7 +48,6 @@ cmake_push_check_state()
 set( CMAKE_REQUIRED_INCLUDES ${PCAP_INCLUDE_DIRS} )
 set( CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARIES} )
 
-check_variable_exists( "pcap_version" HAVE_PCAP_VERSION )
 check_function_exists( "pcap_open_dead" HAVE_PCAP_OPEN_DEAD )
 check_function_exists( "pcap_freecode" HAVE_PCAP_FREECODE )
 #
