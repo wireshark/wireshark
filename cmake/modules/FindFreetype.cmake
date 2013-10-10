@@ -122,13 +122,10 @@ if(WIN32)
     FIND_PACKAGE_HANDLE_STANDARD_ARGS(Freetype
                                       REQUIRED_VARS FREETYPE_INCLUDE_DIRS
                                       VERSION_VAR FREETYPE_VERSION_STRING)
-else(WIN32)
+else()
     FIND_PACKAGE_HANDLE_STANDARD_ARGS(Freetype
-                                      REQUIRED_VARS FREETYPE_LIBRARY FREETYPE_INCLUDE_DIRS
+                                      REQUIRED_VARS FREETYPE_LIBRARIES FREETYPE_INCLUDE_DIRS
                                       VERSION_VAR FREETYPE_VERSION_STRING)
-endif(WIN32)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(Freetype
-                                  REQUIRED_VARS FREETYPE_LIBRARY FREETYPE_INCLUDE_DIRS
-                                  VERSION_VAR FREETYPE_VERSION_STRING)
+endif()
 
-mark_as_advanced(FREETYPE_LIBRARY FREETYPE_INCLUDE_DIR_freetype2 FREETYPE_INCLUDE_DIR_ft2build)
+mark_as_advanced(FREETYPE_LIBRARIES FREETYPE_INCLUDE_DIRS)
