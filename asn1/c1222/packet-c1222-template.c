@@ -315,6 +315,7 @@ static uat_t *c1222_uat;
   length = offset - start_offset; \
   switch (tvb_get_guint8(tvb, start_offset)) { \
     case 0x80: /* relative OID */ \
+      tvb_ensure_bytes_exist(tvb, start_offset, length); \
       fieldname##_len = length + c1222_baseoid_len; \
       fieldname = (guint8 *)wmem_alloc(wmem_packet_scope(), fieldname##_len); \
       fieldname[0] = 0x06;  /* create absolute OID tag */ \
@@ -327,11 +328,11 @@ static uat_t *c1222_uat;
       fieldname = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start_offset, length); \
       fieldname##_len = length; \
       break; \
-  } 
+  }
 #else /* HAVE_LIBGCRYPT */
 #define FILL_TABLE(fieldname)
 #define FILL_TABLE_TRUNCATE(fieldname, len)
-#define FILL_TABLE_APTITLE(fieldname) 
+#define FILL_TABLE_APTITLE(fieldname)
 #define FILL_START
 #endif /* HAVE_LIBGCRYPT */
 

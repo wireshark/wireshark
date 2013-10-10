@@ -366,6 +366,7 @@ static uat_t *c1222_uat;
   length = offset - start_offset; \
   switch (tvb_get_guint8(tvb, start_offset)) { \
     case 0x80: /* relative OID */ \
+      tvb_ensure_bytes_exist(tvb, start_offset, length); \
       fieldname##_len = length + c1222_baseoid_len; \
       fieldname = (guint8 *)wmem_alloc(wmem_packet_scope(), fieldname##_len); \
       fieldname[0] = 0x06;  /* create absolute OID tag */ \
@@ -378,11 +379,11 @@ static uat_t *c1222_uat;
       fieldname = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, start_offset, length); \
       fieldname##_len = length; \
       break; \
-  } 
+  }
 #else /* HAVE_LIBGCRYPT */
 #define FILL_TABLE(fieldname)
 #define FILL_TABLE_TRUNCATE(fieldname, len)
-#define FILL_TABLE_APTITLE(fieldname) 
+#define FILL_TABLE_APTITLE(fieldname)
 #define FILL_START
 #endif /* HAVE_LIBGCRYPT */
 
@@ -1566,7 +1567,7 @@ static void dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 1052 "../../asn1/c1222/packet-c1222-template.c"
+#line 1053 "../../asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1953,7 +1954,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1334 "../../asn1/c1222/packet-c1222-template.c"
+#line 1335 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1976,7 +1977,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1344 "../../asn1/c1222/packet-c1222-template.c"
+#line 1345 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {
