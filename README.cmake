@@ -69,7 +69,7 @@ How to do out of tree build (Win32/64):
 5) cmake -G "NMake Makefiles" -DBUILD_wireshark=OFF path\to\sources
   (i.e. in case your sources are located at c:\wireshark\trunk, use "..\trunk")
 5a) cmake path\to\sources (this will build for the latest Visual Studio version found)
-6) nmake VERBOSE=1 (or cmake --build . -- VERBOSE=1 )
+6) nmake /X- VERBOSE=1 (or cmake --build . -- VERBOSE=1 )
 6a) Wireshark.sln (this will run up Visual Studio with the cmake built solution
 7) In case you want to test the executable(s) inside the build tree:
    Run setpath.bat whenever it gets updated (there is a message in each cmake
