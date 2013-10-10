@@ -367,6 +367,9 @@ endif()
 if(BUILD_qtshark)
 	if(ENABLE_QT5)
 		set(PACKAGELIST ${PACKAGELIST} Qt5Widgets Qt5PrintSupport Qt5LinguistTools)
+		if (APPLE)
+			set(PACKAGELIST ${PACKAGELIST} Qt5MacExtras)
+		endif()
 		set(QT_VERSION 5)
 		# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
 		# somewhere. The if WIN32 in this place is annoying as well.
@@ -545,6 +548,11 @@ if (Qt5Widgets_FOUND)
 	endif()
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
+	if(Qt5MacExtras_FOUND)
+		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5MacExtras_LIBRARIES})
+		# That's the name autofoo uses
+		set(QT_MACEXTRAS_LIB 1)
+	endif()
 # If Qt4: QT_LIBRARIES and QT_INCLUDES are not set above. They require extra magic
 elseif(QT_FOUND)
 	include(${QT_USE_FILE})

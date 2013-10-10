@@ -135,6 +135,9 @@
 /* Define to use libportaudio library */
 #cmakedefine HAVE_LIBPORTAUDIO 1
 
+/* Define if we have QtMacExtras */
+#cmakedefine QT_MACEXTRAS_LIB 1
+
 /* Define to 1 if you have the `smi' library (-lsmi). */
 #cmakedefine HAVE_LIBSMI 1
 
