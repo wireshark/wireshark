@@ -1816,9 +1816,10 @@ dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	proto_tree *tree;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_smb_file_eattr, tvb, offset, len, ENC_LITTLE_ENDIAN);
+		item = proto_tree_add_uint(parent_tree, hf_smb_file_eattr, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
-
+		if (len==0)
+			PROTO_ITEM_SET_GENERATED(item);
 		/*
 		 * XXX - Network Monitor disagrees on some of the
 		 * bits, e.g. the bits above temporary are "atomic write"
@@ -3359,6 +3360,8 @@ dissect_nt_create_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		item = proto_tree_add_uint(parent_tree, hf_smb_create_flags, tvb, offset, len, mask);
 
 		tree = proto_item_add_subtree(item, ett_smb_nt_create_bits);
+		if (len==0)
+			PROTO_ITEM_SET_GENERATED(item);
 	}
 
 	/*
@@ -3398,7 +3401,8 @@ dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	if (parent_tree) {
 		item = proto_tree_add_uint(parent_tree, hf_smb_access_mask, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_access_mask);
-
+		if (len==0)
+			PROTO_ITEM_SET_GENERATED(item);
 		/*
 		 * Some of these bits come from
 		 *
@@ -3480,6 +3484,8 @@ dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	if (parent_tree) {
 		item = proto_tree_add_uint(parent_tree, hf_smb_share_access, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_share_access);
+		if (len==0)
+			PROTO_ITEM_SET_GENERATED(item);
 
 		proto_tree_add_boolean(tree, hf_smb_nt_share_access_delete,
 			tvb, offset, len, mask);
@@ -3528,7 +3534,8 @@ dissect_nt_create_options_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	if (parent_tree) {
 		item = proto_tree_add_uint(parent_tree, hf_smb_create_options, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_create_options);
-
+		if (len==0)
+			PROTO_ITEM_SET_GENERATED(item);
 		/*
 		 * From
 		 *
