@@ -4415,17 +4415,22 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item *ti, *sig_ti;
     proto_tree *mbim_tree, *subtree, *sig_tree;
     gboolean is_32bits;
-    guint32 length, next_index, base_offset, offset, datagram_index, datagram_length, nb,
-            total = 0;
+    guint32 nth_sig, length, next_index, base_offset, offset, datagram_index, datagram_length,
+            nb, total = 0;
     guint8 *signature;
     dissector_handle_t dissector;
     tvbuff_t *datagram_tvb;
-    const guchar NTH16[4] = {'N', 'C', 'M', 'H'};
-    const guchar NTH32[4] = {'n', 'c', 'm', 'h'};
+    const guint32 NTH16 = 0x484D434E;
+    const guint32 NTH32 = 0x686D636E;
 
-    if (tvb_memeql(tvb, 0, NTH16, sizeof(NTH16)) == 0) {
+    if (tvb_length(tvb) < 12) {
+        return 0;
+    }
+
+    nth_sig = tvb_get_letohl(tvb, 0);
+    if (nth_sig == NTH16) {
         is_32bits = FALSE;
-    } else if (tvb_memeql(tvb, 0, NTH32, sizeof(NTH32)) == 0) {
+    } else if (nth_sig == NTH32) {
         is_32bits = TRUE;
     } else {
         return 0;
