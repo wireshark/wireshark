@@ -479,7 +479,6 @@ GNUTLS_DIR = $(GNUTLS_DIR:\=/)
 SMI_DIR = $(SMI_DIR:\=/)
 KFW_DIR = $(KFW_DIR:\=/)
 LUA_DIR = $(LUA_DIR:\=/)
-PORTAUDIO_DIR = $(PORTAUDIO_DIR:\=/)
 GEOIP_DIR = $(GEOIP_DIR:\=/)
 WINSPARKLE_DIR = $(WINSPARKLE_DIR:\=/)
 
@@ -492,10 +491,10 @@ HHC_LIBS = $(HHC_LIBS)
 MSVC_VARIANT = $(MSVC_VARIANT)
 MSVCR_DLL = "$(MSVCR_DLL:\=/)"
 
-QMAKE_CFLAGS         *= $(STANDARD_CFLAGS) $(PORTAUDIO_CFLAGS:\=/)
+QMAKE_CFLAGS         *= $(STANDARD_CFLAGS)
 # NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
 # This avoids conflicts with the C++ standard library.
-QMAKE_CXXFLAGS       *= $(STANDARD_CFLAGS) /DNOMINMAX $(PORTAUDIO_CFLAGS:\=/)
+QMAKE_CXXFLAGS       *= $(STANDARD_CFLAGS) /DNOMINMAX
 QMAKE_LFLAGS         *= /LARGEADDRESSAWARE $(LDFLAGS)
 
 <<KEEP
