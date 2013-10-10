@@ -99,7 +99,7 @@ ENDMACRO(XML2HTML)
 #	custom_layer_pdf.xsl
 #	A4 or letter
 #)
-MACRO(XML2PDF _FOP_EXECUTABLE _output _sources _stylesheet _paper)
+MACRO(XML2PDF _output _sources _stylesheet _paper)
     # FIXME: How do I extract the first element of a variable containing a
     # list of values? Isn't there a "cleaner" solution?
     # Oh, and I have no idea why I can't directly use _source instead of
@@ -122,7 +122,7 @@ MACRO(XML2PDF _FOP_EXECUTABLE _output _sources _stylesheet _paper)
 	# FIXME: The images for tip, warning and note (and maybe more of those)
 	#   are not found by fop. I have no idea why "system" images don't work
 	#   the way other images work.
-	COMMAND ${_FOP_EXECUTABLE}
+	COMMAND ${FOP_EXECUTABLE}
 	    ${_output}.fo
 	    ${_output}
 	DEPENDS

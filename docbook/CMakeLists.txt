@@ -289,7 +289,6 @@ XML2HTML(
 #      Test the effect of this on letter and a4 printers first (ps and non-ps).
 
 XML2PDF(
-	${FOP_EXECUTABLE}
 	user-guide-a4.pdf
 	WSUG_SOURCE
 	custom_layer_pdf.xsl
@@ -297,7 +296,6 @@ XML2PDF(
 )
 
 XML2PDF(
-	${FOP_EXECUTABLE}
 	user-guide-us.pdf
 	WSUG_SOURCE
 	custom_layer_pdf.xsl
@@ -336,7 +334,6 @@ XML2HTML(
 )
 
 XML2PDF(
-	${FOP_EXECUTABLE}
 	developer-guide-a4.pdf
 	WSDG_SOURCE
 	custom_layer_pdf.xsl
@@ -344,7 +341,6 @@ XML2PDF(
 )
 
 XML2PDF(
-	${FOP_EXECUTABLE}
 	developer-guide-us.pdf
 	WSDG_SOURCE
 	custom_layer_pdf.xsl
