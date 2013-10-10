@@ -73,23 +73,25 @@ typedef struct serv_port {
 } serv_port_t;
 
 /*
- * XXX Some of this is duplicated in addrinfo_list. We may want to replace the
- * addr and name parts with a struct addrinfo or create our own addrinfo-like
- * struct that simply points to the data below.
+ * 
  */
+#define DUMMY_ADDRESS_ENTRY      1<<0
+#define TRIED_RESOLVE_ADDRESS    1<<1
+#define RESOLVED_ADDRESS_USED    1<<2
+
+#define DUMMY_AND_RESOLVE_FLGS   3
+#define USED_AND_RESOLVED_MASK   1+4
 typedef struct hashipv4 {
-  guint             addr;
-  gboolean          is_dummy_entry; /* name is IPv4 address in dot format */
-  gboolean          resolve;        /* already tried to resolve it */
-  gchar             ip[16];
-  gchar             name[MAXNAMELEN];
+    guint             addr;
+    guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
+    gchar             ip[16];
+    gchar             name[MAXNAMELEN];
 } hashipv4_t;
 
 
 typedef struct hashipv6 {
     struct e_in6_addr addr;
-    gboolean          is_dummy_entry; /* name is IPv6 address in colon format */
-    gboolean          resolve;        /* */
+    guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
     gchar             ip6[MAX_IP6_STR_LEN]; /* XX */
     gchar             name[MAXNAMELEN];
 } hashipv6_t;
