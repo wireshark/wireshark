@@ -4575,7 +4575,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     guint8 *p_options = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset + 20, bc);
 
                     tf = proto_tree_add_bytes_format(tcp_tree, hf_tcp_options, tvb, offset + 20,
-                            optlen, p_options, "Options: (%u bytes but truncated to %u bytes)", optlen, bc);
+                            bc, p_options, "Options: (%u bytes but truncated to %u bytes)", optlen, bc);
                     optlen = bc;
                 } else {
                     optlen = 0;
