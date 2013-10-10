@@ -34,6 +34,7 @@ Versions affected: 1.10.0 to 1.10.2, 1.8.0 to 1.8.10
 The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
+ * "Follow TCP Stream" shows only the first HTTP req+res. (ws-buglink:9044[])
  * Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
 
 === New and Updated Features
@@ -96,6 +97,9 @@ Filtering tshark captures with read filters (-R) no longer works.
 
 The 64-bit Windows installer does not support Kerberos decryption.
 (https://wiki.wireshark.org/Development/Win64[Win64 development page])
+
+Resolving (ws-buglink:9044[]) reopens (ws-buglink:3528[]) so that Wireshark
+no longer automatically decodes gzip data when following a TCP stream.
 
 Application crash when changing real-time option.
 (ws-buglink:4035[])

@@ -78,7 +78,6 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
 	$(PYTHON_LIBS) \
-	$(ZLIB_LIBS) \
 	$(WINSPARKLE_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
@@ -89,7 +88,8 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\dfilter\dfilter.lib \
 	epan\ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
-	$(ADNS_LIBS)
+	$(ADNS_LIBS) \
+	$(ZLIB_LIBS)
 !ENDIF
 
 tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
