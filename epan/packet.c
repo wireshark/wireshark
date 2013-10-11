@@ -124,13 +124,24 @@ destroy_heuristic_dissector_list(void *data)
 	*list = NULL;
 }
 
+static void
+destroy_dissector_table(void *data)
+{
+	struct dissector_table *table = (struct dissector_table *)data;
+
+	g_hash_table_destroy(table->hash_table);
+	g_slist_free(table->dissector_handles);
+	g_slice_free(dissector_table_t, data);
+}
+
 void
 packet_init(void)
 {
-	dissector_tables = g_hash_table_new(g_str_hash, g_str_equal);
+	dissector_tables = g_hash_table_new_full(g_str_hash, g_str_equal,
+			NULL, destroy_dissector_table);
 
 	registered_dissectors = g_hash_table_new_full(g_str_hash, g_str_equal,
-			NULL, g_free);
+			NULL, NULL);
 
 	heur_dissector_lists = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, destroy_heuristic_dissector_list);
@@ -1643,7 +1654,7 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 
 	/* Create and register the dissector table for this name; returns */
 	/* a pointer to the dissector table. */
-	sub_dissectors = (struct dissector_table *)g_malloc(sizeof (struct dissector_table));
+	sub_dissectors = g_slice_new(struct dissector_table);
 	switch (type) {
 
 	case FT_UINT8:
@@ -2030,7 +2041,7 @@ create_dissector_handle(dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
-	handle                = (struct dissector_handle *)g_malloc(sizeof (struct dissector_handle));
+	handle                = wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name          = NULL;
 	handle->is_new        = FALSE;
 	handle->dissector.old = dissector;
@@ -2044,7 +2055,7 @@ new_create_dissector_handle(new_dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
-	handle			= (struct dissector_handle *)g_malloc(sizeof (struct dissector_handle));
+	handle			= wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name		= NULL;
 	handle->is_new		= TRUE;
 	handle->dissector.new_d = dissector;
@@ -2062,7 +2073,7 @@ register_dissector(const char *name, dissector_t dissector, const int proto)
 	/* Make sure the registration is unique */
 	g_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
 
-	handle                = (struct dissector_handle *)g_malloc(sizeof (struct dissector_handle));
+	handle                = wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name          = name;
 	handle->is_new        = FALSE;
 	handle->dissector.old = dissector;
@@ -2082,7 +2093,7 @@ new_register_dissector(const char *name, new_dissector_t dissector, const int pr
 	/* Make sure the registration is unique */
 	g_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
 
-	handle                = (struct dissector_handle *)g_malloc(sizeof (struct dissector_handle));
+	handle                = wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name          = name;
 	handle->is_new        = TRUE;
 	handle->dissector.new_d = dissector;
