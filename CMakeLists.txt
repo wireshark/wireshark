@@ -712,18 +712,21 @@ ADD_CUSTOM_COMMAND(
 )
 
 if(UNIX)
-	set(PLATFORM_SRC
+	set(PLATFORM_CAPTURE_SRC
 		capture-pcap-util-unix.c
 	)
 endif()
 
 if(WIN32)
-	set(PLATFORM_SRC
+	set(PLATFORM_CAPTURE_SRC
 		capture_win_ifnames.c
 		capture-wpcap.c
 		capture_wpcap_packet.c
+	)
+	set(PLATFORM_UI_SRC
 		ui/win32/console_win32.c
 		ui/win32/file_dlg_win32.c
+		ui/win32/print_win32.c
 	)
 endif()
 
@@ -738,7 +741,7 @@ set(SHARK_COMMON_CAPTURE_SRC
 )
 
 set(WIRESHARK_COMMON_SRC
-	${PLATFORM_SRC}
+	${PLATFORM_CAPTURE_SRC}
 	capture-pcap-util.c
 	cfile.c
 	cfutils.c
@@ -867,6 +870,7 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		ws80211_utils.c
 		${SHARK_COMMON_CAPTURE_SRC}
 		${WIRESHARK_COMMON_SRC}
+		${PLATFORM_UI_SRC}
 	)
 endif()
 
@@ -884,6 +888,7 @@ if(BUILD_wireshark AND GTK_FOUND)
 		${APPLE_CORE_SERVICES_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${NL_LIBRARIES}
+		${WIN_COMCTL32_LIBRARY}
 	)
 	# qtshark and wireshark share wireshark_FILES
 
@@ -1118,7 +1123,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		sync_pipe_write.c
 		version_info.c
 		ws80211_utils.c
-		${PLATFORM_SRC}
+		${PLATFORM_CAPTURE_SRC}
 	)
 	add_executable(dumpcap ${dumpcap_FILES})
 	add_dependencies(dumpcap svnversion)

@@ -12,6 +12,7 @@ if( WIN32 )
 
 	set( WIN_PSAPI_LIBRARY    psapi.lib )
 	set( WIN_WSOCK32_LIBRARY  wsock32.lib )
+	set( WIN_COMCTL32_LIBRARY comctl32.lib )
 
 	set( WIN_SETARGV_OBJECT   setargv.obj )
 
