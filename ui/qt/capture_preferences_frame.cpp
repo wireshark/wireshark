@@ -70,6 +70,7 @@ void CapturePreferencesFrame::showEvent(QShowEvent *evt)
 
 void CapturePreferencesFrame::updateWidgets()
 {
+#ifdef HAVE_LIBPCAP
     GList *if_list, *combo_list, *combo_entry;
     int err;
 
@@ -92,6 +93,7 @@ void CapturePreferencesFrame::updateWidgets()
     ui->captureRealTimeCheckBox->setChecked(pref_real_time_->stashed_val.boolval);
     ui->captureAutoScrollCheckBox->setChecked(pref_auto_scroll_->stashed_val.boolval);
     ui->captureShowInfoCheckBox->setChecked(pref_show_info_->stashed_val.boolval);
+#endif // HAVE_LIBPCAP
 }
 
 void CapturePreferencesFrame::on_defaultInterfaceComboBox_editTextChanged(const QString &new_iface)
