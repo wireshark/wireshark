@@ -858,6 +858,9 @@ REQUIRED_TOOLS=\
 	peflags	\
 	$(PERL)	\
 	$(PYTHON)	\
+!IFDEF QT_DIR
+	--windowsonly $(QT_DIR)\bin\qmake \
+!ENDIF
 	sed	\
 	unzip	\
 	wget
@@ -914,6 +917,9 @@ process_libs:
 	@if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. WinPcap_$(PCAP_VERSION).exe
+!IFNDEF QT_DIR
+!MESSAGE Can't find Qt. This will become a problem at some point.
+!ENDIF
 !IFDEF GTK_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		"$(GTK_NAME)" gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM)$(PKG_SUFIX).zip
