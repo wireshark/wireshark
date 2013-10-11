@@ -9,7 +9,10 @@
 #  AIRPCAP_FOUND        - True if pcap found.
 
 include( FindWSWinLibs )
-FindWSWinLibs( "AirPcap.*/Airpcap.*" "AIRPCAP_HINTS" )
+FindWSWinLibs( "AirPcap" AIRPCAP_TMP_HINTS )
+#message( STATUS "AIRPCAP TMP HINTS: ${AIRPCAP_TMP_HINTS}" )
+FindWSWinLibs( "Airpcap_" AIRPCAP_HINTS "${AIRPCAP_TMP_HINTS}" )
+#message( STATUS "AIRPCAP HINTS: ${AIRPCAP_HINTS}" )
 
 find_path( AIRPCAP_INCLUDE_DIR
   NAMES
