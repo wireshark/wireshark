@@ -33,6 +33,7 @@
 
 #include "ui/last_open_dir.h"
 #include "ui/simple_dialog.h"
+#include "ui/util.h"
 
 #include "ui/gtk/pixmap_save.h"
 #include "ui/gtk/gui_utils.h"

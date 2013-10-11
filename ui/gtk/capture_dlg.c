@@ -50,6 +50,7 @@
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
+#include "ui/util.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/gui_utils.h"
