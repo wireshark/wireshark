@@ -374,7 +374,10 @@ if(BUILD_qtshark)
 		# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
 		# somewhere. The if WIN32 in this place is annoying as well.
 		if( WIN32 )
-			set(CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.1.1\\5.1.1\\msvc2010\\")
+			set( QT5_BASE_PATH "C:\\Qt\\Qt5.1.1\\5.1.1" )
+			set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}\\msvc2010" )
+			set( QT5_DLL_PATH "${CMAKE_PREFIX_PATH}/bin/dummy" )
+			set( WS_ALL_LIBS ${WS_ALL_LIBS} ${QT5_DLL_PATH} )
 		endif()
 	else()
 		set(PACKAGELIST ${PACKAGELIST} Qt4)
@@ -640,10 +643,6 @@ endif()
 # Large file support (e.g. make off_t 64 bit if supported)
 include(gmxTestLargeFiles)
 gmx_test_large_files(GMX_LARGEFILES)
-
-#Platform specific
-#if(UNIX)
-#endif()
 
 if(APPLE)
 	#

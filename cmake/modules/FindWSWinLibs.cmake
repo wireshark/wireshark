@@ -34,7 +34,7 @@ function( WSExtendPath _LIB_PATH_LIST _PATH_FILE )
     foreach( THIS_LIB_PATH ${_LIB_PATH_LIST} )
       get_filename_component( LIB_PATH ${THIS_LIB_PATH} PATH )
       # lib is required for linking, the dlls are in bin
-      string( REPLACE "/lib" "/bin" LIB_PATH "${LIB_PATH}" )
+      string( REGEX REPLACE "/lib$" "/bin" LIB_PATH "${LIB_PATH}" )
       #message( STATUS "Raw path ${THIS_LIB_PATH} processed to ${LIB_PATH}." )
       set( WS_LOCAL_LIB_PATHS "${WS_LOCAL_LIB_PATHS}" ${LIB_PATH} )
     endforeach()
