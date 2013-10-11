@@ -31,6 +31,7 @@
 
 #include "ui/alert_box.h"
 #include "ui/help_url.h"
+#include "ui/util.h"
 
 #include <epan/print.h>
 #include <epan/filesystem.h>
