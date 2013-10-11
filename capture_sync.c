@@ -1759,9 +1759,8 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
             /* The child has sent us a filename which we couldn't open.
 
-               This could mean that the child is creating files faster
-               than we can handle it.  (XXX - why would that result in
-               a failure to open the file?)
+               This could mean that the child is creating and deleting files
+               (ring buffer mode) faster than we can handle it.
 
                That should only be the case for very fast file switches;
                We can't do much more than telling the child to stop.
