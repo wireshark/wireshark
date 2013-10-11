@@ -502,7 +502,8 @@ typedef struct _recent_item_status {
  * This function might be called as a thread. We can't use any drawing
  * routines here: http://developer.gnome.org/gdk/2.24/gdk-Threads.html
  */
-static void *get_recent_item_status(void *data)
+static void *
+get_recent_item_status(void *data)
 {
     recent_item_status *ri_stat = (recent_item_status *) data;
     ws_statb64 stat_buf;
@@ -769,10 +770,9 @@ set_sensitivity_for_start_icon(void)
 #endif
 }
 
-static gboolean activate_ifaces(GtkTreeModel  *model,
-                                GtkTreePath   *path _U_,
-                                GtkTreeIter   *iter,
-                                gpointer       userdata)
+static gboolean
+activate_ifaces(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
+                gpointer userdata)
 {
     gchar *if_name;
     GtkWidget *view;
@@ -793,7 +793,8 @@ static gboolean activate_ifaces(GtkTreeModel  *model,
     return FALSE;
 }
 
-void change_interface_selection(gchar* name, gboolean activate)
+void
+change_interface_selection(gchar* name, gboolean activate)
 {
     GtkWidget        *view;
     GtkTreeModel     *model;
@@ -806,7 +807,8 @@ void change_interface_selection(gchar* name, gboolean activate)
     gtk_tree_model_foreach(GTK_TREE_MODEL(model), (GtkTreeModelForeachFunc)(activate_ifaces), (gpointer) &entry);
 }
 
-void change_selection_for_all(gboolean enable)
+void
+change_selection_for_all(gboolean enable)
 {
     guint i;
     gboolean all = FALSE;
@@ -909,7 +911,8 @@ clear_capture_box(void)
     }
 }
 
-static void update_interface_scrolled_window_height(void)
+static void
+update_interface_scrolled_window_height(void)
 {
     /* set the height of the scroll window that shows the interfaces
      * based on the number of visible interfaces - up to a maximum of 10 interfaces */
@@ -975,7 +978,8 @@ refresh_interfaces_cb(GtkWidget *w _U_, gpointer user_data _U_)
   refresh_local_interface_lists();
 }
 
-static void fill_capture_box(void)
+static void
+fill_capture_box(void)
 {
     GtkWidget         *box_to_fill, *item_hb_refresh;
     GtkWidget         *item_hb_interface_list, *item_hb_capture, *item_hb_start, *label, *w;
@@ -1176,7 +1180,8 @@ welcome_if_panel_reload(void)
 }
 
 #ifdef HAVE_LIBPCAP
-static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
+static void
+capture_if_start(GtkWidget *w _U_, gpointer data _U_)
 {
 #ifdef HAVE_AIRPCAP
     interface_t device;
@@ -1442,7 +1447,8 @@ welcome_new(void)
     return welcome_scrollw;
 }
 
-GtkWidget* get_welcome_window(void)
+GtkWidget *
+get_welcome_window(void)
 {
     return welcome_hb;
 }
