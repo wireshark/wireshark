@@ -558,7 +558,7 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 !IFDEF QT_DIR
 	cd ../qt
-	$(MAKE) clean
+	-$(MAKE) clean
 !ENDIF
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -612,7 +612,7 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 !IFDEF QT_DIR
 	cd ../qt
-	$(MAKE) distclean
+	-$(MAKE) distclean
 !ENDIF
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -659,7 +659,7 @@ maintainer-clean: maintainer-clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 !IFDEF QT_DIR
 	cd ../qt
-	$(MAKE) distclean
+	-$(MAKE) distclean
 !ENDIF
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
