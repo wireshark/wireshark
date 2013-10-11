@@ -57,9 +57,9 @@ else
 	CARES="c-ares-devel c-ares"
 fi
 
-# Assume if they've got this script they've got subversion already...
 PKGS="autoconf automake libtool gcc flex bison python perl $GLIB2
-$PCAP $ZLIB lua-devel lua $CARES $GTK2 desktop-file-utils $QT fop asciidoc"
+$PCAP $ZLIB lua-devel lua $CARES $GTK2 desktop-file-utils $QT fop asciidoc
+subversion perl-podlators"
 
 echo "Run this command (as root):"
 echo
