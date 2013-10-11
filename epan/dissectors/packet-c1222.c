@@ -1500,7 +1500,7 @@ dissect_c1222_User_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   proto_item *tf = NULL;
   proto_tree *epsem_tree = NULL;
   FILL_START;
-  
+
   /* get Tag and Length */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &end_device_class, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
@@ -1548,7 +1548,9 @@ dissect_c1222_MESSAGE_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_c1222_MESSAGE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 102 "../../asn1/c1222/c1222.cnf"
+/**/#ifdef HAVE_LIBGCRYPT
     clear_canon();
+/**/#endif
       offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 0, TRUE, dissect_c1222_MESSAGE_U);
 

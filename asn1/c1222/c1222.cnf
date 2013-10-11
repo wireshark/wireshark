@@ -18,7 +18,7 @@ MESSAGE
 
 #.FIELD_RENAME
 
-#.TYPE_ATTR 
+#.TYPE_ATTR
 Calling-authentication-value-c1222/_untag/iv-element  BLURB="c1222.iv-element"
 Calling-authentication-value-c1222/_untag/key-id-element BLURB = "c1222.key-id-element"
 AP-invocation-id TYPE=FT_UINT32
@@ -32,7 +32,7 @@ AE-qualifier TYPE=FT_UINT32
   proto_item *tf = NULL;
   proto_tree *epsem_tree = NULL;
   FILL_START;
-  
+
   /* get Tag and Length */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &end_device_class, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
@@ -99,6 +99,8 @@ AE-qualifier TYPE=FT_UINT32
   FILL_TABLE(iv_element);
 
 #.FN_BODY MESSAGE
+/**/#ifdef HAVE_LIBGCRYPT
     clear_canon();
+/**/#endif
     %(DEFAULT_BODY)s
 #.END
