@@ -384,16 +384,6 @@ if(BUILD_qtshark)
 		# set(Qt4_OPTIONS 4.7.1 REQUIRED QtCore QtGui)
 		set(QT_VERSION 4)
 	endif()
-
-	# We need GTK includes to compile Qt version thanks to
-	# ui/win32/file_dlg_win32.c
-	if (WIN32)
-		if(ENABLE_GTK3)
-			set(PACKAGELIST ${PACKAGELIST} GTK3)
-		else()
-			set(PACKAGELIST ${PACKAGELIST} GTK2)
-		endif()
-	endif()
 endif()
 
 # SMI SNMP
