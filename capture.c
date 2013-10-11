@@ -361,7 +361,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
   /* if we are in real-time mode, open the new file now */
   if(capture_opts->real_time_mode) {
     /* Attempt to open the capture file and set up to read from it. */
-    switch(cf_start_tail((capture_file *)cap_session->cf, capture_opts->save_file, is_tempfile, &err)) {
+    switch(cf_open((capture_file *)cap_session->cf, capture_opts->save_file, is_tempfile, &err)) {
     case CF_OK:
       break;
     case CF_ERROR:

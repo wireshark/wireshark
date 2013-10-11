@@ -163,18 +163,6 @@ gboolean cf_read_frame_r(capture_file *cf, const frame_data *fdata,
 gboolean cf_read_frame(capture_file *cf, frame_data *fdata);
 
 /**
- * Start reading from the end of a capture file.
- * This is used in "Update list of packets in Real-Time".
- *
- * @param cf the capture file to be read from
- * @param fname the filename to be read from
- * @param is_tempfile is this a temporary file?
- * @param err the error code, if an error had occurred
- * @return one of cf_status_t
- */
-cf_status_t cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
-
-/**
  * Read packets from the "end" of a capture file.
  *
  * @param cf the capture file to be read from

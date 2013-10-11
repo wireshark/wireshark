@@ -826,15 +826,6 @@ cf_read(capture_file *cf, gboolean reloading)
 }
 
 #ifdef HAVE_LIBPCAP
-cf_status_t
-cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
-{
-  cf_status_t cf_status;
-
-  cf_status = cf_open(cf, fname, is_tempfile, err);
-  return cf_status;
-}
-
 cf_read_status_t
 cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 {
