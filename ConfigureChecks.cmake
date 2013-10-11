@@ -70,6 +70,15 @@ include(CheckFunctionExists)
 check_function_exists("chown"            HAVE_CHOWN)
 
 cmake_push_check_state()
+#
+# XXX - this is *not* finding dladdr() on OS X (at least not on
+# Mountain Lion), even though it's available; autoconf does find
+# it.  The dl* functions can be tricky, in that they might be
+# exported by the run-time linker rather than by any library,
+# so the only way to check for it that might work is "can I link
+# a program that calls this function?", not, for example, "do
+# any of these libraries define this function?"
+#
 set(CMAKE_REQUIRED_LIBRARIES %{CMAKE_DL_LIBS})
 check_function_exists("dladdr"           HAVE_DLADDR)
 cmake_pop_check_state()
