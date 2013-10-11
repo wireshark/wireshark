@@ -513,7 +513,7 @@ static expert_field ei_mbim_unexpected_info_buffer = EI_INIT;
 static expert_field ei_mbim_illegal_on_link_prefix_length = EI_INIT;
 static expert_field ei_mbim_unknown_sms_format = EI_INIT;
 static expert_field ei_mbim_unexpected_uuid_value = EI_INIT;
-static expert_field ei_mbim_too_many_datagrams = EI_INIT;
+static expert_field ei_mbim_too_many_items = EI_INIT;
 static expert_field ei_mbim_alignment_error = EI_INIT;
 
 /* Initialize the subtree pointers */
@@ -569,7 +569,7 @@ struct mbim_conv_info {
     guint32 cellular_class;
 };
 
-#define MBIM_MAX_DATAGRAMS 1000
+#define MBIM_MAX_ITEMS 1000
 
 #define MBIM_OPEN_MSG            0x00000001
 #define MBIM_CLOSE_MSG           0x00000002
@@ -4420,7 +4420,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree *mbim_tree, *subtree, *sig_tree;
     gboolean is_32bits;
     guint32 nth_sig, length, next_index, base_offset, offset, datagram_index, datagram_length,
-            nb, total = 0;
+            nb, total = 0, ndp = 0;
     guint8 *signature;
     dissector_handle_t dissector;
     tvbuff_t *datagram_tvb;
@@ -4576,16 +4576,22 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 col_set_fence(pinfo->cinfo, COL_PROTOCOL);
                 col_set_fence(pinfo->cinfo, COL_INFO);
                 nb++;
-                if (++total == MBIM_MAX_DATAGRAMS) {
-                    expert_add_info_format(pinfo, NULL, &ei_mbim_too_many_datagrams,
-                                           "More than %u many datagrams, dissection seems suspicious",
-                                           MBIM_MAX_DATAGRAMS);
+                if (++total > MBIM_MAX_ITEMS) {
+                    expert_add_info_format(pinfo, NULL, &ei_mbim_too_many_items,
+                                           "More than %u datagrams, dissection seems suspicious",
+                                           MBIM_MAX_ITEMS);
                     return tvb_length(tvb);
                 }
              }
         }
         ti = proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_nb_datagrams, tvb, 0, 0, nb);
         PROTO_ITEM_SET_GENERATED(ti);
+        if (++ndp > MBIM_MAX_ITEMS) {
+            expert_add_info_format(pinfo, NULL, &ei_mbim_too_many_items,
+                                   "More than %u NCM Datagram Pointers, dissection seems suspicious",
+                                   MBIM_MAX_ITEMS);
+            return tvb_length(tvb);
+        }
     }
     ti = proto_tree_add_uint(mbim_tree, hf_mbim_bulk_total_nb_datagrams, tvb, 0, 0, total);
     PROTO_ITEM_SET_GENERATED(ti);
@@ -6954,9 +6960,9 @@ proto_register_mbim(void)
         { &ei_mbim_unexpected_uuid_value,
             { "mbim.unexpected_uuid_value", PI_PROTOCOL, PI_WARN,
                 "Unexpected UUID value", EXPFILL }},
-        { &ei_mbim_too_many_datagrams,
-            { "mbim.too_many_datagrams", PI_PROTOCOL, PI_WARN,
-                "Too many datagrams", EXPFILL }},
+        { &ei_mbim_too_many_items,
+            { "mbim.too_many_items", PI_PROTOCOL, PI_WARN,
+                "Too many items", EXPFILL }},
         { &ei_mbim_alignment_error,
             { "mbim.alignment_error", PI_MALFORMED, PI_ERROR,
                 "Alignment error", EXPFILL }}
