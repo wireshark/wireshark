@@ -105,9 +105,6 @@
 /* Define if krb5.h defines KEYTYPE_ARCFOUR_56 */
 #cmakedefine HAVE_KEYTYPE_ARCFOUR_56 1
 
-/* Define to 1 if you have the <lauxlib.h> header file. */
-#cmakedefine HAVE_LAUXLIB_H 1
-
 /* Define to use the libcap library */
 #cmakedefine HAVE_LIBCAP 1
 
@@ -143,9 +140,6 @@
 
 /* Define to use Lua */
 #cmakedefine HAVE_LUA 1
-
-/* Define to 1 if you have the <lualib.h> header file. */
-#cmakedefine HAVE_LUALIB_H 1
 
 /* Define to 1 if you have the <lua.h> header file. */
 #cmakedefine HAVE_LUA_H 1
