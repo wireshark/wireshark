@@ -108,6 +108,22 @@ static GHashTable *registered_dissectors = NULL;
 
 static GHashTable *heur_dissector_lists = NULL;
 
+static void
+destroy_heuristic_dissector_entry(gpointer data, gpointer user_data _U_)
+{
+	g_slice_free(heur_dtbl_entry_t, data);
+}
+
+static void
+destroy_heuristic_dissector_list(void *data)
+{
+	GSList **list = (GSList**)data;
+
+	g_slist_foreach(*list, destroy_heuristic_dissector_entry, NULL);
+	g_slist_free(*list);
+	*list = NULL;
+}
+
 void
 packet_init(void)
 {
@@ -116,8 +132,8 @@ packet_init(void)
 	registered_dissectors = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, g_free);
 
-	heur_dissector_lists = g_hash_table_new(g_str_hash, g_str_equal);
-
+	heur_dissector_lists = g_hash_table_new_full(g_str_hash, g_str_equal,
+			NULL, destroy_heuristic_dissector_list);
 }
 
 void
@@ -1719,7 +1735,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto
 
 	/* XXX: Should verify that sub-dissector is not already in the list ? */
 
-	hdtbl_entry = (heur_dtbl_entry_t *)g_malloc(sizeof (heur_dtbl_entry_t));
+	hdtbl_entry = g_slice_new(heur_dtbl_entry_t);
 	hdtbl_entry->dissector = dissector;
 	hdtbl_entry->protocol  = find_protocol_by_id(proto);
 	hdtbl_entry->enabled   = TRUE;
@@ -1755,9 +1771,8 @@ heur_dissector_delete(const char *name, heur_dissector_t dissector, const int pr
 	found_entry = g_slist_find_custom(*sub_dissectors, (gpointer) &hdtbl_entry, find_matching_heur_dissector);
 
 	if (found_entry) {
-		*sub_dissectors = g_slist_remove_link(*sub_dissectors, found_entry);
-		g_free(g_slist_nth_data(found_entry, 1));
-		g_slist_free_1(found_entry);
+		g_slice_free(heur_dtbl_entry_t, found_entry->data);
+		*sub_dissectors = g_slist_delete_link(*sub_dissectors, found_entry);
 	}
 }
 
