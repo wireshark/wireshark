@@ -470,7 +470,7 @@ AC_SYS_LARGEFILE
 #
 AC_ARG_WITH([qt],
   AC_HELP_STRING( [--with-qt=@<:@yes/no@:>@],
-                  [use Qt @<:@default=no@:>@]),
+                  [use Qt @<:@default=yes@:>@]),
   with_qt="$withval", with_qt="unspecified")
 
 AC_ARG_WITH([gtk2],
@@ -1323,8 +1323,9 @@ if test "x$enable_wireshark" = "xyes"; then
 		"x$with_gtk3" = "xunspecified" -a \
 		"x$with_qt" = "xunspecified"; then
 		#
-		# No GUI toolkit was explicitly specified; pick GTK+ 3.
+		# No GUI toolkit was explicitly specified; pick Qt and GTK+ 3.
 		#
+		with_qt=yes
 		with_gtk3=yes
 	fi
 	if test "x$with_qt" = "xyes"; then
