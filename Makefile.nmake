@@ -313,7 +313,7 @@ wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan ui gtk w
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:$(PROGRAM_NAME).exe;1
 !ENDIF
 
-qtshark.exe	: install-generated-files $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+qtshark.exe	: install-generated-files $(LIBS_CHECK) config.h epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 
 tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
