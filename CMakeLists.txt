@@ -374,7 +374,7 @@ if(BUILD_qtshark)
 		# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
 		# somewhere. The if WIN32 in this place is annoying as well.
 		if( WIN32 )
-			set( QT5_BASE_PATH "C:\\Qt\\Qt5.1.1\\5.1.1" )
+			set( QT5_BASE_PATH "$ENV{QT5_BASE_PATH}" )
 			set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}\\msvc2010" )
 			set( QT5_DLL_PATH "${CMAKE_PREFIX_PATH}/bin/dummy" )
 			set( WS_ALL_LIBS ${WS_ALL_LIBS} ${QT5_DLL_PATH} )
