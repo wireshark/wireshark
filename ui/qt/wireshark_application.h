@@ -75,9 +75,7 @@ public:
     e_prefs * readConfigurationFiles(char **gdp_path, char **dp_path);
     QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString &filename, qint64 size, bool accessible);
-#ifdef HAVE_LIBPCAP
     void captureCallback(int event, capture_session * cap_session);
-#endif
     void captureFileCallback(int event, void * data);
     QDir lastOpenDir();
     void setLastOpenDir(const char *dir_name);

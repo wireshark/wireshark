@@ -38,8 +38,8 @@
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
-#include "capture_session.h"
 #endif
+#include "capture_session.h"
 
 #include <QMainWindow>
 #include <QSplitter>
@@ -165,7 +165,6 @@ public slots:
     void updateForUnsavedChanges();
     void layoutPanes();
 
-#ifdef HAVE_LIBPCAP
     void captureCapturePrepared(capture_session *cap_session);
     void captureCaptureUpdateStarted(capture_session *cap_session);
     void captureCaptureUpdateFinished(capture_session *cap_session);
@@ -173,7 +172,6 @@ public slots:
     void captureCaptureFixedFinished(capture_session *cap_session);
     void captureCaptureStopping(capture_session *cap_session);
     void captureCaptureFailed(capture_session *cap_session);
-#endif
 
     void captureFileOpened(const capture_file *cf);
     void captureFileReadStarted(const capture_file *cf);

@@ -50,8 +50,10 @@ protected:
     void resizeEvent(QResizeEvent *evt);
 
 private:
+#ifdef HAVE_LIBPCAP
     if_stat_cache_t *stat_cache_;
     QTimer *stat_timer_;
+#endif // HAVE_LIBPCAP
 
 signals:
     void interfaceUpdated(const char *device_name, bool selected);

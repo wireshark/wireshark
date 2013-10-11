@@ -147,7 +147,6 @@ static void console_log_handler(const char *log_domain,
 
 #ifdef HAVE_LIBPCAP
 extern capture_options global_capture_opts;
-#endif
 
 static void
 main_capture_callback(gint event, capture_session *cap_session, gpointer user_data )
@@ -155,6 +154,7 @@ main_capture_callback(gint event, capture_session *cap_session, gpointer user_da
     Q_UNUSED(user_data);
     wsApp->captureCallback(event, cap_session);
 }
+#endif // HAVE_LIBPCAP
 
 static void
 main_cf_callback(gint event, gpointer data, gpointer user_data )

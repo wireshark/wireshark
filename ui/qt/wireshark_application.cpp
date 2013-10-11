@@ -189,6 +189,7 @@ void WiresharkApplication::refreshRecentFiles(void) {
 
 void WiresharkApplication::captureCallback(int event, capture_session * cap_session)
 {
+#ifdef HAVE_LIBPCAP
     switch(event) {
     case(capture_cb_capture_prepared):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
@@ -231,6 +232,7 @@ void WiresharkApplication::captureCallback(int event, capture_session * cap_sess
         g_warning("main_capture_callback: event %u unknown", event);
         g_assert_not_reached();
     }
+#endif // HAVE_LIBPCAP
 }
 
 void WiresharkApplication::captureFileCallback(int event, void * data)

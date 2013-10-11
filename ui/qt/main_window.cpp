@@ -147,6 +147,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->searchFrame, SIGNAL(pushFilterSyntaxStatus(QString&)),
             main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
 
+#ifndef HAVE_LIBPCAP
+    main_ui_->menuCapture->setEnabled(false);
+#endif
+
 #if defined(Q_OS_MAC)
 #ifdef QT_MACEXTRAS_LIB
     QMacNativeToolBar *ntb = QtMacExtras::setNativeToolBar(main_ui_->mainToolBar);
@@ -198,7 +202,6 @@ MainWindow::MainWindow(QWidget *parent) :
     main_welcome_ = main_ui_->welcomePage;
 
 
-#ifdef HAVE_LIBPCAP
     connect(wsApp, SIGNAL(captureCapturePrepared(capture_session *)),
             this, SLOT(captureCapturePrepared(capture_session *)));
     connect(wsApp, SIGNAL(captureCaptureUpdateStarted(capture_session *)),
@@ -213,7 +216,6 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(captureCaptureStopping(capture_session *)));
     connect(wsApp, SIGNAL(captureCaptureFailed(capture_session *)),
             this, SLOT(captureCaptureFailed(capture_session *)));
-#endif
 
     connect(wsApp, SIGNAL(captureFileOpened(const capture_file*)),
             this, SLOT(captureFileOpened(const capture_file*)));

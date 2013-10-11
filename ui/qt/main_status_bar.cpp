@@ -299,6 +299,7 @@ void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
 {
     QString packets_str;
 
+#ifdef HAVE_LIBPCAP
     /* Do we have any packets? */
     if ((!cap_session || cap_session->cf == cap_file_) && cap_file_ && cap_file_->count) {
         packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 %4 Marked: %3"))
@@ -322,8 +323,12 @@ void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
                                         .arg(computed_elapsed%1000));
         }
     } else {
+#else
         packets_str = tr("No Packets");
+#endif // HAVE_LIBPCAP
+#ifdef HAVE_LIBPCAP
     }
+#endif // HAVE_LIBPCAP
 
     popPacketStatus();
     pushPacketStatus(packets_str);

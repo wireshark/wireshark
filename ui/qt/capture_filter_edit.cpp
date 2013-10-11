@@ -281,7 +281,9 @@ void CaptureFilterEdit::checkFilter()
 
 void CaptureFilterEdit::initCaptureFilter()
 {
+#ifdef HAVE_LIBPCAP
     setText(global_capture_opts.default_options.cfilter);
+#endif // HAVE_LIBPCAP
 }
 
 void CaptureFilterEdit::setFilterSyntaxState(QString filter, bool valid, QString err_msg)
@@ -295,6 +297,7 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, bool valid, QString
         }
     }
 
+#ifdef HAVE_LIBPCAP
     if (syntaxState() != Invalid) {
         bookmark_button_->setEnabled(true);
         if (apply_button_) {
@@ -327,6 +330,7 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, bool valid, QString
             }
         }
     }
+#endif // HAVE_LIBPCAP
 
     emit captureFilterSyntaxChanged(valid);
 }

@@ -23,7 +23,9 @@
 
 #include "interface_tree.h"
 
+#ifdef HAVE_LIBPCAP
 #include "ui/capture_globals.h"
+#endif
 #include "ui/iface_lists.h"
 #include "ui/utf8_entities.h"
 #include "ui/ui_util.h"
@@ -39,9 +41,11 @@
 const int stat_update_interval_ = 1000; // ms
 
 InterfaceTree::InterfaceTree(QWidget *parent) :
-    QTreeWidget(parent),
-    stat_cache_(NULL),
-    stat_timer_(NULL)
+    QTreeWidget(parent)
+#ifdef HAVE_LIBPCAP
+    ,stat_cache_(NULL)
+    ,stat_timer_(NULL)
+#endif // HAVE_LIBPCAP
 {
     QTreeWidgetItem *ti;
 
@@ -65,6 +69,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
 }
 
 InterfaceTree::~InterfaceTree() {
+#ifdef HAVE_LIBPCAP
     QTreeWidgetItemIterator iter(this);
 
     if (stat_cache_) {
@@ -79,22 +84,27 @@ InterfaceTree::~InterfaceTree() {
         delete(points);
         ++iter;
     }
+#endif // HAVE_LIBPCAP
 }
 
 void InterfaceTree::hideEvent(QHideEvent *evt) {
     Q_UNUSED(evt);
 
+#ifdef HAVE_LIBPCAP
     if (stat_timer_) stat_timer_->stop();
     if (stat_cache_) {
         capture_stat_stop(stat_cache_);
         stat_cache_ = NULL;
     }
+#endif // HAVE_LIBPCAP
 }
 
 void InterfaceTree::showEvent(QShowEvent *evt) {
     Q_UNUSED(evt);
 
+#ifdef HAVE_LIBPCAP
     if (stat_timer_) stat_timer_->start(stat_update_interval_);
+#endif // HAVE_LIBPCAP
 }
 
 void InterfaceTree::resizeEvent(QResizeEvent *evt)
@@ -112,6 +122,7 @@ void InterfaceTree::resizeEvent(QResizeEvent *evt)
 
 void InterfaceTree::getInterfaceList()
 {
+#ifdef HAVE_LIBPCAP
     GList *if_list;
     int err;
     gchar *err_str = NULL;
@@ -178,9 +189,19 @@ void InterfaceTree::getInterfaceList()
         connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
         stat_timer_->start(stat_update_interval_);
     }
+#else
+    QTreeWidgetItem *ti = new QTreeWidgetItem();
+
+    clear();
+    setColumnCount(1);
+    ti->setText(0, tr("Interface information not available"));
+    addTopLevelItem(ti);
+    resizeColumnToContents(0);
+#endif // HAVE_LIBPCAP
 }
 
 void InterfaceTree::updateStatistics(void) {
+#ifdef HAVE_LIBPCAP
     interface_t device;
     guint diff, if_idx;
     struct pcap_stat stats;
@@ -218,10 +239,12 @@ void InterfaceTree::updateStatistics(void) {
         }
         iter++;
     }
+#endif // HAVE_LIBPCAP
 }
 
 void InterfaceTree::updateSelectedInterfaces()
 {
+#ifdef HAVE_LIBPCAP
     QTreeWidgetItemIterator iter(this);
 
     global_capture_opts.num_selected = 0;
@@ -253,6 +276,7 @@ void InterfaceTree::updateSelectedInterfaces()
         }
         iter++;
     }
+#endif // HAVE_LIBPCAP
 }
 
 /*

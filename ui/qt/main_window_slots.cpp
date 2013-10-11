@@ -48,7 +48,6 @@
 #include "capture.h"
 #include "capture-pcap-util.h"
 #include "capture_ui_utils.h"
-#include "capture_session.h"
 #endif
 
 #include "wsutil/file_util.h"
@@ -290,8 +289,8 @@ void MainWindow::layoutPanes()
 
 // Capture callbacks
 
-#ifdef HAVE_LIBPCAP
 void MainWindow::captureCapturePrepared(capture_session *cap_session) {
+#ifdef HAVE_LIBPCAP
     qDebug() << "FIX captureCapturePrepared";
     setTitlebarForCaptureInProgress();
 
@@ -309,9 +308,13 @@ void MainWindow::captureCapturePrepared(capture_session *cap_session) {
 //    main_set_for_capture_file(FALSE);
     main_ui_->mainStack->setCurrentWidget(&master_split_);
     cap_file_ = (capture_file *) cap_session->cf;
+#else
+    Q_UNUSED(cap_session)
+#endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureUpdateStarted(capture_session *cap_session) {
     Q_UNUSED(cap_session);
+#ifdef HAVE_LIBPCAP
 
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
@@ -320,9 +323,11 @@ void MainWindow::captureCaptureUpdateStarted(capture_session *cap_session) {
     setForCaptureInProgress(true);
 
     setForCapturedPackets(true);
+#endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureUpdateFinished(capture_session *cap_session) {
     Q_UNUSED(cap_session);
+#ifdef HAVE_LIBPCAP
 
     /* The capture isn't stopping any more - it's stopped. */
     capture_stopping_ = false;
@@ -333,14 +338,17 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *cap_session) {
     /* Enable menu items that make sense if you're not currently running
      a capture. */
     setForCaptureInProgress(false);
-
+#endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureFixedStarted(capture_session *cap_session) {
     Q_UNUSED(cap_session);
+#ifdef HAVE_LIBPCAP
     qDebug() << "captureCaptureFixedStarted";
+#endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureFixedFinished(capture_session *cap_session) {
     Q_UNUSED(cap_session);
+#ifdef HAVE_LIBPCAP
     qDebug() << "captureCaptureFixedFinished";
 
     /* The capture isn't stopping any more - it's stopped. */
@@ -349,23 +357,26 @@ void MainWindow::captureCaptureFixedFinished(capture_session *cap_session) {
     /* Enable menu items that make sense if you're not currently running
      a capture. */
     setForCaptureInProgress(false);
-
+#endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureStopping(capture_session *cap_session) {
     Q_UNUSED(cap_session);
+#ifdef HAVE_LIBPCAP
 
     capture_stopping_ = true;
     setMenusForCaptureStopping();
+#endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureFailed(capture_session *cap_session) {
     Q_UNUSED(cap_session);
+#ifdef HAVE_LIBPCAP
     qDebug() << "captureCaptureFailed";
     /* Capture isn't stopping any more. */
     capture_stopping_ = false;
 
     setForCaptureInProgress(false);
-}
 #endif // HAVE_LIBPCAP
+}
 
 
 // Callbacks from cfile.c via WiresharkApplication::captureFileCallback
@@ -507,6 +518,7 @@ void MainWindow::filterExpressionsChanged()
 // ui/gtk/capture_dlg.c:start_capture_confirmed
 
 void MainWindow::startCapture() {
+#ifdef HAVE_LIBPCAP
     interface_options interface_opts;
     guint i;
 
@@ -553,6 +565,7 @@ void MainWindow::startCapture() {
     } else {
         cfile.window = NULL;
     }
+#endif // HAVE_LIBPCAP
 }
 
 // Copied from ui/gtk/gui_utils.c
@@ -633,7 +646,9 @@ void MainWindow::stopCapture() {
 //    airpcap_set_toolbar_stop_capture(airpcap_if_active);
 //#endif
 
+#ifdef HAVE_LIBPCAP
     capture_stop(&global_capture_session);
+#endif // HAVE_LIBPCAP
 }
 
 // XXX - Copied from ui/gtk/menus.c
@@ -1054,6 +1069,7 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 
 void MainWindow::interfaceSelectionChanged()
 {
+#ifdef HAVE_LIBPCAP
     // XXX This doesn't disable the toolbar button when using
     // QtMacExtras.
     if (global_capture_opts.num_selected > 0 && capture_filter_valid_) {
@@ -1061,6 +1077,7 @@ void MainWindow::interfaceSelectionChanged()
     } else {
         main_ui_->actionStartCapture->setEnabled(false);
     }
+#endif // HAVE_LIBPCAP
 }
 
 void MainWindow::captureFilterSyntaxChanged(bool valid)
@@ -1938,6 +1955,7 @@ void MainWindow::on_actionStartCapture_triggered()
 
     main_ui_->mainStack->setCurrentWidget(&master_split_);
 
+#ifdef HAVE_LIBPCAP
     if (global_capture_opts.num_selected == 0) {
         QString err_msg = tr("No Interface Selected");
         main_ui_->statusBar->pushTemporaryStatus(err_msg);
@@ -1947,6 +1965,7 @@ void MainWindow::on_actionStartCapture_triggered()
     /* XXX - will closing this remove a temporary file? */
     if (testCaptureFileClose(FALSE, *new QString(" before starting a new capture")))
         startCapture();
+#endif // HAVE_LIBPCAP
 }
 
 void MainWindow::on_actionStopCapture_triggered()

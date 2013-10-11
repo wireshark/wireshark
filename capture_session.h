@@ -29,6 +29,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#ifdef HAVE_LIBPCAP
 /* Current state of capture engine. XXX - differentiate states */
 typedef enum {
     CAPTURE_STOPPED,        /**< stopped */
@@ -57,6 +58,11 @@ typedef struct {
 
 extern void
 capture_session_init(capture_session *cap_session, void *cf);
+#else
+
+typedef struct {} capture_session;
+
+#endif /* HAVE_LIBPCAP */
 
 #ifdef __cplusplus
 }
