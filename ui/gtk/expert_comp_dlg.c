@@ -32,7 +32,6 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
-#include <epan/prefs.h>
 
 #include "../stat_menu.h"
 
@@ -664,7 +663,7 @@ expert_dlg_draw(void *data)
     }
 
     list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view)); /* Get store */
-    comments_list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view_comments)); 
+    comments_list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view_comments));
 
     /* append new events (remove from new list, append to displayed list and clist) */
     while(etd->first < etd->last){
