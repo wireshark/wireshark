@@ -33,6 +33,7 @@
 #include <epan/strutil.h>
 #include "packet-ncp-int.h"
 #include "packet-ncp-sss.h"
+#include "isprint.h"
 
 static gint ett_sss = -1;
 
