@@ -203,7 +203,7 @@ RESOURCES=image\wireshark.res image\file_dlg_win32.res \
 	image\reordercap.res image\libwsutil.res
 
 
-all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) doc help install-all
+all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
 
 !IFDEF MAKENSIS
 packaging: all
@@ -1074,7 +1074,7 @@ debug-dumpcap: dumpcap.exe install-generated-files
 
 
 # install generated files (exe, "our" libs, ...)
-install-generated-files:
+install-generated-files: doc
 	set copycmd=/y
 	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
 !IF DEFINED (MSVCR_DLL) && "$(MSVC_VARIANT)" == "MSVC2008"
