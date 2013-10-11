@@ -758,7 +758,7 @@ savehex_save_clicked_cb(gchar *file, int start, int end, const guint8 *data_p)
 void
 savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 {
-    win32_export_raw_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
+    win32_export_raw_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile);
     return;
 }
 #else

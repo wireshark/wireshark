@@ -267,7 +267,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wespf_status;
 
-    wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), fname, &file_type_, &compressed_, range);
+    wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compressed_, range);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);

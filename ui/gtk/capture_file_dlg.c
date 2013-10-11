@@ -2032,7 +2032,7 @@ file_export_specified_packets_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
   for (;;) {
 #ifdef USE_WIN32_FILE_DIALOGS
     if (win32_export_specified_packets_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)),
-                                            file_name, &file_type, &compressed, &range)) {
+                                            &cfile, file_name, &file_type, &compressed, &range)) {
 #else /* USE_WIN32_FILE_DIALOGS */
     if (gtk_export_specified_packets_file(w, file_name, &file_type, &compressed, &range)) {
 #endif /* USE_WIN32_FILE_DIALOGS */
@@ -2312,7 +2312,7 @@ void
 file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 {
 #ifdef USE_WIN32_FILE_DIALOGS
-  win32_export_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), filter_list);
+  win32_export_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), &cfile, filter_list);
 #else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget *file_color_export_w;
   GtkWidget *main_vb, *cfglobal_but;

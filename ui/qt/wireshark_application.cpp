@@ -29,6 +29,7 @@
 
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
+#include "ui/util.h"
 
 #include "qt_ui_utils.h"
 

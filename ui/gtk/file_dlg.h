@@ -132,11 +132,4 @@ extern gboolean file_target_unwritable_ui(GtkWidget *chooser_w, char *cf_name);
 extern void
 file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *title, file_selection_action_t action);
 
-/** Set the latest opened directory.
- *  Will already be done when using file_selection_new().
- *
- * @param dirname the dirname
- */
-extern void set_last_open_dir(const char *dirname);
-
 #endif

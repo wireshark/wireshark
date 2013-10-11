@@ -75,7 +75,9 @@ gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
  *
  * @return TRUE if packets were discarded when saving, FALSE otherwise
  */
-gboolean win32_export_specified_packets_file(HWND h_wnd, GString *file_name,
+gboolean win32_export_specified_packets_file(HWND h_wnd,
+                                         capture_file *cf,
+                                         GString *file_name,
                                          int *file_type,
                                          gboolean *compressed,
                                          packet_range_t *range);
@@ -98,7 +100,7 @@ void win32_export_file (HWND h_wnd, capture_file *cf, export_type_e export_type)
  *
  * @param h_wnd HWND of the parent window.
  */
-void win32_export_raw_file (HWND h_wnd);
+void win32_export_raw_file (HWND h_wnd, capture_file *cf);
 
 /** Open the "Export SSL Session Keys" dialog box.
  *
@@ -111,7 +113,7 @@ void win32_export_sslkeys_file (HWND h_wnd);
  * @param h_wnd HWND of the parent window
  * @param filter_list the list to export
  */
-void win32_export_color_file(HWND h_wnd, gpointer filter_list);
+void win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list);
 
 /** Open the "Import Color Filters" dialog box
  *

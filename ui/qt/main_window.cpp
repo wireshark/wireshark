@@ -41,8 +41,9 @@
 #endif
 
 #include "ui/alert_box.h"
-#include "ui/main_statusbar.h"
 #include "ui/capture_globals.h"
+#include "ui/main_statusbar.h"
+#include "ui/util.h"
 
 #include "wireshark_application.h"
 #include "proto_tree.h"

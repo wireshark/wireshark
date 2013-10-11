@@ -52,6 +52,12 @@ void compute_timestamp_diff(gint *diffsec, gint *diffusec,
  */
 const char *get_conn_cfilter(void);
 
+/** Set the latest opened directory.
+ *  Will already be done when using file_selection_new().
+ *
+ * @param dirname the dirname
+ */
+extern void set_last_open_dir(const char *dirname);
 
 #ifdef __cplusplus
 }

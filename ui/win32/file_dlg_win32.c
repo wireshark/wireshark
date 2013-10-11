@@ -38,7 +38,7 @@
 #include <richedit.h>
 #include <strsafe.h>
 
-#include <gtk/gtk.h>
+#include "file.h"
 
 #include "wsutil/file_util.h"
 #include "wsutil/unicode-utils.h"
@@ -61,14 +61,7 @@
 #include "ui/ssl_key_export.h"
 #include "ui/util.h"
 
-#include "ui/gtk/main.h"
-#include "ui/gtk/file_dlg.h"
-#include "ui/gtk/capture_file_dlg.h"
-#include "ui/gtk/menus.h"
-#include "ui/gtk/drag_and_drop.h"
-#include "ui/gtk/capture_dlg.h"
 #include "file_dlg_win32.h"
-#include "ui/gtk/export_sslkeys.h"
 
 #define FILE_OPEN_DEFAULT 1 /* All Files */
 
@@ -117,6 +110,7 @@ static TCHAR *build_file_save_type_list(GArray *savable_file_types);
 static int             g_filetype;
 static gboolean        g_compressed;
 static packet_range_t *g_range;
+static capture_file   *g_cf;
 static merge_action_e  g_merge_action;
 static print_args_t    print_args;
 /* XXX - The reason g_sf_hwnd exists is so that we can call
@@ -393,6 +387,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
+    ofn->lCustData = (LPARAM) cf;
     ofn->lpfnHook = save_as_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_SAVEASFILENAME_TEMPLATE");
 
@@ -423,7 +418,8 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
 }
 
 gboolean
-win32_export_specified_packets_file(HWND h_wnd, GString *file_name,
+win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
+                                    GString *file_name,
                                     int *file_type,
                                     gboolean *compressed,
                                     packet_range_t *range) {
@@ -443,12 +439,13 @@ win32_export_specified_packets_file(HWND h_wnd, GString *file_name,
         StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
     }
 
-    savable_file_types = wtap_get_savable_file_types(cfile.cd_t,
-                                                     cfile.linktypes, 0);
+    savable_file_types = wtap_get_savable_file_types(cf->cd_t,
+                                                     cf->linktypes, 0);
     if (savable_file_types == NULL)
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
 
     g_range = range;
+    g_cf = cf;
     g_compressed = FALSE;
 
     /* see OPENFILENAME comment in win32_open_file */
@@ -507,6 +504,7 @@ win32_export_specified_packets_file(HWND h_wnd, GString *file_name,
 
     g_sf_hwnd = NULL;
     g_range = NULL;
+    g_cf = NULL;
     g_array_free(savable_file_types, TRUE);
     g_free( (void *) ofn->lpstrFilter);
     g_free( (void *) ofn);
@@ -648,6 +646,7 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
+    ofn->lCustData = (LPARAM) cf;
     ofn->lpfnHook = export_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_EXPORTFILENAME_TEMPLATE");
 
@@ -719,7 +718,7 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
 }
 
 void
-win32_export_raw_file(HWND h_wnd) {
+win32_export_raw_file(HWND h_wnd, capture_file *cf) {
     OPENFILENAME *ofn;
     TCHAR         file_name[MAX_PATH] = _T("");
     char         *dirname;
@@ -731,7 +730,7 @@ win32_export_raw_file(HWND h_wnd) {
     OSVERSIONINFO osvi;
 #endif
 
-    if (!cfile.finfo_selected) {
+    if (!cf->finfo_selected) {
         /* This shouldn't happen */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No bytes were selected.");
         return;
@@ -769,26 +768,26 @@ win32_export_raw_file(HWND h_wnd) {
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
-    ofn->lCustData = cfile.finfo_selected->length;
+    ofn->lCustData = cf->finfo_selected->length;
     ofn->lpfnHook = export_raw_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_EXPORTRAWFILENAME_TEMPLATE");
 
     /*
      * XXX - The GTK+ code uses get_byte_view_data_and_length().  We just
-     * grab the info from cfile.finfo_selected.  Which is more "correct"?
+     * grab the info from cf->finfo_selected.  Which is more "correct"?
      */
 
     if (GetSaveFileName(ofn)) {
         g_free( (void *) ofn);
         file_name8 = utf_16to8(file_name);
-        data_p = tvb_get_ptr(cfile.finfo_selected->ds_tvb, 0, -1) +
-                cfile.finfo_selected->start;
+        data_p = tvb_get_ptr(cf->finfo_selected->ds_tvb, 0, -1) +
+                cf->finfo_selected->start;
         fd = ws_open(file_name8, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
         if (fd == -1) {
             open_failure_alert_box(file_name8, errno, TRUE);
             return;
         }
-        if (write(fd, data_p, cfile.finfo_selected->length) < 0) {
+        if (write(fd, data_p, cf->finfo_selected->length) < 0) {
             write_failure_alert_box(file_name8, errno);
             close(fd);
             return;
@@ -899,7 +898,7 @@ win32_export_sslkeys_file(HWND h_wnd) {
 }
 
 void
-win32_export_color_file(HWND h_wnd, gpointer filter_list) {
+win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list) {
     OPENFILENAME *ofn;
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
@@ -943,7 +942,7 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
     ofn->lpfnHook = NULL;
     ofn->lpTemplateName = NULL;
 
-    g_filetype = cfile.cd_t;
+    g_filetype = cf->cd_t;
 
     /* XXX - Support marked filters */
     if (GetSaveFileName(ofn)) {
@@ -1660,11 +1659,13 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     /*int            new_filetype, index;*/
 
     switch(msg) {
-        case WM_INITDIALOG:
+        case WM_INITDIALOG: {
+            OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
+            capture_file *cf = (capture_file *) ofnp->lCustData;
             g_sf_hwnd = sf_hwnd;
 
             /* Default to saving in the file's current format. */
-            g_filetype = cfile.cd_t;
+            g_filetype = cf->cd_t;
 
             /* Fill in the file format list */
             /*build_file_format_list(sf_hwnd);*/
@@ -1673,6 +1674,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             SendMessage(cur_ctrl, BM_SETCHECK, g_compressed, 0);
 
             break;
+        }
         case WM_COMMAND:
             cur_ctrl = (HWND) l_param;
 
@@ -1723,6 +1725,8 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 case CDN_FILEOK: {
                     HWND   parent;
                     char  *file_name8;
+                    OPENFILENAME *ofnp = (OPENFILENAME *) notify->lpOFN;
+                    capture_file *cf = (capture_file *) ofnp->lCustData;
 
                     /* Fetch our compression value */
                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
@@ -1734,7 +1738,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     /* Check if we're trying to overwrite the currently open file */
                     parent = GetParent(sf_hwnd);
                     file_name8 = utf_16to8(notify->lpOFN->lpstrFile);
-                    if (files_identical(cfile.filename, file_name8)) {
+                    if (files_identical(cf->filename, file_name8)) {
                         /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
                         gchar *str = g_strdup_printf(
                             "Capture File \"%s\" identical to loaded file.\n\n"
@@ -1765,11 +1769,11 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
     /*int            new_filetype, index;*/
 
     switch(msg) {
-        case WM_INITDIALOG:
+        case WM_INITDIALOG: {
             g_sf_hwnd = sf_hwnd;
 
             /* Default to saving all packets, in the file's current format. */
-            g_filetype = cfile.cd_t;
+            g_filetype = g_cf->cd_t;
 
             /* Fill in the file format list */
             /*build_file_format_list(sf_hwnd);*/
@@ -1781,6 +1785,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
             SendMessage(cur_ctrl, BM_SETCHECK, g_compressed, 0);
 
             break;
+        }
         case WM_COMMAND:
             cur_ctrl = (HWND) l_param;
 
@@ -1823,6 +1828,8 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                 case CDN_FILEOK: {
                     HWND   parent;
                     char  *file_name8;
+                    OPENFILENAME *ofnp = (OPENFILENAME *) notify->lpOFN;
+                    capture_file *cf = (capture_file *) ofnp->lCustData;
 
                     /* Fetch our compression value */
                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
@@ -1834,7 +1841,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                     /* Check if we're trying to overwrite the currently open file */
                     parent = GetParent(sf_hwnd);
                     file_name8 = utf_16to8(notify->lpOFN->lpstrFile);
-                    if (files_identical(cfile.filename, file_name8)) {
+                    if (files_identical(cf->filename, file_name8)) {
                         /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
                         gchar *str = g_strdup_printf(
                             "Capture File \"%s\" identical to loaded file.\n\n"
@@ -1878,9 +1885,9 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_CAP);
     EnableWindow(cur_ctrl, !filtered_active);
     if (range->remove_ignored) {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), cfile.count - range->ignored_cnt);
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), g_cf->count - range->ignored_cnt);
     } else {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), cfile.count);
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), g_cf->count);
     }
     SetWindowText(cur_ctrl, static_val);
 
@@ -1898,10 +1905,10 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_CURR */
-    selected_num = (cfile.current_frame) ? cfile.current_frame->num : 0;
+    selected_num = (g_cf->current_frame) ? g_cf->current_frame->num : 0;
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_CAP);
     EnableWindow(cur_ctrl, selected_num && !filtered_active);
-    if (range->remove_ignored && cfile.current_frame && cfile.current_frame->flags.ignored) {
+    if (range->remove_ignored && g_cf->current_frame && g_cf->current_frame->flags.ignored) {
         StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("0"));
     } else {
         StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), selected_num ? 1 : 0);
@@ -1910,7 +1917,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_DISP);
     EnableWindow(cur_ctrl, selected_num && filtered_active);
-    if (range->remove_ignored && cfile.current_frame && cfile.current_frame->flags.ignored) {
+    if (range->remove_ignored && g_cf->current_frame && g_cf->current_frame->flags.ignored) {
         StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("0"));
     } else {
         StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), selected_num ? 1 : 0);
@@ -1919,19 +1926,19 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
 
     /* RANGE_SELECT_MARKED */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_BTN);
-    EnableWindow(cur_ctrl, cfile.marked_count);
+    EnableWindow(cur_ctrl, g_cf->marked_count);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_CAP);
-    EnableWindow(cur_ctrl, cfile.marked_count && !filtered_active);
+    EnableWindow(cur_ctrl, g_cf->marked_count && !filtered_active);
     if (range->remove_ignored) {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), cfile.marked_count - range->ignored_marked_cnt);
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), g_cf->marked_count - range->ignored_marked_cnt);
     } else {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), cfile.marked_count);
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), g_cf->marked_count);
     }
     SetWindowText(cur_ctrl, static_val);
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_DISP);
-    EnableWindow(cur_ctrl, cfile.marked_count && filtered_active);
+    EnableWindow(cur_ctrl, g_cf->marked_count && filtered_active);
     if (range->remove_ignored) {
         StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_marked_cnt - range->displayed_ignored_marked_cnt);
     } else {
@@ -2015,7 +2022,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
             displayed_ignored_cnt = range->displayed_ignored_cnt;
             break;
         case(range_process_selected):
-            ignored_cnt = (cfile.current_frame && cfile.current_frame->flags.ignored) ? 1 : 0;
+            ignored_cnt = (g_cf->current_frame && g_cf->current_frame->flags.ignored) ? 1 : 0;
             displayed_ignored_cnt = ignored_cnt;
             break;
         case(range_process_marked):
@@ -2243,15 +2250,19 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     int            i, index;
 
     switch(msg) {
-        case WM_INITDIALOG:
+        case WM_INITDIALOG: {
+            OPENFILENAME *ofnp = (OPENFILENAME *) l_param;
+            capture_file *cf = (capture_file *) ofnp->lCustData;
+
             /* init the printing range */
-            packet_range_init(&print_args.range, &cfile);
+            packet_range_init(&print_args.range, cf);
             /* default to displayed packets */
             print_args.range.process_filtered = TRUE;
             range_handle_wm_initdialog(ef_hwnd, &print_args.range);
             format_handle_wm_initdialog(ef_hwnd, &print_args);
 
             break;
+        }
         case WM_COMMAND:
             cur_ctrl = (HWND) l_param;
             switch (w_param) {
