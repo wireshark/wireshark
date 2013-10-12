@@ -582,7 +582,7 @@ init_progfile_dir(const char *arg0
 
     execname = get_executable_path();
 #ifdef HAVE_DLADDR
-    if (execname == NULL) {
+    if (main_addr != NULL && execname == NULL) {
         /*
          * Try to use dladdr() to find the pathname of the executable.
          * dladdr() is not guaranteed to give you anything better than
