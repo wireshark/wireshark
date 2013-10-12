@@ -149,36 +149,27 @@ tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 static inline int
 validate_offset(const tvbuff_t *tvb, const guint abs_offset)
 {
-	int exception;
-
 	if (G_LIKELY(abs_offset <= tvb->length))
-		exception = 0;
+		return 0;
 	else if (abs_offset <= tvb->reported_length)
-		exception = BoundsError;
-	else {
-		if (tvb->flags & TVBUFF_FRAGMENT)
-			exception = FragmentBoundsError;
-		else
-			exception = ReportedBoundsError;
-	}
-
-	return exception;
+		return BoundsError;
+	else if (tvb->flags & TVBUFF_FRAGMENT)
+		return FragmentBoundsError;
+	else
+		return ReportedBoundsError;
 }
 
 static int
 compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 {
-	int exception;
-
 	if (offset >= 0) {
 		/* Positive offset - relative to the beginning of the packet. */
 		if ((guint) offset > tvb->reported_length) {
 			if (tvb->flags & TVBUFF_FRAGMENT) {
-				exception = FragmentBoundsError;
+				return FragmentBoundsError;
 			} else {
-				exception = ReportedBoundsError;
+				return ReportedBoundsError;
 			}
-			return exception;
 		}
 		else if ((guint) offset > tvb->length) {
 			return BoundsError;
@@ -191,11 +182,10 @@ compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 		/* Negative offset - relative to the end of the packet. */
 		if ((guint) -offset > tvb->reported_length) {
 			if (tvb->flags & TVBUFF_FRAGMENT) {
-				exception = FragmentBoundsError;
+				return FragmentBoundsError;
 			} else {
-				exception = ReportedBoundsError;
+				return ReportedBoundsError;
 			}
-			return exception;
 		}
 		else if ((guint) -offset > tvb->length) {
 			return BoundsError;
@@ -269,11 +259,9 @@ check_offset_length_no_exception(const tvbuff_t *tvb,
 	 * Check for an overflow
 	 */
 	if (end_offset < *offset_ptr)
-		exception = BoundsError;
-	else
-		exception = validate_offset(tvb, end_offset);
+		return BoundsError;
 
-	return exception;
+	return validate_offset(tvb, end_offset);
 }
 
 /* Checks (+/-) offset and length and throws an exception if
