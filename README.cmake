@@ -55,9 +55,8 @@ Note 4:
   To get predictable results please set umask explicitly.
 
 How to do out of tree build (Win32/64):
-[This is early alpha and while the build should build all executables except
- the GUIs don't waste your time testing unless you are willing to fix things
- yourself]
+[This is advanced alpha and should build all executables except the GTK3
+ Wireshark for 32-bit.]
 1) Follow http://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html
    Steps 1-9
 1a) Set WIRESHARK_BASE_DIR=c:\wireshark (the parent directory of the

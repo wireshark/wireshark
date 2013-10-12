@@ -284,9 +284,10 @@ endif()
 
 
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	set(WIRESHARK_LD_FLAGS
-		/LARGEADDRESSAWARE
-	)
+	# Set in Makefile.nmake but doesn't seem to have any effect
+	# set(WIRESHARK_LD_FLAGS
+	# 	/LARGEADDRESSAWARE
+	# )
 else()
 	set(WIRESHARK_LD_FLAGS
 		-Wl,--as-needed
