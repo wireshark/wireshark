@@ -565,13 +565,6 @@ free_node_tree_data(tree_data_t *tree_data)
 	g_free(tree_data);
 }
 
-#define FREE_NODE_FIELD_INFO(finfo)	\
-	if (finfo->rep) {			\
-		ITEM_LABEL_FREE(finfo->rep);	\
-	}				\
-	FVALUE_CLEANUP(&finfo->value);	\
-	FIELD_INFO_FREE(finfo);
-
 static void
 proto_tree_free_node(proto_node *node, gpointer data _U_)
 {
@@ -579,12 +572,7 @@ proto_tree_free_node(proto_node *node, gpointer data _U_)
 
 	proto_tree_children_foreach(node, proto_tree_free_node, NULL);
 
-	/* free the field_info data. */
-	FREE_NODE_FIELD_INFO(finfo);
-	node->finfo = NULL;
-
-	/* Free the proto_node. */
-	PROTO_NODE_FREE(node);
+	FVALUE_CLEANUP(&finfo->value);
 }
 
 /* frees the resources that the dissection a proto_tree uses */
@@ -595,11 +583,9 @@ proto_tree_free(proto_tree *tree)
 
 	proto_tree_children_foreach(tree, proto_tree_free_node, NULL);
 
-	/* free root node */
-	PROTO_NODE_FREE(tree);
-
-	/* free tree data */
 	free_node_tree_data(tree_data);
+
+	wmem_free_all(tree_pool);
 }
 
 /* Is the parsing being done for a visible proto_tree or an invisible one?
