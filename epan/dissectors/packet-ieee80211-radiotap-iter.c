@@ -74,7 +74,7 @@ static const struct ieee80211_radiotap_namespace radiotap_ns = {
  */
 #define ITERATOR_VALID(iterator, size) \
     (((iterator)->_arg + (size) - (unsigned char *)((iterator)->_rtheader)) <= \
-        (ptrdiff_t)((iterator)->_max_length - sizeof(guint32)))
+        (ptrdiff_t)(iterator)->_max_length)
 
 /**
  * ieee80211_radiotap_iterator_init - radiotap parser iterator initialization
@@ -120,6 +120,9 @@ int ieee80211_radiotap_iterator_init(
 	struct ieee80211_radiotap_header *radiotap_header,
 	int max_length, const struct ieee80211_radiotap_vendor_namespaces *vns)
 {
+	if (max_length < (int)sizeof(struct ieee80211_radiotap_header))
+		return -EINVAL;
+
 	/* Linux only supports version 0 radiotap format */
 	if (radiotap_header->it_version)
 		return -EINVAL;
@@ -145,9 +148,6 @@ int ieee80211_radiotap_iterator_init(
 #endif
 
 	/* find payload start allowing for extended bitmap(s) */
-	if (!ITERATOR_VALID(iterator, 0))
-		return -EINVAL;
-
 	if (iterator->_bitmap_shifter & (1<<IEEE80211_RADIOTAP_EXT)) {
 		while (get_unaligned_le32(iterator->_arg) &
 					(1 << IEEE80211_RADIOTAP_EXT)) {
@@ -159,7 +159,7 @@ int ieee80211_radiotap_iterator_init(
 			 * stated radiotap header length
 			 */
 
-			if (!ITERATOR_VALID(iterator, 0))
+			if (!ITERATOR_VALID(iterator, sizeof(guint32)))
 				return -EINVAL;
 		}
 
