@@ -46,6 +46,7 @@
 #include <glib.h>
 
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 
 #include "ipv4.h"
 #include "wsutil/nstime.h"
@@ -485,7 +486,7 @@ typedef struct {
     gboolean     fake_protocols;
     gint         count;
     struct _packet_info *pinfo;
-    field_info  *fi_tmp;
+    wmem_allocator_t    *mem_pool;
 } tree_data_t;
 
 /** Each proto_tree, proto_item is one of these. */
@@ -608,6 +609,9 @@ WS_DLL_PUBLIC void proto_tree_children_foreach(proto_tree *tree,
 
 /** Retrieve the tree_data_t from a proto_tree */
 #define PTREE_DATA(proto_tree)   ((proto_tree)->tree_data)
+
+/** Retrieve the wmem_allocator_t from a proto_node */
+#define PNODE_POOL(proto_node)   ((proto_node)->tree_data->mem_pool)
 
 /** Sets up memory used by proto routines. Called at program startup */
 void proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_data),

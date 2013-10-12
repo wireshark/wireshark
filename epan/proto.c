@@ -252,28 +252,28 @@ struct _protocol {
 /* List of all protocols */
 static GList *protocols = NULL;
 
-wmem_allocator_t *tree_pool = NULL;
+static wmem_allocator_t *tree_pool_cache = NULL;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
-#define FIELD_INFO_NEW(fi)  fi = wmem_new(tree_pool, field_info)
-#define FIELD_INFO_FREE(fi) wmem_free(tree_pool, fi)
+#define FIELD_INFO_NEW(pool, fi)  fi = wmem_new(pool, field_info)
+#define FIELD_INFO_FREE(pool, fi) wmem_free(pool, fi)
 
 /* Contains the space for proto_nodes. */
-#define PROTO_NODE_NEW(node)				\
-	node = wmem_new(tree_pool, proto_node);		\
+#define PROTO_NODE_NEW(pool, node)			\
+	node = wmem_new(pool, proto_node);		\
 	node->first_child = NULL;			\
 	node->last_child = NULL;			\
 	node->next = NULL;
 
-#define PROTO_NODE_FREE(node)				\
-	wmem_free(tree_pool, node)
+#define PROTO_NODE_FREE(pool, node)			\
+	wmem_free(pool, node)
 
 /* String space for protocol and field items for the GUI */
-#define ITEM_LABEL_NEW(il)				\
-	il = wmem_new(tree_pool, item_label_t);
-#define ITEM_LABEL_FREE(il)				\
-	wmem_free(tree_pool, il);
+#define ITEM_LABEL_NEW(pool, il)			\
+	il = wmem_new(pool, item_label_t);
+#define ITEM_LABEL_FREE(pool, il)			\
+	wmem_free(pool, il);
 
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo)						\
 	if((guint)hfindex >= gpa_hfinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))	\
@@ -331,7 +331,6 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 {
 	proto_cleanup();
 
-	tree_pool          = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
 	proto_names        = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
 	proto_short_names  = g_hash_table_new(wrs_str_hash, g_str_equal);
 	proto_filter_names = g_hash_table_new(wrs_str_hash, g_str_equal);
@@ -405,10 +404,6 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 void
 proto_cleanup(void)
 {
-	if (tree_pool) {
-		wmem_destroy_allocator(tree_pool);
-		tree_pool = NULL;
-	}
 	/* Free the abbrev/ID GTree */
 	if (gpa_name_tree) {
 		g_tree_destroy(gpa_name_tree);
@@ -548,8 +543,25 @@ free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 }
 
 static void
-free_node_tree_data(tree_data_t *tree_data)
+proto_tree_free_node(proto_node *node, gpointer data _U_)
 {
+	field_info *finfo  = PNODE_FINFO(node);
+
+	proto_tree_children_foreach(node, proto_tree_free_node, NULL);
+
+	FVALUE_CLEANUP(&finfo->value);
+}
+
+/* frees the resources that the dissection a proto_tree uses */
+void
+proto_tree_free(proto_tree *tree)
+{
+	wmem_allocator_t *pool = PNODE_POOL(tree);
+	tree_data_t *tree_data = PTREE_DATA(tree);
+
+	proto_tree_children_foreach(tree, proto_tree_free_node, NULL);
+
+	/* free tree data */
 	if (tree_data->interesting_hfids) {
 		/* Free all the GPtrArray's in the interesting_hfids hash. */
 		g_hash_table_foreach(tree_data->interesting_hfids,
@@ -558,48 +570,15 @@ free_node_tree_data(tree_data_t *tree_data)
 		/* And then destroy the hash. */
 		g_hash_table_destroy(tree_data->interesting_hfids);
 	}
-	if (tree_data->fi_tmp)
-		FIELD_INFO_FREE(tree_data->fi_tmp);
 
-	/* And finally the tree_data_t itself. */
-	g_free(tree_data);
-}
-
-#define FREE_NODE_FIELD_INFO(finfo)	\
-	if (finfo->rep) {			\
-		ITEM_LABEL_FREE(finfo->rep);	\
-	}				\
-	FVALUE_CLEANUP(&finfo->value);	\
-	FIELD_INFO_FREE(finfo);
-
-static void
-proto_tree_free_node(proto_node *node, gpointer data _U_)
-{
-	field_info *finfo  = PNODE_FINFO(node);
-
-	proto_tree_children_foreach(node, proto_tree_free_node, NULL);
-
-	/* free the field_info data. */
-	FREE_NODE_FIELD_INFO(finfo);
-	node->finfo = NULL;
-
-	/* Free the proto_node. */
-	PROTO_NODE_FREE(node);
-}
-
-/* frees the resources that the dissection a proto_tree uses */
-void
-proto_tree_free(proto_tree *tree)
-{
-	tree_data_t *tree_data = PTREE_DATA(tree);
-
-	proto_tree_children_foreach(tree, proto_tree_free_node, NULL);
-
-	/* free root node */
-	PROTO_NODE_FREE(tree);
-
-	/* free tree data */
-	free_node_tree_data(tree_data);
+	if (tree_pool_cache) {
+		/* if we already have one cached then just destroy it */
+		wmem_destroy_allocator(pool);
+	}
+	else {
+		wmem_free_all(pool);
+		tree_pool_cache = pool;
+	}
 }
 
 /* Is the parsing being done for a visible proto_tree or an invisible one?
@@ -1054,25 +1033,10 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 static void
 report_type_length_mismatch(proto_tree *tree, const gchar *descr, int length, gboolean is_error) {
 
-	tree_data_t *tree_data = NULL;
-	field_info *fi_save = NULL;
-
-	if (tree) {
-		tree_data = PTREE_DATA(tree);
-		fi_save = tree_data->fi_tmp;
-
-		/* Keep the current item from getting freed by proto_tree_new_item. */
-		tree_data->fi_tmp = NULL;
-	}
-
 	if (is_error) {
 		expert_add_info_format(NULL, tree, &ei_type_length_mismatch_error, "Trying to fetch %s with length %d", descr, length);
 	} else {
 		expert_add_info_format(NULL, tree, &ei_type_length_mismatch_warn, "Trying to fetch %s with length %d", descr, length);
-	}
-
-	if (tree) {
-		tree_data->fi_tmp = fi_save;
 	}
 
 	if (is_error) {
@@ -1207,7 +1171,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		    tvbuff_t *tvb, gint start, gint length,
 		    guint encoding)
 {
-	tree_data_t *tree_data = PTREE_DATA(tree);
 	proto_item *pi;
 	guint32	    value, n;
 	float	    floatval;
@@ -1217,24 +1180,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	guint32     tmpsecs;
 	guint64     todsecs;
 	gboolean    length_error;
-
-	/* there is a possibility here that we might raise an exception
-	 * and thus would lose track of the field_info.
-	 * store it in a temp so that if we come here again we can reclaim
-	 * the field_info without leaking memory.
-	 */
-	if (tree_data->fi_tmp) {
-		/* oops, last one we got must have been lost due
-		 * to an exception.
-		 * good thing we saved it, now we can reverse the
-		 * memory leak and reclaim it.
-		 */
-		FIELD_INFO_FREE(tree_data->fi_tmp);
-	}
-	/* we might throw an exception, keep track of this one
-	 * across the "dangerous" section below.
-	*/
-	tree_data->fi_tmp = new_fi;
 
 	switch (new_fi->hfinfo->type) {
 		case FT_NONE:
@@ -1764,11 +1709,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	/* XXX. wouldn't be better to add this item to tree, with some special flag (FI_EXCEPTION?)
 	 *      to know which item caused exception? */
 	pi = proto_tree_add_node(tree, new_fi);
-
-	/* we did not raise an exception so we dont have to remember this
-	 * field_info struct any more.
-	 */
-	tree_data->fi_tmp = NULL;
 
 	return pi;
 }
@@ -3344,7 +3284,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 		/* XXX - is it safe to continue here? */
 	}
 
-	PROTO_NODE_NEW(pnode);
+	PROTO_NODE_NEW(PNODE_POOL(tree), pnode);
 	pnode->parent = tnode;
 	PNODE_FINFO(pnode) = fi;
 	pnode->tree_data = PTREE_DATA(tree);
@@ -3514,7 +3454,7 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 {
 	field_info *fi;
 
-	FIELD_INFO_NEW(fi);
+	FIELD_INFO_NEW(PNODE_POOL(tree), fi);
 
 	fi->hfinfo     = hfinfo;
 	fi->start      = start;
@@ -3577,7 +3517,7 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 
 		hf = fi->hfinfo;
 
-		ITEM_LABEL_NEW(fi->rep);
+		ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
 		if (hf->bitmask && (hf->type == FT_BOOLEAN || IS_FT_UINT(hf->type))) {
 			guint32 val;
 			char *p;
@@ -3619,7 +3559,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 	DISSECTOR_ASSERT(fi);
 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
-		ITEM_LABEL_NEW(fi->rep);
+		ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
 		ret = g_vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
 				  format, ap);
 		if (ret >= ITEM_LABEL_LENGTH) {
@@ -3994,7 +3934,7 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 		return;
 
 	if (fi->rep) {
-		ITEM_LABEL_FREE(fi->rep);
+		ITEM_LABEL_FREE(PNODE_POOL(pi), fi->rep);
 		fi->rep = NULL;
 	}
 
@@ -4026,7 +3966,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 		 * generate the default representation.
 		 */
 		if (fi->rep == NULL) {
-			ITEM_LABEL_NEW(fi->rep);
+			ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
 			proto_item_fill_label(fi, fi->rep->representation);
 		}
 
@@ -4063,7 +4003,7 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 		 * generate the default representation.
 		 */
 		if (fi->rep == NULL) {
-			ITEM_LABEL_NEW(fi->rep);
+			ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
 			proto_item_fill_label(fi, representation);
 		} else
 			g_strlcpy(representation, fi->rep->representation, ITEM_LABEL_LENGTH);
@@ -4134,16 +4074,27 @@ proto_item_get_len(const proto_item *pi)
 proto_tree *
 proto_tree_create_root(packet_info *pinfo)
 {
+	wmem_allocator_t *pool;
 	proto_node *pnode;
 
+	if (tree_pool_cache) {
+		pool = tree_pool_cache;
+		tree_pool_cache = NULL;
+	}
+	else {
+		pool = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+	}
+
 	/* Initialize the proto_node */
-	PROTO_NODE_NEW(pnode);
+	PROTO_NODE_NEW(pool, pnode);
 	pnode->parent = NULL;
 	PNODE_FINFO(pnode) = NULL;
-	pnode->tree_data = g_new(tree_data_t, 1);
+	pnode->tree_data = wmem_new(pool, tree_data_t);
 
 	/* Make sure we can access pinfo everywhere */
 	pnode->tree_data->pinfo = pinfo;
+
+	pnode->tree_data->mem_pool = pool;
 
 	/* Don't initialize the tree_data_t. Wait until we know we need it */
 	pnode->tree_data->interesting_hfids = NULL;
@@ -4159,8 +4110,6 @@ proto_tree_create_root(packet_info *pinfo)
 
 	/* Keep track of the number of children */
 	pnode->tree_data->count = 0;
-
-	pnode->tree_data->fi_tmp = NULL;
 
 	return (proto_tree *)pnode;
 }
