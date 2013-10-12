@@ -910,7 +910,10 @@ $(CHECK_TAG): _FORCE_
 # contain old files remaining from a previous setup run.
 setup: verify_tools clean_setup process_libs
 
-
+install_qt:
+	$(SH) $(WIN_SETUP) --download "C:\Qt" \
+		. Qt-5.1.1-MSVC2010-$(WIRESHARK_TARGET_PLATFORM)-ws.zip
+	
 # The process_libs target when invoked causes either a --libverify or a --download for all the required libraries.
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:

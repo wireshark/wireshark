@@ -24,7 +24,7 @@
 
 # 64-bit wrapper for win-setup.sh.
 
-export DOWNLOAD_TAG="2013-07-19"
+export DOWNLOAD_TAG="2013-10-11"
 export WIRESHARK_TARGET_PLATFORM="win64"
 
 WIN_SETUP=`echo $0 | sed -e s/win64/win/`
