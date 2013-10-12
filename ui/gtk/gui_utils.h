@@ -280,7 +280,7 @@ extern GtkWidget *xpm_to_widget(const char ** xpm);
  *
  * @param pb_data Inline pixbuf data. This should be created with "gdk-pixbuf-csource --raw"
  */
-extern GtkWidget *pixbuf_to_widget(const char * pb_data);
+extern GtkWidget *pixbuf_to_widget(const guint8 * pb_data);
 
 /** Copy a GString to the clipboard.
  *

@@ -507,7 +507,7 @@ xpm_to_widget(const char **xpm) {
 /* Convert an pixbuf data to a GtkWidget */
 /* Data should be created with "gdk-pixbuf-csource --raw" */
 GtkWidget *
-pixbuf_to_widget(const char *pb_data) {
+pixbuf_to_widget(const guint8 *pb_data) {
     GdkPixbuf *pixbuf;
 
     pixbuf = gdk_pixbuf_new_from_inline(-1, pb_data, FALSE, NULL);
