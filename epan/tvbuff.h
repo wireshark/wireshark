@@ -221,8 +221,8 @@ WS_DLL_PUBLIC void tvb_composite_finalize(tvbuff_t* tvb);
 WS_DLL_PUBLIC guint tvb_length(const tvbuff_t*);
 
 /** Computes bytes to end of buffer, from offset (which can be negative,
- * to indicate bytes from end of buffer). Function returns -1 to
- * indicate that offset is out of bounds. No exception is thrown. */
+ * to indicate bytes from end of buffer). Function returns 0 if offset is out
+ * of bounds. No exception is thrown. */
 WS_DLL_PUBLIC gint tvb_length_remaining(const tvbuff_t*, const gint offset);
 
 /** Same as above, but throws an exception if the offset is out of bounds. */
@@ -244,8 +244,7 @@ WS_DLL_PUBLIC guint tvb_reported_length(const tvbuff_t*);
 
 /** Computes bytes of reported packet data to end of buffer, from offset
  * (which can be negative, to indicate bytes from end of buffer). Function
- * returns -1 to indicate that offset is out of bounds. No exception is
- * thrown. */
+ * returns 0 if offset is out of bounds. No exception is thrown. */
 WS_DLL_PUBLIC gint tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset);
 
 /** Set the reported length of a tvbuff to a given value; used for protocols

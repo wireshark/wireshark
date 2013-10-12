@@ -427,7 +427,7 @@ tvb_length_remaining(const tvbuff_t *tvb, const gint offset)
 
 	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
 	if (exception)
-		return -1;
+		return 0;
 
 	return rem_length;
 }
@@ -545,12 +545,12 @@ tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
 
 	exception = compute_offset(tvb, offset, &abs_offset);
 	if (exception)
-		return -1;
+		return 0;
 
 	if (tvb->reported_length >= abs_offset)
 		return tvb->reported_length - abs_offset;
 	else
-		return -1;
+		return 0;
 }
 
 /* Set the reported length of a tvbuff to a given value; used for protocols
