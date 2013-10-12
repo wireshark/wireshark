@@ -131,7 +131,7 @@ destroy_dissector_table(void *data)
 
 	g_hash_table_destroy(table->hash_table);
 	g_slist_free(table->dissector_handles);
-	g_slice_free(dissector_table_t, data);
+	g_slice_free(struct dissector_table, data);
 }
 
 void
