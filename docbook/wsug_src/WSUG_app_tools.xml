@@ -27,7 +27,7 @@
     <example id="AppToolstsharkEx">
       <title>Help information available from tshark</title>
       <programlisting>
-TShark 1.11.0 (SVN Rev 51944 from /trunk)
+TShark 1.11.0 (SVN Rev 52564 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -181,7 +181,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 1.11.0 (SVN Rev 51944 from /trunk)
+Dumpcap 1.11.0 (SVN Rev 52564 from /trunk)
 Capture network packets and dump them into a pcapng file.
 See http://www.wireshark.org for more information.
 
@@ -259,7 +259,7 @@ Use Ctrl-C to stop capturing at any time.
     <example id="AppToolscapinfosEx">
       <title>Help information available from capinfos</title>
       <programlisting>
-Capinfos 1.11.0 (SVN Rev 51944 from /trunk)
+Capinfos 1.11.0 (SVN Rev 52564 from /trunk)
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -333,7 +333,7 @@ output format.
     <example id="AppToolsrawsharkEx">
       <title>Help information available from rawshark</title>
       <programlisting>
-Rawshark 1.11.0 (SVN Rev 51944 from /trunk)
+Rawshark 1.11.0 (SVN Rev 52564 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -387,7 +387,7 @@ Miscellaneous:
       <title>Help information available from editcap</title>
       <para>
       <programlisting>
-Editcap 1.11.0 (SVN Rev 51944 from /trunk)
+Editcap 1.11.0 (SVN Rev 52564 from /trunk)
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -442,7 +442,7 @@ Packet manipulation:
                          of the adjustment specified. A value of -0 will set
                          all packets to the timestamp of the first packet.
   -E &lt;error probability&gt; set the probability (between 0.0 and 1.0 incl.) that
-                          a particular packet byte will be randomly changed.
+                         a particular packet byte will be randomly changed.
 
 Output File(s):
   -c &lt;packets per file&gt;  split the packet output to different files based on
@@ -454,7 +454,7 @@ Output File(s):
   -F &lt;capture type&gt;      set the output file type; default is pcapng. An empty
                          "-F" option will list the file types.
   -T &lt;encap type&gt;        set the output file encapsulation type; default is the
-                         same as the input file. an empty "-T" option will 
+                         same as the input file. An empty "-T" option will
                          list the encapsulation types.
 
 Miscellaneous:
@@ -741,7 +741,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-Mergecap 1.11.0 (SVN Rev 51944 from /trunk)
+Mergecap 1.11.0 (SVN Rev 52564 from /trunk)
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
@@ -845,7 +845,7 @@ Miscellaneous:
     <example id="AppToolstext2pcapEx">
       <title>Help information available from text2pcap</title>
       <programlisting>
-Text2pcap 1.11.0 (SVN Rev 51944 from /trunk)
+Text2pcap 1.11.0 (SVN Rev 52564 from /trunk)
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
