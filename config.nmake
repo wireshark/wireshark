@@ -300,23 +300,23 @@ GTK_INST_VERSION=3.4
 # Recommended: Qt
 #
 # This must point to a top-level Qt directory. QMake should be in
-# $(QT_DIR)\bin
+# $(QT5_BASE_DIR)\bin
 #
 # Qt's various paths are hardcoded but with care you can relocate your
 # installation directory:
 # http://stackoverflow.com/questions/913642/qmake-and-qt-install-prefix-how-can-i-select-a-new-location-for-qt-library
 #
-#QT_DIR=output of "qmake -query QT_INSTALL_PREFIX"
-!IF !DEFINED(QT_DIR)
+#QT5_BASE_DIR=output of "qmake -query QT_INSTALL_PREFIX"
+!IF !DEFINED(QT5_BASE_DIR)
 # Wireshark custom
 !IF EXIST(C:\Qt\Qt-5.1.1-MSVC2010-$(WIRESHARK_TARGET_PLATFORM)-ws)
-QT_DIR=C:\Qt\Qt-5.1.1-MSVC2010-$(WIRESHARK_TARGET_PLATFORM)-ws
+QT5_BASE_DIR=C:\Qt\Qt-5.1.1-MSVC2010-$(WIRESHARK_TARGET_PLATFORM)-ws
 # Digia official
 !ELSE IF EXIST(C:\Qt\Qt5.1.1\5.1.1\msvc2010)
-QT_DIR=C:\Qt\Qt5.1.1\5.1.1\msvc2010
+QT5_BASE_DIR=C:\Qt\Qt5.1.1\5.1.1\msvc2010
 # Digia official, installed in $(WIRESHARK_LIB_DIR)
 !ELSE IF EXIST($(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010)
-QT_DIR=$(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010
+QT5_BASE_DIR=$(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010
 !ENDIF
 !ENDIF
 
@@ -545,23 +545,23 @@ GTK_INST_VERSION=3.4
 # Recommended: Qt
 #
 # This must point to a top-level Qt directory. QMake should be in
-# $(QT_DIR)\bin
+# $(QT5_BASE_DIR)\bin
 #
 # Qt's various paths are hardcoded but with care you can relocate your
 # installation directory:
 # http://stackoverflow.com/questions/913642/qmake-and-qt-install-prefix-how-can-i-select-a-new-location-for-qt-library
 #
-#QT_DIR=output of "qmake -query QT_INSTALL_PREFIX"
-!IF !DEFINED(QT_DIR)
+#QT5_BASE_DIR=output of "qmake -query QT_INSTALL_PREFIX"
+!IF !DEFINED(QT5_BASE_DIR)
 # Wireshark custom
 !IF EXIST(C:\Qt\Qt-5.1.1-MSVC2010-$(WIRESHARK_TARGET_PLATFORM)-ws)
-QT_DIR=C:\Qt\Qt-5.1.1-MSVC2010-$(WIRESHARK_TARGET_PLATFORM)-ws
+QT5_BASE_DIR=C:\Qt\Qt-5.1.1-MSVC2010-$(WIRESHARK_TARGET_PLATFORM)-ws
 # Digia official
 !ELSE IF EXIST(C:\Qt\Qt5.1.1\5.1.1\msvc2010)
-QT_DIR=C:\Qt\Qt5.1.1\5.1.1\msvc2010
+QT5_BASE_DIR=C:\Qt\Qt5.1.1\5.1.1\msvc2010
 # Digia official, installed in $(WIRESHARK_LIB_DIR)
 !ELSE IF EXIST($(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010)
-QT_DIR=$(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010
+QT5_BASE_DIR=$(WIRESHARK_LIB_DIR)\Qt5.1.1\5.1.1\msvc2010
 !ENDIF
 !ENDIF
 

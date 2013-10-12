@@ -192,7 +192,7 @@ EXECUTABLES=wireshark.exe tshark.exe rawshark.exe \
 	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe \
 	reordercap.exe dumpcap.exe dftest.exe
 
-!IFDEF QT_DIR
+!IFDEF QT5_BASE_DIR
 EXECUTABLES=$(EXECUTABLES) qtshark.exe
 !ENDIF
 
@@ -556,7 +556,7 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-!IFDEF QT_DIR
+!IFDEF QT5_BASE_DIR
 	cd ../qt
 	-$(MAKE) clean
 !ENDIF
@@ -610,7 +610,7 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-!IFDEF QT_DIR
+!IFDEF QT5_BASE_DIR
 	cd ../qt
 	-$(MAKE) distclean
 !ENDIF
@@ -657,7 +657,7 @@ maintainer-clean: maintainer-clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-!IFDEF QT_DIR
+!IFDEF QT5_BASE_DIR
 	cd ../qt
 	-$(MAKE) distclean
 !ENDIF
@@ -777,9 +777,9 @@ gtk:: help config.h svnversion.h doxygen
 	cd ../..
 
 qt:: help config.h svnversion.h doxygen
-!IFDEF QT_DIR
+!IFDEF QT5_BASE_DIR
 	cd ui/qt
-	$(QT_DIR)\bin\qmake CONFIG+=release QtShark.pro
+	$(QT5_BASE_DIR)\bin\qmake CONFIG+=release QtShark.pro
 	nmake
 	cd ../..
 !ENDIF
@@ -858,8 +858,8 @@ REQUIRED_TOOLS=\
 	peflags	\
 	$(PERL)	\
 	$(PYTHON)	\
-!IFDEF QT_DIR
-	--windowsonly $(QT_DIR)\bin\qmake \
+!IFDEF QT5_BASE_DIR
+	--windowsonly $(QT5_BASE_DIR)\bin\qmake \
 !ENDIF
 	sed	\
 	unzip	\
@@ -917,7 +917,7 @@ process_libs:
 	@if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. WinPcap_$(PCAP_VERSION).exe
-!IFNDEF QT_DIR
+!IFNDEF QT5_BASE_DIR
 !MESSAGE Can't find Qt. This will become a problem at some point.
 !ENDIF
 !IFDEF GTK_DIR
