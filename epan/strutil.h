@@ -86,6 +86,22 @@ gchar*     format_text(const guchar *line, size_t len);
 WS_DLL_PUBLIC
 gchar*     format_text_wsp(const guchar *line, size_t len);
 
+/*
+ * Given a string, generate a string from it that shows non-printable
+ * characters as the chr parameter passed, except a whitespace character
+ * (space, tab, carriage return, new line, vertical tab, or formfeed)
+ * which will be replaced by a space, and return a pointer to it.
+ *
+ * @param line A pointer to the input string
+ * @param len The length of the input string
+ * @param chr The character to use to replace non-printable characters
+ * @return A pointer to the formatted string
+ *
+ */
+WS_DLL_PUBLIC
+gchar*     format_text_chr(const guchar *string, const size_t len, const guchar chr);
+
+
 /** Turn an array of bytes into a string showing the bytes in hex.
  *
  * @param bd A pointer to the byte array
