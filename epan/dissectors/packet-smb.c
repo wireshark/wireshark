@@ -1552,8 +1552,10 @@ dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		 * No date/time specified.
 		 */
 		if (parent_tree) {
-			proto_tree_add_uint_format_value(parent_tree, hf_date, tvb, offset, 4,
-			    ((dos_date << 16) | dos_time), "No time specified (0x%08x)",
+			tv.secs = 0;
+			tv.nsecs = 0;
+			proto_tree_add_time_format_value(parent_tree, hf_date, tvb, offset, 4,
+			    &tv, "No time specified (0x%08x)",
 			    ((dos_date << 16) | dos_time));
 		}
 		offset += 4;
@@ -1583,8 +1585,10 @@ dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		 * Invalid date/time.
 		 */
 		if (parent_tree) {
-			item = proto_tree_add_uint_format_value(parent_tree, hf_date, tvb, offset, 4,
-			    ((dos_date << 16) | dos_time), "Invalid time");
+			tv.secs = 0;
+			tv.nsecs = 0;
+			item = proto_tree_add_time_format_value(parent_tree, hf_date, tvb, offset, 4,
+			    &tv, "Invalid time (0x%08x)", ((dos_date << 16) | dos_time));
 			tree = proto_item_add_subtree(item, ett_smb_time_date);
 			if (time_first) {
 				proto_tree_add_uint_format(tree, hf_dos_time, tvb, offset, 2, dos_time, "DOS Time: %02d:%02d:%02d (0x%04x)", tm.tm_hour, tm.tm_min, tm.tm_sec, dos_time);
