@@ -94,11 +94,6 @@ typedef enum {
     /* XXX format_size_prefix_default_for_this_particular_os ? */
 } format_size_flags_e;
 
-#ifdef __cplusplus
-/* Should we just have separate unit and prefix enums instead? */
-extern format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs);
-#endif /* __cplusplus */
-
 /** Given a size, return its value in a human-readable format
  *
  * Prefixes up to "T/Ti" (tera, tebi) are currently supported.
@@ -114,6 +109,9 @@ gchar *format_size(gint64 size, format_size_flags_e flags);
 
 #ifdef __cplusplus
 }
+
+/* Should we just have separate unit and prefix enums instead? */
+extern format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs);
 #endif /* __cplusplus */
 
 #endif /* __STR_UTIL_H__ */
