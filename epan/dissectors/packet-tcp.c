@@ -1680,7 +1680,7 @@ again:
                 /* TCP analysis already flags this (in COL_INFO) as a retransmission--if it's enabled */
             }
 
-            nbytes = tvb_reported_length_remaining(tvb, offset);
+            nbytes = MAX(0, tvb_reported_length_remaining(tvb, offset));
             proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
                 nbytes, NULL, "%sTCP segment data (%u byte%s)", str, nbytes,
                 plurality(nbytes, "", "s"));
@@ -1704,7 +1704,7 @@ again:
          */
         if (msp->flags&MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
             /* The dissector asked for the entire segment */
-            len = tvb_length_remaining(tvb, offset);
+            len = MAX(0, tvb_length_remaining(tvb, offset));
         } else {
             len = MIN(nxtseq, msp->nxtpdu) - seq;
         }
@@ -1850,7 +1850,7 @@ again:
                      * will complete reassembly even if it
                      * is only one single byte in length.
                      */
-                    msp->nxtpdu = seq + tvb_reported_length_remaining(tvb, offset) + 1;
+                    msp->nxtpdu = seq + MAX(0, tvb_reported_length_remaining(tvb, offset)) + 1;
                     msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
                 } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
                     tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
@@ -1874,7 +1874,7 @@ again:
                  */
                 nbytes = another_pdu_follows > 0
                     ? another_pdu_follows
-                    : tvb_reported_length_remaining(tvb, offset);
+                    : MAX(0, tvb_reported_length_remaining(tvb, offset));
                 proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
                     nbytes, NULL, "TCP segment data (%u byte%s)", nbytes,
                     plurality(nbytes, "", "s"));
@@ -2023,7 +2023,7 @@ again:
          * XXX - remember what protocol the last subdissector
          * was, and report it as a continuation of that, instead?
          */
-        nbytes = tvb_reported_length_remaining(tvb, deseg_offset);
+        nbytes = MAX(0, tvb_reported_length_remaining(tvb, deseg_offset));
         proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, deseg_offset,
             -1, NULL, "TCP segment data (%u byte%s)", nbytes,
             plurality(nbytes, "", "s"));
@@ -2157,7 +2157,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         if(!pinfo->fd->flags.visited && tcp_analyze_seq) {
             guint remaining_bytes;
-            remaining_bytes=tvb_reported_length_remaining(tvb, offset);
+            remaining_bytes = MAX(0, tvb_reported_length_remaining(tvb, offset));
             if(plen>remaining_bytes) {
                 pinfo->want_pdu_tracking=2;
                 pinfo->bytes_until_next_pdu=plen-remaining_bytes;
@@ -4563,7 +4563,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* If there's more than just the fixed-length header (20 bytes), decode the options. */
     tcph->num_sack_ranges = 0;
     if (tcph->th_hlen > TCPH_MIN_LEN) {
-        guint bc = (guint)tvb_length_remaining(tvb, offset + 20);
+        guint bc = (guint)MAX(0, tvb_length_remaining(tvb, offset + 20));
 
         optlen = tcph->th_hlen - TCPH_MIN_LEN; /* length of options, in bytes */
 
@@ -4620,7 +4620,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Check the packet length to see if there's more data
        (it could be an ACK-only packet) */
-    length_remaining = tvb_length_remaining(tvb, offset);
+    length_remaining = MAX(0, tvb_length_remaining(tvb, offset));
 
     if (tcph->th_have_seglen) {
         if( data_out_file ) {
