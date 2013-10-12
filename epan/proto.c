@@ -41,6 +41,7 @@
 #include "epan_dissect.h"
 #include "tvbuff.h"
 #include "emem.h"
+#include "wmem/wmem.h"
 #include "charsets.h"
 #include "asm_utils.h"
 #include "column-utils.h"
@@ -251,28 +252,28 @@ struct _protocol {
 /* List of all protocols */
 static GList *protocols = NULL;
 
-#define INITIAL_NUM_PROTOCOL_HFINFO	1500
+wmem_allocator_t *tree_pool = NULL;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
-#define FIELD_INFO_NEW(fi)  fi = g_slice_new(field_info)
-#define FIELD_INFO_FREE(fi) g_slice_free(field_info, fi)
+#define FIELD_INFO_NEW(fi)  fi = wmem_new(tree_pool, field_info)
+#define FIELD_INFO_FREE(fi) wmem_free(tree_pool, fi)
 
 /* Contains the space for proto_nodes. */
 #define PROTO_NODE_NEW(node)				\
-	node = g_slice_new(proto_node);			\
+	node = wmem_new(tree_pool, proto_node);		\
 	node->first_child = NULL;			\
 	node->last_child = NULL;			\
 	node->next = NULL;
 
 #define PROTO_NODE_FREE(node)				\
-	g_slice_free(proto_node, node)
+	wmem_free(tree_pool, node)
 
 /* String space for protocol and field items for the GUI */
 #define ITEM_LABEL_NEW(il)				\
-	il = g_slice_new(item_label_t);
+	il = wmem_new(tree_pool, item_label_t);
 #define ITEM_LABEL_FREE(il)				\
-	g_slice_free(item_label_t, il);
+	wmem_free(tree_pool, il);
 
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo)						\
 	if((guint)hfindex >= gpa_hfinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))	\
@@ -330,6 +331,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 {
 	proto_cleanup();
 
+	tree_pool          = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
 	proto_names        = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
 	proto_short_names  = g_hash_table_new(wrs_str_hash, g_str_equal);
 	proto_filter_names = g_hash_table_new(wrs_str_hash, g_str_equal);
@@ -403,6 +405,10 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 void
 proto_cleanup(void)
 {
+	if (tree_pool) {
+		wmem_destroy_allocator(tree_pool);
+		tree_pool = NULL;
+	}
 	/* Free the abbrev/ID GTree */
 	if (gpa_name_tree) {
 		g_tree_destroy(gpa_name_tree);
