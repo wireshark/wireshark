@@ -29,7 +29,6 @@ root dir.
 You'll find additional dissector related information in the following README
 files:
 
-- README.binarytrees    - fast access to large data collections
 - README.heuristic      - what are heuristic dissectors and how to write them
 - README.plugins        - how to "pluginize" a dissector
 - README.python         - writing a dissector in PYTHON.

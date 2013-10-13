@@ -246,7 +246,6 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST =				\
 	Makefile.nmake			\
-	README.binarytrees		\
 	README.capture			\
 	README.design			\
 	README.developer		\

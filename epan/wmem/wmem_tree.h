@@ -35,9 +35,14 @@ extern "C" {
 
 /** @addtogroup wmem
  *  @{
- *    @defgroup wmem-tree Red-Black Tree
+ *    @defgroup wmem-tree Red/Black Tree
  *
- *    A red-black tree implementation on top of wmem.
+ *    Binary trees are a well-known and popular device in computer science to
+ *    handle storage of objects based on a search key or identity. The
+ *    particular binary tree style implemented here is the red/black tree, which
+ *    has the nice property of being self-balancing. This guarantees O(log(n))
+ *    time for lookups, compared to linked lists that are O(n). This means
+ *    red/black trees scale very well when many objects are being stored.
  *
  *    @{
  */
@@ -45,7 +50,8 @@ extern "C" {
 struct _wmem_tree_t;
 typedef struct _wmem_tree_t wmem_tree_t;
 
-/** Creates a tree with the given allocator scope */
+/** Creates a tree with the given allocator scope. When the scope is emptied,
+ * the tree is fully destroyed. */
 WS_DLL_PUBLIC
 wmem_tree_t *
 wmem_tree_new(wmem_allocator_t *allocator)
@@ -57,7 +63,11 @@ G_GNUC_MALLOC;
  * the location of the master structure.
  *
  * WARNING: None of the tree (even the part in the master scope) can be used
- * after the slave scope has been destroyed.
+ * after the slave scope has been *destroyed*.
+ *
+ * The primary use for this function is to create trees that reset for each new
+ * capture file that is loaded. This can be done by specifying wmem_epan_scope()
+ * as the master and wmem_file_scope() as the slave.
  */
 WS_DLL_PUBLIC
 wmem_tree_t *
@@ -69,12 +79,24 @@ WS_DLL_PUBLIC
 gboolean
 wmem_tree_is_empty(wmem_tree_t *tree);
 
-/** Insert a node indexed by a guint32 key value. */
+/** Insert a node indexed by a guint32 key value.
+ *
+ * Data is a pointer to the structure you want to be able to retrieve by
+ * searching for the same key later.
+ *
+ * NOTE: If you insert a node to a key that already exists in the tree this
+ * function will simply overwrite the old value. If the structures you are
+ * storing are allocated in a wmem pool this is not a problem as they will still
+ * be freed with the pool. If you are managing them manually however, you must
+ * either ensure the key is unique, or do a lookup before each insert.
+ */
 WS_DLL_PUBLIC
 void
 wmem_tree_insert32(wmem_tree_t *tree, guint32 key, void *data);
 
-/** Look up a node in the tree indexed by a guint32 integer value */
+/** Look up a node in the tree indexed by a guint32 integer value. If no node is
+ * found the function will return NULL.
+ */
 WS_DLL_PUBLIC
 void *
 wmem_tree_lookup32(wmem_tree_t *tree, guint32 key);
@@ -89,13 +111,18 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key);
 
 /** case insensitive strings as keys */
 #define WMEM_TREE_STRING_NOCASE			0x00000001
-/** Insert a new value under a string key */
+/** Insert a new value under a string key. Like wmem_tree_insert32 but where the
+ * key is a null-terminated string instead of a guint32. You may pass
+ * WMEM_TREE_STRING_NOCASE to the flags argument in order to make it store the
+ * key in a case-insensitive way. */
 WS_DLL_PUBLIC
 void
 wmem_tree_insert_string(wmem_tree_t *tree, const gchar* key, void *data,
         guint32 flags);
 
-/** Lookup the value under a string key */
+/** Lookup the value under a string key, like wmem_tree_lookup32 but where the
+ * keye is a null-terminated string instead of a guint32. See
+ * wmem_tree_insert_string for an explanation of flags. */
 WS_DLL_PUBLIC
 void *
 wmem_tree_lookup_string(wmem_tree_t* tree, const gchar* key, guint32 flags);
@@ -107,15 +134,22 @@ typedef struct _wmem_tree_key_t {
 
 /** Insert a node indexed by a sequence of guint32 key values.
  *
- * Note: all the "key" members of the "key" argument MUST be aligned on
+ * Takes as key an array of guint32 vectors of type wmem_tree_key_t. It will
+ * iterate through each key to search further down the tree until it reaches an
+ * element where length==0, indicating the end of the array. You MUST terminate
+ * the key array by {0, NULL} or this will crash.
+ *
+ * NOTE: length indicates the number of guint32 values in the vector, not the
+ * number of bytes.
+ *
+ * NOTE: all the "key" members of the "key" argument MUST be aligned on
  * 32-bit boundaries; otherwise, this code will crash on platforms such
  * as SPARC that require aligned pointers.
  *
  * If you use ...32_array() calls you MUST make sure that every single node
  * you add to a specific tree always has a key of exactly the same number of
- * keylen words or things will most likely crash. Or at least that every single
- * item that sits behind the same top level node always have exactly the same
- * number of words.
+ * keylen words or it will crash. Or at least that every single item that sits
+ * behind the same top level node always has exactly the same number of words.
  *
  * One way to guarantee this is the way that NFS does this for the
  * nfs_name_snoop_known tree which holds filehandles for both v2 and v3.
@@ -138,6 +172,7 @@ void
 wmem_tree_insert32_array(wmem_tree_t *tree, wmem_tree_key_t *key, void *data);
 
 /** Look up a node in the tree indexed by a sequence of guint32 integer values.
+ * See wmem_tree_insert32_array for details on the key.
  */
 WS_DLL_PUBLIC
 void *
@@ -147,21 +182,31 @@ wmem_tree_lookup32_array(wmem_tree_t *tree, wmem_tree_key_t *key);
  * The function will return the node that has the largest key that is
  * equal to or smaller than the search key, or NULL if no such key was
  * found.
- * Note:  The key returned will be "less" in key order.  The usefullness
+ *
+ * NOTE:  The key returned will be "less" in key order.  The usefulness
  * of the returned node must be verified prior to use.
+ *
+ * See wmem_tree_insert32_array for details on the key.
  */
 WS_DLL_PUBLIC
 void *
 wmem_tree_lookup32_array_le(wmem_tree_t *tree, wmem_tree_key_t *key);
 
-/** traverse a tree. if the callback returns TRUE the traversal will end */
+/** Function type for processing one node of a tree during a traversal. Value is
+ * the value of the node, userdata is whatever was passed to the traversal
+ * function. If the function returns TRUE the traversal will end prematurely.
+ */
 typedef gboolean (*wmem_foreach_func)(void *value, void *userdata);
 
+/** Traverse the tree and call callback(value, userdata) for each value found.
+ * Returns TRUE if the traversal was ended prematurely by the callback.
+ */
 WS_DLL_PUBLIC
 gboolean
 wmem_tree_foreach(wmem_tree_t* tree, wmem_foreach_func callback,
         void *user_data);
 
+/** Prints the structure of the tree to stdout. Primarily for debugging. */
 void
 wmem_print_tree(wmem_tree_t *tree);
 
