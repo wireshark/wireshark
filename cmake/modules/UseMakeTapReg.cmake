@@ -1,19 +1,19 @@
 #
 # $Id$
 #
-MACRO(REGISTER_TAP_FILES _outputfile )
-	set( _sources ${ARGN} )
+MACRO(REGISTER_TAP_FILES _outputfile _registertype )
+    set( _sources ${ARGN})
     ADD_CUSTOM_COMMAND(
         OUTPUT
           ${_outputfile}
-        COMMAND ${SH_EXECUTABLE} ${SH_FLAGS1} ${SH_FLAGS2}
-          ${CMAKE_SOURCE_DIR}/tools/make-tapreg-dotc
-          ${_outputfile}
-          ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND ${PYTHON_EXECUTABLE}
+          ${CMAKE_SOURCE_DIR}/tools/make-tap-reg.py
+          "${CMAKE_CURRENT_SOURCE_DIR}"
+          ${_registertype}
           ${_sources}
         DEPENDS
-          ${CMAKE_SOURCE_DIR}/tools/make-tapreg-dotc
+          ${CMAKE_SOURCE_DIR}/tools/make-tap-reg.py
           ${_sources}
-    )
+)
 ENDMACRO(REGISTER_TAP_FILES)
 
