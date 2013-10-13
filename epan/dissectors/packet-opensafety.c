@@ -70,6 +70,8 @@
 #define UDP_PORT_SIII         8755
 #endif
 
+#define OPENSAFETY_DEFAULT_DOMAIN	0x1
+
 /* Under linux, this get's defined in netinet/in.h */
 #ifndef IPPROTO_UDP
 #define IPPROTO_UDP 0x11
@@ -80,14 +82,16 @@
 #endif
 
 /* openSAFETY CRC types */
-#define OPENSAFETY_CHECKSUM_CRC8   0x01
-#define OPENSAFETY_CHECKSUM_CRC16  0x02
-#define OPENSAFETY_CHECKSUM_CRC32  0x04
+#define OPENSAFETY_CHECKSUM_CRC8        0x01
+#define OPENSAFETY_CHECKSUM_CRC16       0x02
+#define OPENSAFETY_CHECKSUM_CRC32       0x04
+#define OPENSAFETY_CHECKSUM_CRC16SLIM   0x08
 
 static const value_string message_crc_type[] = {
-    { OPENSAFETY_CHECKSUM_CRC8,  "CRC8" },
-    { OPENSAFETY_CHECKSUM_CRC16, "CRC16" },
-    { OPENSAFETY_CHECKSUM_CRC32, "CRC32" },
+    { OPENSAFETY_CHECKSUM_CRC8,         "CRC8" },
+    { OPENSAFETY_CHECKSUM_CRC16,        "CRC16" },
+    { OPENSAFETY_CHECKSUM_CRC32,        "CRC32" },
+    { OPENSAFETY_CHECKSUM_CRC16SLIM,    "CRC16 Slim" },
     { 0, NULL }
 };
 
@@ -445,6 +449,8 @@ static expert_field ei_payload_unknown_format = EI_INIT;
 static expert_field ei_crc_slimssdo_instead_of_spdo = EI_INIT;
 static expert_field ei_crc_frame_1_invalid = EI_INIT;
 static expert_field ei_crc_frame_1_valid_frame2_invalid = EI_INIT;
+static expert_field ei_crc_frame_2_invalid = EI_INIT;
+static expert_field ei_crc_frame_2_unknown_scm_udid = EI_INIT;
 static expert_field ei_message_unknown_type = EI_INIT;
 static expert_field ei_message_reassembly_size_differs_from_header = EI_INIT;
 static expert_field ei_message_spdo_address_invalid = EI_INIT;
@@ -463,6 +469,7 @@ static int hf_oss_length= -1;
 static int hf_oss_crc = -1;
 
 static int hf_oss_crc_valid = -1;
+static int hf_oss_crc2_valid = -1;
 static int hf_oss_crc_type  = -1;
 
 static int hf_oss_snmt_slave         = -1;
@@ -562,6 +569,7 @@ static const fragment_items oss_frag_items = {
 };
 
 static const char *global_scm_udid = "00:00:00:00:00:00";
+static gboolean global_calculate_crc2 = FALSE;
 static gboolean global_scm_udid_autoset = TRUE;
 static gboolean global_udp_frame2_first = FALSE;
 static gboolean global_siii_udp_frame2_first = FALSE;
@@ -1597,17 +1605,18 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
 
 static gboolean
 dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree,
-                            guint16 frameStart1, guint16 frameStart2 )
+                            guint8 type, guint16 frameStart1, guint16 frameStart2 )
 {
     guint16     frame1_crc, frame2_crc;
-    guint16     calc1_crc;
-    guint       dataLength;
-    guint8     *bytes;
+    guint16     calc1_crc, calc2_crc;
+    guint       dataLength, frame2Length;
+    guint8     *bytes, ctr = 0, crcType = OPENSAFETY_CHECKSUM_CRC8;
     proto_item *item;
     proto_tree *checksum_tree;
     gint        start;
     gint        length;
     gboolean    isSlim = FALSE;
+    GByteArray *scmUDID = NULL;
 
     dataLength = OSS_FRAME_LENGTH_T(message_tvb, frameStart1);
     start = OSS_FRAME_POS_DATA + dataLength + frameStart1;
@@ -1617,8 +1626,10 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
     else
         frame1_crc = tvb_get_guint8(message_tvb, start);
 
-    if ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) & OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
+    if ( type == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
         isSlim = TRUE;
+
+    frame2Length = (isSlim ? 0 : dataLength) + 5;
 
     length = (dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? OPENSAFETY_CHECKSUM_CRC16 : OPENSAFETY_CHECKSUM_CRC8);
     item = proto_tree_add_uint_format(opensafety_tree, hf_oss_crc, message_tvb, start, length, frame1_crc,
@@ -1629,22 +1640,28 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
     bytes = (guint8*)tvb_memdup(wmem_packet_scope(), message_tvb, frameStart1, dataLength + 4);
     if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
     {
-        calc1_crc = crc16_0x755B(&bytes[frameStart1], dataLength + 4, 0);
+        calc1_crc = crc16_0x755B(bytes, dataLength + 4, 0);
+        if ( frame1_crc == calc1_crc )
+            crcType = OPENSAFETY_CHECKSUM_CRC16;
         if ( frame1_crc != calc1_crc )
         {
-            calc1_crc = crc16_0x5935(&bytes[frameStart1], dataLength + 4, 0);
-            if ( ( ! isSlim ) && ( frame1_crc == calc1_crc ) )
-                expert_add_info(pinfo, item, &ei_crc_slimssdo_instead_of_spdo );
+            calc1_crc = crc16_0x5935(bytes, dataLength + 4, 0);
+            if ( frame1_crc == calc1_crc )
+            {
+                crcType = OPENSAFETY_CHECKSUM_CRC16SLIM;
+                if ( ! isSlim )
+                    expert_add_info(pinfo, item, &ei_crc_slimssdo_instead_of_spdo );
+            }
         }
     }
     else
-        calc1_crc = crc8_0x2F(&bytes[frameStart1], dataLength + 4, 0);
+        calc1_crc = crc8_0x2F(bytes, dataLength + 4, 0);
 
-    item = proto_tree_add_boolean(checksum_tree, hf_oss_crc_valid, message_tvb, start, length, (frame1_crc == calc1_crc));
+    item = proto_tree_add_boolean(checksum_tree, hf_oss_crc_valid, message_tvb,
+            frameStart1, dataLength + 4, (frame1_crc == calc1_crc));
     PROTO_ITEM_SET_GENERATED(item);
     /* using the defines, as the values can change */
-    proto_tree_add_uint(checksum_tree, hf_oss_crc_type, message_tvb, start, length,
-            ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? OPENSAFETY_CHECKSUM_CRC16 : OPENSAFETY_CHECKSUM_CRC8 ) );
+    proto_tree_add_uint(checksum_tree, hf_oss_crc_type, message_tvb, start, length, crcType );
 
     start = frameStart2 + (isSlim ? 5 : dataLength + OSS_FRAME_POS_DATA + 1 );
     if (OSS_FRAME_LENGTH_T(message_tvb, frameStart1) > OSS_PAYLOAD_MAXSIZE_FOR_CRC8)
@@ -1652,8 +1669,61 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
     else
         frame2_crc = tvb_get_guint8(message_tvb, start);
 
-    proto_tree_add_uint_format(opensafety_tree, hf_oss_crc, message_tvb, start, length, frame2_crc,
-                               "CRC for subframe #2: 0x%04X", frame2_crc);
+    if ( global_calculate_crc2 )
+    {
+        bytes = (guint8*)tvb_memdup(wmem_packet_scope(), message_tvb, frameStart2, frame2Length + length);
+
+        /* SLIM SSDO messages, do not contain a payload in frame2 */
+        if ( isSlim == TRUE )
+            dataLength = 0;
+
+        scmUDID = g_byte_array_new();
+        if ( hex_str_to_bytes((local_scm_udid != NULL ? local_scm_udid : global_scm_udid), scmUDID, TRUE) && scmUDID->len == 6 )
+        {
+            if ( type != OPENSAFETY_SNMT_MESSAGE_TYPE )
+            {
+                for ( ctr = 0; ctr < 6; ctr++ )
+                    bytes[ctr] = bytes[ctr] ^ (guint8)(scmUDID->data[ctr]);
+
+                /*
+                 * If the second frame is 6 or 7 (slim) bytes in length, we have to decode the found
+                 * frame crc again. This must be done using the byte array, as the unxor operation
+                 * had to take place.
+                 */
+                if ( dataLength == 0 )
+                    frame2_crc = ( ( isSlim && length == 2 ) ? ( ( bytes[6] << 8 ) + bytes[5] ) : bytes[5] );
+            }
+
+            item = proto_tree_add_uint_format(opensafety_tree, hf_oss_crc, message_tvb, start, length, frame2_crc,
+                    "CRC for subframe #2: 0x%04X", frame2_crc);
+
+            checksum_tree = proto_item_add_subtree(item, ett_opensafety_checksum);
+
+            if ( OSS_FRAME_LENGTH_T(message_tvb, frameStart1) > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
+            {
+                calc2_crc = crc16_0x755B(bytes, frame2Length, 0);
+                if ( frame2_crc != calc2_crc )
+                    calc2_crc = crc16_0x5935(bytes, frame2Length, 0);
+            }
+            else
+                calc2_crc = crc8_0x2F(bytes, frame2Length, 0);
+
+            item = proto_tree_add_boolean(checksum_tree, hf_oss_crc2_valid, message_tvb,
+                    frameStart2, frame2Length, (frame2_crc == calc2_crc));
+            PROTO_ITEM_SET_GENERATED(item);
+
+            if ( frame2_crc != calc2_crc )
+            {
+                item = proto_tree_add_uint_format(checksum_tree, hf_oss_crc, message_tvb,
+                        frameStart2, frame2Length, calc2_crc, "Calculated CRC: 0x%04X", calc2_crc);
+                PROTO_ITEM_SET_GENERATED(item);
+                expert_add_info(pinfo, item, &ei_crc_frame_2_invalid );
+            }
+        }
+        else
+            expert_add_info(pinfo, item, &ei_crc_frame_2_unknown_scm_udid );
+    }
+
     /* For a correct calculation of the second crc we need to know the scm udid as well
      * as the sdn. We might have the scm udid, but never the sdn, therefore a calculation
      * must allways fail. */
@@ -1748,7 +1818,7 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
         }
         else
         {
-            crcValid = dissect_opensafety_checksum ( message_tvb, pinfo, opensafety_tree, frameStart1, frameStart2 );
+            crcValid = dissect_opensafety_checksum ( message_tvb, pinfo, opensafety_tree, type, frameStart1, frameStart2 );
         }
 
         if ( ! crcValid )
@@ -2250,6 +2320,9 @@ proto_register_opensafety(void)
         { &hf_oss_crc_type,
             { "CRC Type",  "opensafety.crc.type",
             FT_UINT8,   BASE_DEC, VALS(message_crc_type),    0x0, NULL, HFILL } },
+        { &hf_oss_crc2_valid,
+            { "Is Valid", "opensafety.crc2.valid",
+            FT_BOOLEAN, BASE_NONE, NULL,    0x0, NULL, HFILL } },
 
         /* SNMT Specific fields */
         { &hf_oss_snmt_slave,
@@ -2467,14 +2540,20 @@ proto_register_opensafety(void)
 
     static ei_register_info ei[] = {
         { &ei_crc_frame_1_invalid,
-            { "opensafety.crc.error.frame1_invalid", PI_MALFORMED, PI_ERROR,
+            { "opensafety.crc.error.frame1_invalid", PI_PROTOCOL, PI_ERROR,
               "Frame 1 CRC invalid, Possible error in package", EXPFILL } },
         { &ei_crc_frame_1_valid_frame2_invalid,
-            { "opensafety.crc.error.frame1_valid_frame2_invalid", PI_MALFORMED, PI_ERROR,
+            { "opensafety.crc.error.frame1_valid_frame2_invalid", PI_PROTOCOL, PI_ERROR,
               "Frame 1 is valid, frame 2 id is invalid", EXPFILL } },
         { &ei_crc_slimssdo_instead_of_spdo,
             { "opensafety.crc.warning.wrong_crc_for_spdo", PI_PROTOCOL, PI_WARN,
               "Frame 1 SPDO CRC is Slim SSDO CRC16 0x5935", EXPFILL } },
+        { &ei_crc_frame_2_invalid,
+            { "opensafety.crc.error.frame2_invalid", PI_PROTOCOL, PI_ERROR,
+              "Frame 2 CRC invalid, Possible error in package or crc calculation", EXPFILL } },
+        { &ei_crc_frame_2_unknown_scm_udid,
+            { "opensafety.crc.error.frame2_unknown_scmudid", PI_PROTOCOL, PI_WARN,
+              "Frame 2 CRC invalid, SCM UDID was not auto-detected", EXPFILL } },
 
         { &ei_message_reassembly_size_differs_from_header,
             { "opensafety.msg.warning.reassembly_size_fail", PI_PROTOCOL, PI_WARN,
@@ -2527,6 +2606,11 @@ proto_register_opensafety(void)
                  "Set SCM UDID if detected in stream",
                  "Automatically assign a detected SCM UDID (by reading SNMT->SNTM_assign_UDID_SCM) and set it for the file",
                  &global_scm_udid_autoset);
+    prefs_register_bool_preference(opensafety_module, "calculate_crc2",
+                 "Enable CRC calculation in frame 2",
+                 "Enable the calculation for the second CRC",
+                 &global_calculate_crc2);
+
     prefs_register_uint_preference(opensafety_module, "network_udp_port",
                 "Port used for Generic UDP",
                 "Port used by any UDP demo implementation to transport data", 10,
