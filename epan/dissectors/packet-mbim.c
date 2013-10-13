@@ -4058,6 +4058,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 }
+                                break;
                             case MBIM_CID_PREFERRED_PROVIDERS:
                                 mbim_dissect_providers(frag_tvb, pinfo, subtree, offset);
                                 break;
@@ -4902,7 +4903,7 @@ proto_register_mbim(void)
               NULL, HFILL }
         },
         { &hf_mbim_device_caps_info_control_caps_hw_radio_switch,
-            { "W Radio Switch", "mbim.control.device_caps_info.control_caps.hw_radio_switch",
+            { "HW Radio Switch", "mbim.control.device_caps_info.control_caps.hw_radio_switch",
                FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000002,
               NULL, HFILL }
         },
