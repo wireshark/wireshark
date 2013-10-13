@@ -1750,45 +1750,6 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 		offset, length, encoding);
 }
 
-/*
- * Validates that field length bytes are available starting from
- * start (pos/neg). Throws an exception if they aren't.
- */
-static void
-test_length(header_field_info *hfinfo, proto_tree *tree, tvbuff_t *tvb,
-	    gint start, gint length, const guint encoding)
-{
-	gint size = length;
-
-	if (!tvb)
-		return;
-
-	if (hfinfo->type == FT_UINT_BYTES || hfinfo->type == FT_UINT_STRING) {
-		guint32 n;
-
-		n = get_uint_value(tree, tvb, start, length, encoding);
-		if (n > size + n) {
-			/* If n > size + n then we have an integer overflow, so
-			 * set size to -1, which will force the
-			 * tvb_ensure_bytes_exist call below to throw a
-			 * ReportedBoundsError
-			 */
-			size = -1;
-		}
-		else {
-			size += n;
-		}
-	} else if (hfinfo->type == FT_STRINGZ) {
-		/* If we're fetching until the end of the TVB, only validate
-		 * that the offset is within range.
-		 */
-		if (length == -1)
-			size = 0;
-	}
-
-	tvb_ensure_bytes_exist(tvb, start, size);
-}
-
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 proto_item *
@@ -1800,11 +1761,13 @@ proto_tree_add_item_new(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *t
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
-	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
-	test_length(hfinfo, tree, tvb, start, item_length, encoding);
+	if (tvb) {
+		tvb_ensure_offset_exists(tvb, start);
+	}
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
 
+	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
 	new_fi = new_field_info(tree, hfinfo, tvb, start, item_length);
 
 	if (new_fi == NULL)
@@ -6996,14 +6959,15 @@ proto_tree_add_bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 			 const guint encoding)
 {
 	header_field_info *hfinfo;
-	gint		  octet_length;
 	gint		  octet_offset;
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
-	octet_length = (no_of_bits + 7) >> 3;
 	octet_offset = bit_offset >> 3;
-	test_length(hfinfo, tree, tvb, octet_offset, octet_length, encoding);
+
+	if (tvb) {
+		tvb_ensure_offset_exists(tvb, octet_offset);
+	}
 
 	/* Yes, we try to fake this item again in proto_tree_add_bits_ret_val()
 	 * but only after doing a bunch more work (which we can, in the common

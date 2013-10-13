@@ -239,6 +239,9 @@ WS_DLL_PUBLIC void tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset
 /* Checks (w/o throwing exception) that offset exists in buffer */
 WS_DLL_PUBLIC gboolean tvb_offset_exists(const tvbuff_t*, const gint offset);
 
+/* Checks that offset exists in buffer and throws an exception if it doesn't */
+WS_DLL_PUBLIC void tvb_ensure_offset_exists(const tvbuff_t*, const gint offset);
+
 /* Get reported length of buffer */
 WS_DLL_PUBLIC guint tvb_reported_length(const tvbuff_t*);
 
