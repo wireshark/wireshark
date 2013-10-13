@@ -47,11 +47,11 @@ void proto_reg_handoff_aim_icq(void);
 
 static const value_string aim_icq_data_types[] = {
 	{ ICQ_CLI_OFFLINE_MESSAGE_REQ, "Offline Message Request" },
-	{ ICQ_SRV_OFFLINE_MSGS, "Offline Messages Reply" },
+	{ ICQ_SRV_OFFLINE_MSGS,        "Offline Messages Reply" },
 	{ ICQ_SRV_END_OF_OFFLINE_MSGS, "End Of Offline Messages Reply" },
 	{ ICQ_CLI_DELETE_OFFLINE_MSGS, "Delete Offline Messages Request" },
-	{ ICQ_CLI_META_INFO_REQ, "Metainfo Request" },
-	{ ICQ_SRV_META_INFO_REPL, "Metainfo Reply" },
+	{ ICQ_CLI_META_INFO_REQ,       "Metainfo Request" },
+	{ ICQ_SRV_META_INFO_REPL,      "Metainfo Reply" },
 	{ 0, NULL }
 };
 
@@ -143,15 +143,15 @@ static struct
 
 static int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tvbuff_t *tvb _U_, packet_info *pinfo)
 {
-	int offset = 0;
-	int i;
+	int         offset = 0;
+	int         i;
 	proto_item *subtype_item;
-	guint16 req_type, req_subtype;
-	proto_tree *t = proto_item_add_subtree(ti, ett_aim_icq_tlv);
+	guint16     req_type, req_subtype;
+	proto_tree *t      = proto_item_add_subtree(ti, ett_aim_icq_tlv);
 
 	proto_tree_add_item(t, hf_icq_tlv_data_chunk_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
-	
+
 	proto_tree_add_item(t, hf_icq_tlv_request_owner_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
@@ -162,29 +162,29 @@ static int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tv
 	proto_tree_add_item(t, hf_icq_tlv_request_seq_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	switch(req_type) {
+	switch (req_type) {
 	case ICQ_CLI_OFFLINE_MESSAGE_REQ: return offset;
 	case ICQ_CLI_DELETE_OFFLINE_MSGS: return offset;
 	case ICQ_SRV_OFFLINE_MSGS:
 		/* FIXME */
 		break;
-	case ICQ_SRV_END_OF_OFFLINE_MSGS: 
+	case ICQ_SRV_END_OF_OFFLINE_MSGS:
 		proto_tree_add_item(t, hf_icq_dropped_msg_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		return offset+1;
 	case ICQ_CLI_META_INFO_REQ:
 	case ICQ_SRV_META_INFO_REPL:
 		req_subtype = tvb_get_letohs(tvb, offset);
 		subtype_item = proto_tree_add_item(t, hf_icq_meta_subtype, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset+=2;
-		
-		for(i = 0; icq_calls[i].name; i++) {
-			if(icq_calls[i].subtype == req_subtype) break;
+
+		for (i = 0; icq_calls[i].name; i++) {
+			if (icq_calls[i].subtype == req_subtype) break;
 		}
 
 		col_set_str(pinfo->cinfo, COL_INFO, icq_calls[i].name?icq_calls[i].name:"Unknown ICQ Meta Call");
 
 		proto_item_append_text(subtype_item, " (%s)", icq_calls[i].name?icq_calls[i].name:"Unknown");
 
-		if(icq_calls[i].dissector) 
+		if (icq_calls[i].dissector)
 			return icq_calls[i].dissector(tvb_new_subset_remaining(tvb, offset), pinfo, t);
 
 	default:

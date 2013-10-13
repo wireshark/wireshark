@@ -111,8 +111,6 @@ static guint32  arp_request_count = 0;
 static nstime_t time_at_start_of_count;
 
 
-
-
 /* Map of (IP address -> MAC address) to detect duplicate IP addresses
    Key is unsigned32 */
 static GHashTable *address_hash_table = NULL;
@@ -227,7 +225,7 @@ typedef struct duplicate_result_key {
 #endif
 
 #ifndef ARPOP_MAPOS_UNARP
-#define ARPOP_MAPOS_UNARP	23 /*MAPOS UNARP*/
+#define ARPOP_MAPOS_UNARP   23 /*MAPOS UNARP*/
 #endif
 
 #ifndef ARPOP_EXP1
@@ -237,16 +235,16 @@ typedef struct duplicate_result_key {
 #define ARPOP_EXP2     25      /* Experimental 2 */
 #endif
 
-#ifndef ARPOP_RESERVED1 
-#define ARPOP_RESERVED1		0  /*Reserved opcode 1*/
+#ifndef ARPOP_RESERVED1
+#define ARPOP_RESERVED1         0  /*Reserved opcode 1*/
 #endif
 
-#ifndef ARPOP_RESERVED2 
+#ifndef ARPOP_RESERVED2
 #define ARPOP_RESERVED2         65535 /*Reserved opcode 2*/
 #endif
 
 #ifndef DRARPERR_RESTRICTED
-#define DRARPERR_RESTRICTED	1
+#define DRARPERR_RESTRICTED      1
 #endif
 
 #ifndef DRARPERR_NOADDRESSES
@@ -268,66 +266,66 @@ typedef struct duplicate_result_key {
 
 
 static const value_string op_vals[] = {
-  {ARPOP_REQUEST,  "request" },
-  {ARPOP_REPLY,    "reply"   },
-  {ARPOP_RREQUEST, "reverse request"},
-  {ARPOP_RREPLY,   "reverse reply"  },
-  {ARPOP_DRARPREQUEST, "drarp request"},
-  {ARPOP_DRARPREPLY, "drarp reply"},
-  {ARPOP_DRARPERROR, "drarp error"},
-  {ARPOP_IREQUEST, "inverse request"},
-  {ARPOP_IREPLY,   "inverse reply"  },
-  {ATMARPOP_NAK,   "arp nak"  },
-  {ARPOP_MARS_REQUEST, "mars request"},
-  {ARPOP_MARS_MULTI, "mars multi"},
-  {ARPOP_MARS_MSERV, "mars mserv"},
-  {ARPOP_MARS_JOIN, "mars join"},
-  {ARPOP_MARS_LEAVE, "mars leave"},
-  {ARPOP_MARS_NAK, "mars nak"},
-  {ARPOP_MARS_UNSERV, "mars unserv"},
-  {ARPOP_MARS_SJOIN, "mars sjoin"},
-  {ARPOP_MARS_SLEAVE, "mars sleave"},
-  {ARPOP_MARS_GROUPLIST_REQUEST, "mars grouplist request"},
-  {ARPOP_MARS_GROUPLIST_REPLY, "mars gruoplist reply"},
-  {ARPOP_MARS_REDIRECT_MAP, "mars redirect map"},
-  {ARPOP_MAPOS_UNARP, "mapos unarp"},
-  {ARPOP_EXP1,     "experimental 1" },
-  {ARPOP_EXP2,     "experimental 2" },
-  {ARPOP_RESERVED1,  "reserved"},
-  {ARPOP_RESERVED2,  "reserved"}, 
+  {ARPOP_REQUEST,                "request"                },
+  {ARPOP_REPLY,                  "reply"                  },
+  {ARPOP_RREQUEST,               "reverse request"        },
+  {ARPOP_RREPLY,                 "reverse reply"          },
+  {ARPOP_DRARPREQUEST,           "drarp request"          },
+  {ARPOP_DRARPREPLY,             "drarp reply"            },
+  {ARPOP_DRARPERROR,             "drarp error"            },
+  {ARPOP_IREQUEST,               "inverse request"        },
+  {ARPOP_IREPLY,                 "inverse reply"          },
+  {ATMARPOP_NAK,                 "arp nak"                },
+  {ARPOP_MARS_REQUEST,           "mars request"           },
+  {ARPOP_MARS_MULTI,             "mars multi"             },
+  {ARPOP_MARS_MSERV,             "mars mserv"             },
+  {ARPOP_MARS_JOIN,              "mars join"              },
+  {ARPOP_MARS_LEAVE,             "mars leave"             },
+  {ARPOP_MARS_NAK,               "mars nak"               },
+  {ARPOP_MARS_UNSERV,            "mars unserv"            },
+  {ARPOP_MARS_SJOIN,             "mars sjoin"             },
+  {ARPOP_MARS_SLEAVE,            "mars sleave"            },
+  {ARPOP_MARS_GROUPLIST_REQUEST, "mars grouplist request" },
+  {ARPOP_MARS_GROUPLIST_REPLY,   "mars gruoplist reply"   },
+  {ARPOP_MARS_REDIRECT_MAP,      "mars redirect map"      },
+  {ARPOP_MAPOS_UNARP,            "mapos unarp"            },
+  {ARPOP_EXP1,                   "experimental 1"         },
+  {ARPOP_EXP2,                   "experimental 2"         },
+  {ARPOP_RESERVED1,              "reserved"               },
+  {ARPOP_RESERVED2,              "reserved"               },
   {0, NULL}};
 
 static const value_string drarp_status[]={
-{DRARPERR_RESTRICTED, "restricted"},
-{DRARPERR_NOADDRESSES, "no address"},
-{DRARPERR_SERVERDOWN, "serverdown"},
-{DRARPERR_MOVED, "moved"},
-{DRARPERR_FAILURE, "failure"},
+{DRARPERR_RESTRICTED,  "restricted" },
+{DRARPERR_NOADDRESSES, "no address" },
+{DRARPERR_SERVERDOWN,  "serverdown" },
+{DRARPERR_MOVED,       "moved"      },
+{DRARPERR_FAILURE,     "failure"    },
 {0, NULL}};
 
 static const value_string atmop_vals[] = {
-  {ARPOP_REQUEST,  "request" },
-  {ARPOP_REPLY,    "reply"   },
-  {ARPOP_IREQUEST, "inverse request"},
-  {ARPOP_IREPLY,   "inverse reply"  },
-  {ATMARPOP_NAK,   "nak"  },
-  {ARPOP_MARS_REQUEST, "mars request"},
-  {ARPOP_MARS_MULTI, "mars multi"},
-  {ARPOP_MARS_MSERV, "mars mserv"},
-  {ARPOP_MARS_JOIN, "mars join"},
-  {ARPOP_MARS_LEAVE, "mars leave"},
-  {ARPOP_MARS_NAK, "mars nak"},
-  {ARPOP_MARS_UNSERV, "mars unserv"},
-  {ARPOP_MARS_SJOIN, "mars sjoin"},
-  {ARPOP_MARS_SLEAVE, "mars sleave"},
-  {ARPOP_MARS_GROUPLIST_REQUEST, "mars grouplist request"},
-  {ARPOP_MARS_GROUPLIST_REPLY, "mars gruoplist reply"},
-  {ARPOP_MARS_REDIRECT_MAP, "mars redirect map"},
-  {ARPOP_MAPOS_UNARP, "mapos unarp"},
-  {ARPOP_EXP1,     "experimental 1" },
-  {ARPOP_EXP2,     "experimental 2" },
-  {ARPOP_RESERVED1,  "reserved"},
-  {ARPOP_RESERVED2,  "reserved"},
+  {ARPOP_REQUEST,                "request"                },
+  {ARPOP_REPLY,                  "reply"                  },
+  {ARPOP_IREQUEST,               "inverse request"        },
+  {ARPOP_IREPLY,                 "inverse reply"          },
+  {ATMARPOP_NAK,                 "nak"                    },
+  {ARPOP_MARS_REQUEST,           "mars request"           },
+  {ARPOP_MARS_MULTI,             "mars multi"             },
+  {ARPOP_MARS_MSERV,             "mars mserv"             },
+  {ARPOP_MARS_JOIN,              "mars join"              },
+  {ARPOP_MARS_LEAVE,             "mars leave"             },
+  {ARPOP_MARS_NAK,               "mars nak"               },
+  {ARPOP_MARS_UNSERV,            "mars unserv"            },
+  {ARPOP_MARS_SJOIN,             "mars sjoin"             },
+  {ARPOP_MARS_SLEAVE,            "mars sleave"            },
+  {ARPOP_MARS_GROUPLIST_REQUEST, "mars grouplist request" },
+  {ARPOP_MARS_GROUPLIST_REPLY,   "mars gruoplist reply"   },
+  {ARPOP_MARS_REDIRECT_MAP,      "mars redirect map"      },
+  {ARPOP_MAPOS_UNARP,            "mapos unarp"            },
+  {ARPOP_EXP1,                   "experimental 1"         },
+  {ARPOP_EXP2,                   "experimental 2"         },
+  {ARPOP_RESERVED1,              "reserved"               },
+  {ARPOP_RESERVED2,              "reserved"               },
   {0, NULL} };
 
 #define ATMARP_IS_E164  0x40    /* bit in type/length for E.164 format */
@@ -393,8 +391,8 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
 static const gchar *
 atmarpnum_to_str(const guint8 *ad, int ad_tl)
 {
-  int           ad_len = ad_tl & ATMARP_LEN_MASK;
-  gchar        *cur;
+  int    ad_len = ad_tl & ATMARP_LEN_MASK;
+  gchar *cur;
 
   if (ad_len == 0)
     return "<No address>";
@@ -426,7 +424,7 @@ atmarpnum_to_str(const guint8 *ad, int ad_tl)
 static const gchar *
 atmarpsubaddr_to_str(const guint8 *ad, int ad_tl)
 {
-  int           ad_len = ad_tl & ATMARP_LEN_MASK;
+  int ad_len = ad_tl & ATMARP_LEN_MASK;
 
   if (ad_len == 0)
     return "<No address>";
@@ -444,46 +442,46 @@ atmarpsubaddr_to_str(const guint8 *ad, int ad_tl)
 }
 
 const value_string arp_hrd_vals[] = {
-  {ARPHRD_NETROM,   "NET/ROM pseudo"       },
-  {ARPHRD_ETHER,    "Ethernet"             },
-  {ARPHRD_EETHER,   "Experimental Ethernet"},
-  {ARPHRD_AX25,     "AX.25"                },
-  {ARPHRD_PRONET,   "ProNET"               },
-  {ARPHRD_CHAOS,    "Chaos"                },
-  {ARPHRD_IEEE802,  "IEEE 802"             },
-  {ARPHRD_ARCNET,   "ARCNET"               },
-  {ARPHRD_HYPERCH,  "Hyperchannel"         },
-  {ARPHRD_LANSTAR,  "Lanstar"              },
-  {ARPHRD_AUTONET,  "Autonet Short Address"},
-  {ARPHRD_LOCALTLK, "Localtalk"            },
-  {ARPHRD_LOCALNET, "LocalNet"             },
-  {ARPHRD_ULTRALNK, "Ultra link"           },
-  {ARPHRD_SMDS,     "SMDS"                 },
-  {ARPHRD_DLCI,     "Frame Relay DLCI"     },
-  {ARPHRD_ATM,      "ATM"                  },
-  {ARPHRD_HDLC,     "HDLC"                 },
-  {ARPHRD_FIBREC,   "Fibre Channel"        },
-  {ARPHRD_ATM2225,  "ATM (RFC 2225)"       },
-  {ARPHRD_SERIAL,   "Serial Line"          },
-  {ARPHRD_ATM2,     "ATM"                  },
-  {ARPHRD_MS188220, "MIL-STD-188-220"      },
-  {ARPHRD_METRICOM, "Metricom STRIP"       },
-  {ARPHRD_IEEE1394, "IEEE 1394.1995"       },
-  {ARPHRD_MAPOS,    "MAPOS"                },
-  {ARPHRD_TWINAX,   "Twinaxial"            },
-  {ARPHRD_EUI_64,   "EUI-64"               },
-  {ARPHRD_HIPARP,   "HIPARP"               },
-  {ARPHRD_IP_ARP_ISO_7816_3,  "IP and ARP over ISO 7816-3"},
-  {ARPHRD_ARPSEC,             "ARPSec"     },
-  {ARPHRD_IPSEC_TUNNEL,       "IPsec tunnel"},
-  {ARPHRD_INFINIBAND,         "InfiniBand" },
-  {ARPHRD_TIA_102_PRJ_25_CAI, "TIA-102 Project 25 CAI"},
-  {ARPHRD_WIEGAND_INTERFACE,  "Wiegand Interface"},
-  {ARPHRD_PURE_IP,            "Pure IP"    },
-  {ARPHDR_HW_EXP1,            "Experimental 1"},
-  {ARPHDR_HFI,                "HFI"        },
-  {ARPHDR_HW_EXP2,            "Experimental 2"},
-  {0,                NULL                  } };
+  {ARPHRD_NETROM,             "NET/ROM pseudo"             },
+  {ARPHRD_ETHER,              "Ethernet"                   },
+  {ARPHRD_EETHER,             "Experimental Ethernet"      },
+  {ARPHRD_AX25,               "AX.25"                      },
+  {ARPHRD_PRONET,             "ProNET"                     },
+  {ARPHRD_CHAOS,              "Chaos"                      },
+  {ARPHRD_IEEE802,            "IEEE 802"                   },
+  {ARPHRD_ARCNET,             "ARCNET"                     },
+  {ARPHRD_HYPERCH,            "Hyperchannel"               },
+  {ARPHRD_LANSTAR,            "Lanstar"                    },
+  {ARPHRD_AUTONET,            "Autonet Short Address"      },
+  {ARPHRD_LOCALTLK,           "Localtalk"                  },
+  {ARPHRD_LOCALNET,           "LocalNet"                   },
+  {ARPHRD_ULTRALNK,           "Ultra link"                 },
+  {ARPHRD_SMDS,               "SMDS"                       },
+  {ARPHRD_DLCI,               "Frame Relay DLCI"           },
+  {ARPHRD_ATM,                "ATM"                        },
+  {ARPHRD_HDLC,               "HDLC"                       },
+  {ARPHRD_FIBREC,             "Fibre Channel"              },
+  {ARPHRD_ATM2225,            "ATM (RFC 2225)"             },
+  {ARPHRD_SERIAL,             "Serial Line"                },
+  {ARPHRD_ATM2,               "ATM"                        },
+  {ARPHRD_MS188220,           "MIL-STD-188-220"            },
+  {ARPHRD_METRICOM,           "Metricom STRIP"             },
+  {ARPHRD_IEEE1394,           "IEEE 1394.1995"             },
+  {ARPHRD_MAPOS,              "MAPOS"                      },
+  {ARPHRD_TWINAX,             "Twinaxial"                  },
+  {ARPHRD_EUI_64,             "EUI-64"                     },
+  {ARPHRD_HIPARP,             "HIPARP"                     },
+  {ARPHRD_IP_ARP_ISO_7816_3,  "IP and ARP over ISO 7816-3" },
+  {ARPHRD_ARPSEC,             "ARPSec"                     },
+  {ARPHRD_IPSEC_TUNNEL,       "IPsec tunnel"               },
+  {ARPHRD_INFINIBAND,         "InfiniBand"                 },
+  {ARPHRD_TIA_102_PRJ_25_CAI, "TIA-102 Project 25 CAI"     },
+  {ARPHRD_WIEGAND_INTERFACE,  "Wiegand Interface"          },
+  {ARPHRD_PURE_IP,            "Pure IP"                    },
+  {ARPHDR_HW_EXP1,            "Experimental 1"             },
+  {ARPHDR_HFI,                "HFI"                        },
+  {ARPHDR_HW_EXP2,            "Experimental 2"             },
+  {0, NULL                  } };
 
 /* Offsets of fields within an ARP packet. */
 #define AR_HRD          0
@@ -494,13 +492,13 @@ const value_string arp_hrd_vals[] = {
 #define MIN_ARP_HEADER_SIZE     8
 
 /* Offsets of fields within an ATMARP packet. */
-#define ATM_AR_HRD      0
-#define ATM_AR_PRO      2
-#define ATM_AR_SHTL     4
-#define ATM_AR_SSTL     5
-#define ATM_AR_OP       6
-#define ATM_AR_SPLN     8
-#define ATM_AR_THTL     9
+#define ATM_AR_HRD       0
+#define ATM_AR_PRO       2
+#define ATM_AR_SHTL      4
+#define ATM_AR_SSTL      5
+#define ATM_AR_OP        6
+#define ATM_AR_SPLN      8
+#define ATM_AR_THTL      9
 #define ATM_AR_TSTL     10
 #define ATM_AR_TPLN     11
 #define MIN_ATMARP_HEADER_SIZE  12
@@ -509,7 +507,7 @@ static void
 dissect_atm_number(tvbuff_t *tvb, int offset, int tl, int hf_e164,
                    int hf_nsap, proto_tree *tree)
 {
-  int len = tl & ATMARP_LEN_MASK;
+  int         len = tl & ATMARP_LEN_MASK;
   proto_item *ti;
   proto_tree *nsap_tree;
 
@@ -636,9 +634,9 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
                                               const guint8 *mac, guint32 ip,
                                               guint32 *duplicate_ip)
 {
-  address_hash_value *value;
-  address_hash_value *result = NULL;
-  duplicate_result_key result_key = {pinfo->fd->num, ip};
+  address_hash_value   *value;
+  address_hash_value   *result     = NULL;
+  duplicate_result_key  result_key = {pinfo->fd->num, ip};
 
   /* Look up existing result */
   if (pinfo->fd->flags.visited) {
@@ -830,31 +828,31 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint16     ar_hrd;
-  guint16     ar_pro;
-  guint8      ar_shtl;
-  guint8      ar_shl;
-  guint8      ar_sstl;
-  guint8      ar_ssl;
-  guint16     ar_op;
-  guint8      ar_spln;
-  guint8      ar_thtl;
-  guint8      ar_thl;
-  guint8      ar_tstl;
-  guint8      ar_tsl;
-  guint8      ar_tpln;
-  int         tot_len;
-  proto_tree  *arp_tree;
-  proto_item  *ti;
-  const gchar *op_str;
-  int         sha_offset, ssa_offset, spa_offset;
-  int         tha_offset, tsa_offset, tpa_offset;
-  const guint8      *sha_val, *ssa_val, *spa_val;
-  const guint8      *tha_val, *tsa_val, *tpa_val;
-  const gchar       *sha_str, *ssa_str, *spa_str;
-  const gchar       *tha_str, *tsa_str, *tpa_str;
-  proto_tree  *tl_tree;
-  proto_item  *tl;
+  guint16       ar_hrd;
+  guint16       ar_pro;
+  guint8        ar_shtl;
+  guint8        ar_shl;
+  guint8        ar_sstl;
+  guint8        ar_ssl;
+  guint16       ar_op;
+  guint8        ar_spln;
+  guint8        ar_thtl;
+  guint8        ar_thl;
+  guint8        ar_tstl;
+  guint8        ar_tsl;
+  guint8        ar_tpln;
+  int           tot_len;
+  proto_tree   *arp_tree;
+  proto_item   *ti;
+  const gchar  *op_str;
+  int           sha_offset, ssa_offset, spa_offset;
+  int           tha_offset, tsa_offset, tpa_offset;
+  const guint8 *sha_val, *ssa_val, *spa_val;
+  const guint8 *tha_val, *tsa_val, *tpa_val;
+  const gchar  *sha_str, *ssa_str, *spa_str;
+  const gchar  *tha_str, *tsa_str, *tpa_str;
+  proto_tree   *tl_tree;
+  proto_item   *tl;
 
   /* Override the setting to "ARP/RARP". */
   pinfo->current_proto = "ATMARP";
@@ -998,14 +996,14 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case ARPOP_MARS_REQUEST:
     col_add_fstr(pinfo->cinfo, COL_INFO, "MARS request from %s%s%s at %s",
                  sha_str,
-		 ((ssa_str != NULL) ? "," : ""),
+                 ((ssa_str != NULL) ? "," : ""),
                  ((ssa_str != NULL) ? ssa_str : ""),
                  spa_str);
     break;
 
   case ARPOP_MARS_MULTI:
     col_add_fstr(pinfo->cinfo, COL_INFO, "MARS MULTI request from %s%s%s at %s",
-                 sha_str, 
+                 sha_str,
                  ((ssa_str != NULL) ? "," : ""),
                  ((ssa_str != NULL) ? ssa_str : ""),
                  spa_str);
@@ -1013,7 +1011,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case ARPOP_MARS_MSERV:
     col_add_fstr(pinfo->cinfo, COL_INFO, "MARS MSERV request from %s%s%s at %s",
-                 sha_str, 
+                 sha_str,
                  ((ssa_str != NULL) ? "," : ""),
                  ((ssa_str != NULL) ? ssa_str : ""),
                  spa_str);
@@ -1021,7 +1019,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case ARPOP_MARS_JOIN:
     col_add_fstr(pinfo->cinfo, COL_INFO, "MARS JOIN request from %s%s%s at %s",
-                 sha_str, 
+                 sha_str,
                  ((ssa_str != NULL) ? "," : ""),
                  ((ssa_str != NULL) ? ssa_str : ""),
                  spa_str);
@@ -1029,7 +1027,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case ARPOP_MARS_LEAVE:
     col_add_fstr(pinfo->cinfo, COL_INFO, "MARS LEAVE from %s%s%s at %s",
-                 sha_str, 
+                 sha_str,
                  ((ssa_str != NULL) ? "," : ""),
                  ((ssa_str != NULL) ? ssa_str : ""),
                  spa_str);
@@ -1220,20 +1218,20 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-#define ARP_AX25	204
+#define ARP_AX25 204
 
-  guint16     ar_hrd;
-  guint16     ar_pro;
-  guint8      ar_hln;
-  guint8      ar_pln;
-  guint16     ar_op;
-  int         tot_len;
+  guint16      ar_hrd;
+  guint16      ar_pro;
+  guint8       ar_hln;
+  guint8       ar_pln;
+  guint16      ar_op;
+  int          tot_len;
   proto_tree  *arp_tree = NULL;
   proto_item  *ti;
   const gchar *op_str;
-  int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  const guint8      /* *sha_val, */ *spa_val, /* *tha_val, */ *tpa_val;
-  gboolean    is_gratuitous;
+  int          sha_offset, spa_offset, tha_offset, tpa_offset;
+  const guint8 /* *sha_val, */ *spa_val, /* *tha_val, */ *tpa_val;
+  gboolean     is_gratuitous;
 
   /* Hardware Address Type */
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
@@ -1293,9 +1291,9 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* ARP requests/replies with the same sender and target protocol
      address are flagged as "gratuitous ARPs", i.e. ARPs sent out as,
      in effect, an announcement that the machine has MAC address
-     XX:XX:XX:XX:XX:XX and IPv4 address YY.YY.YY.YY. Requests are to 
+     XX:XX:XX:XX:XX:XX and IPv4 address YY.YY.YY.YY. Requests are to
      provoke complaints if some other machine has the same IPv4 address,
-     replies are used to announce relocation of network address, like 
+     replies are used to announce relocation of network address, like
      in failover solutions. */
   if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) && (memcmp(spa_val, tpa_val, ar_pln) == 0))
     is_gratuitous = TRUE;
@@ -1304,10 +1302,10 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (ar_op) {
     case ARPOP_REQUEST:
-	  if (is_gratuitous)
-          col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
-                       arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
-	  else
+      if (is_gratuitous)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
+                     arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+      else
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
                      arpproaddr_to_str(tpa_val, ar_pln, ar_pro),
                      arpproaddr_to_str(spa_val, ar_pln, ar_pro));
@@ -1348,16 +1346,16 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree) {
-    if ((op_str = try_val_to_str(ar_op, op_vals)))  {
+    if ((op_str = try_val_to_str(ar_op, op_vals))) {
       if (is_gratuitous && (ar_op == ARPOP_REQUEST))
         op_str = "request/gratuitous ARP";
       if (is_gratuitous && (ar_op == ARPOP_REPLY))
         op_str = "reply/gratuitous ARP";
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
-					"Address Resolution Protocol (%s)", op_str);
+                                        "Address Resolution Protocol (%s)", op_str);
     } else
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
-				      "Address Resolution Protocol (opcode 0x%04x)", ar_op);
+                                      "Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
     proto_tree_add_uint(arp_tree, hf_arp_hard_type, tvb, AR_HRD, 2, ar_hrd);
     proto_tree_add_uint(arp_tree, hf_arp_proto_type, tvb, AR_PRO, 2, ar_pro);
@@ -1366,25 +1364,25 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
-	ARP_HW_IS_AX25(ar_hrd, ar_hln) ? hf_arp_src_hw_ax25 : hf_arp_src_hw,
-	tvb, sha_offset, ar_hln, FALSE);
+        ARP_HW_IS_AX25(ar_hrd, ar_hln) ? hf_arp_src_hw_ax25 : hf_arp_src_hw,
+        tvb, sha_offset, ar_hln, FALSE);
     }
     if (ar_pln != 0) {
       proto_tree_add_item(arp_tree,
-	ARP_PRO_IS_IPv4(ar_pro, ar_pln) ? hf_arp_src_proto_ipv4
-					: hf_arp_src_proto,
-	tvb, spa_offset, ar_pln, FALSE);
+        ARP_PRO_IS_IPv4(ar_pro, ar_pln) ? hf_arp_src_proto_ipv4
+                                        : hf_arp_src_proto,
+        tvb, spa_offset, ar_pln, FALSE);
     }
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
-	ARP_HW_IS_AX25(ar_hrd, ar_hln) ? hf_arp_dst_hw_ax25 : hf_arp_dst_hw,
-	tvb, tha_offset, ar_hln, FALSE);
+        ARP_HW_IS_AX25(ar_hrd, ar_hln) ? hf_arp_dst_hw_ax25 : hf_arp_dst_hw,
+        tvb, tha_offset, ar_hln, FALSE);
     }
     if (ar_pln != 0) {
       proto_tree_add_item(arp_tree,
-	ARP_PRO_IS_IPv4(ar_pro, ar_pln) ? hf_arp_dst_proto_ipv4
-					: hf_arp_dst_proto,
-	tvb, tpa_offset, ar_pln, FALSE);
+        ARP_PRO_IS_IPv4(ar_pro, ar_pln) ? hf_arp_dst_proto_ipv4
+                                        : hf_arp_dst_proto,
+        tvb, tpa_offset, ar_pln, FALSE);
     }
   }
 
@@ -1399,20 +1397,20 @@ static const guint8 mac_allzero[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static void
 dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint16     ar_hrd;
-  guint16     ar_pro;
-  guint8      ar_hln;
-  guint8      ar_pln;
-  guint16     ar_op;
-  int         tot_len;
-  proto_tree  *arp_tree = NULL;
-  proto_item  *ti, *item;
-  const gchar *op_str;
-  int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  const guint8      *spa_val, *tpa_val;
-  gboolean    is_gratuitous;
-  gboolean    duplicate_detected = FALSE;
-  guint32     duplicate_ip = 0;
+  guint16       ar_hrd;
+  guint16       ar_pro;
+  guint8        ar_hln;
+  guint8        ar_pln;
+  guint16       ar_op;
+  int           tot_len;
+  proto_tree   *arp_tree           = NULL;
+  proto_item   *ti, *item;
+  const gchar  *op_str;
+  int           sha_offset, spa_offset, tha_offset, tpa_offset;
+  const guint8 *spa_val, *tpa_val;
+  gboolean      is_gratuitous;
+  gboolean      duplicate_detected = FALSE;
+  guint32       duplicate_ip       = 0;
 
   /* Call it ARP, for now, so that if we throw an exception before
      we decide whether it's ARP or RARP or IARP or ATMARP, it shows
@@ -1477,7 +1475,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ARPOP_IREPLY:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ARP");
       break;
- 
+
    case ARPOP_MARS_REQUEST:
    case ARPOP_MARS_MULTI:
    case ARPOP_MARS_MSERV:
@@ -1491,7 +1489,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    case ARPOP_MARS_GROUPLIST_REPLY:
    case ARPOP_MARS_REDIRECT_MAP:
      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MARS");
-     break;   
+     break;
 
    case ARPOP_MAPOS_UNARP:
      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAPOS");
@@ -1609,7 +1607,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case ARPOP_DRARPERROR:
       col_add_fstr(pinfo->cinfo, COL_INFO, "DRARP Error");
-      break;  
+      break;
 
     case ARPOP_IREPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
@@ -1696,7 +1694,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ARPOP_MAPOS_UNARP:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MAPOS UNARP request from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-		   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
       break;
 
     case ARPOP_EXP1:
@@ -1734,11 +1732,11 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(arp_tree, hf_arp_hard_size, tvb, AR_HLN, 1, ar_hln);
     proto_tree_add_uint(arp_tree, hf_arp_proto_size, tvb, AR_PLN, 1, ar_pln);
     proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
-    if(is_gratuitous)  
+    if (is_gratuitous)
    {
     item = proto_tree_add_boolean(arp_tree, hf_arp_isgratuitous, tvb, 0, 0, is_gratuitous);
     PROTO_ITEM_SET_GENERATED(item);
-   }   
+   }
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
                           ARP_HW_IS_ETHER(ar_hrd, ar_hln) ?
@@ -1882,9 +1880,9 @@ proto_register_arp(void)
         NULL, HFILL }},
 
     { &hf_arp_src_hw_ax25,
-      { "Sender AX.25 address",		"arp.src.hw_ax25",
-	FT_AX25,	BASE_NONE,	NULL,	0x0,
-      	"", HFILL }},
+      { "Sender AX.25 address",         "arp.src.hw_ax25",
+        FT_AX25,        BASE_NONE,      NULL,   0x0,
+        NULL, HFILL }},
 
     { &hf_atmarp_src_atm_num_e164,
       { "Sender ATM number (E.164)",    "arp.src.atm_num_e164",
@@ -1922,9 +1920,9 @@ proto_register_arp(void)
         NULL, HFILL }},
 
     { &hf_arp_dst_hw_ax25,
-      { "Target AX.25 address",		"arp.dst.hw_ax25",
-	FT_AX25,	BASE_NONE,	NULL,	0x0,
-      	"", HFILL }},
+      { "Target AX.25 address",         "arp.dst.hw_ax25",
+        FT_AX25,        BASE_NONE,      NULL,   0x0,
+        NULL, HFILL }},
 
     { &hf_atmarp_dst_atm_num_e164,
       { "Target ATM number (E.164)",    "arp.dst.atm_num_e164",

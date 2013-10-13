@@ -395,7 +395,7 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr
 
     /* Check if we have enough data available for our frames */
     if (tvb_reported_length_remaining(tvb, bitcount/8) < bytes_needed_for_frames) {
-        item = proto_tree_add_text(tree, tvb, bitcount/8, bytes_needed_for_frames, 
+        item = proto_tree_add_text(tree, tvb, bitcount/8, bytes_needed_for_frames,
                 "Error: %d Bytes available, %d would be needed!",
                        tvb_reported_length_remaining(tvb, bitcount/8),
                        bytes_needed_for_frames);
@@ -596,7 +596,7 @@ dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
 
     actx = get_asn1_ctx(pinfo->private_data);
     DISSECTOR_ASSERT(actx != NULL);
-    if (tree && actx != NULL) {
+    if (tree && (actx != NULL)) {
         amr_capability_t *ftr;
         ftr = find_cap(pinfo->match_string);
         if (ftr) {

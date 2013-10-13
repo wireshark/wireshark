@@ -6262,7 +6262,7 @@ static const value_string ansi_a_ms_info_rec_signal_type_vals[] = {
     { 0x3, "Reserved"},
     { 0, NULL}
  };
- 
+
 static const value_string ansi_a_ms_info_rec_signal_alert_pitch_vals[] = {
     { 0x0, "Medium pitch (standard alert)"},
     { 0x1, "High pitch"},
@@ -12426,8 +12426,8 @@ proto_reg_handoff_ansi_a(void)
 
         dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
         dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
-        dissector_add_string("media_type", "application/femtointerfacemsg", sip_dtap_bsmap_handle); 
-        dissector_add_string("media_type", "application/vnd.3gpp2.femtointerfacemsg", sip_dtap_bsmap_handle); 
+        dissector_add_string("media_type", "application/femtointerfacemsg", sip_dtap_bsmap_handle);
+        dissector_add_string("media_type", "application/vnd.3gpp2.femtointerfacemsg", sip_dtap_bsmap_handle);
 
         ansi_a_prefs_initialized = TRUE;
     }

@@ -43,7 +43,7 @@ ext_value_string_t;
 
 /*
  * the following allows TAP code access to the messages
- * without having to duplicate it. With MSVC and a 
+ * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
 WS_DLL_PUBLIC const ext_value_string_t *ansi_a_bsmap_strings;

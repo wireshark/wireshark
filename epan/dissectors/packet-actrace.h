@@ -23,14 +23,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 /* Container for tapping relevant data */
 typedef struct _actrace_info_t
 {
-	int type; /* ACTRACE_CAS=1   ACTRACE_ISDN=2 */
-	int direction;  /* direction BLADE_TO_PSTN=0 PSTN_TO_BLADE=1 */
-	int trunk;
-	gint32 cas_bchannel;
-	const gchar *cas_frame_label;
+    int          type;          /* ACTRACE_CAS=1   ACTRACE_ISDN=2 */
+    int          direction;     /* direction BLADE_TO_PSTN=0 PSTN_TO_BLADE=1 */
+    int          trunk;
+    gint32       cas_bchannel;
+    const gchar *cas_frame_label;
 } actrace_info_t;
 

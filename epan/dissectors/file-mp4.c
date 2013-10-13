@@ -136,8 +136,8 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     offset_start = offset;
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
             tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    offset+=3;
+    offset += 1;
+    offset += 3;
 
     return offset-offset_start;
 }
@@ -151,12 +151,12 @@ dissect_mp4_mfhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     offset_start = offset;
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
             tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    offset+=3;
+    offset += 1;
+    offset += 3;
 
     proto_tree_add_item(tree, hf_mp4_mfhd_seq_num,
             tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset+=4;
+    offset += 4;
 
     return offset-offset_start;
 }
@@ -176,13 +176,13 @@ dissect_mp4_ftyp_body(tvbuff_t *tvb, gint offset, gint len,
             tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    while (offset-offset_start<len) {
+    while ((offset-offset_start) < len) {
         proto_tree_add_item(tree, hf_mp4_ftyp_add_brand,
                 tvb, offset, 4, ENC_ASCII|ENC_NA);
         offset += 4;
     }
 
-    return offset-offset_start;
+    return offset - offset_start;
 }
 
 /* dissect a box, return its (standard or extended) length or 0 for error */
@@ -207,7 +207,7 @@ dissect_mp4_box(guint32 parent_box_type _U_,
        - extended box types */
 
     box_size = (guint64)tvb_get_ntohl(tvb, offset);
-    if (box_size!=BOX_SIZE_EXTENDED && box_size<MIN_BOX_SIZE)
+    if ((box_size != BOX_SIZE_EXTENDED) && (box_size < MIN_BOX_SIZE))
         return -1;
 
     box_type = tvb_get_ntohl(tvb, offset+4);
@@ -219,7 +219,7 @@ dissect_mp4_box(guint32 parent_box_type _U_,
 
     size_pi = proto_tree_add_item(box_tree, hf_mp4_box_size,
             tvb, offset, 4, ENC_BIG_ENDIAN);
-    if (box_size==BOX_SIZE_EXTENDED)
+    if (box_size == BOX_SIZE_EXTENDED)
         proto_item_append_text(size_pi, " (actual size is in largesize)");
 
     offset += 4;
@@ -227,7 +227,7 @@ dissect_mp4_box(guint32 parent_box_type _U_,
             tvb, offset, 4, ENC_ASCII|ENC_NA);
     offset += 4;
 
-    if (box_size==BOX_SIZE_EXTENDED) {
+    if (box_size == BOX_SIZE_EXTENDED) {
         box_size = tvb_get_ntoh64(tvb, offset);
         ext_size_pi = proto_tree_add_item(box_tree, hf_mp4_box_largesize,
                 tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -263,9 +263,9 @@ dissect_mp4_box(guint32 parent_box_type _U_,
         case BOX_TYPE_MVEX:
         case BOX_TYPE_DINF:
         case BOX_TYPE_UDTA:
-            while (offset-offset_start<(gint)box_size) {
+            while (offset-offset_start < (gint)box_size) {
                 ret = dissect_mp4_box(box_type, tvb, offset, pinfo, box_tree);
-                if (ret<=0)
+                if (ret <= 0)
                     break;
                 offset += ret;
             }
@@ -293,7 +293,7 @@ dissect_mp4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
        this detection should be safe as long as the dissector is only called for
         the video/mp4 mime type
        when we read mp4 files directly, we might need stricter checks here */
-    if (tvb_reported_length(tvb)<MIN_BOX_SIZE)
+    if (tvb_reported_length(tvb) < MIN_BOX_SIZE)
         return 0;
     box_type = tvb_get_ntohl(tvb, 4);
     if (try_val_to_str(box_type, box_types) == NULL)
@@ -308,7 +308,7 @@ dissect_mp4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         ret = dissect_mp4_box(BOX_TYPE_NONE, tvb, offset, pinfo, mp4_tree);
-        if (ret<=0)
+        if (ret <= 0)
             break;
         offset += ret;
     }
@@ -357,8 +357,8 @@ proto_register_mp4(void)
                 "box size too large, dissection of this box is not supported", EXPFILL }}
     };
 
-    expert_module_t* expert_mp4;
-    
+    expert_module_t *expert_mp4;
+
     proto_mp4 = proto_register_protocol("MP4 / ISOBMFF file format", "mp4", "mp4");
 
     proto_register_field_array(proto_mp4, hf, array_length(hf));
