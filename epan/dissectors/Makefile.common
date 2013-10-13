@@ -910,6 +910,7 @@ DISSECTOR_SRC = \
 	packet-omapi.c		\
 	packet-omron-fins.c	\
 	packet-openflow.c	\
+	packet-openflow_v4.c	\
 	packet-opensafety.c	\
 	packet-openvpn.c	\
 	packet-openwire.c	\
