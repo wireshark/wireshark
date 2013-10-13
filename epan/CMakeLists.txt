@@ -24,9 +24,12 @@
 if (HAVE_LIBLUA)
 	include( wslua/CMakeLists.txt )
 endif()
+source_group(wslua FILES ${WSLUA_FILES})
+
 if (HAVE_LIBPYTHON)
 	include( wspython/CMakeLists.txt )
 endif()
+source_group(wspython FILES ${WSPYTHON_FILES})
 
 add_subdirectory( dissectors/dcerpc )
 
@@ -46,6 +49,7 @@ set(CRYPT_FILES
 	crypt/airpdcap_rijndael.c
 	crypt/airpdcap_tkip.c
 )
+source_group(crypt FILES ${CRYPT_FILES})
 
 set(DFILTER_FILES
 	dfilter/dfilter.c
@@ -63,6 +67,7 @@ set(DFILTER_FILES
 	dfilter/sttype-test.c
 	dfilter/syntax-tree.c
 )
+source_group(dfilter FILES ${DFILTER_FILES})
 
 set(DFILTER_CLEAN_FILES
 	${DFILTER_FILES}
@@ -1338,6 +1343,7 @@ set(DISSECTOR_SUPPORT_SRC
 	dissectors/usb.c
 	register.c
 )
+source_group(dissector-support FILES ${DISSECTOR_SUPPORT_SRC})
 
 set(LIBWIRESHARK_ASM_FILES
 	asm_utils.c
@@ -1363,6 +1369,7 @@ set(DISSECTOR_FILES
 	${ASN1_DISSECTOR_SRC}
 	${DIRTY_ASN1_DISSECTOR_SRC}
 )
+source_group(dissectors FILES ${DISSECTOR_FILES})
 
 register_dissector_files(register.c
 	dissectors
@@ -1383,6 +1390,7 @@ set(FTYPE_FILES
 	ftypes/ftype-time.c
 	ftypes/ftype-tvbuff.c
 )
+source_group(ftype FILES ${FTYPE_FILES})
 
 set(WMEM_FILES
 	wmem/wmem_array.c
@@ -1399,6 +1407,7 @@ set(WMEM_FILES
 	wmem/wmem_tree.c
 	wmem/wmem_user_cb.c
 )
+source_group(wmem FILES ${WMEM_FILES})
 
 ADD_CUSTOM_COMMAND(
     OUTPUT
@@ -1652,6 +1661,7 @@ add_custom_target(dumpabi-libwireshark DEPENDS libwireshark.abi.tar.gz)
 # By default the name for a library with target name epan will be libepan,
 # but Ethereal is now named Wireshark
 SET_TARGET_PROPERTIES(epan PROPERTIES OUTPUT_NAME "wireshark")
+set_target_properties(epan PROPERTIES FOLDER "DLLs")
 
 target_link_libraries(epan ${epan_LIBS})
 

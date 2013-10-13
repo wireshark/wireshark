@@ -253,6 +253,7 @@ if(WIN32)
 endif()
 
 register_tap_files(wireshark-tap-register.c
+        taps
 	${WIRESHARK_TAP_SRC}
 )
 
@@ -263,6 +264,7 @@ add_library(gtkui STATIC
 	wireshark-tap-register.c
 )
 set_target_properties(gtkui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(gtkui PROPERTIES FOLDER "UI")
 
 install(
 	DIRECTORY

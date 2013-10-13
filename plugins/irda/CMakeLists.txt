@@ -56,6 +56,7 @@ add_library(irda ${LINK_MODE_MODULE}
 )
 set_target_properties(irda PROPERTIES PREFIX "")
 set_target_properties(irda PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(irda PROPERTIES FOLDER "Plugins")
 
 target_link_libraries(irda epan)
 

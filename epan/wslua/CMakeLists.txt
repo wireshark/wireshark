@@ -108,6 +108,7 @@ add_custom_target(
      DEPENDS
 	init.lua
 )
+set_target_properties(wsluaauxiliary PROPERTIES FOLDER "Auxiliary")
 
 install(
     FILES

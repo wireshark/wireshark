@@ -249,4 +249,5 @@ add_library(qtui STATIC
 	${QTSHARK_TS_QM}
 )
 set_target_properties(qtui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(qtui PROPERTIES FOLDER "UI")
 

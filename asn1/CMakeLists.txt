@@ -126,7 +126,7 @@ set(ASN1_SRC_DIRS
 )
 
 set( BROKEN_ASN1_SRC_DIRS
-	# Kerberos is a handwritten dissecotr, don't replace
+	# Kerberos is a handwritten dissector, don't replace
 	kerberos
 	# x721 does not build
 	x721

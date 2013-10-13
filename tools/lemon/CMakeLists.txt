@@ -42,5 +42,6 @@ set(lemon_LIBS
 )
 
 add_executable(lemon ${lemon_FILES})
+set_target_properties(lemon PROPERTIES FOLDER "tools")
 
 target_link_libraries(lemon ${lemon_LIBS})

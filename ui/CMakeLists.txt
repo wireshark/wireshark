@@ -70,3 +70,4 @@ add_library(ui STATIC
 )
 
 set_target_properties(ui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(ui PROPERTIES FOLDER "UI")

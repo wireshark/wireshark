@@ -75,6 +75,7 @@ add_library(mate ${LINK_MODE_MODULE}
 )
 set_target_properties(mate PROPERTIES PREFIX "")
 set_target_properties(mate PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(mate PROPERTIES FOLDER "Plugins")
 
 target_link_libraries(mate epan)
 

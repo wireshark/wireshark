@@ -72,6 +72,9 @@ set(wsutil_LIBS
   ${GCRYPT_LIBRARIES}
   ${WIN_WSOCK32_LIBRARY}
 )
+IF(WIN32)
+  set(wsutil_LIBS ${wsutil_LIBS} "ws2_32.lib")
+ENDIF(WIN32)
 
 set(CLEAN_FILES
   ${WSUTIL_FILES}
@@ -94,6 +97,7 @@ set(FULL_SO_VERSION "0.0.0")
 set_target_properties(wsutil PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
 set_target_properties(wsutil PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(wsutil PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
+set_target_properties(wsutil PROPERTIES FOLDER "DLLs")
 
 # discover and substitute list of include directories for ABI compatibility
 # checks
