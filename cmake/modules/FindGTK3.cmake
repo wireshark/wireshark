@@ -23,13 +23,22 @@
 
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("gtk3" "GTK3_HINTS")
+if(DEFINED GTK3_HINTS)
+    if (DEFINED ENV{PKG_CONFIG_PATH})
+        set( ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:{GTK3_HINTS}/lib/pkgconfig" )
+    else()
+        set( ENV{PKG_CONFIG_PATH} "${GTK3_HINTS}/lib/pkgconfig" )
+    endif()
+endif()
+    
 
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
 FIND_PACKAGE(PkgConfig)
-set( ENV{PKG_CONFIG_PATH} ${GTK3_HINTS}/lib/pkgconfig )
 PKG_CHECK_MODULES(PC_GTK3 gtk+-3.0 QUIET)
 
+# MESSAGE(STATUS "PC_GTK3_INCLUDEDIR: ${PC_GTK3_INCLUDEDIR}")
+# MESSAGE(STATUS "PC_GTK3_INCLUDE_DIRS: ${PC_GTK3_INCLUDE_DIRS}")
 # MESSAGE(STATUS "PC_GTK3_LIBRARIES: ${PC_GTK3_LIBRARIES}")
 # MESSAGE(STATUS "PC_GTK3_LIBRARY_DIRS: ${PC_GTK3_LIBRARY_DIRS}")
 # MESSAGE(STATUS "PC_GTK3_LDFLAGS: ${PC_GTK3_LDFLAGS}")
