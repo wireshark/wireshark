@@ -30,6 +30,7 @@
 #include <string.h>
 
 #include <glib.h>
+#include <glib/gprintf.h>
 
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
@@ -457,7 +458,28 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                 fputs("\" value=\"", pdata->fh);
 
                 if (fi->hfinfo->bitmask!=0) {
-                    fprintf(pdata->fh, "%X", fvalue_get_uinteger(&fi->value));
+                    switch (fi->value.ftype->ftype) {
+                        case FT_INT8:
+                        case FT_INT16:
+                        case FT_INT24:
+                        case FT_INT32:
+                            fprintf(pdata->fh, "%X", (guint) fvalue_get_sinteger(&fi->value));
+                            break;
+                        case FT_UINT8:
+                        case FT_UINT16:
+                        case FT_UINT24:
+                        case FT_UINT32:
+                        case FT_BOOLEAN:
+                            fprintf(pdata->fh, "%X", fvalue_get_uinteger(&fi->value));
+                            break;
+                        case FT_INT64:
+                        case FT_UINT64:
+                            g_fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X",
+                                    fvalue_get_integer64(&fi->value));
+                            break;
+                        default:
+                            g_assert_not_reached();
+                    }
                     fputs("\" unmaskedvalue=\"", pdata->fh);
                     write_pdml_field_hex_value(pdata, fi);
                 }
