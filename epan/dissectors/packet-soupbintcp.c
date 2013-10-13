@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the 
+ * along with this program; if not, write to the
  *   Free Software Foundation, Inc.,
  *   51 Franklin Street, Fifth Floor,
  *   Boston, MA 02110-1301 USA.
@@ -170,7 +170,7 @@ format_reject_code(
 }
 
 
-/** Dissector for SoupBinTCP messages */    
+/** Dissector for SoupBinTCP messages */
 static void
 dissect_soupbintcp_common(
     tvbuff_t *tvb,
@@ -311,7 +311,7 @@ dissect_soupbintcp_common(
                             hf_soupbintcp_packet_length,
                             tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        
+
         /* Type */
         proto_tree_add_item(soupbintcp_tree,
                             hf_soupbintcp_packet_type,
@@ -477,7 +477,7 @@ dissect_soupbintcp_tcp(
     packet_info *pinfo,
     proto_tree *tree)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, 
+    tcp_dissect_pdus(tvb, pinfo, tree,
                      soupbintcp_desegment, 2,
                      get_soupbintcp_pdu_len,
                      dissect_soupbintcp_tcp_pdu);

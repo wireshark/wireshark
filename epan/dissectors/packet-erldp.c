@@ -202,10 +202,10 @@ static gint dissect_etf_dist_header(packet_info *pinfo _U_, tvbuff_t *tvb, gint 
   flags_tree = proto_item_add_subtree(ti_tmp, ett_etf_flags);
   for (i=0; i<num; i++) {
     flg = tvb_get_guint8(tvb, offset + i / 2);
-    proto_tree_add_boolean_format_value(flags_tree, hf_etf_dist_header_new_cache, tvb, offset + i / 2, 1, 
+    proto_tree_add_boolean_format_value(flags_tree, hf_etf_dist_header_new_cache, tvb, offset + i / 2, 1,
                             (flg & (0x08 << 4*(i%2))), "NewCacheEntryFlag[%2d]: %s",
                             i, (flg & (0x08 << 4*(i%2))) ? "SET" : "---");
-    proto_tree_add_uint_format(flags_tree, hf_etf_dist_header_segment_index, tvb, offset + i / 2, 1, 
+    proto_tree_add_uint_format(flags_tree, hf_etf_dist_header_segment_index, tvb, offset + i / 2, 1,
                             (flg & (0x07 << 4*(i%2))), "SegmentIndex     [%2d]: %u",
                             i, (flg & (0x07 << 4*(i%2))));
   }
@@ -342,7 +342,7 @@ static gint dissect_etf_type_content(guint8 tag, packet_info *pinfo, tvbuff_t *t
       offset++;
       for (i=0; i<len; i++) {
         id = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint_format(tree, hf_erldp_new_ref_ext_id, tvb, offset, 4, 
+        proto_tree_add_uint_format(tree, hf_erldp_new_ref_ext_id, tvb, offset, 4,
                             id, "ID[%d]: 0x%08X", i, id);
         offset += 4;
       }

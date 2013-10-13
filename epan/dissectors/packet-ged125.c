@@ -25,18 +25,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * GED125
- * This is Cisco's protocol that runs atop TCP (ged125 is in the payload of TCP). 
- * The protocol serves as a way for the ICM and the VRU to communicate to each 
+ * This is Cisco's protocol that runs atop TCP (ged125 is in the payload of TCP).
+ * The protocol serves as a way for the ICM and the VRU to communicate to each
  * other in Cisco's CVP. The spec sheet that was used to write this dissector was
  * Revision 3.1a of November 26, 2007.
  *
  * Protocol Structure
- * 
- * All messages have an eight byte header. The first 4 bytes represent the package 
+ *
+ * All messages have an eight byte header. The first 4 bytes represent the package
  * length. This length doesn't include the length of the base header. Next, is the
  * message base type which is also 4 bytes. All ged125 messages have this format
- * unless a message spans across several packets. The most common message is the 
- * service control type. This message type will have its own header and with in 
+ * unless a message spans across several packets. The most common message is the
+ * service control type. This message type will have its own header and with in
  * that header have a few other things. One of these things is a sub-message type.
  */
 
@@ -49,7 +49,7 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 
-static int proto_ged125 = -1;	
+static int proto_ged125 = -1;
 
 static gint hf_ged125_length = -1;
 static gint hf_ged125_value = -1;
@@ -163,34 +163,34 @@ static gboolean ged125_desegment_body = TRUE;
 #define GED125_FAILURE_EVENT_VALUE 2
 #define GED125_OPEN_REQ_VALUE 3
 #define GED125_OPEN_CONF_VALUE 4
-#define GED125_HEARTBEAT_REQ_VALUE 5  
-#define GED125_HEARTBEAT_CONF_VALUE 6 
+#define GED125_HEARTBEAT_REQ_VALUE 5
+#define GED125_HEARTBEAT_CONF_VALUE 6
 #define GED125_CLOSE_REQ_VALUE 7
 #define GED125_CLOSE_CONF_VALUE 8
 #define GED125_INIT_DATA_REQ_VALUE 9
 #define GED125_INIT_DATA_CONF_VALUE 10
-#define GED125_INIT_TRKGRP_DATA_EVENT_VALUE 11 
+#define GED125_INIT_TRKGRP_DATA_EVENT_VALUE 11
 #define GED125_INIT_SERVICE_DATA_EVENT_VALUE 12
 #define GED125_INIT_VRU_DATA_EVENT_VALUE 13
 #define GED125_INIT_DATA_END_EVENT_VALUE 14
 #define GED125_DELIVERED_EVENT_VALUE 15
 #define GED125_ORIGINATED_EVENT_VALUE 16
-#define GED125_CALL_CLEARED_EVENT_VALUE 17 
+#define GED125_CALL_CLEARED_EVENT_VALUE 17
 #define GED125_CONFERENCED_EVENT_VALUE 18
 #define GED125_DIVERTED_EVENT_VALUE 19
 #define GED125_NEW_TRANSACTION_EVENT_VALUE 20
-#define GED125_SET_CALL_VARIABLES_EVENT_VALUE 21 
+#define GED125_SET_CALL_VARIABLES_EVENT_VALUE 21
 #define GED125_VRU_STATUS_EVENT_VALUE 22
-#define GED125_TRKGRP_STATUS_EVENT_VALUE 23 
+#define GED125_TRKGRP_STATUS_EVENT_VALUE 23
 #define GED125_SERVICE_STATUS_EVENT_VALUE 24
 #define GED125_ROUTE_REQUEST_EVENT_VALUE 41
 #define GED125_ROUTE_SELECT_VALUE 42
-#define GED125_ROUTE_END_EVENT_VALUE 43 
+#define GED125_ROUTE_END_EVENT_VALUE 43
 #define GED125_ROUTE_END_VALUE 44
 #define GED125_TIME_SYNCH_REQ_VALUE 45
 #define GED125_TIME_SYNCH_CONF_VALUE 46
 #define GED125_SERVICE_CONTROL_VALUE 47
-#define GED125_SIMULATOR_RESET_EVENT_VALUE 48 
+#define GED125_SIMULATOR_RESET_EVENT_VALUE 48
 #define GED125_REGISTER_VARIABLES_VALUE 49
 
 #define GED125_INIT_SERVICE_CTRL_REQ_VALUE 1
@@ -281,45 +281,45 @@ static const value_string Cause_just_for_release_message_vals[] = {
 
 /*Base Message for the ged125*/
 static const value_string base_message_values[] = {
-	{ GED125_FAILURE_CONF_VALUE, "FAILURE_CONF" },
-	{ GED125_FAILURE_EVENT_VALUE, "FAILURE_EVENT" },
-	{ GED125_OPEN_REQ_VALUE, "OPEN_REQ" },
-	{ GED125_OPEN_CONF_VALUE, "OPEN_CONF" },
-	{ GED125_HEARTBEAT_REQ_VALUE, "HEARTBEAT_REQ" },
-	{ GED125_HEARTBEAT_CONF_VALUE, "HEARTBEAT_CONF" },
-	{ GED125_CLOSE_REQ_VALUE, "CLOSE_REQ" },
-	{ GED125_CLOSE_CONF_VALUE, "CLOSE_CONF" },
-	{ GED125_INIT_DATA_REQ_VALUE, "INIT_DATA_REQ" },
-	{ GED125_INIT_DATA_CONF_VALUE, "INIT_DATA_CONF" },
-	{ GED125_INIT_TRKGRP_DATA_EVENT_VALUE, "INIT_TRKGRP_DATA_EVENT" },
-	{ GED125_INIT_SERVICE_DATA_EVENT_VALUE, "INIT_SERVICE_DATA_EVENT" },
-	{ GED125_INIT_VRU_DATA_EVENT_VALUE, "INIT_VRU_DATA_EVENT" },
-	{ GED125_INIT_DATA_END_EVENT_VALUE, "INIT_DATA_END_EVENT" },
-	{ GED125_DELIVERED_EVENT_VALUE, "DELIVERED_EVENT" },
-	{ GED125_ORIGINATED_EVENT_VALUE, "ORIGINATED_EVENT" },
-	{ GED125_CALL_CLEARED_EVENT_VALUE, "CALL_CLEARED_EVENT" },
-	{ GED125_CONFERENCED_EVENT_VALUE, "CONFERENCED_EVENT" },
-	{ GED125_DIVERTED_EVENT_VALUE, "DIVERTED_EVENT" },
-	{ GED125_NEW_TRANSACTION_EVENT_VALUE, "NEW_TRANSACTION_EVENT" },
+	{ GED125_FAILURE_CONF_VALUE,             "FAILURE_CONF" },
+	{ GED125_FAILURE_EVENT_VALUE,            "FAILURE_EVENT" },
+	{ GED125_OPEN_REQ_VALUE,                 "OPEN_REQ" },
+	{ GED125_OPEN_CONF_VALUE,                "OPEN_CONF" },
+	{ GED125_HEARTBEAT_REQ_VALUE,            "HEARTBEAT_REQ" },
+	{ GED125_HEARTBEAT_CONF_VALUE,           "HEARTBEAT_CONF" },
+	{ GED125_CLOSE_REQ_VALUE,                "CLOSE_REQ" },
+	{ GED125_CLOSE_CONF_VALUE,               "CLOSE_CONF" },
+	{ GED125_INIT_DATA_REQ_VALUE,            "INIT_DATA_REQ" },
+	{ GED125_INIT_DATA_CONF_VALUE,           "INIT_DATA_CONF" },
+	{ GED125_INIT_TRKGRP_DATA_EVENT_VALUE,   "INIT_TRKGRP_DATA_EVENT" },
+	{ GED125_INIT_SERVICE_DATA_EVENT_VALUE,  "INIT_SERVICE_DATA_EVENT" },
+	{ GED125_INIT_VRU_DATA_EVENT_VALUE,      "INIT_VRU_DATA_EVENT" },
+	{ GED125_INIT_DATA_END_EVENT_VALUE,      "INIT_DATA_END_EVENT" },
+	{ GED125_DELIVERED_EVENT_VALUE,          "DELIVERED_EVENT" },
+	{ GED125_ORIGINATED_EVENT_VALUE,         "ORIGINATED_EVENT" },
+	{ GED125_CALL_CLEARED_EVENT_VALUE,       "CALL_CLEARED_EVENT" },
+	{ GED125_CONFERENCED_EVENT_VALUE,        "CONFERENCED_EVENT" },
+	{ GED125_DIVERTED_EVENT_VALUE,           "DIVERTED_EVENT" },
+	{ GED125_NEW_TRANSACTION_EVENT_VALUE,    "NEW_TRANSACTION_EVENT" },
 	{ GED125_SET_CALL_VARIABLES_EVENT_VALUE, "SET_CALL_VARIABLES_EVENT" },
-	{ GED125_VRU_STATUS_EVENT_VALUE, "VRU_STATUS_EVENT" },
-	{ GED125_TRKGRP_STATUS_EVENT_VALUE, "TRKGRP_STATUS_EVENT" },
-	{ GED125_SERVICE_STATUS_EVENT_VALUE, "SERVICE_STATUS_EVENT" },
-	{ GED125_ROUTE_REQUEST_EVENT_VALUE, "ROUTE_REQUEST_EVENT" },
-	{ GED125_ROUTE_SELECT_VALUE, "ROUTE_SELECT" },
-	{ GED125_ROUTE_END_EVENT_VALUE, "ROUTE_END_EVENT" },
-	{ GED125_ROUTE_END_VALUE, "ROUTE_END" },
-	{ GED125_TIME_SYNCH_REQ_VALUE, "TIME_SYNCH_REQ" },
-	{ GED125_TIME_SYNCH_CONF_VALUE, "TIME_SYNCH_CONF" },
-	{ GED125_SERVICE_CONTROL_VALUE, "SERVICE_CONTROL" },
-	{ GED125_SIMULATOR_RESET_EVENT_VALUE, "SIMULATOR_RESET_EVENT" },
-	{ GED125_REGISTER_VARIABLES_VALUE, "REGISTER_VARIABLES" },
+	{ GED125_VRU_STATUS_EVENT_VALUE,         "VRU_STATUS_EVENT" },
+	{ GED125_TRKGRP_STATUS_EVENT_VALUE,      "TRKGRP_STATUS_EVENT" },
+	{ GED125_SERVICE_STATUS_EVENT_VALUE,     "SERVICE_STATUS_EVENT" },
+	{ GED125_ROUTE_REQUEST_EVENT_VALUE,      "ROUTE_REQUEST_EVENT" },
+	{ GED125_ROUTE_SELECT_VALUE,             "ROUTE_SELECT" },
+	{ GED125_ROUTE_END_EVENT_VALUE,          "ROUTE_END_EVENT" },
+	{ GED125_ROUTE_END_VALUE,                "ROUTE_END" },
+	{ GED125_TIME_SYNCH_REQ_VALUE,           "TIME_SYNCH_REQ" },
+	{ GED125_TIME_SYNCH_CONF_VALUE,          "TIME_SYNCH_CONF" },
+	{ GED125_SERVICE_CONTROL_VALUE,          "SERVICE_CONTROL" },
+	{ GED125_SIMULATOR_RESET_EVENT_VALUE,    "SIMULATOR_RESET_EVENT" },
+	{ GED125_REGISTER_VARIABLES_VALUE,       "REGISTER_VARIABLES" },
 	{ 0, NULL}
 };
 
 /*status codes that may be included in the FAILURE_CONF, FAILURE_EVENT,
- DIALOGUE_FAILURE_CONF, DIALOGUE_FAILURE_EVENT, ROUTE_END_EVENT, and 
- ROUTE_END messages.*/ 
+ DIALOGUE_FAILURE_CONF, DIALOGUE_FAILURE_EVENT, ROUTE_END_EVENT, and
+ ROUTE_END messages.*/
 static const value_string error_codes[] = {
 	{ 0x0, "E_NO_ERROR"},
 	{ 0x1, "E_INVALID_VERSION" },
@@ -400,36 +400,36 @@ static const value_string vals_status_code_label_values[] = {
 
 /*Service Control Message Sub-values*/
 static const value_string vals_service_control_message_subvalues[] = {
-	{ GED125_INIT_SERVICE_CTRL_REQ_VALUE, "INIT_SERVICE_CTRL_REQ"},
-	{ GED125_INIT_SERVICE_CTRL_CONF_VALUE, "INIT_SERVICE_CTRL_CONF"},
-	{ GED125_INIT_SERVICE_CTRL_DATA_VALUE, "INIT_SERVICE_CTRL_DATA"},
-	{ GED125_INIT_SERVICE_CTRL_END_VALUE, "INIT_SERVICE_CTRL_END"},
-	{ GED125_NEW_CALL_VALUE, "NEW_CALL"},
-	{ GED125_REQUEST_INSTRUCTION_VALUE, "REQUEST_INSTRUCTION"},
-	{ GED125_RUN_SCRIPT_REQ_VALUE, "RUN_SCRIPT_REQ"},
-	{ GED125_RUN_SCRIPT_RESULT_VALUE, "RUN_SCRIPT_RESULT"},
-	{ GED125_CONNECT_VALUE, "CONNECT"},
-	{ GED125_EVENT_REPORT_VALUE, "EVENT_REPORT"},
-	{ GED125_DIALOGUE_FAILURE_CONF_VALUE, "DIALOGUE_FAILURE_CONF"},
-	{ GED125_DIALOGUE_FAILURE_EVENT_VALUE, "DIALOGUE_FAILURE_EVENT"},
-	{ GED125_INIT_SERVICE_CTRL_TRKGRP_VALUE, "INIT_SERVICE_CTRL_TRKGRP"},
+	{ GED125_INIT_SERVICE_CTRL_REQ_VALUE,     "INIT_SERVICE_CTRL_REQ"},
+	{ GED125_INIT_SERVICE_CTRL_CONF_VALUE,    "INIT_SERVICE_CTRL_CONF"},
+	{ GED125_INIT_SERVICE_CTRL_DATA_VALUE,    "INIT_SERVICE_CTRL_DATA"},
+	{ GED125_INIT_SERVICE_CTRL_END_VALUE,     "INIT_SERVICE_CTRL_END"},
+	{ GED125_NEW_CALL_VALUE,                  "NEW_CALL"},
+	{ GED125_REQUEST_INSTRUCTION_VALUE,       "REQUEST_INSTRUCTION"},
+	{ GED125_RUN_SCRIPT_REQ_VALUE,            "RUN_SCRIPT_REQ"},
+	{ GED125_RUN_SCRIPT_RESULT_VALUE,         "RUN_SCRIPT_RESULT"},
+	{ GED125_CONNECT_VALUE,                   "CONNECT"},
+	{ GED125_EVENT_REPORT_VALUE,              "EVENT_REPORT"},
+	{ GED125_DIALOGUE_FAILURE_CONF_VALUE,     "DIALOGUE_FAILURE_CONF"},
+	{ GED125_DIALOGUE_FAILURE_EVENT_VALUE,    "DIALOGUE_FAILURE_EVENT"},
+	{ GED125_INIT_SERVICE_CTRL_TRKGRP_VALUE,  "INIT_SERVICE_CTRL_TRKGRP"},
 	{ GED125_INIT_SERVICE_CTRL_SERVICE_VALUE, "INIT_SERVICE_CTRL_SERVICE"},
-	{ GED125_INIT_SERVICE_CTRL_VRU_VALUE, "INIT_SERVICE_CTRL_VRU"},
-	{ GED125_TRKGRP_STATUS_VALUE, "TRKGRP_STATUS"},
-	{ GED125_SERVICE_STATUS_VALUE, "SERVICE_STATUS"},
-	{ GED125_VRU_STATUS_VALUE, "VRU_STATUS"},
-	{ GED125_CANCEL_VALUE, "CANCEL"},
-	{ GED125_RELEASE_VALUE, "RELEASE"},
-	{ GED125_NEW_DIALOGUE_VALUE, "NEW_DIALOGUE"},
-	{ GED125_CONNECT_TO_RESOURCE_VALUE, "CONNECT_TO_RESOURCE"},
-	{ GED125_RESOURCE_CONNECTED_VALUE, "RESOURCE_CONNECTED"},
-	{ GED125_MICROAPP_CONTEXT_VALUE, "MICROAPP_CONTEXT"},
-	{ GED125_MICROAPP_PLAY_VALUE, "MICROAPP_PLAY"},
-	{ GED125_MICROAPP_PLAY_CONTINUE_VALUE, "MICROAPP_PLAY_CONTINUE"},
-	{ GED125_MICROAPP_COLLECT_DATA_VALUE, "MICROAPP_COLLECT_DATA"},
-	{ GED125_MICROAPP_MENU_VALUE, "MICROAPP_MENU"},
-	{ GED125_MICROAPP_RESULT_VALUE, "MICROAPP_RESULT"},
-	{ GED125_TEMPORARY_CONNECT_VALUE, "TEMPORARY_CONNECT"},
+	{ GED125_INIT_SERVICE_CTRL_VRU_VALUE,     "INIT_SERVICE_CTRL_VRU"},
+	{ GED125_TRKGRP_STATUS_VALUE,             "TRKGRP_STATUS"},
+	{ GED125_SERVICE_STATUS_VALUE,            "SERVICE_STATUS"},
+	{ GED125_VRU_STATUS_VALUE,                "VRU_STATUS"},
+	{ GED125_CANCEL_VALUE,                    "CANCEL"},
+	{ GED125_RELEASE_VALUE,                   "RELEASE"},
+	{ GED125_NEW_DIALOGUE_VALUE,              "NEW_DIALOGUE"},
+	{ GED125_CONNECT_TO_RESOURCE_VALUE,       "CONNECT_TO_RESOURCE"},
+	{ GED125_RESOURCE_CONNECTED_VALUE,        "RESOURCE_CONNECTED"},
+	{ GED125_MICROAPP_CONTEXT_VALUE,          "MICROAPP_CONTEXT"},
+	{ GED125_MICROAPP_PLAY_VALUE,             "MICROAPP_PLAY"},
+	{ GED125_MICROAPP_PLAY_CONTINUE_VALUE,    "MICROAPP_PLAY_CONTINUE"},
+	{ GED125_MICROAPP_COLLECT_DATA_VALUE,     "MICROAPP_COLLECT_DATA"},
+	{ GED125_MICROAPP_MENU_VALUE,             "MICROAPP_MENU"},
+	{ GED125_MICROAPP_RESULT_VALUE,           "MICROAPP_RESULT"},
+	{ GED125_TEMPORARY_CONNECT_VALUE,         "TEMPORARY_CONNECT"},
 	{ 0, NULL}
 };
 
@@ -520,7 +520,7 @@ static const value_string floating_media_library_designator_vals[] = {
 	{ 0, NULL}
 };
 
-static void 
+static void
 OperationalStatus_funk(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint* offset)
 {
 	guint32 value;
@@ -529,32 +529,32 @@ OperationalStatus_funk(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint
 	value = tvb_get_ntohl(tvb, *offset);
 	ti = proto_tree_add_item(tree, hf_ged125_OperationalStatus, tvb, *offset, 4, ENC_BIG_ENDIAN);
 
-	if(value == 0)  
+	if (value == 0)
 		expert_add_info(pinfo, ti, &ei_ged125_OperationalStatus_normal);
-	else if(value <= 31 && value >0)
+	else if (value <= 31 && value >0)
 		expert_add_info(pinfo, ti, &ei_ged125_OperationalStatus_loss_redundant_component);
-	else if(value <= 63 && value >= 32 ) /*32-63*/
+	else if (value <= 63 && value >= 32 ) /*32-63*/
 		expert_add_info(pinfo, ti, &ei_ged125_OperationalStatus_degraded_call_processing);
-	else if(value <= 127 && value >= 64  ) /*64-127*/
+	else if (value <= 127 && value >= 64  ) /*64-127*/
 		expert_add_info(pinfo, ti, &ei_ged125_OperationalStatus_conditions_prevent_call);
-	else if(value > 127) /*error*/
+	else if (value > 127) /*error*/
 		expert_add_info(pinfo, ti, &ei_ged125_OperationalStatus_invalid_message);
 
-	*offset+=4;
+	*offset += 4;
 }
 
 
-static void 
+static void
 StatusVariable_funk(tvbuff_t* tvb, proto_tree* tree, gint* offset, const gint size)
 {
 	while(*offset+4 <= size)
 	{
 		proto_tree_add_item(tree, hf_ged125_StatusVariable, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 	}
 }
 
-static void 
+static void
 trunk_funk_without_status(tvbuff_t* tvb, proto_tree* z_tree, gint* offset, const gint size)
 {
 	gint count = 0;
@@ -562,12 +562,12 @@ trunk_funk_without_status(tvbuff_t* tvb, proto_tree* z_tree, gint* offset, const
 	while(*offset+2 <= size && count < 1024)
 	{
 		proto_tree_add_item(z_tree, hf_ged125_TrunkNumber, tvb, *offset, 2, ENC_BIG_ENDIAN);
-		*offset+=2;
+		*offset += 2;
 		count++;
 	}
 }
 
-static void 
+static void
 trunk_funk(tvbuff_t* tvb, proto_tree* tree, gint* offset, const gint size)
 {
 	guint16 count = 0;
@@ -575,31 +575,31 @@ trunk_funk(tvbuff_t* tvb, proto_tree* tree, gint* offset, const gint size)
 	/* 1023 max trunks, the trunk loop(counting from 0 from 1023 is 1024)*/
 	while(*offset+4 <= size && count < 1024) {
 		proto_tree_add_item(tree, hf_ged125_TrunkNumber, tvb, *offset, 2, ENC_BIG_ENDIAN);
-		*offset+=2;
+		*offset += 2;
 		proto_tree_add_item(tree, hf_ged125_TrunkStatus, tvb, *offset, 2, ENC_BIG_ENDIAN);
-		*offset+=2;
+		*offset += 2;
 
 		count++;
 	}
 }
 
-static void 
+static void
 Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, gint* offset, guint32 length)
 {
 	guint8 media_protocol;
 
 	media_protocol = tvb_get_guint8(tvb, *offset);
 	proto_tree_add_item(tree, hf_ged125_floating_media_protocol, tvb, *offset, 1, ENC_BIG_ENDIAN);
-	*offset+=1;
+	*offset += 1;
 
-	switch(media_protocol)
+	switch (media_protocol)
 	{
 	case 'H':
 	case 'S':
 	case 'O':
 	case 'F':
 		proto_tree_add_item(tree, hf_ged125_floating_library_designator, tvb, *offset, 1, ENC_BIG_ENDIAN);
-		*offset+=1;
+		*offset += 1;
 		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 2, ENC_NA|ENC_ASCII);
 		break;
 
@@ -609,17 +609,17 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, gint* offset, guint32 l
 
 	case 'D':
 		proto_tree_add_item(tree, hf_ged125_Data_Playback_Type, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(tree, hf_ged125_Data_Playback_Formats, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 9, ENC_NA|ENC_ASCII);
 		break;
 	}
- 
-	*offset+=length;
+
+	*offset += length;
 }
 
-static void 
+static void
 floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint offset, const gint size)
 {
 	gint32 length = 4;
@@ -637,15 +637,15 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint offset
 	while (offset < size-2)
 	{
 		floating_type = tvb_get_guint8(tvb, offset);
-		ti = proto_tree_add_uint_format(ged125_tree, hf_ged125_floating, tvb, offset, 1, 
-											floating_type, "%s", val_to_str(floating_type, 
+		ti = proto_tree_add_uint_format(ged125_tree, hf_ged125_floating, tvb, offset, 1,
+											floating_type, "%s", val_to_str(floating_type,
 											vals_floating_point_types, "Unknown %d"));
 		float_tree = proto_item_add_subtree(ti, ett_ged125_float_field);
-		offset+=1;
+		offset += 1;
 
 		length = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint(float_tree, hf_ged125_length, tvb, offset, 1, length);
-		offset+=1;
+		offset += 1;
 
 		if ((offset + length > size) && (length > 0))
 		{
@@ -656,25 +656,25 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint offset
 		switch (floating_type)
 		{
 		case 42:
-		case 43:	
+		case 43:
 			proto_tree_add_item(float_tree, hf_ged125_floating_payload_ECC_tag, tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset+=4;
+			offset += 4;
 			if (length-4 > 0)
 			{
 				proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length-4, ENC_NA|ENC_ASCII);
-				offset+=(length-4);
+				offset += (length-4);
 			}
 			break;
 
 		case 44: /*ECC_VAR_ARRAY*/
 			proto_tree_add_item(float_tree, hf_ged125_floating_payload_ECC_tag, tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset+=4;
+			offset += 4;
 			proto_tree_add_item(float_tree, hf_ged125_floating_uchar_array_index, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset+=1;
+			offset += 1;
 			if (length-5 > 0)
 			{
 				proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length-4, ENC_NA|ENC_ASCII);
-				offset+=(length-5);
+				offset += (length-5);
 			}
 			break;
 
@@ -686,8 +686,8 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint offset
 			break;
 
 		case 19: /* unspec var type(UUI) */
-			proto_tree_add_item(float_tree, hf_ged125_floating_payload_unspec, tvb, offset, length, ENC_NA); 
-			offset+=length;
+			proto_tree_add_item(float_tree, hf_ged125_floating_payload_unspec, tvb, offset, length, ENC_NA);
+			offset += length;
 			break;
 
 		case 1:
@@ -696,30 +696,30 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint offset
 		case 28: case 29: case 30: case 31: case 32: case 33: case 34:
 		case 37: case 38: case 39: case 40:
 		case 51: case 52: case 53: case 54: case 55: case 56: case 57: case 58:
-			proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length, ENC_NA|ENC_ASCII); 
-			offset+=length;
+			proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length, ENC_NA|ENC_ASCII);
+			offset += length;
 			break;
 
 		case 35:
 		case 36:
 			proto_tree_add_item(float_tree, hf_ged125_floating_payload_uint, tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset+=length;
+			offset += length;
 			break;
 		case 41:
 			proto_tree_add_item(float_tree, hf_ged125_floating_cause_code, tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset+=length;
+			offset += length;
 			break;
 
 		case 45:
 		case 46:
 			proto_tree_add_item(float_tree, hf_ged125_floating_payload_bool, tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset+=length;
+			offset += length;
 			break;
 		}
 	}
 }
 
-static void 
+static void
 service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_tree, packet_info* pinfo,
 	gint* offset, const gint size)
 {
@@ -732,18 +732,18 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 
 	/* get message sub type, don't want to output that just yet */
 	mess_type = tvb_get_ntohl(tvb, *offset);
-	*offset+=4;
+	*offset += 4;
 
 	DialogueID = tvb_get_ntohl(tvb, *offset);
 	proto_tree_add_item(service_tree, hf_ged125_DialogueID_num, tvb, *offset, 4, ENC_BIG_ENDIAN);
-	*offset+=4;
+	*offset += 4;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Service_Control->%s DIALOGUE_ID=%u LEN=%u",
 			val_to_str(mess_type, vals_service_control_message_subvalues, "Unknown %d"), DialogueID, size);
 
 	SendSeqNo = tvb_get_ntohl(tvb, *offset);
 	ti = proto_tree_add_item(service_tree, hf_ged125_SendSeqNo_num, tvb, *offset, 4, ENC_BIG_ENDIAN);
-	*offset+=4;
+	*offset += 4;
 
 	if ((DialogueID != SendSeqNo) &&
 		((DialogueID == 0xFFFFFFFF) || (SendSeqNo == 0xFFFFFFFF)))
@@ -753,146 +753,146 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 								tvb, *offset-12, 4, mess_type);
 	data_tree = proto_item_add_subtree(ti, ett_ged125_service_control_data);
 
-	switch(mess_type)
+	switch (mess_type)
 	{
 	case GED125_INIT_SERVICE_CTRL_REQ_VALUE:
 	case GED125_INIT_SERVICE_CTRL_CONF_VALUE:
 	case GED125_INIT_SERVICE_CTRL_END_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		break;
 
 	case GED125_INIT_SERVICE_CTRL_DATA_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ServiceFeatures, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		break;
 
 	case GED125_NEW_CALL_VALUE:
 	case GED125_REQUEST_INSTRUCTION_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_TrunkGroupID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_TrunkNumber, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ServiceID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
 	case GED125_RUN_SCRIPT_REQ_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
 	case GED125_RUN_SCRIPT_RESULT_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ResultCode, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
 	case GED125_CONNECT_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_LabelType, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
 	case GED125_EVENT_REPORT_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_EventID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
 	case GED125_DIALOGUE_FAILURE_CONF_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ErrorCode, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		break;
 
 	case GED125_DIALOGUE_FAILURE_EVENT_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_ErrorCode, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		break;
 
 	case GED125_INIT_SERVICE_CTRL_TRKGRP_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_TrunkGroupID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_TrunkCount, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		trunk_funk(tvb, data_tree, offset, size);
 		break;
 
 	case GED125_INIT_SERVICE_CTRL_SERVICE_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ServiceID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_AvailableNow, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_CallsInNow, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_CallsOutNow, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		break;
 
 	case GED125_INIT_SERVICE_CTRL_VRU_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_CurrentTime_num, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_TimeZoneDelta, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		OperationalStatus_funk(tvb, pinfo, data_tree, offset);
 		StatusVariable_funk(tvb, data_tree, offset, size);
 		break;
 
 	case GED125_TRKGRP_STATUS_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_TrunkGroupID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_TrunkCount, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		trunk_funk(tvb, data_tree, offset, size);
 		break;
 
 	case GED125_SERVICE_STATUS_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_ServiceID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ServiceAvailable, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		break;
 
 	case GED125_VRU_STATUS_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_CurrentTime_num, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_TimeZoneDelta, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		OperationalStatus_funk(tvb, pinfo, data_tree, offset);
 		StatusVariable_funk(tvb, data_tree, offset, size);
 		break;
 
 	case GED125_CANCEL_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_RequestID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		break;
 
 	case GED125_RELEASE_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_Cause_just_for_release_message, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		break;
 
 	case GED125_NEW_DIALOGUE_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_CallID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ServiceID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
@@ -908,69 +908,69 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 
 	case GED125_MICROAPP_PLAY_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ToBeContinued, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Barge_In_Allowed, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
 	case GED125_MICROAPP_PLAY_CONTINUE_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ToBeContinued, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
 	case GED125_MICROAPP_COLLECT_DATA_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_DTMF_Termination_Key, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_No_Entry_Timeout, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Interdigit_Timeout, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Number_of_No_Entry_Tries, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Number_of_Invalid_Entry_Tries, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Min_Length, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Max_Length, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Barge_In_Allowed, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ASR_Allowed, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
 	case GED125_MICROAPP_MENU_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_No_Entry_Timeout, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Number_of_No_Entry_Tries, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Number_of_Invalid_Entry_Tries, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_DTMF_Menu_Keys, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Barge_In_Allowed, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_ASR_Allowed, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
 	case GED125_MICROAPP_RESULT_VALUE:
 		proto_tree_add_item(data_tree, hf_ged125_InvokeID, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		proto_tree_add_item(data_tree, hf_ged125_Microapp_Error_Code, tvb, *offset, 4, ENC_BIG_ENDIAN);
-		*offset+=4;
+		*offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, *offset, size);
 		break;
 
@@ -979,13 +979,13 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 	}
 }
 
-static guint 
+static guint
 get_ged125_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset _U_)
 {
 	return tvb_get_ntohl(tvb, 0) + 8;
 }
 
-static void 
+static void
 dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
 	gint size = tvb_reported_length(tvb);
@@ -997,8 +997,8 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GED125");
 	col_clear(pinfo->cinfo, COL_INFO);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %u bytes", 
-			val_to_str(message_type, base_message_values, "Unknown %d"), size); 
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %u bytes",
+			val_to_str(message_type, base_message_values, "Unknown %d"), size);
 
 	ti = proto_tree_add_item(tree, proto_ged125, tvb, 0, -1, ENC_NA);
 	ged125_tree = proto_item_add_subtree( ti, ett_ged125);
@@ -1017,38 +1017,38 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 	{
 	case GED125_FAILURE_CONF_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_Status, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_FAILURE_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_Status, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_OPEN_REQ_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_VersionNumber, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_IdleTimeout, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_OPEN_CONF_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_UseEventFeed, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_UsePolledFeed, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_UseCallRouting, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_UseTimeSynch, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_UseServiceControl, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_HEARTBEAT_REQ_VALUE:
@@ -1057,209 +1057,209 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 	case GED125_INIT_DATA_REQ_VALUE:
 	case GED125_INIT_DATA_CONF_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_CLOSE_REQ_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_Status, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, offset, size);
 		break;
 
 	case GED125_INIT_TRKGRP_DATA_EVENT_VALUE:
 		value = tvb_get_ntohl(tvb, offset);
 		ti = proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		if (value > 65535)
 			expert_add_info(pinfo, ti, &ei_ged125_trunk_group_id);
 
 		value = tvb_get_ntohl(tvb, offset);
 		ti = proto_tree_add_item(ged125_message_tree, hf_ged125_TrunkCount, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		if (value > 1023)
 			expert_add_info(pinfo, ti, &ei_ged125_TrunkCount_invalid);
 
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallsInToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallsOutToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InServiceTimeToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InUseInboundTimeToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InUseOutboundTimeToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_AllTrunksInUseTimeToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 
 		trunk_funk(tvb, ged125_message_tree, &offset, size);
 		break;
 
 	case GED125_INIT_SERVICE_DATA_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_ServiceID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_AvailableNow, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallsInNow, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallsOutNow, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallsInToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallsOutToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallsHandledToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_HandleTimeToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_DivertedInToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_DivertedOutToday, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_INIT_VRU_DATA_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_TimeZoneDelta, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 
 		OperationalStatus_funk(tvb, pinfo, ged125_message_tree, &offset);
 		StatusVariable_funk(tvb, ged125_message_tree, &offset, size);
 		break;
-    
+
 	case GED125_INIT_DATA_END_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InitDataTime, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_StartOfDay, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_DELIVERED_EVENT_VALUE:
 	case GED125_ORIGINATED_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_TrunkGroupID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_TrunkNumber, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_ServiceID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, offset, size);
 		break;
 
 	case GED125_CALL_CLEARED_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_floating_CauseCode, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, offset, size);
 		break;
 
 	case GED125_CONFERENCED_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_ConferenceCallID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_PrimaryCallID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_SecondaryCallID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_ServiceID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_DIVERTED_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_NewServiceID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_NEW_TRANSACTION_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_NewCallID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_ServiceID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_SET_CALL_VARIABLES_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, offset, size);
 		break;
 
 	case GED125_VRU_STATUS_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CurrentTime_num, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_TimeZoneDelta, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		OperationalStatus_funk(tvb, pinfo, ged125_message_tree, &offset);
 		StatusVariable_funk(tvb, ged125_message_tree, &offset, size);
 		break;
 
 	case GED125_TRKGRP_STATUS_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_TrunkGroupID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 
 		value = tvb_get_ntohl(tvb, offset);
 		ti = proto_tree_add_item(ged125_message_tree, hf_ged125_TrunkCount, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		if (value > 1023)
 			expert_add_info(pinfo, ti, &ei_ged125_TrunkCount_invalid);
 
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InService, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		trunk_funk_without_status(tvb, ged125_message_tree, &offset, size);
 		break;
 
 	case GED125_SERVICE_STATUS_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_ServiceID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_ServiceAvailable, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_ROUTE_REQUEST_EVENT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CrossRefID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, offset, size);
 		return;
 
 	case GED125_ROUTE_SELECT_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CrossRefID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_LabelType, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		floating_fields(tvb, pinfo, ged125_tree, offset, size);
 		break;
 
 	case GED125_ROUTE_END_EVENT_VALUE:
 	case GED125_ROUTE_END_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CrossRefID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_Status, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_TIME_SYNCH_REQ_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		proto_tree_add_item(ged125_message_tree, hf_ged125_VRUTimeLag, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_TIME_SYNCH_CONF_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		offset += 4;
 		break;
 
 	case GED125_SERVICE_CONTROL_VALUE:
@@ -1272,7 +1272,7 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 
 	case GED125_REGISTER_VARIABLES_VALUE:
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallVarsMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
+		offset += 2;
 		floating_fields(tvb, pinfo, ged125_tree, offset, size);
 		break;
 	}
@@ -1280,15 +1280,15 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 	proto_item_set_len(message_item, offset-8);
 }
 
-static int 
+static int
 dissect_ged125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{ 
+{
 	gint size;
 	guint32 message_type;
 
 	size = tvb_length(tvb);
 
-	if(size < 12)
+	if (size < 12)
 		return 0;
 
 	message_type = tvb_get_ntohl(tvb, 4);
@@ -1306,7 +1306,7 @@ dissect_ged125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	return size;
 }
 
-void 
+void
 proto_register_ged125 (void)
 {
 	module_t* ged125_module;
@@ -1322,7 +1322,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_service_control_value,
 		  { "Sub-Service Control Message value", "ged125.service_control",
-			FT_UINT32,  BASE_DEC, VALS(vals_service_control_message_subvalues), 
+			FT_UINT32,  BASE_DEC, VALS(vals_service_control_message_subvalues),
 			0x0, NULL, HFILL }},
 
 		{ &hf_ged125_DialogueID_num,
@@ -1331,7 +1331,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_SendSeqNo_num,
 		  { "SendSeqNo", "ged125.send_seq_no",
-		  FT_UINT32, BASE_DEC, NULL, 0x0, 
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Send sequence for the sent message", HFILL }},
 
 		{ &hf_ged125_CurrentTime_num,
@@ -1357,7 +1357,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_InvokeID,
 		  { "Invoke ID", "ged125.invoke_id",
-		  FT_UINT32, BASE_DEC, NULL, 0x0, 
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Same as the corresponding req. mess", HFILL }},
 
 		{ &hf_ged125_Status,
@@ -1381,18 +1381,18 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_UseEventFeed,
 		  { "Use Event Feed", "ged125.use_event_feed",
-			FT_BOOLEAN, 32, NULL, 0x01, 
+			FT_BOOLEAN, 32, NULL, 0x01,
 			"Indicates if the VRU supports the Event Data Feed", HFILL }},
 
 		/* only valid for ICM version 4 or lower*/
-		{ &hf_ged125_UsePolledFeed,	
+		{ &hf_ged125_UsePolledFeed,
 		  { "Use Polled Feed", "ged125.use_polled_feed",
-			FT_BOOLEAN, 32, NULL, 0x01, 
+			FT_BOOLEAN, 32, NULL, 0x01,
 			"Indicates if the VRU supports the Polled Data Feed.", HFILL }},
 
 		{ &hf_ged125_UseCallRouting,
 		  { "Use Call Routing", "ged125.use_call_routing",
-			FT_BOOLEAN, 32, NULL, 0x01, 
+			FT_BOOLEAN, 32, NULL, 0x01,
 			"Indicates if the VRU supports the Call Routing Interface", HFILL }},
 
 		{ &hf_ged125_UseTimeSynch,
@@ -1418,7 +1418,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_CallsInToday,
 		  { "Calls In Today", "ged125.calls_in_today",
-			FT_UINT32, BASE_DEC, NULL, 0x0, 
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The cumulative number of inbound calls that have arrived on the trunk group this day", HFILL }},
 
 		{ &hf_ged125_CallsOutToday,
@@ -1428,13 +1428,13 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_InServiceTimeToday,
 		  { "In Service Time Today", "ged125.in_service_time_today",
-			FT_UINT32, BASE_DEC, NULL, 0x0, 
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The cumulative amount of time (sec) that trunks in the trunk group "
 			"have been in service this day", HFILL }},
 
 		{ &hf_ged125_InUseInboundTimeToday,
 		  { "In Use Inbound Time Today", "ged125.in_use_inbound_time_today",
-			FT_UINT32, BASE_DEC,NULL, 0x0, 
+			FT_UINT32, BASE_DEC,NULL, 0x0,
 			"The cumulative amount of time (sec) that trunks in the trunk group "
 			"have been in use on incoming calls this day", HFILL }},
 
@@ -1445,8 +1445,8 @@ proto_register_ged125 (void)
 			"have been in use on outgoing calls this day", HFILL }},
 
 		{ &hf_ged125_AllTrunksInUseTimeToday,
-		  { "All Trunks In Use Time Today", "ged125.all_trunks_in_use_time_today", 
-			FT_UINT32, BASE_DEC, NULL, 0x0, 
+		  { "All Trunks In Use Time Today", "ged125.all_trunks_in_use_time_today",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The cumulative amount of time (sec) that all trunks in the trunk group "
 			"were simultaneously busy this day", HFILL }},
 
@@ -1460,17 +1460,17 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_ServiceID,
 		  { "Service ID", "ged125.service_id",
-		  FT_UINT32, BASE_DEC, NULL, 0x0, 
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "An ID assigned by the VRU to this service", HFILL }},
 
 		{ &hf_ged125_AvailableNow,
 		  { "Available Now", "ged125.available_now",
-			FT_BOOLEAN, 32, NULL, 0x01, 
+			FT_BOOLEAN, 32, NULL, 0x01,
 			"Current availability of the service", HFILL }},
 
 		{ &hf_ged125_CallsInNow,
 		  { "Call In Now", "ged125.call_in_now",
-			FT_UINT32, BASE_DEC, NULL, 0x0, 
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The number of inbound calls currently in progress on the service.", HFILL }},
 
 		{ &hf_ged125_CallsOutNow,
@@ -1572,7 +1572,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_ServiceAvailable,
 		  { "Service Available", "ged125.service_available",
-			FT_BOOLEAN, 32, NULL, 0x01, 
+			FT_BOOLEAN, 32, NULL, 0x01,
 			NULL, HFILL }},
 
 		{ &hf_ged125_RequestID,
@@ -1592,7 +1592,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_floating_cause_code,/* table 34*/
 		  { "Call Cleared Code", "ged125.call_cleared_code",
-			FT_UINT32, BASE_DEC,VALS(vals_status_code_call_cleared), 0x0, 
+			FT_UINT32, BASE_DEC,VALS(vals_status_code_call_cleared), 0x0,
 			"Termination Call Details", HFILL }},
 
 		{ &hf_ged125_DTMF_Termination_Key,
@@ -1619,14 +1619,14 @@ proto_register_ged125 (void)
 			"doesn't enter any data", HFILL }},
 
 		{ &hf_ged125_Number_of_Invalid_Entry_Tries,
-		  { "Number of Invalid Entry Tries", "ged125.number_of_invalid_entry_tries", 
+		  { "Number of Invalid Entry Tries", "ged125.number_of_invalid_entry_tries",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Number of times VRU should repeat the 'Get data' cycle when the "
 			"caller enters invalid data", HFILL }},
 
 		{ &hf_ged125_Min_Length,
 		  { "Min Length of Digits", "ged125.min_length",
-			FT_UINT32, BASE_DEC, NULL, 0x0, 
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Minimum number of digits expected from the caller", HFILL }},
 
 		{ &hf_ged125_Max_Length,
@@ -1646,7 +1646,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_Microapp_Error_Code,
 		  { "Microapp Error Code", "ged125.microapp_error_code",
-			FT_UINT32, BASE_DEC, 
+			FT_UINT32, BASE_DEC,
 			VALS(status_code_microcapp_error_codes), 0x0, NULL, HFILL }},
 
 		{ &hf_ged125_ConferenceCallID,
@@ -1678,7 +1678,7 @@ proto_register_ged125 (void)
 			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_ged125_CrossRefID,
-		  { "Cross Reference ID", "ged125.cross_ref_id", 
+		  { "Cross Reference ID", "ged125.cross_ref_id",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"A cross-reference identifier assigned by the VRU to this call routing dialogue", HFILL }},
 
@@ -1699,7 +1699,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_floating_media_protocol,
 		  { "Media Protocol", "ged125.media_protocol",
-			FT_UINT8, BASE_DEC, VALS(floating_media_protocol_vals), 0x0, 
+			FT_UINT8, BASE_DEC, VALS(floating_media_protocol_vals), 0x0,
 			"Type of media", HFILL }},
 
 		{ &hf_ged125_floating_library_designator,
@@ -1769,17 +1769,17 @@ proto_register_ged125 (void)
 		 &ged125_desegment_body);
 }
 
-void 
+void
 proto_reg_handoff_ged125(void)
 {
 	static guint old_ged125_tcp_port = 0;
 
 	/* Register TCP port for dissection */
-	if(old_ged125_tcp_port != 0 && old_ged125_tcp_port != global_tcp_port_ged125)
+	if (old_ged125_tcp_port != 0 && old_ged125_tcp_port != global_tcp_port_ged125)
 		dissector_delete_uint("tcp.port", old_ged125_tcp_port, ged125_handle);
 
 
-	if(global_tcp_port_ged125 != 0 && old_ged125_tcp_port != global_tcp_port_ged125)
+	if (global_tcp_port_ged125 != 0 && old_ged125_tcp_port != global_tcp_port_ged125)
 		dissector_add_uint("tcp.port", global_tcp_port_ged125, ged125_handle);
 
 	old_ged125_tcp_port = global_tcp_port_ged125;

@@ -33,7 +33,7 @@
 #ifndef _PACKET_TTE_H_
 #define _PACKET_TTE_H_
 
-/* in bytes, at least MAC dest/source and EthernetType must be there 
+/* in bytes, at least MAC dest/source and EthernetType must be there
    to look for TTE */
 #define TTE_HEADER_LENGTH               14
 

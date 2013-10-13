@@ -39,7 +39,7 @@
  *  of the UDP packet consists of a 12 byte "header" followed by the
  *  bytes of the mirrored frame.
  *
- *  After some additional tests, which involved injecting 802.1Q frames with 
+ *  After some additional tests, which involved injecting 802.1Q frames with
  *  different priorities and VLAN identifiers. It was determined that the HP
  *  ERM header has a part inside its header that closely resembles the 802.1Q
  *  header. The only difference is the priority numbering.

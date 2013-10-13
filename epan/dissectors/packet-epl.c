@@ -16,7 +16,7 @@
  *
  * Copyright (c) 2013: B&R Industrieelektronik GmbH
  *                     http://www.br-automation.com
- * 
+ *
  *                     - Roland Knall <roland.knall[AT]br-automation.com>
  *                       - Extended to be similair in handling as to B&R plugin
  *                       - Multiple SOD Read/Write dissection
@@ -1060,7 +1060,7 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
     /* get ServiceID of payload */
     svid = tvb_get_guint8(tvb, offset);
     item = proto_tree_add_uint(epl_tree, hf_epl_asnd_svid, tvb, offset, 1, svid);
-    
+
     offset += 1;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ",
@@ -1547,7 +1547,7 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
             abort_code = tvb_get_letohl(tvb, offset);
             /* if AbortBit is set then print AbortMessage */
             proto_tree_add_uint(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_abort_code, tvb, offset, 4, abort_code);
-            
+
             col_append_fstr(pinfo->cinfo, COL_INFO, "Abort = 0x%08X", abort_code);
         }
         else

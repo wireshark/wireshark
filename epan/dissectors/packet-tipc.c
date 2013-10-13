@@ -1396,7 +1396,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 
 				frag_msg = fragment_add_seq_check(&tipc_msg_reassembly_table,
 						tipc_tvb, offset,
-						pinfo, 
+						pinfo,
 						frag_msg_no,					/* ID for fragments belonging together */
 						NULL,
 						/* TODO: make sure that fragments are on the same LINK */

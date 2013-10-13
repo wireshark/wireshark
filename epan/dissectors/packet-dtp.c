@@ -316,7 +316,7 @@ proto_register_dtp(void)
 	{ &hf_dtp_tas,
 		{ "Trunk Administrative Status", "dtp.tas", FT_UINT8, BASE_HEX,
 		VALS(dtp_tas_vals), DTP_TAS_MASK, NULL, HFILL }},
-		
+
 	{ &hf_dtp_tot,
 		{ "Trunk Operating Type", "dtp.tot", FT_UINT8, BASE_HEX,
 		VALS(dtp_tot_vals), DTP_TOT_MASK, NULL, HFILL }},

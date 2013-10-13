@@ -524,7 +524,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     iso7816_trans->cmd_frame, (void *)iso7816_trans);
         }
     }
- 
+
     ret = dissect_iso7816_class(tvb, offset, pinfo, tree);
     if (ret==-1) {
         /* the class byte says that the remaining APDU is not
@@ -611,7 +611,7 @@ dissect_iso7816_resp_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
-           
+
     /* - 2 bytes SW1, SW2 */
     body_len = tvb_reported_length_remaining(tvb, offset) - 2;
 

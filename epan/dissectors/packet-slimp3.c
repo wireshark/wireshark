@@ -304,7 +304,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		*/
 		if (tree) {
 			i1 = tvb_get_ntohl(tvb, offset+2);
-			proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_uptime, tvb, offset+2, 4, i1, 
+			proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_uptime, tvb, offset+2, 4, i1,
 				"%u sec (%u ticks)", i1/625000, i1);
 
 			proto_tree_add_item(slimp3_tree, hf_slimp3_code_id, tvb, offset+6, 1, ENC_BIG_ENDIAN);
@@ -444,7 +444,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				proto_tree_add_text(slimp3_tree, tvb, offset, 1, "Hello Response (Client --> Server)");
 				proto_tree_add_item(slimp3_tree, hf_slimp3_device_id, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 				fw_ver = tvb_get_guint8(tvb, offset+2);
-				proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver, 
+				proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver,
 									"%u.%u (0x%0x)", fw_ver>>4, fw_ver & 0xf, fw_ver);
 			} else {
 				/* Hello request; server->client */
@@ -522,7 +522,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		guint8 fw_ver;
 		proto_tree_add_item(slimp3_tree, hf_slimp3_device_id, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		fw_ver = tvb_get_guint8(tvb, offset+2);
-		proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver, 
+		proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver,
 							"%u.%u (0x%0x)", fw_ver>>4, fw_ver & 0xf, fw_ver);
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Device ID: %u. Firmware: %u.%u",
 						tvb_get_guint8(tvb, offset+1), fw_ver>>4, fw_ver & 0xf);

@@ -140,7 +140,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 			tree)) {
 			len = call_dissector(data_handle, next_tvb, pinfo, tree);
 			if (len < tvb_length(next_tvb)) {
-			proto_tree_add_text(tree, tvb, 4 + len, -1, 
+			proto_tree_add_text(tree, tvb, 4 + len, -1,
 				"RSP Trailer (%d bytes):", tvb_length(next_tvb) - len);
 			}
 		}
@@ -156,7 +156,7 @@ dissect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	proto_item	*ti/*, *tf*/;
 	tvbuff_t	*next_tvb;
 	int 		offset = 0;
-	
+
 	if (tree) {
 		ti = proto_tree_add_protocol_format(tree, proto_rsp, tvb, offset, 8,
 			 "RMCP Security-extension Protocol");
@@ -167,8 +167,8 @@ dissect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		proto_tree_add_item(rsp_tree, hf_rsp_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
 		/*offset += 4;*/
 	}
-	
-	/* XXX determination of RCMP message length needs to 
+
+	/* XXX determination of RCMP message length needs to
 	 * be done according to 3.2.3.3.3 of the specification.
 	 * This is only valid for session ID equals 0
 	 */

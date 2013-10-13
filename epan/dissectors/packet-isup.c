@@ -3853,7 +3853,7 @@ dissect_isup_range_and_status_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 	range_tree = proto_item_add_subtree(item, ett_isup_range);
 	if(range<9){
 		proto_tree_add_text(range_tree, parameter_tvb , offset, 1, "Bit %u %s bit 1",
-			range, 
+			range,
 			decode_bits_in_field(8-range, range, tvb_get_guint8(parameter_tvb,offset)));
 	}
   }else{
@@ -5795,7 +5795,7 @@ dissect_isup_generic_notification_indicator_parameter(tvbuff_t *parameter_tvb, p
   indicators = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_isup_notification_indicator, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
-  proto_item_set_text(parameter_item,"Generic notification indicator: %s", 
+  proto_item_set_text(parameter_item,"Generic notification indicator: %s",
 	  val_to_str((indicators&0x7f),q763_generic_notification_indicator_vals,"Reserved (0x%X)"));
 }
 /* ------------------------------------------------------------------
@@ -6716,7 +6716,7 @@ dissect_isup_uid_capability_indicators_parameter(tvbuff_t *parameter_tvb, proto_
  */
 static void
 dissect_isup_redirect_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, guint8 itu_isup_variant)
-{ 
+{
   guint length = tvb_length(parameter_tvb);
 
   switch(itu_isup_variant) {
@@ -6727,7 +6727,7 @@ dissect_isup_redirect_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *par
             proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Redirect counter (format is a national matter)");
 			break;
   }
-  
+
   proto_item_set_text(parameter_item, "Redirect counter (%u Byte%s)", length , plurality(length, "", "s"));
 }
 /* ------------------------------------------------------------------

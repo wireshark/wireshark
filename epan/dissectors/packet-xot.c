@@ -158,7 +158,7 @@ static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb, int off
 
       /* If this is the first packet and it is not data, no sequence needed */
       if (offset == offset_before && !PACKET_IS_DATA(pkt_type)) {
-          return offset_next-offset_before; 
+          return offset_next-offset_before;
       }
 
       /* Check for data, there can be X25 control packets in the X25 data */
@@ -311,14 +311,14 @@ static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    if (!x25_desegment || !xot_desegment){
       tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
                        XOT_HEADER_LENGTH,
-                       get_xot_pdu_len, 
+                       get_xot_pdu_len,
                        dissect_xot_pdu);
       len=get_xot_pdu_len(pinfo, tvb, 0);
    } else {
       /* Use length version that "peeks" into X25, possibly several XOT packets */
       tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
                        XOT_HEADER_LENGTH,
-                       get_xot_pdu_len_mult, 
+                       get_xot_pdu_len_mult,
                        dissect_xot_mult);
       len=get_xot_pdu_len_mult(pinfo, tvb, 0);
    }

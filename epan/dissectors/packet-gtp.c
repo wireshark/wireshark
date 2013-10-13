@@ -4507,8 +4507,8 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         if(length > 13 ||((type == 2) && (length == 13))) {
             proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_src_stat_desc, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, src_stat_desc);
             proto_tree_add_boolean(ext_tree_qos, hf_gtp_qos_sig_ind, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, sig_ind);
-        } 
-		
+        }
+
         if(length > 14) {
             /* Octet 15 */
             if ((max_dl_ext > 0) && (max_dl_ext <= 0x4a)) {
@@ -7865,7 +7865,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	/* Setting the TEID to -1 to say that the TEID is not valid for this packet */
     gtp_hdr->teid = -1;
-    
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -7894,7 +7894,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     pd_save = pinfo->private_data;
     pinfo->private_data = gtp_info;
-    
+
     gtp_hdr->flags = tvb_get_guint8(tvb, offset);
 
     if (!(gtp_hdr->flags & 0x10)){
@@ -7980,12 +7980,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     offset++;
 
-    gtp_hdr->length = tvb_get_ntohs(tvb, offset); 
+    gtp_hdr->length = tvb_get_ntohs(tvb, offset);
     if (tree) {
         proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr->length);
     }
     offset += 2;
-    
+
     if (gtp_prime) {
         seq_no = tvb_get_ntohs(tvb, offset);
         proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
@@ -8117,7 +8117,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                              * therefore the Length field has value 1"
                              */
                             if (ext_hdr_length == 1) {
-                                /* UDP Port of source */ 
+                                /* UDP Port of source */
                                 proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
                             } else {
                                 /* Bad length */
@@ -8235,7 +8235,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	call_dissector(sync_handle, next_tvb, pinfo, tree);
 	col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
 	col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
-    }  
+    }
     pinfo->private_data = pd_save;
     tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
 

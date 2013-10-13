@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the 
+ * along with this program; if not, write to the
  *   Free Software Foundation, Inc.,
  *   51 Franklin Street, Fifth Floor,
  *   Boston, MA 02110-1301 USA.
@@ -194,7 +194,7 @@ static const value_string ouch_liquidity_flag_val[] = {
     { 'r', "Retail Order removes RPI liquidity" },
     { 't', "Retail Order removes price improving non-displayed liquidity "
       "other than RPI liquidity" },
-    { '6', "Liquidity Removing Order in designated securities" },    
+    { '6', "Liquidity Removing Order in designated securities" },
     { 0, NULL }
 };
 
@@ -238,7 +238,7 @@ static const value_string ouch_reject_reason_val[] = {
     { 'k', "On Close order restriction" },
     { 'l', "Two sided quote reject" },
     { 'm', "Exceeded shares limit" },
-    { 'n', "Exceeded dollar value limit" },    
+    { 'n', "Exceeded dollar value limit" },
     { 0, NULL}
 };
 
@@ -318,7 +318,7 @@ ouch_tree_add_timestamp(
 
     proto_tree_add_string(tree, hf, tvb, offset, 8, buf);
 }
-                          
+
 
 /** BASE_CUSTOM formatter for BBO weight indicator code
  *

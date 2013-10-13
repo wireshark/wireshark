@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -123,12 +123,12 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 
 extern int
 dissect_dcom_indexed_WORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
-					 proto_tree *tree, guint8 *drep, 
+					 proto_tree *tree, guint8 *drep,
 					 int hfindex, guint16 * pu16WORD, int field_index);
 
 WS_DLL_PUBLIC int
 dissect_dcom_indexed_DWORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
-					 proto_tree *tree, guint8 *drep, 
+					 proto_tree *tree, guint8 *drep,
 					 int hfindex, guint32 * pu32DWORD, int field_index);
 
 WS_DLL_PUBLIC int
@@ -137,12 +137,12 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,
 
 WS_DLL_PUBLIC int
 dissect_dcom_HRESULT_item(tvbuff_t *tvb, int offset,	packet_info *pinfo,
-					 proto_tree *tree, guint8 *drep, 
+					 proto_tree *tree, guint8 *drep,
 					 guint32 * pu32HResult, int field_index, proto_item **item);
 
 WS_DLL_PUBLIC int
 dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
-					 proto_tree *tree, guint8 *drep, 
+					 proto_tree *tree, guint8 *drep,
 					 guint32 * pu32hresult, int field_index);
 
 extern int
@@ -198,7 +198,7 @@ dissect_dcom_VARTYPE(tvbuff_t *tvb, int offset,
 	guint16 *pu16Vartype);
 
 WS_DLL_PUBLIC int
-dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, int hfindex);
 
 /* dcom "dcerpc internal" unmarshalling */
@@ -222,11 +222,11 @@ dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
 
 /* very simple parameter-profiles dissectors (for very simple requests ;-) */
 /* request: no parameters */
-WS_DLL_PUBLIC int 
+WS_DLL_PUBLIC int
 dissect_dcom_simple_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 /* response: only HRESULT */
-WS_DLL_PUBLIC int 
+WS_DLL_PUBLIC int
 dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 

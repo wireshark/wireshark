@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -1525,11 +1525,11 @@ SOFTWARE.
 #define XK_Thai_khokhuat				0xda3
 #define XK_Thai_khokhwai				0xda4
 #define XK_Thai_khokhon					0xda5
-#define XK_Thai_khorakhang			        0xda6  
-#define XK_Thai_ngongu					0xda7  
-#define XK_Thai_chochan					0xda8  
-#define XK_Thai_choching				0xda9   
-#define XK_Thai_chochang				0xdaa  
+#define XK_Thai_khorakhang			        0xda6
+#define XK_Thai_ngongu					0xda7
+#define XK_Thai_chochan					0xda8
+#define XK_Thai_choching				0xda9
+#define XK_Thai_chochang				0xdaa
 #define XK_Thai_soso					0xdab
 #define XK_Thai_chochoe					0xdac
 #define XK_Thai_yoying					0xdad
@@ -1571,39 +1571,39 @@ SOFTWARE.
 #define XK_Thai_maihanakat				0xdd1
 #define XK_Thai_saraaa					0xdd2
 #define XK_Thai_saraam					0xdd3
-#define XK_Thai_sarai					0xdd4   
-#define XK_Thai_saraii					0xdd5   
-#define XK_Thai_saraue					0xdd6    
-#define XK_Thai_sarauee					0xdd7    
-#define XK_Thai_sarau					0xdd8    
-#define XK_Thai_sarauu					0xdd9   
+#define XK_Thai_sarai					0xdd4
+#define XK_Thai_saraii					0xdd5
+#define XK_Thai_saraue					0xdd6
+#define XK_Thai_sarauee					0xdd7
+#define XK_Thai_sarau					0xdd8
+#define XK_Thai_sarauu					0xdd9
 #define XK_Thai_phinthu					0xdda
 #define XK_Thai_maihanakat_maitho   			0xdde
 #define XK_Thai_baht					0xddf
-#define XK_Thai_sarae					0xde0    
+#define XK_Thai_sarae					0xde0
 #define XK_Thai_saraae					0xde1
 #define XK_Thai_sarao					0xde2
-#define XK_Thai_saraaimaimuan				0xde3   
-#define XK_Thai_saraaimaimalai				0xde4  
+#define XK_Thai_saraaimaimuan				0xde3
+#define XK_Thai_saraaimaimalai				0xde4
 #define XK_Thai_lakkhangyao				0xde5
 #define XK_Thai_maiyamok				0xde6
 #define XK_Thai_maitaikhu				0xde7
-#define XK_Thai_maiek					0xde8   
+#define XK_Thai_maiek					0xde8
 #define XK_Thai_maitho					0xde9
 #define XK_Thai_maitri					0xdea
 #define XK_Thai_maichattawa				0xdeb
 #define XK_Thai_thanthakhat				0xdec
 #define XK_Thai_nikhahit				0xded
-#define XK_Thai_leksun					0xdf0 
-#define XK_Thai_leknung					0xdf1  
-#define XK_Thai_leksong					0xdf2 
+#define XK_Thai_leksun					0xdf0
+#define XK_Thai_leknung					0xdf1
+#define XK_Thai_leksong					0xdf2
 #define XK_Thai_leksam					0xdf3
-#define XK_Thai_leksi					0xdf4  
-#define XK_Thai_lekha					0xdf5  
-#define XK_Thai_lekhok					0xdf6  
-#define XK_Thai_lekchet					0xdf7  
-#define XK_Thai_lekpaet					0xdf8  
-#define XK_Thai_lekkao					0xdf9 
+#define XK_Thai_leksi					0xdf4
+#define XK_Thai_lekha					0xdf5
+#define XK_Thai_lekhok					0xdf6
+#define XK_Thai_lekchet					0xdf7
+#define XK_Thai_lekpaet					0xdf8
+#define XK_Thai_lekkao					0xdf9
 #endif /* XK_THAI */
 
 /*
@@ -1942,7 +1942,7 @@ SOFTWARE.
  *   Vietnamese
  *   Byte 3 = 0x1e
  */
- 
+
 #define XK_VIETNAMESE
 #ifdef XK_VIETNAMESE
 #define XK_Abelowdot					0x1ea0

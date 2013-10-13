@@ -1,9 +1,9 @@
 /* packet-udt.c
- *  
+ *
  * Routines for UDT packet dissection
  *
  * Copyright 2013 (c) chas williams <chas@cmf.nrl.navy.mil>
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -281,7 +281,7 @@ dissect_udt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	if ((tvb_get_ntohl(tvb, 20) != UDT_HANDSHAKE_TYPE_DGRAM)
 	    && (tvb_get_ntohl(tvb, 20) != UDT_HANDSHAKE_TYPE_STREAM))
 		return FALSE;
-	
+
 	conv = find_or_create_conversation(pinfo);
 	conversation_set_dissector(conv, udt_handle);
 	dissect_udt(tvb, pinfo, tree, data);

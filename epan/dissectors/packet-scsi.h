@@ -35,7 +35,7 @@ typedef struct _itl_nexus_t {
 #define SCSI_CMDSET_DEFAULT	0x80
 #define SCSI_CMDSET_MASK	0x7f
     guint8 cmdset;         /* This is a bitfield.
-			    * The MSB (0x80) represents whether 
+			    * The MSB (0x80) represents whether
 			    * 0: the commandset is known from a INQ PDU
 			    * 1: is using the "default" from preferences.
 			    * The lower 7 bits represent the commandset used
@@ -60,7 +60,7 @@ typedef struct _itlq_nexus_t {
 #define SCSI_DATA_WRITE	0x0002
     guint16 task_flags; /* Flags set by the transport for this
 			 * scsi task.
-			 * 
+			 *
 			 * If there is no data being transferred both flags
 			 * are 0 and both data lengths below are undefined.
 			 *
@@ -68,15 +68,15 @@ typedef struct _itlq_nexus_t {
 			 * data being transferred is held in data_length
 			 * and bidir_data_length is undefined.
 			 *
-			 * If both flags are set (a bidirectional transfer) 
+			 * If both flags are set (a bidirectional transfer)
 			 * data_length specifies the amount of DATA-OUT and
 			 * bidir_data_length specifies the amount of DATA-IN
 			 */
     guint32 data_length;
     guint32 bidir_data_length;
 
-    guint32 alloc_len;	/* we need to track alloc_len between the CDB and 
-			 * the DATA pdus for some opcodes. 
+    guint32 alloc_len;	/* we need to track alloc_len between the CDB and
+			 * the DATA pdus for some opcodes.
 			 */
     nstime_t fc_time;
 

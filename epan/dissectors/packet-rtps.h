@@ -11,11 +11,11 @@
  * Copyright 2003, LUKAS POKORNY <maskis@seznam.cz>
  *                 PETR SMOLIK   <petr.smolik@wo.cz>
  *                 ZDENEK SEBEK  <sebek@fel.cvut.cz>
- * 
- * Czech Technical University in Prague 
+ *
+ * Czech Technical University in Prague
  *  Faculty of Electrical Engineering <www.fel.cvut.cz>
- *  Department of Control Engineering <dce.felk.cvut.cz>                
- *                   
+ *  Department of Control Engineering <dce.felk.cvut.cz>
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -26,12 +26,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -40,16 +40,16 @@
  *
  * The following file is part of the RTPS packet dissector for Wireshark.
  *
- * RTPS protocol was developed by Real-Time Innovations, Inc. as wire 
+ * RTPS protocol was developed by Real-Time Innovations, Inc. as wire
  * protocol for Data Distribution System.
  * Additional information at:
- *   Full OMG DDS Standard Specification: 
+ *   Full OMG DDS Standard Specification:
  *                             http://www.omg.org/cgi-bin/doc?ptc/2003-07-07
- *   
+ *
  *   NDDS and RTPS information: http://www.rti.com/resources.html
  *
  */
- 
+
 #ifndef _TYPEDEFS_DEFINES_RTPS_H
 #define _TYPEDEFS_DEFINES_RTPS_H
 
@@ -299,7 +299,7 @@ typedef enum {
 #define SUBMESSAGE_HEARTBEAT_SESSION                    (0x1b)  /* RTPS 2.1 only */
 
 
-/* An invalid IP Address: 
+/* An invalid IP Address:
  * Make sure the _STRING macro is bigger than a normal IP
  */
 #define IPADDRESS_INVALID               (0)
@@ -432,7 +432,7 @@ extern gint rtps_util_add_seq_ulong(proto_tree *tree, tvbuff_t * tvb, gint offse
 extern gboolean rtps_is_ping(tvbuff_t *tvb, packet_info *pinfo, gint offset);
 
 /* Shared submessage dissection */
-extern void dissect_PAD(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags, 
+extern void dissect_PAD(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
                         gboolean little_endian, int octects_to_next_header, proto_tree *tree);
 extern void dissect_INFO_SRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
                         gboolean little_endian, int octets_to_next_header, proto_tree *tree, guint16 rtps_version);
@@ -443,5 +443,5 @@ extern void dissect_INFO_TS(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
 #ifdef __cplusplus
 } /* extern "C"*/
 #endif
-            
+
 #endif /* _TYPEDEFS_DEFINES_RTPS_H */

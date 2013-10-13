@@ -40,7 +40,7 @@ typedef struct _sip_info_value_t
     gchar   *reason_phrase;
 } sip_info_value_t;
 
-extern void dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_offset, 
+extern void dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_offset,
 					  guint parameter_len);
 
 #endif

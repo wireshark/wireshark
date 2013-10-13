@@ -152,7 +152,7 @@ void proto_register_packetlogger (void)
   proto_packetlogger = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
   packetlogger_handle = register_dissector (PFNAME, dissect_packetlogger, proto_packetlogger);
-  
+
   proto_register_field_array (proto_packetlogger, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 }

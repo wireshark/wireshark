@@ -1,5 +1,5 @@
 /* packet-dcerpc-pnp.h
- * Routines for the pnp (Plug and Play) MSRPC interface 
+ * Routines for the pnp (Plug and Play) MSRPC interface
  * Copyright 2005 Jean-Baptiste Marchand <jbm@hsc.fr>
  *
  * $Id$

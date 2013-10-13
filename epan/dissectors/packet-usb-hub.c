@@ -159,7 +159,7 @@ dissect_usb_hub_clear_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t
 	proto_tree *subtree = NULL;
 	const gchar* feature_name;
 
-	feature_name = val_to_str(usb_trans_info->setup.wValue, 
+	feature_name = val_to_str(usb_trans_info->setup.wValue,
 								hub_class_feature_selectors_recipient_hub_vals,
 								"UNKNOWN (0x%x)");
 	col_append_fstr(pinfo->cinfo, COL_INFO, " [Hub: %s]", feature_name);
@@ -191,7 +191,7 @@ dissect_usb_hub_clear_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_
 	proto_tree *subtree = NULL;
 	const gchar* feature_name;
 
-	feature_name = val_to_str(usb_trans_info->setup.wValue, 
+	feature_name = val_to_str(usb_trans_info->setup.wValue,
 								hub_class_feature_selectors_recipient_port_vals,
 								"UNKNOWN (0x%x)");
 	col_append_fstr(pinfo->cinfo, COL_INFO, " [Port %u: %s]", usb_trans_info->setup.wIndex, feature_name);
@@ -469,7 +469,7 @@ dissect_usb_hub_set_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
 	const gchar* feature_name;
-	feature_name = val_to_str(usb_trans_info->setup.wValue, 
+	feature_name = val_to_str(usb_trans_info->setup.wValue,
 								hub_class_feature_selectors_recipient_hub_vals,
 								"UNKNOWN (0x%x)");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "   [Hub: %s]", feature_name);
@@ -501,7 +501,7 @@ dissect_usb_hub_set_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 	proto_tree *subtree = NULL;
 	const gchar* feature_name;
 
-	feature_name = val_to_str(usb_trans_info->setup.wValue, 
+	feature_name = val_to_str(usb_trans_info->setup.wValue,
 								hub_class_feature_selectors_recipient_port_vals,
 								"UNKNOWN (0x%x)");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "   [Port %u: %s]", usb_trans_info->setup.wIndex,

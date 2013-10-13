@@ -2,7 +2,7 @@
  *
  * Wifi Simple Config aka Wifi Protected Setup
  *
- * Written by Jens Braeuer using WiFi-Alliance Spec 1.0h and 
+ * Written by Jens Braeuer using WiFi-Alliance Spec 1.0h and
  * parts of a patch by JP Jiang and Philippe Teuwen. November 2007
  *
  * Spec:

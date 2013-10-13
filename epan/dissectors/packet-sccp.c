@@ -3961,7 +3961,7 @@ proto_register_sccp(void)
 
   static ei_register_info ei[] = {
      { &ei_sccp_wrong_length, { "sccp.wrong_length", PI_MALFORMED, PI_ERROR, "Wrong length indicated.", EXPFILL }},
-     { &ei_sccp_international_standard_address, { "sccp.international_standard_address", PI_MALFORMED, PI_WARN, 
+     { &ei_sccp_international_standard_address, { "sccp.international_standard_address", PI_MALFORMED, PI_WARN,
             "Address is coded to international standards.  This doesn't normally happen in ANSI networks.", EXPFILL }},
      { &ei_sccp_no_ssn_present, { "sccp.ssn.not_present", PI_PROTOCOL, PI_WARN, "Message is routed on SSN, but SSN is not present", EXPFILL }},
      { &ei_sccp_ssn_zero, { "sccp.ssn.is_zero", PI_PROTOCOL, PI_WARN, "Message is routed on SSN, but SSN is zero (unspecified)", EXPFILL }},

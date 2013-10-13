@@ -600,7 +600,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	 *
 	 * 14:  A 16-bit unsigned integer in network byte order precedes the
 	 *      Option Value and indicates the Option Length minus 269.
-	 * 
+	 *
 	 * 15:  Reserved for future use.  If the field is set to this value,
 	 *      it MUST be processed as a message format error.
 	 */
@@ -639,14 +639,14 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 
 	coap_opt_check(pinfo, coap_tree, *opt_num, opt_length);
 
-	g_snprintf(strbuf, sizeof(strbuf), 
+	g_snprintf(strbuf, sizeof(strbuf),
 	    "#%u: %s", opt_count, val_to_str_const(*opt_num, vals_opt_type,
 	    *opt_num % 14 == 0 ? "No-Op" : "Unknown Option"));
 	item = proto_tree_add_string(coap_tree, hf_coap_opt_name,
 	    tvb, orig_offset, offset - orig_offset + opt_length, strbuf);
 	subtree = proto_item_add_subtree(item, ett_coap_option);
 
-	g_snprintf(strbuf, sizeof(strbuf), 
+	g_snprintf(strbuf, sizeof(strbuf),
 	    "Type %u, %s, %s%s", *opt_num,
 	    (*opt_num & 1) ? "Critical" : "Elective",
 	    (*opt_num & 2) ? "Unsafe" : "Safe",
@@ -872,7 +872,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if (coap_ctype_value == DEFAULT_COAP_CTYPE_VALUE)
 			coap_ctype_str = "text/plain; charset=utf-8";
 
-		g_snprintf(str_payload, sizeof(str_payload), 
+		g_snprintf(str_payload, sizeof(str_payload),
 		    "Payload Content-Format: %s%s, Length: %u",
 		    coap_ctype_str, coap_ctype_value == DEFAULT_COAP_CTYPE_VALUE ?
 		    " (no Content-Format)" : "", payload_length);

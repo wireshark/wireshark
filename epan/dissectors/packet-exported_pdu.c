@@ -341,7 +341,7 @@ proto_register_exported_pdu(void)
             " exported_pdu TCP port if other than the default",
             10, &gPORT_PREF);
 #endif
-    /* Register for tapping 
+    /* Register for tapping
      * The tap is registered here but it is to be used by dissectors that
      * want to export their PDU:s, see packet-sip.c
      */

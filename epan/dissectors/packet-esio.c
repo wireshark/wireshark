@@ -145,7 +145,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIO");
        col_clear(pinfo->cinfo, COL_INFO);
        esio_telegram_type = tvb_get_guint8(tvb,5);
-       
+
        switch (esio_telegram_type) {
        case ESIO_TRANSFER:
                 esio_src_id = tvb_get_ntohl(tvb,16);

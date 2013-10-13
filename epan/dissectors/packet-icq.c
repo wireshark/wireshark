@@ -972,7 +972,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 		user_timezone = tvb_get_guint8(tvb, offset);
 		proto_tree_add_text(sstree, tvb, offset, 1,
 				"Timezone: %u", user_timezone);
-		offset++; 
+		offset++;
 		/* Get the authorize setting */
 		auth = tvb_get_guint8(tvb, offset);
 		proto_tree_add_text(sstree, tvb, offset, 1,
@@ -984,7 +984,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 		proto_tree_add_text(sstree, tvb, offset, 1,
 				"Webaware: (%u) %s", auth,
 				(auth==0)?"No":"Yes");
-		offset++; 
+		offset++;
 		/* Get the authorize setting */
 		auth = tvb_get_guint8(tvb, offset);
 		proto_tree_add_text(sstree, tvb, offset, 1,

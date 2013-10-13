@@ -76,7 +76,7 @@ typedef struct _usb_trans_info_t {
     usb_conv_info_t *interface_info;
 } usb_trans_info_t;
 
-/* Conversation Structure 
+/* Conversation Structure
  * there is one such structure for each device/endpoint conversation */
 struct _usb_conv_info_t {
     guint16 interfaceClass;     /* Interface Descriptor - class          */

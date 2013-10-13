@@ -3255,7 +3255,7 @@ de_bssgp_redir_attempt_flg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     return(curr_offset-offset);
 }
- 
+
 /*
  * 11.3.112     Redirection Indication
 */
@@ -3286,7 +3286,7 @@ de_bssgp_redir_indication(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 {
     guint32 curr_offset;
 
-    curr_offset = offset;  
+    curr_offset = offset;
 
     proto_tree_add_item(tree, hf_bssgp_redir_indiction_reroute_reject_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset += 1;
@@ -3303,7 +3303,7 @@ static const value_string bssgp_redir_complete_outcome_vals[] = {
     {0x02, "MS is not accepted"},
     {0x03, "MS is already registered"},
     /* {0x04~0xFF, "Reserved"} */
-    { 0,    NULL },    
+    { 0,    NULL },
 };
 
 static guint16

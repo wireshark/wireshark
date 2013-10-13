@@ -242,7 +242,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		/*src_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
 		mtp3_addr_opc = wmem_new0(wmem_packet_scope(), mtp3_addr_pc_t);
 		mtp3_addr_opc->pc = (guint32 )tvb_get_ntoh24(tvb, offset);
-		mtp3_addr_opc->type = ITU_STANDARD; 
+		mtp3_addr_opc->type = ITU_STANDARD;
 		mtp3_addr_opc->ni = 0;
 		/*SET_ADDRESS(&pinfo->net_src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);*/
 		SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);

@@ -240,7 +240,7 @@ dissect_fec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	case 4:
 		proto_tree_add_item(fec_tree, hf_sbn_with_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(fec_tree, hf_esi_with_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
-			
+
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", tvb_get_ntohl(tvb, offset) >> 20);
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ESI: 0x%X", tvb_get_ntohl(tvb, offset) & 0xfffff);
 

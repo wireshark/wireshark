@@ -42,7 +42,7 @@
 #define AUTH_RSA 5
 #define RPCSEC_GSS 6
 #define AUTH_GSSAPI 300001
-/* Pseudo-flavors used for security mechanisms while using 
+/* Pseudo-flavors used for security mechanisms while using
  * RPCSEC_GSS
  */
 #define RPCSEC_GSS_KRB5 390003
@@ -196,7 +196,7 @@ typedef struct _rpc_prog_info_value {
 	GArray *procedure_hfs;
 } rpc_prog_info_value;
 
-/* rpc_progs is also used in tap. With MSVC and a 
+/* rpc_progs is also used in tap. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
 WS_DLL_PUBLIC GHashTable *rpc_progs;
@@ -213,7 +213,7 @@ typedef struct _rpc_proc_info_value {
 	dissect_function_t *dissect_reply;
 } rpc_proc_info_value;
 
-/* rpc_procs is also used in tap. With MSVC and a 
+/* rpc_procs is also used in tap. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
 WS_DLL_PUBLIC GHashTable *rpc_procs;

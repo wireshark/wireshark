@@ -111,7 +111,7 @@ get_form_key_value(tvbuff_t *tvb, char **ptr, int offset, char stop)
 
 		if (ch == '%') {
 			guint8 ch1, ch2;
-			
+
 			offset++;
 			ch1 = tvb_get_guint8(tvb, offset);
 
@@ -122,7 +122,7 @@ get_form_key_value(tvbuff_t *tvb, char **ptr, int offset, char stop)
 
 		} else if (ch == '+')
 			tmp[len] = ' ';
-		else 
+		else
 			tmp[len] = ch;
 
 		len++;

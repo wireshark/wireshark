@@ -1711,7 +1711,7 @@ DEBUG_ENTRY("dissect_per_choice");
 			PER_NOT_DECODED_YET("unknown extension root index in choice");
 		} else {
 			offset += ext_length * 8;
-			proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_choice_extension_unknown, 
+			proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_choice_extension_unknown,
 										tvb, old_offset>>3, BLEN(old_offset, offset),
 										"Choice no. %d in extension", choice_index);
 		}

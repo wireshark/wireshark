@@ -23,9 +23,9 @@
  *
  * This header file may also be distributed under
  * the terms of the BSD Licence as follows:
- * 
+ *
  * Copyright (C) 2009 Martin Mathieson. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -34,7 +34,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY AUTHOR AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -136,7 +136,7 @@ typedef struct mac_lte_info
 
     /* Carrier ID */
     mac_lte_carrier_id   carrierId;
-    
+
     /* DL only.  Is this known to be a retransmission? */
     mac_lte_dl_retx dl_retx;
 
@@ -235,7 +235,7 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 
 /* Fixed fields.  This is followed by the following 3 mandatory fields:
    - radioType (1 byte)
-   - direction (1 byte) 
+   - direction (1 byte)
    - rntiType (1 byte)
    (where the allowed values are defined above */
 

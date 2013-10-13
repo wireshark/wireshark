@@ -743,7 +743,7 @@
 /**/
 #define ZBEE_MFG_HOME_AUTO      "Home Automation Inc."
 /**/
-#define ZBEE_MFG_SUNRISE        "Sunrise Technologies" 
+#define ZBEE_MFG_SUNRISE        "Sunrise Technologies"
 #define ZBEE_MFG_MEMTEC         "Memtec Corp"
 /**/
 #define ZBEE_MFG_BRITISH_GAS    "British Gas"
@@ -768,7 +768,7 @@
 #define ZBEE_MFG_SAMSUNG        "Samsung Electronics Co., Ltd."
 /**/
 #define ZBEE_MFG_MAINSTREAM     "Mainstream Engineering"
-#define ZBEE_MFG_INDESIT_C      "Indesit Company"  
+#define ZBEE_MFG_INDESIT_C      "Indesit Company"
 /**/
 #define ZBEE_MFG_RADIOCRAFTS    "Radiocrafts AS"
 /**/

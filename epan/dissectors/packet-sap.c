@@ -347,7 +347,7 @@ void proto_register_sap(void)
         { &hf_sap_auth_data_padding, { "Authentication data padding", "sap.auth.data_padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sap_auth_data_padding_len, { "Authentication data pad count (bytes)", "sap.auth.data_padding.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sap_payload_type, { "Payload type", "sap.payload_type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        
+
     };
     static gint *ett[] = {
         &ett_sap,

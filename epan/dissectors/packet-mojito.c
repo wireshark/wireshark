@@ -201,7 +201,7 @@ dissect_mojito_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	proto_tree_add_item(socket_tree, hf_mojito_socketaddress_version, tvb, offset, 1, ENC_NA);
 	offset += 1;
-	
+
 	switch (socket_address_version)
 	{
 	case FT_IPv4_LEN: /* IPv4 */
@@ -262,7 +262,7 @@ dissect_mojito_contact(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	offset += 20;
 
 	offset = dissect_mojito_address(tvb, pinfo, contact_tree, offset, "Socket Address");
-	
+
 	if (offset == 0)
 	{
 		return 0;

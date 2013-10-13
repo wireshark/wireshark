@@ -5,17 +5,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -49,7 +49,7 @@
 #define FCFCS_RPL        0x280
 #define FCFCS_RPLN       0x291
 #define FCFCS_RPLT       0x292
-#define FCFCS_RPLM       0x293   
+#define FCFCS_RPLM       0x293
 #define FCFCS_DPL        0x380
 #define FCFCS_DPLN       0x391
 #define FCFCS_DPLML      0x393

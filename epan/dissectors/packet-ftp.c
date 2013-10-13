@@ -780,9 +780,9 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (is_eprt_request) {
-        /* 
+        /*
          * RFC2428 - sect. 2
-         * This frame contains a EPRT request; let's dissect it and set up a 
+         * This frame contains a EPRT request; let's dissect it and set up a
          * conversation for the data connection.
          */
         if (parse_eprt_request(line, linelen,
@@ -792,7 +792,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* since parse_eprt_request() returned TRUE,
                we know that we have a valid address family */
             eprt_offset = tokenlen + 1 + 1;  /* token, space, 1st delimiter */
-            proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_af, tvb, 
+            proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_af, tvb,
                     eprt_offset, 1, eprt_af);
             eprt_offset += 1 + 1; /* addr family, 2nd delimiter */
 
@@ -819,7 +819,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     PT_TCP, ftp_port, 0, NO_PORT_B);
             if (conversation == NULL) {
                 conversation = conversation_new(
-                        pinfo->fd->num, &pinfo->src, &ftp_ip_address, 
+                        pinfo->fd->num, &pinfo->src, &ftp_ip_address,
                         PT_TCP, ftp_port, 0, NO_PORT2);
                 conversation_set_dissector(conversation,
                         ftpdata_handle);
@@ -827,7 +827,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         else {
             proto_item *item;
-            item = proto_tree_add_text(reqresp_tree, 
+            item = proto_tree_add_text(reqresp_tree,
                     tvb, offset - linelen - 1, linelen, "Invalid EPRT arguments");
             expert_add_info(pinfo, item, &ei_ftp_eprt_args_invalid);
         }
@@ -859,8 +859,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     PROTO_ITEM_SET_GENERATED(addr_it);
                 }
 
-                proto_tree_add_uint(reqresp_tree, 
-                        hf_ftp_epsv_port, tvb, pasv_offset + 4, 
+                proto_tree_add_uint(reqresp_tree,
+                        hf_ftp_epsv_port, tvb, pasv_offset + 4,
                         ftp_port_len, ftp_port);
 
                 /* Find/create conversation for data */

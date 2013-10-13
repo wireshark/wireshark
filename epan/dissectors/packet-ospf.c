@@ -57,7 +57,7 @@
  *   - (c) 2011 Salil Kanitkar <sskanitk@ncsu.edu>, North Carolina State University
  *
  * Added support for Type Classification of Experimental and Reserved sub-TLVs (RFC3630)
- *   - (c) 2013 Kaushal Shah <kshah3@ncsu.edu>, North Carolina State University    
+ *   - (c) 2013 Kaushal Shah <kshah3@ncsu.edu>, North Carolina State University
  */
 
 #include "config.h"
@@ -202,7 +202,7 @@ static const value_string auth_vals[] = {
 /* Known opaque LSAs */
 #define OSPF_LSA_MPLS_TE        1
 #define OSPF_LSA_GRACE          3
-/* The type field "4" indicates the Opaque RI LSA with Optional Router Capabilites 
+/* The type field "4" indicates the Opaque RI LSA with Optional Router Capabilites
    advertized in the first TLV. (RFC4970) */
 #define OSPF_LSA_OPAQUE_RI      4
 #define OSPF_LSA_UNKNOWN        11
@@ -425,7 +425,7 @@ static const true_false_string tfs_v2_options_dn = {
 };
 
 /* The Options field in the first TLV of the Opaque RI LSA with type field set to "4" for OSPFv2
-   and type field set to "12" in OSPFv3, is interpreted as advertizing optional router capabilties. 
+   and type field set to "12" in OSPFv3, is interpreted as advertizing optional router capabilties.
    (RFC4970) */
 static const true_false_string tfs_ri_options_grc = {
     "OSPF Graceful Restart Capable",
@@ -2469,7 +2469,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
         switch(tlv_type) {
 
         case OPT_RI_TLV:
-           ti = proto_tree_add_text(ri_tree, tvb, offset, tlv_length+4, 
+           ti = proto_tree_add_text(ri_tree, tvb, offset, tlv_length+4,
                                     "RI TLV");
            tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_ri_tlv);
 
@@ -2478,7 +2478,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
 
            proto_tree_add_text(tlv_tree, tvb, offset + 2, 2, "TLV Length: %u", tlv_length);
 
-           dissect_ospf_bitfield(tlv_tree, tvb, offset + 4, &bfinfo_ri_options); 
+           dissect_ospf_bitfield(tlv_tree, tvb, offset + 4, &bfinfo_ri_options);
            break;
 
         case DYN_HOSTNAME_TLV:
@@ -2495,7 +2495,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
            break;
 
         default:
-           ti = proto_tree_add_text(ri_tree, tvb, offset, tlv_length+4, 
+           ti = proto_tree_add_text(ri_tree, tvb, offset, tlv_length+4,
                                     "Unknown Opaque RI LSA TLV");
            tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_unknown_tlv);
 
@@ -2619,11 +2619,11 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
             break;
 
         case OSPF_LSA_OPAQUE_RI:
-           ls_ri_opaque_field = tvb_get_guint8(tvb, offset + 5);        
-           if ( ls_ri_opaque_field != 0 ) 
+           ls_ri_opaque_field = tvb_get_guint8(tvb, offset + 5);
+           if ( ls_ri_opaque_field != 0 )
                 ls_id_type = OSPF_LSA_UNKNOWN;
            else
-                proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_OPAQUE_LSA_MBZ], 
+                proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_OPAQUE_LSA_MBZ],
                                     tvb, offset + 5, 3, ENC_BIG_ENDIAN);
            break;
 
@@ -3511,7 +3511,7 @@ proto_register_ospf(void)
 
         /* An MBZ field for the 24-bits of type field of Opaque RI LSA */
         {&hf_ospf_filter[OSPFF_OPAQUE_LSA_MBZ],
-         { "MBZ", "ospf.ri.mbz", FT_UINT16, BASE_HEX, 
+         { "MBZ", "ospf.ri.mbz", FT_UINT16, BASE_HEX,
             NULL, 0x0, "OSPF Opaque RI LSA - 24 bits of Type Field Must be Zero", HFILL }},
 
         {&hf_ospf_filter[OSPFF_V3_OPTIONS],

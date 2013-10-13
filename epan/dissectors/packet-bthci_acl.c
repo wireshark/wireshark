@@ -262,7 +262,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         localhost_ether_addr = get_ether_name(localhost_bdaddr_entry->bd_addr);
         memcpy(localhost_bdaddr, localhost_bdaddr_entry->bd_addr, 6);
-    } else { 
+    } else {
         localhost_ether_addr = "localhost";
         /* XXX - is this the right value to use? */
         memset(localhost_bdaddr, 0, 6);

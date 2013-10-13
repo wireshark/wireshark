@@ -228,7 +228,7 @@ typedef enum {
 	SMB_EI_FILEDATA,	/* fid tracking */
 	SMB_EI_FILENAME,	/* filename tracking */
 	SMB_EI_UID,		/* smb_uid_t */
-	SMB_EI_RWINFO,		/* read/write offset/count info */ 
+	SMB_EI_RWINFO,		/* read/write offset/count info */
 	SMB_EI_LOCKDATA,	/* locking and x data */
 	SMB_EI_RENAMEDATA,	/* rename data */
 	SMB_EI_DIALECTS		/* negprot dialects */

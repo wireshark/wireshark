@@ -1311,7 +1311,7 @@
 #define AECP_U_FLAG_MASK                        0x80
 #define AECP_MSRP_MAPPINGS_COUNT_MASK           0x00
 #define AECP_AS_CAPABLE_FLAG_MASK               0x01
-#define AECP_GPTP_ENABLED_FLAG_MASK             0x02 
+#define AECP_GPTP_ENABLED_FLAG_MASK             0x02
 #define AECP_SRP_ENABLED_FLAG_MASK              0x04
 
 

@@ -608,7 +608,7 @@ static gint ett_cp56time = -1;
 
 static expert_field ei_iec104_short_asdu = EI_INIT;
 static expert_field ei_iec104_apdu_min_len = EI_INIT;
-    
+
 /* Misc. functions for dissection of signal values */
 
 /* ====================================================================
@@ -644,14 +644,14 @@ static void get_CP56Time(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_heade
   value = tvb_get_guint8(tvb, *offset);
   tm.tm_mday = value & 0x1F;
   (*offset)++;
-  
+
   value = tvb_get_guint8(tvb, *offset);
   tm.tm_mon = (value & 0x0F) - 1;
   (*offset)++;
-  
-  value = tvb_get_guint8(tvb, *offset);	 
+
+  value = tvb_get_guint8(tvb, *offset);
   tm.tm_year = value & 0x7F;
-  if (tm.tm_year < 70) 
+  if (tm.tm_year < 70)
   	tm.tm_year += 100;
 
   (*offset)++;
@@ -714,7 +714,7 @@ static guint8 get_TypeIdLength(guint8 TypeId)
 {
   guint8 ret = 0;
   td_asdu_length *item;
-  
+
   item = (td_asdu_length *)asdu_length;
   while (item->value)
   {
@@ -825,7 +825,7 @@ static void get_NVA(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
 {
   gint16 value;
   float fvalue;
-  
+
   value = (gint16)tvb_get_letohs(tvb, *offset);
   fvalue = (float)value / 32768;
 
@@ -839,7 +839,7 @@ static void get_NVAspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_
 {
   gint16 value;
   float fvalue;
-  
+
   value = (gint16)tvb_get_letohs(tvb, *offset);
   fvalue = (float)value / 32768;
 
@@ -1068,14 +1068,14 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	asduh.TypeId = tvb_get_guint8(tvb, 0);
 	proto_tree_add_item(it104tree, hf_typeid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	asduh.DataLength = get_TypeIdLength(asduh.TypeId);
-	
+
 	/* Variable structure qualifier */
 	Bytex = tvb_get_guint8(tvb, 1);
 	asduh.SQ = Bytex & F_SQ;
 	asduh.NumIx = Bytex & 0x7F;
 	proto_tree_add_item(it104tree, hf_sq, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(it104tree, hf_numix, tvb, 1, 1, ENC_LITTLE_ENDIAN);
-	
+
 	/* Cause of transmission */
 	asduh.TNCause = tvb_get_guint8(tvb, 2);
 	proto_tree_add_item(it104tree, hf_causetx, tvb, 2, 1, ENC_LITTLE_ENDIAN);
@@ -1378,7 +1378,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 			proto_tree_add_text(it104tree, tvb, Off, 1, "START");
 			ti = proto_tree_add_item(it104tree, hf_apdulen, tvb, Off + 1, 1, ENC_LITTLE_ENDIAN);
-			
+
 			len = tvb_get_guint8(tvb, Off + 1);
 			if (len < APDU_MIN_LEN) {
 				expert_add_info_format(pinfo, ti, &ei_iec104_apdu_min_len, "APDU less than %d bytes", APDU_MIN_LEN);
@@ -1563,7 +1563,7 @@ proto_register_iec104asdu(void)
 		{ &hf_cp56time_su,
 		  { "SU", "104asdu.cp56time.su", FT_BOOLEAN, 8, TFS(&tfs_local_dst), 0x80,
 		    "CP56Time summer time", HFILL }},
-				
+
 		{ &hf_cp56time_day,
 		  { "Day", "104asdu.cp56time.day", FT_UINT8, BASE_DEC, NULL, 0x1F,
 		    "CP56Time day", HFILL }},

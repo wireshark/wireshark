@@ -2635,7 +2635,7 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) subdissector ate %d bytes\n", name
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "Sequence ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length, 
+        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length,
             "BER Error: too many bytes in Sequence");
     }
     if (ind) {
@@ -2914,7 +2914,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n", name);
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "SET ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length, 
+        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length,
             "BER Error: too many bytes in SET");
     }
 
@@ -3188,7 +3188,7 @@ printf("SET dissect_old_ber_set(%s) calling subdissector\n", name);
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "SET ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length, 
+        expert_add_info_format(actx->pinfo, cause, &ei_ber_error_length,
             "BER Error: too many bytes in SET");
     }
 
@@ -3868,7 +3868,7 @@ printf("OBJECT IDENTIFIER dissect_ber_any_oid(%s) entered\n", name);
         offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
         eoffset = offset + len;
         if ( (ber_class != BER_CLASS_UNI)
-          || (is_absolute && tag != BER_UNI_TAG_OID)  
+          || (is_absolute && tag != BER_UNI_TAG_OID)
           || (!is_absolute && tag != BER_UNI_TAG_RELATIVE_OID) ) {
                 tvb_ensure_bytes_exist(tvb, hoffset, 2);
             cause = proto_tree_add_string_format_value(
@@ -4198,7 +4198,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
             "%s Of ate %d too many bytes",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence",
             offset - end_offset);
-        expert_add_info_format(actx->pinfo, causex, &ei_ber_error_length, 
+        expert_add_info_format(actx->pinfo, causex, &ei_ber_error_length,
             "BER Error:too many byte in %s",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence");
     }
@@ -4429,7 +4429,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n", name);
             "%s Of ate %d too many bytes",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence",
             offset-end_offset);
-        expert_add_info_format(actx->pinfo, causex, &ei_ber_error_length, 
+        expert_add_info_format(actx->pinfo, causex, &ei_ber_error_length,
             "BER Error:too many byte in %s",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence");
     }

@@ -876,7 +876,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                                 val_to_str (asyncEvent, iscsi_asyncevents, "0x%x"));
         }
     }
- 
+
     /* In the interest of speed, if "tree" is NULL, don't do any
        work not necessary to generate protocol tree items. */
     if (tree) {

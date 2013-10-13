@@ -877,7 +877,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
 					}
 					byte2 = tvb_get_guint8(tvb, *offset+2);
 					if ((byte2 & 0xC0) == 0xC0) {
-						proto_tree_add_uint_format_value(facility_tree, hf_x25_facility_call_transfer_reason, tvb, 
+						proto_tree_add_uint_format_value(facility_tree, hf_x25_facility_call_transfer_reason, tvb,
 															*offset+2, 1, byte2, "call deflection by the originally called DTE address");
 					}
 					else {
@@ -2419,7 +2419,7 @@ proto_register_x25(void)
         &ett_x25,
 	&ett_x25_gfi,
 	&ett_x25_facilities,
-	&ett_x25_facility, 
+	&ett_x25_facility,
 	&ett_x25_user_data,
 	&ett_x25_segment,
 	&ett_x25_segments

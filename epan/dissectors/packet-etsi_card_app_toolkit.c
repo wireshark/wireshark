@@ -945,10 +945,10 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			switch (g8) {
 			case 0x20:
 				proto_tree_add_item(elem_tree, hf_ctlv_result_term, tvb, pos+1, 1, ENC_NA);
-				break; 
+				break;
 			case 0x26:
 				proto_tree_add_item(elem_tree, hf_ctlv_result_launch_browser, tvb, pos+1, 1, ENC_NA);
-				break; 
+				break;
 			case 0x38:
 				proto_tree_add_item(elem_tree, hf_ctlv_result_multiplecard, tvb, pos+1, 1, ENC_NA);
 				break;

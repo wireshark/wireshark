@@ -251,7 +251,7 @@ static const value_string q2931_codeset_vals[] = {
 	{ 0x00, NULL },
 };
 
-static const true_false_string tfs_q2931_handling_instructions = { "Follow explicit error handling instructions", 
+static const true_false_string tfs_q2931_handling_instructions = { "Follow explicit error handling instructions",
 																   "Regular error handling procedures apply" };
 
 static void

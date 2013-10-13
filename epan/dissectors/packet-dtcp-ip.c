@@ -145,7 +145,7 @@ dissect_dtcp_ip(tvbuff_t *tvb, packet_info *pinfo,
     proto_item  *pi, *pi_ctrl;
     proto_tree  *dtcp_ip_tree = NULL, *dtcp_ip_ctrl_tree = NULL;
     guint8       subfct_val;
-    const gchar *subfct_str;  
+    const gchar *subfct_str;
     gint         ake_info_len;
 
 
@@ -316,7 +316,7 @@ proto_reg_handoff_dtcp_ip(void)
             new_create_dissector_handle(dissect_dtcp_ip, proto_dtcp_ip);
         initialized = TRUE;
     }
-    else 
+    else
         dissector_delete_uint("tcp.port", current_tcp_port, dtcp_ip_handle);
 
     current_tcp_port = pref_tcp_port;

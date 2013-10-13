@@ -34,7 +34,7 @@
  * Useful visible data/structs
  */
 
-#define ZIOP_HEADER_SIZE    12 
+#define ZIOP_HEADER_SIZE    12
 
 #define ZIOP_MAGIC 	 "ZIOP"
 

@@ -70,7 +70,7 @@ typedef int (*ber_old_type_fn)(gboolean, tvbuff_t*, int, asn1_ctx_t *actx, proto
 #define BER_UNI_TAG_EMBEDDED_PDV	    11
 #define BER_UNI_TAG_UTF8String		    12
 #define BER_UNI_TAG_RELATIVE_OID	    13
-/* UNIVERSAL 14-15	
+/* UNIVERSAL 14-15
  * Reserved for future editions of this
  * Recommendation | International Standard
  */
@@ -148,8 +148,8 @@ typedef struct _ber_old_sequence_t {
 	guint32	flags;
 	ber_old_callback	func;
 } ber_old_sequence_t;
-/* 
- * This function dissects a BER sequence 
+/*
+ * This function dissects a BER sequence
  */
 WS_DLL_PUBLIC int dissect_ber_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 WS_DLL_PUBLIC int dissect_ber_set(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
@@ -175,14 +175,14 @@ typedef struct _ber_old_choice_t {
 	guint32	flags;
 	ber_old_callback	func;
 } ber_old_choice_t;
-/* 
- * This function dissects a BER choice 
+/*
+ * This function dissects a BER choice
  */
 WS_DLL_PUBLIC int dissect_ber_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *ch, gint hf_id, gint ett_id, gint *branch_taken);
 /* To be removed when the transition to the "New" type is complete */
 WS_DLL_PUBLIC int dissect_ber_old_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_choice_t *ch, gint hf_id, gint ett_id, gint *branch_taken);
 
-/* 
+/*
  * This function dissects a BER strings
  */
 extern int dissect_ber_constrained_restricted_string(gboolean implicit_tag, gint32 type,  asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb);
@@ -216,7 +216,7 @@ extern int dissect_ber_old_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto
 WS_DLL_PUBLIC int dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
 
 WS_DLL_PUBLIC int dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
- 
+
 typedef struct _asn_namedbit {
 	guint32 bit;
 	int *p_id;

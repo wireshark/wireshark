@@ -2560,7 +2560,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
      */
     case PID_OWNERSHIP_STRENGTH:
       ENSURE_LENGTH(4);
-      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_strength, tvb, offset, 4, 
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_strength, tvb, offset, 4,
                           little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
       break;
 
@@ -3153,7 +3153,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
         guint32 prev_offset, temp_offset, prop_size;
         guint8 *propName, *propValue;
         guint32 seq_size = NEXT_guint32(tvb, offset, little_endian);
-        proto_item_append_text( parameter_item, " (%d properties)", seq_size );        
+        proto_item_append_text( parameter_item, " (%d properties)", seq_size );
         if (seq_size > 0) {
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, 0,
                     /*  123456789012345678901234567890|123456789012345678901234567890 */
@@ -3219,7 +3219,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
       ENSURE_LENGTH(8);
 
       /* Dissect filter bitmap */
-      temp_offset = rtps_util_add_seq_ulong(rtps_parameter_tree, tvb, offset, 
+      temp_offset = rtps_util_add_seq_ulong(rtps_parameter_tree, tvb, offset,
                         hf_rtps_filter_bitmap, little_endian, param_length, "filterBitmap");
 
       /* Dissect sequence of FILTER_SIGNATURE */
@@ -3320,7 +3320,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_PARTICIPANT_ENTITY_ID:
       ENSURE_LENGTH(4);
       rtps_util_add_generic_entity_id(rtps_parameter_tree, tvb, offset,  "Participant entity ID",
-                                      hf_rtps_param_entity, hf_rtps_param_entity_key, 
+                                      hf_rtps_param_entity, hf_rtps_param_entity_key,
                                       hf_rtps_param_hf_entity_kind, ett_rtps_entity);
 
       break;
@@ -3362,7 +3362,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_GROUP_ENTITY_ID:
       ENSURE_LENGTH(4);
       rtps_util_add_generic_entity_id(rtps_parameter_tree, tvb, offset, "Group entity ID",
-                                      hf_rtps_param_entity, hf_rtps_param_entity_key, 
+                                      hf_rtps_param_entity, hf_rtps_param_entity_key,
                                       hf_rtps_param_hf_entity_kind, ett_rtps_entity);
       break;
 
@@ -3563,7 +3563,7 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
       ENSURE_LENGTH(8);
 
       /* Dissect filter bitmap */
-      temp_offset = rtps_util_add_seq_ulong(rtps_parameter_tree, tvb, offset, 
+      temp_offset = rtps_util_add_seq_ulong(rtps_parameter_tree, tvb, offset,
                     hf_rtps_filter_bitmap, little_endian, param_length, "filterBitmap");
 
       /* Dissect sequence of FILTER_SIGNATURE */
@@ -3914,7 +3914,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
       expert_add_info_format(pinfo, (param_len_item == NULL) ? ti : param_len_item, &ei_rtps_parameter_value_invalid, "ERROR: not enough bytes to read the next parameter");
       return 0;
     }
-    original_offset = offset; 
+    original_offset = offset;
 
     /* Reads parameter and create the sub tree. At this point we don't know
      * the final string that will identify the node or its length. It will
@@ -3959,7 +3959,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
 
     if (!dissect_parameter_sequence_v1(rtps_parameter_tree, pinfo, tvb, param_item, param_len_item,
                                     offset, little_endian, size, param_length, parameter, version)) {
-      if ((version < 0x0200) || 
+      if ((version < 0x0200) ||
           !dissect_parameter_sequence_v2(rtps_parameter_tree, pinfo, tvb, param_item, param_len_item,
                                       offset, little_endian, param_length, parameter,
                                       pStatusInfo, vendor_id)) {
@@ -4514,7 +4514,7 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 /* *                        N O K E Y _ D A T A                          * */
 /* *********************************************************************** */
 static void dissect_NOKEY_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
-                gboolean little_endian, int octets_to_next_header, proto_tree *tree, 
+                gboolean little_endian, int octets_to_next_header, proto_tree *tree,
                 guint16 version, guint16 vendor_id) {
   /* RTPS 1.0/1.1:
    * 0...2...........7...............15.............23...............31
@@ -4630,7 +4630,7 @@ static void dissect_NOKEY_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, g
 
   /* Issue Data */
   if ((version < 0x0200) && (flags & FLAG_NOKEY_DATA_D) == 0) {
-    proto_tree_add_item(tree, hf_rtps_issue_data, tvb, offset, 
+    proto_tree_add_item(tree, hf_rtps_issue_data, tvb, offset,
                          octets_to_next_header - (offset - old_offset) + 4,
                         little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   }
@@ -6293,12 +6293,12 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
       break;
 
     case SUBMESSAGE_RTPS_DATA_FRAG:
-      dissect_RTPS_DATA_FRAG(tvb, pinfo, offset, flags, little_endian, octets_to_next_header, 
+      dissect_RTPS_DATA_FRAG(tvb, pinfo, offset, flags, little_endian, octets_to_next_header,
                                 rtps_submessage_tree, vendor_id);
       break;
 
     case SUBMESSAGE_RTPS_DATA_BATCH:
-      dissect_RTPS_DATA_BATCH(tvb, pinfo, offset, flags, little_endian, octets_to_next_header, 
+      dissect_RTPS_DATA_BATCH(tvb, pinfo, offset, flags, little_endian, octets_to_next_header,
                                 rtps_submessage_tree, vendor_id);
       break;
 
@@ -6328,7 +6328,7 @@ static gboolean dissect_rtps_submessage_v1(tvbuff_t *tvb, packet_info *pinfo, gi
       break;
 
     case SUBMESSAGE_NOKEY_DATA:
-      dissect_NOKEY_DATA(tvb, pinfo, offset, flags, little_endian, octets_to_next_header, rtps_submessage_tree, 
+      dissect_NOKEY_DATA(tvb, pinfo, offset, flags, little_endian, octets_to_next_header, rtps_submessage_tree,
                          version, vendor_id);
       break;
 
@@ -6574,7 +6574,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (!dissect_rtps_submessage_v1(tvb, pinfo, offset, flags, little_endian,
                                     submessageId, version, vendor_id,
                                     octets_to_next_header, rtps_submessage_tree, ti)) {
-      if ((version < 0x0200) || 
+      if ((version < 0x0200) ||
           !dissect_rtps_submessage_v2(tvb, pinfo, offset, flags, little_endian, submessageId,
                                       vendor_id, octets_to_next_header, rtps_submessage_tree, ti)) {
         proto_tree_add_uint(rtps_submessage_tree, hf_rtps_sm_flags,
@@ -7116,247 +7116,247 @@ void proto_register_rtps(void) {
         HFILL }
     },
 
-    { &hf_rtps_durability_service_cleanup_delay, 
+    { &hf_rtps_durability_service_cleanup_delay,
       { "Service Cleanup Delay", "rtps.durability.service_cleanup_delay",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }
     },
 
-    { &hf_rtps_liveliness_lease_duration, 
+    { &hf_rtps_liveliness_lease_duration,
       { "Lease Duration", "rtps.liveliness.lease_duration",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }
     },
 
-    { &hf_rtps_participant_lease_duration, 
+    { &hf_rtps_participant_lease_duration,
       { "Duration", "rtps.participant_lease_duration",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }
     },
 
-    { &hf_rtps_time_based_filter_minimum_separation, 
+    { &hf_rtps_time_based_filter_minimum_separation,
       { "Minimum Separation", "rtps.time_based_filter.minimum_separation",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }
     },
 
-    { &hf_rtps_reliability_max_blocking_time, 
+    { &hf_rtps_reliability_max_blocking_time,
       { "Max Blocking Time", "rtps.reliability.max_blocking_time",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }
     },
 
-    { &hf_rtps_deadline_period, 
+    { &hf_rtps_deadline_period,
       { "Period", "rtps.deadline_period",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }
     },
 
-    { &hf_rtps_latency_budget_duration, 
+    { &hf_rtps_latency_budget_duration,
       { "Duration", "rtps.latency_budget.duration",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }
     },
 
-    { &hf_rtps_lifespan_duration, 
+    { &hf_rtps_lifespan_duration,
       { "Duration", "rtps.lifespan",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }
     },
 
-    { &hf_rtps_persistence, 
+    { &hf_rtps_persistence,
       { "Persistence", "rtps.persistence",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }
     },
 
-    { &hf_rtps_info_ts_timestamp, 
+    { &hf_rtps_info_ts_timestamp,
       { "Timestamp", "rtps.info_ts.timestamp",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }
     },
 
-    { &hf_rtps_locator_kind, 
+    { &hf_rtps_locator_kind,
       { "Kind", "rtps.locator.kind",
         FT_UINT32, BASE_HEX, VALS(rtps_locator_kind_vals), 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_locator_port, 
+    { &hf_rtps_locator_port,
       { "Port", "rtps.locator.port",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_locator_ipv4, 
+    { &hf_rtps_locator_ipv4,
       { "Address", "rtps.locator.ipv4",
         FT_IPv4, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_locator_ipv6, 
+    { &hf_rtps_locator_ipv6,
       { "Address", "rtps.locator.ipv6",
         FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_participant_builtin_endpoints, 
+    { &hf_rtps_participant_builtin_endpoints,
       { "BuiltIn Endpoint", "rtps.participant_builtin_endpoints",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_participant_manual_liveliness_count, 
+    { &hf_rtps_participant_manual_liveliness_count,
       { "Manual Liveliness Count", "rtps.participant_manual_liveliness_count",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_history_depth, 
+    { &hf_rtps_history_depth,
       { "Depth", "rtps.history_depth",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_resource_limit_max_samples, 
+    { &hf_rtps_resource_limit_max_samples,
       { "Max Samples", "rtps.resource_limit.max_samples",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_resource_limit_max_instances, 
+    { &hf_rtps_resource_limit_max_instances,
       { "Max Instances", "rtps.resource_limit.max_instances",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_resource_limit_max_samples_per_instances, 
+    { &hf_rtps_resource_limit_max_samples_per_instances,
       { "Max Samples Per Instance", "rtps.resource_limit.max_samples_per_instance",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_filter_bitmap, 
+    { &hf_rtps_filter_bitmap,
       { "Filter Bitmap", "rtps.filter_bitmap",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_type_checksum, 
+    { &hf_rtps_type_checksum,
       { "Checksum", "rtps.type_checksum",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_queue_size, 
+    { &hf_rtps_queue_size,
       { "queueSize", "rtps.queue_size",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_acknack_counter, 
+    { &hf_rtps_acknack_counter,
       { "Counter", "rtps.acknack.counter",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_durability_service_history_kind, 
+    { &hf_rtps_durability_service_history_kind,
       { "History Kind", "rtps.durability_service.history_kind",
         FT_UINT32, BASE_HEX, VALS(history_qos_vals), 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_durability_service_history_depth, 
+    { &hf_rtps_durability_service_history_depth,
       { "History Depth", "rtps.durability_service.history_depth",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_durability_service_max_samples, 
+    { &hf_rtps_durability_service_max_samples,
       { "Max Samples", "rtps.durability_service.max_samples",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_durability_service_max_instances, 
+    { &hf_rtps_durability_service_max_instances,
       { "Max Instances", "rtps.durability_service.max_instances",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_durability_service_max_samples_per_instances, 
+    { &hf_rtps_durability_service_max_samples_per_instances,
       { "Max Samples Per Instance", "rtps.durability_service.max_samples_per_instance",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_liveliness_kind, 
+    { &hf_rtps_liveliness_kind,
       { "Kind", "rtps.liveliness.kind",
         FT_UINT32, BASE_HEX, VALS(liveliness_qos_vals), 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_manager_key, 
+    { &hf_rtps_manager_key,
       { "Key", "rtps.manager_key",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_locator_udp_v4, 
+    { &hf_rtps_locator_udp_v4,
       { "Address", "rtps.locator_udp_v4.ip",
         FT_IPv4, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_locator_udp_v4_port, 
+    { &hf_rtps_locator_udp_v4_port,
       { "Port", "rtps.locator_udp_v4.port",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_param_ip_address, 
+    { &hf_param_ip_address,
       { "Address", "rtps.param.ip_address",
         FT_IPv4, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_param_port, 
+    { &hf_rtps_param_port,
       { "Port", "rtps.param.port",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_expects_inline_qos, 
+    { &hf_rtps_expects_inline_qos,
       { "Inline QoS", "rtps.expects_inline_qos",
         FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_presentation_coherent_access, 
+    { &hf_rtps_presentation_coherent_access,
       { "Coherent Access", "rtps.presentation.coherent_access",
         FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_presentation_ordered_access, 
+    { &hf_rtps_presentation_ordered_access,
       { "Ordered Access", "rtps.presentation.ordered_access",
         FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_expects_ack, 
+    { &hf_rtps_expects_ack,
       { "expectsAck", "rtps.expects_ack",
         FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_reliability_kind, 
+    { &hf_rtps_reliability_kind,
       { "Kind", "rtps.reliability_kind",
         FT_UINT32, BASE_HEX, VALS(reliability_qos_vals), 0,
         NULL, HFILL }
     },
 
-    { &hf_rtps_durability, 
+    { &hf_rtps_durability,
       { "Durability", "rtps.durability",
         FT_UINT32, BASE_HEX, VALS(durability_qos_vals), 0,
         NULL, HFILL }
@@ -7430,7 +7430,7 @@ void proto_register_rtps(void) {
         HFILL }
     },
 
-    { &hf_rtps_disable_positive_ack, 
+    { &hf_rtps_disable_positive_ack,
       { "disablePositiveAcks", "rtps.disable_positive_ack",
         FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
         NULL, HFILL }
@@ -7574,7 +7574,7 @@ void proto_register_rtps(void) {
         NULL, HFILL }
     },
 
-    { &hf_rtps_data_batch_timestamp, 
+    { &hf_rtps_data_batch_timestamp,
       { "Timestamp", "rtps.data_batch.timestamp",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         "Time using the NTP standard format", HFILL }

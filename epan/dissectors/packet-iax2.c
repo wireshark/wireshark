@@ -741,8 +741,8 @@ static void iax_init_hash( void )
  * transferred.
  *
  */
-static circuit_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item * item, 
-                                            guint circuit_id, guint framenum, 
+static circuit_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item * item,
+                                            guint circuit_id, guint framenum,
                                             iax_call_data *iax_call, gboolean reversed)
 {
   circuit_t *res;
@@ -852,7 +852,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
       g_debug("++ done");
 #endif
     } else if (!is_reverse_circuit(src_circuit_id, iax_call)) {
-      expert_add_info_format(pinfo, item, &ei_iax_circuit_id_conflict, 
+      expert_add_info_format(pinfo, item, &ei_iax_circuit_id_conflict,
                 "IAX Packet %u from circuit ids %u->%u conflicts with earlier call with circuit ids %u->%u",
                 framenum,
                 src_circuit_id, dst_circuit_id,
@@ -868,7 +868,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
 
     reversed = FALSE;
     if (!is_forward_circuit(src_circuit_id, iax_call)) {
-      expert_add_info_format(pinfo, item, &ei_iax_circuit_id_conflict, 
+      expert_add_info_format(pinfo, item, &ei_iax_circuit_id_conflict,
                 "IAX Packet %u from circuit ids %u->%u conflicts with earlier call with circuit ids %u->%u",
                 framenum,
                 src_circuit_id, dst_circuit_id,

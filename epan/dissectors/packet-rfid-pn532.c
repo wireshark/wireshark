@@ -1642,7 +1642,7 @@ void proto_register_pn532(void)
           NULL, 0x0, NULL, HFILL}},
         {&hf_pn532_14443a_ats_length,
          {"ISO/IEC 14443-A ATS Length", "pn532.iso.14443a.ats.length", FT_INT8, BASE_DEC,
-          NULL, 0x0, NULL, HFILL}},	  
+          NULL, 0x0, NULL, HFILL}},
         {&hf_pn532_14443a_ats,
          {"ISO/IEC 14443-A ATS", "pn532.iso.14443a.ats", FT_UINT64, BASE_HEX,
           NULL, 0x0, NULL, HFILL}},

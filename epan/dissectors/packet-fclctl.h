@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -47,7 +47,7 @@ extern const value_string fc_lctl_proto_val[];
 
 #define FC_LCTL_PBSY_PORTBSY      0x01
 #define FC_LCTL_PBSY_RSRCBSY      0x03
-#define FC_LCTL_PBSY_MCASTBSY     0x07 
+#define FC_LCTL_PBSY_MCASTBSY     0x07
 #define FC_LCTL_PBSY_VENDBSY      0xFF
 
 #define FC_LCTL_RJT_ACODE_RETRY   0x01
@@ -76,15 +76,15 @@ extern const value_string fc_lctl_proto_val[];
 #define FC_LCTL_RJT_CLS_NOTSUPP            0x15
 #define FC_LCTL_RJT_LOGI_REQD              0x16
 #define FC_LCTL_RJT_TOOMANY_SEQ            0x17
-#define FC_LCTL_RJT_EXCHG_NOTESTD          0x18 
+#define FC_LCTL_RJT_EXCHG_NOTESTD          0x18
 #define FC_LCTL_RJT_RSVD                   0x19
 #define FC_LCTL_RJT_FPATH_NOTAVAIL         0x1A
-#define FC_LCTL_RJT_INV_VCID               0x1B 
+#define FC_LCTL_RJT_INV_VCID               0x1B
 #define FC_LCTL_RJT_INV_CSCTL              0x1C
 #define FC_LCTL_RJT_OORSRC                 0x1D
 #define FC_LCTL_RJT_INV_CLASS              0x1F
 #define FC_LCTL_RJT_PRMPT_RJT              0x20
-#define FC_LCTL_RJT_PRMPT_DIS              0x21 
+#define FC_LCTL_RJT_PRMPT_DIS              0x21
 #define FC_LCTL_RJT_MCAST_ERR              0x22
 #define FC_LCTL_RJT_MCAST_TERM             0x23
 #define FC_LCTL_RJT_PRLI_REQD              0x24

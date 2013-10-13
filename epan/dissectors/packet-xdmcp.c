@@ -358,7 +358,7 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
       offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
                                  tvb, offset);
-      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len, 
+      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len,
                                  tvb, offset);
 
       offset += xdmcp_add_authorization_names(xdmcp_tree, tvb, offset);
@@ -374,11 +374,11 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       offset += 4;
       offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
                                  tvb, offset);
-      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len, 
+      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len,
                                  tvb, offset);
       offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authorization_name,
                                  tvb, offset);
-      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authorization_data, hf_xdmcp_authorization_data_len, 
+      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authorization_data, hf_xdmcp_authorization_data_len,
                                  tvb, offset);
       break;
 
@@ -387,7 +387,7 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                  tvb, offset);
       offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
                                  tvb, offset);
-      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len, 
+      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len,
                                  tvb, offset);
       break;
 

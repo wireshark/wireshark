@@ -589,7 +589,7 @@ proto_register_websocket(void)
 
   proto_websocket = proto_register_protocol("WebSocket",
       "WebSocket", "websocket");
-  
+
   /*
    * Heuristic dissectors SHOULD register themselves in
    * this table using the standard heur_dissector_add()

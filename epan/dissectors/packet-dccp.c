@@ -839,7 +839,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         proto_item_append_text(dccp_item, " Seq=%" G_GINT64_MODIFIER "u",
                                dccph->seq);
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, 
+    col_append_fstr(pinfo->cinfo, COL_INFO,
                     " Seq=%" G_GINT64_MODIFIER "u",
                     dccph->seq);
 

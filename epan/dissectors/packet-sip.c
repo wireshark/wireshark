@@ -980,7 +980,7 @@ export_sip_pdu(packet_info *pinfo, tvbuff_t *tvb)
 
   exp_pdu_data = load_export_pdu_tags(pinfo, "sip", -1, tags_bit_field);
 
-  exp_pdu_data->tvb_length = tvb_length(tvb); 
+  exp_pdu_data->tvb_length = tvb_length(tvb);
   exp_pdu_data->pdu_tvb = tvb;
 
   tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
@@ -1712,7 +1712,7 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 
 	current_offset = start_offset;
 	semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset-current_offset, ';');
-	
+
 	if(semi_colon_offset == -1)
 		return;
 
@@ -2157,7 +2157,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	 * Otherwise, SIP heuristics are expensive...
 	 *
 	 */
-	if (!dissect_other_as_continuation && 
+	if (!dissect_other_as_continuation &&
 	    ((tvb_reported_length_remaining(tvb, offset) < 1) || !isprint(tvb_get_guint8(tvb, offset))))
 	{
 		return -2;
@@ -3172,7 +3172,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		 */
 		proto_item_set_end(th, tvb, offset);
 		if(content_encoding_parameter_str != NULL &&
-			(!strncmp(content_encoding_parameter_str, "gzip", 4) || 
+			(!strncmp(content_encoding_parameter_str, "gzip", 4) ||
 			 !strncmp(content_encoding_parameter_str,"deflate",7))){
 			/* The body is gzip:ed */
 			next_tvb = tvb_uncompress(tvb, offset,  datalen);

@@ -5,7 +5,7 @@
  * http://www.sony.net/Products/felica/business/tech-support/data/fl_usmnl_1.2.pdf
  * http://www.sony.net/Products/felica/business/tech-support/data/fp_usmnl_1.11.pdf
  * http://www.sony.net/Products/felica/business/tech-support/data/format_sequence_guidelines_1.1.pdf
- * http://www.sony.net/Products/felica/business/tech-support/data/card_usersmanual_2.0.pdf 
+ * http://www.sony.net/Products/felica/business/tech-support/data/card_usersmanual_2.0.pdf
  * http://code.google.com/u/101410204121169118393/updates
  * https://github.com/codebutler/farebot/wiki/Suica
  *
@@ -147,7 +147,7 @@ static int hf_felica_status_flag2 = -1;
 #define SC_DOUBLE_WILDCARD 0xffff
 
 static const value_string felica_opcodes[] = {
-    /* Commands */    
+    /* Commands */
     {CMD_POLLING,             "Polling"},
     {CMD_REQ_SVC,             "Request Service"},
     {CMD_REQ_RES,             "Request Response"},
@@ -155,7 +155,7 @@ static const value_string felica_opcodes[] = {
     {CMD_WRITE_WO_ENCRYPTION, "Write Without Encryption"},
     {CMD_SEARCH_SVC_CODE,     "Search Service Code"},
     {CMD_REQ_SYS_CODE,        "Request System Code"},
-    {CMD_AUTH_1, "Authentication1"},  
+    {CMD_AUTH_1, "Authentication1"},
     {CMD_AUTH_2, "Authentication2"},
     {CMD_READ, "Read"},
     {CMD_WRITE, "Write"},
@@ -169,16 +169,16 @@ static const value_string felica_opcodes[] = {
     {CMD_WRITE_V2, "Write v2"},
     {CMD_REQ_UPDATE_RAND_ID, "Update Random ID"},
     /* End of commands */
-    
+
     /* Responses */
     {RES_POLLING,             "Polling (Response)"},
     {RES_REQ_SVC,             "Request Service (Response)"},
-    {RES_REQ_RES,             "Request Response (Response)"},        
+    {RES_REQ_RES,             "Request Response (Response)"},
     {RES_READ_WO_ENCRYPTION,  "Read Without Encryption (Response)"},
     {RES_WRITE_WO_ENCRYPTION, "Write Without Encryption (Response)"},
     {RES_SEARCH_SVC_CODE,     "Search Service Code (Response)"},
     {RES_REQ_SYS_CODE,        "Request System Code (Response)"},
-    {RES_AUTH_1, "Authentication1 (Response)"},  
+    {RES_AUTH_1, "Authentication1 (Response)"},
     {RES_AUTH_2, "Authentication2 (Response)"},
     {RES_READ, "Read (Response)"},
     {RES_WRITE, "Write (Response)"},
@@ -192,7 +192,7 @@ static const value_string felica_opcodes[] = {
     {RES_WRITE_V2, "Write v2 (Response)"},
     {RES_REQ_UPDATE_RAND_ID, "Update Random ID"},
     /* End of responses */
-    
+
     {0x00, NULL}
 };
 
@@ -251,7 +251,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     switch (opcode) {
-      
+
     case CMD_POLLING:
         if (tree) {
             proto_tree_add_item(felica_tree, hf_felica_sys_code, tvb, 1, 2, ENC_BIG_ENDIAN);
@@ -371,7 +371,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case RES_READ:
         /* TODO */
         break;
-                
+
     case CMD_WRITE:
         /* TODO */
         break;
@@ -379,7 +379,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case RES_WRITE:
         /* TODO */
         break;
-                    
+
     case CMD_REQ_SVC_V2:
         /* TODO */
         break;
@@ -387,7 +387,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case RES_REQ_SVC_V2:
         /* TODO */
         break;
-                    
+
     case CMD_REQ_SYS_STATUS:
         /* TODO */
         break;
@@ -395,7 +395,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case RES_REQ_SYS_STATUS:
         /* TODO */
         break;
-                    
+
     case CMD_REQ_SPEC_VER:
         /* TODO */
         break;
@@ -403,7 +403,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case RES_REQ_SPEC_VER:
         /* TODO */
         break;
-                    
+
     case CMD_RESET_MODE:
         /* TODO */
         break;
@@ -411,7 +411,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case RES_RESET_MODE:
         /* TODO */
         break;
-                    
+
     case CMD_AUTH1_V2:
         /* TODO */
         break;
@@ -451,7 +451,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case RES_REQ_UPDATE_RAND_ID:
         /* TODO */
         break;
-                    
+
     default:
         break;
     }

@@ -154,7 +154,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_length_remaining(tvb, offset) > 0) {
 		int datalen, reported_datalen;
 		tvbuff_t *next_tvb;
-		
+
 		datalen = tvb_length_remaining(tvb, offset);
 		reported_datalen = tvb_reported_length_remaining(tvb, offset);
 
@@ -362,7 +362,7 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 				}
 			}
 
-		} else 
+		} else
 			str[j++] = ch;
 
 	}
@@ -502,7 +502,7 @@ static void init_json_parser(void) {
 			tvbparse_optional(-1, NULL, NULL, NULL,
 				tvbparse_set_seq(-1, NULL, NULL, NULL,
 					want_value,
-					tvbparse_some(-1, 0, G_MAXINT, NULL, NULL, NULL, 
+					tvbparse_some(-1, 0, G_MAXINT, NULL, NULL, NULL,
 						tvbparse_set_seq(-1, NULL, NULL, NULL,
 							want_value_separator,
 							want_value,
@@ -526,7 +526,7 @@ static void init_json_parser(void) {
 			tvbparse_optional(-1, NULL, NULL, NULL,
 				tvbparse_set_seq(-1, NULL, NULL, NULL,
 					want_member,
-					tvbparse_some(-1, 0, G_MAXINT, NULL, NULL, NULL, 
+					tvbparse_some(-1, 0, G_MAXINT, NULL, NULL, NULL,
 						tvbparse_set_seq(-1, NULL, NULL, NULL,
 							want_value_separator,
 							want_member,

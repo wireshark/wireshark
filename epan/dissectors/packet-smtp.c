@@ -307,7 +307,7 @@ dissect_ntlm_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   gint a_offset, int a_linelen)
 {
   gint                       returncode;

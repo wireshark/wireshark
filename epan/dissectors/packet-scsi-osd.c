@@ -938,7 +938,7 @@ static void dissect_osd2_query_list_descriptor(packet_info *pinfo, tvbuff_t *tvb
 
         /* test if min and max values are equal */
         if (max_value_length==min_value_length) {
-            unsigned int i; 
+            unsigned int i;
             for (i=0; i<max_value_length; i++) {
                 if (tvb_get_guint8(tvb,max_value_offset+i)!=tvb_get_guint8(tvb,min_value_offset+i)) return;
             }

@@ -17,7 +17,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -45,7 +45,7 @@ enum
 };
 
 /* Flags */
-#define TAC_PLUS_ENCRYPTED 0x0 
+#define TAC_PLUS_ENCRYPTED 0x0
 #define TAC_PLUS_CLEAR     0x1
 
 /* Authentication action to perform */
@@ -228,9 +228,9 @@ typedef struct  {
 	u_char type;
 	u_char seq_no;
 	u_char flags;
-	guint32 session_id;     
-	guint32 length; 
-} tacplus_pkt_hdr; 
+	guint32 session_id;
+	guint32 length;
+} tacplus_pkt_hdr;
 
 /* Authentication START packet */
 typedef	struct {

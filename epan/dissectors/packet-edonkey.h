@@ -5,7 +5,7 @@
  * Copyright 2008, Stefan Monhof <stefan.monhof@stud.uni-due.de>
  *
  * eDonkey dissector based on protocol descriptions from mldonkey:
- *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/edonkey-protocol.txt 
+ *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/edonkey-protocol.txt
  *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/overnet-protocol.txt
  *
  * Kademlia dissector based on source code inspection of aMule 2.1.3 and eMule 0.48a
@@ -47,7 +47,7 @@ void proto_register_edonkey(void);
 /* EDONKEY TCP MESSAGES */
 /* Client <-> Server */
 #define EDONKEY_MSG_HELLO                0x01
-#define EDONKEY_MSG_BAD_PROTO            0x05  
+#define EDONKEY_MSG_BAD_PROTO            0x05
 #define EDONKEY_MSG_GET_SERVER_LIST      0x14
 #define EDONKEY_MSG_OFFER_FILES          0x15
 #define EDONKEY_MSG_SEARCH_FILES         0x16
@@ -73,7 +73,7 @@ void proto_register_edonkey(void);
 
 /* Client <-> Client */
 #define EDONKEY_MSG_HELLO_CLIENT         0x10 /* 0x01 0x10 */
-#define EDONKEY_MSG_SENDING_PART         0x46 
+#define EDONKEY_MSG_SENDING_PART         0x46
 #define EDONKEY_MSG_REQUEST_PARTS        0x47
 #define EDONKEY_MSG_NO_SUCH_FILE         0x48
 #define EDONKEY_MSG_END_OF_DOWNLOAD      0x49
@@ -91,7 +91,7 @@ void proto_register_edonkey(void);
 #define EDONKEY_MSG_SLOT_GIVEN           0x55
 #define EDONKEY_MSG_SLOT_RELEASE         0x56
 #define EDONKEY_MSG_SLOT_TAKEN           0x57
-#define EDONKEY_MSG_FILE_REQUEST         0x58 
+#define EDONKEY_MSG_FILE_REQUEST         0x58
 #define EDONKEY_MSG_FILE_REQUEST_ANSWER  0x59
 /*#define EDONKEY_MSG_UNKNOWN              0x5b*/
 #define EDONKEY_MSG_GET_SHARED_DIRS      0x5d
@@ -165,10 +165,10 @@ void proto_register_edonkey(void);
 #define OVERNET_MSG_UDP_FIREWALL_CONNECTION         0x18
 #define OVERNET_MSG_UDP_FIREWALL_CONNECTION_ACK     0x19
 #define OVERNET_MSG_UDP_FIREWALL_CONNECTION_NACK    0x1a
-#define OVERNET_MSG_UDP_IP_QUERY                    0x1b 
-#define OVERNET_MSG_UDP_IP_QUERY_ANSWER             0x1c 
-#define OVERNET_MSG_UDP_IP_QUERY_END                0x1d 
-#define OVERNET_MSG_UDP_IDENTIFY                    0x1e 
+#define OVERNET_MSG_UDP_IP_QUERY                    0x1b
+#define OVERNET_MSG_UDP_IP_QUERY_ANSWER             0x1c
+#define OVERNET_MSG_UDP_IP_QUERY_END                0x1d
+#define OVERNET_MSG_UDP_IDENTIFY                    0x1e
 /*#define OVERNET_MSG_UDP_UNKNOWN                    0x21  */
 
 /* EDONKEY META TAG TYPES */

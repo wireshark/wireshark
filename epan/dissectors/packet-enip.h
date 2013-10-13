@@ -76,7 +76,7 @@
 #define DLR_ADV_GATEWAY_PRECEDENCE     13
 #define DLR_ADV_ADVERTISE_INTERVAL     14
 #define DLR_ADV_ADVERTISE_TIMEOUT      18
-#define DLR_ADV_LEARNING_UPDATE_ENABLE 22 
+#define DLR_ADV_LEARNING_UPDATE_ENABLE 22
 #define DLR_ADV_RESERVED               23
 
 /* Offset for Advertise frames */

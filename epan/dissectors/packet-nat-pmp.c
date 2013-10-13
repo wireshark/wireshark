@@ -5,7 +5,7 @@
  *
  * Copyright 2009, Stig Bjorlykke <stig@bjorlykke.org>
  *
- * Routines for Port Control Protocol packet disassembly 
+ * Routines for Port Control Protocol packet disassembly
  * (backwards compatible with NAT Port Mapping protocol)
  * http://tools.ietf.org/html/draft-ietf-pcp-base-24
  * RFC6887: Port Control Protocol (PCP) http://tools.ietf.org/html/rfc6887
@@ -248,7 +248,7 @@ dissect_nat_pmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     proto_tree_add_item (nat_pmp_tree, hf_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    
+
     proto_tree_add_item (nat_pmp_tree, hf_external_port_requested, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -266,7 +266,7 @@ dissect_nat_pmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     proto_tree_add_item (nat_pmp_tree, hf_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    
+
     proto_tree_add_item (nat_pmp_tree, hf_external_port_mapped, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -459,15 +459,15 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       if (option_length > 0)
       {
         switch(option) {
-        
+
         case OPT_THIRD_PARTY:
           proto_tree_add_item (option_sub_tree, hf_option_third_party_internal_ip, tvb, offset, 16, ENC_NA);
           break;
-        
+
         case OPT_PREFER_FAILURE:
           /* No data */
           break;
-        
+
         case OPT_FILTER:
           proto_tree_add_item (option_sub_tree, hf_option_filter_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
           proto_tree_add_item (option_sub_tree, hf_option_filter_prefix_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -696,14 +696,14 @@ void proto_register_nat_pmp (void)
   expert_module_t* expert_pcp;
 
   proto_nat_pmp = proto_register_protocol ("NAT Port Mapping Protocol", "NAT-PMP", "nat-pmp");
-  
+
   proto_register_field_array (proto_nat_pmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
   expert_nat_pmp = expert_register_protocol(proto_nat_pmp);
   expert_register_field_array(expert_nat_pmp, natpmp_ei, array_length(natpmp_ei));
 
   proto_pcp = proto_register_protocol ("Port Control Protocol", "Port Control", "portcontrol");
-  
+
   proto_register_field_array (proto_pcp, pcp_hf, array_length (pcp_hf));
   proto_register_subtree_array (pcp_ett, array_length (pcp_ett));
   expert_pcp = expert_register_protocol(proto_pcp);
@@ -722,7 +722,7 @@ void proto_reg_handoff_nat_pmp (void)
   dissector_add_uint ("udp.port", PCP_PORT, pcp_handle);
 
   nat_pmp_handle = new_create_dissector_handle(dissect_nat_pmp, proto_nat_pmp);
-  /* Port Control Protocol (packet-portcontrol.c) shares the same UDP ports as 
+  /* Port Control Protocol (packet-portcontrol.c) shares the same UDP ports as
      NAT-PMP, but it backwards compatible.  However, still let NAT-PMP
      use Decode As
    */

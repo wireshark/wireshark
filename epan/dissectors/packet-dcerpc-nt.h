@@ -91,12 +91,12 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *tree, guint8 *drep, int hf_index,
 			int use_remaining_space);
 
-int 
+int
 dissect_null_term_string(tvbuff_t *tvb, int offset, packet_info *pinfo,
 							proto_tree *tree, guint8 *drep, int hf_index,
 							int levels);
 
-int 
+int
 dissect_null_term_wstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 							proto_tree *tree, guint8 *drep, int hf_index,
 							int levels);
@@ -115,7 +115,7 @@ dissect_ndr_counted_ascii_string(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *tree,
-			      guint8 *drep, int hf_index, 
+			      guint8 *drep, int hf_index,
 			      dcerpc_callback_fnct_t *callback,
 			      void *callback_args);
 
@@ -168,8 +168,8 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset,
 		   packet_info *pinfo, proto_tree *tree,
 		   guint8 *drep);
 int
-dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, 
-		   packet_info *pinfo, proto_tree *tree, 
+dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset,
+		   packet_info *pinfo, proto_tree *tree,
 				guint8 *drep, guint32 options);
 int
 dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
@@ -265,9 +265,9 @@ int dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			proto_tree *tree, guint8 *drep,
 			int hfindex, int length);
 
-int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset, 
-				 packet_info *pinfo, proto_tree *tree, 
-				 guint8 *drep, int type, const char *text, 
+int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
+				 packet_info *pinfo, proto_tree *tree,
+				 guint8 *drep, int type, const char *text,
 				 int hf_index, int levels);
 
 /*
@@ -280,11 +280,11 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 #define CB_STR_COL_INFO 0x10000000	/* Append string to COL_INFO */
 
 void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
-			proto_item *item, tvbuff_t *tvb, 
+			proto_item *item, tvbuff_t *tvb,
 			int start_offset, int end_offset,
 			void *callback_args);
 void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
-			proto_item *item, tvbuff_t *tvb, 
+			proto_item *item, tvbuff_t *tvb,
 			int start_offset, int end_offset,
 			void *callback_args);
 

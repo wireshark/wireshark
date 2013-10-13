@@ -1050,7 +1050,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
         /* Disable speed optimization because of use of append_text */
         proto_tree_set_visible(tree, TRUE);
-        
+
         framing_tree_item =
             proto_tree_add_none_format(tree, hf_jxta_framing, tvb, tree_offset, -1, "JXTA Message Framing Headers");
         framing_tree = proto_item_add_subtree(framing_tree_item, ett_jxta_framing);

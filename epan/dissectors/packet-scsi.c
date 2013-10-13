@@ -1974,7 +1974,7 @@ const value_string scsi_devid_codeset_val[] = {
     {0,              "Reserved"},
     {CODESET_BINARY, "Identifier field contains binary values"},
     {CODESET_ASCII,  "Identifier field contains ASCII graphic codes"},
-    {CODESET_UTF8,   "Identifier field contains UTF-8 codes"}, 
+    {CODESET_UTF8,   "Identifier field contains UTF-8 codes"},
     {0,              NULL},
 };
 

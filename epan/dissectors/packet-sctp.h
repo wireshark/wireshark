@@ -51,12 +51,12 @@ typedef struct _sctp_fragment {
   guint32 tsn;
   guint32 len;
   unsigned char *data;
-  struct _sctp_fragment *next;	
+  struct _sctp_fragment *next;
 } sctp_fragment;
 
 typedef struct _sctp_frag_be {
   sctp_fragment* fragment;
-  struct _sctp_frag_be *next;	
+  struct _sctp_frag_be *next;
 } sctp_frag_be;
 
 typedef struct _sctp_complete_msg {

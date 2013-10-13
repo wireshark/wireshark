@@ -475,14 +475,14 @@ dissect_snp_checksum_clv(tvbuff_t *tvb,
                         return;
                 }
 
-    		checksum = tvb_get_ntohs(tvb, offset);    		
+    		checksum = tvb_get_ntohs(tvb, offset);
 
                 /* the check_and_get_checksum() function needs to know how big
                  * the packet is. we can either pass through the pdu-len through several layers
                  * of dissectors and wrappers or extract the PDU length field from the PDU specific header
                  * which is offseted 8 bytes (relative to the beginning of the IS-IS packet) in SNPs */
 
-    		pdu_length = tvb_get_ntohs(tvb, 8);   
+    		pdu_length = tvb_get_ntohs(tvb, 8);
 
                 /* unlike the LSP checksum verification which starts at an offset of 12 we start at offset 0*/
 		switch (check_and_get_checksum(tvb, 0, pdu_length, checksum, offset, &cacl_checksum))

@@ -128,7 +128,7 @@ WS_DLL_PUBLIC
 void rtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     const gchar *setup_method, 
+                     const gchar *setup_method,
                      guint32 setup_frame_number,
 					 gboolean is_video,
                      GHashTable *rtp_dyn_payload);
@@ -138,7 +138,7 @@ WS_DLL_PUBLIC
 void srtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     const gchar *setup_method, 
+                     const gchar *setup_method,
                      guint32 setup_frame_number,
 					 gboolean is_video,
                      GHashTable *rtp_dyn_payload,

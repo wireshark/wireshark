@@ -4881,7 +4881,7 @@ static guint ikev2_key_hash_func(gconstpointer k) {
 }
 
 static gint ikev2_key_equal_func(gconstpointer k1, gconstpointer k2) {
-  const ikev2_uat_data_key_t *key1 = (const ikev2_uat_data_key_t *)k1; 
+  const ikev2_uat_data_key_t *key1 = (const ikev2_uat_data_key_t *)k1;
   const ikev2_uat_data_key_t *key2 = (const ikev2_uat_data_key_t *)k2;
   if (key1->spii_len != key2->spii_len) return 0;
   if (key1->spir_len != key2->spir_len) return 0;

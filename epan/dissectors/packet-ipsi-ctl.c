@@ -111,7 +111,7 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     if (remaining_length>=2)
     {
-      field1 = tvb_get_ntohs(tvb, loffset); 
+      field1 = tvb_get_ntohs(tvb, loffset);
       llength-=2;
     }
 

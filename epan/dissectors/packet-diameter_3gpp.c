@@ -172,7 +172,7 @@ static gint diameter_3gpp_idr_flags_ett = -1;
 /* Dissector handles */
 static dissector_handle_t xml_handle;
 
-/* AVP Code: 23 3GPP-MS-TimeZone 
+/* AVP Code: 23 3GPP-MS-TimeZone
  * 3GPP TS 29.061
  */
 static const value_string daylight_saving_time_vals[] = {
@@ -704,10 +704,10 @@ dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 }
 
-/* 
+/*
  * 3GPP TS 29.272
  * 7.3.25 DSR-Flags
- * AVP Code: 1421 DSR-Flags 
+ * AVP Code: 1421 DSR-Flags
  */
 static int
 dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {

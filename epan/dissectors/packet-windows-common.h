@@ -225,11 +225,11 @@ typedef struct _sid_strings {
  */
 
 WS_DLL_PUBLIC
-int dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
+int dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		   const char *name, char **sid_str, int hf_sid);
 
-/* 
- * Stuff for dissecting NT access masks 
+/*
+ * Stuff for dissecting NT access masks
  */
 
 /*

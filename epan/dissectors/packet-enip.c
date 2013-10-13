@@ -1287,7 +1287,7 @@ int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item
    if( tvb_get_guint8(tvb, offset) == 0 )
       proto_tree_add_item(tree, hf_tcpip_lcd_arp_pdu, tvb, offset+7, 28, ENC_LITTLE_ENDIAN);
    else
-   { 
+   {
       /* Dissect ARP PDU, but don't have it change column info */
       save_info = col_get_writable(pinfo->cinfo);
       col_set_writable(pinfo->cinfo, FALSE);

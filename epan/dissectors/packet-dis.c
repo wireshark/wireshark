@@ -299,7 +299,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
             pduParser = DIS_PARSER_UNDERWATER_ACOUSTIC_PDU;
             break;
-            
+
         /* DIS Radio Communications protocol (RCP) family PDUs */
         case DIS_PDUTYPE_TRANSMITTER:
             pduParser = DIS_PARSER_TRANSMITTER_PDU;

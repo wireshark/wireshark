@@ -416,7 +416,7 @@ static const value_string h248_pkg_bcg_signals_vals[] = {
 	{ 0x0049, "Pay Tone (bpy)" },
 	{ 0, NULL }
 };
-	
+
 static h248_pkg_sig_t h248_pkg_bcg_signals[] = {
 	/* All the tones have the same parameters */
 	{ 0x0040, &hf_h248_pkg_bcg_sig_bdt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },

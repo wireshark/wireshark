@@ -477,7 +477,7 @@ void proto_register_mqpcf(void)
 		&ett_mqpcf_prm,
 		&ett_mqpcf_cfh,
 	};
-	static ei_register_info ei[] = 
+	static ei_register_info ei[] =
 	{
         { &ei_mq_pcf_prmln0, { "mqpcf.parm.len0", PI_MALFORMED, PI_ERROR, "MQPCF Parameter length is 0", EXPFILL }},
 		{ &ei_mq_pcf_MaxInt, { "mqpcf.parm.IntList", PI_UNDECODED, PI_WARN, "MQPCF Parameter Integer list exhausted", EXPFILL }},

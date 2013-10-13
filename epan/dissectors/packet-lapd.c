@@ -317,7 +317,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					data_len = 0;
 					state = OUT_OF_SYNC;
 					bit_offset++;
-					
+
 					lapd_log_abort(tvb, pinfo, tree, offset, "Abort! 7 ones!");
 				} else {
 					bit_offset++;

@@ -2247,7 +2247,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
             digit_str);
 
         if (sccp_assoc && ! sccp_assoc->calling_party) {
-            sccp_assoc->calling_party = wmem_strdup_printf(wmem_file_scope(), 
+            sccp_assoc->calling_party = wmem_strdup_printf(wmem_file_scope(),
                 ((oct & 0x07) == 3) ? "IMEISV: %s" : "IMSI: %s",
                 digit_str );
         }

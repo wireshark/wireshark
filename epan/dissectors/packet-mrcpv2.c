@@ -380,7 +380,7 @@ static gint ett_Event_Line = -1;
 static gint ett_Status_Code = -1;
 
 /* format status code description */
-static const string_string status_code_vals[] = { 
+static const string_string status_code_vals[] = {
     { "200", "Success" },
     { "201", "Success with some optional header fields ignored" },
     { "401", "Client Failure: Method not allowed" },

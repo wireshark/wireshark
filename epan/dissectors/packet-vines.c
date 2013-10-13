@@ -532,7 +532,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	vip_proto = tvb_get_guint8(tvb, offset+4);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
-			val_to_str_const(vip_tctl, proto_vals, "Unknown VIP protocol"), 
+			val_to_str_const(vip_tctl, proto_vals, "Unknown VIP protocol"),
 			vip_tctl);
 
 	src_addr = tvb_get_ptr(tvb, offset+12, VINES_ADDR_LEN);
@@ -1378,7 +1378,7 @@ rtp_show_gateway_info(proto_tree *tree, tvbuff_t *tvb, int offset,
     guint8 link_addr_length, guint8 source_route_length)
 {
 	if (link_addr_length != 0) {
-		proto_tree_add_item(tree, 
+		proto_tree_add_item(tree,
             link_addr_length == 6 ? hf_vines_rtp_preferred_gateway_data_link_address_ether : hf_vines_rtp_preferred_gateway_data_link_address_bytes,
             tvb, offset, link_addr_length, ENC_NA);
 		offset += link_addr_length;

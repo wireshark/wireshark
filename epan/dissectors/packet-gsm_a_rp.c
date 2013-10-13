@@ -539,7 +539,7 @@ proto_register_gsm_a_rp(void)
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_GSM_RP_MSG +
 		  NUM_GSM_RP_ELEM];
-        
+
 	ett[0] = &ett_rp_msg;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;

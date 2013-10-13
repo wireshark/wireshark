@@ -58,7 +58,7 @@ typedef struct cip_safety_info {
 /*
 ** Exported functions
 */
-extern void dissect_unid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *pi, const char* ssn_name, int hf_ssn_timestamp, 
+extern void dissect_unid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *pi, const char* ssn_name, int hf_ssn_timestamp,
              int hf_ssn_date, int hf_ssn_time, int hf_macid, gint ett, gint ett_ssn);
 extern void dissect_cipsafety_ssn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int hf_real_datetime, int hf_date, int hf_time);
 

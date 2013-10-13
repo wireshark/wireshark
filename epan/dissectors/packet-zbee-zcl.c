@@ -809,7 +809,7 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             packet.cmd_id);
         }
         offset += (int)1;
-    } 
+    }
     else {
         /* Cluster Specific */
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -949,7 +949,7 @@ void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     guint tvb_len;
     guint i = 0;
     guint16 attr_id;
-    
+
     tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
@@ -996,7 +996,7 @@ void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     guint tvb_len;
     guint i = 0;
     guint16 attr_id;
-    
+
     tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
 
@@ -1396,20 +1396,20 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
  */
 static void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    guint16 attr_id;    
-    zbee_zcl_cluster_desc *desc;    
+    guint16 attr_id;
+    zbee_zcl_cluster_desc *desc;
 
-    attr_id = tvb_get_letohs(tvb, *offset);    
+    attr_id = tvb_get_letohs(tvb, *offset);
     desc = zbee_zcl_get_cluster_desc(zcl_cluster_id);
-    if ((desc != NULL) && (desc->fn_attr_id != NULL)) {            
+    if ((desc != NULL) && (desc->fn_attr_id != NULL)) {
         desc->fn_attr_id(tree, tvb, offset, attr_id);
     }
     else {
         /* Add the identifier */
-        proto_tree_add_uint(tree, 
-                            hf_zbee_zcl_attr_id, 
-                            tvb, 
-                            *offset, 
+        proto_tree_add_uint(tree,
+                            hf_zbee_zcl_attr_id,
+                            tvb,
+                            *offset,
                             (int)2,
                             attr_id);
     }
@@ -1438,11 +1438,11 @@ static void dissect_zcl_attr_data_type_val(tvbuff_t *tvb, proto_tree *tree, guin
 
     desc = zbee_zcl_get_cluster_desc(zcl_cluster_id);
     if ((desc != NULL) && (desc->fn_attr_data != NULL)) {
-        desc->fn_attr_data(tree, tvb, offset, attr_id, 
+        desc->fn_attr_data(tree, tvb, offset, attr_id,
             dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_data_type));
     }
     else {
-        dissect_zcl_attr_data(tvb, tree, offset, 
+        dissect_zcl_attr_data(tvb, tree, offset,
             dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_data_type) );
     }
 

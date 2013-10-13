@@ -1003,7 +1003,7 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
         {
             /* @todo UVC 1.5 */
         }
-        else 
+        else
         {
             expert_add_info_format(pinfo, subtype_item, &ei_usb_vid_subtype_unknown,
                                    "Unknown VC subtype %u", subtype);
@@ -1210,7 +1210,7 @@ dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
 #endif
 
     proto_tree_add_bitmask_text(tree, tvb, offset, 1, "bmInterlaceFlags", NULL,
-                                ett_interlace_flags, interlace_bits, ENC_NA, 
+                                ett_interlace_flags, interlace_bits, ENC_NA,
                                 BMT_NO_APPEND);
     offset++;
 
@@ -1261,7 +1261,7 @@ dissect_usb_video_frame(proto_tree *tree, tvbuff_t *tvb, int offset,
                            ett_frame_capability_flags, capability_bits, ENC_NA);
     offset++;
 
-    proto_tree_add_item(tree, hf_usb_vid_frame_width,        tvb, offset,    2, ENC_LITTLE_ENDIAN);   
+    proto_tree_add_item(tree, hf_usb_vid_frame_width,        tvb, offset,    2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_vid_frame_height,       tvb, offset+2,  2, ENC_LITTLE_ENDIAN);
 
     /* Augment the descriptor root item with useful information */
@@ -1751,7 +1751,7 @@ dissect_usb_vid_control_value(proto_tree *tree, tvbuff_t *tvb, int offset, guint
             fallback_name = "Current Value";
             break;
 
-        /* @todo UVC 1.5 USB_SETUP_x_ALL? 
+        /* @todo UVC 1.5 USB_SETUP_x_ALL?
          *       They are poorly specified.
          */
 
@@ -1799,7 +1799,7 @@ dissect_usb_vid_control_value(proto_tree *tree, tvbuff_t *tvb, int offset, guint
  */
 static int
 dissect_usb_vid_get_set(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-                        int offset, gboolean is_request, 
+                        int offset, gboolean is_request,
                         usb_trans_info_t *usb_trans_info,
                         usb_conv_info_t *usb_conv_info)
 {
@@ -1863,7 +1863,7 @@ dissect_usb_vid_get_set(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     {
         proto_item *ti;
 
-        ti = proto_tree_add_uint(tree, hf_usb_vid_control_interface, tvb, 0, 0, 
+        ti = proto_tree_add_uint(tree, hf_usb_vid_control_interface, tvb, 0, 0,
                                  usb_trans_info->setup.wIndex & 0xFF);
         PROTO_ITEM_SET_GENERATED(ti);
 
@@ -1981,7 +1981,7 @@ static const value_string setup_request_names_vals[] = {
         {USB_SETUP_GET_RES_ALL,  "GET RES ALL"},
         {USB_SETUP_GET_DEF_ALL,  "GET DEF ALL"},
         {0, NULL}
-};  
+};
 
 /* Registered dissector for video class-specific control requests.
  * Dispatch to an appropriate dissector function.
@@ -2238,7 +2238,7 @@ proto_register_usb_vid(void)
             { &hf_usb_vid_control_min,
                     { "Minimum value", "usbvideo.control.value.min",
                             FT_UINT32, BASE_DEC_HEX, NULL, 0,
-                            NULL, HFILL }   
+                            NULL, HFILL }
             },
 
             { &hf_usb_vid_control_max,
@@ -2287,19 +2287,19 @@ proto_register_usb_vid(void)
         /***** Camera Terminal Descriptor *****/
 
             { &hf_usb_vid_cam_objective_focal_len_min,
-                    { "wObjectiveFocalLengthMin", "usbvideo.camera.objectiveFocalLengthMin", 
+                    { "wObjectiveFocalLengthMin", "usbvideo.camera.objectiveFocalLengthMin",
                             FT_UINT16, BASE_DEC, NULL, 0,
                             "Minimum Focal Length for Optical Zoom", HFILL }
             },
 
             { &hf_usb_vid_cam_objective_focal_len_max,
-                    { "wObjectiveFocalLengthMax", "usbvideo.camera.objectiveFocalLengthMax", 
+                    { "wObjectiveFocalLengthMax", "usbvideo.camera.objectiveFocalLengthMax",
                             FT_UINT16, BASE_DEC, NULL, 0,
                             "Minimum Focal Length for Optical Zoom", HFILL }
             },
 
             { &hf_usb_vid_cam_ocular_focal_len,
-                    { "wOcularFocalLength", "usbvideo.camera.ocularFocalLength", 
+                    { "wOcularFocalLength", "usbvideo.camera.ocularFocalLength",
                             FT_UINT16, BASE_DEC, NULL, 0,
                             "Ocular Focal Length for Optical Zoom", HFILL }
             },
@@ -2489,7 +2489,7 @@ proto_register_usb_vid(void)
 
             { &hf_usb_vid_num_inputs,
                     { "bNrInPins", "usbvideo.unit.numInputs",
-                            FT_UINT8, BASE_DEC, NULL, 0, 
+                            FT_UINT8, BASE_DEC, NULL, 0,
                             "Number of input pins", HFILL }
             },
 
@@ -2685,13 +2685,13 @@ proto_register_usb_vid(void)
 
             { &hf_usb_vid_exten_guid,
                     { "guid", "usbvideo.extension.guid",
-                            FT_GUID, BASE_NONE, NULL, 0, 
+                            FT_GUID, BASE_NONE, NULL, 0,
                             "Identifier", HFILL }
             },
 
             { &hf_usb_vid_exten_num_controls,
                     { "bNumControls", "usbvideo.extension.numControls",
-                            FT_UINT8, BASE_DEC, NULL, 0, 
+                            FT_UINT8, BASE_DEC, NULL, 0,
                             "Number of controls", HFILL }
             },
 
@@ -2807,7 +2807,7 @@ proto_register_usb_vid(void)
             },
 
             { &hf_usb_vid_control_ifdesc_dwClockFrequency,
-                    { "dwClockFrequency", "usbvideo.probe.clockFrequency", 
+                    { "dwClockFrequency", "usbvideo.probe.clockFrequency",
                             FT_UINT32, BASE_DEC, NULL, 0,
                             "Device clock frequency (Hz) for selected format", HFILL }
             },
@@ -2821,37 +2821,37 @@ proto_register_usb_vid(void)
             },
 
             { &hf_usb_vid_format_num_frame_descriptors,
-                    { "bNumFrameDescriptors", "usbvideo.format.numFrameDescriptors", 
+                    { "bNumFrameDescriptors", "usbvideo.format.numFrameDescriptors",
                             FT_UINT8, BASE_DEC, NULL, 0,
                             "Number of frame descriptors for this format", HFILL }
             },
 
             { &hf_usb_vid_format_guid,
                     { "guidFormat", "usbvideo.format.guid",
-                            FT_GUID, BASE_NONE, NULL, 0, 
+                            FT_GUID, BASE_NONE, NULL, 0,
                             "Stream encoding format", HFILL }
             },
 
             { &hf_usb_vid_format_bits_per_pixel,
-                    { "bBitsPerPixel", "usbvideo.format.bitsPerPixel", 
+                    { "bBitsPerPixel", "usbvideo.format.bitsPerPixel",
                             FT_UINT8, BASE_DEC, NULL, 0,
                             "Bits per pixel", HFILL }
             },
 
             { &hf_usb_vid_default_frame_index,
-                    { "bDefaultFrameIndex", "usbvideo.format.defaultFrameIndex", 
+                    { "bDefaultFrameIndex", "usbvideo.format.defaultFrameIndex",
                             FT_UINT8, BASE_DEC, NULL, 0,
                             "Optimum frame index for this stream", HFILL }
             },
 
             { &hf_usb_vid_aspect_ratio_x,
-                    { "bAspectRatioX", "usbvideo.format.aspectRatioX", 
+                    { "bAspectRatioX", "usbvideo.format.aspectRatioX",
                             FT_UINT8, BASE_DEC, NULL, 0,
                             "X dimension of picture aspect ratio", HFILL }
             },
 
             { &hf_usb_vid_aspect_ratio_y,
-                    { "bAspectRatioY", "usbvideo.format.aspectRatioY", 
+                    { "bAspectRatioY", "usbvideo.format.aspectRatioY",
                             FT_UINT8, BASE_DEC, NULL, 0,
                             "Y dimension of picture aspect ratio", HFILL }
             },
@@ -2910,7 +2910,7 @@ proto_register_usb_vid(void)
         /***** Frame Descriptors *****/
 
             { &hf_usb_vid_frame_index,
-                    { "bFrameIndex", "usbvideo.frame.index", 
+                    { "bFrameIndex", "usbvideo.frame.index",
                             FT_UINT8, BASE_DEC, NULL, 0,
                             "Index of this frame descriptor", HFILL }
             },
@@ -2939,33 +2939,33 @@ proto_register_usb_vid(void)
                             NULL, HFILL }
             },
             { &hf_usb_vid_frame_width,
-                    { "wWidth", "usbvideo.frame.width", 
+                    { "wWidth", "usbvideo.frame.width",
                             FT_UINT16, BASE_DEC, NULL, 0,
                             "Width of frame in pixels", HFILL }
             },
             { &hf_usb_vid_frame_height,
-                    { "wHeight", "usbvideo.frame.height", 
+                    { "wHeight", "usbvideo.frame.height",
                             FT_UINT16, BASE_DEC, NULL, 0,
                             "Height of frame in pixels", HFILL }
             },
             { &hf_usb_vid_frame_min_bit_rate,
-                    { "dwMinBitRate", "usbvideo.frame.minBitRate", 
+                    { "dwMinBitRate", "usbvideo.frame.minBitRate",
                             FT_UINT32, BASE_DEC, NULL, 0,
                             "Minimum bit rate in bps", HFILL }
             },
             { &hf_usb_vid_frame_max_bit_rate,
-                    { "dwMaxBitRate", "usbvideo.frame.maxBitRate", 
+                    { "dwMaxBitRate", "usbvideo.frame.maxBitRate",
                             FT_UINT32, BASE_DEC, NULL, 0,
                             "Maximum bit rate in bps", HFILL }
             },
 
             { &hf_usb_vid_frame_max_frame_sz,
-                    { "dwMaxVideoFrameBufferSize", "usbvideo.frame.maxBuffer", 
+                    { "dwMaxVideoFrameBufferSize", "usbvideo.frame.maxBuffer",
                             FT_UINT32, BASE_DEC, NULL, 0,
                             "Maximum bytes per frame", HFILL }
             },
             { &hf_usb_vid_frame_default_interval,
-                    { "dwDefaultFrameInterval", "usbvideo.frame.interval.default", 
+                    { "dwDefaultFrameInterval", "usbvideo.frame.interval.default",
                             FT_UINT32, BASE_DEC, NULL, 0,
                             "Suggested default", HFILL }
             },
@@ -3025,13 +3025,13 @@ proto_register_usb_vid(void)
         /***** Video Control Header Descriptor *****/
 
             { &hf_usb_vid_control_ifdesc_bcdUVC,
-                    { "bcdUVC", "usbvideo.bcdUVC", 
+                    { "bcdUVC", "usbvideo.bcdUVC",
                             FT_UINT16, BASE_HEX, NULL, 0,
                             "Video Device Class Specification release number", HFILL }
             },
- 
+
             { &hf_usb_vid_control_ifdesc_bInCollection,
-                    { "bInCollection", "usbvideo.numStreamingInterfaces", 
+                    { "bInCollection", "usbvideo.numStreamingInterfaces",
                             FT_UINT8, BASE_DEC, NULL, 0,
                             "Number of VideoStreaming interfaces", HFILL }
             },
@@ -3044,7 +3044,7 @@ proto_register_usb_vid(void)
         /***** Video Streaming Input Header Descriptor *****/
 
             { &hf_usb_vid_streaming_ifdesc_bNumFormats,
-                    { "bNumFormats", "usbvideo.streaming.numFormats", 
+                    { "bNumFormats", "usbvideo.streaming.numFormats",
                             FT_UINT8, BASE_DEC, NULL, 0,
                             "Number of video payload format descriptors", HFILL }
             },
@@ -3157,20 +3157,20 @@ proto_register_usb_vid(void)
             },
 
             { &hf_usb_vid_epdesc_max_transfer_sz,
-                    { "wMaxTransferSize", "usbvideo.ep.maxInterruptSize", FT_UINT16, 
+                    { "wMaxTransferSize", "usbvideo.ep.maxInterruptSize", FT_UINT16,
                       BASE_DEC, NULL, 0x0, "Max interrupt structure size", HFILL }
             },
 
         /***** Fields used in multiple contexts *****/
 
             { &hf_usb_vid_ifdesc_wTotalLength,
-                    { "wTotalLength", "usbvideo.totalLength", 
+                    { "wTotalLength", "usbvideo.totalLength",
                             FT_UINT16, BASE_DEC, NULL, 0,
                             "Video interface descriptor size", HFILL }
             },
 
             { &hf_usb_vid_bControlSize,
-                    { "bControlSize", "usbvideo.bmcontrolSize", 
+                    { "bControlSize", "usbvideo.bmcontrolSize",
                             FT_UINT8, BASE_DEC, NULL, 0,
                             "Size of bmControls field", HFILL }
             },

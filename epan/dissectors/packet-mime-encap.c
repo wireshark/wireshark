@@ -81,7 +81,7 @@ dissect_mime_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* End of file? */
 	if (!len && whole_tvb) {
-		/* 
+		/*
 		 * Here we're doing some trick.
 		 *
 		 * We don't want to call dissectors with composite tvb, cause dissectors can create subsets or real data child

@@ -39,7 +39,7 @@
 
 #ifndef __PACKET_SMPP_H_
 #define __PACKET_SMPP_H_
- 
+
 /*
  * Export dissection of some parameters
  */

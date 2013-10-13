@@ -1307,7 +1307,7 @@ decode_relhum_meas_value(gchar *s, guint16 value)
 {
     if (value == ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_INVALID_VALUE)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
-    else 
+    else
         g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [%c]", value/100, value%100, '%');
 
     return;

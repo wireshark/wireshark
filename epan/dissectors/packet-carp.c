@@ -60,7 +60,7 @@ test_carp_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, vo
 {
     guint8 ver_type, version, auth_length;
 
-    /* First some simple check if the data is 
+    /* First some simple check if the data is
        really CARP */
     if (tvb_length(tvb) < 36)
         return FALSE;

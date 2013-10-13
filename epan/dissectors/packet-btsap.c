@@ -562,7 +562,7 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
-    if (parameters_check < required_parameters) {        
+    if (parameters_check < required_parameters) {
         proto_tree_add_expert_format(tree, pinfo, &ei_btsap_parameter_error,
                                      tvb, offset, 0, "There are no required parameters");
     } else if (parameters_check > required_parameters) {
@@ -702,7 +702,7 @@ proto_register_btsap(void)
     static ei_register_info ei[] = {
         { &ei_btsap_parameter_error, { "btsap.parameter_error", PI_PROTOCOL, PI_WARN, "Parameter error", EXPFILL }},
     };
-    
+
     proto_btsap = proto_register_protocol("Bluetooth SAP Profile", "BT SAP", "btsap");
     register_dissector("btsap", dissect_btsap, proto_btsap);
 

@@ -1831,7 +1831,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* NF capability (octet 7, bit 1) */
     proto_tree_add_item(tree, hf_nas_eps_emm_nf_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
-    
+
     while ((curr_offset - offset) < len) {
         proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 8, ENC_BIG_ENDIAN);
         curr_offset++;

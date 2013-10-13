@@ -2381,7 +2381,7 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 						tvb_get_ntoh24(tvb, offset+13+i) );
 					break;
 				case 29:
-					dissect_subclv_spb_link_metric(tvb, ntree, 
+					dissect_subclv_spb_link_metric(tvb, ntree,
 						offset+13+i, clv_code, clv_len);
 					break;
 				case 250:

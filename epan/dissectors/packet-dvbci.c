@@ -1909,7 +1909,7 @@ is_cc_item_exportable(guint8 dat_id)
     if (dat_id == CC_ID_KP)
         return FALSE;
     /* we could add some more items here which do not appear in SAC messages
-       normally: CC_ID_DHPH, CC_ID_DHPM */ 
+       normally: CC_ID_DHPH, CC_ID_DHPM */
 
     return TRUE;
 }
@@ -3157,7 +3157,7 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
         exp_pdu_data = load_export_pdu_tags(
                 pinfo, EXPORTED_SAC_MSG_PROTO, -1, EXP_PDU_TAG_DVBCI_EVT_BIT);
 
-        exp_pdu_data->tvb_length = tvb_length(clear_sac_msg_tvb); 
+        exp_pdu_data->tvb_length = tvb_length(clear_sac_msg_tvb);
         exp_pdu_data->pdu_tvb = clear_sac_msg_tvb;
         tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
     }
@@ -3182,7 +3182,7 @@ dissect_dvbci_exported_sac_msg(
        derived from the direction of the transfer */
     if (evt== DVBCI_EVT_DATA_CAM_TO_HOST)
        tag = T_CC_SAC_DATA_REQ;
-    else 
+    else
        tag = T_CC_SAC_DATA_CNF;
 
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
@@ -3399,7 +3399,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                 proto_tree_add_text(tree, tvb, offset, 1,
                         "File name length %d", file_name_len);
                 offset++;
-                file_name_str = tvb_get_string(wmem_packet_scope(), 
+                file_name_str = tvb_get_string(wmem_packet_scope(),
                         tvb, offset, file_name_len);
                 if (!file_name_str)
                     break;
@@ -3525,7 +3525,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
                     else {
                         /* length field == 1 byte id + param_len */
                         proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb,
-                            APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE, 
+                            APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE,
                             "Length field must be 3 or 4");
                         break;
                     }
@@ -4552,7 +4552,7 @@ dissect_dvbci_cis_payload_config(tvbuff_t *data_tvb,
         else {
             /* skip unknown subtuple's content */
             offset += st_len;
-        } 
+        }
     }
 
     return offset;
@@ -4596,7 +4596,7 @@ dissect_dvbci_cis_payload_cftable_entry(tvbuff_t *data_tvb,
 
     return offset;
 }
- 
+
 static void
 dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree)

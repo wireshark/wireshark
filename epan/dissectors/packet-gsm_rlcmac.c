@@ -6251,39 +6251,39 @@ static const value_string dl_rlc_message_type_vals[] = {
     {0x0C, "PACKET_NEIGHBOUR_CELL_DATA"},
     {0x0D, "PACKET_SERVING_CELL_DATA"},
     {0x0E, "Invalid Message Type"},
-    {0x0F, "Invalid Message Type"},                 
-    {0x10, "Invalid Message Type"},                 
-    {0x11, "Invalid Message Type"},                 
-    {0x12, "Invalid Message Type"},                 
-    {0x13, "Invalid Message Type"},                 
-    {0x14, "Invalid Message Type"},                 
+    {0x0F, "Invalid Message Type"},
+    {0x10, "Invalid Message Type"},
+    {0x11, "Invalid Message Type"},
+    {0x12, "Invalid Message Type"},
+    {0x13, "Invalid Message Type"},
+    {0x14, "Invalid Message Type"},
     {0x15, "PACKET_HANDOVER_COMMAND"},
     {0x16, "PACKET_PHYSICAL_INFORMATION"},
-    {0x17, "Invalid Message Type"},                 
-    {0x18, "Invalid Message Type"},                 
-    {0x19, "Invalid Message Type"},                 
-    {0x1A, "Invalid Message Type"},                 
-    {0x1B, "Invalid Message Type"},                 
-    {0x1C, "Invalid Message Type"},                 
-    {0x1D, "Invalid Message Type"},                 
-    {0x1E, "Invalid Message Type"},                 
-    {0x1F, "Invalid Message Type"},                 
-    {0x20, "Invalid Message Type"},                 
+    {0x17, "Invalid Message Type"},
+    {0x18, "Invalid Message Type"},
+    {0x19, "Invalid Message Type"},
+    {0x1A, "Invalid Message Type"},
+    {0x1B, "Invalid Message Type"},
+    {0x1C, "Invalid Message Type"},
+    {0x1D, "Invalid Message Type"},
+    {0x1E, "Invalid Message Type"},
+    {0x1F, "Invalid Message Type"},
+    {0x20, "Invalid Message Type"},
     {0x21, "PACKET_ACCESS_REJECT"},
     {0x22, "PACKET_PAGING_REQUEST"},
     {0x23, "PACKET_PDCH_RELEASE"},
     {0x24, "PACKET_PRACH_PARAMETERS"},
     {0x25, "PACKET_DOWNLINK_DUMMY_CONTROL_BLOCK"},
-    {0x26, "Invalid Message Type"},                 
-    {0x27, "Invalid Message Type"},                 
-    {0x28, "Invalid Message Type"},                 
-    {0x29, "Invalid Message Type"},                 
-    {0x2A, "Invalid Message Type"},                 
-    {0x2B, "Invalid Message Type"},                 
-    {0x2C, "Invalid Message Type"},                 
-    {0x2D, "Invalid Message Type"},                 
-    {0x2E, "Invalid Message Type"},                 
-    {0x2F, "Invalid Message Type"},                 
+    {0x26, "Invalid Message Type"},
+    {0x27, "Invalid Message Type"},
+    {0x28, "Invalid Message Type"},
+    {0x29, "Invalid Message Type"},
+    {0x2A, "Invalid Message Type"},
+    {0x2B, "Invalid Message Type"},
+    {0x2C, "Invalid Message Type"},
+    {0x2D, "Invalid Message Type"},
+    {0x2E, "Invalid Message Type"},
+    {0x2F, "Invalid Message Type"},
     {0x30, "PACKET_SYSTEM_INFO_6"},
     {0x31, "PACKET_SYSTEM_INFO_1"},
     {0x32, "PACKET_SYSTEM_INFO_2"},
@@ -6295,7 +6295,7 @@ static const value_string dl_rlc_message_type_vals[] = {
     {0x38, "PACKET_SYSTEM_INFO_7"},
     {0x39, "PACKET_SYSTEM_INFO_8"},
     {0x3A, "PACKET_SYSTEM_INFO_14"},
-    {0x3B, "Invalid Message Type"},                 
+    {0x3B, "Invalid Message Type"},
     {0x3C, "PACKET_SYSTEM_INFO_3_TER"},
     {0x3D, "PACKET_SYSTEM_INFO_3_QUATER"},
     {0x3E, "PACKET_SYSTEM_INFO_15"},
@@ -7415,7 +7415,7 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             break;
       }
       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn1 = data->u.DL_Data_Block_EGPRS_Header.BSN1;
-      ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn2 = 
+      ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn2 =
          (data->u.DL_Data_Block_EGPRS_Header.BSN1 + data->u.DL_Data_Block_EGPRS_Header.BSN2_offset) % 2048;
    }
 }
@@ -7589,7 +7589,7 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
        ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.pi = data->u.UL_Data_Block_EGPRS_Header.PI;
        ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn1 = data->u.UL_Data_Block_EGPRS_Header.BSN1;
-       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn2 = 
+       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn2 =
           (data->u.UL_Data_Block_EGPRS_Header.BSN1 + data->u.UL_Data_Block_EGPRS_Header.BSN2_offset) % 2048;
    }
 }

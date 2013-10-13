@@ -525,7 +525,7 @@ dissect_radius_3gpp_ms_tmime_zone(proto_tree* tree, tvbuff_t* tvb, packet_info* 
     daylight_saving_time = tvb_get_guint8(tvb, offset) & 0x3;
     proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
 
-	return wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c%d hours %d minutes %s ", 
+	return wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c%d hours %d minutes %s ",
 		sign, oct / 4, oct % 4 * 15, val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
 
 }

@@ -844,15 +844,15 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
                 }
                 else
                 {
-                    /* There exist frames, where the last openSAFETY frame is sitting in the 
-                     * very last bytes of the frame, and the complete frame itself contains 
+                    /* There exist frames, where the last openSAFETY frame is sitting in the
+                     * very last bytes of the frame, and the complete frame itself contains
                      * more than one openSAFETY frame. It so happens that in such a case, the
-                     * last openSAFETY frame will miss detection. 
-                     * 
+                     * last openSAFETY frame will miss detection.
+                     *
                      * If so we look at the transported length, calculate the frame length,
                      * and take a look if the calculated frame length, might be a fit for the
-                     * remaining length. If such is the case, we increment ctr and increment 
-                     * rem_length (to hit the while loop one more time) and the frame will be 
+                     * remaining length. If such is the case, we increment ctr and increment
+                     * rem_length (to hit the while loop one more time) and the frame will be
                      * detected correctly. */
                     if ( rem_length == OSS_MINIMUM_LENGTH )
                     {

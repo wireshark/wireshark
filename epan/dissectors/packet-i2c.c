@@ -227,7 +227,7 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_protocol_format(tree, proto_i2c, tvb, 0, -1,
 					"Inter-Integrated Circuit (%s)",
 					is_event ? "Event" : "Data");
-		
+
 		i2c_tree = proto_item_add_subtree(ti, ett_i2c);
 		proto_tree_add_uint_format(i2c_tree, hf_i2c_bus, tvb, 0, 0, bus,
 				"Bus: I2C-%d", bus);

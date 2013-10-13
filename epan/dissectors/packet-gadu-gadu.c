@@ -235,7 +235,7 @@ static const value_string gadu_gadu_msg_ack_status_vals[] = {
 #define GG_STATUS_FFC_DESCR         0x18
 #define GG_STATUS_AVAIL             0x02
 #define GG_STATUS_AVAIL_DESCR       0x04
-#define GG_STATUS_BUSY              0x03 
+#define GG_STATUS_BUSY              0x03
 #define GG_STATUS_BUSY_DESCR        0x05
 #define GG_STATUS_DND               0x21
 #define GG_STATUS_DND_DESCR         0x22
@@ -562,7 +562,7 @@ static struct gadu_gadu_conv_data *
 gadu_gadu_get_conversation_data(packet_info *pinfo)
 {
 	conversation_t *conv;
-	
+
 	conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conv)
 		return (struct gadu_gadu_conv_data *)conversation_get_proto_data(conv, hfi_gadu_gadu->id);
@@ -587,7 +587,7 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, const header_field_info *hfi, pr
 	static const gunichar2 table_cp1250[] = {
 		0x20ac, 0xFFFD, 0x201a, 0xFFFD, 0x201e, 0x2026, 0x2020, 0x2021,		/* 0x80 -      */
 		0xFFFD, 0x2030, 0x0160, 0x2039, 0x015a, 0x0164, 0x017d, 0x0179,		/*      - 0x8F */
-		0xFFFD, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,		/* 0x90 -      */ 
+		0xFFFD, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,		/* 0x90 -      */
 		0xFFFD, 0x2122, 0x0161, 0x203a, 0x015b, 0x0165, 0x017e, 0x017a,		/*      - 0x9F */
 		0x00a0, 0x02c7, 0x02d8, 0x0141, 0x00a4, 0x0104, 0x00a6, 0x00a7,		/* 0xA0 -      */
 		0x00a8, 0x00a9, 0x015e, 0x00ab, 0x00ac, 0x00ad, 0x00ae, 0x017b, 	/*      - 0xAF */
@@ -608,7 +608,7 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, const header_field_info *hfi, pr
 	wmem_strbuf_t *str;
 	guint8 ch;
 	gint len;
-	
+
 	len = tvb_reported_length_remaining(tvb, offset);
 
 	str = wmem_strbuf_new(wmem_packet_scope(), "");
@@ -642,7 +642,7 @@ dissect_gadu_gadu_uint32_string_utf8(tvbuff_t *tvb, const header_field_info *hfi
 
 	if (len > 0) {
 		/* proto_item_fill_label() is broken for UTF-8 strings.
-		 * It's using internally format_text() which doesn't support UTF-8 
+		 * It's using internally format_text() which doesn't support UTF-8
 		 */
 		/* proto_tree_add_item(tree, hfindex, tvb, offset, len, ENC_UTF_8|ENC_NA); */
 

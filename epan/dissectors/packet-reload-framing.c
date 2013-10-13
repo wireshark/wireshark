@@ -179,7 +179,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                         (EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
                                          EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT));
 
-    exp_pdu_data->tvb_length = effective_length; 
+    exp_pdu_data->tvb_length = effective_length;
     exp_pdu_data->pdu_tvb = tvb;
 
     tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);

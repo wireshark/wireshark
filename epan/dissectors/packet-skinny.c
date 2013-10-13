@@ -1510,7 +1510,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(skinny_tree, hf_skinny_activeStreams, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_phoneFeatures, tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_IPVersion, tvb, offset+56, 4, ENC_LITTLE_ENDIAN);
-      }  
+      }
       if (hdr_data_length > 100) {
         proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+60, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_macAddress, tvb, offset+64, 12, ENC_ASCII|ENC_NA);
@@ -3201,7 +3201,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_maxBitRate, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
       break;
-	
+
     case 0x0143: /* DynDisplayNotifyMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, hdr_data_length-8, ENC_ASCII|ENC_NA);
@@ -3234,7 +3234,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_lineDirNumber, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_lineFullyQualifiedDisplayName, tvb, offset+16+StationMaxDirnumSize, StationMaxNameSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_lineDisplayName, tvb, offset+16+StationMaxDirnumSize+StationMaxNameSize, StationMaxDisplayNameSize, ENC_ASCII|ENC_NA);
-      break;	
+      break;
 
     case 0x0148: /* DynServiceURLStatMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_serviceURLIndex, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
@@ -3379,7 +3379,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(skinny_tree, hf_skinny_startMediaTransmissionStatus, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
       }
       break;
-      
+
     case 0x0155: /* StartMultiMediaTransmissionAck */
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);

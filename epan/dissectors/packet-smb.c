@@ -14506,10 +14506,10 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 /*
- * According to MS-CIFS 2.2.8.1.3 this is like the function above with the 
+ * According to MS-CIFS 2.2.8.1.3 this is like the function above with the
  * addition of the list of EA name value pairs before the file name.
  *
- * The EAs are formatted as an SMB_FEA as in 2.2.1.2.2. We will deal with 
+ * The EAs are formatted as an SMB_FEA as in 2.2.1.2.2. We will deal with
  * this soon.
  */
 static int
@@ -15476,7 +15476,7 @@ dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
 		    trunc);
 		break;
 	case 3:		/* Info Query EAs From List same as
-			 * InfoQueryEASize. 
+			 * InfoQueryEASize.
 			 * Not according to MS-CIFS 2.2.8.1.3. RJS
 			 */
 		offset = dissect_4_3_4_3(tvb, pinfo, tree, offset, bcp,

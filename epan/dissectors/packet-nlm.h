@@ -1,5 +1,5 @@
 /* packet-nlm.h (c) 1999 Uwe Girlich */
-/* $Id$ 
+/* $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

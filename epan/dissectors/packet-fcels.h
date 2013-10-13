@@ -166,7 +166,7 @@ static const value_string fc_els_rjt_val[] = {
 #define FC_ELS_RJT_DET_DEACT_ALIAS_FAIL1 0x33
 #define FC_ELS_RJT_DET_DEACT_ALIAS_FAIL2 0x34
 #define FC_ELS_RJT_DET_SVCPARM_CONFLICT  0x35
-#define FC_ELS_RJT_DET_INV_ALIASTOK      0x36 
+#define FC_ELS_RJT_DET_INV_ALIASTOK      0x36
 #define FC_ELS_RJT_DET_UNSUPP_ALIASTOK   0x37
 #define FC_ELS_RJT_DET_GRPFORM_FAIL      0x38
 #define FC_ELS_RJT_DET_QOSPARM_ERR       0x40

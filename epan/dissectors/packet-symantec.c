@@ -71,13 +71,13 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	etypev2 = tvb_get_ntohs(tvb, 6);
 	etypev3 = tvb_get_ntohs(tvb, 10);
-	
+
 	/* a valid packet can't be both v2 and v3 or neither v2 nor v3, */
 	if ((etypev2 == 0) == (etypev3 == 0))
 		return;
-		
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Symantec");
-		
+
 	if (etypev3 == 0) {	/* SEF and SGS v2 processing */
 		col_set_str(pinfo->cinfo, COL_INFO, "Symantec Enterprise Firewall");
 		if (tree) {

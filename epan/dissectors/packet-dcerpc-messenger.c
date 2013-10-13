@@ -90,7 +90,7 @@ messenger_dissect_send_message_reply(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static dcerpc_sub_dissector dcerpc_messenger_dissectors[] = {
-        {0, "NetrSendMessage", 
+        {0, "NetrSendMessage",
 		messenger_dissect_send_message_rqst,
 		messenger_dissect_send_message_reply },
         {0, NULL, NULL,  NULL }
@@ -109,15 +109,15 @@ proto_register_dcerpc_messenger(void)
                   { "Return code", "messenger.rc", FT_UINT32, BASE_HEX, VALS (NT_errors), 0x0, NULL, HFILL }},
 
 		{ &hf_messenger_server, {
-		"Server", "messenger.server", 
+		"Server", "messenger.server",
 		FT_STRING, BASE_NONE, NULL, 0, "Server to send the message to", HFILL }},
 
 		{ &hf_messenger_client, {
-		"Client", "messenger.client", 
+		"Client", "messenger.client",
 		FT_STRING, BASE_NONE, NULL, 0, "Client that sent the message", HFILL }},
 
 		{ &hf_messenger_message, {
-		"Message", "messenger.message", 
+		"Message", "messenger.message",
 		FT_STRING, BASE_NONE, NULL, 0, "The message being sent", HFILL }}
 
         };

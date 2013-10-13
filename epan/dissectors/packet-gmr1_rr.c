@@ -149,7 +149,7 @@ static const value_string gmr1_ie_rr_strings[] = {
 	  "Packet Frequency Parameters" },	/* [3] 11.5.2.106 */
 	{ GMR1_IE_RR_PKT_IMM_ASS_2_PRM,
 	  "Packet Imm. Ass. Type 2 Params" },	/* [3] 11.5.2.107 */
-	{ GMR1_IE_RR_USF,		
+	{ GMR1_IE_RR_USF,
 	  "USF" },				/* [3] 11.5.2.110 */
 	{ GMR1_IE_RR_TIMING_ADV_IDX,
 	  "Timing Advance Index" },		/* [3] 10.1.18.3.4 */

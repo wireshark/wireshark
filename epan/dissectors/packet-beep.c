@@ -295,14 +295,14 @@ check_term(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
     return 1;
 
   }
-  
+
   if ((tvb_get_guint8(tvb, offset) == 0x0a) && !global_beep_strict_term) {
 
     proto_tree_add_expert(tree, pinfo, &ei_beep_lf_terminator, tvb, offset, 1);
     return 1;
   }
 
-  proto_tree_add_expert_format(tree, pinfo, &ei_beep_invalid_terminator, tvb, 
+  proto_tree_add_expert_format(tree, pinfo, &ei_beep_invalid_terminator, tvb,
                                 offset, 1, "Terminator: %s", tvb_format_text(tvb, offset, 2));
   return -1;
 }
@@ -532,7 +532,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     else {  /* Protocol violation, so dissect rest as undisectable */
       if (tree && (tvb_length_remaining(tvb, offset) > 0)) {
-        proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset, 
+        proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset,
                             tvb_length_remaining(tvb, offset), ENC_NA|ENC_ASCII);
       }
       return -1;
@@ -564,7 +564,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       /* We dissect the rest as data and bail ... */
 
       if (tree && (tvb_length_remaining(tvb, offset) > 0)) {
-        proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset, 
+        proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset,
                             tvb_length_remaining(tvb, offset), ENC_NA|ENC_ASCII);
       }
 
@@ -646,7 +646,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       /* We dissect the rest as data and bail ... */
 
       if (tree && (tvb_length_remaining(tvb, offset) > 0)) {
-        proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset, 
+        proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset,
                             tvb_length_remaining(tvb, offset), ENC_NA|ENC_ASCII);
       }
 
@@ -675,7 +675,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       /* We dissect the rest as data and bail ... */
 
       if (tree && (tvb_length_remaining(tvb, offset) > 0)) {
-        proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset, 
+        proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset,
                             tvb_length_remaining(tvb, offset), ENC_NA|ENC_ASCII);
       }
 

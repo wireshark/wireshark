@@ -5083,7 +5083,7 @@ dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
     guint16 item_len, sop_class_uid_len;
     guint8 scp_role, scu_role;
-    
+
     gchar *buf_desc = (gchar *)wmem_alloc0(wmem_packet_scope(), MAX_BUF_LEN);     /* Used for item text */
     dcm_uid_t *sopclassuid;
     gchar *sopclassuid_str;
@@ -5104,28 +5104,28 @@ dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
     scu_role = tvb_get_guint8(tvb, offset+6+sop_class_uid_len);
     scp_role = tvb_get_guint8(tvb, offset+7+sop_class_uid_len);
-    
+
     if (scu_role) {
         proto_item_append_text(assoc_item_rolesel_item, "%s", "SCU-role: yes");
     }
     else {
         proto_item_append_text(assoc_item_rolesel_item, "%s", "SCU-role: no");
     }
-    
+
     if (scp_role) {
         proto_item_append_text(assoc_item_rolesel_item, ", %s", "SCP-role: yes");
     }
     else {
         proto_item_append_text(assoc_item_rolesel_item, ", %s", "SCP-role: no");
     }
-    
+
     if (sopclassuid) {
         g_snprintf(buf_desc, MAX_BUF_LEN, "%s (%s)", sopclassuid->name, sopclassuid->value);
     }
     else {
         g_snprintf(buf_desc, MAX_BUF_LEN, "%s", sopclassuid_str);
     }
-    
+
     proto_tree_add_string(assoc_item_rolesel_tree, hf_dcm_info_rolesel_sopclassuid, tvb, offset+6, sop_class_uid_len, buf_desc);
 
     proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_scurole, tvb, offset+6+sop_class_uid_len, 1, ENC_NA);
@@ -5442,19 +5442,19 @@ dissect_dcm_userinfo(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 le
 	    break;
 
 	case 0x53:		/* async negotiation */
-	
+
 	    dissect_dcm_assoc_async_negotiation(tvb, userinfo_ptree, offset-4);
-	    
+
 	    offset += item_len;
 	    break;
 
 	case 0x54:      /* scp/scu role selection */
-	
+
 	   dissect_dcm_assoc_role_selection(tvb, userinfo_ptree, offset-4);
-	   
+
 	   offset += item_len;
 	   break;
-	
+
 	case 0x56:		/* extended negotiation */
 
 	    dissect_dcm_assoc_sopclass_extneg(tvb, userinfo_ptree, offset-4);

@@ -374,7 +374,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 		default:
 			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_payload, tvb, offset, length-2, ENC_NA);
-			offset = offset + length - 2; 
+			offset = offset + length - 2;
 			break;
 		}
 		if (length < (offset - attr_start_offset)){
@@ -451,7 +451,7 @@ dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} /* if(tree) */
 }
 
-static gboolean 
+static gboolean
 dissect_bfcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint8       primitive;

@@ -184,7 +184,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
     len -= 2;
     reported_len -= 2;
     next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
-    
+
     /*
      * Compute the FCS and put it into the tree.
      */
@@ -246,7 +246,7 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
 {
   guint8 sf = 0xFF;
   guint8 sf_offset, sf_extra_offset;
-  
+
   if (use_extended_sequence_numbers) {
     sf_offset = EXTENDED_SF_OFFSET;
     sf_extra_offset = EXTENDED_SF_EXTRA_OFFSET;
@@ -299,8 +299,8 @@ dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, pro
   guint16 li;
   tvbuff_t  *next_tvb = NULL;
 
-  dissect_mtp2_header(su_tvb, mtp2_tree); 
-  if (validate_crc)  
+  dissect_mtp2_header(su_tvb, mtp2_tree);
+  if (validate_crc)
     next_tvb = mtp2_decode_crc16(su_tvb, mtp2_tree, pinfo);
 
   if (use_extended_sequence_numbers)
@@ -312,8 +312,8 @@ dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, pro
     dissect_mtp2_fisu(pinfo);
     break;
   case 1:
-  case 2: 
-    if (validate_crc)  
+  case 2:
+    if (validate_crc)
       dissect_mtp2_lssu(next_tvb, pinfo, mtp2_tree);
     else
       dissect_mtp2_lssu(su_tvb, pinfo, mtp2_tree);
@@ -321,9 +321,9 @@ dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, pro
   default:
     /* In some capture files (like .rf5), CRC are not present */
     /* So, to avoid trouble, give the complete buffer if CRC validation is disabled */
-    if (validate_crc)  
+    if (validate_crc)
       dissect_mtp2_msu(next_tvb, pinfo, mtp2_item, tree);
-    else 
+    else
       dissect_mtp2_msu(su_tvb, pinfo, mtp2_item, tree);
     break;
   }
@@ -339,9 +339,9 @@ dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     use_extended_sequence_numbers = use_extended_sequence_numbers_default;
   else
     use_extended_sequence_numbers = (pinfo->annex_a_used == MTP2_ANNEX_A_USED);
-    
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
-  
+
   if (tree) {
     mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, -1, ENC_NA);
     mtp2_tree = proto_item_add_subtree(mtp2_item, ett_mtp2);
@@ -403,9 +403,9 @@ proto_register_mtp2(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_mtp2 = expert_register_protocol(proto_mtp2);
   expert_register_field_array(expert_mtp2, ei, array_length(ei));
-  
+
   mtp2_module = prefs_register_protocol(proto_mtp2, NULL);
-  prefs_register_bool_preference(mtp2_module, 
+  prefs_register_bool_preference(mtp2_module,
                                  "use_extended_sequence_numbers",
                                  "Use extended sequence numbers",
                                  "Whether the MTP2 dissector should use extended sequence numbers as described in Q.703, Annex A as a default.",

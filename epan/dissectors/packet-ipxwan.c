@@ -302,15 +302,15 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
 								"Bogus length: %u, should be >= 3", option_data_len);
 						} else {
-							proto_tree_add_item(option_tree, hf_ipxwan_compression_options, 
+							proto_tree_add_item(option_tree, hf_ipxwan_compression_options,
 								tvb, offset+1, 1, ENC_BIG_ENDIAN);
-							proto_tree_add_item(option_tree, hf_ipxwan_compression_slots, 
+							proto_tree_add_item(option_tree, hf_ipxwan_compression_slots,
 								tvb, offset+2, 1, ENC_BIG_ENDIAN);
 						}
 						break;
 
 					default:
-						proto_tree_add_item(option_tree, hf_ipxwan_compression_parameters, 
+						proto_tree_add_item(option_tree, hf_ipxwan_compression_parameters,
 							tvb, offset+1, option_data_len-1, ENC_NA);
 						break;
 					}
@@ -318,12 +318,12 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case OPT_PAD:
-				proto_tree_add_item(option_tree, hf_ipxwan_padding, 
+				proto_tree_add_item(option_tree, hf_ipxwan_padding,
 					tvb, offset, option_data_len, ENC_NA);
 				break;
 
 			default:
-				proto_tree_add_item(option_tree, hf_ipxwan_option_value, 
+				proto_tree_add_item(option_tree, hf_ipxwan_option_value,
 					tvb, offset, option_data_len, ENC_NA);
 				break;
 			}

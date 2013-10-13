@@ -601,7 +601,7 @@ proto_register_fmp_notify(void)
             FT_UINT32, BASE_DEC, VALS(fmp_revokeHandleListReason_vals), 0,
             NULL, HFILL }},
 
-            
+
 	};
 
 	static gint *ett[] = {

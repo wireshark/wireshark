@@ -2324,7 +2324,7 @@ dissect_wccp2_capability_element(tvbuff_t *tvb, int offset, gint length,
                       val_to_str(capability_type,
                                  capability_type_vals, "Unknown (0x%08X)"));
   if (capability_val_len < 4) {
-    expert_add_info_format(pinfo, tf, &ei_wccp_capability_element_length, 
+    expert_add_info_format(pinfo, tf, &ei_wccp_capability_element_length,
                 "Value Length: %u (illegal, must be >= 4)", capability_val_len);
     return -length;
   }

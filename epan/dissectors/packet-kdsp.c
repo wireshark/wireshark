@@ -309,7 +309,7 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (bitmap & FCS_FLAG) {
       sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_fcs, tvb, offset, 4, ENC_NA);
       sub_tree = proto_item_add_subtree(sub_item, ett_sub_fcs);
-      
+
       proto_tree_add_item(sub_tree, hf_kdsp_fcs_data,   tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
     }
@@ -380,7 +380,7 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 8;
       proto_tree_add_item(sub_tree, hf_kdsp_cpt_dlt,                 tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      
+
       ieee80211_len = (length + FRAME_HEADER_LEN) - offset;
       ieee80211_tvb = tvb_new_subset(tvb, offset, ieee80211_len, reported_ieee80211_len);
       call_dissector(ieee80211_handle, ieee80211_tvb, pinfo, tree);

@@ -810,7 +810,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if (start_marker != start_fill)
             proto_tree_add_text(subtree, tvb, start_fill, start_marker - start_fill,
                                 "Fill bytes");
-        
+
         marker = tvb_get_ntohs(tvb, start_marker);
         str = try_val_to_str(marker, vals_marker);
         if (str) { /* Known marker */

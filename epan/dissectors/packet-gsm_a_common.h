@@ -211,7 +211,7 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 #define IS_UPLINK_UNKNOWN   2
 
 /* Defines for handling half octet mandatory V IEs
- * Named LEFT and RIGHT (as displayed) because the GSM definitions and our internal representation 
+ * Named LEFT and RIGHT (as displayed) because the GSM definitions and our internal representation
  * have the bits numbered in opposite senses
  */
 #define LEFT_NIBBLE     (2)
@@ -400,7 +400,7 @@ WS_DLL_PUBLIC guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 /*
  * Short Value (V_SHORT) element dissector
  *
- * nibble used in this functions to indicate left or right nibble of the octet 
+ * nibble used in this functions to indicate left or right nibble of the octet
  * This is expected to be used right nibble first, as the tables of 24.008.
  */
 WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint32 nibble);
@@ -700,7 +700,7 @@ guint16 de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 guint16 de_gmm_voice_domain_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
 guint16 de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
- 
+
 
 WS_DLL_PUBLIC
 guint16 de_rr_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);

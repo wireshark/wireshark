@@ -1409,7 +1409,7 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
                                                     (EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
                                                      EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT));
 
-                exp_pdu_data->tvb_length = tvb_length(next_tvb); 
+                exp_pdu_data->tvb_length = tvb_length(next_tvb);
                 exp_pdu_data->pdu_tvb = next_tvb;
 
                 tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
@@ -2537,7 +2537,7 @@ dissect_ssl3_hnd_hello_ext_sig_hash_algs(tvbuff_t *tvb,
     ret = dissect_ssl_hash_alg_list(tvb, tree, offset, sh_alg_length);
     if (ret >=0)
         offset += ret;
-    
+
     return offset;
 }
 
@@ -5424,7 +5424,7 @@ proto_register_ssl(void)
         },
         { &hf_ssl_handshake_extension_alpn_str,
           { "ALPN Next Protocol", "ssl.handshake.extensions_alpn_str",
-            FT_STRING, BASE_NONE, NULL, 0x00, 
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ssl_handshake_extension_npn_str_len,

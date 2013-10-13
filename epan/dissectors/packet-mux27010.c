@@ -663,7 +663,7 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr, int offset,
     case MUX27010_COMMAND_TEST_COMMAND:
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluetestcommandversion, tvb, offset, 1, ENC_BIG_ENDIAN);
         controlchannel_iei = tvb_get_guint8(tvb, offset);
-        if ((controlchannel_iei == MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_TE) || 
+        if ((controlchannel_iei == MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_TE) ||
             (controlchannel_iei == MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_MS)) {
             proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannel_iei_coding, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
@@ -817,7 +817,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     length_info = 0;
 
     /*Check the frame type because in RR, RNR and REJ are no info and no lenght fields*/
-    if ((frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_RR) && (frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_RNR) && 
+    if ((frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_RR) && (frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_RNR) &&
         (frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_REJ)){
         /*Add a subtree (=item) to the child node => in this subtree will be the details of length field*/
         tf = proto_tree_add_item(mux27010_tree, hf_mux27010_length, tvb, offset, 1, ENC_BIG_ENDIAN);

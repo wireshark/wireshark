@@ -1086,7 +1086,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (is_response) {
         pdus_array = (GPtrArray *)wmem_tree_lookup32(cops_conv_info->pdus_tree, handle_value);
-        
+
         if (pdus_array == NULL) /* There's no request with this handle value */
             return;
 

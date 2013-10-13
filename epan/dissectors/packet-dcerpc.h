@@ -41,7 +41,7 @@
 	(((drep)[0] & DREP_LITTLE_ENDIAN) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN)
 
 #ifdef PT_R4
-/* now glib always includes signal.h and on linux PPC 
+/* now glib always includes signal.h and on linux PPC
  * signal.h defines PT_R4
 */
 #undef PT_R4
@@ -152,13 +152,13 @@ int dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                            proto_tree *tree, guint8 *drep,
                            int hfindex, guint64 *pdata);
 int dissect_dcerpc_float  (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                           proto_tree *tree, guint8 *drep, 
+                           proto_tree *tree, guint8 *drep,
                            int hfindex, gfloat *pdata);
 int dissect_dcerpc_double (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                           proto_tree *tree, guint8 *drep, 
+                           proto_tree *tree, guint8 *drep,
                            int hfindex, gdouble *pdata);
 int dissect_dcerpc_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                           proto_tree *tree, guint8 *drep, 
+                           proto_tree *tree, guint8 *drep,
                            int hfindex, guint32 *pdata);
 WS_DLL_PUBLIC
 int dissect_dcerpc_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -192,14 +192,14 @@ int dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         int hfindex, guint64 *pdata);
 int PIDL_dissect_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param);
 int dissect_ndr_float (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, guint8 *drep, 
+                        proto_tree *tree, guint8 *drep,
                         int hfindex, gfloat *pdata);
 WS_DLL_PUBLIC
 int dissect_ndr_double (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, guint8 *drep, 
+                        proto_tree *tree, guint8 *drep,
                         int hfindex, gdouble *pdata);
 int dissect_ndr_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, guint8 *drep, 
+                        proto_tree *tree, guint8 *drep,
                         int hfindex, guint32 *pdata);
 WS_DLL_PUBLIC
 int dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -234,22 +234,22 @@ typedef void (dcerpc_callback_fnct_t)(packet_info *pinfo, proto_tree *tree, prot
 
 int dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			   proto_tree *tree, guint8 *drep,
-			   dcerpc_dissect_fnct_t *fnct, int type, const char *text, 
+			   dcerpc_dissect_fnct_t *fnct, int type, const char *text,
 			   int hf_index, dcerpc_callback_fnct_t *callback,
 			   void *callback_args);
 
 int dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			proto_tree *tree, guint8 *drep,
-			dcerpc_dissect_fnct_t *fnct, int type, const char *text, 
+			dcerpc_dissect_fnct_t *fnct, int type, const char *text,
 			int hf_index);
 int dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 *drep);
 int dissect_ndr_embedded_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			proto_tree *tree, guint8 *drep,
-			dcerpc_dissect_fnct_t *fnct, int type, const char *text, 
+			dcerpc_dissect_fnct_t *fnct, int type, const char *text,
 			int hf_index);
 int dissect_ndr_toplevel_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			proto_tree *tree, guint8 *drep,
-			dcerpc_dissect_fnct_t *fnct, int type, const char *text, 
+			dcerpc_dissect_fnct_t *fnct, int type, const char *text,
 			int hf_index);
 
 /* dissect a NDR unidimensional conformant array */
@@ -267,26 +267,26 @@ int dissect_ndr_uvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep,
                         dcerpc_dissect_fnct_t *fnct);
 
-int dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
                            proto_tree *tree, guint8 *drep);
 
-int dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree *tree, guint8 *drep, int size_is,
 			 int hfinfo, gboolean add_subtree,
 			 char **data);
-int dissect_ndr_char_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_char_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                            proto_tree *tree, guint8 *drep);
-int dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                             proto_tree *tree, guint8 *drep);
 int PIDL_dissect_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int chsize, int hfindex, guint32 param);
 
-int dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree *tree, guint8 *drep, int size_is,
 			 int hfinfo, gboolean add_subtree,
 			 char **data);
-int dissect_ndr_char_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_char_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                            proto_tree *tree, guint8 *drep);
-int dissect_ndr_wchar_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_wchar_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                             proto_tree *tree, guint8 *drep);
 
 typedef struct _dcerpc_sub_dissector {
@@ -311,7 +311,7 @@ dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver
 value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd);
 
 /* Private data passed to subdissectors from the main DCERPC dissector.
- * One unique instance of this structure is created for each 
+ * One unique instance of this structure is created for each
  * DCERPC request/response transaction when we see the initial request
  * of the transaction.
  * These instances are persistent and will remain available until the
@@ -368,12 +368,12 @@ typedef struct _dcerpc_info {
 } dcerpc_info;
 
 
-/* the init_protocol hooks. With MSVC and a 
+/* the init_protocol hooks. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
 WS_DLL_PUBLIC GHookList dcerpc_hooks_init_protos;
 
-/* the registered subdissectors. With MSVC and a 
+/* the registered subdissectors. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
 WS_DLL_PUBLIC GHashTable *dcerpc_uuids;
@@ -394,9 +394,9 @@ typedef struct _dcerpc_uuid_value {
 
 /* Authenticated pipe registration functions and miscellanea */
 
-typedef tvbuff_t *(dcerpc_decode_data_fnct_t)(tvbuff_t *data_tvb, 
+typedef tvbuff_t *(dcerpc_decode_data_fnct_t)(tvbuff_t *data_tvb,
 					      tvbuff_t *auth_tvb,
-					      int offset, 
+					      int offset,
 					      packet_info *pinfo,
 					      dcerpc_auth_info *auth_info);
 
@@ -443,17 +443,17 @@ struct _dcerpc_bind_value *
 dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding);
 
 WS_DLL_PUBLIC
-guint16 
+guint16
 dcerpc_get_transport_salt (packet_info *pinfo);
 
 /* Authentication services */
 
-/* 
+/*
  * For MS-specific SSPs (Security Service Provider), see
  *
  * http://msdn.microsoft.com/library/en-us/rpc/rpc/authentication_level_constants.asp
  */
- 
+
 #define DCE_C_RPC_AUTHN_PROTOCOL_NONE		0
 #define DCE_C_RPC_AUTHN_PROTOCOL_KRB5		1
 #define DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO         9
@@ -483,10 +483,10 @@ init_ndr_pointer_list(packet_info *pinfo);
 /* These defines are used in the PIDL conformance files when using
  * the PARAM_VALUE directive.
  */
-/* Policy handle tracking. Describes in which function a handle is 
+/* Policy handle tracking. Describes in which function a handle is
  * opened/closed.  See "winreg.cnf" for example.
  *
- * The guint32 param is divided up into multiple fields 
+ * The guint32 param is divided up into multiple fields
  *
  * +--------+--------+--------+--------+
  * | Flags  | Type   |        |        |
@@ -520,7 +520,7 @@ typedef struct pol_value {
 	guint32 first_frame;             /* First frame in which this instance was seen */
 	guint32 last_frame;              /* Last frame in which this instance was seen */
 	char *name;			 /* Name of policy handle */
-	guint32 type;			 /* policy handle type */ 
+	guint32 type;			 /* policy handle type */
 } pol_value;
 
 

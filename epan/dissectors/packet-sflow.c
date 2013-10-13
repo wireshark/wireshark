@@ -2115,7 +2115,7 @@ dissect_sflow_24_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint offset, p
     sequence_number = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_sflow_counters_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(parent, ", seq %u", sequence_number);
-    
+
     proto_tree_add_item(tree, hf_sflow_counters_sample_source_id_class, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_sflow_counters_sample_index, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_sflow_counters_sample_sampling_interval, tvb, offset + 8, 4, ENC_BIG_ENDIAN);

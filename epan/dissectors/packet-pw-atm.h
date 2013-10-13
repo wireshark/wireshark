@@ -55,7 +55,7 @@ typedef struct {
 		 * across all the cells in the pw packet. Values are filled
 		 * by sub-dissectors and read by upper-level dissector.
 		 * Meanings of values:
-		 *   (-1) 	- value is unknown 
+		 *   (-1) 	- value is unknown
 		 *   (-2) 	- value is different among cells
 		 *   positive	- value is the same in all cells
 		 * Machinery is implemented in the UPDATE_CUMULATIVE_VALUE macro.
@@ -69,12 +69,12 @@ typedef struct {
 	gint32 vci; /*-1 if unknown*/
 	gint32 pti; /*-1 if unknown*/
 	struct {
-		/* 
+		/*
 		 * Some fields from 3rd byte of CW. Filled by cell_header dissector.
 		 * In in AAL5 PDU mode, this allows control_word dissector to print
 		 * these values in the CW heading line in the tree.
 		 * Meanings of values:
-		 *   (-1) 	- value is unknown 
+		 *   (-1) 	- value is unknown
 		 */
 		gint32 m;
 		gint32 v;
@@ -82,7 +82,7 @@ typedef struct {
 		gint32 u;
 		gint32 e;
 		gint32 clp;
-	} cwb3; 
+	} cwb3;
 	gboolean aal5_sdu_frame_relay_cr_bit; /*see rfc4717 10.1*/
 	gboolean cell_mode_oam; /*atm admin cell*/
 	gboolean enable_fill_columns_by_atm_dissector;

@@ -45,8 +45,8 @@ extern const value_string DIS_PDU_CryptoSystem_Strings[];
 extern const value_string DIS_PDU_ModParamMsgStart_Strings[];
 extern const value_string DIS_PDU_ModParamClrChannel_Strings[];
 extern const value_string DIS_PDU_TSAllocationFidelity_Strings[];
-extern const value_string DIS_PDU_TerminalPrimaryMode_Strings[]; 
-extern const value_string DIS_PDU_TerminalSecondaryMode_Strings[]; 
+extern const value_string DIS_PDU_TerminalPrimaryMode_Strings[];
+extern const value_string DIS_PDU_TerminalSecondaryMode_Strings[];
 extern const value_string DIS_PDU_ModParamSyncState_Strings[];
 
 
@@ -405,8 +405,8 @@ typedef enum
     DIS_PATTERN_SPHERICAL_HARMONIC           = 2
 } DIS_PDU_AntennaPattern_Type;
 
-extern const value_string DIS_PDU_AntennaPatternType_Strings[];   
-    
+extern const value_string DIS_PDU_AntennaPatternType_Strings[];
+
 typedef enum
 {
     DIS_SYSTEM_MOD_OTHER                     = 0,

@@ -47,9 +47,9 @@ static int hf_hpfeeds_opcode = -1;
 static int hf_hpfeeds_msg_length = -1;
 static int hf_hpfeeds_nonce = -1;
 static int hf_hpfeeds_secret = -1;
-static int hf_hpfeeds_payload = -1; 
-static int hf_hpfeeds_server_len = -1; 
-static int hf_hpfeeds_server = -1; 
+static int hf_hpfeeds_payload = -1;
+static int hf_hpfeeds_server_len = -1;
+static int hf_hpfeeds_server = -1;
 static int hf_hpfeeds_ident_len = -1;
 static int hf_hpfeeds_ident = -1;
 static int hf_hpfeeds_channel = -1;
@@ -99,7 +99,7 @@ static const value_string opcode_vals[] = {
 };
 
 /*
-* 
+*
 * These values are the channel used by "most" spread and used honeypots
 * In case we have publish message in one of these channel we can decode
 * payload completely
@@ -123,7 +123,7 @@ static void
 dissect_hpfeeds_error_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     proto_tree_add_item(tree, hf_hpfeeds_errmsg, tvb, offset, -1, ENC_BIG_ENDIAN);
-} 
+}
 
 static void
 dissect_hpfeeds_info_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
@@ -137,7 +137,7 @@ dissect_hpfeeds_info_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
     /* don't move the offset yet as we need to get data after this operation */
     strptr = tvb_get_string(wmem_packet_scope(), tvb, offset + 1, len);
     ti = proto_tree_add_text(tree, tvb, offset, -1, "Broker: %s", strptr);
-    data_subtree = proto_item_add_subtree(ti, ett_hpfeeds); 
+    data_subtree = proto_item_add_subtree(ti, ett_hpfeeds);
 
     proto_tree_add_item(data_subtree, hf_hpfeeds_server_len, tvb, offset, 1,
         ENC_BIG_ENDIAN);
@@ -145,8 +145,8 @@ dissect_hpfeeds_info_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 
     proto_tree_add_item(data_subtree, hf_hpfeeds_server, tvb, offset, len,
         ENC_BIG_ENDIAN);
-    offset += len;   
- 
+    offset += len;
+
     proto_tree_add_item(data_subtree, hf_hpfeeds_nonce, tvb, offset, -1,
         ENC_BIG_ENDIAN);
 }
@@ -155,15 +155,15 @@ static void
 dissect_hpfeeds_auth_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     guint8 len = 0;
-    
+
     len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb, 
+    proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb,
                     offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, 
+    proto_tree_add_item(tree, hf_hpfeeds_ident, tvb,
                     offset, len, ENC_BIG_ENDIAN);
-    offset += len;   
- 
+    offset += len;
+
     proto_tree_add_item(tree, hf_hpfeeds_secret, tvb,
                     offset, -1, ENC_BIG_ENDIAN);
 }
@@ -175,7 +175,7 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 len = 0;
     guint8 *strptr = NULL;
     gint8 channel = CH_EINVAL;
-    tvbuff_t *json_tvb = NULL;      
+    tvbuff_t *json_tvb = NULL;
 
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb, offset, 1,
@@ -183,14 +183,14 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 1;
     proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len,
         ENC_BIG_ENDIAN);
-    offset += len;   
+    offset += len;
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_chan_len, tvb, offset, 1,
         ENC_BIG_ENDIAN);
     offset += 1;
-   
-    /* get the channel name as ephemeral string just to make an attempt 
-    *  in order to decode more payload if channel is "well known" 
+
+    /* get the channel name as ephemeral string just to make an attempt
+    *  in order to decode more payload if channel is "well known"
     */
     strptr = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
     proto_tree_add_item(tree, hf_hpfeeds_channel, tvb, offset, len,
@@ -215,7 +215,7 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ENC_NA);
         break;
     }
-   
+
 
 }
 
@@ -223,7 +223,7 @@ static void
 dissect_hpfeeds_subscribe_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
     guint8 len = 0;
-    /* get length of ident field */    
+    /* get length of ident field */
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb, offset, 1,
         ENC_BIG_ENDIAN);
@@ -257,7 +257,7 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 opcode;
     proto_item *ti;
     proto_tree *data_subtree;
-   
+
     /* Get opcode and write it */
     opcode = tvb_get_guint8(tvb, offset);
 
@@ -267,7 +267,7 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
         val_to_str(opcode, opcode_vals, "Unknown (0x%02x)"));
 
-    ti = proto_tree_add_item(tree, hf_hpfeeds_opcode, tvb, offset, 
+    ti = proto_tree_add_item(tree, hf_hpfeeds_opcode, tvb, offset,
             1, ENC_BIG_ENDIAN);
     data_subtree = proto_item_add_subtree(ti, ett_hpfeeds);
     offset += 1;
@@ -300,7 +300,7 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-static void 
+static void
 dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint msglen = 0;
@@ -314,14 +314,14 @@ dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* get message length in order to decide if we need to reassemble packet */
     msglen = tvb_get_ntohl(tvb, offset);
-    
-    /* Retrieve header data */    
+
+    /* Retrieve header data */
     if (tree) {
         ti = proto_tree_add_item(tree, proto_hpfeeds, tvb, 0, -1, ENC_NA);
         hpfeeds_tree = proto_item_add_subtree(ti, ett_hpfeeds);
-        proto_tree_add_item(hpfeeds_tree, hf_hpfeeds_msg_length, tvb, offset, 
+        proto_tree_add_item(hpfeeds_tree, hf_hpfeeds_msg_length, tvb, offset,
             4, ENC_BIG_ENDIAN);
-    } 
+    }
 
     if (tvb_reported_length(tvb) < msglen) {
         /* we need to reassemble */
@@ -335,7 +335,7 @@ void
 proto_register_hpfeeds(void)
 {
     static hf_register_info hf[] = {
-        
+
         { &hf_hpfeeds_opcode,
             { "Opcode", "hpfeeds.opcode",
             FT_UINT8, BASE_DEC_HEX,
@@ -442,7 +442,7 @@ proto_register_hpfeeds(void)
         "To use this option, you must also enable \"Allow subdissectors to "
         "reassemble TCP streams\" in the TCP protocol settings.",
         &hpfeeds_desegment);
-    
+
     prefs_register_uint_preference(hpfeeds_module,
         "dissector_port",
         "Dissector TCP port",
@@ -456,7 +456,7 @@ proto_reg_handoff_hpfeeds(void)
     static dissector_handle_t hpfeeds_handle;
     static gboolean hpfeeds_prefs_initialized = FALSE;
     static gint16 hpfeeds_dissector_port;
-    
+
     if (!hpfeeds_prefs_initialized) {
         hpfeeds_handle = create_dissector_handle(dissect_hpfeeds, proto_hpfeeds);
         hpfeeds_prefs_initialized = TRUE;
@@ -468,7 +468,7 @@ proto_reg_handoff_hpfeeds(void)
     hpfeeds_dissector_port = hpfeeds_port_pref;
 
     dissector_add_uint("tcp.port", hpfeeds_dissector_port,  hpfeeds_handle);
-        
+
     json_hdl = find_dissector("json");
 }
 

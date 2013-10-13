@@ -104,9 +104,9 @@ typedef struct fp_info
     gint   no_ddi_entries;
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
-    
+
     guint  edch_lchId[MAX_EDCH_DDIS];	/* Logical Channel Id for E-DCH*/
-    
+
     guint8 edch_type;  /* 1 means T2 */
 
     gint cur_tb;    /* current transport block (required for dissecting of single TBs */
@@ -121,7 +121,7 @@ typedef struct fp_info
     gboolean hsdhsch_macfdlow_is_mux[MAX_NUM_HSDHSCH_MACDFLOW];
     enum   fp_link_type link_type;
     guint urnti;	/*Used for tracking a "sequence" over diffrent transport channels*/
-    
+
     gboolean reset_frag; 	/*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
 } fp_info;
 
@@ -176,10 +176,10 @@ typedef struct
     guint8 hsdsch_macdflow_id;
 
     guint8 hsdsch_num_chans_per_flow[MAX_NUM_HSDHSCH_MACDFLOW];
-    
+
 	/*HSDSCH Common related data*/
 	guint8 common_macdflow_id;
-		
+
 	guint urnti;	/*Used for tracking a "sequence" over diffrent transport channels*/
 	guint hrnti;	/*Used for tracking a HS-DSCH flow*/
 	gboolean reset_frag; 	/*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/

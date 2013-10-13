@@ -36,8 +36,8 @@
 
 /*
  * The following value strings are definitions of NDPS
- * Object ID's defined by Novell. Third parties are able 
- * to define their own undocumented OID's. These cannot be 
+ * Object ID's defined by Novell. Third parties are able
+ * to define their own undocumented OID's. These cannot be
  * listed and the NDPS dissector will list these as unknown.
  */
 
@@ -48,7 +48,7 @@ static const value_string object_ids_7[] = { /* 0607 (LENGTH 7)*/
 	{ 0x0,			NULL },
 };
 
-static const value_string object_ids_8[] = { /* 0608 (LENGTH 8)*/ 
+static const value_string object_ids_8[] = { /* 0608 (LENGTH 8)*/
     /* These values are 0x28CF3F01+(defined number)*/
 	{ 0x00000600,		"STATE" },
 	{ 0x00000601,		"AVAILABILITY" },
@@ -508,7 +508,7 @@ static const value_string object_ids_9[] = { /* 060928 (LENGTH 9)*/
 	{ 0x0,			NULL },
 };
 
-static const value_string object_ids_10[] = { 
+static const value_string object_ids_10[] = {
     /* These values are 0x3F010000+(defined number)*/
 	{ 0x06328105,		"MEDIUM NORTH AMERICA 9X12 ENVELOPE" },
 	{ 0x06328106,		"MEDIUM MONARCH ENVELOPE" },
@@ -567,7 +567,7 @@ static const value_string object_ids_10[] = {
 	{ 0x0,			NULL },
 };
 
-static const value_string object_ids_11[] = { 
+static const value_string object_ids_11[] = {
     /* These values are 0x0186F837+(defined number)*/
 	{ 0x01040000,		"(Novell) Object Class GENERIC" },
 	{ 0x01040001,		"(Novell) Object Class JOB" },
@@ -1629,7 +1629,7 @@ static const value_string object_ids_14[] = { /* 060E6086 480186F8 (LENGTH 14)*/
 	{ 0x17028E13,		"(Novell) Attribute ALERT GATEWAY WITHOUT CONFIGURATION FILE" },
 	{ 0x17028E14,		"(Novell) Attribute ALERT PRINTER STATE CHANGED" },
 	{ 0x17028E15,		"(Novell) Attribute ALERT PRINTER STOPPED" },
-	{ 0x0,			NULL },  
+	{ 0x0,			NULL },
 };
 
 static const value_string object_ids_15[] = { /* 060F6086 480186F837 (LENGTH 15)*/

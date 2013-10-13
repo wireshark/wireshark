@@ -21,8 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
-#ifndef __PACKET_SCCP_H 
+
+#ifndef __PACKET_SCCP_H
 #define __PACKET_SCCP_H
 
 #include "ws_symbol_export.h"
@@ -69,7 +69,7 @@ typedef struct _sccp_msg_info_t {
 	guint framenum;
 	guint offset;
 	guint type;
-	
+
 	union {
 		struct {
 			gchar* label;
@@ -96,7 +96,7 @@ typedef struct _sccp_assoc_info_t {
     gboolean has_bw_key;
     sccp_msg_info_t* msgs;
     sccp_msg_info_t* curr_msg;
-	
+
     sccp_payload_t payload;
     gchar* calling_party;
     gchar* called_party;

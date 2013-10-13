@@ -271,7 +271,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
     return descriptor_len;
 }
 
- 
+
 /* dissector for usb midi bulk data */
 static void
 dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)

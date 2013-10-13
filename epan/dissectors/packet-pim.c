@@ -1011,7 +1011,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         offset += 2;
 
         for (i = 0; i < ngroup; i++) {
-            if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, 
+            if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
                                    wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), &tigroup,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak3;
@@ -1073,7 +1073,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         offset += advance;
 
         for (i = 0; tvb_reported_length_remaining(tvb, offset) > 0; i++) {
-            if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, 
+            if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
                                    wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), &tigroup,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak4;
@@ -1088,7 +1088,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             offset += 3;
 
             for (j = 0; j < frpcnt; j++) {
-                if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, 
+                if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
                                        wmem_strdup_printf(wmem_packet_scope(), "RP %d", j), NULL,
                                        hf_pim_rp_ip4, hf_pim_rp_ip6, &advance))
 
@@ -1114,13 +1114,13 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {
         int advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, 
+        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
                                 NULL, NULL,
                                 hf_pim_group_ip4, hf_pim_group_ip6, &advance))
             break;
         offset += advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, 
+        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
                                 NULL, NULL,
                                 hf_pim_source_ip4, hf_pim_source_ip6, &advance))
             break;
@@ -1155,14 +1155,14 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                    holdtime == 0xffff ? "(infinity)": "");
         offset += 2;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, 
+        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
                                 NULL, NULL,
                                 hf_pim_rp_ip4, hf_pim_rp_ip6, &advance))
             break;
         offset += advance;
 
         for (i = 0; i < pfxcnt; i++) {
-            if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, 
+            if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
                                    wmem_strdup_printf(wmem_packet_scope(), "Group %d", i), NULL,
                                    hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                 goto breakbreak8;
@@ -1176,19 +1176,19 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {
         int advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group, 
+        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_group,
                                 NULL, NULL,
                                 hf_pim_group_ip4, hf_pim_group_ip6, &advance))
             break;
         offset += advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, 
+        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
                                 NULL, NULL,
                                 hf_pim_source_ip4, hf_pim_source_ip6, &advance))
             break;
         offset += advance;
 
-        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast, 
+        if (!dissect_pim_addr(pimopt_tree, tvb, offset, pimv2_unicast,
                                 NULL, NULL,
                                 hf_pim_originator_ip4, hf_pim_originator_ip6, &advance))
             break;

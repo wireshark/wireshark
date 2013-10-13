@@ -1496,7 +1496,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
             offset += sdnv_length;
         }
     }
-    
+
     block_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     ti = proto_tree_add_int(block_tree, hf_block_control_block_length, tvb, offset, sdnv_length, block_length);
     if(block_length < 0) {
@@ -1765,7 +1765,7 @@ get_tcpcl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
             return 0;
 
         return len+bytecount+1;
-        
+
     case TCP_CONVERGENCE_KEEP_ALIVE:
     case TCP_CONVERGENCE_REFUSE_BUNDLE:
         /* always 1 byte */
@@ -1990,7 +1990,7 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
             tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_dtn_contact_header_len, dissect_dtn_contact_header);
             return tvb_length(tvb);
-        } 
+        }
 
         /* Not for us */
         return 0;

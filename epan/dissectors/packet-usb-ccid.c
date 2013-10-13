@@ -310,7 +310,7 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(desc_tree, hf_ccid_dwMechanical,
             tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    
+
     proto_tree_add_item(desc_tree, hf_ccid_dwFeatures,
             tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -490,9 +490,9 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /* If the user has opted to use the PN532 dissector for PC -> Reader comms, then use it here */
             if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU && tvb_get_guint8(tvb, 10) == 0xD5) {
-	      
+
                 /* Strip the ISO 7816 status word at the end, like we do in the PN532 dissector for FeliCa payloads... */
-                next_tvb= tvb_new_subset(tvb, 10, (tvb_get_guint8(tvb, 1) - 2), (tvb_get_guint8(tvb, 1) - 2)); 
+                next_tvb= tvb_new_subset(tvb, 10, (tvb_get_guint8(tvb, 1) - 2), (tvb_get_guint8(tvb, 1) - 2));
                 call_dissector(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, tree);
             }
 

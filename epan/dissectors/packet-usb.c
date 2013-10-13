@@ -480,7 +480,7 @@ extern value_string_ext ext_usb_products_vals;
 
 /*
  * Standard descriptor types.
- * 
+ *
  * all class specific descriptor types were removed from this list
  * a descriptor type is not globally unique
  * dissectors for the USB classes should provide their own value string
@@ -1495,7 +1495,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         /* Register conversation for this interface in case CONTROL messages are sent to it */
         usb_trans_info->interface_info = get_usb_iface_conv_info(pinfo, interface_num);
         usb_trans_info->interface_info->interfaceClass = tvb_get_guint8(tvb, offset);
-        /* save information useful to class-specific dissectors */ 
+        /* save information useful to class-specific dissectors */
         usb_trans_info->interface_info->interfaceSubclass = tvb_get_guint8(tvb, offset+1);
         usb_trans_info->interface_info->interfaceProtocol = tvb_get_guint8(tvb, offset+2);
         usb_trans_info->interface_info->deviceVendor      = usb_conv_info->deviceVendor;

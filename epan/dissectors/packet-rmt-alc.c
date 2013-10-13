@@ -173,7 +173,7 @@ void proto_reg_handoff_alc(void)
 		xml_handle = find_dissector("xml");
 		rmt_lct_handle = find_dissector("rmt-lct");
 		rmt_fec_handle = find_dissector("rmt-fec");
-	} 
+	}
 
 	/* Register UDP port for dissection */
 	if(old_udp_port != 0 && old_udp_port != g_default_udp_port){

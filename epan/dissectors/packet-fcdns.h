@@ -5,17 +5,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -172,12 +172,12 @@ static const value_string fc_dns_port_type_val [] = {
 #define FCDNS_RJT_IPANOTREG         0x06
 #define FCDNS_RJT_FC4NOTREG         0x07
 #define FCDNS_RJT_SPNAMENOTREG      0x08
-#define FCDNS_RJT_SNNAMENOTREG      0x09 
+#define FCDNS_RJT_SNNAMENOTREG      0x09
 #define FCDNS_RJT_PTYPENOTREG       0x0A
 #define FCDNS_RJT_IPPNOTREG         0x0B
 #define FCDNS_RJT_FPNAMENOTREG      0x0C
 #define FCDNS_RJT_HRDADDNOTREG      0x0D
-#define FCDNS_RJT_FC4DESNOTREG      0x0E 
+#define FCDNS_RJT_FC4DESNOTREG      0x0E
 #define FCDNS_RJT_FC4FEANOTREG      0x0F
 #define FCDNS_RJT_ACCRJT            0x10
 #define FCDNS_RJT_PTYPEFMT          0x11
@@ -216,7 +216,7 @@ static const value_string fc_dns_rjt_det_code_val [] = {
     {0, NULL},
 };
 
-/* Actual servers serving the directory service type identified by subtype */ 
+/* Actual servers serving the directory service type identified by subtype */
 #define FCDNS_GSSUBTYPE_DNS  0x02
 #define FCDNS_GSSUBTYPE_IP   0x03
 

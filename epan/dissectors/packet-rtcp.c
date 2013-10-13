@@ -2283,8 +2283,8 @@ dissect_rtcp_avb( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree 
     /* Name (ASCII) */
     proto_tree_add_item( tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII );
     offset += 4;
-    
-/*    32 bit wide 
+
+/*    32 bit wide
 gmTimeBaseIndicator | gmIdentity - low 16 bit
 gmIdentity - mid 32 bit
 gmIdentity - high 32 bit
@@ -2323,9 +2323,9 @@ dissect_rtcp_rsi( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree 
     item = proto_tree_add_item(tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(item);
     offset += 8;
-    
+
     /* Sub report blocks */
-    
+
     return offset + (packet_length - 16);
 }
 
