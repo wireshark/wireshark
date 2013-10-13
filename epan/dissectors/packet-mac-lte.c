@@ -1181,6 +1181,7 @@ static GHashTable *mac_lte_sr_request_hash = NULL;
 /**************************************************************************/
 
 
+
 /**************************************************************************/
 /* DRX State                                                              */
 /* Config for current cycle/timer state for a configured UE               */
@@ -1515,29 +1516,43 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
 
 /* Set DRX information to display for the current MAC frame.
    Only called on first pass through frames. */
-static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
+static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gboolean before_event)
 {
     /* Look up state of this UE */
     drx_state_t *ue_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_ue_state,
                                                                GUINT_TO_POINTER((guint)p_mac_lte_info->ueid));
     if (ue_state != NULL) {
-        /* Copy UE snapshot for this frame, and add to result table */
-        drx_state_t *frame_result = wmem_new(wmem_file_scope(), drx_state_t);
+        /* Should only need to allocate frame_result and add to the result table when
+           before PDU is processed */
+        if (before_event) {
+            /* Copy UE snapshot for this frame, and add to result table */
+            drx_state_t *frame_result = wmem_new(wmem_file_scope(), drx_state_t);
 
-        /* Deep-copy this snapshot for this frame */
-        *frame_result = *ue_state;
+            /* Deep-copy this snapshot for this frame */
+            *frame_result = *ue_state;
 
-        /* And store in table */
-        g_hash_table_insert(mac_lte_drx_frame_result, GUINT_TO_POINTER(pinfo->fd->num), frame_result);
+            /* And store in table */
+            g_hash_table_insert(mac_lte_drx_frame_result, GUINT_TO_POINTER(pinfo->fd->num), frame_result);
+        }
+        else {
+            /* After update, so just copy ue_state 'state' info after part of frame */
+            drx_state_t *frame_result = (drx_state_t*)g_hash_table_lookup(mac_lte_drx_frame_result,
+                                                                          GUINT_TO_POINTER(pinfo->fd->num));
+            if (frame_result != NULL) {
+                /* Deep-copy updated state */
+                frame_result->state_after = ue_state->state_before;
+            }
+        }
     }
 }
 
 /* Show DRX information associated with this MAC frame */
 static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-                          mac_lte_info *p_mac_lte_info)
+                          mac_lte_info *p_mac_lte_info, gboolean before_event)
 {
-    drx_state_t *frame_state;
-    guint64     time_until_expires;
+    drx_state_t         *frame_state;
+    drx_running_state_t *state_to_show;
+    guint64             time_until_expires;
 
     /* Look up entry by frame number in result table */
     frame_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_frame_result,
@@ -1548,71 +1563,83 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
         proto_tree *drx_config_tree, *drx_state_tree;
         proto_item *drx_config_ti, *drx_state_ti, *ti;
 
-        /************************************/
-        /* Create config subtree            */
-        drx_config_ti = proto_tree_add_string_format(tree, hf_mac_lte_drx_config,
-                                              tvb, 0, 0, "", "DRX Config");
-        drx_config_tree = proto_item_add_subtree(drx_config_ti, ett_mac_lte_drx_config);
-        PROTO_ITEM_SET_GENERATED(drx_config_ti);
+        /* Show config only if 'before */
+        if (before_event) {
+            /************************************/
+            /* Create config subtree            */
+            drx_config_ti = proto_tree_add_string_format(tree, hf_mac_lte_drx_config,
+                                                  tvb, 0, 0, "", "DRX Config");
+            drx_config_tree = proto_item_add_subtree(drx_config_ti, ett_mac_lte_drx_config);
+            PROTO_ITEM_SET_GENERATED(drx_config_ti);
 
-        /* Link back to configuration (RRC) frame */
-        ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_frame_num, tvb,
-                                 0, 0, frame_state->config.frameNum);
-        PROTO_ITEM_SET_GENERATED(ti);
+            /* Link back to configuration (RRC) frame */
+            ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_frame_num, tvb,
+                                     0, 0, frame_state->config.frameNum);
+            PROTO_ITEM_SET_GENERATED(ti);
 
-        /* Link back to any previous config frame (only from current config frame) */
-        if ((frame_state->config.frameNum == pinfo->fd->num) &&
-            (frame_state->config.previousFrameNum != 0)) {
-                ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_previous_frame_num, tvb,
-                                         0, 0, frame_state->config.previousFrameNum);
+            /* Link back to any previous config frame (only from current config frame) */
+            if ((frame_state->config.frameNum == pinfo->fd->num) &&
+                (frame_state->config.previousFrameNum != 0)) {
+                    ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_previous_frame_num, tvb,
+                                             0, 0, frame_state->config.previousFrameNum);
+                    PROTO_ITEM_SET_GENERATED(ti);
+            }
+
+            /* Config fields */
+            ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_long_cycle, tvb,
+                                     0, 0, frame_state->config.longCycle);
+            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_cycle_offset, tvb,
+                                     0, 0, frame_state->config.cycleOffset);
+            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_onduration_timer, tvb,
+                                     0, 0, frame_state->config.onDurationTimer);
+            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_inactivity_timer, tvb,
+                                     0, 0, frame_state->config.inactivityTimer);
+            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_retransmission_timer, tvb,
+                                     0, 0, frame_state->config.retransmissionTimer);
+            PROTO_ITEM_SET_GENERATED(ti);
+    
+            if (frame_state->config.shortCycleConfigured) {
+                ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_short_cycle, tvb,
+                                         0, 0, frame_state->config.shortCycle);
                 PROTO_ITEM_SET_GENERATED(ti);
-        }
 
-        /* Config fields */
-        ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_long_cycle, tvb,
-                                 0, 0, frame_state->config.longCycle);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_cycle_offset, tvb,
-                                 0, 0, frame_state->config.cycleOffset);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_onduration_timer, tvb,
-                                 0, 0, frame_state->config.onDurationTimer);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_inactivity_timer, tvb,
-                                 0, 0, frame_state->config.inactivityTimer);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_retransmission_timer, tvb,
-                                 0, 0, frame_state->config.retransmissionTimer);
-        PROTO_ITEM_SET_GENERATED(ti);
+                ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_short_cycle_timer, tvb,
+                                         0, 0, frame_state->config.shortCycleTimer);
+                PROTO_ITEM_SET_GENERATED(ti);
+            }
 
-        if (frame_state->config.shortCycleConfigured) {
-            ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_short_cycle, tvb,
-                                     0, 0, frame_state->config.shortCycle);
-            PROTO_ITEM_SET_GENERATED(ti);
-
-            ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_short_cycle_timer, tvb,
-                                     0, 0, frame_state->config.shortCycleTimer);
-            PROTO_ITEM_SET_GENERATED(ti);
-        }
-
-        proto_item_append_text(drx_config_ti, " (Long-cycle=%u cycle-offset=%u onDuration=%u)",
-                               frame_state->config.longCycle, frame_state->config.cycleOffset,
-                               frame_state->config.onDurationTimer);
-        if (frame_state->config.shortCycleConfigured) {
-            proto_item_append_text(drx_config_ti, " (Short-cycle=%u Short-cycle-timer=%u)",
-                                   frame_state->config.shortCycle, frame_state->config.shortCycleTimer);
+            proto_item_append_text(drx_config_ti, " (Long-cycle=%u cycle-offset=%u onDuration=%u)",
+                                   frame_state->config.longCycle, frame_state->config.cycleOffset,
+                                   frame_state->config.onDurationTimer);
+            if (frame_state->config.shortCycleConfigured) {
+                proto_item_append_text(drx_config_ti, " (Short-cycle=%u Short-cycle-timer=%u)",
+                                       frame_state->config.shortCycle, frame_state->config.shortCycleTimer);
+            }
         }
 
         /*************************************/
         /* Create state subtree              */
         drx_state_ti = proto_tree_add_string_format(tree, hf_mac_lte_drx_state,
-                                                    tvb, 0, 0, "", "DRX State");
+                                                    tvb, 0, 0, "",
+                                                    (before_event) ? "DRX State Before" : "DRX State After");
+        /* TODO: get and use appropriate state pointer and use below! */
+        if (before_event) {
+            state_to_show = &frame_state->state_before;
+        }
+        else {
+            state_to_show = &frame_state->state_after;
+        }
+
         drx_state_tree = proto_item_add_subtree(drx_state_ti, ett_mac_lte_drx_state);
         PROTO_ITEM_SET_GENERATED(drx_state_ti);
 
         /* Show cycle information */
 
-        if (!frame_state->state_before.inShortCycle) {
+        if (!state_to_show->inShortCycle) {
             /* Show where we are in current long cycle */
             guint16 offset_into_long_cycle = ((p_mac_lte_info->sysframeNumber*10) + p_mac_lte_info->subframeNumber) %
                                               frame_state->config.longCycle;
@@ -1622,11 +1649,11 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
             /* Show whether we're inside long cycle on-duration */
             ti = proto_tree_add_boolean(drx_state_tree, hf_mac_lte_drx_state_long_cycle_on, tvb,
-                                        0, 0, frame_state->state_before.inOnDuration);
+                                        0, 0, state_to_show->inOnDuration);
             PROTO_ITEM_SET_GENERATED(ti);
 
             proto_item_append_text(drx_state_ti, " (Offset-into-Long=%u, Long-cycle-on=%s)",
-                                   offset_into_long_cycle, frame_state->state_before.inOnDuration ? "True" : "False");
+                                   offset_into_long_cycle, state_to_show->inOnDuration ? "True" : "False");
         }
         else {
             /* Show where we are inside short cycle */
@@ -1639,11 +1666,11 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
             /* Show whether we're inside short cycle on-duration */
             ti = proto_tree_add_boolean(drx_state_tree, hf_mac_lte_drx_state_short_cycle_on, tvb,
-                                        0, 0, frame_state->state_before.inOnDuration);
+                                        0, 0, state_to_show->inOnDuration);
             PROTO_ITEM_SET_GENERATED(ti);
 
             proto_item_append_text(drx_state_ti, " (Offset-into-Short=%u, Long-cycle-on=%s)",
-                                   offset_into_short_cycle, frame_state->state_before.inOnDuration ? "True" : "False");
+                                   offset_into_short_cycle, state_to_show->inOnDuration ? "True" : "False");
         }
 
         /* TODO: Show which timers are still running and how long they have to go.
@@ -3246,7 +3273,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             update_drx_info(pinfo, p_mac_lte_info);
 
             /* Store 'before' snapshot of UE state for this frame */
-            set_drx_info(pinfo, p_mac_lte_info);
+            set_drx_info(pinfo, p_mac_lte_info, TRUE);
 
             /* Changes of state caused by events */
             if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
@@ -3264,7 +3291,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
 
         /* Show current DRX state in tree as 'before' */
-        show_drx_info(pinfo, tree, tvb, p_mac_lte_info);
+        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, TRUE);
     }
 
 
@@ -4124,19 +4151,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
     }
 
-#if 0
     /* Can now store updated DRX info and show its info in the tree */
     /* TODO: add and use 'after' flags to these functions */
     if (global_mac_lte_show_drx) {
         if (!pinfo->fd->flags.visited) {
             /* Store 'after' snapshot of UE state for this frame */
-            set_drx_info(pinfo, p_mac_lte_info);
+            set_drx_info(pinfo, p_mac_lte_info, FALSE);
         }
 
-        /* Show current DRX state in tree as 'before' */
-        show_drx_info(pinfo, tree, tvb, p_mac_lte_info);
+        /* Show current DRX state in tree as 'after' */
+        show_drx_info(pinfo, tree, tvb, p_mac_lte_info, FALSE);
     }
-#endif
 
     /* There might not be any data, if only headers (plus control data) were logged */
     is_truncated = ((tvb_length_remaining(tvb, offset) == 0) && expecting_body_data);
