@@ -164,34 +164,26 @@ compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 {
 	if (offset >= 0) {
 		/* Positive offset - relative to the beginning of the packet. */
-		if ((guint) offset > tvb->reported_length) {
-			if (tvb->flags & TVBUFF_FRAGMENT) {
-				return FragmentBoundsError;
-			} else {
-				return ReportedBoundsError;
-			}
-		}
-		else if ((guint) offset > tvb->length) {
-			return BoundsError;
-		}
-		else {
+		if ((guint) offset <= tvb->length) {
 			*offset_ptr = offset;
+		} else if ((guint) offset <= tvb->reported_length) {
+			return BoundsError;
+		} else if (tvb->flags & TVBUFF_FRAGMENT) {
+			return FragmentBoundsError;
+		} else {
+			return ReportedBoundsError;
 		}
 	}
 	else {
 		/* Negative offset - relative to the end of the packet. */
-		if ((guint) -offset > tvb->reported_length) {
-			if (tvb->flags & TVBUFF_FRAGMENT) {
-				return FragmentBoundsError;
-			} else {
-				return ReportedBoundsError;
-			}
-		}
-		else if ((guint) -offset > tvb->length) {
-			return BoundsError;
-		}
-		else {
+		if ((guint) -offset <= tvb->length) {
 			*offset_ptr = tvb->length + offset;
+		} else if ((guint) -offset <= tvb->reported_length) {
+			return BoundsError;
+		} else if (tvb->flags & TVBUFF_FRAGMENT) {
+			return FragmentBoundsError;
+		} else {
+			return ReportedBoundsError;
 		}
 	}
 
