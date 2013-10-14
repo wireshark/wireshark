@@ -27,7 +27,8 @@ since version 1.10:
 
 * Wireshark now uses the Qt application framework. The new UI should provide
   a significantly better user experience, particularly on Mac OS X and Windows.
-* A more flexible, modular memory manger (wmem) has been added.
+* A more flexible, modular memory manger (wmem) has been added. It was available
+  experimentally in 1.10 but is now mature and has mostly replaced the old API.
 * Expert info is now filterable and now requires a new API.
 * The Windows installer now uninstalls the previous version of Wireshark
   silently.  You can still run the uninstaller manually beforehand if you wish
