@@ -499,8 +499,9 @@ tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 	if (exception)
 		return FALSE;
 
-	/* XXX: Does not compute_offset guarantee this? I think we can just
-	 * unconditionally return TRUE here... */
+	/* compute_offset only throws an exception on >, not >= because of the
+	 * comment above check_offset_length_no_exception, but here we want the
+	 * opposite behaviour so we check ourselves... */
 	if (abs_offset < tvb->length) {
 		return TRUE;
 	}
