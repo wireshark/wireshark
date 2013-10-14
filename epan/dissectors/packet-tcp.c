@@ -4225,7 +4225,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else
         tcph->th_have_seglen = FALSE;
 
-    if (tree) {
+    {
         gboolean first_flag = TRUE;
         for (i = 0; i < 9; i++) {
             bpos = 1 << i;
