@@ -241,6 +241,8 @@ PacketList::PacketList(QWidget *parent) :
     setModel(packet_list_model_);
     packet_list_model_->setColorEnabled(recent.packet_list_colorize);
 
+    // XXX We might want to reimplement setParent() and fill in the context
+    // menu there.
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditMarkPacket"));
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));

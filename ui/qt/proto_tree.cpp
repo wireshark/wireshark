@@ -164,6 +164,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
     setAccessibleName(tr("Packet details"));
     setUniformRowHeights(true);
 
+    // XXX We might want to reimplement setParent() and fill in the context
+    // menu there.
     ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
     ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
     ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));

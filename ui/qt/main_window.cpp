@@ -178,12 +178,11 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     master_split_.setObjectName(tr("splitterMaster"));
     extra_split_.setObjectName(tr("splitterExtra"));
+    main_ui_->mainStack->addWidget(&master_split_);
+
     empty_pane_.setObjectName(tr("emptyPane"));
 
-    empty_pane_.setParent(&master_split_);
-
     packet_list_ = new PacketList(&master_split_);
-    packet_list_->setParent(&master_split_);
 
     proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->setHeaderHidden(true);
@@ -197,10 +196,7 @@ MainWindow::MainWindow(QWidget *parent) :
     packet_list_->setByteViewTab(byte_view_tab_);
     packet_list_->installEventFilter(this);
 
-    main_ui_->mainStack->addWidget(&master_split_);
-
     main_welcome_ = main_ui_->welcomePage;
-
 
     connect(wsApp, SIGNAL(captureCapturePrepared(capture_session *)),
             this, SLOT(captureCapturePrepared(capture_session *)));
