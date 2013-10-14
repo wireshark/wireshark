@@ -596,7 +596,8 @@ static void dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
 
 static void dissect_ssl3_hnd_srv_keyex_ecdh(tvbuff_t *tvb,
                                           proto_tree *tree,
-                                          guint32 offset, guint32 length);
+                                          guint32 offset, guint32 length,
+                                          const guint *conv_version);
 
 
 static void dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb,
@@ -605,7 +606,8 @@ static void dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb,
 
 static void dissect_ssl3_hnd_srv_keyex_rsa(tvbuff_t *tvb,
                                           proto_tree *tree,
-                                          guint32 offset, guint32 length);
+                                          guint32 offset, guint32 length,
+                                          const guint *conv_version);
 
 static void dissect_ssl3_hnd_srv_keyex_psk(tvbuff_t *tvb,
                                           proto_tree *tree,
@@ -2079,10 +2081,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                     dissect_ssl3_hnd_srv_keyex_dh(tvb, ssl_hand_tree, offset, length);
                     break;
                 case KEX_RSA:
-                    dissect_ssl3_hnd_srv_keyex_rsa(tvb, ssl_hand_tree, offset, length);
+                    dissect_ssl3_hnd_srv_keyex_rsa(tvb, ssl_hand_tree, offset, length, conv_version);
                     break;
                 case KEX_ECDH:
-                    dissect_ssl3_hnd_srv_keyex_ecdh(tvb, ssl_hand_tree, offset, length);
+                    dissect_ssl3_hnd_srv_keyex_ecdh(tvb, ssl_hand_tree, offset, length, conv_version);
                     break;
                 case KEX_RSA_PSK:
                 case KEX_PSK:
@@ -3197,14 +3199,18 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
 
 static void
 dissect_ssl3_hnd_srv_keyex_ecdh(tvbuff_t *tvb, proto_tree *tree,
-                              guint32 offset, guint32 length)
+                              guint32 offset, guint32 length,
+                              const guint *conv_version)
 {
     gint        curve_type, curve_type_offset;
     gint        named_curve, named_curve_offset;
     gint        point_len, point_len_offset;
     gint        sig_len, sig_len_offset;
+    gint        sig_algo, sig_algo_offset;
     proto_item *ti_ecdh;
+    proto_item *ti_algo;
     proto_tree *ssl_ecdh_tree;
+    proto_tree *ssl_algo_tree;
     guint32     orig_offset;
 
     orig_offset = offset;
@@ -3232,6 +3238,22 @@ dissect_ssl3_hnd_srv_keyex_ecdh(tvbuff_t *tvb, proto_tree *tree,
     }
     offset += 1 + point_len;
 
+    switch (*conv_version) {
+    case SSL_VER_TLSv1DOT2:
+        sig_algo_offset = offset;
+        sig_algo = tvb_get_ntohs(tvb, offset);
+        offset += 2;
+        if ((offset - orig_offset) > length) {
+            return;
+        }
+        break;
+
+    default:
+        sig_algo_offset = 0;
+        sig_algo = 0;
+        break;
+    }
+
     sig_len_offset = offset;
     sig_len = tvb_get_ntohs(tvb, offset);
     offset += 2 + sig_len;
@@ -3257,6 +3279,22 @@ dissect_ssl3_hnd_srv_keyex_ecdh(tvbuff_t *tvb, proto_tree *tree,
         tvb, point_len_offset, 1, point_len);
     proto_tree_add_item(ssl_ecdh_tree, hf_ssl_handshake_server_keyex_point,
             tvb, point_len_offset+1, point_len, ENC_NA);
+
+    switch (*conv_version) {
+    case SSL_VER_TLSv1DOT2:
+        ti_algo = proto_tree_add_uint(ssl_ecdh_tree, hf_ssl_handshake_sig_hash_alg,
+                                      tvb, offset, 2, sig_algo);
+        ssl_algo_tree = proto_item_add_subtree(ti_algo, ett_ssl_sig_hash_alg);
+
+        proto_tree_add_item(ssl_algo_tree, hf_ssl_handshake_sig_hash_hash,
+                            tvb, sig_algo_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ssl_algo_tree, hf_ssl_handshake_sig_hash_sig,
+                            tvb, sig_algo_offset+1, 1, ENC_BIG_ENDIAN);
+        break;
+
+    default:
+        break;
+    }
 
     /* Sig */
     proto_tree_add_uint(ssl_ecdh_tree, hf_ssl_handshake_server_keyex_sig_len,
@@ -3372,13 +3410,17 @@ dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
 /* Only used in RSA-EXPORT cipher suites */
 static void
 dissect_ssl3_hnd_srv_keyex_rsa(tvbuff_t *tvb, proto_tree *tree,
-                              guint32 offset, guint32 length)
+                              guint32 offset, guint32 length,
+                              const guint *conv_version)
 {
     gint        modulus_len, modulus_len_offset;
     gint        exponent_len, exponent_len_offset;
     gint        sig_len, sig_len_offset;
+    gint        sig_algo, sig_algo_offset;
     proto_item *ti_rsa;
+    proto_item *ti_algo;
     proto_tree *ssl_rsa_tree;
+    proto_tree *ssl_algo_tree;
     guint32     orig_offset;
 
     orig_offset = offset;
@@ -3395,6 +3437,22 @@ dissect_ssl3_hnd_srv_keyex_rsa(tvbuff_t *tvb, proto_tree *tree,
     offset += 2 + exponent_len;
     if ((offset - orig_offset) > length) {
         return;
+    }
+
+    switch (*conv_version) {
+    case SSL_VER_TLSv1DOT2:
+        sig_algo_offset = offset;
+        sig_algo = tvb_get_ntohs(tvb, offset);
+        offset += 2;
+        if ((offset - orig_offset) > length) {
+            return;
+        }
+        break;
+
+    default:
+        sig_algo_offset = 0;
+        sig_algo = 0;
+        break;
     }
 
     sig_len_offset = offset;
@@ -3420,6 +3478,22 @@ dissect_ssl3_hnd_srv_keyex_rsa(tvbuff_t *tvb, proto_tree *tree,
         tvb, exponent_len_offset, 2, exponent_len);
     proto_tree_add_item(ssl_rsa_tree, hf_ssl_handshake_server_keyex_exponent,
             tvb, exponent_len_offset + 2, exponent_len, ENC_NA);
+
+    switch (*conv_version) {
+    case SSL_VER_TLSv1DOT2:
+        ti_algo = proto_tree_add_uint(ssl_rsa_tree, hf_ssl_handshake_sig_hash_alg,
+                                      tvb, offset, 2, sig_algo);
+        ssl_algo_tree = proto_item_add_subtree(ti_algo, ett_ssl_sig_hash_alg);
+
+        proto_tree_add_item(ssl_algo_tree, hf_ssl_handshake_sig_hash_hash,
+                            tvb, sig_algo_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ssl_algo_tree, hf_ssl_handshake_sig_hash_sig,
+                            tvb, sig_algo_offset+1, 1, ENC_BIG_ENDIAN);
+        break;
+
+    default:
+        break;
+    }
 
     /* Sig */
     proto_tree_add_uint(ssl_rsa_tree, hf_ssl_handshake_server_keyex_sig_len,
