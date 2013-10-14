@@ -44,6 +44,7 @@
 #include "ws_symbol_export.h"
 
 #include "qt_ui_utils.h"
+#include "wireshark_application.h"
 
 #include "globals.h"
 #include "file.h"
@@ -56,10 +57,11 @@
 #include <zlib.h>
 #endif
 
-#include <QInputDialog>
+#include <QKeyEvent>
 #include <QMessageBox>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QTextEdit>
 #include <QTextStream>
 
 FollowStreamDialog::FollowStreamDialog(QWidget *parent) :
@@ -69,16 +71,16 @@ FollowStreamDialog::FollowStreamDialog(QWidget *parent) :
     follow_info = NULL;
     ui->setupUi(this);
 
-    this->setFixedSize(this->size());
+    ui->teStreamContent->setFont(wsApp->monospaceFont());
+    ui->teStreamContent->installEventFilter(this);
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(HelpButton()));
 
-    bFilterOut = ui->buttonBox->addButton(tr("Filter out this stream"), QDialogButtonBox::ActionRole);
+    bFilterOut = ui->buttonBox->addButton(tr("Hide this stream"), QDialogButtonBox::ActionRole);
     connect(bFilterOut, SIGNAL(clicked()), this, SLOT(FilterOut()));
 
-
-    bFind = ui->buttonBox->addButton(tr("Find"), QDialogButtonBox::ActionRole);
-    connect(bFind, SIGNAL(clicked()), this, SLOT(FindText()));
+//    bFind = ui->buttonBox->addButton(tr("Find"), QDialogButtonBox::ActionRole);
+//    connect(bFind, SIGNAL(clicked()), this, SLOT(FindText()));
 
     bPrint = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
     connect(bPrint, SIGNAL(clicked()), this, SLOT(Print()));
@@ -99,16 +101,17 @@ void FollowStreamDialog::Print()
 #endif
 }
 
-void FollowStreamDialog::FindText()
+void FollowStreamDialog::FindText(bool go_back)
 {
-    bool ok;
-    QString text = QInputDialog::getText(this, tr("Wireshark: Find text"),
-                                         tr("Find text:"), QLineEdit::Normal,
-                                         " ", &ok);
-    if (ok && !text.isEmpty())
-    {
+    if (ui->leFind->text().isEmpty()) return;
+
+    bool found = ui->teStreamContent->find(ui->leFind->text());
+
+    if (found) {
+        ui->teStreamContent->setFocus();
+    } else if (go_back) {
         ui->teStreamContent->moveCursor(QTextCursor::Start);
-        ui->teStreamContent->find(text);
+        FindText(false);
     }
 }
 
@@ -199,6 +202,21 @@ void FollowStreamDialog::on_cbCharset_currentIndexChanged(int index)
     }
 
     follow_read_stream();
+}
+
+void FollowStreamDialog::on_bFind_clicked()
+{
+    FindText();
+}
+
+void FollowStreamDialog::on_leFind_returnPressed()
+{
+    FindText();
+}
+
+void FollowStreamDialog::on_buttonBox_rejected()
+{
+    hide();
 }
 
 frs_return_t
@@ -392,6 +410,7 @@ FollowStreamDialog::follow_stream()
     follow_info->is_ipv6 = stats.is_ipv6;
 
     follow_read_stream();
+    ui->teStreamContent->moveCursor(QTextCursor::Start);
 }
 
 
@@ -461,6 +480,57 @@ void FollowStreamDialog::add_text(char *buffer, size_t nchars, gboolean is_from_
         ui->teStreamContent->setTextBackgroundColor(tagclient_bg);
         ui->teStreamContent->insertPlainText(buf);
     }
+}
+
+// The following keyboard shortcuts should work (although
+// they may not work consistently depending on focus):
+// / (slash), Ctrl-F - Focus and highlight the search box
+// Ctrl-G, Ctrl-N, F3 - Find next
+// Should we make it so that typing any text starts searching?
+bool FollowStreamDialog::eventFilter(QObject *obj, QEvent *event)
+{
+    Q_UNUSED(obj)
+    if (ui->teStreamContent->hasFocus() && event->type() == QEvent::KeyPress) {
+        ui->leFind->setFocus();
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->matches(QKeySequence::Find)) {
+            return true;
+        } else if (keyEvent->matches(QKeySequence::FindNext)) {
+            FindText();
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void FollowStreamDialog::keyPressEvent(QKeyEvent *event)
+{
+    if (ui->leFind->hasFocus()) {
+        if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+            FindText();
+            return;
+        }
+    } else {
+        if (event->key() == Qt::Key_Slash || event->matches(QKeySequence::Find)) {
+            ui->leFind->setFocus();
+            ui->leFind->selectAll();
+        }
+        return;
+    }
+
+    if (event->key() == Qt::Key_F3 || event->key() == Qt::Key_N && event->modifiers() & Qt::ControlModifier) {
+        FindText();
+        return;
+    }
+
+    QDialog::keyPressEvent(event);
+}
+
+void FollowStreamDialog::closeEvent(QCloseEvent *event)
+{
+    Q_UNUSED(event)
+    hide();
 }
 
 

@@ -93,16 +93,23 @@ public:
 
     void add_text(char *buffer, size_t nchars, gboolean is_from_server);
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void closeEvent (QCloseEvent *event);
+
 private slots:
     void on_cbCharset_currentIndexChanged(int index);
     void on_cbDirections_currentIndexChanged(int index);
+    void on_bFind_clicked();
+    void on_leFind_returnPressed();
+    void on_buttonBox_rejected();
+
     void HelpButton();
     void FilterOut();
-    void FindText();
+    void FindText(bool go_back = true);
     void SaveAs();
     void Print();
-//    void on_bNext_clicked();
-//    void on_bPrevious_clicked();
 
 signals:
     void updateFilter(QString &filter, bool force);

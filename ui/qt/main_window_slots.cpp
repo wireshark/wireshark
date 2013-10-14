@@ -1703,6 +1703,9 @@ void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 
 void MainWindow::on_actionAnalyzeFollowTCPStream_triggered()
 {
+    // XXX Keeping a window or dialog in memory is common in the GTK+
+    // code but not in the Qt code. Should we just create a new
+    // dialog and exec() it instead?
     follow_stream_dialog_.Follow(getFilter(), FOLLOW_TCP);
 
     if (follow_stream_dialog_.isMinimized() == true)
