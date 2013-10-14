@@ -121,6 +121,7 @@ What needs to be done?
 - Add back checkAPI target.
 - Test and add support for other platforms (BSDs, OSX,
   Solaris, Win32, Win64, ...)
+- Add support for cmake configurations
 ...
 
 Links regarding cmake

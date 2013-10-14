@@ -21,16 +21,18 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-INCLUDE(FindWSWinLibs)
-FindWSWinLibs("gtk3" "GTK3_HINTS")
-if(DEFINED GTK3_HINTS)
-    if (DEFINED ENV{PKG_CONFIG_PATH})
-        set( ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:{GTK3_HINTS}/lib/pkgconfig" )
+INCLUDE( FindWSWinLibs )
+FindWSWinLibs( "gtk3" "GTK3_HINTS" )
+if( DEFINED GTK3_HINTS )
+    set( GTK3_PKG_CONFIG_PATH "${GTK3_HINTS}/lib/pkgconfig" )
+    file( TO_NATIVE_PATH ${GTK3_PKG_CONFIG_PATH} GTK3_PKG_NATIVE_PATH )
+
+    if ( DEFINED ENV{PKG_CONFIG_PATH} )
+        set( ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${GTK3_PKG_NATIVE_PATH}" )
     else()
-        set( ENV{PKG_CONFIG_PATH} "${GTK3_HINTS}/lib/pkgconfig" )
+        set( ENV{PKG_CONFIG_PATH} "${GTK3_PKG_NATIVE_PATH}" )
     endif()
 endif()
-    
 
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
@@ -41,7 +43,7 @@ PKG_CHECK_MODULES(PC_GTK3 gtk+-3.0 QUIET)
 # MESSAGE(STATUS "PC_GTK3_INCLUDE_DIRS: ${PC_GTK3_INCLUDE_DIRS}")
 # MESSAGE(STATUS "PC_GTK3_LIBRARIES: ${PC_GTK3_LIBRARIES}")
 # MESSAGE(STATUS "PC_GTK3_LIBRARY_DIRS: ${PC_GTK3_LIBRARY_DIRS}")
-# MESSAGE(STATUS "PC_GTK3_LDFLAGS: ${PC_GTK3_LDFLAGS}")
+MESSAGE(STATUS "PC_GTK3_LDFLAGS: ${PC_GTK3_LDFLAGS}")
 # MESSAGE(STATUS "PC_GTK3_LDFLAGS_OTHER: ${PC_GTK3_LDFLAGS_OTHER}")
 
 SET(GTK3_DEFINITIONS ${PC_GTK3_CFLAGS_OTHER})
@@ -66,7 +68,7 @@ if( NOT PC_GTK3_FOUND )
             ${PC_GTK3_LIBRARY_DIRS}
     )
 else()
-    set( GTK3_LIBRARY ${PC_GTK3_LIBRARIES} )
+    set( GTK3_LIBRARY ${PC_GTK3_LIBRARIES} ${PC_GTK3_LIBRARY_DIRS} )
     set( GTK3_INCLUDE_DIR ${PC_GTK3_INCLUDEDIR} ${PC_GTK3_INCLUDE_DIRS} )
 endif()
 # handle the QUIETLY and REQUIRED arguments and set GTK3_FOUND to TRUE if
