@@ -1204,7 +1204,8 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     vwr_t           *vwr = (vwr_t *)wth->priv;
     register int    i;                              /* temps */
     register        guint8  *s_start_ptr,*s_trail_ptr, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
-    gint16          msdu_length, actual_octets;        /* octets in frame */
+    guint32         msdu_length, actual_octets;        /* octets in frame */
+    guint32         tmp_len;
     guint8          l1p_1,l1p_2, flow_seq, plcp_type, mcs_index, nss;   /* mod (CCK-L/CCK-S/OFDM) */
     guint64         s_time = LL_ZERO, e_time = LL_ZERO; /* start/end */
                                                     /*  times, nsec */
@@ -1224,6 +1225,10 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     guint16         radioflags = 0;                 /* extended radio tap flags */
     guint64         delta_b;                        /* Used for calculating latency */
     
+
+    if (rec_size<48)
+       rec_size = 48;
+
     /* calculate the start of the statistics block in the buffer */
     /* also get a bunch of fields from the stats block */
     s_start_ptr = &(rec[0]);
@@ -1236,9 +1241,9 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     {
         mcs_index = l1p_1 & 0x3f;
         plcp_type = l1p_2 & 0x03;
+        /* we do the range checks at the end before copying the values
+           into the wtap header */
         msdu_length = ((s_start_ptr[4] & 0x1f) << 8) + s_start_ptr[3];
-        /* If the packet has an MSDU length of 0, then bail - malformed packet */
-        /* if (msdu_length < 4) return; */
         actual_octets = msdu_length;
         
         vc_id = pntohs(&s_start_ptr[6]);
@@ -1338,15 +1343,8 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
             radioflags |= RADIOTAP_F_CHAN_80MHZ;
     }
     
-    /* sanity check the msdu_length field to determine if it is OK (or segfaults result) */
-    /* if it's greater, then truncate to the indicated message length */
-        /*changed the comparison
-        if (msdu_length > (rec_size )) {
-        msdu_length = (rec_size );
-    }
-*/
-    if (msdu_length > (rec_size - 48)) {
-        msdu_length = (rec_size - 48);
+    if (msdu_length > (guint32)(rec_size - 48)) {
+        msdu_length = (guint32)(rec_size - 48);
     }
 
     /* calculate start & end times (in sec/usec), converting 64-bit times to usec */
@@ -1396,8 +1394,10 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     /* len is the length of the original packet before truncation */
     /* the FCS is NOT included */
     r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
-    wth->phdr.len = (actual_octets - 4) + r_hdr_len;
-    wth->phdr.caplen = (msdu_length - 4) + r_hdr_len;
+    tmp_len = (actual_octets - 4) + r_hdr_len;
+    wth->phdr.len = tmp_len<=G_MAXUINT16 ? tmp_len : 0;
+    tmp_len = (msdu_length - 4) + r_hdr_len;
+    wth->phdr.caplen = tmp_len<=G_MAXUINT16 ? tmp_len : 0;
 
     wth->phdr.presence_flags = WTAP_HAS_TS;
 
