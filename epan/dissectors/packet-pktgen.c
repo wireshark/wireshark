@@ -36,7 +36,7 @@
 #include <epan/packet.h>
 
 /* magic num used for heuristic */
-static const guint8 pktgen_magic[] = { 0xbe, 0x9b, 0xe9, 0x55 };
+#define PKTGEN_MAGIC 0xbe9be955
 
 /* Initialize the protocol and registered fields */
 static int proto_pktgen = -1;
@@ -62,59 +62,63 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree *pktgen_tree = NULL;
     guint32 offset = 0;
     nstime_t tstamp;
+    guint32 magic;
 
     /* check for min size */
     if(tvb_length(tvb) < 16) { 	/* Not a PKTGEN packet. */
-	return FALSE;
+    return FALSE;
     }
 
     /* check for magic number */
-    if(tvb_memeql(tvb, 0, pktgen_magic, 4) == -1) { /* Not a PKTGEN packet. */
-	return FALSE;
+    magic = tvb_get_ntohl(tvb,0);
+    if(magic != PKTGEN_MAGIC){
+        /* Not a PKTGEN packet. */
+        return FALSE;
     }
+
 
     /* Make entries in Protocol column and Info column on summary display */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTGEN");
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq: %u", tvb_get_ntohl(tvb, 4));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Seq: %u", tvb_get_ntohl(tvb, 4));
 
     if(tree) {
 
-	/* create display subtree for the protocol */
+        /* create display subtree for the protocol */
 
-	ti = proto_tree_add_item(tree, proto_pktgen, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_pktgen, tvb, 0, -1, ENC_NA);
 
-	pktgen_tree = proto_item_add_subtree(ti, ett_pktgen);
+        pktgen_tree = proto_item_add_subtree(ti, ett_pktgen);
 
-	/* add items to the subtree */
+        /* add items to the subtree */
 
-	proto_tree_add_item(pktgen_tree, hf_pktgen_magic, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset+=4;
+        proto_tree_add_item(pktgen_tree, hf_pktgen_magic, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
 
-	proto_tree_add_item(pktgen_tree, hf_pktgen_seqnum, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset+=4;
+        proto_tree_add_item(pktgen_tree, hf_pktgen_seqnum, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
 
-	tstamp.secs = tvb_get_ntohl(tvb, offset);
-	tmp = proto_tree_add_item(pktgen_tree, hf_pktgen_tvsec, tvb, offset, 4, ENC_BIG_ENDIAN);
-	PROTO_ITEM_SET_GENERATED(tmp);
-	offset+=4;
+        tstamp.secs = tvb_get_ntohl(tvb, offset);
+        tmp = proto_tree_add_item(pktgen_tree, hf_pktgen_tvsec, tvb, offset, 4, ENC_BIG_ENDIAN);
+        PROTO_ITEM_SET_GENERATED(tmp);
+        offset+=4;
 
-	tstamp.nsecs = tvb_get_ntohl(tvb, offset) /* microsecond on the wire so... */ * 1000;
-	tmp = proto_tree_add_item(pktgen_tree, hf_pktgen_tvusec, tvb, offset, 4, ENC_BIG_ENDIAN);
-	PROTO_ITEM_SET_GENERATED(tmp);
-	offset+=4;
+        tstamp.nsecs = tvb_get_ntohl(tvb, offset) /* microsecond on the wire so... */ * 1000;
+        tmp = proto_tree_add_item(pktgen_tree, hf_pktgen_tvusec, tvb, offset, 4, ENC_BIG_ENDIAN);
+        PROTO_ITEM_SET_GENERATED(tmp);
+        offset+=4;
 
-	proto_tree_add_time(pktgen_tree, hf_pktgen_timestamp, tvb, offset - 8, 8, &tstamp);
+        proto_tree_add_time(pktgen_tree, hf_pktgen_timestamp, tvb, offset - 8, 8, &tstamp);
 
 #if 0
-	if(tvb_length_remaining(tvb, offset)) /* random data */
-	    proto_tree_add_text(pktgen_tree, tvb, offset, -1, "Data (%u bytes)",
-				tvb_length_remaining(tvb, offset));
+        if(tvb_length_remaining(tvb, offset)) /* random data */
+            proto_tree_add_text(pktgen_tree, tvb, offset, -1, "Data (%u bytes)",
+            tvb_length_remaining(tvb, offset));
 #else
-	if(tvb_length_remaining(tvb, offset)) /* random data */
-	    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
-		pktgen_tree);
+        if(tvb_length_remaining(tvb, offset)) /* random data */
+            call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
+            pktgen_tree);
 #endif
     }
 

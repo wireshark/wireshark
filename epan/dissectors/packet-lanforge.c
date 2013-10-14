@@ -38,7 +38,7 @@
 #include <epan/packet.h>
 
 /* magic num used for heuristic */
-static const guint8 lanforge_magic[] = { 0x1a, 0x2b, 0x3c, 0x4d };
+#define LANFORGE_MAGIC 0x1a2b3c4d
 
 /* Initialize the protocol and registered fields */
 static int proto_lanforge = -1;
@@ -73,7 +73,7 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     nstime_t tstamp;
     guint32 tss;
     guint32 tmpi;
-    guint32 pld_len;
+    guint32 pld_len, magic;
 
     /* check for min size */
     if(tvb_length(tvb) < 28) {  /* Not a LANforge packet. */
@@ -81,8 +81,10 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     /* check for magic number */
-    if(tvb_memeql(tvb, 4, lanforge_magic, 4) == -1) { /* Not a LANforge packet. */
-       return FALSE;
+    magic = tvb_get_ntohl(tvb,0);
+    if(magic != LANFORGE_MAGIC){
+        /* Not a LANforge packet. */
+        return FALSE;
     }
 
     /* Make entries in Protocol column and Info column on summary display */

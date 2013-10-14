@@ -3133,14 +3133,15 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 static gboolean
 dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  static const char artnet_packet_id[] = "Art-Net\0";
+  guint64     qword;
 
   /* check if we atleast have the 8 byte header */
-  if (tvb_length(tvb) < sizeof(artnet_packet_id))
+  if (tvb_length(tvb) < 8)
     return FALSE;
 
-  /* Check the 8 byte header */
-  if (tvb_memeql(tvb, 0, artnet_packet_id, sizeof(artnet_packet_id) - 1) != 0)
+  /* Check the 8 byte header "Art-Net\0" = 0x4172742d4e7400*/
+  qword = tvb_get_ntoh64(tvb,0);
+  if(qword != G_GINT64_CONSTANT (0x4172742d4e7400U))
     return FALSE;
 
   /* if the header matches, dissect it */

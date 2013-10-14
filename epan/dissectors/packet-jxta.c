@@ -48,6 +48,7 @@
 
 #include "packet-jxta.h"
 
+#define JXTA_UDP_MAGIC 0x4a5a5441 /* JXTA */
 static const gchar JXTA_UDP_SIG[] = { 'J', 'X', 'T', 'A' };
 static const gchar JXTA_MSG_SIG[] = { 'j', 'x', 'm', 'g' };
 static const gchar JXTA_MSGELEM_SIG[] = { 'j', 'x', 'e', 'l' };
@@ -229,8 +230,11 @@ static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
     int save_desegment_offset;
     guint32 save_desegment_len;
     int ret;
+    guint32 magic;
 
-    if (tvb_memeql(tvb, 0, JXTA_UDP_SIG, sizeof(JXTA_UDP_SIG)) != 0) {
+    magic = tvb_get_ntohl(tvb,0);
+    if(magic != JXTA_UDP_MAGIC){
+        /* Not a JXTA UDP packet. */
         return FALSE;
     }
 

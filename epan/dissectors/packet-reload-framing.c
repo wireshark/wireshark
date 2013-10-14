@@ -148,12 +148,12 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (effective_length < 12)  /* [type + seq + length + token] */
       return 0;
 
-    message_length = tvb_get_ntoh24(tvb, 1 + 4);
-    if (message_length < MIN_RELOADDATA_HDR_LENGTH) {
-      return 0;
-    }
     relo_token = tvb_get_ntohl(tvb,1 + 4 + 3);
     if (relo_token != RELOAD_TOKEN) {
+      return 0;
+    }
+    message_length = tvb_get_ntoh24(tvb, 1 + 4);
+    if (message_length < MIN_RELOADDATA_HDR_LENGTH) {
       return 0;
     }
     break;

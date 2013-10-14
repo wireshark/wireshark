@@ -82,7 +82,7 @@ static gint ett_miop = -1;
 static expert_field ei_miop_version_not_supported = EI_INIT;
 static expert_field ei_miop_unique_id_len_exceed_max_value = EI_INIT;
 
-#define MIOP_MAGIC   "MIOP"
+#define MIOP_MAGIC   0x4d494f50 /* "MIOP" */ 
 
 static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 
@@ -90,6 +90,7 @@ static gboolean
 dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_) {
 
   guint tot_len;
+  guint32 magic;
 
   /* check magic number and version */
 
@@ -103,8 +104,11 @@ dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
       return FALSE;
     }
 
-  if ( tvb_memeql(tvb, 0, MIOP_MAGIC ,4) != 0)
-    return FALSE;
+    magic = tvb_get_ntohl(tvb,0);
+    if(magic != MIOP_MAGIC){
+        /* Not a MIOP packet. */
+        return FALSE;
+    }
 
   if (pinfo->ptype != PT_UDP)
     return FALSE;
@@ -141,7 +145,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
   wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
   wmem_strbuf_append(flags_strbuf, "none");
 
-  col_set_str (pinfo->cinfo, COL_PROTOCOL, MIOP_MAGIC);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "MIOP");
   /* Clear out stuff in the info column */
   col_clear(pinfo->cinfo, COL_INFO);
 

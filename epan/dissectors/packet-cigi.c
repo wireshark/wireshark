@@ -2457,14 +2457,14 @@ packet_is_cigi(tvbuff_t *tvb)
         /* Not enough data available to check */
         return FALSE;
     }
-    packet_id = tvb_get_guint8(tvb, 0);
     packet_size = tvb_get_guint8(tvb, 1);
-    cigi_version_local = tvb_get_guint8(tvb, 2);
 
     if ( packet_size > tvb_reported_length(tvb) ) {
         return FALSE;
     }
 
+    packet_id = tvb_get_guint8(tvb, 0);
+    cigi_version_local = tvb_get_guint8(tvb, 2);
     /* Currently there are only 3 versions of CIGI */
     switch ( cigi_version_local ) {
 
