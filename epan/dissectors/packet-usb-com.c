@@ -40,6 +40,8 @@ static gint ett_usb_com = -1;
 
 static dissector_handle_t mbim_control_handle;
 static dissector_handle_t mbim_descriptor_handle;
+static dissector_handle_t mbim_bulk_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 
 #define CS_INTERFACE 0x24
 #define CS_ENDPOINT  0x25
@@ -197,6 +199,29 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return tvb_length(tvb);
 }
 
+static int
+dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    usb_conv_info_t *usb_conv_info;
+
+    usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
+
+    if (usb_conv_info) {
+        switch (usb_conv_info->interfaceProtocol)
+        {
+            case 0x01: /* Network Transfer Block */
+            case 0x02: /* Network Transfer Block (IP + DSS) */
+                return call_dissector_only(mbim_bulk_handle, tvb, pinfo, tree, NULL);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /* By default, assume it is ethernet without FCS */
+    return call_dissector_only(eth_withoutfcs_handle, tvb, pinfo, tree, NULL);
+}
+
 void
 proto_register_usb_com(void)
 {
@@ -230,14 +255,18 @@ proto_register_usb_com(void)
 void
 proto_reg_handoff_usb_com(void)
 {
-    dissector_handle_t usb_com_descriptor_handle, usb_com_control_handle;
+    dissector_handle_t usb_com_descriptor_handle, usb_com_control_handle, usb_com_bulk_handle;
 
     usb_com_descriptor_handle = new_create_dissector_handle(dissect_usb_com_descriptor, proto_usb_com);
     dissector_add_uint("usb.descriptor", IF_CLASS_COMMUNICATIONS, usb_com_descriptor_handle);
     usb_com_control_handle = new_create_dissector_handle(dissect_usb_com_control, proto_usb_com);
     dissector_add_uint("usb.control", IF_CLASS_COMMUNICATIONS, usb_com_control_handle);
+    usb_com_bulk_handle = new_create_dissector_handle(dissect_usb_com_bulk, proto_usb_com);
+    dissector_add_uint("usb.bulk", IF_CLASS_CDC_DATA, usb_com_bulk_handle);
     mbim_control_handle = find_dissector("mbim.control");
     mbim_descriptor_handle = find_dissector("mbim.descriptor");
+    mbim_bulk_handle = find_dissector("mbim.bulk");
+    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 }
 
 /*
