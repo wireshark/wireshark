@@ -105,8 +105,11 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tci = tvb_get_ntohs( tvb, 0 );
 
+#if 0
+  /* Adding to col info is probably useless as next dissector will overwrite it */
   col_add_fstr(pinfo->cinfo, COL_INFO, "PRI: %u  CFI: %u  ID: %u",
                (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
+#endif
   col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%u", (tci & 0xFFF));
 
   vlan_tree = NULL;
