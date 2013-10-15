@@ -1047,7 +1047,7 @@ static int parse_s1_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     register int    i;                              /* temps */
     register guint8 *s_ptr, *m_ptr;                 /* stats pointer */
     guint16         octets, msdu_length;            /* octets in frame */
-    guint32         tmp_len;
+    guint64         tmp_len;
     guint16         rflags;
     guint8          m_type, flow_seq;               /* mod type (CCK-L/CCK-S/OFDM), seqnum */
     guint64         s_time = LL_ZERO, e_time = LL_ZERO; /* start/end */
@@ -1147,9 +1147,9 @@ static int parse_s1_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
 
     tmp_len = (msdu_length - 4) + r_hdr_len;
-    wth->phdr.len = tmp_len<=G_MAXUINT16 ? tmp_len : 0;
+    wth->phdr.len = tmp_len<=G_MAXUINT32 ? tmp_len : 0;
     tmp_len = (octets - 4) + r_hdr_len;
-    wth->phdr.caplen = tmp_len<=G_MAXUINT16 ? tmp_len : 0;
+    wth->phdr.caplen = tmp_len<=G_MAXUINT32 ? tmp_len : 0;
 
     wth->phdr.len = (msdu_length - 4) + r_hdr_len;
     wth->phdr.caplen = (octets - 4) + r_hdr_len;
@@ -1219,7 +1219,7 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     register int    i;                              /* temps */
     register        guint8  *s_start_ptr,*s_trail_ptr, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
     guint32         msdu_length, actual_octets;        /* octets in frame */
-    guint32         tmp_len;
+    guint64         tmp_len;
     guint8          l1p_1,l1p_2, flow_seq, plcp_type, mcs_index, nss;   /* mod (CCK-L/CCK-S/OFDM) */
     guint64         s_time = LL_ZERO, e_time = LL_ZERO; /* start/end */
                                                     /*  times, nsec */
@@ -1409,9 +1409,9 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     /* the FCS is NOT included */
     r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
     tmp_len = (actual_octets - 4) + r_hdr_len;
-    wth->phdr.len = tmp_len<=G_MAXUINT16 ? tmp_len : 0;
+    wth->phdr.len = tmp_len<=G_MAXUINT32 ? tmp_len : 0;
     tmp_len = (msdu_length - 4) + r_hdr_len;
-    wth->phdr.caplen = tmp_len<=G_MAXUINT16 ? tmp_len : 0;
+    wth->phdr.caplen = tmp_len<=G_MAXUINT32 ? tmp_len : 0;
 
     wth->phdr.presence_flags = WTAP_HAS_TS;
 
