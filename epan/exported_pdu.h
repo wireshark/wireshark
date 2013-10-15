@@ -24,6 +24,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef EXPORTED_PDU_H
+#define EXPORTED_PDU_H
+
 #include "config.h"
 
 #include <glib.h>
@@ -144,3 +147,6 @@ typedef struct _exp_pdu_data_t {
  */
 WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, 
                                 const char* proto_name, int wtap_encap, guint32 wanted_exp_tags);
+
+#endif /* EXPORTED_PDU_H */
+
