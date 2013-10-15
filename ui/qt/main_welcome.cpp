@@ -103,6 +103,8 @@ MainWelcome::MainWelcome(QWidget *parent) :
     welcome_ui_->interfaceTree->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 
+    task_list_->setMinimumWidth((task_list_->fontMetrics().height() * 7) // 2 + 1.5 + 1.5 + <mystery_width/> em
+                                + task_list_->fontMetrics().width(QString("live packets from your network")));
     task_list_->setStyleSheet(QString(
                                   "QListWidget {"
                                   "  margin-right: 2em;"

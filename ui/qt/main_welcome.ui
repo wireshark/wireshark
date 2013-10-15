@@ -24,7 +24,7 @@
     <widget class="QWidget" name="childContainer" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <layout class="QGridLayout" name="gridLayout">
+       <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
         <item row="1" column="1">
          <widget class="QStackedWidget" name="taskStack">
           <property name="sizePolicy">
@@ -34,20 +34,11 @@
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="captureContainer">
            <layout class="QVBoxLayout" name="verticalLayout_3">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
@@ -132,10 +123,43 @@
           </widget>
           <widget class="QLabel" name="helpLinks">
            <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User's Guide&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Wiki&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;
+&lt;body&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User's Guide&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+How to install Wireshark and how to use each of its features.&lt;br/&gt;
+Other formats and command-line man pages can be found on&lt;br/&gt;
+the &lt;a href=&quot;http://www.wireshark.org/docs/&quot;&gt;documentation page&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://wiki.wireshark.org/&quot;&gt;The Wireshark Wiki&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+User-contributed pages on different aspects of using Wireshark.&lt;br/&gt;
+Capturing in different environments, filtering, specific protocols,&lt;br/&gt;
+and a variety of other information.
+&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://ask.wireshark.org/&quot;&gt;Wireshark Q&amp;amp;A&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+Question and answer site for Wireshark and protocol analysis.
+&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+In-depth discussions about Wireshark and protocol analysis.
+&lt;/p&gt;
+
+&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
            </property>
           </widget>
          </widget>
@@ -163,7 +187,7 @@
           <item>
            <property name="text">
             <string>Capture
-live packets from the network</string>
+live packets from your network</string>
            </property>
           </item>
           <item>
