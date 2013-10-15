@@ -950,7 +950,7 @@ guint oid_encoded2subid_sub(const guint8 *oid_bytes, gint oid_len, guint32** sub
 	 * so initialize our one byte to zero and return. This *seems* to be
 	 * the right thing to do in this situation, and at the very least it
 	 * avoids uninitialized memory errors that would otherwise occur. */
-	if ((is_first && n == 0) || (!is_first && n == 1)) {
+	if ((is_first && n == 1) || (!is_first && n == 0)) {
 		*subids = 0;
 		return n;
 	}
@@ -984,6 +984,8 @@ guint oid_encoded2subid_sub(const guint8 *oid_bytes, gint oid_len, guint32** sub
 		*subids++ = (guint32)subid;
 		subid = 0;
 	}
+
+	g_assert(subids == subid_overflow);
 
 	return n;
 }
