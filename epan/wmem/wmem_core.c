@@ -35,6 +35,11 @@
 #include "wmem_allocator_block.h"
 #include "wmem_allocator_strict.h"
 
+/* Set according to the WIRESHARK_DEBUG_WMEM_OVERRIDE environment variable in
+ * wmem_init. Should not be set again. */
+static gboolean do_override = FALSE;
+static wmem_allocator_type_t override_type;
+
 void *
 wmem_alloc(wmem_allocator_t *allocator, const size_t size)
 {
@@ -135,30 +140,13 @@ wmem_destroy_allocator(wmem_allocator_t *allocator)
 wmem_allocator_t *
 wmem_allocator_new(const wmem_allocator_type_t type)
 {
-    const char            *override;
     wmem_allocator_t      *allocator;
     wmem_allocator_type_t  real_type;
 
-    /* Our valgrind script uses this environment variable to override the
-     * usual allocator choice so that everything goes through system-level
-     * allocations that it understands and can track. Otherwise it will get
-     * confused by the block allocator etc. */
-    override = getenv("WIRESHARK_DEBUG_WMEM_OVERRIDE");
-
-    if (override == NULL) {
-        real_type = type;
-    }
-    else if (strncmp(override, "simple", strlen("simple")) == 0) {
-        real_type = WMEM_ALLOCATOR_SIMPLE;
-    }
-    else if (strncmp(override, "block", strlen("block")) == 0) {
-        real_type = WMEM_ALLOCATOR_BLOCK;
-    }
-    else if (strncmp(override, "strict", strlen("strict")) == 0) {
-        real_type = WMEM_ALLOCATOR_STRICT;
+    if (do_override) {
+        real_type = override_type;
     }
     else {
-        g_warning("Unrecognized wmem override");
         real_type = type;
     }
 
@@ -191,6 +179,34 @@ wmem_allocator_new(const wmem_allocator_type_t type)
 void
 wmem_init(void)
 {
+    const char *override_env;
+
+    /* Our valgrind script uses this environment variable to override the
+     * usual allocator choice so that everything goes through system-level
+     * allocations that it understands and can track. Otherwise it will get
+     * confused by the block allocator etc. */
+    override_env = getenv("WIRESHARK_DEBUG_WMEM_OVERRIDE");
+
+    if (override_env == NULL) {
+        do_override = FALSE;
+    }
+    else {
+        do_override = TRUE;
+        if (strncmp(override_env, "simple", strlen("simple")) == 0) {
+            override_type = WMEM_ALLOCATOR_SIMPLE;
+        }
+        else if (strncmp(override_env, "block", strlen("block")) == 0) {
+            override_type = WMEM_ALLOCATOR_BLOCK;
+        }
+        else if (strncmp(override_env, "strict", strlen("strict")) == 0) {
+            override_type = WMEM_ALLOCATOR_STRICT;
+        }
+        else {
+            g_warning("Unrecognized wmem override");
+            do_override = FALSE;
+        }
+    }
+
     wmem_init_scopes();
 }
 

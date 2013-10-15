@@ -40,40 +40,6 @@
 
 typedef void (*wmem_verify_func)(wmem_allocator_t *allocator);
 
-/* A local copy of wmem_allocator_new that ignores the
- * WIRESHARK_DEBUG_WMEM_OVERRIDE variable so that test functions are
- * guaranteed to actually get the allocator type they asked for */
-static wmem_allocator_t *
-wmem_allocator_force_new(const wmem_allocator_type_t type)
-{
-    wmem_allocator_t      *allocator;
-
-    allocator = wmem_new(NULL, wmem_allocator_t);
-    allocator->type = type;
-    allocator->callbacks = NULL;
-    allocator->in_scope = TRUE;
-
-    switch (type) {
-        case WMEM_ALLOCATOR_SIMPLE:
-            wmem_simple_allocator_init(allocator);
-            break;
-        case WMEM_ALLOCATOR_BLOCK:
-            wmem_block_allocator_init(allocator);
-            break;
-        case WMEM_ALLOCATOR_STRICT:
-            wmem_strict_allocator_init(allocator);
-            break;
-        default:
-            g_assert_not_reached();
-            /* This is necessary to squelch MSVC errors; is there
-	       any way to tell it that g_assert_not_reached()
-	       never returns? */
-            return NULL;
-    };
-
-    return allocator;
-}
-
 /* A helper for generating pseudo-random strings. Just uses glib's random number
  * functions to generate 'numbers' in the printable character range. */
 static gchar *
@@ -236,7 +202,9 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
     char *ptrs[MAX_SIMULTANEOUS_ALLOCS];
     wmem_allocator_t *allocator;
 
-    allocator = wmem_allocator_force_new(type);
+    /* We never run wmem_init so we don't have to worry about overrides giving
+     * us the wrong type. */
+    allocator = wmem_allocator_new(type);
 
     if (verify) (*verify)(allocator);
 
@@ -337,7 +305,7 @@ wmem_time_allocator(wmem_allocator_type_t type)
     int i, j;
     wmem_allocator_t *allocator;
 
-    allocator = wmem_allocator_force_new(type);
+    allocator = wmem_allocator_new(type);
 
     for (j=0; j<128; j++) {
         for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
