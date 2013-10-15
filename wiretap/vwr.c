@@ -1108,7 +1108,7 @@ static int parse_s1_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     m_ptr = &(rec[((m_type == vwr->MT_OFDM) ? 4 : 6)]);
     tmp_len = (m_type == vwr->MT_OFDM) ? 4 : 6;
     if (octets >= tmp_len)
-       octets -= tmp_len;
+       octets -= (guint16) tmp_len;
     else
        octets = 0;
 
