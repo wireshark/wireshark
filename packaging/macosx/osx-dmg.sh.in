@@ -155,6 +155,12 @@ packagemaker --doc "Wireshark_package.pmdoc" \
     --version "$version" \
     --verbose || exit 1
 
+if [ -n "$CODE_SIGN_IDENTITY" ] ; then
+	echo -e "Signing the $pkg_file"
+	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$pkg_file" || exit 1
+	codesign --verify --verbose "$pkg_file" || exit 1
+fi
+
 echo -e "\nCREATE WIRESHARK DISK IMAGE\n"
 img_name="$pkg_title.dmg"
 
@@ -244,5 +250,11 @@ if [ -e "$img_name" ]; then
 fi
 /usr/bin/hdiutil convert "$rw_name" -format UDZO -imagekey zlib-level=9 -o "$img_name" || exit 1
 rm -f "$rw_name"
+
+#if [ -n "$CODE_SIGN_IDENTITY" ] ; then
+#	echo -e "Signing the $img_name"
+#	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$img_name" || exit 1
+#	codesign --verify --verbose "$img_name" || exit 1
+#fi
 
 exit 0

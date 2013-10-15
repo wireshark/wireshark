@@ -579,4 +579,10 @@ else
 
 fi
 
+if [ -n "$CODE_SIGN_IDENTITY" ] ; then
+	echo -e "Signing $package"
+	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$package" || exit 1
+	codesign --verify --verbose "$package" || exit 1
+fi
+
 exit 0
