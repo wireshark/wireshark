@@ -647,8 +647,8 @@ const value_string DIS_PDU_TSAllocationFidelity_Strings[] =
 
 const value_string DIS_PDU_TerminalPrimaryMode_Strings[] =
 {
-    {0,    "NTR" },
-    {1,    "JTIDS Unit Participant" },
+    {1,    "NTR" },
+    {2,    "JTIDS Unit Participant" },
     {0,    NULL }
 };
 
@@ -663,9 +663,8 @@ const value_string DIS_PDU_TerminalSecondaryMode_Strings[] =
 
 const value_string DIS_PDU_ModParamSyncState_Strings[] =
 {
-    {0,    "Undefined" },
-    {1,    "Coarse Synchronization" },
-    {1,    "Fine Synchronization" },
+    {2,    "Coarse Synchronization" },
+    {3,    "Fine Synchronization" },
     {0,    NULL }
 };
 
