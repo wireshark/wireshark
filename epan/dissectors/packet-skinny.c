@@ -3446,6 +3446,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
     case 0x8100: /* SPCPRegisterTokenAck */
       proto_tree_add_item(skinny_tree, hf_skinny_featureID, tvb, offset+12, 4, ENC_ASCII|ENC_NA);
+      break;
 
     case 0x8101: /* SPCPRegisterTokenReject */
       proto_tree_add_item(skinny_tree, hf_skinny_tokenRejWaitTime, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
