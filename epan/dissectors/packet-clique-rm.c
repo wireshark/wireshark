@@ -276,11 +276,14 @@ dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   guint8      version;
   guint8      type;
   int         offset = 0;
+  guint64     qword;
 
   if (tvb_length(tvb) < 12)
     return FALSE;
 
-  if (tvb_strneql(tvb, offset, "Clique", 6))
+  qword = tvb_get_ntoh48(tvb,0);
+  /* ASCII str for 'Clique' = 0x436c69717565 */
+  if(qword != G_GINT64_CONSTANT (0x436c69717565U))
     return FALSE;
   offset += 6;
 

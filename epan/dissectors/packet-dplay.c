@@ -1153,17 +1153,18 @@ static void dissect_dplay_player_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint8 signature[] = {'p','l','a','y'};
     guint32 dplay_id, token;
 
     if(tvb_length(tvb) < 25)
         return FALSE;
 
+    /* The string play = 0x706c6179 */
     dplay_id = tvb_get_letohl(tvb, 20);
-    if( memcmp(signature, (guint8 *)&dplay_id, 4) == 0) {
+    if( dplay_id == 0x706c6179) {
         dissect_dplay(tvb, pinfo, tree);
         return TRUE;
     }
+
 
     /* There is a player to player message that does not contain "play" */
     token = tvb_get_letohl(tvb, 0);
