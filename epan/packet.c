@@ -195,7 +195,7 @@ static GSList *init_routines;
 void
 register_init_routine(void (*func)(void))
 {
-	init_routines = g_slist_append(init_routines, (gpointer)func);
+	init_routines = g_slist_prepend(init_routines, (gpointer)func);
 }
 
 typedef void (*void_func_t)(void);
@@ -288,7 +288,7 @@ static GSList *postseq_cleanup_routines;
 void
 register_postseq_cleanup_routine(void_func_t func)
 {
-	postseq_cleanup_routines = g_slist_append(postseq_cleanup_routines,
+	postseq_cleanup_routines = g_slist_prepend(postseq_cleanup_routines,
 			(gpointer)func);
 }
 
@@ -378,7 +378,7 @@ static GSList *final_registration_routines;
 void
 register_final_registration_routine(void (*func)(void))
 {
-	final_registration_routines = g_slist_append(final_registration_routines,
+	final_registration_routines = g_slist_prepend(final_registration_routines,
 			(gpointer)func);
 }
 
@@ -1752,7 +1752,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto
 	hdtbl_entry->enabled   = TRUE;
 
 	/* do the table insertion */
-	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)hdtbl_entry);
+	*sub_dissectors = g_slist_prepend(*sub_dissectors, (gpointer)hdtbl_entry);
 }
 
 
