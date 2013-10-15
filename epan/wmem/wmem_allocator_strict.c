@@ -39,8 +39,8 @@
  * possible.
  */
 
-#define WMEM_CANARY_SIZE  4 /* in units of guint32 */
-#define WMEM_CANARY_VALUE 0x8EE8D476
+#define WMEM_CANARY_SIZE  4 /* in bytes */
+#define WMEM_CANARY_VALUE 0x9E
 
 #define WMEM_PREFILL  0xA1
 #define WMEM_POSTFILL 0x1A
@@ -49,9 +49,9 @@ typedef struct _wmem_strict_allocator_block_t {
     /* Just the length of real_data, not counting the canaries */
     gsize   data_len;
 
-    guint32 *leading_canary;
-    guint8  *real_data;
-    guint32 *trailing_canary;
+    guint8 *leading_canary;
+    guint8 *real_data;
+    guint8 *trailing_canary;
 } wmem_strict_allocator_block_t;
 
 typedef struct _wmem_strict_allocator_t {
@@ -105,11 +105,11 @@ wmem_strict_block_new(const size_t size)
     block = wmem_new(NULL, wmem_strict_allocator_block_t);
 
     block->data_len        = size;
-    block->leading_canary  = (guint32 *)wmem_alloc(NULL, block->data_len + (2 * sizeof(guint32) * WMEM_CANARY_SIZE));
-    block->real_data       = (guint8 *)(block->leading_canary + WMEM_CANARY_SIZE);
-    block->trailing_canary = (guint32 *)(block->real_data + block->data_len);
+    block->leading_canary  = (guint8 *)wmem_alloc(NULL, block->data_len + (2 * WMEM_CANARY_SIZE));
+    block->real_data       = block->leading_canary + WMEM_CANARY_SIZE;
+    block->trailing_canary = block->real_data + block->data_len;
 
-    memset(block->real_data,       WMEM_PREFILL,      block->data_len);
+    memset(block->real_data, WMEM_PREFILL, block->data_len);
     for (i=0; i<WMEM_CANARY_SIZE; i++) {
         block->leading_canary[i]  = WMEM_CANARY_VALUE;
         block->trailing_canary[i] = WMEM_CANARY_VALUE;
