@@ -1147,9 +1147,9 @@ static int parse_s1_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
 
     tmp_len = (msdu_length - 4) + r_hdr_len;
-    wth->phdr.len = tmp_len<=G_MAXUINT32 ? tmp_len : 0;
+    wth->phdr.len = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
     tmp_len = (octets - 4) + r_hdr_len;
-    wth->phdr.caplen = tmp_len<=G_MAXUINT32 ? tmp_len : 0;
+    wth->phdr.caplen = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
 
     wth->phdr.len = (msdu_length - 4) + r_hdr_len;
     wth->phdr.caplen = (octets - 4) + r_hdr_len;
@@ -1409,9 +1409,9 @@ static int parse_s2_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     /* the FCS is NOT included */
     r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
     tmp_len = (actual_octets - 4) + r_hdr_len;
-    wth->phdr.len = tmp_len<=G_MAXUINT32 ? tmp_len : 0;
+    wth->phdr.len = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
     tmp_len = (msdu_length - 4) + r_hdr_len;
-    wth->phdr.caplen = tmp_len<=G_MAXUINT32 ? tmp_len : 0;
+    wth->phdr.caplen = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
 
     wth->phdr.presence_flags = WTAP_HAS_TS;
 
