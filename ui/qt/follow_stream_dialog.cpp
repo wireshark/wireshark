@@ -79,9 +79,6 @@ FollowStreamDialog::FollowStreamDialog(QWidget *parent) :
     bFilterOut = ui->buttonBox->addButton(tr("Hide this stream"), QDialogButtonBox::ActionRole);
     connect(bFilterOut, SIGNAL(clicked()), this, SLOT(FilterOut()));
 
-//    bFind = ui->buttonBox->addButton(tr("Find"), QDialogButtonBox::ActionRole);
-//    connect(bFind, SIGNAL(clicked()), this, SLOT(FindText()));
-
     bPrint = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
     connect(bPrint, SIGNAL(clicked()), this, SLOT(Print()));
 
