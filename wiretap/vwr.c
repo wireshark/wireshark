@@ -1046,7 +1046,8 @@ static int parse_s1_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     vwr_t           *vwr = (vwr_t *)wth->priv;
     register int    i;                              /* temps */
     register guint8 *s_ptr, *m_ptr;                 /* stats pointer */
-    gint16          octets, msdu_length;            /* octets in frame */
+    guint16         octets, msdu_length;            /* octets in frame */
+    guint32         tmp_len;
     guint16         rflags;
     guint8          m_type, flow_seq;               /* mod type (CCK-L/CCK-S/OFDM), seqnum */
     guint64         s_time = LL_ZERO, e_time = LL_ZERO; /* start/end */
@@ -1064,6 +1065,10 @@ static int parse_s1_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     int             sig_off, pay_off;               /* MAC+SNAP header len, signature offset */
     guint64         sig_ts;                         /* 32 LSBs of timestamp in signature */
     float           phyRate;
+
+
+    if (rec_size<64)
+       rec_size = 64;
 
     /* calculate the start of the statistics block in the buffer */
     /* also get a bunch of fields from the stats block */
@@ -1101,7 +1106,11 @@ static int parse_s1_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
     /* note that the number of octets in the frame also varies depending on OFDM/CCK, */
     /*  because the PLCP header is prepended to the actual MPDU */
     m_ptr = &(rec[((m_type == vwr->MT_OFDM) ? 4 : 6)]);
-    octets -= (m_type == vwr->MT_OFDM) ? 4 : 6;
+    tmp_len = (m_type == vwr->MT_OFDM) ? 4 : 6;
+    if (octets >= tmp_len)
+       octets -= tmp_len;
+    else
+       octets = 0;
 
     /* sanity check the octets field to determine if it is OK (or segfaults result) */
     /* if it's greater, then truncate to actual record size */
@@ -1136,6 +1145,11 @@ static int parse_s1_W_stats(wtap *wth, guint8 *rec, int rec_size, ext_rtap_field
 
     /* Pack the common and er structs) */
     r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
+
+    tmp_len = (msdu_length - 4) + r_hdr_len;
+    wth->phdr.len = tmp_len<=G_MAXUINT16 ? tmp_len : 0;
+    tmp_len = (octets - 4) + r_hdr_len;
+    wth->phdr.caplen = tmp_len<=G_MAXUINT16 ? tmp_len : 0;
 
     wth->phdr.len = (msdu_length - 4) + r_hdr_len;
     wth->phdr.caplen = (octets - 4) + r_hdr_len;
