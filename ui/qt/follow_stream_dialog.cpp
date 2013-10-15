@@ -506,7 +506,7 @@ void FollowStreamDialog::keyPressEvent(QKeyEvent *event)
         return;
     }
 
-    if (event->key() == Qt::Key_F3 || event->key() == Qt::Key_N && (event->modifiers() & Qt::ControlModifier)) {
+    if (event->key() == Qt::Key_F3 || (event->key() == Qt::Key_N && event->modifiers() & Qt::ControlModifier)) {
         FindText();
         return;
     }
