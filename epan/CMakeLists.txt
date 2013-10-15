@@ -21,6 +21,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+include(UseABICheck)
+
 if (HAVE_LIBLUA)
 	include( wslua/CMakeLists.txt )
 endif()
@@ -1607,17 +1609,8 @@ set_target_properties(epan PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
 set_target_properties(epan PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(epan PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
 
-# discover and substitute list of include directories for ABI compatibility
-# checks
-get_directory_property(INCLUDE_DIRS INCLUDE_DIRECTORIES)
-list(REMOVE_DUPLICATES INCLUDE_DIRS)
-string(REGEX REPLACE ";" "\n" INCLUDE_DIRS "${INCLUDE_DIRS}")
-configure_file(../abi-descriptor.template abi-descriptor.xml)
+ABICHECK(libwireshark)
 
-# ABI compliance checker can be obtained from
-# http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
-# Checked using version 1.21.12
-file(GLOB EPAN_HEADERS *.h)
 file(GLOB CRYPT_HEADERS crypt/*.h)
 file(GLOB DFILTER_HEADERS dfilter/*.h ../tools/lemon/cppmagic.h)
 file(GLOB D_HEADERS dissectors/*.h)
@@ -1631,8 +1624,8 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers
 	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/ftypes
 	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/wmem)
 
-file(COPY ../color.h ../register.h ../ws_symbol_export.h DESTINATION abi-check-headers)
-file(COPY ${EPAN_HEADERS} DESTINATION abi-check-headers/epan)
+file(COPY ../color.h ../register.h DESTINATION abi-check-headers)
+file(COPY ${HEADERS} DESTINATION abi-check-headers/epan)
 file(COPY ${CRYPT_HEADERS} DESTINATION abi-check-headers/crypt)
 file(COPY ${DFILTER_HEADERS} DESTINATION abi-check-headers/dfilter)
 file(COPY ${D_HEADERS} DESTINATION abi-check-headers/dissectors)
@@ -1654,10 +1647,9 @@ add_custom_command(OUTPUT libwireshark.abi.tar.gz
 		abi-check-headers/epan/* abi-check-headers/crypt/*
 		abi-check-headers/dfilter/* abi-check-headers/dissectors/*
 		abi-check-headers/ftypes/* abi-check-headers/wmem/*
-	DEPENDS ${EPAN_HEADERS}
+	DEPENDS ${HEADERS}
 		${CRYPT_HEADERS} ${DFILTER_HEADERS} ${D_HEADERS}
 		${FTYPES_HEADERS} ${WMEM_HEADERS} epan)
-add_custom_target(dumpabi-libwireshark DEPENDS libwireshark.abi.tar.gz)
 
 # By default the name for a library with target name epan will be libepan,
 # but Ethereal is now named Wireshark
