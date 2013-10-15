@@ -53,6 +53,8 @@ void proto_reg_handoff_udp(void);
 static dissector_handle_t udp_handle;
 static dissector_handle_t udplite_handle;
 
+static int proto_udp;
+
 static int udp_tap = -1;
 static int udp_follow_tap = -1;
 
@@ -167,6 +169,13 @@ static dissector_handle_t data_handle;
 
 static gboolean try_heuristic_first = FALSE;
 
+/* Per-packet-info for UDP */
+typedef struct
+{
+	gboolean found_heuristic;
+
+} udp_p_info_t;
+
 
 /* Conversation and process code originally copied from packet-tcp.c */
 static struct udp_analysis *
@@ -276,6 +285,18 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   tvbuff_t *next_tvb;
   int low_port, high_port;
   gint len, reported_len;
+  udp_p_info_t *udp_p_info = NULL;
+  gboolean prev_heur_found = FALSE; 
+
+  if(pinfo->fd->flags.visited){
+    udp_p_info = (udp_p_info_t*)p_get_proto_data(pinfo->fd, proto_udp, pinfo->curr_layer_num);
+    if(udp_p_info){
+      prev_heur_found = udp_p_info->found_heuristic;
+	}
+  }else{
+    /* Force heuristic check on first pass */
+    prev_heur_found = TRUE;
+  }
 
   len = tvb_length_remaining(tvb, offset);
   reported_len = tvb_reported_length_remaining(tvb, offset);
@@ -306,10 +327,17 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return;
   }
 
-  if (try_heuristic_first) {
+  if (try_heuristic_first && prev_heur_found) {
     /* do lookup with the heuristic subdissector table */
-    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL))
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)){
+      if(!udp_p_info){
+        udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
+        udp_p_info->found_heuristic = TRUE;
+        /* pinfo->curr_layer_num-1 because the heuristic dissector added one */
+        p_add_proto_data(pinfo->fd, proto_udp, pinfo->curr_layer_num-1, udp_p_info);
+	  }
       return;
+	}
   }
 
   /* Do lookups with the subdissector table.
@@ -342,10 +370,17 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
       dissector_try_uint(udp_dissector_table, high_port, next_tvb, pinfo, tree))
     return;
 
-  if (!try_heuristic_first) {
+  if (!try_heuristic_first && prev_heur_found) {
     /* do lookup with the heuristic subdissector table */
-    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL))
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)){
+      if(!udp_p_info){
+        udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
+        udp_p_info->found_heuristic = TRUE;
+        /* pinfo->curr_layer_num-1 because the heuristic dissector added one */
+        p_add_proto_data(pinfo->fd, proto_udp, pinfo->curr_layer_num-1, udp_p_info);
+	  }
       return;
+    }
   }
 
   call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -718,7 +753,7 @@ proto_register_udp(void)
 		{ &ei_udp_checksum_bad, { "udp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
 	};
 
-	int proto_udp, proto_udplite;
+	int proto_udplite;
 
 	proto_udp = proto_register_protocol("User Datagram Protocol",
 	    "UDP", "udp");
