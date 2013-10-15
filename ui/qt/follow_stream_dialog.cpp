@@ -43,6 +43,7 @@
 #include "wsutil/file_util.h"
 #include "ws_symbol_export.h"
 
+#include "color_utils.h"
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
@@ -71,7 +72,6 @@ FollowStreamDialog::FollowStreamDialog(QWidget *parent) :
     follow_info = NULL;
     ui->setupUi(this);
 
-    ui->teStreamContent->setFont(wsApp->monospaceFont());
     ui->teStreamContent->installEventFilter(this);
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(HelpButton()));
@@ -432,19 +432,11 @@ void FollowStreamDialog::add_text(char *buffer, size_t nchars, gboolean is_from_
             return;
     }
 
-    QColor tagserver_fg = QColor(prefs.st_server_fg.red>>8,
-                                 prefs.st_server_fg.green>>8,
-                                 prefs.st_server_fg.blue>>8);
-    QColor tagserver_bg = QColor(prefs.st_server_bg.red>>8,
-                                 prefs.st_server_bg.green>>8,
-                                 prefs.st_server_bg.blue>>8);
+    QColor tagserver_fg = ColorUtils::fromColorT(prefs.st_server_fg);
+    QColor tagserver_bg = ColorUtils::fromColorT(prefs.st_server_bg);
 
-    QColor tagclient_fg = QColor(prefs.st_client_fg.red>>8,
-                                 prefs.st_client_fg.green>>8,
-                                 prefs.st_client_fg.blue>>8);
-    QColor tagclient_bg = QColor(prefs.st_client_bg.red>>8,
-                                 prefs.st_client_bg.green>>8,
-                                 prefs.st_client_bg.blue>>8);
+    QColor tagclient_fg = ColorUtils::fromColorT(prefs.st_client_fg);
+    QColor tagclient_bg = ColorUtils::fromColorT(prefs.st_client_bg);
 
     for (i = 0; i < nchars; i++) {
         if (buffer[i] == '\n' || buffer[i] == '\r')
@@ -454,8 +446,6 @@ void FollowStreamDialog::add_text(char *buffer, size_t nchars, gboolean is_from_
         }
     }
 
-
-
     /* convert unterminated char array to a zero terminated string */
     str = (char *)g_malloc(nchars + 1);
     memcpy(str, buffer, nchars);
@@ -463,8 +453,8 @@ void FollowStreamDialog::add_text(char *buffer, size_t nchars, gboolean is_from_
     buf = QString(str);
     g_free(str);
 
-
-
+    ui->teStreamContent->moveCursor(QTextCursor::End);
+    ui->teStreamContent->setCurrentFont(wsApp->monospaceFont());
     if (is_from_server)
     {
         ui->teStreamContent->setTextColor(tagserver_fg);
@@ -516,7 +506,7 @@ void FollowStreamDialog::keyPressEvent(QKeyEvent *event)
         return;
     }
 
-    if (event->key() == Qt::Key_F3 || event->key() == Qt::Key_N && event->modifiers() & Qt::ControlModifier) {
+    if (event->key() == Qt::Key_F3 || event->key() == Qt::Key_N && (event->modifiers() & Qt::ControlModifier)) {
         FindText();
         return;
     }

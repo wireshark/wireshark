@@ -57,6 +57,11 @@ QColor ColorUtils::fromColorT (color_t *color) {
     return QColor(color->red >> 8, color->green >> 8, color->blue >> 8);
 }
 
+QColor ColorUtils::fromColorT(color_t color)
+{
+    return fromColorT(&color);
+}
+
 /*
  * Editor modelines
  *

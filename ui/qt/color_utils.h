@@ -40,6 +40,7 @@ public:
     explicit ColorUtils(QObject *parent = 0);
 
     static QColor fromColorT(color_t *color);
+    static QColor fromColorT(color_t color);
 
 signals:
 
