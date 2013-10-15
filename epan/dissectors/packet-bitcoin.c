@@ -55,8 +55,9 @@ static const value_string inv_types[] =
  * - Magic - 4 bytes
  * - Command - 12 bytes
  * - Payload length - 4 bytes
+ * - Checksum - 4 bytes
  */
-#define BITCOIN_HEADER_LENGTH 4+12+4
+#define BITCOIN_HEADER_LENGTH 4+12+4+4
 
 void proto_register_bitcoin(void);
 void proto_reg_handoff_bitcoin(void);
@@ -96,13 +97,13 @@ static header_field_info hfi_msg_version_addr_me BITCOIN_HFI_INIT =
   { "Address of emmitting node", "bitcoin.version.addr_me", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_version_addr_you BITCOIN_HFI_INIT =
-  { "Address as seen by the emitting node", "bitcoin.version.addr_you", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
+  { "Address as receiving node", "bitcoin.version.addr_you", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_version_nonce BITCOIN_HFI_INIT =
   { "Random nonce", "bitcoin.version.nonce", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_msg_version_subver BITCOIN_HFI_INIT =
-  { "Sub-version string", "bitcoin.version.subver", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static header_field_info hfi_msg_version_user_agent BITCOIN_HFI_INIT =
+  { "User agent", "bitcoin.version.user_agent", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_version_start_height BITCOIN_HFI_INIT =
   { "Block start height", "bitcoin.version.start_height", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
@@ -350,10 +351,28 @@ static header_field_info hfi_address_address BITCOIN_HFI_INIT =
 static header_field_info hfi_address_port BITCOIN_HFI_INIT =
   { "Node port", "bitcoin.address.port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
+/* variable string */
+static header_field_info hfi_string_value BITCOIN_HFI_INIT =
+  { "String value", "bitcoin.string.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_string_varint_count8 BITCOIN_HFI_INIT =
+  { "Count", "bitcoin.string.count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_string_varint_count16 BITCOIN_HFI_INIT =
+  { "Count", "bitcoin.string.count", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_string_varint_count32 BITCOIN_HFI_INIT =
+  { "Count", "bitcoin.string.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_string_varint_count64 BITCOIN_HFI_INIT =
+  { "Count", "bitcoin.string.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
+
 static gint ett_bitcoin = -1;
 static gint ett_bitcoin_msg = -1;
 static gint ett_services = -1;
 static gint ett_address = -1;
+static gint ett_string = -1;
 static gint ett_addr_list = -1;
 static gint ett_inv_list = -1;
 static gint ett_getdata_list = -1;
@@ -373,13 +392,6 @@ get_bitcoin_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint32 length;
   length = BITCOIN_HEADER_LENGTH;
-
-  if (tvb_memeql(tvb, offset+4, "version", 7) != 0 &&
-      tvb_memeql(tvb, offset+4, "verack", 6) != 0)
-  {
-    /* add checksum field */
-    length += 4;
-  }
 
   /* add payload length */
   length += tvb_get_letohl(tvb, offset+16);
@@ -434,7 +446,7 @@ create_address_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
   offset += 16;
 
   /* port */
-  proto_tree_add_item(tree, &hfi_address_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, &hfi_address_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 
   return tree;
 }
@@ -497,6 +509,36 @@ static void add_varint_item(proto_tree *tree, tvbuff_t *tvb, const gint offset, 
   }
 }
 
+static proto_tree *
+create_string_tree(proto_tree *tree, header_field_info* hfi, tvbuff_t *tvb, guint32* offset)
+{
+  proto_tree *subtree;
+  proto_item *ti;
+  gint        varint_length;
+  guint64     varint;
+  gint        string_length;
+
+  /* First is the length of the following string as a varint  */
+  get_varint(tvb, *offset, &varint_length, &varint);
+  string_length = (gint) varint;
+
+  ti = proto_tree_add_item(tree, hfi, tvb, *offset, varint_length + string_length, ENC_NA);
+  subtree = proto_item_add_subtree(ti, ett_string);
+
+  /* length */
+  add_varint_item(subtree, tvb, *offset, varint_length, &hfi_string_varint_count8, 
+                  &hfi_string_varint_count16, &hfi_string_varint_count32, 
+                  &hfi_string_varint_count64);
+  *offset += varint_length;
+
+  /* string */
+  proto_tree_add_item(subtree, &hfi_string_value, tvb, *offset, string_length, 
+                      ENC_ASCII|ENC_NA);
+  *offset += string_length;
+
+  return subtree;
+}
+
 /* Note: A number of the following message handlers include code of the form:
  *          ...
  *          guint64     count;
@@ -529,7 +571,6 @@ static void
 dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *ti;
-  gint        subver_length;
   guint32     version;
   guint32     offset = 0;
 
@@ -551,23 +592,20 @@ dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   proto_tree_add_item(tree, &hfi_msg_version_timestamp, tvb, offset, 8, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
   offset += 8;
 
-  ti = proto_tree_add_item(tree, &hfi_msg_version_addr_me, tvb, offset, 26, ENC_NA);
+  ti = proto_tree_add_item(tree, &hfi_msg_version_addr_you, tvb, offset, 26, ENC_NA);
   create_address_tree(tvb, ti, offset);
   offset += 26;
 
   if (version >= 106)
   {
-    ti = proto_tree_add_item(tree, &hfi_msg_version_addr_you, tvb, offset, 26, ENC_NA);
+    ti = proto_tree_add_item(tree, &hfi_msg_version_addr_me, tvb, offset, 26, ENC_NA);
     create_address_tree(tvb, ti, offset);
     offset += 26;
 
     proto_tree_add_item(tree, &hfi_msg_version_nonce, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
 
-    /* find null terminated subver */
-    subver_length = tvb_strsize(tvb, offset);
-    proto_tree_add_item(tree, &hfi_msg_version_subver, tvb, offset, subver_length, ENC_ASCII|ENC_NA);
-    offset += subver_length;
+    create_string_tree(tree, &hfi_msg_version_user_agent, tvb, &offset);
 
     if (version >= 209)
     {
@@ -1020,17 +1058,9 @@ static void dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   proto_tree_add_item(tree, &hfi_bitcoin_magic,   tvb,  0,  4, ENC_BIG_ENDIAN);
   proto_tree_add_item(tree, &hfi_bitcoin_command, tvb,  4, 12, ENC_ASCII|ENC_NA);
   proto_tree_add_item(tree, &hfi_bitcoin_length,  tvb, 16,  4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, &hfi_bitcoin_checksum, tvb, 20,  4, ENC_BIG_ENDIAN);
 
-  offset = 20;
-
-  if (tvb_memeql(tvb, 4, "version", 7) != 0 &&
-      tvb_memeql(tvb, 4, "verack", 6) != 0)
-  {
-    proto_tree_add_item(tree, &hfi_bitcoin_checksum, tvb, 20, 4, ENC_BIG_ENDIAN);
-    offset += 4;
-
-    /* TODO: verify checksum? */
-  }
+  offset = 24;
 
   /* handle command specific message part */
   for (i = 0; i < array_length(msg_dissectors); i++)
@@ -1104,7 +1134,7 @@ proto_register_bitcoin(void)
     &hfi_msg_version_addr_you,
     &hfi_msg_version_timestamp,
     &hfi_msg_version_nonce,
-    &hfi_msg_version_subver,
+    &hfi_msg_version_user_agent,
     &hfi_msg_version_start_height,
 
     /* addr message */
@@ -1210,6 +1240,13 @@ proto_register_bitcoin(void)
     &hfi_address_services,
     &hfi_address_address,
     &hfi_address_port,
+
+    /* variable string */
+    &hfi_string_value,
+    &hfi_string_varint_count8,
+    &hfi_string_varint_count16,
+    &hfi_string_varint_count32,
+    &hfi_string_varint_count64,
   };
 
   static gint *ett[] = {
@@ -1217,6 +1254,7 @@ proto_register_bitcoin(void)
     &ett_bitcoin_msg,
     &ett_services,
     &ett_address,
+    &ett_string,
     &ett_addr_list,
     &ett_inv_list,
     &ett_getdata_list,
