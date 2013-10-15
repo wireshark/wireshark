@@ -614,6 +614,8 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
     OSVERSIONINFO osvi;
 #endif
 
+    g_cf = cf;
+
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
     SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
@@ -714,6 +716,7 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
         set_last_open_dir(dirname);
     }
 
+    g_cf = NULL;
     g_free( (void *) ofn);
 }
 
