@@ -375,16 +375,18 @@ glossary_option_help(void)
   fprintf(output, "Usage: tshark -G [report]\n");
   fprintf(output, "\n");
   fprintf(output, "Glossary table reports:\n");
+  fprintf(output, "  -G column-formats        dump column format codes and exit\n");
+  fprintf(output, "  -G decodes               dump \"layer type\"/\"decode as\" associations and exit\n");
   fprintf(output, "  -G fields                dump fields glossary and exit\n");
+  fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
+  fprintf(output, "  -G heuristic-decodes     dump heuristic dissector tables\n");
+  fprintf(output, "  -G plugins               dump installed plugins and exit\n");
   fprintf(output, "  -G protocols             dump protocols in registration database and exit\n");
   fprintf(output, "  -G values                dump value, range, true/false strings and exit\n");
-  fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
-  fprintf(output, "  -G decodes               dump \"layer type\"/\"decode as\" associations and exit\n");
-  fprintf(output, "  -G heuristic-decodes     dump heuristic dissector tables\n");
   fprintf(output, "\n");
   fprintf(output, "Preference reports:\n");
-  fprintf(output, "  -G defaultprefs          dump default preferences and exit\n");
   fprintf(output, "  -G currentprefs          dump current preferences and exit\n");
+  fprintf(output, "  -G defaultprefs          dump default preferences and exit\n");
   fprintf(output, "\n");
 }
 
@@ -1126,31 +1128,34 @@ main(int argc, char *argv[])
     if (argc == 2)
       proto_registrar_dump_fields();
     else {
-      if (strcmp(argv[2], "fields") == 0)
-        proto_registrar_dump_fields();
-      else if (strcmp(argv[2], "protocols") == 0)
-        proto_registrar_dump_protocols();
-      else if (strcmp(argv[2], "values") == 0)
-        proto_registrar_dump_values();
-      else if (strcmp(argv[2], "ftypes") == 0)
-        proto_registrar_dump_ftypes();
-      else if (strcmp(argv[2], "decodes") == 0)
-        dissector_dump_decodes();
-      else if (strcmp(argv[2], "heuristic-decodes") == 0)
-        dissector_dump_heur_decodes();
-      else if (strcmp(argv[2], "defaultprefs") == 0)
-        write_prefs(NULL);
-      else if (strcmp(argv[2], "plugins") == 0)
-        plugins_dump_all();
-      else if (strcmp(argv[2], "?") == 0)
-        glossary_option_help();
-      else if (strcmp(argv[2], "-?") == 0)
-        glossary_option_help();
+      if (strcmp(argv[2], "column-formats") == 0)
+        column_dump_column_formats();
       else if (strcmp(argv[2], "currentprefs") == 0) {
         read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
             &pf_open_errno, &pf_read_errno, &pf_path);
         write_prefs(NULL);
-      } else {
+      }
+      else if (strcmp(argv[2], "decodes") == 0)
+        dissector_dump_decodes();
+      else if (strcmp(argv[2], "defaultprefs") == 0)
+        write_prefs(NULL);
+      else if (strcmp(argv[2], "fields") == 0)
+        proto_registrar_dump_fields();
+      else if (strcmp(argv[2], "ftypes") == 0)
+        proto_registrar_dump_ftypes();
+      else if (strcmp(argv[2], "heuristic-decodes") == 0)
+        dissector_dump_heur_decodes();
+      else if (strcmp(argv[2], "plugins") == 0)
+        plugins_dump_all();
+      else if (strcmp(argv[2], "protocols") == 0)
+        proto_registrar_dump_protocols();
+      else if (strcmp(argv[2], "values") == 0)
+        proto_registrar_dump_values();
+      else if (strcmp(argv[2], "?") == 0)
+        glossary_option_help();
+      else if (strcmp(argv[2], "-?") == 0)
+        glossary_option_help();
+      else {
         cmdarg_err("Invalid \"%s\" option for -G flag, enter -G ? for more help.", argv[2]);
         return 1;
       }

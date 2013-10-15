@@ -185,6 +185,16 @@ col_format_desc(const gint fmt) {
   return(dlist[fmt]);
 }
 
+void
+column_dump_column_formats(void)
+{
+  gint fmt;
+
+  for (fmt = 0; fmt < NUM_COL_FMTS; fmt++) {
+    printf("%s\t%s\n", col_format_to_string(fmt), col_format_desc(fmt));
+  }
+}
+
 /* Marks each array element true if it can be substituted for the given
    column format */
 void
@@ -801,4 +811,17 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
     }
   }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 2
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=2 expandtab:
+ * :indentSize=2:tabSize=2:noTabs=true:
+ */
 

@@ -83,6 +83,9 @@ WS_DLL_PUBLIC
 void
 build_column_format_array(column_info *cinfo, const gint num_cols, const gboolean reset_fences);
 
+WS_DLL_PUBLIC
+void                 column_dump_column_formats(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
