@@ -120,6 +120,7 @@ static int hf_smb2_infolevel_sec_info = -1;
 static int hf_smb2_max_response_size = -1;
 static int hf_smb2_max_ioctl_in_size = -1;
 static int hf_smb2_max_ioctl_out_size = -1;
+static int hf_smb2_flags = -1;
 static int hf_smb2_required_buffer_size = -1;
 static int hf_smb2_setinfo_size = -1;
 static int hf_smb2_setinfo_offset = -1;
@@ -2269,10 +2270,8 @@ dissect_smb2_secmode(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	item = proto_tree_add_item(parent_tree, hf_smb2_security_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	tree = proto_item_add_subtree(item, ett_smb2_sec_mode);
 
-
-	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_required, tvb, offset, 1, sm);
 	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_enabled, tvb, offset, 1, sm);
-
+	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_required, tvb, offset, 1, sm);
 
 	offset += 1;
 
@@ -2315,10 +2314,8 @@ dissect_smb2_ses_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	item = proto_tree_add_item(parent_tree, hf_smb2_session_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	tree = proto_item_add_subtree(item, ett_smb2_ses_flags);
 
-
-	proto_tree_add_boolean(tree, hf_smb2_ses_flags_null, tvb, offset, 2, sf);
 	proto_tree_add_boolean(tree, hf_smb2_ses_flags_guest, tvb, offset, 2, sf);
-
+	proto_tree_add_boolean(tree, hf_smb2_ses_flags_null, tvb, offset, 2, sf);
 
 	offset += 2;
 
@@ -4286,7 +4283,7 @@ dissect_windows_sockaddr_storage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 #define NETWORK_INTERFACE_CAP_RSS 0x00000001
-#define NETWORK_INTERFACE_CAP_RMDA 0x00000002
+#define NETWORK_INTERFACE_CAP_RDMA 0x00000002
 
 static void
 dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -4323,16 +4320,16 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	/* capabilities */
 	capabilities = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(sub_tree, hf_smb2_ioctl_network_interface_capabilities, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_boolean(sub_tree, hf_smb2_ioctl_network_interface_capability_rss, tvb, offset, 4, capabilities);
 	proto_tree_add_boolean(sub_tree, hf_smb2_ioctl_network_interface_capability_rdma, tvb, offset, 4, capabilities);
+	proto_tree_add_boolean(sub_tree, hf_smb2_ioctl_network_interface_capability_rss, tvb, offset, 4, capabilities);
 	if (capabilities != 0) {
 		proto_item_append_text(item, "%s%s",
-				       (capabilities & NETWORK_INTERFACE_CAP_RSS)?", RSS":"",
-				       (capabilities & NETWORK_INTERFACE_CAP_RMDA)?", RDMA":"");
+				       (capabilities & NETWORK_INTERFACE_CAP_RDMA)?", RDMA":"",
+				       (capabilities & NETWORK_INTERFACE_CAP_RSS)?", RSS":"");
 		if (sub_item) {
 			proto_item_append_text(sub_item, "%s%s",
-					       (capabilities & NETWORK_INTERFACE_CAP_RSS)?", RSS":"",
-					       (capabilities & NETWORK_INTERFACE_CAP_RMDA)?", RDMA":"");
+				       (capabilities & NETWORK_INTERFACE_CAP_RDMA)?", RDMA":"",
+				       (capabilities & NETWORK_INTERFACE_CAP_RSS)?", RSS":"");
 		}
 	}
 	offset += 4;
@@ -6903,16 +6900,17 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 		/* flags */
 		if (header_tree) {
-			flags_item = proto_tree_add_text(header_tree, tvb, offset, 4,
+			flags_item = proto_tree_add_uint_format(header_tree, hf_smb2_flags,  tvb, offset, 4, si->flags,
 				"Flags: 0x%08x", si->flags);
 			flags_tree = proto_item_add_subtree(flags_item, ett_smb2_flags);
+
+			proto_tree_add_boolean(flags_tree, hf_smb2_flags_response,			tvb, offset, 4, si->flags);
+			proto_tree_add_boolean(flags_tree, hf_smb2_flags_async_cmd,			tvb, offset, 4, si->flags);
+			proto_tree_add_boolean(flags_tree, hf_smb2_flags_chained,			tvb, offset, 4, si->flags);
+			proto_tree_add_boolean(flags_tree, hf_smb2_flags_signature,			tvb, offset, 4, si->flags);
+			proto_tree_add_boolean(flags_tree, hf_smb2_flags_dfs_op,			tvb, offset, 4, si->flags);
+			proto_tree_add_boolean(flags_tree, hf_smb2_flags_replay_operation,	tvb, offset, 4, si->flags);
 		}
-		proto_tree_add_boolean(flags_tree, hf_smb2_flags_replay_operation, tvb, offset, 4, si->flags);
-		proto_tree_add_boolean(flags_tree, hf_smb2_flags_dfs_op,           tvb, offset, 4, si->flags);
-		proto_tree_add_boolean(flags_tree, hf_smb2_flags_signature,        tvb, offset, 4, si->flags);
-		proto_tree_add_boolean(flags_tree, hf_smb2_flags_chained,          tvb, offset, 4, si->flags);
-		proto_tree_add_boolean(flags_tree, hf_smb2_flags_async_cmd,        tvb, offset, 4, si->flags);
-		proto_tree_add_boolean(flags_tree, hf_smb2_flags_response,         tvb, offset, 4, si->flags);
 
 		offset += 4;
 
@@ -7180,6 +7178,11 @@ proto_register_smb2(void)
 	{ &hf_smb2_pid,
 		{ "Process Id", "smb2.pid", FT_UINT32, BASE_HEX,
 		NULL, 0, "SMB2 Process Id", HFILL }},
+
+	/* SMB2 header flags  */
+	{ &hf_smb2_flags,
+		{ "Flags", "smb2.flags", FT_UINT32, BASE_HEX,
+		NULL, 0, "SMB2 flags", HFILL }},
 	{ &hf_smb2_flags_response,
 		{ "Response", "smb2.flags.response", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_response), SMB2_FLAGS_RESPONSE, "Whether this is an SMB2 Request or Response", HFILL }},
@@ -7198,6 +7201,7 @@ proto_register_smb2(void)
 	{ &hf_smb2_flags_replay_operation,
 		{ "Replay operation", "smb2.flags.replay", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_replay_operation), SMB2_FLAGS_REPLAY_OPERATION, "Whether this is a replay operation", HFILL }},
+
 	{ &hf_smb2_tree,
 		{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of the Tree/Share", HFILL }},
@@ -7710,9 +7714,9 @@ proto_register_smb2(void)
 		NETWORK_INTERFACE_CAP_RSS, "If the host supports RSS", HFILL }},
 
 	{ &hf_smb2_ioctl_network_interface_capability_rdma,
-		{ "RMDA", "smb2.ioctl.network_interfaces.capabilities.rdma", FT_BOOLEAN, 32,
+		{ "RDMA", "smb2.ioctl.network_interfaces.capabilities.rdma", FT_BOOLEAN, 32,
 		TFS(&tfs_smb2_ioctl_network_interface_capability_rdma),
-		NETWORK_INTERFACE_CAP_RMDA, "If the host supports RDMA", HFILL }},
+		NETWORK_INTERFACE_CAP_RDMA, "If the host supports RDMA", HFILL }},
 
 	{ &hf_smb2_ioctl_network_interface_link_speed,
 		{ "Link Speed", "smb2.ioctl.network_interfaces.link_speed", FT_UINT64, BASE_DEC,

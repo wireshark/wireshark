@@ -730,7 +730,6 @@ static int hf_smb_unix_file_name_length = -1;
 static int hf_smb_unix_file_name = -1;
 static int hf_smb_unix_find_file_nextoffset = -1;
 static int hf_smb_unix_find_file_resumekey = -1;
-static int hf_smb_network_unknown = -1;
 static int hf_smb_disposition_delete_on_close = -1;
 static int hf_smb_pipe_info_flag = -1;
 static int hf_smb_mode = -1;
@@ -1694,77 +1693,77 @@ dissect_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset, const char *t
 	return offset;
 }
 
-#define SMB_FILE_ATTRIBUTE_READ_ONLY		0x00000001
-#define SMB_FILE_ATTRIBUTE_HIDDEN		0x00000002
-#define SMB_FILE_ATTRIBUTE_SYSTEM		0x00000004
-#define SMB_FILE_ATTRIBUTE_VOLUME		0x00000008
-#define SMB_FILE_ATTRIBUTE_DIRECTORY		0x00000010
-#define SMB_FILE_ATTRIBUTE_ARCHIVE		0x00000020
-#define SMB_FILE_ATTRIBUTE_DEVICE		0x00000040
-#define SMB_FILE_ATTRIBUTE_NORMAL		0x00000080
-#define SMB_FILE_ATTRIBUTE_TEMPORARY		0x00000100
-#define SMB_FILE_ATTRIBUTE_SPARSE		0x00000200
-#define SMB_FILE_ATTRIBUTE_REPARSE		0x00000400
-#define SMB_FILE_ATTRIBUTE_COMPRESSED		0x00000800
-#define SMB_FILE_ATTRIBUTE_OFFLINE		0x00001000
+#define SMB_FILE_ATTRIBUTE_READ_ONLY			0x00000001
+#define SMB_FILE_ATTRIBUTE_HIDDEN				0x00000002
+#define SMB_FILE_ATTRIBUTE_SYSTEM				0x00000004
+#define SMB_FILE_ATTRIBUTE_VOLUME				0x00000008
+#define SMB_FILE_ATTRIBUTE_DIRECTORY			0x00000010
+#define SMB_FILE_ATTRIBUTE_ARCHIVE				0x00000020
+#define SMB_FILE_ATTRIBUTE_DEVICE				0x00000040
+#define SMB_FILE_ATTRIBUTE_NORMAL				0x00000080
+#define SMB_FILE_ATTRIBUTE_TEMPORARY			0x00000100
+#define SMB_FILE_ATTRIBUTE_SPARSE				0x00000200
+#define SMB_FILE_ATTRIBUTE_REPARSE				0x00000400
+#define SMB_FILE_ATTRIBUTE_COMPRESSED			0x00000800
+#define SMB_FILE_ATTRIBUTE_OFFLINE				0x00001000
 #define SMB_FILE_ATTRIBUTE_NOT_CONTENT_INDEXED	0x00002000
-#define SMB_FILE_ATTRIBUTE_ENCRYPTED		0x00004000
+#define SMB_FILE_ATTRIBUTE_ENCRYPTED			0x00004000
 
 static const true_false_string tfs_file_attribute_read_only = {
-	"This file is READ ONLY",
-	"This file is NOT read only",
+	"READ ONLY",
+	"NOT read only",
 };
 static const true_false_string tfs_file_attribute_hidden = {
-	"This is a HIDDEN file",
-	"This is NOT a hidden file"
+	"HIDDEN",
+	"NOT hidden"
 };
 static const true_false_string tfs_file_attribute_system = {
-	"This is a SYSTEM file",
-	"This is NOT a system file"
+	"SYSTEM file/dir",
+	"NOT a system file/dir"
 };
 static const true_false_string tfs_file_attribute_volume = {
-	"This is a VOLUME ID",
-	"This is NOT a volume ID"
+	"VOLUME ID",
+	"NOT a volume ID"
 };
 static const true_false_string tfs_file_attribute_directory = {
-	"This is a DIRECTORY",
-	"This is NOT a directory"
+	"DIRECTORY",
+	"NOT a directory"
 };
 static const true_false_string tfs_file_attribute_archive = {
-	"This file has been modified since last ARCHIVE",
-	"This file has NOT been modified since last archive"
+	"Modified since last ARCHIVE",
+	"Has NOT been modified since last archive"
 };
 static const true_false_string tfs_file_attribute_device = {
-	"This is a DEVICE",
-	"This is NOT a device"
+	"A DEVICE",
+	"NOT a device"
 };
 static const true_false_string tfs_file_attribute_normal = {
-	"This file is an ordinary file",
-	"This file has some attribute set"
+	"An ordinary file/dir",
+	"Has some attribute set"
 };
 static const true_false_string tfs_file_attribute_temporary = {
-	"This is a TEMPORARY file",
-	"This is NOT a temporary file"
+	"A TEMPORARY file",
+	"NOT a temporary file"
 };
 static const true_false_string tfs_file_attribute_sparse = {
-	"This is a SPARSE file",
-	"This is NOT a sparse file"
+	"A SPARSE file",
+	"NOT a sparse file"
 };
 static const true_false_string tfs_file_attribute_reparse = {
-	"This file has an associated REPARSE POINT",
-	"This file does NOT have an associated reparse point"
+	"Has an associated REPARSE POINT",
+	"Does NOT have an associated reparse point"
 };
 static const true_false_string tfs_file_attribute_compressed = {
-	"This is a COMPRESSED file",
-	"This is NOT a compressed file"
+	"COMPRESSED",
+	"Uncompressed"
 };
 static const true_false_string tfs_file_attribute_offline = {
-	"This file is OFFLINE",
-	"This file is NOT offline"
+	"OFFLINE",
+	"Online"
 };
 static const true_false_string tfs_file_attribute_not_content_indexed = {
-	"This file MAY NOT be indexed by the CONTENT INDEXING service",
-	"This file MAY be indexed by the content indexing service"
+	"CONTENT INDEXED",
+	"NOT content indexed"
 };
 static const true_false_string tfs_file_attribute_encrypted = {
 	"This is an ENCRYPTED file",
@@ -1833,35 +1832,35 @@ dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		 * Does the Win32 API documentation, or the NT Native API book,
 		 * suggest anything?
 		 */
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_encrypted,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_not_content_indexed,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_offline,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_compressed,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_reparse,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_sparse,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_temporary,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_normal,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_device,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_archive,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_directory,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_volume,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_system,
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_read_only,
 			tvb, offset, len, mask);
 		proto_tree_add_boolean(tree, hf_smb_file_eattr_hidden,
 			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_eattr_read_only,
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_system,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_volume,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_directory,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_archive,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_device,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_normal,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_temporary,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_sparse,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_reparse,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_compressed,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_offline,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_not_content_indexed,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_encrypted,
 			tvb, offset, len, mask);
 	}
 
@@ -3380,15 +3379,14 @@ dissect_nt_create_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	 * in the response. However, Windows does not do that. Or at least
 	 * Win2K doesn't.
 	 */
-	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_ext_resp,
-			       tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_dir,
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_oplock,
 		tvb, offset, len, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_boplock,
 		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_oplock,
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_dir,
 		tvb, offset, len, mask);
-
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_ext_resp,
+		tvb, offset, len, mask);
 	offset += len;
 
 	return offset;
@@ -3415,45 +3413,45 @@ dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 		 * and others come from the section on ZwOpenFile in "Windows(R)
 		 * NT(R)/2000 Native API Reference".
 		 */
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_read,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_write,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_execute,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_all,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_maximum_allowed,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_system_security,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_synchronize,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_owner,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_dac,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_control,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_attributes,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_attributes,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete_child,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_execute,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_ea,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_ea,
-			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_append,
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read,
 			tvb, offset, len, mask);
 		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write,
 			tvb, offset, len, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read,
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_append,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_ea,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_ea,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_execute,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete_child,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_attributes,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_attributes,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_control,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_dac,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_owner,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_synchronize,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_system_security,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_maximum_allowed,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_all,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_execute,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_write,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_read,
 			tvb, offset, len, mask);
 	}
 	offset += len;
@@ -3473,10 +3471,9 @@ dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	return offset;
 }
 
-
-#define SHARE_ACCESS_DELETE	0x00000004
-#define SHARE_ACCESS_WRITE	0x00000002
 #define SHARE_ACCESS_READ	0x00000001
+#define SHARE_ACCESS_WRITE	0x00000002
+#define SHARE_ACCESS_DELETE	0x00000004
 
 static int
 dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree,
@@ -3491,22 +3488,20 @@ dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 		if (len==0)
 			PROTO_ITEM_SET_GENERATED(item);
 
-		proto_tree_add_boolean(tree, hf_smb_nt_share_access_delete,
+		proto_tree_add_boolean(tree, hf_smb_nt_share_access_read,
 			tvb, offset, len, mask);
-		if (mask & SHARE_ACCESS_DELETE) {
-			proto_item_append_text(item, " SHARE_DELETE");
+		if (mask & SHARE_ACCESS_READ) {
+			proto_item_append_text(item, " SHARE_READ");
 		}
-
 		proto_tree_add_boolean(tree, hf_smb_nt_share_access_write,
 			tvb, offset, len, mask);
 		if (mask & SHARE_ACCESS_WRITE) {
 			proto_item_append_text(item, " SHARE_WRITE");
 		}
-
-		proto_tree_add_boolean(tree, hf_smb_nt_share_access_read,
+		proto_tree_add_boolean(tree, hf_smb_nt_share_access_delete,
 			tvb, offset, len, mask);
-		if (mask & SHARE_ACCESS_READ) {
-			proto_item_append_text(item, " SHARE_READ");
+		if (mask & SHARE_ACCESS_DELETE) {
+			proto_item_append_text(item, " SHARE_DELETE");
 		}
 	}
 
@@ -8448,29 +8443,29 @@ dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int 
 		item = proto_tree_add_item(parent_tree, hf_smb_nt_notify_completion_filter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_smb_nt_notify_completion_filter);
 
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_write,
-			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_size,
-			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_name,
-			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_security,
-			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_ea,
-			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_creation,
-			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_last_access,
-			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_last_write,
-			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_size,
-			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_attributes,
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_file_name,
 			tvb, offset, 4, mask);
 		proto_tree_add_boolean(tree, hf_smb_nt_notify_dir_name,
 			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_nt_notify_file_name,
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_attributes,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_size,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_last_write,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_last_access,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_creation,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_ea,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_security,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_name,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_size,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_write,
 			tvb, offset, 4, mask);
 	}
 
@@ -13051,9 +13046,9 @@ dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb,
 	offset = dissect_file_ext_attr(tvb, tree, offset);
 	*bcp -= 4;
 
-	/* Unknown, possibly count of network accessors ... */
+	/* 4 reserved bytes */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_network_unknown, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -13510,11 +13505,11 @@ dissect_quota_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 			mask?"Enabled":"Disabled");
 		tree = proto_item_add_subtree(item, ett_smb_quotaflags);
 
-		proto_tree_add_boolean(tree, hf_smb_quota_flags_log_limit,
+		proto_tree_add_boolean(tree, hf_smb_quota_flags_deny_disk,
 			tvb, offset, 1, mask);
 		proto_tree_add_boolean(tree, hf_smb_quota_flags_log_warning,
 			tvb, offset, 1, mask);
-		proto_tree_add_boolean(tree, hf_smb_quota_flags_deny_disk,
+		proto_tree_add_boolean(tree, hf_smb_quota_flags_log_limit,
 			tvb, offset, 1, mask);
 
 		if (mask && (!(mask&0x01))) {
@@ -19430,57 +19425,58 @@ proto_register_smb(void)
 		{ "Watch Tree", "smb.nt.notify.watch_tree", FT_UINT8, BASE_DEC,
 		VALS(watch_tree_vals), 0, "Should Notify watch subdirectories also?", HFILL }},
 
+
 	{ &hf_smb_nt_notify_completion_filter,
 		{ "Completion Filter", "smb.nt.notify.completion_filter", FT_UINT32, BASE_HEX,
 		NULL, 0x0, NULL, HFILL }},
-
-	{ &hf_smb_nt_notify_stream_write,
-		{ "Stream Write", "smb.nt.notify.stream_write", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_stream_write), NT_NOTIFY_STREAM_WRITE, "Notify on stream write?", HFILL }},
-
-	{ &hf_smb_nt_notify_stream_size,
-		{ "Stream Size Change", "smb.nt.notify.stream_size", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_stream_size), NT_NOTIFY_STREAM_SIZE, "Notify on changes of stream size", HFILL }},
-
-	{ &hf_smb_nt_notify_stream_name,
-		{ "Stream Name Change", "smb.nt.notify.stream_name", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_stream_name), NT_NOTIFY_STREAM_NAME, "Notify on changes to stream name?", HFILL }},
-
-	{ &hf_smb_nt_notify_security,
-		{ "Security Change", "smb.nt.notify.security", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_security), NT_NOTIFY_SECURITY, "Notify on changes to security settings", HFILL }},
-
-	{ &hf_smb_nt_notify_ea,
-		{ "EA Change", "smb.nt.notify.ea", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_ea), NT_NOTIFY_EA, "Notify on changes to Extended Attributes", HFILL }},
-
-	{ &hf_smb_nt_notify_creation,
-		{ "Created Change", "smb.nt.notify.creation", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_creation), NT_NOTIFY_CREATION, "Notify on changes to creation time", HFILL }},
-
-	{ &hf_smb_nt_notify_last_access,
-		{ "Last Access Change", "smb.nt.notify.last_access", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_last_access), NT_NOTIFY_LAST_ACCESS, "Notify on changes to last access", HFILL }},
-
-	{ &hf_smb_nt_notify_last_write,
-		{ "Last Write Change", "smb.nt.notify.last_write", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_last_write), NT_NOTIFY_LAST_WRITE, "Notify on changes to last write", HFILL }},
-
-	{ &hf_smb_nt_notify_size,
-		{ "Size Change", "smb.nt.notify.size", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_size), NT_NOTIFY_SIZE, "Notify on changes to size", HFILL }},
-
-	{ &hf_smb_nt_notify_attributes,
-		{ "Attribute Change", "smb.nt.notify.attributes", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_attributes), NT_NOTIFY_ATTRIBUTES, "Notify on changes to attributes", HFILL }},
+	{ &hf_smb_nt_notify_file_name,
+		{ "File Name Change", "smb.nt.notify.file_name", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_file_name), NT_NOTIFY_FILE_NAME, "Notify on changes to file name", HFILL }},
 
 	{ &hf_smb_nt_notify_dir_name,
 		{ "Directory Name Change", "smb.nt.notify.dir_name", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_notify_dir_name), NT_NOTIFY_DIR_NAME, "Notify on changes to directory name", HFILL }},
 
-	{ &hf_smb_nt_notify_file_name,
-		{ "File Name Change", "smb.nt.notify.file_name", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_notify_file_name), NT_NOTIFY_FILE_NAME, "Notify on changes to file name", HFILL }},
+	{ &hf_smb_nt_notify_attributes,
+		{ "Attribute Change", "smb.nt.notify.attributes", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_attributes), NT_NOTIFY_ATTRIBUTES, "Notify on changes to attributes", HFILL }},
+
+	{ &hf_smb_nt_notify_size,
+		{ "Size Change", "smb.nt.notify.size", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_size), NT_NOTIFY_SIZE, "Notify on changes to size", HFILL }},
+
+	{ &hf_smb_nt_notify_last_write,
+		{ "Last Write Change", "smb.nt.notify.last_write", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_last_write), NT_NOTIFY_LAST_WRITE, "Notify on changes to last write", HFILL }},
+
+	{ &hf_smb_nt_notify_last_access,
+		{ "Last Access Change", "smb.nt.notify.last_access", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_last_access), NT_NOTIFY_LAST_ACCESS, "Notify on changes to last access", HFILL }},
+
+	{ &hf_smb_nt_notify_creation,
+		{ "Created Change", "smb.nt.notify.creation", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_creation), NT_NOTIFY_CREATION, "Notify on changes to creation time", HFILL }},
+
+	{ &hf_smb_nt_notify_ea,
+		{ "EA Change", "smb.nt.notify.ea", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_ea), NT_NOTIFY_EA, "Notify on changes to Extended Attributes", HFILL }},
+
+	{ &hf_smb_nt_notify_security,
+		{ "Security Change", "smb.nt.notify.security", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_security), NT_NOTIFY_SECURITY, "Notify on changes to security settings", HFILL }},
+
+	{ &hf_smb_nt_notify_stream_name,
+		{ "Stream Name Change", "smb.nt.notify.stream_name", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_stream_name), NT_NOTIFY_STREAM_NAME, "Notify on changes to stream name?", HFILL }},
+
+	{ &hf_smb_nt_notify_stream_size,
+		{ "Stream Size Change", "smb.nt.notify.stream_size", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_stream_size), NT_NOTIFY_STREAM_SIZE, "Notify on changes of stream size", HFILL }},
+
+	{ &hf_smb_nt_notify_stream_write,
+		{ "Stream Write", "smb.nt.notify.stream_write", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_stream_write), NT_NOTIFY_STREAM_WRITE, "Notify on stream write?", HFILL }},
+
 
 	{ &hf_smb_root_dir_fid,
 		{ "Root FID", "smb.rfid", FT_UINT32, BASE_HEX,
@@ -20712,10 +20708,6 @@ proto_register_smb(void)
 
 	{ &hf_smb_unix_find_file_resumekey,
 	  { "Resume key", "smb.unix.find_file.resume_key", FT_UINT32, BASE_DEC,
-	    NULL, 0, NULL, HFILL }},
-
-	{ &hf_smb_network_unknown,
-	  { "Unknown field", "smb.unknown_field", FT_UINT32, BASE_HEX,
 	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_create_flags,
