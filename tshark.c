@@ -3453,6 +3453,36 @@ get_line_buf(size_t len)
   return line_bufp;
 }
 
+static inline void
+put_string(char *dest, const char *str, size_t str_len)
+{
+  memcpy(dest, str, str_len);
+  dest[str_len] = '\0';
+}
+
+static inline void
+put_spaces_string(char *dest, const char *str, size_t str_len, size_t str_with_spaces)
+{
+  size_t i;
+
+  for (i = str_len; i < str_with_spaces; i++)
+    *dest++ = ' ';
+
+  put_string(dest, str, str_len);
+}
+
+static inline void
+put_string_spaces(char *dest, const char *str, size_t str_len, size_t str_with_spaces)
+{
+  size_t i;
+
+  memcpy(dest, str, str_len);
+  for (i = str_len; i < str_with_spaces; i++)
+    dest[i] = ' ';
+
+  dest[str_with_spaces] = '\0';
+}
+
 static gboolean
 print_columns(capture_file *cf)
 {
@@ -3460,6 +3490,7 @@ print_columns(capture_file *cf)
   int     i;
   size_t  buf_offset;
   size_t  column_len;
+  size_t  col_len;
 
   line_bufp = get_line_buf(256);
   buf_offset = 0;
@@ -3485,11 +3516,11 @@ print_columns(capture_file *cf)
       if (global_capture_opts.ifaces->len > 0)
         continue;
 #endif
-      column_len = strlen(cf->cinfo.col_data[i]);
+      column_len = col_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 3)
         column_len = 3;
       line_bufp = get_line_buf(buf_offset + column_len);
-      g_snprintf(line_bufp + buf_offset, (int)column_len + 1, "%3s", cf->cinfo.col_data[i]);
+      put_spaces_string(line_bufp + buf_offset, cf->cinfo.col_data[i], col_len, column_len);
       break;
 
     case COL_CLS_TIME:
@@ -3498,11 +3529,11 @@ print_columns(capture_file *cf)
     case COL_ABS_DATE_TIME:
     case COL_UTC_TIME:
     case COL_UTC_DATE_TIME: /* XXX - wider */
-      column_len = strlen(cf->cinfo.col_data[i]);
+      column_len = col_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 10)
         column_len = 10;
       line_bufp = get_line_buf(buf_offset + column_len);
-      g_snprintf(line_bufp + buf_offset, (int)column_len + 1, "%10s", cf->cinfo.col_data[i]);
+      put_spaces_string(line_bufp + buf_offset, cf->cinfo.col_data[i], col_len, column_len);
       break;
 
     case COL_DEF_SRC:
@@ -3514,11 +3545,11 @@ print_columns(capture_file *cf)
     case COL_DEF_NET_SRC:
     case COL_RES_NET_SRC:
     case COL_UNRES_NET_SRC:
-      column_len = strlen(cf->cinfo.col_data[i]);
+      column_len = col_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 12)
         column_len = 12;
       line_bufp = get_line_buf(buf_offset + column_len);
-      g_snprintf(line_bufp + buf_offset, (int)column_len + 1, "%12s", cf->cinfo.col_data[i]);
+      put_spaces_string(line_bufp + buf_offset, cf->cinfo.col_data[i], col_len, column_len);
       break;
 
     case COL_DEF_DST:
@@ -3530,17 +3561,17 @@ print_columns(capture_file *cf)
     case COL_DEF_NET_DST:
     case COL_RES_NET_DST:
     case COL_UNRES_NET_DST:
-      column_len = strlen(cf->cinfo.col_data[i]);
+      column_len = col_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 12)
         column_len = 12;
       line_bufp = get_line_buf(buf_offset + column_len);
-      g_snprintf(line_bufp + buf_offset, (int)column_len + 1, "%-12s", cf->cinfo.col_data[i]);
+      put_string_spaces(line_bufp + buf_offset, cf->cinfo.col_data[i], col_len, column_len);
       break;
 
     default:
       column_len = strlen(cf->cinfo.col_data[i]);
       line_bufp = get_line_buf(buf_offset + column_len);
-      g_strlcat(line_bufp + buf_offset, cf->cinfo.col_data[i], column_len + 1);
+      put_string(line_bufp + buf_offset, cf->cinfo.col_data[i], column_len);
       break;
     }
     buf_offset += column_len;
@@ -3570,12 +3601,12 @@ print_columns(capture_file *cf)
         case COL_DEF_DST:
         case COL_RES_DST:
         case COL_UNRES_DST:
-          g_strlcat(line_bufp + buf_offset, " -> ", 5);
+          put_string(line_bufp + buf_offset, " -> ", 4);
           buf_offset += 4;
           break;
 
         default:
-          g_strlcat(line_bufp + buf_offset, " ", 5);
+          put_string(line_bufp + buf_offset, " ", 1);
           buf_offset += 1;
           break;
         }
@@ -3589,12 +3620,12 @@ print_columns(capture_file *cf)
         case COL_DEF_DL_DST:
         case COL_RES_DL_DST:
         case COL_UNRES_DL_DST:
-          g_strlcat(line_bufp + buf_offset, " -> ", 5);
+          put_string(line_bufp + buf_offset, " -> ", 4);
           buf_offset += 4;
           break;
 
         default:
-          g_strlcat(line_bufp + buf_offset, " ", 5);
+          put_string(line_bufp + buf_offset, " ", 1);
           buf_offset += 1;
           break;
         }
@@ -3608,12 +3639,12 @@ print_columns(capture_file *cf)
         case COL_DEF_NET_DST:
         case COL_RES_NET_DST:
         case COL_UNRES_NET_DST:
-          g_strlcat(line_bufp + buf_offset, " -> ", 5);
+          put_string(line_bufp + buf_offset, " -> ", 4);
           buf_offset += 4;
           break;
 
         default:
-          g_strlcat(line_bufp + buf_offset, " ", 5);
+          put_string(line_bufp + buf_offset, " ", 1);
           buf_offset += 1;
           break;
         }
@@ -3627,12 +3658,12 @@ print_columns(capture_file *cf)
         case COL_DEF_SRC:
         case COL_RES_SRC:
         case COL_UNRES_SRC:
-          g_strlcat(line_bufp + buf_offset, " <- ", 5);
+          put_string(line_bufp + buf_offset, " <- ", 4);
           buf_offset += 4;
           break;
 
         default:
-          g_strlcat(line_bufp + buf_offset, " ", 5);
+          put_string(line_bufp + buf_offset, " ", 1);
           buf_offset += 1;
           break;
         }
@@ -3646,12 +3677,12 @@ print_columns(capture_file *cf)
         case COL_DEF_DL_SRC:
         case COL_RES_DL_SRC:
         case COL_UNRES_DL_SRC:
-          g_strlcat(line_bufp + buf_offset, " <- ", 5);
+          put_string(line_bufp + buf_offset, " <- ", 4);
           buf_offset += 4;
           break;
 
         default:
-          g_strlcat(line_bufp + buf_offset, " ", 5);
+          put_string(line_bufp + buf_offset, " ", 1);
           buf_offset += 1;
           break;
         }
@@ -3665,19 +3696,19 @@ print_columns(capture_file *cf)
         case COL_DEF_NET_SRC:
         case COL_RES_NET_SRC:
         case COL_UNRES_NET_SRC:
-          g_strlcat(line_bufp + buf_offset, " <- ", 5);
+          put_string(line_bufp + buf_offset, " <- ", 4);
           buf_offset += 4;
           break;
 
         default:
-          g_strlcat(line_bufp + buf_offset, " ", 5);
+          put_string(line_bufp + buf_offset, " ", 1);
           buf_offset += 1;
           break;
         }
         break;
 
       default:
-        g_strlcat(line_bufp + buf_offset, " ", 5);
+        put_string(line_bufp + buf_offset, " ", 1);
         buf_offset += 1;
         break;
       }
