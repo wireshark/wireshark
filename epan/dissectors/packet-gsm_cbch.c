@@ -260,7 +260,13 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             sched_subtree = proto_item_add_subtree(item, ett_schedule_new_msg);
             for (k=0; offset < len; j++)
             {
-                while ((other_slots[k]!=0xFFFF) && (k<sched_end))
+                /* XXX I don't know if a message can validly contain more than
+                 * 48 slots, but that's the size of the array we create so cap
+                 * it there to avoid uninitialized memory errors (see bug
+                 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9270) */
+                if (sched_end > 48)
+                    sched_end = 48;
+                while ((k<sched_end) && (other_slots[k]!=0xFFFF))
                 {
                     k++;
                 }
