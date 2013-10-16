@@ -52,9 +52,26 @@ since version 1.10:
 
 --sort-and-group--
 
+802.1AE Secure tag
+ATN
 ASTERIX
+BT 3DS
+CARP
+Cisco MetaData
+HTTP2
+IDRP
+Kafka
+MBIM
+MP4 / ISOBMFF file format
+OpenFlow
+Picture Transfer Protocol Over IP
 SEL RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection
+Sippy RTPproxy
+STANAG 4607
+STANAG 5066 SIS
 UDT
+URL Encoded Form Data
+Wi-Fi Display
 
 --sort-and-group--
 
