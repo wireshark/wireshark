@@ -486,6 +486,36 @@ again:
   }
 }
 
+/**
+ * Unicast Scope
+ * Note that we must check topmost 10 bits only, not 16 bits (see RFC2373).
+ */
+/* XXX Currently unused
+static inline gboolean in6_is_addr_link_local(struct e_in6_addr *a) {
+	if ((a->bytes[0] == 0xfe) && ((a->bytes[1] & 0xc0) == 0x80)) {
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static inline gboolean in6_is_addr_sitelocal(struct e_in6_addr *a) {
+	if ((a->bytes[0] == 0xfe) && ((a->bytes[1] & 0xc0) == 0xc0)) {
+		return TRUE;
+	}
+	return FALSE;
+}
+*/
+
+/**
+ * Multicast
+ */
+static inline gboolean in6_is_addr_multicast(struct e_in6_addr *a) {
+	if (a->bytes[0] == 0xff) {
+		return TRUE;
+	}
+	return FALSE;
+}
+
 #ifdef HAVE_GEOIP_V6
 static void
 add_geoip_info_entry(proto_tree *geoip_info_item, tvbuff_t *tvb, gint offset, const struct e_in6_addr *ip, int isdst)
@@ -695,7 +725,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
             memcpy((guint8 *)&srcAddr, (guint8 *)pinfo->src.data, pinfo->src.len);
 
             /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
-            if(g_ipv6_rpl_srh_strict_rfc_checking && E_IN6_IS_ADDR_MULTICAST(&dstAddr)){
+            if(g_ipv6_rpl_srh_strict_rfc_checking && in6_is_addr_multicast(&dstAddr)){
                 expert_add_info(pinfo, ti, &ei_ipv6_dst_addr_not_multicast);
             }
 
@@ -791,7 +821,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                         }
 
                         /* Multicast addresses MUST NOT appear in the in SRH */
-                        if(E_IN6_IS_ADDR_MULTICAST(&addr)){
+                        if(in6_is_addr_multicast(&addr)){
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                         }
                     }
@@ -820,7 +850,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                         }
 
                         /* Multicast addresses MUST NOT appear in the in SRH */
-                        if(E_IN6_IS_ADDR_MULTICAST(&addr)){
+                        if(in6_is_addr_multicast(&addr)){
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                         }
                     }

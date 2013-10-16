@@ -3008,7 +3008,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
         if (val_id <= 4) { /* Length field already parsed by macro! */ \
             get_long_integer(val, tvb, off, len, ok); \
             if (ok) { \
-                val = val; /* hack to prevent 'set but not used' gcc warning */ \
+                val = 0; /* hack to prevent 'set but not used' gcc warning */ \
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
                 ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
                         tvb, hdr_start, offset - hdr_start, \
@@ -3330,7 +3330,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
         if (val_id <= 4) { /* Length field already parsed by macro! */ \
             get_long_integer(val, tvb, off, len, ok); \
             if (ok) { \
-                val = val; /* hack to prevent 'set but not used' gcc warning */ \
+                val = 0; /* hack to prevent 'set but not used' gcc warning */ \
                 val_str = try_val_to_str_ext(val_id & 0x7F, valueStringExtAddr); \
                 if (val_str) { \
                     tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \

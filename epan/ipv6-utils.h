@@ -37,18 +37,4 @@ typedef struct {
 	guint32 prefix;
 } ipv6_addr;
 
-/**
- * Unicast Scope
- * Note that we must check topmost 10 bits only, not 16 bits (see RFC2373).
- */
-#define E_IN6_IS_ADDR_LINKLOCAL(a)	\
-	(((a)->bytes[0] == 0xfe) && (((a)->bytes[1] & 0xc0) == 0x80))
-#define E_IN6_IS_ADDR_SITELOCAL(a)	\
-	(((a)->bytes[0] == 0xfe) && (((a)->bytes[1] & 0xc0) == 0xc0))
-
-/**
- * Multicast
- */
-#define E_IN6_IS_ADDR_MULTICAST(a)	((a)->bytes[0] == 0xff)
-
 #endif /* __IPV6_UTILS_H__ */
