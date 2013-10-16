@@ -474,25 +474,28 @@ dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 
 }
+
+#if 0
 /*
  * Switch features.
- *
+ */
+
 struct ofp_switch_features {
-struct ofp_header header;
-uint64_t datapath_id; * Datapath unique ID. The lower 48-bits are for
-a MAC address, while the upper 16-bits are
-implementer-defined. *
-uint32_t n_buffers; * Max packets buffered at once. *
-uint8_t n_tables; * Number of tables supported by datapath. *
-uint8_t pad[3]; * Align to 64-bits. *
-* Features. *
-uint32_t capabilities; * Bitmap of support "ofp_capabilities". *
-uint32_t actions; * Bitmap of supported "ofp_action_type"s. *
-* Port info.*
-struct ofp_phy_port ports[0]; / Port definitions. The number of ports
-is inferred from the length field in
-the header.
-*/
+    struct ofp_header   header;
+    uint64_t            datapath_id;  /* Datapath unique ID. The lower 48-bits are for
+                                         a MAC address, while the upper 16-bits are
+                                         implementer-defined. */
+    uint32_t            n_buffers;    /* Max packets buffered at once. */
+    uint8_t             n_tables;     /* Number of tables supported by datapath. */
+    uint8_t             pad[3];       /* Align to 64-bits. */
+    /* Features. */
+    uint32_t            capabilities; /* Bitmap of support "ofp_capabilities". */
+    uint32_t            actions;      /* Bitmap of supported "ofp_action_type"s. */
+    /* Port info.*/
+    struct ofp_phy_port ports[0];     /* Port definitions. The number of ports
+                                         is inferred from the length field in
+                                         the header. */
+#endif
 
 static void
 dissect_openflow_features_reply_v1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
@@ -893,7 +896,7 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         offset = dissect_openflow_v_1_0(tvb, pinfo, tree, data);
         break;
     case OFP_VERSION_1_3:
-		call_dissector(openflow_v4_handle, tvb, pinfo, tree);
+        call_dissector(openflow_v4_handle, tvb, pinfo, tree);
         offset = tvb_length(tvb);
         break;
     default:
@@ -905,7 +908,7 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return offset;
 }
 
-/* 
+/*
  * Register the protocol with Wireshark.
  */
 void
@@ -1386,7 +1389,7 @@ proto_register_openflow(void)
     proto_openflow = proto_register_protocol("OpenFlow",
             "openflow", "openflow");
 
-	new_register_dissector("openflow", dissect_openflow, proto_openflow);
+    new_register_dissector("openflow", dissect_openflow, proto_openflow);
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_openflow, hf, array_length(hf));
@@ -1419,7 +1422,7 @@ proto_reg_handoff_openflow(void)
 
     dissector_add_uint("tcp.port", currentPort, openflow_handle);
     eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-	openflow_v4_handle = find_dissector("openflow_v4");
+    openflow_v4_handle = find_dissector("openflow_v4");
 
 }
 

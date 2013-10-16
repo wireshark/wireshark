@@ -526,13 +526,13 @@ create_string_tree(proto_tree *tree, header_field_info* hfi, tvbuff_t *tvb, guin
   subtree = proto_item_add_subtree(ti, ett_string);
 
   /* length */
-  add_varint_item(subtree, tvb, *offset, varint_length, &hfi_string_varint_count8, 
-                  &hfi_string_varint_count16, &hfi_string_varint_count32, 
+  add_varint_item(subtree, tvb, *offset, varint_length, &hfi_string_varint_count8,
+                  &hfi_string_varint_count16, &hfi_string_varint_count32,
                   &hfi_string_varint_count64);
   *offset += varint_length;
 
   /* string */
-  proto_tree_add_item(subtree, &hfi_string_value, tvb, *offset, string_length, 
+  proto_tree_add_item(subtree, &hfi_string_value, tvb, *offset, string_length,
                       ENC_ASCII|ENC_NA);
   *offset += string_length;
 

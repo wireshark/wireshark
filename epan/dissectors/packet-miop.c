@@ -82,7 +82,7 @@ static gint ett_miop = -1;
 static expert_field ei_miop_version_not_supported = EI_INIT;
 static expert_field ei_miop_unique_id_len_exceed_max_value = EI_INIT;
 
-#define MIOP_MAGIC   0x4d494f50 /* "MIOP" */ 
+#define MIOP_MAGIC   0x4d494f50 /* "MIOP" */
 
 static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 
@@ -318,3 +318,16 @@ void proto_reg_handoff_miop (void) {
   heur_dissector_add("udp", dissect_miop_heur, proto_miop);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

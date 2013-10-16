@@ -1601,7 +1601,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
             ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_retransmission_timer, tvb,
                                      0, 0, frame_state->config.retransmissionTimer);
             PROTO_ITEM_SET_GENERATED(ti);
-    
+
             if (frame_state->config.shortCycleConfigured) {
                 ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_short_cycle, tvb,
                                          0, 0, frame_state->config.shortCycle);
@@ -2710,7 +2710,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
 
         /* Look up entry for this UE/RNTI */
         ULHarqBuffers *ueData = (ULHarqBuffers *)g_hash_table_lookup(
-			mac_lte_ul_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
+            mac_lte_ul_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
         if (ueData != NULL) {
             if (p_mac_lte_info->reTxCount >= 1) {
                 /* Looking for frame previously on this harq-id */
@@ -3267,7 +3267,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* Update DRX state of UE */
     if (global_mac_lte_show_drx) {
-    	if ((p_mac_lte_info->reTxCount == 0) && !pinfo->fd->flags.visited) {
+        if ((p_mac_lte_info->reTxCount == 0) && !pinfo->fd->flags.visited) {
 
             /* Update UE state to this subframe (but before this event is processed) */
             update_drx_info(pinfo, p_mac_lte_info);
@@ -5436,7 +5436,7 @@ void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info 
 /*            ue_state->currentTime = pinfo->fd->abs_ts;*/
         }
         else {
-        	previousFrameNum = ue_state->config.frameNum;
+            previousFrameNum = ue_state->config.frameNum;
         }
 
         /* Clearing state when new config comes in... */
@@ -6753,3 +6753,15 @@ void proto_reg_handoff_mac_lte(void)
     rlc_lte_handle = find_dissector("rlc-lte");
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
