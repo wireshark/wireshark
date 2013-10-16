@@ -2990,7 +2990,7 @@ static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
     wkh_0_Declarations; \
-    guint32 val = 0, off = val_start, len;    \
+    guint32 off = val_start, len;    \
     \
     wkh_1_WellKnownValue; \
         tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
@@ -3006,9 +3006,9 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
         ok = TRUE; \
     wkh_3_ValueWithLength; \
         if (val_id <= 4) { /* Length field already parsed by macro! */ \
-            get_long_integer(val, tvb, off, len, ok); \
+            len = tvb_get_guint8(tvb,off); \
+            ok = (len >= 1 && len <= 4); /* Valid lengths for us are 1-4 */ \
             if (ok) { \
-                val = 0; /* hack to prevent 'set but not used' gcc warning */ \
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
                 ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
                         tvb, hdr_start, offset - hdr_start, \
@@ -3309,7 +3309,7 @@ static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
     wkh_0_Declarations; \
-    guint32 val = 0, off = val_start, len;    \
+    guint32 off = val_start, len;    \
     \
     wkh_1_WellKnownValue; \
         val_str = try_val_to_str_ext(val_id & 0x7F, valueStringExtAddr); \
@@ -3328,9 +3328,9 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
         /* Invalid */ \
     wkh_3_ValueWithLength; \
         if (val_id <= 4) { /* Length field already parsed by macro! */ \
-            get_long_integer(val, tvb, off, len, ok); \
+            len = tvb_get_guint8(tvb,off); \
+            ok = (len >= 1 && len <= 4); /* Valid lengths for us are 1-4 */ \
             if (ok) { \
-                val = 0; /* hack to prevent 'set but not used' gcc warning */ \
                 val_str = try_val_to_str_ext(val_id & 0x7F, valueStringExtAddr); \
                 if (val_str) { \
                     tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
