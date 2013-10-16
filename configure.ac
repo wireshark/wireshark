@@ -829,9 +829,7 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wwrite-strings)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-long-long)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc++-compat, C)
 
-if test "x$CLANG" = "xyes" ; then
-	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Qunused-arguments)
-fi
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Qunused-arguments)
 
 #
 # XXX - OK for C++?
