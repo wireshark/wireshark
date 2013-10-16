@@ -2114,3 +2114,45 @@ AC_DEFUN([AC_WIRESHARK_PYTHON_CHECK],
     fi
 #    ])
 ])
+
+#
+# AC_WIRESHARK_CLANG_CHECK
+#
+# Check if either our C or C++ compiler is Clang
+#
+AC_DEFUN([AC_WIRESHARK_CLANG_CHECK], [
+
+  AC_MSG_CHECKING(if $CC is Clang)
+  AC_COMPILE_IFELSE([
+    AC_LANG_SOURCE([[
+#ifndef __clang__
+CC is not __clang__
+#endif
+    ]])],
+    [
+      CC_IS_CLANG='yes'
+      CFLAGS="$CFLAGS -Qunused-arguments"
+    ],
+    CC_IS_CLANG='no'
+    )
+  AC_MSG_RESULT("$CC_IS_CLANG")
+
+  AC_MSG_CHECKING(if $CXX is Clang)
+  AC_LANG_PUSH([C++])
+  AC_COMPILE_IFELSE([
+    AC_LANG_SOURCE([[
+#ifndef __clang__
+CXX is not __clang__
+#endif
+    ]])],
+    [
+      CXX_IS_CLANG='yes'
+      CXXFLAGS="$CXXFLAGS -Qunused-arguments"
+    ],
+    CXX_IS_CLANG='no'
+    )
+  AC_LANG_POP([C++])
+  AC_MSG_RESULT("$CXX_IS_CLANG")
+
+])
+
