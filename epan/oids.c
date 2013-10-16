@@ -946,12 +946,16 @@ guint oid_encoded2subid_sub(const guint8 *oid_bytes, gint oid_len, guint32** sub
 	*subids_p = subids = (guint32 *)ep_alloc(sizeof(guint32)*n);
 	subid_overflow = subids+n;
 
-	/* If n is 1 then we found no bytes in the OID with first bit cleared,
-	 * so initialize our one byte to zero and return. This *seems* to be
-	 * the right thing to do in this situation, and at the very least it
-	 * avoids uninitialized memory errors that would otherwise occur. */
-	if ((is_first && n == 1) || (!is_first && n == 0)) {
+	/* If n is 0 or 1 (depending on how it was initialized) then we found
+	 * no bytes in the OID with first bit cleared, so initialize our one
+	 * byte (if any) to zero and return. This *seems* to be the right thing
+	 * to do in this situation, and at the very least it avoids
+	 * uninitialized memory errors that would otherwise occur. */
+	if (is_first && n == 1) {
 		*subids = 0;
+		return n;
+	}
+	else if (!is_first && n == 0) {
 		return n;
 	}
 
