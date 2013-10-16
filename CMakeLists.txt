@@ -204,8 +204,12 @@ else()
     # With clang some tests don't fail properly during testing but only
     # during real compiles
 
-    if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
-
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+        set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
+            -Qunused-arguments
+            #-fcolor-diagnostics
+        )
+    else()
         set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
             -fexcess-precision=fast
         )
