@@ -709,6 +709,23 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, g
 
 /************** ACCESSORS **************/
 
+inline static void *
+_tvb_memcpy(tvbuff_t *tvb, void *target, guint abs_offset, guint abs_length)
+{
+	if (tvb->real_data) {
+		return memcpy(target, tvb->real_data + abs_offset, abs_length);
+	}
+
+	if (tvb->ops->tvb_memcpy)
+		return tvb->ops->tvb_memcpy(tvb, target, abs_offset, abs_length);
+
+	/* XXX, fallback to slower method */
+
+	DISSECTOR_ASSERT_NOT_REACHED();
+	return NULL;
+
+}
+
 void *
 tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 {
@@ -730,17 +747,7 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 	DISSECTOR_ASSERT(length <= 0x7FFFFFFF);
 	check_offset_length(tvb, offset, (gint) length, &abs_offset, &abs_length);
 
-	if (tvb->real_data) {
-		return memcpy(target, tvb->real_data + abs_offset, abs_length);
-	}
-
-	if (tvb->ops->tvb_memcpy)
-		return tvb->ops->tvb_memcpy(tvb, target, abs_offset, abs_length);
-
-	/* XXX, fallback to slower method */
-
-	DISSECTOR_ASSERT_NOT_REACHED();
-	return NULL;
+	return _tvb_memcpy(tvb, target, abs_offset, abs_length);
 }
 
 
@@ -770,7 +777,7 @@ tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, size_t len
 	check_offset_length(tvb, offset, (gint) length, &abs_offset, &abs_length);
 
 	duped = wmem_alloc(scope, abs_length);
-	return tvb_memcpy(tvb, duped, abs_offset, abs_length);
+	return _tvb_memcpy(tvb, duped, abs_offset, abs_length);
 }
 
 
@@ -1209,7 +1216,7 @@ tvb_get_ntohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
 	guid->data1 = tvb_get_ntohl(tvb, offset);
 	guid->data2 = tvb_get_ntohs(tvb, offset + 4);
 	guid->data3 = tvb_get_ntohs(tvb, offset + 6);
-	tvb_memcpy(tvb, guid->data4, offset + 8, sizeof guid->data4);
+	_tvb_memcpy(tvb, guid->data4, offset + 8, sizeof guid->data4);
 }
 
 void
@@ -1219,7 +1226,7 @@ tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
 	guid->data1 = tvb_get_letohl(tvb, offset);
 	guid->data2 = tvb_get_letohs(tvb, offset + 4);
 	guid->data3 = tvb_get_letohs(tvb, offset + 6);
-	tvb_memcpy(tvb, guid->data4, offset + 8, sizeof guid->data4);
+	_tvb_memcpy(tvb, guid->data4, offset + 8, sizeof guid->data4);
 }
 
 /*
@@ -1914,7 +1921,7 @@ tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const 
 
 	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
 	strbuf = (guint8 *)wmem_alloc(scope, length + 1);
-	tvb_memcpy(tvb, strbuf, offset, length);
+	_tvb_memcpy(tvb, strbuf, offset, length);
 	strbuf[length] = '\0';
 	return strbuf;
 }
