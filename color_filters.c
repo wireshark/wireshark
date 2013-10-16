@@ -122,7 +122,7 @@ color_filters_add_tmp(GSList **cfl)
         colorf = color_filter_new(name, NULL, &bg_color, &fg_color, TRUE);
         colorf->filter_text = g_strdup("frame");
         colorf->c_colorfilter = NULL;
-        *cfl = g_slist_append(*cfl, colorf);
+        *cfl = g_slist_prepend(*cfl, colorf);
 
         g_free(name);
     }
@@ -269,7 +269,7 @@ color_filter_list_clone_cb(gpointer filter_arg, gpointer cfl_arg)
     color_filter_t *new_colorf;
 
     new_colorf = color_filter_clone((color_filter_t *)filter_arg);
-    *cfl = g_slist_append(*cfl, new_colorf);
+    *cfl = g_slist_prepend(*cfl, new_colorf);
 }
 
 /* clone the specified list */
@@ -604,7 +604,7 @@ read_filters_file(FILE *f, gpointer user_data)
 
                 /* internal call */
                 colorf->c_colorfilter = temp_dfilter;
-                *cfl = g_slist_append(*cfl, colorf);
+                *cfl = g_slist_prepend(*cfl, colorf);
             } else {
                 /* external call */
                 /* just editing, don't need the compiled filter */
