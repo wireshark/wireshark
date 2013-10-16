@@ -51,17 +51,17 @@ Calling-authentication-value-single-asn1 ::= CHOICE {
 }
 
 Calling-authentication-value-c1222 ::= [1] IMPLICIT SEQUENCE {
-    key-id-element	[0] IMPLICIT Key-id-element OPTIONAL,
-    iv-element		[1] IMPLICIT Iv-element OPTIONAL
+    key-id-element [0] IMPLICIT Key-id-element OPTIONAL,
+    iv-element     [1] IMPLICIT Iv-element OPTIONAL
 }
 
 Key-id-element ::= OCTET STRING (SIZE(1))
 Iv-element ::= OCTET STRING (SIZE(4))
 
 Calling-authentication-value-c1221 ::= [0] IMPLICIT CHOICE {
-    c1221-auth-identification	[0] IMPLICIT OCTET STRING (SIZE(3|5..259)),
-    c1221-auth-request		[0] IMPLICIT OCTET STRING (SIZE(1..255)),
-    c1221-auth-response		[0] IMPLICIT OCTET STRING (SIZE(0|1..255)),
+    c1221-auth-identification   [0] IMPLICIT OCTET STRING (SIZE(3|5..259)),
+    c1221-auth-request          [0] IMPLICIT OCTET STRING (SIZE(1..255)),
+    c1221-auth-response         [0] IMPLICIT OCTET STRING (SIZE(0|1..255)),
     ...
 }
 

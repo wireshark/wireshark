@@ -100,7 +100,20 @@ AE-qualifier TYPE=FT_UINT32
 
 #.FN_BODY MESSAGE
 /**/#ifdef HAVE_LIBGCRYPT
-    clear_canon();
+  clear_canon();
 /**/#endif
-    %(DEFAULT_BODY)s
+  %(DEFAULT_BODY)s
 #.END
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 2
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=2 tabstop=8 expandtab:
+# :indentSize=2:tabSize=8:noTabs=true:
+#

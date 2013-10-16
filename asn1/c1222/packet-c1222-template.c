@@ -407,237 +407,237 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
   (*length)--;
   switch (cmd) {
     case C1222_CMD_LOGON:
-	if (*length >= 12) {
-	    user_id = tvb_get_ntohs(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_logon_id, tvb, *offset, 2, user_id);
-	    *offset += 2;
-	    user_name = tvb_get_string(wmem_packet_scope(),tvb, *offset, 10);
-	    proto_tree_add_string(tree, hf_c1222_logon_user, tvb, *offset, 10, user_name);
-	    *offset += 10;
-	    *length -= 12;
-	    proto_item_set_text(tree, "C12.22 EPSEM: %s (id %d, user \"%s\")",
-		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), user_id, user_name);
-	} else {
-	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 LOGON command truncated");
-	}
-	break;
+      if (*length >= 12) {
+        user_id = tvb_get_ntohs(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_logon_id, tvb, *offset, 2, user_id);
+        *offset += 2;
+        user_name = tvb_get_string(wmem_packet_scope(),tvb, *offset, 10);
+        proto_tree_add_string(tree, hf_c1222_logon_user, tvb, *offset, 10, user_name);
+        *offset += 10;
+        *length -= 12;
+        proto_item_set_text(tree, "C12.22 EPSEM: %s (id %d, user \"%s\")",
+                val_to_str(cmd,commandnames,"Unknown (0x%02x)"), user_id, user_name);
+      } else {
+        expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 LOGON command truncated");
+      }
+      break;
     case C1222_CMD_SECURITY:
-	if (*length >= 20) {
-	    password = tvb_get_string(wmem_packet_scope(),tvb, *offset, 20);
-	    proto_tree_add_string(tree, hf_c1222_security_password, tvb, *offset, 20, password);
-	    *offset += 20;
-	    *length -= 20;
-	    if (*length >= 2) {
-	      user_id = tvb_get_ntohs(tvb, *offset);
-	      proto_tree_add_uint(tree, hf_c1222_logon_id, tvb, *offset, 2, user_id);
-	      *offset += 2;
-	      *length -= 2;
-	      proto_item_set_text(tree, "C12.22 EPSEM: %s (password \"%s\", id %d)",
-		      val_to_str(cmd,commandnames,"Unknown (0x%02x)"), password, user_id);
-	    } else {
-	      proto_item_set_text(tree, "C12.22 EPSEM: %s (password \"%s\")",
-		      val_to_str(cmd,commandnames,"Unknown (0x%02x)"), password);
-	    }
-	} else {
-	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 SECURITY command truncated");
-	}
-	break;
+      if (*length >= 20) {
+        password = tvb_get_string(wmem_packet_scope(),tvb, *offset, 20);
+        proto_tree_add_string(tree, hf_c1222_security_password, tvb, *offset, 20, password);
+        *offset += 20;
+        *length -= 20;
+        if (*length >= 2) {
+          user_id = tvb_get_ntohs(tvb, *offset);
+          proto_tree_add_uint(tree, hf_c1222_logon_id, tvb, *offset, 2, user_id);
+          *offset += 2;
+          *length -= 2;
+          proto_item_set_text(tree, "C12.22 EPSEM: %s (password \"%s\", id %d)",
+                  val_to_str(cmd,commandnames,"Unknown (0x%02x)"), password, user_id);
+        } else {
+          proto_item_set_text(tree, "C12.22 EPSEM: %s (password \"%s\")",
+                  val_to_str(cmd,commandnames,"Unknown (0x%02x)"), password);
+        }
+      } else {
+        expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 SECURITY command truncated");
+      }
+      break;
     case C1222_CMD_AUTHENTICATE:
-	if (*length >= 1) {
-	    auth_len = tvb_get_guint8(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_auth_len, tvb, *offset, 1, auth_len);
-	    *offset += 1;
-	    if (*length >= auth_len) {
-		auth_req = tvb_bytes_to_str(tvb, *offset, auth_len);
-		proto_tree_add_item(tree, hf_c1222_auth_data, tvb, *offset, auth_len, ENC_NA);
-		*offset += auth_len;
-		*length -= auth_len + 1;
-		proto_item_set_text(tree, "C12.22 EPSEM: %s (%d bytes: %s)",
-		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), auth_len, auth_req);
-	    } else {
-		expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 AUTHENTICATE command truncated");
-	    }
-	} else {
-	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 AUTHENTICATE command truncated");
-	}
-	break;
+      if (*length >= 1) {
+        auth_len = tvb_get_guint8(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_auth_len, tvb, *offset, 1, auth_len);
+        *offset += 1;
+        if (*length >= auth_len) {
+          auth_req = tvb_bytes_to_str(tvb, *offset, auth_len);
+          proto_tree_add_item(tree, hf_c1222_auth_data, tvb, *offset, auth_len, ENC_NA);
+          *offset += auth_len;
+          *length -= auth_len + 1;
+          proto_item_set_text(tree, "C12.22 EPSEM: %s (%d bytes: %s)",
+              val_to_str(cmd,commandnames,"Unknown (0x%02x)"), auth_len, auth_req);
+        } else {
+          expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 AUTHENTICATE command truncated");
+        }
+      } else {
+        expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 AUTHENTICATE command truncated");
+      }
+      break;
     case C1222_CMD_FULL_READ:
-	if (*length >= 2) {
-	    table = tvb_get_ntohs(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_read_table, tvb, *offset, 2, table);
-	    proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
-		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
-		    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
-	    *offset += 2;
-	    *length -= 2;
-	} else {
-	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 READ command truncated");
-	}
-	break;
+      if (*length >= 2) {
+        table = tvb_get_ntohs(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_read_table, tvb, *offset, 2, table);
+        proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
+                val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
+                val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
+        *offset += 2;
+        *length -= 2;
+      } else {
+        expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 READ command truncated");
+      }
+      break;
     case C1222_CMD_PARTIAL_READ_OFFSET:
-	if (*length >= 7) {
-	    table = tvb_get_ntohs(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_read_table, tvb, *offset, 2, table);
-	    *offset += 2;
-	    *length -= 2;
-	    proto_tree_add_item(tree, hf_c1222_read_offset, tvb, *offset, 3, ENC_BIG_ENDIAN);
-	    *offset += 3;
-	    *length -= 3;
-	    proto_tree_add_item(tree, hf_c1222_read_count, tvb, *offset, 2, ENC_BIG_ENDIAN);
-	    *offset += 2;
-	    *length -= 2;
-	    proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
-		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
-		    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
-	} else {
-	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 READ command truncated");
-	}
-	break;
+      if (*length >= 7) {
+        table = tvb_get_ntohs(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_read_table, tvb, *offset, 2, table);
+        *offset += 2;
+        *length -= 2;
+        proto_tree_add_item(tree, hf_c1222_read_offset, tvb, *offset, 3, ENC_BIG_ENDIAN);
+        *offset += 3;
+        *length -= 3;
+        proto_tree_add_item(tree, hf_c1222_read_count, tvb, *offset, 2, ENC_BIG_ENDIAN);
+        *offset += 2;
+        *length -= 2;
+        proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
+                val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
+                val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
+      } else {
+        expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 READ command truncated");
+      }
+      break;
     case C1222_CMD_FULL_WRITE:
-	if (*length >= 5) {
-	    table = tvb_get_ntohs(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_write_table, tvb, *offset, 2, table);
-	    *offset += 2;
-	    *length -= 2;
-	    tblsize = tvb_get_ntohs(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_write_size, tvb, *offset, 2, tblsize);
-	    *offset += 2;
-	    *length -= 2;
-	    if (*length >= tblsize+1U) {
-		if (table == 7) {/* is it a procedure call? */
-		    procedure_num = tvb_get_letohs(tvb, *offset);
-		    proto_tree_add_uint(tree, hf_c1222_procedure_num, tvb, *offset, 2, procedure_num);
-		    *offset += 2;
-		    *length -= 2;
-		    tblsize -= 2;
-		}
-		proto_tree_add_item(tree, hf_c1222_write_data, tvb, *offset, tblsize, ENC_NA);
-		*offset += tblsize;
-		*length -= tblsize;
-		chksum = tvb_get_guint8(tvb, *offset);
-		item = proto_tree_add_uint(tree, hf_c1222_write_chksum, tvb, *offset, 1, chksum);
-		if (table == 7) {/* is it a procedure call? */
-		    calcsum = c1222_cksum(tvb, (*offset)-tblsize-2, tblsize+2);
-		} else {
-		    calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
-		}
-		if (chksum != calcsum) {
-		  expert_add_info_format(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
-		}
-		if (table == 7) {/* is it a procedure call? */
-		    proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d, %s-%d)",
-			    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
-			    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF,
-			    val_to_str((procedure_num >> 8) & 0xF8, procflags,"Unknown (0x%04x)"), procedure_num & 0x7FF);
-		} else {
-		    proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
-			    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
-			    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
-		}
-		*offset += 1;
-		*length -= 1;
-	    } else {
-		expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
-	    }
-	} else {
-	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
-	}
-	break;
+      if (*length >= 5) {
+        table = tvb_get_ntohs(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_write_table, tvb, *offset, 2, table);
+        *offset += 2;
+        *length -= 2;
+        tblsize = tvb_get_ntohs(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_write_size, tvb, *offset, 2, tblsize);
+        *offset += 2;
+        *length -= 2;
+        if (*length >= tblsize+1U) {
+          if (table == 7) {/* is it a procedure call? */
+            procedure_num = tvb_get_letohs(tvb, *offset);
+            proto_tree_add_uint(tree, hf_c1222_procedure_num, tvb, *offset, 2, procedure_num);
+            *offset += 2;
+            *length -= 2;
+            tblsize -= 2;
+          }
+          proto_tree_add_item(tree, hf_c1222_write_data, tvb, *offset, tblsize, ENC_NA);
+          *offset += tblsize;
+          *length -= tblsize;
+          chksum = tvb_get_guint8(tvb, *offset);
+          item = proto_tree_add_uint(tree, hf_c1222_write_chksum, tvb, *offset, 1, chksum);
+          if (table == 7) {/* is it a procedure call? */
+            calcsum = c1222_cksum(tvb, (*offset)-tblsize-2, tblsize+2);
+          } else {
+            calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
+          }
+          if (chksum != calcsum) {
+            expert_add_info_format(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
+          }
+          if (table == 7) {/* is it a procedure call? */
+            proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d, %s-%d)",
+                    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
+                    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF,
+                    val_to_str((procedure_num >> 8) & 0xF8, procflags,"Unknown (0x%04x)"), procedure_num & 0x7FF);
+          } else {
+            proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
+                    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
+                    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
+          }
+          *offset += 1;
+          *length -= 1;
+        } else {
+          expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
+        }
+      } else {
+        expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
+      }
+      break;
     case C1222_CMD_PARTIAL_WRITE_OFFSET:
-	if (*length >= 8) {
-	    table = tvb_get_ntohs(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_write_table, tvb, *offset, 2, table);
-	    *offset += 2;
-	    *length -= 2;
-	    proto_tree_add_item(tree, hf_c1222_write_offset, tvb, *offset, 3, ENC_BIG_ENDIAN);
-	    *offset += 3;
-	    *length -= 3;
-	    tblsize = tvb_get_ntohs(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_write_size, tvb, *offset, 2, tblsize);
-	    *offset += 2;
-	    *length -= 2;
-	    if (*length >= tblsize+1U) {
-		proto_tree_add_item(tree, hf_c1222_write_data, tvb, *offset, tblsize, ENC_NA);
-		*offset += tblsize;
-		*length -= tblsize;
-		chksum = tvb_get_guint8(tvb, *offset);
-		item = proto_tree_add_uint(tree, hf_c1222_write_chksum, tvb, *offset, 1, chksum);
-		calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
-		if (chksum != calcsum) {
-		  expert_add_info_format(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
-		}
-		proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
-			val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
-			val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
-		*offset += 1;
-		*length -= 1;
-	    } else {
-		expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
-	    }
-	} else {
-	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
-	}
-	break;
+      if (*length >= 8) {
+        table = tvb_get_ntohs(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_write_table, tvb, *offset, 2, table);
+        *offset += 2;
+        *length -= 2;
+        proto_tree_add_item(tree, hf_c1222_write_offset, tvb, *offset, 3, ENC_BIG_ENDIAN);
+        *offset += 3;
+        *length -= 3;
+        tblsize = tvb_get_ntohs(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_write_size, tvb, *offset, 2, tblsize);
+        *offset += 2;
+        *length -= 2;
+        if (*length >= tblsize+1U) {
+          proto_tree_add_item(tree, hf_c1222_write_data, tvb, *offset, tblsize, ENC_NA);
+          *offset += tblsize;
+          *length -= tblsize;
+          chksum = tvb_get_guint8(tvb, *offset);
+          item = proto_tree_add_uint(tree, hf_c1222_write_chksum, tvb, *offset, 1, chksum);
+          calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
+          if (chksum != calcsum) {
+            expert_add_info_format(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
+          }
+          proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
+                  val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
+                  val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
+          *offset += 1;
+          *length -= 1;
+        } else {
+          expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
+        }
+      } else {
+        expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WRITE command truncated");
+      }
+      break;
     case C1222_CMD_WAIT:
-	if (*length >= 1) {
-	    wait_seconds = tvb_get_guint8(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_wait_secs, tvb, *offset, 1, wait_seconds);
-	    *offset += 1;
-	    *length -= 1;
-	    proto_item_set_text(tree, "C12.22 EPSEM: %s (%d seconds)",
-		val_to_str(cmd,commandnames,"Unknown (0x%02x)"), wait_seconds);
-	} else {
-	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WAIT command truncated");
-	}
-	break;
+      if (*length >= 1) {
+        wait_seconds = tvb_get_guint8(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_wait_secs, tvb, *offset, 1, wait_seconds);
+        *offset += 1;
+        *length -= 1;
+        proto_item_set_text(tree, "C12.22 EPSEM: %s (%d seconds)",
+            val_to_str(cmd,commandnames,"Unknown (0x%02x)"), wait_seconds);
+      } else {
+        expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 WAIT command truncated");
+      }
+      break;
     case C1222_CMD_NEGOTIATE:
-	if (*length >= 3) {
-	    packet_size = tvb_get_ntohs(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_neg_pkt_size, tvb, *offset, 2, packet_size);
-	    *offset += 2;
-	    *length -= 2;
-	    nbr_packet = tvb_get_guint8(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_neg_nbr_pkts, tvb, *offset, 1, nbr_packet);
-	    *offset += 1;
-	    *length -= 1;
-	    proto_item_set_text(tree, "C12.22 EPSEM: %s (pkt size %d, num pkts %d, with %d baud rates)",
-		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), packet_size, nbr_packet, numrates);
-	} else {
-	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 NEGOTIATE command truncated");
-	}
-	break;
+      if (*length >= 3) {
+        packet_size = tvb_get_ntohs(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_neg_pkt_size, tvb, *offset, 2, packet_size);
+        *offset += 2;
+        *length -= 2;
+        nbr_packet = tvb_get_guint8(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_neg_nbr_pkts, tvb, *offset, 1, nbr_packet);
+        *offset += 1;
+        *length -= 1;
+        proto_item_set_text(tree, "C12.22 EPSEM: %s (pkt size %d, num pkts %d, with %d baud rates)",
+                val_to_str(cmd,commandnames,"Unknown (0x%02x)"), packet_size, nbr_packet, numrates);
+      } else {
+        expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 NEGOTIATE command truncated");
+      }
+      break;
     case C1222_CMD_TIMING_SETUP:
-	if (*length >= 4) {
-	    traffic = tvb_get_guint8(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_timing_setup_traffic, tvb, *offset, 1, traffic);
-	    *offset += 1;
-	    *length -= 1;
-	    inter_char = tvb_get_guint8(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_timing_setup_inter_char, tvb, *offset, 1, inter_char);
-	    *offset += 1;
-	    *length -= 1;
-	    resp_to = tvb_get_guint8(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_timing_setup_resp_to, tvb, *offset, 1, resp_to);
-	    *offset += 1;
-	    *length -= 1;
-	    nbr_retries = tvb_get_guint8(tvb, *offset);
-	    proto_tree_add_uint(tree, hf_c1222_timing_setup_nbr_retries, tvb, *offset, 1, nbr_retries);
-	    *offset += 1;
-	    *length -= 1;
-	    proto_item_set_text(tree, "C12.22 EPSEM: %s (traffic to %d s, inter-char to %d s, response to %d s, %d retries)",
-		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), traffic, inter_char, resp_to, nbr_retries);
-	} else {
-	    expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 NEGOTIATE command truncated");
-	}
-	break;
+      if (*length >= 4) {
+        traffic = tvb_get_guint8(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_timing_setup_traffic, tvb, *offset, 1, traffic);
+        *offset += 1;
+        *length -= 1;
+        inter_char = tvb_get_guint8(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_timing_setup_inter_char, tvb, *offset, 1, inter_char);
+        *offset += 1;
+        *length -= 1;
+        resp_to = tvb_get_guint8(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_timing_setup_resp_to, tvb, *offset, 1, resp_to);
+        *offset += 1;
+        *length -= 1;
+        nbr_retries = tvb_get_guint8(tvb, *offset);
+        proto_tree_add_uint(tree, hf_c1222_timing_setup_nbr_retries, tvb, *offset, 1, nbr_retries);
+        *offset += 1;
+        *length -= 1;
+        proto_item_set_text(tree, "C12.22 EPSEM: %s (traffic to %d s, inter-char to %d s, response to %d s, %d retries)",
+                val_to_str(cmd,commandnames,"Unknown (0x%02x)"), traffic, inter_char, resp_to, nbr_retries);
+      } else {
+        expert_add_info_format(pinfo, tree, &ei_c1222_command_truncated, "C12.22 NEGOTIATE command truncated");
+      }
+      break;
 
     default:
-	/* don't do anything */
-	proto_item_set_text(tree, "C12.22 EPSEM: %s", val_to_str(cmd, commandnames, "Unknown (0x%02x)"));
-	if (*length) {
-	  proto_tree_add_item(tree, hf_c1222_data, tvb, *offset, *length, ENC_NA);
-	}
-	break;
+      /* don't do anything */
+      proto_item_set_text(tree, "C12.22 EPSEM: %s", val_to_str(cmd, commandnames, "Unknown (0x%02x)"));
+      if (*length) {
+        proto_tree_add_item(tree, hf_c1222_data, tvb, *offset, *length, ENC_NA);
+      }
+      break;
   }
 }
 
@@ -765,9 +765,9 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
       return FALSE;
     if (*(t->element) != NULL) {
       if (t->addtag) {
-	/* recreate original tag and length */
-	buff[(*offset)++] = t->tag;
-	(*offset) += encode_ber_len(&buff[*offset], len, 4);
+        /* recreate original tag and length */
+        buff[(*offset)++] = t->tag;
+        (*offset) += encode_ber_len(&buff[*offset], len, 4);
       }
       if (t->truncate) {
         len = 3+2*get_ber_len_size(len);
@@ -775,12 +775,12 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
       /* bail out if the cannonization buffer is too small */
       /* this should never happen! */
       if (buffsize < *offset + len) {
-	return FALSE;
+        return FALSE;
       }
       memcpy(&buff[*offset], *(t->element), len);
       (*offset) += len;
       if (t->addtag) {
-	  *(t->element) = NULL;
+          *(t->element) = NULL;
       }
     }
   }
@@ -809,18 +809,16 @@ keylookup(guint8 *keybuff, guint8 keyid)
   }
   return FALSE;
 }
-#endif /* HAVE_LIBGCRYPT */
 
 /**
  * Authenticates and decrypts the passed packet.
  *
  * \param buffer points to a memory copy of the packet to be authenticated/decrypted
- *	and contains the decrypted value on successful return.
+ *        and contains the decrypted value on successful return.
  * \param length lenth of input packet
  * \param decrypt TRUE if packet is to be authenticated and decrypted; FALSE if authentication only is requested
  * \returns TRUE if the requested operation was successful; otherwise FALSE
  */
-#ifdef HAVE_LIBGCRYPT
 static gboolean
 decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
 {
@@ -854,9 +852,9 @@ decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
     if (!keylookup((guint8 *)&c1222_key, key_id))
       return FALSE;
     status = Eax_Decrypt(canonbuff, c1222_key, buffer,
-		  offset, EAX_SIZEOF_KEY, length-4,
-		  (MAC_T *)&buffer[length-4],
-		  decrypt ? EAX_MODE_CIPHERTEXT_AUTH : EAX_MODE_CLEARTEXT_AUTH);
+                  offset, EAX_SIZEOF_KEY, length-4,
+                  (MAC_T *)&buffer[length-4],
+                  decrypt ? EAX_MODE_CIPHERTEXT_AUTH : EAX_MODE_CLEARTEXT_AUTH);
   }
   return status;
 }
@@ -889,19 +887,19 @@ ber_len_ok(tvbuff_t *tvb, int offset)
       ch = tvb_get_guint8(tvb, offset);
       offset++;
       if (!(ch & 0x80)) {
-	return TRUE;
+        return TRUE;
       } else if (tvb_offset_exists(tvb, offset)) {
-	ch = tvb_get_guint8(tvb, offset);
-	offset++;
-	if (!(ch & 0x80)) {
-	  return TRUE;
-	} else if (tvb_offset_exists(tvb, offset)) {
-	  ch = tvb_get_guint8(tvb, offset);
-	  /*offset++;*/
-	  if (!(ch & 0x80)) {
-	    return TRUE;
-	  }
-	}
+        ch = tvb_get_guint8(tvb, offset);
+        offset++;
+        if (!(ch & 0x80)) {
+          return TRUE;
+        } else if (tvb_offset_exists(tvb, offset)) {
+          ch = tvb_get_guint8(tvb, offset);
+          /*offset++;*/
+          if (!(ch & 0x80)) {
+            return TRUE;
+          }
+        }
       }
     }
   }
@@ -938,8 +936,8 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   gboolean encrypted = FALSE;
 
   if ((tvb == NULL) && (len == 0)) {
-      expert_add_info(pinfo, tree, &ei_c1222_epsem_missing);
-      return offset;
+    expert_add_info(pinfo, tree, &ei_c1222_epsem_missing);
+    return offset;
   }
   /* parse the flags byte which is always unencrypted */
   flags = tvb_get_guint8(tvb, offset);
@@ -954,16 +952,16 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
         return offset;
       encrypted = TRUE;
       if (c1222_decrypt) {
-	buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
-	if (!decrypt_packet(buffer, len2, TRUE)) {
-	  crypto_bad = TRUE;
-	} else {
-	  epsem_buffer = tvb_new_real_data(buffer, len2, len2);
-	  tvb_set_child_real_data_tvbuff(tvb, epsem_buffer);
-	  add_new_data_source(pinfo, epsem_buffer, "Decrypted EPSEM Data");
-	  crypto_good = TRUE;
-	  encrypted = FALSE;
-	}
+        buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
+        if (!decrypt_packet(buffer, len2, TRUE)) {
+          crypto_bad = TRUE;
+        } else {
+          epsem_buffer = tvb_new_real_data(buffer, len2, len2);
+          tvb_set_child_real_data_tvbuff(tvb, epsem_buffer);
+          add_new_data_source(pinfo, epsem_buffer, "Decrypted EPSEM Data");
+          crypto_good = TRUE;
+          encrypted = FALSE;
+        }
       }
       break;
     case EAX_MODE_CLEARTEXT_AUTH:
@@ -975,16 +973,16 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
       epsem_buffer = tvb_new_subset_remaining(tvb, offset);
       if (c1222_decrypt) {
-	if (!decrypt_packet(buffer, len2, FALSE)) {
+        if (!decrypt_packet(buffer, len2, FALSE)) {
 #ifdef HAVE_LIBGCRYPT
-	  crypto_bad = TRUE;
-	  expert_add_info(pinfo, tree, &ei_c1222_epsem_failed_authentication);
+          crypto_bad = TRUE;
+          expert_add_info(pinfo, tree, &ei_c1222_epsem_failed_authentication);
 #else /* HAVE_LIBGCRYPT */
-	  expert_add_info(pinfo, tree, &ei_c1222_epsem_not_authenticated);
+          expert_add_info(pinfo, tree, &ei_c1222_epsem_not_authenticated);
 #endif /* HAVE_LIBGCRYPT */
-	} else {
-	  crypto_good = TRUE;
-	}
+        } else {
+          crypto_good = TRUE;
+        }
       }
       break;
     default:
@@ -1002,10 +1000,10 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
     /* retrieve the ed_class if it's there */
     if (flags & C1222_EPSEM_FLAG_ED_CLASS_INCLUDED) {
       if (tvb_offset_exists(epsem_buffer, local_offset+4-1)) {
-	proto_tree_add_item(tree, hf_c1222_epsem_ed_class, epsem_buffer, local_offset, 4, ENC_NA);
-	local_offset += 4;
+        proto_tree_add_item(tree, hf_c1222_epsem_ed_class, epsem_buffer, local_offset, 4, ENC_NA);
+        local_offset += 4;
       } else {
-	expert_add_info(pinfo, tree, &ei_c1222_ed_class_missing);
+        expert_add_info(pinfo, tree, &ei_c1222_ed_class_missing);
       }
     }
     /* what follows are one or more <epsem-data> elements possibly followed by
@@ -1015,20 +1013,20 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
      */
     while (tvb_offset_exists(epsem_buffer, local_offset+(hasmac?5:1))) {
       if (ber_len_ok(epsem_buffer, local_offset)) {
-	local_offset = dissect_ber_length(pinfo, tree, epsem_buffer, local_offset, (guint32 *)&len2, &ind);
+        local_offset = dissect_ber_length(pinfo, tree, epsem_buffer, local_offset, (guint32 *)&len2, &ind);
       } else {
-	expert_add_info(pinfo, tree, &ei_c1222_epsem_ber_length_error);
-	return offset+len;
+        expert_add_info(pinfo, tree, &ei_c1222_epsem_ber_length_error);
+        return offset+len;
       }
       if (tvb_offset_exists(epsem_buffer, local_offset+len2-1)) {
-	cmd_err = tvb_get_guint8(epsem_buffer, local_offset);
-	ct = proto_tree_add_item(tree, hf_c1222_epsem_total, epsem_buffer, local_offset, len2, ENC_NA);
-	cmd_tree = proto_item_add_subtree(ct, ett_c1222_cmd);
-	parse_c1222_detailed(epsem_buffer, pinfo, cmd_tree, cmd_err, (guint32 *)&len2, &local_offset);
-	local_offset += len2;
+        cmd_err = tvb_get_guint8(epsem_buffer, local_offset);
+        ct = proto_tree_add_item(tree, hf_c1222_epsem_total, epsem_buffer, local_offset, len2, ENC_NA);
+        cmd_tree = proto_item_add_subtree(ct, ett_c1222_cmd);
+        parse_c1222_detailed(epsem_buffer, pinfo, cmd_tree, cmd_err, (guint32 *)&len2, &local_offset);
+        local_offset += len2;
       } else {
-	expert_add_info(pinfo, tree, &ei_c1222_epsem_field_length_error);
-	return offset+len;
+        expert_add_info(pinfo, tree, &ei_c1222_epsem_field_length_error);
+        return offset+len;
       }
     }
   }
@@ -1069,9 +1067,9 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* create the c1222 protocol tree */
     if (tree) {
-        c1222_item = proto_tree_add_item(tree, proto_c1222, tvb, 0, -1, ENC_NA);
-        c1222_tree = proto_item_add_subtree(c1222_item, ett_c1222);
-        dissect_MESSAGE_PDU(tvb, pinfo, c1222_tree);
+      c1222_item = proto_tree_add_item(tree, proto_c1222, tvb, 0, -1, ENC_NA);
+      c1222_tree = proto_item_add_subtree(c1222_item, ett_c1222);
+      dissect_MESSAGE_PDU(tvb, pinfo, c1222_tree);
     }
 }
 
@@ -1106,8 +1104,8 @@ get_c1222_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 static void
 dissect_c1222(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, c1222_desegment, 5,
-	    get_c1222_message_len, dissect_c1222_common);
+  tcp_dissect_pdus(tvb, pinfo, tree, c1222_desegment, 5,
+          get_c1222_message_len, dissect_c1222_common);
 }
 
 /*--- proto_register_c1222 -------------------------------------------*/
@@ -1337,27 +1335,27 @@ void proto_register_c1222(void) {
   /* List of subtrees */
   static gint *ett[] = {
                   &ett_c1222,
-  		  &ett_c1222_epsem,
-  		  &ett_c1222_flags,
-		  &ett_c1222_crypto,
-  		  &ett_c1222_cmd,
+                  &ett_c1222_epsem,
+                  &ett_c1222_flags,
+                  &ett_c1222_crypto,
+                  &ett_c1222_cmd,
 #include "packet-c1222-ettarr.c"
   };
 
   static ei_register_info ei[] = {
-     { &ei_c1222_command_truncated, { "c1222.command_truncated", PI_MALFORMED, PI_ERROR, "C12.22 command truncated", EXPFILL }},
-     { &ei_c1222_bad_checksum, { "c1222.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
-     { &ei_c1222_epsem_missing, { "c1222.epsem.missing", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM missing", EXPFILL }},
+    { &ei_c1222_command_truncated, { "c1222.command_truncated", PI_MALFORMED, PI_ERROR, "C12.22 command truncated", EXPFILL }},
+    { &ei_c1222_bad_checksum, { "c1222.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    { &ei_c1222_epsem_missing, { "c1222.epsem.missing", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM missing", EXPFILL }},
 #ifdef HAVE_LIBGCRYPT
-     { &ei_c1222_epsem_failed_authentication, { "c1222.epsem.failed_authentication", PI_SECURITY, PI_ERROR, "C12.22 EPSEM failed authentication", EXPFILL }},
+    { &ei_c1222_epsem_failed_authentication, { "c1222.epsem.failed_authentication", PI_SECURITY, PI_ERROR, "C12.22 EPSEM failed authentication", EXPFILL }},
 #else
-     { &ei_c1222_epsem_not_authenticated, { "c1222.epsem.not_authenticated", PI_SECURITY, PI_WARN, "C12.22 EPSEM could not be authenticated", EXPFILL }},
+    { &ei_c1222_epsem_not_authenticated, { "c1222.epsem.not_authenticated", PI_SECURITY, PI_WARN, "C12.22 EPSEM could not be authenticated", EXPFILL }},
 #endif
-     { &ei_c1222_epsem_not_decryped, { "c1222.epsem.not_decryped", PI_UNDECODED, PI_WARN, "C12.22 EPSEM could not be decrypted", EXPFILL }},
-     { &ei_c1222_ed_class_missing, { "c1222.ed_class_missing", PI_SECURITY, PI_ERROR, "C12.22 ED Class missing", EXPFILL }},
-     { &ei_c1222_epsem_ber_length_error, { "c1222.epsem.ber_length_error", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM BER length error", EXPFILL }},
-     { &ei_c1222_epsem_field_length_error, { "c1222.epsem.field_length_error", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM field length error", EXPFILL }},
-     { &ei_c1222_mac_missing, { "c1222.mac_missing", PI_MALFORMED, PI_ERROR, "C12.22 MAC missing", EXPFILL }},
+    { &ei_c1222_epsem_not_decryped, { "c1222.epsem.not_decryped", PI_UNDECODED, PI_WARN, "C12.22 EPSEM could not be decrypted", EXPFILL }},
+    { &ei_c1222_ed_class_missing, { "c1222.ed_class_missing", PI_SECURITY, PI_ERROR, "C12.22 ED Class missing", EXPFILL }},
+    { &ei_c1222_epsem_ber_length_error, { "c1222.epsem.ber_length_error", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM BER length error", EXPFILL }},
+    { &ei_c1222_epsem_field_length_error, { "c1222.epsem.field_length_error", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM field length error", EXPFILL }},
+    { &ei_c1222_mac_missing, { "c1222.mac_missing", PI_MALFORMED, PI_ERROR, "C12.22 MAC missing", EXPFILL }},
   };
 
   expert_module_t* expert_c1222;
@@ -1380,31 +1378,31 @@ void proto_register_c1222(void) {
   expert_register_field_array(expert_c1222, ei, array_length(ei));
   c1222_module = prefs_register_protocol(proto_c1222, proto_reg_handoff_c1222);
   prefs_register_bool_preference(c1222_module, "desegment",
-	"Reassemble all C12.22 messages spanning multiple TCP segments",
-	"Whether the C12.22 dissector should reassemble all messages spanning multiple TCP segments",
-	&c1222_desegment);
+        "Reassemble all C12.22 messages spanning multiple TCP segments",
+        "Whether the C12.22 dissector should reassemble all messages spanning multiple TCP segments",
+        &c1222_desegment);
   prefs_register_string_preference(c1222_module, "baseoid", "Base OID to use for relative OIDs", 
-	"Base object identifier for use in resolving relative object identifiers",
-	&c1222_baseoid_str);
+        "Base object identifier for use in resolving relative object identifiers",
+        &c1222_baseoid_str);
 #ifdef HAVE_LIBGCRYPT
   prefs_register_bool_preference(c1222_module, "decrypt",
-	"Verify crypto for all applicable C12.22 messages",
-	"Whether the C12.22 dissector should verify the crypto for all relevant messages",
-	&c1222_decrypt);
+        "Verify crypto for all applicable C12.22 messages",
+        "Whether the C12.22 dissector should verify the crypto for all relevant messages",
+        &c1222_decrypt);
 
   c1222_uat = uat_new("Decryption Table",
-      sizeof(c1222_uat_data_t),		/* record size */
-      "c1222_decryption_table",		/* filename */
-      TRUE,				/* from_profile */
-      (void**)&c1222_uat_data,		/* data_ptr */
-      &num_c1222_uat_data,		/* numitems_ptr */
-      UAT_AFFECTS_DISSECTION,		/* affects dissection of packets, but not set of named fields */
-      NULL,				/* help */
-      NULL,				/* copy callback */
-      c1222_uat_data_update_cb,		/* update callback */
-      NULL,				/* free callback */
-      NULL,				/* post update callback */
-      c1222_uat_flds);			/* UAT field definitions */
+      sizeof(c1222_uat_data_t),         /* record size */
+      "c1222_decryption_table",         /* filename */
+      TRUE,                             /* from_profile */
+      (void**)&c1222_uat_data,          /* data_ptr */
+      &num_c1222_uat_data,              /* numitems_ptr */
+      UAT_AFFECTS_DISSECTION,           /* affects dissection of packets, but not set of named fields */
+      NULL,                             /* help */
+      NULL,                             /* copy callback */
+      c1222_uat_data_update_cb,         /* update callback */
+      NULL,                             /* free callback */
+      NULL,                             /* post update callback */
+      c1222_uat_flds);                  /* UAT field definitions */
 
   prefs_register_uat_preference(c1222_module,
       "decryption_table",
@@ -1418,17 +1416,29 @@ void proto_register_c1222(void) {
 void
 proto_reg_handoff_c1222(void)
 {
-    static gboolean initialized = FALSE;
-    guint8 *temp = NULL;
+  static gboolean initialized = FALSE;
+  guint8 *temp = NULL;
 
-    if( !initialized ) {
-        c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
-	c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
-        dissector_add_uint("tcp.port", global_c1222_port, c1222_handle);
-        dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
-        initialized = TRUE;
-    }
-    c1222_baseoid_len = oid_string2encoded(c1222_baseoid_str, &temp);
-    c1222_baseoid = (guint8 *)wmem_realloc(wmem_epan_scope(), c1222_baseoid, c1222_baseoid_len);
-    memcpy(c1222_baseoid, temp, c1222_baseoid_len);
+  if( !initialized ) {
+    c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
+    c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
+    dissector_add_uint("tcp.port", global_c1222_port, c1222_handle);
+    dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
+    initialized = TRUE;
+  }
+  c1222_baseoid_len = oid_string2encoded(c1222_baseoid_str, &temp);
+  c1222_baseoid = (guint8 *)wmem_realloc(wmem_epan_scope(), c1222_baseoid, c1222_baseoid_len);
+  memcpy(c1222_baseoid, temp, c1222_baseoid_len);
 }
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
