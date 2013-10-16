@@ -1,7 +1,7 @@
 -- RRLP-Components.asn
 -- $Id$
--- Taken from 3GPP TS 44.031  V9.2.0 (2010-03)
--- http://www.3gpp.org/ftp/Specs/archive/44_series/44.031/44031-920.zip/44031-920.doc
+-- Taken from 3GPP TS 44.031  V11.0.0 (2012-09)
+-- http://www.3gpp.org/ftp/Specs/archive/44_series/44.031/44031-b00.zip/44031-b00.doc
 --
 -- 4 Components
 -- 5 Elements of Components
@@ -18,17 +18,14 @@ IMPORTS
 	Ext-GeographicalInformation, VelocityEstimate
 FROM
 	MAP-LCS-DataTypes {
-	ccitt identified-organization (4) etsi (0) mobileDomain (0)
-	gsm-Network (1) modules (3) map-LCS-DataTypes (25) version5 (5)}
+	itu-t identified-organization (4) etsi (0) mobileDomain (0)
+	gsm-Network (1) modules (3) map-LCS-DataTypes (25) version10 (10)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
-	ccitt identified-organization (4) etsi (0) mobileDomain (0)
-	gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version4 (4)}
+	itu-t identified-organization (4) etsi (0) mobileDomain (0)
+	gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version10 (10)}
 ;
-
--- Add here other ASN.1 definitions presented below
--- in chapters 4 and 5.
 
 -- Measurement Position request component
 MsrPosition-Req ::= SEQUENCE {
@@ -46,8 +43,6 @@ rel5-MsrPosition-Req-extension			Rel5-MsrPosition-Req-Extension			OPTIONAL,
 	-- Release 7 extension element
 rel7-MsrPosition-Req-extension			Rel7-MsrPosition-Req-Extension			OPTIONAL
 }
-
-
 
 -- Measurement Position response component
 MsrPosition-Rsp ::= SEQUENCE {
@@ -71,7 +66,6 @@ MsrPosition-Rsp ::= SEQUENCE {
 							Rel-7-MsrPosition-Rsp-Extension		OPTIONAL
 }
 
-
 -- Assistance Data component
 AssistanceData ::= SEQUENCE {
 	referenceAssistData	ReferenceAssistData			OPTIONAL,
@@ -90,7 +84,6 @@ AssistanceData ::= SEQUENCE {
  rel7-AssistanceData-Extension Rel7-AssistanceData-Extension OPTIONAL	
 }
 
-
 -- Protocol Error component
 ProtocolError ::= SEQUENCE {
 	errorCause				ErrorCodes,	
@@ -100,7 +93,6 @@ ProtocolError ::= SEQUENCE {
 	rel-5-ProtocolError-Extension Rel-5-ProtocolError-Extension		OPTIONAL
 }
 
-
 -- Positioning Capability request component
 PosCapability-Req ::= SEQUENCE {
 	extended-reference			Extended-reference,
@@ -108,7 +100,6 @@ PosCapability-Req ::= SEQUENCE {
 	extensionContainer			ExtensionContainer		OPTIONAL,
 	...
 }
-
 
 -- Positioning Capability response component
 PosCapability-Rsp ::= SEQUENCE {
@@ -122,8 +113,6 @@ PosCapability-Rsp ::= SEQUENCE {
 	...
 }
 
-
--- add these defintions to RRLP-Components module
 -- Position instructions
 PositionInstruct ::= SEQUENCE {
 	-- Method type
@@ -146,7 +135,6 @@ MethodType ::= CHOICE {
 AccuracyOpt ::= SEQUENCE {
 	accuracy		Accuracy	OPTIONAL
 }
-
 
 -- The values of this field are defined in 3GPP TS 23.032 (Uncertainty code)
 Accuracy ::= INTEGER (0..127)
@@ -1096,7 +1084,9 @@ GANSSCommonAssistData ::= SEQUENCE {
 	ganssIonosphericModel		GANSSIonosphericModel	 	OPTIONAL,
 	... ,
 	ganssAddIonosphericModel	GANSSAddIonosphericModel	OPTIONAL,
-	ganssEarthOrientParam		GANSSEarthOrientParam		OPTIONAL
+	ganssEarthOrientParam		GANSSEarthOrientParam		OPTIONAL,
+	-- If GANSSReferenceTime is included, GANSSReferenceTime-R10-Ext shall also be included.
+	ganssReferenceTime-R10-Ext	GANSSReferenceTime-R10-Ext	OPTIONAL
 }
 
 -- List of GANSS Generic Assistance Data Elements, up to 8 GANSS
@@ -1118,7 +1108,14 @@ GANSSGenericAssistDataElement ::= SEQUENCE {
 	sbasID	INTEGER (0..7) 	OPTIONAL, -- Coding according to Annex
 	ganssAddUTCModel	GANSSAddUTCModel	OPTIONAL,
 	ganssAuxiliaryInfo	GANSSAuxiliaryInformation	OPTIONAL,
-	ganssDiffCorrectionsValidityPeriod	GANSSDiffCorrectionsValidityPeriod	OPTIONAL
+	ganssDiffCorrectionsValidityPeriod	GANSSDiffCorrectionsValidityPeriod	OPTIONAL,
+	-- If SeqOfGANSSTimeModel is included, SeqOfGANSSTimeModel-R10-Ext shall also be included.
+	ganssTimeModel-R10-Ext	SeqOfGANSSTimeModel-R10-Ext	OPTIONAL,
+	-- If GANSSRefMeasurementAssist is included, GANSSRefMeasurementAssist-R10-Ext shall also be 
+	-- included.
+	ganssRefMeasurementAssist-R10-Ext	GANSSRefMeasurementAssist-R10-Ext	OPTIONAL,
+	-- If GANSSAlmanacModel is included, GANSSAlmanacModel-R10-Ext shall also be included.
+	ganssAlmanacModel-R10-Ext	GANSSAlmanacModel-R10-Ext 	OPTIONAL
 }
 
 -- GANSS COMMON ASSISTANCE DATA ELEMENTS
@@ -1131,6 +1128,7 @@ GANSSReferenceTime ::= SEQUENCE {
 
 -- GANSS Reference Time includes GANSS TOD, GANSS Day, uncertainty
 GANSSRefTimeInfo ::= SEQUENCE {
+	-- ganssDay shall be present in this version of the protocol
 	ganssDay			 INTEGER(0 .. 8191) 	 OPTIONAL,
  	ganssTOD			 GANSSTOD,
 	ganssTODUncertainty	 GANSSTODUncertainty	 OPTIONAL,
@@ -1143,6 +1141,10 @@ GANSSTOD ::= INTEGER (0 .. 86399)
 -- GANSS TOD uncertainty
 GANSSTODUncertainty ::= INTEGER (0 .. 127) -- Coding according to Annex
 
+-- GANSS Reference Time Rel-10 Extension:
+GANSSReferenceTime-R10-Ext ::= SEQUENCE {
+	ganssDayCycleNumber		INTEGER(0..7) 	-- coding according to annex
+}
 -- GANSS TOD-GSM Time association 
 GANSSTOD-GSMTimeAssociation ::= SEQUENCE {
 	bcchCarrier		BCCHCarrier,	-- BCCH carrier
@@ -1227,6 +1229,13 @@ TA1 ::= INTEGER (-8388608 .. 8388607)
 -- GANSS time model parameter A2
 TA2 ::= INTEGER (-64 .. 63)
 
+-- GANSS Time Model Rel-10 Extension:
+SeqOfGANSSTimeModel-R10-Ext ::= SEQUENCE (SIZE(1..7)) OF GANSSTimeModelElement-R10-Ext
+
+GANSSTimeModelElement-R10-Ext ::= SEQUENCE {
+	gnssTOID 		INTEGER (0 .. 7), 		-- coding according to annex
+ 	deltaT 			INTEGER (-128..127)
+}
 
 -- DGANSS Corrections IE
 GANSSDiffCorrections ::= SEQUENCE {
@@ -1524,6 +1533,17 @@ AdditionalDopplerFields ::= SEQUENCE {
 	doppler1				INTEGER (0..63),
 	dopplerUncertainty		INTEGER (0..4)
 }
+-- GANSS Reference Measurement Rel-10 Extension:
+-- GANSSRefMeasurementAssist-R10-Ext shall contain the same number of elements as the 
+-- SeqOfGANSSRefMeasurementElement included in GANSSRefMeasurementAssist IE
+GANSSRefMeasurementAssist-R10-Ext ::= SEQUENCE (SIZE(1 .. 16)) OF 
+															GANSSRefMeasurement-R10-Ext-Element
+
+GANSSRefMeasurement-R10-Ext-Element ::= SEQUENCE {
+	svID				SVID,
+	azimuthLSB			INTEGER(0..15),
+	elevationLSB		INTEGER(0..15)
+}
 
 -- GANSS Almanac Model IE
 GANSSAlmanacModel ::= SEQUENCE {
@@ -1629,6 +1649,11 @@ Almanac-ECEFsbasAlmanacSet ::= SEQUENCE {
 	sbasAlmYgDot			INTEGER (-4..3),
 	sbasAlmZgDot			INTEGER (-8..7),
 	sbasAlmTo				INTEGER (0..2047)
+}
+
+-- GANSS Almanac Model Rel-10 Extension
+GANSSAlmanacModel-R10-Ext ::= SEQUENCE {
+	completeAlmanacProvided		BOOLEAN	-- TRUE means that complete Almanac is provided
 }
 
 -- GANSS Universal Time Coordinate Model (Model-1)
@@ -1906,7 +1931,16 @@ Add-GPS-ControlHeader ::= SEQUENCE {
 	gpsEphemerisExtension			GPSEphemerisExtension			OPTIONAL,
 	gpsEphemerisExtensionCheck		GPSEphemerisExtensionCheck		OPTIONAL,
 	... ,
-	dgpsCorrectionsValidityPeriod	DGPSCorrectionsValidityPeriod	OPTIONAL
+	dgpsCorrectionsValidityPeriod	DGPSCorrectionsValidityPeriod	OPTIONAL,
+	-- If ReferenceTime is included in ControlHeader, GPSReferenceTime-R10-Ext 
+	-- shall also be included.
+	gpsReferenceTime-R10-Ext		GPSReferenceTime-R10-Ext		OPTIONAL,
+	-- If AcquisAssist is included in ControlHeader, GPSAcquisAssist-R10-Ext 
+	-- shall also be included.
+	gpsAcquisAssist-R10-Ext			GPSAcquisAssist-R10-Ext			OPTIONAL,
+	-- If Almanac is included in ControlHeader, GPSAlmanac-R10-Ext 
+	-- shall also be included.
+	gpsAlmanac-R10-Ext				GPSAlmanac-R10-Ext				OPTIONAL
 }
 
 GPSClockModel ::= SEQUENCE {
@@ -2072,6 +2106,27 @@ DGPSExtensionSatElement ::= SEQUENCE {
 	udreGrowthRate		INTEGER(0..7), 	-- coding according to annex
 	udreValidityTime	INTEGER(0..7), 	-- coding according to annex
 	...
+}
+
+-- GPS Reference Time Rel-10 Extension:
+GPSReferenceTime-R10-Ext ::= SEQUENCE {
+	gpsWeekCycleNumber	INTEGER(0..7) 	-- coding according to annex
+}
+
+-- GPS Acquisition Assistance Rel-10 Extension:
+-- GPSAcquisAssist-R10-Ext shall contain the same number of elements as the SeqOfAcquisElement
+-- included in AcquisAssist IE
+GPSAcquisAssist-R10-Ext ::= SEQUENCE(SIZE (1..16)) OF GPSAcquisAssist-R10-Ext-Element
+
+GPSAcquisAssist-R10-Ext-Element::= SEQUENCE {
+	satelliteID			SatelliteID,
+	azimuthLSB			INTEGER(0..15),
+	elevationLSB		INTEGER(0..15)
+}
+
+-- GPS Almanac Rel-10 Extension:
+GPSAlmanac-R10-Ext ::= SEQUENCE {
+	completeAlmanacProvided		BOOLEAN	-- TRUE means that complete Almanac is provided
 }
 
 Rel-7-MsrPosition-Rsp-Extension ::= SEQUENCE {

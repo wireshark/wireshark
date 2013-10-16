@@ -30,7 +30,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 44.031 version 9.2.0 Release 9
+ * Ref 3GPP TS 44.031 version 11.0.0 Release 11
  * http://www.3gpp.org
  */
 
@@ -355,6 +355,7 @@ static int hf_rrlp_ganssRefLocation = -1;         /* GANSSRefLocation */
 static int hf_rrlp_ganssIonosphericModel = -1;    /* GANSSIonosphericModel */
 static int hf_rrlp_ganssAddIonosphericModel = -1;  /* GANSSAddIonosphericModel */
 static int hf_rrlp_ganssEarthOrientParam = -1;    /* GANSSEarthOrientParam */
+static int hf_rrlp_ganssReferenceTime_R10_Ext = -1;  /* GANSSReferenceTime_R10_Ext */
 static int hf_rrlp_SeqOfGANSSGenericAssistDataElement_item = -1;  /* GANSSGenericAssistDataElement */
 static int hf_rrlp_ganssID = -1;                  /* INTEGER_0_7 */
 static int hf_rrlp_ganssTimeModel = -1;           /* SeqOfGANSSTimeModel */
@@ -371,12 +372,16 @@ static int hf_rrlp_sbasID = -1;                   /* INTEGER_0_7 */
 static int hf_rrlp_ganssAddUTCModel = -1;         /* GANSSAddUTCModel */
 static int hf_rrlp_ganssAuxiliaryInfo = -1;       /* GANSSAuxiliaryInformation */
 static int hf_rrlp_ganssDiffCorrectionsValidityPeriod = -1;  /* GANSSDiffCorrectionsValidityPeriod */
+static int hf_rrlp_ganssTimeModel_R10_Ext = -1;   /* SeqOfGANSSTimeModel_R10_Ext */
+static int hf_rrlp_ganssRefMeasurementAssist_R10_Ext = -1;  /* GANSSRefMeasurementAssist_R10_Ext */
+static int hf_rrlp_ganssAlmanacModel_R10_Ext = -1;  /* GANSSAlmanacModel_R10_Ext */
 static int hf_rrlp_ganssRefTimeInfo = -1;         /* GANSSRefTimeInfo */
 static int hf_rrlp_ganssTOD_GSMTimeAssociation = -1;  /* GANSSTOD_GSMTimeAssociation */
 static int hf_rrlp_ganssDay = -1;                 /* INTEGER_0_8191 */
 static int hf_rrlp_ganssTOD = -1;                 /* GANSSTOD */
 static int hf_rrlp_ganssTODUncertainty = -1;      /* GANSSTODUncertainty */
 static int hf_rrlp_ganssTimeID = -1;              /* INTEGER_0_7 */
+static int hf_rrlp_ganssDayCycleNumber = -1;      /* INTEGER_0_7 */
 static int hf_rrlp_frameDrift = -1;               /* FrameDrift */
 static int hf_rrlp_ganssIonoModel = -1;           /* GANSSIonosphereModel */
 static int hf_rrlp_ganssIonoStormFlags = -1;      /* GANSSIonoStormFlags */
@@ -404,6 +409,8 @@ static int hf_rrlp_tA1 = -1;                      /* TA1 */
 static int hf_rrlp_tA2 = -1;                      /* TA2 */
 static int hf_rrlp_gnssTOID = -1;                 /* INTEGER_0_7 */
 static int hf_rrlp_weekNumber = -1;               /* INTEGER_0_8191 */
+static int hf_rrlp_SeqOfGANSSTimeModel_R10_Ext_item = -1;  /* GANSSTimeModelElement_R10_Ext */
+static int hf_rrlp_deltaT = -1;                   /* INTEGER_M128_127 */
 static int hf_rrlp_dganssRefTime = -1;            /* INTEGER_0_119 */
 static int hf_rrlp_sgnTypeList = -1;              /* SeqOfSgnTypeElement */
 static int hf_rrlp_SeqOfSgnTypeElement_item = -1;  /* SgnTypeElement */
@@ -558,6 +565,9 @@ static int hf_rrlp_intCodePhase_01 = -1;          /* INTEGER_0_127 */
 static int hf_rrlp_codePhaseSearchWindow_01 = -1;  /* INTEGER_0_31 */
 static int hf_rrlp_additionalAngle = -1;          /* AddionalAngleFields */
 static int hf_rrlp_dopplerUncertainty_01 = -1;    /* INTEGER_0_4 */
+static int hf_rrlp_GANSSRefMeasurementAssist_R10_Ext_item = -1;  /* GANSSRefMeasurement_R10_Ext_Element */
+static int hf_rrlp_azimuthLSB = -1;               /* INTEGER_0_15 */
+static int hf_rrlp_elevationLSB = -1;             /* INTEGER_0_15 */
 static int hf_rrlp_weekNumber_01 = -1;            /* INTEGER_0_255 */
 static int hf_rrlp_toa = -1;                      /* INTEGER_0_255 */
 static int hf_rrlp_ioda = -1;                     /* INTEGER_0_3 */
@@ -629,6 +639,7 @@ static int hf_rrlp_sbasAlmXgdot = -1;             /* INTEGER_M4_3 */
 static int hf_rrlp_sbasAlmYgDot = -1;             /* INTEGER_M4_3 */
 static int hf_rrlp_sbasAlmZgDot = -1;             /* INTEGER_M8_7 */
 static int hf_rrlp_sbasAlmTo = -1;                /* INTEGER_0_2047 */
+static int hf_rrlp_completeAlmanacProvided = -1;  /* BOOLEAN */
 static int hf_rrlp_ganssUtcA1 = -1;               /* INTEGER_M8388608_8388607 */
 static int hf_rrlp_ganssUtcA0 = -1;               /* INTEGER_M2147483648_2147483647 */
 static int hf_rrlp_ganssUtcTot = -1;              /* INTEGER_0_255 */
@@ -726,6 +737,9 @@ static int hf_rrlp_add_GPS_controlHeader = -1;    /* Add_GPS_ControlHeader */
 static int hf_rrlp_gpsEphemerisExtension = -1;    /* GPSEphemerisExtension */
 static int hf_rrlp_gpsEphemerisExtensionCheck = -1;  /* GPSEphemerisExtensionCheck */
 static int hf_rrlp_dgpsCorrectionsValidityPeriod = -1;  /* DGPSCorrectionsValidityPeriod */
+static int hf_rrlp_gpsReferenceTime_R10_Ext = -1;  /* GPSReferenceTime_R10_Ext */
+static int hf_rrlp_gpsAcquisAssist_R10_Ext = -1;  /* GPSAcquisAssist_R10_Ext */
+static int hf_rrlp_gpsAlmanac_R10_Ext = -1;       /* GPSAlmanac_R10_Ext */
 static int hf_rrlp_af2 = -1;                      /* INTEGER_M128_127 */
 static int hf_rrlp_af1 = -1;                      /* INTEGER_M32768_32767 */
 static int hf_rrlp_af0 = -1;                      /* INTEGER_M2097152_2097151 */
@@ -751,6 +765,8 @@ static int hf_rrlp_gpsSatEventsInfo = -1;         /* GPSSatEventsInfo */
 static int hf_rrlp_eventOccured_01 = -1;          /* BIT_STRING_SIZE_32 */
 static int hf_rrlp_futureEventNoted_01 = -1;      /* BIT_STRING_SIZE_32 */
 static int hf_rrlp_DGPSCorrectionsValidityPeriod_item = -1;  /* DGPSExtensionSatElement */
+static int hf_rrlp_gpsWeekCycleNumber = -1;       /* INTEGER_0_7 */
+static int hf_rrlp_GPSAcquisAssist_R10_Ext_item = -1;  /* GPSAcquisAssist_R10_Ext_Element */
 static int hf_rrlp_velEstimate = -1;              /* VelocityEstimate */
 static int hf_rrlp_ganssLocationInfo = -1;        /* GANSSLocationInfo */
 static int hf_rrlp_ganssMeasureInfo = -1;         /* GANSSMeasureInfo */
@@ -988,6 +1004,7 @@ static gint ett_rrlp_SeqOfGANSSGenericAssistDataElement = -1;
 static gint ett_rrlp_GANSSGenericAssistDataElement = -1;
 static gint ett_rrlp_GANSSReferenceTime = -1;
 static gint ett_rrlp_GANSSRefTimeInfo = -1;
+static gint ett_rrlp_GANSSReferenceTime_R10_Ext = -1;
 static gint ett_rrlp_GANSSTOD_GSMTimeAssociation = -1;
 static gint ett_rrlp_GANSSRefLocation = -1;
 static gint ett_rrlp_GANSSIonosphericModel = -1;
@@ -997,6 +1014,8 @@ static gint ett_rrlp_GANSSAddIonosphericModel = -1;
 static gint ett_rrlp_GANSSEarthOrientParam = -1;
 static gint ett_rrlp_SeqOfGANSSTimeModel = -1;
 static gint ett_rrlp_GANSSTimeModelElement = -1;
+static gint ett_rrlp_SeqOfGANSSTimeModel_R10_Ext = -1;
+static gint ett_rrlp_GANSSTimeModelElement_R10_Ext = -1;
 static gint ett_rrlp_GANSSDiffCorrections = -1;
 static gint ett_rrlp_SeqOfSgnTypeElement = -1;
 static gint ett_rrlp_SgnTypeElement = -1;
@@ -1031,6 +1050,8 @@ static gint ett_rrlp_GANSSRefMeasurementAssist = -1;
 static gint ett_rrlp_SeqOfGANSSRefMeasurementElement = -1;
 static gint ett_rrlp_GANSSRefMeasurementElement = -1;
 static gint ett_rrlp_AdditionalDopplerFields = -1;
+static gint ett_rrlp_GANSSRefMeasurementAssist_R10_Ext = -1;
+static gint ett_rrlp_GANSSRefMeasurement_R10_Ext_Element = -1;
 static gint ett_rrlp_GANSSAlmanacModel = -1;
 static gint ett_rrlp_SeqOfGANSSAlmanacElement = -1;
 static gint ett_rrlp_GANSSAlmanacElement = -1;
@@ -1040,6 +1061,7 @@ static gint ett_rrlp_Almanac_ReducedKeplerianSet = -1;
 static gint ett_rrlp_Almanac_MidiAlmanacSet = -1;
 static gint ett_rrlp_Almanac_GlonassAlmanacSet = -1;
 static gint ett_rrlp_Almanac_ECEFsbasAlmanacSet = -1;
+static gint ett_rrlp_GANSSAlmanacModel_R10_Ext = -1;
 static gint ett_rrlp_GANSSUTCModel = -1;
 static gint ett_rrlp_GANSSEphemerisExtension = -1;
 static gint ett_rrlp_GANSSEphemerisExtensionHeader = -1;
@@ -1086,6 +1108,10 @@ static gint ett_rrlp_GPSEphemerisExtensionCheck = -1;
 static gint ett_rrlp_GPSSatEventsInfo = -1;
 static gint ett_rrlp_DGPSCorrectionsValidityPeriod = -1;
 static gint ett_rrlp_DGPSExtensionSatElement = -1;
+static gint ett_rrlp_GPSReferenceTime_R10_Ext = -1;
+static gint ett_rrlp_GPSAcquisAssist_R10_Ext = -1;
+static gint ett_rrlp_GPSAcquisAssist_R10_Ext_Element = -1;
+static gint ett_rrlp_GPSAlmanac_R10_Ext = -1;
 static gint ett_rrlp_Rel_7_MsrPosition_Rsp_Extension = -1;
 static gint ett_rrlp_GANSSLocationInfo = -1;
 static gint ett_rrlp_PositionData = -1;
@@ -3000,12 +3026,27 @@ dissect_rrlp_GANSSEarthOrientParam(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
+static const per_sequence_t GANSSReferenceTime_R10_Ext_sequence[] = {
+  { &hf_rrlp_ganssDayCycleNumber, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSReferenceTime_R10_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSReferenceTime_R10_Ext, GANSSReferenceTime_R10_Ext_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t GANSSCommonAssistData_sequence[] = {
   { &hf_rrlp_ganssReferenceTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSReferenceTime },
   { &hf_rrlp_ganssRefLocation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSRefLocation },
   { &hf_rrlp_ganssIonosphericModel, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSIonosphericModel },
   { &hf_rrlp_ganssAddIonosphericModel, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSAddIonosphericModel },
   { &hf_rrlp_ganssEarthOrientParam, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSEarthOrientParam },
+  { &hf_rrlp_ganssReferenceTime_R10_Ext, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSReferenceTime_R10_Ext },
   { NULL, 0, 0, NULL }
 };
 
@@ -4946,6 +4987,79 @@ dissect_rrlp_GANSSDiffCorrectionsValidityPeriod(tvbuff_t *tvb _U_, int offset _U
 }
 
 
+static const per_sequence_t GANSSTimeModelElement_R10_Ext_sequence[] = {
+  { &hf_rrlp_gnssTOID       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
+  { &hf_rrlp_deltaT         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSTimeModelElement_R10_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSTimeModelElement_R10_Ext, GANSSTimeModelElement_R10_Ext_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfGANSSTimeModel_R10_Ext_sequence_of[1] = {
+  { &hf_rrlp_SeqOfGANSSTimeModel_R10_Ext_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSTimeModelElement_R10_Ext },
+};
+
+static int
+dissect_rrlp_SeqOfGANSSTimeModel_R10_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfGANSSTimeModel_R10_Ext, SeqOfGANSSTimeModel_R10_Ext_sequence_of,
+                                                  1, 7, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSRefMeasurement_R10_Ext_Element_sequence[] = {
+  { &hf_rrlp_svID           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SVID },
+  { &hf_rrlp_azimuthLSB     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
+  { &hf_rrlp_elevationLSB   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSRefMeasurement_R10_Ext_Element(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSRefMeasurement_R10_Ext_Element, GANSSRefMeasurement_R10_Ext_Element_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSRefMeasurementAssist_R10_Ext_sequence_of[1] = {
+  { &hf_rrlp_GANSSRefMeasurementAssist_R10_Ext_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSRefMeasurement_R10_Ext_Element },
+};
+
+static int
+dissect_rrlp_GANSSRefMeasurementAssist_R10_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_GANSSRefMeasurementAssist_R10_Ext, GANSSRefMeasurementAssist_R10_Ext_sequence_of,
+                                                  1, 16, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSAlmanacModel_R10_Ext_sequence[] = {
+  { &hf_rrlp_completeAlmanacProvided, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSAlmanacModel_R10_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSAlmanacModel_R10_Ext, GANSSAlmanacModel_R10_Ext_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t GANSSGenericAssistDataElement_sequence[] = {
   { &hf_rrlp_ganssID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_7 },
   { &hf_rrlp_ganssTimeModel , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_SeqOfGANSSTimeModel },
@@ -4962,6 +5076,9 @@ static const per_sequence_t GANSSGenericAssistDataElement_sequence[] = {
   { &hf_rrlp_ganssAddUTCModel, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSAddUTCModel },
   { &hf_rrlp_ganssAuxiliaryInfo, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSAuxiliaryInformation },
   { &hf_rrlp_ganssDiffCorrectionsValidityPeriod, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSDiffCorrectionsValidityPeriod },
+  { &hf_rrlp_ganssTimeModel_R10_Ext, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_SeqOfGANSSTimeModel_R10_Ext },
+  { &hf_rrlp_ganssRefMeasurementAssist_R10_Ext, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSRefMeasurementAssist_R10_Ext },
+  { &hf_rrlp_ganssAlmanacModel_R10_Ext, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSAlmanacModel_R10_Ext },
   { NULL, 0, 0, NULL }
 };
 
@@ -5319,10 +5436,71 @@ dissect_rrlp_DGPSCorrectionsValidityPeriod(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+static const per_sequence_t GPSReferenceTime_R10_Ext_sequence[] = {
+  { &hf_rrlp_gpsWeekCycleNumber, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GPSReferenceTime_R10_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GPSReferenceTime_R10_Ext, GPSReferenceTime_R10_Ext_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GPSAcquisAssist_R10_Ext_Element_sequence[] = {
+  { &hf_rrlp_satelliteID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SatelliteID },
+  { &hf_rrlp_azimuthLSB     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
+  { &hf_rrlp_elevationLSB   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GPSAcquisAssist_R10_Ext_Element(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GPSAcquisAssist_R10_Ext_Element, GPSAcquisAssist_R10_Ext_Element_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GPSAcquisAssist_R10_Ext_sequence_of[1] = {
+  { &hf_rrlp_GPSAcquisAssist_R10_Ext_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSAcquisAssist_R10_Ext_Element },
+};
+
+static int
+dissect_rrlp_GPSAcquisAssist_R10_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_GPSAcquisAssist_R10_Ext, GPSAcquisAssist_R10_Ext_sequence_of,
+                                                  1, 16, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GPSAlmanac_R10_Ext_sequence[] = {
+  { &hf_rrlp_completeAlmanacProvided, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GPSAlmanac_R10_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GPSAlmanac_R10_Ext, GPSAlmanac_R10_Ext_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t Add_GPS_ControlHeader_sequence[] = {
   { &hf_rrlp_gpsEphemerisExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GPSEphemerisExtension },
   { &hf_rrlp_gpsEphemerisExtensionCheck, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GPSEphemerisExtensionCheck },
   { &hf_rrlp_dgpsCorrectionsValidityPeriod, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_DGPSCorrectionsValidityPeriod },
+  { &hf_rrlp_gpsReferenceTime_R10_Ext, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GPSReferenceTime_R10_Ext },
+  { &hf_rrlp_gpsAcquisAssist_R10_Ext, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GPSAcquisAssist_R10_Ext },
+  { &hf_rrlp_gpsAlmanac_R10_Ext, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GPSAlmanac_R10_Ext },
   { NULL, 0, 0, NULL }
 };
 
@@ -8154,6 +8332,10 @@ void proto_register_rrlp(void) {
       { "ganssEarthOrientParam", "rrlp.ganssEarthOrientParam_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_rrlp_ganssReferenceTime_R10_Ext,
+      { "ganssReferenceTime-R10-Ext", "rrlp.ganssReferenceTime_R10_Ext_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_rrlp_SeqOfGANSSGenericAssistDataElement_item,
       { "GANSSGenericAssistDataElement", "rrlp.GANSSGenericAssistDataElement_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8218,6 +8400,18 @@ void proto_register_rrlp(void) {
       { "ganssDiffCorrectionsValidityPeriod", "rrlp.ganssDiffCorrectionsValidityPeriod",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_rrlp_ganssTimeModel_R10_Ext,
+      { "ganssTimeModel-R10-Ext", "rrlp.ganssTimeModel_R10_Ext",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SeqOfGANSSTimeModel_R10_Ext", HFILL }},
+    { &hf_rrlp_ganssRefMeasurementAssist_R10_Ext,
+      { "ganssRefMeasurementAssist-R10-Ext", "rrlp.ganssRefMeasurementAssist_R10_Ext",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rrlp_ganssAlmanacModel_R10_Ext,
+      { "ganssAlmanacModel-R10-Ext", "rrlp.ganssAlmanacModel_R10_Ext_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_rrlp_ganssRefTimeInfo,
       { "ganssRefTimeInfo", "rrlp.ganssRefTimeInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8240,6 +8434,10 @@ void proto_register_rrlp(void) {
         NULL, HFILL }},
     { &hf_rrlp_ganssTimeID,
       { "ganssTimeID", "rrlp.ganssTimeID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_7", HFILL }},
+    { &hf_rrlp_ganssDayCycleNumber,
+      { "ganssDayCycleNumber", "rrlp.ganssDayCycleNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_7", HFILL }},
     { &hf_rrlp_frameDrift,
@@ -8350,6 +8548,14 @@ void proto_register_rrlp(void) {
       { "weekNumber", "rrlp.weekNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_8191", HFILL }},
+    { &hf_rrlp_SeqOfGANSSTimeModel_R10_Ext_item,
+      { "GANSSTimeModelElement-R10-Ext", "rrlp.GANSSTimeModelElement_R10_Ext_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rrlp_deltaT,
+      { "deltaT", "rrlp.deltaT",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER_M128_127", HFILL }},
     { &hf_rrlp_dganssRefTime,
       { "dganssRefTime", "rrlp.dganssRefTime",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8966,6 +9172,18 @@ void proto_register_rrlp(void) {
       { "dopplerUncertainty", "rrlp.dopplerUncertainty",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_4", HFILL }},
+    { &hf_rrlp_GANSSRefMeasurementAssist_R10_Ext_item,
+      { "GANSSRefMeasurement-R10-Ext-Element", "rrlp.GANSSRefMeasurement_R10_Ext_Element_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rrlp_azimuthLSB,
+      { "azimuthLSB", "rrlp.azimuthLSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
+    { &hf_rrlp_elevationLSB,
+      { "elevationLSB", "rrlp.elevationLSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
     { &hf_rrlp_weekNumber_01,
       { "weekNumber", "rrlp.weekNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -9250,6 +9468,10 @@ void proto_register_rrlp(void) {
       { "sbasAlmTo", "rrlp.sbasAlmTo",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_2047", HFILL }},
+    { &hf_rrlp_completeAlmanacProvided,
+      { "completeAlmanacProvided", "rrlp.completeAlmanacProvided",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_rrlp_ganssUtcA1,
       { "ganssUtcA1", "rrlp.ganssUtcA1",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -9638,6 +9860,18 @@ void proto_register_rrlp(void) {
       { "dgpsCorrectionsValidityPeriod", "rrlp.dgpsCorrectionsValidityPeriod",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_rrlp_gpsReferenceTime_R10_Ext,
+      { "gpsReferenceTime-R10-Ext", "rrlp.gpsReferenceTime_R10_Ext_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rrlp_gpsAcquisAssist_R10_Ext,
+      { "gpsAcquisAssist-R10-Ext", "rrlp.gpsAcquisAssist_R10_Ext",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rrlp_gpsAlmanac_R10_Ext,
+      { "gpsAlmanac-R10-Ext", "rrlp.gpsAlmanac_R10_Ext_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_rrlp_af2,
       { "af2", "rrlp.af2",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -9736,6 +9970,14 @@ void proto_register_rrlp(void) {
         "BIT_STRING_SIZE_32", HFILL }},
     { &hf_rrlp_DGPSCorrectionsValidityPeriod_item,
       { "DGPSExtensionSatElement", "rrlp.DGPSExtensionSatElement_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rrlp_gpsWeekCycleNumber,
+      { "gpsWeekCycleNumber", "rrlp.gpsWeekCycleNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_7", HFILL }},
+    { &hf_rrlp_GPSAcquisAssist_R10_Ext_item,
+      { "GPSAcquisAssist-R10-Ext-Element", "rrlp.GPSAcquisAssist_R10_Ext_Element_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_rrlp_velEstimate,
@@ -10324,6 +10566,7 @@ void proto_register_rrlp(void) {
     &ett_rrlp_GANSSGenericAssistDataElement,
     &ett_rrlp_GANSSReferenceTime,
     &ett_rrlp_GANSSRefTimeInfo,
+    &ett_rrlp_GANSSReferenceTime_R10_Ext,
     &ett_rrlp_GANSSTOD_GSMTimeAssociation,
     &ett_rrlp_GANSSRefLocation,
     &ett_rrlp_GANSSIonosphericModel,
@@ -10333,6 +10576,8 @@ void proto_register_rrlp(void) {
     &ett_rrlp_GANSSEarthOrientParam,
     &ett_rrlp_SeqOfGANSSTimeModel,
     &ett_rrlp_GANSSTimeModelElement,
+    &ett_rrlp_SeqOfGANSSTimeModel_R10_Ext,
+    &ett_rrlp_GANSSTimeModelElement_R10_Ext,
     &ett_rrlp_GANSSDiffCorrections,
     &ett_rrlp_SeqOfSgnTypeElement,
     &ett_rrlp_SgnTypeElement,
@@ -10367,6 +10612,8 @@ void proto_register_rrlp(void) {
     &ett_rrlp_SeqOfGANSSRefMeasurementElement,
     &ett_rrlp_GANSSRefMeasurementElement,
     &ett_rrlp_AdditionalDopplerFields,
+    &ett_rrlp_GANSSRefMeasurementAssist_R10_Ext,
+    &ett_rrlp_GANSSRefMeasurement_R10_Ext_Element,
     &ett_rrlp_GANSSAlmanacModel,
     &ett_rrlp_SeqOfGANSSAlmanacElement,
     &ett_rrlp_GANSSAlmanacElement,
@@ -10376,6 +10623,7 @@ void proto_register_rrlp(void) {
     &ett_rrlp_Almanac_MidiAlmanacSet,
     &ett_rrlp_Almanac_GlonassAlmanacSet,
     &ett_rrlp_Almanac_ECEFsbasAlmanacSet,
+    &ett_rrlp_GANSSAlmanacModel_R10_Ext,
     &ett_rrlp_GANSSUTCModel,
     &ett_rrlp_GANSSEphemerisExtension,
     &ett_rrlp_GANSSEphemerisExtensionHeader,
@@ -10422,6 +10670,10 @@ void proto_register_rrlp(void) {
     &ett_rrlp_GPSSatEventsInfo,
     &ett_rrlp_DGPSCorrectionsValidityPeriod,
     &ett_rrlp_DGPSExtensionSatElement,
+    &ett_rrlp_GPSReferenceTime_R10_Ext,
+    &ett_rrlp_GPSAcquisAssist_R10_Ext,
+    &ett_rrlp_GPSAcquisAssist_R10_Ext_Element,
+    &ett_rrlp_GPSAlmanac_R10_Ext,
     &ett_rrlp_Rel_7_MsrPosition_Rsp_Extension,
     &ett_rrlp_GANSSLocationInfo,
     &ett_rrlp_PositionData,
