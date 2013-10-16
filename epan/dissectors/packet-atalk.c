@@ -623,10 +623,10 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   net = tvb_get_ntohs(tvb, offset);
   nodelen_bits = tvb_get_guint8(tvb, offset+2);
   if ( nodelen_bits <= 8 ) {
-    node = tvb_get_guint8(tvb, offset)+1;
+    node = tvb_get_guint8(tvb, offset+3);
     nodelen = 1;
   } else {
-    node = tvb_get_ntohs(tvb, offset);
+    node = tvb_get_ntohs(tvb, offset+3);
     nodelen = 2;
   }
 
