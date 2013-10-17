@@ -1433,7 +1433,7 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   }
   offset += 2;
   proto_tree_add_text(rr_tree, tvb, offset, 1, "Higher bits in extended RCODE: 0x%x",
-      (ttl >> 24) & 0xff0);
+      (ttl >> 24) & 0xff);
   offset++;
   proto_tree_add_text(rr_tree, tvb, offset, 1, "EDNS0 version: %u",
       (ttl >> 16) & 0xff);
