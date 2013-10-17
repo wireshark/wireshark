@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h225.c                                                              */
-/* ../../tools/asn2wrs.py -p h225 -c ./h225.cnf -s ./packet-h225-template -D . -O ../../epan/dissectors H323-MESSAGES.asn */
+/* ../../tools/asn2wrs.py -k -p h225 -c ./h225.cnf -s ./packet-h225-template -D . -O ../../epan/dissectors H323-MESSAGES.asn */
 
 /* Input file: packet-h225-template.c */
 
@@ -606,8 +606,8 @@ static int hf_h225_callDurationLimit = -1;        /* INTEGER_1_4294967295 */
 static int hf_h225_enforceCallDurationLimit = -1;  /* BOOLEAN */
 static int hf_h225_callStartingPoint = -1;        /* CallCreditServiceControl_callStartingPoint */
 static int hf_h225_id = -1;                       /* GenericIdentifier */
-static int hf_h225_parameters = -1;               /* T_parameters */
-static int hf_h225_parameters_item = -1;          /* T_parameters_item */
+static int hf_h225_parameters = -1;               /* SEQUENCE_SIZE_1_512_OF_EnumeratedParameter */
+static int hf_h225_parameters_item = -1;          /* EnumeratedParameter */
 static int hf_h225_standard = -1;                 /* T_standard */
 static int hf_h225_oid = -1;                      /* T_oid */
 static int hf_h225_genericIdentifier_nonStandard = -1;  /* GloballyUniqueID */
@@ -1051,11 +1051,10 @@ static gint ett_h225_CallCreditServiceControl = -1;
 static gint ett_h225_T_billingMode = -1;
 static gint ett_h225_CallCreditServiceControl_callStartingPoint = -1;
 static gint ett_h225_GenericData = -1;
-static gint ett_h225_T_parameters = -1;
+static gint ett_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter = -1;
 static gint ett_h225_GenericIdentifier = -1;
 static gint ett_h225_EnumeratedParameter = -1;
 static gint ett_h225_Content = -1;
-static gint ett_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter = -1;
 static gint ett_h225_SEQUENCE_SIZE_1_16_OF_GenericData = -1;
 static gint ett_h225_FeatureSet = -1;
 static gint ett_h225_TransportChannelInfo = -1;
@@ -1167,7 +1166,7 @@ static const char *tpOID;
 /* EnumeratedParameter -> Content -> Content/compound -> EnumeratedParameter */
 static int dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
-/* GenericData -> GenericData/parameters -> GenericData/parameters/_item -> EnumeratedParameter -> Content -> Content/nested -> GenericData */
+/* GenericData -> GenericData/parameters -> EnumeratedParameter -> Content -> Content/nested -> GenericData */
 int dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
@@ -3791,7 +3790,7 @@ dissect_h225_BMPString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 
 static const per_sequence_t SEQUENCE_SIZE_1_512_OF_EnumeratedParameter_sequence_of[1] = {
-  { &hf_h225_compound_item  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_EnumeratedParameter },
+  { &hf_h225_parameters_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_EnumeratedParameter },
 };
 
 static int
@@ -3868,23 +3867,14 @@ static const per_sequence_t EnumeratedParameter_sequence[] = {
 
 static int
 dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_h225_EnumeratedParameter, EnumeratedParameter_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_h225_T_parameters_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 651 "../../asn1/h225/h225.cnf"
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
   actx->private_data = gef_ctx_alloc(parent_gefx, NULL);
 
-  offset = dissect_h225_EnumeratedParameter(tvb, offset, actx, tree, hf_index);
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h225_EnumeratedParameter, EnumeratedParameter_sequence);
 
 #line 656 "../../asn1/h225/h225.cnf"
   actx->private_data = parent_gefx;
@@ -3893,23 +3883,9 @@ dissect_h225_T_parameters_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
-static const per_sequence_t T_parameters_sequence_of[1] = {
-  { &hf_h225_parameters_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_T_parameters_item },
-};
-
-static int
-dissect_h225_T_parameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_h225_T_parameters, T_parameters_sequence_of,
-                                                  1, 512, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t GenericData_sequence[] = {
   { &hf_h225_id             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_GenericIdentifier },
-  { &hf_h225_parameters     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_T_parameters },
+  { &hf_h225_parameters     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter },
   { NULL, 0, 0, NULL }
 };
 
@@ -9607,9 +9583,9 @@ void proto_register_h225(void) {
     { &hf_h225_parameters,
       { "parameters", "h225.parameters",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "SEQUENCE_SIZE_1_512_OF_EnumeratedParameter", HFILL }},
     { &hf_h225_parameters_item,
-      { "parameters item", "h225.parameters_item_element",
+      { "EnumeratedParameter", "h225.EnumeratedParameter_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_h225_standard,
@@ -10885,11 +10861,10 @@ void proto_register_h225(void) {
     &ett_h225_T_billingMode,
     &ett_h225_CallCreditServiceControl_callStartingPoint,
     &ett_h225_GenericData,
-    &ett_h225_T_parameters,
+    &ett_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter,
     &ett_h225_GenericIdentifier,
     &ett_h225_EnumeratedParameter,
     &ett_h225_Content,
-    &ett_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter,
     &ett_h225_SEQUENCE_SIZE_1_16_OF_GenericData,
     &ett_h225_FeatureSet,
     &ett_h225_TransportChannelInfo,
