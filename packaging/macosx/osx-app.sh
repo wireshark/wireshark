@@ -580,8 +580,15 @@ else
 fi
 
 if [ -n "$CODE_SIGN_IDENTITY" ] ; then
-	echo -e "Signing $package"
-	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$package" || exit 1
+	echo -n "Signing executables:"
+	for file in $pkgbin/* ; do
+		echo -n " $file"
+		codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$file"
+		codesign --verify --verbose "$file" || exit 1
+	done
+	echo
+	echo "Signing $package"
+	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$package"
 	codesign --verify --verbose "$package" || exit 1
 fi
 
