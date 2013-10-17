@@ -776,11 +776,18 @@ gtk:: help config.h svnversion.h doxygen
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libgtkui.lib
 	cd ../..
 
+# The Visual C++ static analyzer currently fails with error C2171
+# when compiling summary_dialog.cpp. If/when this ever gets fixed
+# we can remove the ENABLE_CODE_ANALYSIS check.
 qt:: help config.h svnversion.h doxygen
 !IFDEF QT5_BASE_DIR
 	cd ui/qt
 	$(QT5_BASE_DIR)\bin\qmake CONFIG+=release QtShark.pro
+!IFDEF ENABLE_CODE_ANALYSIS
+	-nmake
+!ELSE
 	nmake
+!ENDIF
 	cd ../..
 !ENDIF
 
