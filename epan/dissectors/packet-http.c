@@ -70,6 +70,8 @@ static int proto_http = -1;
 static int hf_http_notification = -1;
 static int hf_http_response = -1;
 static int hf_http_request = -1;
+static int hf_http_response_line = -1;
+static int hf_http_request_line = -1;
 static int hf_http_basic = -1;
 static int hf_http_request_method = -1;
 static int hf_http_request_uri = -1;
@@ -288,7 +290,8 @@ static int chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
 			   const guchar *line, int linelen, int colon_offset,
 			   packet_info *pinfo, proto_tree *tree,
-			   headers_t *eh_ptr, http_conv_t *conv_data);
+			   headers_t *eh_ptr, http_conv_t *conv_data,
+			   int http_type);
 static gint find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len);
 static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
 				   packet_info *pinfo, gchar *value);
@@ -992,7 +995,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * Header.
 			 */
 			process_header(tvb, offset, next_offset, line, linelen,
-			    colon_offset, pinfo, http_tree, &headers, conv_data);
+			    colon_offset, pinfo, http_tree, &headers, conv_data,
+			    http_type);
 		}
 		offset = next_offset;
 	}
@@ -2304,7 +2308,7 @@ static void
 process_header(tvbuff_t *tvb, int offset, int next_offset,
 	       const guchar *line, int linelen, int colon_offset,
 	       packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr,
-	       http_conv_t *conv_data)
+	       http_conv_t *conv_data, int http_type)
 {
 	int len;
 	int line_end_offset;
@@ -2317,7 +2321,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	char *header_name;
 	char *p;
 	guchar *up;
-	proto_item *hdr_item;
+	proto_item *hdr_item, *it;
 	int i;
 	int* hf_id;
 
@@ -2360,12 +2364,33 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 		if (tree) {
 			if (!hf_id) {
-				proto_tree_add_text(tree, tvb, offset, len,
-				    "%s", format_text(line, len));
+				if (http_type == HTTP_REQUEST ||
+					http_type == HTTP_RESPONSE) {
+					proto_tree_add_string_format(tree,
+						http_type == HTTP_RESPONSE ?
+						hf_http_response_line :
+						hf_http_request_line,
+						tvb, offset, len, line, "%s",
+						format_text(line, len));
+				} else {
+					proto_tree_add_text(tree, tvb, offset,
+						len, "%s", format_text(line, len));
+				}
+
 			} else {
 				proto_tree_add_string_format(tree,
 					*hf_id, tvb, offset, len,
-				    value, "%s", format_text(line, len));
+					value, "%s", format_text(line, len));
+				if (http_type == HTTP_REQUEST ||
+					http_type == HTTP_RESPONSE) {
+					it = proto_tree_add_string_format(tree,
+						http_type == HTTP_RESPONSE ?
+						hf_http_response_line :
+						hf_http_request_line,
+						tvb, offset, len, line, "%s",
+						format_text(line, len));
+					PROTO_ITEM_SET_HIDDEN(it);
+				}
 			}
 		}
 	} else {
@@ -2389,11 +2414,30 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			case FT_INT32:
 				tmp=(guint32)strtol(value, NULL, 10);
 				hdr_item = proto_tree_add_uint(tree, *headers[hf_index].hf, tvb, offset, len, tmp);
+				if (http_type == HTTP_REQUEST ||
+					http_type == HTTP_RESPONSE) {
+					it = proto_tree_add_string_format(tree,
+						http_type == HTTP_RESPONSE ?
+						hf_http_response_line :
+						hf_http_request_line,
+						tvb, offset, len, line, "%d", tmp);
+					PROTO_ITEM_SET_HIDDEN(it);
+				}
 				break;
 			default:
 				hdr_item = proto_tree_add_string_format(tree,
 				    *headers[hf_index].hf, tvb, offset, len,
 				    value, "%s", format_text(line, len));
+				if (http_type == HTTP_REQUEST ||
+					http_type == HTTP_RESPONSE) {
+					it = proto_tree_add_string_format(tree,
+						http_type == HTTP_RESPONSE ?
+						hf_http_response_line :
+						hf_http_request_line,
+						tvb, offset, len, line, "%s",
+						format_text(line, len));
+					PROTO_ITEM_SET_HIDDEN(it);
+				}
 			}
 		} else
 			hdr_item = NULL;
@@ -2751,6 +2795,12 @@ proto_register_http(void)
 		"TRUE if HTTP request", HFILL }},
 	    { &hf_http_basic,
 	      { "Credentials",		"http.authbasic",
+		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	    { &hf_http_response_line,
+	      { "Response line",	"http.response.line",
+		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	    { &hf_http_request_line,
+	      { "Request line",		"http.request.line",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	    { &hf_http_request_method,
 	      { "Request Method",	"http.request.method",
