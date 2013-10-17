@@ -510,21 +510,6 @@ tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 	}
 }
 
-/* Like tvb_offset_exists except it throws an exception instead of returning
- * FALSE */
-void
-tvb_ensure_offset_exists(const tvbuff_t *tvb, const gint offset)
-{
-	guint abs_offset;
-	int exception;
-
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	exception = compute_offset(tvb, offset, &abs_offset);
-	if (exception)
-		THROW(exception);
-}
-
 guint
 tvb_reported_length(const tvbuff_t *tvb)
 {
