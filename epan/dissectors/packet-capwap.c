@@ -241,6 +241,9 @@ static int hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_g = -1
 static int hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_a = -1;
 static int hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_b = -1;
 
+static int hf_capwap_data_keep_alive = -1;
+static int hf_capwap_data_keep_alive_length = -1;
+
 static int hf_msg_fragments = -1;
 static int hf_msg_fragment = -1;
 static int hf_msg_fragment_overlap = -1;
@@ -265,6 +268,7 @@ static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
 
 static expert_field ei_capwap_header_length_bad = EI_INIT;
+static expert_field ei_capwap_data_keep_alive_length = EI_INIT;
 
 
 /* ************************************************************************* */
@@ -1180,6 +1184,34 @@ dissect_capwap_message_element(tvbuff_t *tvb, proto_tree *capwap_control_tree, g
 
 /* Returns the number of bytes consumed by this option. */
 static int
+dissect_capwap_data_keep_alive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *capwap_data_tree, guint offset)
+{
+    guint16 len;
+    guint plen = 0, offset_end;
+    proto_item *ti;
+    proto_tree *capwap_data_keep_alive_tree;
+
+    ti = proto_tree_add_item(capwap_data_tree, hf_capwap_data_keep_alive, tvb, offset, tvb_reported_length(tvb), ENC_NA);
+    capwap_data_keep_alive_tree = proto_item_add_subtree(ti, ett_capwap);
+
+    ti = proto_tree_add_item(capwap_data_keep_alive_tree, hf_capwap_data_keep_alive_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    len = tvb_get_ntohs(tvb, offset);
+    if (len != tvb_reported_length(tvb))
+        expert_add_info(pinfo, ti, &ei_capwap_data_keep_alive_length);
+
+    plen += 2;
+
+    offset_end = tvb_reported_length(tvb);
+
+    while (offset+plen < offset_end) {
+        plen += dissect_capwap_message_element_type(tvb, capwap_data_keep_alive_tree, offset+plen);
+    }
+
+    return plen;
+}
+
+/* Returns the number of bytes consumed by this option. */
+static int
 dissect_capwap_control_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offset, packet_info *pinfo)
 {
     guint plen = 0;
@@ -1260,8 +1292,12 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
     *fragment_is = ((flags & 0x80) == 0x80) ? TRUE : FALSE;
     *fragment_more = ((flags &0x40) == 0x40) ? FALSE : TRUE;
 
-    /* Type of Payload (for CAPWAP Data Packet) */
-    *payload_type = tvb_get_bits8(tvb, (offset+plen)*8+15,1);
+    /* Type of Payload (for CAPWAP Data Packet), use 0xff for Keep-Alive */
+    if (flags &0x08 /* data channel Keep-Alive packet */) {
+        col_append_str(pinfo->cinfo, COL_INFO, " Keep-Alive");
+        *payload_type = 0xff;
+    } else
+        *payload_type = tvb_get_bits8(tvb, (offset+plen)*8+15,1);
 
     plen += 3;
 
@@ -1524,7 +1560,13 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (payload_type == 0) {
         /* IEEE 802.3 Frame */
         call_dissector(ieee8023_handle, next_tvb, pinfo, tree);
-    } else {
+    }
+    else if (payload_type == 0xff) {
+        /* CAPWAP Keep-Alive Payload */
+        offset += dissect_capwap_data_keep_alive(next_tvb, pinfo, capwap_data_tree, 0);
+    }
+    else
+    {
         switch (payload_wbid) {
         case 0: /* Reserved - Cisco seems to use this instead of 1 */
             /* It seems that just calling ieee80211_handle is not
@@ -1542,8 +1584,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
     pinfo->fragmented = save_fragmented;
-}
-
+    }
 
 void
 proto_register_capwap_control(void)
@@ -2179,6 +2220,14 @@ proto_register_capwap_control(void)
             FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x0001,
             NULL, HFILL }},
 
+        /* Data Channel Keep-Alive entries */
+        { & hf_capwap_data_keep_alive,
+            { "Keep-Alive", "capwap.keep_alive", FT_NONE, BASE_NONE,
+            NULL, 0x00, NULL, HFILL } },
+        { & hf_capwap_data_keep_alive_length,
+            { "Message Element Length", "capwap.keep_alive.length", FT_UINT16, BASE_DEC,
+            NULL, 0x00, NULL, HFILL } },
+
         /* Fragment entries */
         { &hf_msg_fragments,
             { "Message fragments", "capwap.fragments", FT_NONE, BASE_NONE,
@@ -2223,6 +2272,7 @@ proto_register_capwap_control(void)
 
     static ei_register_info ei[] = {
         { &ei_capwap_header_length_bad, { "capwap.header.length.bad", PI_MALFORMED, PI_WARN, "Wrong calculate length =! header length", EXPFILL }},
+        { &ei_capwap_data_keep_alive_length, { "capwap.keep_alive.length.bad", PI_MALFORMED, PI_WARN, "Invalid Keep Alive length", EXPFILL }},
     };
 
     expert_module_t* expert_capwap;
