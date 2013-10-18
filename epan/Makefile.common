@@ -167,7 +167,7 @@ LIBWIRESHARK_INCLUDES =		\
 	circuit.h		\
 	codecs.h		\
 	column.h		\
-	column_info.h		\
+	column-info.h		\
 	column-utils.h		\
 	conversation.h		\
 	conv_id.h		\
