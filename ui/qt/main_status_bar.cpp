@@ -295,7 +295,7 @@ void MainStatusBar::popProfileStatus() {
     profile_status_.popText(STATUS_CTX_MAIN);
 }
 
-void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
+void MainStatusBar::updateCaptureStatistics(capture_session *cap_session _U_)
 {
     QString packets_str;
 

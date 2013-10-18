@@ -459,8 +459,8 @@ int main(int argc, char *argv[])
     char                *rf_path;
     int                  rf_open_errno;
     char                *gdp_path, *dp_path;
-    int                  err;
 #ifdef HAVE_LIBPCAP
+    int                  err;
     gboolean             start_capture = FALSE;
 //    gboolean             list_link_layer_types = FALSE;
     GList               *if_list;
