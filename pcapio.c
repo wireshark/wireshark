@@ -559,10 +559,6 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
                         return FALSE;
                 if (!write_to_file(pfile, (const guint8*)&flags, sizeof(guint32), bytes_written, err))
                         return FALSE;
-                option.type = OPT_ENDOFOPT;
-                option.value_length = 0;
-                if (!write_to_file(pfile, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                        return FALSE;
         }
         if (options_length != 0) {
                 /* write end of options */
