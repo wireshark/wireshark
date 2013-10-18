@@ -23,13 +23,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define NEW_PROTO_TREE_API
+
 #include "config.h"
 
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ip.h"
 
-static int proto_redback = -1;
+static dissector_handle_t redback_handle;
+
 static gint ett_redback = -1;
 
 static dissector_table_t osinl_incl_subdissector_table;
@@ -43,15 +46,36 @@ static dissector_handle_t ppp_handle;
 static dissector_handle_t ppphdlc_handle;
 static dissector_handle_t data_handle;
 
-static int hf_redback_context = -1;
-static int hf_redback_flags = -1;
-static int hf_redback_circuit = -1;
-static int hf_redback_length = -1;
-static int hf_redback_protocol = -1;
-static int hf_redback_l3offset = -1;
-static int hf_redback_dataoffset = -1;
-static int hf_redback_padding = -1;
-static int hf_redback_unknown = -1;
+static header_field_info *hfi_redback = NULL;
+
+#define REDBACK_HFI_INIT HFI_INIT(proto_redback)
+
+static header_field_info hfi_redback_context REDBACK_HFI_INIT =
+	{ "Context", "redback.context", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_redback_flags REDBACK_HFI_INIT =
+	{ "Flags", "redback.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_redback_circuit REDBACK_HFI_INIT =
+	{ "Circuit", "redback.circuit", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_redback_length REDBACK_HFI_INIT =
+	{ "Length", "redback.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_redback_protocol REDBACK_HFI_INIT =
+	{ "Protocol", "redback.protocol", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_redback_l3offset REDBACK_HFI_INIT =
+	{ "Layer 3 Offset", "redback.l3offset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_redback_dataoffset REDBACK_HFI_INIT =
+	{ "Data Offset", "redback.dataoffset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_redback_padding REDBACK_HFI_INIT =
+	{ "Padding", "redback.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_redback_unknown REDBACK_HFI_INIT =
+	{ "Unknown", "redback.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 static void
 dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -67,19 +91,19 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	l3off = tvb_get_ntohs(tvb, 22);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_redback, tvb, 0, -1, ENC_NA);
+		ti = proto_tree_add_item(tree, hfi_redback, tvb, 0, -1, ENC_NA);
 		rbtree = proto_item_add_subtree(ti, ett_redback);
 
-		proto_tree_add_item(rbtree, hf_redback_context, tvb, 0, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, hf_redback_flags, tvb, 4, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, hf_redback_circuit, tvb, 8, 8, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, hf_redback_length, tvb, 16, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, hf_redback_protocol, tvb, 18, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, hf_redback_dataoffset, tvb, 20, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rbtree, hf_redback_l3offset, tvb, 22, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, &hfi_redback_context, tvb, 0, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, &hfi_redback_flags, tvb, 4, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, &hfi_redback_circuit, tvb, 8, 8, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, &hfi_redback_length, tvb, 16, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, &hfi_redback_protocol, tvb, 18, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, &hfi_redback_dataoffset, tvb, 20, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, &hfi_redback_l3offset, tvb, 22, 2, ENC_BIG_ENDIAN);
 
 		if (dataoff > 24) {
-			proto_tree_add_item(rbtree, hf_redback_padding, tvb, 24, dataoff-24, ENC_NA);
+			proto_tree_add_item(rbtree, &hfi_redback_padding, tvb, 24, dataoff-24, ENC_NA);
 		}
 	}
 
@@ -134,7 +158,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				next_tvb = tvb_new_subset_remaining(tvb, dataoff);
 			} else {
 				if (tree)
-					proto_tree_add_item(rbtree, hf_redback_unknown, tvb, dataoff, 4, ENC_NA);
+					proto_tree_add_item(rbtree, &hfi_redback_unknown, tvb, dataoff, 4, ENC_NA);
 				next_tvb = tvb_new_subset_remaining(tvb, dataoff+4);
 			}
 
@@ -162,50 +186,36 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_redback(void)
 {
-	static hf_register_info hf[] = {
-		{ &hf_redback_context,
-			{ "Context", "redback.context", FT_UINT32, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
-		{ &hf_redback_flags,
-			{ "Flags", "redback.flags", FT_UINT32, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
-		{ &hf_redback_circuit,
-			{ "Circuit", "redback.circuit", FT_UINT64, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
-		{ &hf_redback_length,
-			{ "Length", "redback.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
-		{ &hf_redback_protocol,
-			{ "Protocol", "redback.protocol", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
-		{ &hf_redback_l3offset,
-			{ "Layer 3 Offset", "redback.l3offset", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
-		{ &hf_redback_dataoffset,
-			{ "Data Offset", "redback.dataoffset", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
-		{ &hf_redback_padding,
-			{ "Padding", "redback.padding", FT_BYTES, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-		{ &hf_redback_unknown,
-			{ "Unknown", "redback.unknown", FT_BYTES, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }}
+	static header_field_info *hfi[] = {
+		&hfi_redback_context,
+		&hfi_redback_flags,
+		&hfi_redback_circuit,
+		&hfi_redback_length,
+		&hfi_redback_protocol,
+		&hfi_redback_l3offset,
+		&hfi_redback_dataoffset,
+		&hfi_redback_padding,
+		&hfi_redback_unknown,
 	};
 
 	static gint *ett[] = {
 		&ett_redback
 	};
 
+	int proto_redback;
+
 	proto_redback = proto_register_protocol("Redback", "Redback", "redback");
-	proto_register_field_array(proto_redback, hf, array_length(hf));
+	hfi_redback   = proto_registrar_get_nth(proto_redback);
+
+	proto_register_fields(proto_redback, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	redback_handle = create_dissector_handle(dissect_redback, proto_redback);
 }
 
 void
 proto_reg_handoff_redback(void)
 {
-	dissector_handle_t redback_handle;
-
 	osinl_incl_subdissector_table = find_dissector_table("osinl.incl");
 	osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
 
@@ -217,7 +227,6 @@ proto_reg_handoff_redback(void)
 	ppp_handle = find_dissector("ppp");
 	ppphdlc_handle = find_dissector("ppp_hdlc");
 
-	redback_handle = create_dissector_handle(dissect_redback, proto_redback);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_REDBACK, redback_handle);
 }
 

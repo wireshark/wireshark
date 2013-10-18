@@ -53,8 +53,6 @@ void proto_reg_handoff_udp(void);
 static dissector_handle_t udp_handle;
 static dissector_handle_t udplite_handle;
 
-static int proto_udp;
-
 static int udp_tap = -1;
 static int udp_follow_tap = -1;
 
@@ -289,7 +287,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   gboolean prev_heur_found = FALSE;
 
   if (pinfo->fd->flags.visited) {
-    udp_p_info = (udp_p_info_t*)p_get_proto_data(pinfo->fd, proto_udp, pinfo->curr_layer_num);
+    udp_p_info = (udp_p_info_t*)p_get_proto_data(pinfo->fd, hfi_udp->id, pinfo->curr_layer_num);
     if (udp_p_info) {
       prev_heur_found = udp_p_info->found_heuristic;
     }
@@ -334,7 +332,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
         udp_p_info->found_heuristic = TRUE;
         /* pinfo->curr_layer_num-1 because the heuristic dissector added one */
-        p_add_proto_data(pinfo->fd, proto_udp, pinfo->curr_layer_num-1, udp_p_info);
+        p_add_proto_data(pinfo->fd, hfi_udp->id, pinfo->curr_layer_num-1, udp_p_info);
       }
       return;
     }
@@ -377,7 +375,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
         udp_p_info->found_heuristic = TRUE;
         /* pinfo->curr_layer_num-1 because the heuristic dissector added one */
-        p_add_proto_data(pinfo->fd, proto_udp, pinfo->curr_layer_num-1, udp_p_info);
+        p_add_proto_data(pinfo->fd, hfi_udp->id, pinfo->curr_layer_num-1, udp_p_info);
       }
       return;
     }
@@ -753,7 +751,7 @@ proto_register_udp(void)
     { &ei_udp_checksum_bad, { "udp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
   };
 
-  int proto_udplite;
+  int proto_udp, proto_udplite;
 
   proto_udp = proto_register_protocol("User Datagram Protocol",
                                       "UDP", "udp");
