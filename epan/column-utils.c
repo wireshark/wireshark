@@ -38,7 +38,7 @@
 #include "ipv6-utils.h"
 #include "osi-utils.h"
 #include "value_string.h"
-#include "column_info.h"
+#include "column-info.h"
 #include "proto.h"
 
 #include <epan/strutil.h>

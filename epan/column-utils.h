@@ -27,7 +27,7 @@
 
 #include <glib.h>
 
-#include "column_info.h"
+#include "column-info.h"
 #include "packet_info.h"
 #include <epan/epan.h>
 #include "ws_symbol_export.h"

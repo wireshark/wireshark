@@ -30,7 +30,7 @@ extern "C" {
 
 #include <glib.h>
 #include "frame_data.h"
-#include "column_info.h"
+#include "column-info.h"
 #include "register.h"
 #include "ws_symbol_export.h"
 

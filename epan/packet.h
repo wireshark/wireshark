@@ -31,7 +31,7 @@
 #include "wsutil/pint.h"
 #include "to_str.h"
 #include "value_string.h"
-#include "column_info.h"
+#include "column-info.h"
 #include "frame_data.h"
 #include "packet_info.h"
 #include "column-utils.h"

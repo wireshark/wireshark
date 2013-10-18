@@ -43,7 +43,7 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 #include <epan/epan_dissect.h>
-#include <epan/column_info.h>
+#include <epan/column-info.h>
 #include <epan/column.h>
 
 #include "color.h"

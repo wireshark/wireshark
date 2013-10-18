@@ -28,7 +28,7 @@
 
 #include <glib.h>
 
-#include <epan/column_info.h>
+#include <epan/column-info.h>
 #include <epan/column.h>
 #include <epan/filesystem.h>
 #include <epan/prefs.h>

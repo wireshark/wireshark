@@ -29,7 +29,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/prefs.h>
-#include <epan/column_info.h>
+#include <epan/column-info.h>
 #include <epan/column.h>
 #include <epan/strutil.h>
 #include <epan/filter_expressions.h>

@@ -28,7 +28,7 @@
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 
-#include <epan/column_info.h>
+#include <epan/column-info.h>
 #include <epan/column.h>
 #include <epan/packet.h>
 

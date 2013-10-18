@@ -33,7 +33,7 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
-#include <epan/column_info.h>
+#include <epan/column-info.h>
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>

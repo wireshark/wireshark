@@ -28,7 +28,7 @@
 
 #include <glib.h>
 
-#include <epan/column_info.h>
+#include <epan/column-info.h>
 #include <epan/packet.h>
 
 #include <QList>

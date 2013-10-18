@@ -24,7 +24,7 @@
 #include "packet_list_model.h"
 
 #include <epan/epan_dissect.h>
-#include <epan/column_info.h>
+#include <epan/column-info.h>
 #include <epan/column.h>
 #include <wsutil/nstime.h>
 #include <epan/prefs.h>
