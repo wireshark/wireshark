@@ -110,7 +110,6 @@ signals:
     void packetDissectionChanged();
     void preferencesChanged();
 
-#ifdef HAVE_LIBPCAP
     // XXX It might make more sense to move these to main.cpp or main_window.cpp or their own class.
     void captureCapturePrepared(capture_session *cap_session);
     void captureCaptureUpdateStarted(capture_session *cap_session);
@@ -120,7 +119,6 @@ signals:
     void captureCaptureFixedFinished(capture_session *cap_session);
     void captureCaptureStopping(capture_session *cap_session);
     void captureCaptureFailed(capture_session *cap_session);
-#endif
 
     void captureFileOpened(const capture_file *cf);
     void captureFileReadStarted(const capture_file *cf);

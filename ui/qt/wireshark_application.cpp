@@ -187,7 +187,7 @@ void WiresharkApplication::refreshRecentFiles(void) {
     }
 }
 
-void WiresharkApplication::captureCallback(int event, capture_session * cap_session)
+void WiresharkApplication::captureCallback(int event _U_, capture_session *cap_session _U_)
 {
 #ifdef HAVE_LIBPCAP
     switch(event) {
