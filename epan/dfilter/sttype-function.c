@@ -60,9 +60,8 @@ function_dup(gconstpointer data)
 
 	for (p = org->params; p; p = p->next) {
 		const stnode_t *param = (const stnode_t *)p->data;
-		stfuncrec->params = g_slist_prepend(stfuncrec->params, stnode_dup(param));
+		stfuncrec->params = g_slist_append(stfuncrec->params, stnode_dup(param));
 	}
-	stfuncrec->params = g_slist_reverse(stfuncrec->params);
 	return (gpointer) stfuncrec;
 }
 

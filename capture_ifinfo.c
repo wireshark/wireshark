@@ -86,11 +86,11 @@ static void append_remote_list(GList *iflist)
                 temp_addr = NULL;
             }
             if (temp_addr) {
-                temp->addrs = g_slist_prepend(temp->addrs, temp_addr);
+                temp->addrs = g_slist_append(temp->addrs, temp_addr);
             }
         }
         temp->loopback = if_info->loopback;
-        iflist = g_list_prepend(iflist, temp);
+        iflist = g_list_append(iflist, temp);
    }
 }
 #endif
@@ -177,14 +177,14 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
                 if_addr = NULL;
             }
             if (if_addr) {
-                if_info->addrs = g_slist_prepend(if_info->addrs, if_addr);
+                if_info->addrs = g_slist_append(if_info->addrs, if_addr);
             }
         }
         if (strcmp(if_parts[5], "loopback") == 0)
             if_info->loopback = TRUE;
         g_strfreev(if_parts);
         g_strfreev(addr_parts);
-        if_list = g_list_prepend(if_list, if_info);
+        if_list = g_list_append(if_list, if_info);
     }
     g_strfreev(raw_list);
 
@@ -293,7 +293,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
         else
             data_link_info->description = NULL;
 
-        linktype_list = g_list_prepend(linktype_list, data_link_info);
+        linktype_list = g_list_append(linktype_list, data_link_info);
     }
     g_strfreev(raw_list);
 
@@ -334,11 +334,11 @@ void add_interface_to_remote_list(if_info_t *if_info)
             temp_addr = NULL;
         }
         if (temp_addr) {
-            temp->addrs = g_slist_prepend(temp->addrs, temp_addr);
+            temp->addrs = g_slist_append(temp->addrs, temp_addr);
         }
     }
     temp->loopback = if_info->loopback;
-    remote_interface_list = g_list_prepend(remote_interface_list, temp);
+    remote_interface_list = g_list_append(remote_interface_list, temp);
 }
 #endif
 #endif /* HAVE_LIBPCAP */

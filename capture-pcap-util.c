@@ -384,7 +384,7 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 		if_addr->ifat_type = IF_AT_IPv4;
 		if_addr->addr.ip4_addr =
 		    *((guint32 *)&(ai->sin_addr.s_addr));
-		if_info->addrs = g_slist_prepend(if_info->addrs, if_addr);
+		if_info->addrs = g_slist_append(if_info->addrs, if_addr);
 		break;
 
 #ifdef INET6
@@ -395,7 +395,7 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 		memcpy((void *)&if_addr->addr.ip6_addr,
 		    (void *)&ai6->sin6_addr.s6_addr,
 		    sizeof if_addr->addr.ip6_addr);
-		if_info->addrs = g_slist_prepend(if_info->addrs, if_addr);
+		if_info->addrs = g_slist_append(if_info->addrs, if_addr);
 		break;
 #endif
 	}
