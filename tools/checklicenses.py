@@ -156,6 +156,12 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'epan/except.h': [
         'UNKNOWN',
     ],
+    'plugins/mate/mate_grammar.c': [
+        'GPL (v2 or later) LGPL (v2 or later)', # licensecheck bug?
+    ],
+    'plugins/mate/mate_grammar.h': [
+        'UNKNOWN',
+    ],
     'cmake/TestFileOffsetBits.c': [
         'UNKNOWN',
     ],
