@@ -63,7 +63,8 @@ libqtui_a_DEPENDENCIES =
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) \
-	$(LIBGNUTLS_CFLAGS) $(PIE_CFLAGS) $(AM_CLEAN_CFLAGS)
+	$(LIBGNUTLS_CFLAGS) $(PIE_CFLAGS) $(AM_CLEAN_CFLAGS) \
+	$(CXX_NO_SHORTEN_WARNING_FLAGS)
 
 AM_V_MOC = $(am__v_MOC_@AM_V@)
 am__v_MOC_ = $(am__v_MOC_@AM_DEFAULT_V@)

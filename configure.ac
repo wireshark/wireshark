@@ -831,6 +831,20 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wwrite-strings)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-long-long)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc++-compat, C)
 
+# The Qt headers generate a ton of shortening errors on 64-bit systems.
+# See if we can add the flag.
+# We could first check if we're 64-bit or not...
+CXXFLAGS_save="$CXXFLAGS"
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-shorten-64-to-32, CXX)
+if test "$CXXFLAGS" != "$CXXFLAGS_save"
+then
+	CXX_NO_SHORTEN_WARNING_FLAGS=-Wno-shorten-64-to-32
+else
+	CXX_NO_SHORTEN_WARNING_FLAGS=
+fi
+AC_SUBST(CXX_NO_SHORTEN_WARNING_FLAGS)
+CXXFLAGS="$CXXFLAGS_save"
+
 #
 # XXX - OK for C++?
 #
@@ -1346,7 +1360,7 @@ if test "x$enable_wireshark" = "xyes"; then
 		[
 			CFLAGS="$CFLAGS $Qt_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
-			have_qt=yes		
+			have_qt=yes
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-qt"
 			OSX_APP_FLAGS="$OSX_APP_FLAGS -qt"
 			OSX_DMG_FLAGS="-qt"
