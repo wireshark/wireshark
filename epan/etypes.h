@@ -262,6 +262,10 @@ extern "C" {
 #define ETHERTYPE_WLCCP			0x872D	/* Cisco Wireless Lan Context Control Protocol */
 #endif
 
+#ifndef ETHERTYPE_MINT
+#define ETHERTYPE_MINT			0x8783	/* Motorola Media Indepentent Network Transport */
+#endif
+
 #ifndef ETHERTYPE_MAC_CONTROL
 #define ETHERTYPE_MAC_CONTROL		0x8808
 #endif

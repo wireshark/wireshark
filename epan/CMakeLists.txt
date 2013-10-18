@@ -883,6 +883,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mikey.c
 	dissectors/packet-mim.c
 	dissectors/packet-mime-encap.c
+	dissectors/packet-mint.c
 	dissectors/packet-miop.c
 	dissectors/packet-mip.c
 	dissectors/packet-mip6.c

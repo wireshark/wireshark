@@ -812,6 +812,7 @@ DISSECTOR_SRC = \
 	packet-mikey.c		\
 	packet-mim.c		\
 	packet-mime-encap.c	\
+	packet-mint.c		\
 	packet-miop.c		\
 	packet-mip.c		\
 	packet-mip6.c		\
