@@ -816,7 +816,9 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-pointer-sign, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wold-style-definition, C)
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wshorten-64-to-32)
+# The Qt headers generate a ton of shortening errors on 64-bit systems
+# so only enable this for C for now.
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wshorten-64-to-32, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wstrict-prototypes, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wjump-misses-init, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wvla)
@@ -830,20 +832,6 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-overlength-strings)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wwrite-strings)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-long-long)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc++-compat, C)
-
-# The Qt headers generate a ton of shortening errors on 64-bit systems.
-# See if we can add the flag.
-# We could first check if we're 64-bit or not...
-CXXFLAGS_save="$CXXFLAGS"
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-shorten-64-to-32, CXX)
-if test "$CXXFLAGS" != "$CXXFLAGS_save"
-then
-	CXX_NO_SHORTEN_WARNING_FLAGS=-Wno-shorten-64-to-32
-else
-	CXX_NO_SHORTEN_WARNING_FLAGS=
-fi
-AC_SUBST(CXX_NO_SHORTEN_WARNING_FLAGS)
-CXXFLAGS="$CXXFLAGS_save"
 
 #
 # XXX - OK for C++?
