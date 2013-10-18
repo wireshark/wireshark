@@ -106,6 +106,11 @@ static int hf_dns_rr_type = -1;
 static int hf_dns_rr_class = -1;
 static int hf_dns_rr_class_mdns = -1;
 static int hf_dns_rr_cache_flush = -1;
+static int hf_dns_rr_ext_rcode = -1;
+static int hf_dns_rr_edns0_version = -1;
+static int hf_dns_rr_z = -1;
+static int hf_dns_rr_z_do = -1;
+static int hf_dns_rr_z_reserved = -1;
 static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
 static int hf_dns_a = -1;
@@ -118,6 +123,7 @@ static int hf_dns_null = -1;
 static int hf_dns_aaaa = -1;
 static int hf_dns_cname = -1;
 static int hf_dns_rr_udp_payload_size = -1;
+static int hf_dns_rr_udp_payload_size_mdns = -1;
 static int hf_dns_soa_mname = -1;
 static int hf_dns_soa_rname = -1;
 static int hf_dns_soa_serial_number = -1;
@@ -571,6 +577,11 @@ static const true_false_string tfs_flags_authenticated = {
 static const true_false_string tfs_flags_checkdisable = {
   "Acceptable",
   "Unacceptable"
+};
+
+static const true_false_string tfs_dns_rr_z_do = {
+  "Accepts DNSSEC security RRs",
+  "Cannot handle DNSSEC security RRs"
 };
 
 /* Opcodes */
@@ -1354,16 +1365,13 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 }
 
 
-static proto_tree *
-add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-  const guchar *name, int namelen, int type, int dns_class, int flush,
-  guint ttl, gushort data_len, packet_info *pinfo, gboolean is_mdns)
+static void
+add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
+  const guchar *name, int namelen, int type,
+  packet_info *pinfo, gboolean is_mdns)
 {
-  proto_tree  *rr_tree;
-  proto_tree  *ttl_tree;
+  proto_item *ttl_item;
   gchar      **srv_rr_info;
-
-  rr_tree = proto_item_add_subtree(trr, rr_type);
 
   if (type == T_SRV) {
     srv_rr_info = g_strsplit(name, ".", 3);
@@ -1393,60 +1401,52 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   proto_tree_add_item(rr_tree, hf_dns_rr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   if (is_mdns) {
-    proto_tree_add_uint(rr_tree, hf_dns_rr_class_mdns, tvb, offset, 2, dns_class);
-    proto_tree_add_boolean(rr_tree, hf_dns_rr_cache_flush, tvb, offset, 2, flush);
+    proto_tree_add_item(rr_tree, hf_dns_rr_class_mdns, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(rr_tree, hf_dns_rr_cache_flush, tvb, offset, 2, ENC_BIG_ENDIAN);
   } else {
-    proto_tree_add_uint(rr_tree, hf_dns_rr_class, tvb, offset, 2, dns_class);
+    proto_tree_add_item(rr_tree, hf_dns_rr_class, tvb, offset, 2, ENC_BIG_ENDIAN);
   }
   offset += 2;
-  ttl_tree = proto_tree_add_uint_format_value(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ttl,
-                             "%s", time_secs_to_str(ttl));
-  if (ttl & 0x80000000) {
-    expert_add_info(pinfo, ttl_tree, &ei_ttl_negative);
+  ttl_item = proto_tree_add_item(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ENC_BIG_ENDIAN|ENC_TIME_TIMESPEC);
+  if (tvb_get_ntohl(tvb, offset) & 0x80000000) {
+    expert_add_info(pinfo, ttl_item, &ei_ttl_negative);
   }
 
   offset += 4;
-  proto_tree_add_uint(rr_tree, hf_dns_rr_len, tvb, offset, 2, data_len);
-  return rr_tree;
+  proto_tree_add_item(rr_tree, hf_dns_rr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
 
-static proto_tree *
-add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-  const char *name, int namelen, int type _U_, int dns_class, int flush,
-  guint ttl, gushort data_len, gboolean is_mdns)
+static void
+add_opt_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
+  const char *name, int namelen, gboolean is_mdns)
 {
-  proto_tree *rr_tree, *Z_tree;
-  proto_item *Z_item = NULL;
+  proto_tree *Z_tree;
+  proto_item *Z_item;
 
-  rr_tree = proto_item_add_subtree(trr, rr_type);
   proto_tree_add_string(rr_tree, hf_dns_rr_name, tvb, offset, namelen, name);
   offset += namelen;
   proto_tree_add_item(rr_tree, hf_dns_rr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   if (is_mdns) {
-    proto_tree_add_uint(rr_tree, hf_dns_rr_udp_payload_size, tvb, offset, 2, dns_class);
-    proto_tree_add_boolean(rr_tree, hf_dns_rr_cache_flush, tvb, offset, 2,
-       flush);
+    proto_tree_add_item(rr_tree, hf_dns_rr_udp_payload_size_mdns, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(rr_tree, hf_dns_rr_cache_flush, tvb, offset, 2, ENC_BIG_ENDIAN);
   } else {
-    proto_tree_add_text(rr_tree, tvb, offset, 2, "UDP payload size: %u", dns_class & 0xffff);
+    proto_tree_add_item(rr_tree, hf_dns_rr_udp_payload_size, tvb, offset, 2, ENC_BIG_ENDIAN);
   }
   offset += 2;
-  proto_tree_add_text(rr_tree, tvb, offset, 1, "Higher bits in extended RCODE: 0x%x",
-      (ttl >> 24) & 0xff);
+  proto_tree_add_item(rr_tree, hf_dns_rr_ext_rcode, tvb, offset, 1, ENC_NA);
   offset++;
-  proto_tree_add_text(rr_tree, tvb, offset, 1, "EDNS0 version: %u",
-      (ttl >> 16) & 0xff);
+  proto_tree_add_item(rr_tree, hf_dns_rr_edns0_version, tvb, offset, 1, ENC_NA);
   offset++;
-  Z_item = proto_tree_add_text(rr_tree, tvb, offset, 2, "Z: 0x%x", ttl & 0xffff);
-  if (ttl & 0x8000) {
-     Z_tree = proto_item_add_subtree(Z_item, rr_type);
-     proto_tree_add_text(Z_tree, tvb, offset, 2, "Bit 0 (DO bit): 1 (Accepts DNSSEC security RRs)");
-     proto_tree_add_text(Z_tree, tvb, offset, 2, "Bits 1-15: 0x%x (reserved)", ttl & 0x7fff);
+  Z_item = proto_tree_add_item(rr_tree, hf_dns_rr_z, tvb, offset, 2, ENC_BIG_ENDIAN);
+  if (tvb_get_ntohs(tvb, offset) & 0x8000) {
+     Z_tree = proto_item_add_subtree(Z_item, ett_dns_rr);
+     proto_tree_add_item(rr_tree, hf_dns_rr_z_do, tvb, offset, 2, ENC_BIG_ENDIAN);
+     proto_tree_add_item(rr_tree, hf_dns_rr_z_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
   }
   offset += 2;
-  proto_tree_add_uint(rr_tree, hf_dns_rr_len, tvb, offset, 2, data_len);
-  return rr_tree;
+  proto_tree_add_item(rr_tree, hf_dns_rr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
 static int
@@ -1622,7 +1622,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   int           data_offset;
   int           cur_offset;
   int           data_start;
-  guint         ttl;
   gushort       data_len;
   proto_tree   *rr_tree = NULL;
   proto_item   *trr     = NULL;
@@ -1644,7 +1643,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   type_name = val_to_str_ext(dns_type, &dns_types_vals_ext, "Unknown (%d)");
   class_name = dns_class_name(dns_class);
 
-  ttl = tvb_get_ntohl(tvb, data_offset);
   data_offset += 4;
   cur_offset += 4;
 
@@ -1669,14 +1667,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
                                 (data_offset - data_start) + data_len,
                                 "%s: type %s, class %s",
                                 name_out, type_name, class_name);
-      rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offsetx, name, name_len,
-                               dns_type, dns_class, flush, ttl, data_len, pinfo, is_mdns);
+      rr_tree = proto_item_add_subtree(trr, ett_dns_rr);
+      add_rr_to_tree(rr_tree, tvb, offsetx, name, name_len,
+                               dns_type, pinfo, is_mdns);
     } else  {
       trr = proto_tree_add_text(dns_tree, tvb, offsetx,
                                 (data_offset - data_start) + data_len,
                                 "%s: type %s", name_out, type_name);
-      rr_tree = add_opt_rr_to_tree(trr, ett_dns_rr, tvb, offsetx, name, name_len,
-                                   dns_type, dns_class, flush, ttl, data_len, is_mdns);
+      rr_tree = proto_item_add_subtree(trr, ett_dns_rr);
+      add_opt_rr_to_tree(rr_tree, tvb, offsetx, name, name_len, is_mdns);
     }
     if (is_mdns && flush) {
       proto_item_append_text(trr, ", cache flush");
@@ -3493,15 +3492,15 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
     gboolean is_mdns)
 {
   int         start_off, add_off;
-  proto_tree *qatree = NULL;
-  proto_item *ti     = NULL;
+  proto_tree *qatree;
+  proto_item *ti;
+  const char *s = (isupdate ?  "Zone" : "Queries");
 
   start_off = cur_off;
-  if (dns_tree) {
-    const char *s = (isupdate ?  "Zone" : "Queries");
-    ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, "%s", s);
-    qatree = proto_item_add_subtree(ti, ett_dns_qry);
-  }
+
+  ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, "%s", s);
+  qatree = proto_item_add_subtree(ti, ett_dns_qry);
+
   while (count-- > 0) {
     add_off = dissect_dns_query(tvb, cur_off, dns_data_offset, cinfo, qatree,
                                 is_mdns);
@@ -4050,6 +4049,31 @@ proto_register_dns(void)
         FT_BOOLEAN, 16, NULL, C_FLUSH,
         "Cache flush flag", HFILL }},
 
+    { &hf_dns_rr_ext_rcode,
+      { "Higher bits in extended RCODE", "dns.resp.ext_rcode",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_edns0_version,
+      { "EDNS0 version", "dns.resp.edns0_version",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_z,
+      { "Z", "dns.resp.z",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_z_do,
+      { "DO bit", "dns.resp.z.do",
+        FT_BOOLEAN, 16, TFS(&tfs_dns_rr_z_do), 0x0001,
+        "DNSSEC OK", HFILL }},
+
+    { &hf_dns_rr_z_reserved,
+      { "Reserved", "dns.resp.z.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x7FFF,
+        NULL, HFILL }},
+
     { &hf_dns_srv_service,
       { "Service", "dns.srv.service",
         FT_STRING, BASE_NONE, NULL, 0x0,
@@ -4195,9 +4219,14 @@ proto_register_dns(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Response Primary Name", HFILL }},
 
-    { &hf_dns_rr_udp_payload_size,
+    { &hf_dns_rr_udp_payload_size_mdns,
       { "UDP payload size", "dns.rr.udp_payload_size",
         FT_UINT16, BASE_HEX, NULL, 0x7FFF,
+        NULL, HFILL }},
+
+    { &hf_dns_rr_udp_payload_size,
+      { "UDP payload size", "dns.rr.udp_payload_size",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_soa_mname,
