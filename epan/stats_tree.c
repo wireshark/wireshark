@@ -621,29 +621,28 @@ get_range(char *rngstr)
           return NULL;
         }
 
-        /* means we have a non empty string
-         * which does not contain a delimiter */
-        if (split[1] == NULL) {
-          g_strfreev(split);
-          return NULL;
-        }
-
         rng = (range_pair_t *)g_malloc(sizeof(range_pair_t));
 
-        /* string == "X-?" */
-        if (*(split[0]) != '\0') {
+        if (split[1] == NULL) {
+          /* means we have a non empty string with no delimiter
+           * so it must be a single number */
             rng->floor = (gint)strtol(split[0],NULL,10);
-        } else
-          /* string == "-?" */
-          rng->floor = G_MININT;
+            rng->ceil = rng->floor;
+        } else {
+          /* string == "X-?" */
+          if (*(split[0]) != '\0') {
+              rng->floor = (gint)strtol(split[0],NULL,10);
+          } else
+            /* string == "-?" */
+            rng->floor = G_MININT;
 
-        /* string != "?-" */
-        if (*(split[1]) != '\0') {
-          rng->ceil  = (gint)strtol(split[1],NULL,10);
-        } else
-          /* string == "?-" */
-          rng->ceil = G_MAXINT;
-
+          /* string != "?-" */
+          if (*(split[1]) != '\0') {
+            rng->ceil  = (gint)strtol(split[1],NULL,10);
+          } else
+            /* string == "?-" */
+            rng->ceil = G_MAXINT;
+        }
         g_strfreev(split);
 
 	return rng;

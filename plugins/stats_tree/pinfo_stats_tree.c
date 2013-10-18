@@ -68,6 +68,18 @@ static void* uat_plen_record_copy_cb(void* n, const void* o, size_t siz _U_) {
 	return n;
 }
 
+static void
+uat_plen_record_update_cb(void *r, const char **err)
+{
+	uat_plen_record_t *rec = (uat_plen_record_t*)r;
+	if (rec->packet_range->nranges < 1) {
+		*err = ep_strdup_printf("Invalid range string");
+		return;
+	}
+
+	*err = NULL;
+}
+
 static void uat_plen_record_free_cb(void*r) {
     uat_plen_record_t* record = (uat_plen_record_t*)r;
 
@@ -206,7 +218,7 @@ void register_pinfo_stat_trees(void) {
 			0,                          /* not a dissector, so affects neither dissection nor fields */
 			NULL,                       /* help */
 			uat_plen_record_copy_cb,    /* copy callback */
-			NULL,                       /* update callback */
+			uat_plen_record_update_cb,  /* update callback */
 			uat_plen_record_free_cb,    /* free callback */
 			uat_plen_record_post_update_cb, /* post update callback */
 			plen_uat_flds);             /* UAT field definitions */
