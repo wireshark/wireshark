@@ -109,6 +109,7 @@ EXTRA_DIST = \
 	reassemble_test.c 	\
 	uat_load.l		\
 	exntest.c		\
+	oids_test.c		\
 	doxygen.cfg.in		\
 	CMakeLists.txt
 
@@ -155,7 +156,7 @@ libwireshark_la_DEPENDENCIES = \
 	${top_builddir}/wsutil/libwsutil.la \
 	${top_builddir}/wiretap/libwiretap.la
 
-EXTRA_PROGRAMS = reassemble_test tvbtest
+EXTRA_PROGRAMS = reassemble_test tvbtest oids_test
 reassemble_test_LDADD = \
 	libwireshark.la \
 	$(GLIB_LIBS) \
@@ -163,6 +164,12 @@ reassemble_test_LDADD = \
 
 tvbtest_LDADD = \
 	libwireshark.la \
+	$(GLIB_LIBS) \
+	-lz
+
+oids_test_LDADD = \
+	libwireshark.la \
+	wmem/libwmem.la \
 	$(GLIB_LIBS) \
 	-lz
 
@@ -189,7 +196,7 @@ dtd_grammar.h: dtd_grammar.c
 dtd_grammar.c : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
 	$(AM_V_LEMON)$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
 
-tvbtest.o exntest.o: exceptions.h
+tvbtest.o exntest.o oids_test.o: exceptions.h
 
 sminmpec.c: enterprise-numbers ../tools/make-sminmpec.pl
 	$(PERL) $(srcdir)/../tools/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c

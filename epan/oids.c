@@ -88,10 +88,7 @@ static const oid_value_type_t unknown_type =    { FT_BYTES,  BASE_NONE, BER_CLAS
 
 static oid_info_t oid_root = { 0, NULL, OID_KIND_UNKNOWN, NULL, &unknown_type, -2, NULL, NULL, NULL};
 
-static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_type_t* type, oid_key_t* key, guint oid_len, guint32 *subids) {
-	guint i = 0;
-	oid_info_t* c = &oid_root;
-
+static void prepopulate_oids(void) {
 	if (!oid_root.children) {
 		char* debug_env = getenv("WIRESHARK_DEBUG_MIBS");
 		guint32 subid;
@@ -108,7 +105,15 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 		subid = 1; oid_add("iso",1,&subid);
 		subid = 2; oid_add("joint-iso-itu-t",1,&subid);
 	}
+}
 
+	
+
+static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_type_t* type, oid_key_t* key, guint oid_len, guint32 *subids) {
+	guint i = 0;
+	oid_info_t* c = &oid_root;
+
+	prepopulate_oids();
 	oid_len--;
 
 	do {
@@ -813,6 +818,7 @@ void oid_pref_init(module_t *nameres)
 }
 
 void oids_init(void) {
+	prepopulate_oids();
 #ifdef HAVE_LIBSMI
 	register_mibs();
 #else

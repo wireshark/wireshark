@@ -109,11 +109,11 @@ typedef struct _oid_info_t {
 	struct _oid_info_t* parent;
 } oid_info_t;
 
-/** init funcion called from epan.h */
+/** init function called from prefs.c */
 WS_DLL_PUBLIC void oids_init(void);
 extern void oid_pref_init(module_t *nameres);
 
-/** init funcion called from epan.h */
+/** init function called from epan.h */
 WS_DLL_PUBLIC void oids_cleanup(void);
 
 /*
@@ -150,7 +150,7 @@ guint oid_string2subid(const gchar *oid_str, guint32** subids_p);
 WS_DLL_PUBLIC const gchar* oid_encoded2string(const guint8* encoded, guint len);
 WS_DLL_PUBLIC const gchar* rel_oid_encoded2string(const guint8* encoded, guint len);
 WS_DLL_PUBLIC const gchar* oid_subid2string(guint32 *subids, guint len);
-WS_DLL_PUBLIC const gchar* rel_oid_subid2string(guint32 *subids, guint len, gboolean is_relative);
+WS_DLL_PUBLIC const gchar* rel_oid_subid2string(guint32 *subids, guint len, gboolean is_absolute);
 
 /* these return a formated string as human readable as posible */
 WS_DLL_PUBLIC const gchar *oid_resolved(guint len, guint32 *subids);
