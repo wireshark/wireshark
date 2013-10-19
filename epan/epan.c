@@ -128,7 +128,6 @@ epan_cleanup(void)
 	prefs_cleanup();
 	packet_cleanup();
 	expert_cleanup();
-	oid_resolv_cleanup();
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_deinit();
 #endif

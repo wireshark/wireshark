@@ -186,7 +186,6 @@ WS_DLL_PUBLIC void oid_add_from_string(const char* name, const gchar *oid_str);
 WS_DLL_PUBLIC gchar *oid_get_default_mib_path(void);
 
 /* macros for legacy oid functions */
-#define oid_resolv_cleanup() ((void)0)
 #define subid_t guint32
 
 
