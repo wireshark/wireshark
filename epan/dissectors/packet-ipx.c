@@ -767,7 +767,6 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tvb_reported_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
-		void* pd_save;
 		/*
 		 * Call subdissectors based on the IPX socket numbers; a
 		 * subdissector might have registered with our IPX socket
@@ -796,24 +795,19 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		spx_infox.eom = conn_ctrl & SPX_EOM;
 		spx_infox.datastream_type = datastream_type;
-		pd_save = pinfo->private_data;
-		pinfo->private_data = &spx_infox;
 
 		next_tvb = tvb_new_subset_remaining(tvb, SPX_HEADER_LEN);
-		if (dissector_try_uint(spx_socket_dissector_table, low_socket,
-		    next_tvb, pinfo, tree))
+		if (dissector_try_uint_new(spx_socket_dissector_table, low_socket,
+		    next_tvb, pinfo, tree, FALSE, &spx_infox))
 		{
-			pinfo->private_data = pd_save;
 			return;
 		}
-		if (dissector_try_uint(spx_socket_dissector_table, high_socket,
-		    next_tvb, pinfo, tree))
+		if (dissector_try_uint_new(spx_socket_dissector_table, high_socket,
+		    next_tvb, pinfo, tree, FALSE, &spx_infox))
 		{
-			pinfo->private_data = pd_save;
 			return;
 		}
 		call_dissector(data_handle, next_tvb, pinfo, tree);
-		pinfo->private_data = pd_save;
 	}
 }
 

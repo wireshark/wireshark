@@ -4328,17 +4328,14 @@ dissect_ndps_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * the last fragment packet number.
  */
 static void
-ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_info_p)
 {
     guint                 len=0;
     tvbuff_t            *next_tvb = NULL;
     fragment_head       *fd_head;
-    spx_info            *spx_info_p;
     ndps_req_hash_value *request_value = NULL;
     conversation_t      *conversation;
 
-    /* Get SPX info from SPX dissector */
-    spx_info_p = (spx_info *)pinfo->private_data;
     /* Check to see if defragmentation is enabled in the dissector */
     if (!ndps_defragment) {
         dissect_ndps(tvb, pinfo, tree);
@@ -4476,21 +4473,21 @@ dissect_ndps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-static void
-dissect_ndps_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ndps_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    proto_tree      *ndps_tree = NULL;
+    proto_tree      *ndps_tree;
     proto_item      *ti;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, ENC_NA);
-        ndps_tree = proto_item_add_subtree(ti, ett_ndps);
-    }
-    ndps_defrag(tvb, pinfo, ndps_tree);
+    ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, ENC_NA);
+    ndps_tree = proto_item_add_subtree(ti, ett_ndps);
+
+    ndps_defrag(tvb, pinfo, ndps_tree, (spx_info*)data);
+    return tvb_length(tvb);
 }
 
 static int
@@ -9799,7 +9796,7 @@ proto_reg_handoff_ndps(void)
 {
     dissector_handle_t ndps_handle, ndps_tcp_handle;
 
-    ndps_handle = create_dissector_handle(dissect_ndps_ipx, proto_ndps);
+    ndps_handle = new_create_dissector_handle(dissect_ndps_ipx, proto_ndps);
     ndps_tcp_handle = create_dissector_handle(dissect_ndps_tcp, proto_ndps);
 
     dissector_add_uint("spx.socket", SPX_SOCKET_PA, ndps_handle);
