@@ -36,6 +36,8 @@
  */
 #define DEVELOPMENT 1
 
+#define NEW_PROTO_TREE_API 1
+
 #include "config.h"
 
 #include <glib.h>
@@ -45,8 +47,14 @@
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 
-/* protocol handles */
-static int proto_mint = -1;
+#define PROTO_SHORT_NAME "MiNT"
+#define PROTO_LONG_NAME "Media indepentend Network Transport"
+
+/* 0x8783 ETHERTYPE_MINT */
+/* 0x6000 */
+#define PORT_MINT_CONTROL_TUNNEL	24576
+/* 0x6001 */
+#define PORT_MINT_DATA_TUNNEL		24577
 
 static dissector_handle_t eth_handle;
 
@@ -58,38 +66,9 @@ static int ett_mint_control = -1;
 static int ett_mint_data = -1;
 static int ett_mint_eth = -1;
 
-/* hf elements */
-/* MiNT Eth Shim */
-static int hf_mint_ethshim = -1;
-static int hf_mint_ethshim_unknown = -1;
-static int hf_mint_ethshim_length = -1;
-/* MiNT common */
-static int hf_mint_header = -1;
-static int hf_mint_header_unknown1 = -1;
-static int hf_mint_header_srcid = -1;
-static int hf_mint_header_dstid = -1;
-static int hf_mint_header_srcdatatype = -1;
-static int hf_mint_header_dstdatatype = -1;
-/* MiNT Data */
-static int hf_mint_data = -1;
-static int hf_mint_data_vlan = -1;
-static int hf_mint_data_seqno = -1;
-static int hf_mint_data_unknown1 = -1;
-/* MiNT Control */
-static int hf_mint_control = -1;
-static int hf_mint_control_unknown1 = -1;
-/* MiNT Eth */
-static int hf_mint_eth = -1;
-static int hf_mint_eth_unknown1 = -1;
-
-#define PROTO_SHORT_NAME "MiNT"
-#define PROTO_LONG_NAME "Media indepentend Network Transport"
-
-/* 0x8783 ETHERTYPE_MINT */
-/* 0x6000 */
-#define PORT_MINT_CONTROL_TUNNEL	24576
-/* 0x6001 */
-#define PORT_MINT_DATA_TUNNEL		24577
+static dissector_handle_t mint_control_handle;
+static dissector_handle_t mint_data_handle;
+static dissector_handle_t mint_eth_handle;
 
 typedef enum {
 	MINT_TYPE_DATA_UC   = 0x01,
@@ -111,6 +90,83 @@ static const value_string mint_packettype_vals[] = {
 	{ 0,    NULL }
 };
 
+/* hfi elements */
+#define MINT_HF_INIT HFI_INIT(proto_mint)
+static header_field_info *hfi_mint = NULL;
+/* MiNT Eth Shim */
+static header_field_info hfi_mint_ethshim MINT_HF_INIT =
+	{ "MiNT Ethernet Shim",    "mint.ethshim", FT_PROTOCOL, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_ethshim_unknown MINT_HF_INIT =
+	{ "Unknown",	"mint.ethshim.unknown", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_ethshim_length MINT_HF_INIT =
+	{ "Length",	"mint.ethshim.length", FT_UINT16, BASE_DEC, NULL,
+		0x0, NULL, HFILL };
+
+/* MiNT common */
+static header_field_info hfi_mint_header MINT_HF_INIT =
+	{ "Header",    "mint.header", FT_PROTOCOL, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_header_unknown1 MINT_HF_INIT =
+	{ "HdrUnk1",	"mint.header.unknown1", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_header_srcid MINT_HF_INIT =
+	{ "Src MiNT ID",	"mint.header.srcid", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_header_dstid MINT_HF_INIT =
+	{ "Dst MiNT ID",	"mint.header.dstid", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_header_srcdatatype MINT_HF_INIT =
+	{ "Src type",	"mint.header.srctype", FT_UINT16, BASE_DEC, VALS(mint_packettype_vals),
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_header_dstdatatype MINT_HF_INIT =
+	{ "Dst type",	"mint.header.dsttype", FT_UINT16, BASE_DEC, VALS(mint_packettype_vals),
+		0x0, NULL, HFILL };
+
+/* MiNT Data */
+static header_field_info hfi_mint_data MINT_HF_INIT =
+	{ "Data Frame",    "mint.data", FT_PROTOCOL, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_data_vlan MINT_HF_INIT =
+	{ "Data VLAN",	"mint.data.vlan", FT_UINT16, BASE_DEC, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_data_seqno MINT_HF_INIT =
+	{ "Seqence Number",	"mint.data.seqno", FT_UINT32, BASE_DEC, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_data_unknown1 MINT_HF_INIT =
+	{ "DataUnk1",	"mint.data.unknown1", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+/* MiNT Control */
+static header_field_info hfi_mint_control MINT_HF_INIT =
+	{ "Control Frame",    "mint.control", FT_PROTOCOL, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_control_unknown1 MINT_HF_INIT =
+	{ "CtrlUnk1",	"mint.control.unknown1", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+/* MiNT Eth */
+static header_field_info hfi_mint_eth MINT_HF_INIT =
+	{ "Ethernet Frame",    "mint.eth", FT_PROTOCOL, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+
+static header_field_info hfi_mint_eth_unknown1 MINT_HF_INIT =
+	{ "EthUnk1",	"mint.eth.unknown1", FT_BYTES, BASE_NONE, NULL,
+		0x0, NULL, HFILL };
+/* End hfi elements */
+
 static int
 dissect_eth_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mint_tree,
 	volatile guint32 offset, guint32 length)
@@ -120,7 +176,6 @@ dissect_eth_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mint_tree,
 #ifdef DEVELOPMENT
         col_set_writable(pinfo->cinfo, FALSE);
 #endif
-
 
 	eth_tvb = tvb_new_subset(tvb, offset, length, length);
 	/* Continue after Ethernet dissection errors */
@@ -156,28 +211,28 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
 		mint_packettype_vals, "Type 0x%02x"));
 
-	ti = proto_tree_add_item(tree, proto_mint, tvb,
+	ti = proto_tree_add_item(tree, hfi_mint, tvb,
 		offset, packet_length, ENC_NA);
 	mint_tree = proto_item_add_subtree(ti, ett_mint);
 
-	ti = proto_tree_add_item(mint_tree, hf_mint_header, tvb,
+	ti = proto_tree_add_item(mint_tree, &hfi_mint_header, tvb,
 		offset, 16, ENC_NA);
 	mint_header_tree = proto_item_add_subtree(ti, ett_mint_header);
 
 	/* MiNT header */
-	proto_tree_add_item(mint_header_tree, hf_mint_header_unknown1, tvb,
+	proto_tree_add_item(mint_header_tree, &hfi_mint_header_unknown1, tvb,
 		offset, 4, ENC_NA);
 	offset += 4;
-	proto_tree_add_item(mint_header_tree, hf_mint_header_dstid, tvb,
+	proto_tree_add_item(mint_header_tree, &hfi_mint_header_dstid, tvb,
 		offset, 4, ENC_NA);
 	offset += 4;
-	proto_tree_add_item(mint_header_tree, hf_mint_header_srcid, tvb,
+	proto_tree_add_item(mint_header_tree, &hfi_mint_header_srcid, tvb,
 		offset, 4, ENC_NA);
 	offset += 4;
-	proto_tree_add_item(mint_header_tree, hf_mint_header_dstdatatype, tvb,
+	proto_tree_add_item(mint_header_tree, &hfi_mint_header_dstdatatype, tvb,
 		offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(mint_header_tree, hf_mint_header_srcdatatype, tvb,
+	proto_tree_add_item(mint_header_tree, &hfi_mint_header_srcdatatype, tvb,
 		offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	/* FIXME: This is probably not the right way to determine the packet type.
@@ -185,9 +240,9 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          *        found out what. */
 	switch(packet_type) {
 	case MINT_TYPE_DATA_UC:
-		ti = proto_tree_add_item(mint_tree, hf_mint_data, tvb,
+		ti = proto_tree_add_item(mint_tree, &hfi_mint_data, tvb,
 			offset, packet_length - 16, ENC_NA);
-		proto_tree_add_item(mint_tree, hf_mint_data_unknown1, tvb,
+		proto_tree_add_item(mint_tree, &hfi_mint_data_unknown1, tvb,
 			offset, 2, ENC_NA);
 		offset += 2;
 		/* Transported user frame */
@@ -196,17 +251,17 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				offset, packet_length - offset);
 		break;
 	case MINT_TYPE_DATA_BCMC:
-		ti = proto_tree_add_item(mint_tree, hf_mint_data, tvb,
+		ti = proto_tree_add_item(mint_tree, &hfi_mint_data, tvb,
 			offset, packet_length - 16, ENC_NA);
 		/* Decode as vlan only for now. To be verified against a capture
 		 * with CoS != 0 */
-		proto_tree_add_item(mint_tree, hf_mint_data_vlan, tvb,
+		proto_tree_add_item(mint_tree, &hfi_mint_data_vlan, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(mint_tree, hf_mint_data_seqno, tvb,
+		proto_tree_add_item(mint_tree, &hfi_mint_data_seqno, tvb,
 			offset, 4, ENC_NA);
 		offset += 4;
-		proto_tree_add_item(mint_tree, hf_mint_data_unknown1, tvb,
+		proto_tree_add_item(mint_tree, &hfi_mint_data_unknown1, tvb,
 			offset, 4, ENC_NA);
 		offset += 4;
 		/* Transported user frame */
@@ -217,18 +272,18 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case MINT_TYPE_CTRL_0x0c:
         case MINT_TYPE_CTRL_0x0e:
         case MINT_TYPE_CTRL_0x1e:
-		ti = proto_tree_add_item(mint_tree, hf_mint_control, tvb,
+		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
 			offset, packet_length - 16, ENC_NA);
 		bytes_remaining = packet_length - offset;
-		proto_tree_add_item(mint_tree, hf_mint_control_unknown1, tvb,
+		proto_tree_add_item(mint_tree, &hfi_mint_control_unknown1, tvb,
 			offset, bytes_remaining, ENC_NA);
 		offset += bytes_remaining;
 		break;
         case MINT_TYPE_ETH_0x22:
-		ti = proto_tree_add_item(mint_tree, hf_mint_eth, tvb,
+		ti = proto_tree_add_item(mint_tree, &hfi_mint_eth, tvb,
 			offset, packet_length - 16, ENC_NA);
 		bytes_remaining = packet_length - offset;
-		proto_tree_add_item(mint_tree, hf_mint_eth_unknown1, tvb,
+		proto_tree_add_item(mint_tree, &hfi_mint_eth_unknown1, tvb,
 			offset, bytes_remaining, ENC_NA);
 		offset += bytes_remaining;
 		break;
@@ -236,15 +291,15 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		bytes_remaining = packet_length - offset;
 		switch(received_via) {
 		case PORT_MINT_CONTROL_TUNNEL:
-			proto_tree_add_item(mint_tree, hf_mint_control_unknown1, tvb,
+			proto_tree_add_item(mint_tree, &hfi_mint_control_unknown1, tvb,
 				offset, bytes_remaining, ENC_NA);
 			break;
 		case PORT_MINT_DATA_TUNNEL:
-			proto_tree_add_item(mint_tree, hf_mint_data_unknown1, tvb,
+			proto_tree_add_item(mint_tree, &hfi_mint_data_unknown1, tvb,
 				offset, bytes_remaining, ENC_NA);
 			break;
 		case ETHERTYPE_MINT:
-			proto_tree_add_item(mint_tree, hf_mint_eth_unknown1, tvb,
+			proto_tree_add_item(mint_tree, &hfi_mint_eth_unknown1, tvb,
 				offset, bytes_remaining, ENC_NA);
 			break;
 		default:
@@ -288,14 +343,14 @@ dissect_mint_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 offset = 0;
 	guint32 packet_length;
 
-	ti = proto_tree_add_item(tree, hf_mint_ethshim, tvb,
+	ti = proto_tree_add_item(tree, &hfi_mint_ethshim, tvb,
 		offset, 4, ENC_NA);
 	mint_ethshim_tree = proto_item_add_subtree(ti, ett_mint_ethshim);
 
-	proto_tree_add_item(mint_ethshim_tree, hf_mint_ethshim_unknown, tvb,
+	proto_tree_add_item(mint_ethshim_tree, &hfi_mint_ethshim_unknown, tvb,
 		offset, 2, ENC_NA);
 	offset += 2;
-	proto_tree_add_item(mint_ethshim_tree, hf_mint_ethshim_length, tvb,
+	proto_tree_add_item(mint_ethshim_tree, &hfi_mint_ethshim_length, tvb,
 		offset, 2, ENC_BIG_ENDIAN);
 	packet_length = tvb_get_ntohs(tvb, offset) + 4;
 	offset += 2;
@@ -383,81 +438,30 @@ dissect_mint_eth_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 void
 proto_register_mint(void)
 {
-	static hf_register_info hf[] = {
+	static header_field_info *hfi[] = {
 
 	/* MiNT Eth Shim */
-		{ &hf_mint_ethshim,
-		{ "MiNT Ethernet Shim",    "mint.ethshim", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_ethshim_unknown,
-		{ "Unknown",	"mint.ethshim.unknown", FT_BYTES, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_ethshim_length,
-		{ "Length",	"mint.ethshim.length", FT_UINT16, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
-
+		&hfi_mint_ethshim,
+		&hfi_mint_ethshim_unknown,
+		&hfi_mint_ethshim_length,
 	/* MiNT common */
-		{ &hf_mint_header,
-		{ "Header",    "mint.header", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_header_unknown1,
-		{ "HdrUnk1",	"mint.header.unknown1", FT_BYTES, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_header_srcid,
-		{ "Src MiNT ID",	"mint.header.srcid", FT_BYTES, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_header_dstid,
-		{ "Dst MiNT ID",	"mint.header.dstid", FT_BYTES, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_header_srcdatatype,
-		{ "Src type",	"mint.header.srctype", FT_UINT16, BASE_DEC, VALS(mint_packettype_vals),
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_header_dstdatatype,
-		{ "Dst type",	"mint.header.dsttype", FT_UINT16, BASE_DEC, VALS(mint_packettype_vals),
-			0x0, NULL, HFILL }},
-
+		&hfi_mint_header,
+		&hfi_mint_header_unknown1,
+		&hfi_mint_header_srcid,
+		&hfi_mint_header_dstid,
+		&hfi_mint_header_srcdatatype,
+		&hfi_mint_header_dstdatatype,
 	/* MiNT Control */
-		{ &hf_mint_control,
-		{ "Control Frame",    "mint.control", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_control_unknown1,
-		{ "CtrlUnk1",	"mint.control.unknown1", FT_BYTES, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
+		&hfi_mint_control,
+		&hfi_mint_control_unknown1,
 	/* MiNT Data */
-		{ &hf_mint_data,
-		{ "Data Frame",    "mint.data", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_data_vlan,
-		{ "Data VLAN",	"mint.data.vlan", FT_UINT16, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_data_seqno,
-		{ "Seqence Number",	"mint.data.seqno", FT_UINT32, BASE_DEC, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_data_unknown1,
-		{ "DataUnk1",	"mint.data.unknown1", FT_BYTES, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
+		&hfi_mint_data,
+		&hfi_mint_data_vlan,
+		&hfi_mint_data_seqno,
+		&hfi_mint_data_unknown1,
 	/* MiNT Eth */
-		{ &hf_mint_eth,
-		{ "Ethernet Frame",    "mint.eth", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
-		{ &hf_mint_eth_unknown1,
-		{ "EthUnk1",	"mint.eth.unknown1", FT_BYTES, BASE_NONE, NULL,
-			0x0, NULL, HFILL }},
-
+		&hfi_mint_eth,
+		&hfi_mint_eth_unknown1,
 	};
 	static gint *ett[] = {
 		&ett_mint_ethshim,
@@ -468,22 +472,21 @@ proto_register_mint(void)
 		&ett_mint_eth,
 	};
 
+	int proto_mint;
+
 	proto_mint = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mint");
-	proto_register_field_array(proto_mint, hf, array_length(hf));
+	hfi_mint = proto_registrar_get_nth(proto_mint);
+	proto_register_fields(proto_mint, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	mint_control_handle = new_create_dissector_handle(dissect_mint_control_static, proto_mint);
+	mint_data_handle = new_create_dissector_handle(dissect_mint_data_static, proto_mint);
+	mint_eth_handle = new_create_dissector_handle(dissect_mint_eth_static, proto_mint);
 }
 
 void
 proto_reg_handoff_mint(void)
 {
-	dissector_handle_t mint_control_handle;
-	dissector_handle_t mint_data_handle;
-	dissector_handle_t mint_eth_handle;
-
-	mint_control_handle = new_create_dissector_handle(dissect_mint_control_static, proto_mint);
-	mint_data_handle = new_create_dissector_handle(dissect_mint_data_static, proto_mint);
-	mint_eth_handle = new_create_dissector_handle(dissect_mint_eth_static, proto_mint);
-
 	dissector_add_uint("udp.port", PORT_MINT_CONTROL_TUNNEL, mint_control_handle);
 	dissector_add_uint("udp.port", PORT_MINT_DATA_TUNNEL, mint_data_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_MINT, mint_eth_handle);
