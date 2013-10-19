@@ -104,12 +104,12 @@ set_target_properties(wsutil PROPERTIES FOLDER "DLLs")
 ABICHECK(libwsutil)
 
 add_custom_command(OUTPUT libwsutil.abi.tar.gz
-	COMMAND cp ../config.h abi-check-headers/
+	COMMAND cp ../config.h ${ABICHECK_TMPDIR}/
 	COMMAND abi-compliance-checker -l libwsutil -v1 ${FULL_SO_VERSION}
 		-relpath ${CMAKE_CURRENT_BINARY_DIR} -dump-abi abi-descriptor.xml
-		|| cat logs/libwsutil/[0-9]*/log.txt
-	COMMAND cp abi_dumps/libwsutil/libwsutil_* libwsutil.abi.tar.gz
-	COMMAND rm -rf abi-check-headers/* abi_dumps
+		|| cat ${CMAKE_CURRENT_BINARY_DIR}/logs/libwsutil/[0-9]*/log.txt
+	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps/libwsutil/libwsutil_* ${CMAKE_CURRENT_BINARY_DIR}/libwsutil.abi.tar.gz
+	COMMAND rm -rf ${ABICHECK_TMPDIR}/* ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
 	DEPENDS ${HEADERS} wsutil)
 
 target_link_libraries(wsutil ${wsutil_LIBS})

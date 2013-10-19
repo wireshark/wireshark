@@ -1617,37 +1617,37 @@ file(GLOB DFILTER_HEADERS dfilter/*.h ../tools/lemon/cppmagic.h)
 file(GLOB D_HEADERS dissectors/*.h)
 file(GLOB FTYPES_HEADERS ftypes/*.h)
 file(GLOB WMEM_HEADERS wmem/*.h)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers
-	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/epan
-	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/crypt
-	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/dfilter
-	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/dissectors
-	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/ftypes
-	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/wmem)
+file(MAKE_DIRECTORY ${ABICHECK_TMPDIR}
+	${ABICHECK_TMPDIR}/epan
+	${ABICHECK_TMPDIR}/crypt
+	${ABICHECK_TMPDIR}/dfilter
+	${ABICHECK_TMPDIR}/dissectors
+	${ABICHECK_TMPDIR}/ftypes
+	${ABICHECK_TMPDIR}/wmem)
 
-file(COPY ../color.h ../register.h DESTINATION abi-check-headers)
-file(COPY ${HEADERS} DESTINATION abi-check-headers/epan)
-file(COPY ${CRYPT_HEADERS} DESTINATION abi-check-headers/crypt)
-file(COPY ${DFILTER_HEADERS} DESTINATION abi-check-headers/dfilter)
-file(COPY ${D_HEADERS} DESTINATION abi-check-headers/dissectors)
-file(COPY ${FTYPES_HEADERS} DESTINATION abi-check-headers/ftypes)
-file(COPY ${WMEM_HEADERS} DESTINATION abi-check-headers/wmem)
+file(COPY ../color.h ../register.h DESTINATION ${ABICHECK_TMPDIR})
+file(COPY ${HEADERS} DESTINATION ${ABICHECK_TMPDIR}/epan)
+file(COPY ${CRYPT_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/crypt)
+file(COPY ${DFILTER_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/dfilter)
+file(COPY ${D_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/dissectors)
+file(COPY ${FTYPES_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/ftypes)
+file(COPY ${WMEM_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/wmem)
 
 add_custom_command(OUTPUT libwireshark.abi.tar.gz
-	COMMAND cp ../config.h abi-check-headers
-	COMMAND rm abi-check-headers/dissectors/x11-extension-implementation.h
-		abi-check-headers/dissectors/packet-rtps.h
-		abi-check-headers/dissectors/x11-glx-render-enum.h
-		abi-check-headers/dissectors/x11-register-info.h
-		abi-check-headers/dissectors/packet-idmp.h
+	COMMAND cp ../config.h ${ABICHECK_TMPDIR}
+	COMMAND rm -f ${ABICHECK_TMPDIR}/dissectors/x11-extension-implementation.h
+		${ABICHECK_TMPDIR}/dissectors/packet-rtps.h
+		${ABICHECK_TMPDIR}/dissectors/x11-glx-render-enum.h
+		${ABICHECK_TMPDIR}/dissectors/x11-register-info.h
+		${ABICHECK_TMPDIR}/dissectors/packet-idmp.h
 	COMMAND abi-compliance-checker -l libwireshark -v1 ${FULL_SO_VERSION}
 		-relpath ${CMAKE_CURRENT_BINARY_DIR} -dump-abi abi-descriptor.xml
-		|| cat logs/libwireshark/[0-9]*/log.txt
-	COMMAND cp abi_dumps/libwireshark/libwireshark_* libwireshark.abi.tar.gz
-	COMMAND rm -rf abi_dumps abi-check-headers/config.h
-		abi-check-headers/epan/* abi-check-headers/crypt/*
-		abi-check-headers/dfilter/* abi-check-headers/dissectors/*
-		abi-check-headers/ftypes/* abi-check-headers/wmem/*
+		|| cat ${CMAKE_CURRENT_BINARY_DIR}/logs/libwireshark/[0-9]*/log.txt
+	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps/libwireshark/libwireshark_* ${CMAKE_CURRENT_BINARY_DIR}/libwireshark.abi.tar.gz
+	COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps ${ABICHECK_TMPDIR}/config.h
+		${ABICHECK_TMPDIR}/epan/* ${ABICHECK_TMPDIR}/crypt/*
+		${ABICHECK_TMPDIR}/dfilter/* ${ABICHECK_TMPDIR}/dissectors/*
+		${ABICHECK_TMPDIR}/ftypes/* ${ABICHECK_TMPDIR}/wmem/*
 	DEPENDS ${HEADERS}
 		${CRYPT_HEADERS} ${DFILTER_HEADERS} ${D_HEADERS}
 		${FTYPES_HEADERS} ${WMEM_HEADERS} epan)

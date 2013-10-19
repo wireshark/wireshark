@@ -125,12 +125,12 @@ set_target_properties(wiretap PROPERTIES FOLDER "DLLs")
 ABICHECK(libwiretap)
 
 add_custom_command(OUTPUT libwiretap.abi.tar.gz
-	COMMAND cp ../config.h abi-check-headers/
+	COMMAND cp ../config.h ${ABICHECK_TMPDIR}/
 	COMMAND abi-compliance-checker -l libwiretap -v1 ${FULL_SO_VERSION}
 		-relpath ${CMAKE_CURRENT_BINARY_DIR} -dump-abi abi-descriptor.xml
-		|| cat logs/libwiretap/[0-9]*/log.txt
-	COMMAND cp abi_dumps/libwiretap/libwiretap_* libwiretap.abi.tar.gz
-	COMMAND rm -rf abi-check-headers/* abi_dumps
+		|| cat ${CMAKE_CURRENT_BINARY_DIR}/logs/libwiretap/[0-9]*/log.txt
+	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps/libwiretap/libwiretap_* ${CMAKE_CURRENT_BINARY_DIR}/libwiretap.abi.tar.gz
+	COMMAND rm -rf ${ABICHECK_TMPDIR}/* ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
 	DEPENDS ${HEADERS} wiretap)
 
 target_link_libraries(wiretap ${wiretap_LIBS})
