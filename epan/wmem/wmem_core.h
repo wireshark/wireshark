@@ -199,7 +199,7 @@ wmem_allocator_new(const wmem_allocator_type_t type);
 /** Initialize the wmem subsystem. This must be called before any other wmem
  * function, usually at the very beginning of your program.
  */
-WS_DLL_LOCAL
+WS_DLL_PUBLIC
 void
 wmem_init(void);
 
@@ -207,7 +207,7 @@ wmem_init(void);
  * functions, usually at the very end of your program. This function will not
  * destroy outstanding allocators, you must do that yourself.
  */
-WS_DLL_LOCAL
+WS_DLL_PUBLIC
 void
 wmem_cleanup(void);
 

@@ -169,7 +169,6 @@ tvbtest_LDADD = \
 
 oids_test_LDADD = \
 	libwireshark.la \
-	wmem/libwmem.la \
 	$(GLIB_LIBS) \
 	-lz
 
