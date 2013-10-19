@@ -1435,8 +1435,6 @@ static gint8 hex_char_to_val(guchar c){
  * Convert from  stringified IOR of the kind IOR:af4f7e459f....
  * to an IOR octet sequence.
  *
- * User must free buffer.
- *
  * Creates a new tvbuff and call decode_IOR with a NULL tree, just to
  * grab repoid etc for our objkey hash.
  *
@@ -3207,8 +3205,8 @@ guint8 get_CDR_octet(tvbuff_t *tvb, int *offset) {
 
 
 /* Copy a sequence of octets from the tvbuff.
- * Caller of this function must remember to free the
- * array pointed to by seq.
+ * Memory is allocated in packet pool and will be
+ * automatically freed once the packet dissection is finished.
  * This function also increments offset by len.
  */
 
@@ -3282,8 +3280,9 @@ giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
  * offset is first incremented so that it falls on a proper alignment
  * boundary for string values. (begins with an unsigned long LI)
  *
- * String sequence is copied to a  buffer "seq". This must
- * be freed by the calling program.
+ * String sequence is copied to a  buffer "seq".
+ * Memory is allocated in packet pool and will be
+ * automatically freed once the packet dissection is finished.
  * offset is then incremented, to indicate the  octets which
  * have been processed.
  *
@@ -3539,8 +3538,8 @@ guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian
 
 
 /* Copy a wchar from the tvbuff.
- * Caller of this function must remember to free the
- * array pointed to by seq.
+ * Memory is allocated in packet pool and will be
+ * automatically freed once the packet dissection is finished.
  * This function also increments offset according to
  * the wchar size.
  *
@@ -3604,8 +3603,8 @@ gint get_CDR_wchar(tvbuff_t *tvb, const gchar **seq, int *offset, MessageHeader 
 
 
 /* Copy a wstring from the tvbuff.
- * Caller of this function must remember to free the
- * array pointed to by seq.
+ * Memory is allocated in packet pool and will be
+ * automatically freed once the packet dissection is finished.
  * This function also increments offset, according to
  * wstring length. length is returned as guint32
  */
