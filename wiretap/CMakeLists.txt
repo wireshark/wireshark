@@ -126,9 +126,7 @@ ABICHECK(libwiretap)
 
 add_custom_command(OUTPUT libwiretap.abi.tar.gz
 	COMMAND cp ../config.h ${ABICHECK_TMPDIR}/
-	COMMAND abi-compliance-checker -l libwiretap -v1 ${FULL_SO_VERSION}
-		-relpath ${CMAKE_CURRENT_BINARY_DIR} -dump-abi abi-descriptor.xml
-		|| cat ${CMAKE_CURRENT_BINARY_DIR}/logs/libwiretap/[0-9]*/log.txt
+	COMMAND ${ABICHECK_COMMAND}
 	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps/libwiretap/libwiretap_* ${CMAKE_CURRENT_BINARY_DIR}/libwiretap.abi.tar.gz
 	COMMAND rm -rf ${ABICHECK_TMPDIR}/* ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
 	DEPENDS ${HEADERS} wiretap)

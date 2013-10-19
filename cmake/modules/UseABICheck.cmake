@@ -7,6 +7,9 @@
 
 MACRO(ABICHECK _libname)
 	set(ABICHECK_TMPDIR ${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers)
+	set(ABICHECK_COMMAND abi-compliance-checker -l ${_libname} -v2 ${FULL_SO_VERSION}
+		-relpath ${CMAKE_CURRENT_BINARY_DIR} -dump-abi abi-descriptor.xml
+		|| cat ${CMAKE_CURRENT_BINARY_DIR}/logs/${_libname}/[0-9]*/log.txt)
 	get_directory_property(INCLUDE_DIRS INCLUDE_DIRECTORIES)
 	list(REMOVE_DUPLICATES INCLUDE_DIRS)
 	string(REGEX REPLACE ";" "\n" INCLUDE_DIRS "${INCLUDE_DIRS}")

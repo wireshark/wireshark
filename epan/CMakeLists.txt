@@ -1640,9 +1640,7 @@ add_custom_command(OUTPUT libwireshark.abi.tar.gz
 		${ABICHECK_TMPDIR}/dissectors/x11-glx-render-enum.h
 		${ABICHECK_TMPDIR}/dissectors/x11-register-info.h
 		${ABICHECK_TMPDIR}/dissectors/packet-idmp.h
-	COMMAND abi-compliance-checker -l libwireshark -v1 ${FULL_SO_VERSION}
-		-relpath ${CMAKE_CURRENT_BINARY_DIR} -dump-abi abi-descriptor.xml
-		|| cat ${CMAKE_CURRENT_BINARY_DIR}/logs/libwireshark/[0-9]*/log.txt
+	COMMAND ${ABICHECK_COMMAND}
 	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps/libwireshark/libwireshark_* ${CMAKE_CURRENT_BINARY_DIR}/libwireshark.abi.tar.gz
 	COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps ${ABICHECK_TMPDIR}/config.h
 		${ABICHECK_TMPDIR}/epan/* ${ABICHECK_TMPDIR}/crypt/*

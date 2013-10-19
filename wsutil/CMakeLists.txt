@@ -105,9 +105,7 @@ ABICHECK(libwsutil)
 
 add_custom_command(OUTPUT libwsutil.abi.tar.gz
 	COMMAND cp ../config.h ${ABICHECK_TMPDIR}/
-	COMMAND abi-compliance-checker -l libwsutil -v1 ${FULL_SO_VERSION}
-		-relpath ${CMAKE_CURRENT_BINARY_DIR} -dump-abi abi-descriptor.xml
-		|| cat ${CMAKE_CURRENT_BINARY_DIR}/logs/libwsutil/[0-9]*/log.txt
+	COMMAND ${ABICHECK_COMMAND}
 	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps/libwsutil/libwsutil_* ${CMAKE_CURRENT_BINARY_DIR}/libwsutil.abi.tar.gz
 	COMMAND rm -rf ${ABICHECK_TMPDIR}/* ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
 	DEPENDS ${HEADERS} wsutil)
