@@ -260,10 +260,9 @@ static wmem_allocator_t *tree_pool_cache = NULL;
 #define FIELD_INFO_FREE(pool, fi) wmem_free(pool, fi)
 
 /* Contains the space for proto_nodes. */
-#define PROTO_NODE_NEW(pool, node)			\
-	node = wmem_new(pool, proto_node);		\
-	node->first_child = NULL;			\
-	node->last_child = NULL;			\
+#define PROTO_NODE_INIT(node)			\
+	node->first_child = NULL;		\
+	node->last_child = NULL;		\
 	node->next = NULL;
 
 #define PROTO_NODE_FREE(pool, node)			\
@@ -3284,7 +3283,8 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 		/* XXX - is it safe to continue here? */
 	}
 
-	PROTO_NODE_NEW(PNODE_POOL(tree), pnode);
+	pnode = wmem_new(PNODE_POOL(tree), proto_node);
+	PROTO_NODE_INIT(pnode);
 	pnode->parent = tnode;
 	PNODE_FINFO(pnode) = fi;
 	pnode->tree_data = PTREE_DATA(tree);
@@ -4086,7 +4086,8 @@ proto_tree_create_root(packet_info *pinfo)
 	}
 
 	/* Initialize the proto_node */
-	PROTO_NODE_NEW(pool, pnode);
+	pnode = wmem_new(pool, proto_node);
+	PROTO_NODE_INIT(pnode);
 	pnode->parent = NULL;
 	PNODE_FINFO(pnode) = NULL;
 	pnode->tree_data = wmem_new(pool, tree_data_t);
