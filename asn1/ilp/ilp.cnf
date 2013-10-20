@@ -25,10 +25,18 @@ SETId/min  minsi
 #.END
 
 #.FN_HDR ILP-PDU
-  proto_tree_add_item(tree, proto_ilp, tvb, 0, -1, ENC_NA);
+  proto_item *it;
+  proto_tree *ilp_tree;
+
+  it = proto_tree_add_item(tree, proto_ilp, tvb, 0, -1, ENC_NA);
+  ilp_tree = proto_item_add_subtree(it, ett_ilp);
 
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear(actx->pinfo->cinfo, COL_INFO);
+#.END
+
+#.FN_BODY ILP-PDU TREE=ilp_tree
+%(DEFAULT_BODY)s
 #.END
 
 #.FN_BODY IlpMessage  VAL_PTR = &IlpMessage

@@ -3489,7 +3489,7 @@ dissect_ulp_MultipleLocationIds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 65 "../../asn1/ulp/ulp.cnf"
+#line 73 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3502,7 +3502,7 @@ dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "../../asn1/ulp/ulp.cnf"
+#line 78 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3515,7 +3515,7 @@ dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_ulp_T_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 75 "../../asn1/ulp/ulp.cnf"
+#line 83 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%#", 69,
                                                       NULL);
@@ -4463,7 +4463,7 @@ dissect_ulp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 46 "../../asn1/ulp/ulp.cnf"
+#line 54 "../../asn1/ulp/ulp.cnf"
  tvbuff_t *rrlp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4471,7 +4471,7 @@ dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
   if (rrlp_tvb && rrlp_handle) {
-	call_dissector(rrlp_handle, rrlp_tvb, actx->pinfo, tree);
+    call_dissector(rrlp_handle, rrlp_tvb, actx->pinfo, tree);
   }
 
 
@@ -4483,7 +4483,7 @@ dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 55 "../../asn1/ulp/ulp.cnf"
+#line 63 "../../asn1/ulp/ulp.cnf"
  tvbuff_t *lpp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4491,7 +4491,7 @@ dissect_ulp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
   if (lpp_tvb && lpp_handle) {
-	call_dissector(lpp_handle, lpp_tvb, actx->pinfo, tree);
+    call_dissector(lpp_handle, lpp_tvb, actx->pinfo, tree);
   }
 
 
@@ -6220,7 +6220,7 @@ static const per_choice_t UlpMessage_choice[] = {
 
 static int
 dissect_ulp_UlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 36 "../../asn1/ulp/ulp.cnf"
+#line 44 "../../asn1/ulp/ulp.cnf"
 
 guint32 UlpMessage;
 
@@ -6248,13 +6248,20 @@ static const per_sequence_t ULP_PDU_sequence[] = {
 static int
 dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 29 "../../asn1/ulp/ulp.cnf"
-	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, ENC_NA);
+  proto_item *it;
+  proto_tree *ulp_tree;
 
-	col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
-	col_clear(actx->pinfo->cinfo, COL_INFO);
+  it = proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, ENC_NA);
+  ulp_tree = proto_item_add_subtree(it, ett_ulp);
 
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+
+#line 40 "../../asn1/ulp/ulp.cnf"
+  offset = dissect_per_sequence(tvb, offset, actx, ulp_tree, hf_index,
                                    ett_ulp_ULP_PDU, ULP_PDU_sequence);
+
+
 
   return offset;
 }

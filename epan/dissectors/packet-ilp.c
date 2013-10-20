@@ -3342,7 +3342,7 @@ dissect_ilp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ilp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 45 "../../asn1/ilp/ilp.cnf"
+#line 53 "../../asn1/ilp/ilp.cnf"
   tvbuff_t *rrlp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -3362,7 +3362,7 @@ dissect_ilp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ilp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 54 "../../asn1/ilp/ilp.cnf"
+#line 62 "../../asn1/ilp/ilp.cnf"
   tvbuff_t *lpp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4033,7 +4033,7 @@ static const per_choice_t IlpMessage_choice[] = {
 
 static int
 dissect_ilp_IlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 35 "../../asn1/ilp/ilp.cnf"
+#line 43 "../../asn1/ilp/ilp.cnf"
 
 guint32 IlpMessage;
 
@@ -4061,13 +4061,20 @@ static const per_sequence_t ILP_PDU_sequence[] = {
 static int
 dissect_ilp_ILP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 28 "../../asn1/ilp/ilp.cnf"
-  proto_tree_add_item(tree, proto_ilp, tvb, 0, -1, ENC_NA);
+  proto_item *it;
+  proto_tree *ilp_tree;
+
+  it = proto_tree_add_item(tree, proto_ilp, tvb, 0, -1, ENC_NA);
+  ilp_tree = proto_item_add_subtree(it, ett_ilp);
 
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear(actx->pinfo->cinfo, COL_INFO);
 
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+#line 39 "../../asn1/ilp/ilp.cnf"
+  offset = dissect_per_sequence(tvb, offset, actx, ilp_tree, hf_index,
                                    ett_ilp_ILP_PDU, ILP_PDU_sequence);
+
+
 
   return offset;
 }

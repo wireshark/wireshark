@@ -26,10 +26,18 @@ SETId/min  minsi
 #.END
 
 #.FN_HDR ULP-PDU
-	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, ENC_NA);
+  proto_item *it;
+  proto_tree *ulp_tree;
 
-	col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
-	col_clear(actx->pinfo->cinfo, COL_INFO);
+  it = proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, ENC_NA);
+  ulp_tree = proto_item_add_subtree(it, ett_ulp);
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+#.END
+
+#.FN_BODY ULP-PDU TREE=ulp_tree
+%(DEFAULT_BODY)s
 #.END
 
 #.FN_BODY UlpMessage  VAL_PTR = &UlpMessage
@@ -48,7 +56,7 @@ guint32 UlpMessage;
 %(DEFAULT_BODY)s
 
   if (rrlp_tvb && rrlp_handle) {
-	call_dissector(rrlp_handle, rrlp_tvb, %(ACTX)s->pinfo, tree);
+    call_dissector(rrlp_handle, rrlp_tvb, %(ACTX)s->pinfo, tree);
   }
 
 #.FN_BODY Ver2-PosPayLoad-extension/lPPPayload/_item  VAL_PTR = &lpp_tvb
@@ -57,21 +65,21 @@ guint32 UlpMessage;
 %(DEFAULT_BODY)s
 
   if (lpp_tvb && lpp_handle) {
-	call_dissector(lpp_handle, lpp_tvb, %(ACTX)s->pinfo, tree);
+    call_dissector(lpp_handle, lpp_tvb, %(ACTX)s->pinfo, tree);
   }
 
 #.FN_BODY ThirdPartyID/sip-uri
-# asn2wrs does not handle '%' in the resticted string ( Has to be there twice)
+# asn2wrs does not handle '%' in the restricted string ( Has to be there twice)
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%%#@?", 72,
                                                       NULL);
 #.FN_BODY ThirdPartyID/ims-public-identity
-# asn2wrs does not handle '%' in the resticted string ( Has to be there twice)
+# asn2wrs does not handle '%' in the restricted string ( Has to be there twice)
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%%#@?", 72,
                                                       NULL);
 #.FN_BODY ThirdPartyID/uri
-# asn2wrs does not handle '%' in the resticted string ( Has to be there twice)
+# asn2wrs does not handle '%' in the restricted string ( Has to be there twice)
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%%#", 69,
                                                       NULL);
