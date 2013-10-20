@@ -144,7 +144,7 @@ static gboolean want_pcap_pkthdr;
 
 cf_status_t raw_cf_open(capture_file *cf, const char *fname);
 static int load_cap_file(capture_file *cf);
-static gboolean process_packet(capture_file *cf, gint64 offset,
+static gboolean process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
                                struct wtap_pkthdr *whdr, const guchar *pd);
 static void show_print_file_io_error(int err);
 
@@ -994,13 +994,17 @@ load_cap_file(capture_file *cf)
     int          err;
     const gchar  *err_info;
     gint64       data_offset = 0;
-    struct wtap_pkthdr  phdr;
-    guchar       pd[WTAP_MAX_PACKET_SIZE];
+
+    guchar pd[WTAP_MAX_PACKET_SIZE];
+    struct wtap_pkthdr phdr;
+    epan_dissect_t edt;
 
     memset(&phdr, 0, sizeof(phdr));
 
+    epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
+
     while (raw_pipe_read(&phdr, pd, &err, &err_info, &data_offset)) {
-        process_packet(cf, data_offset, &phdr, pd);
+        process_packet(cf, &edt, data_offset, &phdr, pd);
     }
 
     if (err != 0) {
@@ -1043,12 +1047,10 @@ load_cap_file(capture_file *cf)
 }
 
 static gboolean
-process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
-               const guchar *pd)
+process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset, 
+               struct wtap_pkthdr *whdr, const guchar *pd)
 {
     frame_data fdata;
-    gboolean create_proto_tree;
-    epan_dissect_t edt;
     gboolean passed;
     int i;
 
@@ -1075,18 +1077,12 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     frame_data_init(&fdata, cf->count, whdr, offset, cum_bytes);
 
     passed = TRUE;
-    create_proto_tree = TRUE;
-
-    /* The protocol tree will be "visible", i.e., printed, only if we're
-       printing packet details, which is true if we're in verbose mode ("verbose"
-       is true). */
-    epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */
     if (n_rfilters > 0) {
         for(i = 0; i < n_rfcodes; i++) {
-            epan_dissect_prime_dfilter(&edt, rfcodes[i]);
+            epan_dissect_prime_dfilter(edt, rfcodes[i]);
         }
     }
 
@@ -1103,7 +1099,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     /* We only need the columns if we're printing packet info but we're
      *not* verbose; in verbose mode, we print the protocol tree, not
      the protocol summary. */
-    epan_dissect_run_with_taps(&edt, whdr, frame_tvbuff_new(&fdata, pd), &fdata, &cf->cinfo);
+    epan_dissect_run_with_taps(edt, whdr, frame_tvbuff_new(&fdata, pd), &fdata, &cf->cinfo);
 
     frame_data_set_after_dissect(&fdata, &cum_bytes);
     prev_dis_frame = fdata;
@@ -1115,7 +1111,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     for(i = 0; i < n_rfilters; i++) {
         /* Run the read filter if we have one. */
         if (rfcodes[i])
-            passed = dfilter_apply_edt(rfcodes[i], &edt);
+            passed = dfilter_apply_edt(rfcodes[i], edt);
         else
             passed = TRUE;
 
@@ -1153,7 +1149,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
         exit(2);
     }
 
-    epan_dissect_cleanup(&edt);
+    epan_dissect_reset(edt);
     frame_data_destroy(&fdata);
 
     return passed;
