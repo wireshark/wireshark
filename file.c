@@ -110,8 +110,8 @@ gboolean auto_scroll_live;
 
 static void cf_reset_state(capture_file *cf);
 
-static int read_packet(capture_file *cf, dfilter_t *dfcode,
-    gboolean create_proto_tree, column_info *cinfo, gint64 offset);
+static int read_packet(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
+    column_info *cinfo, gint64 offset);
 
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item, gboolean redissect);
 
@@ -576,6 +576,7 @@ cf_read(capture_file *cf, gboolean reloading)
   progdlg_t           *progbar        = NULL;
   gboolean             stop_flag;
   GTimeVal             start_time;
+  epan_dissect_t       edt;
   dfilter_t           *dfcode;
   volatile gboolean    create_proto_tree;
   guint                tap_flags;
@@ -611,6 +612,8 @@ cf_read(capture_file *cf, gboolean reloading)
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
+
+  epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
   TRY {
 #ifdef HAVE_LIBPCAP
@@ -695,7 +698,7 @@ cf_read(capture_file *cf, gboolean reloading)
            hours even on fast machines) just to see that it was the wrong file. */
         break;
       }
-      read_packet(cf, dfcode, create_proto_tree, cinfo, data_offset);
+      read_packet(cf, dfcode, &edt, cinfo, data_offset);
     }
   }
   CATCH(OutOfMemoryError) {
@@ -719,6 +722,8 @@ cf_read(capture_file *cf, gboolean reloading)
   if (dfcode != NULL) {
     dfilter_free(dfcode);
   }
+
+  epan_dissect_cleanup(&edt);
 
   /* We're done reading the file; destroy the progress bar if it was created. */
   if (progbar != NULL)
@@ -832,7 +837,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   gchar            *err_info;
   int               newly_displayed_packets = 0;
   dfilter_t        *dfcode;
-  volatile gboolean create_proto_tree;
+  epan_dissect_t       edt;
+  gboolean create_proto_tree;
   guint             tap_flags;
   gboolean          compiled;
 
@@ -856,6 +862,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: %u new: %u", cf->count, to_read);*/
 
+  epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
+
   TRY {
     gint64 data_offset = 0;
     column_info *cinfo;
@@ -873,7 +881,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
            aren't any packets left to read) exit. */
         break;
       }
-      if (read_packet(cf, dfcode, create_proto_tree, (column_info *) cinfo, data_offset) != -1) {
+      if (read_packet(cf, dfcode, &edt, (column_info *) cinfo, data_offset) != -1) {
         newly_displayed_packets++;
       }
       to_read--;
@@ -902,6 +910,8 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   if (dfcode != NULL) {
     dfilter_free(dfcode);
   }
+
+  epan_dissect_cleanup(&edt);
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: count %u state: %u err: %u",
     cf->count, cf->state, *err);*/
@@ -950,6 +960,7 @@ cf_finish_tail(capture_file *cf, int *err)
   gint64     data_offset;
   dfilter_t *dfcode;
   column_info *cinfo;
+  epan_dissect_t edt;
   gboolean   create_proto_tree;
   guint      tap_flags;
   gboolean   compiled;
@@ -976,6 +987,8 @@ cf_finish_tail(capture_file *cf, int *err)
   /* Don't freeze/thaw the list when doing live capture */
   /*packet_list_freeze();*/
 
+  epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
+
   while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to abort the read.  Break out of the
@@ -983,13 +996,15 @@ cf_finish_tail(capture_file *cf, int *err)
          aren't any packets left to read) exit. */
       break;
     }
-    read_packet(cf, dfcode, create_proto_tree, cinfo, data_offset);
+    read_packet(cf, dfcode, &edt, cinfo, data_offset);
   }
 
   /* Cleanup and release all dfilter resources */
   if (dfcode != NULL) {
     dfilter_free(dfcode);
   }
+
+  epan_dissect_cleanup(&edt);
 
   /* Don't freeze/thaw the list when doing live capture */
   /*packet_list_thaw();*/
@@ -1144,35 +1159,32 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
 
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
-    dfilter_t *dfcode, gboolean create_proto_tree, column_info *cinfo,
+    epan_dissect_t *edt, dfilter_t *dfcode, column_info *cinfo,
     struct wtap_pkthdr *phdr, const guint8 *buf, gboolean add_to_packet_list)
 {
-  epan_dissect_t  edt;
   gint            row               = -1;
 
   frame_data_set_before_dissect(fdata, &cf->elapsed_time,
                                 &cf->ref, cf->prev_dis);
   cf->prev_cap = fdata;
 
-  /* Dissect the frame. */
-  epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
-
   if (dfcode != NULL) {
-      epan_dissect_prime_dfilter(&edt, dfcode);
+      epan_dissect_prime_dfilter(edt, dfcode);
   }
 
-  epan_dissect_run_with_taps(&edt, phdr, frame_tvbuff_new(fdata, buf), fdata, cinfo);
+  /* Dissect the frame. */
+  epan_dissect_run_with_taps(edt, phdr, frame_tvbuff_new(fdata, buf), fdata, cinfo);
 
   /* If we don't have a display filter, set "passed_dfilter" to 1. */
   if (dfcode != NULL) {
-    fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, &edt) ? 1 : 0;
+    fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, edt) ? 1 : 0;
 
     if (fdata->flags.passed_dfilter) {
       /* This frame passed the display filter but it may depend on other
        * (potentially not displayed) frames.  Find those frames and mark them
        * as depended upon.
        */
-      g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
+      g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
     }
   } else
     fdata->flags.passed_dfilter = 1;
@@ -1182,7 +1194,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   if (add_to_packet_list) {
     /* We fill the needed columns from new_packet_list */
-      row = packet_list_append(cinfo, fdata, &edt.pi);
+      row = packet_list_append(cinfo, fdata, &edt->pi);
   }
 
   if (fdata->flags.passed_dfilter || fdata->flags.ref_time)
@@ -1210,15 +1222,15 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     cf->last_displayed = fdata->num;
   }
 
-  epan_dissect_cleanup(&edt);
+  epan_dissect_reset(edt);
   return row;
 }
 
 /* read in a new packet */
 /* returns the row of the new packet in the packet list or -1 if not displayed */
 static int
-read_packet(capture_file *cf, dfilter_t *dfcode,
-            gboolean create_proto_tree, column_info *cinfo, gint64 offset)
+read_packet(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
+            column_info *cinfo, gint64 offset)
 {
   struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
   const guint8 *buf = wtap_buf_ptr(cf->wth);
@@ -1244,12 +1256,15 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
 
   passed = TRUE;
   if (cf->rfcode) {
-    epan_dissect_t edt;
-    epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
-    epan_dissect_prime_dfilter(&edt, cf->rfcode);
-    epan_dissect_run(&edt, phdr, frame_tvbuff_new(&fdlocal, buf), &fdlocal, NULL);
-    passed = dfilter_apply_edt(cf->rfcode, &edt);
-    epan_dissect_cleanup(&edt);
+    gboolean old_visible;
+
+    old_visible = proto_tree_set_visible(edt->tree, TRUE);
+    epan_dissect_prime_dfilter(edt, cf->rfcode);
+    epan_dissect_run(edt, phdr, frame_tvbuff_new(&fdlocal, buf), &fdlocal, NULL);
+    passed = dfilter_apply_edt(cf->rfcode, edt);
+
+    epan_dissect_reset(edt);
+    proto_tree_set_visible(edt->tree, old_visible);
   }
 
   if (passed) {
@@ -1262,9 +1277,8 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
     cf->f_datalen = offset + fdlocal.cap_len;
 
     if (!cf->redissecting) {
-      row = add_packet_to_packet_list(fdata, cf, dfcode,
-                                      create_proto_tree, cinfo,
-                                      phdr, buf, TRUE);
+      row = add_packet_to_packet_list(fdata, cf, edt, dfcode,
+                                      cinfo, phdr, buf, TRUE);
     }
   }
 
@@ -1804,6 +1818,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   gchar       status_str[100];
   int         progbar_nextstep;
   int         progbar_quantum;
+  epan_dissect_t  edt;
   dfilter_t  *dfcode;
   column_info *cinfo;
   gboolean    create_proto_tree;
@@ -1899,6 +1914,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   selected_frame_seen = FALSE;
 
   frames_count = cf->count;
+
+  epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
+
   for (framenum = 1; framenum <= frames_count; framenum++) {
     fdata = frame_data_sequence_find(cf->frames, framenum);
 
@@ -1973,7 +1991,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
       preceding_frame_num = prev_frame_num;
       preceding_frame = prev_frame;
     }
-    add_packet_to_packet_list(fdata, cf, dfcode, create_proto_tree,
+
+    add_packet_to_packet_list(fdata, cf, &edt, dfcode,
                                     cinfo, &cf->phdr,
                                     buffer_start_ptr(&cf->buf),
                                     add_to_packet_list);
@@ -1997,6 +2016,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     prev_frame_num = fdata->num;
     prev_frame = fdata;
   }
+
+  epan_dissect_cleanup(&edt);
 
   /* We are done redissecting the packet list. */
   cf->redissecting = FALSE;
@@ -2311,7 +2332,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
 }
 
 typedef struct {
-  gboolean     construct_protocol_tree;
+  epan_dissect_t edt;
   column_info *cinfo;
 } retap_callback_args_t;
 
@@ -2321,11 +2342,9 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
              void *argsp)
 {
   retap_callback_args_t *args = (retap_callback_args_t *)argsp;
-  epan_dissect_t         edt;
 
-  epan_dissect_init(&edt, cf->epan, args->construct_protocol_tree, FALSE);
-  epan_dissect_run_with_taps(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, args->cinfo);
-  epan_dissect_cleanup(&edt);
+  epan_dissect_run_with_taps(&args->edt, phdr, frame_tvbuff_new(fdata, pd), fdata, args->cinfo);
+  epan_dissect_reset(&args->edt);
 
   return TRUE;
 }
@@ -2335,8 +2354,10 @@ cf_retap_packets(capture_file *cf)
 {
   packet_range_t        range;
   retap_callback_args_t callback_args;
+  gboolean              construct_protocol_tree;
   gboolean              filtering_tap_listeners;
   guint                 tap_flags;
+  psp_return_t          ret;
 
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
@@ -2345,8 +2366,8 @@ cf_retap_packets(capture_file *cf)
 
   /* If any tap listeners have filters, or require the protocol tree,
      construct the protocol tree. */
-  callback_args.construct_protocol_tree = filtering_tap_listeners ||
-                                          (tap_flags & TL_REQUIRES_PROTO_TREE);
+  construct_protocol_tree = filtering_tap_listeners ||
+                            (tap_flags & TL_REQUIRES_PROTO_TREE);
 
   /* If any tap listeners require the columns, construct them. */
   callback_args.cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
@@ -2354,13 +2375,20 @@ cf_retap_packets(capture_file *cf)
   /* Reset the tap listeners. */
   reset_tap_listeners();
 
+  epan_dissect_init(&callback_args.edt, cf->epan, construct_protocol_tree, FALSE);
+
   /* Iterate through the list of packets, dissecting all packets and
      re-running the taps. */
   packet_range_init(&range, cf);
   packet_range_process_init(&range);
-  switch (process_specified_packets(cf, &range, "Recalculating statistics on",
-                                    "all packets", TRUE, retap_packet,
-                                    &callback_args)) {
+
+  ret = process_specified_packets(cf, &range, "Recalculating statistics on",
+                                  "all packets", TRUE, retap_packet,
+                                  &callback_args);
+
+  epan_dissect_cleanup(&callback_args.edt);
+
+  switch (ret) {
   case PSP_FINISHED:
     /* Completed successfully. */
     return CF_READ_OK;
@@ -2391,6 +2419,7 @@ typedef struct {
   gint         *col_widths;
   int           num_visible_cols;
   gint         *visible_cols;
+  epan_dissect_t edt;
 } print_callback_args_t;
 
 static gboolean
@@ -2399,31 +2428,22 @@ print_packet(capture_file *cf, frame_data *fdata,
              void *argsp)
 {
   print_callback_args_t *args = (print_callback_args_t *)argsp;
-  epan_dissect_t  edt;
   int             i;
   char           *cp;
   int             line_len;
   int             column_len;
   int             cp_off;
-  gboolean        proto_tree_needed;
   char            bookmark_name[9+10+1];  /* "__frameNNNNNNNNNN__\0" */
   char            bookmark_title[6+10+1]; /* "Frame NNNNNNNNNN__\0"  */
-
-  /* Create the protocol tree, and make it visible, if we're printing
-     the dissection or the hex data.
-     XXX - do we need it if we're just printing the hex data? */
-  proto_tree_needed =
-      args->print_args->print_dissections != print_dissections_none || args->print_args->print_hex || have_custom_cols(&cf->cinfo);
-  epan_dissect_init(&edt, cf->epan, proto_tree_needed, proto_tree_needed);
 
   /* Fill in the column information if we're printing the summary
      information. */
   if (args->print_args->print_summary) {
-    col_custom_prime_edt(&edt, &cf->cinfo);
-    epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
-    epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
+    col_custom_prime_edt(&args->edt, &cf->cinfo);
+    epan_dissect_run(&args->edt, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
+    epan_dissect_fill_in_columns(&args->edt, FALSE, TRUE);
   } else
-    epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
+    epan_dissect_run(&args->edt, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
 
   if (args->print_formfeed) {
     if (!new_page(args->print_args->stream))
@@ -2506,7 +2526,7 @@ print_packet(capture_file *cf, frame_data *fdata,
     }
 
     /* Print the information in that tree. */
-    if (!proto_tree_print(args->print_args, &edt, args->print_args->stream))
+    if (!proto_tree_print(args->print_args, &args->edt, args->print_args->stream))
       goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
@@ -2523,7 +2543,7 @@ print_packet(capture_file *cf, frame_data *fdata,
         goto fail;
     }
     /* Print the full packet data as hex. */
-    if (!print_hex_data(args->print_args->stream, &edt))
+    if (!print_hex_data(args->print_args->stream, &args->edt))
       goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
@@ -2534,7 +2554,7 @@ print_packet(capture_file *cf, frame_data *fdata,
         args->print_header_line = TRUE;
   } /* if (args->print_args->print_dissections != print_dissections_none) */
 
-  epan_dissect_cleanup(&edt);
+  epan_dissect_reset(&args->edt);
 
   /* do we want to have a formfeed between each packet from now on? */
   if (args->print_args->print_formfeed) {
@@ -2544,7 +2564,7 @@ print_packet(capture_file *cf, frame_data *fdata,
   return TRUE;
 
 fail:
-  epan_dissect_cleanup(&edt);
+  epan_dissect_reset(&args->edt);
   return FALSE;
 }
 
@@ -2559,6 +2579,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   psp_return_t  ret;
   GList        *clp;
   fmt_data     *cfmt;
+  gboolean      proto_tree_needed;
 
   callback_args.print_args = print_args;
   callback_args.print_header_line = print_args->print_col_headings;
@@ -2663,12 +2684,21 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
     callback_args.line_buf = (char *)g_malloc(callback_args.line_buf_len + 1);
   } /* if (print_summary) */
 
+  /* Create the protocol tree, and make it visible, if we're printing
+     the dissection or the hex data.
+     XXX - do we need it if we're just printing the hex data? */
+  proto_tree_needed =
+      callback_args.print_args->print_dissections != print_dissections_none ||
+      callback_args.print_args->print_hex ||
+      have_custom_cols(&cf->cinfo);
+  epan_dissect_init(&callback_args.edt, cf->epan, proto_tree_needed, proto_tree_needed);
+
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   ret = process_specified_packets(cf, &print_args->range, "Printing",
                                   "selected packets", TRUE, print_packet,
                                   &callback_args);
-
+  epan_dissect_cleanup(&callback_args.edt);
   g_free(callback_args.header_line_buf);
   g_free(callback_args.line_buf);
   g_free(callback_args.col_widths);
@@ -2711,29 +2741,33 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   return CF_PRINT_OK;
 }
 
+typedef struct {
+  FILE *fh;
+  epan_dissect_t edt;
+} write_packet_callback_args_t;
+
 static gboolean
 write_pdml_packet(capture_file *cf _U_, frame_data *fdata,
                   struct wtap_pkthdr *phdr, const guint8 *pd,
           void *argsp)
 {
-  FILE           *fh = (FILE *)argsp;
-  epan_dissect_t  edt;
+  write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
   /* Create the protocol tree, but don't fill in the column information. */
-  epan_dissect_init(&edt, cf->epan, TRUE, TRUE);
-  epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
+  epan_dissect_run(&args->edt, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
 
   /* Write out the information in that tree. */
-  proto_tree_write_pdml(&edt, fh);
+  proto_tree_write_pdml(&args->edt, args->fh);
 
-  epan_dissect_cleanup(&edt);
+  epan_dissect_reset(&args->edt);
 
-  return !ferror(fh);
+  return !ferror(args->fh);
 }
 
 cf_print_status_t
 cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
 {
+  write_packet_callback_args_t callback_args;
   FILE         *fh;
   psp_return_t  ret;
 
@@ -2747,11 +2781,16 @@ cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
     return CF_PRINT_WRITE_ERROR;
   }
 
+  callback_args.fh = fh;
+  epan_dissect_init(&callback_args.edt, cf->epan, TRUE, TRUE);
+
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   ret = process_specified_packets(cf, &print_args->range, "Writing PDML",
                                   "selected packets", TRUE,
-                                  write_pdml_packet, fh);
+                                  write_pdml_packet, &callback_args);
+
+  epan_dissect_cleanup(&callback_args.edt);
 
   switch (ret) {
 
@@ -2786,31 +2825,28 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
                   struct wtap_pkthdr *phdr, const guint8 *pd,
           void *argsp)
 {
-  FILE           *fh = (FILE *)argsp;
-  epan_dissect_t  edt;
-  gboolean        proto_tree_needed;
+  write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
-  /* Fill in the column information, only create the protocol tree
-     if having custom columns. */
-  proto_tree_needed = have_custom_cols(&cf->cinfo);
-  epan_dissect_init(&edt, cf->epan, proto_tree_needed, proto_tree_needed);
-  col_custom_prime_edt(&edt, &cf->cinfo);
-  epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
-  epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
+  col_custom_prime_edt(&args->edt, &cf->cinfo);
+  epan_dissect_run(&args->edt, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
+  epan_dissect_fill_in_columns(&args->edt, FALSE, TRUE);
 
   /* Write out the information in that tree. */
-  proto_tree_write_psml(&edt, fh);
+  proto_tree_write_psml(&args->edt, args->fh);
 
-  epan_dissect_cleanup(&edt);
+  epan_dissect_reset(&args->edt);
 
-  return !ferror(fh);
+  return !ferror(args->fh);
 }
 
 cf_print_status_t
 cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
 {
+  write_packet_callback_args_t callback_args;
   FILE         *fh;
   psp_return_t  ret;
+
+  gboolean proto_tree_needed;
 
   fh = ws_fopen(print_args->file, "w");
   if (fh == NULL)
@@ -2822,11 +2858,20 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
     return CF_PRINT_WRITE_ERROR;
   }
 
+  callback_args.fh = fh;
+
+  /* Fill in the column information, only create the protocol tree
+     if having custom columns. */
+  proto_tree_needed = have_custom_cols(&cf->cinfo);
+  epan_dissect_init(&callback_args.edt, cf->epan, proto_tree_needed, proto_tree_needed);
+
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   ret = process_specified_packets(cf, &print_args->range, "Writing PSML",
                                   "selected packets", TRUE,
-                                  write_psml_packet, fh);
+                                  write_psml_packet, &callback_args);
+
+  epan_dissect_cleanup(&callback_args.edt);
 
   switch (ret) {
 
@@ -2861,29 +2906,26 @@ write_csv_packet(capture_file *cf, frame_data *fdata,
                  struct wtap_pkthdr *phdr, const guint8 *pd,
                  void *argsp)
 {
-  FILE           *fh = (FILE *)argsp;
-  epan_dissect_t  edt;
-  gboolean        proto_tree_needed;
+  write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
-  /* Fill in the column information, only create the protocol tree
-     if having custom columns. */
-  proto_tree_needed = have_custom_cols(&cf->cinfo);
-  epan_dissect_init(&edt, cf->epan, proto_tree_needed, proto_tree_needed);
-  col_custom_prime_edt(&edt, &cf->cinfo);
-  epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
-  epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
+  /* Fill in the column information */
+  col_custom_prime_edt(&args->edt, &cf->cinfo);
+  epan_dissect_run(&args->edt, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
+  epan_dissect_fill_in_columns(&args->edt, FALSE, TRUE);
 
   /* Write out the information in that tree. */
-  proto_tree_write_csv(&edt, fh);
+  proto_tree_write_csv(&args->edt, args->fh);
 
-  epan_dissect_cleanup(&edt);
+  epan_dissect_reset(&args->edt);
 
-  return !ferror(fh);
+  return !ferror(args->fh);
 }
 
 cf_print_status_t
 cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
 {
+  write_packet_callback_args_t callback_args;
+  gboolean        proto_tree_needed;
   FILE         *fh;
   psp_return_t  ret;
 
@@ -2897,11 +2939,19 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
     return CF_PRINT_WRITE_ERROR;
   }
 
+  callback_args.fh = fh;
+
+  /* only create the protocol tree if having custom columns. */
+  proto_tree_needed = have_custom_cols(&cf->cinfo);
+  epan_dissect_init(&callback_args.edt, cf->epan, proto_tree_needed, proto_tree_needed);
+
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   ret = process_specified_packets(cf, &print_args->range, "Writing CSV",
                                   "selected packets", TRUE,
                                   write_csv_packet, fh);
+
+  epan_dissect_cleanup(&callback_args.edt);
 
   switch (ret) {
 
@@ -2932,24 +2982,23 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
 }
 
 static gboolean
-write_carrays_packet(capture_file *cf, frame_data *fdata,
+write_carrays_packet(capture_file *cf _U_, frame_data *fdata,
              struct wtap_pkthdr *phdr,
              const guint8 *pd, void *argsp)
 {
-  FILE           *fh = (FILE *)argsp;
-  epan_dissect_t  edt;
+  write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
-  epan_dissect_init(&edt, cf->epan, TRUE, TRUE);
-  epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
-  proto_tree_write_carrays(fdata->num, fh, &edt);
-  epan_dissect_cleanup(&edt);
+  epan_dissect_run(&args->edt, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
+  proto_tree_write_carrays(fdata->num, args->fh, &args->edt);
+  epan_dissect_reset(&args->edt);
 
-  return !ferror(fh);
+  return !ferror(args->fh);
 }
 
 cf_print_status_t
 cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
 {
+  write_packet_callback_args_t callback_args;
   FILE         *fh;
   psp_return_t  ret;
 
@@ -2965,12 +3014,18 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
     return CF_PRINT_WRITE_ERROR;
   }
 
+  callback_args.fh = fh;
+  epan_dissect_init(&callback_args.edt, cf->epan, TRUE, TRUE);
+
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   ret = process_specified_packets(cf, &print_args->range,
                   "Writing C Arrays",
                   "selected packets", TRUE,
-                                  write_carrays_packet, fh);
+                                  write_carrays_packet, &callback_args);
+
+  epan_dissect_cleanup(&callback_args.edt);
+
   switch (ret) {
   case PSP_FINISHED:
     /* Completed successfully. */

@@ -1007,6 +1007,8 @@ load_cap_file(capture_file *cf)
         process_packet(cf, &edt, data_offset, &phdr, pd);
     }
 
+    epan_dissect_cleanup(&edt);
+
     if (err != 0) {
         /* Print a message noting that the read failed somewhere along the line. */
         switch (err) {
