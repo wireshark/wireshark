@@ -8927,7 +8927,7 @@ void proto_register_ulp(void) {
   /* Register a configuration option for port */
   prefs_register_uint_preference(ulp_module, "tcp.port",
                                  "ULP TCP Port",
-                                 "Set the TCP port for Ulp messages(IANA registerd port is 7275)",
+                                 "Set the TCP port for ULP messages(IANA registered port is 7275)",
                                  10,
                                  &gbl_ulp_port);
 
@@ -8954,8 +8954,5 @@ proto_reg_handoff_ulp(void)
 
 	local_ulp_port = gbl_ulp_port;
 	dissector_add_uint("tcp.port", gbl_ulp_port, ulp_handle);
-
-	/* application/oma-supl-ulp */
-
 }
 
