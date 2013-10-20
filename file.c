@@ -1256,15 +1256,13 @@ read_packet(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
 
   passed = TRUE;
   if (cf->rfcode) {
-    gboolean old_visible;
+    epan_dissect_t rf_edt;
 
-    old_visible = proto_tree_set_visible(edt->tree, TRUE);
-    epan_dissect_prime_dfilter(edt, cf->rfcode);
-    epan_dissect_run(edt, phdr, frame_tvbuff_new(&fdlocal, buf), &fdlocal, NULL);
-    passed = dfilter_apply_edt(cf->rfcode, edt);
-
-    epan_dissect_reset(edt);
-    proto_tree_set_visible(edt->tree, old_visible);
+    epan_dissect_init(&rf_edt, cf->epan, TRUE, FALSE);
+    epan_dissect_prime_dfilter(&rf_edt, cf->rfcode);
+    epan_dissect_run(&rf_edt, phdr, frame_tvbuff_new(&fdlocal, buf), &fdlocal, NULL);
+    passed = dfilter_apply_edt(cf->rfcode, &rf_edt);
+    epan_dissect_cleanup(&rf_edt);
   }
 
   if (passed) {
