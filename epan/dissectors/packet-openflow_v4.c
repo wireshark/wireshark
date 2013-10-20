@@ -28,9 +28,10 @@
 #include "config.h"
 
 #include <glib.h>
-
-#include <epan/packet.h>
+#include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/ipproto.h>
+#include <epan/packet.h>
 
 void proto_reg_handoff_openflow_v4(void);
 static int proto_openflow_v4 = -1;
@@ -44,10 +45,50 @@ static int hf_openflow_v4_oxm_field_basic = -1;
 static int hf_openflow_v4_oxm_hm = -1;
 static int hf_openflow_v4_oxm_length = -1;
 static int hf_openflow_v4_oxm_value = -1;
+static int hf_openflow_v4_oxm_value_etheraddr = -1;
+static int hf_openflow_v4_oxm_value_ethertype = -1;
+static int hf_openflow_v4_oxm_value_ipv4addr = -1;
+static int hf_openflow_v4_oxm_value_ipv6addr = -1;
+static int hf_openflow_v4_oxm_value_ipproto = -1;
+static int hf_openflow_v4_oxm_value_uint16 = -1;
+static int hf_openflow_v4_oxm_value_uint24 = -1;
+static int hf_openflow_v4_oxm_value_uint32 = -1;
 static int hf_openflow_v4_oxm_mask = -1;
+static int hf_openflow_v4_oxm_mask_etheraddr = -1;
+static int hf_openflow_v4_oxm_mask_ipv4addr = -1;
+static int hf_openflow_v4_oxm_mask_ipv6addr = -1;
 static int hf_openflow_v4_match_type = -1;
 static int hf_openflow_v4_match_length = -1;
 static int hf_openflow_v4_match_pad = -1;
+static int hf_openflow_v4_action_type = -1;
+static int hf_openflow_v4_action_length = -1;
+static int hf_openflow_v4_action_output_port = -1;
+static int hf_openflow_v4_action_output_port_reserved = -1;
+static int hf_openflow_v4_action_output_max_len = -1;
+static int hf_openflow_v4_action_output_max_len_reserved = -1;
+static int hf_openflow_v4_action_output_pad = -1;
+static int hf_openflow_v4_action_copy_ttl_out_pad = -1;
+static int hf_openflow_v4_action_copy_ttl_in_pad = -1;
+static int hf_openflow_v4_action_set_mpls_ttl_ttl = -1;
+static int hf_openflow_v4_action_set_mpls_ttl_pad = -1;
+static int hf_openflow_v4_action_dec_mpls_ttl_pad = -1;
+static int hf_openflow_v4_action_push_vlan_ethertype = -1;
+static int hf_openflow_v4_action_push_vlan_pad = -1;
+static int hf_openflow_v4_action_pop_vlan_pad = -1;
+static int hf_openflow_v4_action_push_mpls_ethertype = -1;
+static int hf_openflow_v4_action_push_mpls_pad = -1;
+static int hf_openflow_v4_action_pop_mpls_ethertype = -1;
+static int hf_openflow_v4_action_pop_mpls_pad = -1;
+static int hf_openflow_v4_action_set_queue_queue_id = -1;
+static int hf_openflow_v4_action_group_group_id = -1;
+static int hf_openflow_v4_action_group_group_id_reserved = -1;
+static int hf_openflow_v4_action_set_nw_ttl_ttl = -1;
+static int hf_openflow_v4_action_set_nw_ttl_pad = -1;
+static int hf_openflow_v4_action_dec_nw_ttl_pad = -1;
+static int hf_openflow_v4_action_set_field_pad = -1;
+static int hf_openflow_v4_action_push_pbb_ethertype = -1;
+static int hf_openflow_v4_action_push_pbb_pad = -1;
+static int hf_openflow_v4_action_pop_pbb_pad = -1;
 static int hf_openflow_v4_instruction_type = -1;
 static int hf_openflow_v4_instruction_length = -1;
 static int hf_openflow_v4_instruction_goto_table_table_id = -1;
@@ -107,10 +148,13 @@ static gint ett_openflow_v4_flowmod_instructions = -1;
 static gint ett_openflow_v4_oxm = -1;
 static gint ett_openflow_v4_match = -1;
 static gint ett_openflow_v4_match_oxm_fields = -1;
+static gint ett_openflow_v4_action = -1;
 static gint ett_openflow_v4_instruction = -1;
 static gint ett_openflow_v4_instruction_actions_actions = -1;
 
 static expert_field ei_openflow_v4_match_undecoded = EI_INIT;
+static expert_field ei_openflow_v4_oxm_undecoded = EI_INIT;
+static expert_field ei_openflow_v4_action_undecoded = EI_INIT;
 static expert_field ei_openflow_v4_instruction_undecoded = EI_INIT;
 
 static const value_string openflow_v4_version_values[] = {
@@ -251,6 +295,46 @@ static const value_string openflow_v4_oxm_class_values[] = {
     { 0,      NULL}
 };
 
+#define OFPXMT_OFB_IN_PORT          0
+#define OFPXMT_OFB_IN_PHY_PORT      1
+#define OFPXMT_OFB_METADATA         2
+#define OFPXMT_OFB_ETH_DST          3
+#define OFPXMT_OFB_ETH_SRC          4
+#define OFPXMT_OFB_ETH_TYPE         5
+#define OFPXMT_OFB_VLAN_VID         6
+#define OFPXMT_OFB_VLAN_PCP         7
+#define OFPXMT_OFB_IP_DSCP          8
+#define OFPXMT_OFB_IP_ECN           9
+#define OFPXMT_OFB_IP_PROTO        10
+#define OFPXMT_OFB_IPV4_SRC        11
+#define OFPXMT_OFB_IPV4_DST        12
+#define OFPXMT_OFB_TCP_SRC         13
+#define OFPXMT_OFB_TCP_DST         14
+#define OFPXMT_OFB_UDP_SRC         15
+#define OFPXMT_OFB_UDP_DST         16
+#define OFPXMT_OFB_SCTP_SRC        17
+#define OFPXMT_OFB_SCTP_DST        18
+#define OFPXMT_OFB_ICMPV4_TYPE     19
+#define OFPXMT_OFB_ICMPV4_CODE     20
+#define OFPXMT_OFB_ARP_OP          21
+#define OFPXMT_OFB_ARP_SPA         22
+#define OFPXMT_OFB_ARP_TPA         23
+#define OFPXMT_OFB_ARP_SHA         24
+#define OFPXMT_OFB_ARP_THA         25
+#define OFPXMT_OFB_IPV6_SRC        26
+#define OFPXMT_OFB_IPV6_DST        27
+#define OFPXMT_OFB_IPV6_FLABEL     28
+#define OFPXMT_OFB_ICMPV6_TYPE     29
+#define OFPXMT_OFB_ICMPV6_CODE     30
+#define OFPXMT_OFB_IPV6_ND_TARGET  31
+#define OFPXMT_OFB_IPV6_ND_SLL     32
+#define OFPXMT_OFB_IPV6_ND_TLL     33
+#define OFPXMT_OFB_MPLS_LABEL      34
+#define OFPXMT_OFB_MPLS_TC         35
+#define OFPXMT_OFP_MPLS_BOS        36
+#define OFPXMT_OFB_PBB_ISID        37
+#define OFPXMT_OFB_TUNNEL_ID       38
+#define OFPXMT_OFB_IPV6_EXTHDR     39
 static const value_string openflow_v4_oxm_basic_field_values[] = {
     {  0, "OFPXMT_OFB_IN_PORT" },
     {  1, "OFPXMT_OFB_IN_PHY_PORT" },
@@ -331,33 +415,120 @@ dissect_openflow_oxm_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *oxm_tree;
+    guint16 oxm_class;
     guint8  oxm_field_hm;
     guint8  oxm_hm;
+    guint8  oxm_field;
     guint8  oxm_length;
+    guint8  field_length;
 
+    oxm_class = tvb_get_ntohs(tvb, offset);
     oxm_field_hm = tvb_get_guint8(tvb, offset + 2);
     oxm_length = tvb_get_guint8(tvb, offset + 3);
+
+    oxm_field = (oxm_field_hm & OXM_FIELD_MASK) >> OXM_FIELD_OFFSET;
+    oxm_hm = oxm_field_hm & OXM_HM_MASK;
+    field_length = (oxm_hm == 0) ? oxm_length : (oxm_length / 2);
 
     ti = proto_tree_add_text(tree, tvb, offset, oxm_length + 4, "OXM");
     oxm_tree = proto_item_add_subtree(ti, ett_openflow_v4_oxm);
 
     offset = dissect_openflow_oxm_header_v4(tvb, pinfo, oxm_tree, offset, length);
 
-    oxm_hm = oxm_field_hm & OXM_HM_MASK;
-    if (oxm_hm != 0) {
-        oxm_length /= 2;
-    }
+    if (oxm_class == OFPXMC_OPENFLOW_BASIC) {
+        switch(oxm_field) {
+        case OFPXMT_OFB_IN_PORT:
+        case OFPXMT_OFB_IN_PHY_PORT:
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_uint32, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset+=4;
+            break;
 
-    /* value */
-    if (oxm_length > 0) {
-        proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value, tvb, offset, oxm_length, ENC_BIG_ENDIAN);
-        offset += oxm_length;
-    }
+        case OFPXMT_OFB_ETH_DST:
+        case OFPXMT_OFB_ETH_SRC:
+        case OFPXMT_OFB_ARP_SHA:
+        case OFPXMT_OFB_ARP_THA:
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_etheraddr, tvb, offset, 6, ENC_BIG_ENDIAN);
+            offset+=6;
+            if (oxm_hm) {
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask_etheraddr, tvb, offset, 6, ENC_BIG_ENDIAN);
+                offset+=6;
+            }
+            break;
 
-    /* mask */
-    if (oxm_length > 0 && oxm_hm != 0) {
-        proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask, tvb, offset, oxm_length, ENC_BIG_ENDIAN);
-        offset += oxm_length;
+        case OFPXMT_OFB_ETH_TYPE:
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_ethertype, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            break;
+
+        case OFPXMT_OFB_IP_PROTO:
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_ipproto, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset+=1;
+            break;
+
+        case OFPXMT_OFB_IPV4_SRC:
+        case OFPXMT_OFB_IPV4_DST:
+        case OFPXMT_OFB_ARP_SPA:
+        case OFPXMT_OFB_ARP_TPA:
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_ipv4addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset+=4;
+            if (oxm_hm) {
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask_ipv4addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset+=4;
+            }
+            break;
+
+        case OFPXMT_OFB_TCP_SRC:
+        case OFPXMT_OFB_TCP_DST:
+        case OFPXMT_OFB_UDP_SRC:
+        case OFPXMT_OFB_UDP_DST:
+        case OFPXMT_OFB_SCTP_SRC:
+        case OFPXMT_OFB_SCTP_DST:
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_uint16, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            break;
+
+        case OFPXMT_OFB_IPV6_SRC:
+        case OFPXMT_OFB_IPV6_DST:
+        case OFPXMT_OFB_IPV6_ND_SLL:
+        case OFPXMT_OFB_IPV6_ND_TLL:
+            proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_ipv6addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+            offset+=16;
+            if (oxm_hm) {
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask_ipv6addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+                offset+=16;
+            }
+            break;
+
+        case OFPXMT_OFB_MPLS_LABEL:
+            /* size differs in specification and header file */
+            if (field_length == 3) {
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_uint24, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset+=3;
+            } else if (field_length == 4) {
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value_uint32, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset+=4;
+            }
+            break;
+
+        default:
+            /* value */
+            if (field_length > 0) {
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_value, tvb, offset, field_length, ENC_BIG_ENDIAN);
+                offset += field_length;
+            }
+
+            /* mask */
+            if (field_length > 0 && oxm_hm != 0) {
+                proto_tree_add_item(oxm_tree, hf_openflow_v4_oxm_mask, tvb, offset, field_length, ENC_BIG_ENDIAN);
+                offset += field_length;
+            }
+            break;
+        }
+
+    } else {
+        proto_tree_add_expert_format(oxm_tree, pinfo, &ei_openflow_v4_oxm_undecoded,
+                                     tvb, offset, oxm_length, "Unknown OXM body.");
+        offset+=oxm_length;
     }
 
     return offset;
@@ -400,21 +571,25 @@ dissect_openflow_match_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     switch (match_type) {
     case OFPMT_STANDARD:
         proto_tree_add_expert_format(match_tree, pinfo, &ei_openflow_v4_match_undecoded,
-                                     tvb, offset, match_length - 4, "Standard match (deprecated).");
+                                     tvb, offset, match_length - 4, "Standard match body (deprecated).");
         offset+=match_length-4;
         break;
-    case OFPMT_OXM:
-        ti = proto_tree_add_text(match_tree, tvb, offset, match_length - 4, "Fields");
-        fields_tree = proto_item_add_subtree(ti, ett_openflow_v4_match_oxm_fields);
 
+    case OFPMT_OXM:
         fields_end = offset + match_length - 4;
-        while(offset < fields_end) {
-            offset = dissect_openflow_oxm_v4(tvb, pinfo, fields_tree, offset, length);
+
+        if (offset < fields_end) {
+            ti = proto_tree_add_text(match_tree, tvb, offset, match_length - 4, "Fields");
+            fields_tree = proto_item_add_subtree(ti, ett_openflow_v4_match_oxm_fields);
+            while(offset < fields_end) {
+                offset = dissect_openflow_oxm_v4(tvb, pinfo, fields_tree, offset, length);
+            }
         }
         break;
+
     default:
         proto_tree_add_expert_format(match_tree, pinfo, &ei_openflow_v4_match_undecoded,
-                                     tvb, offset, match_length - 4, "Unknown match.");
+                                     tvb, offset, match_length - 4, "Unknown match body.");
         offset+=match_length-4;
         break;
     }
@@ -500,6 +675,238 @@ dissect_openflow_features_reply_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 }
 
+#define OFPAT_OUTPUT         0  /* Output to switch port. */
+#define OFPAT_COPY_TTL_OUT  11  /* Copy TTL "outwards" */
+#define OFPAT_COPY_TTL_IN   12  /* Copy TTL "inwards" */
+#define OFPAT_SET_MPLS_TTL  15  /* MPLS TTL */
+#define OFPAT_DEC_MPLS_TTL  16  /* Decrement MPLS TTL */
+#define OFPAT_PUSH_VLAN     17  /* Push a new VLAN tag */
+#define OFPAT_POP_VLAN      18  /* Pop the outer VLAN tag */
+#define OFPAT_PUSH_MPLS     19  /* Push a new MPLS tag */
+#define OFPAT_POP_MPLS      20  /* Pop the outer MPLS tag */
+#define OFPAT_SET_QUEUE     21  /* Set queue id when outputting to a port */
+#define OFPAT_GROUP         22  /* Apply group. */
+#define OFPAT_SET_NW_TTL    23  /* IP TTL. */
+#define OFPAT_DEC_NW_TTL    24  /* Decrement IP TTL. */
+#define OFPAT_SET_FIELD     25  /* Set a header field using OXM TLV format. */
+#define OFPAT_PUSH_PBB      26  /* Push a new PBB service tag (I-TAG) */
+#define OFPAT_POP_PBB       27  /* Pop the outer PBB service tag (I-TAG) */
+#define OFPAT_EXPERIMENTER  0xffff
+
+static const value_string openflow_v4_action_type_values[] = {
+    {      0, "OFPAT_OUTPUT" },
+    {     11, "OFPAT_COPY_TTL_OUT" },
+    {     12, "OFPAT_COPY_TTL_IN" },
+    {     15, "OFPAT_SET_MPLS_TTL" },
+    {     16, "OFPAT_DEC_MPLS_TTL" },
+    {     17, "OFPAT_PUSH_VLAN" },
+    {     18, "OFPAT_POP_VLAN" },
+    {     19, "OFPAT_PUSH_MPLS" },
+    {     20, "OFPAT_POP_MPLS" },
+    {     21, "OFPAT_SET_QUEUE" },
+    {     22, "OFPAT_GROUP" },
+    {     23, "OFPAT_SET_NW_TTL" },
+    {     24, "OFPAT_DEC_NW_TTL" },
+    {     25, "OFPAT_SET_FIELD" },
+    {     26, "OFPAT_PUSH_PBB" },
+    {     27, "OFPAT_POP_PBB" },
+    { 0xffff, "OFPAT_EXPERIMENTER" },
+    { 0,      NULL}
+};
+
+#define OFPCML_MAX   0xffe5  /* Maximum max_len value. */
+static const value_string openflow_v4_action_output_max_len_reserved_values[] = {
+    { 0xffff, "OFPCML_NO_BUFFER" },
+    { 0,          NULL }
+};
+
+static int
+dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+{
+    proto_item *ti;
+    proto_tree *act_tree;
+    guint16 act_type;
+    guint16 act_length;
+    guint16 act_end;
+
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "Action");
+    act_tree = proto_item_add_subtree(ti, ett_openflow_v4_action);
+
+    /* uint16_t type; */
+    act_type = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(act_tree, hf_openflow_v4_action_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    /* uint16_t length; */
+    act_length = tvb_get_ntohs(tvb, offset);
+    proto_item_set_len(ti, act_length);
+    proto_tree_add_item(act_tree, hf_openflow_v4_action_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+
+    switch (act_type) {
+    case OFPAT_OUTPUT:
+        /* uint32_t port; */
+        if (tvb_get_ntohl(tvb, offset) <= OFPP_MAX) {
+            proto_tree_add_item(act_tree, hf_openflow_v4_action_output_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+        } else {
+            proto_tree_add_item(act_tree, hf_openflow_v4_action_output_port_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+        }
+        offset+=4;
+
+        /* uint16_t max_len; */
+        if (tvb_get_ntohs(tvb, offset) <= OFPCML_MAX) {
+            proto_tree_add_item(act_tree, hf_openflow_v4_action_output_max_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        } else {
+            proto_tree_add_item(act_tree, hf_openflow_v4_action_output_max_len_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        }
+        offset+=2;
+
+        /* uint8_t pad[6]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_output_pad, tvb, offset, 6, ENC_BIG_ENDIAN);
+        offset+=6;
+
+        break;
+
+    case OFPAT_COPY_TTL_OUT:
+        /* uint8_t pad[4]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_copy_ttl_out_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        break;
+
+    case OFPAT_COPY_TTL_IN:
+        /* uint8_t pad[4]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_copy_ttl_in_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        break;
+
+    case OFPAT_SET_MPLS_TTL:
+        /* uint8_t mpls_ttl; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_set_mpls_ttl_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset+=1;
+
+        /* uint8_t pad[3]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_set_mpls_ttl_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset+=3;
+        break;
+
+    case OFPAT_DEC_MPLS_TTL:
+        /* uint8_t pad[4]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_dec_mpls_ttl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        break;
+
+    case OFPAT_PUSH_VLAN:
+        /* uint16_t ethertype; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_vlan_ethertype, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+
+        /* uint8_t pad[2]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_vlan_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        break;
+
+    case OFPAT_POP_VLAN:
+        /* uint8_t pad[4]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_pop_vlan_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        break;
+
+    case OFPAT_PUSH_MPLS:
+        /* uint16_t ethertype; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_mpls_ethertype, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+
+        /* uint8_t pad[2]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_mpls_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        break;
+
+    case OFPAT_POP_MPLS:
+        /* uint16_t ethertype; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_pop_mpls_ethertype, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+
+        /* uint8_t pad[2]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_pop_mpls_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        break;
+
+    case OFPAT_SET_QUEUE:
+        /* uint32_t queue_id; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_set_queue_queue_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        break;
+
+    case OFPAT_GROUP:
+        /* uint32_t group_id; */
+        if (tvb_get_ntohl(tvb, offset) <= OFPG_MAX) {
+            proto_tree_add_item(act_tree, hf_openflow_v4_action_group_group_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        } else {
+            proto_tree_add_item(act_tree, hf_openflow_v4_action_group_group_id_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+        }
+        offset+=4;
+        break;
+
+    case OFPAT_SET_NW_TTL:
+        /* uint8_t nw_ttl; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_set_nw_ttl_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset+=1;
+
+        /* uint8_t pad[3]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_set_nw_ttl_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset+=3;
+        break;
+
+    case OFPAT_DEC_NW_TTL:
+        /* uint8_t pad[4]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_dec_nw_ttl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        break;
+
+    case OFPAT_SET_FIELD:
+        act_end = offset + act_length - 4;
+        offset = dissect_openflow_oxm_v4(tvb, pinfo, act_tree, offset, length);
+
+        /* padded to 64 bits */
+        if (offset < act_end) {
+            proto_tree_add_item(act_tree, hf_openflow_v4_action_set_field_pad, tvb, offset, act_end - offset, ENC_BIG_ENDIAN);
+            offset = act_end;
+        }
+        break;
+
+    case OFPAT_PUSH_PBB:
+        /* uint16_t ethertype; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_pbb_ethertype, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+
+        /* uint8_t pad[2]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_push_pbb_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        break;
+
+    case OFPAT_POP_PBB:
+        /* uint8_t pad[4]; */
+        proto_tree_add_item(act_tree, hf_openflow_v4_action_pop_pbb_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        break;
+
+    case OFPAT_EXPERIMENTER:
+        proto_tree_add_expert_format(act_tree, pinfo, &ei_openflow_v4_action_undecoded,
+                                     tvb, offset, act_length - 4, "Experimenter action body.");
+        offset += act_length - 4;
+        break;
+
+    default:
+        proto_tree_add_expert_format(act_tree, pinfo, &ei_openflow_v4_action_undecoded,
+                                     tvb, offset, act_length - 4, "Unknown action body.");
+        offset += act_length - 4;
+        break;
+    }
+
+    return offset;
+}
+
+
 #define OFPIT_GOTO_TABLE      1       /* Setup the next table in the lookup */
 #define OFPIT_WRITE_METADATA  2       /* Setup the metadata field for use later in */
 #define OFPIT_WRITE_ACTIONS   3       /* Write the action(s) onto the datapath action */
@@ -533,6 +940,7 @@ dissect_openflow_instruction_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree *inst_tree, *actions_tree;
     guint16 inst_type;
     guint16 inst_length;
+    guint16 acts_end;
 
     ti = proto_tree_add_text(tree, tvb, offset, -1, "Instruction");
     inst_tree = proto_item_add_subtree(ti, ett_openflow_v4_instruction);
@@ -574,30 +982,21 @@ dissect_openflow_instruction_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         break;
 
     case OFPIT_WRITE_ACTIONS:
-        proto_tree_add_item(inst_tree, hf_openflow_v4_instruction_actions_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset+=4;
-
-        ti = proto_tree_add_text(inst_tree, tvb, offset, inst_length - 8, "Actions");
-        actions_tree = proto_item_add_subtree(ti, ett_openflow_v4_instruction_actions_actions);
-
-        proto_tree_add_text(actions_tree, tvb, offset, 0, "Actions not dissected yet");
-        offset += inst_length - 8;
-        break;
-
     case OFPIT_APPLY_ACTIONS:
-        proto_tree_add_item(inst_tree, hf_openflow_v4_instruction_actions_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset+=4;
-
-        ti = proto_tree_add_text(inst_tree, tvb, offset, inst_length - 8, "Actions");
-        actions_tree = proto_item_add_subtree(ti, ett_openflow_v4_instruction_actions_actions);
-
-        proto_tree_add_text(actions_tree, tvb, offset, 0, "Actions not dissected yet");
-        offset += inst_length - 8;
-        break;
-
     case OFPIT_CLEAR_ACTIONS:
         proto_tree_add_item(inst_tree, hf_openflow_v4_instruction_actions_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
+
+        acts_end = offset + inst_length - 8;
+
+        if (offset < acts_end) {
+            ti = proto_tree_add_text(inst_tree, tvb, offset, inst_length - 8, "Actions");
+            actions_tree = proto_item_add_subtree(ti, ett_openflow_v4_instruction_actions_actions);
+
+            while (offset < acts_end) {
+                offset = dissect_openflow_action_v4(tvb, pinfo, actions_tree, offset, length);
+            }
+        }
         break;
 
     case OFPIT_METER:
@@ -612,13 +1011,13 @@ dissect_openflow_instruction_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     case OFPIT_EXPERIMENTER:
         proto_tree_add_expert_format(inst_tree, pinfo, &ei_openflow_v4_instruction_undecoded,
-                                     tvb, offset, inst_length - 4, "Experimenter instruction.");
+                                     tvb, offset, inst_length - 4, "Experimenter instruction body.");
         offset += inst_length - 4;
         break;
 
     default:
         proto_tree_add_expert_format(inst_tree, pinfo, &ei_openflow_v4_instruction_undecoded,
-                                     tvb, offset, inst_length - 4, "Unknown instruction.");
+                                     tvb, offset, inst_length - 4, "Unknown instruction body.");
         offset += inst_length - 4;
         break;
     }
@@ -1033,9 +1432,59 @@ proto_register_openflow_v4(void)
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
+        { &hf_openflow_v4_oxm_value_etheraddr,
+            { "Value", "openflow_v4.oxm.value",
+               FT_ETHER, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_value_ethertype,
+            { "Value", "openflow_v4.oxm.value",
+               FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_value_ipv4addr,
+            { "Value", "openflow_v4.oxm.value",
+               FT_IPv4, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_value_ipv6addr,
+            { "Value", "openflow_v4.oxm.value",
+               FT_IPv6, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_value_ipproto,
+            { "Value", "openflow_v4.oxm.value",
+               FT_UINT8, BASE_DEC|BASE_EXT_STRING, (&ipproto_val_ext), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_value_uint16,
+            { "Value", "openflow_v4.oxm.value",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_value_uint24,
+            { "Value", "openflow_v4.oxm.value",
+               FT_UINT24, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_value_uint32,
+            { "Value", "openflow_v4.oxm.value",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
         { &hf_openflow_v4_oxm_mask,
             { "Mask", "openflow_v4.oxm.mask",
                FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_mask_etheraddr,
+            { "Mask", "openflow_v4.oxm.value",
+               FT_ETHER, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_oxm_mask_ipv4addr,
+            { "Mask", "openflow_v4.oxm.value",
+               FT_IPv4, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_match_type,
@@ -1050,6 +1499,151 @@ proto_register_openflow_v4(void)
         },
         { &hf_openflow_v4_match_pad,
             { "Padding", "openflow_v4.match.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_type,
+            { "Type", "openflow_v4.action.type",
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_action_type_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_length,
+            { "Length", "openflow_v4.action.length",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_output_port,
+            { "Port", "openflow_v4.action.output.port",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_output_port_reserved,
+            { "Port", "openflow_v4.action.output.port",
+               FT_UINT32, BASE_HEX, VALS(openflow_v4_port_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_output_max_len,
+            { "Max length", "openflow_v4.action.output.max_len",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_output_max_len_reserved,
+            { "Max length", "openflow_v4.action.output.max_len",
+               FT_UINT16, BASE_HEX, VALS(openflow_v4_action_output_max_len_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_output_pad,
+            { "Padding", "openflow_v4.action.output.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_copy_ttl_out_pad,
+            { "Padding", "openflow_v4.action.copy_ttl_out.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_copy_ttl_in_pad,
+            { "Padding", "openflow_v4.action.copy_ttl_in.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_set_mpls_ttl_ttl,
+            { "TTL", "openflow_v4.action.set_mpls_ttl.ttl",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_set_mpls_ttl_pad,
+            { "Padding", "openflow_v4.action.set_mpls_ttl.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_dec_mpls_ttl_pad,
+            { "Padding", "openflow_v4.action.dec_mpls_ttl.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_push_vlan_ethertype,
+            { "Ethertype", "openflow_v4.action.push_vlan.ethertype",
+               FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_push_vlan_pad,
+            { "Padding", "openflow_v4.action.push_vlan.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_pop_vlan_pad,
+            { "Padding", "openflow_v4.action.pop_vlan.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_push_mpls_ethertype,
+            { "Ethertype", "openflow_v4.action.push_mpls.ethertype",
+               FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_push_mpls_pad,
+            { "Padding", "openflow_v4.action.push_mpls.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_pop_mpls_ethertype,
+            { "Ethertype", "openflow_v4.action.pop_mpls.ethertype",
+               FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_pop_mpls_pad,
+            { "Padding", "openflow_v4.action.pop_mpls.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_set_queue_queue_id,
+            { "Queue ID", "openflow_v4.action.set_queue.queue_id",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_group_group_id,
+            { "Group ID", "openflow_v4.action.group.group_id",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_group_group_id_reserved,
+            { "Group ID", "openflow_v4.action.group.group_id",
+               FT_UINT32, BASE_HEX, VALS(openflow_v4_port_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_set_nw_ttl_ttl,
+            { "TTL", "openflow_v4.action.set_nw_ttl.ttl",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_set_nw_ttl_pad,
+            { "Padding", "openflow_v4.action.set_nw_ttl.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_dec_nw_ttl_pad,
+            { "Padding", "openflow_v4.action.dec_nw_ttl.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_set_field_pad,
+            { "Padding", "openflow_v4.action.set_field.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_push_pbb_ethertype,
+            { "Ethertype", "openflow_v4.action.push_pbb.ethertype",
+               FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_push_pbb_pad,
+            { "Padding", "openflow_v4.action.push_pbb.pad",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v4_action_pop_pbb_pad,
+            { "Padding", "openflow_v4.action.pop_pbb.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -1314,18 +1908,27 @@ proto_register_openflow_v4(void)
         &ett_openflow_v4_oxm,
         &ett_openflow_v4_match,
         &ett_openflow_v4_match_oxm_fields,
+        &ett_openflow_v4_action,
         &ett_openflow_v4_instruction,
         &ett_openflow_v4_instruction_actions_actions
     };
 
     static ei_register_info ei[] = {
+        { &ei_openflow_v4_oxm_undecoded,
+            { "openflow_v4.oxm.undecoded", PI_UNDECODED, PI_NOTE,
+              "Unknown OMX body.", EXPFILL }
+        },
         { &ei_openflow_v4_match_undecoded,
             { "openflow_v4.match.undecoded", PI_UNDECODED, PI_NOTE,
-              "Unknown match.", EXPFILL }
+              "Unknown match body.", EXPFILL }
+        },
+        { &ei_openflow_v4_action_undecoded,
+            { "openflow_v4.action.undecoded", PI_UNDECODED, PI_NOTE,
+              "Unknown action body.", EXPFILL }
         },
         { &ei_openflow_v4_instruction_undecoded,
             { "openflow_v4.instruction.undecoded", PI_UNDECODED, PI_NOTE,
-              "Unknown instruction.", EXPFILL }
+              "Unknown instruction body.", EXPFILL }
         }
     };
 
