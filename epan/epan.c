@@ -220,7 +220,6 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 	g_assert(edt);
 
 	edt->session = session;
-	edt->pi.pool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 
 	if (create_proto_tree) {
 		edt->tree = proto_tree_create_root(&edt->pi);
@@ -230,7 +229,8 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 		edt->tree = NULL;
 	}
 
-	edt->pi.dependent_frames = NULL;
+	memset(&edt->pi, 0, sizeof(edt->pi));
+	edt->pi.pool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 
 	return edt;
 }
