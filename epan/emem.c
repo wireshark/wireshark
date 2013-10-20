@@ -174,7 +174,7 @@ static gboolean debug_use_memory_scrubber = FALSE;
 
 #if defined (_WIN32)
 static SYSTEM_INFO sysinfo;
-static OSVERSIONINFO versinfo;
+static gboolean iswindowsplatform;
 static int pagesize;
 #elif defined(USE_GUARD_PAGES)
 static intptr_t pagesize;
@@ -389,6 +389,23 @@ emem_init(void)
 	GetSystemInfo(&sysinfo);
 	pagesize = sysinfo.dwPageSize;
 
+#if (_MSC_VER >= 1800)
+	/*
+	 * On VS2103, GetVersionEx is deprecated. Microsoft recommend to
+	 * use VerifyVersionInfo instead
+	 */
+	{
+		OSVERSIONINFOEX osvi;
+		DWORDLONG dwlConditionMask = 0;
+		int op = VER_EQUAL;
+
+		ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+		osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+		osvi.dwPlatformId = VER_PLATFORM_WIN32_WINDOWS;
+		VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID, op);
+		iswindowsplatform = VerifyVersionInfo(&osvi, VER_PLATFORMID, dwlConditionMask);
+	}
+#else
 	/* calling GetVersionEx using the OSVERSIONINFO structure.
 	 * OSVERSIONINFOEX requires Win NT4 with SP6 or newer NT Versions.
 	 * OSVERSIONINFOEX will fail on Win9x and older NT Versions.
@@ -397,8 +414,15 @@ emem_init(void)
 	 * http://msdn.microsoft.com/library/en-us/sysinfo/base/osversioninfo_str.asp
 	 * http://msdn.microsoft.com/library/en-us/sysinfo/base/osversioninfoex_str.asp
 	 */
-	versinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&versinfo);
+	{
+		OSVERSIONINFO versinfo;
+
+		ZeroMemory(&versinfo, sizeof(OSVERSIONINFO));
+		versinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+		GetVersionEx(&versinfo);
+		iswindowsplatform = (versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+	}
+#endif
 
 #elif defined(USE_GUARD_PAGES)
 	pagesize = sysconf(_SC_PAGESIZE);
@@ -734,9 +758,9 @@ emem_create_chunk_gp(size_t size)
 	prot2 = (char *) ((((intptr_t) buf_end - (1 * pagesize)) / pagesize) * pagesize);
 
 	ret = VirtualProtect(prot1, pagesize, PAGE_NOACCESS, &oldprot);
-	g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+	g_assert(ret != 0 || iswindowsplatform);
 	ret = VirtualProtect(prot2, pagesize, PAGE_NOACCESS, &oldprot);
-	g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+	g_assert(ret != 0 || iswindowsplatform);
 
 	npc->amount_free_init = (unsigned int) (prot2 - prot1 - pagesize);
 	npc->free_offset_init = (unsigned int) (prot1 - npc->buf) + pagesize;

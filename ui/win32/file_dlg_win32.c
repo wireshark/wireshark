@@ -127,6 +127,65 @@ static print_args_t    print_args;
 static HWND  g_sf_hwnd = NULL;
 static char *g_dfilter_str = NULL;
 
+static int
+win32_get_ofnsize()
+{
+    gboolean bVerGE5 = FALSE;
+    int ofnsize;
+    /* Remarks on OPENFILENAME_SIZE_VERSION_400:
+    *
+    * MSDN states that OPENFILENAME_SIZE_VERSION_400 should be used with
+    * WINVER and _WIN32_WINNT >= 0x0500.
+    * Unfortunately all these are compiler constants, while the underlying is a
+    * problem based is a length check of the runtime version used.
+    *
+    * Instead of using OPENFILENAME_SIZE_VERSION_400, just malloc
+    * the OPENFILENAME size plus 12 bytes.
+    * These 12 bytes are the difference between the two versions of this struct.
+    *
+    * Interestingly this fixes a bug, so the places bar e.g. "My Documents"
+    * is displayed - which wasn't the case with the former implementation.
+    *
+    * XXX - It's unclear if this length+12 works on all supported platforms,
+    * NT4 is the question here. However, even if it fails, we must calculate
+    * the length based on the runtime, not the compiler version anyway ...
+    */
+    /* This assumption does not work when compiling with MSVC2008EE as
+    * the open dialog window does not appear.
+    * Instead detect Windows version at runtime and choose size accordingly */
+#if (_MSC_VER >= 1500)
+    /*
+    * On VS2103, GetVersionEx is deprecated. Microsoft recommend to
+    * use VerifyVersionInfo instead
+    */
+#if (_MSC_VER >= 1800)
+    OSVERSIONINFOEX osvi;
+    DWORDLONG dwlConditionMask = 0;
+    int op = VER_GREATER_EQUAL;
+    /* Initialize the OSVERSIONINFOEX structure. */
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+    osvi.dwMajorVersion = 5;
+    /* Initialize the condition mask. */
+    VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, op);
+    /* Perform the test. */
+    bVerGE5=VerifyVersionInfo(
+        &osvi,
+        VER_MAJORVERSION,
+        dwlConditionMask);
+#else
+    OSVERSIONINFO osvi;
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    bVerGE5 = (osvi.dwMajorVersion >= 5);
+#endif /* _MSC_VER >= 1800 */
+    ofnsize = (bVerGE5)?sizeof(OPENFILENAME):OPENFILENAME_SIZE_VERSION_400;
+#else
+    ofnsize = sizeof(OPENFILENAME)+12;
+#endif /* _MSC_VER >= 1500 */
+    return ofnsize;
+}
 /*
  * According to http://msdn.microsoft.com/en-us/library/bb776913.aspx
  * we should use IFileOpenDialog and IFileSaveDialog on Windows Vista
@@ -139,9 +198,6 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
     TCHAR file_name16[MAX_PATH] = _T("");
     int ofnsize;
     gboolean gofn_ok;
-#if (_MSC_VER >= 1500)
-    OSVERSIONINFO osvi;
-#endif
 
     if (!file_name || !display_filter)
         return FALSE;
@@ -156,40 +212,7 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
         g_free(g_dfilter_str);
         g_dfilter_str = NULL;
     }
-
-    /* Remarks on OPENFILENAME_SIZE_VERSION_400:
-     *
-     * MSDN states that OPENFILENAME_SIZE_VERSION_400 should be used with
-     * WINVER and _WIN32_WINNT >= 0x0500.
-     * Unfortunately all these are compiler constants, while the underlying is a
-     * problem based is a length check of the runtime version used.
-     *
-     * Instead of using OPENFILENAME_SIZE_VERSION_400, just malloc
-     * the OPENFILENAME size plus 12 bytes.
-     * These 12 bytes are the difference between the two versions of this struct.
-     *
-     * Interestingly this fixes a bug, so the places bar e.g. "My Documents"
-     * is displayed - which wasn't the case with the former implementation.
-     *
-     * XXX - It's unclear if this length+12 works on all supported platforms,
-     * NT4 is the question here. However, even if it fails, we must calculate
-     * the length based on the runtime, not the compiler version anyway ...
-     */
-    /* This assumption does not work when compiling with MSVC2008EE as
-     * the open dialog window does not appear.
-     * Instead detect Windows version at runtime and choose size accordingly */
-#if (_MSC_VER >= 1500)
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    if (osvi.dwMajorVersion >= 5) {
-        ofnsize = sizeof(OPENFILENAME);
-    } else {
-        ofnsize = OPENFILENAME_SIZE_VERSION_400;
-    }
-#else
-    ofnsize = sizeof(OPENFILENAME) + 12;
-#endif
+    ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -331,9 +354,6 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     TCHAR  file_name16[MAX_PATH] = _T("");
     int    ofnsize;
     gboolean gsfn_ok;
-#if (_MSC_VER >= 1500)
-    OSVERSIONINFO osvi;
-#endif
     gboolean discard_comments = FALSE;
 
     if (!file_name || !file_type || !compressed)
@@ -355,19 +375,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
     g_compressed = FALSE;
 
-    /* see OPENFILENAME comment in win32_open_file */
-#if (_MSC_VER >= 1500)
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    if (osvi.dwMajorVersion >= 5) {
-        ofnsize = sizeof(OPENFILENAME);
-    } else {
-        ofnsize = OPENFILENAME_SIZE_VERSION_400;
-    }
-#else
-    ofnsize = sizeof(OPENFILENAME) + 12;
-#endif
+    ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -428,9 +436,6 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
     TCHAR  file_name16[MAX_PATH] = _T("");
     int    ofnsize;
     gboolean gsfn_ok;
-#if (_MSC_VER >= 1500)
-    OSVERSIONINFO osvi;
-#endif
 
     if (!file_name || !file_type || !compressed || !range)
         return FALSE;
@@ -448,19 +453,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
     g_cf = cf;
     g_compressed = FALSE;
 
-    /* see OPENFILENAME comment in win32_open_file */
-#if (_MSC_VER >= 1500)
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    if (osvi.dwMajorVersion >= 5) {
-        ofnsize = sizeof(OPENFILENAME);
-    } else {
-        ofnsize = OPENFILENAME_SIZE_VERSION_400;
-    }
-#else
-    ofnsize = sizeof(OPENFILENAME) + 12;
-#endif
+    ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -518,9 +511,6 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
     TCHAR         file_name16[MAX_PATH] = _T("");
     int           ofnsize;
     gboolean gofn_ok;
-#if (_MSC_VER >= 1500)
-    OSVERSIONINFO osvi;
-#endif
 
     if (!file_name || !display_filter || !merge_type)
         return FALSE;
@@ -536,19 +526,7 @@ win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filter, int *
         g_dfilter_str = NULL;
     }
 
-    /* see OPENFILENAME comment in win32_open_file */
-#if (_MSC_VER >= 1500)
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    if (osvi.dwMajorVersion >= 5) {
-        ofnsize = sizeof(OPENFILENAME);
-    } else {
-        ofnsize = OPENFILENAME_SIZE_VERSION_400;
-    }
-#else
-    ofnsize = sizeof(OPENFILENAME) + 12;
-#endif
+    ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -610,25 +588,10 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
     char             *dirname;
     cf_print_status_t status;
     int               ofnsize;
-#if (_MSC_VER >= 1500)
-    OSVERSIONINFO osvi;
-#endif
 
     g_cf = cf;
 
-    /* see OPENFILENAME comment in win32_open_file */
-#if (_MSC_VER >= 1500)
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    if (osvi.dwMajorVersion >= 5) {
-        ofnsize = sizeof(OPENFILENAME);
-    } else {
-        ofnsize = OPENFILENAME_SIZE_VERSION_400;
-    }
-#else
-    ofnsize = sizeof(OPENFILENAME) + 12;
-#endif
+    ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -729,9 +692,6 @@ win32_export_raw_file(HWND h_wnd, capture_file *cf) {
     char         *file_name8;
     int           fd;
     int           ofnsize;
-#if (_MSC_VER >= 1500)
-    OSVERSIONINFO osvi;
-#endif
 
     if (!cf->finfo_selected) {
         /* This shouldn't happen */
@@ -739,19 +699,7 @@ win32_export_raw_file(HWND h_wnd, capture_file *cf) {
         return;
     }
 
-    /* see OPENFILENAME comment in win32_open_file */
-#if (_MSC_VER >= 1500)
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    if (osvi.dwMajorVersion >= 5) {
-        ofnsize = sizeof(OPENFILENAME);
-    } else {
-        ofnsize = OPENFILENAME_SIZE_VERSION_400;
-    }
-#else
-    ofnsize = sizeof(OPENFILENAME) + 12;
-#endif
+    ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -818,9 +766,6 @@ win32_export_sslkeys_file(HWND h_wnd) {
     int           fd;
     int           ofnsize;
     int           keylist_size;
-#if (_MSC_VER >= 1500)
-    OSVERSIONINFO osvi;
-#endif
 
     keylist_size = ssl_session_key_count();
     if (keylist_size==0) {
@@ -829,19 +774,7 @@ win32_export_sslkeys_file(HWND h_wnd) {
         return;
     }
 
-    /* see OPENFILENAME comment in win32_open_file */
-#if (_MSC_VER >= 1500)
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    if (osvi.dwMajorVersion >= 5) {
-        ofnsize = sizeof(OPENFILENAME);
-    } else {
-        ofnsize = OPENFILENAME_SIZE_VERSION_400;
-    }
-#else
-    ofnsize = sizeof(OPENFILENAME) + 12;
-#endif
+    ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -906,23 +839,8 @@ win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list) {
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
     int    ofnsize;
-#if (_MSC_VER >= 1500)
-    OSVERSIONINFO osvi;
-#endif
 
-    /* see OPENFILENAME comment in win32_open_file */
-#if (_MSC_VER >= 1500)
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    if (osvi.dwMajorVersion >= 5) {
-        ofnsize = sizeof(OPENFILENAME);
-    } else {
-        ofnsize = OPENFILENAME_SIZE_VERSION_400;
-    }
-#else
-    ofnsize = sizeof(OPENFILENAME) + 12;
-#endif
+    ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -967,23 +885,8 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
     int    ofnsize;
-#if (_MSC_VER >= 1500)
-    OSVERSIONINFO osvi;
-#endif
 
-    /* see OPENFILENAME comment in win32_open_file */
-#if (_MSC_VER >= 1500)
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    if (osvi.dwMajorVersion >= 5) {
-        ofnsize = sizeof(OPENFILENAME);
-    } else {
-        ofnsize = OPENFILENAME_SIZE_VERSION_400;
-    }
-#else
-    ofnsize = sizeof(OPENFILENAME) + 12;
-#endif
+    ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;

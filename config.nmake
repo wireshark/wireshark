@@ -145,6 +145,14 @@ PROCESSOR_ARCHITECTURE=amd64
 # Visual C++ 11.0, _MSC_VER 1700, msvcr110.dll
 #MSVC_VARIANT=MSVC2012
 
+# "Microsoft Visual Studio 2013"
+# Visual C++ 12.0, _MSC_VER 1800, msvcr120.dll
+#MSVC_VARIANT=MSVC2013
+
+# "Microsoft Visual Studio 2013 Express Edition"
+# Visual C++ 12.0, _MSC_VER 1800, msvcr120.dll
+#MSVC_VARIANT=MSVC2013EE
+
 # The default if we haven't set a system environment variable or
 # uncommented an entry above.  We default to the version recommended
 # in the Developer's Guide, namely MSVC++ 2010 Express Edition.
@@ -864,6 +872,8 @@ MSC_VER_REQUIRED=1500
 MSC_VER_REQUIRED=1600
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
 MSC_VER_REQUIRED=1700
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2013" ||  "$(MSVC_VARIANT)" == "MSVC2013EE"
+MSC_VER_REQUIRED=1800
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF
@@ -921,7 +931,9 @@ APPVER=5.02
         "$(MSVC_VARIANT)" == "MSVC2010"   || \
         "$(MSVC_VARIANT)" == "MSVC2010EE" || \
         "$(MSVC_VARIANT)" == "MSVC2012"   || \
-        "$(MSVC_VARIANT)" == "MSVC2012EE"
+        "$(MSVC_VARIANT)" == "MSVC2012EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2013"   || \
+        "$(MSVC_VARIANT)" == "MSVC2013EE"
 LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
 	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE -DPSAPI_VERSION=1
 
@@ -956,7 +968,9 @@ WARNINGS_CFLAGS=/w34295
         "$(MSVC_VARIANT)" == "MSVC2010"   || \
         "$(MSVC_VARIANT)" == "MSVC2010EE" || \
         "$(MSVC_VARIANT)" == "MSVC2012"   || \
-        "$(MSVC_VARIANT)" == "MSVC2012EE"
+        "$(MSVC_VARIANT)" == "MSVC2012EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2013"   || \
+        "$(MSVC_VARIANT)" == "MSVC2013EE"
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 !ENDIF
 
@@ -1138,7 +1152,23 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 10.0\VC\redist\$(TARGET_MACHI
 # with Visual Studio 2010.
 #
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 11.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC110.CRT\*.*
-
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2013" || "$(MSVC_VARIANT)" == "MSVC2013EE"
+#
+# EE version added as per bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9227
+#
+# For MSVC 2013, we "Install a particular Visual C++
+# assembly as a private assembly for the application", by copying
+# the contents of the Microsoft.VC120.CRT folder to the target directory.
+# This is done to reduce the size of the installer; it also makes
+# a portable version work, as the C runtime doesn't have to be
+# installed on the target machine.
+#
+# Note: for what it's worth, Microsoft recommends "Using the Visual C++
+# Redistributable Package", rather than "Installing a particular Visual
+# C++ assembly as a private assembly for the application", starting
+# with Visual Studio 2010.
+#
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 12.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC120.CRT\*.*
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF
