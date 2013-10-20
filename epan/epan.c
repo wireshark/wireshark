@@ -229,6 +229,8 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 		edt->tree = NULL;
 	}
 
+	edt->tvb = NULL;
+
 	memset(&edt->pi, 0, sizeof(edt->pi));
 	edt->pi.pool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 
