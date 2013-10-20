@@ -210,7 +210,7 @@ gboolean IsWindowsVistaOrLater()
     DWORDLONG dwlConditionMask = 0;
     int op = VER_GREATER_EQUAL;
 
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
     osvi.dwMajorVersion = 6;
     VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, op);
