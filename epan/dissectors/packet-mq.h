@@ -1,8 +1,10 @@
 /* packet-mq.h
+ * Routines for IBM WebSphere MQ packet dissection header
+ *
+ * metatech <metatech@flashmail.com>
+ * robionekenobi <robionekenobi@bluewin.ch>
  *
  * $Id$
- *
- * robionekenobi <robionekenobi@bluewin.ch>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -26,7 +28,6 @@
 #ifndef __PACKET_MQ_H__
 #define __PACKET_MQ_H__
 
-
 #define DEF_VALSX(A)   extern const value_string mq_##A##_vals[]
 #define GET_VALSV(A)   mq_##A##_vals
 #define GET_VALSP(F)   (gchar *)GET_VALSV(F)
@@ -47,7 +48,8 @@
 /*
 * Private data passed from the MQ dissector to subdissectors.
 */
-struct mqinfo {
+struct mqinfo 
+{
 	guint32 encoding;           /* Message encoding */
 	guint32 ccsid;              /* Message character set */
 	guint8  format[8];          /* Message format */
@@ -60,7 +62,8 @@ typedef struct _mq_parm_t
 	guint32 mq_str_enc ;
 	guint32 mq_encode  ;
 	guint16 mq_ccsid   ;
-	guint8  mq_ctlf    ;
+	guint8  mq_ctlf1   ;
+	guint8  mq_ctlf2   ;
 	guint8  mq_opcode  ;
 } mq_parm_t;
 
@@ -307,12 +310,12 @@ typedef struct _mq_parm_t
 #define MQ_MQGMO_PROPERTIES_COMPATIBILITY 0x10000000
 #define MQ_MQGMO_PROPERTIES_AS_Q_DEF      0x00000000
 #define MQ_MQGMO_NONE                     0x00000000
-#define MQ_MQGMO_BROWSE_HANDLE            ( MQGMO_BROWSE_FIRST \
-	| MQGMO_UNMARKED_BROWSE_MSG \
-	| MQGMO_MARK_BROWSE_HANDLE )
-#define MQ_MQGMO_BROWSE_CO_OP             ( MQGMO_BROWSE_FIRST \
-	| MQGMO_UNMARKED_BROWSE_MSG \
-	| MQGMO_MARK_BROWSE_CO_OP )
+#define MQ_MQGMO_BROWSE_HANDLE            ( MQ_MQGMO_BROWSE_FIRST \
+	| MQ_MQGMO_UNMARKED_BROWSE_MSG \
+	| MQ_MQGMO_MARK_BROWSE_HANDLE )
+#define MQ_MQGMO_BROWSE_CO_OP             ( MQ_MQGMO_BROWSE_FIRST \
+	| MQ_MQGMO_UNMARKED_BROWSE_MSG \
+	| MQ:MQGMO_MARK_BROWSE_CO_OP )
 
 /* Wait Interval */
 #define MQ_MQWI_UNLIMITED                 (-1)
@@ -513,18 +516,18 @@ typedef struct _mq_parm_t
 #define MQ_MQENC_FLOAT_TNS                0x00000400
 
 /* Encodings for Multicast */
-#define MQ_MQENC_NORMAL                   ( MQENC_FLOAT_IEEE_NORMAL \
-	| MQENC_DECIMAL_NORMAL \
-	| MQENC_INTEGER_NORMAL )
-#define MQ_MQENC_REVERSED                 ( MQENC_FLOAT_IEEE_REVERSED \
-	| MQENC_DECIMAL_REVERSED \
-	| MQENC_INTEGER_REVERSED )
-#define MQ_MQENC_S390                     ( MQENC_FLOAT_S390 \
-	| MQENC_DECIMAL_NORMAL \
-	| MQENC_INTEGER_NORMAL )
-#define MQ_MQENC_TNS                      ( MQENC_FLOAT_TNS \
-	| MQENC_DECIMAL_NORMAL \
-	| MQENC_INTEGER_NORMAL )
+#define MQ_MQENC_NORMAL                   ( MQ_MQENC_FLOAT_IEEE_NORMAL \
+	| MQ_MQENC_DECIMAL_NORMAL \
+	| MQ_MQENC_INTEGER_NORMAL )
+#define MQ_MQENC_REVERSED                 ( MQ_MQENC_FLOAT_IEEE_REVERSED \
+	| MQ_MQENC_DECIMAL_REVERSED \
+	| MQ_MQENC_INTEGER_REVERSED )
+#define MQ_MQENC_S390                     ( MQ_MQENC_FLOAT_S390 \
+	| MQ_MQENC_DECIMAL_NORMAL \
+	| MQ_MQENC_INTEGER_NORMAL )
+#define MQ_MQENC_TNS                      ( MQ_MQENC_FLOAT_TNS \
+	| MQ_MQENC_DECIMAL_NORMAL \
+	| MQ_MQENC_INTEGER_NORMAL )
 #define MQ_MQENC_AS_PUBLISHED             (-1)
 
 /* Coded Character Set Identifiers */
@@ -2438,14 +2441,14 @@ typedef struct _mq_parm_t
 #define MQ_MQOO_ALTERNATE_USER_AUTHORITY  0x00001000
 #define MQ_MQOO_FAIL_IF_QUIESCING         0x00002000
 #define MQ_MQOO_BIND_ON_OPEN              0x00004000
-#define MQ_MQOO_BIND_ON_GROUP             0x00400000
 #define MQ_MQOO_BIND_NOT_FIXED            0x00008000
 #define MQ_MQOO_CO_OP                     0x00020000
+#define MQ_MQOO_RESOLVE_LOCAL_Q           0x00040000
+#define MQ_MQOO_RESOLVE_LOCAL_TOPIC       0x00040000
 #define MQ_MQOO_NO_READ_AHEAD             0x00080000
 #define MQ_MQOO_READ_AHEAD                0x00100000
 #define MQ_MQOO_NO_MULTICAST              0x00200000
-#define MQ_MQOO_RESOLVE_LOCAL_Q           0x00040000
-#define MQ_MQOO_RESOLVE_LOCAL_TOPIC       0x00040000
+#define MQ_MQOO_BIND_ON_GROUP             0x00400000
 
 /* Following used in C++ only */
 #define MQ_MQOO_RESOLVE_NAMES             0x00010000
@@ -4810,6 +4813,7 @@ DEF_VALSX(selector);
 DEF_VALSX(objtype);
 DEF_VALSX(PrmTyp);
 DEF_VALSX(PrmId);
+DEF_VALSX(FilterOP);
 
 DEF_VALSX(MQCFINT_Parse);
 
