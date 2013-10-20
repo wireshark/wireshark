@@ -1,0 +1,425 @@
+-- ILP.asn
+--
+-- Taken from OMA Internal Location Protocol
+-- http://member.openmobilealliance.org/ftp/Public_documents/LOC/Permanent_documents/OMA-TS-ILP-V2_0_1-20121205-A.zip
+--
+-- 13.1	Common Part
+--
+
+ILP DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+  Version, SessionID2
+    FROM ILP-Components
+  PREQ
+    FROM ILP-PREQ
+  PRES
+    FROM ILP-PRES
+  PRPT
+    FROM ILP-PRPT
+  PLREQ
+    FROM ILP-PLREQ
+  PLRES
+    FROM ILP-PLRES
+  PINIT
+    FROM ILP-PINIT
+  PAUTH
+    FROM ILP-PAUTH
+  PALIVE
+    FROM ILP-PALIVE
+  PEND
+    FROM ILP-PEND
+  PMESS
+    FROM ILP-PMESS;
+
+-- general ILP PDU layout;
+ILP-PDU ::= SEQUENCE {
+  length     INTEGER(0..65535),
+  version    Version,
+  sessionID2 SessionID2,
+  message    IlpMessage
+}
+
+IlpMessage ::= CHOICE {
+  msPREQ	PREQ,
+  msPRES	PRES,
+  msPRPT	PRPT,
+  msPLREQ	PLREQ,
+  msPLRES	PLRES,
+  msPINIT	PINIT,
+  msPAUTH	PAUTH,
+  msPALIVE	PALIVE,
+  msPEND	PEND,
+  msPMESS	PMESS,
+...}
+
+END
+
+--
+-- 13.2.1 PREQ
+--
+ILP-PREQ DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+EXPORTS PREQ;
+
+IMPORTS LocationId, Position, QoP, SPCSETKey, SPCTID, SPCSETKeylifetime, MultipleLocationIds, PosTechnology, SETCapabilities
+          FROM ILP-Components;
+
+PREQ ::= SEQUENCE {
+  sLPMode       SLPMode,
+  approvedPosMethods     	PosTechnology OPTIONAL,  
+  locationId    	LocationId OPTIONAL,
+  multipleLocationIds	MultipleLocationIds OPTIONAL,
+  position      	Position OPTIONAL,
+  triggerParams 	TriggerParams OPTIONAL,
+  sPCSETKey     	SPCSETKey OPTIONAL,
+  sPCTID        	SPCTID OPTIONAL,
+  sPCSETKeylifetime 	SPCSETKeylifetime OPTIONAL,
+  qoP           	QoP OPTIONAL,
+  sETCapabilities      	SETCapabilities OPTIONAL,
+  notificationMode     	NotificationMode OPTIONAL,
+...}
+
+SLPMode ::= ENUMERATED {proxy(0), nonProxy(1)}
+
+TriggerParams ::= SEQUENCE {
+  triggerType		TriggerType,
+  periodicTriggerParams	PeriodicTriggerParams	OPTIONAL,
+...}
+
+TriggerType ::= ENUMERATED {
+  periodic(0), areaEvent(1),
+...}
+
+PeriodicTriggerParams ::= SEQUENCE{
+   numberOfFixes	INTEGER(1..8639999),
+   intervalBetweenFixes	INTEGER(1..8639999),
+   startTime		INTEGER(0..2678400) OPTIONAL,
+...}
+-- intervalBetweenFixes and startTime are in seconds.
+-- numberOfFixes  * intervalBetweenFixes shall not exceed 8639999 
+-- (100 days in seconds) for compatibility with OMA MLP and RLP
+-- startTime is in relative time in units of seconds measured from ¡°now¡±
+-- a value of 0 signifies ¡°now¡±, a value of ¡°startTime¡± signifies startTime
+-- seconds from ¡°now¡±
+
+NotificationMode ::= ENUMERATED {normal(0), basedOnLocation(1), ...}
+
+END
+
+
+--
+-- 13.2.2 PRES
+--
+ILP-PRES DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+EXPORTS PRES;
+
+IMPORTS Position, SPCStatusCode, PosTechnology, PosMethod, GNSSPosTechnology
+          FROM ILP-Components;
+
+PRES ::= SEQUENCE {
+  preferredPosMethod	PosMethod OPTIONAL,
+  gnssPosTechnology	GNSSPosTechnology OPTIONAL,
+  supportedPosMethods 	PosTechnology OPTIONAL,
+  position      	Position OPTIONAL,
+  sPCstatusCode    	SPCStatusCode OPTIONAL,
+...}
+
+END
+
+
+--
+-- 13.2.3 PRPT
+--
+ILP-PRPT DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+EXPORTS PRPT;
+
+IMPORTS Position, StatusCode
+          FROM ILP-Components;
+
+PRPT ::= SEQUENCE {
+  position      Position,
+  fixNumber     INTEGER(1.. 8639999) OPTIONAL,
+  statusCode    StatusCode OPTIONAL,
+...}
+
+END
+
+
+--
+-- 13.2.4 PLREQ
+--
+ILP-PLREQ DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+EXPORTS PLREQ;
+
+IMPORTS LocationId, MultipleLocationIds
+          FROM ILP-Components;
+
+PLREQ ::= SEQUENCE {
+  locationId    	LocationId,
+  multipleLocationIds	MultipleLocationIds OPTIONAL,
+...}
+
+END
+
+
+--
+-- 13.2.5 PLRES
+--
+ILP-PLRES DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+EXPORTS PLRES;
+
+IMPORTS Position, StatusCode, maxPosSize
+          FROM ILP-Components;
+
+PLRES ::= SEQUENCE {
+  positionResults	PositionResults,
+...}
+
+PositionResults ::= SEQUENCE SIZE (1..maxPosSize) OF PositionResult
+
+PositionResult ::= CHOICE {
+  position 	Position,
+  statusCode	StatusCode,
+...}
+
+END
+
+
+--
+-- 13.2.6 PINIT
+--
+ILP-PINIT DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+EXPORTS PINIT;
+
+IMPORTS
+  LocationId, Position, PosMethod, MultipleLocationIds, PosPayLoad, SETCapabilities, UTRAN-GPSReferenceTimeResult, UTRAN-GANSSReferenceTimeResult, GNSSPosTechnology, GANSSSignals
+    FROM ILP-Components;
+
+PINIT ::= SEQUENCE {
+  sETCapabilities      		SETCapabilities,
+  locationId           		LocationId,  
+  posMethod	       		PosMethod OPTIONAL,  
+  requestedAssistData  		RequestedAssistData OPTIONAL, 
+  position             		Position OPTIONAL,
+  posPayLoad           		PosPayLoad OPTIONAL,
+  multipleLocationIds	 	MultipleLocationIds OPTIONAL,
+  utran-GPSReferenceTimeResult		UTRAN-GPSReferenceTimeResult OPTIONAL,
+  utran-GANSSReferenceTimeResult	UTRAN-GANSSReferenceTimeResult OPTIONAL,
+  gnssPosTechnology		GNSSPosTechnology OPTIONAL,
+...}
+
+RequestedAssistData ::= SEQUENCE {
+  almanacRequested		BOOLEAN,
+  utcModelRequested		BOOLEAN,
+  ionosphericModelRequested       	BOOLEAN,
+  dgpsCorrectionsRequested        	BOOLEAN,
+  referenceLocationRequested      	BOOLEAN, -- Note: Used also for GANSS
+  referenceTimeRequested          	BOOLEAN,
+  acquisitionAssistanceRequested  	BOOLEAN,
+  realTimeIntegrityRequested      	BOOLEAN,
+  navigationModelRequested        	BOOLEAN,
+  navigationModelData             	NavigationModel OPTIONAL, 
+  ganssRequestedCommonAssistanceDataList	GanssRequestedCommonAssistanceDataList OPTIONAL,
+  ganssRequestedGenericAssistanceDataList	GanssRequestedGenericAssistanceDataList OPTIONAL,
+  extendedEphemeris	 	ExtendedEphemeris OPTIONAL,
+  extendedEphemerisCheck		ExtendedEphCheck OPTIONAL, 
+...}
+
+ExtendedEphemeris ::= SEQUENCE {
+  validity	INTEGER (1..256), -- Requested validity in 4 hour steps
+...}
+
+ExtendedEphCheck ::= SEQUENCE {
+  beginTime	GPSTime, -- Begin time of ephemeris extension held by SET
+  endTime	GPSTime, -- End time of ephemeris extension held by SET
+...}
+
+GPSTime ::= SEQUENCE {
+  gPSWeek	INTEGER (0..1023),
+  gPSTOWhour	INTEGER (0..167),
+...}
+
+GanssRequestedCommonAssistanceDataList ::= SEQUENCE {
+  ganssReferenceTime	BOOLEAN,
+  ganssIonosphericModel	BOOLEAN, 
+  ganssAdditionalIonosphericModelForDataID00	BOOLEAN,
+  ganssAdditionalIonosphericModelForDataID11	BOOLEAN,
+  ganssEarthOrientationParameters		BOOLEAN,
+...}
+
+GanssRequestedGenericAssistanceDataList ::= SEQUENCE(SIZE(1..maxGANSS)) OF GanssReqGenericData
+
+GanssReqGenericData ::= SEQUENCE {
+  ganssId		INTEGER(0..15), -- coding according to parameter definition in Section 12.14
+  ganssSBASid BIT STRING(SIZE(3)) OPTIONAL, --coding according to parameter definition in section 12.14
+  ganssRealTimeIntegrity	BOOLEAN OPTIONAL,
+  ganssDifferentialCorrection	DGANSS-Sig-Id-Req OPTIONAL,
+  ganssAlmanac		BOOLEAN,
+  ganssNavigationModelData	GanssNavigationModelData OPTIONAL,
+  ganssTimeModels	BIT STRING(SIZE(16)) OPTIONAL,
+  ganssReferenceMeasurementInfo	BOOLEAN,
+  ganssDataBits		GanssDataBits	 OPTIONAL,
+  ganssUTCModel		BOOLEAN, 
+  ganssAdditionalDataChoices 	GanssAdditionalDataChoices OPTIONAL,
+  ganssAuxiliaryInformation	BOOLEAN,
+  ganssExtendedEphemeris        	ExtendedEphemeris OPTIONAL,
+  ganssExtendedEphemerisCheck	GanssExtendedEphCheck OPTIONAL,	
+...}
+
+DGANSS-Sig-Id-Req ::= BIT STRING (SIZE(8)) --- coding according to parameter definition in Section 12.15
+
+
+GanssNavigationModelData ::= SEQUENCE {
+  ganssWeek	INTEGER(0..4095),
+  ganssToe	INTEGER(0..167),
+  t-toeLimit	INTEGER(0..10),
+  satellitesListRelatedDataList	SatellitesListRelatedDataList OPTIONAL,
+...}
+
+SatellitesListRelatedDataList ::= SEQUENCE(SIZE(0..maxGANSSSat)) OF SatellitesListRelatedData
+
+SatellitesListRelatedData ::= SEQUENCE {
+  satId	INTEGER(0..63),
+  iod	INTEGER(0..1023),
+...}
+
+maxGANSS    INTEGER ::= 16
+maxGANSSSat INTEGER ::= 32
+
+GanssDataBits ::= SEQUENCE {
+  ganssTODmin     INTEGER (0..59),
+  reqDataBitAssistanceList ReqDataBitAssistanceList,
+...}
+
+ReqDataBitAssistanceList ::= SEQUENCE {
+  gnssSignals		GANSSSignals,
+  ganssDataBitInterval  	INTEGER (0..15),
+  ganssDataBitSatList	SEQUENCE (SIZE(1..maxGANSSSat)) OF INTEGER (0..63) OPTIONAL,
+...}
+
+GanssAdditionalDataChoices ::= SEQUENCE {
+  orbitModelID	INTEGER(0..7) OPTIONAL,
+  clockModelID	INTEGER(0..7) OPTIONAL,
+  utcModelID		INTEGER(0..7) OPTIONAL,
+  almanacModelID	INTEGER(0..7) OPTIONAL,
+...}
+
+GanssExtendedEphCheck ::= SEQUENCE {
+  beginTime	GANSSextEphTime, -- Begin time of ephemeris extension held by SET
+  endTime    	GANSSextEphTime, -- End time of ephemeris extension held by SET
+...}
+
+GANSSextEphTime ::= SEQUENCE {
+  gANSSday		INTEGER (0..8191),
+  gANSSTODhour 	INTEGER (0..23),
+...}
+
+NavigationModel ::= SEQUENCE {
+  gpsWeek   INTEGER(0..1023),
+  gpsToe    INTEGER(0..167),
+  nSAT      INTEGER(0..31),
+  toeLimit  INTEGER(0..10),
+  satInfo   SatelliteInfo OPTIONAL,
+...}
+
+SatelliteInfo ::= SEQUENCE (SIZE (1..31)) OF SatelliteInfoElement
+
+SatelliteInfoElement ::= SEQUENCE {
+  satId  INTEGER(0..63),
+  iODE   INTEGER(0..255),
+...}
+
+END
+
+
+--
+-- 13.2.7 PAUTH
+--
+ILP-PAUTH DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+EXPORTS PAUTH;
+
+IMPORTS SPCSETKey, SPCTID, SPCSETKeylifetime
+          FROM ILP-Components;
+
+PAUTH ::= SEQUENCE {
+  sPCSETKey	 SPCSETKey,
+  sPCTID	 SPCTID,
+  sPCSETKeylifetime SPCSETKeylifetime OPTIONAL,
+...}
+
+END
+
+
+--
+-- 13.2.8 PALIVE
+--
+ILP-PALIVE DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+EXPORTS PALIVE;
+
+IMPORTS SPCStatusCode
+          FROM ILP-Components;
+
+PALIVE ::= SEQUENCE {
+  sPCStatusCode    SPCStatusCode OPTIONAL,
+...}
+
+END
+
+
+--
+-- 13.2.9 PEND
+--
+ILP-PEND DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+EXPORTS PEND;
+
+IMPORTS Position, StatusCode
+          FROM ILP-Components;
+
+PEND ::= SEQUENCE {
+  position    Position   OPTIONAL,
+  statusCode  StatusCode OPTIONAL,
+...}
+
+END
+
+
+--
+-- 13.2.10 PMESS
+--
+ILP-PMESS DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+EXPORTS PMESS;
+
+IMPORTS Velocity, PosPayLoad, UTRAN-GPSReferenceTimeResult, UTRAN-GANSSReferenceTimeResult, UTRAN-GPSReferenceTimeAssistance, UTRAN-GANSSReferenceTimeAssistance
+          FROM ILP-Components;
+
+PMESS ::= SEQUENCE {
+  posPayLoad  PosPayLoad,
+  velocity    Velocity OPTIONAL,
+  utran-GPSReferenceTimeAssistance	UTRAN-GPSReferenceTimeAssistance OPTIONAL,
+  utran-GPSReferenceTimeResult		UTRAN-GPSReferenceTimeResult OPTIONAL,
+  utran-GANSSReferenceTimeAssistance	UTRAN-GANSSReferenceTimeAssistance OPTIONAL,
+  utran-GANSSReferenceTimeResult	UTRAN-GANSSReferenceTimeResult OPTIONAL,
+  ...}
+
+END

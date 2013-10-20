@@ -123,6 +123,7 @@ PER_LIST= \
 	h460			\
 	h501			\
 	hnbap			\
+	ilp			\
 	lcsap			\
 	lpp			\
 	lppa			\

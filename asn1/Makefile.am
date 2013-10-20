@@ -65,6 +65,7 @@ SUBDIRS =		\
 	HI2Operations	\
 	hnbap		\
 	idmp		\
+	ilp		\
 	inap		\
 	isdn-sup	\
 	lcsap		\

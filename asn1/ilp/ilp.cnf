@@ -1,0 +1,66 @@
+# ilp.cnf
+# ilp conformation file
+# Copyright 2013 e.yimjia
+# $Id$
+
+#.OPT
+PER
+UNALIGNED
+#.END
+
+#.PDU
+ILP-PDU
+#.END
+
+
+#.TYPE_RENAME
+FrequencyInfo/modeSpecificInfo FrequencySpecificInfo
+#.END
+
+#.FIELD_RENAME
+FrequencyInfo/modeSpecificInfo  modeSpecificFrequencyInfo
+FrequencyInfo/modeSpecificInfo/fdd  fdd_fr
+FrequencyInfo/modeSpecificInfo/tdd  tdd_fr
+SETId/min  minsi
+#.END
+
+#.FN_HDR ILP-PDU
+  proto_tree_add_item(tree, proto_ilp, tvb, 0, -1, ENC_NA);
+
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_clear(actx->pinfo->cinfo, COL_INFO);
+#.END
+
+#.FN_BODY IlpMessage  VAL_PTR = &IlpMessage
+
+guint32 IlpMessage;
+
+  %(DEFAULT_BODY)s
+
+  col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ", val_to_str(IlpMessage,ilp_IlpMessage_vals,"Unknown"));
+
+#.END
+
+#.FN_BODY PosPayLoad/rrlpPayload  VAL_PTR = &rrlp_tvb
+  tvbuff_t *rrlp_tvb;
+
+%(DEFAULT_BODY)s
+
+  if (rrlp_tvb && rrlp_handle) {
+    call_dissector(rrlp_handle, rrlp_tvb, %(ACTX)s->pinfo, tree);
+  }
+
+#.FN_BODY MultiPosPayLoad/lPPPayload/_item  VAL_PTR = &lpp_tvb
+  tvbuff_t *lpp_tvb;
+
+%(DEFAULT_BODY)s
+
+  if (lpp_tvb && lpp_handle) {
+    call_dissector(lpp_handle, lpp_tvb, %(ACTX)s->pinfo, tree);
+  }
+
+
+#.TYPE_ATTR
+IPAddress/ipv4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL  
+IPAddress/ipv6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL  
+#.END

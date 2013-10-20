@@ -61,6 +61,7 @@ Cisco MetaData
 EXPORTED PDU
 HTTP2
 IDRP
+ILP
 Kafka
 MBIM
 MiNT
