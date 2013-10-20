@@ -25,7 +25,7 @@
  *
  * Ref ITU-T E.164 05/97
  *     Annex to ITU Operational Bulletin No. 991 - 1.XI.2011
- *     Amendment No. 6 ITU Operational Bulletin No. 1038 – 15.X.2013
+ *     Amendment No. 6 ITU Operational Bulletin No. 1038 - 15.X.2013
  */
 
 #include "config.h"

@@ -45,7 +45,7 @@
  *
  * COMPLEMENT TO ITU-T RECOMMENDATION E.212 (05/2008)
  *
- * Amendment No. 16 ITU Operational Bulletin No. 1038 – 15.X.2013
+ * Amendment No. 16 ITU Operational Bulletin No. 1038 - 15.X.2013
  *
  * Find the bulletins here:
  * http://www.itu.int/en/publications/ITU-T/Pages/publications.aspx?parent=T-SP&view=T-SP1
