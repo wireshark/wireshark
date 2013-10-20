@@ -135,7 +135,7 @@ clean-local:
 	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) \
 		libwireshark.lib libwireshark.dll *.manifest libwireshark.exp \
 		*.pdb *.sbr doxygen.cfg html/*.* \
-		exntest.obj exntest.exe exntest.exp reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe tvbtest.exp
+		exntest.obj exntest.exe exntest.exp reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe tvbtest.exp oids_test.obj oids_test.exe oids_test.exp
 	if exist html rm -rf html
 
 clean:  clean-local
@@ -258,6 +258,7 @@ doxygen: doxygen.cfg doxygen-run
 exntest: exntest.exe
 reassemble_test: reassemble_test.exe
 tvbtest: tvbtest.exe
+oids_test: oids_test.exe
 
 # Object files for exntest
 EXNTEST_OBJ=exntest.obj except.obj
@@ -299,6 +300,36 @@ tvbtest.exe: $(TVBTEST_OBJ)
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
 
+# Object files for oids_test
+OIDS_TEST_OBJ=oids_test.obj
+OIDS_TEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
+	$(GLIB_LIBS) \
+	..\wsutil\libwsutil.lib \
+	$(GNUTLS_LIBS) \
+	$(PYTHON_LIBS) \
+!IFDEF ENABLE_LIBWIRESHARK
+	libwireshark.lib \
+!ELSE
+	dissectors\dissectors.lib \
+	wireshark.lib \
+	crypt\airpdcap.lib \
+	dfilter\dfilter.lib \
+	ftypes\ftypes.lib \
+	wmem\wmem.lib \
+	$(C_ARES_LIBS) \
+	$(ADNS_LIBS) \
+	$(ZLIB_LIBS)
+!ENDIF
+
+oids_test.exe: $(OIDS_TEST_OBJ)
+	@echo Linking $@
+	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
+		$(OIDS_TEST_LIBS) $(GLIB_LIBS) $(ZLIB_LIBS) $(OIDS_TEST_OBJ)
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
+!ENDIF
+
 # Object files for reassemble_test
 REASSEMBLE_TEST_OBJ=reassemble_test.obj
 REASSEMBLE_TEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
@@ -335,6 +366,10 @@ exntest_install:
 tvbtest_install:
 	set copycmd=/y
 	if exist tvbtest.exe          xcopy tvbtest.exe          ..\$(INSTALL_DIR) /d
+
+oids_test_install:
+	set copycmd=/y
+	if exist oids_test.exe          xcopy oids_test.exe          ..\$(INSTALL_DIR) /d
 
 reassemble_test_install:
 	set copycmd=/y
@@ -405,6 +440,9 @@ reassemble_test.obj: reassemble_test.c
 	$(CC) $(TEST_CFLAGS) -Fd.\ -c $?
 
 tvbtest.obj: tvbtest.c
+	$(CC) $(TEST_CFLAGS) -Fd.\ -c $?
+
+oids_test.obj: oids_test.c
 	$(CC) $(TEST_CFLAGS) -Fd.\ -c $?
 
 ps.c: ..\tools\rdps.py print.ps
