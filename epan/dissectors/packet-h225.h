@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h225.h                                                              */
-/* ../../tools/asn2wrs.py -k -p h225 -c ./h225.cnf -s ./packet-h225-template -D . -O ../../epan/dissectors H323-MESSAGES.asn */
+/* ../../tools/asn2wrs.py -p h225 -c ./h225.cnf -s ./packet-h225-template -D . -O ../../epan/dissectors H323-MESSAGES.asn */
 
 /* Input file: packet-h225-template.h */
 
