@@ -330,6 +330,13 @@ static expert_field ei_ldp_gtsm_supported = EI_INIT;
 static expert_field ei_ldp_gtsm_not_supported_basic_discovery = EI_INIT;
 static expert_field ei_ldp_gtsm_not_supported = EI_INIT;
 static expert_field ei_ldp_inv_length = EI_INIT;
+static expert_field ei_ldp_tlv_fec_vc_infolength = EI_INIT;
+static expert_field ei_ldp_tlv_fec_type = EI_INIT;
+static expert_field ei_ldp_tlv_fec_len = EI_INIT;
+static expert_field ei_ldp_malformed_data = EI_INIT;
+static expert_field ei_ldp_address_family_not_implemented = EI_INIT;
+static expert_field ei_ldp_malformed_interface_parameter = EI_INIT;
+static expert_field ei_ldp_tlv_fec = EI_INIT;
 
 /* desegmentation of LDP over TCP */
 static gboolean ldp_desegment = TRUE;
@@ -896,7 +903,7 @@ static void
 dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, int *interface_parameters_hf[]);
 
 static void
-dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
+dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem);
 
 /* Dissect FEC TLV */
 
@@ -945,7 +952,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
         &hf_ldp_tlv_fec_vc_intparam_flowlabel_res,
     };
 
-    proto_tree *ti, *val_tree, *fec_tree=NULL;
+    proto_tree *ti, *ti2, *val_tree, *fec_tree=NULL;
     proto_tree *agi_tree=NULL, *saii_tree=NULL, *taii_tree=NULL;
     guint16     family, ix=1, ax;
     guint16     op_length = tvb_get_bits16(tvb, ((offset+8)*8), 16, ENC_BIG_ENDIAN);
@@ -971,7 +978,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 
         case PREFIX_FEC:
             if ( rem < 4 ){/*not enough*/
-                proto_tree_add_text(val_tree, tvb, offset, rem, "Error in FEC Element %u", ix);
+                proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec, tvb, offset, rem, "Error in FEC Element %u", ix);
                 return;
             }
             family=tvb_get_ntohs(tvb, offset+1);
@@ -997,14 +1004,14 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 guint16 noctets;
 
                 noctets= rem>4+prefix_len_octets?4+prefix_len_octets:rem;
-                proto_tree_add_text(val_tree, tvb, offset, noctets,"Support for Address Family not implemented");
+                proto_tree_add_expert(val_tree, pinfo, &ei_ldp_address_family_not_implemented, tvb, offset, noctets);
                 offset+=noctets;
                 rem-=noctets;
                 break;
             }
 
             if ( rem < 4+MIN(addr_size, prefix_len_octets) ){
-                proto_tree_add_text(val_tree, tvb, offset, rem, "Error in FEC Element %u", ix);
+                proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec, tvb, offset, rem, "Error in FEC Element %u", ix);
                 return;
             }
 
@@ -1017,14 +1024,14 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_af, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_len, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
 
             if ( addr_size < prefix_len_octets) {
                 offset+=addr_size;
                 rem-=addr_size;
-                proto_tree_add_text(fec_tree, tvb, offset-1, 1,
+                expert_add_info_format(pinfo, ti, &ei_ldp_tlv_fec_len,
                                     "Invalid prefix %u length for family %s",
                                     prefix_len, val_to_str_const(family, afn_vals, "Unknown Family"));
                 break;
@@ -1047,7 +1054,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 
         case HOST_FEC:
             if ( rem < 4 ){/*not enough*/
-                proto_tree_add_text(val_tree, tvb, offset, rem, "Error in FEC Element %u", ix);
+                proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec, tvb, offset, rem, "Error in FEC Element %u", ix);
                 return;
             }
             family=tvb_get_ntohs(tvb, offset+1);
@@ -1072,14 +1079,14 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 guint16 noctets;
 
                 noctets= rem>4+host_len?4+host_len:rem;
-                proto_tree_add_text(val_tree, tvb, offset, noctets,"Support for Address Family not implemented");
+                proto_tree_add_expert(val_tree, pinfo, &ei_ldp_address_family_not_implemented, tvb, offset, noctets);
                 offset+=noctets;
                 rem-=noctets;
                 break;
             }
 
             if ( rem < 4+addr_size ){
-                proto_tree_add_text(val_tree, tvb, offset, rem, "Error in FEC Element %u", ix);
+                proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec, tvb, offset, rem, "Error in FEC Element %u", ix);
                 return;
             }
 
@@ -1092,14 +1099,14 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_af, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_len, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
 
             if ( addr_size != host_len) {
                 offset+=addr_size;
                 rem-=addr_size;
-                proto_tree_add_text(fec_tree, tvb, offset-1, 1,
+                expert_add_info_format(pinfo, ti, &ei_ldp_tlv_fec_len,
                                     "Invalid address length %u length for family %s",
                                     host_len, val_to_str_const(family, afn_vals, "Unknown Family"));
                 break;
@@ -1120,7 +1127,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 
         case VC_FEC:
             if ( rem < 8 ){/*not enough bytes for a minimal VC_FEC*/
-                proto_tree_add_text(val_tree, tvb, offset, rem, "Error in FEC Element %u", ix);
+                proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec, tvb, offset, rem, "Error in FEC Element %u", ix);
                 return;
             }
             vc_len = tvb_get_guint8 (tvb, offset+3);
@@ -1131,7 +1138,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_controlword, tvb, offset+1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_vctype, tvb, offset+1, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_infolength, tvb, offset+3,1,ENC_BIG_ENDIAN);
+            ti2 = proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_infolength, tvb, offset+3,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_groupid,tvb, offset +4, 4, ENC_BIG_ENDIAN);
             rem -=8;
             offset +=8;
@@ -1141,7 +1148,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 proto_item_append_text (ti," VCID: %u",tvb_get_ntohl(tvb,offset));
 
             } else {
-                proto_tree_add_text(val_tree,tvb,offset +4, 8 +vc_len, "VC FEC size format error");
+                expert_add_info(pinfo, ti2, &ei_ldp_tlv_fec_vc_infolength);
                 return;
             }
             rem -= 4;
@@ -1151,12 +1158,12 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             while ( (vc_len > 1) && (rem > 1) ) {   /* enough to include id and length */
                 intparam_len = tvb_get_guint8(tvb, offset+1);
                 if (intparam_len < 2){ /* At least Type and Len, protect against len = 0 */
-                    proto_tree_add_text(fec_tree, tvb, offset +1, 1, "Malformed interface parameter");
+                    proto_tree_add_expert(fec_tree, pinfo, &ei_ldp_malformed_interface_parameter, tvb, offset +1, 1);
                     return;
                 }
 
                 if ( (vc_len -intparam_len) <0 && (rem -intparam_len) <0 ) { /* error condition */
-                    proto_tree_add_text(fec_tree, tvb, offset +2, MIN(vc_len,rem), "Malformed data");
+                    proto_tree_add_expert(fec_tree, pinfo, &ei_ldp_malformed_data, tvb, offset +2, MIN(vc_len,rem));
                     return;
                 }
                 dissect_subtlv_interface_parameters(tvb, offset, fec_tree, intparam_len, interface_params_header_fields);
@@ -1170,7 +1177,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
         {
             /* Ref: RFC 4447 */
             if ( rem < 4 ){/*not enough bytes for a minimal VC_FEC*/
-                proto_tree_add_text(val_tree, tvb, offset, rem, "Error in FEC Element %u", ix);
+                proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec, tvb, offset, rem, "Error in FEC Element %u", ix);
                 return;
             }
             vc_len = tvb_get_guint8 (tvb, offset+3);
@@ -1201,7 +1208,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 offset += 2 + gen_fec_id_len;
 
             } else {
-                proto_tree_add_text(fec_tree ,tvb,offset , 2 +vc_len, "Generalized FEC: AGI size format error");
+                proto_tree_add_expert_format(fec_tree, pinfo, &ei_ldp_tlv_fec_vc_infolength, tvb, offset, 2 +vc_len, "Generalized FEC: AGI size format error");
                 return;
             }
 
@@ -1212,7 +1219,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 if ( aai_type == 2 && gen_fec_id_len != 12)
                 {
                     /* According to RFC 5003, for Type 2 AAI, the length should be 12 bytes */
-                    proto_tree_add_text(fec_tree,tvb,offset , 2 + gen_fec_id_len, "Generalized FEC: SAII size format error");
+                    proto_tree_add_expert_format(fec_tree, pinfo, &ei_ldp_tlv_fec_vc_infolength, tvb, offset, 2 + gen_fec_id_len, "Generalized FEC: SAII size format error");
                 }
                 else
                 {
@@ -1239,7 +1246,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 
                         if ( aai_type == 2)
                         {
-                            dissect_genpwid_fec_aai_type2_parameter(tvb, offset +2, saii_tree, gen_fec_id_len);
+                            dissect_genpwid_fec_aai_type2_parameter(tvb, pinfo, offset +2, saii_tree, gen_fec_id_len);
                         }
                         else
                         {
@@ -1257,7 +1264,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 offset += 2 + gen_fec_id_len;
 
             } else {
-                proto_tree_add_text(fec_tree,tvb,offset , 2 + vc_len, "Generalized FEC: SAII size format error");
+                proto_tree_add_expert_format(fec_tree, pinfo, &ei_ldp_tlv_fec_vc_infolength, tvb, offset, 2 + vc_len, "Generalized FEC: SAII size format error");
                 return;
             }
 
@@ -1268,7 +1275,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 if ( aai_type == 2 && gen_fec_id_len != 12)
                 {
                     /* According to RFC 5003, for Type 2 AAI, the length should be 12 bytes */
-                    proto_tree_add_text(fec_tree,tvb,offset , 2 + gen_fec_id_len, "Generalized FEC: TAII size format error");
+                    proto_tree_add_expert_format(fec_tree, pinfo, &ei_ldp_tlv_fec_vc_infolength, tvb, offset, 2 + gen_fec_id_len, "Generalized FEC: TAII size format error");
                 }
                 else
                 {
@@ -1295,7 +1302,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 
                         if ( aai_type == 2)
                         {
-                            dissect_genpwid_fec_aai_type2_parameter(tvb, offset +2, taii_tree, gen_fec_id_len);
+                            dissect_genpwid_fec_aai_type2_parameter(tvb, pinfo, offset +2, taii_tree, gen_fec_id_len);
                         }
                         else
                         {
@@ -1309,7 +1316,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 
 
             } else {
-                proto_tree_add_text(fec_tree,tvb,offset , 2 +vc_len, "Generalized FEC: TAII size format error");
+                proto_tree_add_expert_format(fec_tree, pinfo, &ei_ldp_tlv_fec_vc_infolength, tvb, offset, 2 +vc_len, "Generalized FEC: TAII size format error");
                 return;
             }
 
@@ -1348,7 +1355,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             /* If we don't know its structure, we have to exit */
             ti = proto_tree_add_text(val_tree, tvb, offset, 4, "FEC Element %u", ix);
             fec_tree = proto_item_add_subtree(ti, ett_ldp_fec);
-            proto_tree_add_text(fec_tree, tvb, offset, rem, "Unknown FEC TLV type");
+            proto_tree_add_expert(fec_tree, pinfo, &ei_ldp_tlv_fec_type, tvb, offset, rem);
             return;
         }
         ix++;
@@ -1358,7 +1365,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 /* Dissect Address List TLV */
 
 static void
-dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_address_list(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
     guint16     family, ix;
@@ -1367,7 +1374,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     const char *str;
 
     if ( rem < 2 ) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Address List TLV: length is %d, should be >= 2",
                             rem);
         return;
@@ -1386,8 +1393,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
         str_handler = (string_handler_func *) ip6_to_str;
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset+2, rem-2,
-                            "Support for Address Family not implemented");
+        proto_tree_add_expert(tree, pinfo, &ei_ldp_address_family_not_implemented, tvb, offset+2, rem-2);
         return;
     }
 
@@ -1409,14 +1415,13 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                                      "Address %u: %s", ix, str);
     }
     if (rem)
-        proto_tree_add_text(val_tree, tvb, offset, rem,
-                            "Error processing TLV: Extra data at end of address list");
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem, "Error processing TLV: Extra data at end of address list");
 }
 
 /* Dissect Path Vector TLV */
 
 static void
-dissect_tlv_path_vector(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_path_vector(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
     guint8      ix;
@@ -1433,21 +1438,18 @@ dissect_tlv_path_vector(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                                    ip_to_str((guint8 *)&addr));
     }
     if (rem)
-        proto_tree_add_text(val_tree, tvb, offset, rem,
-                            "Error processing TLV: Extra data at end of path vector");
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem, "Error processing TLV: Extra data at end of path vector");
 }
 
 /* Dissect ATM Label TLV */
 
 static void
-dissect_tlv_atm_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_atm_label(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if (rem != 4){
-        proto_tree_add_text(tree, tvb, offset, rem,
-                            "Error processing ATM Label TLV: length is %d, should be 4",
-                            rem);
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem, "Error processing ATM Label TLV: length is %d, should be 4");
         return;
     }
     ti=proto_tree_add_text(tree, tvb, offset, rem, "ATM Label");
@@ -1463,13 +1465,13 @@ dissect_tlv_atm_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 /* Dissect FRAME RELAY Label TLV */
 
 static void
-dissect_tlv_frame_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_frame_label(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
     guint8      len;
 
     if (rem != 4){
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Frame Relay Label TLV: length is %d, should be 4",
                             rem);
         return;
@@ -1488,13 +1490,13 @@ dissect_tlv_frame_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 /* Dissect STATUS TLV */
 
 static void
-dissect_tlv_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_status(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
     guint32     data;
 
     if (rem != 10){
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Status TLV: length is %d, should be 10",
                             rem);
         return;
@@ -1517,12 +1519,12 @@ dissect_tlv_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 /* Dissect Returned PDU TLV */
 
 static void
-dissect_tlv_returned_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_returned_pdu(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if (rem < 10){
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Returned PDU TLV: length is %d, should be >= 10",
                             rem);
         return;
@@ -1546,13 +1548,13 @@ dissect_tlv_returned_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 /* Dissect Returned MESSAGE TLV */
 
 static void
-dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_returned_message(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
     guint16     type;
 
     if (rem < 4) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Returned Message TLV: length is %d, should be >= 4",
                             rem);
         return;
@@ -1640,7 +1642,7 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, 
 /* Dissect MAC TLV */
 
 static void
-dissect_tlv_mac(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_mac(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree   *ti, *val_tree;
     guint8        ix;
@@ -1652,8 +1654,7 @@ dissect_tlv_mac(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
         proto_tree_add_item(val_tree, hf_ldp_tlv_mac, tvb, offset, 6, ENC_NA);
     }
     if (rem)
-        proto_tree_add_text(val_tree, tvb, offset, rem,
-                            "Error processing TLV: Extra data at end of path vector");
+        proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem, "Error processing TLV: Extra data at end of path vector");
 }
 
 
@@ -1661,14 +1662,12 @@ dissect_tlv_mac(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 /* Dissect the common session params */
 
 static void
-dissect_tlv_common_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_common_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if ( rem != 14) { /*length of Comm Sess Parms tlv*/
-        proto_tree_add_text(tree, tvb, offset, rem,
-                            "Error processing Common Session Parameters TLV: length is %d, should be 14",
-                            rem);
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem, "Error processing Common Session Parameters TLV: length is %d, should be 14", rem);
         return;
     }
     ti = proto_tree_add_text(tree, tvb, offset, rem, "Parameters");
@@ -1702,13 +1701,13 @@ dissect_tlv_common_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 /* Dissect the atm session params */
 
 static void
-dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_atm_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree, *lbl_tree;
     guint8      numlr, ix;
 
     if (rem < 4) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing ATM Parameters TLV: length is %d, should be >= 4",
                             rem);
         return;
@@ -1760,20 +1759,20 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int
         offset += 8;
     }
     if( rem || numlr)
-        proto_tree_add_text(val_tree, tvb, offset, rem,
+        proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing TLV: Extra data at end of TLV");
 }
 
 /* Dissect the frame relay session params */
 
 static void
-dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tree, int rem)
+dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree, *lbl_tree;
     guint8      numlr, ix, len;
 
     if(rem < 4) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Frame Relay Parameters TLV: length is %d, should be >= 4",
                             rem);
         return;
@@ -1823,21 +1822,21 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
     }
 
     if( rem || numlr)
-        proto_tree_add_text(val_tree, tvb, offset, rem,
+        proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing TLV: Extra data at end of TLV");
 }
 
 /* Dissect the Fault Tolerant (FT) Session TLV */
 
 static void
-dissect_tlv_ft_session(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_ft_session(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree, *flags_tree;
     guint16 flags;
 
     if(rem != 12){
         /* error, length must be 12 bytes */
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing FT Session TLV: length is %d, should be 12",
                             rem);
         return;
@@ -1873,12 +1872,12 @@ dissect_tlv_ft_session(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 }
 
 static void
-dissect_tlv_lspid(tvbuff_t *tvb, guint offset,proto_tree *tree, int rem)
+dissect_tlv_lspid(tvbuff_t *tvb, packet_info *pinfo, guint offset,proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if(rem != 8) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing LSP ID TLV: length is %d, should be 8",
                             rem);
         return;
@@ -1898,12 +1897,12 @@ dissect_tlv_lspid(tvbuff_t *tvb, guint offset,proto_tree *tree, int rem)
 }
 
 static void
-dissect_tlv_er_hop_ipv4(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_er_hop_ipv4(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if(rem != 8) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing ER HOP IPv4 TLV: length is %d, should be 8",
                             rem);
         return;
@@ -1924,12 +1923,12 @@ dissect_tlv_er_hop_ipv4(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 }
 
 static void
-dissect_tlv_er_hop_ipv6(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_er_hop_ipv6(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if(rem != 20) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing ER HOP IPv6 TLV: length is %d, should be 20",
                             rem);
         return;
@@ -1950,12 +1949,12 @@ dissect_tlv_er_hop_ipv6(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 }
 
 static void
-dissect_tlv_er_hop_as(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_er_hop_as(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if(rem != 4) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing ER HOP AS TLV: length is %d, should be 4",
                             rem);
         return;
@@ -1973,12 +1972,12 @@ dissect_tlv_er_hop_as(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 }
 
 static void
-dissect_tlv_er_hop_lspid(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_er_hop_lspid(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if(rem != 8) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing ER HOP LSPID TLV: length is %d, should be 8",
                             rem);
         return;
@@ -1999,7 +1998,7 @@ dissect_tlv_er_hop_lspid(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 }
 
 static void
-dissect_tlv_traffic(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_traffic(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
     guint8  val_8;
@@ -2007,7 +2006,7 @@ dissect_tlv_traffic(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     proto_item *pi;
 
     if(rem != 24) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Traffic Parameters TLV: length is %d, should be 24",
                             rem);
         return;
@@ -2072,12 +2071,12 @@ dissect_tlv_traffic(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 }
 
 static void
-dissect_tlv_route_pinning(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_route_pinning(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if(rem != 4) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Route Pinning TLV: length is %d, should be 4",
                             rem);
         return;
@@ -2093,12 +2092,12 @@ dissect_tlv_route_pinning(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 
 
 static void
-dissect_tlv_resource_class(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_resource_class(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if(rem != 4) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Resource Class TLV: length is %d, should be 4",
                             rem);
         return;
@@ -2114,12 +2113,12 @@ dissect_tlv_resource_class(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 
 
 static void
-dissect_tlv_preemption(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_preemption(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if(rem != 4) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Preemption TLV: length is %d, should be 4",
                             rem);
         return;
@@ -2138,7 +2137,7 @@ dissect_tlv_preemption(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 
 static void
-dissect_tlv_diffserv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_diffserv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     static int *hfindexes[] = {
         &hf_ldp_tlv_diffserv_map,
@@ -2156,7 +2155,7 @@ dissect_tlv_diffserv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     int type, mapnb, count;
 
     if (rem < 4) {
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing Diff-Serv TLV: length is %d, should be >= 4", rem);
         return;
     }
@@ -2204,7 +2203,7 @@ dissect_tlv_er(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree
 
 
 static void
-dissect_tlv_pw_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
+dissect_tlv_pw_status(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem);
 
 static void
 dissect_tlv_pw_grouping(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
@@ -2363,7 +2362,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
 
     if( rem < 4 ) {/*chk for minimum header*/
         if (tree) {
-            proto_tree_add_text(tree, tvb, offset, rem,
+            proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                                 "Error processing TLV: length is %d, should be >= 4",
                                 rem);
         }
@@ -2420,12 +2419,12 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             break;
 
         case TLV_ADDRESS_LIST:
-            dissect_tlv_address_list(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_address_list(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_HOP_COUNT:
             if( length != 1 ) /*error, only one byte*/
-                proto_tree_add_text(tlv_tree, tvb, offset + 4,length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4,length,
                                     "Error processing Hop Count TLV: length is %d, should be 1",
                                     length);
             else
@@ -2433,12 +2432,12 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             break;
 
         case TLV_PATH_VECTOR:
-            dissect_tlv_path_vector(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_path_vector(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_GENERIC_LABEL:
             if( length != 4 ) /*error, need only label*/
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing Generic Label TLV: length is %d, should be 4",
                                     length);
             else {
@@ -2450,16 +2449,16 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             break;
 
         case TLV_ATM_LABEL:
-            dissect_tlv_atm_label(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_atm_label(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_FRAME_LABEL:
-            dissect_tlv_frame_label(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_frame_label(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_FT_PROTECTION:
             if( length != 4 ) /* Length must be 4 bytes */
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing FT Protection TLV: length is %d, should be 4",
                                     length);
             else
@@ -2468,12 +2467,12 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             break;
 
         case TLV_STATUS:
-            dissect_tlv_status(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_status(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_EXTENDED_STATUS:
             if( length != 4 ) /*error, need only status_code(guint32)*/
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing Extended Status TLV: length is %d, should be 4",
                                     length);
             else {
@@ -2482,11 +2481,11 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             break;
 
         case TLV_RETURNED_PDU:
-            dissect_tlv_returned_pdu(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_returned_pdu(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_RETURNED_MESSAGE:
-            dissect_tlv_returned_message(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_returned_message(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_COMMON_HELLO_PARMS:
@@ -2499,7 +2498,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
 
         case TLV_IPV4_TRANSPORT_ADDRESS:
             if( length != 4 ) /*error, need only ipv4*/
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing IPv4 Transport Address TLV: length is %d, should be 4",
                                     length);
             else {
@@ -2509,7 +2508,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
 
         case TLV_CONFIGURATION_SEQNO:
             if( length != 4 ) /*error, need only seq_num(guint32)*/
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing Configuration Sequence Number TLV: length is %d, should be 4",
                                     length);
             else {
@@ -2519,7 +2518,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
 
         case TLV_IPV6_TRANSPORT_ADDRESS:
             if( length != 16 ) /*error, need only ipv6*/
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing IPv6 Transport Address TLV: length is %d, should be 16",
                                     length);
             else {
@@ -2528,29 +2527,29 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             break;
 
         case TLV_MAC: /* draft-lasserre-vkompella-ppvpn-vpls-02.txt */
-            dissect_tlv_mac(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_mac(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_COMMON_SESSION_PARMS:
-            dissect_tlv_common_session_parms(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_common_session_parms(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_ATM_SESSION_PARMS:
-            dissect_tlv_atm_session_parms(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_atm_session_parms(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_FRAME_RELAY_SESSION_PARMS:
-            dissect_tlv_frame_relay_session_parms(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_frame_relay_session_parms(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_FT_SESSION:
             /* Used in RFC3478 LDP Graceful Restart */
-            dissect_tlv_ft_session(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_ft_session(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_FT_ACK:
             if( length != 4 ) /* Length must be 4 bytes */
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing FT ACK TLV: length is %d, should be 4",
                                     length);
             else
@@ -2560,14 +2559,14 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
 
         case TLV_FT_CORK:
             if( length != 0 ) /* Length must be 0 bytes */
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing FT Cork TLV: length is %d, should be 0",
                                     length);
             break;
 
         case TLV_LABEL_REQUEST_MESSAGE_ID:
             if( length != 4 ) /*error, need only one msgid*/
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing Label Request Message ID TLV: length is %d, should be 4",
                                     length);
             else
@@ -2575,7 +2574,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             break;
 
         case TLV_LSPID:
-            dissect_tlv_lspid(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_lspid(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_ER:
@@ -2583,44 +2582,44 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             break;
 
         case TLV_ER_HOP_IPV4:
-            dissect_tlv_er_hop_ipv4(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_er_hop_ipv4(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_ER_HOP_IPV6:
-            dissect_tlv_er_hop_ipv6(tvb, offset +4, tlv_tree, length);
+            dissect_tlv_er_hop_ipv6(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
         case TLV_ER_HOP_AS:
-            dissect_tlv_er_hop_as(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_er_hop_as(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_ER_HOP_LSPID:
-            dissect_tlv_er_hop_lspid(tvb, offset +4, tlv_tree, length);
+            dissect_tlv_er_hop_lspid(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
         case TLV_TRAFFIC_PARAM:
-            dissect_tlv_traffic(tvb, offset +4, tlv_tree, length);
+            dissect_tlv_traffic(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
         case TLV_PREEMPTION:
-            dissect_tlv_preemption(tvb, offset +4, tlv_tree, length);
+            dissect_tlv_preemption(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
         case TLV_RESOURCE_CLASS:
-            dissect_tlv_resource_class(tvb, offset +4, tlv_tree, length);
+            dissect_tlv_resource_class(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
         case TLV_ROUTE_PINNING:
-            dissect_tlv_route_pinning(tvb, offset +4, tlv_tree, length);
+            dissect_tlv_route_pinning(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
         case TLV_DIFFSERV:
-            dissect_tlv_diffserv(tvb, offset +4, tlv_tree, length);
+            dissect_tlv_diffserv(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
         case TLV_VENDOR_PRIVATE_START:
             if( length < 4 ) /*error, at least Vendor ID*/
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing Vendor Private Start TLV: length is %d, should be >= 4",
                                     length);
             else {
@@ -2632,7 +2631,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
 
         case TLV_EXPERIMENTAL_START:
             if( length < 4 ) /*error, at least Experiment ID*/
-                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing Experimental Start TLV: length is %d, should be >= 4",
                                     length);
             else {
@@ -2645,7 +2644,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
         case TLV_PW_STATUS:
         {
             /* Ref: RFC 4447  and 4446*/
-            dissect_tlv_pw_status(tvb, offset +4, tlv_tree, length);
+            dissect_tlv_pw_status(tvb, pinfo, offset +4, tlv_tree, length);
             break;
         }
         case TLV_PW_INTERFACE_PARAMETERS:
@@ -2697,12 +2696,12 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             while ( (vc_len > 1) && (rem > 1) ) {       /* enough to include id and length */
                 int intparam_len = tvb_get_guint8(tvb, offset+1);
                 if (intparam_len < 2){ /* At least Type and Len, protect against len = 0 */
-                    proto_tree_add_text(tlv_tree, tvb, offset +1, 1, "Malformed interface parameter");
+                    proto_tree_add_expert(tlv_tree, pinfo, &ei_ldp_malformed_interface_parameter, tvb, offset +1, 1);
                     break;
                 }
 
                 if ( (vc_len -intparam_len) <0 && (rem -intparam_len) <0 ) { /* error condition */
-                    proto_tree_add_text(tlv_tree, tvb, offset +2, MIN(vc_len,rem), "Malformed data");
+                    proto_tree_add_expert(tlv_tree, pinfo, &ei_ldp_malformed_data, tvb, offset +2, MIN(vc_len,rem));
                     break;
                 }
                 dissect_subtlv_interface_parameters(tvb, offset, tlv_tree, intparam_len, interface_params_header_fields);
@@ -2768,11 +2767,9 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 
     if( rem < 8 ) {/*chk for minimum header = type + length + msg_id*/
         col_append_str(pinfo->cinfo, COL_INFO, "Bad Message");
-        if (tree) {
-            proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_inv_length, tvb, offset, rem,
                                 "Error processing Message: length is %d, should be >= 8",
                                 rem);
-        }
         return rem;
     }
     type = tvb_get_ntohs(tvb, offset) & 0x7FFF;
@@ -2794,11 +2791,9 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 
     if( (length = tvb_get_ntohs(tvb, offset + 2)) < (4+extra) ) {/*not enough data for type*/
         col_append_str(pinfo->cinfo, COL_INFO, "Bad Message Length ");
-        if (tree) {
-            proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_inv_length, tvb, offset, rem,
                                 "Error processing Message Length: length is %d, should be >= %u",
                                 length, 4+extra);
-        }
         return rem;
     }
     rem -= 4;
@@ -2943,12 +2938,12 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 
 static void
-dissect_tlv_pw_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_pw_status(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
     if(rem != 4){
-        proto_tree_add_text(tree, tvb, offset, rem,
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
                             "Error processing PW Status TLV: length is %d, should be 4",
                             rem);
         return;
@@ -3124,16 +3119,16 @@ dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
 }
 
 static void
-dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti             = proto_tree_add_text(tree, tvb, offset, rem, "AAI");
     proto_tree *aai_param_tree = proto_item_add_subtree(ti, ett_ldp_gen_aai_type2);
     /* check if the remaining length is 12 bytes or not... */
     if ( rem != 12)
     {
-        proto_tree_add_text(tree, tvb, offset, rem ,"Error processing AAI Parameter: length is %d, should be 12 bytes for Type 2.",
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_inv_length, tvb, offset, rem,
+                            "Error processing AAI Parameter: length is %d, should be 12 bytes for Type 2.",
                             rem);
-
         return;
 
     }
@@ -4304,7 +4299,15 @@ proto_register_ldp(void)
         { &ei_ldp_gtsm_supported, { "ldp.gtsm_supported", PI_PROTOCOL, PI_CHAT,"GTSM is supported by the source", EXPFILL }},
         { &ei_ldp_gtsm_not_supported_basic_discovery, { "ldp.gtsm_not_supported_basic_discovery", PI_PROTOCOL, PI_WARN,"GTSM is not supported by the source, since basic discovery is not enabled", EXPFILL }},
         { &ei_ldp_gtsm_not_supported, { "ldp.gtsm_not_supported", PI_PROTOCOL, PI_CHAT,"GTSM is not supported by the source", EXPFILL }},
-	{ &ei_ldp_inv_length, { "ldp.invalid_length", PI_MALFORMED, PI_ERROR,"Length of the packet is malformed", EXPFILL }},
+        { &ei_ldp_inv_length, { "ldp.invalid_length", PI_MALFORMED, PI_ERROR,"Length of the packet is malformed", EXPFILL }},
+        { &ei_ldp_address_family_not_implemented, { "ldp.address_family_not_implemented", PI_UNDECODED, PI_WARN, "Support for Address Family not implemented", EXPFILL }},
+        { &ei_ldp_tlv_fec, { "ldp.msg.tlv.fec.error", PI_PROTOCOL, PI_ERROR, "Error in FEC Element %u", EXPFILL }},
+        { &ei_ldp_tlv_fec_len, { "ldp.msg.tlv.fec.len.invalid", PI_PROTOCOL, PI_ERROR, "Invalid prefix %u length for family %s", EXPFILL }},
+        { &ei_ldp_tlv_fec_vc_infolength, { "ldp.msg.tlv.fec.vc.infolength.invalid", PI_PROTOCOL, PI_ERROR, "VC FEC size format error", EXPFILL }},
+        { &ei_ldp_malformed_interface_parameter, { "ldp.malformed_interface_parameter", PI_MALFORMED, PI_ERROR, "Malformed interface parameter", EXPFILL }},
+        { &ei_ldp_malformed_data, { "ldp.malformed_data", PI_MALFORMED, PI_ERROR, "Malformed data", EXPFILL }},
+        { &ei_ldp_tlv_fec_type, { "ldp.msg.tlv.fec.unknown", PI_PROTOCOL, PI_WARN, "Unknown FEC TLV type", EXPFILL }},
+
     };
 
     module_t *ldp_module;
