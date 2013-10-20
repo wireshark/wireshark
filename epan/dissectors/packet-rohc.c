@@ -2039,8 +2039,8 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     return offset;
 }
 
-static void
-dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item         *ti, *item, *conf_item;
     proto_tree         *rohc_tree, *sub_tree = NULL, *conf_tree;
@@ -2050,11 +2050,10 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean            is_add_cid           = FALSE;
     rohc_info          *p_rohc_info          = NULL;
     rohc_info           g_rohc_info;
-    void               *save_private_data    = pinfo->private_data;
     tvbuff_t           *next_tvb=NULL, *payload_tvb;
     rohc_cid_context_t *rohc_cid_context     = NULL;
 
-    if(pinfo->private_data == NULL){
+    if(data == NULL){
         g_rohc_info.rohc_compression     = FALSE;
         g_rohc_info.rohc_ip_version      = g_version;
         g_rohc_info.cid_inclusion_info   = FALSE;
@@ -2066,7 +2065,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_rohc_info.last_created_item    = NULL;
         p_rohc_info = &g_rohc_info;
     }else{
-        p_rohc_info = (rohc_info *)pinfo->private_data;
+        p_rohc_info = (rohc_info *)data;
         memset(&g_rohc_info, 0, sizeof(rohc_info));
     }
 
@@ -2158,8 +2157,7 @@ start_over:
             p_rohc_info->last_created_item = proto_tree_add_item(rohc_tree, hf_rohc_feedback, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_str(pinfo->cinfo, COL_INFO, "Error packet");
             proto_tree_add_text(rohc_tree, tvb, offset, -1, "Error packet");
-            pinfo->private_data = save_private_data;
-            return;
+            return tvb_length(tvb);
         }else{
             col_append_str(pinfo->cinfo, COL_INFO, "Feedback ");
             /* 4) If the first remaining octet starts with 11110, and an Add-CID
@@ -2210,11 +2208,9 @@ start_over:
             offset = offset + size;
             if(offset<length)
                 goto start_over;
-            pinfo->private_data = save_private_data;
 
             proto_item_set_len(p_rohc_info->last_created_item, offset-feedback_start);
-
-            return;
+            return tvb_length(tvb);
         }
     }/*feedback */
     /* 5) If the first remaining octet starts with 1111111, this is a segment:
@@ -2227,9 +2223,7 @@ start_over:
             PROTO_ITEM_SET_GENERATED(item);
         }
         proto_tree_add_text(rohc_tree, tvb, offset, -1, "Segment [Desegmentation not implemented yet]");
-
-        pinfo->private_data = save_private_data;
-        return;
+        return tvb_length(tvb);
     }
     /* 6) Here, it is known that the rest is forward information (unless the
      *    header is damaged).
@@ -2239,28 +2233,24 @@ start_over:
         offset = dissect_rohc_ir_packet(tvb, rohc_tree, pinfo, offset, cid, is_add_cid, p_rohc_info);
         if(offset == -1){
             /* Could not parse header */
-            pinfo->private_data = save_private_data;
-            return;
+            return tvb_length(tvb);
         }
         /*proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");*/
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
-        pinfo->private_data = save_private_data;
-        return;
+        return tvb_length(tvb);
     }
     if((oct&0xff) == 0xf8){
         col_append_str(pinfo->cinfo, COL_INFO, "IR-DYN packet");
         offset = dissect_rohc_ir_dyn_packet(tvb, rohc_tree, pinfo, offset, cid, is_add_cid, p_rohc_info);
         if(offset == -1){
             /* Could not parse header */
-            pinfo->private_data = save_private_data;
-            return;
+            return tvb_length(tvb);
         }
         /*proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");*/
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
-        pinfo->private_data = save_private_data;
-        return;
+        return tvb_length(tvb);
     }
 
     if (!pinfo->fd->flags.visited){
@@ -2318,8 +2308,7 @@ start_over:
         }
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
         col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
-        pinfo->private_data = save_private_data;
-        return;
+        return tvb_length(tvb);
     }
     else if (((oct&0x80)==0x00) && (rohc_cid_context->profile==ROHC_PROFILE_RTP)) {
         /* 5.7.1. Packet type 0: UO-0, R-0, R-0-CRC */
@@ -2353,7 +2342,7 @@ start_over:
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector_only(data_handle, payload_tvb, pinfo, tree, NULL);
 
-    pinfo->private_data = save_private_data;
+    return tvb_length(tvb);
 }
 
 /* Set up rohc_cid_hash which holds data for a CID
@@ -2961,7 +2950,7 @@ proto_register_rohc(void)
     /* Register the protocol name and description */
     proto_rohc = proto_register_protocol("RObust Header Compression (ROHC)", "ROHC", "rohc");
 
-    rohc_handle = register_dissector("rohc", dissect_rohc, proto_rohc);
+    rohc_handle = new_register_dissector("rohc", dissect_rohc, proto_rohc);
 
     register_init_routine(&rohc_init_protocol);
 

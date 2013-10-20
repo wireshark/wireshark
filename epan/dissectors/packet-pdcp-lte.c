@@ -995,7 +995,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gint                  offset              = 0;
     gint                  rohc_offset;
     struct pdcp_lte_info *p_pdcp_info;
-    rohc_info            *p_rohc_info         = NULL;
+    rohc_info            *p_rohc_info;
     tvbuff_t             *rohc_tvb            = NULL;
 
     /* Append this protocol name rather than replace. */
@@ -1409,8 +1409,6 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     p_rohc_info->profile              = p_pdcp_info->profile;
     p_rohc_info->last_created_item    = NULL;
 
-    pinfo->private_data = p_rohc_info;
-
     /* Only enable writing to column if configured to show ROHC */
     if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
         col_set_writable(pinfo->cinfo, FALSE);
@@ -1420,7 +1418,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Call the ROHC dissector */
-    call_dissector(rohc_handle, rohc_tvb, pinfo, tree);
+    call_dissector_with_data(rohc_handle, rohc_tvb, pinfo, tree, p_rohc_info);
 
     /* Let RLC write to columns again */
     col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
